@@ -45,7 +45,7 @@ module VagrantPlugins
         @logger.debug("initializing WinRMShell")
 
         @host               = host
-        @port               = options[:port] || options[:ssl] ? 5986 : 5985
+        @port               = options[:port] || (options[:ssl] ? 5986 : 5985)
         @username           = username
         @password           = password
         @timeout_in_seconds = options[:timeout_in_seconds] || 60
