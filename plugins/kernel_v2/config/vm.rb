@@ -400,9 +400,15 @@ module VagrantPlugins
               id: "winrm",
               auto_correct: true
           end
-        end
-
-        if !@__networks["forwarded_port-ssh"]
+          if !@__networks["forwarded_port-winrmssl"]
+            network :forwarded_port,
+              guest: 5986,
+              host: 55986,
+              host_ip: "127.0.0.1",
+              id: "winrmssl",
+              auto_correct: true
+          end
+        elsif !@__networks["forwarded_port-ssh"]
           network :forwarded_port,
             guest: 22,
             host: 2222,
