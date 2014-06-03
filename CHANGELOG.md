@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - hosts/windows: RDP command works without crash. [GH-3962]
   - provisioners/puppet: Properly escape facter variables for PowerShell
       on Windows guests. [GH-3959]
 
