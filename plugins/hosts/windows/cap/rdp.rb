@@ -21,12 +21,12 @@ module VagrantPlugins
             "vagrant-rdp-#{Time.now.to_i}-#{rand(10000)}.rdp")
           config_path.open("w+") do |f|
             opts.each do |k, v|
-              config.puts("#{k}:#{v}")
+              f.puts("#{k}:#{v}")
             end
           end
 
           # Build up the args to mstsc
-          args = [config.path]
+          args = [config_path.to_s]
           if rdp_info[:extra_args]
             args = rdp_info[:extra_args] + args
           end
