@@ -111,6 +111,7 @@ module VagrantPlugins
           port: winrm_info[:port],
           timeout_in_seconds: @machine.config.winrm.timeout,
           max_tries: @machine.config.winrm.max_tries,
+          ssl: @machine.config.winrm.ssl,
         )
       end
 
