@@ -1,6 +1,9 @@
 ## 1.6.4 (unreleased)
 
+BUG FIXES:
 
+  - provisioners/puppet: Properly escape facter variables for PowerShell
+      on Windows guests. [GH-3959]
 
 ## 1.6.3 (May 29, 2014)
 
