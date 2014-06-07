@@ -1,5 +1,9 @@
 ## 1.6.4 (unreleased)
 
+IMPROVEMENTS:
+
+  - guests/nixos: Added better NFS support. [GH-3983]
+
 BUG FIXES:
 
   - hosts/windows: RDP command works without crash. [GH-3962]
