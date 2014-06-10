@@ -13,6 +13,10 @@ module VagrantPlugins
       class NetworkWinRMRequired < WindowsError
         error_key(:network_winrm_required)
       end
+
+      class RenameComputerFailed < WindowsError
+        error_key(:rename_computer_failed)
+      end
     end
   end
 end

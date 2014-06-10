@@ -1,5 +1,5 @@
 en:
-  vagrant_winrm:
+  vagrant_windows:
     errors:
       cant_read_mac_addresses: |-
         The provider being used to start Windows ('%{provider}')
@@ -18,3 +18,10 @@ en:
         Note that the Windows guest must be configured to accept insecure
         WinRM connections, and the WinRM port must be forwarded properly from
         the guest machine. This is not always done by default.
+      rename_computer_failed: |-
+        Renaming the Windows guest failed. Most often this is because you've
+        specified a FQDN instead of just a host name.
+
+        Ensure the new guest name is properly formatted. Standard names may
+        contain letters (a-z, A-Z), numbers (0-9), and hypens (-), but no
+        spaces or periods (.). The name may not consist entirely of digits.
