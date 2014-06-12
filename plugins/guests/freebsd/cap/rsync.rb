@@ -7,14 +7,13 @@ module VagrantPlugins
           machine.communicate.execute("uname -r") do |type, result|
             version = result.split('.')[0].to_i if type == :stdout
           end
-          if version >= 10
+
+          pkg_cmd = "pkg_add -r"
+          if version && version >= 10
             pkg_cmd = "pkg install -y"
-          else
-            pkg_cmd = "pkg_add -r"
           end
-          machine.communicate.tap do |comm|
-            comm.sudo(pkg_cmd+" rsync")
-          end
+
+          machine.communicate.sudo("#{pkg_cmd} rsync")
         end
 
         def self.rsync_installed(machine)
