@@ -3,8 +3,17 @@ module VagrantPlugins
     module Cap
       class RSync
         def self.rsync_install(machine)
+          version = nil
+          machine.communicate.execute("uname -r") do |type, result|
+            version = result.split('.')[0].to_i if type == :stdout
+          end
+          if version >= 10
+            pkg_cmd = "pkg install -y"
+          else
+            pkg_cmd = "pkg_add -r"
+          end
           machine.communicate.tap do |comm|
-            comm.sudo("pkg_add -r rsync")
+            comm.sudo(pkg_cmd+" rsync")
           end
         end
 
