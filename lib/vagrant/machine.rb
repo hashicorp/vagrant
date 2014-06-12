@@ -301,13 +301,15 @@ module Vagrant
           @env.machine_index.delete(entry) if entry
         end
 
-        # Delete the entire data directory contents since all state
-        # associated with the VM is now gone.
-        @data_dir.children.each do |child|
-          begin
-            child.rmtree
-          rescue Errno::EACCES
-            @logger.info("EACCESS deleting file: #{child}")
+        if @data_dir
+          # Delete the entire data directory contents since all state
+          # associated with the VM is now gone.
+          @data_dir.children.each do |child|
+            begin
+              child.rmtree
+            rescue Errno::EACCES
+              @logger.info("EACCESS deleting file: #{child}")
+            end
           end
         end
       end
