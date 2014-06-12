@@ -7,6 +7,8 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - commands/package: base package won't crash with exception [GH-4017]
+  - guests/freebsd: Rsync install for rsync synced folders work on
+      FreeBSD 10. [GH-4008]
   - hosts/windows: RDP command works without crash. [GH-3962]
   - provisioners/puppet: Properly escape facter variables for PowerShell
       on Windows guests. [GH-3959]
