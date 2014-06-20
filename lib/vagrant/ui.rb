@@ -89,7 +89,7 @@ module Vagrant
         opts = {}
         opts = data.pop if data.last.kind_of?(Hash)
 
-        target = opts[:target] || ""
+        target = opts[:target] || @opts[:target] || ""
 
         # Prepare the data by replacing characters that aren't outputted
         data.each_index do |i|
@@ -103,6 +103,17 @@ module Vagrant
           safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
         end
       end
+
+      [:detail, :info, :warn, :error, :output, :success].each do |method|
+        class_eval <<-CODE
+          def #{method}(message, *args)
+            opts = {}
+            opts.merge(args.pop) if args.last.kind_of?(Hash)
+            machine(#{method.inspect}, message, opts)
+          end
+        CODE
+      end
+
     end
 
     # This is a UI implementation that outputs the text as is. It
