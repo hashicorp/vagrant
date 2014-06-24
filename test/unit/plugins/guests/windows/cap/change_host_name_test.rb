@@ -8,7 +8,6 @@ describe "VagrantPlugins::GuestWindows::Cap::ChangeHostName" do
   end
   let(:machine) { double("machine") }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:old_hostname) { 'oldhostname' }
 
   before do
     allow(machine).to receive(:communicate).and_return(communicator)
@@ -19,19 +18,24 @@ describe "VagrantPlugins::GuestWindows::Cap::ChangeHostName" do
   end
 
   describe ".change_host_name" do
+
+    let(:rename_script) { <<-EOH
+        $computer = Get-WmiObject -Class Win32_ComputerSystem
+        $retval = $computer.rename("newhostname").returnvalue
+        if ($retval -eq 0) {
+          shutdown /r /t 5 /f /d p:4:1 /c "Vagrant Rename Computer"
+        }
+        exit $retval
+      EOH
+      }
+
     it "changes the hostname" do
-      communicator.stub_command('if (!($env:ComputerName -eq \'newhostname\')) { exit 0 } exit 1', exit_code: 0)
-      communicator.stub_command('netdom renamecomputer "$Env:COMPUTERNAME" /NewName:newhostname /Force /Reboot:0',
+      communicator.stub_command(
+        'if (!([System.Net.Dns]::GetHostName() -eq \'newhostname\')) { exit 0 } exit 1',
         exit_code: 0)
+      communicator.stub_command(rename_script, exit_code: 0)
       described_class.change_host_name_and_wait(machine, 'newhostname', 0)
     end
 
-    it "raises RenameComputerFailed when exit code is non-zero" do
-      communicator.stub_command('if (!($env:ComputerName -eq \'newhostname\')) { exit 0 } exit 1', exit_code: 0)
-      communicator.stub_command('netdom renamecomputer "$Env:COMPUTERNAME" /NewName:newhostname /Force /Reboot:0',
-        exit_code: 123)
-      expect { described_class.change_host_name_and_wait(machine, 'newhostname', 0) }.
-        to raise_error(VagrantPlugins::GuestWindows::Errors::RenameComputerFailed)
-    end
   end
 end
