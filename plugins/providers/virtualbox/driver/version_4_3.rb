@@ -188,12 +188,12 @@ module VagrantPlugins
           disk_params = []
           disks = output.scan(/(\d+): Hard disk image: source image=.+, target path=(.+),/)
           disks.each do |unit_num, path|
-             disk_params << "--vsys"
-             disk_params << "0"
-             disk_params << "--unit"
-             disk_params << unit_num
-             disk_params << "--disk"
-             disk_params << path.sub("/#{suggested_name}/", "/#{specified_name}/")
+            disk_params << "--vsys"
+            disk_params << "0"
+            disk_params << "--unit"
+            disk_params << unit_num
+            disk_params << "--disk"
+            disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurence
           end
 
           execute("import", ovf , *name_params, *disk_params) do |type, data|
