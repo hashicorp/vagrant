@@ -61,9 +61,10 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
     end
 
     it "raises error when error_check is true and exit code is non-zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 1 })
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(
+        { exitcode: 1, data: [{ stdout: '', stderr: '' }] })
       expect { subject.execute("dir") }.to raise_error(
-        VagrantPlugins::CommunicatorWinRM::Errors::ExecutionError)
+        VagrantPlugins::CommunicatorWinRM::Errors::WinRMBadExitStatus)
     end
 
     it "does not raise error when error_check is false and exit code is non-zero" do

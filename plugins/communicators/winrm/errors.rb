@@ -18,6 +18,10 @@ module VagrantPlugins
         error_key(:invalid_shell)
       end
 
+      class WinRMBadExitStatus < WinRMError
+        error_key(:winrm_bad_exit_status)
+      end
+
       class WinRMNotReady < WinRMError
         error_key(:winrm_not_ready)
       end

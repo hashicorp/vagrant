@@ -60,8 +60,8 @@ module VagrantPlugins
           command:     command,
           elevated:    false,
           error_check: true,
-          error_class: Errors::ExecutionError,
-          error_key:   :execution_error,
+          error_class: Errors::WinRMBadExitStatus,
+          error_key:   nil, # use the error_class message key
           good_exit:   0,
           shell:       :powershell,
         }.merge(opts || {})
@@ -154,10 +154,17 @@ module VagrantPlugins
       end
 
       def raise_execution_error(output, opts)
-        # The error classes expect the translation key to be _key, but that makes for an ugly
-        # configuration parameter, so we set it here from `error_key`
-        msg = "Command execution failed with an exit code of #{output[:exitcode]}"
-        error_opts = opts.merge(_key: opts[:error_key], message: msg)
+        # WinRM can return multiple stderr and stdout entries
+        error_opts = opts.merge(
+          stdout: output[:data].collect { |e| e[:stdout] }.join,
+          stderr: output[:data].collect { |e| e[:stderr] }.join
+        )
+
+        # Use a different error message key if the caller gave us one,
+        # otherwise use the error's default message
+        error_opts[:_key] = opts[:error_key] if opts[:error_key]
+
+        # Raise the error, use the type the caller gave us or the comm default
         raise opts[:error_class], error_opts
       end
     end #WinRM class
