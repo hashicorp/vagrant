@@ -8,7 +8,7 @@ class DigestClass
 end
 
 class FileChecksum
-  BUFFER_SIZE = 16328
+  BUFFER_SIZE = 1024 * 8
 
   # Initializes an object to calculate the checksum of a file. The given
   # ``digest_klass`` should implement the ``DigestClass`` interface. Note
@@ -25,11 +25,12 @@ class FileChecksum
   # @return [String]
   def checksum
     digest = @digest_klass.new
+    buf = ''
 
     File.open(@path, "rb") do |f|
       while !f.eof
         begin
-          buf = f.readpartial(BUFFER_SIZE)
+          f.readpartial(BUFFER_SIZE, buf)
           digest.update(buf)
         rescue EOFError
           # Although we check for EOF earlier, this seems to happen
