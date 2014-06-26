@@ -45,7 +45,8 @@ The rsync synced folder type accepts the following options:
 * `rsync__auto` (boolean) - If false, then `rsync-auto` will not
   watch and automatically sync this folder. By default, this is true.
 
-* `rsync__chown` (boolean) - If false, then the `owner` and `group`
+* `rsync__chown` (boolean) - If false, then the
+  [`owner` and `group`](/v2/synced-folders/basic_usage.html)
   options for the synced folder are ignored and Vagrant won't execute
   a recursive `chown`. This defaults to true. This option exists because
   the `chown` causes issues for some development environments.
