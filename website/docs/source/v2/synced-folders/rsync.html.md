@@ -49,7 +49,9 @@ The rsync synced folder type accepts the following options:
   [`owner` and `group`](/v2/synced-folders/basic_usage.html)
   options for the synced folder are ignored and Vagrant won't execute
   a recursive `chown`. This defaults to true. This option exists because
-  the `chown` causes issues for some development environments.
+  the `chown` causes issues for some development environments. Note that
+  any `rsync__args` options for ownership **will be overridden** by
+  `rsync__chown`.
 
 * `rsync__exclude` (string or array of strings) - A list of files or directories
   to exclude from the sync. The values can be any acceptable rsync exclude
