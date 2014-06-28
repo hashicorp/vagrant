@@ -326,7 +326,7 @@ module VagrantPlugins
 
           timeout = 60
 
-          @logger.info("Attempting SSH connnection...")
+          @logger.info("Attempting SSH connection...")
           connection = retryable(tries: opts[:retries], on: exceptions) do
             Timeout.timeout(timeout) do
               begin
