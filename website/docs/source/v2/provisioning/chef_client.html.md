@@ -27,7 +27,7 @@ provisioner.
 ## Authenticating
 
 The minimum required to use provision using Chef client is to provide
-a URL to the Chef sever as well as the path to the validation key so
+a URL to the Chef server as well as the path to the validation key so
 that the node can register with the Chef server:
 
 ```ruby
