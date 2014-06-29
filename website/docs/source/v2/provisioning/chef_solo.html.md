@@ -7,11 +7,11 @@ sidebar_current: "provisioning-chefsolo"
 
 **Provisioner name: `chef_solo`**
 
-The chef solo provisioner allows you to provision the guest using
+The Chef Solo provisioner allows you to provision the guest using
 [Chef](http://www.opscode.com/chef/), specifically with
 [Chef Solo](http://docs.opscode.com/chef_solo.html).
 
-Chef solo is ideal for people who are already experienced with Chef,
+Chef Solo is ideal for people who are already experienced with Chef,
 already have Chef cookbooks, or are looking to learn Chef. Specifically,
 this documentation page will not go into how to use Chef or how to write
 Chef cookbooks, since Chef is a complete system that is beyond the scope
@@ -28,13 +28,13 @@ of a single page of documentation.
 
 ## Options
 
-This section lists the complete set of available options for the Chef solo
+This section lists the complete set of available options for the Chef Solo
 provisioner. More detailed examples of how to use the provisioner are
 available below this section.
 
 Note that only the Chef-solo specific options are shown below. There is
 also a large set of [common options](/v2/provisioning/chef_common.html)
-that are available with both the Chef solo and Chef client provisioners.
+that are available with both the Chef Solo and Chef client provisioners.
 
 * `cookbooks_path` (string or array) - A list of paths to where cookbooks
   are stored. By default this is "cookbooks", expecting a cookbooks folder
@@ -158,7 +158,7 @@ end
 ## Custom JSON Data
 
 Additional configuration data for Chef attributes can be passed in
-to Chef solo. This is done by setting the `json` property with a Ruby
+to Chef Solo. This is done by setting the `json` property with a Ruby
 hash (dictionary-like object), which is converted to JSON and passed
 in to Chef:
 

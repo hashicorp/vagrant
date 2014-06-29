@@ -7,7 +7,7 @@ sidebar_current: "provisioning-chefclient"
 
 **Provisioner name: `chef_client`**
 
-The chef client provisioner allows you to provision the guest using
+The Chef Client provisioner allows you to provision the guest using
 [Chef](http://www.opscode.com/chef/), specifically by connecting
 to an existing Chef Server and registering the Vagrant machine as a
 node within your infrastructure.
@@ -26,9 +26,9 @@ provisioner.
 
 ## Authenticating
 
-The minimum required to use provision using Chef client is to provide
-a URL to the Chef sever as well as the path to the validation key so
-that the node can register with the Chef server:
+The minimum required to use provision using Chef Client is to provide
+a URL to the Chef Server as well as the path to the validation key so
+that the node can register with the Chef Server:
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -39,13 +39,13 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-The node will register with the Chef server specified, download the
+The node will register with the Chef Server specified, download the
 proper run list for that node, and provision.
 
 ## Specifying a Run List
 
-Normally, the Chef server is responsible for specifying the run list
-for the node. However, you can override what the Chef server sends
+Normally, the Chef Server is responsible for specifying the run list
+for the node. However, you can override what the Chef Server sends
 down by manually specifying a run list:
 
 ```ruby
@@ -81,7 +81,7 @@ end
 ## Other Configuration Options
 
 There are a few more configuration options available. These generally don't
-need to be modified but are available if your Chef server requires customization
+need to be modified but are available if your Chef Server requires customization
 of these variables:
 
 * `client_key_path`
@@ -90,8 +90,8 @@ of these variables:
 
 ## Cleanup
 
-When you provision your Vagrant virtual machine with Chef server, it creates a
-new Chef "node" entry and Chef "client" entry on the Chef server, using the
+When you provision your Vagrant virtual machine with Chef Server, it creates a
+new Chef "node" entry and Chef "client" entry on the Chef Server, using the
 hostname of the machine. After you tear down your guest machine, Vagrant can be
 configured to do it automatically with the following settings:
 
@@ -101,7 +101,7 @@ chef.delete_client = true
 ```
 
 If you don't specify it or set it to `false`, you must explicitly delete these
-entries from the Chef server before you provision a new one with Chef server.
+entries from the Chef Server before you provision a new one with Chef Server.
 For example, using Chef's built-in `knife` tool:
 
 ```
@@ -110,7 +110,7 @@ $ knife client delete precise64
 ```
 
 If you fail to do so, you'll get the following error when Vagrant
-tries to provision the machine with Chef client:
+tries to provision the machine with Chef Client:
 
 ```
 HTTP Request Returned 409 Conflict: Client already exists.
