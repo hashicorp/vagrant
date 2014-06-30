@@ -16,26 +16,34 @@ module VagrantPlugins
       end
 
       def usable?(machine, raise_error=false)
-        if !Vagrant::Util::Platform.windows?
-          raise Errors::WindowsHostRequired if raise_error
-          return false
-        end
-
-        if !Vagrant::Util::Platform.windows_admin?
-          raise Errors::WindowsAdminRequired if raise_error
-          return false
-        end
-
-        psv = Vagrant::Util::PowerShell.version.to_i
-        if psv < 3
-          if raise_error
-            raise Errors::PowershellVersion,
-              version: psv.to_s
+        if Vagrant::Util::Platform.windows?
+          if !Vagrant::Util::Platform.windows_admin?
+            raise Errors::WindowsAdminRequired if raise_error
+            return false
           end
-          return false
-        end
 
-        true
+          psv = Vagrant::Util::PowerShell.version.to_i
+          if psv < 3
+            if raise_error
+              raise Errors::PowershellVersion,
+                version: psv.to_s
+            end
+            return false
+          end
+
+          true
+        elsif Vagrant::Util::Platform.darwin?
+          if Vagrant::Util::Platform.platform < 'darwin12.0'
+            raise Errors::DarwinVersion
+            return false
+          end
+
+          true
+        else
+          raise Errors::WindowsDarwinHostRequired if raise_error
+
+          false
+        end
       end
 
       def prepare(machine, folders, opts)
