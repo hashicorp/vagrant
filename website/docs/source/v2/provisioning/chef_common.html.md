@@ -48,7 +48,7 @@ provisioners.
 * `log_level` (string) - The log level for Chef output. This defaults to
   "info".
 
-* `node_name` (string) - The node name for the Chef client. By default this
+* `node_name` (string) - The node name for the Chef Client. By default this
   will be your hostname.
 
 * `provisioning_path` (string) - The path on the remote machine where Vagrant
