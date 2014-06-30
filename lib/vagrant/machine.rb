@@ -105,7 +105,8 @@ module Vagrant
       @provider_config = provider_config
       @provider_name   = provider_name
       @provider_options = provider_options
-      @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
+      @ui              = @env.ui.is_a?(Vagrant::UI::MachineReadable) ? @env.ui.clone : Vagrant::UI::Prefixed.new(@env.ui, @name)
+      @ui.opts[:target] = name
       @ui_mutex        = Mutex.new
 
       # Read the ID, which is usually in local storage
@@ -170,7 +171,10 @@ module Vagrant
             provider: @provider.to_s
         end
 
-        action_raw(name, callable, extra_env)
+        ui.machine("action","#{name.to_s}:start:#{@provider.to_s}")
+        action_result = action_raw(name, callable, extra_env)
+        ui.machine("action","#{name.to_s}:end:#{@provider.to_s}")
+        action_result
       end
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
