@@ -193,7 +193,11 @@ module VagrantPlugins
             disk_params << "--unit"
             disk_params << unit_num
             disk_params << "--disk"
-            disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurence
+            if Gem.win_platform?                
+              disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse, "\\#{specified_name}\\".reverse).reverse # Replace only last occurence
+            else
+              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurence                
+            end
           end
 
           execute("import", ovf , *name_params, *disk_params) do |type, data|
