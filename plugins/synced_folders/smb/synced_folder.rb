@@ -64,6 +64,14 @@ module VagrantPlugins
           @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
         end
 
+        if machine.env.host.capability?(:enable_smb_sharing)
+          @logger.debug("Enabling SMB sharing on the host if needed")
+          # Hide interactive password from logs enclosing credentials in a lambda. If
+          # instead credentials have been specified in Vagrantfile, logs are less of
+          # a problem.
+          machine.env.host.capability(:enable_smb_sharing, folders, lambda { @creds })
+        end
+
         folders.each do |id, data|
           machine.env.host.capability(:create_smb_share, machine, id, data)
         end
