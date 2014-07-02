@@ -185,10 +185,13 @@ module VagrantPlugins
             disk_params << "--unit"
             disk_params << unit_num
             disk_params << "--disk"
-            if Gem.win_platform?                
-              disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse, "\\#{specified_name}\\".reverse).reverse # Replace only last occurence
+            if Vagrant::Util::Platform.windows?
+              # we use the block form of sub here to ensure that if the specified_name happens to end with a number (which is fairly likely) then
+              # we won't end up having the character sequence of a \ followed by a number be interpreted as a back reference.  For example, if
+              # specified_name were "abc123", then "\\abc123\\".reverse would be "\\321cba\\", and the \3 would be treated as a back reference by the sub
+              disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse) { "\\#{specified_name}\\".reverse }.reverse # Replace only last occurrence              
             else
-              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurence                
+              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence                
             end
           end
 
