@@ -18,7 +18,7 @@ new VM.
     Vagrant.configure("2") do |config|
       # ... other configuration
 
-      config.vm.provision "file", source: "~/.gitconfig", destination: "."
+      config.vm.provision "file", source: "~/.gitconfig", destination: ".gitconfig"
     end
 
 Note that, unlike with synced folders, files that are uploaded will not
