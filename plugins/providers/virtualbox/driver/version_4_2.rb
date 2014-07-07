@@ -180,12 +180,19 @@ module VagrantPlugins
           disk_params = Array.new
           disks = output.scan(/(\d+): Hard disk image: source image=.+, target path=(.+),/)
           disks.each do |unit_num, path|
-             disk_params << "--vsys"
-              disk_params << "0"  #Derive vsys num .. do we support OVF's with multiple machines?
-              disk_params << "--unit"
-              disk_params << unit_num
-              disk_params << "--disk"
-              disk_params << path.sub("/#{suggested_name}/", "/#{specified_name}/")
+            disk_params << "--vsys"
+            disk_params << "0"  #Derive vsys num .. do we support OVF's with multiple machines?
+            disk_params << "--unit"
+            disk_params << unit_num
+            disk_params << "--disk"
+            if Vagrant::Util::Platform.windows?
+              # we use the block form of sub here to ensure that if the specified_name happens to end with a number (which is fairly likely) then
+              # we won't end up having the character sequence of a \ followed by a number be interpreted as a back reference.  For example, if
+              # specified_name were "abc123", then "\\abc123\\".reverse would be "\\321cba\\", and the \3 would be treated as a back reference by the sub
+              disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse) { "\\#{specified_name}\\".reverse }.reverse # Replace only last occurrence              
+            else
+              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence                
+            end
           end
 
           execute("import", ovf , *name_params, *disk_params) do |type, data|
