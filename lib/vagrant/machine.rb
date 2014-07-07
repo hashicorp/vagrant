@@ -107,8 +107,7 @@ module Vagrant
       @provider_config = provider_config
       @provider_name   = provider_name
       @provider_options = provider_options
-      @ui              = @env.ui.is_a?(Vagrant::UI::MachineReadable) ? @env.ui.clone : Vagrant::UI::Prefixed.new(@env.ui, @name)
-      @ui.opts[:target] = name
+      @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
       @ui_mutex        = Mutex.new
 
       # Read the ID, which is usually in local storage
