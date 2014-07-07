@@ -89,7 +89,7 @@ module Vagrant
         opts = {}
         opts = data.pop if data.last.kind_of?(Hash)
 
-        target = opts[:target] || @opts[:target] || ""
+        target = opts[:target] || ""
 
         # Prepare the data by replacing characters that aren't outputted
         data.each_index do |i|
@@ -307,10 +307,17 @@ module Vagrant
         target = @prefix
         target = opts[:target] if opts.has_key?(:target)
 
+
+
         # Get the lines. The first default is because if the message
         # is an empty string, then we want to still use the empty string.
         lines = [message]
         lines = message.split("\n") if message != ""
+
+        if @ui.is_a?(Vagrant::UI::MachineReadable)
+          return machine(type, message, { :target => target })
+        end
+         
 
         # Otherwise, make sure to prefix every line properly
         lines.map do |line|
