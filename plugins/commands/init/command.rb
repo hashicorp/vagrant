@@ -43,7 +43,7 @@ module VagrantPlugins
         save_path = nil
         if options[:output] != "-"
           save_path = Pathname.new(options[:output]).expand_path(@env.cwd)
-          save_file.delete if save_path.exist? && options[:force]
+          save_path.delete if save_path.exist? && options[:force]
           raise Vagrant::Errors::VagrantfileExistsError if save_path.exist?
         end
 
