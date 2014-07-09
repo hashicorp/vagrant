@@ -105,7 +105,7 @@ module VagrantPlugins
                                path: expanded_path.to_s)
             else
               expanded_manifest_file = expanded_path.join(manifest_file)
-              if !expanded_manifest_file.file?
+              if !expanded_manifest_file.file? && !expanded_manifest_file.directory?
                 errors << I18n.t("vagrant.provisioners.puppet.manifest_missing",
                                  manifest: expanded_manifest_file.to_s)
               end
