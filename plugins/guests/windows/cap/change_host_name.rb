@@ -9,14 +9,23 @@ module VagrantPlugins
 
         def self.change_host_name_and_wait(machine, name, sleep_timeout)
           # If the configured name matches the current name, then bail
-          return if machine.communicate.test("if ($env:ComputerName -eq '#{name}') { exit 0 } exit 1")
+          # We cannot use %ComputerName% because it truncates at 15 chars
+          return if machine.communicate.test("if ([System.Net.Dns]::GetHostName() -eq '#{name}') { exit 0 } exit 1")
+          
+          # Rename and reboot host if rename succeeded
+          script = <<-EOH
+            $computer = Get-WmiObject -Class Win32_ComputerSystem
+            $retval = $computer.rename("#{name}").returnvalue
+            if ($retval -eq 0) {
+              shutdown /r /t 5 /f /d p:4:1 /c "Vagrant Rename Computer"
+            }
+            exit $retval
+          EOH
 
-          # Rename and then reboot in one step
-          exit_code = machine.communicate.execute(
-            "netdom renamecomputer \"$Env:COMPUTERNAME\" /NewName:#{name} /Force /Reboot:0",
-            error_check: false)
-
-          raise Errors::RenameComputerFailed if exit_code != 0
+          machine.communicate.execute(
+            script,
+            error_class: Errors::RenameComputerFailed,
+            error_key: :rename_computer_failed)
 
           # Don't continue until the machine has shutdown and rebooted
           sleep(sleep_timeout)
