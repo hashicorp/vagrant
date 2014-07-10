@@ -142,7 +142,7 @@ module VagrantPlugins
 
         def guest_encrypted_data_bag_secret_key_path
           if @config.encrypted_data_bag_secret_key_path
-            File.join(@config.provisioning_path, "encrypted_data_bag_secret_key")
+            File.join(@config.provisioning_path, "encrypted_data_bag_secret")
           end
         end
 
