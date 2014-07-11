@@ -30,8 +30,8 @@ module VagrantPlugins
         @binary      = false if @binary == UNSET_VALUE
         @keep_color  = false if @keep_color == UNSET_VALUE
 
-        if @args && !@args.is_a?(Array) && args_valid?
-          @args = @args.to_s
+        if @args && args_valid?
+          @args = @args.is_a?(Array) ? @args.map { |a| a.to_s } : @args.to_s
         end
       end
 
