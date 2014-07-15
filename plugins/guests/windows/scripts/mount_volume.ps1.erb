@@ -6,11 +6,15 @@ function Test-ReparsePoint([string]$path) {
 $MountPoint = [System.IO.Path]::GetFullPath("<%= options[:mount_point] %>")
 $ShareName = "<%= options[:share_name] %>"
 $VmProviderUncPath = "<%= options[:vm_provider_unc_path] %>"
-
+$UserName = "<%= options[:host_share_username] %>"
+$Password = "<%= options[:host_share_password] %>"
+if($UserName.length -gt 0) {}
+    $UserSwitch = " /USER:$UserName /PERSISTENT:YES"
+}
 # https://github.com/BIAINC/vagrant-windows/issues/4
 # Not sure why this works, but it does.
 
-& net use $ShareName 2>&1 | Out-Null
+& net use $ShareName $Password $UserSwitch 2>&1 | Out-Null
 
 Write-Debug "Attempting to mount $ShareName to $MountPoint"
 if( (Test-Path "$MountPoint") -and (Test-ReparsePoint "$MountPoint") )
