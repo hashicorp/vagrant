@@ -24,6 +24,8 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
           /.+scripts\/mount_volume.ps1/, options: {
               mount_point: "guestpath",
               share_name: "name",
+              host_share_username: nil,
+              host_share_password: nil,
               vm_provider_unc_path: "\\\\vboxsrv\\name",
             })
         described_class.mount_virtualbox_shared_folder(machine, 'name', 'guestpath', {})
@@ -34,6 +36,8 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
           kind_of(String), options: {
               mount_point: kind_of(String),
               share_name: "invalid-windows_sharename",
+              host_share_username: nil,
+              host_share_password: nil,
               vm_provider_unc_path: "\\\\vboxsrv\\invalid-windows_sharename",
             })
         described_class.mount_virtualbox_shared_folder(machine, "/invalid-windows/sharename", "guestpath", {})
@@ -53,6 +57,8 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
           /.+scripts\/mount_volume.ps1/, options: {
               mount_point: "guestpath",
               share_name: "name",
+              host_share_username: nil,
+              host_share_password: nil,
               vm_provider_unc_path: "\\\\vmware-host\\Shared Folders\\name",
             })
         described_class.mount_vmware_shared_folder(machine, 'name', 'guestpath', {})
@@ -72,9 +78,32 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
           /.+scripts\/mount_volume.ps1/, options: {
               mount_point: "guestpath",
               share_name: "name",
+              host_share_username: nil,
+              host_share_password: nil,
               vm_provider_unc_path: "\\\\psf\\name",
             })
         described_class.mount_parallels_shared_folder(machine, 'name', 'guestpath', {})
+      end
+    end
+  end
+
+  describe "smb" do
+
+    let(:described_class) do
+      VagrantPlugins::GuestWindows::Plugin.components.guest_capabilities[:windows].get(:mount_smb_shared_folder)
+    end
+
+    describe ".mount_shared_folder" do
+      it "should call mount_volume script with correct args" do
+        expect(Vagrant::Util::TemplateRenderer).to receive(:render).with(
+          /.+scripts\/mount_volume.ps1/, options: {
+              mount_point: "guestpath",
+              share_name: "name",
+              host_share_username: "user",
+              host_share_password: "pass",
+              vm_provider_unc_path: "\\\\host\\name",
+            })
+        described_class.mount_smb_shared_folder(machine, 'name', 'guestpath', {:smb_username => "user", :smb_password => "pass", :smb_host => "host"})
       end
     end
   end
