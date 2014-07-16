@@ -121,6 +121,13 @@ module VagrantPlugins
           data[:owner] ||= ssh_info[:username]
           data[:group] ||= ssh_info[:username]
 
+          # Set mount options depending on the host OS
+          if Vagrant::Util::Platform.windows?
+            data[:mount_options] = ["sec=ntlm"]
+          elsif Vagrant::Util::Platform.darwin?
+            data[:mount_options] = ["noserverino", "nounix", "sec=ntlmssp"]
+          end
+
           machine.ui.detail(I18n.t(
             "vagrant_sf_smb.mounting_single",
             host: data[:hostpath].to_s,

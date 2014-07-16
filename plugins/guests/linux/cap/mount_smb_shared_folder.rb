@@ -28,7 +28,6 @@ module VagrantPlugins
           smb_password = Shellwords.shellescape(options[:smb_password])
 
           options[:mount_options] ||= []
-          options[:mount_options] << "sec=ntlm"
           options[:mount_options] << "username=#{options[:smb_username]}"
           options[:mount_options] << "pass=#{smb_password}"
 
