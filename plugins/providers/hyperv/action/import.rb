@@ -27,15 +27,17 @@ module VagrantPlugins
             end
           end
 
-          vhdx_path = nil
+          image_path = nil
+          image_ext = nil
           hd_dir.each_child do |f|
-            if f.extname.downcase == ".vhdx"
-              vhdx_path = f
+            if %w{.vhd .vhdx}.include?(f.extname.downcase)
+              image_path = f
+              image_ext = f.extname.downcase
               break
             end
           end
 
-          if !config_path || !vhdx_path
+          if !config_path || !image_path
             raise Errors::BoxInvalid
           end
 
@@ -64,16 +66,16 @@ module VagrantPlugins
           end
 
           env[:ui].detail("Cloning virtual hard drive...")
-          source_path = vhdx_path.to_s
-          dest_path   = env[:machine].data_dir.join("disk.vhdx").to_s
+          source_path = image_path.to_s
+          dest_path   = env[:machine].data_dir.join("disk.#{image_ext}").to_s
           FileUtils.cp(source_path, dest_path)
-          vhdx_path = dest_path
+          image_path = dest_path
 
           # We have to normalize the paths to be Windows paths since
           # we're executing PowerShell.
           options = {
             vm_xml_config:  config_path.to_s.gsub("/", "\\"),
-            vhdx_path:      vhdx_path.to_s.gsub("/", "\\")
+            image_path:      image_path.to_s.gsub("/", "\\")
           }
           options[:switchname] = switch if switch
 
