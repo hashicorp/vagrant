@@ -80,7 +80,7 @@ the port.
 
 <hr>
 
-`config.ssh.pty` - Whether you want ot use a PTY for provisioning.
+`config.ssh.pty` - If `true`, pty will be used for provisioning. Defaults to false.
 
 <hr>
 
