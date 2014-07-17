@@ -80,6 +80,10 @@ the port.
 
 <hr>
 
+`config.ssh.pty` - If `true`, pty will be used for provisioning. Defaults to false.
+
+<hr>
+
 `config.ssh.shell` - The shell to use when executing SSH commands from
 Vagrant. By default this is `bash -l`. Note that this has no effect on
 the shell you get when you run `vagrant ssh`. This configuration option
