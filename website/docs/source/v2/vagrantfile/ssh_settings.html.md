@@ -82,6 +82,11 @@ the port.
 
 `config.ssh.pty` - If `true`, pty will be used for provisioning. Defaults to false.
 
+This setting is an _advanced feature_ that should not be enabled unless
+absolutely necessary. It breaks some other features of Vagrant, and is
+really only exposed for cases where it is absolutely necessary. If you can find
+a way to not use a pty, that is recommended instead.
+
 <hr>
 
 `config.ssh.shell` - The shell to use when executing SSH commands from
