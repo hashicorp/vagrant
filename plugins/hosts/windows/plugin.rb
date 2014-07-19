@@ -16,6 +16,11 @@ module VagrantPlugins
         Cap::SMB
       end
 
+      host_capability("windows", "load_host_ips") do
+        require_relative "cap/load_host_ips"
+        Cap::LoadHostIPs
+      end
+
       host_capability("windows", "nfs_installed") do
         require_relative "cap/nfs"
         Cap::NFS

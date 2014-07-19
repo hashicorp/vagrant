@@ -1,5 +1,3 @@
-require "json"
-
 require "log4r"
 
 require "vagrant/util/platform"
@@ -99,7 +97,7 @@ module VagrantPlugins
         end
 
         if need_host_ip
-          candidate_ips = load_host_ips
+          candidate_ips = machine.env.host.capability(:load_host_ips)
           @logger.debug("Potential host IPs: #{candidate_ips.inspect}")
           host_ip = machine.guest.capability(
             :choose_addressable_ip_addr, candidate_ips)
@@ -139,20 +137,6 @@ module VagrantPlugins
 
       def cleanup(machine, opts)
 
-      end
-
-      protected
-
-      def load_host_ips
-        script_path = File.expand_path("../scripts/host_info.ps1", __FILE__)
-        r = Vagrant::Util::PowerShell.execute(script_path)
-        if r.exit_code != 0
-          raise Errors::PowershellError,
-            script: script_path,
-            stderr: r.stderr
-        end
-
-        JSON.parse(r.stdout)["ip_addresses"]
       end
 
 =begin
