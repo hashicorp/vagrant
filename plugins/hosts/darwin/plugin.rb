@@ -24,6 +24,11 @@ module VagrantPlugins
         Cap::SMB
       end
 
+      host_capability("darwin", "load_host_ips") do
+        require_relative "cap/load_host_ips"
+        Cap::LoadHostIPs
+      end
+
       host_capability("darwin", "rdp_client") do
         require_relative "cap/rdp"
         Cap::RDP
