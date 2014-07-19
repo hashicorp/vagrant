@@ -11,6 +11,11 @@ module VagrantPlugins
         Host
       end
 
+      host_capability("windows", "create_smb_share") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
       host_capability("windows", "nfs_installed") do
         require_relative "cap/nfs"
         Cap::NFS

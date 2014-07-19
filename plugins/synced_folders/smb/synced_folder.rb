@@ -1,4 +1,3 @@
-require "digest/md5"
 require "json"
 
 require "log4r"
@@ -42,8 +41,6 @@ module VagrantPlugins
       def prepare(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
 
-        script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
-
         # If we need auth information, then ask the user.
         need_auth = false
         folders.each do |id, data|
@@ -60,23 +57,7 @@ module VagrantPlugins
         end
 
         folders.each do |id, data|
-          hostpath = data[:hostpath]
-
-          data[:smb_id] ||= Digest::MD5.hexdigest(
-            "#{machine.id}-#{id.gsub("/", "-")}")
-
-          args = []
-          args << "-path" << "\"#{hostpath.gsub("/", "\\")}\""
-          args << "-share_name" << data[:smb_id]
-          #args << "-host_share_username" << @creds[:username]
-
-          r = Vagrant::Util::PowerShell.execute(script_path, *args)
-          if r.exit_code != 0
-            raise Errors::DefineShareFailed,
-              host: hostpath.to_s,
-              stderr: r.stderr,
-              stdout: r.stdout
-          end
+          machine.env.host.capability(:create_smb_share, machine, id, data)
         end
       end
 
