@@ -67,7 +67,7 @@ module VagrantPlugins
           # Hide interactive password from logs enclosing credentials in a lambda. If
           # instead credentials have been specified in Vagrantfile, logs are less of
           # a problem.
-          machine.env.host.capability(:enable_smb_sharing, folders, lambda { @creds })
+          machine.env.host.capability(:enable_smb_sharing, machine, folders, lambda { @creds })
         end
 
         folders.each do |id, data|
@@ -136,7 +136,11 @@ module VagrantPlugins
       end
 
       def cleanup(machine, opts)
-
+        if machine.env.host.capability?(:cleanup_smb_shares)
+          @logger.debug("Cleaning up SMB shares on the host")
+          machine.ui.output(I18n.t("vagrant_sf_smb.cleaning"))
+          machine.env.host.capability(:cleanup_smb_shares, machine, opts)
+        end
       end
 
 =begin

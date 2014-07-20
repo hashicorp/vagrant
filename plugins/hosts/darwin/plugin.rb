@@ -14,6 +14,11 @@ module VagrantPlugins
         Host
       end
 
+      host_capability("darwin", "cleanup_smb_shares") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
       host_capability("darwin", "create_smb_share") do
         require_relative "cap/smb"
         Cap::SMB

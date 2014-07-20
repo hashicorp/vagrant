@@ -1,5 +1,7 @@
 en:
   vagrant_sf_smb:
+    cleaning: |-
+      Clearing any previously set SMB shared folders...
     mounting: |-
       Mounting SMB shared folders...
     mounting_single: |-

@@ -35,6 +35,7 @@ module VagrantPlugins
       autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
       autoload :PrepareNFSValidIds, File.expand_path("../action/prepare_nfs_valid_ids", __FILE__)
       autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
+      autoload :ReadSMBShareIds, File.expand_path("../action/read_smb_share_ids", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
       autoload :SetName, File.expand_path("../action/set_name", __FILE__)
@@ -58,6 +59,7 @@ module VagrantPlugins
           b.use PrepareForwardedPortCollisionParams
           b.use HandleForwardedPortCollisions
           b.use PrepareNFSValidIds
+          b.use ReadSMBShareIds
           b.use SyncedFolderCleanup
           b.use SyncedFolders
           b.use PrepareNFSSettings
@@ -89,6 +91,7 @@ module VagrantPlugins
             b2.use Call, DestroyConfirm do |env2, b3|
               if env2[:result]
                 b3.use CheckAccessible
+                b3.use ReadSMBShareIds
                 b3.use EnvSet, force_halt: true
                 b3.use action_halt
                 b3.use Destroy
