@@ -22,10 +22,12 @@ module VagrantPlugins
           release_file = Pathname.new("/etc/redhat-release")
           begin
             release_file.open("r:ISO-8859-1:UTF-8") do |f|
-              fedora_match = /Fedora.* release ([0-9]+)/.match(f.gets)
-              if fedora_match
-                version_number = fedora_match[1].to_i
-                if version_number >= 16
+              match = /(Red Hat|CentOS|Fedora).* release ([0-9]+)/.match(f.gets)
+              if match
+                distribution = match[1]
+                version_number = match[2].to_i
+                if (distribution =~ /Fedora/ && version_number >= 16) ||
+                   (distribution =~ /Red Hat|CentOS/ && version_number >= 7)
                   # "service nfs-server" will redirect properly to systemctl
                   # when "service nfs-server restart" is called.
                   nfs_server_binary = "/usr/sbin/service nfs-server"
