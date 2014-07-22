@@ -11,14 +11,15 @@ module VagrantPlugins
       attr_accessor :ssl
 
       def initialize
-        @username   = UNSET_VALUE
-        @password   = UNSET_VALUE
-        @host       = UNSET_VALUE
-        @port       = UNSET_VALUE
-        @guest_port = UNSET_VALUE
-        @max_tries  = UNSET_VALUE
-        @timeout    = UNSET_VALUE
-        @ssl        = UNSET_VALUE
+        @username               = UNSET_VALUE
+        @password               = UNSET_VALUE
+        @host                   = UNSET_VALUE
+        @port                   = UNSET_VALUE
+        @guest_port             = UNSET_VALUE
+        @max_tries              = UNSET_VALUE
+        @timeout                = UNSET_VALUE
+        @ssl                    = UNSET_VALUE
+        @ssl_peer_verification  = UNSET_VALUE
       end
 
       def finalize!
@@ -30,6 +31,7 @@ module VagrantPlugins
         @max_tries = 20       if @max_tries == UNSET_VALUE
         @timeout = 1800       if @timeout == UNSET_VALUE
         @ssl = false          if @ssl == UNSET_VALUE
+        @ssl_peer_verification = true if @ssl_peer_verification == UNSET_VALUE
       end
 
       def validate(machine)
@@ -41,6 +43,9 @@ module VagrantPlugins
         errors << "winrm.guest_port cannot be nil." if @guest_port.nil?
         errors << "winrm.max_tries cannot be nil."  if @max_tries.nil?
         errors << "winrm.timeout cannot be nil."    if @timeout.nil?
+        unless @ssl_peer_verification == true || @ssl_peer_verification == false
+          errors << "winrm.ssl_peer_verification must be a boolean."
+        end
 
         { "WinRM" => errors }
       end

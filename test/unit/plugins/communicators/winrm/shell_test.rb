@@ -51,7 +51,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     it "should create endpoint options" do
       expect(subject.send(:endpoint_options)).to eq(
         { user: "username", pass: "password", host: "localhost", port: 5985,
-          operation_timeout: 60, basic_auth_only: true, no_ssl_peer_verification: true })
+          operation_timeout: 60, basic_auth_only: true, no_ssl_peer_verification: false })
     end
   end
 

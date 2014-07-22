@@ -39,18 +39,20 @@ module VagrantPlugins
       attr_reader :timeout_in_seconds
       attr_reader :max_tries
       attr_reader :ssl
+      attr_reader :ssl_peer_verification
 
       def initialize(host, username, password, options = {})
         @logger = Log4r::Logger.new("vagrant::communication::winrmshell")
         @logger.debug("initializing WinRMShell")
 
-        @host               = host
-        @port               = options[:port] || (options[:ssl] ? 5986 : 5985)
-        @username           = username
-        @password           = password
-        @timeout_in_seconds = options[:timeout_in_seconds] || 60
-        @max_tries          = options[:max_tries] || 20
-        @ssl                = options[:ssl] || false
+        @host                  = host
+        @port                  = options[:port] || (options[:ssl] ? 5986 : 5985)
+        @username              = username
+        @password              = password
+        @timeout_in_seconds    = options[:timeout_in_seconds] || 60
+        @max_tries             = options[:max_tries] || 20
+        @ssl                   = options[:ssl] || false
+        @ssl_peer_verification = options[:ssl_peer_verification] || true
       end
 
       def powershell(command, &block)
@@ -144,7 +146,7 @@ module VagrantPlugins
           port: @port,
           operation_timeout: @timeout_in_seconds,
           basic_auth_only: true,
-          no_ssl_peer_verification: true }
+          no_ssl_peer_verification: !@ssl_peer_verification }
       end
     end #WinShell class
   end
