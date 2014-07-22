@@ -23,6 +23,13 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  def find_network(name)
+    network_definitions = subject.networks.map do |n|
+      n[1]
+    end
+    network_definitions.find {|n| n[:id] == name}
+  end
+
   before do
     env = double("env")
     env.stub(root_path: nil)
@@ -121,28 +128,6 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
-  describe "#define" do
-    it "should allow regular names" do
-      subject.define "foo"
-      subject.finalize!
-
-      assert_valid
-    end
-
-    [
-      "foo [1]",
-      "bar {2}",
-      "foo/bar",
-    ].each do |name|
-      it "should disallow names with brackets" do
-        subject.define name
-        subject.finalize!
-
-        assert_invalid
-      end
-    end
-  end
-
   describe "#guest" do
     it "is nil by default" do
       subject.finalize!
@@ -183,16 +168,20 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.finalize!
       n = subject.networks
       expect(n.length).to eq(2)
+
+      # WinRM HTTP
       expect(n[0][0]).to eq(:forwarded_port)
       expect(n[0][1][:guest]).to eq(5985)
       expect(n[0][1][:host]).to eq(55985)
       expect(n[0][1][:host_ip]).to eq("127.0.0.1")
       expect(n[0][1][:id]).to eq("winrm")
 
+      # WinRM HTTPS
       expect(n[1][0]).to eq(:forwarded_port)
-      expect(n[1][1][:guest]).to eq(22)
-      expect(n[1][1][:host]).to eq(2222)
-      expect(n[1][1][:id]).to eq("ssh")
+      expect(n[1][1][:guest]).to eq(5986)
+      expect(n[1][1][:host]).to eq(55986)
+      expect(n[1][1][:host_ip]).to eq("127.0.0.1")
+      expect(n[1][1][:id]).to eq("winrmssl")
     end
 
     it "allows overriding SSH" do
@@ -215,7 +204,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.finalize!
 
       n = subject.networks
-      expect(n.length).to eq(2)
+      expect(n.length).to eq(1)
       expect(n[0][0]).to eq(:forwarded_port)
       expect(n[0][1][:guest]).to eq(22)
       expect(n[0][1][:host]).to eq(14100)
