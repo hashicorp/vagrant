@@ -32,27 +32,17 @@ module VagrantPlugins
       ]
 
       attr_reader :logger
-      attr_reader :username
-      attr_reader :password
       attr_reader :host
       attr_reader :port
-      attr_reader :timeout_in_seconds
-      attr_reader :max_tries
-      attr_reader :ssl
-      attr_reader :ssl_peer_verification
+      attr_reader :config
 
-      def initialize(host, username, password, options = {})
+      def initialize(host, port, config)
         @logger = Log4r::Logger.new("vagrant::communication::winrmshell")
         @logger.debug("initializing WinRMShell")
 
         @host                  = host
-        @port                  = options[:port] || (options[:ssl] ? 5986 : 5985)
-        @username              = username
-        @password              = password
-        @timeout_in_seconds    = options[:timeout_in_seconds] || 60
-        @max_tries             = options[:max_tries] || 20
-        @ssl                   = options[:ssl] || false
-        @ssl_peer_verification = options[:ssl_peer_verification] || true
+        @port                  = port
+        @config                = config
       end
 
       def powershell(command, &block)
@@ -122,11 +112,11 @@ module VagrantPlugins
         @logger.info("Attempting to connect to WinRM...")
         @logger.info("  - Host: #{@host}")
         @logger.info("  - Port: #{@port}")
-        @logger.info("  - Username: #{@username}")
-        @logger.info("  - SSL: #{@ssl}")
+        @logger.info("  - Username: #{@config.username}")
+        @logger.info("  - Transport: #{@config.transport}")
 
-        client = ::WinRM::WinRMWebService.new(endpoint, :plaintext, endpoint_options)
-        client.set_timeout(@timeout_in_seconds)
+        client = ::WinRM::WinRMWebService.new(endpoint, transport.to_sym, endpoint_options)
+        client.set_timeout(@config.timeout)
         client.toggle_nori_type_casting(:off) #we don't want coersion of types
         client
       end
@@ -140,13 +130,12 @@ module VagrantPlugins
       end
 
       def endpoint_options
-        { user: @username,
-          pass: @password,
+        { user: @config.username,
+          pass: @config.password,
           host: @host,
           port: @port,
-          operation_timeout: @timeout_in_seconds,
           basic_auth_only: true,
-          no_ssl_peer_verification: !@ssl_peer_verification }
+          no_ssl_peer_verification: !@config.ssl_peer_verification }
       end
     end #WinShell class
   end

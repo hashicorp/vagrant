@@ -29,7 +29,7 @@ module VagrantPlugins
         @port = (@ssl ? 5986 : 5985)       if @port == UNSET_VALUE
         @guest_port = (@ssl ? 5986 : 5985) if @guest_port == UNSET_VALUE
         @max_tries = 20       if @max_tries == UNSET_VALUE
-        @timeout = 1800       if @timeout == UNSET_VALUE
+        @timeout = 60         if @timeout == UNSET_VALUE
         @ssl = false          if @ssl == UNSET_VALUE
         @ssl_peer_verification = true if @ssl_peer_verification == UNSET_VALUE
       end
