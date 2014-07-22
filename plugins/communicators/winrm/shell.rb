@@ -115,7 +115,7 @@ module VagrantPlugins
         @logger.info("  - Username: #{@config.username}")
         @logger.info("  - Transport: #{@config.transport}")
 
-        client = ::WinRM::WinRMWebService.new(endpoint, transport.to_sym, endpoint_options)
+        client = ::WinRM::WinRMWebService.new(endpoint, @config.transport.to_sym, endpoint_options)
         client.set_timeout(@config.timeout)
         client.toggle_nori_type_casting(:off) #we don't want coersion of types
         client
@@ -126,7 +126,14 @@ module VagrantPlugins
       end
 
       def endpoint
-        "http#{@ssl ? 's' : ''}://#{@host}:#{@port}/wsman"
+        case @config.transport
+        when :ssl
+          "https://#{@host}:#{@port}/wsman"
+        when :plaintext
+          "http://#{@host}:#{@port}/wsman"
+        else
+          raise Errors::WinRMInvalidTransport, transport: @config.transport
+        end
       end
 
       def endpoint_options

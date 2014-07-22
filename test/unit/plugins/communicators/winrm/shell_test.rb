@@ -7,6 +7,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   include_context "unit"
 
   let(:session) { double("winrm_session") }
+  let(:port) { config.transport == :ssl ? 5986 : 5985 }
   let(:config)  {
     VagrantPlugins::CommunicatorWinRM::Config.new.tap do |c|
       c.username = 'username'
@@ -16,7 +17,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   }
 
   subject do
-    described_class.new('localhost', 5985, config).tap do |comm|
+    described_class.new('localhost', port, config).tap do |comm|
       allow(comm).to receive(:new_session).and_return(session)
     end
   end
@@ -50,15 +51,29 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   end
 
   describe ".endpoint" do
-    it "should create winrm endpoint address" do
-      expect(subject.send(:endpoint)).to eq("http://localhost:5985/wsman")
+    context 'when transport is :ssl' do
+      it "should create winrm endpoint address using https" do
+        expect(subject.send(:endpoint)).to eq("https://localhost:5986/wsman")
+      end
+    end
+
+    context "when transport is :plaintext" do
+      let(:config)  {
+        VagrantPlugins::CommunicatorWinRM::Config.new.tap do |c|
+          c.transport = :plaintext
+          c.finalize!
+        end
+      }
+      it "should create winrm endpoint address using http" do
+        expect(subject.send(:endpoint)).to eq("http://localhost:5985/wsman")
+      end
     end
   end
 
   describe ".endpoint_options" do
     it "should create endpoint options" do
       expect(subject.send(:endpoint_options)).to eq(
-        { user: "username", pass: "password", host: "localhost", port: 5985,
+        { user: "username", pass: "password", host: "localhost", port: 5986,
           basic_auth_only: true, no_ssl_peer_verification: false })
     end
   end

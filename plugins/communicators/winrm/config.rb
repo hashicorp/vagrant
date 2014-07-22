@@ -8,7 +8,7 @@ module VagrantPlugins
       attr_accessor :guest_port
       attr_accessor :max_tries
       attr_accessor :timeout
-      attr_accessor :ssl
+      attr_accessor :transport
 
       def initialize
         @username               = UNSET_VALUE
@@ -18,19 +18,20 @@ module VagrantPlugins
         @guest_port             = UNSET_VALUE
         @max_tries              = UNSET_VALUE
         @timeout                = UNSET_VALUE
-        @ssl                    = UNSET_VALUE
+        @transport              = UNSET_VALUE
         @ssl_peer_verification  = UNSET_VALUE
       end
 
       def finalize!
         @username = "vagrant" if @username == UNSET_VALUE
         @password = "vagrant" if @password == UNSET_VALUE
+        @transport = :ssl     if @transport == UNSET_VALUE
         @host = nil           if @host == UNSET_VALUE
-        @port = (@ssl ? 5986 : 5985)       if @port == UNSET_VALUE
-        @guest_port = (@ssl ? 5986 : 5985) if @guest_port == UNSET_VALUE
+        is_ssl = @transport == :ssl
+        @port = (is_ssl ? 5986 : 5985)       if @port == UNSET_VALUE
+        @guest_port = (is_ssl ? 5986 : 5985) if @guest_port == UNSET_VALUE
         @max_tries = 20       if @max_tries == UNSET_VALUE
         @timeout = 60         if @timeout == UNSET_VALUE
-        @ssl = false          if @ssl == UNSET_VALUE
         @ssl_peer_verification = true if @ssl_peer_verification == UNSET_VALUE
       end
 

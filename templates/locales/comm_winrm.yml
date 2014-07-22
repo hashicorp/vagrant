@@ -29,6 +29,8 @@ en:
         Message: %{message}
       invalid_shell: |-
         %{shell} is not a supported type of Windows shell.
+      invalid_transport: |-
+        %{transport} is not a supported WinRM transport.
       winrm_not_ready: |-
         The box is not able to report an address for WinRM to connect to yet.
         WinRM cannot access this Vagrant environment. Please wait for the
