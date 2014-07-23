@@ -49,7 +49,7 @@ module Vagrant
         # Run the action chain in a busy block, marking the environment as
         # interrupted if a SIGINT occurs, and exiting cleanly once the
         # chain has been run.
-        ui = environment[:ui] if environment.has_key?(:ui)
+        ui = environment[:ui] if environment.key?(:ui)
         int_callback = lambda do
           if environment[:interrupted]
             ui.error I18n.t("vagrant.actions.runner.exit_immediately") if ui

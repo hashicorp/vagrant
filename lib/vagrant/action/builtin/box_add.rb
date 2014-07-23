@@ -369,7 +369,7 @@ module Vagrant
         #
         # @return [Hash]
         def downloader(url, env, **opts)
-          opts[:ui] = true if !opts.has_key?(:ui)
+          opts[:ui] = true if !opts.key?(:ui)
 
           temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
           @logger.info("Downloading box: #{url} => #{temp_path}")
@@ -409,7 +409,7 @@ module Vagrant
         end
 
         def download(url, env, **opts)
-          opts[:ui] = true if !opts.has_key?(:ui)
+          opts[:ui] = true if !opts.key?(:ui)
 
           d = downloader(url, env, **opts)
 

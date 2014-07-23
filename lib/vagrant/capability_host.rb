@@ -165,7 +165,7 @@ module Vagrant
         @cap_logger.debug("Checking in: #{host_name}")
         caps = @cap_caps[host_name]
 
-        if caps && caps.has_key?(cap_name)
+        if caps && caps.key?(cap_name)
           @cap_logger.debug("Found cap: #{cap_name} in #{host_name}")
           return caps[cap_name]
         end

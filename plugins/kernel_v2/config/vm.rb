@@ -94,7 +94,7 @@ module VagrantPlugins
           end
 
           other_defined_vms.each do |key, subvm|
-            if !new_defined_vms.has_key?(key)
+            if !new_defined_vms.key?(key)
               new_defined_vms[key] = subvm.clone
             else
               new_defined_vms[key].config_procs.concat(subvm.config_procs)
@@ -188,7 +188,7 @@ module VagrantPlugins
         options ||= {}
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
-        options[:disabled]  = false if !options.has_key?(:disabled)
+        options[:disabled]  = false if !options.key?(:disabled)
         options = (@__synced_folders[options[:guestpath]] || {}).
           merge(options.dup)
 
@@ -238,7 +238,7 @@ module VagrantPlugins
         id      = "#{type}-#{id}"
 
         # Merge in the previous settings if we have them.
-        if @__networks.has_key?(id)
+        if @__networks.key?(id)
           options = @__networks[id][1].merge(options)
         end
 
@@ -266,7 +266,7 @@ module VagrantPlugins
       end
 
       def provision(name, **options, &block)
-        id = options.delete(:id).to_s if options.has_key?(:id)
+        id = options.delete(:id).to_s if options.key?(:id)
 
         prov = nil
         if id
@@ -279,8 +279,8 @@ module VagrantPlugins
         end
 
         prov.preserve_order = !!options.delete(:preserve_order) if \
-          options.has_key?(:preserve_order)
-        prov.run = options.delete(:run) if options.has_key?(:run)
+          options.key?(:preserve_order)
+        prov.run = options.delete(:run) if options.key?(:run)
         prov.add_config(options, &block)
         nil
       end

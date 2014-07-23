@@ -88,7 +88,7 @@ module Vagrant
           end
 
           # By default, the command is primary
-          opts[:primary] = true if !opts.has_key?(:primary)
+          opts[:primary] = true if !opts.key?(:primary)
 
           # Register the command
           components.commands.register(name.to_sym) do

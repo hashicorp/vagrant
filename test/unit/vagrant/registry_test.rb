@@ -61,8 +61,10 @@ describe Vagrant::Registry do
 
   it "should be able to check if a key exists" do
     instance.register("foo") { "bar" }
-    expect(instance).to have_key("foo")
-    expect(instance).not_to have_key("bar")
+    # expect(instance).to have_key("foo")
+    expect(instance.keys).to eq(["foo"])
+    expect(instance.get("bar")).to be_nil
+    # expect(instance).not_to have_key("bar")
   end
 
   it "should be enumerable" do

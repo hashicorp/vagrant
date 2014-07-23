@@ -199,7 +199,7 @@ module VagrantPlugins
               # specified_name were "abc123", then "\\abc123\\".reverse would be "\\321cba\\", and the \3 would be treated as a back reference by the sub
               disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse) { "\\#{specified_name}\\".reverse }.reverse # Replace only last occurrence
             else
-              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence                
+              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence
             end
           end
 
@@ -480,7 +480,7 @@ module VagrantPlugins
               folder[:name],
               "--hostpath",
               folder[:hostpath]]
-            args << "--transient" if folder.has_key?(:transient) && folder[:transient]
+            args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Add the shared folder
             execute("sharedfolder", "add", @uuid, *args)

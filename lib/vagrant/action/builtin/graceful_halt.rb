@@ -24,7 +24,7 @@ module Vagrant
 
         def call(env)
           graceful = true
-          graceful = !env[:force_halt] if env.has_key?(:force_halt)
+          graceful = !env[:force_halt] if env.key?(:force_halt)
 
           # By default, we didn't succeed.
           env[:result] = false

@@ -443,7 +443,7 @@ module VagrantPlugins
               folder[:name],
               "--hostpath",
               folder[:hostpath]]
-            args << "--transient" if folder.has_key?(:transient) && folder[:transient]
+            args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Add the shared folder
             execute("sharedfolder", "add", @uuid, *args)
