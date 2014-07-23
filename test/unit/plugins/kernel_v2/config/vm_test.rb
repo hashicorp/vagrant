@@ -167,7 +167,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.communicator = "winrm"
       subject.finalize!
       n = subject.networks
-      expect(n.length).to eq(2)
+      expect(n.length).to eq(1)
 
       # WinRM HTTP
       expect(n[0][0]).to eq(:forwarded_port)
@@ -175,13 +175,6 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(n[0][1][:host]).to eq(55985)
       expect(n[0][1][:host_ip]).to eq("127.0.0.1")
       expect(n[0][1][:id]).to eq("winrm")
-
-      # WinRM HTTPS
-      expect(n[1][0]).to eq(:forwarded_port)
-      expect(n[1][1][:guest]).to eq(5986)
-      expect(n[1][1][:host]).to eq(55986)
-      expect(n[1][1][:host_ip]).to eq("127.0.0.1")
-      expect(n[1][1][:id]).to eq("winrmssl")
     end
 
     it "allows overriding SSH" do
@@ -203,12 +196,22 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
         guest: 22, host: 14100, id: "winrm"
       subject.finalize!
 
-      n = subject.networks
-      expect(n.length).to eq(1)
-      expect(n[0][0]).to eq(:forwarded_port)
-      expect(n[0][1][:guest]).to eq(22)
-      expect(n[0][1][:host]).to eq(14100)
-      expect(n[0][1][:id]).to eq("winrm")
+      winrm_network = find_network 'winrm'
+      expect(winrm_network[:guest]).to eq(22)
+      expect(winrm_network[:host]).to eq(14100)
+      expect(winrm_network[:id]).to eq("winrm")
+    end
+
+    it "allows overriding WinRM SSL" do
+      subject.communicator = :winrmssl
+      subject.network "forwarded_port",
+        guest: 22, host: 14100, id: "winrmssl"
+      subject.finalize!
+
+      winrmssl_network = find_network 'winrmssl'
+      expect(winrmssl_network[:guest]).to eq(22)
+      expect(winrmssl_network[:host]).to eq(14100)
+      expect(winrmssl_network[:id]).to eq("winrmssl")
     end
 
     it "turns all forwarded port ports to ints" do
