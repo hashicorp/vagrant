@@ -23,9 +23,9 @@ module VagrantPlugins
       end
 
       def finalize!
-        @username = "vagrant" if @username == UNSET_VALUE
-        @password = "vagrant" if @password == UNSET_VALUE
-        @transport = :ssl     if @transport == UNSET_VALUE
+        @username = "vagrant"   if @username == UNSET_VALUE
+        @password = "vagrant"   if @password == UNSET_VALUE
+        @transport = :plaintext if @transport == UNSET_VALUE
         @host = nil           if @host == UNSET_VALUE
         is_ssl = @transport == :ssl
         @port = (is_ssl ? 5986 : 5985)       if @port == UNSET_VALUE
