@@ -81,7 +81,7 @@ module VagrantPlugins
       end
 
       def execute_shell_with_retry(command, shell, &block)
-        retryable(tries: @max_tries, on: @@exceptions_to_retry_on, sleep: 10) do
+        retryable(tries: @config.max_tries, on: @@exceptions_to_retry_on, sleep: 10) do
           @logger.debug("#{shell} executing:\n#{command}")
           output = session.send(shell, command) do |out, err|
             block.call(:stdout, out) if block_given? && out
@@ -96,8 +96,8 @@ module VagrantPlugins
         # If the error is a 401, we can return a more specific error message
         if winrm_exception.message.include?("401")
           raise Errors::AuthError,
-            user: @username,
-            password: @password,
+            user: @config.username,
+            password: @config.password,
             endpoint: endpoint,
             message: winrm_exception.message
         end
@@ -126,7 +126,7 @@ module VagrantPlugins
       end
 
       def endpoint
-        case @config.transport
+        case @config.transport.to_sym
         when :ssl
           "https://#{@host}:#{@port}/wsman"
         when :plaintext
