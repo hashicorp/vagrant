@@ -1,6 +1,6 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path('../../../base', __FILE__)
 
-require "vagrant/util/retryable"
+require 'vagrant/util/retryable'
 
 describe Vagrant::Util::Retryable do
   let(:klass) do
@@ -14,7 +14,7 @@ describe Vagrant::Util::Retryable do
 
     block = lambda do
       tries += 1
-      raise RuntimeError, "Try"
+      fail RuntimeError, 'Try'
     end
 
     # It should re-raise the error
@@ -25,12 +25,12 @@ describe Vagrant::Util::Retryable do
     expect(tries).to eq(1)
   end
 
-  it "retries the set number of times" do
+  it 'retries the set number of times' do
     tries = 0
 
     block = lambda do
       tries += 1
-      raise RuntimeError, "Try"
+      fail RuntimeError, 'Try'
     end
 
     # It should re-raise the error
@@ -41,12 +41,12 @@ describe Vagrant::Util::Retryable do
     expect(tries).to eq(5)
   end
 
-  it "only retries on the given exception" do
+  it 'only retries on the given exception' do
     tries = 0
 
     block = lambda do
       tries += 1
-      raise StandardError, "Try"
+      fail StandardError, 'Try'
     end
 
     # It should re-raise the error
@@ -57,7 +57,7 @@ describe Vagrant::Util::Retryable do
     expect(tries).to eq(1)
   end
 
-  it "can retry on multiple types of errors" do
+  it 'can retry on multiple types of errors' do
     tries = 0
 
     foo_error = Class.new(StandardError)
@@ -65,9 +65,9 @@ describe Vagrant::Util::Retryable do
 
     block = lambda do
       tries += 1
-      raise foo_error, "Try" if tries == 1
-      raise bar_error, "Try" if tries == 2
-      raise RuntimeError, "YAY"
+      fail foo_error, 'Try' if tries == 1
+      fail bar_error, 'Try' if tries == 2
+      fail RuntimeError, 'YAY'
     end
 
     # It should re-raise the error
@@ -80,7 +80,7 @@ describe Vagrant::Util::Retryable do
 
   it "doesn't sleep between tries by default" do
     block = lambda do
-      raise RuntimeError, "Try"
+      fail RuntimeError, 'Try'
     end
 
     # Sleep should never be called
@@ -91,9 +91,9 @@ describe Vagrant::Util::Retryable do
       to raise_error(RuntimeError)
   end
 
-  it "sleeps specified amount between retries" do
+  it 'sleeps specified amount between retries' do
     block = lambda do
-      raise RuntimeError, "Try"
+      fail RuntimeError, 'Try'
     end
 
     # Sleep should be called between each retry

@@ -3,8 +3,7 @@ module VagrantPlugins
     module CommandFilters
       # Converts a *nix 'grep' command to a PowerShell equivalent (none)
       class Grep
-
-        def filter(command)
+        def filter(_command)
           # grep 'Fedora release [12][67890]' /etc/redhat-release
           # grep Funtoo /etc/gentoo-release
           # grep Gentoo /etc/gentoo-release

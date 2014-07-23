@@ -2,7 +2,7 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class CheckAccessible
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -12,7 +12,7 @@ module VagrantPlugins
             # is a very bad situation and can only be fixed by the user. It
             # also prohibits us from actually doing anything with the virtual
             # machine, so we raise an error.
-            raise Vagrant::Errors::VMInaccessible
+            fail Vagrant::Errors::VMInaccessible
           end
 
           @app.call(env)

@@ -1,10 +1,10 @@
-require "pathname"
+require 'pathname'
 
-require "vagrant"
+require 'vagrant'
 
 module VagrantPlugins
   module CFEngine
-    class Config < Vagrant.plugin("2", :config)
+    class Config < Vagrant.plugin('2', :config)
       attr_accessor :am_policy_hub
       attr_accessor :extra_agent_args
       attr_accessor :classes
@@ -47,11 +47,11 @@ module VagrantPlugins
         @classes = nil if @classes == UNSET_VALUE
 
         if @deb_repo_file == UNSET_VALUE
-          @deb_repo_file = "/etc/apt/sources.list.d/cfengine-community.list"
+          @deb_repo_file = '/etc/apt/sources.list.d/cfengine-community.list'
         end
 
         if @deb_repo_line == UNSET_VALUE
-          @deb_repo_line = "deb http://cfengine.com/pub/apt $(lsb_release -cs) main"
+          @deb_repo_line = 'deb http://cfengine.com/pub/apt $(lsb_release -cs) main'
         end
 
         @extra_agent_args = nil if @extra_agent_args == UNSET_VALUE
@@ -71,21 +71,21 @@ module VagrantPlugins
         @policy_server_address = nil if @policy_server_address == UNSET_VALUE
 
         if @repo_gpg_key_url == UNSET_VALUE
-          @repo_gpg_key_url = "http://cfengine.com/pub/gpg.key"
+          @repo_gpg_key_url = 'http://cfengine.com/pub/gpg.key'
         end
 
-        @upload_path = "/tmp/vagrant-cfengine-file" if @upload_path == UNSET_VALUE
+        @upload_path = '/tmp/vagrant-cfengine-file' if @upload_path == UNSET_VALUE
 
         if @yum_repo_file == UNSET_VALUE
-          @yum_repo_file = "/etc/yum.repos.d/cfengine-community.repo"
+          @yum_repo_file = '/etc/yum.repos.d/cfengine-community.repo'
         end
 
         if @yum_repo_url == UNSET_VALUE
-          @yum_repo_url = "http://cfengine.com/pub/yum/"
+          @yum_repo_url = 'http://cfengine.com/pub/yum/'
         end
 
         if @package_name == UNSET_VALUE
-            @package_name = "cfengine-community"
+          @package_name = 'cfengine-community'
         end
       end
 
@@ -93,33 +93,33 @@ module VagrantPlugins
         errors = _detected_errors
 
         valid_modes = [:bootstrap, :single_run]
-        errors << I18n.t("vagrant.cfengine_config.invalid_mode") if !valid_modes.include?(@mode)
+        errors << I18n.t('vagrant.cfengine_config.invalid_mode') unless valid_modes.include?(@mode)
 
         if @mode == :bootstrap
           if !@policy_server_address && !@am_policy_hub
-            errors << I18n.t("vagrant.cfengine_config.policy_server_address")
+            errors << I18n.t('vagrant.cfengine_config.policy_server_address')
           end
         end
 
         if @classes && !@classes.is_a?(Array)
-          errors << I18n.t("vagrant.cfengine_config.classes_array")
+          errors << I18n.t('vagrant.cfengine_config.classes_array')
         end
 
         if @files_path
           expanded = Pathname.new(@files_path).expand_path(machine.env.root_path)
-          if !expanded.directory?
-            errors << I18n.t("vagrant.cfengine_config.files_path_not_directory")
+          unless expanded.directory?
+            errors << I18n.t('vagrant.cfengine_config.files_path_not_directory')
           end
         end
 
         if @run_file
           expanded = Pathname.new(@run_file).expand_path(machine.env.root_path)
-          if !expanded.file?
-            errors << I18n.t("vagrant.cfengine_config.run_file_not_found")
+          unless expanded.file?
+            errors << I18n.t('vagrant.cfengine_config.run_file_not_found')
           end
         end
 
-        { "CFEngine" => errors }
+        { 'CFEngine' => errors }
       end
     end
   end

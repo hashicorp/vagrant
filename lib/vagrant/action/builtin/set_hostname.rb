@@ -1,4 +1,4 @@
-require "log4r"
+require 'log4r'
 
 module Vagrant
   module Action
@@ -8,7 +8,7 @@ module Vagrant
       # should be placed such that the after the @app.call, a booted machine
       # is available (this generally means BEFORE the boot middleware).
       class SetHostname
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -16,8 +16,8 @@ module Vagrant
           @app.call(env)
 
           hostname = env[:machine].config.vm.hostname
-          if !hostname.nil?
-            env[:ui].info I18n.t("vagrant.actions.vm.hostname.setting")
+          unless hostname.nil?
+            env[:ui].info I18n.t('vagrant.actions.vm.hostname.setting')
             env[:machine].guest.capability(:change_host_name, hostname)
           end
         end

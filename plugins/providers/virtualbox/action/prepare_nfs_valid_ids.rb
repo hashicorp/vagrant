@@ -2,9 +2,9 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class PrepareNFSValidIds
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
-          @logger = Log4r::Logger.new("vagrant::action::vm::nfs")
+          @logger = Log4r::Logger.new('vagrant::action::vm::nfs')
         end
 
         def call(env)

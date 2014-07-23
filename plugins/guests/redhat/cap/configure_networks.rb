@@ -1,8 +1,8 @@
-require "set"
-require "tempfile"
+require 'set'
+require 'tempfile'
 
-require "vagrant/util/retryable"
-require "vagrant/util/template_renderer"
+require 'vagrant/util/retryable'
+require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module GuestRedHat
@@ -12,7 +12,7 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
-          network_scripts_dir = machine.guest.capability("network_scripts_dir")
+          network_scripts_dir = machine.guest.capability('network_scripts_dir')
 
           # Accumulate the configurations to add to the interfaces file as
           # well as what interfaces we're actually configuring since we use that
@@ -38,7 +38,7 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
                                             options: network)
 
-            temp = Tempfile.new("vagrant")
+            temp = Tempfile.new('vagrant')
             temp.binmode
             temp.write(entry)
             temp.close

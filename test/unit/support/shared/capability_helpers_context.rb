@@ -1,7 +1,7 @@
-shared_context "capability_helpers" do
+shared_context 'capability_helpers' do
   def detect_class(result)
     Class.new do
-      define_method(:detect?) do |*args|
+      define_method(:detect?) do |*_args|
         result
       end
     end
@@ -9,19 +9,19 @@ shared_context "capability_helpers" do
 
   def provider_usable_class(result)
     Class.new do
-      define_singleton_method(:usable?) do |*args|
+      define_singleton_method(:usable?) do |*_args|
         result
       end
     end
   end
 
-  def cap_instance(name, options=nil)
+  def cap_instance(name, options = nil)
     options ||= {}
 
     Class.new do
-      if !options[:corrupt]
+      unless options[:corrupt]
         define_method(name) do |*args|
-          raise "cap: #{name} #{args.inspect}"
+          fail "cap: #{name} #{args.inspect}"
         end
       end
     end.new

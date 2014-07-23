@@ -1,10 +1,10 @@
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 require 'optparse'
 
 describe Vagrant::Plugin::V2::Command do
-  include_context "unit"
+  include_context 'unit'
 
-  describe "parsing options" do
+  describe 'parsing options' do
     let(:klass) do
       Class.new(described_class) do
         # Make the method public since it is normally protected
@@ -12,27 +12,27 @@ describe Vagrant::Plugin::V2::Command do
       end
     end
 
-    it "returns the remaining arguments" do
+    it 'returns the remaining arguments' do
       options = {}
       opts = OptionParser.new do |o|
-        o.on("-f") do |f|
+        o.on('-f') do |f|
           options[:f] = f
         end
       end
 
-      result = klass.new(["-f", "foo"], nil).parse_options(opts)
+      result = klass.new(['-f', 'foo'], nil).parse_options(opts)
 
       # Check the results
       expect(options[:f]).to be
-      expect(result).to eq(["foo"])
+      expect(result).to eq(['foo'])
     end
 
-    it "creates an option parser if none is given" do
-      result = klass.new(["foo"], nil).parse_options(nil)
-      expect(result).to eq(["foo"])
+    it 'creates an option parser if none is given' do
+      result = klass.new(['foo'], nil).parse_options(nil)
+      expect(result).to eq(['foo'])
     end
 
-    ["-h", "--help"].each do |help_string|
+    ['-h', '--help'].each do |help_string|
       it "returns nil and prints the help if '#{help_string}' is given" do
         instance = klass.new([help_string], nil)
         expect(instance).to receive(:safe_puts)
@@ -40,14 +40,14 @@ describe Vagrant::Plugin::V2::Command do
       end
     end
 
-    it "raises an error if invalid options are given" do
-      instance = klass.new(["-f"], nil)
+    it 'raises an error if invalid options are given' do
+      instance = klass.new(['-f'], nil)
       expect { instance.parse_options(OptionParser.new) }.
         to raise_error(Vagrant::Errors::CLIInvalidOptions)
     end
   end
 
-  describe "target VMs" do
+  describe 'target VMs' do
     let(:klass) do
       Class.new(described_class) do
         # Make the method public since it is normally protected
@@ -57,7 +57,7 @@ describe Vagrant::Plugin::V2::Command do
 
     let(:environment) do
       # We have to create a Vagrantfile so there is a root path
-      test_iso_env.vagrantfile("")
+      test_iso_env.vagrantfile('')
       test_iso_env.create_vagrant_env
     end
     let(:test_iso_env) { isolated_environment }
@@ -66,20 +66,20 @@ describe Vagrant::Plugin::V2::Command do
 
     subject { instance }
 
-    it "should raise an exception if a root_path is not available" do
+    it 'should raise an exception if a root_path is not available' do
       environment.stub(root_path: nil)
 
       expect { instance.with_target_vms }.
         to raise_error(Vagrant::Errors::NoEnvironmentError)
     end
 
-    it "should yield every VM in order is no name is given" do
-      foo_vm = double("foo")
-      foo_vm.stub(name: "foo", provider: :foobarbaz)
+    it 'should yield every VM in order is no name is given' do
+      foo_vm = double('foo')
+      foo_vm.stub(name: 'foo', provider: :foobarbaz)
       foo_vm.stub(ui: Vagrant::UI::Silent.new)
 
-      bar_vm = double("bar")
-      bar_vm.stub(name: "bar", provider: :foobarbaz)
+      bar_vm = double('bar')
+      bar_vm.stub(name: 'bar', provider: :foobarbaz)
       bar_vm.stub(ui: Vagrant::UI::Silent.new)
 
       environment.stub(machine_names: [:foo, :bar])
@@ -98,36 +98,36 @@ describe Vagrant::Plugin::V2::Command do
       environment.stub(machine_names: [:default])
       allow(environment).to receive(:machine).with(:foo, anything).and_return(nil)
 
-      expect { instance.with_target_vms("foo") }.
+      expect { instance.with_target_vms('foo') }.
         to raise_error(Vagrant::Errors::VMNotFoundError)
     end
 
-    it "yields the given VM if a name is given" do
-      foo_vm = double("foo")
-      foo_vm.stub(name: "foo", provider: :foobarbaz)
+    it 'yields the given VM if a name is given' do
+      foo_vm = double('foo')
+      foo_vm.stub(name: 'foo', provider: :foobarbaz)
       foo_vm.stub(ui: Vagrant::UI::Silent.new)
 
       allow(environment).to receive(:machine).with(:foo, environment.default_provider).and_return(foo_vm)
 
       vms = []
-      instance.with_target_vms("foo") { |vm| vms << vm }
+      instance.with_target_vms('foo') { |vm| vms << vm }
       expect(vms).to eq([foo_vm])
     end
 
-    it "yields the given VM with proper provider if given" do
-      foo_vm = double("foo")
+    it 'yields the given VM with proper provider if given' do
+      foo_vm = double('foo')
       provider = :foobarbaz
 
-      foo_vm.stub(name: "foo", provider: provider)
+      foo_vm.stub(name: 'foo', provider: provider)
       foo_vm.stub(ui: Vagrant::UI::Silent.new)
       allow(environment).to receive(:machine).with(:foo, provider).and_return(foo_vm)
 
       vms = []
-      instance.with_target_vms("foo", provider: provider) { |vm| vms << vm }
+      instance.with_target_vms('foo', provider: provider) { |vm| vms << vm }
       expect(vms).to eq([foo_vm])
     end
 
-    it "should raise an exception if an active machine exists with a different provider" do
+    it 'should raise an exception if an active machine exists with a different provider' do
       name = :foo
 
       environment.stub(active_machines: [[name, :vmware]])
@@ -135,10 +135,10 @@ describe Vagrant::Plugin::V2::Command do
         to raise_error Vagrant::Errors::ActiveMachineWithDifferentProvider
     end
 
-    it "should default to the active machine provider if no explicit provider requested" do
+    it 'should default to the active machine provider if no explicit provider requested' do
       name = :foo
       provider = :vmware
-      vmware_vm = double("vmware_vm")
+      vmware_vm = double('vmware_vm')
 
       environment.stub(active_machines: [[name, provider]])
       allow(environment).to receive(:machine).with(name, provider).and_return(vmware_vm)
@@ -150,10 +150,10 @@ describe Vagrant::Plugin::V2::Command do
       expect(vms).to eq([vmware_vm])
     end
 
-    it "should use the explicit provider if it maches the active machine" do
+    it 'should use the explicit provider if it maches the active machine' do
       name = :foo
       provider = :vmware
-      vmware_vm = double("vmware_vm")
+      vmware_vm = double('vmware_vm')
 
       environment.stub(active_machines: [[name, provider]])
       allow(environment).to receive(:machine).with(name, provider).and_return(vmware_vm)
@@ -164,9 +164,9 @@ describe Vagrant::Plugin::V2::Command do
       expect(vms).to eq([vmware_vm])
     end
 
-    it "should use the default provider if none is given and none are active" do
+    it 'should use the default provider if none is given and none are active' do
       name = :foo
-      machine = double("machine")
+      machine = double('machine')
 
       allow(environment).to receive(:machine).with(name, environment.default_provider).and_return(machine)
       machine.stub(name: name, provider: environment.default_provider)
@@ -177,10 +177,10 @@ describe Vagrant::Plugin::V2::Command do
       expect(results).to eq([machine])
     end
 
-    it "should use the primary machine with the active provider" do
+    it 'should use the primary machine with the active provider' do
       name = :foo
       provider = :vmware
-      vmware_vm = double("vmware_vm")
+      vmware_vm = double('vmware_vm')
 
       environment.stub(active_machines: [[name, provider]])
       allow(environment).to receive(:machine).with(name, provider).and_return(vmware_vm)
@@ -194,9 +194,9 @@ describe Vagrant::Plugin::V2::Command do
       expect(vms).to eq([vmware_vm])
     end
 
-    it "should use the primary machine with the default provider" do
+    it 'should use the primary machine with the default provider' do
       name = :foo
-      machine = double("machine")
+      machine = double('machine')
 
       environment.stub(active_machines: [])
       allow(environment).to receive(:machine).with(name, environment.default_provider).and_return(machine)
@@ -206,20 +206,20 @@ describe Vagrant::Plugin::V2::Command do
       machine.stub(ui: Vagrant::UI::Silent.new)
 
       vms = []
-      instance.with_target_vms(nil, single_target: true) { |vm| vms << machine }
+      instance.with_target_vms(nil, single_target: true) { |_vm| vms << machine }
       expect(vms).to eq([machine])
     end
 
-    it "should yield machines from another environment" do
+    it 'should yield machines from another environment' do
       iso_env       = isolated_environment
-      iso_env.vagrantfile("")
+      iso_env.vagrantfile('')
       other_env     = iso_env.create_vagrant_env(
         home_path: environment.home_path)
       other_machine = other_env.machine(
         other_env.machine_names[0], other_env.default_provider)
 
       # Set an ID on it so that it is "created" in the index
-      other_machine.id = "foo"
+      other_machine.id = 'foo'
 
       # Make sure we don't have a root path, to test
       environment.stub(root_path: nil)
@@ -232,7 +232,7 @@ describe Vagrant::Plugin::V2::Command do
     end
   end
 
-  describe "splitting the main and subcommand args" do
+  describe 'splitting the main and subcommand args' do
     let(:instance) do
       Class.new(described_class) do
         # Make the method public since it is normally protected
@@ -240,29 +240,29 @@ describe Vagrant::Plugin::V2::Command do
       end.new(nil, nil)
     end
 
-    it "should work when given all 3 parts" do
-      result = instance.split_main_and_subcommand(["-v", "status", "-h", "-v"])
-      expect(result).to eq([["-v"], "status", ["-h", "-v"]])
+    it 'should work when given all 3 parts' do
+      result = instance.split_main_and_subcommand(['-v', 'status', '-h', '-v'])
+      expect(result).to eq([['-v'], 'status', ['-h', '-v']])
     end
 
-    it "should work when given only a subcommand and args" do
-      result = instance.split_main_and_subcommand(["status", "-h"])
-      expect(result).to eq([[], "status", ["-h"]])
+    it 'should work when given only a subcommand and args' do
+      result = instance.split_main_and_subcommand(['status', '-h'])
+      expect(result).to eq([[], 'status', ['-h']])
     end
 
-    it "should work when given only main flags" do
-      result = instance.split_main_and_subcommand(["-v", "-h"])
-      expect(result).to eq([["-v", "-h"], nil, []])
+    it 'should work when given only main flags' do
+      result = instance.split_main_and_subcommand(['-v', '-h'])
+      expect(result).to eq([['-v', '-h'], nil, []])
     end
 
-    it "should work when given only a subcommand" do
-      result = instance.split_main_and_subcommand(["status"])
-      expect(result).to eq([[], "status", []])
+    it 'should work when given only a subcommand' do
+      result = instance.split_main_and_subcommand(['status'])
+      expect(result).to eq([[], 'status', []])
     end
 
-    it "works when there are other non-flag args after the subcommand" do
-      result = instance.split_main_and_subcommand(["-v", "box", "add", "-h"])
-      expect(result).to eq([["-v"], "box", ["add", "-h"]])
+    it 'works when there are other non-flag args after the subcommand' do
+      result = instance.split_main_and_subcommand(['-v', 'box', 'add', '-h'])
+      expect(result).to eq([['-v'], 'box', ['add', '-h']])
     end
   end
 end

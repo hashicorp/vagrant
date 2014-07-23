@@ -25,13 +25,13 @@ module Vagrant
       def initialize(*command)
         @options = command.last.is_a?(Hash) ? command.pop : {}
         @command = command.dup
-        @command[0] = Which.which(@command[0]) if !File.file?(@command[0])
-        if !@command[0]
-          raise Errors::CommandUnavailableWindows, file: command[0] if Platform.windows?
-          raise Errors::CommandUnavailable, file: command[0]
+        @command[0] = Which.which(@command[0]) unless File.file?(@command[0])
+        unless @command[0]
+          fail Errors::CommandUnavailableWindows, file: command[0] if Platform.windows?
+          fail Errors::CommandUnavailable, file: command[0]
         end
 
-        @logger  = Log4r::Logger.new("vagrant::util::subprocess")
+        @logger  = Log4r::Logger.new('vagrant::util::subprocess')
       end
 
       def execute
@@ -43,13 +43,13 @@ module Vagrant
 
         # Get what we're interested in being notified about
         notify  = @options[:notify] || []
-        notify  = [notify] if !notify.is_a?(Array)
+        notify  = [notify] unless notify.is_a?(Array)
         if notify.empty? && block_given?
           # If a block is given, subscribers must be given, otherwise the
           # block is never called. This is usually NOT what you want, so this
           # is an error.
-          message = "A list of notify subscriptions must be given if a block is given"
-          raise ArgumentError, message
+          message = 'A list of notify subscriptions must be given if a block is given'
+          fail ArgumentError, message
         end
 
         # Let's get some more useful booleans that we access a lot so
@@ -75,18 +75,18 @@ module Vagrant
         # in the installer context, then force DYLD_LIBRARY_PATH to look
         # at our libs first.
         if Vagrant.in_installer? && Platform.darwin?
-          installer_dir = ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"].to_s.downcase
+          installer_dir = ENV['VAGRANT_INSTALLER_EMBEDDED_DIR'].to_s.downcase
           if @command[0].downcase.include?(installer_dir)
-            @logger.info("Command in the installer. Specifying DYLD_LIBRARY_PATH...")
-            process.environment["DYLD_LIBRARY_PATH"] =
-              "#{installer_dir}/lib:#{ENV["DYLD_LIBRARY_PATH"]}"
+            @logger.info('Command in the installer. Specifying DYLD_LIBRARY_PATH...')
+            process.environment['DYLD_LIBRARY_PATH'] =
+              "#{installer_dir}/lib:#{ENV['DYLD_LIBRARY_PATH']}"
           else
-            @logger.debug("Command not in installer, not touching env vars.")
+            @logger.debug('Command not in installer, not touching env vars.')
           end
 
           if File.setuid?(@command[0]) || File.setgid?(@command[0])
-            @logger.info("Command is setuid/setgid, clearing DYLD_LIBRARY_PATH")
-            process.environment["DYLD_LIBRARY_PATH"] = ""
+            @logger.info('Command is setuid/setgid, clearing DYLD_LIBRARY_PATH')
+            process.environment['DYLD_LIBRARY_PATH'] = ''
           end
         end
 
@@ -111,7 +111,7 @@ module Vagrant
         # Make sure the stdin does not buffer
         process.io.stdin.sync = true
 
-        if RUBY_PLATFORM != "java"
+        if RUBY_PLATFORM != 'java'
           # On Java, we have to close after. See down the method...
           # Otherwise, we close the writers right here, since we're
           # not on the writing side.
@@ -120,12 +120,12 @@ module Vagrant
         end
 
         # Create a dictionary to store all the output we see.
-        io_data = { stdout: "", stderr: "" }
+        io_data = { stdout: '', stderr: '' }
 
         # Record the start time for timeout purposes
         start_time = Time.now.to_i
 
-        @logger.debug("Selecting on IO")
+        @logger.debug('Selecting on IO')
         while true
           writers = notify_stdin ? [process.io.stdin] : []
           results = ::IO.select([stdout, stderr], writers, nil, timeout || 0.1)
@@ -134,7 +134,7 @@ module Vagrant
           writers = results[1]
 
           # Check if we have exceeded our timeout
-          raise TimeoutExceeded, process.pid if timeout && (Time.now.to_i - start_time) > timeout
+          fail TimeoutExceeded, process.pid if timeout && (Time.now.to_i - start_time) > timeout
 
           # Check the readers to see if they're ready
           if readers && !readers.empty?
@@ -166,7 +166,7 @@ module Vagrant
 
         # Wait for the process to end.
         begin
-          remaining = (timeout || 32000) - (Time.now.to_i - start_time)
+          remaining = (timeout || 32_000) - (Time.now.to_i - start_time)
           remaining = 0 if remaining < 0
           @logger.debug("Waiting for process to exit. Remaining to timeout: #{remaining}")
 
@@ -183,7 +183,7 @@ module Vagrant
         [stdout, stderr].each do |io|
           # Read the extra data, ignoring if there isn't any
           extra_data = IO.read_until_block(io)
-          next if extra_data == ""
+          next if extra_data == ''
 
           # Log it out and accumulate
           io_name = io == stdout ? :stdout : :stderr
@@ -194,7 +194,7 @@ module Vagrant
           yield io_name, extra_data if block_given?
         end
 
-        if RUBY_PLATFORM == "java"
+        if RUBY_PLATFORM == 'java'
           # On JRuby, we need to close the writers after the process,
           # for some reason. See GH-711.
           stdout_writer.close

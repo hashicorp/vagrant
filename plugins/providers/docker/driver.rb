@@ -1,6 +1,6 @@
-require "json"
+require 'json'
 
-require "log4r"
+require 'log4r'
 
 module VagrantPlugins
   module DockerProvider
@@ -10,7 +10,7 @@ module VagrantPlugins
       attr_accessor :executor
 
       def initialize
-        @logger   = Log4r::Logger.new("vagrant::docker::driver")
+        @logger   = Log4r::Logger.new('vagrant::docker::driver')
         @executor = Executor::Local.new
       end
 
@@ -20,10 +20,10 @@ module VagrantPlugins
         result = execute('docker', 'build', *args)
         regexp = /Successfully built (.+)$/i
         match  = regexp.match(result)
-        if !match
+        unless match
           # This will cause a stack trace in Vagrant, but it is a bug
           # if this happens anyways.
-          raise "UNKNOWN OUTPUT: #{result}"
+          fail "UNKNOWN OUTPUT: #{result}"
         end
 
         match[1]
@@ -40,15 +40,15 @@ module VagrantPlugins
         expose  = Array(params[:expose])
 
         run_cmd = %W(docker run --name #{name})
-        run_cmd << "-d" if params[:detach]
-        run_cmd += env.map { |k,v| ['-e', "#{k}=#{v}"] }
+        run_cmd << '-d' if params[:detach]
+        run_cmd += env.map { |k, v| ['-e', "#{k}=#{v}"] }
         run_cmd += expose.map { |p| ['--expose', "#{p}"] }
         run_cmd += links.map { |k, v| ['--link', "#{k}:#{v}"] }
         run_cmd += ports.map { |p| ['-p', p.to_s] }
         run_cmd += volumes.map { |v| ['-v', v.to_s] }
-        run_cmd += %W(--privileged) if params[:privileged]
+        run_cmd += %w(--privileged) if params[:privileged]
         run_cmd += %W(-h #{params[:hostname]}) if params[:hostname]
-        run_cmd << "-i" << "-t" if params[:pty]
+        run_cmd << '-i' << '-t' if params[:pty]
         run_cmd += params[:extra_args] if params[:extra_args]
         run_cmd += [image, cmd]
 
@@ -86,7 +86,7 @@ module VagrantPlugins
       end
 
       def start(cid)
-        if !running?(cid)
+        unless running?(cid)
           execute('docker', 'start', cid)
           # This resets the cached information we have around, allowing `vagrant reload`s
           # to work properly
@@ -109,9 +109,9 @@ module VagrantPlugins
       def rmi(id)
         execute('docker', 'rmi', id)
         return true
-      rescue Exception => e
-        return false if e.to_s.include?("is using it")
-        raise if !e.to_s.include?("No such image")
+      rescue => e
+        return false if e.to_s.include?('is using it')
+        raise unless e.to_s.include?('No such image')
       end
 
       def inspect_container(cid)
@@ -127,10 +127,10 @@ module VagrantPlugins
       def docker_bridge_ip
         output = execute('/sbin/ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
         if output =~ /^\s+inet ([0-9.]+)\/[0-9]+\s+/
-          return $1.to_s
+          return Regexp.last_match[1].to_s
         else
           # TODO: Raise an user friendly message
-          raise 'Unable to fetch docker bridge IP!'
+          fail 'Unable to fetch docker bridge IP!'
         end
       end
 

@@ -7,13 +7,13 @@ module HashiCorp
       end
 
       def call(env)
-        if env["PATH_INFO"] =~ /^\/$/
+        if env['PATH_INFO'] =~ /^\/$/
           headers = {
-            "Content-Type" => "text/html",
-            "Location" => "/v2/",
-            "Surrogate-Key" => "page"
+            'Content-Type' => 'text/html',
+            'Location' => '/v2/',
+            'Surrogate-Key' => 'page'
           }
-          message = "Redirecting to new URL..."
+          message = 'Redirecting to new URL...'
 
           return [301, headers, [message]]
         end

@@ -12,13 +12,13 @@ module VagrantPlugins
         def call(env)
           # Setup the temporary directory
           @temp_dir = env[:tmp_path].join(Time.now.to_i.to_s)
-          env["export.temp_dir"] = @temp_dir
-          FileUtils.mkpath(env["export.temp_dir"])
+          env['export.temp_dir'] = @temp_dir
+          FileUtils.mkpath(env['export.temp_dir'])
 
           # Just match up a couple environmental variables so that
           # the superclass will do the right thing. Then, call the
           # superclass
-          env["package.directory"] = env["export.temp_dir"]
+          env['package.directory'] = env['export.temp_dir']
 
           general_call(env)
 

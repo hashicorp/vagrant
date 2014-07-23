@@ -4,13 +4,13 @@ module VagrantPlugins
       # This middleware checks that the VM is created, and raises an exception
       # if it is not, notifying the user that creation is required.
       class CheckCreated
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
         def call(env)
           if env[:machine].state.id == :not_created
-            raise Vagrant::Errors::VMNotCreatedError
+            fail Vagrant::Errors::VMNotCreatedError
           end
 
           @app.call(env)

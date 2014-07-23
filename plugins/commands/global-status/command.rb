@@ -2,32 +2,32 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandGlobalStatus
-    class Command < Vagrant.plugin("2", :command)
+    class Command < Vagrant.plugin('2', :command)
       def self.synopsis
-        "outputs status Vagrant environments for this user"
+        'outputs status Vagrant environments for this user'
       end
 
       def execute
         options = {}
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant global-status"
-          o.separator ""
-          o.on("--prune", "Prune invalid entries.") do |p|
+          o.banner = 'Usage: vagrant global-status'
+          o.separator ''
+          o.on('--prune', 'Prune invalid entries.') do |_p|
             options[:prune] = true
           end
         end
 
         # Parse the options
         argv = parse_options(opts)
-        return if !argv
+        return unless argv
 
         columns = [
-          ["id", :id],
-          ["name", :name],
-          ["provider", :provider],
-          ["state", :state],
-          ["directory", :vagrantfile_path],
+          ['id', :id],
+          ['name', :name],
+          ['provider', :provider],
+          ['state', :state],
+          ['directory', :vagrantfile_path],
         ]
 
         widths = {}
@@ -71,11 +71,11 @@ module VagrantPlugins
           @env.ui.info("#{header} ", new_line: false)
           total_width += header.length + 1
         end
-        @env.ui.info("")
-        @env.ui.info("-" * total_width)
+        @env.ui.info('')
+        @env.ui.info('-' * total_width)
 
         if entries.empty?
-          @env.ui.info(I18n.t("vagrant.global_status_none"))
+          @env.ui.info(I18n.t('vagrant.global_status_none'))
           return 0
         end
 
@@ -87,10 +87,10 @@ module VagrantPlugins
             @env.ui.info("#{v} ", new_line: false)
           end
 
-          @env.ui.info("")
+          @env.ui.info('')
         end
 
-        @env.ui.info(" \n" + I18n.t("vagrant.global_status_footer"))
+        @env.ui.info(" \n" + I18n.t('vagrant.global_status_footer'))
 
         # Success, exit status 0
         0

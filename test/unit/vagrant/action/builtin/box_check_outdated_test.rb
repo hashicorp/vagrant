@@ -1,29 +1,29 @@
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 
 describe Vagrant::Action::Builtin::BoxCheckOutdated do
-  include_context "unit"
+  include_context 'unit'
 
-  let(:app) { lambda { |env| } }
-  let(:env) { {
+  let(:app) { lambda { |_env| } }
+  let(:env) do {
     box_collection: iso_vagrant_env.boxes,
     machine: machine,
     ui: Vagrant::UI::Silent.new,
-  } }
+  } end
 
   subject { described_class.new(app, env) }
 
   let(:iso_env) do
     # We have to create a Vagrantfile so there is a root path
     isolated_environment.tap do |env|
-      env.vagrantfile("")
+      env.vagrantfile('')
     end
   end
 
   let(:iso_vagrant_env) { iso_env.create_vagrant_env }
 
   let(:box) do
-    box_dir = iso_env.box3("foo", "1.0", :virtualbox)
-    Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir).tap do |b|
+    box_dir = iso_env.box3('foo', '1.0', :virtualbox)
+    Vagrant::Box.new('foo', :virtualbox, '1.0', box_dir).tap do |b|
       b.stub(has_update?: nil)
     end
   end
@@ -38,7 +38,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     machine.stub(box: box)
   end
 
-  context "disabling outdated checking" do
+  context 'disabling outdated checking' do
     it "doesn't check" do
       machine.config.vm.box_check_update = false
 
@@ -49,7 +49,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env).to_not have_key(:box_outdated)
     end
 
-    it "checks if forced" do
+    it 'checks if forced' do
       machine.config.vm.box_check_update = false
       env[:box_outdated_force] = true
 
@@ -61,7 +61,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     end
   end
 
-  context "no box" do
+  context 'no box' do
     it "raises an exception if the machine doesn't have a box yet" do
       machine.stub(box: nil)
 
@@ -73,10 +73,10 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     end
   end
 
-  context "with a non-versioned box" do
-    it "does nothing" do
+  context 'with a non-versioned box' do
+    it 'does nothing' do
       box.stub(metadata_url: nil)
-      box.stub(version: "0")
+      box.stub(version: '0')
 
       expect(app).to receive(:call).once
       expect(box).to receive(:has_update?).never
@@ -85,8 +85,8 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     end
   end
 
-  context "with a box" do
-    it "sets env if no update" do
+  context 'with a box' do
+    it 'sets env if no update' do
       expect(box).to receive(:has_update?).and_return(nil)
 
       expect(app).to receive(:call).with(env).once
@@ -96,7 +96,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env[:box_outdated]).to be_false
     end
 
-    it "sets env if there is an update" do
+    it 'sets env if there is an update' do
       md = Vagrant::BoxMetadata.new(StringIO.new(<<-RAW))
       {
         "name": "foo",
@@ -118,7 +118,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       RAW
 
       expect(box).to receive(:has_update?).with(machine.config.vm.box_version).
-        and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
+        and_return([md, md.version('1.1'), md.version('1.1').provider('virtualbox')])
 
       expect(app).to receive(:call).with(env).once
 
@@ -127,8 +127,8 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env[:box_outdated]).to be_true
     end
 
-    it "has an update if it is local" do
-      iso_env.box3("foo", "1.1", :virtualbox)
+    it 'has an update if it is local' do
+      iso_env.box3('foo', '1.1', :virtualbox)
 
       expect(box).to receive(:has_update?).and_return(nil)
 
@@ -139,10 +139,10 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env[:box_outdated]).to be_true
     end
 
-    it "does not have a local update if not within constraints" do
-      iso_env.box3("foo", "1.1", :virtualbox)
+    it 'does not have a local update if not within constraints' do
+      iso_env.box3('foo', '1.1', :virtualbox)
 
-      machine.config.vm.box_version = "> 1.0, < 1.1"
+      machine.config.vm.box_version = '> 1.0, < 1.1'
 
       expect(box).to receive(:has_update?).and_return(nil)
 
@@ -153,9 +153,9 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env[:box_outdated]).to be_false
     end
 
-    it "does nothing if metadata download fails" do
+    it 'does nothing if metadata download fails' do
       expect(box).to receive(:has_update?).and_raise(
-        Vagrant::Errors::BoxMetadataDownloadError.new(message: "foo"))
+        Vagrant::Errors::BoxMetadataDownloadError.new(message: 'foo'))
 
       expect(app).to receive(:call).once
 
@@ -164,7 +164,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env[:box_outdated]).to be_false
     end
 
-    it "raises error if has_update? errors" do
+    it 'raises error if has_update? errors' do
       expect(box).to receive(:has_update?).and_raise(Vagrant::Errors::VagrantError)
 
       expect(app).to receive(:call).never

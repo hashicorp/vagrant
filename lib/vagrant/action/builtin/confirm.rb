@@ -11,7 +11,7 @@ module Vagrant
         # @param [String] message The message to ask the user.
         # @param [Symbol] force_key The key that if present and true in
         #   the environment hash will skip the confirmation question.
-        def initialize(app, env, message, force_key=nil, **opts)
+        def initialize(app, _env, message, force_key = nil, **opts)
           @app      = app
           @message  = message
           @force_key = force_key
@@ -23,21 +23,21 @@ module Vagrant
 
           # If we have a force key set and we're forcing, then set
           # the result to "Y"
-          choice = "Y" if @force_key && env[@force_key]
+          choice = 'Y' if @force_key && env[@force_key]
 
-          if !choice
+          unless choice
             while true
               # If we haven't chosen yes, then ask the user via TTY
               choice = env[:ui].ask(@message)
 
               # If we don't have an allowed set just exit
-              break if !@allowed
+              break unless @allowed
               break if @allowed.include?(choice)
             end
           end
 
           # The result is only true if the user said "Y"
-          env[:result] = choice && choice.upcase == "Y"
+          env[:result] = choice && choice.upcase == 'Y'
           env["#{@force_key}_result".to_sym] = env[:result]
 
           @app.call(env)

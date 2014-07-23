@@ -2,7 +2,7 @@ require 'set'
 
 module VagrantPlugins
   module DockerProvisioner
-    class Config < Vagrant.plugin("2", :config)
+    class Config < Vagrant.plugin('2', :config)
       attr_reader :images
       attr_accessor :version
 
@@ -46,7 +46,7 @@ module VagrantPlugins
 
       def merge(other)
         super.tap do |result|
-          result.pull_images(*(other.images + self.images))
+          result.pull_images(*(other.images + images))
 
           build_images = @__build_images.dup
           build_images += other.build_images
@@ -65,13 +65,13 @@ module VagrantPlugins
       end
 
       def finalize!
-        @version = "latest" if @version == UNSET_VALUE
+        @version = 'latest' if @version == UNSET_VALUE
         @version = @version.to_sym
 
         @__containers.each do |name, params|
           params[:image] ||= name
-          params[:auto_assign_name] = true if !params.key?(:auto_assign_name)
-          params[:daemonize] = true if !params.key?(:daemonize)
+          params[:auto_assign_name] = true unless params.key?(:auto_assign_name)
+          params[:daemonize] = true unless params.key?(:daemonize)
         end
       end
     end

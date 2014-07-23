@@ -1,10 +1,10 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path('../../../base', __FILE__)
 
-require "vagrant/util/string_block_editor"
+require 'vagrant/util/string_block_editor'
 
 describe Vagrant::Util::StringBlockEditor do
-  describe "#keys" do
-    it "should return all the keys" do
+  describe '#keys' do
+    it 'should return all the keys' do
       data = <<DATA
 # VAGRANT-BEGIN: foo
 value
@@ -15,20 +15,20 @@ content
 # VAGRANT-END: bar
 DATA
 
-      expect(described_class.new(data).keys).to eq(["foo", "bar"])
+      expect(described_class.new(data).keys).to eq(%w(foo bar))
     end
   end
 
-  describe "#delete" do
+  describe '#delete' do
     it "should delete nothing if the key doesn't exist" do
-      data = "foo"
+      data = 'foo'
 
       instance = described_class.new(data)
-      instance.delete("key")
+      instance.delete('key')
       expect(instance.value).to eq(data)
     end
 
-    it "should delete the matching blocks if they exist" do
+    it 'should delete the matching blocks if they exist' do
       data = <<DATA
 # VAGRANT-BEGIN: foo
 value
@@ -50,12 +50,12 @@ content
 DATA
 
       instance = described_class.new(data)
-      instance.delete("foo")
+      instance.delete('foo')
       expect(instance.value).to eq(new_data)
     end
   end
 
-  describe "#get" do
+  describe '#get' do
     let(:data) do
       <<DATA
 # VAGRANT-BEGIN: bar
@@ -69,22 +69,22 @@ DATA
 
     subject { described_class.new(data) }
 
-    it "should get the value" do
-      expect(subject.get("bar")).to eq("content")
+    it 'should get the value' do
+      expect(subject.get('bar')).to eq('content')
     end
 
-    it "should get nil for nonexistent values" do
-      expect(subject.get("baz")).to be_nil
+    it 'should get nil for nonexistent values' do
+      expect(subject.get('baz')).to be_nil
     end
 
-    it "should get complicated keys" do
-      result = subject.get("/Users/studio/Projects (studio)/tubes/.vagrant/machines/web/vmware_fusion/vm.vmwarevm")
-      expect(result).to eq("complex")
+    it 'should get complicated keys' do
+      result = subject.get('/Users/studio/Projects (studio)/tubes/.vagrant/machines/web/vmware_fusion/vm.vmwarevm')
+      expect(result).to eq('complex')
     end
   end
 
-  describe "#insert" do
-    it "should insert the given key and value" do
+  describe '#insert' do
+    it 'should insert the given key and value' do
       data = <<DATA
 # VAGRANT-BEGIN: bar
 content
@@ -99,7 +99,7 @@ value
 DATA
 
       instance = described_class.new(data)
-      instance.insert("foo", "value")
+      instance.insert('foo', 'value')
       expect(instance.value).to eq(new_data)
     end
   end

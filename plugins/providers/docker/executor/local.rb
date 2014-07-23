@@ -1,5 +1,5 @@
-require "vagrant/util/busy"
-require "vagrant/util/subprocess"
+require 'vagrant/util/busy'
+require 'vagrant/util/subprocess'
 
 module VagrantPlugins
   module DockerProvider
@@ -7,12 +7,12 @@ module VagrantPlugins
       # The Local executor executes a Docker client that is running
       # locally.
       class Local
-        def execute(*cmd, **opts, &block)
+        def execute(*cmd, **_opts, &block)
           # Append in the options for subprocess
           cmd << { notify: [:stdout, :stderr] }
 
           interrupted  = false
-          int_callback = ->{ interrupted = true }
+          int_callback = -> { interrupted = true }
           result = ::Vagrant::Util::Busy.busy(int_callback) do
             ::Vagrant::Util::Subprocess.execute(*cmd, &block)
           end
@@ -21,10 +21,10 @@ module VagrantPlugins
           result.stdout.gsub!("\r\n", "\n")
 
           if result.exit_code != 0 && !interrupted
-            raise Errors::ExecuteError,
-              command: cmd.inspect,
-              stderr: result.stderr,
-              stdout: result.stdout
+            fail Errors::ExecuteError,
+                 command: cmd.inspect,
+                 stderr: result.stderr,
+                 stdout: result.stdout
           end
 
           result.stdout

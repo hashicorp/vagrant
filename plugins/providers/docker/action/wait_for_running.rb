@@ -1,14 +1,14 @@
-require "thread"
+require 'thread'
 
-require "log4r"
+require 'log4r'
 
 module VagrantPlugins
   module DockerProvider
     module Action
       class WaitForRunning
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
-          @logger = Log4r::Logger.new("vagrant::docker::waitforrunning")
+          @logger = Log4r::Logger.new('vagrant::docker::waitforrunning')
         end
 
         def call(env)
@@ -22,15 +22,15 @@ module VagrantPlugins
           end
 
           # If we're not waiting, just return
-          return @app.call(env) if !wait
+          return @app.call(env) unless wait
 
-          machine.ui.output(I18n.t("docker_provider.waiting_for_running"))
+          machine.ui.output(I18n.t('docker_provider.waiting_for_running'))
 
           # First, make sure it leaves the stopped state if its supposed to.
           after = sleeper(5)
           while machine.provider.state.id == :stopped
             if after[:done]
-              raise Errors::StateStopped
+              fail Errors::StateStopped
             end
             sleep 0.2
           end
@@ -43,7 +43,7 @@ module VagrantPlugins
             @logger.info("Waiting for container to run. State: #{state.id}")
 
             if after[:done]
-              raise Errors::StateNotRunning
+              fail Errors::StateNotRunning
             end
 
             sleep 0.2

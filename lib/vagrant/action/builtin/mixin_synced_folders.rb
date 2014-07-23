@@ -1,5 +1,5 @@
-require "json"
-require "set"
+require 'json'
+require 'set'
 
 require 'vagrant/util/scoped_hash_override'
 
@@ -30,7 +30,7 @@ module Vagrant
             return key if impl.new.usable?(machine)
           end
 
-          return nil
+          nil
         end
 
         # This finds the options in the env that are set for a given
@@ -54,7 +54,7 @@ module Vagrant
         # This returns the available synced folder implementations. This
         # is a separate method so that it can be easily stubbed by tests.
         def plugins
-          @plugins ||= Vagrant.plugin("2").manager.synced_folders
+          @plugins ||= Vagrant.plugin('2').manager.synced_folders
         end
 
         # This saves the synced folders data to the machine data directory.
@@ -78,7 +78,7 @@ module Vagrant
             end
           end
 
-          machine.data_dir.join("synced_folders").open("w") do |f|
+          machine.data_dir.join('synced_folders').open('w') do |f|
             f.write(JSON.dump(folders))
           end
         end
@@ -101,21 +101,21 @@ module Vagrant
             # Ignore disabled synced folders
             next if data[:disabled]
 
-            impl = ""
+            impl = ''
             impl = data[:type].to_sym if data[:type] && !data[:type].empty?
 
-            if impl != ""
+            if impl != ''
               impl_class = plugins[impl]
-              if !impl_class
+              unless impl_class
                 # This should never happen because configuration validation
                 # should catch this case. But we put this here as an assert
-                raise "Internal error. Report this as a bug. Invalid: #{data[:type]}"
+                fail "Internal error. Report this as a bug. Invalid: #{data[:type]}"
               end
 
-              if !impl_class[0].new.usable?(machine, true)
+              unless impl_class[0].new.usable?(machine, true)
                 # Verify that explicitly defined shared folder types are
                 # actually usable.
-                raise Errors::SyncedFolderUnusable, type: data[:type].to_s
+                fail Errors::SyncedFolderUnusable, type: data[:type].to_s
               end
             end
 
@@ -126,16 +126,16 @@ module Vagrant
 
           # If we have folders with the "default" key, then determine the
           # most appropriate implementation for this.
-          if folders.key?("") && !folders[""].empty?
+          if folders.key?('') && !folders[''].empty?
             default_impl = default_synced_folder_type(machine, plugins)
-            if !default_impl
-              types = plugins.to_hash.keys.map { |t| t.to_s }.sort.join(", ")
-              raise Errors::NoDefaultSyncedFolderImpl, types: types
+            unless default_impl
+              types = plugins.to_hash.keys.map { |t| t.to_s }.sort.join(', ')
+              fail Errors::NoDefaultSyncedFolderImpl, types: types
             end
 
             folders[default_impl] ||= {}
-            folders[default_impl].merge!(folders[""])
-            folders.delete("")
+            folders[default_impl].merge!(folders[''])
+            folders.delete('')
           end
 
           # Apply the scoped hash overrides to get the options
@@ -149,7 +149,7 @@ module Vagrant
             folders[impl_name] = new_fs
           end
 
-          return folders
+          folders
         end
 
         # This finds the difference between two lists of synced folder
@@ -164,17 +164,17 @@ module Vagrant
         # @return [hash]
         def synced_folders_diff(one, two)
           existing_ids = {}
-          one.each do |impl, fs|
+          one.each do |_impl, fs|
             fs.each do |id, data|
               existing_ids[id] = data
             end
           end
 
           result = Hash.new { |h, k| h[k] = Set.new }
-          two.each do |impl, fs|
+          two.each do |_impl, fs|
             fs.each do |id, data|
               existing = existing_ids.delete(id)
-              if !existing
+              unless existing
                 result[:added] << id
                 next
               end
@@ -198,11 +198,11 @@ module Vagrant
         protected
 
         def cached_synced_folders(machine)
-          JSON.parse(machine.data_dir.join("synced_folders").read).tap do |r|
+          JSON.parse(machine.data_dir.join('synced_folders').read).tap do |r|
             # We have to do all sorts of things to make the proper things
             # symbols and
             r.keys.each do |k|
-              r[k].each do |ik, v|
+              r[k].each do |_ik, v|
                 v.keys.each do |vk|
                   v[vk.to_sym] = v[vk]
                   v.delete(vk)

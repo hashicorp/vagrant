@@ -5,13 +5,13 @@ module VagrantPlugins
         def initialize(app, env)
           @app = app
 
-          env["package.include"] ||= []
-          env["package.vagrantfile"] ||= nil
+          env['package.include'] ||= []
+          env['package.vagrantfile'] ||= nil
         end
 
         def call(env)
           files = {}
-          env["package.include"].each do |file|
+          env['package.include'].each do |file|
             source = Pathname.new(file)
             dest   = nil
 
@@ -29,19 +29,19 @@ module VagrantPlugins
             files[file] = dest
           end
 
-          if env["package.vagrantfile"]
+          if env['package.vagrantfile']
             # Vagrantfiles are treated special and mapped to a specific file
-            files[env["package.vagrantfile"]] = "_Vagrantfile"
+            files[env['package.vagrantfile']] = '_Vagrantfile'
           end
 
           # Verify the mapping
           files.each do |from, _|
-            raise Vagrant::Errors::PackageIncludeMissing,
-              file: from if !File.exist?(from)
+            fail Vagrant::Errors::PackageIncludeMissing,
+                 file: from unless File.exist?(from)
           end
 
           # Save the mapping
-          env["package.files"] = files
+          env['package.files'] = files
 
           @app.call(env)
         end

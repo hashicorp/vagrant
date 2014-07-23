@@ -4,9 +4,9 @@ module VagrantPlugins
       class PrepareNFSSettings
         include Vagrant::Util::Retryable
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
-          @logger = Log4r::Logger.new("vagrant::action::vm::nfs")
+          @logger = Log4r::Logger.new('vagrant::action::vm::nfs')
         end
 
         def call(env)
@@ -15,11 +15,11 @@ module VagrantPlugins
           @app.call(env)
 
           if using_nfs? && !privileged_container?
-            raise Errors::NfsWithoutPrivilegedError
+            fail Errors::NfsWithoutPrivilegedError
           end
 
           if using_nfs?
-            @logger.info("Using NFS, preparing NFS settings by reading host IP and machine IP")
+            @logger.info('Using NFS, preparing NFS settings by reading host IP and machine IP')
             add_ips_to_env!(env)
           end
         end
@@ -46,7 +46,7 @@ module VagrantPlugins
           host_ip    = provider.driver.docker_bridge_ip
           machine_ip = provider.ssh_info[:host]
 
-          raise Vagrant::Errors::NFSNoHostonlyNetwork if !host_ip || !machine_ip
+          fail Vagrant::Errors::NFSNoHostonlyNetwork if !host_ip || !machine_ip
 
           env[:nfs_host_ip]    = host_ip
           env[:nfs_machine_ip] = machine_ip

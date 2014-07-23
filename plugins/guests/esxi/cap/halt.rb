@@ -3,12 +3,8 @@ module VagrantPlugins
     module Cap
       class Halt
         def self.halt(machine)
-          begin
-            machine.communicate.execute("/bin/halt -d 0")
-          rescue IOError
-            # Ignore, this probably means connection closed because it
-            # shut down.
-          end
+          machine.communicate.execute('/bin/halt -d 0')
+        rescue IOError
         end
       end
     end

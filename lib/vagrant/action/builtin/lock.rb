@@ -1,4 +1,4 @@
-require "log4r"
+require 'log4r'
 
 module Vagrant
   module Action
@@ -6,12 +6,12 @@ module Vagrant
       # This class creates a multi-process lock using `flock`. The lock
       # is active for the remainder of the middleware stack.
       class Lock
-        def initialize(app, env, options=nil)
+        def initialize(app, _env, options = nil)
           @app     = app
-          @logger  = Log4r::Logger.new("vagrant::action::builtin::lock")
+          @logger  = Log4r::Logger.new('vagrant::action::builtin::lock')
           @options ||= options || {}
-          raise ArgumentError, "Please specify a lock path" if !@options[:path]
-          raise ArgumentError, "Please specify an exception." if !@options[:exception]
+          fail ArgumentError, 'Please specify a lock path' unless @options[:path]
+          fail ArgumentError, 'Please specify an exception.' unless @options[:exception]
         end
 
         def call(env)
@@ -24,7 +24,7 @@ module Vagrant
             # If we already have the key in our environment we assume the
             # lock is held by our middleware stack already and we allow
             # nesting.
-            File.open(lock_path, "w+") do |f|
+            File.open(lock_path, 'w+') do |f|
               # The file locking fails only if it returns "false." If it
               # succeeds it returns a 0, so we must explicitly check for
               # the proper error case.
@@ -32,7 +32,7 @@ module Vagrant
               if f.flock(File::LOCK_EX | File::LOCK_NB) === false
                 exception = @options[:exception]
                 exception = exception.call(env) if exception.is_a?(Proc)
-                raise exception
+                fail exception
               end
 
               # Set that we gained the lock and call deeper into the

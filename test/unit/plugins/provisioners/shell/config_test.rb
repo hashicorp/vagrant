@@ -1,6 +1,6 @@
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 
-describe "VagrantPlugins::Shell::Config" do
+describe 'VagrantPlugins::Shell::Config' do
   let(:described_class) do
     VagrantPlugins::Shell::Plugin.components.configs[:provisioner][:shell]
   end
@@ -10,47 +10,47 @@ describe "VagrantPlugins::Shell::Config" do
 
   subject { described_class.new }
 
-  describe "validate" do
-    it "passes with no args" do
+  describe 'validate' do
+    it 'passes with no args' do
       subject.path = file_that_exists
       subject.finalize!
 
       result = subject.validate(machine)
 
-      expect(result["shell provisioner"]).to eq([])
+      expect(result['shell provisioner']).to eq([])
     end
 
-    it "passes with string args" do
+    it 'passes with string args' do
       subject.path = file_that_exists
-      subject.args = "a string"
+      subject.args = 'a string'
       subject.finalize!
 
       result = subject.validate(machine)
 
-      expect(result["shell provisioner"]).to eq([])
+      expect(result['shell provisioner']).to eq([])
     end
 
-    it "passes with fixnum args" do
+    it 'passes with fixnum args' do
       subject.path = file_that_exists
       subject.args = 1
       subject.finalize!
 
       result = subject.validate(machine)
 
-      expect(result["shell provisioner"]).to eq([])
+      expect(result['shell provisioner']).to eq([])
     end
 
-    it "passes with array args" do
+    it 'passes with array args' do
       subject.path = file_that_exists
-      subject.args = ["an", "array"]
+      subject.args = %w(an array)
       subject.finalize!
 
       result = subject.validate(machine)
 
-      expect(result["shell provisioner"]).to eq([])
+      expect(result['shell provisioner']).to eq([])
     end
 
-    it "returns an error if args is neither a string nor an array" do
+    it 'returns an error if args is neither a string nor an array' do
       neither_array_nor_string = Object.new
 
       subject.path = file_that_exists
@@ -59,30 +59,30 @@ describe "VagrantPlugins::Shell::Config" do
 
       result = subject.validate(machine)
 
-      expect(result["shell provisioner"]).to eq([
-        I18n.t("vagrant.provisioners.shell.args_bad_type")
+      expect(result['shell provisioner']).to eq([
+        I18n.t('vagrant.provisioners.shell.args_bad_type')
       ])
     end
 
-    it "handles scalar array args" do
+    it 'handles scalar array args' do
       subject.path = file_that_exists
-      subject.args = ["string", 1, 2]
+      subject.args = ['string', 1, 2]
       subject.finalize!
 
       result = subject.validate(machine)
 
-      expect(result["shell provisioner"]).to eq([])
+      expect(result['shell provisioner']).to eq([])
     end
 
-    it "returns an error if args is an array with non-scalar types" do
+    it 'returns an error if args is an array with non-scalar types' do
       subject.path = file_that_exists
       subject.args = [[1]]
       subject.finalize!
 
       result = subject.validate(machine)
 
-      expect(result["shell provisioner"]).to eq([
-        I18n.t("vagrant.provisioners.shell.args_bad_type")
+      expect(result['shell provisioner']).to eq([
+        I18n.t('vagrant.provisioners.shell.args_bad_type')
       ])
     end
   end

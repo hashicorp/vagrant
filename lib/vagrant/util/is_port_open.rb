@@ -1,5 +1,5 @@
-require "socket"
-require "timeout"
+require 'socket'
+require 'timeout'
 
 module Vagrant
   module Util

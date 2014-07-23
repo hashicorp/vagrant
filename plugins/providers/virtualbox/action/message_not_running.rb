@@ -2,12 +2,12 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class MessageNotRunning
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
         def call(env)
-          env[:ui].info I18n.t("vagrant.commands.common.vm_not_running")
+          env[:ui].info I18n.t('vagrant.commands.common.vm_not_running')
           @app.call(env)
         end
       end

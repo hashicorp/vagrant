@@ -1,4 +1,4 @@
-require "vagrant/util/platform"
+require 'vagrant/util/platform'
 
 module Vagrant
   module Util
@@ -12,7 +12,7 @@ module Vagrant
       #
       # @return [String]
       def self.read_until_block(io)
-        data = ""
+        data = ''
 
         while true
           begin
@@ -34,7 +34,7 @@ module Vagrant
               # Do a simple non-blocking read on the IO object
               data << io.read_nonblock(READ_CHUNK_SIZE)
             end
-          rescue Exception => e
+          rescue => e
             # The catch-all rescue here is to support multiple Ruby versions,
             # since we use some Ruby 1.9 specific exceptions.
 
@@ -64,7 +64,6 @@ module Vagrant
 
         data
       end
-
     end
   end
 end

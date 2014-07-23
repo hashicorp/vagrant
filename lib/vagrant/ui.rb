@@ -1,11 +1,11 @@
-require "delegate"
-require "io/console"
-require "thread"
+require 'delegate'
+require 'io/console'
+require 'thread'
 
-require "log4r"
+require 'log4r'
 
-require "vagrant/util/platform"
-require "vagrant/util/safe_puts"
+require 'vagrant/util/platform'
+require 'vagrant/util/safe_puts'
 
 module Vagrant
   module UI
@@ -22,7 +22,7 @@ module Vagrant
       attr_accessor :opts
 
       def initialize
-        @logger   = Log4r::Logger.new("vagrant::ui::interface")
+        @logger   = Log4r::Logger.new('vagrant::ui::interface')
         @opts     = {}
       end
 
@@ -32,7 +32,7 @@ module Vagrant
       end
 
       [:ask, :detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, *opts|
+        define_method(method) do |message, *_opts|
           # Log normal console messages
           begin
             @logger.info { "#{method}: #{message}" }
@@ -47,7 +47,7 @@ module Vagrant
 
       [:clear_line, :report_progress].each do |method|
         # By default do nothing, these aren't logged
-        define_method(method) { |*args| }
+        define_method(method) { |*_args| }
       end
 
       # For machine-readable output.
@@ -65,7 +65,7 @@ module Vagrant
         super
 
         # Silent can't do this, obviously.
-        raise Errors::UIExpectsTTY
+        fail Errors::UIExpectsTTY
       end
     end
 
@@ -82,25 +82,25 @@ module Vagrant
         super
 
         # Machine-readable can't ask for input
-        raise Errors::UIExpectsTTY
+        fail Errors::UIExpectsTTY
       end
 
       def machine(type, *data)
         opts = {}
-        opts = data.pop if data.last.kind_of?(Hash)
+        opts = data.pop if data.last.is_a?(Hash)
 
-        target = opts[:target] || ""
+        target = opts[:target] || ''
 
         # Prepare the data by replacing characters that aren't outputted
         data.each_index do |i|
           data[i] = data[i].to_s.dup
-          data[i].gsub!(",", "%!(VAGRANT_COMMA)")
-          data[i].gsub!("\n", "\\n")
-          data[i].gsub!("\r", "\\r")
+          data[i].gsub!(',', '%!(VAGRANT_COMMA)')
+          data[i].gsub!("\n", '\\n')
+          data[i].gsub!("\r", '\\r')
         end
 
         @lock.synchronize do
-          safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
+          safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(',')}")
         end
       end
     end
@@ -128,17 +128,17 @@ module Vagrant
         CODE
       end
 
-      def ask(message, opts=nil)
+      def ask(message, opts = nil)
         super(message)
 
         # We can't ask questions when the output isn't a TTY.
-        raise Errors::UIExpectsTTY if !$stdin.tty? && !Vagrant::Util::Platform.cygwin?
+        fail Errors::UIExpectsTTY if !$stdin.tty? && !Vagrant::Util::Platform.cygwin?
 
         # Setup the options so that the new line is suppressed
         opts ||= {}
-        opts[:echo]     = true  if !opts.key?(:echo)
-        opts[:new_line] = false if !opts.key?(:new_line)
-        opts[:prefix]   = false if !opts.key?(:prefix)
+        opts[:echo]     = true  unless opts.key?(:echo)
+        opts[:new_line] = false unless opts.key?(:new_line)
+        opts[:prefix]   = false unless opts.key?(:prefix)
 
         # Output the data
         say(:info, message, opts)
@@ -155,7 +155,7 @@ module Vagrant
             say(:info, "\n", opts)
           rescue Errno::EBADF
             # This means that stdin doesn't support echoless input.
-            say(:info, "\n#{I18n.t("vagrant.stdin_cant_hide_input")}\n ", opts)
+            say(:info, "\n#{I18n.t('vagrant.stdin_cant_hide_input')}\n ", opts)
 
             # Ask again, with echo enabled
             input = ask(message, opts.merge(echo: true))
@@ -165,14 +165,14 @@ module Vagrant
         # Get the results and chomp off the newline. We do a logical OR
         # here because `gets` can return a nil, for example in the case
         # that ctrl-D is pressed on the input.
-        (input || "").chomp
+        (input || '').chomp
       end
 
       # This is used to output progress reports to the UI.
       # Send this method progress/total and it will output it
       # to the UI. Send `clear_line` to clear the line to show
       # a continuous progress meter.
-      def report_progress(progress, total, show_parts=true)
+      def report_progress(progress, total, show_parts = true)
         if total && total > 0
           percent = (progress.to_f / total.to_f) * 100
           line    = "Progress: #{percent.to_i}%"
@@ -220,7 +220,7 @@ module Vagrant
         end.join
       end
 
-      def format_message(type, message, **opts)
+      def format_message(_type, message, **_opts)
         message
       end
     end
@@ -228,7 +228,7 @@ module Vagrant
     # Prefixed wraps an existing UI and adds a prefix to it.
     class Prefixed < Interface
       # The prefix for `output` messages.
-      OUTPUT_PREFIX = "==> "
+      OUTPUT_PREFIX = '==> '
 
       def initialize(ui, prefix)
         super()
@@ -283,10 +283,10 @@ module Vagrant
       def format_message(type, message, **opts)
         opts = self.opts.merge(opts)
 
-        prefix = ""
+        prefix = ''
         if !opts.key?(:prefix) || opts[:prefix]
           prefix = OUTPUT_PREFIX
-          prefix = " " * OUTPUT_PREFIX.length if \
+          prefix = ' ' * OUTPUT_PREFIX.length if \
             type == :detail || type == :ask || opts[:prefix_spaces]
         end
 
@@ -299,7 +299,7 @@ module Vagrant
         # Get the lines. The first default is because if the message
         # is an empty string, then we want to still use the empty string.
         lines = [message]
-        lines = message.split("\n") if message != ""
+        lines = message.split("\n") if message != ''
 
         # Otherwise, make sure to prefix every line properly
         lines.map do |line|

@@ -1,6 +1,6 @@
 module VagrantPlugins
   module ProviderVirtualBox
-    class Config < Vagrant.plugin("2", :config)
+    class Config < Vagrant.plugin('2', :config)
       # Vagrant by default will make "smart" decisions to enable/disable
       # the NAT DNS proxy. If this is set to `true`, then the DNS proxy
       # will not be enabled, and it is up to the end user to do it.
@@ -77,7 +77,7 @@ module VagrantPlugins
       # @param [Array] command An array of arguments to pass to
       # VBoxManage.
       def customize(*command)
-        event   = command.first.is_a?(String) ? command.shift : "pre-boot"
+        event   = command.first.is_a?(String) ? command.shift : 'pre-boot'
         command = command[0]
         @customizations << [event, command]
       end
@@ -96,7 +96,7 @@ module VagrantPlugins
       #
       # @param size [Integer, String] the memory size in MB
       def memory=(size)
-        customize("pre-boot", ["modifyvm", :id, "--memory", size.to_s])
+        customize('pre-boot', ['modifyvm', :id, '--memory', size.to_s])
       end
 
       # Shortcut for setting CPU count for the virtual machine.
@@ -104,7 +104,7 @@ module VagrantPlugins
       #
       # @param count [Integer, String] the count of CPUs
       def cpus=(count)
-        customize("pre-boot", ["modifyvm", :id, "--cpus", count.to_i])
+        customize('pre-boot', ['modifyvm', :id, '--cpus', count.to_i])
       end
 
       def merge(other)
@@ -143,35 +143,35 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
-        valid_events = ["pre-import", "pre-boot", "post-boot"]
+        valid_events = ['pre-import', 'pre-boot', 'post-boot']
         @customizations.each do |event, _|
-          if !valid_events.include?(event)
+          unless valid_events.include?(event)
             errors << I18n.t(
-              "vagrant.virtualbox.config.invalid_event",
+              'vagrant.virtualbox.config.invalid_event',
               event: event.to_s,
-              valid_events: valid_events.join(", "))
+              valid_events: valid_events.join(', '))
           end
         end
 
         @customizations.each do |event, command|
-          if event == "pre-import" && command.index(:id)
-            errors << I18n.t("vagrant.virtualbox.config.id_in_pre_import")
+          if event == 'pre-import' && command.index(:id)
+            errors << I18n.t('vagrant.virtualbox.config.id_in_pre_import')
           end
         end
 
         # Verify that internal networks are only on private networks.
         machine.config.vm.networks.each do |type, data|
           if data[:virtualbox__intnet] && type != :private_network
-            errors << I18n.t("vagrant.virtualbox.config.intnet_on_bad_type")
+            errors << I18n.t('vagrant.virtualbox.config.intnet_on_bad_type')
             break
           end
         end
 
-        { "VirtualBox Provider" => errors }
+        { 'VirtualBox Provider' => errors }
       end
 
       def to_s
-        "VirtualBox"
+        'VirtualBox'
       end
     end
   end

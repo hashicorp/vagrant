@@ -12,13 +12,9 @@ module VagrantPlugins
           #     vagrant::::profiles=Primary Administrator
           #
           # does not exist in /etc/user_attr. TODO
-          begin
-            machine.communicate.execute(
-              "#{machine.config.solaris11.suexec_cmd} /usr/sbin/shutdown -y -i5 -g0")
-          rescue IOError
-            # Ignore, this probably means connection closed because it
-            # shut down.
-          end
+          machine.communicate.execute(
+            "#{machine.config.solaris11.suexec_cmd} /usr/sbin/shutdown -y -i5 -g0")
+        rescue IOError
         end
       end
     end

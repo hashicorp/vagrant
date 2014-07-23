@@ -1,17 +1,17 @@
-require "digest/sha1"
-require "monitor"
-require "tmpdir"
+require 'digest/sha1'
+require 'monitor'
+require 'tmpdir'
 
-require "log4r"
+require 'log4r'
 
-require "vagrant/util/subprocess"
+require 'vagrant/util/subprocess'
 
 module Vagrant
   # Represents a collection a boxes found on disk. This provides methods
   # for accessing/finding individual boxes, adding new boxes, or deleting
   # boxes.
   class BoxCollection
-    TEMP_PREFIX = "vagrant-box-add-temp-"
+    TEMP_PREFIX = 'vagrant-box-add-temp-'
 
     # The directory where the boxes in this collection are stored.
     #
@@ -40,14 +40,14 @@ module Vagrant
     #
     # @param [Pathname] directory The directory that contains the collection
     #   of boxes.
-    def initialize(directory, options=nil)
+    def initialize(directory, options = nil)
       options ||= {}
 
       @directory = directory
       @hook      = options[:hook]
       @lock      = Monitor.new
       @temp_root = options[:temp_dir_root]
-      @logger    = Log4r::Logger.new("vagrant::box_collection")
+      @logger    = Log4r::Logger.new('vagrant::box_collection')
     end
 
     # This adds a new box to the system.
@@ -79,26 +79,26 @@ module Vagrant
       # since we call it multiple times.
       check_box_exists = lambda do |box_formats|
         box = find(name, box_formats, version)
-        next if !box
+        next unless box
 
-        if !opts[:force]
+        unless opts[:force]
           @logger.error(
-            "Box already exists, can't add: #{name} v#{version} #{box_formats.join(", ")}")
-          raise Errors::BoxAlreadyExists,
-            name: name,
-            provider: box_formats.join(", "),
-            version: version
+            "Box already exists, can't add: #{name} v#{version} #{box_formats.join(', ')}")
+          fail Errors::BoxAlreadyExists,
+               name: name,
+               provider: box_formats.join(', '),
+               version: version
         end
 
         # We're forcing, so just delete the old box
         @logger.info(
-          "Box already exists, but forcing so removing: " +
-          "#{name} v#{version} #{box_formats.join(", ")}")
+          'Box already exists, but forcing so removing: ' \
+          "#{name} v#{version} #{box_formats.join(', ')}")
         box.destroy!
       end
 
       with_collection_lock do
-        log_provider = providers ? providers.join(", ") : "any provider"
+        log_provider = providers ? providers.join(', ') : 'any provider'
         @logger.debug("Adding box: #{name} (#{log_provider}) from #{path}")
 
         # Verify the box doesn't exist early if we're given a provider. This
@@ -112,15 +112,15 @@ module Vagrant
           # Extract the box into a temporary directory.
           @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
           result = Util::Subprocess.execute(
-            "bsdtar", "-v", "-x", "-m", "-C", temp_dir.to_s, "-f", path.to_s)
+            'bsdtar', '-v', '-x', '-m', '-C', temp_dir.to_s, '-f', path.to_s)
           if result.exit_code != 0
-            raise Errors::BoxUnpackageFailure,
-              output: result.stderr.to_s
+            fail Errors::BoxUnpackageFailure,
+                 output: result.stderr.to_s
           end
 
           # If we get a V1 box, we want to update it in place
           if v1_box?(temp_dir)
-            @logger.debug("Added box is a V1 box. Upgrading in place.")
+            @logger.debug('Added box is a V1 box. Upgrading in place.')
             temp_dir = v1_upgrade(temp_dir)
           end
 
@@ -134,14 +134,14 @@ module Vagrant
 
             # Get the provider, since we'll need that to at the least add it
             # to the system or check that it matches what is given to us.
-            box_provider = box.metadata["provider"]
+            box_provider = box.metadata['provider']
 
             if providers
               found = providers.find { |p| p.to_sym == box_provider.to_sym }
-              if !found
+              unless found
                 @logger.error("Added box provider doesnt match expected: #{log_provider}")
-                raise Errors::BoxProviderDoesntMatch,
-                  expected: log_provider, actual: box_provider
+                fail Errors::BoxProviderDoesntMatch,
+                     expected: log_provider, actual: box_provider
               end
             else
               # Verify the box doesn't already exist
@@ -160,7 +160,7 @@ module Vagrant
             # This is the final directory we'll move it to
             final_dir = box_dir.join(provider.to_s)
             if final_dir.exist?
-              @logger.debug("Removing existing provider directory...")
+              @logger.debug('Removing existing provider directory...')
               final_dir.rmtree
             end
 
@@ -171,7 +171,7 @@ module Vagrant
             # to the final location. We do this instead of moving the entire
             # directory to avoid issues on Windows. [GH-1424]
             copy_pairs = [[final_temp_dir, final_dir]]
-            while !copy_pairs.empty?
+            until copy_pairs.empty?
               from, to = copy_pairs.shift
               from.children(true).each do |f|
                 dest = to.join(f.basename)
@@ -191,7 +191,7 @@ module Vagrant
             end
 
             if opts[:metadata_url]
-              root_box_dir.join("metadata_url").open("w") do |f|
+              root_box_dir.join('metadata_url').open('w') do |f|
                 f.write(opts[:metadata_url])
               end
             end
@@ -216,21 +216,21 @@ module Vagrant
         @directory.children(true).each do |child|
           # Ignore non-directories, since files are not interesting to
           # us in our folder structure.
-          next if !child.directory?
+          next unless child.directory?
 
           box_name = undir_name(child.basename.to_s)
 
           # Otherwise, traverse the subdirectories and see what versions
           # we have.
           child.children(true).each do |versiondir|
-            next if !versiondir.directory?
+            next unless versiondir.directory?
 
             version = versiondir.basename.to_s
 
             versiondir.children(true).each do |provider|
               # Verify this is a potentially valid box. If it looks
               # correct enough then include it.
-              if provider.directory? && provider.join("metadata.json").file?
+              if provider.directory? && provider.join('metadata.json').file?
                 provider_name = provider.basename.to_s.to_sym
                 @logger.debug("Box: #{box_name} (#{provider_name})")
                 results << [box_name, version, provider_name]
@@ -256,26 +256,26 @@ module Vagrant
       providers = Array(providers)
 
       # Build up the requirements we have
-      requirements = version.to_s.split(",").map do |v|
+      requirements = version.to_s.split(',').map do |v|
         Gem::Requirement.new(v.strip)
       end
 
       with_collection_lock do
         box_directory = @directory.join(dir_name(name))
-        if !box_directory.directory?
-          @logger.info("Box not found: #{name} (#{providers.join(", ")})")
+        unless box_directory.directory?
+          @logger.info("Box not found: #{name} (#{providers.join(', ')})")
           return nil
         end
 
         versions = box_directory.children(true).map do |versiondir|
-          next if !versiondir.directory?
+          next unless versiondir.directory?
           version = versiondir.basename.to_s
           Gem::Version.new(version)
         end.compact
 
         # Traverse through versions with the latest version first
         versions.sort.reverse.each do |v|
-          if !requirements.all? { |r| r.satisfied_by?(v) }
+          unless requirements.all? { |r| r.satisfied_by?(v) }
             # Unsatisfied version requirements
             next
           end
@@ -283,11 +283,11 @@ module Vagrant
           versiondir = box_directory.join(v.to_s)
           providers.each do |provider|
             provider_dir = versiondir.join(provider.to_s)
-            next if !provider_dir.directory?
+            next unless provider_dir.directory?
             @logger.info("Box found: #{name} (#{provider})")
 
             metadata_url = nil
-            metadata_url_file = box_directory.join("metadata_url")
+            metadata_url_file = box_directory.join('metadata_url')
             metadata_url = metadata_url_file.read if metadata_url_file.file?
 
             if metadata_url && @hook
@@ -316,18 +316,18 @@ module Vagrant
 
         @directory.children(true).each do |boxdir|
           # Ignore all non-directories because they can't be boxes
-          next if !boxdir.directory?
+          next unless boxdir.directory?
 
           box_name = boxdir.basename.to_s
 
           # If it is a v1 box, then we need to upgrade it first
           if v1_box?(boxdir)
             upgrade_dir = v1_upgrade(boxdir)
-            FileUtils.mv(upgrade_dir, boxdir.join("virtualbox"))
+            FileUtils.mv(upgrade_dir, boxdir.join('virtualbox'))
           end
 
           # Create the directory for this box
-          new_box_dir = temp_dir.join(dir_name(box_name), "0")
+          new_box_dir = temp_dir.join(dir_name(box_name), '0')
           new_box_dir.mkpath
 
           # Go through each provider and move it
@@ -349,12 +349,12 @@ module Vagrant
     # @param [String] name
     # @return [String]
     def dir_name(name)
-      name.gsub("/", "-VAGRANTSLASH-")
+      name.gsub('/', '-VAGRANTSLASH-')
     end
 
     # Returns the directory name for the box cleaned up
     def undir_name(name)
-      name.gsub("-VAGRANTSLASH-", "/")
+      name.gsub('-VAGRANTSLASH-', '/')
     end
 
     # This checks if the given directory represents a V1 box on the
@@ -365,7 +365,7 @@ module Vagrant
     def v1_box?(dir)
       # We detect a V1 box given by whether there is a "box.ovf" which
       # is a heuristic but is pretty accurate.
-      dir.join("box.ovf").file?
+      dir.join('box.ovf').file?
     end
 
     # This upgrades the V1 box contained unpacked in the given directory
@@ -396,12 +396,12 @@ module Vagrant
 
       # If there is no metadata.json file, make one, since this is how
       # we determine if the box is a V2 box.
-      metadata_file = temp_dir.join("metadata.json")
-      if !metadata_file.file?
-        metadata_file.open("w") do |f|
-          f.write(JSON.generate({
-            provider: "virtualbox"
-          }))
+      metadata_file = temp_dir.join('metadata.json')
+      unless metadata_file.file?
+        metadata_file.open('w') do |f|
+          f.write(JSON.generate(
+                                  provider: 'virtualbox'
+                                ))
         end
       end
 
@@ -422,7 +422,7 @@ module Vagrant
     #
     # @param [String] dir Path to a temporary directory
     # @return [Object] The result of whatever the yield is
-    def with_temp_dir(dir=nil)
+    def with_temp_dir(dir = nil)
       dir ||= Dir.mktmpdir(TEMP_PREFIX, @temp_root)
       dir = Pathname.new(dir)
 

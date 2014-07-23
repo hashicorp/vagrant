@@ -11,7 +11,7 @@ module Vagrant
         # Bitwise-AND each octet to get the network address
         # in octets and join each part with a period to get
         # the resulting network address.
-        ip.map { |part| part & netmask.shift }.join(".")
+        ip.map { |part| part & netmask.shift }.join('.')
       end
 
       protected
@@ -21,7 +21,7 @@ module Vagrant
       #
       # @return [Array<Integer>]
       def ip_parts(ip)
-        ip.split(".").map { |i| i.to_i }
+        ip.split('.').map { |i| i.to_i }
       end
     end
   end

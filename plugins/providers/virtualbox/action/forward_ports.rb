@@ -4,7 +4,7 @@ module VagrantPlugins
       class ForwardPorts
         include Util::CompileForwardedPorts
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -20,12 +20,12 @@ module VagrantPlugins
           # Warn if we're port forwarding to any privileged ports...
           env[:forwarded_ports].each do |fp|
             if fp.host_port <= 1024
-              env[:ui].warn I18n.t("vagrant.actions.vm.forward_ports.privileged_ports")
+              env[:ui].warn I18n.t('vagrant.actions.vm.forward_ports.privileged_ports')
               break
             end
           end
 
-          env[:ui].output(I18n.t("vagrant.actions.vm.forward_ports.forwarding"))
+          env[:ui].output(I18n.t('vagrant.actions.vm.forward_ports.forwarding'))
           forward_ports
 
           @app.call(env)
@@ -47,22 +47,22 @@ module VagrantPlugins
             # because the VM is using Virtualbox NAT networking. Host-only
             # bridged networking don't require port-forwarding and establishing
             # forwarded ports on these attachment types has uncertain behaviour.
-            @env[:ui].detail(I18n.t("vagrant.actions.vm.forward_ports.forwarding_entry",
+            @env[:ui].detail(I18n.t('vagrant.actions.vm.forward_ports.forwarding_entry',
                                     message_attributes))
 
             # Verify we have the network interface to attach to
-            if !interfaces[fp.adapter]
-              raise Vagrant::Errors::ForwardPortAdapterNotFound,
-                adapter: fp.adapter.to_s,
-                guest: fp.guest_port.to_s,
-                host: fp.host_port.to_s
+            unless interfaces[fp.adapter]
+              fail Vagrant::Errors::ForwardPortAdapterNotFound,
+                   adapter: fp.adapter.to_s,
+                   guest: fp.guest_port.to_s,
+                   host: fp.host_port.to_s
             end
 
             # Port forwarding requires the network interface to be a NAT interface,
             # so verify that that is the case.
             if interfaces[fp.adapter][:type] != :nat
-              @env[:ui].detail(I18n.t("vagrant.actions.vm.forward_ports.non_nat",
-                                    message_attributes))
+              @env[:ui].detail(I18n.t('vagrant.actions.vm.forward_ports.non_nat',
+                                      message_attributes))
               next
             end
 
@@ -78,7 +78,7 @@ module VagrantPlugins
             }
           end
 
-          if !ports.empty?
+          unless ports.empty?
             # We only need to forward ports if there are any to forward
             @env[:machine].provider.driver.forward_ports(ports)
           end

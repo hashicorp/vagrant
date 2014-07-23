@@ -3,7 +3,7 @@ module VagrantPlugins
     module Action
       # This middleware is used with Call to test if we're using a host VM.
       class HostMachineRequired
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 

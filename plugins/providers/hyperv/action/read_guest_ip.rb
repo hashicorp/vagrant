@@ -1,5 +1,5 @@
-require "log4r"
-require "timeout"
+require 'log4r'
+require 'timeout'
 
 module VagrantPlugins
   module HyperV
@@ -7,9 +7,9 @@ module VagrantPlugins
       # This action reads the SSH info for the machine and puts it into the
       # `:machine_ssh_info` key in the environment.
       class ReadGuestIP
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::hyperv::connection")
+          @logger = Log4r::Logger.new('vagrant::hyperv::connection')
         end
 
         def call(env)
@@ -25,14 +25,14 @@ module VagrantPlugins
           host_ip = nil
           begin
             Timeout.timeout(120) do
-            begin
-              network_info  = env[:machine].provider.driver.read_guest_ip
-              host_ip = network_info["ip"]
-              sleep 10 if host_ip.empty?
-              end while host_ip.empty?
+              begin
+                  network_info  = env[:machine].provider.driver.read_guest_ip
+                  host_ip = network_info['ip']
+                  sleep 10 if host_ip.empty?
+                end while host_ip.empty?
             end
           rescue Timeout::Error
-            @logger.info("Cannot find the IP address of the virtual machine")
+            @logger.info('Cannot find the IP address of the virtual machine')
           end
           return { host: host_ip } unless host_ip.nil?
         end

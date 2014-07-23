@@ -3,7 +3,7 @@ module VagrantPlugins
     module Errors
       # A convenient superclass for all our errors.
       class WinRMError < Vagrant::Errors::VagrantError
-        error_namespace("vagrant_winrm.errors")
+        error_namespace('vagrant_winrm.errors')
       end
 
       class AuthError < WinRMError

@@ -20,11 +20,11 @@ module Vagrant
                     /\e\[20[hl]/,          # Matches \e[20l]
                     /\e[DME78H]/,          # Matches \eD, \eH, etc.
                     /\e\[[0-2]?[JK]/,      # Matches \e[0J, \e[K, etc.
-                    ]
+                   ]
 
         # Take each matcher and replace it with emptiness.
         matchers.each do |matcher|
-          text.gsub!(matcher, "")
+          text.gsub!(matcher, '')
         end
 
         text

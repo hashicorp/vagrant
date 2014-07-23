@@ -1,13 +1,13 @@
-require "log4r"
+require 'log4r'
 
 module Vagrant
   module Action
     module Builtin
       # This middleware will remove a box for a given provider.
       class BoxRemove
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::box_remove")
+          @logger = Log4r::Logger.new('vagrant::action::builtin::box_remove')
         end
 
         def call(env)
@@ -24,8 +24,8 @@ module Vagrant
           end
 
           all_box = boxes[box_name]
-          if !all_box
-            raise Errors::BoxRemoveNotFound, name: box_name
+          unless all_box
+            fail Errors::BoxRemoveNotFound, name: box_name
           end
 
           all_versions = nil
@@ -35,17 +35,17 @@ module Vagrant
               all_versions = all_box.values.first
               box_provider = all_box.keys.first
             else
-              raise Errors::BoxRemoveMultiProvider,
-                name: box_name,
-                providers: all_box.keys.map(&:to_s).sort.join(", ")
+              fail Errors::BoxRemoveMultiProvider,
+                   name: box_name,
+                   providers: all_box.keys.map(&:to_s).sort.join(', ')
             end
           else
             all_versions = all_box[box_provider]
-            if !all_versions
-              raise Errors::BoxRemoveProviderNotFound,
-                name: box_name,
-                provider: box_provider.to_s,
-                providers: all_box.keys.map(&:to_s).sort.join(", ")
+            unless all_versions
+              fail Errors::BoxRemoveProviderNotFound,
+                   name: box_name,
+                   provider: box_provider.to_s,
+                   providers: all_box.keys.map(&:to_s).sort.join(', ')
             end
           end
 
@@ -55,17 +55,17 @@ module Vagrant
               box_version = all_versions.first
             else
               # There are multiple versions, we can't choose.
-              raise Errors::BoxRemoveMultiVersion,
-                name: box_name,
-                provider: box_provider.to_s,
-                versions: all_versions.sort.map { |k| " * #{k}" }.join("\n")
+              fail Errors::BoxRemoveMultiVersion,
+                   name: box_name,
+                   provider: box_provider.to_s,
+                   versions: all_versions.sort.map { |k| " * #{k}" }.join("\n")
             end
           elsif !all_versions.include?(box_version)
-            raise Errors::BoxRemoveVersionNotFound,
-              name: box_name,
-              provider: box_provider.to_s,
-              version: box_version,
-              versions: all_versions.sort.map { |k| " * #{k}" }.join("\n")
+            fail Errors::BoxRemoveVersionNotFound,
+                 name: box_name,
+                 provider: box_provider.to_s,
+                 version: box_version,
+                 versions: all_versions.sort.map { |k| " * #{k}" }.join("\n")
           end
 
           box = env[:box_collection].find(
@@ -74,8 +74,8 @@ module Vagrant
           # Verify that this box is not in use by an active machine,
           # otherwise warn the user.
           users = box.in_use?(env[:machine_index]) || []
-          users = users.find_all { |u| u.valid?(env[:home_path]) }
-          if !users.empty?
+          users = users.select { |u| u.valid?(env[:home_path]) }
+          unless users.empty?
             # Build up the output to show the user.
             users = users.map do |entry|
               "#{entry.name} (ID: #{entry.id})"
@@ -83,11 +83,11 @@ module Vagrant
 
             force_key = :force_confirm_box_remove
             message   = I18n.t(
-              "vagrant.commands.box.remove_in_use_query",
+              'vagrant.commands.box.remove_in_use_query',
               name: box.name,
               provider: box.provider,
               version: box.version,
-              users: users) + " "
+              users: users) + ' '
 
             # Ask the user if we should do this
             stack = Builder.new.tap do |b|
@@ -95,16 +95,16 @@ module Vagrant
             end
 
             result = env[:action_runner].run(stack, env)
-            if !result[:result]
+            unless result[:result]
               # They said "no", so just return
               return @app.call(env)
             end
           end
 
-          env[:ui].info(I18n.t("vagrant.commands.box.removing",
-                              name: box.name,
-                              provider: box.provider,
-                              version: box.version))
+          env[:ui].info(I18n.t('vagrant.commands.box.removing',
+                               name: box.name,
+                               provider: box.provider,
+                               version: box.version))
           box.destroy!
 
           # Passes on the removed box to the rest of the middleware chain

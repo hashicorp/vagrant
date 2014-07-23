@@ -1,4 +1,4 @@
-require File.expand_path("../base", __FILE__)
+require File.expand_path('../base', __FILE__)
 
 module VagrantPlugins
   module Chef
@@ -28,7 +28,7 @@ module VagrantPlugins
           puts "The 'nfs' setting will be removed in the next version of Vagrant."
 
           if value
-            @synced_folder_type = "nfs"
+            @synced_folder_type = 'nfs'
           else
             @synced_folder_type = nil
           end
@@ -46,8 +46,8 @@ module VagrantPlugins
 
           if @cookbooks_path == UNSET_VALUE
             @cookbooks_path = []
-            @cookbooks_path << [:host, "cookbooks"] if !@recipe_url
-            @cookbooks_path << [:vm, "cookbooks"]
+            @cookbooks_path << [:host, 'cookbooks'] unless @recipe_url
+            @cookbooks_path << [:vm, 'cookbooks']
           end
 
           @data_bags_path    = [] if @data_bags_path == UNSET_VALUE
@@ -65,22 +65,22 @@ module VagrantPlugins
         def validate(machine)
           errors = _detected_errors
           errors.concat(validate_base(machine))
-          errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
+          errors << I18n.t('vagrant.config.chef.cookbooks_path_empty') if \
             !cookbooks_path || [cookbooks_path].flatten.empty?
-          errors << I18n.t("vagrant.config.chef.environment_path_required") if \
+          errors << I18n.t('vagrant.config.chef.environment_path_required') if \
             environment && environments_path.empty?
 
           environments_path.each do |type, raw_path|
             next if type != :host
 
             path = Pathname.new(raw_path).expand_path(machine.env.root_path)
-            if !path.directory?
-              errors << I18n.t("vagrant.config.chef.environment_path_missing",
+            unless path.directory?
+              errors << I18n.t('vagrant.config.chef.environment_path_missing',
                                path: raw_path.to_s)
             end
           end
 
-          { "chef solo provisioner" => errors }
+          { 'chef solo provisioner' => errors }
         end
 
         protected
@@ -95,7 +95,7 @@ module VagrantPlugins
 
           # Make sure all the paths are in the proper format
           config.map do |path|
-            path = [:host, path] if !path.is_a?(Array)
+            path = [:host, path] unless path.is_a?(Array)
             path
           end
         end

@@ -3,28 +3,28 @@ require 'optparse'
 module VagrantPlugins
   module CommandBox
     module Command
-      class List < Vagrant.plugin("2", :command)
+      class List < Vagrant.plugin('2', :command)
         def execute
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box list [options]"
-            o.separator ""
-            o.separator "Options:"
-            o.separator ""
+            o.banner = 'Usage: vagrant box list [options]'
+            o.separator ''
+            o.separator 'Options:'
+            o.separator ''
 
-            o.on("-i", "--box-info", "Displays additional information about the boxes") do |i|
+            o.on('-i', '--box-info', 'Displays additional information about the boxes') do |i|
               options[:info] = i
             end
           end
 
           # Parse the options
           argv = parse_options(opts)
-          return if !argv
+          return unless argv
 
           boxes = @env.boxes.all.sort
           if boxes.empty?
-            return @env.ui.warn(I18n.t("vagrant.commands.box.no_installed_boxes"), prefix: false)
+            return @env.ui.warn(I18n.t('vagrant.commands.box.no_installed_boxes'), prefix: false)
           end
 
           list_boxes(boxes, options[:info])
@@ -47,16 +47,16 @@ module VagrantPlugins
           boxes.each do |name, version, provider|
             @env.ui.info("#{name.ljust(longest_box_length)} (#{provider}, #{version})")
 
-            @env.ui.machine("box-name", name)
-            @env.ui.machine("box-provider", provider)
-            @env.ui.machine("box-version", version)
+            @env.ui.machine('box-name', name)
+            @env.ui.machine('box-provider', provider)
+            @env.ui.machine('box-version', version)
 
             info_file = @env.boxes.find(name, provider, version).
-              directory.join("info.json")
+              directory.join('info.json')
             if info_file.file?
               info = JSON.parse(info_file.read)
               info.each do |k, v|
-                @env.ui.machine("box-info", k, v)
+                @env.ui.machine('box-info', k, v)
 
                 if extra_info
                   @env.ui.info("  - #{k}: #{v}", prefix: false)

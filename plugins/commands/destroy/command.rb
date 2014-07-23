@@ -1,8 +1,8 @@
 module VagrantPlugins
   module CommandDestroy
-    class Command < Vagrant.plugin("2", :command)
+    class Command < Vagrant.plugin('2', :command)
       def self.synopsis
-        "stops and deletes all traces of the vagrant machine"
+        'stops and deletes all traces of the vagrant machine'
       end
 
       def execute
@@ -10,19 +10,19 @@ module VagrantPlugins
         options[:force] = false
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant destroy [options] [name]"
-          o.separator ""
-          o.separator "Options:"
-          o.separator ""
+          o.banner = 'Usage: vagrant destroy [options] [name]'
+          o.separator ''
+          o.separator 'Options:'
+          o.separator ''
 
-          o.on("-f", "--force", "Destroy without confirmation.") do |f|
+          o.on('-f', '--force', 'Destroy without confirmation.') do |f|
             options[:force] = f
           end
         end
 
         # Parse the options
         argv = parse_options(opts)
-        return if !argv
+        return unless argv
 
         @logger.debug("'Destroy' each target VM...")
         declined = 0
@@ -43,7 +43,7 @@ module VagrantPlugins
         return 1 if declined == total
 
         # Some was declined
-        return 2
+        2
       end
     end
   end

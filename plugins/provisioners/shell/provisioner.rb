@@ -1,18 +1,18 @@
-require "pathname"
-require "tempfile"
+require 'pathname'
+require 'tempfile'
 
-require "vagrant/util/downloader"
+require 'vagrant/util/downloader'
 
 module VagrantPlugins
   module Shell
-    class Provisioner < Vagrant.plugin("2", :provisioner)
+    class Provisioner < Vagrant.plugin('2', :provisioner)
       def provision
-        args = ""
+        args = ''
         if config.args.is_a?(String)
-          args = " #{config.args.to_s}"
+          args = " #{config.args}"
         elsif config.args.is_a?(Array)
           args = config.args.map { |a| quote_and_escape(a) }
-          args = " #{args.join(" ")}"
+          args = " #{args.join(' ')}"
         end
 
         if @machine.config.vm.communicator == :winrm
@@ -35,7 +35,7 @@ module VagrantPlugins
           return if data.empty?
 
           options = {}
-          options[:color] = color if !config.keep_color
+          options[:color] = color unless config.keep_color
 
           @machine.ui.info(data.chomp, options)
         end
@@ -57,11 +57,11 @@ module VagrantPlugins
             comm.upload(path.to_s, config.upload_path)
 
             if config.path
-              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
-                                      script: path.to_s))
+              @machine.ui.detail(I18n.t('vagrant.provisioners.shell.running',
+                                        script: path.to_s))
             else
-              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
-                                      script: "inline script"))
+              @machine.ui.detail(I18n.t('vagrant.provisioners.shell.running',
+                                        script: 'inline script'))
             end
 
             # Execute it with sudo
@@ -84,7 +84,7 @@ module VagrantPlugins
             # Make sure that the upload path has an extension, since
             # having an extension is critical for Windows execution
             upload_path = config.upload_path.to_s
-            if File.extname(upload_path) == ""
+            if File.extname(upload_path) == ''
               upload_path += File.extname(path.to_s)
             end
 
@@ -94,7 +94,7 @@ module VagrantPlugins
             # Calculate the path that we'll be executing
             exec_path = upload_path
             exec_path.gsub!('/', '\\')
-            exec_path = "c:#{exec_path}" if exec_path.start_with?("\\")
+            exec_path = "c:#{exec_path}" if exec_path.start_with?('\\')
 
             # For PowerShell scripts bypass the execution policy
             command = "#{exec_path}#{args}"
@@ -102,11 +102,11 @@ module VagrantPlugins
               File.extname(exec_path).downcase == '.ps1'
 
             if config.path
-              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
-                                      script: exec_path))
+              @machine.ui.detail(I18n.t('vagrant.provisioners.shell.running',
+                                        script: exec_path))
             else
-              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
-                                      script: "inline PowerShell script"))
+              @machine.ui.detail(I18n.t('vagrant.provisioners.shell.running',
+                                        script: 'inline PowerShell script'))
             end
 
             # Execute it with sudo
@@ -148,7 +148,7 @@ module VagrantPlugins
           script = Pathname.new(config.path).expand_path(root_path).read
         else
           # The script is just the inline code...
-          ext    = ".ps1"
+          ext    = '.ps1'
           script = config.inline
         end
 

@@ -1,7 +1,7 @@
 require 'pathname'
 require 'vagrant/util/subprocess'
 
-require File.expand_path("../base", __FILE__)
+require File.expand_path('../base', __FILE__)
 
 module VagrantPlugins
   module Chef
@@ -9,14 +9,14 @@ module VagrantPlugins
       # This class implements provisioning via chef-client, allowing provisioning
       # with a chef server.
       class ChefClient < Base
-        def configure(root_config)
-          raise ChefError, :server_validation_key_required if @config.validation_key_path.nil?
-          raise ChefError, :server_validation_key_doesnt_exist if !File.file?(validation_key_path)
-          raise ChefError, :server_url_required if @config.chef_server_url.nil?
+        def configure(_root_config)
+          fail ChefError, :server_validation_key_required if @config.validation_key_path.nil?
+          fail ChefError, :server_validation_key_doesnt_exist unless File.file?(validation_key_path)
+          fail ChefError, :server_url_required if @config.chef_server_url.nil?
         end
 
         def provision
-          verify_binary(chef_binary_path("chef-client"))
+          verify_binary(chef_binary_path('chef-client'))
           chown_provisioning_folder
           create_client_key_folder
           upload_validation_key
@@ -33,29 +33,29 @@ module VagrantPlugins
         end
 
         def create_client_key_folder
-          @machine.ui.info I18n.t("vagrant.provisioners.chef.client_key_folder")
+          @machine.ui.info I18n.t('vagrant.provisioners.chef.client_key_folder')
           path = Pathname.new(@config.client_key_path)
 
           @machine.communicate.sudo("mkdir -p #{path.dirname}")
         end
 
         def upload_validation_key
-          @machine.ui.info I18n.t("vagrant.provisioners.chef.upload_validation_key")
+          @machine.ui.info I18n.t('vagrant.provisioners.chef.upload_validation_key')
           @machine.communicate.upload(validation_key_path, guest_validation_key_path)
         end
 
         def setup_server_config
-          setup_config("provisioners/chef_client/client", "client.rb", {
-            chef_server_url: @config.chef_server_url,
-            validation_client_name: @config.validation_client_name,
-            validation_key: guest_validation_key_path,
-            client_key: @config.client_key_path,
-          })
+          setup_config('provisioners/chef_client/client', 'client.rb',
+                       chef_server_url: @config.chef_server_url,
+                       validation_client_name: @config.validation_client_name,
+                       validation_key: guest_validation_key_path,
+                       client_key: @config.client_key_path
+                       )
         end
 
         def run_chef_client
           if @config.run_list && @config.run_list.empty?
-            @machine.ui.warn(I18n.t("vagrant.chef_run_list_empty"))
+            @machine.ui.warn(I18n.t('vagrant.chef_run_list_empty'))
           end
 
           if @machine.guest.capability?(:wait_for_reboot)
@@ -66,9 +66,9 @@ module VagrantPlugins
 
           @config.attempts.times do |attempt|
             if attempt == 0
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_client")
+              @machine.ui.info I18n.t('vagrant.provisioners.chef.running_client')
             else
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_client_again")
+              @machine.ui.info I18n.t('vagrant.provisioners.chef.running_client_again')
             end
 
             opts = { error_check: false, elevated: true }
@@ -87,7 +87,7 @@ module VagrantPlugins
           end
 
           # If we reached this point then Chef never converged! Error.
-          raise ChefError, :no_convergence
+          fail ChefError, :no_convergence
         end
 
         def validation_key_path
@@ -95,20 +95,20 @@ module VagrantPlugins
         end
 
         def guest_validation_key_path
-          File.join(@config.provisioning_path, "validation.pem")
+          File.join(@config.provisioning_path, 'validation.pem')
         end
 
         def delete_from_chef_server(deletable)
           node_name = @config.node_name || @machine.config.vm.hostname
           @machine.ui.info(I18n.t(
-            "vagrant.provisioners.chef.deleting_from_server",
+            'vagrant.provisioners.chef.deleting_from_server',
             deletable: deletable, name: node_name))
 
-          command = ["knife", deletable, "delete", "--yes", node_name]
+          command = ['knife', deletable, 'delete', '--yes', node_name]
           r = Vagrant::Util::Subprocess.execute(*command)
           if r.exit_code != 0
             @machine.ui.error(I18n.t(
-              "vagrant.chef_client_cleanup_failed",
+              'vagrant.chef_client_cleanup_failed',
               deletable: deletable,
               stdout: r.stdout,
               stderr: r.stderr))

@@ -1,8 +1,8 @@
-require "set"
+require 'set'
 
-require "log4r"
+require 'log4r'
 
-require "vagrant/plugin/v2/components"
+require 'vagrant/plugin/v2/components'
 
 module Vagrant
   module Plugin
@@ -14,7 +14,7 @@ module Vagrant
         ALL_ACTIONS = :__all_actions__
 
         # The logger for this class.
-        LOGGER = Log4r::Logger.new("vagrant::plugin::v2::plugin")
+        LOGGER = Log4r::Logger.new('vagrant::plugin::v2::plugin')
 
         # Set the root class up to be ourself, so that we can reference this
         # from within methods which are probably in subclasses.
@@ -41,7 +41,7 @@ module Vagrant
         #
         # @param [String] name Name of the plugin.
         # @return [String] The name of the plugin.
-        def self.name(name=UNSET_VALUE)
+        def self.name(name = UNSET_VALUE)
           # Get or set the value first, so we have a name for logging when
           # we register.
           result = get_or_set(:name, name)
@@ -57,7 +57,7 @@ module Vagrant
         #
         # @param [String] value Description of the plugin.
         # @return [String] Description of the plugin.
-        def self.description(value=UNSET_VALUE)
+        def self.description(value = UNSET_VALUE)
           get_or_set(:description, value)
         end
 
@@ -69,7 +69,7 @@ module Vagrant
         # @param [Symbol] hook_name The location to hook. If this isn't
         #   set, every middleware action is hooked.
         # @return [Array] List of the hooks for the given action.
-        def self.action_hook(name, hook_name=nil, &block)
+        def self.action_hook(_name, hook_name = nil, &block)
           # The name is currently not used but we want it for the future.
 
           hook_name ||= ALL_ACTIONS
@@ -84,11 +84,11 @@ module Vagrant
         def self.command(name, **opts, &block)
           # Validate the name of the command
           if name.to_s !~ /^[-a-z0-9]+$/i
-            raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
+            fail InvalidCommandName, 'Commands can only contain letters, numbers, and hyphens'
           end
 
           # By default, the command is primary
-          opts[:primary] = true if !opts.key?(:primary)
+          opts[:primary] = true unless opts.key?(:primary)
 
           # Register the command
           components.commands.register(name.to_sym) do
@@ -106,7 +106,7 @@ module Vagrant
         # versions of Vagrant.
         #
         # @param [String] name Communicator name.
-        def self.communicator(name=UNSET_VALUE, &block)
+        def self.communicator(name = UNSET_VALUE, &block)
           data[:communicator] ||= Registry.new
 
           # Register a new communicator class only if a name was given.
@@ -124,7 +124,7 @@ module Vagrant
         # without breaking anything in future versions of Vagrant.
         #
         # @param [String] name Configuration key.
-        def self.config(name, scope=nil, &block)
+        def self.config(name, scope = nil, &block)
           scope ||= :top
           components.configs[scope].register(name.to_sym, &block)
           nil
@@ -135,7 +135,7 @@ module Vagrant
         #
         # @param [String] name Name of the guest.
         # @param [String] parent Name of the parent guest (if any)
-        def self.guest(name, parent=nil, &block)
+        def self.guest(name, parent = nil, &block)
           components.guests.register(name.to_sym) do
             parent = parent.to_sym if parent
 
@@ -161,7 +161,7 @@ module Vagrant
         #
         # @param [String] name Name of the host.
         # @param [String] parent Name of the parent host (if any)
-        def self.host(name, parent=nil, &block)
+        def self.host(name, parent = nil, &block)
           components.hosts.register(name.to_sym) do
             parent = parent.to_sym if parent
 
@@ -185,7 +185,7 @@ module Vagrant
         # Registers additional providers to be available.
         #
         # @param [Symbol] name Name of the provider.
-        def self.provider(name=UNSET_VALUE, options=nil, &block)
+        def self.provider(name = UNSET_VALUE, options = nil, &block)
           options ||= {}
           options[:priority] ||= 5
 
@@ -211,7 +211,7 @@ module Vagrant
         # Registers additional provisioners to be available.
         #
         # @param [String] name Name of the provisioner.
-        def self.provisioner(name=UNSET_VALUE, &block)
+        def self.provisioner(name = UNSET_VALUE, &block)
           data[:provisioners] ||= Registry.new
 
           # Register a new provisioner class only if a name was given
@@ -226,7 +226,7 @@ module Vagrant
         # @param [String] name Name of the implementation.
         # @param [Integer] priority The priority of the implementation,
         # higher (big) numbers are tried before lower (small) numbers.
-        def self.synced_folder(name, priority=10, &block)
+        def self.synced_folder(name, priority = 10, &block)
           components.synced_folders.register(name.to_sym) do
             [block.call, priority]
           end
@@ -253,7 +253,7 @@ module Vagrant
         # @param [Symbol] key Key for the data
         # @param [Object] value Value to store.
         # @return [Object] Stored value.
-        def self.get_or_set(key, value=UNSET_VALUE)
+        def self.get_or_set(key, value = UNSET_VALUE)
           # If no value is to be set, then return the value we have already set
           return data[key] if value.eql?(UNSET_VALUE)
 

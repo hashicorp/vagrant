@@ -1,32 +1,32 @@
-require "digest/sha1"
-require "pathname"
-require "tempfile"
-require "tmpdir"
-require "webrick"
+require 'digest/sha1'
+require 'pathname'
+require 'tempfile'
+require 'tmpdir'
+require 'webrick'
 
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 
-require "vagrant/util/file_checksum"
+require 'vagrant/util/file_checksum'
 
 describe Vagrant::Action::Builtin::BoxAdd do
-  include_context "unit"
+  include_context 'unit'
 
-  let(:app) { lambda { |env| } }
-  let(:env) { {
+  let(:app) { lambda { |_env| } }
+  let(:env) do {
     box_collection: box_collection,
-    hook: Proc.new { |name, env| env },
+    hook: proc { |_name, env| env },
     tmp_path: Pathname.new(Dir.mktmpdir),
     ui: Vagrant::UI::Silent.new,
-  } }
+  } end
 
   subject { described_class.new(app, env) }
 
-  let(:box_collection) { double("box_collection") }
+  let(:box_collection) { double('box_collection') }
   let(:iso_env) { isolated_environment }
 
   let(:box) do
-    box_dir = iso_env.box3("foo", "1.0", :virtualbox)
-    Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir)
+    box_dir = iso_env.box3('foo', '1.0', :virtualbox)
+    Vagrant::Box.new('foo', :virtualbox, '1.0', box_dir)
   end
 
   # Helper to quickly SHA1 checksum a path
@@ -35,11 +35,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
   end
 
   def with_web_server(path)
-    tf = Tempfile.new("vagrant")
+    tf = Tempfile.new('vagrant')
     tf.close
 
     mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
-    mime_types.store "json", "application/json"
+    mime_types.store 'json', 'application/json'
 
     port   = 3838
     server = WEBrick::HTTPServer.new(
@@ -59,17 +59,17 @@ describe Vagrant::Action::Builtin::BoxAdd do
     box_collection.stub(find: nil)
   end
 
-  context "with box file directly" do
-    it "adds it" do
+  context 'with box file directly' do
+    it 'adds it' do
       box_path = iso_env.box2_file(:virtualbox)
 
-      env[:box_name] = "foo"
+      env[:box_name] = 'foo'
       env[:box_url] = box_path.to_s
 
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo")
-        expect(version).to eq("0")
+        expect(name).to eq('foo')
+        expect(version).to eq('0')
         expect(opts[:metadata_url]).to be_nil
         true
       }.and_return(box)
@@ -79,19 +79,19 @@ describe Vagrant::Action::Builtin::BoxAdd do
       subject.call(env)
     end
 
-    it "adds from multiple URLs" do
+    it 'adds from multiple URLs' do
       box_path = iso_env.box2_file(:virtualbox)
 
-      env[:box_name] = "foo"
+      env[:box_name] = 'foo'
       env[:box_url] = [
-        "/foo/bar/baz",
+        '/foo/bar/baz',
         box_path.to_s,
       ]
 
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo")
-        expect(version).to eq("0")
+        expect(name).to eq('foo')
+        expect(version).to eq('0')
         expect(opts[:metadata_url]).to be_nil
         true
       }.and_return(box)
@@ -101,16 +101,16 @@ describe Vagrant::Action::Builtin::BoxAdd do
       subject.call(env)
     end
 
-    it "adds from HTTP URL" do
+    it 'adds from HTTP URL' do
       box_path = iso_env.box2_file(:virtualbox)
       with_web_server(box_path) do |port|
-        env[:box_name] = "foo"
+        env[:box_name] = 'foo'
         env[:box_url] = "http://127.0.0.1:#{port}/#{box_path.basename}"
 
         expect(box_collection).to receive(:add).with { |path, name, version, **opts|
           expect(checksum(path)).to eq(checksum(box_path))
-          expect(name).to eq("foo")
-          expect(version).to eq("0")
+          expect(name).to eq('foo')
+          expect(version).to eq('0')
           expect(opts[:metadata_url]).to be_nil
           true
         }.and_return(box)
@@ -121,7 +121,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
-    it "raises an error if no name is given" do
+    it 'raises an error if no name is given' do
       box_path = iso_env.box2_file(:virtualbox)
 
       env[:box_url] = box_path.to_s
@@ -133,15 +133,15 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAddNameRequired)
     end
 
-    it "raises an error if the box already exists" do
+    it 'raises an error if the box already exists' do
       box_path = iso_env.box2_file(:virtualbox)
 
-      env[:box_name] = "foo"
+      env[:box_name] = 'foo'
       env[:box_url] = box_path.to_s
-      env[:box_provider] = "virtualbox"
+      env[:box_provider] = 'virtualbox'
 
       expect(box_collection).to receive(:find).with(
-        "foo", ["virtualbox"], "0").and_return(box)
+        'foo', ['virtualbox'], '0').and_return(box)
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
 
@@ -152,10 +152,10 @@ describe Vagrant::Action::Builtin::BoxAdd do
     it "raises an error if checksum specified and doesn't match" do
       box_path = iso_env.box2_file(:virtualbox)
 
-      env[:box_name] = "foo"
+      env[:box_name] = 'foo'
       env[:box_url] = box_path.to_s
-      env[:box_checksum] = checksum(box_path) + "A"
-      env[:box_checksum_type] = "sha1"
+      env[:box_checksum] = checksum(box_path) + 'A'
+      env[:box_checksum_type] = 'sha1'
 
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
@@ -167,8 +167,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
     it "raises an error if the box path doesn't exist" do
       box_path = iso_env.box2_file(:virtualbox)
 
-      env[:box_name] = "foo"
-      env[:box_url] = box_path.to_s + "nope"
+      env[:box_name] = 'foo'
+      env[:box_url] = box_path.to_s + 'nope'
 
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
@@ -177,12 +177,12 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::DownloaderError)
     end
 
-    it "raises an error if a version was specified" do
+    it 'raises an error if a version was specified' do
       box_path = iso_env.box2_file(:virtualbox)
 
-      env[:box_name] = "foo"
+      env[:box_name] = 'foo'
       env[:box_url] = box_path.to_s
-      env[:box_version] = "1"
+      env[:box_version] = '1'
 
       expect(box_collection).to receive(:add).never
 
@@ -192,19 +192,19 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAddDirectVersion)
     end
 
-    it "force adds if exists and specified" do
+    it 'force adds if exists and specified' do
       box_path = iso_env.box2_file(:virtualbox)
 
       env[:box_force] = true
-      env[:box_name] = "foo"
+      env[:box_name] = 'foo'
       env[:box_url] = box_path.to_s
-      env[:box_provider] = "virtualbox"
+      env[:box_provider] = 'virtualbox'
 
       box_collection.stub(find: box)
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo")
-        expect(version).to eq("0")
+        expect(name).to eq('foo')
+        expect(version).to eq('0')
         expect(opts[:metadata_url]).to be_nil
         true
       }.and_return(box)
@@ -214,10 +214,10 @@ describe Vagrant::Action::Builtin::BoxAdd do
     end
   end
 
-  context "with box metadata" do
-    it "adds from HTTP URL" do
+  context 'with box metadata' do
+    it 'adds from HTTP URL' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new(["vagrant", ".json"]).tap do |f|
+      tf = Tempfile.new(['vagrant', '.json']).tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -245,8 +245,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
         env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
 
         expect(box_collection).to receive(:add).with { |path, name, version, **opts|
-          expect(name).to eq("foo/bar")
-          expect(version).to eq("0.7")
+          expect(name).to eq('foo/bar')
+          expect(version).to eq('0.7')
           expect(checksum(path)).to eq(checksum(box_path))
           expect(opts[:metadata_url]).to eq(env[:box_url])
           true
@@ -258,12 +258,12 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
-    it "adds from shorthand path" do
+    it 'adds from shorthand path' do
       box_path = iso_env.box2_file(:virtualbox)
       td = Pathname.new(Dir.mktmpdir)
-      tf = td.join("mitchellh", "precise64.json")
+      tf = td.join('mitchellh', 'precise64.json')
       tf.dirname.mkpath
-      tf.open("w") do |f|
+      tf.open('w') do |f|
         f.write(<<-RAW)
         {
           "name": "mitchellh/precise64",
@@ -287,11 +287,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
 
       with_web_server(tf.dirname) do |port|
         url = "http://127.0.0.1:#{port}"
-        env[:box_url] = "mitchellh/precise64.json"
+        env[:box_url] = 'mitchellh/precise64.json'
 
         expect(box_collection).to receive(:add).with { |path, name, version, **opts|
-          expect(name).to eq("mitchellh/precise64")
-          expect(version).to eq("0.7")
+          expect(name).to eq('mitchellh/precise64')
+          expect(version).to eq('0.7')
           expect(checksum(path)).to eq(checksum(box_path))
           expect(opts[:metadata_url]).to eq(
             "#{url}/#{env[:box_url]}")
@@ -300,15 +300,15 @@ describe Vagrant::Action::Builtin::BoxAdd do
 
         expect(app).to receive(:call).with(env)
 
-        with_temp_env("VAGRANT_SERVER_URL" => url) do
+        with_temp_env('VAGRANT_SERVER_URL' => url) do
           subject.call(env)
         end
       end
     end
 
-    it "authenticates HTTP URLs and adds them" do
+    it 'authenticates HTTP URLs and adds them' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new(["vagrant", ".json"]).tap do |f|
+      tf = Tempfile.new(['vagrant', '.json']).tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -336,25 +336,25 @@ describe Vagrant::Action::Builtin::BoxAdd do
         real_url = "http://127.0.0.1:#{port}/#{md_path.basename}"
 
         # Set the box URL to something fake so we can modify it in place
-        env[:box_url] = "foo"
+        env[:box_url] = 'foo'
 
-        env[:hook] = double("hook")
+        env[:hook] = double('hook')
         allow(env[:hook]).to receive(:call) do |name, opts|
           expect(name).to eq(:authenticate_box_url)
-          if opts[:box_urls] == ["foo"]
+          if opts[:box_urls] == ['foo']
             next { box_urls: [real_url] }
-          elsif opts[:box_urls] == ["bar"]
+          elsif opts[:box_urls] == ['bar']
             next { box_urls: [box_path.to_s] }
           else
-            raise "UNKNOWN: #{opts[:box_urls].inspect}"
+            fail "UNKNOWN: #{opts[:box_urls].inspect}"
           end
         end
 
         expect(box_collection).to receive(:add).with { |path, name, version, **opts|
-          expect(name).to eq("foo/bar")
-          expect(version).to eq("0.7")
+          expect(name).to eq('foo/bar')
+          expect(version).to eq('0.7')
           expect(checksum(path)).to eq(checksum(box_path))
-          expect(opts[:metadata_url]).to eq("foo")
+          expect(opts[:metadata_url]).to eq('foo')
           true
         }.and_return(box)
 
@@ -364,9 +364,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
-    it "adds from HTTP URL with a checksum" do
+    it 'adds from HTTP URL with a checksum' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new(["vagrant", ".json"]).tap do |f|
+      tf = Tempfile.new(['vagrant', '.json']).tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -396,8 +396,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
         env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
 
         expect(box_collection).to receive(:add).with { |path, name, version, **opts|
-          expect(name).to eq("foo/bar")
-          expect(version).to eq("0.7")
+          expect(name).to eq('foo/bar')
+          expect(version).to eq('0.7')
           expect(checksum(path)).to eq(checksum(box_path))
           expect(opts[:metadata_url]).to eq(env[:box_url])
           true
@@ -409,9 +409,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
-    it "raises an exception if checksum given but not correct" do
+    it 'raises an exception if checksum given but not correct' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new(["vagrant", ".json"]).tap do |f|
+      tf = Tempfile.new(['vagrant', '.json']).tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -448,11 +448,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
-    it "raises an error if no Vagrant server is set" do
-      tf = Tempfile.new("foo")
+    it 'raises an error if no Vagrant server is set' do
+      tf = Tempfile.new('foo')
       tf.close
 
-      env[:box_url] = "mitchellh/precise64.json"
+      env[:box_url] = 'mitchellh/precise64.json'
 
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
@@ -463,27 +463,27 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxServerNotSet)
     end
 
-    it "raises an error if shorthand is invalid" do
-      tf = Tempfile.new("foo")
+    it 'raises an error if shorthand is invalid' do
+      tf = Tempfile.new('foo')
       tf.close
 
       with_web_server(Pathname.new(tf.path)) do |port|
-        env[:box_url] = "mitchellh/precise64.json"
+        env[:box_url] = 'mitchellh/precise64.json'
 
         expect(box_collection).to receive(:add).never
         expect(app).to receive(:call).never
 
         url = "http://127.0.0.1:#{port}"
-        with_temp_env("VAGRANT_SERVER_URL" => url) do
+        with_temp_env('VAGRANT_SERVER_URL' => url) do
           expect { subject.call(env) }.
             to raise_error(Vagrant::Errors::BoxAddShortNotFound)
         end
       end
     end
 
-    it "raises an error if multiple metadata URLs are given" do
+    it 'raises an error if multiple metadata URLs are given' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -507,7 +507,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
 
       env[:box_url] = [
-        "/foo/bar/baz",
+        '/foo/bar/baz',
         tf.path,
       ]
       expect(box_collection).to receive(:add).never
@@ -517,9 +517,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAddMetadataMultiURL)
     end
 
-    it "adds the latest version of a box with only one provider" do
+    it 'adds the latest version of a box with only one provider' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -545,8 +545,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
       env[:box_url] = tf.path
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo/bar")
-        expect(version).to eq("0.7")
+        expect(name).to eq('foo/bar')
+        expect(version).to eq('0.7')
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       }.and_return(box)
@@ -556,9 +556,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
       subject.call(env)
     end
 
-    it "adds the latest version of a box with the specified provider" do
+    it 'adds the latest version of a box with the specified provider' do
       box_path = iso_env.box2_file(:vmware)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -586,11 +586,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
 
       env[:box_url] = tf.path
-      env[:box_provider] = "vmware"
+      env[:box_provider] = 'vmware'
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo/bar")
-        expect(version).to eq("0.7")
+        expect(name).to eq('foo/bar')
+        expect(version).to eq('0.7')
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       }.and_return(box)
@@ -602,9 +602,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
       expect(env[:box_added]).to equal(box)
     end
 
-    it "adds the latest version of a box with the specified provider, even if not latest" do
+    it 'adds the latest version of a box with the specified provider, even if not latest' do
       box_path = iso_env.box2_file(:vmware)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -635,11 +635,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
 
       env[:box_url] = tf.path
-      env[:box_provider] = "vmware"
+      env[:box_provider] = 'vmware'
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo/bar")
-        expect(version).to eq("0.7")
+        expect(name).to eq('foo/bar')
+        expect(version).to eq('0.7')
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       }.and_return(box)
@@ -651,9 +651,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
       expect(env[:box_added]).to equal(box)
     end
 
-    it "adds the constrained version of a box with the only provider" do
+    it 'adds the constrained version of a box with the only provider' do
       box_path = iso_env.box2_file(:vmware)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -675,11 +675,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
 
       env[:box_url] = tf.path
-      env[:box_version] = "~> 0.1"
+      env[:box_version] = '~> 0.1'
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo/bar")
-        expect(version).to eq("0.5")
+        expect(name).to eq('foo/bar')
+        expect(version).to eq('0.5')
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       }.and_return(box)
@@ -691,9 +691,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
       expect(env[:box_added]).to equal(box)
     end
 
-    it "adds the constrained version of a box with the specified provider" do
+    it 'adds the constrained version of a box with the specified provider' do
       box_path = iso_env.box2_file(:vmware)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -719,12 +719,12 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
 
       env[:box_url] = tf.path
-      env[:box_provider] = "vmware"
-      env[:box_version] = "~> 0.1"
+      env[:box_provider] = 'vmware'
+      env[:box_version] = '~> 0.1'
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo/bar")
-        expect(version).to eq("0.5")
+        expect(name).to eq('foo/bar')
+        expect(version).to eq('0.5')
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       }.and_return(box)
@@ -736,9 +736,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
       expect(env[:box_added]).to equal(box)
     end
 
-    it "adds the latest version of a box with any specified provider" do
+    it 'adds the latest version of a box with any specified provider' do
       box_path = iso_env.box2_file(:vmware)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -768,11 +768,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
 
       env[:box_url] = tf.path
-      env[:box_provider] = ["virtualbox", "vmware"]
+      env[:box_provider] = %w(virtualbox vmware)
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo/bar")
-        expect(version).to eq("0.7")
+        expect(name).to eq('foo/bar')
+        expect(version).to eq('0.7')
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       }.and_return(box)
@@ -784,9 +784,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
       expect(env[:box_added]).to equal(box)
     end
 
-    it "asks the user what provider if multiple options" do
+    it 'asks the user what provider if multiple options' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -815,12 +815,12 @@ describe Vagrant::Action::Builtin::BoxAdd do
 
       env[:box_url] = tf.path
 
-      expect(env[:ui]).to receive(:ask).and_return("1")
+      expect(env[:ui]).to receive(:ask).and_return('1')
 
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo/bar")
-        expect(version).to eq("0.7")
+        expect(name).to eq('foo/bar')
+        expect(version).to eq('0.7')
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       }.and_return(box)
@@ -832,7 +832,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
 
     it "raises an exception if the name doesn't match a requested name" do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -855,7 +855,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         f.close
       end
 
-      env[:box_name] = "foo"
+      env[:box_name] = 'foo'
       env[:box_url] = tf.path
 
       expect(box_collection).to receive(:add).never
@@ -865,9 +865,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAddNameMismatch)
     end
 
-    it "raises an exception if no matching version" do
+    it 'raises an exception if no matching version' do
       box_path = iso_env.box2_file(:vmware)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -889,7 +889,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
 
       env[:box_url] = tf.path
-      env[:box_version] = "~> 2.0"
+      env[:box_version] = '~> 2.0'
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
 
@@ -897,8 +897,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAddNoMatchingVersion)
     end
 
-    it "raises an error if there is no matching provider" do
-      tf = Tempfile.new("vagrant").tap do |f|
+    it 'raises an error if there is no matching provider' do
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -922,7 +922,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
 
       env[:box_url] = tf.path
-      env[:box_provider] = "vmware"
+      env[:box_provider] = 'vmware'
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
 
@@ -930,9 +930,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAddNoMatchingProvider)
     end
 
-    it "raises an error if a box already exists" do
+    it 'raises an error if a box already exists' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -957,7 +957,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
 
       env[:box_url] = tf.path
       expect(box_collection).to receive(:find).
-        with("foo/bar", "virtualbox", "0.7").and_return(box)
+        with('foo/bar', 'virtualbox', '0.7').and_return(box)
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
 
@@ -965,9 +965,9 @@ describe Vagrant::Action::Builtin::BoxAdd do
         to raise_error(Vagrant::Errors::BoxAlreadyExists)
     end
 
-    it "force adds a box if specified" do
+    it 'force adds a box if specified' do
       box_path = iso_env.box2_file(:virtualbox)
-      tf = Tempfile.new("vagrant").tap do |f|
+      tf = Tempfile.new('vagrant').tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo/bar",
@@ -995,8 +995,8 @@ describe Vagrant::Action::Builtin::BoxAdd do
       box_collection.stub(find: box)
       expect(box_collection).to receive(:add).with { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
-        expect(name).to eq("foo/bar")
-        expect(version).to eq("0.7")
+        expect(name).to eq('foo/bar')
+        expect(version).to eq('0.7')
         expect(opts[:force]).to be_true
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true

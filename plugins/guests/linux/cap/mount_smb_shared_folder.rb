@@ -1,4 +1,4 @@
-require "shellwords"
+require 'shellwords'
 
 module VagrantPlugins
   module GuestLinux
@@ -28,18 +28,18 @@ module VagrantPlugins
           smb_password = Shellwords.shellescape(options[:smb_password])
 
           options[:mount_options] ||= []
-          options[:mount_options] << "sec=ntlm"
+          options[:mount_options] << 'sec=ntlm'
           options[:mount_options] << "username=#{options[:smb_username]}"
           options[:mount_options] << "pass=#{smb_password}"
 
           # First mount command uses getent to get the group
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
-          mount_options += ",#{options[:mount_options].join(",")}" if options[:mount_options]
+          mount_options += ",#{options[:mount_options].join(',')}" if options[:mount_options]
           mount_commands << "mount -t cifs #{mount_options} #{mount_device} #{expanded_guest_path}"
 
           # Second mount command uses the old style `id -g`
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid_old}"
-          mount_options += ",#{options[:mount_options].join(",")}" if options[:mount_options]
+          mount_options += ",#{options[:mount_options].join(',')}" if options[:mount_options]
           mount_commands << "mount -t cifs #{mount_options} #{mount_device} #{expanded_guest_path}"
 
           # Create the guest path if it doesn't exist
@@ -66,17 +66,17 @@ module VagrantPlugins
             attempts += 1
             if attempts > 10
               command = mount_commands.join("\n")
-              command.gsub!(smb_password, "PASSWORDHIDDEN")
+              command.gsub!(smb_password, 'PASSWORDHIDDEN')
 
-              raise Vagrant::Errors::LinuxMountFailed,
-                command: command
+              fail Vagrant::Errors::LinuxMountFailed,
+                   command: command
             end
 
             sleep 2
           end
 
           # Emit an upstart event if we can
-          if machine.communicate.test("test -x /sbin/initctl")
+          if machine.communicate.test('test -x /sbin/initctl')
             machine.communicate.sudo(
               "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{expanded_guest_path}")
           end

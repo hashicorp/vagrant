@@ -1,17 +1,17 @@
-require "fileutils"
+require 'fileutils'
 
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class Export
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
         def call(env)
           @env = env
 
-          raise Vagrant::Errors::VMPowerOffToPackage if \
+          fail Vagrant::Errors::VMPowerOffToPackage if \
             @env[:machine].state.id != :poweroff
 
           export
@@ -20,7 +20,7 @@ module VagrantPlugins
         end
 
         def export
-          @env[:ui].info I18n.t("vagrant.actions.vm.export.exporting")
+          @env[:ui].info I18n.t('vagrant.actions.vm.export.exporting')
           @env[:machine].provider.driver.export(ovf_path) do |progress|
             @env[:ui].clear_line
             @env[:ui].report_progress(progress.percent, 100, false)
@@ -32,7 +32,7 @@ module VagrantPlugins
         end
 
         def ovf_path
-          File.join(@env["export.temp_dir"], "box.ovf")
+          File.join(@env['export.temp_dir'], 'box.ovf')
         end
       end
     end

@@ -1,18 +1,18 @@
-require "digest/md5"
-require "fileutils"
-require "thread"
+require 'digest/md5'
+require 'fileutils'
+require 'thread'
 
-require "log4r"
+require 'log4r'
 
-require "vagrant/util/silence_warnings"
+require 'vagrant/util/silence_warnings'
 
 module VagrantPlugins
   module DockerProvider
-    class Provider < Vagrant.plugin("2", :provider)
+    class Provider < Vagrant.plugin('2', :provider)
       @@host_vm_mutex = Mutex.new
 
       def initialize(machine)
-        @logger  = Log4r::Logger.new("vagrant::provider::docker")
+        @logger  = Log4r::Logger.new('vagrant::provider::docker')
         @machine = machine
 
         if host_vm?
@@ -53,14 +53,14 @@ module VagrantPlugins
 
         vf_path           = @machine.provider_config.vagrant_vagrantfile
         host_machine_name = @machine.provider_config.vagrant_machine || :default
-        if !vf_path
+        unless vf_path
           # We don't have a Vagrantfile path set, so we're going to use
           # the default but we need to copy it into the data dir so that
           # we don't write into our installation dir (we can't).
-          default_path = File.expand_path("../hostmachine/Vagrantfile", __FILE__)
-          vf_path      = @machine.env.data_dir.join("docker-host", "Vagrantfile")
+          default_path = File.expand_path('../hostmachine/Vagrantfile', __FILE__)
+          vf_path      = @machine.env.data_dir.join('docker-host', 'Vagrantfile')
           begin
-            @machine.env.lock("docker-provider-hostvm") do
+            @machine.env.lock('docker-provider-hostvm') do
               vf_path.dirname.mkpath
               FileUtils.cp(default_path, vf_path)
             end
@@ -134,7 +134,7 @@ module VagrantPlugins
 
         # If we were not able to identify the container's IP, we return nil
         # here and we let Vagrant core deal with it ;)
-        return nil if !ip
+        return nil unless ip
 
         {
           host: ip,
@@ -144,15 +144,15 @@ module VagrantPlugins
 
       def state
         state_id = nil
-        state_id = :not_created if !@machine.id
+        state_id = :not_created unless @machine.id
         state_id = :host_state_unknown if !state_id && \
           host_vm? && !host_vm.communicate.ready?
         state_id = :not_created if !state_id && \
           (!@machine.id || !driver.created?(@machine.id))
         state_id = driver.state(@machine.id) if @machine.id && !state_id
-        state_id = :unknown if !state_id
+        state_id = :unknown unless state_id
 
-        short = state_id.to_s.gsub("_", " ")
+        short = state_id.to_s.gsub('_', ' ')
         long  = I18n.t("docker_provider.status.#{state_id}")
 
         # If we're not created, then specify the special ID flag
@@ -164,7 +164,7 @@ module VagrantPlugins
       end
 
       def to_s
-        id = @machine.id ? @machine.id : "new container"
+        id = @machine.id ? @machine.id : 'new container'
         "Docker (#{id})"
       end
     end

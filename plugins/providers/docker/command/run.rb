@@ -1,9 +1,9 @@
 module VagrantPlugins
   module DockerProvider
     module Command
-      class Run < Vagrant.plugin("2", :command)
+      class Run < Vagrant.plugin('2', :command)
         def self.synopsis
-          "run a one-off command in the context of a container"
+          'run a one-off command in the context of a container'
         end
 
         def execute
@@ -12,16 +12,16 @@ module VagrantPlugins
           options[:pty] = false
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant docker-run [command...]"
-            o.separator ""
-            o.separator "Options:"
-            o.separator ""
+            o.banner = 'Usage: vagrant docker-run [command...]'
+            o.separator ''
+            o.separator 'Options:'
+            o.separator ''
 
-            o.on("--[no-]detach", "Run in the background") do |d|
+            o.on('--[no-]detach', 'Run in the background') do |d|
               options[:detach] = d
             end
 
-            o.on("-t", "--[no-]tty", "Allocate a pty") do |t|
+            o.on('-t', '--[no-]tty', 'Allocate a pty') do |t|
               options[:pty] = t
             end
           end
@@ -29,7 +29,7 @@ module VagrantPlugins
           # Parse out the extra args to send to SSH, which is everything
           # after the "--"
           command     = nil
-          split_index = @argv.index("--")
+          split_index = @argv.index('--')
           if split_index
             command = @argv.drop(split_index + 1)
             @argv   = @argv.take(split_index)
@@ -37,12 +37,12 @@ module VagrantPlugins
 
           # Parse the options
           argv = parse_options(opts)
-          return if !argv
+          return unless argv
 
           # Show the error if we don't have "--" _after_ parse_options
           # so that "-h" and "--help" work properly.
-          if !split_index
-            @env.ui.error(I18n.t("docker_provider.run_command_required"))
+          unless split_index
+            @env.ui.error(I18n.t('docker_provider.run_command_required'))
             return 1
           end
 

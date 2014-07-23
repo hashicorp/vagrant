@@ -1,8 +1,8 @@
-require "vagrant"
+require 'vagrant'
 
 module VagrantPlugins
   module Kernel_V1
-    class VagrantConfig < Vagrant.plugin("1", :config)
+    class VagrantConfig < Vagrant.plugin('1', :config)
       attr_accessor :dotfile_name
       attr_accessor :host
 
@@ -21,7 +21,7 @@ module VagrantPlugins
 
         warnings = []
         if @dotfile_name
-          warnings << "`config.vm.dotfile_name` has no effect anymore."
+          warnings << '`config.vm.dotfile_name` has no effect anymore.'
         end
 
         [warnings, []]

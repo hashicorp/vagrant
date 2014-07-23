@@ -1,4 +1,4 @@
-require "vagrant/capability_host"
+require 'vagrant/capability_host'
 
 module Vagrant
   # This class handles host-OS specific interations. It is responsible for

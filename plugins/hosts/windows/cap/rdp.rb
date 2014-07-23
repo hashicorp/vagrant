@@ -1,25 +1,25 @@
-require "pathname"
-require "tmpdir"
+require 'pathname'
+require 'tmpdir'
 
-require "vagrant/util/subprocess"
+require 'vagrant/util/subprocess'
 
 module VagrantPlugins
   module HostWindows
     module Cap
       class RDP
-        def self.rdp_client(env, rdp_info)
+        def self.rdp_client(_env, rdp_info)
           config = nil
           opts   = {
-            "drivestoredirect:s"       => "*",
-            "full address:s"           => "#{rdp_info[:host]}:#{rdp_info[:port]}",
-            "prompt for credentials:i" => "1",
-            "username:s"               => rdp_info[:username],
+            'drivestoredirect:s'       => '*',
+            'full address:s'           => "#{rdp_info[:host]}:#{rdp_info[:port]}",
+            'prompt for credentials:i' => '1',
+            'username:s'               => rdp_info[:username],
           }
 
           # Create the ".rdp" file
           config_path = Pathname.new(Dir.tmpdir).join(
-            "vagrant-rdp-#{Time.now.to_i}-#{rand(10000)}.rdp")
-          config_path.open("w+") do |f|
+            "vagrant-rdp-#{Time.now.to_i}-#{rand(10_000)}.rdp")
+          config_path.open('w+') do |f|
             opts.each do |k, v|
               f.puts("#{k}:#{v}")
             end
@@ -32,7 +32,7 @@ module VagrantPlugins
           end
 
           # Launch it
-          Vagrant::Util::Subprocess.execute("mstsc", *args)
+          Vagrant::Util::Subprocess.execute('mstsc', *args)
         end
       end
     end

@@ -1,58 +1,58 @@
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 
-require Vagrant.source_root.join("plugins/kernel_v2/config/vm")
+require Vagrant.source_root.join('plugins/kernel_v2/config/vm')
 
 describe VagrantPlugins::Kernel_V2::VMConfig do
-  include_context "unit"
+  include_context 'unit'
 
   subject { described_class.new }
 
-  let(:machine) { double("machine") }
+  let(:machine) { double('machine') }
 
   def assert_invalid
     errors = subject.validate(machine)
-    if !errors.values.any? { |v| !v.empty? }
-      raise "No errors: #{errors.inspect}"
+    unless errors.values.any? { |v| !v.empty? }
+      fail "No errors: #{errors.inspect}"
     end
   end
 
   def assert_valid
     errors = subject.validate(machine)
-    if !errors.values.all? { |v| v.empty? }
-      raise "Errors: #{errors.inspect}"
+    unless errors.values.all? { |v| v.empty? }
+      fail "Errors: #{errors.inspect}"
     end
   end
 
   before do
-    env = double("env")
+    env = double('env')
     env.stub(root_path: nil)
     machine.stub(env: env)
     machine.stub(provider_config: nil)
     machine.stub(provider_options: {})
 
-    subject.box = "foo"
+    subject.box = 'foo'
   end
 
-  it "is valid with test defaults" do
+  it 'is valid with test defaults' do
     subject.finalize!
     assert_valid
   end
 
-  describe "#base_mac" do
-    it "defaults properly" do
+  describe '#base_mac' do
+    it 'defaults properly' do
       subject.finalize!
       expect(subject.base_mac).to be_nil
     end
   end
 
-  describe "#box" do
-    it "is required" do
+  describe '#box' do
+    it 'is required' do
       subject.box = nil
       subject.finalize!
       assert_invalid
     end
 
-    it "is not required if the provider says so" do
+    it 'is not required if the provider says so' do
       machine.provider_options[:box_optional] = true
       subject.box = nil
       subject.finalize!
@@ -60,82 +60,82 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
-  context "#box_check_update" do
-    it "defaults to true" do
+  context '#box_check_update' do
+    it 'defaults to true' do
       subject.finalize!
 
       expect(subject.box_check_update).to be_true
     end
   end
 
-  describe "#box_url" do
-    it "defaults to nil" do
+  describe '#box_url' do
+    it 'defaults to nil' do
       subject.finalize!
 
       expect(subject.box_url).to be_nil
     end
 
-    it "turns into an array" do
-      subject.box_url = "foo"
+    it 'turns into an array' do
+      subject.box_url = 'foo'
       subject.finalize!
 
       expect(subject.box_url).to eq(
-        ["foo"])
+        ['foo'])
     end
 
-    it "keeps in array" do
-      subject.box_url = ["foo", "bar"]
+    it 'keeps in array' do
+      subject.box_url = %w(foo bar)
       subject.finalize!
 
       expect(subject.box_url).to eq(
-        ["foo", "bar"])
+        %w(foo bar))
     end
   end
 
-  context "#box_version" do
-    it "defaults to nil" do
+  context '#box_version' do
+    it 'defaults to nil' do
       subject.finalize!
 
       expect(subject.box_version).to be_nil
     end
 
-    it "errors if invalid version" do
-      subject.box_version = "nope"
+    it 'errors if invalid version' do
+      subject.box_version = 'nope'
       subject.finalize!
 
       expect { assert_valid }.to raise_error(RuntimeError)
     end
 
-    it "can have complex constraints" do
-      subject.box_version = ">= 0, ~> 1.0"
+    it 'can have complex constraints' do
+      subject.box_version = '>= 0, ~> 1.0'
       subject.finalize!
 
       assert_valid
     end
   end
 
-  describe "#communicator" do
-    it "is nil by default" do
+  describe '#communicator' do
+    it 'is nil by default' do
       subject.finalize!
       expect(subject.communicator).to be_nil
     end
   end
 
-  describe "#guest" do
-    it "is nil by default" do
+  describe '#guest' do
+    it 'is nil by default' do
       subject.finalize!
       expect(subject.guest).to be_nil
     end
 
-    it "is symbolized" do
-      subject.guest = "foo"
+    it 'is symbolized' do
+      subject.guest = 'foo'
       subject.finalize!
       expect(subject.guest).to eq(:foo)
     end
   end
 
-  describe "#hostname" do
-    ["a", "foo", "foo-bar", "baz0"].each do |valid|
+  describe '#hostname' do
+    ['a', 'foo', 'foo-bar', 'baz0'].each do |valid|
       it "is valid: #{valid}" do
         subject.hostname = valid
         subject.finalize!
@@ -144,118 +144,118 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
-  describe "#network(s)" do
-    it "defaults to forwarding SSH by default" do
+  describe '#network(s)' do
+    it 'defaults to forwarding SSH by default' do
       subject.finalize!
       n = subject.networks
       expect(n.length).to eq(1)
       expect(n[0][0]).to eq(:forwarded_port)
       expect(n[0][1][:guest]).to eq(22)
       expect(n[0][1][:host]).to eq(2222)
-      expect(n[0][1][:host_ip]).to eq("127.0.0.1")
-      expect(n[0][1][:id]).to eq("ssh")
+      expect(n[0][1][:host_ip]).to eq('127.0.0.1')
+      expect(n[0][1][:id]).to eq('ssh')
     end
 
-    it "defaults to forwarding WinRM if communicator is winrm" do
-      subject.communicator = "winrm"
+    it 'defaults to forwarding WinRM if communicator is winrm' do
+      subject.communicator = 'winrm'
       subject.finalize!
       n = subject.networks
       expect(n.length).to eq(1)
       expect(n[0][0]).to eq(:forwarded_port)
       expect(n[0][1][:guest]).to eq(5985)
-      expect(n[0][1][:host]).to eq(55985)
-      expect(n[0][1][:host_ip]).to eq("127.0.0.1")
-      expect(n[0][1][:id]).to eq("winrm")
+      expect(n[0][1][:host]).to eq(55_985)
+      expect(n[0][1][:host_ip]).to eq('127.0.0.1')
+      expect(n[0][1][:id]).to eq('winrm')
     end
 
-    it "allows overriding SSH" do
-      subject.network "forwarded_port",
-        guest: 22, host: 14100, id: "ssh"
+    it 'allows overriding SSH' do
+      subject.network 'forwarded_port',
+                      guest: 22, host: 14_100, id: 'ssh'
       subject.finalize!
 
       n = subject.networks
       expect(n.length).to eq(1)
       expect(n[0][0]).to eq(:forwarded_port)
       expect(n[0][1][:guest]).to eq(22)
-      expect(n[0][1][:host]).to eq(14100)
-      expect(n[0][1][:id]).to eq("ssh")
+      expect(n[0][1][:host]).to eq(14_100)
+      expect(n[0][1][:id]).to eq('ssh')
     end
 
-    it "allows overriding WinRM" do
+    it 'allows overriding WinRM' do
       subject.communicator = :winrm
-      subject.network "forwarded_port",
-        guest: 22, host: 14100, id: "winrm"
+      subject.network 'forwarded_port',
+                      guest: 22, host: 14_100, id: 'winrm'
       subject.finalize!
 
       n = subject.networks
       expect(n.length).to eq(1)
       expect(n[0][0]).to eq(:forwarded_port)
       expect(n[0][1][:guest]).to eq(22)
-      expect(n[0][1][:host]).to eq(14100)
-      expect(n[0][1][:id]).to eq("winrm")
+      expect(n[0][1][:host]).to eq(14_100)
+      expect(n[0][1][:id]).to eq('winrm')
     end
 
-    it "turns all forwarded port ports to ints" do
-      subject.network "forwarded_port",
-        guest: "45", host: "4545", id: "test"
+    it 'turns all forwarded port ports to ints' do
+      subject.network 'forwarded_port',
+                      guest: '45', host: '4545', id: 'test'
       subject.finalize!
       n = subject.networks.find do |type, data|
-        type == :forwarded_port && data[:id] == "test"
+        type == :forwarded_port && data[:id] == 'test'
       end
       expect(n).to_not be_nil
       expect(n[1][:guest]).to eq(45)
       expect(n[1][:host]).to eq(4545)
     end
 
-    it "is an error if forwarding a port too low" do
-      subject.network "forwarded_port",
-        guest: "45", host: "-5"
+    it 'is an error if forwarding a port too low' do
+      subject.network 'forwarded_port',
+                      guest: '45', host: '-5'
       subject.finalize!
       assert_invalid
     end
 
-    it "is an error if forwarding a port too high" do
-      subject.network "forwarded_port",
-        guest: "45", host: "74545"
+    it 'is an error if forwarding a port too high' do
+      subject.network 'forwarded_port',
+                      guest: '45', host: '74545'
       subject.finalize!
       assert_invalid
     end
   end
 
-  describe "#post_up_message" do
-    it "defaults to empty string" do
+  describe '#post_up_message' do
+    it 'defaults to empty string' do
       subject.finalize!
-      expect(subject.post_up_message).to eq("")
+      expect(subject.post_up_message).to eq('')
     end
 
-    it "can be set" do
-      subject.post_up_message = "foo"
+    it 'can be set' do
+      subject.post_up_message = 'foo'
       subject.finalize!
-      expect(subject.post_up_message).to eq("foo")
+      expect(subject.post_up_message).to eq('foo')
     end
   end
 
-  describe "#provider and #get_provider_config" do
-    it "compiles the configurations for a provider" do
-      subject.provider "virtualbox" do |vb|
+  describe '#provider and #get_provider_config' do
+    it 'compiles the configurations for a provider' do
+      subject.provider 'virtualbox' do |vb|
         vb.gui = true
       end
 
-      subject.provider "virtualbox" do |vb|
-        vb.name = "foo"
+      subject.provider 'virtualbox' do |vb|
+        vb.name = 'foo'
       end
 
       subject.finalize!
 
       config = subject.get_provider_config(:virtualbox)
-      expect(config.name).to eq("foo")
+      expect(config.name).to eq('foo')
       expect(config.gui).to be_true
     end
 
-    it "raises an exception if there is a problem loading" do
-      subject.provider "virtualbox" do |vb|
+    it 'raises an exception if there is a problem loading' do
+      subject.provider 'virtualbox' do |_vb|
         # Purposeful bad variable
-        vm.foo = "bar"
+        vm.foo = 'bar'
       end
 
       expect { subject.finalize! }.
@@ -263,35 +263,35 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
-  describe "#provision" do
-    it "stores the provisioners" do
-      subject.provision("shell", inline: "foo")
-      subject.provision("shell", inline: "bar", run: "always") { |s| s.path = "baz" }
+  describe '#provision' do
+    it 'stores the provisioners' do
+      subject.provision('shell', inline: 'foo')
+      subject.provision('shell', inline: 'bar', run: 'always') { |s| s.path = 'baz' }
       subject.finalize!
 
       r = subject.provisioners
       expect(r.length).to eql(2)
       expect(r[0].run).to be_nil
-      expect(r[0].config.inline).to eql("foo")
-      expect(r[1].config.inline).to eql("bar")
-      expect(r[1].config.path).to eql("baz")
+      expect(r[0].config.inline).to eql('foo')
+      expect(r[1].config.inline).to eql('bar')
+      expect(r[1].config.path).to eql('baz')
       expect(r[1].run).to eql(:always)
     end
 
-    it "allows provisioner settings to be overriden" do
-      subject.provision("shell", path: "foo", id: "s") { |s| s.inline = "foo" }
-      subject.provision("shell", inline: "bar", id: "s") { |s| s.args = "bar" }
+    it 'allows provisioner settings to be overriden' do
+      subject.provision('shell', path: 'foo', id: 's') { |s| s.inline = 'foo' }
+      subject.provision('shell', inline: 'bar', id: 's') { |s| s.args = 'bar' }
       subject.finalize!
 
       r = subject.provisioners
       expect(r.length).to eql(1)
-      expect(r[0].config.args).to eql("bar")
-      expect(r[0].config.inline).to eql("bar")
-      expect(r[0].config.path).to eql("foo")
+      expect(r[0].config.args).to eql('bar')
+      expect(r[0].config.inline).to eql('bar')
+      expect(r[0].config.path).to eql('foo')
     end
 
-    it "marks as invalid if a bad name" do
-      subject.provision("nope", inline: "foo")
+    it 'marks as invalid if a bad name' do
+      subject.provision('nope', inline: 'foo')
       subject.finalize!
 
       r = subject.provisioners
@@ -300,44 +300,44 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
 
     it "allows provisioners that don't define any config" do
-      register_plugin("2") do |p|
-        p.name "foo"
+      register_plugin('2') do |p|
+        p.name 'foo'
         # This plugin registers a dummy provisioner
         # without registering a provisioner config
         p.provisioner(:foo) do
-          Class.new Vagrant::plugin("2", :provisioner)
+          Class.new Vagrant.plugin('2', :provisioner)
         end
       end
 
-      subject.provision("foo") do |c|
-        c.bar = "baz"
+      subject.provision('foo') do |c|
+        c.bar = 'baz'
       end
 
       # This should succeed without errors
-      expect{ subject.finalize! }.to_not raise_error
+      expect { subject.finalize! }.to_not raise_error
     end
 
-    describe "merging" do
-      it "ignores non-overriding runs" do
-        subject.provision("shell", inline: "foo", run: "once")
+    describe 'merging' do
+      it 'ignores non-overriding runs' do
+        subject.provision('shell', inline: 'foo', run: 'once')
 
         other = described_class.new
-        other.provision("shell", inline: "bar", run: "always")
+        other.provision('shell', inline: 'bar', run: 'always')
 
         merged = subject.merge(other)
         merged_provs = merged.provisioners
 
         expect(merged_provs.length).to eql(2)
-        expect(merged_provs[0].run).to eq("once")
-        expect(merged_provs[1].run).to eq("always")
+        expect(merged_provs[0].run).to eq('once')
+        expect(merged_provs[1].run).to eq('always')
       end
 
-      it "copies the configs" do
-        subject.provision("shell", inline: "foo")
+      it 'copies the configs' do
+        subject.provision('shell', inline: 'foo')
         subject_provs = subject.provisioners
 
         other = described_class.new
-        other.provision("shell", inline: "bar")
+        other.provision('shell', inline: 'bar')
 
         merged = subject.merge(other)
         merged_provs = merged.provisioners
@@ -349,82 +349,82 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
           to_not eq(subject_provs[0].config.object_id)
       end
 
-      it "uses the proper order when merging overrides" do
-        subject.provision("shell", inline: "foo", id: "original")
-        subject.provision("shell", inline: "other", id: "other")
+      it 'uses the proper order when merging overrides' do
+        subject.provision('shell', inline: 'foo', id: 'original')
+        subject.provision('shell', inline: 'other', id: 'other')
 
         other = described_class.new
-        other.provision("shell", inline: "bar")
-        other.provision("shell", inline: "foo-overload", id: "original")
+        other.provision('shell', inline: 'bar')
+        other.provision('shell', inline: 'foo-overload', id: 'original')
 
         merged = subject.merge(other)
         merged_provs = merged.provisioners
 
         expect(merged_provs.length).to eql(3)
         expect(merged_provs[0].config.inline).
-          to eq("other")
+          to eq('other')
         expect(merged_provs[1].config.inline).
-          to eq("bar")
+          to eq('bar')
         expect(merged_provs[2].config.inline).
-          to eq("foo-overload")
+          to eq('foo-overload')
       end
 
-      it "can preserve order for overrides" do
-        subject.provision("shell", inline: "foo", id: "original")
-        subject.provision("shell", inline: "other", id: "other")
+      it 'can preserve order for overrides' do
+        subject.provision('shell', inline: 'foo', id: 'original')
+        subject.provision('shell', inline: 'other', id: 'other')
 
         other = described_class.new
-        other.provision("shell", inline: "bar")
+        other.provision('shell', inline: 'bar')
         other.provision(
-          "shell", inline: "foo-overload", id: "original",
-          preserve_order: true)
+          'shell', inline: 'foo-overload', id: 'original',
+                   preserve_order: true)
 
         merged = subject.merge(other)
         merged_provs = merged.provisioners
 
         expect(merged_provs.length).to eql(3)
         expect(merged_provs[0].config.inline).
-          to eq("foo-overload")
+          to eq('foo-overload')
         expect(merged_provs[1].config.inline).
-          to eq("other")
+          to eq('other')
         expect(merged_provs[2].config.inline).
-          to eq("bar")
+          to eq('bar')
       end
     end
   end
 
-  describe "#synced_folder(s)" do
-    it "defaults to sharing the current directory" do
+  describe '#synced_folder(s)' do
+    it 'defaults to sharing the current directory' do
       subject.finalize!
       sf = subject.synced_folders
       expect(sf.length).to eq(1)
-      expect(sf).to have_key("/vagrant")
-      expect(sf["/vagrant"][:disabled]).to_not be
+      expect(sf).to have_key('/vagrant')
+      expect(sf['/vagrant'][:disabled]).to_not be
     end
 
-    it "allows overriding settings on the /vagrant sf" do
-      subject.synced_folder(".", "/vagrant", disabled: true)
+    it 'allows overriding settings on the /vagrant sf' do
+      subject.synced_folder('.', '/vagrant', disabled: true)
       subject.finalize!
       sf = subject.synced_folders
       expect(sf.length).to eq(1)
-      expect(sf).to have_key("/vagrant")
-      expect(sf["/vagrant"][:disabled]).to be_true
+      expect(sf).to have_key('/vagrant')
+      expect(sf['/vagrant'][:disabled]).to be_true
     end
 
-    it "allows overriding previously set options" do
-      subject.synced_folder(".", "/vagrant", disabled: true)
-      subject.synced_folder(".", "/vagrant", foo: :bar)
+    it 'allows overriding previously set options' do
+      subject.synced_folder('.', '/vagrant', disabled: true)
+      subject.synced_folder('.', '/vagrant', foo: :bar)
       subject.finalize!
       sf = subject.synced_folders
       expect(sf.length).to eq(1)
-      expect(sf).to have_key("/vagrant")
-      expect(sf["/vagrant"][:disabled]).to be_false
-      expect(sf["/vagrant"][:foo]).to eq(:bar)
+      expect(sf).to have_key('/vagrant')
+      expect(sf['/vagrant'][:disabled]).to be_false
+      expect(sf['/vagrant'][:foo]).to eq(:bar)
     end
   end
 
-  describe "#usable_port_range" do
-    it "defaults properly" do
+  describe '#usable_port_range' do
+    it 'defaults properly' do
       subject.finalize!
       expect(subject.usable_port_range).to eq(
         Range.new(2200, 2250))

@@ -6,7 +6,7 @@ module SidebarHelpers
     if actual && actual == expected
       return " class=\"current\""
     else
-      return ""
+      return ''
     end
   end
 end

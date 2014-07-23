@@ -1,6 +1,6 @@
 module VagrantPlugins
   module Ansible
-    class Config < Vagrant.plugin("2", :config)
+    class Config < Vagrant.plugin('2', :config)
       attr_accessor :playbook
       attr_accessor :extra_vars
       attr_accessor :inventory_path
@@ -66,24 +66,24 @@ module VagrantPlugins
         errors = _detected_errors
 
         # Validate that a playbook path was provided
-        if !playbook
-          errors << I18n.t("vagrant.provisioners.ansible.no_playbook")
+        unless playbook
+          errors << I18n.t('vagrant.provisioners.ansible.no_playbook')
         end
 
         # Validate the existence of said playbook on the host
         if playbook
           expanded_path = Pathname.new(playbook).expand_path(machine.env.root_path)
-          if !expanded_path.file?
-            errors << I18n.t("vagrant.provisioners.ansible.playbook_path_invalid",
-                              path: expanded_path)
+          unless expanded_path.file?
+            errors << I18n.t('vagrant.provisioners.ansible.playbook_path_invalid',
+                             path: expanded_path)
           end
         end
 
         # Validate that extra_vars is either a hash, or a path to an
         # existing file
         if extra_vars
-          extra_vars_is_valid = extra_vars.kind_of?(Hash) || extra_vars.kind_of?(String)
-          if extra_vars.kind_of?(String)
+          extra_vars_is_valid = extra_vars.is_a?(Hash) || extra_vars.is_a?(String)
+          if extra_vars.is_a?(String)
             # Accept the usage of '@' prefix in Vagrantfile (e.g. '@vars.yml'
             # and 'vars.yml' are both supported)
             match_data = /^@?(.+)$/.match(extra_vars)
@@ -95,10 +95,10 @@ module VagrantPlugins
             end
           end
 
-          if !extra_vars_is_valid
-            errors << I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
-                              type:  extra_vars.class.to_s,
-                              value: extra_vars.to_s
+          unless extra_vars_is_valid
+            errors << I18n.t('vagrant.provisioners.ansible.extra_vars_invalid',
+                             type:  extra_vars.class.to_s,
+                             value: extra_vars.to_s
                             )
           end
         end
@@ -106,22 +106,22 @@ module VagrantPlugins
         # Validate the existence of the inventory_path, if specified
         if inventory_path
           expanded_path = Pathname.new(inventory_path).expand_path(machine.env.root_path)
-          if !expanded_path.exist?
-            errors << I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
-                              path: expanded_path)
+          unless expanded_path.exist?
+            errors << I18n.t('vagrant.provisioners.ansible.inventory_path_invalid',
+                             path: expanded_path)
           end
         end
 
         # Validate the existence of the vault_password_file, if specified
         if vault_password_file
           expanded_path = Pathname.new(vault_password_file).expand_path(machine.env.root_path)
-          if !expanded_path.exist?
-            errors << I18n.t("vagrant.provisioners.ansible.vault_password_file_invalid",
-                              path: expanded_path)
+          unless expanded_path.exist?
+            errors << I18n.t('vagrant.provisioners.ansible.vault_password_file_invalid',
+                             path: expanded_path)
           end
         end
 
-        { "ansible provisioner" => errors }
+        { 'ansible provisioner' => errors }
       end
     end
   end

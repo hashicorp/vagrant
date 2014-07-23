@@ -1,8 +1,8 @@
-require "pathname"
+require 'pathname'
 
 module VagrantPlugins
   module DockerProvider
-    class Config < Vagrant.plugin("2", :config)
+    class Config < Vagrant.plugin('2', :config)
       attr_accessor :image, :cmd, :ports, :volumes, :privileged
 
       # Additional arguments to pass to `docker build` when creating
@@ -163,40 +163,40 @@ module VagrantPlugins
         @expose.uniq!
       end
 
-      def validate(machine)
+      def validate(_machine)
         errors = _detected_errors
 
         if @build_dir && @image
-          errors << I18n.t("docker_provider.errors.config.both_build_and_image")
+          errors << I18n.t('docker_provider.errors.config.both_build_and_image')
         end
 
         if !@build_dir && !@image
-          errors << I18n.t("docker_provider.errors.config.build_dir_or_image")
+          errors << I18n.t('docker_provider.errors.config.build_dir_or_image')
         end
 
         if @build_dir
           build_dir_pn = Pathname.new(@build_dir)
-          if !build_dir_pn.directory? || !build_dir_pn.join("Dockerfile").file?
-            errors << I18n.t("docker_provider.errors.config.build_dir_invalid")
+          if !build_dir_pn.directory? || !build_dir_pn.join('Dockerfile').file?
+            errors << I18n.t('docker_provider.errors.config.build_dir_invalid')
           end
         end
 
         @links.each do |link|
-          parts = link.split(":")
-          if parts.length != 2 || parts[0] == "" || parts[1] == ""
+          parts = link.split(':')
+          if parts.length != 2 || parts[0] == '' || parts[1] == ''
             errors << I18n.t(
-              "docker_provider.errors.config.invalid_link", link: link)
+              'docker_provider.errors.config.invalid_link', link: link)
           end
         end
 
         if @vagrant_vagrantfile
           vf_pn = Pathname.new(@vagrant_vagrantfile)
-          if !vf_pn.file?
-            errors << I18n.t("docker_provider.errors.config.invalid_vagrantfile")
+          unless vf_pn.file?
+            errors << I18n.t('docker_provider.errors.config.invalid_vagrantfile')
           end
         end
 
-        { "docker provider" => errors }
+        { 'docker provider' => errors }
       end
 
       #--------------------------------------------------------------

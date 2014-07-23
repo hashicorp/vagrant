@@ -1,11 +1,11 @@
 require 'tmpdir'
 
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path('../../../base', __FILE__)
 
 require 'vagrant/util/safe_chdir'
 
 describe Vagrant::Util::SafeChdir do
-  it "should change directories" do
+  it 'should change directories' do
     expected = nil
     result   = nil
     temp_dir = Dir.mktmpdir
@@ -21,7 +21,7 @@ describe Vagrant::Util::SafeChdir do
     expect(result).to eq(expected)
   end
 
-  it "should allow recursive chdir" do
+  it 'should allow recursive chdir' do
     expected  = nil
     result    = nil
     temp_path = Dir.mktmpdir

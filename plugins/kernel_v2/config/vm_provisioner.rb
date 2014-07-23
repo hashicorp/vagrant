@@ -32,7 +32,7 @@ module VagrantPlugins
       attr_accessor :preserve_order
 
       def initialize(id, name)
-        @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
+        @logger = Log4r::Logger.new('vagrant::config::vm::provisioner')
         @logger.debug("Provisioner defined: #{name}")
 
         @config  = nil
@@ -43,16 +43,16 @@ module VagrantPlugins
         @run     = nil
 
         # Attempt to find the provisioner...
-        if !Vagrant.plugin("2").manager.provisioners[name]
+        unless Vagrant.plugin('2').manager.provisioners[name]
           @logger.warn("Provisioner '#{name}' not found.")
           @invalid = true
         end
 
         # Attempt to find the configuration class for this provider
         # if it exists and load the configuration.
-        @config_class = Vagrant.plugin("2").manager.
+        @config_class = Vagrant.plugin('2').manager.
           provisioner_configs[@name]
-        if !@config_class
+        unless @config_class
           @logger.info(
             "Provisioner config for '#{@name}' not found. Ignoring config.")
           @config_class = Vagrant::Config::V2::DummyConfig

@@ -1,88 +1,88 @@
-require File.expand_path("../base", __FILE__)
+require File.expand_path('../base', __FILE__)
 
 describe Vagrant do
-  include_context "unit"
+  include_context 'unit'
 
-  it "has the path to the source root" do
-    expect(described_class.source_root).to eq(Pathname.new(File.expand_path("../../../", __FILE__)))
+  it 'has the path to the source root' do
+    expect(described_class.source_root).to eq(Pathname.new(File.expand_path('../../../', __FILE__)))
   end
 
-  describe "plugin superclass" do
-    describe "v1" do
-      it "returns the proper class for version 1" do
-        expect(described_class.plugin("1")).to eq(Vagrant::Plugin::V1::Plugin)
+  describe 'plugin superclass' do
+    describe 'v1' do
+      it 'returns the proper class for version 1' do
+        expect(described_class.plugin('1')).to eq(Vagrant::Plugin::V1::Plugin)
       end
 
-      it "returns the proper components for version 1" do
-        expect(described_class.plugin("1", :command)).to eq(Vagrant::Plugin::V1::Command)
-        expect(described_class.plugin("1", :communicator)).to eq(Vagrant::Plugin::V1::Communicator)
-        expect(described_class.plugin("1", :config)).to eq(Vagrant::Plugin::V1::Config)
-        expect(described_class.plugin("1", :guest)).to eq(Vagrant::Plugin::V1::Guest)
-        expect(described_class.plugin("1", :host)).to eq(Vagrant::Plugin::V1::Host)
-        expect(described_class.plugin("1", :provider)).to eq(Vagrant::Plugin::V1::Provider)
-        expect(described_class.plugin("1", :provisioner)).to eq(Vagrant::Plugin::V1::Provisioner)
-      end
-    end
-
-    describe "v2" do
-      it "returns the proper class for version 2" do
-        expect(described_class.plugin("2")).to eq(Vagrant::Plugin::V2::Plugin)
-      end
-
-      it "returns the proper components for version 2" do
-        expect(described_class.plugin("2", :command)).to eq(Vagrant::Plugin::V2::Command)
-        expect(described_class.plugin("2", :communicator)).to eq(Vagrant::Plugin::V2::Communicator)
-        expect(described_class.plugin("2", :config)).to eq(Vagrant::Plugin::V2::Config)
-        expect(described_class.plugin("2", :guest)).to eq(Vagrant::Plugin::V2::Guest)
-        expect(described_class.plugin("2", :host)).to eq(Vagrant::Plugin::V2::Host)
-        expect(described_class.plugin("2", :provider)).to eq(Vagrant::Plugin::V2::Provider)
-        expect(described_class.plugin("2", :provisioner)).to eq(Vagrant::Plugin::V2::Provisioner)
-        expect(described_class.plugin("2", :synced_folder)).to eq(Vagrant::Plugin::V2::SyncedFolder)
+      it 'returns the proper components for version 1' do
+        expect(described_class.plugin('1', :command)).to eq(Vagrant::Plugin::V1::Command)
+        expect(described_class.plugin('1', :communicator)).to eq(Vagrant::Plugin::V1::Communicator)
+        expect(described_class.plugin('1', :config)).to eq(Vagrant::Plugin::V1::Config)
+        expect(described_class.plugin('1', :guest)).to eq(Vagrant::Plugin::V1::Guest)
+        expect(described_class.plugin('1', :host)).to eq(Vagrant::Plugin::V1::Host)
+        expect(described_class.plugin('1', :provider)).to eq(Vagrant::Plugin::V1::Provider)
+        expect(described_class.plugin('1', :provisioner)).to eq(Vagrant::Plugin::V1::Provisioner)
       end
     end
 
-    it "raises an exception if an unsupported version is given" do
-      expect { described_class.plugin("88") }.
+    describe 'v2' do
+      it 'returns the proper class for version 2' do
+        expect(described_class.plugin('2')).to eq(Vagrant::Plugin::V2::Plugin)
+      end
+
+      it 'returns the proper components for version 2' do
+        expect(described_class.plugin('2', :command)).to eq(Vagrant::Plugin::V2::Command)
+        expect(described_class.plugin('2', :communicator)).to eq(Vagrant::Plugin::V2::Communicator)
+        expect(described_class.plugin('2', :config)).to eq(Vagrant::Plugin::V2::Config)
+        expect(described_class.plugin('2', :guest)).to eq(Vagrant::Plugin::V2::Guest)
+        expect(described_class.plugin('2', :host)).to eq(Vagrant::Plugin::V2::Host)
+        expect(described_class.plugin('2', :provider)).to eq(Vagrant::Plugin::V2::Provider)
+        expect(described_class.plugin('2', :provisioner)).to eq(Vagrant::Plugin::V2::Provisioner)
+        expect(described_class.plugin('2', :synced_folder)).to eq(Vagrant::Plugin::V2::SyncedFolder)
+      end
+    end
+
+    it 'raises an exception if an unsupported version is given' do
+      expect { described_class.plugin('88') }.
         to raise_error(ArgumentError)
     end
   end
 
-  describe "has_plugin?" do
+  describe 'has_plugin?' do
     after(:each) do
       manager.reset!
     end
 
-    let(:manager) { described_class.plugin("2").manager }
+    let(:manager) { described_class.plugin('2').manager }
 
-    it "should find the installed plugin by the registered name" do
+    it 'should find the installed plugin by the registered name' do
       Class.new(described_class.plugin(Vagrant::Config::CURRENT_VERSION)) do
-        name "i_am_installed"
+        name 'i_am_installed'
       end
 
-      expect(described_class.has_plugin?("i_am_installed")).to be_true
+      expect(described_class.has_plugin?('i_am_installed')).to be_true
     end
 
-    it "should return false if the plugin is not installed" do
-      expect(described_class.has_plugin?("i_dont_exist")).to be_false
+    it 'should return false if the plugin is not installed' do
+      expect(described_class.has_plugin?('i_dont_exist')).to be_false
     end
 
-    it "finds plugins by gem name" do
+    it 'finds plugins by gem name' do
       specs = [Gem::Specification.new]
-      specs[0].name = "foo"
+      specs[0].name = 'foo'
       Vagrant::Plugin::Manager.instance.stub(installed_specs: specs)
 
-      expect(described_class.has_plugin?("foo")).to be_true
-      expect(described_class.has_plugin?("bar")).to be_false
+      expect(described_class.has_plugin?('foo')).to be_true
+      expect(described_class.has_plugin?('bar')).to be_false
     end
   end
 
-  describe "require_version" do
-    it "should succeed if valid range" do
+  describe 'require_version' do
+    it 'should succeed if valid range' do
       expect { described_class.require_version(Vagrant::VERSION) }.
         to_not raise_error
     end
 
-    it "should not succeed if bad range" do
+    it 'should not succeed if bad range' do
       expect { described_class.require_version("> #{Vagrant::VERSION}") }.
         to raise_error(Vagrant::Errors::VagrantVersionBad)
     end

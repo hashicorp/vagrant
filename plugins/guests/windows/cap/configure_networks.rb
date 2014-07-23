@@ -1,29 +1,29 @@
-require "log4r"
+require 'log4r'
 
-require_relative "../guest_network"
+require_relative '../guest_network'
 
 module VagrantPlugins
   module GuestWindows
     module Cap
       module ConfigureNetworks
-        @@logger = Log4r::Logger.new("vagrant::guest::windows::configure_networks")
+        @@logger = Log4r::Logger.new('vagrant::guest::windows::configure_networks')
 
         def self.configure_networks(machine, networks)
           if machine.config.vm.communicator != :winrm
-            raise Errors::NetworkWinRMRequired
+            fail Errors::NetworkWinRMRequired
           end
 
           @@logger.debug("Networks: #{networks.inspect}")
 
           guest_network = GuestNetwork.new(machine.communicate)
-          if machine.provider_name.to_s.start_with?("vmware")
-            machine.ui.warn("Configuring secondary network adapters through VMware ")
-            machine.ui.warn("on Windows is not yet supported. You will need to manually")
-            machine.ui.warn("configure the network adapter.")
+          if machine.provider_name.to_s.start_with?('vmware')
+            machine.ui.warn('Configuring secondary network adapters through VMware ')
+            machine.ui.warn('on Windows is not yet supported. You will need to manually')
+            machine.ui.warn('configure the network adapter.')
           else
             vm_interface_map = create_vm_interface_map(machine, guest_network)
             networks.each do |network|
-              interface = vm_interface_map[network[:interface]+1]
+              interface = vm_interface_map[network[:interface] + 1]
               if interface.nil?
                 @@logger.warn("Could not find interface for network #{network.inspect}")
                 next
@@ -41,7 +41,7 @@ module VagrantPlugins
                   interface[:index],
                   interface[:net_connection_id])
               else
-                raise "#{network_type} network type is not supported, try static or dhcp"
+                fail "#{network_type} network type is not supported, try static or dhcp"
               end
             end
           end
@@ -52,9 +52,9 @@ module VagrantPlugins
         end
 
         def self.create_vm_interface_map(machine, guest_network)
-          if !machine.provider.capability?(:nic_mac_addresses)
-            raise Errors::CantReadMACAddresses,
-              provider: machine.provider_name.to_s
+          unless machine.provider.capability?(:nic_mac_addresses)
+            fail Errors::CantReadMACAddresses,
+                 provider: machine.provider_name.to_s
           end
 
           driver_mac_address = machine.provider.capability(:nic_mac_addresses).invert
@@ -63,7 +63,7 @@ module VagrantPlugins
           vm_interface_map = {}
           guest_network.network_adapters.each do |nic|
             @@logger.debug("nic: #{nic.inspect}")
-            naked_mac = nic[:mac_address].gsub(':','')
+            naked_mac = nic[:mac_address].gsub(':', '')
             if driver_mac_address[naked_mac]
               vm_interface_map[driver_mac_address[naked_mac]] = {
                 net_connection_id: nic[:net_connection_id],

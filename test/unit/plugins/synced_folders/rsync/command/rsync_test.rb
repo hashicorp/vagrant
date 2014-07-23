@@ -1,19 +1,19 @@
-require_relative "../../../../base"
+require_relative '../../../../base'
 
-require Vagrant.source_root.join("plugins/synced_folders/rsync/command/rsync")
+require Vagrant.source_root.join('plugins/synced_folders/rsync/command/rsync')
 
 describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
-  include_context "unit"
+  include_context 'unit'
 
   let(:argv) { [] }
   let(:iso_env) do
     # We have to create a Vagrantfile so there is a root path
     env = isolated_environment
-    env.vagrantfile("")
+    env.vagrantfile('')
     env.create_vagrant_env
   end
 
-  let(:communicator) { double("comm") }
+  let(:communicator) { double('comm') }
 
   let(:synced_folders) { {} }
 
@@ -32,11 +32,11 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
     end
   end
 
-  describe "#execute" do
-    context "with a single machine" do
-      let(:ssh_info) {{
+  describe '#execute' do
+    context 'with a single machine' do
+      let(:ssh_info) do{
         private_key_path: [],
-      }}
+      }end
 
       let(:machine) { iso_env.machine(iso_env.machine_names[0], iso_env.default_provider) }
 
@@ -58,7 +58,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
         expect(subject.execute).to eql(1)
       end
 
-      it "rsyncs each folder and exits successfully" do
+      it 'rsyncs each folder and exits successfully' do
         synced_folders[:rsync].each do |_, opts|
           expect(helper_class).to receive(:rsync_single).
             with(machine, ssh_info, opts).

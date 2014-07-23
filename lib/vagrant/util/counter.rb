@@ -5,7 +5,7 @@ module Vagrant
     # Atomic counter implementation. This is useful for incrementing
     # a counter which is guaranteed to only be used once in its class.
     module Counter
-      def get_and_update_counter(name=nil)
+      def get_and_update_counter(name = nil)
         name ||= :global
 
         mutex.synchronize do

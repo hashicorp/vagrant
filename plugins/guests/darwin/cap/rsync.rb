@@ -3,11 +3,11 @@ module VagrantPlugins
     module Cap
       class RSync
         def self.rsync_installed(machine)
-          machine.communicate.test("which rsync")
+          machine.communicate.test('which rsync')
         end
 
-        def self.rsync_command(machine)
-          "sudo rsync"
+        def self.rsync_command(_machine)
+          'sudo rsync'
         end
 
         def self.rsync_pre(machine, opts)
@@ -22,7 +22,7 @@ module VagrantPlugins
           end
 
           machine.communicate.sudo(
-            "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
+            "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " \
             "xargs -0 chown #{opts[:owner]}:#{opts[:group]}")
         end
       end

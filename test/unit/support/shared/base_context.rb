@@ -1,9 +1,9 @@
-require "tempfile"
-require "tmpdir"
+require 'tempfile'
+require 'tmpdir'
 
-require "unit/support/isolated_environment"
+require 'unit/support/isolated_environment'
 
-shared_context "unit" do
+shared_context 'unit' do
   before(:each) do
     # State to store the list of registered plugins that we have to
     # unregister later.
@@ -18,8 +18,8 @@ shared_context "unit" do
     # Unregister each of the plugins we have may have temporarily
     # registered for the duration of this test.
     @_plugins.each do |plugin|
-      Vagrant.plugin("1").manager.unregister(plugin)
-      Vagrant.plugin("2").manager.unregister(plugin)
+      Vagrant.plugin('1').manager.unregister(plugin)
+      Vagrant.plugin('2').manager.unregister(plugin)
     end
   end
 
@@ -41,7 +41,7 @@ shared_context "unit" do
   #
   # @yield [plugin] Yields the plugin class for you to call the public
   #   API that you need to.
-  def register_plugin(version=nil)
+  def register_plugin(version = nil)
     version ||= Vagrant::Config::CURRENT_VERSION
     plugin = Class.new(Vagrant.plugin(version))
     plugin.name("Test Plugin #{plugin.inspect}")
@@ -54,8 +54,8 @@ shared_context "unit" do
   # object pointed to it.
   #
   # @return [Pathname]
-  def temporary_file(contents=nil)
-    f = Tempfile.new("vagrant-unit")
+  def temporary_file(contents = nil)
+    f = Tempfile.new('vagrant-unit')
 
     if contents
       f.write(contents)
@@ -66,7 +66,7 @@ shared_context "unit" do
     # garbage collected, so that the tempfile is not unlinked.
     @_temp_files << f
 
-    return Pathname.new(f.path)
+    Pathname.new(f.path)
   end
 
   # This creates a temporary directory and returns a {Pathname}
@@ -76,11 +76,11 @@ shared_context "unit" do
   def temporary_dir
     # Create a temporary directory and append it to the instance
     # variabe so that it isn't garbage collected and deleted
-    d = Dir.mktmpdir("vagrant")
+    d = Dir.mktmpdir('vagrant')
     @_temp_files << d
 
     # Return the pathname
-    return Pathname.new(d)
+    Pathname.new(d)
   end
 
   # This helper provides temporary environmental variable changes.

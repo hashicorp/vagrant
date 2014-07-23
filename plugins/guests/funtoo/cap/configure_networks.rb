@@ -1,6 +1,6 @@
-require "tempfile"
+require 'tempfile'
 
-require "vagrant/util/template_renderer"
+require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module GuestFuntoo
@@ -16,15 +16,15 @@ module VagrantPlugins
               # dhcpcd generally runs on all interfaces by default
               # in the future we can change this, dhcpcd has lots of features
               # it would be nice to expose more of its capabilities...
-              if not /dhcp/i.match(network[:type])
+              unless /dhcp/i.match(network[:type])
                 line = "denyinterfaces eth#{network[:interface]}"
                 cmd = "grep '#{line}' /etc/dhcpcd.conf; if [ $? -ne 0 ]; then echo '#{line}' >> /etc/dhcpcd.conf ;  fi"
                 comm.sudo(cmd)
                 ifFile = "netif.eth#{network[:interface]}"
                 entry = TemplateRenderer.render("guests/funtoo/network_#{network[:type]}",
-                                                 options: network)
+                                                options: network)
                 # Upload the entry to a temporary location
-                temp = Tempfile.new("vagrant")
+                temp = Tempfile.new('vagrant')
                 temp.binmode
                 temp.write(entry)
                 temp.close

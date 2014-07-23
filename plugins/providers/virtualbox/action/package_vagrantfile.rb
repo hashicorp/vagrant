@@ -7,7 +7,7 @@ module VagrantPlugins
         # For TemplateRenderer
         include Vagrant::Util
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -21,10 +21,10 @@ module VagrantPlugins
         # box. This Vagrantfile contains the MAC address so that the user doesn't
         # have to worry about it.
         def create_vagrantfile
-          File.open(File.join(@env["export.temp_dir"], "Vagrantfile"), "w") do |f|
-            f.write(TemplateRenderer.render("package_Vagrantfile", {
-              base_mac: @env[:machine].provider.driver.read_mac_address
-            }))
+          File.open(File.join(@env['export.temp_dir'], 'Vagrantfile'), 'w') do |f|
+            f.write(TemplateRenderer.render('package_Vagrantfile',
+                                            base_mac: @env[:machine].provider.driver.read_mac_address
+                                            ))
           end
         end
       end

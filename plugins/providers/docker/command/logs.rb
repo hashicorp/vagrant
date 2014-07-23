@@ -1,9 +1,9 @@
 module VagrantPlugins
   module DockerProvider
     module Command
-      class Logs < Vagrant.plugin("2", :command)
+      class Logs < Vagrant.plugin('2', :command)
         def self.synopsis
-          "outputs the logs from the Docker container"
+          'outputs the logs from the Docker container'
         end
 
         def execute
@@ -12,23 +12,23 @@ module VagrantPlugins
           options[:prefix] = true
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant docker-logs [options]"
-            o.separator ""
-            o.separator "Options:"
-            o.separator ""
+            o.banner = 'Usage: vagrant docker-logs [options]'
+            o.separator ''
+            o.separator 'Options:'
+            o.separator ''
 
-            o.on("--[no-]follow", "Continue streaming in log output") do |f|
+            o.on('--[no-]follow', 'Continue streaming in log output') do |f|
               options[:follow] = f
             end
 
-            o.on("--[no-]prefix", "Prefix output with machine names") do |p|
+            o.on('--[no-]prefix', 'Prefix output with machine names') do |p|
               options[:prefix] = p
             end
           end
 
           # Parse the options
           argv = parse_options(opts)
-          return if !argv
+          return unless argv
 
           # This keeps track of if we ran our action on any machines...
           any_success = false
@@ -39,16 +39,16 @@ module VagrantPlugins
           @env.batch do |batch|
             with_target_vms(argv) do |machine|
               if machine.provider_name != :docker
-                machine.ui.output(I18n.t("docker_provider.not_docker_provider"))
+                machine.ui.output(I18n.t('docker_provider.not_docker_provider'))
                 next
               end
 
               state = machine.state
               if state == :host_state_unknown
-                machine.ui.output(I18n.t("docker_provider.logs_host_state_unknown"))
+                machine.ui.output(I18n.t('docker_provider.logs_host_state_unknown'))
                 next
               elsif state == :not_created
-                machine.ui.output(I18n.t("docker_provider.not_created_skip"))
+                machine.ui.output(I18n.t('docker_provider.not_created_skip'))
                 next
               end
 
@@ -62,7 +62,7 @@ module VagrantPlugins
           end
 
           # If we didn't run on any machines, then exit status 1
-          return any_success ? 0 : 1
+          any_success ? 0 : 1
         end
 
         protected
@@ -70,15 +70,15 @@ module VagrantPlugins
         # Executes the "docker logs" command on a single machine and proxies
         # the output to our UI.
         def execute_single(machine, options)
-          command = ["docker", "logs"]
-          command << "--follow" if options[:follow]
+          command = %w(docker logs)
+          command << '--follow' if options[:follow]
           command << machine.id
 
           output_options = {}
-          output_options[:prefix] = false if !options[:prefix]
+          output_options[:prefix] = false unless options[:prefix]
 
-          data_acc = ""
-          machine.provider.driver.execute(*command) do |type, data|
+          data_acc = ''
+          machine.provider.driver.execute(*command) do |_type, data|
             # Accumulate the data so we only output lines at a time
             data_acc << data
 
@@ -89,18 +89,18 @@ module VagrantPlugins
               if !data_acc.end_with?("\n")
                 data_acc = lines.pop.chomp
               else
-                data_acc = ""
+                data_acc = ''
               end
 
               lines.each do |line|
-                line = " " if line == ""
+                line = ' ' if line == ''
                 machine.ui.output(line, **output_options)
               end
             end
           end
 
           # Output any remaining data
-          machine.ui.output(data_acc, **output_options) if !data_acc.empty?
+          machine.ui.output(data_acc, **output_options) unless data_acc.empty?
         end
       end
     end

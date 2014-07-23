@@ -1,6 +1,6 @@
-require "pathname"
+require 'pathname'
 
-require "log4r"
+require 'log4r'
 
 module Vagrant
   module Config
@@ -21,7 +21,7 @@ module Vagrant
       #   necessary. Additionally, the last version in this order is always
       #   considered the "current" version.
       def initialize(versions, version_order)
-        @logger        = Log4r::Logger.new("vagrant::config::loader")
+        @logger        = Log4r::Logger.new('vagrant::config::loader')
         @config_cache  = {}
         @proc_cache    = {}
         @sources       = {}
@@ -44,12 +44,12 @@ module Vagrant
         @logger.info("Set #{name.inspect} = #{sources.inspect}")
 
         # Sources should be an array
-        sources = [sources] if !sources.kind_of?(Array)
+        sources = [sources] unless sources.is_a?(Array)
 
         # Gather the procs for every source, since that is what we care about.
         procs = []
         sources.each do |source|
-          if !@proc_cache.key?(source)
+          unless @proc_cache.key?(source)
             # Load the procs for this source and cache them. This caching
             # avoids the issue where a file may have side effects when loading
             # and loading it multiple times causes unexpected behavior.
@@ -75,7 +75,7 @@ module Vagrant
         @logger.info("Loading configuration in order: #{order.inspect}")
 
         unknown_sources = @sources.keys - order
-        if !unknown_sources.empty?
+        unless unknown_sources.empty?
           @logger.error("Unknown config sources: #{unknown_sources.inspect}")
         end
 
@@ -92,7 +92,7 @@ module Vagrant
         errors   = []
 
         order.each do |key|
-          next if !@sources.key?(key)
+          next unless @sources.key?(key)
 
           @sources[key].each do |version, proc|
             if !@config_cache.key?(proc)
@@ -124,8 +124,8 @@ module Vagrant
 
                   this_warnings = upgrade_result[1]
                   this_errors   = upgrade_result[2]
-                  @logger.debug("Upgraded to version #{next_version} with " +
-                                "#{this_warnings.length} warnings and " +
+                  @logger.debug("Upgraded to version #{next_version} with " \
+                                "#{this_warnings.length} warnings and " \
                                 "#{this_errors.length} errors")
 
                   # Append loading this to the version warnings and errors
@@ -154,7 +154,7 @@ module Vagrant
           end
         end
 
-        @logger.debug("Configuration loaded successfully, finalizing and returning")
+        @logger.debug('Configuration loaded successfully, finalizing and returning')
         [current_config_klass.finalize(result), warnings, errors]
       end
 
@@ -171,7 +171,7 @@ module Vagrant
         if source.is_a?(Array)
           # An array must be formatted as [version, proc], so verify
           # that and then return it
-          raise ArgumentError, "String source must have format [version, proc]" if source.length != 2
+          fail ArgumentError, 'String source must have format [version, proc]' if source.length != 2
 
           # Return it as an array since we're expected to return an array
           # of [version, proc] pairs, but an array source only has one.
@@ -180,7 +180,7 @@ module Vagrant
           # Strings are considered paths, so load them
           return procs_for_path(source)
         else
-          raise ArgumentError, "Unknown configuration source: #{source.inspect}"
+          fail ArgumentError, "Unknown configuration source: #{source.inspect}"
         end
       end
 
@@ -192,7 +192,7 @@ module Vagrant
       def procs_for_path(path)
         @logger.debug("Load procs for pathname: #{path}")
 
-        return Config.capture_configures do
+        Config.capture_configures do
           begin
             Kernel.load path
           rescue SyntaxError => e
@@ -205,14 +205,14 @@ module Vagrant
             # Continue raising known Vagrant errors since they already
             # contain well worded error messages and context.
             raise
-          rescue Exception => e
+          rescue => e
             @logger.error("Vagrantfile load error: #{e.message}")
             @logger.error(e.backtrace.join("\n"))
 
             # Report the generic exception
             raise Errors::VagrantfileLoadError,
-              path: path,
-              message: e.message
+                  path: path,
+                  message: e.message
           end
         end
       end

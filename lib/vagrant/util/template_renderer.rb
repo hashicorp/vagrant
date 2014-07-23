@@ -1,5 +1,5 @@
 require 'ostruct'
-require "pathname"
+require 'pathname'
 
 require 'erubis'
 
@@ -30,7 +30,7 @@ module Vagrant
 
         # Method used internally to DRY out the other renderers. This method
         # creates and sets up the renderer before calling a specified method on it.
-        def render_with(method, template, data={})
+        def render_with(method, template, data = {})
           renderer = new(template, data)
           yield renderer if block_given?
           renderer.send(method.to_sym)
@@ -41,7 +41,7 @@ module Vagrant
         super()
 
         @template_root = data.delete(:template_root)
-        @template_root ||= Vagrant.source_root.join("templates")
+        @template_root ||= Vagrant.source_root.join('templates')
         @template_root = Pathname.new(@template_root)
 
         data[:template] = template
@@ -81,7 +81,7 @@ module Vagrant
       #
       # @return [String]
       def full_template_path
-        @template_root.join("#{template}.erb").to_s.squeeze("/")
+        @template_root.join("#{template}.erb").to_s.squeeze('/')
       end
     end
   end

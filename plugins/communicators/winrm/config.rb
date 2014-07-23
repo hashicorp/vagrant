@@ -1,6 +1,6 @@
 module VagrantPlugins
   module CommunicatorWinRM
-    class Config < Vagrant.plugin("2", :config)
+    class Config < Vagrant.plugin('2', :config)
       attr_accessor :username
       attr_accessor :password
       attr_accessor :host
@@ -20,8 +20,8 @@ module VagrantPlugins
       end
 
       def finalize!
-        @username = "vagrant" if @username == UNSET_VALUE
-        @password = "vagrant" if @password == UNSET_VALUE
+        @username = 'vagrant' if @username == UNSET_VALUE
+        @password = 'vagrant' if @password == UNSET_VALUE
         @host = nil           if @host == UNSET_VALUE
         @port = 5985          if @port == UNSET_VALUE
         @guest_port = 5985    if @guest_port == UNSET_VALUE
@@ -29,17 +29,17 @@ module VagrantPlugins
         @timeout = 1800       if @timeout == UNSET_VALUE
       end
 
-      def validate(machine)
+      def validate(_machine)
         errors = []
 
-        errors << "winrm.username cannot be nil."   if @username.nil?
-        errors << "winrm.password cannot be nil."   if @password.nil?
-        errors << "winrm.port cannot be nil."       if @port.nil?
-        errors << "winrm.guest_port cannot be nil." if @guest_port.nil?
-        errors << "winrm.max_tries cannot be nil."  if @max_tries.nil?
-        errors << "winrm.timeout cannot be nil."    if @timeout.nil?
+        errors << 'winrm.username cannot be nil.'   if @username.nil?
+        errors << 'winrm.password cannot be nil.'   if @password.nil?
+        errors << 'winrm.port cannot be nil.'       if @port.nil?
+        errors << 'winrm.guest_port cannot be nil.' if @guest_port.nil?
+        errors << 'winrm.max_tries cannot be nil.'  if @max_tries.nil?
+        errors << 'winrm.timeout cannot be nil.'    if @timeout.nil?
 
-        { "WinRM" => errors }
+        { 'WinRM' => errors }
       end
     end
   end

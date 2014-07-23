@@ -3,7 +3,7 @@ module VagrantPlugins
     module Errors
       # A convenient superclass for all our errors.
       class HyperVError < Vagrant::Errors::VagrantError
-        error_namespace("vagrant_hyperv.errors")
+        error_namespace('vagrant_hyperv.errors')
       end
 
       class AdminRequired < HyperVError

@@ -1,15 +1,15 @@
 require 'thread'
 
-require "log4r"
+require 'log4r'
 
 module Vagrant
   # This class executes multiple actions as a single batch, parallelizing
   # the action calls if possible.
   class BatchAction
-    def initialize(allow_parallel=true)
+    def initialize(allow_parallel = true)
       @actions          = []
       @allow_parallel   = allow_parallel
-      @logger           = Log4r::Logger.new("vagrant::batch_action")
+      @logger           = Log4r::Logger.new('vagrant::batch_action')
     end
 
     # Add an action to the batch of actions that will be run.
@@ -20,7 +20,7 @@ module Vagrant
     # @param [Machine] machine The machine to run the action on
     # @param [Symbol] action The action to run
     # @param [Hash] options Any additional options to send in.
-    def action(machine, action, options=nil)
+    def action(machine, action, options = nil)
       @actions << [machine, action, options]
     end
 
@@ -41,12 +41,12 @@ module Vagrant
 
       if @allow_parallel
         par = true
-        @logger.info("Enabling parallelization by default.")
+        @logger.info('Enabling parallelization by default.')
       end
 
       if par
         @actions.each do |machine, _, _|
-          if !machine.provider_options[:parallel]
+          unless machine.provider_options[:parallel]
             @logger.info("Disabling parallelization because provider doesn't support it: #{machine.provider_name}")
             par = false
             break
@@ -55,7 +55,7 @@ module Vagrant
       end
 
       if par && @actions.length <= 1
-        @logger.info("Disabling parallelization because only executing one action")
+        @logger.info('Disabling parallelization because only executing one action')
         par = false
       end
 
@@ -95,7 +95,7 @@ module Vagrant
             if Process.pid == start_pid
               # Let the user know that this process had an error early
               # so that they see it while other things are happening.
-              machine.ui.error(I18n.t("vagrant.general.batch_notify_error"))
+              machine.ui.error(I18n.t('vagrant.general.batch_notify_error'))
             end
           end
 
@@ -123,7 +123,7 @@ module Vagrant
         # Set some attributes on the thread for later
         thread[:machine] = machine
 
-        thread.join if !par
+        thread.join unless par
         threads << thread
       end
 
@@ -144,19 +144,19 @@ module Vagrant
             message += "\n"
             message += "\n#{e.backtrace.join("\n")}"
 
-            errors << I18n.t("vagrant.general.batch_unexpected_error",
+            errors << I18n.t('vagrant.general.batch_unexpected_error',
                              machine: thread[:machine].name,
                              message: message)
           else
-            errors << I18n.t("vagrant.general.batch_vagrant_error",
+            errors << I18n.t('vagrant.general.batch_vagrant_error',
                              machine: thread[:machine].name,
                              message: thread[:error].message)
           end
         end
       end
 
-      if !errors.empty?
-        raise Errors::BatchMultiError, message: errors.join("\n\n")
+      unless errors.empty?
+        fail Errors::BatchMultiError, message: errors.join("\n\n")
       end
     end
   end

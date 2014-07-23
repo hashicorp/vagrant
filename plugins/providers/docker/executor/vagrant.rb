@@ -1,4 +1,4 @@
-require "vagrant/util/shell_quote"
+require 'vagrant/util/shell_quote'
 
 module VagrantPlugins
   module DockerProvider
@@ -14,7 +14,7 @@ module VagrantPlugins
           quote = '"'
           cmd   = cmd.map do |a|
             "#{quote}#{::Vagrant::Util::ShellQuote.escape(a, quote)}#{quote}"
-          end.join(" ")
+          end.join(' ')
 
           # If we want stdin, we just run in a full subprocess
           return ssh_run(cmd) if opts[:stdin]
@@ -22,15 +22,15 @@ module VagrantPlugins
           # Add a start fence so we know when to start reading output.
           # We have to do this because boot2docker outputs a login shell
           # boot2docker version that we get otherwise and messes up output.
-          start_fence = "========== VAGRANT DOCKER BEGIN =========="
+          start_fence = '========== VAGRANT DOCKER BEGIN =========='
           ssh_cmd     = "echo -n \"#{start_fence}\"; #{cmd}"
 
-          stderr = ""
-          stdout = ""
+          stderr = ''
+          stdout = ''
           fenced = false
           comm   = @host_machine.communicate
           code   = comm.execute(ssh_cmd, error_check: false) do |type, data|
-            next if ![:stdout, :stderr].include?(type)
+            next unless [:stdout, :stderr].include?(type)
             stderr << data if type == :stderr
             stdout << data if type == :stdout
 
@@ -45,8 +45,8 @@ module VagrantPlugins
 
                 # We're now fenced, send all the data through
                 if block
-                  block.call(:stdout, stdout) if stdout != ""
-                  block.call(:stderr, stderr) if stderr != ""
+                  block.call(:stdout, stdout) if stdout != ''
+                  block.call(:stderr, stderr) if stderr != ''
                 end
               end
             else
@@ -56,10 +56,10 @@ module VagrantPlugins
           end
 
           if code != 0
-            raise Errors::ExecuteError,
-              command: cmd,
-              stderr: stderr.chomp,
-              stdout: stdout.chomp
+            fail Errors::ExecuteError,
+                 command: cmd,
+                 stderr: stderr.chomp,
+                 stdout: stdout.chomp
           end
 
           stdout.chomp
@@ -73,7 +73,7 @@ module VagrantPlugins
             ssh_run_command: cmd,
           )
 
-          ""
+          ''
         end
       end
     end

@@ -2,11 +2,11 @@
 #
 # Contributed by Jan Thomas Moldung <janth@moldung.no>
 
-require "vagrant"
+require 'vagrant'
 
 module VagrantPlugins
   module GuestSolaris11
-    class Guest < Vagrant.plugin("2", :guest)
+    class Guest < Vagrant.plugin('2', :guest)
       def detect?(machine)
         machine.communicate.test("uname -sr | grep 'SunOS 5.11'")
       end

@@ -1,6 +1,6 @@
 module VagrantPlugins
   module Kernel_V2
-    class SSHConnectConfig < Vagrant.plugin("2", :config)
+    class SSHConnectConfig < Vagrant.plugin('2', :config)
       attr_accessor :host
       attr_accessor :port
       attr_accessor :private_key_path
@@ -41,9 +41,9 @@ module VagrantPlugins
         if @private_key_path
           @private_key_path.each do |raw_path|
             path = File.expand_path(raw_path, machine.env.root_path)
-            if !File.file?(path)
+            unless File.file?(path)
               errors << I18n.t(
-                "vagrant.config.ssh.private_key_missing",
+                'vagrant.config.ssh.private_key_missing',
                 path: raw_path)
             end
           end

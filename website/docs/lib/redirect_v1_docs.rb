@@ -7,14 +7,14 @@ module HashiCorp
       end
 
       def call(env)
-        if env["PATH_INFO"] =~ /^\/v1/
+        if env['PATH_INFO'] =~ /^\/v1/
           headers = {
-            "Content-Type" => "text/html",
-            "Location"     => "http://docs-v1.vagrantup.com#{env["PATH_INFO"]}",
-            "Surrogate-Key" => "page"
+            'Content-Type' => 'text/html',
+            'Location'     => "http://docs-v1.vagrantup.com#{env['PATH_INFO']}",
+            'Surrogate-Key' => 'page'
           }
 
-          message = "Redirecting to old documentation URL..."
+          message = 'Redirecting to old documentation URL...'
 
           return [301, headers, [message]]
         end

@@ -1,8 +1,8 @@
-require "set"
+require 'set'
 
-require "log4r"
+require 'log4r'
 
-require "vagrant/util/is_port_open"
+require 'vagrant/util/is_port_open'
 
 module Vagrant
   module Action
@@ -26,9 +26,9 @@ module Vagrant
       class HandleForwardedPortCollisions
         include Util::IsPortOpen
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::handle_port_collisions")
+          @logger = Log4r::Logger.new('vagrant::action::builtin::handle_port_collisions')
         end
 
         def call(env)
@@ -38,7 +38,7 @@ module Vagrant
           # Acquire a process-level lock so that we don't choose a port
           # that someone else also chose.
           begin
-            env[:machine].env.lock("fpcollision") do
+            env[:machine].env.lock('fpcollision') do
               handle(env)
             end
           rescue Errors::EnvironmentLockedError
@@ -52,14 +52,14 @@ module Vagrant
           recover(env)
         end
 
-        def recover(env)
+        def recover(_env)
           lease_release
         end
 
         protected
 
         def handle(env)
-          @logger.info("Detecting any forwarded port collisions...")
+          @logger.info('Detecting any forwarded port collisions...')
 
           # Get the extra ports we consider in use
           extra_in_use = env[:port_collision_extra_in_use] || []
@@ -93,7 +93,7 @@ module Vagrant
             guest_port = options[:guest]
             host_port  = options[:host]
 
-            if options[:protocol] && options[:protocol] != "tcp"
+            if options[:protocol] && options[:protocol] != 'tcp'
               @logger.debug("Skipping #{host_port} because UDP protocol.")
               next
             end
@@ -110,15 +110,15 @@ module Vagrant
               lease_check(host_port)
             if in_use
               if !repair || !options[:auto_correct]
-                raise Errors::ForwardPortCollision,
-                  guest_port: guest_port.to_s,
-                  host_port:  host_port.to_s
+                fail Errors::ForwardPortCollision,
+                     guest_port: guest_port.to_s,
+                     host_port:  host_port.to_s
               end
 
               @logger.info("Attempting to repair FP collision: #{host_port}")
 
               repaired_port = nil
-              while !usable_ports.empty?
+              until usable_ports.empty?
                 # Attempt to repair the forwarded port
                 repaired_port = usable_ports.to_a.sort[0]
                 usable_ports.delete(repaired_port)
@@ -138,10 +138,10 @@ module Vagrant
 
               # If we have no usable ports then we can't repair
               if !repaired_port && usable_ports.empty?
-                raise Errors::ForwardPortAutolistEmpty,
-                  vm_name:    env[:machine].name,
-                  guest_port: guest_port.to_s,
-                  host_port:  host_port.to_s
+                fail Errors::ForwardPortAutolistEmpty,
+                     vm_name:    env[:machine].name,
+                     guest_port: guest_port.to_s,
+                     host_port:  host_port.to_s
               end
 
               # Modify the args in place
@@ -150,7 +150,7 @@ module Vagrant
               @logger.info("Repaired FP collision: #{host_port} to #{repaired_port}")
 
               # Notify the user
-              env[:ui].info(I18n.t("vagrant.actions.vm.forward_ports.fixed_collision",
+              env[:ui].info(I18n.t('vagrant.actions.vm.forward_ports.fixed_collision',
                                    host_port:  host_port.to_s,
                                    guest_port: guest_port.to_s,
                                    new_port:   repaired_port.to_s))
@@ -164,7 +164,7 @@ module Vagrant
           # Check if this port is "leased". We use a leasing system of
           # about 60 seconds to avoid any forwarded port collisions in
           # a highly parallelized environment.
-          leasedir = @machine.env.data_dir.join("fp-leases")
+          leasedir = @machine.env.data_dir.join('fp-leases')
           leasedir.mkpath
 
           invalid = false
@@ -184,7 +184,7 @@ module Vagrant
           return true if invalid
 
           # Otherwise, create the lease
-          leasedir.join(port.to_s).open("w+") do |f|
+          leasedir.join(port.to_s).open('w+') do |f|
             f.binmode
             f.write(Time.now.to_i.to_s + "\n")
           end
@@ -197,7 +197,7 @@ module Vagrant
         end
 
         def lease_release
-          leasedir = @machine.env.data_dir.join("fp-leases")
+          leasedir = @machine.env.data_dir.join('fp-leases')
 
           @leased.each do |port|
             path = leasedir.join(port)
@@ -206,7 +206,7 @@ module Vagrant
         end
 
         def port_check(port)
-          is_port_open?("127.0.0.1", port)
+          is_port_open?('127.0.0.1', port)
         end
 
         def with_forwarded_ports(env)

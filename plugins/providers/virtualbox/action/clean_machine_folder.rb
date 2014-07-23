@@ -1,4 +1,4 @@
-require "fileutils"
+require 'fileutils'
 
 module VagrantPlugins
   module ProviderVirtualBox
@@ -8,7 +8,7 @@ module VagrantPlugins
       # VirtualBox. As soon as this is fixed, this middleware can and
       # will be removed.
       class CleanMachineFolder
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -18,7 +18,7 @@ module VagrantPlugins
         end
 
         def clean_machine_folder(machine_folder)
-          folder = File.join(machine_folder, "*")
+          folder = File.join(machine_folder, '*')
 
           # Small safeguard against potentially unwanted rm-rf, since the default
           # machine folder will typically always be greater than 10 characters long.
@@ -34,7 +34,7 @@ module VagrantPlugins
               File.file?(d) && !(File.basename(d) =~ /\.vbox-prev$/)
             end
 
-            FileUtils.rm_rf(f) if !keep
+            FileUtils.rm_rf(f) unless keep
           end
         end
       end

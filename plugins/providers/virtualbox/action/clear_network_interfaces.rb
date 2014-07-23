@@ -2,7 +2,7 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class ClearNetworkInterfaces
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -20,7 +20,7 @@ module VagrantPlugins
           end
 
           # "Enable" all the adapters we setup.
-          env[:ui].info I18n.t("vagrant.actions.vm.clear_network_interfaces.deleting")
+          env[:ui].info I18n.t('vagrant.actions.vm.clear_network_interfaces.deleting')
           env[:machine].provider.driver.enable_adapters(adapters)
 
           @app.call(env)

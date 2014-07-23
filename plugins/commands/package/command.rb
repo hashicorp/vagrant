@@ -2,40 +2,40 @@ require 'optparse'
 
 module VagrantPlugins
   module CommandPackage
-    class Command < Vagrant.plugin("2", :command)
+    class Command < Vagrant.plugin('2', :command)
       def self.synopsis
-        "packages a running vagrant environment into a box"
+        'packages a running vagrant environment into a box'
       end
 
       def execute
         options = {}
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant package [options] [name]"
-          o.separator ""
-          o.separator "Options:"
-          o.separator ""
+          o.banner = 'Usage: vagrant package [options] [name]'
+          o.separator ''
+          o.separator 'Options:'
+          o.separator ''
 
-          o.on("--base NAME", "Name of a VM in virtualbox to package as a base box") do |b|
+          o.on('--base NAME', 'Name of a VM in virtualbox to package as a base box') do |b|
             options[:base] = b
           end
 
-          o.on("--output NAME", "Name of the file to output") do |output|
+          o.on('--output NAME', 'Name of the file to output') do |output|
             options[:output] = output
           end
 
-          o.on("--include FILE...", Array, "Additional files to package with the box") do |i|
+          o.on('--include FILE...', Array, 'Additional files to package with the box') do |i|
             options[:include] = i
           end
 
-          o.on("--vagrantfile FILE", "Vagrantfile to package with the box") do |v|
+          o.on('--vagrantfile FILE', 'Vagrantfile to package with the box') do |v|
             options[:vagrantfile] = v
           end
         end
 
         # Parse the options
         argv = parse_options(opts)
-        return if !argv
+        return unless argv
 
         @logger.debug("package options: #{options.inspect}")
         if options[:base]
@@ -55,7 +55,7 @@ module VagrantPlugins
         # `vagrant package --base` process is deprecated for something much
         # better in the future. We just hardcode this to keep VirtualBox working
         # for now.
-        provider = Vagrant.plugin("2").manager.providers[:virtualbox]
+        provider = Vagrant.plugin('2').manager.providers[:virtualbox]
         vm = Vagrant::Machine.new(
           options[:base],
           :virtualbox, provider[0], nil, provider[1],
@@ -74,8 +74,8 @@ module VagrantPlugins
       end
 
       def package_vm(vm, options)
-        opts = options.inject({}) do |acc, data|
-          k,v = data
+        opts = options.reduce({}) do |acc, data|
+          k, v = data
           acc["package.#{k}"] = v
           acc
         end

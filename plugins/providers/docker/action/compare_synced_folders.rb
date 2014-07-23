@@ -1,4 +1,4 @@
-require "vagrant/action/builtin/mixin_synced_folders"
+require 'vagrant/action/builtin/mixin_synced_folders'
 
 module VagrantPlugins
   module DockerProvider
@@ -6,7 +6,7 @@ module VagrantPlugins
       class CompareSyncedFolders
         include Vagrant::Action::Builtin::MixinSyncedFolders
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -32,7 +32,7 @@ module VagrantPlugins
             fs.each do |_, data|
               invalid = false
               old     = existing.delete(data[:guestpath])
-              invalid = true if !old
+              invalid = true unless old
 
               if !invalid && old
                 invalid = true if old != data[:hostpath]
@@ -47,7 +47,7 @@ module VagrantPlugins
           # If we have invalid entries, these are changed or new entries.
           # If we have existing entries, then we removed some entries.
           if !invalids.empty? || !existing.empty?
-            machine.ui.warn(I18n.t("docker_provider.synced_folders_changed"))
+            machine.ui.warn(I18n.t('docker_provider.synced_folders_changed'))
           end
 
           @app.call(env)

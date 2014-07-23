@@ -3,7 +3,7 @@ module VagrantPlugins
     module CommandFilters
       # Handles the special case of determining the guest OS using cat
       class Cat
-        def filter(command)
+        def filter(_command)
           # cat /etc/release | grep -i OmniOS
           # cat /etc/redhat-release
           # cat /etc/issue | grep 'Core Linux'

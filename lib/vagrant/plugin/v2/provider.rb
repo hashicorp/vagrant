@@ -1,4 +1,4 @@
-require "vagrant/capability_host"
+require 'vagrant/capability_host'
 
 module Vagrant
   module Plugin
@@ -18,7 +18,7 @@ module Vagrant
         #
         # @param [Boolean] raise_error If true, raise exception if not usable.
         # @return [Boolean]
-        def self.usable?(raise_error=false)
+        def self.usable?(_raise_error = false)
           # Return true by default for backwards compat since this was
           # introduced long after providers were being written.
           true
@@ -28,7 +28,7 @@ module Vagrant
         #
         # @param [Vagrant::Machine] machine The machine that this provider
         #   is responsible for.
-        def initialize(machine)
+        def initialize(_machine)
         end
 
         # This should return an action callable for the given name.
@@ -36,7 +36,7 @@ module Vagrant
         # @param [Symbol] name Name of the action.
         # @return [Object] A callable action sequence object, whether it
         #   is a proc, object, etc.
-        def action(name)
+        def action(_name)
           nil
         end
 
@@ -90,7 +90,7 @@ module Vagrant
           initialize_capabilities!(
             name.to_sym,
             { name.to_sym => [Class.new, nil] },
-            Vagrant.plugin("2").manager.provider_capabilities,
+            Vagrant.plugin('2').manager.provider_capabilities,
             machine,
           )
         end

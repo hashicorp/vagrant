@@ -1,6 +1,6 @@
-require "pathname"
+require 'pathname'
 
-require "vagrant/util/ssh"
+require 'vagrant/util/ssh'
 
 module Vagrant
   module Action
@@ -16,7 +16,7 @@ module Vagrant
         # For quick access to the `SSH` class.
         include Vagrant::Util
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -27,7 +27,7 @@ module Vagrant
 
           # If the result is nil, then the machine is telling us that it is
           # not yet ready for SSH, so we raise this exception.
-          raise Errors::SSHNotReady if info.nil?
+          fail Errors::SSHNotReady if info.nil?
 
           info[:private_key_path] ||= []
 
@@ -37,7 +37,7 @@ module Vagrant
           end
 
           if info[:private_key_path].empty? && info[:password]
-            env[:ui].warn(I18n.t("vagrant.ssh_exec_password"))
+            env[:ui].warn(I18n.t('vagrant.ssh_exec_password'))
           end
 
           # Exec!

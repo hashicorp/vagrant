@@ -46,7 +46,7 @@ module Vagrant
       # This is extra data passed into the message for translation.
       attr_accessor :extra_data
 
-      def self.error_key(key=nil, namespace=nil)
+      def self.error_key(key = nil, namespace = nil)
         define_method(:error_key) { key }
         error_namespace(namespace) if namespace
       end
@@ -79,27 +79,35 @@ module Vagrant
 
       # The error message for this error. This is used if no error_key
       # is specified for a translatable error message.
-      def error_message; "No error message"; end
+      def error_message
+        'No error message'
+      end
 
       # The default error namespace which is used for the error key.
       # This can be overridden here or by calling the "error_namespace"
       # class method.
-      def error_namespace; "vagrant.errors"; end
+      def error_namespace
+        'vagrant.errors'
+      end
 
       # The key for the error message. This should be set using the
       # {error_key} method but can be overridden here if needed.
-      def error_key; nil; end
+      def error_key
+        nil
+      end
 
       # This is the exit code that should be used when exiting from
       # this exception.
       #
       # @return [Integer]
-      def status_code; 1; end
+      def status_code
+        1
+      end
 
       protected
 
       def translate_error(opts)
-        return nil if !opts[:_key]
+        return nil unless opts[:_key]
         I18n.t("#{opts[:_namespace]}.#{opts[:_key]}", opts)
       end
     end
@@ -225,7 +233,7 @@ module Vagrant
     end
 
     class BoxUnpackageFailure < VagrantError
-      error_key(:untar_failure, "vagrant.actions.box.unpackage")
+      error_key(:untar_failure, 'vagrant.actions.box.unpackage')
     end
 
     class BoxUpdateMultiProvider < VagrantError
@@ -237,7 +245,7 @@ module Vagrant
     end
 
     class BoxVerificationFailed < VagrantError
-      error_key(:failed, "vagrant.actions.box.verify")
+      error_key(:failed, 'vagrant.actions.box.verify')
     end
 
     class BundlerDisabled < VagrantError
@@ -361,11 +369,11 @@ module Vagrant
     end
 
     class ForwardPortAutolistEmpty < VagrantError
-      error_key(:auto_empty, "vagrant.actions.vm.forward_ports")
+      error_key(:auto_empty, 'vagrant.actions.vm.forward_ports')
     end
 
     class ForwardPortCollision < VagrantError
-      error_key(:collision_error, "vagrant.actions.vm.forward_ports")
+      error_key(:collision_error, 'vagrant.actions.vm.forward_ports')
     end
 
     class GuestCapabilityInvalid < VagrantError
@@ -429,15 +437,15 @@ module Vagrant
     end
 
     class NetworkCollision < VagrantError
-      error_key(:collides, "vagrant.actions.vm.host_only_network")
+      error_key(:collides, 'vagrant.actions.vm.host_only_network')
     end
 
     class NetworkDHCPAlreadyAttached < VagrantError
-      error_key(:dhcp_already_attached, "vagrant.actions.vm.network")
+      error_key(:dhcp_already_attached, 'vagrant.actions.vm.network')
     end
 
     class NetworkNotFound < VagrantError
-      error_key(:not_found, "vagrant.actions.vm.host_only_network")
+      error_key(:not_found, 'vagrant.actions.vm.host_only_network')
     end
 
     class NFSBadExports < VagrantError
@@ -481,7 +489,7 @@ module Vagrant
     end
 
     class PackageIncludeMissing < VagrantError
-      error_key(:include_file_missing, "vagrant.actions.general.package")
+      error_key(:include_file_missing, 'vagrant.actions.general.package')
     end
 
     class PackageIncludeSymlink < VagrantError
@@ -489,15 +497,15 @@ module Vagrant
     end
 
     class PackageOutputDirectory < VagrantError
-      error_key(:output_is_directory, "vagrant.actions.general.package")
+      error_key(:output_is_directory, 'vagrant.actions.general.package')
     end
 
     class PackageOutputExists < VagrantError
-      error_key(:output_exists, "vagrant.actions.general.package")
+      error_key(:output_exists, 'vagrant.actions.general.package')
     end
 
     class PackageRequiresDirectory < VagrantError
-      error_key(:requires_directory, "vagrant.actions.general.package")
+      error_key(:requires_directory, 'vagrant.actions.general.package')
     end
 
     class ProviderNotFound < VagrantError
@@ -600,7 +608,7 @@ module Vagrant
       error_key(:ssh_host_down)
     end
 
-    class SSHInvalidShell< VagrantError
+    class SSHInvalidShell < VagrantError
       error_key(:ssh_invalid_shell)
     end
 
@@ -713,7 +721,7 @@ module Vagrant
     end
 
     class VMBaseMacNotSpecified < VagrantError
-      error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
+      error_key(:no_base_mac, 'vagrant.actions.vm.match_mac')
     end
 
     class VMBootBadState < VagrantError
@@ -725,11 +733,11 @@ module Vagrant
     end
 
     class VMCustomizationFailed < VagrantError
-      error_key(:failure, "vagrant.actions.vm.customize")
+      error_key(:failure, 'vagrant.actions.vm.customize')
     end
 
     class VMImportFailure < VagrantError
-      error_key(:failure, "vagrant.actions.vm.import")
+      error_key(:failure, 'vagrant.actions.vm.import')
     end
 
     class VMInaccessible < VagrantError
@@ -757,7 +765,7 @@ module Vagrant
     end
 
     class VMPowerOffToPackage < VagrantError
-      error_key(:power_off, "vagrant.actions.vm.export")
+      error_key(:power_off, 'vagrant.actions.vm.export')
     end
   end
 end

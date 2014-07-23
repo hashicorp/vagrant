@@ -2,16 +2,7 @@ module VagrantPlugins
   module CommunicatorWinRM
     # Handles loading and applying all available WinRM command filters
     class CommandFilter
-      @@cmd_filters = [
-        "cat",
-        "chmod",
-        "chown",
-        "grep",
-        "rm",
-        "test",
-        "uname",
-        "which",
-      ]
+      @@cmd_filters = %w(cat chmod chown grep rm test uname which)
 
       # Filter the given Vagrant command to ensure compatibility with Windows
       #
@@ -26,7 +17,7 @@ module VagrantPlugins
       #
       # @returns [Array] All Linux command filter instances
       def command_filters
-        @command_filters ||= create_command_filters()
+        @command_filters ||= create_command_filters
       end
 
       private

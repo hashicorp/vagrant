@@ -1,8 +1,8 @@
-require "log4r"
+require 'log4r'
 
-require "vagrant/util/counter"
+require 'vagrant/util/counter'
 
-require File.expand_path("../base", __FILE__)
+require File.expand_path('../base', __FILE__)
 
 module VagrantPlugins
   module Chef
@@ -18,26 +18,26 @@ module VagrantPlugins
 
         def initialize(machine, config)
           super
-          @logger = Log4r::Logger.new("vagrant::provisioners::chef_solo")
+          @logger = Log4r::Logger.new('vagrant::provisioners::chef_solo')
         end
 
         def configure(root_config)
-          @cookbook_folders  = expanded_folders(@config.cookbooks_path, "cookbooks")
-          @role_folders      = expanded_folders(@config.roles_path, "roles")
-          @data_bags_folders = expanded_folders(@config.data_bags_path, "data_bags")
-          @environments_folders = expanded_folders(@config.environments_path, "environments")
+          @cookbook_folders  = expanded_folders(@config.cookbooks_path, 'cookbooks')
+          @role_folders      = expanded_folders(@config.roles_path, 'roles')
+          @data_bags_folders = expanded_folders(@config.data_bags_path, 'data_bags')
+          @environments_folders = expanded_folders(@config.environments_path, 'environments')
 
-          share_folders(root_config, "csc", @cookbook_folders)
-          share_folders(root_config, "csr", @role_folders)
-          share_folders(root_config, "csdb", @data_bags_folders)
-          share_folders(root_config, "cse", @environments_folders)
+          share_folders(root_config, 'csc', @cookbook_folders)
+          share_folders(root_config, 'csr', @role_folders)
+          share_folders(root_config, 'csdb', @data_bags_folders)
+          share_folders(root_config, 'cse', @environments_folders)
         end
 
         def provision
           # Verify that the proper shared folders exist.
           check = []
           [@cookbook_folders, @role_folders, @data_bags_folders, @environments_folders].each do |folders|
-            folders.each do |type, local_path, remote_path|
+            folders.each do |_type, local_path, remote_path|
               # We only care about checking folders that have a local path, meaning
               # they were shared from the local machine, rather than assumed to
               # exist on the VM.
@@ -47,7 +47,7 @@ module VagrantPlugins
 
           chown_provisioning_folder
           verify_shared_folders(check)
-          verify_binary(chef_binary_path("chef-solo"))
+          verify_binary(chef_binary_path('chef-solo'))
           upload_encrypted_data_bag_secret
           setup_json
           setup_solo_config
@@ -56,7 +56,7 @@ module VagrantPlugins
         end
 
         # Converts paths to a list of properly expanded paths with types.
-        def expanded_folders(paths, appended_folder=nil)
+        def expanded_folders(paths, appended_folder = nil)
           # Convert the path to an array if it is a string or just a single
           # path element which contains the folder location (:host or :vm)
           paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
@@ -75,8 +75,8 @@ module VagrantPlugins
                 # Path exists on the host, setup the remote path
                 remote_path = "#{@config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
               else
-                @machine.ui.warn(I18n.t("vagrant.provisioners.chef.cookbook_folder_not_found_warning",
-                                       path: local_path.to_s))
+                @machine.ui.warn(I18n.t('vagrant.provisioners.chef.cookbook_folder_not_found_warning',
+                                        path: local_path.to_s))
                 next
               end
             else
@@ -88,7 +88,7 @@ module VagrantPlugins
               # of a hack but is the most portable way I can think of at the moment
               # to achieve this. Otherwise, Vagrant attempts to share at some crazy
               # path like /home/vagrant/c:/foo/bar
-              remote_path = remote_path.gsub(/^[a-zA-Z]:/, "")
+              remote_path = remote_path.gsub(/^[a-zA-Z]:/, '')
             end
 
             # If we have specified a folder name to append then append it
@@ -120,18 +120,18 @@ module VagrantPlugins
           roles_path = guest_paths(@role_folders)
           data_bags_path = guest_paths(@data_bags_folders).first
           environments_path = guest_paths(@environments_folders).first
-          setup_config("provisioners/chef_solo/solo", "solo.rb", {
-            cookbooks_path: cookbooks_path,
-            recipe_url: @config.recipe_url,
-            roles_path: roles_path,
-            data_bags_path: data_bags_path,
-            environments_path: environments_path,
-          })
+          setup_config('provisioners/chef_solo/solo', 'solo.rb',
+                       cookbooks_path: cookbooks_path,
+                       recipe_url: @config.recipe_url,
+                       roles_path: roles_path,
+                       data_bags_path: data_bags_path,
+                       environments_path: environments_path
+                       )
         end
 
         def run_chef_solo
           if @config.run_list && @config.run_list.empty?
-            @machine.ui.warn(I18n.t("vagrant.chef_run_list_empty"))
+            @machine.ui.warn(I18n.t('vagrant.chef_run_list_empty'))
           end
 
           if @machine.guest.capability?(:wait_for_reboot)
@@ -142,9 +142,9 @@ module VagrantPlugins
 
           @config.attempts.times do |attempt|
             if attempt == 0
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
+              @machine.ui.info I18n.t('vagrant.provisioners.chef.running_solo')
             else
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_solo_again")
+              @machine.ui.info I18n.t('vagrant.provisioners.chef.running_solo_again')
             end
 
             opts = { error_check: false, elevated: true }
@@ -163,14 +163,14 @@ module VagrantPlugins
           end
 
           # If we reached this point then Chef never converged! Error.
-          raise ChefError, :no_convergence
+          fail ChefError, :no_convergence
         end
 
         def verify_shared_folders(folders)
           folders.each do |folder|
             @logger.debug("Checking for shared folder: #{folder}")
-            if !@machine.communicate.test("test -d #{folder}", sudo: true)
-              raise ChefError, :missing_shared_folders
+            unless @machine.communicate.test("test -d #{folder}", sudo: true)
+              fail ChefError, :missing_shared_folders
             end
           end
         end

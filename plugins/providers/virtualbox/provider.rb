@@ -1,11 +1,11 @@
-require "log4r"
+require 'log4r'
 
 module VagrantPlugins
   module ProviderVirtualBox
-    class Provider < Vagrant.plugin("2", :provider)
+    class Provider < Vagrant.plugin('2', :provider)
       attr_reader :driver
 
-      def self.usable?(raise_error=false)
+      def self.usable?(raise_error = false)
         # Instantiate the driver, which will determine the VirtualBox
         # version and all that, which checks for VirtualBox being present
         Driver::Meta.new
@@ -19,7 +19,7 @@ module VagrantPlugins
       end
 
       def initialize(machine)
-        @logger  = Log4r::Logger.new("vagrant::provider::virtualbox")
+        @logger  = Log4r::Logger.new('vagrant::provider::virtualbox')
         @machine = machine
 
         # This method will load in our driver, so we call it now to
@@ -48,7 +48,7 @@ module VagrantPlugins
         rescue Driver::Meta::VMNotFound
           # The virtual machine doesn't exist, so we probably have a stale
           # ID. Just clear the id out of the machine and reload it.
-          @logger.debug("VM not found! Clearing saved machine ID and reloading.")
+          @logger.debug('VM not found! Clearing saved machine ID and reloading.')
           id = nil
           retry
         end
@@ -62,8 +62,8 @@ module VagrantPlugins
         # Return what we know. The host is always "127.0.0.1" because
         # VirtualBox VMs are always local. The port we try to discover
         # by reading the forwarded ports.
-        return {
-          host: "127.0.0.1",
+        {
+          host: '127.0.0.1',
           port: @driver.ssh_port(@machine.config.ssh.guest_port)
         }
       end
@@ -75,12 +75,12 @@ module VagrantPlugins
       def state
         # Determine the ID of the state here.
         state_id = nil
-        state_id = :not_created if !@driver.uuid
-        state_id = @driver.read_state if !state_id
-        state_id = :unknown if !state_id
+        state_id = :not_created unless @driver.uuid
+        state_id = @driver.read_state unless state_id
+        state_id = :unknown unless state_id
 
         # Translate into short/long descriptions
-        short = state_id.to_s.gsub("_", " ")
+        short = state_id.to_s.gsub('_', ' ')
         long  = I18n.t("vagrant.commands.status.#{state_id}")
 
         # If we're not created, then specify the special ID flag
@@ -98,7 +98,7 @@ module VagrantPlugins
       #
       # @return [String]
       def to_s
-        id = @machine.id ? @machine.id : "new VM"
+        id = @machine.id ? @machine.id : 'new VM'
         "VirtualBox (#{id})"
       end
     end

@@ -1,19 +1,19 @@
-require "ipaddr"
-require "timeout"
+require 'ipaddr'
+require 'timeout'
 
 module VagrantPlugins
   module HyperV
     module Action
       class WaitForIPAddress
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
-          @logger = Log4r::Logger.new("vagrant::hyperv::wait_for_ip_addr")
+          @logger = Log4r::Logger.new('vagrant::hyperv::wait_for_ip_addr')
         end
 
         def call(env)
           timeout = env[:machine].provider_config.ip_address_timeout
 
-          env[:ui].output("Waiting for the machine to report its IP address...")
+          env[:ui].output('Waiting for the machine to report its IP address...')
           env[:ui].detail("Timeout: #{timeout} seconds")
 
           guest_ip = nil
@@ -24,7 +24,7 @@ module VagrantPlugins
 
               # Try to get the IP
               network_info = env[:machine].provider.driver.read_guest_ip
-              guest_ip = network_info["ip"]
+              guest_ip = network_info['ip']
 
               if guest_ip
                 begin

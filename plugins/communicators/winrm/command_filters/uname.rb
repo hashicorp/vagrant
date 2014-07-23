@@ -3,7 +3,7 @@ module VagrantPlugins
     module CommandFilters
       # Converts a *nix 'uname' command to a PowerShell equivalent (none)
       class Uname
-        def filter(command)
+        def filter(_command)
           # uname -s | grep 'Darwin'
           # uname -s | grep VMkernel
           # uname -s | grep 'FreeBSD'

@@ -30,7 +30,7 @@ module Vagrant
             registered.uniq!
 
             # Register the handler if this is our first callback.
-            Signal.trap("INT") { fire_callbacks } if registered.length == 1
+            Signal.trap('INT') { fire_callbacks } if registered.length == 1
           end
         end
 
@@ -40,7 +40,7 @@ module Vagrant
             registered.delete(sig_callback)
 
             # Remove the signal trap if no more registered callbacks exist
-            Signal.trap("INT", "DEFAULT") if registered.empty?
+            Signal.trap('INT', 'DEFAULT') if registered.empty?
           end
         end
 
@@ -52,7 +52,9 @@ module Vagrant
         # Helper method to get access to the class variable. This is mostly
         # exposed for tests. This shouldn't be mucked with directly, since it's
         # structure may change at any time.
-        def registered; @@registered; end
+        def registered
+          @@registered
+        end
       end
     end
   end

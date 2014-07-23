@@ -2,7 +2,7 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class IsSaved
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 

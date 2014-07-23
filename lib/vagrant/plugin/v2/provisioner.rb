@@ -31,7 +31,7 @@ module Vagrant
         # done so the provisioner may do that.
         #
         # No return value is expected.
-        def configure(root_config)
+        def configure(_root_config)
         end
 
         # This is the method called when the actual provisioning should be

@@ -6,8 +6,8 @@ module VagrantPlugins
         # This is pulled out into its own directory since there are other
         # operating systems (SuSE) which behave similarly but with a different
         # path to the network scripts.
-        def self.network_scripts_dir(machine)
-          "/etc/sysconfig/network-scripts"
+        def self.network_scripts_dir(_machine)
+          '/etc/sysconfig/network-scripts'
         end
       end
     end

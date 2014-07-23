@@ -11,13 +11,13 @@ module Vagrant
         # @param [Boolean] raise_error If true, should raise an exception
         #   if it isn't usable.
         # @return [Boolean]
-        def usable?(machine, raise_error=false)
+        def usable?(_machine, _raise_error = false)
         end
 
         # DEPRECATED: This will be removed.
         #
         # @deprecated
-        def prepare(machine, folders, opts)
+        def prepare(_machine, _folders, _opts)
         end
 
         # This is called after the machine is booted and after networks
@@ -28,7 +28,7 @@ module Vagrant
         # any existing ones.
         #
         # No return value.
-        def enable(machine, folders, opts)
+        def enable(_machine, _folders, _opts)
         end
 
         # This is called to remove the synced folders from a running
@@ -41,7 +41,7 @@ module Vagrant
         # @param [Hash] folders The folders to remove. This will not contain
         #   any folders that should remain.
         # @param [Hash] opts Any options for the synced folders.
-        def disable(machine, folders, opts)
+        def disable(_machine, _folders, _opts)
         end
 
         # This is called after destroying the machine during a
@@ -52,7 +52,7 @@ module Vagrant
         #
         # @param [Machine] machine
         # @param [Hash] opts
-        def cleanup(machine, opts)
+        def cleanup(_machine, _opts)
         end
       end
     end

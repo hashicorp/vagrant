@@ -1,8 +1,8 @@
-require "log4r"
+require 'log4r'
 
 require 'vagrant/util/platform'
 
-require_relative "mixin_synced_folders"
+require_relative 'mixin_synced_folders'
 
 module Vagrant
   module Action
@@ -12,9 +12,9 @@ module Vagrant
       class SyncedFolders
         include MixinSyncedFolders
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::synced_folders")
+          @logger = Log4r::Logger.new('vagrant::action::builtin::synced_folders')
         end
 
         def call(env)
@@ -38,7 +38,7 @@ module Vagrant
           # Go through each folder and make sure to create it if
           # it does not exist on host
           folders.each do |_, fs|
-            fs.each do |id, data|
+            fs.each do |_id, data|
               next if data[:hostpath_exact]
 
               data[:hostpath] = File.expand_path(
@@ -56,7 +56,7 @@ module Vagrant
                   Pathname.new(data[:hostpath]).mkpath
                 rescue Errno::EACCES
                   raise Vagrant::Errors::SharedFolderCreateFailed,
-                    path: data[:hostpath]
+                        path: data[:hostpath]
                 end
               end
 
@@ -85,7 +85,7 @@ module Vagrant
 
           # Once booted, setup the folder contents
           folders.each do |impl, impl_name, fs|
-            if !env[:synced_folders_disable]
+            unless env[:synced_folders_disable]
               @logger.info("Invoking synced folder enable: #{impl_name}")
               impl.enable(env[:machine], fs, impl_opts(impl_name, env))
               next
@@ -94,7 +94,7 @@ module Vagrant
             # We're disabling synced folders
             to_disable = {}
             fs.each do |id, data|
-              next if !env[:synced_folders_disable].include?(id)
+              next unless env[:synced_folders_disable].include?(id)
               to_disable[id] = data
             end
 
@@ -109,7 +109,7 @@ module Vagrant
           # save, so we load the entire cached thing, and delete them.
           if env[:synced_folders_disable]
             all = synced_folders(env[:machine], cached: true)
-            all.each do |impl, fs|
+            all.each do |_impl, fs|
               fs.keys.each do |id|
                 if env[:synced_folders_disable].include?(id)
                   fs.delete(id)

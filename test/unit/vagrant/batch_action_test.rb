@@ -1,16 +1,16 @@
 require 'thread'
 require 'timeout'
 
-require File.expand_path("../../base", __FILE__)
+require File.expand_path('../../base', __FILE__)
 
 describe Vagrant::BatchAction do
   let(:called_actions) { [] }
   let!(:lock) { Mutex.new }
-  let(:provider_name) { "test" }
+  let(:provider_name) { 'test' }
   let(:provider_options) { {} }
 
   def new_machine(options)
-    double("machine").tap do |m|
+    double('machine').tap do |m|
       m.stub(provider_name: provider_name)
       m.stub(provider_options: options)
       allow(m).to receive(:action) do |action, opts|
@@ -21,20 +21,20 @@ describe Vagrant::BatchAction do
     end
   end
 
-  describe "#run" do
+  describe '#run' do
     let(:machine) { new_machine(provider_options) }
     let(:machine2) { new_machine(provider_options) }
 
-    it "should run the actions on the machines in order" do
-      subject.action(machine, "up")
-      subject.action(machine2, "destroy")
+    it 'should run the actions on the machines in order' do
+      subject.action(machine, 'up')
+      subject.action(machine2, 'destroy')
       subject.run
 
-      expect(called_actions.include?([machine, "up", nil])).to be
-      expect(called_actions.include?([machine2, "destroy", nil])).to be
+      expect(called_actions.include?([machine, 'up', nil])).to be
+      expect(called_actions.include?([machine2, 'destroy', nil])).to be
     end
 
-    it "should run the arbitrary methods in order" do
+    it 'should run the arbitrary methods in order' do
       called = []
       subject.custom(machine)  { |m| called << m }
       subject.custom(machine2) { |m| called << m }
@@ -44,12 +44,12 @@ describe Vagrant::BatchAction do
       expect(called[1]).to equal(machine2)
     end
 
-    it "should handle forks gracefully", :skip_windows do
+    it 'should handle forks gracefully', :skip_windows do
       # Doesn't need to be tested on Windows since Windows doesn't
       # support fork(1)
-      allow(machine).to receive(:action) do |action, opts|
+      allow(machine).to receive(:action) do |_action, _opts|
         pid = fork
-        if !pid
+        unless pid
           # Child process
           exit
         end
@@ -60,7 +60,7 @@ describe Vagrant::BatchAction do
         end
       end
 
-      subject.action(machine, "up")
+      subject.action(machine, 'up')
       subject.run
     end
   end

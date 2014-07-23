@@ -1,12 +1,12 @@
-require "log4r"
+require 'log4r'
 
 module VagrantPlugins
   module DockerProvider
     module Action
       class DestroyBuildImage
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
-          @logger = Log4r::Logger.new("vagrant::docker::destroybuildimage")
+          @logger = Log4r::Logger.new('vagrant::docker::destroybuildimage')
         end
 
         def call(env)
@@ -14,10 +14,10 @@ module VagrantPlugins
           image   = env[:build_image]
           image_file = nil
 
-          if !image
+          unless image
             # Try to read the image ID from the cache file if we've
             # already built it.
-            image_file = machine.data_dir.join("docker_build_image")
+            image_file = machine.data_dir.join('docker_build_image')
             image      = nil
             if image_file.file?
               image = image_file.read.chomp
@@ -25,10 +25,10 @@ module VagrantPlugins
           end
 
           if image
-            machine.ui.output(I18n.t("docker_provider.build_image_destroy"))
-            if !machine.provider.driver.rmi(image)
+            machine.ui.output(I18n.t('docker_provider.build_image_destroy'))
+            unless machine.provider.driver.rmi(image)
               machine.ui.detail(I18n.t(
-                "docker_provider.build_image_destroy_in_use"))
+                'docker_provider.build_image_destroy_in_use'))
             end
           end
 

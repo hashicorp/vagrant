@@ -17,30 +17,30 @@ module VagrantPlugins
         include Vagrant::Util::Retryable
 
         def initialize
-          @logger = Log4r::Logger.new("vagrant::provider::virtualbox::base")
+          @logger = Log4r::Logger.new('vagrant::provider::virtualbox::base')
 
           # This flag is used to keep track of interrupted state (SIGINT)
           @interrupted = false
 
           # Set the path to VBoxManage
-          @vboxmanage_path = "VBoxManage"
+          @vboxmanage_path = 'VBoxManage'
 
           if Vagrant::Util::Platform.windows? || Vagrant::Util::Platform.cygwin?
-            @logger.debug("Windows. Trying VBOX_INSTALL_PATH for VBoxManage")
+            @logger.debug('Windows. Trying VBOX_INSTALL_PATH for VBoxManage')
 
             # On Windows, we use the VBOX_INSTALL_PATH environmental
             # variable to find VBoxManage.
-            if ENV.key?("VBOX_INSTALL_PATH") ||
-              ENV.key?("VBOX_MSI_INSTALL_PATH")
+            if ENV.key?('VBOX_INSTALL_PATH') ||
+              ENV.key?('VBOX_MSI_INSTALL_PATH')
               # Get the path.
-              path = ENV["VBOX_INSTALL_PATH"] || ENV["VBOX_MSI_INSTALL_PATH"]
+              path = ENV['VBOX_INSTALL_PATH'] || ENV['VBOX_MSI_INSTALL_PATH']
               @logger.debug("VBOX_INSTALL_PATH value: #{path}")
 
               # There can actually be multiple paths in here, so we need to
               # split by the separator ";" and see which is a good one.
-              path.split(";").each do |single|
+              path.split(';').each do |single|
                 # Make sure it ends with a \
-                single += "\\" if !single.end_with?("\\")
+                single += '\\' unless single.end_with?('\\')
 
                 # If the executable exists, then set it as the main path
                 # and break out
@@ -68,7 +68,7 @@ module VagrantPlugins
         #
         # @param [String] network Name of the host-only network.
         # @param [Hash] options Options for the DHCP server.
-        def create_dhcp_server(network, options)
+        def create_dhcp_server(_network, _options)
         end
 
         # Creates a host only network with the given options.
@@ -76,7 +76,7 @@ module VagrantPlugins
         # @param [Hash] options Options to create the host only network.
         # @return [Hash] The details of the host only network, including
         #   keys `:name`, `:ip`, and `:netmask`
-        def create_host_only_network(options)
+        def create_host_only_network(_options)
         end
 
         # Deletes the virtual machine references by this driver.
@@ -104,7 +104,7 @@ module VagrantPlugins
         # This must support setting up both host only and bridged networks.
         #
         # @param [Array<Hash>] adapters Array of adapters to enable.
-        def enable_adapters(adapters)
+        def enable_adapters(_adapters)
         end
 
         # Execute a raw command straight through to VBoxManage.
@@ -115,14 +115,14 @@ module VagrantPlugins
         # Raises a VBoxManage error if it fails.
         #
         # @param [Array] command Command to execute.
-        def execute_command(command)
+        def execute_command(_command)
         end
 
         # Exports the virtual machine to the given path.
         #
         # @param [String] path Path to the OVF file.
         # @yield [progress] Yields the block with the progress of the export.
-        def export(path)
+        def export(_path)
         end
 
         # Forwards a set of ports for a VM.
@@ -145,7 +145,7 @@ module VagrantPlugins
         #
         # @param [Array<Hash>] ports An array of ports to set. See documentation
         #   for more information on the format.
-        def forward_ports(ports)
+        def forward_ports(_ports)
         end
 
         # Halts the virtual machine (pulls the plug).
@@ -156,7 +156,7 @@ module VagrantPlugins
         #
         # @param [String] ovf Path to the OVF file.
         # @return [String] UUID of the imported VM.
-        def import(ovf)
+        def import(_ovf)
         end
 
         # Returns the maximum number of network adapters.
@@ -171,7 +171,7 @@ module VagrantPlugins
         # @param [Boolean] active_only If true, only VMs that are running will
         #   be checked.
         # @return [Array<Array>]
-        def read_forwarded_ports(uuid=nil, active_only=false)
+        def read_forwarded_ports(_uuid = nil, _active_only = false)
         end
 
         # Returns a list of bridged interfaces.
@@ -191,7 +191,7 @@ module VagrantPlugins
         # @param  [String] property the name of the guest property to read
         # @return [String] value of the guest property
         # @raise  [VirtualBoxGuestPropertyNotFound] if the guest property does not have a value
-        def read_guest_property(property)
+        def read_guest_property(_property)
         end
 
         # Returns a list of available host only interfaces.
@@ -241,26 +241,26 @@ module VagrantPlugins
         # Sets the MAC address of the first network adapter.
         #
         # @param [String] mac MAC address without any spaces/hyphens.
-        def set_mac_address(mac)
+        def set_mac_address(_mac)
         end
 
         # Share a set of folders on this VM.
         #
         # @param [Array<Hash>] folders
-        def share_folders(folders)
+        def share_folders(_folders)
         end
 
         # Reads the SSH port of this VM.
         #
         # @param [Integer] expected Expected guest port of SSH.
-        def ssh_port(expected)
+        def ssh_port(_expected)
         end
 
         # Starts the virtual machine.
         #
         # @param [String] mode Mode to boot the VM. Either "headless"
         #   or "gui"
-        def start(mode)
+        def start(_mode)
         end
 
         # Suspend the virtual machine.
@@ -268,7 +268,7 @@ module VagrantPlugins
         end
 
         # Unshare folders.
-        def unshare_folders(names)
+        def unshare_folders(_names)
         end
 
         # Verifies that the driver is ready to accept work.
@@ -281,13 +281,13 @@ module VagrantPlugins
         #
         # @param [String] path Path to an OVF file.
         # @return [Boolean]
-        def verify_image(path)
+        def verify_image(_path)
         end
 
         # Checks if a VM with the given UUID exists.
         #
         # @return [Boolean]
-        def vm_exists?(uuid)
+        def vm_exists?(_uuid)
         end
 
         # Execute the given subcommand for VBoxManage and return the output.
@@ -313,12 +313,12 @@ module VagrantPlugins
             # nicely handled by Vagrant.
             if r.exit_code != 0
               if @interrupted
-                @logger.info("Exit code != 0, but interrupted. Ignoring.")
+                @logger.info('Exit code != 0, but interrupted. Ignoring.')
               elsif r.exit_code == 126
                 # This exit code happens if VBoxManage is on the PATH,
                 # but another executable it tries to execute is missing.
                 # This is usually indicative of a corrupted VirtualBox install.
-                raise Vagrant::Errors::VBoxManageNotFoundError
+                fail Vagrant::Errors::VBoxManageNotFoundError
               else
                 errored = true
               end
@@ -330,13 +330,13 @@ module VagrantPlugins
               if r.stderr =~ /failed to open \/dev\/vboxnetctl/i
                 # This catches an error message that only shows when kernel
                 # drivers aren't properly installed.
-                @logger.error("Error message about unable to open vboxnetctl")
-                raise Vagrant::Errors::VirtualBoxKernelModuleNotLoaded
+                @logger.error('Error message about unable to open vboxnetctl')
+                fail Vagrant::Errors::VirtualBoxKernelModuleNotLoaded
               end
 
               if r.stderr =~ /VBoxManage([.a-z]+?): error:/
                 # This catches the generic VBoxManage error case.
-                @logger.info("VBoxManage error text found, assuming error.")
+                @logger.info('VBoxManage error text found, assuming error.')
                 errored = true
               end
             end
@@ -344,9 +344,9 @@ module VagrantPlugins
             # If there was an error running VBoxManage, show the error and the
             # output.
             if errored
-              raise Vagrant::Errors::VBoxManageError,
-                command: command.inspect,
-                stderr:  r.stderr
+              fail Vagrant::Errors::VBoxManageError,
+                   command: command.inspect,
+                   stderr:  r.stderr
             end
           end
 
@@ -362,7 +362,7 @@ module VagrantPlugins
 
             # We have to execute this in a thread due to trap contexts
             # and locks.
-            Thread.new { @logger.info("Interrupted.") }.join
+            Thread.new { @logger.info('Interrupted.') }.join
           end
 
           # Append in the options for subprocess

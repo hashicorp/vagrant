@@ -1,45 +1,45 @@
-require "vagrant/action/builder"
+require 'vagrant/action/builder'
 
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
-      autoload :Boot, File.expand_path("../action/boot", __FILE__)
-      autoload :CheckAccessible, File.expand_path("../action/check_accessible", __FILE__)
-      autoload :CheckCreated, File.expand_path("../action/check_created", __FILE__)
-      autoload :CheckGuestAdditions, File.expand_path("../action/check_guest_additions", __FILE__)
-      autoload :CheckRunning, File.expand_path("../action/check_running", __FILE__)
-      autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
-      autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
-      autoload :ClearForwardedPorts, File.expand_path("../action/clear_forwarded_ports", __FILE__)
-      autoload :ClearNetworkInterfaces, File.expand_path("../action/clear_network_interfaces", __FILE__)
-      autoload :Created, File.expand_path("../action/created", __FILE__)
-      autoload :Customize, File.expand_path("../action/customize", __FILE__)
-      autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
-      autoload :DestroyUnusedNetworkInterfaces, File.expand_path("../action/destroy_unused_network_interfaces", __FILE__)
-      autoload :DiscardState, File.expand_path("../action/discard_state", __FILE__)
-      autoload :Export, File.expand_path("../action/export", __FILE__)
-      autoload :ForcedHalt, File.expand_path("../action/forced_halt", __FILE__)
-      autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
-      autoload :Import, File.expand_path("../action/import", __FILE__)
-      autoload :IsPaused, File.expand_path("../action/is_paused", __FILE__)
-      autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
-      autoload :IsSaved, File.expand_path("../action/is_saved", __FILE__)
-      autoload :MatchMACAddress, File.expand_path("../action/match_mac_address", __FILE__)
-      autoload :MessageAlreadyRunning, File.expand_path("../action/message_already_running", __FILE__)
-      autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
-      autoload :MessageNotRunning, File.expand_path("../action/message_not_running", __FILE__)
-      autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
-      autoload :Network, File.expand_path("../action/network", __FILE__)
-      autoload :Package, File.expand_path("../action/package", __FILE__)
-      autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
-      autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
-      autoload :PrepareNFSValidIds, File.expand_path("../action/prepare_nfs_valid_ids", __FILE__)
-      autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
-      autoload :Resume, File.expand_path("../action/resume", __FILE__)
-      autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
-      autoload :SetName, File.expand_path("../action/set_name", __FILE__)
-      autoload :SetupPackageFiles, File.expand_path("../action/setup_package_files", __FILE__)
-      autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
+      autoload :Boot, File.expand_path('../action/boot', __FILE__)
+      autoload :CheckAccessible, File.expand_path('../action/check_accessible', __FILE__)
+      autoload :CheckCreated, File.expand_path('../action/check_created', __FILE__)
+      autoload :CheckGuestAdditions, File.expand_path('../action/check_guest_additions', __FILE__)
+      autoload :CheckRunning, File.expand_path('../action/check_running', __FILE__)
+      autoload :CheckVirtualbox, File.expand_path('../action/check_virtualbox', __FILE__)
+      autoload :CleanMachineFolder, File.expand_path('../action/clean_machine_folder', __FILE__)
+      autoload :ClearForwardedPorts, File.expand_path('../action/clear_forwarded_ports', __FILE__)
+      autoload :ClearNetworkInterfaces, File.expand_path('../action/clear_network_interfaces', __FILE__)
+      autoload :Created, File.expand_path('../action/created', __FILE__)
+      autoload :Customize, File.expand_path('../action/customize', __FILE__)
+      autoload :Destroy, File.expand_path('../action/destroy', __FILE__)
+      autoload :DestroyUnusedNetworkInterfaces, File.expand_path('../action/destroy_unused_network_interfaces', __FILE__)
+      autoload :DiscardState, File.expand_path('../action/discard_state', __FILE__)
+      autoload :Export, File.expand_path('../action/export', __FILE__)
+      autoload :ForcedHalt, File.expand_path('../action/forced_halt', __FILE__)
+      autoload :ForwardPorts, File.expand_path('../action/forward_ports', __FILE__)
+      autoload :Import, File.expand_path('../action/import', __FILE__)
+      autoload :IsPaused, File.expand_path('../action/is_paused', __FILE__)
+      autoload :IsRunning, File.expand_path('../action/is_running', __FILE__)
+      autoload :IsSaved, File.expand_path('../action/is_saved', __FILE__)
+      autoload :MatchMACAddress, File.expand_path('../action/match_mac_address', __FILE__)
+      autoload :MessageAlreadyRunning, File.expand_path('../action/message_already_running', __FILE__)
+      autoload :MessageNotCreated, File.expand_path('../action/message_not_created', __FILE__)
+      autoload :MessageNotRunning, File.expand_path('../action/message_not_running', __FILE__)
+      autoload :MessageWillNotDestroy, File.expand_path('../action/message_will_not_destroy', __FILE__)
+      autoload :Network, File.expand_path('../action/network', __FILE__)
+      autoload :Package, File.expand_path('../action/package', __FILE__)
+      autoload :PackageVagrantfile, File.expand_path('../action/package_vagrantfile', __FILE__)
+      autoload :PrepareNFSSettings, File.expand_path('../action/prepare_nfs_settings', __FILE__)
+      autoload :PrepareNFSValidIds, File.expand_path('../action/prepare_nfs_valid_ids', __FILE__)
+      autoload :PrepareForwardedPortCollisionParams, File.expand_path('../action/prepare_forwarded_port_collision_params', __FILE__)
+      autoload :Resume, File.expand_path('../action/resume', __FILE__)
+      autoload :SaneDefaults, File.expand_path('../action/sane_defaults', __FILE__)
+      autoload :SetName, File.expand_path('../action/set_name', __FILE__)
+      autoload :SetupPackageFiles, File.expand_path('../action/setup_package_files', __FILE__)
+      autoload :Suspend, File.expand_path('../action/suspend', __FILE__)
 
       # Include the built-in modules so that we can use them as top-level
       # things.
@@ -66,11 +66,11 @@ module VagrantPlugins
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
-          b.use Customize, "pre-boot"
+          b.use Customize, 'pre-boot'
           b.use Boot
-          b.use Customize, "post-boot"
+          b.use Customize, 'post-boot'
           b.use WaitForCommunicator, [:starting, :running]
-          b.use Customize, "post-comm"
+          b.use Customize, 'post-comm'
           b.use CheckGuestAdditions
         end
       end
@@ -81,7 +81,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use Call, Created do |env1, b2|
-            if !env1[:result]
+            unless env1[:result]
               b2.use MessageNotCreated
               next
             end
@@ -116,12 +116,12 @@ module VagrantPlugins
               b2.use DiscardState
 
               b2.use Call, IsPaused do |env2, b3|
-                next if !env2[:result]
+                next unless env2[:result]
                 b3.use Resume
               end
 
               b2.use Call, GracefulHalt, :poweroff, :running do |env2, b3|
-                if !env2[:result]
+                unless env2[:result]
                   b3.use ForcedHalt
                 end
               end
@@ -137,7 +137,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use Call, Created do |env1, b2|
-            if !env1[:result]
+            unless env1[:result]
               b2.use MessageNotCreated
               next
             end
@@ -161,13 +161,13 @@ module VagrantPlugins
           b.use CheckVirtualbox
           b.use ConfigValidate
           b.use Call, Created do |env1, b2|
-            if !env1[:result]
+            unless env1[:result]
               b2.use MessageNotCreated
               next
             end
 
             b2.use Call, IsRunning do |env2, b3|
-              if !env2[:result]
+              unless env2[:result]
                 b3.use MessageNotRunning
                 next
               end
@@ -186,7 +186,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use Call, Created do |env1, b2|
-            if !env1[:result]
+            unless env1[:result]
               b2.use MessageNotCreated
               next
             end
@@ -302,7 +302,7 @@ module VagrantPlugins
           # references any files in the box or something it all just
           # works fine.
           b.use Call, Created do |env, b2|
-            if !env[:result]
+            unless env[:result]
               b2.use HandleBox
             end
           end
@@ -310,9 +310,9 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, Created do |env, b2|
             # If the VM is NOT created yet, then do the setup steps
-            if !env[:result]
+            unless env[:result]
               b2.use CheckAccessible
-              b2.use Customize, "pre-import"
+              b2.use Customize, 'pre-import'
               b2.use Import
               b2.use MatchMACAddress
             end

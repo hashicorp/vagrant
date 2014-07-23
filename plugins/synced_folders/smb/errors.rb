@@ -3,7 +3,7 @@ module VagrantPlugins
     module Errors
       # A convenient superclass for all our errors.
       class SMBError < Vagrant::Errors::VagrantError
-        error_namespace("vagrant_sf_smb.errors")
+        error_namespace('vagrant_sf_smb.errors')
       end
 
       class DefineShareFailed < SMBError

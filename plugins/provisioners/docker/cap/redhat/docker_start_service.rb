@@ -4,10 +4,10 @@ module VagrantPlugins
       module Redhat
         module DockerStartService
           def self.docker_start_service(machine)
-            machine.communicate.sudo("service docker start")
+            machine.communicate.sudo('service docker start')
             # TODO :: waiting to start
             sleep 5
-            machine.communicate.sudo("chkconfig docker on")
+            machine.communicate.sudo('chkconfig docker on')
           end
         end
       end

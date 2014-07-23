@@ -24,12 +24,12 @@ module VagrantPlugins
 
           # First mount command uses getent to get the group
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
-          mount_options += ",#{options[:mount_options].join(",")}" if options[:mount_options]
+          mount_options += ",#{options[:mount_options].join(',')}" if options[:mount_options]
           mount_commands << "mount -t vboxsf #{mount_options} #{name} #{expanded_guest_path}"
 
           # Second mount command uses the old style `id -g`
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid_old}"
-          mount_options += ",#{options[:mount_options].join(",")}" if options[:mount_options]
+          mount_options += ",#{options[:mount_options].join(',')}" if options[:mount_options]
           mount_commands << "mount -t vboxsf #{mount_options} #{name} #{expanded_guest_path}"
 
           # Create the guest path if it doesn't exist
@@ -55,8 +55,8 @@ module VagrantPlugins
 
             attempts += 1
             if attempts > 10
-              raise Vagrant::Errors::LinuxMountFailed,
-                command: mount_commands.join("\n")
+              fail Vagrant::Errors::LinuxMountFailed,
+                   command: mount_commands.join("\n")
             end
 
             sleep 2
@@ -64,7 +64,7 @@ module VagrantPlugins
 
           # Chown the directory to the proper user. We skip this if the
           # mount options contained a readonly flag, because it won't work.
-          if !options[:mount_options] || !options[:mount_options].include?("ro")
+          if !options[:mount_options] || !options[:mount_options].include?('ro')
             chown_commands = []
             chown_commands << "chown #{mount_uid}:#{mount_gid} #{expanded_guest_path}"
             chown_commands << "chown #{mount_uid}:#{mount_gid_old} #{expanded_guest_path}"
@@ -74,13 +74,13 @@ module VagrantPlugins
           end
 
           # Emit an upstart event if we can
-          if machine.communicate.test("test -x /sbin/initctl")
+          if machine.communicate.test('test -x /sbin/initctl')
             machine.communicate.sudo(
               "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{expanded_guest_path}")
           end
         end
 
-        def self.unmount_virtualbox_shared_folder(machine, guestpath, options)
+        def self.unmount_virtualbox_shared_folder(machine, guestpath, _options)
           result = machine.communicate.sudo(
             "umount #{guestpath}", error_check: false)
           if result == 0

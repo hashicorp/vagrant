@@ -3,7 +3,7 @@ module VagrantPlugins
     module Action
       # Checks that VirtualBox is installed and ready to be used.
       class CheckVirtualbox
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 

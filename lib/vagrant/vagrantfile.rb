@@ -1,4 +1,4 @@
-require "vagrant/util/template_renderer"
+require 'vagrant/util/template_renderer'
 
 module Vagrant
   # This class provides a way to load and access the contents
@@ -56,15 +56,15 @@ module Vagrant
         # or errors...
         level  = config_errors.empty? ? :warn : :error
         output = Util::TemplateRenderer.render(
-          "config/messages",
+          'config/messages',
           warnings: config_warnings,
           errors: config_errors).chomp
-        env.ui.send(level, I18n.t("vagrant.general.config_upgrade_messages",
-                               name: name,
-                               output: output))
+        env.ui.send(level, I18n.t('vagrant.general.config_upgrade_messages',
+                                  name: name,
+                                  output: output))
 
         # If we had errors, then we bail
-        raise Errors::ConfigUpgradeErrors if !config_errors.empty?
+        fail Errors::ConfigUpgradeErrors unless config_errors.empty?
       end
 
       # Get the provider configuration from the final loaded configuration
@@ -72,8 +72,8 @@ module Vagrant
 
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
-      return Machine.new(name, provider, provider_cls, provider_config,
-        provider_options, config, data_path, box, env, self)
+      Machine.new(name, provider, provider_cls, provider_config,
+                  provider_options, config, data_path, box, env, self)
     end
 
     # Returns the configuration for a single machine.
@@ -109,15 +109,15 @@ module Vagrant
       keys = @keys.dup
 
       sub_machine = @config.vm.defined_vms[name]
-      if !sub_machine
-        raise Errors::MachineNotFound,
-          name: name, provider: provider
+      unless sub_machine
+        fail Errors::MachineNotFound,
+             name: name, provider: provider
       end
 
-      provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
-      if !provider_plugin
-        raise Errors::ProviderNotFound,
-          machine: name, provider: provider
+      provider_plugin  = Vagrant.plugin('2').manager.providers[provider]
+      unless provider_plugin
+        fail Errors::ProviderNotFound,
+             machine: name, provider: provider
       end
 
       provider_cls     = provider_plugin[0]
@@ -129,9 +129,9 @@ module Vagrant
         provider_cls.usable?(true)
       rescue Errors::VagrantError => e
         raise Errors::ProviderNotUsable,
-          machine: name.to_s,
-          provider: provider.to_s,
-          message: e.to_s
+              machine: name.to_s,
+              provider: provider.to_s,
+              message: e.to_s
       end
 
       # Add the sub-machine configuration to the loader and keys
@@ -169,7 +169,7 @@ module Vagrant
 
         # Load provider overrides
         provider_overrides = config.vm.get_provider_overrides(provider)
-        if !provider_overrides.empty?
+        unless provider_overrides.empty?
           config_key =
             "#{object_id}_vm_#{name}_#{config.vm.box}_#{provider}".to_sym
           @loader.set(config_key, provider_overrides)
@@ -189,7 +189,7 @@ module Vagrant
       # Load the box and provider overrides
       load_box_proc.call
 
-      return {
+      {
         box: box,
         provider_cls: provider_cls,
         provider_options: provider_options.dup,
@@ -244,7 +244,7 @@ module Vagrant
     protected
 
     def find_vagrantfile(search_path)
-      ["Vagrantfile", "vagrantfile"].each do |vagrantfile|
+      %w(Vagrantfile vagrantfile).each do |vagrantfile|
         current_path = search_path.join(vagrantfile)
         return current_path if current_path.file?
       end

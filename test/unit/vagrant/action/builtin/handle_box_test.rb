@@ -1,34 +1,34 @@
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 
 describe Vagrant::Action::Builtin::HandleBox do
-  include_context "unit"
+  include_context 'unit'
 
-  let(:app) { lambda { |env| } }
-  let(:env) { {
+  let(:app) { lambda { |_env| } }
+  let(:env) do {
     action_runner: action_runner,
     machine: machine,
     ui: Vagrant::UI::Silent.new,
-  } }
+  } end
 
   subject { described_class.new(app, env) }
 
   let(:iso_env) do
     # We have to create a Vagrantfile so there is a root path
     isolated_environment.tap do |env|
-      env.vagrantfile("")
+      env.vagrantfile('')
     end
   end
 
   let(:iso_vagrant_env) { iso_env.create_vagrant_env }
 
-  let(:action_runner) { double("action_runner") }
+  let(:action_runner) { double('action_runner') }
   let(:box) do
-    box_dir = iso_env.box3("foo", "1.0", :virtualbox)
-    Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir)
+    box_dir = iso_env.box3('foo', '1.0', :virtualbox)
+    Vagrant::Box.new('foo', :virtualbox, '1.0', box_dir)
   end
   let(:machine) { iso_vagrant_env.machine(iso_vagrant_env.machine_names[0], :dummy) }
 
-  it "works if there is no box set" do
+  it 'works if there is no box set' do
     machine.config.vm.box = nil
     machine.config.vm.box_url = nil
 
@@ -46,15 +46,15 @@ describe Vagrant::Action::Builtin::HandleBox do
     subject.call(env)
   end
 
-  context "with a box set and no box_url" do
+  context 'with a box set and no box_url' do
     before do
       machine.stub(box: nil)
 
-      machine.config.vm.box = "foo"
+      machine.config.vm.box = 'foo'
     end
 
     it "adds a box that doesn't exist" do
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with { |_action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box)
         expect(opts[:box_provider]).to eq(:dummy)
@@ -67,10 +67,10 @@ describe Vagrant::Action::Builtin::HandleBox do
       subject.call(env)
     end
 
-    it "adds a box using any format the provider allows" do
+    it 'adds a box using any format the provider allows' do
       machine.provider_options[:box_format] = [:foo, :bar]
 
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with { |_action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box)
         expect(opts[:box_provider]).to eq([:foo, :bar])
@@ -84,16 +84,16 @@ describe Vagrant::Action::Builtin::HandleBox do
     end
   end
 
-  context "with a box and box_url set" do
+  context 'with a box and box_url set' do
     before do
       machine.stub(box: nil)
 
-      machine.config.vm.box = "foo"
-      machine.config.vm.box_url = "bar"
+      machine.config.vm.box = 'foo'
+      machine.config.vm.box_url = 'bar'
     end
 
     it "adds a box that doesn't exist" do
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with { |_action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box_url)
         expect(opts[:box_provider]).to eq(:dummy)

@@ -1,11 +1,11 @@
-require File.expand_path("../../../../../base", __FILE__)
-require File.expand_path("../../../support/shared/redhat_like_host_name_examples", __FILE__)
+require File.expand_path('../../../../../base', __FILE__)
+require File.expand_path('../../../support/shared/redhat_like_host_name_examples', __FILE__)
 
-describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
+describe 'VagrantPlugins::GuestRedHat::Cap::ChangeHostName' do
   let(:described_class) do
     VagrantPlugins::GuestRedHat::Plugin.components.guest_capabilities[:redhat].get(:change_host_name)
   end
-  let(:machine) { double("machine") }
+  let(:machine) { double('machine') }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
@@ -17,21 +17,21 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
   after do
     communicator.verify_expectations!
   end
-  
+
   context 'when oldhostname is qualified' do
     let(:old_hostname) { 'oldhostname.olddomain.tld' }
-    let(:similar_hostname) {'oldhostname'}
+    let(:similar_hostname) { 'oldhostname' }
 
     it_behaves_like 'a full redhat-like host name change'
 
     include_examples 'inserting hostname in /etc/hosts'
     include_examples 'swapping simple hostname in /etc/hosts'
-    include_examples 'swapping qualified hostname in /etc/hosts' 
+    include_examples 'swapping qualified hostname in /etc/hosts'
   end
 
   context 'when oldhostname is simple' do
     let(:old_hostname) { 'oldhostname' }
-    let(:similar_hostname) {'oldhostname.olddomain.tld'}
+    let(:similar_hostname) { 'oldhostname.olddomain.tld' }
 
     it_behaves_like 'a full redhat-like host name change'
 
@@ -40,7 +40,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
 
     context 'and is only able to be determined by hostname (without -f)' do
       before do
-        communicator.stub_command('hostname -f',nil)
+        communicator.stub_command('hostname -f', nil)
         communicator.stub_command('hostname', stdout: old_hostname)
         communicator.expect_command('hostname')
       end
@@ -59,7 +59,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
 
     include_examples 'inserting hostname in /etc/hosts'
 
-    it "does more even when the provided hostname is not different" do
+    it 'does more even when the provided hostname is not different' do
       described_class.change_host_name(machine, old_hostname)
       expect(communicator.received_commands.to_set).not_to eq(communicator.expected_commands.keys.to_set)
     end

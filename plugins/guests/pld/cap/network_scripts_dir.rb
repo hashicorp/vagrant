@@ -2,8 +2,8 @@ module VagrantPlugins
   module GuestPld
     module Cap
       class NetworkScriptsDir
-        def self.network_scripts_dir(machine)
-          "/etc/sysconfig/interfaces"
+        def self.network_scripts_dir(_machine)
+          '/etc/sysconfig/interfaces'
         end
       end
     end

@@ -15,12 +15,12 @@ module VagrantPlugins
         info = {}
         if machine.provider.capability?(:winrm_info)
           info = machine.provider.capability(:winrm_info)
-          raise Errors::WinRMNotReady if !info
+          fail Errors::WinRMNotReady unless info
         end
 
         info[:host] ||= winrm_address(machine)
-        info[:port] ||= winrm_port(machine, info[:host] == "127.0.0.1")
-        return info
+        info[:port] ||= winrm_port(machine, info[:host] == '127.0.0.1')
+        info
       end
 
       # Returns the address to access WinRM. This does not contain
@@ -33,20 +33,20 @@ module VagrantPlugins
         return addr if addr
 
         ssh_info = machine.ssh_info
-        raise Errors::WinRMNotReady if !ssh_info
-        return ssh_info[:host]
+        fail Errors::WinRMNotReady unless ssh_info
+        ssh_info[:host]
       end
 
       # Returns the port to access WinRM.
       #
       # @param [Vagrant::Machine] machine
       # @return [Integer]
-      def self.winrm_port(machine, local=true)
+      def self.winrm_port(machine, local = true)
         host_port = machine.config.winrm.port
         if machine.config.winrm.guest_port
           # If we're not requesting a local port, return
           # the guest port directly.
-          return machine.config.winrm.guest_port if !local
+          return machine.config.winrm.guest_port unless local
 
           # Search by guest port if we can. We use a provider capability
           # if we have it. Otherwise, we just scan the Vagrantfile defined
@@ -61,10 +61,10 @@ module VagrantPlugins
             end
           end
 
-          if !port
+          unless port
             machine.config.vm.networks.each do |type, netopts|
               next if type != :forwarded_port
-              next if !netopts[:host]
+              next unless netopts[:host]
               if netopts[:guest] == machine.config.winrm.guest_port
                 port = netopts[:host]
                 break

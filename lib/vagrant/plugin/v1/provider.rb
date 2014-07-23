@@ -9,7 +9,7 @@ module Vagrant
         #
         # @param [Vagrant::Machine] machine The machine that this provider
         #   is responsible for.
-        def initialize(machine)
+        def initialize(_machine)
         end
 
         # This should return an action callable for the given name.
@@ -17,7 +17,7 @@ module Vagrant
         # @param [Symbol] name Name of the action.
         # @return [Object] A callable action sequence object, whether it
         #   is a proc, object, etc.
-        def action(name)
+        def action(_name)
           nil
         end
 

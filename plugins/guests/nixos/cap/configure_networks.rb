@@ -1,7 +1,7 @@
 require 'tempfile'
 require 'ipaddr'
 
-require "vagrant/util/template_renderer"
+require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module GuestNixos
@@ -19,29 +19,29 @@ module VagrantPlugins
           assign_device_names(machine, networks)
 
           # upload the config file
-          network_module = TemplateRenderer.render("guests/nixos/network", networks: networks)
-          upload(machine, network_module, "/etc/nixos/vagrant-network.nix")
+          network_module = TemplateRenderer.render('guests/nixos/network', networks: networks)
+          upload(machine, network_module, '/etc/nixos/vagrant-network.nix')
         end
 
         # Set :device on each network.
         # Attempts to use biosdevname when available to detect interface names,
         # and falls back to ifconfig otherwise.
         def self.assign_device_names(machine, networks)
-          if machine.communicate.test("command -v biosdevname")
+          if machine.communicate.test('command -v biosdevname')
             # use biosdevname to get info about the interfaces
             interfaces = get_interfaces(machine)
             if machine.provider.capability?(:nic_mac_addresses)
               # find device name by MAC lookup.
               mac_addresses = machine.provider.capability(:nic_mac_addresses)
               networks.each do |network|
-                mac_address = mac_addresses[network[:interface]+1]
-                interface = interfaces.detect {|nic| nic[:mac_address].gsub(":","") == mac_address} if mac_address
+                mac_address = mac_addresses[network[:interface] + 1]
+                interface = interfaces.find { |nic| nic[:mac_address].gsub(':', '') == mac_address } if mac_address
                 network[:device] = interface[:kernel] if interface
               end
             else
               # assume interface numbers correspond to (ethN+1).
               networks.each do |network|
-                interface = interfaces.detect {|nic| nic[:ethn] == network[:interface]}
+                interface = interfaces.find { |nic| nic[:ethn] == network[:interface] }
                 network[:device] = interface[:kernel] if interface
               end
             end
@@ -56,16 +56,16 @@ module VagrantPlugins
 
         def self.get_interface_names(machine)
           output = nil
-          machine.communicate.execute("ifconfig -a") do |type, result|
+          machine.communicate.execute('ifconfig -a') do |type, result|
             output = result.chomp if type == :stdout
           end
-          names = output.scan(/^[^:\s]+/).reject {|name| name =~ /^lo/ }
+          names = output.scan(/^[^:\s]+/).reject { |name| name =~ /^lo/ }
           names
         end
 
         # Upload a file.
         def self.upload(machine, content, remote_path)
-          local_temp = Tempfile.new("vagrant-upload")
+          local_temp = Tempfile.new('vagrant-upload')
           local_temp.binmode
           local_temp.write(content)
           local_temp.close
@@ -79,7 +79,7 @@ module VagrantPlugins
         def self.mktemp(machine)
           path = nil
 
-          machine.communicate.execute("mktemp --suffix -vagrant-upload") do |type, result|
+          machine.communicate.execute('mktemp --suffix -vagrant-upload') do |type, result|
             path = result.chomp if type == :stdout
           end
           path
@@ -94,7 +94,7 @@ module VagrantPlugins
 
           # get all adapters, as named by the kernel
           output = nil
-          machine.communicate.sudo("biosdevname -d") do |type, result|
+          machine.communicate.sudo('biosdevname -d') do |type, result|
             output = result if type == :stdout
           end
           kernel_if_names = output.scan(/Kernel name: ([^\n]+)/).flatten
@@ -104,7 +104,7 @@ module VagrantPlugins
           ethns = []
           kernel_if_names.each do |name|
             machine.communicate.sudo("biosdevname --policy=all_ethN -i #{name}") do |type, result|
-              ethns << result.gsub(/[^\d]/,'').to_i if type == :stdout
+              ethns << result.gsub(/[^\d]/, '').to_i if type == :stdout
             end
           end
 
@@ -121,7 +121,7 @@ module VagrantPlugins
         end
 
         def self.netmask_to_cidr(mask)
-          IPAddr.new(mask).to_i.to_s(2).count("1")
+          IPAddr.new(mask).to_i.to_s(2).count('1')
         end
       end
     end

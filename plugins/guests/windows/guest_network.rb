@@ -1,4 +1,4 @@
-require "log4r"
+require 'log4r'
 
 module VagrantPlugins
   module GuestWindows
@@ -8,7 +8,7 @@ module VagrantPlugins
       WQL_NET_ADAPTERS_V2 = 'SELECT * FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL'
 
       def initialize(communicator)
-        @logger       = Log4r::Logger.new("vagrant::windows::guestnetwork")
+        @logger       = Log4r::Logger.new('vagrant::windows::guestnetwork')
         @communicator = communicator
       end
 
@@ -17,7 +17,7 @@ module VagrantPlugins
       #
       # @return [Array]
       def network_adapters
-        wsman_version == 2? network_adapters_v2_winrm : network_adapters_v3_winrm
+        wsman_version == 2 ? network_adapters_v2_winrm : network_adapters_v3_winrm
       end
 
       # Checks to see if the specified NIC is currently configured for DHCP.
@@ -39,7 +39,7 @@ module VagrantPlugins
       # @param [String] The unique name of the NIC, such as 'Local Area Connection'.
       def configure_dhcp_interface(nic_index, net_connection_id)
         @logger.info("Configuring NIC #{net_connection_id} for DHCP")
-        if !is_dhcp_enabled(nic_index)
+        unless is_dhcp_enabled(nic_index)
           netsh = "netsh interface ip set address \"#{net_connection_id}\" dhcp"
           @communicator.execute(netsh)
         end
@@ -51,9 +51,9 @@ module VagrantPlugins
       # @param [String] The unique name of the NIC, such as 'Local Area Connection'.
       # @param [String] The static IP address to assign to the specified NIC.
       # @param [String] The network mask to use with the static IP.
-      def configure_static_interface(nic_index, net_connection_id, ip, netmask)
+      def configure_static_interface(_nic_index, net_connection_id, ip, netmask)
         @logger.info("Configuring NIC #{net_connection_id} using static ip #{ip}")
-        #netsh interface ip set address "Local Area Connection 2" static 192.168.33.10 255.255.255.0
+        # netsh interface ip set address "Local Area Connection 2" static 192.168.33.10 255.255.255.0
         netsh = "netsh interface ip set address \"#{net_connection_id}\" static #{ip} #{netmask}"
         @communicator.execute(netsh)
       end
@@ -63,7 +63,7 @@ module VagrantPlugins
       # https://github.com/WinRb/vagrant-windows/issues/63
       def set_all_networks_to_work
         @logger.info("Setting all networks to 'Work Network'")
-        command = File.read(File.expand_path("../scripts/set_work_network.ps1", __FILE__))
+        command = File.read(File.expand_path('../scripts/set_work_network.ps1', __FILE__))
         @communicator.execute(command)
       end
 
@@ -74,7 +74,7 @@ module VagrantPlugins
       #
       # @return [Integer]
       def wsman_version
-        @logger.debug("querying WSMan version")
+        @logger.debug('querying WSMan version')
         version = ''
         @communicator.execute(PS_GET_WSMAN_VER) do |type, line|
           version = version + "#{line}" if type == :stdout && !line.nil?
@@ -89,13 +89,13 @@ module VagrantPlugins
       #
       # @return [Array]
       def network_adapters_v2_winrm
-        @logger.debug("querying network adapters")
+        @logger.debug('querying network adapters')
 
         # Get all NICs that have a MAC address
         # http://msdn.microsoft.com/en-us/library/windows/desktop/aa394216(v=vs.85).aspx
-        adapters = @communicator.execute(WQL_NET_ADAPTERS_V2, { shell: :wql } )[:win32_network_adapter]
+        adapters = @communicator.execute(WQL_NET_ADAPTERS_V2,  shell: :wql)[:win32_network_adapter]
         @logger.debug("#{adapters.inspect}")
-        return adapters
+        adapters
       end
 
       # Returns an array of all NICs on the guest. Each array entry is a
@@ -106,19 +106,19 @@ module VagrantPlugins
       #
       # @return [Array]
       def network_adapters_v3_winrm
-        command = File.read(File.expand_path("../scripts/winrs_v3_get_adapters.ps1", __FILE__))
-        output = ""
+        command = File.read(File.expand_path('../scripts/winrs_v3_get_adapters.ps1', __FILE__))
+        output = ''
         @communicator.execute(command) do |type, line|
           output = output + "#{line}" if type == :stdout && !line.nil?
         end
 
         adapters = []
         JSON.parse(output).each do |nic|
-          adapters << nic.inject({}){ |memo,(k,v)| memo[k.to_sym] = v; memo }
+          adapters << nic.reduce({}) { |memo, (k, v)| memo[k.to_sym] = v; memo }
         end
 
         @logger.debug("#{adapters.inspect}")
-        return adapters
+        adapters
       end
     end
   end

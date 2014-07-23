@@ -1,6 +1,6 @@
-require "log4r"
+require 'log4r'
 
-require "vagrant/action/builtin/mixin_synced_folders"
+require 'vagrant/action/builtin/mixin_synced_folders'
 
 module VagrantPlugins
   module DockerProvider
@@ -9,17 +9,17 @@ module VagrantPlugins
       class HostMachineSyncFoldersDisable
         include Vagrant::Action::Builtin::MixinSyncedFolders
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::docker::hostmachine")
+          @logger = Log4r::Logger.new('vagrant::docker::hostmachine')
         end
 
         def call(env)
-          return @app.call(env) if !env[:machine].provider.host_vm?
+          return @app.call(env) unless env[:machine].provider.host_vm?
 
           # Read our random ID for this instance
-          id_path   = env[:machine].data_dir.join("host_machine_sfid")
-          return @app.call(env) if !id_path.file?
+          id_path   = env[:machine].data_dir.join('host_machine_sfid')
+          return @app.call(env) unless id_path.file?
           host_sfid = id_path.read.chomp
 
           host_machine = env[:machine].provider.host_vm
@@ -44,7 +44,7 @@ module VagrantPlugins
           # Read the existing folders that are setup
           existing_folders = synced_folders(host_machine, cached: true)
           if existing_folders
-            existing_folders.each do |impl, fs|
+            existing_folders.each do |_impl, fs|
               fs.each do |id, data|
                 if data[:docker_host_sfid] == host_sfid
                   to_disable << id
@@ -63,7 +63,7 @@ module VagrantPlugins
           proxy_ui.opts[:target] = env[:machine].name.to_s
 
           env[:machine].ui.output(I18n.t(
-            "docker_provider.host_machine_disabling_folders"))
+            'docker_provider.host_machine_disabling_folders'))
           host_machine.with_ui(proxy_ui) do
             action_env = {
               synced_folders_cached: true,

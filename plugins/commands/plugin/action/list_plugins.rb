@@ -1,4 +1,4 @@
-require "vagrant/plugin/manager"
+require 'vagrant/plugin/manager'
 
 module VagrantPlugins
   module CommandPlugin
@@ -11,7 +11,7 @@ module VagrantPlugins
       # is installed, and outputs the appropriate truly installed
       # plugins.
       class ListPlugins
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -22,7 +22,7 @@ module VagrantPlugins
 
           # Output!
           if specs.empty?
-            env[:ui].info(I18n.t("vagrant.commands.plugin.no_plugins"))
+            env[:ui].info(I18n.t('vagrant.commands.plugin.no_plugins'))
             return @app.call(env)
           end
 
@@ -30,24 +30,24 @@ module VagrantPlugins
             # Grab the plugin.
             plugin = plugins[spec.name]
 
-            system = ""
-            system = ", system" if plugin && plugin["system"]
+            system = ''
+            system = ', system' if plugin && plugin['system']
             env[:ui].info "#{spec.name} (#{spec.version}#{system})"
-            env[:ui].machine("plugin-name", spec.name)
-            env[:ui].machine("plugin-version", "#{spec.version}#{system}")
+            env[:ui].machine('plugin-name', spec.name)
+            env[:ui].machine('plugin-version', "#{spec.version}#{system}")
 
-            if plugin["gem_version"] && plugin["gem_version"] != ""
+            if plugin['gem_version'] && plugin['gem_version'] != ''
               env[:ui].info(I18n.t(
-                "vagrant.commands.plugin.plugin_version",
-                version: plugin["gem_version"]))
-              env[:ui].machine("plugin-version-constraint", plugin["gem_version"])
+                'vagrant.commands.plugin.plugin_version',
+                version: plugin['gem_version']))
+              env[:ui].machine('plugin-version-constraint', plugin['gem_version'])
             end
 
-            if plugin["require"] && plugin["require"] != ""
+            if plugin['require'] && plugin['require'] != ''
               env[:ui].info(I18n.t(
-                "vagrant.commands.plugin.plugin_require",
-                require: plugin["require"]))
-              env[:ui].machine("plugin-custom-entrypoint", plugin["require"])
+                'vagrant.commands.plugin.plugin_require',
+                require: plugin['require']))
+              env[:ui].machine('plugin-custom-entrypoint', plugin['require'])
             end
           end
 

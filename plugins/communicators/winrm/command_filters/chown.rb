@@ -3,7 +3,7 @@ module VagrantPlugins
     module CommandFilters
       # Converts a *nix 'chown' command to a PowerShell equivalent (none)
       class Chown
-        def filter(command)
+        def filter(_command)
           # Not supported on Windows, the communicator should skip this command
           ''
         end

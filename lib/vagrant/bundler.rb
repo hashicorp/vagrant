@@ -1,12 +1,12 @@
-require "monitor"
-require "pathname"
-require "set"
-require "tempfile"
+require 'monitor'
+require 'pathname'
+require 'set'
+require 'tempfile'
 
-require "bundler"
+require 'bundler'
 
-require_relative "shared_helpers"
-require_relative "version"
+require_relative 'shared_helpers'
+require_relative 'version'
 
 module Vagrant
   # This class manages Vagrant's interaction with Bundler. Vagrant uses
@@ -14,24 +14,24 @@ module Vagrant
   # all Vagrant-installed plugins.
   class Bundler
     def self.instance
-      @bundler ||= self.new
+      @bundler ||= new
     end
 
     def initialize
-      @enabled = true if ENV["VAGRANT_INSTALLER_ENV"] ||
-        ENV["VAGRANT_FORCE_BUNDLER"]
-      @enabled  = !::Bundler::SharedHelpers.in_bundle? if !@enabled
+      @enabled = true if ENV['VAGRANT_INSTALLER_ENV'] ||
+        ENV['VAGRANT_FORCE_BUNDLER']
+      @enabled  = !::Bundler::SharedHelpers.in_bundle? unless @enabled
       @monitor  = Monitor.new
 
-      @gem_home = ENV["GEM_HOME"]
-      @gem_path = ENV["GEM_PATH"]
+      @gem_home = ENV['GEM_HOME']
+      @gem_path = ENV['GEM_PATH']
     end
 
     # Initializes Bundler and the various gem paths so that we can begin
     # loading gems. This must only be called once.
     def init!(plugins)
       # If we're not enabled, then we don't do anything.
-      return if !@enabled
+      return unless @enabled
 
       # Set the Bundler UI to be a silent UI. We have to add the
       # `silence` method to it because Bundler UI doesn't have it.
@@ -43,24 +43,24 @@ module Vagrant
           # bundler < 1.6.0
           ::Bundler::UI.new
         end
-      if !::Bundler.ui.respond_to?(:silence)
+      unless ::Bundler.ui.respond_to?(:silence)
         ui = ::Bundler.ui
-        def ui.silence(*args)
+        def ui.silence(*_args)
           yield
         end
       end
 
-      bundle_path = Vagrant.user_data_path.join("gems")
+      bundle_path = Vagrant.user_data_path.join('gems')
 
       # Setup the "local" Bundler configuration. We need to set BUNDLE_PATH
       # because the existence of this actually suppresses `sudo`.
       @appconfigpath = Dir.mktmpdir
-      File.open(File.join(@appconfigpath, "config"), "w+") do |f|
+      File.open(File.join(@appconfigpath, 'config'), 'w+') do |f|
         f.write("BUNDLE_PATH: \"#{bundle_path}\"")
       end
 
       # Setup the Bundler configuration
-      @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
+      @configfile = File.open(Tempfile.new('vagrant').path + '1', 'w+')
       @configfile.close
 
       # Build up the Gemfile for our Bundler context. We make sure to
@@ -69,10 +69,10 @@ module Vagrant
       @gemfile = build_gemfile(plugins)
 
       # Set the environmental variables for Bundler
-      ENV["BUNDLE_APP_CONFIG"] = @appconfigpath
-      ENV["BUNDLE_CONFIG"]  = @configfile.path
-      ENV["BUNDLE_GEMFILE"] = @gemfile.path
-      ENV["GEM_PATH"] =
+      ENV['BUNDLE_APP_CONFIG'] = @appconfigpath
+      ENV['BUNDLE_CONFIG']  = @configfile.path
+      ENV['BUNDLE_GEMFILE'] = @gemfile.path
+      ENV['GEM_PATH'] =
         "#{bundle_path}#{::File::PATH_SEPARATOR}#{@gem_path}"
       Gem.clear_paths
     end
@@ -81,7 +81,7 @@ module Vagrant
     #
     # @param [Hash] plugins
     # @return [Array<Gem::Specification>]
-    def install(plugins, local=false)
+    def install(plugins, local = false)
       internal_install(plugins, nil, local: local)
     end
 
@@ -92,9 +92,9 @@ module Vagrant
     def install_local(path)
       # We have to do this load here because this file can be loaded
       # before RubyGems is actually loaded.
-      require "rubygems/dependency_installer"
+      require 'rubygems/dependency_installer'
       begin
-        require "rubygems/format"
+        require 'rubygems/format'
       rescue LoadError
         # rubygems 2.x
       end
@@ -128,7 +128,7 @@ module Vagrant
     def update(plugins, specific)
       specific ||= []
       update = true
-      update = { gems: specific } if !specific.empty?
+      update = { gems: specific } unless specific.empty?
       internal_install(plugins, update)
     end
 
@@ -167,35 +167,35 @@ module Vagrant
     #
     # @return [Tempfile]
     def build_gemfile(plugins)
-      sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
+      sources = plugins.values.map { |p| p['sources'] }.flatten.compact.uniq
 
-      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      f = File.open(Tempfile.new('vagrant').path + '2', 'w+')
       f.tap do |gemfile|
-        if !sources.include?("http://rubygems.org")
-          gemfile.puts(%Q[source "https://rubygems.org"])
+        unless sources.include?('http://rubygems.org')
+          gemfile.puts('source "https://rubygems.org"')
         end
 
-        gemfile.puts(%Q[source "http://gems.hashicorp.com"])
+        gemfile.puts('source "http://gems.hashicorp.com"')
         sources.each do |source|
-          next if source == ""
-          gemfile.puts(%Q[source "#{source}"])
+          next if source == ''
+          gemfile.puts(%Q(source "#{source}"))
         end
 
-        gemfile.puts(%Q[gem "vagrant", "= #{VERSION}"])
+        gemfile.puts(%Q(gem "vagrant", "= #{VERSION}"))
 
-        gemfile.puts("group :plugins do")
+        gemfile.puts('group :plugins do')
         plugins.each do |name, plugin|
-          version = plugin["gem_version"]
-          version = nil if version == ""
+          version = plugin['gem_version']
+          version = nil if version == ''
 
           opts = {}
-          if plugin["require"] && plugin["require"] != ""
-            opts[:require] = plugin["require"]
+          if plugin['require'] && plugin['require'] != ''
+            opts[:require] = plugin['require']
           end
 
-          gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}])
+          gemfile.puts(%Q(gem "#{name}", #{version.inspect}, #{opts.inspect}))
         end
-        gemfile.puts("end")
+        gemfile.puts('end')
 
         gemfile.close
       end
@@ -213,7 +213,7 @@ module Vagrant
       definition = ::Bundler::Definition.build(gemfile, lockfile, update)
       root       = File.dirname(gemfile.path)
       opts       = {}
-      opts["local"] = true if extra[:local]
+      opts['local'] = true if extra[:local]
 
       with_isolated_gem do
         ::Bundler::Installer.install(root, definition, opts)
@@ -225,21 +225,21 @@ module Vagrant
       definition.specs
     rescue ::Bundler::VersionConflict => e
       raise Errors::PluginInstallVersionConflict,
-        conflicts: e.to_s.gsub("Bundler", "Vagrant")
+            conflicts: e.to_s.gsub('Bundler', 'Vagrant')
     end
 
     def with_isolated_gem
-      raise Errors::BundlerDisabled if !@enabled
+      fail Errors::BundlerDisabled unless @enabled
 
       # Remove bundler settings so that Bundler isn't loaded when building
       # native extensions because it causes all sorts of problems.
-      old_rubyopt = ENV["RUBYOPT"]
-      old_gemfile = ENV["BUNDLE_GEMFILE"]
-      ENV["BUNDLE_GEMFILE"] = Tempfile.new("vagrant-gemfile").path
-      ENV["RUBYOPT"] = (ENV["RUBYOPT"] || "").gsub(/-rbundler\/setup\s*/, "")
+      old_rubyopt = ENV['RUBYOPT']
+      old_gemfile = ENV['BUNDLE_GEMFILE']
+      ENV['BUNDLE_GEMFILE'] = Tempfile.new('vagrant-gemfile').path
+      ENV['RUBYOPT'] = (ENV['RUBYOPT'] || '').gsub(/-rbundler\/setup\s*/, '')
 
       # Set the GEM_HOME so gems are installed only to our local gem dir
-      ENV["GEM_HOME"] = Vagrant.user_data_path.join("gems").to_s
+      ENV['GEM_HOME'] = Vagrant.user_data_path.join('gems').to_s
 
       # Clear paths so that it reads the new GEM_HOME setting
       Gem.paths = ENV
@@ -265,9 +265,9 @@ module Vagrant
         return yield
       end
     ensure
-      ENV["BUNDLE_GEMFILE"] = old_gemfile
-      ENV["GEM_HOME"] = @gem_home
-      ENV["RUBYOPT"]  = old_rubyopt
+      ENV['BUNDLE_GEMFILE'] = old_gemfile
+      ENV['GEM_HOME'] = @gem_home
+      ENV['RUBYOPT']  = old_rubyopt
 
       Gem.configuration = old_config
       Gem.paths = ENV

@@ -1,8 +1,8 @@
-require "vagrant"
+require 'vagrant'
 
 module VagrantPlugins
   module SyncedFolderNFS
-    class Config < Vagrant.plugin("2", :config)
+    class Config < Vagrant.plugin('2', :config)
       attr_accessor :functional
       attr_accessor :map_uid
       attr_accessor :map_gid
@@ -22,7 +22,7 @@ module VagrantPlugins
       end
 
       def to_s
-        "NFS"
+        'NFS'
       end
     end
   end

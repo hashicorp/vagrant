@@ -1,6 +1,6 @@
-require "set"
+require 'set'
 
-require "vagrant/config/v2/util"
+require 'vagrant/config/v2/util'
 
 module Vagrant
   module Config
@@ -12,7 +12,7 @@ module Vagrant
         # configuration classes.
         #
         # @param [Hash] config_map Map of key to config class.
-        def initialize(config_map, keys=nil)
+        def initialize(config_map, keys = nil)
           @keys              = keys || {}
           @config_map        = config_map
           @missing_key_calls = Set.new
@@ -21,7 +21,7 @@ module Vagrant
         # We use method_missing as a way to get the configuration that is
         # used for Vagrant and load the proper configuration classes for
         # each.
-        def method_missing(name, *args)
+        def method_missing(name, *_args)
           return @keys[name] if @keys.key?(name)
 
           config_klass = @config_map[name.to_sym]
@@ -41,7 +41,7 @@ module Vagrant
         # mutate itself.
         def finalize!
           @config_map.each do |key, klass|
-            if !@keys.key?(key)
+            unless @keys.key?(key)
               @keys[key] = klass.new
             end
           end
@@ -78,9 +78,9 @@ module Vagrant
           end
 
           # If we have missing keys, record those as errors
-          if !@missing_key_calls.empty?
-            errors["Vagrant"] = @missing_key_calls.to_a.sort.map do |key|
-              I18n.t("vagrant.config.root.bad_key", key: key)
+          unless @missing_key_calls.empty?
+            errors['Vagrant'] = @missing_key_calls.to_a.sort.map do |key|
+              I18n.t('vagrant.config.root.bad_key', key: key)
             end
           end
 
@@ -93,18 +93,18 @@ module Vagrant
         # clashes with potential configuration keys.
         def __internal_state
           {
-            "config_map"        => @config_map,
-            "keys"              => @keys,
-            "missing_key_calls" => @missing_key_calls
+            'config_map'        => @config_map,
+            'keys'              => @keys,
+            'missing_key_calls' => @missing_key_calls
           }
         end
 
         # This sets the internal state. This is used by the core to do some
         # merging logic and shouldn't be used by the general public.
         def __set_internal_state(state)
-          @config_map        = state["config_map"] if state.key?("config_map")
-          @keys              = state["keys"] if state.key?("keys")
-          @missing_key_calls = state["missing_key_calls"] if state.key?("missing_key_calls")
+          @config_map        = state['config_map'] if state.key?('config_map')
+          @keys              = state['keys'] if state.key?('keys')
+          @missing_key_calls = state['missing_key_calls'] if state.key?('missing_key_calls')
         end
       end
     end

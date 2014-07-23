@@ -2,7 +2,7 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class IsRunning
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 

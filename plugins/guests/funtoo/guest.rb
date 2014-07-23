@@ -1,8 +1,8 @@
 module VagrantPlugins
   module GuestFuntoo
-    class Guest < Vagrant.plugin("2", :guest)
+    class Guest < Vagrant.plugin('2', :guest)
       def detect?(machine)
-        machine.communicate.test("grep Funtoo /etc/gentoo-release")
+        machine.communicate.test('grep Funtoo /etc/gentoo-release')
       end
     end
   end
