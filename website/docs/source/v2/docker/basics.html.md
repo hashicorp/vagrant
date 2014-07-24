@@ -52,7 +52,7 @@ end
 </pre>
 
 The above configuration will look for a `Dockerfile` in the same
-directory as the Vagrantfile. When `vagrant up` is run, Vagrant
+directory as the Vagrantfile. When `vagrant up --provider=docker` is run, Vagrant
 automatically builds that Dockerfile and starts a container
 based on that Dockerfile.
 
