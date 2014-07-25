@@ -260,7 +260,7 @@ if Vagrant.plugins_enabled?
   begin
     global_logger.info('Loading plugins!')
     Bundler.require(:plugins)
-  rescue => e
+  rescue Exception => e
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
   end
 end
