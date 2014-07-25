@@ -1,14 +1,14 @@
 require 'fileutils'
-require "tempfile"
+require 'tempfile'
 
-require "json"
-require "log4r"
+require 'json'
+require 'log4r'
 
-require "vagrant/box_metadata"
-require "vagrant/util/downloader"
-require "vagrant/util/platform"
-require "vagrant/util/safe_chdir"
-require "vagrant/util/subprocess"
+require 'vagrant/box_metadata'
+require 'vagrant/util/downloader'
+require 'vagrant/util/platform'
+require 'vagrant/util/safe_chdir'
+require 'vagrant/util/subprocess'
 
 module Vagrant
   # Represents a "box," which is a package Vagrant environment that is used
@@ -61,16 +61,16 @@ module Vagrant
       @directory = directory
       @metadata_url = opts[:metadata_url]
 
-      metadata_file = directory.join("metadata.json")
-      raise Errors::BoxMetadataFileNotFound, name: @name if !metadata_file.file?
+      metadata_file = directory.join('metadata.json')
+      fail Errors::BoxMetadataFileNotFound, name: @name unless metadata_file.file?
 
       begin
-        @metadata = JSON.parse(directory.join("metadata.json").read)
+        @metadata = JSON.parse(directory.join('metadata.json').read)
       rescue JSON::ParserError
         raise Errors::BoxMetadataCorrupted, name: @name
       end
 
-      @logger = Log4r::Logger.new("vagrant::box")
+      @logger = Log4r::Logger.new('vagrant::box')
     end
 
     # This deletes the box. This is NOT undoable.
@@ -97,13 +97,13 @@ module Vagrant
     def in_use?(index)
       results = []
       index.each do |entry|
-        box_data = entry.extra_data["box"]
-        next if !box_data
+        box_data = entry.extra_data['box']
+        next unless box_data
 
         # If all the data matches, record it
-        if box_data["name"] == self.name &&
-          box_data["provider"] == self.provider.to_s &&
-          box_data["version"] == self.version.to_s
+        if box_data['name'] == name &&
+          box_data['provider'] == provider.to_s &&
+          box_data['version'] == version.to_s
           results << entry
         end
       end
@@ -117,7 +117,7 @@ module Vagrant
     #
     # @return [BoxMetadata]
     def load_metadata
-      tf = Tempfile.new("vagrant")
+      tf = Tempfile.new('vagrant')
       tf.close
 
       url = @metadata_url
@@ -127,12 +127,12 @@ module Vagrant
         url = "file:#{url}"
       end
 
-      opts = { headers: ["Accept: application/json"] }
+      opts = { headers: ['Accept: application/json'] }
       Util::Downloader.new(url, tf.path, **opts).download!
-      BoxMetadata.new(File.open(tf.path, "r"))
+      BoxMetadata.new(File.open(tf.path, 'r'))
     rescue Errors::DownloaderError => e
       raise Errors::BoxMetadataDownloadError,
-        message: e.extra_data[:message]
+            message: e.extra_data[:message]
     ensure
       tf.unlink if tf
     end
@@ -148,17 +148,17 @@ module Vagrant
     #   satisfy. If nil, the version constrain defaults to being a
     #   larger version than this box.
     # @return [Array]
-    def has_update?(version=nil)
-      if !@metadata_url
-        raise Errors::BoxUpdateNoMetadata, name: @name
+    def has_update?(version = nil)
+      unless @metadata_url
+        fail Errors::BoxUpdateNoMetadata, name: @name
       end
 
-      version += ", " if version
-      version ||= ""
+      version += ', ' if version
+      version ||= ''
       version += "> #{@version}"
-      md      = self.load_metadata
+      md      = load_metadata
       newer   = md.version(version, provider: @provider)
-      return nil if !newer
+      return nil unless newer
 
       [md, newer, newer.provider(@provider)]
     end
@@ -173,10 +173,10 @@ module Vagrant
 
       Util::SafeChdir.safe_chdir(@directory) do
         # Find all the files in our current directory and tar it up!
-        files = Dir.glob(File.join(".", "**", "*"))
+        files = Dir.glob(File.join('.', '**', '*'))
 
         # Package!
-        Util::Subprocess.execute("bsdtar", "-czf", path.to_s, *files)
+        Util::Subprocess.execute('bsdtar', '-czf', path.to_s, *files)
       end
 
       @logger.info("Repackaged box '#{@name}' successfully: #{path}")
@@ -187,7 +187,7 @@ module Vagrant
     # Implemented for comparison with other boxes. Comparison is
     # implemented by comparing names and providers.
     def <=>(other)
-      return super if !other.is_a?(self.class)
+      return super unless other.is_a?(self.class)
 
       # Comparison is done by composing the name and provider
       "#{@name}-#{@version}-#{@provider}" <=>

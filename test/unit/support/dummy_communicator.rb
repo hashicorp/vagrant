@@ -1,26 +1,26 @@
 module VagrantTests
   module DummyCommunicator
-    class Communicator < Vagrant.plugin("2", :communicator)
+    class Communicator < Vagrant.plugin('2', :communicator)
       def ready?
         true
       end
 
       attr_reader :known_commands
 
-      def initialize(machine)
+      def initialize(_machine)
         @known_commands = Hash.new do |hash, key|
           hash[key] = { expected: 0, received: 0, response: nil }
         end
       end
 
       def expected_commands
-        known_commands.select do |command, info|
+        known_commands.select do |_command, info|
           info[:expected] > 0
         end
       end
 
       def received_commands
-        known_commands.select do |command, info|
+        known_commands.select do |_command, info|
           info[:received] > 0
         end.keys
       end
@@ -49,7 +49,7 @@ module VagrantTests
         end
       end
 
-      def execute(command, opts=nil)
+      def execute(command, _opts = nil)
         known = known_commands[command]
         known[:received] += 1
         response = known[:response]
@@ -64,20 +64,19 @@ module VagrantTests
         end
 
         if response[:raise]
-          raise response[:raise]
+          fail response[:raise]
         end
 
         response[:exit_code]
       end
 
-      def sudo(command, opts=nil, &block)
+      def sudo(command, opts = nil, &block)
         execute(command, opts, &block)
       end
 
-      def test(command, opts=nil)
+      def test(command, opts = nil)
         execute(command, opts) == 0
       end
     end
   end
 end
-

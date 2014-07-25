@@ -10,7 +10,7 @@ module Vagrant
     #   hash['foo'] #=> 'bar'
     #
     class HashWithIndifferentAccess < ::Hash
-      def initialize(hash={}, &block)
+      def initialize(hash = {}, &block)
         super(&block)
 
         hash.each do |key, value|
@@ -31,7 +31,7 @@ module Vagrant
       end
 
       def values_at(*indices)
-        indices.collect { |key| self[convert_key(key)] }
+        indices.map { |key| self[convert_key(key)] }
       end
 
       def merge(other)

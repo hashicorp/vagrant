@@ -1,4 +1,4 @@
-require "vagrant/util/stacked_proc_runner"
+require 'vagrant/util/stacked_proc_runner'
 
 module VagrantPlugins
   module Kernel_V2

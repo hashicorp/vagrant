@@ -49,7 +49,7 @@ module Vagrant
       # of being treated as a separate single middleware.
       def flatten
         lambda do |env|
-          self.call(env)
+          call(env)
         end
       end
 
@@ -59,11 +59,11 @@ module Vagrant
       #
       # @param [Class] middleware The middleware class
       def use(middleware, *args, &block)
-        if middleware.kind_of?(Builder)
+        if middleware.is_a?(Builder)
           # Merge in the other builder's stack into our own
-          self.stack.concat(middleware.stack)
+          stack.concat(middleware.stack)
         else
-          self.stack << [middleware, args, block]
+          stack << [middleware, args, block]
         end
 
         self
@@ -73,9 +73,9 @@ module Vagrant
       # given middleware object.
       def insert(index, middleware, *args, &block)
         index = self.index(index) unless index.is_a?(Integer)
-        raise "no such middleware to insert before: #{index.inspect}" unless index
+        fail "no such middleware to insert before: #{index.inspect}" unless index
 
-        if middleware.kind_of?(Builder)
+        if middleware.is_a?(Builder)
           middleware.stack.reverse.each do |stack_item|
             stack.insert(index, stack_item)
           end
@@ -89,7 +89,7 @@ module Vagrant
       # Inserts a middleware after the given index or middleware object.
       def insert_after(index, middleware, *args, &block)
         index = self.index(index) unless index.is_a?(Integer)
-        raise "no such middleware to insert after: #{index.inspect}" unless index
+        fail "no such middleware to insert after: #{index.inspect}" unless index
         insert(index + 1, middleware, *args, &block)
       end
 
@@ -138,7 +138,7 @@ module Vagrant
 
         # If we have action hooks, then we apply them
         if env[:action_hooks]
-          builder = self.dup
+          builder = dup
 
           # These are the options to pass into hook application.
           options = {}

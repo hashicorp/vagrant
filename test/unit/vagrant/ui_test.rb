@@ -1,238 +1,238 @@
-require File.expand_path("../../base", __FILE__)
+require File.expand_path('../../base', __FILE__)
 
 describe Vagrant::UI::Basic do
-  context "in general" do
-    it "outputs within the a new thread" do
+  context 'in general' do
+    it 'outputs within the a new thread' do
       current = Thread.current.object_id
 
-      expect(subject).to receive(:safe_puts).with { |*args|
+      expect(subject).to receive(:safe_puts).with { |*_args|
         expect(Thread.current.object_id).to_not eq(current)
         true
       }
 
-      subject.output("foo")
+      subject.output('foo')
     end
 
-    it "outputs using `puts` by default" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+    it 'outputs using `puts` by default' do
+      expect(subject).to receive(:safe_puts).with { |_message, **opts|
         expect(opts[:printer]).to eq(:puts)
         true
       }
 
-      subject.output("foo")
+      subject.output('foo')
     end
 
-    it "outputs using `print` if new_line is false" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+    it 'outputs using `print` if new_line is false' do
+      expect(subject).to receive(:safe_puts).with { |_message, **opts|
         expect(opts[:printer]).to eq(:print)
         true
       }
 
-      subject.output("foo", new_line: false)
+      subject.output('foo', new_line: false)
     end
 
-    it "outputs using `print` if new_line is false" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+    it 'outputs using `print` if new_line is false' do
+      expect(subject).to receive(:safe_puts).with { |_message, **opts|
         expect(opts[:printer]).to eq(:print)
         true
       }
 
-      subject.output("foo", new_line: false)
+      subject.output('foo', new_line: false)
     end
 
-    it "outputs to stdout" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+    it 'outputs to stdout' do
+      expect(subject).to receive(:safe_puts).with { |_message, **opts|
         expect(opts[:io]).to be($stdout)
         true
       }
 
-      subject.output("foo")
+      subject.output('foo')
     end
 
-    it "outputs to stderr for errors" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+    it 'outputs to stderr for errors' do
+      expect(subject).to receive(:safe_puts).with { |_message, **opts|
         expect(opts[:io]).to be($stderr)
         true
       }
 
-      subject.error("foo")
+      subject.error('foo')
     end
   end
 
-  context "#detail" do
-    it "outputs details" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
-        expect(message).to eq("foo")
+  context '#detail' do
+    it 'outputs details' do
+      expect(subject).to receive(:safe_puts).with { |message, **_opts|
+        expect(message).to eq('foo')
         true
       }
 
-      subject.detail("foo")
+      subject.detail('foo')
     end
 
     it "doesn't output details if disabled" do
       expect(subject).to receive(:safe_puts).never
 
       subject.opts[:hide_detail] = true
-      subject.detail("foo")
+      subject.detail('foo')
     end
   end
 end
 
 describe Vagrant::UI::Colored do
-  include_context "unit"
+  include_context 'unit'
 
-  describe "#detail" do
-    it "colors output nothing by default" do
+  describe '#detail' do
+    it 'colors output nothing by default' do
       expect(subject).to receive(:safe_puts).with("\033[0mfoo\033[0m", anything)
-      subject.detail("foo")
+      subject.detail('foo')
     end
 
-    it "does not bold by default with a color" do
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+    it 'does not bold by default with a color' do
+      expect(subject).to receive(:safe_puts).with { |message, *_args|
         expect(message).to start_with("\033[0;31m")
         expect(message).to end_with("\033[0m")
       }
 
-      subject.detail("foo", color: :red)
+      subject.detail('foo', color: :red)
     end
   end
 
-  describe "#error" do
-    it "colors red" do
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+  describe '#error' do
+    it 'colors red' do
+      expect(subject).to receive(:safe_puts).with { |message, *_args|
         expect(message).to start_with("\033[0;31m")
         expect(message).to end_with("\033[0m")
       }
 
-      subject.error("foo")
+      subject.error('foo')
     end
   end
 
-  describe "#output" do
-    it "colors output nothing by default, no bold" do
+  describe '#output' do
+    it 'colors output nothing by default, no bold' do
       expect(subject).to receive(:safe_puts).with("\033[0mfoo\033[0m", anything)
-      subject.output("foo")
+      subject.output('foo')
     end
 
     it "doesn't use a color if default color" do
       expect(subject).to receive(:safe_puts).with("\033[0mfoo\033[0m", anything)
-      subject.output("foo", color: :default)
+      subject.output('foo', color: :default)
     end
 
-    it "bolds output without color if specified" do
+    it 'bolds output without color if specified' do
       expect(subject).to receive(:safe_puts).with("\033[1mfoo\033[0m", anything)
-      subject.output("foo", bold: true)
+      subject.output('foo', bold: true)
     end
 
-    it "colors output to color specified in global opts" do
+    it 'colors output to color specified in global opts' do
       subject.opts[:color] = :red
 
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with { |message, *_args|
         expect(message).to start_with("\033[0;31m")
         expect(message).to end_with("\033[0m")
       }
 
-      subject.output("foo")
+      subject.output('foo')
     end
 
-    it "colors output to specified color over global opts" do
+    it 'colors output to specified color over global opts' do
       subject.opts[:color] = :red
 
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with { |message, *_args|
         expect(message).to start_with("\033[0;32m")
         expect(message).to end_with("\033[0m")
       }
 
-      subject.output("foo", color: :green)
+      subject.output('foo', color: :green)
     end
 
-    it "bolds the output if specified" do
+    it 'bolds the output if specified' do
       subject.opts[:color] = :red
 
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with { |message, *_args|
         expect(message).to start_with("\033[1;31m")
         expect(message).to end_with("\033[0m")
       }
 
-      subject.output("foo", bold: true)
+      subject.output('foo', bold: true)
     end
   end
 
-  describe "#success" do
-    it "colors green" do
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+  describe '#success' do
+    it 'colors green' do
+      expect(subject).to receive(:safe_puts).with { |message, *_args|
         expect(message).to start_with("\033[0;32m")
         expect(message).to end_with("\033[0m")
       }
 
-      subject.success("foo")
+      subject.success('foo')
     end
   end
 
-  describe "#warn" do
-    it "colors yellow" do
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+  describe '#warn' do
+    it 'colors yellow' do
+      expect(subject).to receive(:safe_puts).with { |message, *_args|
         expect(message).to start_with("\033[0;33m")
         expect(message).to end_with("\033[0m")
       }
 
-      subject.warn("foo")
+      subject.warn('foo')
     end
   end
 end
 
 describe Vagrant::UI::MachineReadable do
-  describe "#ask" do
-    it "raises an exception" do
-      expect { subject.ask("foo") }.
+  describe '#ask' do
+    it 'raises an exception' do
+      expect { subject.ask('foo') }.
         to raise_error(Vagrant::Errors::UIExpectsTTY)
     end
   end
 
-  describe "#machine" do
-    it "is formatted properly" do
+  describe '#machine' do
+    it 'is formatted properly' do
       expect(subject).to receive(:safe_puts).with { |message|
-        parts = message.split(",")
+        parts = message.split(',')
         expect(parts.length).to eq(5)
-        expect(parts[1]).to eq("")
-        expect(parts[2]).to eq("type")
-        expect(parts[3]).to eq("data")
-        expect(parts[4]).to eq("another")
+        expect(parts[1]).to eq('')
+        expect(parts[2]).to eq('type')
+        expect(parts[3]).to eq('data')
+        expect(parts[4]).to eq('another')
         true
       }
 
-      subject.machine(:type, "data", "another")
+      subject.machine(:type, 'data', 'another')
     end
 
-    it "includes a target if given" do
+    it 'includes a target if given' do
       expect(subject).to receive(:safe_puts).with { |message|
-        parts = message.split(",")
+        parts = message.split(',')
         expect(parts.length).to eq(4)
-        expect(parts[1]).to eq("boom")
-        expect(parts[2]).to eq("type")
-        expect(parts[3]).to eq("data")
+        expect(parts[1]).to eq('boom')
+        expect(parts[2]).to eq('type')
+        expect(parts[3]).to eq('data')
         true
       }
 
-      subject.machine(:type, "data", target: "boom")
+      subject.machine(:type, 'data', target: 'boom')
     end
 
-    it "replaces commas" do
+    it 'replaces commas' do
       expect(subject).to receive(:safe_puts).with { |message|
-        parts = message.split(",")
+        parts = message.split(',')
         expect(parts.length).to eq(4)
-        expect(parts[3]).to eq("foo%!(VAGRANT_COMMA)bar")
+        expect(parts[3]).to eq('foo%!(VAGRANT_COMMA)bar')
         true
       }
 
-      subject.machine(:type, "foo,bar")
+      subject.machine(:type, 'foo,bar')
     end
 
-    it "replaces newlines" do
+    it 'replaces newlines' do
       expect(subject).to receive(:safe_puts).with { |message|
-        parts = message.split(",")
+        parts = message.split(',')
         expect(parts.length).to eq(4)
-        expect(parts[3]).to eq("foo\\nbar\\r")
+        expect(parts[3]).to eq('foo\\nbar\\r')
         true
       }
 
@@ -241,11 +241,11 @@ describe Vagrant::UI::MachineReadable do
 
     # This is for a bug where JSON parses are frozen and an
     # exception was being raised.
-    it "works properly with frozen string arguments" do
+    it 'works properly with frozen string arguments' do
       expect(subject).to receive(:safe_puts).with { |message|
-        parts = message.split(",")
+        parts = message.split(',')
         expect(parts.length).to eq(4)
-        expect(parts[3]).to eq("foo\\nbar\\r")
+        expect(parts[3]).to eq('foo\\nbar\\r')
         true
       }
 
@@ -255,96 +255,96 @@ describe Vagrant::UI::MachineReadable do
 end
 
 describe Vagrant::UI::Prefixed do
-  let(:prefix) { "foo" }
+  let(:prefix) { 'foo' }
   let(:ui)     { Vagrant::UI::Basic.new }
 
   subject { described_class.new(ui, prefix) }
 
-  describe "#initialize_copy" do
-    it "duplicates the underlying ui too" do
+  describe '#initialize_copy' do
+    it 'duplicates the underlying ui too' do
       another = subject.dup
       expect(another.opts).to_not equal(subject.opts)
     end
   end
 
-  describe "#ask" do
-    it "does not request bolding" do
+  describe '#ask' do
+    it 'does not request bolding' do
       expect(ui).to receive(:ask).with("    #{prefix}: foo", bold: false)
-      subject.ask("foo")
+      subject.ask('foo')
     end
   end
 
-  describe "#detail" do
-    it "prefixes with spaces and the message" do
+  describe '#detail' do
+    it 'prefixes with spaces and the message' do
       expect(ui).to receive(:safe_puts).with("    #{prefix}: foo", anything)
-      subject.detail("foo")
+      subject.detail('foo')
     end
 
-    it "prefixes every line" do
+    it 'prefixes every line' do
       expect(ui).to receive(:detail).with("    #{prefix}: foo\n    #{prefix}: bar", bold: false)
       subject.detail("foo\nbar")
     end
 
     it "doesn't prefix if requested" do
-      expect(ui).to receive(:detail).with("foo", prefix: false, bold: false)
-      subject.detail("foo", prefix: false)
+      expect(ui).to receive(:detail).with('foo', prefix: false, bold: false)
+      subject.detail('foo', prefix: false)
     end
   end
 
-  describe "#machine" do
-    it "sets the target option" do
+  describe '#machine' do
+    it 'sets the target option' do
       expect(ui).to receive(:machine).with(:foo, target: prefix)
       subject.machine(:foo)
     end
 
-    it "preserves existing options" do
+    it 'preserves existing options' do
       expect(ui).to receive(:machine).with(:foo, :bar, foo: :bar, target: prefix)
       subject.machine(:foo, :bar, foo: :bar)
     end
   end
 
-  describe "#opts" do
+  describe '#opts' do
     it "is the parent's opts" do
       ui.stub(opts: Object.new)
       expect(subject.opts).to be(ui.opts)
     end
   end
 
-  describe "#output" do
-    it "prefixes with an arrow and the message" do
+  describe '#output' do
+    it 'prefixes with an arrow and the message' do
       expect(ui).to receive(:output).with("==> #{prefix}: foo", anything)
-      subject.output("foo")
+      subject.output('foo')
     end
 
-    it "prefixes with spaces if requested" do
+    it 'prefixes with spaces if requested' do
       expect(ui).to receive(:output).with("    #{prefix}: foo", anything)
-      subject.output("foo", prefix_spaces: true)
+      subject.output('foo', prefix_spaces: true)
     end
 
-    it "prefixes every line" do
+    it 'prefixes every line' do
       expect(ui).to receive(:output).with("==> #{prefix}: foo\n==> #{prefix}: bar", anything)
       subject.output("foo\nbar")
     end
 
     it "doesn't prefix if requestsed" do
-      expect(ui).to receive(:output).with("foo", prefix: false, bold: true)
-      subject.output("foo", prefix: false)
+      expect(ui).to receive(:output).with('foo', prefix: false, bold: true)
+      subject.output('foo', prefix: false)
     end
 
-    it "requests bolding" do
+    it 'requests bolding' do
       expect(ui).to receive(:output).with("==> #{prefix}: foo", bold: true)
-      subject.output("foo")
+      subject.output('foo')
     end
 
-    it "does not request bolding if class-level disabled" do
+    it 'does not request bolding if class-level disabled' do
       ui.opts[:bold] = false
       expect(ui).to receive(:output).with("==> #{prefix}: foo", {})
-      subject.output("foo")
+      subject.output('foo')
     end
 
-    it "prefixes with another prefix if requested" do
-      expect(ui).to receive(:output).with("==> bar: foo", anything)
-      subject.output("foo", target: "bar")
+    it 'prefixes with another prefix if requested' do
+      expect(ui).to receive(:output).with('==> bar: foo', anything)
+      subject.output('foo', target: 'bar')
     end
   end
 end

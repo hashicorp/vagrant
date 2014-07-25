@@ -11,8 +11,8 @@ module Vagrant
       #
       # @param [String] message Message to output.
       # @param [Hash] opts Options hash.
-      def safe_puts(message=nil, opts=nil)
-        message ||= ""
+      def safe_puts(message = nil, opts = nil)
+        message ||= ''
         opts = {
           io: $stdout,
           printer: :puts
@@ -28,4 +28,3 @@ module Vagrant
     end
   end
 end
-

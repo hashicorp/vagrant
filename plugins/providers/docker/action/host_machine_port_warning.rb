@@ -2,12 +2,12 @@ module VagrantPlugins
   module DockerProvider
     module Action
       class HostMachinePortWarning
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
         def call(env)
-          if !env[:machine].provider.host_vm?
+          unless env[:machine].provider.host_vm?
             return @app.call(env)
           end
 
@@ -16,7 +16,7 @@ module VagrantPlugins
           # is created.
           if has_forwarded_ports?(env[:machine])
             env[:machine].ui.warn(I18n.t(
-              "docker_provider.host_machine_forwarded_ports"))
+              'docker_provider.host_machine_forwarded_ports'))
           end
 
           @app.call(env)

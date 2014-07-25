@@ -1,6 +1,6 @@
 require 'log4r'
 
-require "vagrant/util/safe_puts"
+require 'vagrant/util/safe_puts'
 
 module Vagrant
   module Plugin
@@ -14,7 +14,7 @@ module Vagrant
         #
         # @return [String]
         def self.synopsis
-          ""
+          ''
         end
 
         def initialize(argv, env)
@@ -42,7 +42,7 @@ module Vagrant
         #
         # If this method returns `nil`, then you should assume that help
         # was printed and parsing failed.
-        def parse_options(opts=nil)
+        def parse_options(opts = nil)
           # Creating a shallow copy of the arguments so the OptionParser
           # doesn't destroy the originals.
           argv = @argv.dup
@@ -51,7 +51,7 @@ module Vagrant
           opts ||= OptionParser.new
 
           # Add the help option, which must be on every command.
-          opts.on_tail("-h", "--help", "Print this help") do
+          opts.on_tail('-h', '--help', 'Print this help') do
             safe_puts(opts.help)
             return nil
           end
@@ -77,8 +77,8 @@ module Vagrant
         #   of machines is reversed.
         # @option options [Boolean] :single_target If true, then an
         #   exception will be raised if more than one target is found.
-        def with_target_vms(names=nil, options=nil)
-          @logger.debug("Getting target VMs for command. Arguments:")
+        def with_target_vms(names = nil, options = nil)
+          @logger.debug('Getting target VMs for command. Arguments:')
           @logger.debug(" -- names: #{names.inspect}")
           @logger.debug(" -- options: #{options.inspect}")
 
@@ -87,7 +87,7 @@ module Vagrant
 
           # Require that names be an array
           names ||= []
-          names = [names] if !names.is_a?(Array)
+          names = [names] unless names.is_a?(Array)
 
           # Determine if we require a local Vagrant environment. There are
           # two cases that we require a local environment:
@@ -102,7 +102,7 @@ module Vagrant
           requires_local_env ||= names.any? { |n|
             !@env.machine_index.include?(n)
           }
-          raise Errors::NoEnvironmentError if requires_local_env && !@env.root_path
+          fail Errors::NoEnvironmentError if requires_local_env && !@env.root_path
 
           # Cache the active machines outside the loop
           active_machines = @env.active_machines
@@ -145,15 +145,15 @@ module Vagrant
                 if provider_to_use && provider_to_use != active_provider
                   # We found an active machine with a provider that doesn't
                   # match the requested provider. Show an error.
-                  raise Errors::ActiveMachineWithDifferentProvider,
-                    name: active_name.to_s,
-                    active_provider: active_provider.to_s,
-                    requested_provider: provider_to_use.to_s
+                  fail Errors::ActiveMachineWithDifferentProvider,
+                       name: active_name.to_s,
+                       active_provider: active_provider.to_s,
+                       requested_provider: provider_to_use.to_s
                 else
                   # Use this provider and exit out of the loop. One of the
                   # invariants [for now] is that there shouldn't be machines
                   # with multiple providers.
-                  @logger.info("Active machine found with name #{active_name}. " +
+                  @logger.info("Active machine found with name #{active_name}. " \
                                "Using provider: #{active_provider}")
                   provider_to_use = active_provider
                   break
@@ -185,18 +185,18 @@ module Vagrant
                   end
                 end
 
-                raise Errors::VMNoMatchError if machines.empty?
+                fail Errors::VMNoMatchError if machines.empty?
               else
                 # String name, just look for a specific VM
                 @logger.debug("Finding machine that match name: #{name}")
                 machines << get_machine.call(name.to_sym)
-                raise Errors::VMNotFoundError, name: name if !machines[0]
+                fail Errors::VMNotFoundError, name: name unless machines[0]
               end
             end
           else
             # No name was given, so we return every VM in the order
             # configured.
-            @logger.debug("Loading all machines...")
+            @logger.debug('Loading all machines...')
             machines = @env.machine_names.map do |machine_name|
               get_machine.call(machine_name)
             end
@@ -204,9 +204,9 @@ module Vagrant
 
           # Make sure we're only working with one VM if single target
           if options[:single_target] && machines.length != 1
-            @logger.debug("Using primary machine since single target")
+            @logger.debug('Using primary machine since single target')
             primary_name = @env.primary_machine_name
-            raise Errors::MultiVMTargetRequired if !primary_name
+            fail Errors::MultiVMTargetRequired unless primary_name
             machines = [get_machine.call(primary_name)]
           end
 
@@ -254,7 +254,7 @@ module Vagrant
           # flags before a word, and then the rest. The rest are what
           # get actually sent on to the subcommand.
           argv.each_index do |i|
-            if !argv[i].start_with?("-")
+            unless argv[i].start_with?('-')
               # We found the beginning of the sub command. Split the
               # args up.
               main_args   = argv[0, i]
@@ -270,7 +270,7 @@ module Vagrant
           # Handle the case that argv was empty or didn't contain any subcommand
           main_args = argv.dup if main_args.nil?
 
-          return [main_args, sub_command, sub_args]
+          [main_args, sub_command, sub_args]
         end
       end
     end

@@ -1,9 +1,9 @@
-require "pathname"
-require "set"
+require 'pathname'
+require 'set'
 
-require_relative "../bundler"
-require_relative "../shared_helpers"
-require_relative "state_file"
+require_relative '../bundler'
+require_relative '../shared_helpers'
+require_relative 'state_file'
 
 module Vagrant
   module Plugin
@@ -13,18 +13,18 @@ module Vagrant
       #
       # @return [Pathname]
       def self.user_plugins_file
-        Vagrant.user_data_path.join("plugins.json")
+        Vagrant.user_data_path.join('plugins.json')
       end
 
       # Returns the path to the [StateFile] for system plugins.
       def self.system_plugins_file
         dir = Vagrant.installer_embedded_dir
-        return nil if !dir
-        Pathname.new(dir).join("plugins.json")
+        return nil unless dir
+        Pathname.new(dir).join('plugins.json')
       end
 
       def self.instance
-        @instance ||= self.new(user_plugins_file)
+        @instance ||= new(user_plugins_file)
       end
 
       # @param [Pathname] user_file
@@ -52,9 +52,9 @@ module Vagrant
 
         plugins = installed_plugins
         plugins[name] = {
-          "require"     => opts[:require],
-          "gem_version" => opts[:version],
-          "sources"     => opts[:sources],
+          'require'     => opts[:require],
+          'gem_version' => opts[:version],
+          'sources'     => opts[:sources],
         }
 
         result = nil
@@ -93,8 +93,8 @@ module Vagrant
       def uninstall_plugin(name)
         if @system_file
           if !@user_file.has_plugin?(name) && @system_file.has_plugin?(name)
-            raise Errors::PluginUninstallSystem,
-              name: name
+            fail Errors::PluginUninstallSystem,
+                 name: name
           end
         end
 
@@ -120,7 +120,7 @@ module Vagrant
         system = {}
         if @system_file
           @system_file.installed_plugins.each do |k, v|
-            system[k] = v.merge("system" => true)
+            system[k] = v.merge('system' => true)
           end
         end
 
@@ -139,11 +139,11 @@ module Vagrant
         installed_map = {}
         Gem::Specification.find_all.each do |spec|
           # Ignore specs that aren't in our installed list
-          next if !installed.include?(spec.name)
+          next unless installed.include?(spec.name)
 
           # If we already have a newer version in our list of installed,
           # then ignore it
-          next if installed_map.has_key?(spec.name) &&
+          next if installed_map.key?(spec.name) &&
             installed_map[spec.name].version >= spec.version
 
           installed_map[spec.name] = spec

@@ -1,4 +1,4 @@
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 
 describe Vagrant::Plugin::V1::Plugin do
   after(:each) do
@@ -7,44 +7,44 @@ describe Vagrant::Plugin::V1::Plugin do
     described_class.manager.reset!
   end
 
-  it "should be able to set and get the name" do
+  it 'should be able to set and get the name' do
     plugin = Class.new(described_class) do
-      name "foo"
+      name 'foo'
     end
 
-    expect(plugin.name).to eq("foo")
+    expect(plugin.name).to eq('foo')
   end
 
-  it "should be able to set and get the description" do
+  it 'should be able to set and get the description' do
     plugin = Class.new(described_class) do
-      description "bar"
+      description 'bar'
     end
 
-    expect(plugin.description).to eq("bar")
+    expect(plugin.description).to eq('bar')
   end
 
-  describe "action hooks" do
-    it "should register action hooks" do
+  describe 'action hooks' do
+    it 'should register action hooks' do
       plugin = Class.new(described_class) do
-        action_hook("foo") { "bar" }
+        action_hook('foo') { 'bar' }
       end
 
-      hooks = plugin.action_hook("foo")
+      hooks = plugin.action_hook('foo')
       expect(hooks.length).to eq(1)
-      expect(hooks[0].call).to eq("bar")
+      expect(hooks[0].call).to eq('bar')
     end
   end
 
-  describe "commands" do
-    it "should register command classes" do
+  describe 'commands' do
+    it 'should register command classes' do
       plugin = Class.new(described_class) do
-        command("foo") { "bar" }
+        command('foo') { 'bar' }
       end
 
-      expect(plugin.command[:foo]).to eq("bar")
+      expect(plugin.command[:foo]).to eq('bar')
     end
 
-    ["spaces bad", "sym^bols"].each do |bad|
+    ['spaces bad', 'sym^bols'].each do |bad|
       it "should not allow bad command name: #{bad}" do
         plugin = Class.new(described_class)
 
@@ -53,16 +53,16 @@ describe Vagrant::Plugin::V1::Plugin do
       end
     end
 
-    it "should lazily register command classes" do
+    it 'should lazily register command classes' do
       # Below would raise an error if the value of the command class was
       # evaluated immediately. By asserting that this does not raise an
       # error, we verify that the value is actually lazily loaded
       plugin = nil
-      expect {
+      expect do
         plugin = Class.new(described_class) do
-        command("foo") { raise StandardError, "FAIL!" }
+          command('foo') { fail StandardError, 'FAIL!' }
         end
-      }.to_not raise_error
+      end.to_not raise_error
 
       # Now verify when we actually get the command key that
       # a proper error is raised.
@@ -72,25 +72,25 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
-  describe "communicators" do
-    it "should register communicator classes" do
+  describe 'communicators' do
+    it 'should register communicator classes' do
       plugin = Class.new(described_class) do
-        communicator("foo") { "bar" }
+        communicator('foo') { 'bar' }
       end
 
-      expect(plugin.communicator[:foo]).to eq("bar")
+      expect(plugin.communicator[:foo]).to eq('bar')
     end
 
-    it "should lazily register communicator classes" do
+    it 'should lazily register communicator classes' do
       # Below would raise an error if the value of the class was
       # evaluated immediately. By asserting that this does not raise an
       # error, we verify that the value is actually lazily loaded
       plugin = nil
-      expect {
+      expect do
         plugin = Class.new(described_class) do
-        communicator("foo") { raise StandardError, "FAIL!" }
+          communicator('foo') { fail StandardError, 'FAIL!' }
         end
-      }.to_not raise_error
+      end.to_not raise_error
 
       # Now verify when we actually get the configuration key that
       # a proper error is raised.
@@ -100,25 +100,25 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
-  describe "configuration" do
-    it "should register configuration classes" do
+  describe 'configuration' do
+    it 'should register configuration classes' do
       plugin = Class.new(described_class) do
-        config("foo") { "bar" }
+        config('foo') { 'bar' }
       end
 
-      expect(plugin.config[:foo]).to eq("bar")
+      expect(plugin.config[:foo]).to eq('bar')
     end
 
-    it "should lazily register configuration classes" do
+    it 'should lazily register configuration classes' do
       # Below would raise an error if the value of the config class was
       # evaluated immediately. By asserting that this does not raise an
       # error, we verify that the value is actually lazily loaded
       plugin = nil
-      expect {
+      expect do
         plugin = Class.new(described_class) do
-        config("foo") { raise StandardError, "FAIL!" }
+          config('foo') { fail StandardError, 'FAIL!' }
         end
-      }.to_not raise_error
+      end.to_not raise_error
 
       # Now verify when we actually get the configuration key that
       # a proper error is raised.
@@ -128,25 +128,25 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
-  describe "guests" do
-    it "should register guest classes" do
+  describe 'guests' do
+    it 'should register guest classes' do
       plugin = Class.new(described_class) do
-        guest("foo") { "bar" }
+        guest('foo') { 'bar' }
       end
 
-      expect(plugin.guest[:foo]).to eq("bar")
+      expect(plugin.guest[:foo]).to eq('bar')
     end
 
-    it "should lazily register guest classes" do
+    it 'should lazily register guest classes' do
       # Below would raise an error if the value of the guest class was
       # evaluated immediately. By asserting that this does not raise an
       # error, we verify that the value is actually lazily loaded
       plugin = nil
-      expect {
+      expect do
         plugin = Class.new(described_class) do
-          guest("foo") { raise StandardError, "FAIL!" }
+          guest('foo') { fail StandardError, 'FAIL!' }
         end
-      }.to_not raise_error
+      end.to_not raise_error
 
       # Now verify when we actually get the guest key that
       # a proper error is raised.
@@ -156,25 +156,25 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
-  describe "hosts" do
-    it "should register host classes" do
+  describe 'hosts' do
+    it 'should register host classes' do
       plugin = Class.new(described_class) do
-        host("foo") { "bar" }
+        host('foo') { 'bar' }
       end
 
-      expect(plugin.host[:foo]).to eq("bar")
+      expect(plugin.host[:foo]).to eq('bar')
     end
 
-    it "should lazily register host classes" do
+    it 'should lazily register host classes' do
       # Below would raise an error if the value of the host class was
       # evaluated immediately. By asserting that this does not raise an
       # error, we verify that the value is actually lazily loaded
       plugin = nil
-      expect {
+      expect do
         plugin = Class.new(described_class) do
-          host("foo") { raise StandardError, "FAIL!" }
+          host('foo') { fail StandardError, 'FAIL!' }
         end
-      }.to_not raise_error
+      end.to_not raise_error
 
       # Now verify when we actually get the host key that
       # a proper error is raised.
@@ -184,25 +184,25 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
-  describe "providers" do
-    it "should register provider classes" do
+  describe 'providers' do
+    it 'should register provider classes' do
       plugin = Class.new(described_class) do
-        provider("foo") { "bar" }
+        provider('foo') { 'bar' }
       end
 
-      expect(plugin.provider[:foo]).to eq("bar")
+      expect(plugin.provider[:foo]).to eq('bar')
     end
 
-    it "should lazily register provider classes" do
+    it 'should lazily register provider classes' do
       # Below would raise an error if the value of the config class was
       # evaluated immediately. By asserting that this does not raise an
       # error, we verify that the value is actually lazily loaded
       plugin = nil
-      expect {
+      expect do
         plugin = Class.new(described_class) do
-          provider("foo") { raise StandardError, "FAIL!" }
+          provider('foo') { fail StandardError, 'FAIL!' }
         end
-      }.to_not raise_error
+      end.to_not raise_error
 
       # Now verify when we actually get the configuration key that
       # a proper error is raised.
@@ -212,25 +212,25 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
-  describe "provisioners" do
-    it "should register provisioner classes" do
+  describe 'provisioners' do
+    it 'should register provisioner classes' do
       plugin = Class.new(described_class) do
-        provisioner("foo") { "bar" }
+        provisioner('foo') { 'bar' }
       end
 
-      expect(plugin.provisioner[:foo]).to eq("bar")
+      expect(plugin.provisioner[:foo]).to eq('bar')
     end
 
-    it "should lazily register provisioner classes" do
+    it 'should lazily register provisioner classes' do
       # Below would raise an error if the value of the config class was
       # evaluated immediately. By asserting that this does not raise an
       # error, we verify that the value is actually lazily loaded
       plugin = nil
-      expect {
+      expect do
         plugin = Class.new(described_class) do
-          provisioner("foo") { raise StandardError, "FAIL!" }
+          provisioner('foo') { fail StandardError, 'FAIL!' }
         end
-      }.to_not raise_error
+      end.to_not raise_error
 
       # Now verify when we actually get the configuration key that
       # a proper error is raised.
@@ -240,25 +240,25 @@ describe Vagrant::Plugin::V1::Plugin do
     end
   end
 
-  describe "plugin registration" do
+  describe 'plugin registration' do
     let(:manager) { described_class.manager }
 
-    it "should have no registered plugins" do
+    it 'should have no registered plugins' do
       expect(manager.registered).to be_empty
     end
 
-    it "should register a plugin when a name is set" do
+    it 'should register a plugin when a name is set' do
       plugin = Class.new(described_class) do
-        name "foo"
+        name 'foo'
       end
 
       expect(manager.registered).to eq([plugin])
     end
 
-    it "should register a plugin only once" do
+    it 'should register a plugin only once' do
       plugin = Class.new(described_class) do
-        name "foo"
-        name "bar"
+        name 'foo'
+        name 'bar'
       end
 
       expect(manager.registered).to eq([plugin])

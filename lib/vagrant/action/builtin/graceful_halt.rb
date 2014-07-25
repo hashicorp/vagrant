@@ -1,5 +1,5 @@
-require "log4r"
-require "timeout"
+require 'log4r'
+require 'timeout'
 
 module Vagrant
   module Action
@@ -15,16 +15,16 @@ module Vagrant
         #   the machine was properly shut down.
         # @param [Symbol] source_state The source state ID that the machine
         #   must be in to be shut down.
-        def initialize(app, env, target_state, source_state=nil)
+        def initialize(app, _env, target_state, source_state = nil)
           @app          = app
-          @logger       = Log4r::Logger.new("vagrant::action::builtin::graceful_halt")
+          @logger       = Log4r::Logger.new('vagrant::action::builtin::graceful_halt')
           @source_state = source_state
           @target_state = target_state
         end
 
         def call(env)
           graceful = true
-          graceful = !env[:force_halt] if env.has_key?(:force_halt)
+          graceful = !env[:force_halt] if env.key?(:force_halt)
 
           # By default, we didn't succeed.
           env[:result] = false
@@ -44,7 +44,7 @@ module Vagrant
           # Only attempt to perform graceful shutdown under certain cases
           # checked above.
           if graceful
-            env[:ui].output(I18n.t("vagrant.actions.vm.halt.graceful"))
+            env[:ui].output(I18n.t('vagrant.actions.vm.halt.graceful'))
 
             begin
               env[:machine].guest.capability(:halt)
@@ -60,7 +60,7 @@ module Vagrant
                 # Don't worry about it, we catch the case later.
               end
             rescue Errors::MachineGuestNotReady
-              env[:ui].detail(I18n.t("vagrant.actions.vm.halt.guest_not_ready"))
+              env[:ui].detail(I18n.t('vagrant.actions.vm.halt.guest_not_ready'))
             end
 
             # The result of this matters on whether we reached our
@@ -68,9 +68,9 @@ module Vagrant
             env[:result] = env[:machine].state.id == @target_state
 
             if env[:result]
-              @logger.info("Gracefully halted.")
+              @logger.info('Gracefully halted.')
             else
-              @logger.info("Graceful halt failed.")
+              @logger.info('Graceful halt failed.')
             end
           end
 

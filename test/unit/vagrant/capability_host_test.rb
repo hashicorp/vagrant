@@ -1,9 +1,9 @@
-require File.expand_path("../../base", __FILE__)
+require File.expand_path('../../base', __FILE__)
 
-require "vagrant/capability_host"
+require 'vagrant/capability_host'
 
 describe Vagrant::CapabilityHost do
-  include_context "capability_helpers"
+  include_context 'capability_helpers'
 
   subject do
     Class.new do
@@ -11,8 +11,8 @@ describe Vagrant::CapabilityHost do
     end
   end
 
-  describe "#initialize_capabilities! and #capability_host_chain" do
-    it "raises an error if an explicit host is not found" do
+  describe '#initialize_capabilities! and #capability_host_chain' do
+    it 'raises an error if an explicit host is not found' do
       expect { subject.initialize_capabilities!(:foo, {}, {}) }.
         to raise_error(Vagrant::Errors::CapabilityHostExplicitNotDetected)
     end
@@ -27,10 +27,10 @@ describe Vagrant::CapabilityHost do
         to raise_error(Vagrant::Errors::CapabilityHostNotDetected)
     end
 
-    it "passes on extra args to the detect method" do
+    it 'passes on extra args to the detect method' do
       klass = Class.new do
         def detect?(*args)
-          raise "detect: #{args.inspect}"
+          fail "detect: #{args.inspect}"
         end
       end
 
@@ -39,10 +39,10 @@ describe Vagrant::CapabilityHost do
       }
 
       expect { subject.initialize_capabilities!(nil, hosts, {}, 1, 2) }.
-        to raise_error(RuntimeError, "detect: [1, 2]")
+        to raise_error(RuntimeError, 'detect: [1, 2]')
     end
 
-    it "detects a basic child" do
+    it 'detects a basic child' do
       hosts = {
         foo: [detect_class(false), nil],
         bar: [detect_class(true), nil],
@@ -56,7 +56,7 @@ describe Vagrant::CapabilityHost do
       expect(chain[0][0]).to eql(:bar)
     end
 
-    it "detects the host with the most parents (deepest) first" do
+    it 'detects the host with the most parents (deepest) first' do
       hosts = {
         foo: [detect_class(true), nil],
         bar: [detect_class(true), :foo],
@@ -72,7 +72,7 @@ describe Vagrant::CapabilityHost do
       expect(chain.map(&:first)).to eql([:baz, :bar, :foo])
     end
 
-    it "detects a forced host" do
+    it 'detects a forced host' do
       hosts = {
         foo: [detect_class(false), nil],
         bar: [detect_class(false), nil],
@@ -87,7 +87,7 @@ describe Vagrant::CapabilityHost do
     end
   end
 
-  describe "#capability?" do
+  describe '#capability?' do
     before do
       host  = nil
       hosts = {
@@ -103,20 +103,20 @@ describe Vagrant::CapabilityHost do
       subject.initialize_capabilities!(host, hosts, caps)
     end
 
-    it "does not have a non-existent capability" do
+    it 'does not have a non-existent capability' do
       expect(subject.capability?(:foo)).to be_false
     end
 
-    it "has capabilities of itself" do
+    it 'has capabilities of itself' do
       expect(subject.capability?(:self)).to be_true
     end
 
-    it "has capabilities of parent" do
+    it 'has capabilities of parent' do
       expect(subject.capability?(:parent)).to be_true
     end
   end
 
-  describe "capability" do
+  describe 'capability' do
     let(:caps) { {} }
 
     def init
@@ -129,20 +129,20 @@ describe Vagrant::CapabilityHost do
       subject.initialize_capabilities!(host, hosts, caps)
     end
 
-    it "executes the capability" do
+    it 'executes the capability' do
       caps[:bar] = { test: cap_instance(:test) }
       init
 
       expect { subject.capability(:test) }.
-        to raise_error(RuntimeError, "cap: test []")
+        to raise_error(RuntimeError, 'cap: test []')
     end
 
-    it "executes the capability with arguments" do
+    it 'executes the capability with arguments' do
       caps[:bar] = { test: cap_instance(:test) }
       init
 
       expect { subject.capability(:test, 1) }.
-        to raise_error(RuntimeError, "cap: test [1]")
+        to raise_error(RuntimeError, 'cap: test [1]')
     end
 
     it "raises an exception if the capability doesn't exist" do

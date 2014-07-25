@@ -1,6 +1,6 @@
-require "log4r"
+require 'log4r'
 
-require "vagrant/capability_host"
+require 'vagrant/capability_host'
 
 module Vagrant
   # This class handles guest-OS specific interactions with a machine.
@@ -43,12 +43,12 @@ module Vagrant
       super
     rescue Errors::CapabilityNotFound => e
       raise Errors::GuestCapabilityNotFound,
-        cap: e.extra_data[:cap],
-        guest: name
+            cap: e.extra_data[:cap],
+            guest: name
     rescue Errors::CapabilityInvalid => e
       raise Errors::GuestCapabilityInvalid,
-        cap: e.extra_data[:cap],
-        guest: name
+            cap: e.extra_data[:cap],
+            guest: name
     end
 
     # Returns the specified or detected guest type name.

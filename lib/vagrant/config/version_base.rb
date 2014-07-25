@@ -13,7 +13,7 @@ module Vagrant
       #
       # @return [Object]
       def self.init
-        raise NotImplementedError
+        fail NotImplementedError
       end
 
       # This is called just before configuration loading is complete of
@@ -40,8 +40,8 @@ module Vagrant
       #
       # @param [Proc] proc The proc that is to be configured.
       # @return [Object]
-      def self.load(proc)
-        raise NotImplementedError
+      def self.load(_proc)
+        fail NotImplementedError
       end
 
       # Merges two configuration objects, returning the merged object.
@@ -54,8 +54,8 @@ module Vagrant
       # @param [Object] old Old configuration object.
       # @param [Object] new New configuration object.
       # @return [Object] The merged configuration object.
-      def self.merge(old, new)
-        raise NotImplementedError
+      def self.merge(_old, _new)
+        fail NotImplementedError
       end
 
       # This is called if a previous version of configuration needs to be
@@ -72,8 +72,8 @@ module Vagrant
       #   prior to this one.
       # @return [Array] The 3-tuple result. Please see the above documentation
       #   for more information on the exact structure of this object.
-      def self.upgrade(old)
-        raise NotImplementedError
+      def self.upgrade(_old)
+        fail NotImplementedError
       end
     end
   end

@@ -1,15 +1,15 @@
-require_relative "../../../../base"
+require_relative '../../../../base'
 
-require Vagrant.source_root.join("plugins/synced_folders/rsync/command/rsync_auto")
+require Vagrant.source_root.join('plugins/synced_folders/rsync/command/rsync_auto')
 
 describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
-  include_context "unit"
+  include_context 'unit'
 
   let(:argv) { [] }
   let(:iso_env) do
     # We have to create a Vagrantfile so there is a root path
     env = isolated_environment
-    env.vagrantfile("")
+    env.vagrantfile('')
     env.create_vagrant_env
   end
 
@@ -23,71 +23,71 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
     end
   end
 
-  describe "#callback" do
+  describe '#callback' do
     let(:paths) { {} }
-    let(:ssh_info) {{}}
+    let(:ssh_info) { {} }
 
     def machine_stub(name)
       double(name).tap do |m|
         m.stub(ssh_info: ssh_info)
-        m.stub(ui: double("ui"))
+        m.stub(ui: double('ui'))
 
         m.ui.stub(error: nil)
       end
     end
 
-    it "syncs modified folders to the proper path" do
-      paths["/foo"] = [
-        { machine: machine_stub("m1"), opts: double("opts_m1") },
-        { machine: machine_stub("m2"), opts: double("opts_m2") },
+    it 'syncs modified folders to the proper path' do
+      paths['/foo'] = [
+        { machine: machine_stub('m1'), opts: double('opts_m1') },
+        { machine: machine_stub('m2'), opts: double('opts_m2') },
       ]
-      paths["/bar"] = [
-        { machine: machine_stub("m3"), opts: double("opts_m3") },
+      paths['/bar'] = [
+        { machine: machine_stub('m3'), opts: double('opts_m3') },
       ]
 
-      paths["/foo"].each do |data|
+      paths['/foo'].each do |data|
         expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
       end
 
-      m = ["/foo/bar"]
+      m = ['/foo/bar']
       a = []
       r = []
       subject.callback(paths, m, a, r)
     end
 
-    it "syncs added folders to the proper path" do
-      paths["/foo"] = [
-        { machine: machine_stub("m1"), opts: double("opts_m1") },
-        { machine: machine_stub("m2"), opts: double("opts_m2") },
+    it 'syncs added folders to the proper path' do
+      paths['/foo'] = [
+        { machine: machine_stub('m1'), opts: double('opts_m1') },
+        { machine: machine_stub('m2'), opts: double('opts_m2') },
       ]
-      paths["/bar"] = [
-        { machine: machine_stub("m3"), opts: double("opts_m3") },
+      paths['/bar'] = [
+        { machine: machine_stub('m3'), opts: double('opts_m3') },
       ]
 
-      paths["/foo"].each do |data|
+      paths['/foo'].each do |data|
         expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
       end
 
       m = []
-      a = ["/foo/bar"]
+      a = ['/foo/bar']
       r = []
       subject.callback(paths, m, a, r)
     end
 
-    it "syncs removed folders to the proper path" do
-      paths["/foo"] = [
-        { machine: machine_stub("m1"), opts: double("opts_m1") },
-        { machine: machine_stub("m2"), opts: double("opts_m2") },
+    it 'syncs removed folders to the proper path' do
+      paths['/foo'] = [
+        { machine: machine_stub('m1'), opts: double('opts_m1') },
+        { machine: machine_stub('m2'), opts: double('opts_m2') },
       ]
-      paths["/bar"] = [
-        { machine: machine_stub("m3"), opts: double("opts_m3") },
+      paths['/bar'] = [
+        { machine: machine_stub('m3'), opts: double('opts_m3') },
       ]
 
-      paths["/foo"].each do |data|
+      paths['/foo'].each do |data|
         expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           once
@@ -95,20 +95,20 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
       m = []
       a = []
-      r = ["/foo/bar"]
+      r = ['/foo/bar']
       subject.callback(paths, m, a, r)
     end
 
     it "doesn't fail if guest error occurs" do
-      paths["/foo"] = [
-        { machine: machine_stub("m1"), opts: double("opts_m1") },
-        { machine: machine_stub("m2"), opts: double("opts_m2") },
+      paths['/foo'] = [
+        { machine: machine_stub('m1'), opts: double('opts_m1') },
+        { machine: machine_stub('m2'), opts: double('opts_m2') },
       ]
-      paths["/bar"] = [
-        { machine: machine_stub("m3"), opts: double("opts_m3") },
+      paths['/bar'] = [
+        { machine: machine_stub('m3'), opts: double('opts_m3') },
       ]
 
-      paths["/foo"].each do |data|
+      paths['/foo'].each do |data|
         expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           and_raise(Vagrant::Errors::MachineGuestNotReady)
@@ -116,7 +116,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
       m = []
       a = []
-      r = ["/foo/bar"]
+      r = ['/foo/bar']
       expect { subject.callback(paths, m, a, r) }.
         to_not raise_error
     end

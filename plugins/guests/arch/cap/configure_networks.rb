@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-require "tempfile"
+require 'tempfile'
 
-require "vagrant/util/template_renderer"
+require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module GuestArch
@@ -14,14 +14,14 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/arch/network_#{network[:type]}",
                                             options: network)
 
-            temp = Tempfile.new("vagrant")
+            temp = Tempfile.new('vagrant')
             temp.binmode
             temp.write(entry)
             temp.close
 
-            machine.communicate.upload(temp.path, "/tmp/vagrant_network")
-            machine.communicate.sudo("ln -sf /dev/null /etc/udev/rules.d/80-net-name-slot.rules")
-            machine.communicate.sudo("udevadm control --reload")
+            machine.communicate.upload(temp.path, '/tmp/vagrant_network')
+            machine.communicate.sudo('ln -sf /dev/null /etc/udev/rules.d/80-net-name-slot.rules')
+            machine.communicate.sudo('udevadm control --reload')
             machine.communicate.sudo("mv /tmp/vagrant_network /etc/netctl/eth#{network[:interface]}")
 
             # Only consider nth line of sed's output below. There's always an

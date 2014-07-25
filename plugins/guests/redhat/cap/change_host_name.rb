@@ -40,7 +40,7 @@ module VagrantPlugins
           end
 
           execute 'hostname -f', error_check: false, &block
-          execute 'hostname',&block if hostname.empty?
+          execute 'hostname', &block if hostname.empty?
           /localhost(\..*)?/.match(hostname) ? '' : hostname
         end
 
@@ -63,7 +63,7 @@ module VagrantPlugins
           search        = "^\\(#{local_ip}#{s}\\+\\)#{currents}"
           replace       = "\\1#{fqdn} "
           replace       = "#{replace}#{short_hostname} " unless fqdn == short_hostname
-          expression    = ['s', search, replace,''].join('@')
+          expression    = ['s', search, replace, ''].join('@')
 
           sudo "sed -i '#{expression}' /etc/hosts"
         end
@@ -84,11 +84,11 @@ module VagrantPlugins
           new_hostname.split('.').first
         end
 
-        def execute(cmd, opts=nil, &block)
+        def execute(cmd, opts = nil, &block)
           machine.communicate.execute(cmd, opts, &block)
         end
 
-        def sudo(cmd, opts=nil, &block)
+        def sudo(cmd, opts = nil, &block)
           machine.communicate.sudo(cmd, opts, &block)
         end
       end

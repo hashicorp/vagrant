@@ -4,7 +4,7 @@ module VagrantPlugins
       # This middleware is used with Call to test if this machine supports
       # SSH.
       class HasSSH
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
         end
 

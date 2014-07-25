@@ -1,41 +1,41 @@
-require_relative "../../../base"
+require_relative '../../../base'
 
-require "vagrant/util/platform"
+require 'vagrant/util/platform'
 
-require Vagrant.source_root.join("plugins/providers/docker/config")
+require Vagrant.source_root.join('plugins/providers/docker/config')
 
 describe VagrantPlugins::DockerProvider::Config do
-  include_context "unit"
+  include_context 'unit'
 
-  let(:machine) { double("machine") }
+  let(:machine) { double('machine') }
 
   let(:build_dir) do
     temporary_dir.tap do |dir|
-      dir.join("Dockerfile").open("w") do |f|
-        f.write("Hello")
+      dir.join('Dockerfile').open('w') do |f|
+        f.write('Hello')
       end
     end
   end
 
   def assert_invalid
     errors = subject.validate(machine)
-    if !errors.values.any? { |v| !v.empty? }
-      raise "No errors: #{errors.inspect}"
+    unless errors.values.any? { |v| !v.empty? }
+      fail "No errors: #{errors.inspect}"
     end
   end
 
   def assert_valid
     errors = subject.validate(machine)
-    if !errors.values.all? { |v| v.empty? }
-      raise "Errors: #{errors.inspect}"
+    unless errors.values.all? { |v| v.empty? }
+      fail "Errors: #{errors.inspect}"
     end
   end
 
   def valid_defaults
-    subject.image = "foo"
+    subject.image = 'foo'
   end
 
-  describe "defaults" do
+  describe 'defaults' do
     before { subject.finalize! }
 
     its(:build_dir) { should be_nil }
@@ -56,22 +56,22 @@ describe VagrantPlugins::DockerProvider::Config do
     Vagrant::Util::Platform.stub(linux: true)
   end
 
-  it "should be invalid if both build dir and image are set" do
+  it 'should be invalid if both build dir and image are set' do
     subject.build_dir = build_dir
-    subject.image = "foo"
+    subject.image = 'foo'
     subject.finalize!
     assert_invalid
   end
 
-  describe "#build_dir" do
-    it "should be valid if not set with image" do
+  describe '#build_dir' do
+    it 'should be valid if not set with image' do
       subject.build_dir = nil
-      subject.image = "foo"
+      subject.image = 'foo'
       subject.finalize!
       assert_valid
     end
 
-    it "should be valid with a valid directory" do
+    it 'should be valid with a valid directory' do
       subject.build_dir = build_dir
       subject.finalize!
       assert_valid
@@ -84,12 +84,12 @@ describe VagrantPlugins::DockerProvider::Config do
     end
   end
 
-  describe "#expose" do
+  describe '#expose' do
     before do
       valid_defaults
     end
 
-    it "uniqs the ports" do
+    it 'uniqs the ports' do
       subject.expose = [1, 1, 4, 5]
       subject.finalize!
       assert_valid
@@ -98,92 +98,92 @@ describe VagrantPlugins::DockerProvider::Config do
     end
   end
 
-  describe "#image" do
-    it "should be valid if set" do
-      subject.image = "foo"
+  describe '#image' do
+    it 'should be valid if set' do
+      subject.image = 'foo'
       subject.finalize!
       assert_valid
     end
 
-    it "should be invalid if not set" do
+    it 'should be invalid if not set' do
       subject.image = nil
       subject.finalize!
       assert_invalid
     end
   end
 
-  describe "#link" do
+  describe '#link' do
     before do
       valid_defaults
     end
 
-    it "should be valid with good links" do
-      subject.link "foo:bar"
-      subject.link "db:blah"
+    it 'should be valid with good links' do
+      subject.link 'foo:bar'
+      subject.link 'db:blah'
       subject.finalize!
       assert_valid
     end
 
-    it "should be invalid if not name:alias" do
-      subject.link "foo"
+    it 'should be invalid if not name:alias' do
+      subject.link 'foo'
       subject.finalize!
       assert_invalid
     end
 
-    it "should be invalid if too many colons" do
-      subject.link "foo:bar:baz"
+    it 'should be invalid if too many colons' do
+      subject.link 'foo:bar:baz'
       subject.finalize!
       assert_invalid
     end
   end
 
-  describe "#merge" do
+  describe '#merge' do
     let(:one) { described_class.new }
     let(:two) { described_class.new }
 
     subject { one.merge(two) }
 
-    context "#build_dir and #image" do
-      it "overrides image if build_dir is set previously" do
-        one.build_dir = "foo"
-        two.image = "bar"
+    context '#build_dir and #image' do
+      it 'overrides image if build_dir is set previously' do
+        one.build_dir = 'foo'
+        two.image = 'bar'
 
         expect(subject.build_dir).to be_nil
-        expect(subject.image).to eq("bar")
+        expect(subject.image).to eq('bar')
       end
 
-      it "overrides image if build_dir is set previously" do
-        one.image = "foo"
-        two.build_dir = "bar"
+      it 'overrides image if build_dir is set previously' do
+        one.image = 'foo'
+        two.build_dir = 'bar'
 
         expect(subject.image).to be_nil
-        expect(subject.build_dir).to eq("bar")
+        expect(subject.build_dir).to eq('bar')
       end
 
-      it "preserves if both set" do
-        one.image = "foo"
-        two.image = "baz"
-        two.build_dir = "bar"
+      it 'preserves if both set' do
+        one.image = 'foo'
+        two.image = 'baz'
+        two.build_dir = 'bar'
 
-        expect(subject.image).to eq("baz")
-        expect(subject.build_dir).to eq("bar")
-      end
-    end
-
-    context "env vars" do
-      it "should merge the values" do
-        one.env["foo"] = "bar"
-        two.env["bar"] = "baz"
-
-        expect(subject.env).to eq({
-          "foo" => "bar",
-          "bar" => "baz",
-        })
+        expect(subject.image).to eq('baz')
+        expect(subject.build_dir).to eq('bar')
       end
     end
 
-    context "exposed ports" do
-      it "merges the exposed ports" do
+    context 'env vars' do
+      it 'should merge the values' do
+        one.env['foo'] = 'bar'
+        two.env['bar'] = 'baz'
+
+        expect(subject.env).to eq(
+          'foo' => 'bar',
+          'bar' => 'baz'
+        )
+      end
+    end
+
+    context 'exposed ports' do
+      it 'merges the exposed ports' do
         one.expose << 1234
         two.expose = [42, 54]
 
@@ -192,39 +192,38 @@ describe VagrantPlugins::DockerProvider::Config do
       end
     end
 
-    context "links" do
-      it "should merge the links" do
-        one.link "foo"
-        two.link "bar"
+    context 'links' do
+      it 'should merge the links' do
+        one.link 'foo'
+        two.link 'bar'
 
-        expect(subject._links).to eq([
-          "foo", "bar"])
+        expect(subject._links).to eq(%w(foo bar))
       end
     end
   end
 
-  describe "#vagrant_machine" do
+  describe '#vagrant_machine' do
     before { valid_defaults }
 
-    it "should convert to a symbol" do
-      subject.vagrant_machine = "foo"
+    it 'should convert to a symbol' do
+      subject.vagrant_machine = 'foo'
       subject.finalize!
       assert_valid
       expect(subject.vagrant_machine).to eq(:foo)
     end
   end
 
-  describe "#vagrant_vagrantfile" do
+  describe '#vagrant_vagrantfile' do
     before { valid_defaults }
 
-    it "should be valid if set to a file" do
+    it 'should be valid if set to a file' do
       subject.vagrant_vagrantfile = temporary_file.to_s
       subject.finalize!
       assert_valid
     end
 
-    it "should not be valid if set to a non-existent place" do
-      subject.vagrant_vagrantfile = "/i/shouldnt/exist"
+    it 'should not be valid if set to a non-existent place' do
+      subject.vagrant_vagrantfile = '/i/shouldnt/exist'
       subject.finalize!
       assert_invalid
     end

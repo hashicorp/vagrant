@@ -6,7 +6,7 @@ module Vagrant
       # will take affect at this stage in the middleware and will persist
       # through.
       class EnvSet
-        def initialize(app, env, new_env=nil)
+        def initialize(app, _env, new_env = nil)
           @app     = app
           @new_env = new_env || {}
         end

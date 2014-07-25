@@ -10,22 +10,22 @@ module VagrantPlugins
       # requested, and so on. This method will raise exceptions if things are
       # wrong.
       def ensure_installed
-        if !@machine.guest.capability?(:docker_installed)
-          @machine.ui.warn(I18n.t("vagrant.docker_cant_detect"))
+        unless @machine.guest.capability?(:docker_installed)
+          @machine.ui.warn(I18n.t('vagrant.docker_cant_detect'))
           return
         end
 
-        if !@machine.guest.capability(:docker_installed)
-          @machine.ui.detail(I18n.t("vagrant.docker_installing", version: @version.to_s))
+        unless @machine.guest.capability(:docker_installed)
+          @machine.ui.detail(I18n.t('vagrant.docker_installing', version: @version.to_s))
           @machine.guest.capability(:docker_install, @version)
 
-          if !@machine.guest.capability(:docker_installed)
-            raise DockerError, :install_failed
+          unless @machine.guest.capability(:docker_installed)
+            fail DockerError, :install_failed
           end
         end
 
         if @machine.guest.capability?(:docker_configure_auto_start)
-          @machine.ui.detail(I18n.t("vagrant.docker_configure_autostart"))
+          @machine.ui.detail(I18n.t('vagrant.docker_configure_autostart'))
           @machine.guest.capability(:docker_configure_auto_start)
         else
           @machine.env.ui.warn I18n.t('vagrant.docker_auto_start_not_available')

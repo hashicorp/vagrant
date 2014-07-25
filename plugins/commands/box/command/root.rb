@@ -3,9 +3,9 @@ require 'optparse'
 module VagrantPlugins
   module CommandBox
     module Command
-      class Root < Vagrant.plugin("2", :command)
+      class Root < Vagrant.plugin('2', :command)
         def self.synopsis
-          "manages boxes: installation, removal, etc."
+          'manages boxes: installation, removal, etc.'
         end
 
         def initialize(argv, env)
@@ -15,38 +15,38 @@ module VagrantPlugins
 
           @subcommands = Vagrant::Registry.new
           @subcommands.register(:add) do
-            require File.expand_path("../add", __FILE__)
+            require File.expand_path('../add', __FILE__)
             Add
           end
 
           @subcommands.register(:list) do
-            require File.expand_path("../list", __FILE__)
+            require File.expand_path('../list', __FILE__)
             List
           end
 
           @subcommands.register(:outdated) do
-            require_relative "outdated"
+            require_relative 'outdated'
             Outdated
           end
 
           @subcommands.register(:remove) do
-            require File.expand_path("../remove", __FILE__)
+            require File.expand_path('../remove', __FILE__)
             Remove
           end
 
           @subcommands.register(:repackage) do
-            require File.expand_path("../repackage", __FILE__)
+            require File.expand_path('../repackage', __FILE__)
             Repackage
           end
 
           @subcommands.register(:update) do
-            require_relative "update"
+            require_relative 'update'
             Update
           end
         end
 
         def execute
-          if @main_args.include?("-h") || @main_args.include?("--help")
+          if @main_args.include?('-h') || @main_args.include?('--help')
             # Print the help for all the box commands.
             return help
           end
@@ -64,21 +64,21 @@ module VagrantPlugins
         # Prints the help out for this command
         def help
           opts = OptionParser.new do |opts|
-            opts.banner = "Usage: vagrant box <subcommand> [<args>]"
-            opts.separator ""
-            opts.separator "Available subcommands:"
+            opts.banner = 'Usage: vagrant box <subcommand> [<args>]'
+            opts.separator ''
+            opts.separator 'Available subcommands:'
 
             # Add the available subcommands as separators in order to print them
             # out as well.
             keys = []
-            @subcommands.each { |key, value| keys << key.to_s }
+            @subcommands.each { |key, _value| keys << key.to_s }
 
             keys.sort.each do |key|
               opts.separator "     #{key}"
             end
 
-            opts.separator ""
-            opts.separator "For help on any individual subcommand run `vagrant box <subcommand> -h`"
+            opts.separator ''
+            opts.separator 'For help on any individual subcommand run `vagrant box <subcommand> -h`'
           end
 
           @env.ui.info(opts.help, prefix: false)

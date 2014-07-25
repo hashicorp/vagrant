@@ -1,15 +1,15 @@
-require "timeout"
+require 'timeout'
 
-require "log4r"
+require 'log4r'
 
-require "vagrant/util/retryable"
-require "vagrant/util/silence_warnings"
+require 'vagrant/util/retryable'
+require 'vagrant/util/silence_warnings'
 
 Vagrant::Util::SilenceWarnings.silence! do
-  require "winrm"
+  require 'winrm'
 end
 
-require_relative "file_manager"
+require_relative 'file_manager'
 
 module VagrantPlugins
   module CommunicatorWinRM
@@ -40,8 +40,8 @@ module VagrantPlugins
       attr_reader :max_tries
 
       def initialize(host, username, password, options = {})
-        @logger = Log4r::Logger.new("vagrant::communication::winrmshell")
-        @logger.debug("initializing WinRMShell")
+        @logger = Log4r::Logger.new('vagrant::communication::winrmshell')
+        @logger.debug('initializing WinRMShell')
 
         @host               = host
         @port               = options[:port] || 5985
@@ -54,7 +54,7 @@ module VagrantPlugins
       def powershell(command, &block)
         # ensure an exit code
         command << "\r\n"
-        command << "if ($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 0 }"
+        command << 'if ($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 0 }'
         execute_shell(command, :powershell, &block)
       end
 
@@ -76,8 +76,8 @@ module VagrantPlugins
 
       protected
 
-      def execute_shell(command, shell=:powershell, &block)
-        raise Errors::WinRMInvalidShell, shell: shell unless [:powershell, :cmd, :wql].include?(shell)
+      def execute_shell(command, shell = :powershell, &block)
+        fail Errors::WinRMInvalidShell, shell: shell unless [:powershell, :cmd, :wql].include?(shell)
 
         begin
           execute_shell_with_retry(command, shell, &block)
@@ -100,29 +100,29 @@ module VagrantPlugins
 
       def raise_winrm_exception(winrm_exception, shell, command)
         # If the error is a 401, we can return a more specific error message
-        if winrm_exception.message.include?("401")
-          raise Errors::AuthError,
-            user: @username,
-            password: @password,
-            endpoint: endpoint,
-            message: winrm_exception.message
+        if winrm_exception.message.include?('401')
+          fail Errors::AuthError,
+               user: @username,
+               password: @password,
+               endpoint: endpoint,
+               message: winrm_exception.message
         end
 
-        raise Errors::ExecutionError,
-          shell: shell,
-          command: command,
-          message: winrm_exception.message
+        fail Errors::ExecutionError,
+             shell: shell,
+             command: command,
+             message: winrm_exception.message
       end
 
       def new_session
-        @logger.info("Attempting to connect to WinRM...")
+        @logger.info('Attempting to connect to WinRM...')
         @logger.info("  - Host: #{@host}")
         @logger.info("  - Port: #{@port}")
         @logger.info("  - Username: #{@username}")
 
         client = ::WinRM::WinRMWebService.new(endpoint, :plaintext, endpoint_options)
         client.set_timeout(@timeout_in_seconds)
-        client.toggle_nori_type_casting(:off) #we don't want coersion of types
+        client.toggle_nori_type_casting(:off) # we don't want coersion of types
         client
       end
 
@@ -142,6 +142,6 @@ module VagrantPlugins
           operation_timeout: @timeout_in_seconds,
           basic_auth_only: true }
       end
-    end #WinShell class
+    end # WinShell class
   end
 end

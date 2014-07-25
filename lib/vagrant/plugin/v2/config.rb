@@ -1,4 +1,4 @@
-require "set"
+require 'set'
 
 module Vagrant
   module Plugin
@@ -51,7 +51,7 @@ module Vagrant
               # Ignore keys that start with a double underscore. This allows
               # configuration classes to still hold around internal state
               # that isn't propagated.
-              if !key.to_s.start_with?("@__")
+              unless key.to_s.start_with?('@__')
                 # Don't set the value if it is the unset value, either.
                 value = obj.instance_variable_get(key)
                 result.instance_variable_set(key, value) if value != UNSET_VALUE
@@ -73,7 +73,7 @@ module Vagrant
           return super if @__finalized
 
           name = name.to_s
-          name = name[0...-1] if name.end_with?("=")
+          name = name[0...-1] if name.end_with?('=')
 
           @__invalid_methods ||= Set.new
           @__invalid_methods.add(name)
@@ -108,7 +108,7 @@ module Vagrant
 
         # Returns the instance variables as a hash of key-value pairs.
         def instance_variables_hash
-          instance_variables.inject({}) do |acc, iv|
+          instance_variables.reduce({}) do |acc, iv|
             acc[iv.to_s[1..-1]] = instance_variable_get(iv)
             acc
           end
@@ -120,8 +120,8 @@ module Vagrant
         # @param [Machine] machine Access to the machine that is being
         #   validated.
         # @return [Hash]
-        def validate(machine)
-          return { self.to_s => _detected_errors }
+        def validate(_machine)
+          { to_s => _detected_errors }
         end
 
         # This returns any automatically detected errors.
@@ -129,8 +129,8 @@ module Vagrant
         # @return [Array<String>]
         def _detected_errors
           return [] if !@__invalid_methods || @__invalid_methods.empty?
-          return [I18n.t("vagrant.config.common.bad_field",
-                         fields: @__invalid_methods.to_a.sort.join(", "))]
+          [I18n.t('vagrant.config.common.bad_field',
+                  fields: @__invalid_methods.to_a.sort.join(', '))]
         end
 
         # An internal finalize call that no subclass should override.

@@ -15,7 +15,7 @@ module Vagrant
           # Get all the configured provisioners
           @_provisioner_instances = env[:machine].config.vm.provisioners.map do |provisioner|
             # Instantiate the provisioner
-            klass  = Vagrant.plugin("2").manager.provisioners[provisioner.name]
+            klass  = Vagrant.plugin('2').manager.provisioners[provisioner.name]
             result = klass.new(env[:machine], provisioner.config)
 
             # Store in the type map so that --provision-with works properly
@@ -30,7 +30,7 @@ module Vagrant
             [result, options]
           end
 
-          return @_provisioner_instances
+          @_provisioner_instances
         end
 
         # This will return a mapping of a provisioner instance to its

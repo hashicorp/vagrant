@@ -3,12 +3,13 @@
 # the moment, and this class isn't directly used. It is merely here for
 # documentation of structure of the class.
 class DigestClass
-  def update(string); end
+  def update(_string); end
+
   def hexdigest; end
 end
 
 class FileChecksum
-  BUFFER_SIZE = 16328
+  BUFFER_SIZE = 16_328
 
   # Initializes an object to calculate the checksum of a file. The given
   # ``digest_klass`` should implement the ``DigestClass`` interface. Note
@@ -26,8 +27,8 @@ class FileChecksum
   def checksum
     digest = @digest_klass.new
 
-    File.open(@path, "rb") do |f|
-      while !f.eof
+    File.open(@path, 'rb') do |f|
+      until f.eof
         begin
           buf = f.readpartial(BUFFER_SIZE)
           digest.update(buf)
@@ -39,6 +40,6 @@ class FileChecksum
       end
     end
 
-    return digest.hexdigest
+    digest.hexdigest
   end
 end

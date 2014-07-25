@@ -10,7 +10,7 @@ module VagrantPlugins
       def build_images(images)
         @machine.communicate.tap do |comm|
           images.each do |path, opts|
-            @machine.ui.info(I18n.t("vagrant.docker_building_single", path: path))
+            @machine.ui.info(I18n.t('vagrant.docker_building_single', path: path))
             comm.sudo("docker build #{opts[:args]} #{path}")
           end
         end
@@ -19,7 +19,7 @@ module VagrantPlugins
       def pull_images(*images)
         @machine.communicate.tap do |comm|
           images.each do |image|
-            @machine.ui.info(I18n.t("vagrant.docker_pulling_single", name: image))
+            @machine.ui.info(I18n.t('vagrant.docker_pulling_single', name: image))
             comm.sudo("docker pull #{image}")
           end
         end
@@ -37,10 +37,10 @@ module VagrantPlugins
 
       def run(containers)
         containers.each do |name, config|
-          cids_dir = "/var/lib/vagrant/cids"
+          cids_dir = '/var/lib/vagrant/cids'
           config[:cidfile] ||= "#{cids_dir}/#{Digest::SHA1.hexdigest name}"
 
-          @machine.ui.info(I18n.t("vagrant.docker_running", name: name))
+          @machine.ui.info(I18n.t('vagrant.docker_running', name: name))
           @machine.communicate.sudo("mkdir -p #{cids_dir}")
           run_container({
             name: name,
@@ -50,7 +50,7 @@ module VagrantPlugins
       end
 
       def run_container(config)
-        raise "Container's cidfile was not provided!" if !config[:cidfile]
+        fail "Container's cidfile was not provided!" unless config[:cidfile]
 
         id = "$(cat #{config[:cidfile]})"
 
@@ -66,7 +66,7 @@ module VagrantPlugins
       end
 
       def start_container(id)
-        if !container_running?(id)
+        unless container_running?(id)
           @machine.communicate.sudo("docker start #{id}")
         end
       end
@@ -81,21 +81,21 @@ module VagrantPlugins
         # If the name is the automatically assigned name, then
         # replace the "/" with "-" because "/" is not a valid
         # character for a docker container name.
-        name = name.gsub("/", "-") if name == config[:original_name]
+        name = name.gsub('/', '-') if name == config[:original_name]
 
         args = "--cidfile=#{config[:cidfile]} "
-        args << "-d " if config[:daemonize]
+        args << '-d ' if config[:daemonize]
         args << "--name #{name} " if name && config[:auto_assign_name]
         args << config[:args] if config[:args]
-        @machine.communicate.sudo %[
+        @machine.communicate.sudo %(
           rm -f #{config[:cidfile]}
           docker run #{args} #{config[:image]} #{config[:cmd]}
-        ]
+        )
       end
 
       def lookup_container(id, list_all = false)
-        docker_ps = "sudo docker ps -q"
-        docker_ps << " -a" if list_all
+        docker_ps = 'sudo docker ps -q'
+        docker_ps << ' -a' if list_all
         @machine.communicate.tap do |comm|
           # Docker < 0.7.0 stores container IDs using its short version while
           # recent versions use the full container ID

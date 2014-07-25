@@ -1,6 +1,6 @@
 require 'log4r'
 
-require "vagrant/util/safe_puts"
+require 'vagrant/util/safe_puts'
 
 module Vagrant
   module Plugin
@@ -34,7 +34,7 @@ module Vagrant
         #
         # If this method returns `nil`, then you should assume that help
         # was printed and parsing failed.
-        def parse_options(opts=nil)
+        def parse_options(opts = nil)
           # Creating a shallow copy of the arguments so the OptionParser
           # doesn't destroy the originals.
           argv = @argv.dup
@@ -43,7 +43,7 @@ module Vagrant
           opts ||= OptionParser.new
 
           # Add the help option, which must be on every command.
-          opts.on_tail("-h", "--help", "Print this help") do
+          opts.on_tail('-h', '--help', 'Print this help') do
             safe_puts(opts.help)
             return nil
           end
@@ -63,16 +63,16 @@ module Vagrant
         # @param [String] name The name of the VM. Nil if every VM.
         # @param [Boolean] single_target If true, then an exception will be
         #   raised if more than one target is found.
-        def with_target_vms(names=nil, options=nil)
+        def with_target_vms(names = nil, options = nil)
           # Using VMs requires a Vagrant environment to be properly setup
-          raise Errors::NoEnvironmentError if !@env.root_path
+          fail Errors::NoEnvironmentError unless @env.root_path
 
           # Setup the options hash
           options ||= {}
 
           # Require that names be an array
           names ||= []
-          names = [names] if !names.is_a?(Array)
+          names = [names] unless names.is_a?(Array)
 
           # First determine the proper array of VMs.
           vms = []
@@ -87,11 +87,11 @@ module Vagrant
                   vms << vm if name =~ regex
                 end
 
-                raise Errors::VMNoMatchError if vms.empty?
+                fail Errors::VMNoMatchError if vms.empty?
               else
                 # String name, just look for a specific VM
                 vms << @env.vms[name.to_sym]
-                raise Errors::VMNotFoundError, name: name if !vms[0]
+                fail Errors::VMNotFoundError, name: name unless vms[0]
               end
             end
           else
@@ -101,7 +101,7 @@ module Vagrant
           # Make sure we're only working with one VM if single target
           if options[:single_target] && vms.length != 1
             vm = @env.primary_vm
-            raise Errors::MultiVMTargetRequired if !vm
+            fail Errors::MultiVMTargetRequired unless vm
             vms = [vm]
           end
 
@@ -145,7 +145,7 @@ module Vagrant
           # flags before a word, and then the rest. The rest are what
           # get actually sent on to the subcommand.
           argv.each_index do |i|
-            if !argv[i].start_with?("-")
+            unless argv[i].start_with?('-')
               # We found the beginning of the sub command. Split the
               # args up.
               main_args   = argv[0, i]
@@ -161,7 +161,7 @@ module Vagrant
           # Handle the case that argv was empty or didn't contain any subcommand
           main_args = argv.dup if main_args.nil?
 
-          return [main_args, sub_command, sub_args]
+          [main_args, sub_command, sub_args]
         end
       end
     end

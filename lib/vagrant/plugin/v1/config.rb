@@ -49,7 +49,7 @@ module Vagrant
               # Ignore keys that start with a double underscore. This allows
               # configuration classes to still hold around internal state
               # that isn't propagated.
-              if !key.to_s.start_with?("@__")
+              unless key.to_s.start_with?('@__')
                 result.instance_variable_set(key, obj.instance_variable_get(key))
               end
             end
@@ -79,7 +79,7 @@ module Vagrant
 
         # Returns the instance variables as a hash of key-value pairs.
         def instance_variables_hash
-          instance_variables.inject({}) do |acc, iv|
+          instance_variables.reduce({}) do |acc, iv|
             acc[iv.to_s[1..-1]] = instance_variable_get(iv)
             acc
           end
@@ -93,7 +93,7 @@ module Vagrant
         # to the new V2 object.
         #
         # @param [V2::Root] new
-        def upgrade(new)
+        def upgrade(_new)
         end
 
         # Called after the configuration is finalized and loaded to validate
@@ -104,7 +104,7 @@ module Vagrant
         #   gives you convenient access to things like the the root path
         #   and so on.
         # @param [ErrorRecorder] errors
-        def validate(env, errors)
+        def validate(_env, _errors)
         end
       end
     end

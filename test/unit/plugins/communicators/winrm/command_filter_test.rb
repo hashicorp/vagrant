@@ -1,12 +1,12 @@
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 
-require Vagrant.source_root.join("plugins/communicators/winrm/command_filter")
+require Vagrant.source_root.join('plugins/communicators/winrm/command_filter')
 
 describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
 
   describe '.command_filters' do
     it 'initializes all command filters in command filters directory' do
-      expect(subject.command_filters()).not_to be_empty
+      expect(subject.command_filters).not_to be_empty
     end
   end
 
@@ -16,7 +16,7 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
     end
 
     it 'filters out grep commands' do
-      expect(subject.filter("grep 'Fedora release [12][67890]' /etc/redhat-release")).to eq("")
+      expect(subject.filter("grep 'Fedora release [12][67890]' /etc/redhat-release")).to eq('')
     end
 
     it 'filters out which commands' do
@@ -28,28 +28,28 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
       expect(subject.filter('test -d /tmp/dir')).to include(
         "$p = \"/tmp/dir\"")
       expect(subject.filter('test -d /tmp/dir')).to include(
-        "if ((Test-Path $p) -and (get-item $p).PSIsContainer) {")
+        'if ((Test-Path $p) -and (get-item $p).PSIsContainer) {')
     end
 
     it 'filters out test -f commands' do
       expect(subject.filter('test -f /tmp/file.txt')).to include(
         "$p = \"/tmp/file.txt\"")
       expect(subject.filter('test -f /tmp/file.txt')).to include(
-        "if ((Test-Path $p) -and (!(get-item $p).PSIsContainer)) {")
+        'if ((Test-Path $p) -and (!(get-item $p).PSIsContainer)) {')
     end
 
     it 'filters out test -x commands' do
       expect(subject.filter('test -x /tmp/file.txt')).to include(
         "$p = \"/tmp/file.txt\"")
       expect(subject.filter('test -x /tmp/file.txt')).to include(
-        "if ((Test-Path $p) -and (!(get-item $p).PSIsContainer)) {")
+        'if ((Test-Path $p) -and (!(get-item $p).PSIsContainer)) {')
     end
 
     it 'filters out other test commands' do
       expect(subject.filter('test -L /tmp/file.txt')).to include(
         "$p = \"/tmp/file.txt\"")
       expect(subject.filter('test -L /tmp/file.txt')).to include(
-        "if (Test-Path $p) {")
+        'if (Test-Path $p) {')
     end
 
     it 'filters out rm -Rf commands' do
@@ -67,15 +67,15 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
     end
 
     it 'filters out chmod commands' do
-      expect(subject.filter("chmod 0600 ~/.ssh/authorized_keys")).to eq('')
+      expect(subject.filter('chmod 0600 ~/.ssh/authorized_keys')).to eq('')
     end
 
     it 'filters out certain cat commands' do
-      expect(subject.filter("cat /etc/release | grep -i OmniOS")).to eq('')
+      expect(subject.filter('cat /etc/release | grep -i OmniOS')).to eq('')
     end
 
     it 'should not filter out other cat commands' do
-      expect(subject.filter("cat /tmp/somefile")).to eq('cat /tmp/somefile')
+      expect(subject.filter('cat /tmp/somefile')).to eq('cat /tmp/somefile')
     end
   end
 

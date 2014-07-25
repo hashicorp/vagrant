@@ -1,8 +1,8 @@
-require "vagrant"
+require 'vagrant'
 
 module VagrantPlugins
   module Kernel_V2
-    class VagrantConfig < Vagrant.plugin("2", :config)
+    class VagrantConfig < Vagrant.plugin('2', :config)
       attr_accessor :host
 
       def initialize
@@ -15,7 +15,7 @@ module VagrantPlugins
       end
 
       def to_s
-        "Vagrant"
+        'Vagrant'
       end
     end
   end

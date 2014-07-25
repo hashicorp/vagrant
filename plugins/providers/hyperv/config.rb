@@ -1,8 +1,8 @@
-require "vagrant"
+require 'vagrant'
 
 module VagrantPlugins
   module HyperV
-    class Config < Vagrant.plugin("2", :config)
+    class Config < Vagrant.plugin('2', :config)
       # The timeout to wait for an IP address when booting the machine,
       # in seconds.
       #
@@ -19,10 +19,10 @@ module VagrantPlugins
         end
       end
 
-      def validate(machine)
+      def validate(_machine)
         errors = _detected_errors
 
-        { "Hyper-V" => errors }
+        { 'Hyper-V' => errors }
       end
     end
   end

@@ -1,4 +1,4 @@
-require "vagrant/registry"
+require 'vagrant/registry'
 
 module Vagrant
   module Config
@@ -16,14 +16,14 @@ module Vagrant
     # versions are available, mapped by the version string used in
     # `Vagrant.configure` calls.
     VERSIONS = Registry.new
-    VERSIONS.register("1") { V1::Loader }
-    VERSIONS.register("2") { V2::Loader }
+    VERSIONS.register('1') { V1::Loader }
+    VERSIONS.register('2') { V2::Loader }
 
     # This is the order of versions. This is used by the loader to figure out
     # how to "upgrade" versions up to the desired (current) version. The
     # current version is always considered to be the last version in this
     # list.
-    VERSIONS_ORDER = ["1", "2"]
+    VERSIONS_ORDER = %w(1 2)
     CURRENT_VERSION = VERSIONS_ORDER.last
 
     # This is the method which is called by all Vagrantfiles to configure Vagrant.
@@ -32,7 +32,7 @@ module Vagrant
     #
     # Note that the block is not run immediately. Instead, it's proc is stored
     # away for execution later.
-    def self.run(version="1", &block)
+    def self.run(version = '1', &block)
       # Store it for later
       @last_procs ||= []
       @last_procs << [version.to_s, block]

@@ -50,7 +50,7 @@ module Vagrant
         #   match these sets of folders.
         # @param [String] ip IP of the guest machine.
         # @param [Hash] folders Shared folders to sync.
-        def nfs_export(id, ip, folders)
+        def nfs_export(_id, _ip, _folders)
         end
 
         # Prunes any NFS exports made by Vagrant which aren't in the set
@@ -58,7 +58,7 @@ module Vagrant
         #
         # @param [Array<String>] valid_ids Valid IDs that should not be
         #   pruned.
-        def nfs_prune(valid_ids)
+        def nfs_prune(_valid_ids)
         end
       end
     end

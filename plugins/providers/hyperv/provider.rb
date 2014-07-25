@@ -1,27 +1,27 @@
-require "log4r"
+require 'log4r'
 
-require_relative "driver"
-require_relative "plugin"
+require_relative 'driver'
+require_relative 'plugin'
 
-require "vagrant/util/platform"
-require "vagrant/util/powershell"
+require 'vagrant/util/platform'
+require 'vagrant/util/powershell'
 
 module VagrantPlugins
   module HyperV
-    class Provider < Vagrant.plugin("2", :provider)
+    class Provider < Vagrant.plugin('2', :provider)
       attr_reader :driver
 
-      def self.usable?(raise_error=false)
-        if !Vagrant::Util::Platform.windows?
-          raise Errors::WindowsRequired
+      def self.usable?(raise_error = false)
+        unless Vagrant::Util::Platform.windows?
+          fail Errors::WindowsRequired
         end
 
-        if !Vagrant::Util::Platform.windows_admin?
-          raise Errors::AdminRequired
+        unless Vagrant::Util::Platform.windows_admin?
+          fail Errors::AdminRequired
         end
 
-        if !Vagrant::Util::PowerShell.available?
-          raise Errors::PowerShellRequired
+        unless Vagrant::Util::PowerShell.available?
+          fail Errors::PowerShellRequired
         end
 
         true
@@ -53,9 +53,9 @@ module VagrantPlugins
 
       def state
         state_id = nil
-        state_id = :not_created if !@machine.id
+        state_id = :not_created unless @machine.id
 
-        if !state_id
+        unless state_id
           # Run a custom action we define called "read_state" which does
           # what it says. It puts the state in the `:machine_state_id`
           # key in the environment.
@@ -65,7 +65,7 @@ module VagrantPlugins
 
         # Get the short and long description
         short = state_id.to_s
-        long  = ""
+        long  = ''
 
         # If we're not created, then specify the special ID flag
         if state_id == :not_created
@@ -77,7 +77,7 @@ module VagrantPlugins
       end
 
       def to_s
-        id = @machine.id.nil? ? "new" : @machine.id
+        id = @machine.id.nil? ? 'new' : @machine.id
         "Hyper-V (#{id})"
       end
 
@@ -87,10 +87,10 @@ module VagrantPlugins
 
         # Read the IP of the machine using Hyper-V APIs
         network = @driver.read_guest_ip
-        return nil if !network["ip"]
+        return nil unless network['ip']
 
         {
-          host: network["ip"],
+          host: network['ip'],
           port: 22,
         }
       end

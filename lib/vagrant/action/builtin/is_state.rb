@@ -10,9 +10,9 @@ module Vagrant
         #   the machine was properly shut down.
         # @param [Symbol] source_state The source state ID that the machine
         #   must be in to be shut down.
-        def initialize(app, env, check, **opts)
+        def initialize(app, _env, check, **opts)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::is_state")
+          @logger = Log4r::Logger.new('vagrant::action::builtin::is_state')
           @check  = check
           @invert = !!opts[:invert]
         end

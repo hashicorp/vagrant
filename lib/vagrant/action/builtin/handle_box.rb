@@ -1,6 +1,6 @@
-require "thread"
+require 'thread'
 
-require "log4r"
+require 'log4r'
 
 module Vagrant
   module Action
@@ -10,18 +10,18 @@ module Vagrant
       # updating the box if it is requested, etc.
       class HandleBox
         @@big_lock = Mutex.new
-        @@small_locks = Hash.new { |h,k| h[k] = Mutex.new }
+        @@small_locks = Hash.new { |h, k| h[k] = Mutex.new }
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::handle_box")
+          @logger = Log4r::Logger.new('vagrant::action::builtin::handle_box')
         end
 
         def call(env)
           machine = env[:machine]
 
-          if !machine.config.vm.box
-            @logger.info("Skipping HandleBox because no box is set")
+          unless machine.config.vm.box
+            @logger.info('Skipping HandleBox because no box is set')
             return @app.call(env)
           end
 
@@ -35,7 +35,7 @@ module Vagrant
           box_updated = false
           lock.synchronize do
             if machine.box
-              @logger.info("Machine already has box. HandleBox will not run.")
+              @logger.info('Machine already has box. HandleBox will not run.')
               next
             end
 
@@ -68,24 +68,24 @@ module Vagrant
             machine.provider_name
 
           version_ui = machine.config.vm.box_version
-          version_ui ||= ">= 0"
+          version_ui ||= '>= 0'
 
           env[:ui].output(I18n.t(
-            "vagrant.box_auto_adding", name: machine.config.vm.box))
-          env[:ui].detail("Box Provider: #{Array(box_formats).join(", ")}")
+            'vagrant.box_auto_adding', name: machine.config.vm.box))
+          env[:ui].detail("Box Provider: #{Array(box_formats).join(', ')}")
           env[:ui].detail("Box Version: #{version_ui}")
 
           begin
-            env[:action_runner].run(Vagrant::Action.action_box_add, env.merge({
-              box_name: machine.config.vm.box,
-              box_url: machine.config.vm.box_url || machine.config.vm.box,
-              box_provider: box_formats,
-              box_version: machine.config.vm.box_version,
-              box_client_cert: box_download_client_cert,
-              box_download_ca_cert: box_download_ca_cert,
-              box_download_ca_path: box_download_ca_path,
-              box_download_insecure: box_download_insecure,
-            }))
+            env[:action_runner].run(Vagrant::Action.action_box_add, env.merge(
+                                                                                box_name: machine.config.vm.box,
+                                                                                box_url: machine.config.vm.box_url || machine.config.vm.box,
+                                                                                box_provider: box_formats,
+                                                                                box_version: machine.config.vm.box_version,
+                                                                                box_client_cert: box_download_client_cert,
+                                                                                box_download_ca_cert: box_download_ca_cert,
+                                                                                box_download_ca_path: box_download_ca_path,
+                                                                                box_download_insecure: box_download_insecure
+                                                                              ))
           rescue Errors::BoxAlreadyExists
             # Just ignore this, since it means the next part will succeed!
             # This can happen in a multi-threaded environment.

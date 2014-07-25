@@ -10,9 +10,9 @@ $stderr.sync = true
 # allows us to nicely separate rake tasks into individual files
 # based on their role, which makes development and debugging easier
 # than one monolithic file.
-task_dir = File.expand_path("../tasks", __FILE__)
+task_dir = File.expand_path('../tasks', __FILE__)
 Dir["#{task_dir}/**/*.rake"].each do |task_file|
   load task_file
 end
 
-task default: "test:unit"
+task default: 'test:unit'

@@ -1,6 +1,6 @@
-require "log4r"
+require 'log4r'
 
-require_relative "mixin_provisioners"
+require_relative 'mixin_provisioners'
 
 module Vagrant
   module Action
@@ -10,9 +10,9 @@ module Vagrant
       class ProvisionerCleanup
         include MixinProvisioners
 
-        def initialize(app, env, place=nil)
+        def initialize(app, _env, _place = nil)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::provision_cleanup")
+          @logger = Log4r::Logger.new('vagrant::action::builtin::provision_cleanup')
           @place ||= :after
           @place = @place.to_sym
         end
@@ -32,7 +32,7 @@ module Vagrant
           # Ask the provisioners to modify the configuration if needed
           provisioner_instances(env).each do |p, _|
             env[:ui].info(I18n.t(
-              "vagrant.provisioner_cleanup",
+              'vagrant.provisioner_cleanup',
               name: type_map[p].to_s))
             p.cleanup
           end

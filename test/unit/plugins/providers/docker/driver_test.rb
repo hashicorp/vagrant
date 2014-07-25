@@ -1,6 +1,6 @@
-require_relative "../../../base"
+require_relative '../../../base'
 
-require Vagrant.source_root.join("plugins/providers/docker/driver")
+require Vagrant.source_root.join('plugins/providers/docker/driver')
 
 describe VagrantPlugins::DockerProvider::Driver do
   let(:cmd_executed) { @cmd }
@@ -11,18 +11,18 @@ describe VagrantPlugins::DockerProvider::Driver do
   end
 
   describe '#create' do
-    let(:params) { {
+    let(:params) do {
       image:      'jimi/hendrix:eletric-ladyland',
       cmd:        ['play', 'voodoo-chile'],
       ports:      '8080:80',
       volumes:    '/host/path:guest/path',
       detach:     true,
-      links:      {janis: 'joplin'},
-      env:        {key: 'value'},
+      links:      { janis: 'joplin' },
+      env:        { key: 'value' },
       name:       cid,
       hostname:   'jimi-hendrix',
       privileged: true
-    } }
+    } end
 
     before { subject.create(params) }
 
@@ -104,12 +104,12 @@ describe VagrantPlugins::DockerProvider::Driver do
 
   describe '#privileged?' do
     it 'identifies privileged containers' do
-      subject.stub(inspect_container: {'HostConfig' => {"Privileged" => true}})
+      subject.stub(inspect_container: { 'HostConfig' => { 'Privileged' => true } })
       expect(subject).to be_privileged(cid)
     end
 
     it 'identifies unprivileged containers' do
-      subject.stub(inspect_container: {'HostConfig' => {"Privileged" => false}})
+      subject.stub(inspect_container: { 'HostConfig' => { 'Privileged' => false } })
       expect(subject).to_not be_privileged(cid)
     end
   end
@@ -196,12 +196,12 @@ describe VagrantPlugins::DockerProvider::Driver do
 
     it 'returns an array of all known containers' do
       subject.should_receive(:execute).with('docker', 'ps', '-a', '-q', '--no-trunc')
-      expect(subject.all_containers).to eq(['container1', 'container2'])
+      expect(subject.all_containers).to eq(%w(container1 container2))
     end
   end
 
   describe '#docker_bridge_ip' do
-    let(:containers) { " inet 123.456.789.012/16 " }
+    let(:containers) { ' inet 123.456.789.012/16 ' }
 
     before { subject.stub(execute: containers) }
 

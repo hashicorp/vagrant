@@ -25,4 +25,3 @@ shared_examples_for 'any VagrantConfigProvisioner strict boolean attribute' do |
   end
 
 end
-

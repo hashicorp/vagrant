@@ -20,7 +20,7 @@ module Vagrant
         # method for the machine.
         #
         # @return [Boolean]
-        def self.match?(machine)
+        def self.match?(_machine)
           false
         end
 
@@ -32,7 +32,7 @@ module Vagrant
         #
         # @param [Machine] machine The machine this instance is expected to
         #   communicate with.
-        def initialize(machine)
+        def initialize(_machine)
         end
 
         # Checks if the target machine is ready for communication. If this
@@ -48,7 +48,7 @@ module Vagrant
         #
         # @param [String] from Path of the file on the remote machine.
         # @param [String] to Path of where to save the file locally.
-        def download(from, to)
+        def download(_from, _to)
         end
 
         # Upload a file to the remote machine.
@@ -56,7 +56,7 @@ module Vagrant
         # @param [String] from Path of the file locally to upload.
         # @param [String] to Path of where to save the file on the remote
         #   machine.
-        def upload(from, to)
+        def upload(_from, _to)
         end
 
         # Execute a command on the remote machine. The exact semantics
@@ -73,7 +73,7 @@ module Vagrant
         #   implementor.
         # @yieldparam [String] data Data for the given output.
         # @return [Integer] Exit code of the command.
-        def execute(command, opts=nil)
+        def execute(_command, _opts = nil)
         end
 
         # Executes a command on the remote machine with administrative
@@ -81,7 +81,7 @@ module Vagrant
         # same.
         #
         # @see #execute
-        def sudo(command, opts=nil)
+        def sudo(_command, _opts = nil)
         end
 
         # Executes a command and returns true if the command succeeded,
@@ -90,7 +90,7 @@ module Vagrant
         # option for running tests as an administrator.
         #
         # @see #execute
-        def test(command, opts=nil)
+        def test(_command, _opts = nil)
         end
       end
     end

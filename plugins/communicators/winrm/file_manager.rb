@@ -1,4 +1,4 @@
-require "log4r"
+require 'log4r'
 
 module VagrantPlugins
   module CommunicatorWinRM
@@ -6,10 +6,10 @@ module VagrantPlugins
     # between the guest and host.
     class FileManager
       def initialize(shell)
-        @logger = Log4r::Logger.new("vagrant::communication::filemanager")
+        @logger = Log4r::Logger.new('vagrant::communication::filemanager')
         @shell = shell
       end
-      
+
       # Uploads the given file or directory from the host to the guest (recursively).
       #
       # @param [String] The source file or directory path on the host
@@ -30,9 +30,9 @@ module VagrantPlugins
       # @param [String] The destination file path on the host
       def download(guest_src_file_path, host_dest_file_path)
         @logger.debug("#{guest_src_file_path} -> #{host_dest_file_path}")
-        
+
         output = @shell.powershell("[System.convert]::ToBase64String([System.IO.File]::ReadAllBytes(\"#{guest_src_file_path}\"))")
-        contents = output[:data].map!{|line| line[:stdout]}.join.gsub("\\n\\r", '')
+        contents = output[:data].map! { |line| line[:stdout] }.join.gsub('\\n\\r', '')
         out = Base64.decode64(contents)
         IO.binwrite(host_dest_file_path, out)
       end
@@ -70,15 +70,15 @@ module VagrantPlugins
       # @param [String] The source file path on the host
       # @return [String] The temp file path on the guest
       def upload_to_temp_file(host_src_file_path)
-        tmp_file_path = File.join(guest_temp_dir, "winrm-upload-#{rand()}")
+        tmp_file_path = File.join(guest_temp_dir, "winrm-upload-#{rand}")
         @logger.debug("Uploading '#{host_src_file_path}' to temp file '#{tmp_file_path}'")
-        
-        base64_host_file = Base64.encode64(IO.binread(host_src_file_path)).gsub("\n",'')
-        base64_host_file.chars.to_a.each_slice(8000-tmp_file_path.size) do |chunk|
+
+        base64_host_file = Base64.encode64(IO.binread(host_src_file_path)).gsub("\n", '')
+        base64_host_file.chars.to_a.each_slice(8000 - tmp_file_path.size) do |chunk|
           out = @shell.cmd("echo #{chunk.join} >> \"#{tmp_file_path}\"")
           raise_upload_error_if_failed(out, host_src_file_path, tmp_file_path)
         end
-        
+
         tmp_file_path
       end
 
@@ -102,7 +102,7 @@ module VagrantPlugins
           }
 
           $base64_string = Get-Content $tmp_file_path
-          $bytes = [System.Convert]::FromBase64String($base64_string) 
+          $bytes = [System.Convert]::FromBase64String($base64_string)
           [System.IO.File]::WriteAllBytes($dest_file_path, $bytes)
         EOH
         raise_upload_error_if_failed(out, guest_tmp_file_path, guest_dest_file_path)
@@ -152,10 +152,10 @@ module VagrantPlugins
       end
 
       def raise_upload_error_if_failed(out, from, to)
-        raise Errors::WinRMFileTransferError,
-          from: from,
-          to: to,
-          message: out.inspect if out[:exitcode] != 0
+        fail Errors::WinRMFileTransferError,
+             from: from,
+             to: to,
+             message: out.inspect if out[:exitcode] != 0
       end
     end
   end

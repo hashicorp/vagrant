@@ -1,4 +1,4 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path('../../../base', __FILE__)
 
 describe Vagrant::Action::Builder do
   let(:data) { { data: [] } }
@@ -6,7 +6,7 @@ describe Vagrant::Action::Builder do
   # This returns a proc that can be used with the builder
   # that simply appends data to an array in the env.
   def appender_proc(data)
-    result = Proc.new { |env| env[:data] << data }
+    result = proc { |env| env[:data] << data }
 
     # Define a to_s on it for helpful output
     result.define_singleton_method(:to_s) do
@@ -18,7 +18,7 @@ describe Vagrant::Action::Builder do
 
   def wrapper_proc(data)
     Class.new do
-      def initialize(app, env)
+      def initialize(app, _env)
         @app = app
       end
 
@@ -30,17 +30,17 @@ describe Vagrant::Action::Builder do
     end
   end
 
-  context "copying" do
-    it "should copy the stack" do
+  context 'copying' do
+    it 'should copy the stack' do
       copy = subject.dup
       expect(copy.stack.object_id).not_to eq(subject.stack.object_id)
     end
   end
 
-  context "build" do
-    it "should provide build as a shortcut for basic sequences" do
+  context 'build' do
+    it 'should provide build as a shortcut for basic sequences' do
       data = {}
-      proc = Proc.new { |env| env[:data] = true }
+      proc = proc { |env| env[:data] = true }
 
       subject = described_class.build(proc)
       subject.call(data)
@@ -49,10 +49,10 @@ describe Vagrant::Action::Builder do
     end
   end
 
-  context "basic `use`" do
-    it "should add items to the stack and make them callable" do
+  context 'basic `use`' do
+    it 'should add items to the stack and make them callable' do
       data = {}
-      proc = Proc.new { |env| env[:data] = true }
+      proc = proc { |env| env[:data] = true }
 
       subject.use proc
       subject.call(data)
@@ -60,10 +60,10 @@ describe Vagrant::Action::Builder do
       expect(data[:data]).to eq(true)
     end
 
-    it "should be able to add multiple items" do
+    it 'should be able to add multiple items' do
       data = {}
-      proc1 = Proc.new { |env| env[:one] = true }
-      proc2 = Proc.new { |env| env[:two] = true }
+      proc1 = proc { |env| env[:one] = true }
+      proc2 = proc { |env| env[:two] = true }
 
       subject.use proc1
       subject.use proc2
@@ -73,9 +73,9 @@ describe Vagrant::Action::Builder do
       expect(data[:two]).to eq(true)
     end
 
-    it "should be able to add another builder" do
+    it 'should be able to add another builder' do
       data  = {}
-      proc1 = Proc.new { |env| env[:one] = true }
+      proc1 = proc { |env| env[:one] = true }
 
       # Build the first builder
       one   = described_class.new
@@ -91,8 +91,8 @@ describe Vagrant::Action::Builder do
     end
   end
 
-  context "inserting" do
-    it "can insert at an index" do
+  context 'inserting' do
+    it 'can insert at an index' do
       subject.use appender_proc(1)
       subject.insert(0, appender_proc(2))
       subject.call(data)
@@ -100,10 +100,12 @@ describe Vagrant::Action::Builder do
       expect(data[:data]).to eq([2, 1])
     end
 
-    it "can insert by name" do
+    it 'can insert by name' do
       # Create the proc then make sure it has a name
       bar_proc = appender_proc(2)
-      def bar_proc.name; :bar; end
+      def bar_proc.name
+        :bar
+      end
 
       subject.use appender_proc(1)
       subject.use bar_proc
@@ -113,7 +115,7 @@ describe Vagrant::Action::Builder do
       expect(data[:data]).to eq([1, 3, 2])
     end
 
-    it "can insert next to a previous object" do
+    it 'can insert next to a previous object' do
       proc2 = appender_proc(2)
       subject.use appender_proc(1)
       subject.use proc2
@@ -123,7 +125,7 @@ describe Vagrant::Action::Builder do
       expect(data[:data]).to eq([1, 3, 2])
     end
 
-    it "can insert before" do
+    it 'can insert before' do
       subject.use appender_proc(1)
       subject.insert_before 0, appender_proc(2)
       subject.call(data)
@@ -131,7 +133,7 @@ describe Vagrant::Action::Builder do
       expect(data[:data]).to eq([2, 1])
     end
 
-    it "can insert after" do
+    it 'can insert after' do
       subject.use appender_proc(1)
       subject.use appender_proc(3)
       subject.insert_after 0, appender_proc(2)
@@ -140,10 +142,10 @@ describe Vagrant::Action::Builder do
       expect(data[:data]).to eq([1, 2, 3])
     end
 
-    it "merges middleware stacks of other builders" do
-      wrapper_class = Proc.new do |letter|
+    it 'merges middleware stacks of other builders' do
+      wrapper_class = proc do |letter|
         Class.new do
-          def initialize(app, env)
+          def initialize(app, _env)
             @app = app
           end
 
@@ -160,28 +162,28 @@ describe Vagrant::Action::Builder do
       subject.use proc2
 
       builder = described_class.new
-      builder.use wrapper_class.call("A")
-      builder.use wrapper_class.call("B")
+      builder.use wrapper_class.call('A')
+      builder.use wrapper_class.call('B')
 
       subject.insert(proc2, builder)
       subject.call(data)
 
-      expect(data[:data]).to eq([1, "A1", "B1", 2, "B2", "A2"])
+      expect(data[:data]).to eq([1, 'A1', 'B1', 2, 'B2', 'A2'])
     end
 
-    it "raises an exception if an invalid object given for insert" do
-      expect { subject.insert "object", appender_proc(1) }.
+    it 'raises an exception if an invalid object given for insert' do
+      expect { subject.insert 'object', appender_proc(1) }.
         to raise_error(RuntimeError)
     end
 
-    it "raises an exception if an invalid object given for insert_after" do
-      expect { subject.insert_after "object", appender_proc(1) }.
+    it 'raises an exception if an invalid object given for insert_after' do
+      expect { subject.insert_after 'object', appender_proc(1) }.
         to raise_error(RuntimeError)
     end
   end
 
-  context "replace" do
-    it "can replace an object" do
+  context 'replace' do
+    it 'can replace an object' do
       proc1 = appender_proc(1)
       proc2 = appender_proc(2)
 
@@ -192,7 +194,7 @@ describe Vagrant::Action::Builder do
       expect(data[:data]).to eq([2])
     end
 
-    it "can replace by index" do
+    it 'can replace by index' do
       proc1 = appender_proc(1)
       proc2 = appender_proc(2)
 
@@ -204,8 +206,8 @@ describe Vagrant::Action::Builder do
     end
   end
 
-  context "deleting" do
-    it "can delete by object" do
+  context 'deleting' do
+    it 'can delete by object' do
       proc1 = appender_proc(1)
 
       subject.use proc1
@@ -216,7 +218,7 @@ describe Vagrant::Action::Builder do
       expect(data[:data]).to eq([2])
     end
 
-    it "can delete by index" do
+    it 'can delete by index' do
       proc1 = appender_proc(1)
 
       subject.use proc1
@@ -228,9 +230,9 @@ describe Vagrant::Action::Builder do
     end
   end
 
-  describe "action hooks" do
-    it "applies them properly" do
-      hook = double("hook")
+  describe 'action hooks' do
+    it 'applies them properly' do
+      hook = double('hook')
       allow(hook).to receive(:apply) do |builder|
         builder.use appender_proc(2)
       end
@@ -244,9 +246,9 @@ describe Vagrant::Action::Builder do
       expect(data[:action_hooks_already_ran]).to eq(true)
     end
 
-    it "applies without prepend/append if it has already" do
-      hook = double("hook")
-      expect(hook).to receive(:apply).with(anything, { no_prepend_or_append: true }).once
+    it 'applies without prepend/append if it has already' do
+      hook = double('hook')
+      expect(hook).to receive(:apply).with(anything,  no_prepend_or_append: true).once
 
       data[:action_hooks] = [hook]
       data[:action_hooks_already_ran] = true
@@ -254,15 +256,15 @@ describe Vagrant::Action::Builder do
     end
   end
 
-  describe "calling another app later" do
-    it "calls in the proper order" do
+  describe 'calling another app later' do
+    it 'calls in the proper order' do
       # We have to do this because inside the Class.new, it can't see these
       # rspec methods...
       described_klass = described_class
-      wrapper_proc    = self.method(:wrapper_proc)
+      wrapper_proc    = method(:wrapper_proc)
 
       wrapper = Class.new do
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -279,8 +281,7 @@ describe Vagrant::Action::Builder do
       subject.use wrapper_proc(3)
       subject.call(data)
 
-      expect(data[:data]).to eq([
-        "1_in", "2_in", "3_in", "3_out", "2_out", "1_out"])
+      expect(data[:data]).to eq(%w(1_in 2_in 3_in 3_out 2_out 1_out))
     end
   end
 end

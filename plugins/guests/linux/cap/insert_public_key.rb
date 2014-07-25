@@ -1,4 +1,4 @@
-require "vagrant/util/shell_quote"
+require 'vagrant/util/shell_quote'
 
 module VagrantPlugins
   module GuestLinux
@@ -9,10 +9,10 @@ module VagrantPlugins
           contents = Vagrant::Util::ShellQuote.escape(contents, "'")
 
           machine.communicate.tap do |comm|
-            comm.execute("mkdir -p ~/.ssh")
-            comm.execute("chmod 0700 ~/.ssh")
+            comm.execute('mkdir -p ~/.ssh')
+            comm.execute('chmod 0700 ~/.ssh')
             comm.execute("printf '#{contents}\\n' >> ~/.ssh/authorized_keys")
-            comm.execute("chmod 0600 ~/.ssh/authorized_keys")
+            comm.execute('chmod 0600 ~/.ssh/authorized_keys')
           end
         end
       end

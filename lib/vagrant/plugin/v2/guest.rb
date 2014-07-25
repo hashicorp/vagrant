@@ -14,7 +14,7 @@ module Vagrant
         # is running within the machine.
         #
         # @return [Boolean]
-        def detect?(machine)
+        def detect?(_machine)
           false
         end
       end

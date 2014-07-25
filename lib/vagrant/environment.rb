@@ -8,7 +8,7 @@ require 'log4r'
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
-require "vagrant/vagrantfile"
+require 'vagrant/vagrantfile'
 
 module Vagrant
   # A "Vagrant environment" represents a configuration of how Vagrant
@@ -20,9 +20,9 @@ module Vagrant
     # compatible with in the home directory.
     #
     # @return [String]
-    CURRENT_SETUP_VERSION = "1.5"
+    CURRENT_SETUP_VERSION = '1.5'
 
-    DEFAULT_LOCAL_DATA = ".vagrant"
+    DEFAULT_LOCAL_DATA = '.vagrant'
 
     # The `cwd` that this environment represents
     attr_reader :cwd
@@ -68,7 +68,7 @@ module Vagrant
     # the environment represents. There are other options available but
     # they shouldn't be used in general. If `cwd` is nil, then it defaults
     # to the `Dir.pwd` (which is the cwd of the executing process).
-    def initialize(opts=nil)
+    def initialize(opts = nil)
       opts = {
         cwd:              nil,
         home_path:        nil,
@@ -78,11 +78,11 @@ module Vagrant
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
-      opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.has_key?("VAGRANT_CWD")
+      opts[:cwd] ||= ENV['VAGRANT_CWD'] if ENV.key?('VAGRANT_CWD')
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
-      if !opts[:cwd].directory?
-        raise Errors::EnvironmentNonExistentCWD, cwd: opts[:cwd].to_s
+      unless opts[:cwd].directory?
+        fail Errors::EnvironmentNonExistentCWD, cwd: opts[:cwd].to_s
       end
       opts[:cwd] = opts[:cwd].expand_path
 
@@ -91,8 +91,8 @@ module Vagrant
 
       # Set the Vagrantfile name up. We append "Vagrantfile" and "vagrantfile" so that
       # those continue to work as well, but anything custom will take precedence.
-      opts[:vagrantfile_name] ||= ENV["VAGRANT_VAGRANTFILE"] if \
-        ENV.has_key?("VAGRANT_VAGRANTFILE")
+      opts[:vagrantfile_name] ||= ENV['VAGRANT_VAGRANTFILE'] if \
+        ENV.key?('VAGRANT_VAGRANTFILE')
       opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if \
         opts[:vagrantfile_name] && !opts[:vagrantfile_name].is_a?(Array)
 
@@ -109,18 +109,18 @@ module Vagrant
 
       @locks = {}
 
-      @logger = Log4r::Logger.new("vagrant::environment")
+      @logger = Log4r::Logger.new('vagrant::environment')
       @logger.info("Environment initialized (#{self})")
       @logger.info("  - cwd: #{cwd}")
 
       # Setup the home directory
       @home_path  ||= Vagrant.user_data_path
       @home_path  = Util::Platform.fs_real_path(@home_path)
-      @boxes_path = @home_path.join("boxes")
-      @data_dir   = @home_path.join("data")
-      @gems_path  = @home_path.join("gems")
-      @tmp_path   = @home_path.join("tmp")
-      @machine_index_dir = @data_dir.join("machine-index")
+      @boxes_path = @home_path.join('boxes')
+      @data_dir   = @home_path.join('data')
+      @gems_path  = @home_path.join('gems')
+      @tmp_path   = @home_path.join('tmp')
+      @machine_index_dir = @data_dir.join('machine-index')
 
       # Prepare the directories
       setup_home_path
@@ -128,8 +128,8 @@ module Vagrant
       # Setup the local data directory. If a configuration path is given,
       # then it is expanded relative to the working directory. Otherwise,
       # we use the default which is expanded relative to the root path.
-      opts[:local_data_path] ||= ENV["VAGRANT_DOTFILE_PATH"]
-      opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA) if !root_path.nil?
+      opts[:local_data_path] ||= ENV['VAGRANT_DOTFILE_PATH']
+      opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA) unless root_path.nil?
       if opts[:local_data_path]
         @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
       end
@@ -137,7 +137,7 @@ module Vagrant
       setup_local_data_path
 
       # Setup the default private key
-      @default_private_key_path = @home_path.join("insecure_private_key")
+      @default_private_key_path = @home_path.join('insecure_private_key')
       copy_insecure_private_key
 
       # Call the hooks that does not require configurations to be loaded
@@ -192,28 +192,28 @@ module Vagrant
     # @return [Array<String, Symbol>]
     def active_machines
       # We have no active machines if we have no data path
-      return [] if !@local_data_path
+      return [] unless @local_data_path
 
-      machine_folder = @local_data_path.join("machines")
+      machine_folder = @local_data_path.join('machines')
 
       # If the machine folder is not a directory then we just return
       # an empty array since no active machines exist.
-      return [] if !machine_folder.directory?
+      return [] unless machine_folder.directory?
 
       # Traverse the machines folder accumulate a result
       result = []
 
       machine_folder.children(true).each do |name_folder|
         # If this isn't a directory then it isn't a machine
-        next if !name_folder.directory?
+        next unless name_folder.directory?
 
         name = name_folder.basename.to_s.to_sym
         name_folder.children(true).each do |provider_folder|
           # If this isn't a directory then it isn't a provider
-          next if !provider_folder.directory?
+          next unless provider_folder.directory?
 
           # If this machine doesn't have an ID, then ignore
-          next if !provider_folder.join("id").file?
+          next unless provider_folder.join('id').file?
 
           provider = provider_folder.basename.to_s.to_sym
           result << [name, provider]
@@ -229,8 +229,8 @@ module Vagrant
     #
     # This handles the case where batch actions are disabled by the
     # VAGRANT_NO_PARALLEL environmental variable.
-    def batch(parallel=true)
-      parallel = false if ENV["VAGRANT_NO_PARALLEL"]
+    def batch(parallel = true)
+      parallel = false if ENV['VAGRANT_NO_PARALLEL']
 
       @batch_lock.synchronize do
         BatchAction.new(parallel).tap do |b|
@@ -258,10 +258,10 @@ module Vagrant
     # @return [Symbol] Name of the default provider.
     def default_provider(**opts)
       opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
-      opts[:force_default] = true if !opts.has_key?(:force_default)
+      opts[:force_default] = true unless opts.key?(:force_default)
 
-      default = ENV["VAGRANT_DEFAULT_PROVIDER"]
-      default = nil if default == ""
+      default = ENV['VAGRANT_DEFAULT_PROVIDER']
+      default = nil if default == ''
       default = default.to_sym if default
 
       # If we're forcing the default, just short-circuit and return
@@ -269,7 +269,7 @@ module Vagrant
       return default if default && opts[:force_default]
 
       ordered = []
-      Vagrant.plugin("2").manager.providers.each do |key, data|
+      Vagrant.plugin('2').manager.providers.each do |key, data|
         impl  = data[0]
         popts = data[1]
 
@@ -277,7 +277,7 @@ module Vagrant
         next if opts[:exclude] && opts[:exclude].include?(key)
 
         # Skip providers that can't be defaulted
-        next if popts.has_key?(:defaultable) && !popts[:defaultable]
+        next if popts.key?(:defaultable) && !popts[:defaultable]
 
         ordered << [popts[:priority], key, impl, popts]
       end
@@ -297,7 +297,7 @@ module Vagrant
       end
 
       # If all else fails, return VirtualBox
-      return :virtualbox
+      :virtualbox
     end
 
     # Returns the collection of boxes for the environment.
@@ -336,7 +336,7 @@ module Vagrant
     #
     # @param [Symbol] name Name of the hook.
     # @param [Action::Runner] action_runner A custom action runner for running hooks.
-    def hook(name, opts=nil)
+    def hook(name, opts = nil)
       @logger.info("Running hook: #{name}")
       opts ||= {}
       opts[:callable] ||= Action::Builder.new
@@ -362,15 +362,17 @@ module Vagrant
       begin
         @host = Host.new(
           host_klass,
-          Vagrant.plugin("2").manager.hosts,
-          Vagrant.plugin("2").manager.host_capabilities,
+          Vagrant.plugin('2').manager.hosts,
+          Vagrant.plugin('2').manager.host_capabilities,
           self)
       rescue Errors::CapabilityHostNotDetected
         # If the auto-detect failed, then we create a brand new host
         # with no capabilities and use that. This should almost never happen
         # since Vagrant works on most host OS's now, so this is a "slow path"
-        klass = Class.new(Vagrant.plugin("2", :host)) do
-          def detect?(env); true; end
+        klass = Class.new(Vagrant.plugin('2', :host)) do
+          def detect?(_env)
+            true
+          end
         end
 
         hosts     = { generic: [klass, nil] }
@@ -393,11 +395,11 @@ module Vagrant
     #
     # @param [String] name Name of the lock, since multiple locks can
     #   be held at one time.
-    def lock(name="global", **opts)
+    def lock(name = 'global', **opts)
       f = nil
 
       # If we don't have a block, then locking is useless, so ignore it
-      return if !block_given?
+      return unless block_given?
 
       # This allows multiple locks in the same process to be nested
       return yield if @locks[name] || opts[:noop]
@@ -406,8 +408,8 @@ module Vagrant
       lock_path = data_dir.join("lock.#{name}.lock")
 
       @logger.debug("Attempting to acquire process-lock: #{name}")
-      lock("dotlock", noop: name == "dotlock", retry: true) do
-        f = File.open(lock_path, "w+")
+      lock('dotlock', noop: name == 'dotlock', retry: true) do
+        f = File.open(lock_path, 'w+')
       end
 
       # The file locking fails only if it returns "false." If it
@@ -416,9 +418,9 @@ module Vagrant
       while f.flock(File::LOCK_EX | File::LOCK_NB) === false
         @logger.warn("Process-lock in use: #{name}")
 
-        if !opts[:retry]
-          raise Errors::EnvironmentLockedError,
-            name: name
+        unless opts[:retry]
+          fail Errors::EnvironmentLockedError,
+               name: name
         end
 
         sleep 0.2
@@ -441,8 +443,8 @@ module Vagrant
       end
 
       # Clean up the lock file, this requires another lock
-      if name != "dotlock"
-        lock("dotlock", retry: true) do
+      if name != 'dotlock'
+        lock('dotlock', retry: true) do
           f.close
           File.delete(lock_path)
         end
@@ -467,7 +469,7 @@ module Vagrant
     # @param [Boolean] refresh If true, then if there is a cached version
     #   it is reloaded.
     # @return [Machine]
-    def machine(name, provider, refresh=false)
+    def machine(name, provider, refresh = false)
       @logger.info("Getting machine: #{name} (#{provider})")
 
       # Compose the cache key of the name and provider, and return from
@@ -479,12 +481,12 @@ module Vagrant
         @machines.delete(cache_key)
       end
 
-      if @machines.has_key?(cache_key)
+      if @machines.key?(cache_key)
         @logger.info("Returning cached machine: #{name} (#{provider})")
         return @machines[cache_key]
       end
 
-      @logger.info("Uncached load of machine.")
+      @logger.info('Uncached load of machine.')
 
       # Determine the machine data directory and pass it to the machine.
       # XXX: Permissions error here.
@@ -588,7 +590,7 @@ module Vagrant
       # don't already exist.
       dirs    = [
         @home_path,
-        @home_path.join("rgloader"),
+        @home_path.join('rgloader'),
         @boxes_path,
         @data_dir,
         @gems_path,
@@ -614,8 +616,8 @@ module Vagrant
         # is running in parallel with other Vagrant processes.
         suffix = (0...32).map { (65 + rand(26)).chr }.join
         path   = @home_path.join("perm_test_#{suffix}")
-        path.open("w") do |f|
-          f.write("hello")
+        path.open('w') do |f|
+          f.write('hello')
         end
         path.unlink
       rescue Errno::EACCES
@@ -625,41 +627,41 @@ module Vagrant
       # Create the version file that we use to track the structure of
       # the home directory. If we have an old version, we need to explicitly
       # upgrade it. Otherwise, we just mark that its the current version.
-      version_file = @home_path.join("setup_version")
+      version_file = @home_path.join('setup_version')
       if version_file.file?
         version = version_file.read.chomp
         if version > CURRENT_SETUP_VERSION
-          raise Errors::HomeDirectoryLaterVersion
+          fail Errors::HomeDirectoryLaterVersion
         end
 
         case version
         when CURRENT_SETUP_VERSION
           # We're already good, at the latest version.
-        when "1.1"
+        when '1.1'
           # We need to update our directory structure
           upgrade_home_path_v1_1
 
           # Delete the version file so we put our latest version in
           version_file.delete
         else
-          raise Errors::HomeDirectoryUnknownVersion,
-            path: @home_path.to_s,
-            version: version
+          fail Errors::HomeDirectoryUnknownVersion,
+               path: @home_path.to_s,
+               version: version
         end
       end
 
-      if !version_file.file?
+      unless version_file.file?
         @logger.debug(
           "Creating home directory version file: #{CURRENT_SETUP_VERSION}")
-        version_file.open("w") do |f|
+        version_file.open('w') do |f|
           f.write(CURRENT_SETUP_VERSION)
         end
       end
 
       # Create the rgloader/loader file so we can use encoded files.
-      loader_file = @home_path.join("rgloader", "loader.rb")
-      if !loader_file.file?
-        source_loader = Vagrant.source_root.join("templates/rgloader.rb")
+      loader_file = @home_path.join('rgloader', 'loader.rb')
+      unless loader_file.file?
+        source_loader = Vagrant.source_root.join('templates/rgloader.rb')
         FileUtils.cp(source_loader.to_s, loader_file.to_s)
       end
     end
@@ -668,7 +670,7 @@ module Vagrant
     # couldn't properly be created.
     def setup_local_data_path
       if @local_data_path.nil?
-        @logger.warn("No local data path is set. Local data cannot be stored.")
+        @logger.warn('No local data path is set. Local data cannot be stored.')
         return
       end
 
@@ -686,7 +688,7 @@ module Vagrant
         FileUtils.mkdir_p(@local_data_path)
       rescue Errno::EACCES
         raise Errors::LocalDataDirectoryNotAccessible,
-          local_data_path: @local_data_path.to_s
+              local_data_path: @local_data_path.to_s
       end
     end
 
@@ -700,26 +702,26 @@ module Vagrant
     # effective uid won't be able to read the key. So the key is copied
     # to the home directory and chmod 0600.
     def copy_insecure_private_key
-      if !@default_private_key_path.exist?
-        @logger.info("Copying private key to home directory")
+      unless @default_private_key_path.exist?
+        @logger.info('Copying private key to home directory')
 
-        source      = File.expand_path("keys/vagrant", Vagrant.source_root)
+        source      = File.expand_path('keys/vagrant', Vagrant.source_root)
         destination = @default_private_key_path
 
         begin
           FileUtils.cp(source, destination)
         rescue Errno::EACCES
           raise Errors::CopyPrivateKeyFailed,
-            source: source,
-            destination: destination
+                source: source,
+                destination: destination
         end
       end
 
-      if !Util::Platform.windows?
+      unless Util::Platform.windows?
         # On Windows, permissions don't matter as much, so don't worry
         # about doing chmod.
-        if Util::FileMode.from_octal(@default_private_key_path.stat.mode) != "600"
-          @logger.info("Changing permissions on private key to 0600")
+        if Util::FileMode.from_octal(@default_private_key_path.stat.mode) != '600'
+          @logger.info('Changing permissions on private key to 0600')
           @default_private_key_path.chmod(0600)
         end
       end
@@ -729,8 +731,8 @@ module Vagrant
     #
     # @param [Pathname] path Path to search in.
     # @return [Pathname]
-    def find_vagrantfile(search_path, filenames=nil)
-      filenames ||= ["Vagrantfile", "vagrantfile"]
+    def find_vagrantfile(search_path, filenames = nil)
+      filenames ||= %w(Vagrantfile vagrantfile)
       filenames.each do |vagrantfile|
         current_path = search_path.join(vagrantfile)
         return current_path if current_path.file?
@@ -742,9 +744,9 @@ module Vagrant
     # This upgrades a home directory that was in the v1.1 format to the
     # v1.5 format. It will raise exceptions if anything fails.
     def upgrade_home_path_v1_1
-      @ui.ask(I18n.t("vagrant.upgrading_home_path_v1_5"))
+      @ui.ask(I18n.t('vagrant.upgrading_home_path_v1_5'))
       collection = BoxCollection.new(
-        @home_path.join("boxes"), temp_dir_root: tmp_path)
+        @home_path.join('boxes'), temp_dir_root: tmp_path)
       collection.upgrade_v1_1_v1_5
     end
 
@@ -756,13 +758,13 @@ module Vagrant
     #
     # @param [Pathname] path The path to the dotfile
     def upgrade_v1_dotfile(path)
-      @logger.info("Upgrading V1 dotfile to V2 directory structure...")
+      @logger.info('Upgrading V1 dotfile to V2 directory structure...')
 
       # First, verify the file isn't empty. If it is an empty file, we
       # just delete it and go on with life.
       contents = path.read.strip
-      if contents.strip == ""
-        @logger.info("V1 dotfile was empty. Removing and moving on.")
+      if contents.strip == ''
+        @logger.info('V1 dotfile was empty. Removing and moving on.')
         path.delete
         return
       end
@@ -770,16 +772,16 @@ module Vagrant
       # Otherwise, verify there is valid JSON in here since a Vagrant
       # environment would always ensure valid JSON. This is a sanity check
       # to make sure we don't nuke a dotfile that is not ours...
-      @logger.debug("Attempting to parse JSON of V1 file")
+      @logger.debug('Attempting to parse JSON of V1 file')
       json_data = nil
       begin
         json_data = JSON.parse(contents)
-        @logger.debug("JSON parsed successfully. Things are okay.")
+        @logger.debug('JSON parsed successfully. Things are okay.')
       rescue JSON::ParserError
         # The file could've been tampered with since Vagrant 1.0.x is
         # supposed to ensure that the contents are valid JSON. Show an error.
         raise Errors::DotfileUpgradeJSONError,
-          state_file: path.to_s
+              state_file: path.to_s
       end
 
       # Alright, let's upgrade this guy to the new structure. Start by
@@ -792,9 +794,9 @@ module Vagrant
       # this time since we renamed the old conflicting V1.
       setup_local_data_path
 
-      if json_data["active"]
-        @logger.debug("Upgrading to V2 style for each active VM")
-        json_data["active"].each do |name, id|
+      if json_data['active']
+        @logger.debug('Upgrading to V2 style for each active VM')
+        json_data['active'].each do |name, id|
           @logger.info("Upgrading dotfile: #{name} (#{id})")
 
           # Create the machine configuration directory
@@ -802,14 +804,14 @@ module Vagrant
           FileUtils.mkdir_p(directory)
 
           # Write the ID file
-          directory.join("id").open("w+") do |f|
+          directory.join('id').open('w+') do |f|
             f.write(id)
           end
         end
       end
 
       # Upgrade complete! Let the user know
-      @ui.info(I18n.t("vagrant.general.upgraded_v1_dotfile",
+      @ui.info(I18n.t('vagrant.general.upgraded_v1_dotfile',
                       backup_path: backup_file.to_s))
     end
   end

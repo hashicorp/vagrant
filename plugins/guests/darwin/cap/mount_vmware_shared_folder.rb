@@ -2,13 +2,12 @@ module VagrantPlugins
   module GuestDarwin
     module Cap
       class MountVmwareSharedFolder
-
         # we seem to be unable to ask 'mount -t vmhgfs' to mount the roots
         # of specific shares, so instead we symlink from what is already
-        # mounted by the guest tools 
+        # mounted by the guest tools
         # (ie. the behaviour of the VMware_fusion provider prior to 0.8.x)
 
-        def self.mount_vmware_shared_folder(machine, name, guestpath, options)
+        def self.mount_vmware_shared_folder(machine, name, guestpath, _options)
           machine.communicate.tap do |comm|
             # clear prior symlink
             if comm.test("test -L \"#{guestpath}\"", sudo: true)
@@ -22,7 +21,7 @@ module VagrantPlugins
 
             # create intermediate directories if needed
             intermediate_dir = File.dirname(guestpath)
-            if !comm.test("test -d \"#{intermediate_dir}\"", sudo: true)
+            unless comm.test("test -d \"#{intermediate_dir}\"", sudo: true)
               comm.sudo("mkdir -p \"#{intermediate_dir}\"")
             end
 

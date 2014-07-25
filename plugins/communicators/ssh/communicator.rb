@@ -18,11 +18,11 @@ require 'vagrant/util/ssh'
 module VagrantPlugins
   module CommunicatorSSH
     # This class provides communication with the VM via SSH.
-    class Communicator < Vagrant.plugin("2", :communicator)
+    class Communicator < Vagrant.plugin('2', :communicator)
       include Vagrant::Util::ANSIEscapeCodeRemover
       include Vagrant::Util::Retryable
 
-      def self.match?(machine)
+      def self.match?(_machine)
         # All machines are currently expected to have SSH.
         true
       end
@@ -30,7 +30,7 @@ module VagrantPlugins
       def initialize(machine)
         @lock    = Mutex.new
         @machine = machine
-        @logger  = Log4r::Logger.new("vagrant::communication::ssh")
+        @logger  = Log4r::Logger.new('vagrant::communication::ssh')
         @connection = nil
         @inserted_key = false
       end
@@ -48,8 +48,8 @@ module VagrantPlugins
           # Got it! Let the user know what we're connecting to.
           @machine.ui.detail("SSH address: #{ssh_info[:host]}:#{ssh_info[:port]}")
           @machine.ui.detail("SSH username: #{ssh_info[:username]}")
-          ssh_auth_type = "private key"
-          ssh_auth_type = "password" if ssh_info[:password]
+          ssh_auth_type = 'private key'
+          ssh_auth_type = 'password' if ssh_info[:password]
           @machine.ui.detail("SSH auth method: #{ssh_auth_type}")
 
           last_message = nil
@@ -65,19 +65,19 @@ module VagrantPlugins
                 raise
               end
             rescue Vagrant::Errors::SSHConnectionTimeout
-              message = "Connection timeout."
+              message = 'Connection timeout.'
             rescue Vagrant::Errors::SSHAuthenticationFailed
-              message = "Authentication failure."
+              message = 'Authentication failure.'
             rescue Vagrant::Errors::SSHDisconnected
-              message = "Remote connection disconnect."
+              message = 'Remote connection disconnect.'
             rescue Vagrant::Errors::SSHConnectionRefused
-              message = "Connection refused."
+              message = 'Connection refused.'
             rescue Vagrant::Errors::SSHConnectionReset
-              message = "Connection reset."
+              message = 'Connection reset.'
             rescue Vagrant::Errors::SSHHostDown
-              message = "Host appears down."
+              message = 'Host appears down.'
             rescue Vagrant::Errors::SSHNoRoute
-              message = "Host unreachable."
+              message = 'Host unreachable.'
             rescue Vagrant::Errors::SSHInvalidShell
               raise
             rescue Vagrant::Errors::SSHKeyTypeNotSupported
@@ -109,12 +109,12 @@ module VagrantPlugins
       end
 
       def ready?
-        @logger.debug("Checking whether SSH is ready...")
+        @logger.debug('Checking whether SSH is ready...')
 
         # Attempt to connect. This will raise an exception if it fails.
         begin
           connect
-          @logger.info("SSH is ready!")
+          @logger.info('SSH is ready!')
         rescue Vagrant::Errors::VagrantError => e
           # We catch a `VagrantError` which would signal that something went
           # wrong expectedly in the `connect`, which means we didn't connect.
@@ -123,8 +123,8 @@ module VagrantPlugins
         end
 
         # Verify the shell is valid
-        if execute("", error_check: false) != 0
-          raise Vagrant::Errors::SSHInvalidShell
+        if execute('', error_check: false) != 0
+          fail Vagrant::Errors::SSHInvalidShell
         end
 
         # If we're already attempting to switch out the SSH key, then
@@ -137,19 +137,19 @@ module VagrantPlugins
         # If we used a password, then insert the insecure key
         ssh_info = @machine.ssh_info
         if ssh_info[:password] && ssh_info[:private_key_path].empty?
-          @logger.info("Inserting insecure key to avoid password")
-          @machine.ui.info(I18n.t("vagrant.inserting_insecure_key"))
+          @logger.info('Inserting insecure key to avoid password')
+          @machine.ui.info(I18n.t('vagrant.inserting_insecure_key'))
           @machine.guest.capability(
             :insert_public_key,
-            Vagrant.source_root.join("keys", "vagrant.pub").read.chomp)
+            Vagrant.source_root.join('keys', 'vagrant.pub').read.chomp)
 
           # Write out the private key in the data dir so that the
           # machine automatically picks it up.
-          @machine.data_dir.join("private_key").open("w+") do |f|
-            f.write(Vagrant.source_root.join("keys", "vagrant").read)
+          @machine.data_dir.join('private_key').open('w+') do |f|
+            f.write(Vagrant.source_root.join('keys', 'vagrant').read)
           end
 
-          @machine.ui.info(I18n.t("vagrant.inserted_key"))
+          @machine.ui.info(I18n.t('vagrant.inserted_key'))
           @connection.close
           @connection = nil
 
@@ -160,7 +160,7 @@ module VagrantPlugins
         true
       end
 
-      def execute(command, opts=nil, &block)
+      def execute(command, opts = nil, &block)
         opts = {
           error_check: true,
           error_class: Vagrant::Errors::VagrantError,
@@ -174,8 +174,8 @@ module VagrantPlugins
         opts[:good_exit] = Array(opts[:good_exit])
 
         # Connect via SSH and execute the command in the shell.
-        stdout = ""
-        stderr = ""
+        stdout = ''
+        stderr = ''
         exit_status = connect do |connection|
           shell_opts = {
             sudo: opts[:sudo],
@@ -203,20 +203,20 @@ module VagrantPlugins
             stdout: stdout,
             stderr: stderr
           )
-          raise opts[:error_class], error_opts
+          fail opts[:error_class], error_opts
         end
 
         # Return the exit status
         exit_status
       end
 
-      def sudo(command, opts=nil, &block)
+      def sudo(command, opts = nil, &block)
         # Run `execute` but with the `sudo` option.
         opts = { sudo: true }.merge(opts || {})
         execute(command, opts, &block)
       end
 
-      def download(from, to=nil)
+      def download(from, to = nil)
         @logger.debug("Downloading: #{from} to #{to}")
 
         scp_connect do |scp|
@@ -224,7 +224,7 @@ module VagrantPlugins
         end
       end
 
-      def test(command, opts=nil)
+      def test(command, opts = nil)
         opts = { error_check: false }.merge(opts || {})
         execute(command, opts) == 0
       end
@@ -238,7 +238,7 @@ module VagrantPlugins
             scp.upload!(from, to, recursive: true)
           else
             # Open file read only to fix issue [GH-1036]
-            scp.upload!(File.open(from, "r"), to)
+            scp.upload!(File.open(from, 'r'), to)
           end
         end
       rescue RuntimeError => e
@@ -250,8 +250,8 @@ module VagrantPlugins
         # Otherwise, it is a permission denied, so let's raise a proper
         # exception
         raise Vagrant::Errors::SCPPermissionDenied,
-          from: from.to_s,
-          to: to.to_s
+              from: from.to_s,
+              to: to.to_s
       end
 
       protected
@@ -263,9 +263,9 @@ module VagrantPlugins
           # 'closed?' above. To test this we need to send data through the
           # socket.
           begin
-            @connection.exec!("")
-          rescue Exception => e
-            @logger.info("Connection errored, not re-using. Will reconnect.")
+            @connection.exec!('')
+          rescue => e
+            @logger.info('Connection errored, not re-using. Will reconnect.')
             @logger.debug(e.inspect)
             @connection = nil
           end
@@ -273,7 +273,7 @@ module VagrantPlugins
           # If the @connection is still around, then it is valid,
           # and we use it.
           if @connection
-            @logger.debug("Re-using SSH connection.")
+            @logger.debug('Re-using SSH connection.')
             return yield @connection if block_given?
             return
           end
@@ -282,14 +282,14 @@ module VagrantPlugins
         # Get the SSH info for the machine, raise an exception if the
         # provider is saying that SSH is not ready.
         ssh_info = @machine.ssh_info
-        raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
+        fail Vagrant::Errors::SSHNotReady if ssh_info.nil?
 
         # Default some options
-        opts[:retries] = 5 if !opts.has_key?(:retries)
+        opts[:retries] = 5 unless opts.key?(:retries)
 
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
-          auth_methods:          ["none", "publickey", "hostbased", "password"],
+          auth_methods:          %w(none publickey hostbased password),
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
           keys:                  ssh_info[:private_key_path],
@@ -326,7 +326,7 @@ module VagrantPlugins
 
           timeout = 60
 
-          @logger.info("Attempting SSH connection...")
+          @logger.info('Attempting SSH connection...')
           connection = retryable(tries: opts[:retries], on: exceptions) do
             Timeout.timeout(timeout) do
               begin
@@ -342,7 +342,7 @@ module VagrantPlugins
                   connect_opts[:proxy] = Net::SSH::Proxy::Command.new(ssh_info[:proxy_command])
                 end
 
-                @logger.info("Attempting to connect to SSH...")
+                @logger.info('Attempting to connect to SSH...')
                 @logger.info("  - Host: #{ssh_info[:host]}")
                 @logger.info("  - Port: #{ssh_info[:port]}")
                 @logger.info("  - Username: #{ssh_info[:username]}")
@@ -352,9 +352,9 @@ module VagrantPlugins
                 Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
               ensure
                 # Make sure we output the connection log
-                @logger.debug("== Net-SSH connection debug-level log START ==")
+                @logger.debug('== Net-SSH connection debug-level log START ==')
                 @logger.debug(ssh_logger_io.string)
-                @logger.debug("== Net-SSH connection debug-level log END ==")
+                @logger.debug('== Net-SSH connection debug-level log END ==')
               end
             end
           end
@@ -424,32 +424,32 @@ module VagrantPlugins
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
           if @machine.config.ssh.pty
-            ch.request_pty do |ch2, success|
+            ch.request_pty do |_ch2, success|
               if success
-                @logger.debug("pty obtained for connection")
+                @logger.debug('pty obtained for connection')
               else
-                @logger.warn("failed to obtain pty, will try to continue anyways")
+                @logger.warn('failed to obtain pty, will try to continue anyways')
               end
             end
           end
 
           ch.exec(shell_cmd) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
-            ch2.on_data do |ch3, data|
+            ch2.on_data do |_ch3, data|
               # Filter out the clear screen command
               data = remove_ansi_escape_codes(data)
               @logger.debug("stdout: #{data}")
               yield :stdout, data if block_given?
             end
 
-            ch2.on_extended_data do |ch3, type, data|
+            ch2.on_extended_data do |_ch3, _type, data|
               # Filter out the clear screen command
               data = remove_ansi_escape_codes(data)
               @logger.debug("stderr: #{data}")
               yield :stderr, data if block_given?
             end
 
-            ch2.on_request("exit-status") do |ch3, data|
+            ch2.on_request('exit-status') do |_ch3, data|
               exit_status = data.read_long
               @logger.debug("Exit status: #{exit_status}")
 
@@ -465,21 +465,21 @@ module VagrantPlugins
             # This is to work around often misconfigured boxes where
             # the SSH_AUTH_SOCK env var is not preserved.
             if @connection_ssh_info[:forward_agent] && sudo
-              auth_socket = ""
-              execute("echo; printf $SSH_AUTH_SOCK") do |type, data|
+              auth_socket = ''
+              execute('echo; printf $SSH_AUTH_SOCK') do |type, data|
                 if type == :stdout
                   auth_socket += data
                 end
               end
 
-              if auth_socket != ""
+              if auth_socket != ''
                 # Make sure we only read the last line which should be
                 # the $SSH_AUTH_SOCK env var we printed.
                 auth_socket = auth_socket.split("\n").last.chomp
               end
 
-              if auth_socket == ""
-                @logger.warn("No SSH_AUTH_SOCK found despite forward_agent being set.")
+              if auth_socket == ''
+                @logger.warn('No SSH_AUTH_SOCK found despite forward_agent being set.')
               else
                 @logger.info("Setting SSH_AUTH_SOCK remotely: #{auth_socket}")
                 ch2.send_data "export SSH_AUTH_SOCK=#{auth_socket}\n"
@@ -507,8 +507,8 @@ module VagrantPlugins
             keep_alive = Thread.new do
               loop do
                 sleep 5
-                @logger.debug("Sending SSH keep-alive...")
-                connection.send_global_request("keep-alive@openssh.com")
+                @logger.debug('Sending SSH keep-alive...')
+                connection.send_global_request('keep-alive@openssh.com')
               end
             end
           end
@@ -517,7 +517,7 @@ module VagrantPlugins
           begin
             channel.wait
           rescue Errno::ECONNRESET, IOError
-            @logger.info("SSH connection unexpected closed. Assuming reboot or something.")
+            @logger.info('SSH connection unexpected closed. Assuming reboot or something.')
             exit_status = 0
           end
         ensure
@@ -526,7 +526,7 @@ module VagrantPlugins
         end
 
         # Return the final exit status
-        return exit_status
+        exit_status
       end
 
       # Opens an SCP connection and yields it so that you can download

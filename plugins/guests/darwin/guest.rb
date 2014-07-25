@@ -6,7 +6,7 @@ module VagrantPlugins
     #
     # Contributed by: - Brian Johnson <b2jrock@gmail.com>
     #                 - Tim Sutton <tim@synthist.net>
-    class Guest < Vagrant.plugin("2", :guest)
+    class Guest < Vagrant.plugin('2', :guest)
       def detect?(machine)
         machine.communicate.test("uname -s | grep 'Darwin'")
       end

@@ -1,8 +1,8 @@
-require "set"
-require "tempfile"
+require 'set'
+require 'tempfile'
 
-require "vagrant/util/retryable"
-require "vagrant/util/template_renderer"
+require 'vagrant/util/retryable'
+require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module GuestFedora
@@ -12,26 +12,26 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
-          network_scripts_dir = machine.guest.capability("network_scripts_dir")
+          network_scripts_dir = machine.guest.capability('network_scripts_dir')
 
-          interface_names = Array.new
+          interface_names = []
           machine.communicate.sudo("/usr/sbin/biosdevname -d | grep Kernel | cut -f2 -d: | sed -e 's/ //;'") do |_, result|
             interface_names = result.split("\n")
           end
 
-          interface_name_pairs = Array.new
+          interface_name_pairs = []
           interface_names.each do |interface_name|
             machine.communicate.sudo("/usr/sbin/biosdevname --policy=all_ethN -i #{interface_name}") do |_, result|
-              interface_name_pairs.push([interface_name, result.gsub("\n", "")])
+              interface_name_pairs.push([interface_name, result.gsub("\n", '')])
             end
           end
 
           setting_interface_names = networks.map do |network|
-             "eth#{network[:interface]}"
+            "eth#{network[:interface]}"
           end
 
-          interface_name_pairs.each do |interface_name, previous_interface_name| 
-            if setting_interface_names.index(previous_interface_name) == nil
+          interface_name_pairs.each do |interface_name, previous_interface_name|
+            if setting_interface_names.index(previous_interface_name).nil?
               interface_names.delete(interface_name)
             end
           end
@@ -40,7 +40,7 @@ module VagrantPlugins
           # as what interfaces we're actually configuring since we use that later.
           interfaces = Set.new
           networks.each do |network|
-            interface = interface_names[network[:interface]-1]
+            interface = interface_names[network[:interface] - 1]
             interfaces.add(interface)
             network[:device] = interface
 
@@ -56,7 +56,7 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/fedora/network_#{network[:type]}",
                                             options: network)
 
-            temp = Tempfile.new("vagrant")
+            temp = Tempfile.new('vagrant')
             temp.binmode
             temp.write(entry)
             temp.close

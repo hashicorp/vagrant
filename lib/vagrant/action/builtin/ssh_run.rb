@@ -1,8 +1,8 @@
-require "log4r"
+require 'log4r'
 
-require "vagrant/util/platform"
-require "vagrant/util/ssh"
-require "vagrant/util/shell_quote"
+require 'vagrant/util/platform'
+require 'vagrant/util/ssh'
+require 'vagrant/util/shell_quote'
 
 module Vagrant
   module Action
@@ -14,9 +14,9 @@ module Vagrant
         # For quick access to the `SSH` class.
         include Vagrant::Util
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::ssh_run")
+          @logger = Log4r::Logger.new('vagrant::action::builtin::ssh_run')
         end
 
         def call(env)
@@ -25,7 +25,7 @@ module Vagrant
 
           # If the result is nil, then the machine is telling us that it is
           # not yet ready for SSH, so we raise this exception.
-          raise Errors::SSHNotReady if info.nil?
+          fail Errors::SSHNotReady if info.nil?
 
           info[:private_key_path] ||= []
 
@@ -35,7 +35,7 @@ module Vagrant
           end
 
           if info[:private_key_path].empty?
-            raise Errors::SSHRunRequiresKeys
+            fail Errors::SSHRunRequiresKeys
           end
 
           # Get the command and wrap it in a login shell
@@ -48,8 +48,8 @@ module Vagrant
 
           # Allow the user to specify a tty or non-tty manually, but if they
           # don't then we default to a TTY
-          if !opts[:extra_args].include?("-t") && !opts[:extra_args].include?("-T")
-            opts[:extra_args] << "-t"
+          if !opts[:extra_args].include?('-t') && !opts[:extra_args].include?('-T')
+            opts[:extra_args] << '-t'
           end
 
           opts[:extra_args] << command

@@ -1,4 +1,4 @@
-require "vagrant/config/v2/root"
+require 'vagrant/config/v2/root'
 
 module Vagrant
   module Config
@@ -54,23 +54,23 @@ module Vagrant
           # Make sure we instantiate every key in the config so that we
           # merge every key. This avoids issues with the same reference
           # being part of the config.
-          old_state["config_map"].each do |k, _|
+          old_state['config_map'].each do |k, _|
             old.public_send(k)
           end
-          new_state["config_map"].each do |k, _|
+          new_state['config_map'].each do |k, _|
             new.public_send(k)
           end
 
           # The config map for the new object is the old one merged with the
           # new one.
-          config_map = old_state["config_map"].merge(new_state["config_map"])
+          config_map = old_state['config_map'].merge(new_state['config_map'])
 
           # Merge the keys.
-          old_keys = old_state["keys"]
-          new_keys = new_state["keys"]
+          old_keys = old_state['keys']
+          new_keys = new_state['keys']
           keys     = {}
           old_keys.each do |key, old_value|
-            if new_keys.has_key?(key)
+            if new_keys.key?(key)
               # We need to do a merge, which we expect to be available
               # on the config class itself.
               keys[key] = old_value.merge(new_keys[key])
@@ -82,22 +82,22 @@ module Vagrant
 
           new_keys.each do |key, new_value|
             # Add in the keys that the new class has that we haven't merged.
-            if !keys.has_key?(key)
+            unless keys.key?(key)
               keys[key] = new_value.dup
             end
           end
 
           # Merge the missing keys
           new_missing_key_calls =
-            old_state["missing_key_calls"] + new_state["missing_key_calls"]
+            old_state['missing_key_calls'] + new_state['missing_key_calls']
 
           # Return the final root object
           V2::Root.new(config_map).tap do |result|
-            result.__set_internal_state({
-              "config_map"        => config_map,
-              "keys"              => keys,
-              "missing_key_calls" => new_missing_key_calls
-            })
+            result.__set_internal_state(
+                                          'config_map'        => config_map,
+                                          'keys'              => keys,
+                                          'missing_key_calls' => new_missing_key_calls
+                                        )
           end
         end
 
@@ -117,7 +117,7 @@ module Vagrant
           errors   = []
 
           # Go through the old keys and upgrade them if they can be
-          old.__internal_state["keys"].each do |_, old_value|
+          old.__internal_state['keys'].each do |_, old_value|
             if old_value.respond_to?(:upgrade)
               result = old_value.upgrade(root)
 
@@ -129,8 +129,8 @@ module Vagrant
             end
           end
 
-          old.__internal_state["missing_key_calls"].to_a.sort.each do |key|
-            warnings << I18n.t("vagrant.config.loader.bad_v1_key", key: key)
+          old.__internal_state['missing_key_calls'].to_a.sort.each do |key|
+            warnings << I18n.t('vagrant.config.loader.bad_v1_key', key: key)
           end
 
           [root, warnings, errors]
@@ -140,7 +140,7 @@ module Vagrant
 
         def self.new_root_object
           # Get all the registered plugins for V2
-          config_map = Vagrant.plugin("2").manager.config
+          config_map = Vagrant.plugin('2').manager.config
 
           # Create the configuration root object
           V2::Root.new(config_map)

@@ -51,13 +51,13 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
+              b2.use Message, I18n.t('docker_provider.messages.not_created')
               next
             end
 
             b2.use Call, IsState, :running do |env2, b3|
-              if !env2[:result]
-                b3.use Message, I18n.t("docker_provider.messages.not_running")
+              unless env2[:result]
+                b3.use Message, I18n.t('docker_provider.messages.not_running')
                 next
               end
 
@@ -66,8 +66,8 @@ module VagrantPlugins
                   b4.use Provision
                 else
                   b4.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
+                         I18n.t('docker_provider.messages.provision_no_ssh'),
+                         post: true
                 end
               end
             end
@@ -87,7 +87,7 @@ module VagrantPlugins
 
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
+              b2.use Message, I18n.t('docker_provider.messages.not_created')
               next
             end
 
@@ -104,7 +104,7 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
+              b2.use Message, I18n.t('docker_provider.messages.not_created')
               next
             end
 
@@ -127,8 +127,8 @@ module VagrantPlugins
       def self.action_destroy
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsHostMachineCreated do |env, b2|
-            if !env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
+            unless env[:result]
+              b2.use Message, I18n.t('docker_provider.messages.not_created')
               next
             end
 
@@ -141,7 +141,7 @@ module VagrantPlugins
             b2.use Call, IsState, :not_created do |env2, b3|
               if env2[:result]
                 b3.use Message,
-                  I18n.t("docker_provider.messages.not_created")
+                       I18n.t('docker_provider.messages.not_created')
                 next
               end
 
@@ -156,7 +156,7 @@ module VagrantPlugins
                   b4.use ProvisionerCleanup
                 else
                   b4.use Message,
-                    I18n.t("docker_provider.messages.will_not_destroy")
+                         I18n.t('docker_provider.messages.will_not_destroy')
                 end
               end
             end
@@ -169,13 +169,13 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
+              b2.use Message, I18n.t('docker_provider.messages.not_created')
               next
             end
 
             b2.use Call, IsState, :running do |env2, b3|
-              if !env2[:result]
-                b3.use Message, I18n.t("docker_provider.messages.not_running")
+              unless env2[:result]
+                b3.use Message, I18n.t('docker_provider.messages.not_running')
                 next
               end
 
@@ -191,13 +191,13 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
+              b2.use Message, I18n.t('docker_provider.messages.not_created')
               next
             end
 
             b2.use Call, IsState, :running do |env2, b3|
-              if !env2[:result]
-                raise Vagrant::Errors::VMNotRunningError
+              unless env2[:result]
+                fail Vagrant::Errors::VMNotRunningError
               end
 
               b3.use SSHRun
@@ -218,14 +218,14 @@ module VagrantPlugins
                   b3.use Provision
                 else
                   b3.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
+                         I18n.t('docker_provider.messages.provision_no_ssh'),
+                         post: true
                 end
               end
             end
 
             b2.use Call, IsState, :not_created do |env2, b3|
-              if !env2[:result]
+              unless env2[:result]
                 b3.use EnvSet, host_machine_sync_folders: false
               end
             end
@@ -272,29 +272,29 @@ module VagrantPlugins
       end
 
       # The autoload farm
-      action_root = Pathname.new(File.expand_path("../action", __FILE__))
-      autoload :Build, action_root.join("build")
-      autoload :CompareSyncedFolders, action_root.join("compare_synced_folders")
-      autoload :Create, action_root.join("create")
-      autoload :Destroy, action_root.join("destroy")
-      autoload :DestroyBuildImage, action_root.join("destroy_build_image")
-      autoload :ForwardedPorts, action_root.join("forwarded_ports")
-      autoload :HasSSH, action_root.join("has_ssh")
-      autoload :HostMachine, action_root.join("host_machine")
-      autoload :HostMachineBuildDir, action_root.join("host_machine_build_dir")
-      autoload :HostMachinePortChecker, action_root.join("host_machine_port_checker")
-      autoload :HostMachinePortWarning, action_root.join("host_machine_port_warning")
-      autoload :HostMachineRequired, action_root.join("host_machine_required")
-      autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
-      autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
-      autoload :IsBuild, action_root.join("is_build")
-      autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
-      autoload :PrepareSSH, action_root.join("prepare_ssh")
-      autoload :Stop, action_root.join("stop")
-      autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
-      autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")
-      autoload :Start, action_root.join("start")
-      autoload :WaitForRunning, action_root.join("wait_for_running")
+      action_root = Pathname.new(File.expand_path('../action', __FILE__))
+      autoload :Build, action_root.join('build')
+      autoload :CompareSyncedFolders, action_root.join('compare_synced_folders')
+      autoload :Create, action_root.join('create')
+      autoload :Destroy, action_root.join('destroy')
+      autoload :DestroyBuildImage, action_root.join('destroy_build_image')
+      autoload :ForwardedPorts, action_root.join('forwarded_ports')
+      autoload :HasSSH, action_root.join('has_ssh')
+      autoload :HostMachine, action_root.join('host_machine')
+      autoload :HostMachineBuildDir, action_root.join('host_machine_build_dir')
+      autoload :HostMachinePortChecker, action_root.join('host_machine_port_checker')
+      autoload :HostMachinePortWarning, action_root.join('host_machine_port_warning')
+      autoload :HostMachineRequired, action_root.join('host_machine_required')
+      autoload :HostMachineSyncFolders, action_root.join('host_machine_sync_folders')
+      autoload :HostMachineSyncFoldersDisable, action_root.join('host_machine_sync_folders_disable')
+      autoload :IsBuild, action_root.join('is_build')
+      autoload :IsHostMachineCreated, action_root.join('is_host_machine_created')
+      autoload :PrepareSSH, action_root.join('prepare_ssh')
+      autoload :Stop, action_root.join('stop')
+      autoload :PrepareNFSValidIds, action_root.join('prepare_nfs_valid_ids')
+      autoload :PrepareNFSSettings, action_root.join('prepare_nfs_settings')
+      autoload :Start, action_root.join('start')
+      autoload :WaitForRunning, action_root.join('wait_for_running')
     end
   end
 end

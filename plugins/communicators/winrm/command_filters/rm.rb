@@ -12,7 +12,7 @@ module VagrantPlugins
             dir = cmd_parts[2]
             return "rm '#{dir}' -recurse -force"
           end
-          return "rm '#{dir}' -force"
+          "rm '#{dir}' -force"
         end
 
         def accept?(command)

@@ -1,12 +1,12 @@
-require File.expand_path("../../../../base", __FILE__)
+require File.expand_path('../../../../base', __FILE__)
 
-require "vagrant/util/ssh"
+require 'vagrant/util/ssh'
 
 describe Vagrant::Action::Builtin::SSHExec do
-  let(:app) { lambda { |env| } }
+  let(:app) { lambda { |_env| } }
   let(:env) { { machine: machine } }
   let(:machine) do
-    result = double("machine")
+    result = double('machine')
     allow(result).to receive(:ssh_info).and_return(machine_ssh_info)
     result
   end
@@ -20,8 +20,8 @@ describe Vagrant::Action::Builtin::SSHExec do
     allow(ssh_klass).to receive(:exec)
   end
 
-  it "should raise an exception if SSH is not ready" do
-    not_ready_machine = double("machine")
+  it 'should raise an exception if SSH is not ready' do
+    not_ready_machine = double('machine')
     allow(not_ready_machine).to receive(:ssh_info).and_return(nil)
 
     env[:machine] = not_ready_machine
@@ -29,8 +29,8 @@ describe Vagrant::Action::Builtin::SSHExec do
       to raise_error(Vagrant::Errors::SSHNotReady)
   end
 
-  it "should check key permissions then exec" do
-    key_path = "/foo"
+  it 'should check key permissions then exec' do
+    key_path = '/foo'
     machine_ssh_info[:private_key_path] = [key_path]
 
     expect(ssh_klass).to receive(:check_key_permissions).
@@ -46,7 +46,7 @@ describe Vagrant::Action::Builtin::SSHExec do
     described_class.new(app, env).call(env)
   end
 
-  it "should exec with the SSH info in the env if given" do
+  it 'should exec with the SSH info in the env if given' do
     ssh_info = { foo: :bar }
 
     expect(ssh_klass).to receive(:exec).
@@ -56,7 +56,7 @@ describe Vagrant::Action::Builtin::SSHExec do
     described_class.new(app, env).call(env)
   end
 
-  it "should exec with the options given in `ssh_opts`" do
+  it 'should exec with the options given in `ssh_opts`' do
     ssh_opts = { foo: :bar }
 
     expect(ssh_klass).to receive(:exec).

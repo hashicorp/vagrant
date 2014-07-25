@@ -5,7 +5,7 @@ module Vagrant
       # deep merge.
       def self.deep_merge(myself, other_hash, &block)
         myself = myself.dup
-        other_hash.each_pair do |k,v|
+        other_hash.each_pair do |k, v|
           tv = myself[k]
           if tv.is_a?(Hash) && v.is_a?(Hash)
             myself[k] = deep_merge(tv, v, &block)

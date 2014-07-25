@@ -2,7 +2,7 @@ module VagrantPlugins
   module DockerProvider
     module Errors
       class DockerError < Vagrant::Errors::VagrantError
-        error_namespace("docker_provider.errors")
+        error_namespace('docker_provider.errors')
       end
 
       class CommunicatorNonDocker < DockerError

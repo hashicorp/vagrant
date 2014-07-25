@@ -1,4 +1,4 @@
-require "vagrant/util/platform"
+require 'vagrant/util/platform'
 
 module Vagrant
   module Util
@@ -36,7 +36,7 @@ module Vagrant
           end
         end
 
-        return nil
+        nil
       end
     end
   end

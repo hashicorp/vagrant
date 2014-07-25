@@ -1,15 +1,15 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path('../../../base', __FILE__)
 
-require "vagrant/util/platform"
-require "vagrant/util/ssh"
+require 'vagrant/util/platform'
+require 'vagrant/util/ssh'
 
 describe Vagrant::Util::SSH do
-  include_context "unit"
+  include_context 'unit'
 
-  describe "checking key permissions" do
+  describe 'checking key permissions' do
     let(:key_path) { temporary_file }
 
-    it "should do nothing on Windows" do
+    it 'should do nothing on Windows' do
       allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
 
       key_path.chmod(0700)
@@ -20,7 +20,7 @@ describe Vagrant::Util::SSH do
       expect(key_path.stat.mode).to eq(mode)
     end
 
-    it "should fix the permissions", :skip_windows do
+    it 'should fix the permissions', :skip_windows do
       key_path.chmod(0644)
 
       described_class.check_key_permissions(key_path)

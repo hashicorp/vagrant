@@ -1,12 +1,12 @@
-require File.expand_path("../../../../../base", __FILE__)
+require File.expand_path('../../../../../base', __FILE__)
 
-require Vagrant.source_root.join("plugins/guests/windows/cap/halt")
+require Vagrant.source_root.join('plugins/guests/windows/cap/halt')
 
-describe "VagrantPlugins::GuestWindows::Cap::Halt" do
+describe 'VagrantPlugins::GuestWindows::Cap::Halt' do
   let(:described_class) do
     VagrantPlugins::GuestWindows::Plugin.components.guest_capabilities[:windows].get(:halt)
   end
-  let(:machine) { double("machine") }
+  let(:machine) { double('machine') }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
@@ -17,14 +17,14 @@ describe "VagrantPlugins::GuestWindows::Cap::Halt" do
     communicator.verify_expectations!
   end
 
-  describe ".halt" do
-  
-    it "cancels any existing scheduled shut down" do
-      communicator.expect_command("shutdown -a")
+  describe '.halt' do
+
+    it 'cancels any existing scheduled shut down' do
+      communicator.expect_command('shutdown -a')
       described_class.halt(machine)
     end
 
-    it "shuts down immediately" do
+    it 'shuts down immediately' do
       communicator.expect_command('shutdown /s /t 1 /c "Vagrant Halt" /f /d p:4:1')
       described_class.halt(machine)
     end

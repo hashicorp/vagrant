@@ -1,4 +1,4 @@
-require "set"
+require 'set'
 
 module Vagrant
   module Config
@@ -10,7 +10,7 @@ module Vagrant
         # configuration classes.
         #
         # @param [Hash] config_map Map of key to config class.
-        def initialize(config_map, keys=nil)
+        def initialize(config_map, keys = nil)
           @keys              = keys || {}
           @config_map        = config_map
           @missing_key_calls = Set.new
@@ -19,8 +19,8 @@ module Vagrant
         # We use method_missing as a way to get the configuration that is
         # used for Vagrant and load the proper configuration classes for
         # each.
-        def method_missing(name, *args)
-          return @keys[name] if @keys.has_key?(name)
+        def method_missing(name, *_args)
+          return @keys[name] if @keys.key?(name)
 
           config_klass = @config_map[name.to_sym]
           if config_klass
@@ -49,9 +49,9 @@ module Vagrant
         # clashes with potential configuration keys.
         def __internal_state
           {
-            "config_map"        => @config_map,
-            "keys"              => @keys,
-            "missing_key_calls" => @missing_key_calls
+            'config_map'        => @config_map,
+            'keys'              => @keys,
+            'missing_key_calls' => @missing_key_calls
           }
         end
       end

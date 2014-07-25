@@ -1,4 +1,4 @@
-require "log4r"
+require 'log4r'
 
 module Vagrant
   module Action
@@ -18,7 +18,7 @@ module Vagrant
       def initialize(actions, env)
         @stack      = []
         @actions    = actions.map { |m| finalize_action(m, env) }
-        @logger     = Log4r::Logger.new("vagrant::action::warden")
+        @logger     = Log4r::Logger.new('vagrant::action::warden')
         @last_error = nil
       end
 
@@ -28,17 +28,17 @@ module Vagrant
         begin
           # Call the next middleware in the sequence, appending to the stack
           # of "recoverable" middlewares in case something goes wrong!
-          raise Errors::VagrantInterrupt if env[:interrupted]
+          fail Errors::VagrantInterrupt if env[:interrupted]
           action = @actions.shift
           @logger.info("Calling IN action: #{action}")
           @stack.unshift(action).first.call(env)
-          raise Errors::VagrantInterrupt if env[:interrupted]
+          fail Errors::VagrantInterrupt if env[:interrupted]
           @logger.info("Calling OUT action: #{action}")
         rescue SystemExit
           # This means that an "exit" or "abort" was called. In these cases,
           # we just exit immediately.
           raise
-        rescue Exception => e
+        rescue => e
           # We guard this so that the Warden only outputs this once for
           # an exception that bubbles up.
           if e != @last_error
@@ -46,7 +46,7 @@ module Vagrant
             @last_error = e
           end
 
-          env["vagrant.error"] = e
+          env['vagrant.error'] = e
 
           # Something went horribly wrong. Start the rescue chain then
           # reraise the exception to properly kick us out of limbo here.
@@ -59,7 +59,7 @@ module Vagrant
       # embedded within another Warden. To recover, we just do our own
       # recovery process on our stack.
       def recover(env)
-        @logger.info("Beginning recovery process...")
+        @logger.info('Beginning recovery process...')
 
         @stack.each do |act|
           if act.respond_to?(:recover)
@@ -68,7 +68,7 @@ module Vagrant
           end
         end
 
-        @logger.info("Recovery complete.")
+        @logger.info('Recovery complete.')
 
         # Clear stack so that warden down the middleware chain doesn't
         # rescue again.
@@ -93,10 +93,10 @@ module Vagrant
           # up the chain
           lambda do |e|
             klass.call(e)
-            self.call(e)
+            call(e)
           end
         else
-          raise "Invalid action: #{action.inspect}"
+          fail "Invalid action: #{action.inspect}"
         end
       end
     end

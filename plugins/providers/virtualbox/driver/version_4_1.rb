@@ -1,8 +1,8 @@
 require 'log4r'
 
-require "vagrant/util/platform"
+require 'vagrant/util/platform'
 
-require File.expand_path("../base", __FILE__)
+require File.expand_path('../base', __FILE__)
 
 module VagrantPlugins
   module ProviderVirtualBox
@@ -12,49 +12,49 @@ module VagrantPlugins
         def initialize(uuid)
           super()
 
-          @logger = Log4r::Logger.new("vagrant::provider::virtualbox_4_1")
+          @logger = Log4r::Logger.new('vagrant::provider::virtualbox_4_1')
           @uuid = uuid
         end
 
         def clear_forwarded_ports
           args = []
           read_forwarded_ports(@uuid).each do |nic, name, _, _|
-            args.concat(["--natpf#{nic}", "delete", name])
+            args.concat(["--natpf#{nic}", 'delete', name])
           end
 
-          execute("modifyvm", @uuid, *args) if !args.empty?
+          execute('modifyvm', @uuid, *args) unless args.empty?
         end
 
         def clear_shared_folders
-          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
+          info = execute('showvminfo', @uuid, '--machinereadable', retryable: true)
           info.split("\n").each do |line|
             if folder = line[/^SharedFolderNameMachineMapping\d+="(.+?)"$/, 1]
-              execute("sharedfolder", "remove", @uuid, "--name", folder)
+              execute('sharedfolder', 'remove', @uuid, '--name', folder)
             end
           end
         end
 
         def create_dhcp_server(network, options)
-          execute("dhcpserver", "add", "--ifname", network,
-                  "--ip", options[:dhcp_ip],
-                  "--netmask", options[:netmask],
-                  "--lowerip", options[:dhcp_lower],
-                  "--upperip", options[:dhcp_upper],
-                  "--enable")
+          execute('dhcpserver', 'add', '--ifname', network,
+                  '--ip', options[:dhcp_ip],
+                  '--netmask', options[:netmask],
+                  '--lowerip', options[:dhcp_lower],
+                  '--upperip', options[:dhcp_upper],
+                  '--enable')
         end
 
         def create_host_only_network(options)
           # Create the interface
-          interface = execute("hostonlyif", "create")
+          interface = execute('hostonlyif', 'create')
           name = interface[/^Interface '(.+?)' was successfully created$/, 1]
 
           # Configure it
-          execute("hostonlyif", "ipconfig", name,
-                  "--ip", options[:adapter_ip],
-                  "--netmask", options[:netmask])
+          execute('hostonlyif', 'ipconfig', name,
+                  '--ip', options[:adapter_ip],
+                  '--netmask', options[:netmask])
 
           # Return the details
-          return {
+          {
             name: name,
             ip:   options[:adapter_ip],
             netmask: options[:netmask],
@@ -63,20 +63,20 @@ module VagrantPlugins
         end
 
         def delete
-          execute("unregistervm", @uuid, "--delete")
+          execute('unregistervm', @uuid, '--delete')
         end
 
         def delete_unused_host_only_networks
           networks = []
-          execute("list", "hostonlyifs").split("\n").each do |line|
+          execute('list', 'hostonlyifs').split("\n").each do |line|
             if network = line[/^Name:\s+(.+?)$/, 1]
               networks << network
             end
           end
 
-          execute("list", "vms").split("\n").each do |line|
+          execute('list', 'vms').split("\n").each do |line|
             if vm = line[/^".+?"\s+\{(.+?)\}$/, 1]
-              info = execute("showvminfo", vm, "--machinereadable", retryable: true)
+              info = execute('showvminfo', vm, '--machinereadable', retryable: true)
               info.split("\n").each do |line|
                 if adapter = line[/^hostonlyadapter\d+="(.+?)"$/, 1]
                   networks.delete(adapter)
@@ -89,15 +89,15 @@ module VagrantPlugins
             # First try to remove any DHCP servers attached. We use `raw` because
             # it is okay if this fails. It usually means that a DHCP server was
             # never attached.
-            raw("dhcpserver", "remove", "--ifname", name)
+            raw('dhcpserver', 'remove', '--ifname', name)
 
             # Delete the actual host only network interface.
-            execute("hostonlyif", "remove", name)
+            execute('hostonlyif', 'remove', name)
           end
         end
 
         def discard_saved_state
-          execute("discardstate", @uuid)
+          execute('discardstate', @uuid)
         end
 
         def enable_adapters(adapters)
@@ -107,22 +107,22 @@ module VagrantPlugins
 
             if adapter[:bridge]
               args.concat(["--bridgeadapter#{adapter[:adapter]}",
-                          adapter[:bridge], "--cableconnected#{adapter[:adapter]}", "on"])
+                           adapter[:bridge], "--cableconnected#{adapter[:adapter]}", 'on'])
             end
 
             if adapter[:hostonly]
               args.concat(["--hostonlyadapter#{adapter[:adapter]}",
-                          adapter[:hostonly]])
+                           adapter[:hostonly]])
             end
 
             if adapter[:intnet]
               args.concat(["--intnet#{adapter[:adapter]}",
-                          adapter[:intnet]])
+                           adapter[:intnet]])
             end
 
             if adapter[:mac_address]
               args.concat(["--macaddress#{adapter[:adapter]}",
-                          adapter[:mac_address]])
+                           adapter[:mac_address]])
             end
 
             if adapter[:nic_type]
@@ -130,7 +130,7 @@ module VagrantPlugins
             end
           end
 
-          execute("modifyvm", @uuid, *args)
+          execute('modifyvm', @uuid, *args)
         end
 
         def execute_command(command)
@@ -138,37 +138,37 @@ module VagrantPlugins
         end
 
         def export(path)
-          execute("export", @uuid, "--output", path.to_s)
+          execute('export', @uuid, '--output', path.to_s)
         end
 
         def forward_ports(ports)
           args = []
           ports.each do |options|
             pf_builder = [options[:name],
-              options[:protocol] || "tcp",
-              options[:hostip] || "",
-              options[:hostport],
-              options[:guestip] || "",
-              options[:guestport]]
+                          options[:protocol] || 'tcp',
+                          options[:hostip] || '',
+                          options[:hostport],
+                          options[:guestip] || '',
+                          options[:guestport]]
 
             args.concat(["--natpf#{options[:adapter] || 1}",
-                        pf_builder.join(",")])
+                         pf_builder.join(',')])
           end
 
-          execute("modifyvm", @uuid, *args) if !args.empty?
+          execute('modifyvm', @uuid, *args) unless args.empty?
         end
 
         def halt
-          execute("controlvm", @uuid, "poweroff")
+          execute('controlvm', @uuid, 'poweroff')
         end
 
         def import(ovf)
           ovf = Vagrant::Util::Platform.cygwin_windows_path(ovf)
 
-          output = ""
-          total = ""
+          output = ''
+          total = ''
           last  = 0
-          execute("import", ovf) do |type, data|
+          execute('import', ovf) do |type, data|
             if type == :stdout
               # Keep track of the stdout so that we can get the VM name
               output << data
@@ -178,7 +178,7 @@ module VagrantPlugins
 
               # Break up the lines. We can't get the progress until we see an "OK"
               lines = total.split("\n")
-              if lines.include?("OK.")
+              if lines.include?('OK.')
                 # The progress of the import will be in the last line. Do a greedy
                 # regular expression to find what we're looking for.
                 if current = lines.last[/.+(\d{2})%/, 1]
@@ -194,12 +194,12 @@ module VagrantPlugins
 
           # Find the name of the VM name
           name = output[/Suggested VM name "(.+?)"/, 1]
-          if !name
+          unless name
             @logger.error("Couldn't find VM name in the output.")
             return nil
           end
 
-          output = execute("list", "vms")
+          output = execute('list', 'vms')
           if existing_vm = output[/^"#{Regexp.escape(name)}" \{(.+?)\}$/, 1]
             return existing_vm
           end
@@ -207,14 +207,14 @@ module VagrantPlugins
           nil
         end
 
-        def read_forwarded_ports(uuid=nil, active_only=false)
+        def read_forwarded_ports(uuid = nil, active_only = false)
           uuid ||= @uuid
 
           @logger.debug("read_forward_ports: uuid=#{uuid} active_only=#{active_only}")
 
           results = []
           current_nic = nil
-          info = execute("showvminfo", uuid, "--machinereadable", retryable: true)
+          info = execute('showvminfo', uuid, '--machinereadable', retryable: true)
           info.split("\n").each do |line|
             # This is how we find the nic that a FP is attached to,
             # since this comes first.
@@ -224,7 +224,7 @@ module VagrantPlugins
 
             # If we care about active VMs only, then we check the state
             # to verify the VM is running.
-            if active_only && (state = line[/^VMState="(.+?)"$/, 1] and state != "running")
+            if active_only && (state = line[/^VMState="(.+?)"$/, 1] and state != 'running')
               return []
             end
 
@@ -240,7 +240,7 @@ module VagrantPlugins
         end
 
         def read_bridged_interfaces
-          execute("list", "bridgedifs").split("\n\n").collect do |block|
+          execute('list', 'bridgedifs').split("\n\n").map do |block|
             info = {}
 
             block.split("\n").each do |line|
@@ -261,16 +261,16 @@ module VagrantPlugins
         end
 
         def read_guest_additions_version
-          output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version",
+          output = execute('guestproperty', 'get', @uuid, '/VirtualBox/GuestAdd/Version',
                            retryable: true)
           if value = output[/^Value: (.+?)$/, 1]
             # Split the version by _ since some distro versions modify it
             # to look like this: 4.1.2_ubuntu, and the distro part isn't
             # too important.
-            return value.split("_").first
+            return value.split('_').first
           end
 
-          return nil
+          nil
         end
 
         def read_guest_ip(adapter_number)
@@ -278,17 +278,17 @@ module VagrantPlugins
         end
 
         def read_guest_property(property)
-          output = execute("guestproperty", "get", @uuid, property)
+          output = execute('guestproperty', 'get', @uuid, property)
           if output =~ /^Value: (.+?)$/
-            $1.to_s
+            Regexp.last_match[1].to_s
           else
-            raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, guest_property: property
+            fail Vagrant::Errors::VirtualBoxGuestPropertyNotFound, guest_property: property
           end
         end
 
         def read_host_only_interfaces
           dhcp = {}
-          execute("list", "dhcpservers", retryable: true).split("\n\n").each do |block|
+          execute('list', 'dhcpservers', retryable: true).split("\n\n").each do |block|
             info = {}
 
             block.split("\n").each do |line|
@@ -307,7 +307,7 @@ module VagrantPlugins
             dhcp[info[:network]] = info
           end
 
-          execute("list", "hostonlyifs", retryable: true).split("\n\n").collect do |block|
+          execute('list', 'hostonlyifs', retryable: true).split("\n\n").map do |block|
             info = {}
 
             block.split("\n").each do |line|
@@ -330,7 +330,7 @@ module VagrantPlugins
         end
 
         def read_mac_address
-          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
+          info = execute('showvminfo', @uuid, '--machinereadable', retryable: true)
           info.split("\n").each do |line|
             if mac = line[/^macaddress1="(.+?)"$/, 1]
               return mac
@@ -342,7 +342,7 @@ module VagrantPlugins
 
         def read_mac_addresses
           macs = {}
-          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
+          info = execute('showvminfo', @uuid, '--machinereadable', retryable: true)
           info.split("\n").each do |line|
             if matcher = /^macaddress(\d+)="(.+?)"$/.match(line)
               adapter = matcher[1].to_i
@@ -354,7 +354,7 @@ module VagrantPlugins
         end
 
         def read_machine_folder
-          execute("list", "systemproperties", retryable: true).split("\n").each do |line|
+          execute('list', 'systemproperties', retryable: true).split("\n").each do |line|
             if folder = line[/^Default machine folder:\s+(.+?)$/i, 1]
               return folder
             end
@@ -365,7 +365,7 @@ module VagrantPlugins
 
         def read_network_interfaces
           nics = {}
-          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
+          info = execute('showvminfo', @uuid, '--machinereadable', retryable: true)
           info.split("\n").each do |line|
             if matcher = /^nic(\d+)="(.+?)"$/.match(line)
               adapter = matcher[1].to_i
@@ -392,7 +392,7 @@ module VagrantPlugins
         end
 
         def read_state
-          output = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
+          output = execute('showvminfo', @uuid, '--machinereadable', retryable: true)
           if output =~ /^name="<inaccessible>"$/
             return :inaccessible
           elsif state = output[/^VMState="(.+?)"$/, 1]
@@ -404,7 +404,7 @@ module VagrantPlugins
 
         def read_used_ports
           ports = []
-          execute("list", "vms", retryable: true).split("\n").each do |line|
+          execute('list', 'vms', retryable: true).split("\n").each do |line|
             if uuid = line[/^".+?" \{(.+?)\}$/, 1]
               # Ignore our own used ports
               next if uuid == @uuid
@@ -420,9 +420,9 @@ module VagrantPlugins
 
         def read_vms
           results = {}
-          execute("list", "vms", retryable: true).split("\n").each do |line|
+          execute('list', 'vms', retryable: true).split("\n").each do |line|
             if line =~ /^"(.+?)" \{(.+?)\}$/
-              results[$1.to_s] = $2.to_s
+              results[Regexp.last_match[1].to_s] = Regexp.last_match[2].to_s
             end
           end
 
@@ -430,26 +430,26 @@ module VagrantPlugins
         end
 
         def set_mac_address(mac)
-          execute("modifyvm", @uuid, "--macaddress1", mac)
+          execute('modifyvm', @uuid, '--macaddress1', mac)
         end
 
         def set_name(name)
-          execute("modifyvm", @uuid, "--name", name)
+          execute('modifyvm', @uuid, '--name', name)
         end
 
         def share_folders(folders)
           folders.each do |folder|
-            args = ["--name",
-              folder[:name],
-              "--hostpath",
-              folder[:hostpath]]
-            args << "--transient" if folder.has_key?(:transient) && folder[:transient]
+            args = ['--name',
+                    folder[:name],
+                    '--hostpath',
+                    folder[:hostpath]]
+            args << '--transient' if folder.key?(:transient) && folder[:transient]
 
             # Add the shared folder
-            execute("sharedfolder", "add", @uuid, *args)
+            execute('sharedfolder', 'add', @uuid, *args)
 
             # Enable symlinks on the shared folder
-            execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1")
+            execute('setextradata', @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", '1')
           end
         end
 
@@ -465,12 +465,12 @@ module VagrantPlugins
         end
 
         def resume
-          @logger.debug("Resuming paused VM...")
-          execute("controlvm", @uuid, "resume")
+          @logger.debug('Resuming paused VM...')
+          execute('controlvm', @uuid, 'resume')
         end
 
         def start(mode)
-          command = ["startvm", @uuid, "--type", mode.to_s]
+          command = ['startvm', @uuid, '--type', mode.to_s]
           r = raw(*command)
 
           if r.exit_code == 0 || r.stdout =~ /VM ".+?" has been successfully started/
@@ -480,28 +480,28 @@ module VagrantPlugins
           end
 
           # If we reached this point then it didn't work out.
-          raise Vagrant::Errors::VBoxManageError,
-            command: command.inspect,
-            stderr: r.stderr
+          fail Vagrant::Errors::VBoxManageError,
+               command: command.inspect,
+               stderr: r.stderr
         end
 
         def suspend
-          execute("controlvm", @uuid, "savestate")
+          execute('controlvm', @uuid, 'savestate')
         end
 
         def unshare_folders(names)
           names.each do |name|
             begin
               execute(
-                "sharedfolder", "remove", @uuid,
-                "--name", name,
-                "--transient")
+                'sharedfolder', 'remove', @uuid,
+                '--name', name,
+                '--transient')
 
-            execute(
-              "setextradata", @uuid,
-              "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
+              execute(
+                'setextradata', @uuid,
+                "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
             rescue Vagrant::Errors::VBoxManageError => e
-              if e.extra_data[:stderr].include?("VBOX_E_FILE_ERROR")
+              if e.extra_data[:stderr].include?('VBOX_E_FILE_ERROR')
                 # The folder doesn't exist. ignore.
               else
                 raise
@@ -513,22 +513,22 @@ module VagrantPlugins
         def verify!
           # This command sometimes fails if kernel drivers aren't properly loaded
           # so we just run the command and verify that it succeeded.
-          execute("list", "hostonlyifs")
+          execute('list', 'hostonlyifs')
         end
 
         def verify_image(path)
-          r = raw("import", path.to_s, "--dry-run")
-          return r.exit_code == 0
+          r = raw('import', path.to_s, '--dry-run')
+          r.exit_code == 0
         end
 
         def vm_exists?(uuid)
-          5.times do |i|
-            result = raw("showvminfo", uuid)
+          5.times do |_i|
+            result = raw('showvminfo', uuid)
             return true if result.exit_code == 0
 
             # GH-2479: Sometimes this happens. In this case, retry. If
             # we don't see this text, the VM really probably doesn't exist.
-            return false if !result.stderr.include?("CO_E_SERVER_EXEC_FAILURE")
+            return false unless result.stderr.include?('CO_E_SERVER_EXEC_FAILURE')
 
             # Sleep a bit though to give VirtualBox time to fix itself
             sleep 2
@@ -537,8 +537,8 @@ module VagrantPlugins
           # If we reach this point, it means that we consistently got the
           # failure, do a standard vboxmanage now. This will raise an
           # exception if it fails again.
-          execute("showvminfo", uuid)
-          return true
+          execute('showvminfo', uuid)
+          true
         end
       end
     end

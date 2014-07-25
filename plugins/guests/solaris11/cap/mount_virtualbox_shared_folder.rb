@@ -31,7 +31,7 @@ module VagrantPlugins
           # Mount the folder with the proper owner/group
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
           if options[:mount_options]
-            mount_options += ",#{options[:mount_options].join(",")}"
+            mount_options += ",#{options[:mount_options].join(',')}"
           end
 
           machine.communicate.execute("#{machine.config.solaris11.suexec_cmd} /sbin/mount -F vboxfs #{mount_options} #{name} #{guestpath}")

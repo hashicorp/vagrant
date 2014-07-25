@@ -1,6 +1,6 @@
 require 'tempfile'
 
-require "vagrant/util/template_renderer"
+require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module Chef
@@ -8,9 +8,9 @@ module VagrantPlugins
       # This class is a base class where the common functionality shared between
       # chef-solo and chef-client provisioning are stored. This is **not an actual
       # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
-      class Base < Vagrant.plugin("2", :provisioner)
+      class Base < Vagrant.plugin('2', :provisioner)
         class ChefError < Vagrant::Errors::VagrantError
-          error_namespace("vagrant.provisioners.chef")
+          error_namespace('vagrant.provisioners.chef')
         end
 
         def verify_binary(binary)
@@ -27,14 +27,14 @@ module VagrantPlugins
         # type.
         def build_command(client)
           builder = CommandBuilder.new(@config, client, windows?, @machine.env.ui.is_a?(Vagrant::UI::Colored))
-          return builder.build_command
+          builder.build_command
         end
 
         # Returns the path to the Chef binary, taking into account the
         # `binary_path` configuration option.
         def chef_binary_path(binary)
-          return binary if !@config.binary_path
-          return File.join(@config.binary_path, binary)
+          return binary unless @config.binary_path
+          File.join(@config.binary_path, binary)
         end
 
         def chown_provisioning_folder
@@ -57,7 +57,7 @@ module VagrantPlugins
             expanded = File.expand_path(
               @config.custom_config_path, @machine.env.root_path)
             remote_custom_config_path = File.join(
-              config.provisioning_path, "custom-config.rb")
+              config.provisioning_path, 'custom-config.rb')
 
             @machine.communicate.upload(expanded, remote_custom_config_path)
           end
@@ -83,7 +83,7 @@ module VagrantPlugins
 
           # Create a temporary file to store the data so we
           # can upload it
-          temp = Tempfile.new("vagrant")
+          temp = Tempfile.new('vagrant')
           temp.write(config_file)
           temp.close
 
@@ -95,20 +95,20 @@ module VagrantPlugins
         end
 
         def setup_json
-          @machine.env.ui.info I18n.t("vagrant.provisioners.chef.json")
+          @machine.env.ui.info I18n.t('vagrant.provisioners.chef.json')
 
           # Get the JSON that we're going to expose to Chef
           json = @config.json
-          json[:run_list] = @config.run_list if !@config.run_list.empty?
+          json[:run_list] = @config.run_list unless @config.run_list.empty?
           json = JSON.pretty_generate(json)
 
           # Create a temporary file to store the data so we
           # can upload it
-          temp = Tempfile.new("vagrant")
+          temp = Tempfile.new('vagrant')
           temp.write(json)
           temp.close
 
-          remote_file = File.join(@config.provisioning_path, "dna.json")
+          remote_file = File.join(@config.provisioning_path, 'dna.json')
           @machine.communicate.tap do |comm|
             comm.sudo("rm -f #{remote_file}", error_check: false)
             comm.upload(temp.path, remote_file)
@@ -117,10 +117,10 @@ module VagrantPlugins
 
         def upload_encrypted_data_bag_secret
           remote_file = guest_encrypted_data_bag_secret_key_path
-          return if !remote_file
+          return unless remote_file
 
           @machine.env.ui.info I18n.t(
-            "vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
+            'vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key')
 
           @machine.communicate.tap do |comm|
             comm.sudo("rm -f #{remote_file}", error_check: false)
@@ -137,12 +137,12 @@ module VagrantPlugins
 
         def encrypted_data_bag_secret_key_path
           File.expand_path(@config.encrypted_data_bag_secret_key_path,
-            @machine.env.root_path)
+                           @machine.env.root_path)
         end
 
         def guest_encrypted_data_bag_secret_key_path
           if @config.encrypted_data_bag_secret_key_path
-            File.join(@config.provisioning_path, "encrypted_data_bag_secret_key")
+            File.join(@config.provisioning_path, 'encrypted_data_bag_secret_key')
           end
         end
 

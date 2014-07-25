@@ -1,12 +1,12 @@
 module VagrantPlugins
   module FileUpload
-    class Provisioner < Vagrant.plugin("2", :provisioner)
+    class Provisioner < Vagrant.plugin('2', :provisioner)
       def provision
         @machine.communicate.tap do |comm|
           destination = expand_guest_path(config.destination)
 
           # Make sure the remote path exists
-          command = "mkdir -p %s" % File.dirname(destination)
+          command = 'mkdir -p %s' % File.dirname(destination)
           comm.execute(command)
 
           # now upload the file

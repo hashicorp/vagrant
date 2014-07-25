@@ -3,14 +3,14 @@ module Vagrant
     module Builtin
       # This middleware simply outputs a message to the UI.
       class Message
-        def initialize(app, env, message, **opts)
+        def initialize(app, _env, message, **opts)
           @app     = app
           @message = message
           @opts    = opts
         end
 
         def call(env)
-          if !@opts[:post]
+          unless @opts[:post]
             env[:ui].output(@message)
           end
 

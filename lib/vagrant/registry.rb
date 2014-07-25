@@ -13,7 +13,7 @@ module Vagrant
     #
     # If a key with the given name already exists, it is overwritten.
     def register(key, &block)
-      raise ArgumentError, "block required" if !block_given?
+      fail ArgumentError, 'block required' unless block_given?
       @items[key] = block
     end
 
@@ -22,19 +22,19 @@ module Vagrant
     # This will evaluate the block given to `register` and return the
     # resulting value.
     def get(key)
-      return nil if !@items.has_key?(key)
-      return @results_cache[key] if @results_cache.has_key?(key)
+      return nil unless @items.key?(key)
+      return @results_cache[key] if @results_cache.key?(key)
       @results_cache[key] = @items[key].call
     end
-    alias :[] :get
+    alias_method :[], :get
 
     # Checks if the given key is registered with the registry.
     #
     # @return [Boolean]
-    def has_key?(key)
-      @items.has_key?(key)
+    def key?(key)
+      @items.key?(key)
     end
-    
+
     # Returns an array populated with the keys of this object.
     #
     # @return [Array]
@@ -43,7 +43,7 @@ module Vagrant
     end
 
     # Iterate over the keyspace.
-    def each(&block)
+    def each(&_block)
       @items.each do |key, _|
         yield key, get(key)
       end
@@ -68,7 +68,7 @@ module Vagrant
     # Converts this registry to a hash
     def to_hash
       result = {}
-      self.each do |key, value|
+      each do |key, value|
         result[key] = value
       end
 

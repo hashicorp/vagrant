@@ -3,7 +3,7 @@ module VagrantPlugins
     # This is the Version 1.0.x Vagrant VM configuration. This is
     # _outdated_ and exists purely to be upgraded over to the new V2
     # format.
-    class VMConfig < Vagrant.plugin("1", :config)
+    class VMConfig < Vagrant.plugin('1', :config)
       DEFAULT_VM_NAME = :default
 
       attr_accessor :name
@@ -27,7 +27,7 @@ module VagrantPlugins
         @define_calls = []
       end
 
-      def forward_port(guestport, hostport, options=nil)
+      def forward_port(guestport, hostport, options = nil)
         options ||= {}
 
         # Build up the network options for V2
@@ -39,7 +39,7 @@ module VagrantPlugins
         @networks << [:forwarded_port, [guestport, hostport, network_options]]
       end
 
-      def share_folder(name, guestpath, hostpath, opts=nil)
+      def share_folder(name, guestpath, hostpath, opts = nil)
         @shared_folders[name] = {
           guestpath: guestpath.to_s,
           hostpath: hostpath.to_s,
@@ -65,7 +65,7 @@ module VagrantPlugins
         end
       end
 
-      def provision(name, options=nil, &block)
+      def provision(name, options = nil, &block)
         @provisioners << [name, options, block]
       end
 
@@ -73,14 +73,14 @@ module VagrantPlugins
       # we didn't want to break Vagrantfiles. This was never removed and
       # since we've moved onto V2 configuration, we might as well keep this
       # around forever.
-      def customize(command=nil)
+      def customize(command = nil)
         @customizations << command if command
       end
 
-      def define(name, options=nil, &block)
+      def define(name, options = nil, &block)
         # Force the V1 config on these calls
         options ||= {}
-        options[:config_version] = "1"
+        options[:config_version] = '1'
 
         @define_calls << [name, options, block]
       end
@@ -95,36 +95,36 @@ module VagrantPlugins
       def upgrade(new)
         warnings = []
 
-        new.vm.base_mac          = self.base_mac if self.base_mac
-        new.vm.box               = self.box if self.box
-        new.vm.box_url           = self.box_url if self.box_url
-        new.vm.guest             = self.guest if self.guest
-        new.vm.hostname          = self.host_name if self.host_name
-        new.vm.usable_port_range = self.auto_port_range if self.auto_port_range
+        new.vm.base_mac          = base_mac if base_mac
+        new.vm.box               = box if box
+        new.vm.box_url           = box_url if box_url
+        new.vm.guest             = guest if guest
+        new.vm.hostname          = host_name if host_name
+        new.vm.usable_port_range = auto_port_range if auto_port_range
 
-        if self.boot_mode
+        if boot_mode
           new.vm.provider :virtualbox do |vb|
             # Enable the GUI if the boot mode is GUI.
-            vb.gui = (self.boot_mode.to_s == "gui")
+            vb.gui = (boot_mode.to_s == 'gui')
           end
         end
 
         # If we have VM customizations, then we enable them on the
         # VirtualBox provider on the new VM.
-        if !self.customizations.empty?
-          warnings << "`config.vm.customize` calls are VirtualBox-specific. If you're\n" +
-            "using any other provider, you'll have to use config.vm.provider in a\n" +
-            "v2 configuration block."
+        unless customizations.empty?
+          warnings << "`config.vm.customize` calls are VirtualBox-specific. If you're\n" \
+            "using any other provider, you'll have to use config.vm.provider in a\n" \
+            'v2 configuration block.'
 
           new.vm.provider :virtualbox do |vb|
-            self.customizations.each do |customization|
+            customizations.each do |customization|
               vb.customize(customization)
             end
           end
         end
 
         # Re-define all networks.
-        self.networks.each do |type, args|
+        networks.each do |type, args|
           if type == :unknown
             warnings << "Unknown network type '#{args}' will be ignored."
             next
@@ -145,13 +145,13 @@ module VagrantPlugins
         end
 
         # Provisioners
-        self.provisioners.each do |name, options, block|
+        provisioners.each do |name, options, block|
           options ||= {}
           new.vm.provision(name, **options, &block)
         end
 
         # Shared folders
-        self.shared_folders.each do |name, sf|
+        shared_folders.each do |name, sf|
           options      = sf.dup
           options[:id] = name
           guestpath    = options.delete(:guestpath)
@@ -160,11 +160,11 @@ module VagrantPlugins
           # This was the name of the old default /vagrant shared folder.
           # We warn the use that this changed, but also silently change
           # it to try to make things work properly.
-          if options[:id] == "v-root"
-            warnings << "The 'v-root' shared folders have been renamed to 'vagrant-root'.\n" +
+          if options[:id] == 'v-root'
+            warnings << "The 'v-root' shared folders have been renamed to 'vagrant-root'.\n" \
               "Assuming you meant 'vagrant-root'..."
 
-            options[:id] = "vagrant-root"
+            options[:id] = 'vagrant-root'
           end
 
           new.vm.synced_folder(hostpath, guestpath, options)
@@ -177,8 +177,8 @@ module VagrantPlugins
 
         # If name is used, warn that it has no effect anymore
         if @name
-          warnings << "`config.vm.name` has no effect anymore. Names are derived\n" +
-            "directly from any `config.vm.define` calls."
+          warnings << "`config.vm.name` has no effect anymore. Names are derived\n" \
+            'directly from any `config.vm.define` calls.'
         end
 
         [warnings, []]

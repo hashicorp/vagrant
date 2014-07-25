@@ -30,8 +30,8 @@ module VagrantPlugins
         end
 
         def get_current_hostname
-          hostname = ""
-          sudo "hostname -f" do |type, data|
+          hostname = ''
+          sudo 'hostname -f' do |type, data|
             hostname = data.chomp if type == :stdout && hostname.empty?
           end
 
@@ -55,7 +55,7 @@ module VagrantPlugins
         end
 
         def refresh_hostname_service
-          sudo("hostname -F /etc/hostname")
+          sudo('hostname -F /etc/hostname')
         end
 
         def fqdn

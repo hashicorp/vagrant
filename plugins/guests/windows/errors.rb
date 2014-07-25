@@ -3,7 +3,7 @@ module VagrantPlugins
     module Errors
       # A convenient superclass for all our errors.
       class WindowsError < Vagrant::Errors::VagrantError
-        error_namespace("vagrant_windows.errors")
+        error_namespace('vagrant_windows.errors')
       end
 
       class CantReadMACAddresses < WindowsError

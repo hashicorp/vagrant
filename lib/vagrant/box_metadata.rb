@@ -1,4 +1,4 @@
-require "json"
+require 'json'
 
 module Vagrant
   # BoxMetadata represents metadata about a box, including the name
@@ -24,18 +24,18 @@ module Vagrant
         @raw = JSON.load(io)
       rescue JSON::ParserError => e
         raise Errors::BoxMetadataMalformed,
-          error: e.to_s
+              error: e.to_s
       end
 
       @raw ||= {}
-      @name = @raw["name"]
-      @description = @raw["description"]
-      @version_map = (@raw["versions"] || []).map do |v|
+      @name = @raw['name']
+      @description = @raw['description']
+      @version_map = (@raw['versions'] || []).map do |v|
         begin
-          [Gem::Version.new(v["version"]), v]
+          [Gem::Version.new(v['version']), v]
         rescue ArgumentError
           raise Errors::BoxMetadataMalformedVersion,
-            version: v["version"].to_s
+                version: v['version'].to_s
         end
       end
       @version_map = Hash[@version_map]
@@ -49,7 +49,7 @@ module Vagrant
     # @return [Version] The matching version or nil if a matching
     #   version was not found.
     def version(version, **opts)
-      requirements = version.split(",").map do |v|
+      requirements = version.split(',').map do |v|
         Gem::Requirement.new(v.strip)
       end
 
@@ -57,7 +57,7 @@ module Vagrant
       providers = Array(opts[:provider]).map(&:to_sym) if opts[:provider]
 
       @version_map.keys.sort.reverse.each do |v|
-        next if !requirements.all? { |r| r.satisfied_by?(v) }
+        next unless requirements.all? { |r| r.satisfied_by?(v) }
         version = Version.new(@version_map[v])
         next if (providers & version.providers).empty? if providers
         return version
@@ -82,12 +82,12 @@ module Vagrant
       # @return [String]
       attr_accessor :version
 
-      def initialize(raw=nil)
-        return if !raw
+      def initialize(raw = nil)
+        return unless raw
 
-        @version = raw["version"]
-        @provider_map = (raw["providers"] || []).map do |p|
-          [p["name"].to_sym, p]
+        @version = raw['version']
+        @provider_map = (raw['providers'] || []).map do |p|
+          [p['name'].to_sym, p]
         end
         @provider_map = Hash[@provider_map]
       end
@@ -96,7 +96,7 @@ module Vagrant
       # supported by this version.
       def provider(name)
         p = @provider_map[name.to_sym]
-        return nil if !p
+        return nil unless p
         Provider.new(p)
       end
 
@@ -133,10 +133,10 @@ module Vagrant
       attr_accessor :checksum_type
 
       def initialize(raw)
-        @name = raw["name"]
-        @url  = raw["url"]
-        @checksum = raw["checksum"]
-        @checksum_type = raw["checksum_type"]
+        @name = raw['name']
+        @url  = raw['url']
+        @checksum = raw['checksum']
+        @checksum_type = raw['checksum_type']
       end
     end
   end

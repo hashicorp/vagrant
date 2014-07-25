@@ -1,6 +1,6 @@
-require "vagrant/util"
-require "vagrant/util/shell_quote"
-require "vagrant/util/retryable"
+require 'vagrant/util'
+require 'vagrant/util/shell_quote'
+require 'vagrant/util/retryable'
 
 module VagrantPlugins
   module HostLinux
@@ -8,16 +8,16 @@ module VagrantPlugins
       class NFS
         extend Vagrant::Util::Retryable
 
-        def self.nfs_apply_command(env)
-          "exportfs -ar"
+        def self.nfs_apply_command(_env)
+          'exportfs -ar'
         end
 
-        def self.nfs_check_command(env)
-          "/etc/init.d/nfs-kernel-server status"
+        def self.nfs_check_command(_env)
+          '/etc/init.d/nfs-kernel-server status'
         end
 
-        def self.nfs_start_command(env)
-          "/etc/init.d/nfs-kernel-server start"
+        def self.nfs_start_command(_env)
+          '/etc/init.d/nfs-kernel-server start'
         end
 
         def self.nfs_export(env, ui, id, ips, folders)
@@ -28,19 +28,19 @@ module VagrantPlugins
 
           nfs_opts_setup(folders)
           output = Vagrant::Util::TemplateRenderer.render('nfs/exports_linux',
-                                           uuid: id,
-                                           ips: ips,
-                                           folders: folders,
-                                           user: Process.uid)
+                                                          uuid: id,
+                                                          ips: ips,
+                                                          folders: folders,
+                                                          user: Process.uid)
 
-          ui.info I18n.t("vagrant.hosts.linux.nfs_export")
+          ui.info I18n.t('vagrant.hosts.linux.nfs_export')
           sleep 0.5
 
           nfs_cleanup(id)
 
           output.split("\n").each do |line|
             line = Vagrant::Util::ShellQuote.escape(line, "'")
-            system(%Q[echo '#{line}' | sudo tee -a /etc/exports >/dev/null])
+            system("echo '#{line}' | sudo tee -a /etc/exports >/dev/null")
           end
 
           if nfs_running?(nfs_check_command)
@@ -50,30 +50,30 @@ module VagrantPlugins
           end
         end
 
-        def self.nfs_installed(environment)
+        def self.nfs_installed(_environment)
           retryable(tries: 10, on: TypeError) do
             # Check procfs to see if NFSd is a supported filesystem
-            system("cat /proc/filesystems | grep nfsd > /dev/null 2>&1")
+            system('cat /proc/filesystems | grep nfsd > /dev/null 2>&1')
           end
         end
 
-        def self.nfs_prune(environment, ui, valid_ids)
-          return if !File.exist?("/etc/exports")
+        def self.nfs_prune(_environment, ui, valid_ids)
+          return unless File.exist?('/etc/exports')
 
-          logger = Log4r::Logger.new("vagrant::hosts::linux")
-          logger.info("Pruning invalid NFS entries...")
+          logger = Log4r::Logger.new('vagrant::hosts::linux')
+          logger.info('Pruning invalid NFS entries...')
 
           output = false
           user = Process.uid
 
-          File.read("/etc/exports").lines.each do |line|
+          File.read('/etc/exports').lines.each do |line|
             if id = line[/^# VAGRANT-BEGIN:( #{user})? ([A-Za-z0-9-]+?)$/, 2]
               if valid_ids.include?(id)
                 logger.debug("Valid ID: #{id}")
               else
-                if !output
+                unless output
                   # We want to warn the user but we only want to output once
-                  ui.info I18n.t("vagrant.hosts.linux.nfs_prune")
+                  ui.info I18n.t('vagrant.hosts.linux.nfs_prune')
                   output = true
                 end
 
@@ -87,7 +87,7 @@ module VagrantPlugins
         protected
 
         def self.nfs_cleanup(id)
-          return if !File.exist?("/etc/exports")
+          return unless File.exist?('/etc/exports')
 
           user = Regexp.escape(Process.uid.to_s)
           id   = Regexp.escape(id.to_s)
@@ -98,9 +98,9 @@ module VagrantPlugins
         end
 
         def self.nfs_opts_setup(folders)
-          folders.each do |k, opts|
-            if !opts[:linux__nfs_options]
-              opts[:linux__nfs_options] ||= ["rw", "no_subtree_check", "all_squash"]
+          folders.each do |_k, opts|
+            unless opts[:linux__nfs_options]
+              opts[:linux__nfs_options] ||= %w(rw no_subtree_check all_squash)
             end
 
             # Only automatically set anonuid/anongid if they weren't
@@ -108,12 +108,12 @@ module VagrantPlugins
             hasgid = false
             hasuid = false
             opts[:linux__nfs_options].each do |opt|
-              hasgid = !!(opt =~ /^anongid=/) if !hasgid
-              hasuid = !!(opt =~ /^anonuid=/) if !hasuid
+              hasgid = !!(opt =~ /^anongid=/) unless hasgid
+              hasuid = !!(opt =~ /^anonuid=/) unless hasuid
             end
 
-            opts[:linux__nfs_options] << "anonuid=#{opts[:map_uid]}" if !hasuid
-            opts[:linux__nfs_options] << "anongid=#{opts[:map_gid]}" if !hasgid
+            opts[:linux__nfs_options] << "anonuid=#{opts[:map_uid]}" unless hasuid
+            opts[:linux__nfs_options] << "anongid=#{opts[:map_gid]}" unless hasgid
             opts[:linux__nfs_options] << "fsid=#{opts[:uuid]}"
           end
         end

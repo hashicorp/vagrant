@@ -8,7 +8,7 @@ module Vagrant
       # for these to be seperate from the core of Vagrant.
       class Guest
         class BaseError < Errors::VagrantError
-          error_namespace("vagrant.guest.base")
+          error_namespace('vagrant.guest.base')
         end
 
         include Vagrant::Util
@@ -40,7 +40,7 @@ module Vagrant
         # If when this method returns, the machine's state isn't "powered_off,"
         # Vagrant will proceed to forcefully shut the machine down.
         def halt
-          raise BaseError, _key: :unsupported_halt
+          fail BaseError, _key: :unsupported_halt
         end
 
         # Mounts a shared folder.
@@ -55,14 +55,14 @@ module Vagrant
         #   wants the folder mounted.
         # @param [Hash] options Additional options for the shared folder
         #   which can be honored.
-        def mount_shared_folder(name, guestpath, options)
-          raise BaseError, _key: :unsupported_shared_folder
+        def mount_shared_folder(_name, _guestpath, _options)
+          fail BaseError, _key: :unsupported_shared_folder
         end
 
         # Mounts a shared folder via NFS. This assumes that the exports
         # via the host are already done.
-        def mount_nfs(ip, folders)
-          raise BaseError, _key: :unsupported_nfs
+        def mount_nfs(_ip, _folders)
+          fail BaseError, _key: :unsupported_nfs
         end
 
         # Configures the given list of networks on the virtual machine.
@@ -78,13 +78,13 @@ module Vagrant
         #   interface: 1
         # }
         #
-        def configure_networks(networks)
-          raise BaseError, _key: :unsupported_configure_networks
+        def configure_networks(_networks)
+          fail BaseError, _key: :unsupported_configure_networks
         end
 
         # Called to change the hostname of the virtual machine.
-        def change_host_name(name)
-          raise BaseError, _key: :unsupported_host_name
+        def change_host_name(_name)
+          fail BaseError, _key: :unsupported_host_name
         end
       end
     end

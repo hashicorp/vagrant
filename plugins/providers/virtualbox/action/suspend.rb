@@ -2,13 +2,13 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class Suspend
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
         def call(env)
           if env[:machine].state.id == :running
-            env[:ui].info I18n.t("vagrant.actions.vm.suspend.suspending")
+            env[:ui].info I18n.t('vagrant.actions.vm.suspend.suspending')
             env[:machine].provider.driver.suspend
           end
 

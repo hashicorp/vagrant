@@ -1,4 +1,4 @@
-require "vagrant"
+require 'vagrant'
 
 module VagrantPlugins
   module SyncedFolderNFS
@@ -18,25 +18,25 @@ module VagrantPlugins
     # If any of these variables are not set, an internal exception will be
     # raised.
     #
-    class Plugin < Vagrant.plugin("2")
-      name "NFS synced folders"
+    class Plugin < Vagrant.plugin('2')
+      name 'NFS synced folders'
       description <<-EOF
       The NFS synced folders plugin enables you to use NFS as a synced folder
       implementation.
       EOF
 
-      config("nfs") do
-        require_relative "config"
+      config('nfs') do
+        require_relative 'config'
         Config
       end
 
-      synced_folder("nfs", 5) do
-        require_relative "synced_folder"
+      synced_folder('nfs', 5) do
+        require_relative 'synced_folder'
         SyncedFolder
       end
 
-      action_hook("nfs_cleanup") do |hook|
-        require_relative "action_cleanup"
+      action_hook('nfs_cleanup') do |hook|
+        require_relative 'action_cleanup'
         hook.before(
           Vagrant::Action::Builtin::SyncedFolderCleanup,
           ActionCleanup)

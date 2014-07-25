@@ -1,13 +1,13 @@
-require_relative "../base"
+require_relative '../base'
 
 describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
-  include_context "unit"
-  include_context "virtualbox"
+  include_context 'unit'
+  include_context 'virtualbox'
 
   let(:iso_env) do
     # We have to create a Vagrantfile so there is a root path
     env = isolated_environment
-    env.vagrantfile("")
+    env.vagrantfile('')
     env.create_vagrant_env
   end
 
@@ -17,9 +17,9 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
     end
   end
 
-  let(:env)    {{ machine: machine }}
-  let(:app)    { lambda { |*args| }}
-  let(:driver) { double("driver") }
+  let(:env)    { { machine: machine } }
+  let(:app)    { lambda { |*_args| } }
+  let(:driver) { double('driver') }
 
   subject { described_class.new(app, env) }
 
@@ -27,9 +27,9 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
     driver.stub(read_vms: {})
   end
 
-  it "calls the next action in the chain" do
+  it 'calls the next action in the chain' do
     called = false
-    app = lambda { |*args| called = true }
+    app = lambda { |*_args| called = true }
 
     action = described_class.new(app, env)
     action.call(env)
@@ -37,8 +37,8 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
     expect(called).to eq(true)
   end
 
-  it "sets nfs_valid_ids" do
-    hash = {"foo" => "1", "bar" => "4"}
+  it 'sets nfs_valid_ids' do
+    hash = { 'foo' => '1', 'bar' => '4' }
     driver.stub(read_vms: hash)
 
     subject.call(env)

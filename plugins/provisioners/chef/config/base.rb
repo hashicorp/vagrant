@@ -1,9 +1,9 @@
-require "vagrant/util/counter"
+require 'vagrant/util/counter'
 
 module VagrantPlugins
   module Chef
     module Config
-      class Base < Vagrant.plugin("2", :config)
+      class Base < Vagrant.plugin('2', :config)
         extend Vagrant::Util::Counter
 
         attr_accessor :arguments
@@ -59,10 +59,10 @@ module VagrantPlugins
           @run_list          = []
         end
 
-        def encrypted_data_bag_secret=(value)
-          puts "DEPRECATION: Chef encrypted_data_bag_secret has no effect anymore."
+        def encrypted_data_bag_secret=(_value)
+          puts 'DEPRECATION: Chef encrypted_data_bag_secret has no effect anymore.'
           puts "Remove this from your Vagrantfile since it'll be removed in the next"
-          puts "Vagrant version."
+          puts 'Vagrant version.'
         end
 
         def finalize!
@@ -83,8 +83,8 @@ module VagrantPlugins
           @no_proxy          = nil if @no_proxy == UNSET_VALUE
           @node_name         = nil if @node_name == UNSET_VALUE
           @provisioning_path = nil if @provisioning_path == UNSET_VALUE
-          @file_backup_path  = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
-          @file_cache_path   = "/var/chef/cache" if @file_cache_path == UNSET_VALUE
+          @file_backup_path  = '/var/chef/backup' if @file_backup_path == UNSET_VALUE
+          @file_cache_path   = '/var/chef/cache' if @file_cache_path == UNSET_VALUE
           @verbose_logging   = false if @verbose_logging == UNSET_VALUE
 
           if @encrypted_data_bag_secret_key_path == UNSET_VALUE
@@ -95,7 +95,7 @@ module VagrantPlugins
           @log_level = @log_level.to_sym
 
           # Set the default provisioning path to be a unique path in /tmp
-          if !@provisioning_path
+          unless @provisioning_path
             counter = self.class.get_and_update_counter(:chef_config)
             @provisioning_path = "/tmp/vagrant-chef-#{counter}"
           end
@@ -116,8 +116,8 @@ module VagrantPlugins
 
           if @custom_config_path
             expanded = File.expand_path(@custom_config_path, machine.env.root_path)
-            if !File.file?(expanded)
-              errors << I18n.t("vagrant.config.chef.custom_config_path_missing")
+            unless File.file?(expanded)
+              errors << I18n.t('vagrant.config.chef.custom_config_path_missing')
             end
           end
 
@@ -127,13 +127,13 @@ module VagrantPlugins
         # Adds a recipe to the run list
         def add_recipe(name)
           name = "recipe[#{name}]" unless name =~ /^recipe\[(.+?)\]$/
-            run_list << name
+          run_list << name
         end
 
         # Adds a role to the run list
         def add_role(name)
           name = "role[#{name}]" unless name =~ /^role\[(.+?)\]$/
-            run_list << name
+          run_list << name
         end
       end
     end

@@ -1,8 +1,8 @@
-require "json"
+require 'json'
 
-require "vagrant/util/powershell"
+require 'vagrant/util/powershell'
 
-require_relative "plugin"
+require_relative 'plugin'
 
 module VagrantPlugins
   module HyperV
@@ -19,9 +19,9 @@ module VagrantPlugins
       def execute(path, options)
         r = execute_powershell(path, options)
         if r.exit_code != 0
-          raise Errors::PowerShellError,
-            script: path,
-            stderr: r.stderr
+          fail Errors::PowerShellError,
+               script: path,
+               stderr: r.stderr
         end
 
         # We only want unix-style line endings within Vagrant
@@ -35,53 +35,53 @@ module VagrantPlugins
           data = JSON.parse(error_match[1])
 
           # We have some error data.
-          raise Errors::PowerShellError,
-            script: path,
-            stderr: data["error"]
+          fail Errors::PowerShellError,
+               script: path,
+               stderr: data['error']
         end
 
         # Nothing
-        return nil if !output_match
-        return JSON.parse(output_match[1])
+        return nil unless output_match
+        JSON.parse(output_match[1])
       end
 
       def get_current_state
-        execute('get_vm_status.ps1', { VmId: vm_id })
+        execute('get_vm_status.ps1',  VmId: vm_id)
       end
 
-       def delete_vm
-         execute('delete_vm.ps1', { VmId: vm_id })
-       end
+      def delete_vm
+        execute('delete_vm.ps1',  VmId: vm_id)
+      end
 
-       def read_guest_ip
-         execute('get_network_config.ps1', { VmId: vm_id })
-       end
+      def read_guest_ip
+        execute('get_network_config.ps1',  VmId: vm_id)
+      end
 
-       def resume
-         execute('resume_vm.ps1', { VmId: vm_id })
-       end
+      def resume
+        execute('resume_vm.ps1',  VmId: vm_id)
+      end
 
-       def start
-         execute('start_vm.ps1', { VmId: vm_id })
-       end
+      def start
+        execute('start_vm.ps1',  VmId: vm_id)
+      end
 
-       def stop
-         execute('stop_vm.ps1', { VmId: vm_id })
-       end
+      def stop
+        execute('stop_vm.ps1',  VmId: vm_id)
+      end
 
-       def suspend
-         execute("suspend_vm.ps1", { VmId: vm_id })
-       end
+      def suspend
+        execute('suspend_vm.ps1',  VmId: vm_id)
+      end
 
-       def import(options)
-         execute('import_vm.ps1', options)
-       end
+      def import(options)
+        execute('import_vm.ps1', options)
+      end
 
       protected
 
       def execute_powershell(path, options, &block)
-        lib_path = Pathname.new(File.expand_path("../scripts", __FILE__))
-        path = lib_path.join(path).to_s.gsub("/", "\\")
+        lib_path = Pathname.new(File.expand_path('../scripts', __FILE__))
+        path = lib_path.join(path).to_s.gsub('/', '\\')
         options = options || {}
         ps_options = []
         options.each do |key, value|
@@ -90,7 +90,7 @@ module VagrantPlugins
         end
 
         # Always have a stop error action for failures
-        ps_options << "-ErrorAction" << "Stop"
+        ps_options << '-ErrorAction' << 'Stop'
 
         opts = { notify: [:stdout, :stderr, :stdin] }
         Vagrant::Util::PowerShell.execute(path, *ps_options, **opts, &block)

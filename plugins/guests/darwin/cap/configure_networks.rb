@@ -1,6 +1,6 @@
-require "tempfile"
+require 'tempfile'
 
-require "vagrant/util/template_renderer"
+require 'vagrant/util/template_renderer'
 
 module VagrantPlugins
   module GuestDarwin
@@ -9,20 +9,20 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
-          # Slightly different than other plugins, using the template to build commands 
+          # Slightly different than other plugins, using the template to build commands
           # rather than templating the files.
 
-          machine.communicate.sudo("networksetup -detectnewhardware")
-          machine.communicate.sudo("networksetup -listnetworkserviceorder > /tmp/vagrant.interfaces")
+          machine.communicate.sudo('networksetup -detectnewhardware')
+          machine.communicate.sudo('networksetup -listnetworkserviceorder > /tmp/vagrant.interfaces')
           tmpints = File.join(Dir.tmpdir, File.basename("#{machine.id}.interfaces"))
-          machine.communicate.download("/tmp/vagrant.interfaces",tmpints)
+          machine.communicate.download('/tmp/vagrant.interfaces', tmpints)
 
           devlist = []
           ints = ::IO.read(tmpints)
           ints.split(/\n\n/m).each do |i|
             if i.match(/Hardware/) and not i.match(/Ethernet/).nil?
               devmap = {}
-              # Ethernet, should be 2 lines, 
+              # Ethernet, should be 2 lines,
               # (3) Thunderbolt Ethernet
               # (Hardware Port: Thunderbolt Ethernet, Device: en1)
 

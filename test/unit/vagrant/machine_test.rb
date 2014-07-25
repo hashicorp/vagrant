@@ -1,19 +1,19 @@
-require "pathname"
-require "tmpdir"
+require 'pathname'
+require 'tmpdir'
 
-require File.expand_path("../../base", __FILE__)
+require File.expand_path('../../base', __FILE__)
 
 describe Vagrant::Machine do
-  include_context "unit"
+  include_context 'unit'
 
-  let(:name)     { "foo" }
+  let(:name)     { 'foo' }
   let(:provider) do
-    double("provider").tap do |obj|
+    double('provider').tap do |obj|
       obj.stub(_initialize: nil)
     end
   end
   let(:provider_cls) do
-    obj = double("provider_cls")
+    obj = double('provider_cls')
     obj.stub(new: provider)
     obj
   end
@@ -22,19 +22,19 @@ describe Vagrant::Machine do
   let(:provider_options) { {} }
   let(:base)     { false }
   let(:box) do
-    double("box").tap do |b|
-      b.stub(name: "foo")
+    double('box').tap do |b|
+      b.stub(name: 'foo')
       b.stub(provider: :dummy)
-      b.stub(version: "1.0")
+      b.stub(version: '1.0')
     end
   end
 
   let(:config)   { env.vagrantfile.config }
-  let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
+  let(:data_dir) { Pathname.new(Dir.mktmpdir('vagrant')) }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path
-    test_env.vagrantfile("")
+    test_env.vagrantfile('')
 
     # Create the Vagrant::Environment instance
     test_env.create_vagrant_env
@@ -53,44 +53,44 @@ describe Vagrant::Machine do
                         env, env.vagrantfile, base)
   end
 
-  describe "initialization" do
-    describe "communicator loading" do
+  describe 'initialization' do
+    describe 'communicator loading' do
       it "doesn't eager load SSH" do
         config.vm.communicator = :ssh
 
-        klass = Vagrant.plugin("2").manager.communicators[:ssh]
+        klass = Vagrant.plugin('2').manager.communicators[:ssh]
         expect(klass).to_not receive(:new)
 
         subject
       end
 
-      it "eager loads WinRM" do
+      it 'eager loads WinRM' do
         config.vm.communicator = :winrm
 
-        klass    = Vagrant.plugin("2").manager.communicators[:winrm]
-        instance = double("instance")
+        klass    = Vagrant.plugin('2').manager.communicators[:winrm]
+        instance = double('instance')
         expect(klass).to receive(:new).and_return(instance)
 
         subject
       end
     end
 
-    describe "provider initialization" do
+    describe 'provider initialization' do
       # This is a helper that generates a test for provider intialization.
       # This is a separate helper method because it takes a block that can
       # be used to have additional tests on the received machine.
       #
       # @yield [machine] Yields the machine that the provider initialization
       #   method received so you can run additional tests on it.
-      def provider_init_test(instance=nil)
+      def provider_init_test(instance = nil)
         received_machine = nil
 
-        if !instance
-          instance = double("instance")
+        unless instance
+          instance = double('instance')
           instance.stub(_initialize: nil)
         end
 
-        provider_cls = double("provider_cls")
+        provider_cls = double('provider_cls')
         expect(provider_cls).to receive(:new) { |machine|
           # Store this for later so we can verify that it is the
           # one we expected to receive.
@@ -112,61 +112,61 @@ describe Vagrant::Machine do
         expect(received_machine).to eql(instance)
       end
 
-      it "should initialize with the machine object" do
+      it 'should initialize with the machine object' do
         # Just run the blank test
         provider_init_test
       end
 
-      it "should have the machine name setup" do
+      it 'should have the machine name setup' do
         provider_init_test do |machine|
           expect(machine.name).to eq(name)
         end
       end
 
-      it "should have the machine configuration" do
+      it 'should have the machine configuration' do
         provider_init_test do |machine|
           expect(machine.config).to eql(config)
         end
       end
 
-      it "should have the box" do
+      it 'should have the box' do
         provider_init_test do |machine|
           expect(machine.box).to eql(box)
         end
       end
 
-      it "should have the environment" do
+      it 'should have the environment' do
         provider_init_test do |machine|
           expect(machine.env).to eql(env)
         end
       end
 
-      it "should have the vagrantfile" do
+      it 'should have the vagrantfile' do
         provider_init_test do |machine|
           expect(machine.vagrantfile).to equal(env.vagrantfile)
         end
       end
 
-      it "should have access to the ID" do
+      it 'should have access to the ID' do
         # Stub this because #id= calls it.
         allow(provider).to receive(:machine_id_changed)
 
         # Set the ID on the previous instance so that it is persisted
-        instance.id = "foo"
+        instance.id = 'foo'
 
         provider_init_test do |machine|
-          expect(machine.id).to eq("foo")
+          expect(machine.id).to eq('foo')
         end
       end
 
-      it "should NOT have access to the provider" do
+      it 'should NOT have access to the provider' do
         provider_init_test do |machine|
           expect(machine.provider).to be_nil
         end
       end
 
-      it "should initialize the capabilities" do
-        instance = double("instance")
+      it 'should initialize the capabilities' do
+        instance = double('instance')
         expect(instance).to receive(:_initialize).with { |p, m|
           expect(p).to eq(provider_name)
           expect(m.name).to eq(name)
@@ -178,7 +178,7 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "attributes" do
+  describe 'attributes' do
     describe '#name' do
       subject { super().name }
       it             { should eq(name) }
@@ -215,8 +215,8 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "#action" do
-    it "should be able to run an action that exists" do
+  describe '#action' do
+    it 'should be able to run an action that exists' do
       action_name = :up
       called      = false
       callable    = lambda { |_env| called = true }
@@ -226,7 +226,7 @@ describe Vagrant::Machine do
       expect(called).to be
     end
 
-    it "should provide the machine in the environment" do
+    it 'should provide the machine in the environment' do
       action_name = :up
       machine     = nil
       callable    = lambda { |env| machine = env[:machine] }
@@ -237,7 +237,7 @@ describe Vagrant::Machine do
       expect(machine).to eql(instance)
     end
 
-    it "should pass any extra options to the environment" do
+    it 'should pass any extra options to the environment' do
       action_name = :up
       foo         = nil
       callable    = lambda { |env| foo = env[:foo] }
@@ -248,17 +248,17 @@ describe Vagrant::Machine do
       expect(foo).to eq(:bar)
     end
 
-    it "should return the environment as a result" do
+    it 'should return the environment as a result' do
       action_name = :up
-      callable    = lambda { |env| env[:result] = "FOO" }
+      callable    = lambda { |env| env[:result] = 'FOO' }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
       result = instance.action(action_name)
 
-      expect(result[:result]).to eq("FOO")
+      expect(result[:result]).to eq('FOO')
     end
 
-    it "should raise an exception if the action is not implemented" do
+    it 'should raise an exception if the action is not implemented' do
       action_name = :up
 
       allow(provider).to receive(:action).with(action_name).and_return(nil)
@@ -268,17 +268,17 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "#action_raw" do
-    let(:callable) {lambda { |e|
+  describe '#action_raw' do
+    let(:callable) {lambda do |e|
       e[:called] = true
       @env = e
-    }}
+    end}
 
     before do
       @env = {}
     end
 
-    it "should run the callable with the proper env" do
+    it 'should run the callable with the proper env' do
       subject.action_raw(:foo, callable)
 
       expect(@env[:called]).to be_true
@@ -288,12 +288,12 @@ describe Vagrant::Machine do
       expect(@env[:ui]).to equal(subject.ui)
     end
 
-    it "should return the environment as a result" do
+    it 'should return the environment as a result' do
       result = subject.action_raw(:foo, callable)
       expect(result).to equal(@env)
     end
 
-    it "should merge in any extra env" do
+    it 'should merge in any extra env' do
       subject.action_raw(:bar, callable, foo: :bar)
 
       expect(@env[:called]).to be_true
@@ -301,41 +301,41 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "#communicate" do
-    it "should return the SSH communicator by default" do
+  describe '#communicate' do
+    it 'should return the SSH communicator by default' do
       expect(subject.communicate).
         to be_kind_of(VagrantPlugins::CommunicatorSSH::Communicator)
     end
 
-    it "should return the specified communicator if given" do
+    it 'should return the specified communicator if given' do
       subject.config.vm.communicator = :winrm
       expect(subject.communicate).
         to be_kind_of(VagrantPlugins::CommunicatorWinRM::Communicator)
     end
 
-    it "should memoize the result" do
+    it 'should memoize the result' do
       obj = subject.communicate
       expect(subject.communicate).to equal(obj)
     end
 
-    it "raises an exception if an invalid communicator is given" do
+    it 'raises an exception if an invalid communicator is given' do
       subject.config.vm.communicator = :foo
       expect { subject.communicate }.
         to raise_error(Vagrant::Errors::CommunicatorNotFound)
     end
   end
 
-  describe "guest implementation" do
+  describe 'guest implementation' do
     let(:communicator) do
-      result = double("communicator")
+      result = double('communicator')
       allow(result).to receive(:ready?).and_return(true)
       allow(result).to receive(:test).and_return(false)
       result
     end
 
     before(:each) do
-      test_guest = Class.new(Vagrant.plugin("2", :guest)) do
-        def detect?(machine)
+      test_guest = Class.new(Vagrant.plugin('2', :guest)) do
+        def detect?(_machine)
           true
         end
       end
@@ -347,14 +347,14 @@ describe Vagrant::Machine do
       allow(instance).to receive(:communicate).and_return(communicator)
     end
 
-    it "should raise an exception if communication is not ready" do
+    it 'should raise an exception if communication is not ready' do
       expect(communicator).to receive(:ready?).and_return(false)
 
       expect { instance.guest }.
         to raise_error(Vagrant::Errors::MachineGuestNotReady)
     end
 
-    it "should return the configured guest" do
+    it 'should return the configured guest' do
       result = instance.guest
       expect(result).to be_kind_of(Vagrant::Guest)
       expect(result).to be_ready
@@ -362,36 +362,36 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "setting the ID" do
+  describe 'setting the ID' do
     before(:each) do
       allow(provider).to receive(:machine_id_changed)
     end
 
-    it "should not have an ID by default" do
+    it 'should not have an ID by default' do
       expect(instance.id).to be_nil
     end
 
-    it "should set an ID" do
-      instance.id = "bar"
-      expect(instance.id).to eq("bar")
+    it 'should set an ID' do
+      instance.id = 'bar'
+      expect(instance.id).to eq('bar')
     end
 
-    it "should notify the machine that the ID changed" do
+    it 'should notify the machine that the ID changed' do
       expect(provider).to receive(:machine_id_changed).once
 
-      instance.id = "bar"
+      instance.id = 'bar'
     end
 
-    it "should persist the ID" do
-      instance.id = "foo"
-      expect(new_instance.id).to eq("foo")
+    it 'should persist the ID' do
+      instance.id = 'foo'
+      expect(new_instance.id).to eq('foo')
     end
 
-    it "should delete the ID" do
-      instance.id = "foo"
+    it 'should delete the ID' do
+      instance.id = 'foo'
 
       second = new_instance
-      expect(second.id).to eq("foo")
+      expect(second.id).to eq('foo')
       second.id = nil
       expect(second.id).to be_nil
 
@@ -400,24 +400,24 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "#index_uuid" do
+  describe '#index_uuid' do
     before(:each) do
       allow(provider).to receive(:machine_id_changed)
     end
 
-    it "should not have an index UUID by default" do
+    it 'should not have an index UUID by default' do
       expect(subject.index_uuid).to be_nil
     end
 
-    it "is set one when setting an ID" do
+    it 'is set one when setting an ID' do
       # Setup the box information
-      box = double("box")
-      box.stub(name: "foo")
+      box = double('box')
+      box.stub(name: 'foo')
       box.stub(provider: :bar)
-      box.stub(version: "1.2.3")
+      box.stub(version: '1.2.3')
       subject.box = box
 
-      subject.id = "foo"
+      subject.id = 'foo'
 
       uuid = subject.index_uuid
       expect(uuid).to_not be_nil
@@ -427,19 +427,19 @@ describe Vagrant::Machine do
       entry = env.machine_index.get(uuid)
       expect(entry.name).to eq(subject.name)
       expect(entry.provider).to eq(subject.provider_name.to_s)
-      expect(entry.state).to eq("preparing")
+      expect(entry.state).to eq('preparing')
       expect(entry.vagrantfile_path).to eq(env.root_path)
       expect(entry.vagrantfile_name).to eq(env.vagrantfile_name)
-      expect(entry.extra_data["box"]).to eq({
-        "name"     => box.name,
-        "provider" => box.provider.to_s,
-        "version"  => box.version,
-      })
+      expect(entry.extra_data['box']).to eq(
+                                              'name'     => box.name,
+                                              'provider' => box.provider.to_s,
+                                              'version'  => box.version
+                                            )
       env.machine_index.release(entry)
     end
 
-    it "deletes the UUID when setting to nil" do
-      subject.id = "foo"
+    it 'deletes the UUID when setting to nil' do
+      subject.id = 'foo'
       uuid = subject.index_uuid
 
       subject.id = nil
@@ -448,15 +448,15 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "ssh info" do
-    describe "with the provider returning nil" do
-      it "should return nil if the provider returns nil" do
+  describe 'ssh info' do
+    describe 'with the provider returning nil' do
+      it 'should return nil if the provider returns nil' do
         expect(provider).to receive(:ssh_info).and_return(nil)
         expect(instance.ssh_info).to be_nil
       end
     end
 
-    describe "with the provider returning data" do
+    describe 'with the provider returning data' do
       let(:provider_ssh_info) { {} }
 
       before(:each) do
@@ -464,89 +464,89 @@ describe Vagrant::Machine do
       end
 
       [:host, :port, :username].each do |type|
-        it "should return the provider data if not configured in Vagrantfile" do
-          provider_ssh_info[type] = "foo"
+        it 'should return the provider data if not configured in Vagrantfile' do
+          provider_ssh_info[type] = 'foo'
           instance.config.ssh.send("#{type}=", nil)
 
-          expect(instance.ssh_info[type]).to eq("foo")
+          expect(instance.ssh_info[type]).to eq('foo')
         end
 
-        it "should return the Vagrantfile value if provider data not given" do
+        it 'should return the Vagrantfile value if provider data not given' do
           provider_ssh_info[type] = nil
-          instance.config.ssh.send("#{type}=", "bar")
+          instance.config.ssh.send("#{type}=", 'bar')
 
-          expect(instance.ssh_info[type]).to eq("bar")
+          expect(instance.ssh_info[type]).to eq('bar')
         end
 
-        it "should use the default if no override and no provider" do
+        it 'should use the default if no override and no provider' do
           provider_ssh_info[type] = nil
           instance.config.ssh.send("#{type}=", nil)
-          instance.config.ssh.default.send("#{type}=", "foo")
+          instance.config.ssh.default.send("#{type}=", 'foo')
 
-          expect(instance.ssh_info[type]).to eq("foo")
+          expect(instance.ssh_info[type]).to eq('foo')
         end
 
-        it "should use the override if set even with a provider" do
-          provider_ssh_info[type] = "baz"
-          instance.config.ssh.send("#{type}=", "bar")
-          instance.config.ssh.default.send("#{type}=", "foo")
+        it 'should use the override if set even with a provider' do
+          provider_ssh_info[type] = 'baz'
+          instance.config.ssh.send("#{type}=", 'bar')
+          instance.config.ssh.default.send("#{type}=", 'foo')
 
-          expect(instance.ssh_info[type]).to eq("bar")
+          expect(instance.ssh_info[type]).to eq('bar')
         end
       end
 
-      it "should set the configured forward agent settings" do
+      it 'should set the configured forward agent settings' do
         provider_ssh_info[:forward_agent] = true
         instance.config.ssh.forward_agent = false
 
         expect(instance.ssh_info[:forward_agent]).to eq(false)
       end
 
-      it "should set the configured forward X11 settings" do
+      it 'should set the configured forward X11 settings' do
         provider_ssh_info[:forward_x11] = true
         instance.config.ssh.forward_x11 = false
 
         expect(instance.ssh_info[:forward_x11]).to eq(false)
       end
 
-      it "should return the provider private key if given" do
-        provider_ssh_info[:private_key_path] = "/foo"
+      it 'should return the provider private key if given' do
+        provider_ssh_info[:private_key_path] = '/foo'
 
-        expect(instance.ssh_info[:private_key_path]).to eq([File.expand_path("/foo", env.root_path)])
+        expect(instance.ssh_info[:private_key_path]).to eq([File.expand_path('/foo', env.root_path)])
       end
 
-      it "should return the configured SSH key path if set" do
+      it 'should return the configured SSH key path if set' do
         provider_ssh_info[:private_key_path] = nil
-        instance.config.ssh.private_key_path = "/bar"
+        instance.config.ssh.private_key_path = '/bar'
 
-        expect(instance.ssh_info[:private_key_path]).to eq([File.expand_path("/bar", env.root_path)])
+        expect(instance.ssh_info[:private_key_path]).to eq([File.expand_path('/bar', env.root_path)])
       end
 
-      it "should return the array of SSH keys if set" do
+      it 'should return the array of SSH keys if set' do
         provider_ssh_info[:private_key_path] = nil
-        instance.config.ssh.private_key_path = ["/foo", "/bar"]
+        instance.config.ssh.private_key_path = ['/foo', '/bar']
 
         expect(instance.ssh_info[:private_key_path]).to eq([
-          File.expand_path("/foo", env.root_path),
-          File.expand_path("/bar", env.root_path),
+          File.expand_path('/foo', env.root_path),
+          File.expand_path('/bar', env.root_path),
         ])
       end
 
-      context "expanding path relative to the root path" do
-        it "should with the provider key path" do
-          provider_ssh_info[:private_key_path] = "~/foo"
+      context 'expanding path relative to the root path' do
+        it 'should with the provider key path' do
+          provider_ssh_info[:private_key_path] = '~/foo'
 
           expect(instance.ssh_info[:private_key_path]).to eq(
-            [File.expand_path("~/foo", env.root_path)]
+            [File.expand_path('~/foo', env.root_path)]
           )
         end
 
-        it "should with the config private key path" do
+        it 'should with the config private key path' do
           provider_ssh_info[:private_key_path] = nil
-          instance.config.ssh.private_key_path = "~/bar"
+          instance.config.ssh.private_key_path = '~/bar'
 
           expect(instance.ssh_info[:private_key_path]).to eq(
-            [File.expand_path("~/bar", env.root_path)]
+            [File.expand_path('~/bar', env.root_path)]
           )
         end
       end
@@ -560,80 +560,80 @@ describe Vagrant::Machine do
         )
       end
 
-      it "should not set any default private keys if a password is specified" do
+      it 'should not set any default private keys if a password is specified' do
         provider_ssh_info[:private_key_path] = nil
         instance.config.ssh.private_key_path = nil
-        instance.config.ssh.password = ""
+        instance.config.ssh.password = ''
 
         expect(instance.ssh_info[:private_key_path]).to be_empty
-        expect(instance.ssh_info[:password]).to eql("")
+        expect(instance.ssh_info[:password]).to eql('')
       end
 
-      it "should return the private key in the data dir above all else" do
+      it 'should return the private key in the data dir above all else' do
         provider_ssh_info[:private_key_path] = nil
         instance.config.ssh.private_key_path = nil
-        instance.config.ssh.password = ""
+        instance.config.ssh.password = ''
 
-        instance.data_dir.join("private_key").open("w+") do |f|
-          f.write("hey")
+        instance.data_dir.join('private_key').open('w+') do |f|
+          f.write('hey')
         end
 
         expect(instance.ssh_info[:private_key_path]).to eql(
-          [instance.data_dir.join("private_key").to_s])
-        expect(instance.ssh_info[:password]).to eql("")
+          [instance.data_dir.join('private_key').to_s])
+        expect(instance.ssh_info[:password]).to eql('')
       end
 
-      context "with no data dir" do
+      context 'with no data dir' do
         let(:base)     { true }
         let(:data_dir) { nil }
 
-        it "returns nil as the private key path" do
+        it 'returns nil as the private key path' do
           provider_ssh_info[:private_key_path] = nil
           instance.config.ssh.private_key_path = nil
-          instance.config.ssh.password = ""
+          instance.config.ssh.password = ''
 
           expect(instance.ssh_info[:private_key_path]).to be_empty
-          expect(instance.ssh_info[:password]).to eql("")
+          expect(instance.ssh_info[:password]).to eql('')
         end
       end
     end
   end
 
-  describe "#state" do
-    it "should query state from the provider" do
-      state = Vagrant::MachineState.new(:id, "short", "long")
+  describe '#state' do
+    it 'should query state from the provider' do
+      state = Vagrant::MachineState.new(:id, 'short', 'long')
 
       expect(provider).to receive(:state).and_return(state)
       expect(instance.state.id).to eq(:id)
     end
 
-    it "should raise an exception if a MachineState is not returned" do
+    it 'should raise an exception if a MachineState is not returned' do
       expect(provider).to receive(:state).and_return(:old_school)
       expect { instance.state }.
         to raise_error(Vagrant::Errors::MachineStateInvalid)
     end
 
-    it "should save the state with the index" do
+    it 'should save the state with the index' do
       allow(provider).to receive(:machine_id_changed)
-      subject.id = "foo"
+      subject.id = 'foo'
 
-      state = Vagrant::MachineState.new(:id, "short", "long")
+      state = Vagrant::MachineState.new(:id, 'short', 'long')
       expect(provider).to receive(:state).and_return(state)
 
       subject.state
 
       entry = env.machine_index.get(subject.index_uuid)
       expect(entry).to_not be_nil
-      expect(entry.state).to eq("short")
+      expect(entry.state).to eq('short')
       env.machine_index.release(entry)
     end
 
-    it "should set the ID to nil if the state is not created" do
+    it 'should set the ID to nil if the state is not created' do
       state = Vagrant::MachineState.new(
-       Vagrant::MachineState::NOT_CREATED_ID, "short", "long")
+       Vagrant::MachineState::NOT_CREATED_ID, 'short', 'long')
 
       allow(provider).to receive(:machine_id_changed)
-      subject.id = "foo"
+      subject.id = 'foo'
 
       expect(provider).to receive(:state).and_return(state)
       expect(subject.state.id).to eq(Vagrant::MachineState::NOT_CREATED_ID)
@@ -641,8 +641,8 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "#with_ui" do
-    it "temporarily changes the UI" do
+  describe '#with_ui' do
+    it 'temporarily changes the UI' do
       ui = Object.new
       changed_ui = nil
 

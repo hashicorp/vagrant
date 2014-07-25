@@ -1,11 +1,10 @@
 module VagrantPlugins
   module Ansible
-    class Provisioner < Vagrant.plugin("2", :provisioner)
-
+    class Provisioner < Vagrant.plugin('2', :provisioner)
       def initialize(machine, config)
         super
 
-        @logger = Log4r::Logger.new("vagrant::provisioners::ansible")
+        @logger = Log4r::Logger.new('vagrant::provisioners::ansible')
       end
 
       def provision
@@ -16,13 +15,13 @@ module VagrantPlugins
         #
 
         # Connect with Vagrant SSH identity
-        options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
+        options = %W(--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]})
 
         # Multiple SSH keys and/or SSH forwarding can be passed via
         # ANSIBLE_SSH_ARGS environment variable, which requires 'ssh' mode.
         # Note that multiple keys and ssh-forwarding settings are not supported
         # by deprecated 'paramiko' mode.
-        options << "--connection=ssh" unless ansible_ssh_args.empty?
+        options << '--connection=ssh' unless ansible_ssh_args.empty?
 
         # By default we limit by the current machine.
         # This can be overridden by the limit config option.
@@ -32,19 +31,19 @@ module VagrantPlugins
         # 2) Configuration Joker
         #
 
-        options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
+        options.concat(as_array(config.raw_arguments)) if config.raw_arguments
 
         #
         # 3) Append Provisioner options (highest precedence):
         #
 
-        options << "--inventory-file=#{self.setup_inventory_file}"
-        options << "--extra-vars=#{self.get_extra_vars_argument}" if config.extra_vars
-        options << "--sudo" if config.sudo
+        options << "--inventory-file=#{setup_inventory_file}"
+        options << "--extra-vars=#{get_extra_vars_argument}" if config.extra_vars
+        options << '--sudo' if config.sudo
         options << "--sudo-user=#{config.sudo_user}" if config.sudo_user
-        options << "#{self.get_verbosity_argument}" if config.verbose
-        options << "--ask-sudo-pass" if config.ask_sudo_pass
-        options << "--ask-vault-pass" if config.ask_vault_pass
+        options << "#{get_verbosity_argument}" if config.verbose
+        options << '--ask-sudo-pass' if config.ask_sudo_pass
+        options << '--ask-vault-pass' if config.ask_vault_pass
         options << "--vault-password-file=#{config.vault_password_file}" if config.vault_password_file
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
@@ -56,15 +55,15 @@ module VagrantPlugins
 
         # Some Ansible options must be passed as environment variables
         env = {
-          "ANSIBLE_FORCE_COLOR" => "true",
-          "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
+          'ANSIBLE_FORCE_COLOR' => 'true',
+          'ANSIBLE_HOST_KEY_CHECKING' => "#{config.host_key_checking}",
 
           # Ensure Ansible output isn't buffered so that we receive ouput
           # on a task-by-task basis.
-          "PYTHONUNBUFFERED" => 1
+          'PYTHONUNBUFFERED' => 1
         }
         # Support Multiple SSH keys and SSH forwarding:
-        env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
+        env['ANSIBLE_SSH_ARGS'] = ansible_ssh_args unless ansible_ssh_args.empty?
 
         show_ansible_playbook_command(env, command) if config.verbose
 
@@ -82,7 +81,7 @@ module VagrantPlugins
             end
           end
 
-          raise Vagrant::Errors::AnsibleFailed if result.exit_code != 0
+          fail Vagrant::Errors::AnsibleFailed if result.exit_code != 0
         rescue Vagrant::Util::Subprocess::LaunchError
           raise Vagrant::Errors::AnsiblePlaybookAppNotFound
         end
@@ -131,9 +130,9 @@ module VagrantPlugins
           config.groups.each_pair do |gname, gmembers|
             # Require that gmembers be an array
             # (easier to be tolerant and avoid error management of few value)
-            gmembers = [gmembers] if !gmembers.is_a?(Array)
+            gmembers = [gmembers] unless gmembers.is_a?(Array)
 
-            if gname.end_with?(":children")
+            if gname.end_with?(':children')
               groups_of_groups[gname] = gmembers
               defined_groups << gname.sub(/:children$/, '')
             elsif !gname.include?(':vars')
@@ -154,11 +153,11 @@ module VagrantPlugins
           end
         end
 
-        return generated_inventory_dir.to_s
+        generated_inventory_dir.to_s
       end
 
       def get_extra_vars_argument
-        if config.extra_vars.kind_of?(String) and config.extra_vars =~ /^@.+$/
+        if config.extra_vars.is_a?(String) && config.extra_vars =~ /^@.+$/
           # A JSON or YAML file is referenced (requires Ansible 1.3+)
           return config.extra_vars
         else
@@ -191,16 +190,16 @@ module VagrantPlugins
         end
 
         # SSH Forwarding
-        ssh_options << "-o ForwardAgent=yes" if @ssh_info[:forward_agent]
+        ssh_options << '-o ForwardAgent=yes' if @ssh_info[:forward_agent]
 
         # Unchecked SSH Parameters
-        ssh_options.concat(self.as_array(config.raw_ssh_args)) if config.raw_ssh_args
+        ssh_options.concat(as_array(config.raw_ssh_args)) if config.raw_ssh_args
 
         # Re-enable ControlPersist Ansible defaults,
         # which are lost when ANSIBLE_SSH_ARGS is defined.
         unless ssh_options.empty?
-          ssh_options << "-o ControlMaster=auto"
-          ssh_options << "-o ControlPersist=60s"
+          ssh_options << '-o ControlMaster=auto'
+          ssh_options << '-o ControlPersist=60s'
           # Intentionally keep ControlPath undefined to let ansible-playbook
           # automatically sets this option to Ansible default value
         end
@@ -209,11 +208,11 @@ module VagrantPlugins
       end
 
       def as_list_argument(v)
-        v.kind_of?(Array) ? v.join(',') : v
+        v.is_a?(Array) ? v.join(',') : v
       end
 
       def as_array(v)
-        v.kind_of?(Array) ? v : [v]
+        v.is_a?(Array) ? v : [v]
       end
 
       def show_ansible_playbook_command(env, command)
@@ -229,7 +228,7 @@ module VagrantPlugins
         shell_arg = []
         command.each do |arg|
           if arg =~ /(--start-at-task|--limit)=(.+)/
-            shell_arg << "#{$1}='#{$2}'"
+            shell_arg << "#{Regexp.last_match[1]}='#{Regexp.last_match[2]}'"
           else
             shell_arg << arg
           end

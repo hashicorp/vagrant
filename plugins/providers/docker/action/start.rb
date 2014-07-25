@@ -2,7 +2,7 @@ module VagrantPlugins
   module DockerProvider
     module Action
       class Start
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -10,7 +10,7 @@ module VagrantPlugins
           machine = env[:machine]
           driver  = machine.provider.driver
 
-          machine.ui.output(I18n.t("docker_provider.messages.starting"))
+          machine.ui.output(I18n.t('docker_provider.messages.starting'))
           driver.start(machine.id)
 
           @app.call(env)

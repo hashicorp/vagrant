@@ -1,4 +1,4 @@
-require "log4r"
+require 'log4r'
 
 module VagrantPlugins
   module DockerProvider
@@ -7,19 +7,19 @@ module VagrantPlugins
       # we need to. The host machine is where Docker containers will
       # live.
       class HostMachine
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::docker::hostmachine")
+          @logger = Log4r::Logger.new('vagrant::docker::hostmachine')
         end
 
         def call(env)
-          if !env[:machine].provider.host_vm?
-            @logger.info("No host machine needed.")
+          unless env[:machine].provider.host_vm?
+            @logger.info('No host machine needed.')
             return @app.call(env)
           end
 
           env[:machine].ui.output(I18n.t(
-            "docker_provider.host_machine_needed"))
+            'docker_provider.host_machine_needed'))
 
           host_machine = env[:machine].provider.host_vm
 
@@ -46,19 +46,19 @@ module VagrantPlugins
 
           # See if the machine is ready already. If not, start it.
           if host_machine.communicate.ready?
-            env[:machine].ui.detail(I18n.t("docker_provider.host_machine_ready"))
+            env[:machine].ui.detail(I18n.t('docker_provider.host_machine_ready'))
           else
             env[:machine].ui.detail(
-              I18n.t("docker_provider.host_machine_starting"))
-            env[:machine].ui.detail(" ")
+              I18n.t('docker_provider.host_machine_starting'))
+            env[:machine].ui.detail(' ')
             host_machine.with_ui(proxy_ui) do
               host_machine.action(:up)
             end
 
             # Verify communication is ready. If not, we have a problem.
-            if !host_machine.communicate.ready?
-              raise Errors::HostVMCommunicatorNotReady,
-                id: host_machine.id
+            unless host_machine.communicate.ready?
+              fail Errors::HostVMCommunicatorNotReady,
+                   id: host_machine.id
             end
           end
         end

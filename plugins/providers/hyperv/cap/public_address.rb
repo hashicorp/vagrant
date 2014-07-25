@@ -6,7 +6,7 @@ module VagrantPlugins
           return nil if machine.state.id != :running
 
           ssh_info = machine.ssh_info
-          return nil if !ssh_info
+          return nil unless ssh_info
           ssh_info[:host]
         end
       end

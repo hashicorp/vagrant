@@ -1,6 +1,6 @@
-require "log4r"
+require 'log4r'
 
-require_relative "mixin_synced_folders"
+require_relative 'mixin_synced_folders'
 
 module Vagrant
   module Action
@@ -10,9 +10,9 @@ module Vagrant
       class SyncedFolderCleanup
         include MixinSyncedFolders
 
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
-          @logger = Log4r::Logger.new("vagrant::action::builtin::synced_folder_cleanup")
+          @logger = Log4r::Logger.new('vagrant::action::builtin::synced_folder_cleanup')
         end
 
         def call(env)

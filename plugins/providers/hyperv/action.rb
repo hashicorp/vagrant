@@ -1,6 +1,6 @@
-require "pathname"
+require 'pathname'
 
-require "vagrant/action/builder"
+require 'vagrant/action/builder'
 
 module VagrantPlugins
   module HyperV
@@ -13,7 +13,7 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              b2.use Message, I18n.t('vagrant_hyperv.message_not_created')
               next
             end
 
@@ -27,12 +27,12 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :not_created do |env1, b1|
             if env1[:result]
-              b1.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              b1.use Message, I18n.t('vagrant_hyperv.message_not_created')
               next
             end
 
             b1.use Call, DestroyConfirm do |env2, b2|
-              if !env2[:result]
+              unless env2[:result]
                 b2.use MessageWillNotDestroy
                 next
               end
@@ -50,12 +50,12 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              b2.use Message, I18n.t('vagrant_hyperv.message_not_created')
               next
             end
 
             b2.use Call, GracefulHalt, :off, :running do |env2, b3|
-              if !env2[:result]
+              unless env2[:result]
                 b3.use StopInstance
               end
             end
@@ -68,13 +68,13 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              b2.use Message, I18n.t('vagrant_hyperv.message_not_created')
               next
             end
 
             b2.use Call, IsState, :running do |env1, b3|
-              if !env1[:result]
-                b3.use Message, I18n.t("vagrant_hyperv.message_not_running")
+              unless env1[:result]
+                b3.use Message, I18n.t('vagrant_hyperv.message_not_running')
                 next
               end
 
@@ -90,7 +90,7 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b1|
             if env[:result]
-              b1.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              b1.use Message, I18n.t('vagrant_hyperv.message_not_created')
               next
             end
 
@@ -105,7 +105,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env1, b1|
             if env1[:result]
-              b1.use Message, I18n.t("vagrant_hyperv.message_already_running")
+              b1.use Message, I18n.t('vagrant_hyperv.message_already_running')
               next
             end
 
@@ -153,13 +153,13 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              b2.use Message, I18n.t('vagrant_hyperv.message_not_created')
               next
             end
 
             b2.use Call, IsState, :running do |env1, b3|
-              if !env1[:result]
-                b3.use Message, I18n.t("vagrant_hyperv.message_not_running")
+              unless env1[:result]
+                b3.use Message, I18n.t('vagrant_hyperv.message_not_running')
                 next
               end
 
@@ -174,13 +174,13 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              b2.use Message, I18n.t('vagrant_hyperv.message_not_created')
               next
             end
 
             b2.use Call, IsState, :running do |env1, b3|
-              if !env1[:result]
-                b3.use Message, I18n.t("vagrant_hyperv.message_not_running")
+              unless env1[:result]
+                b3.use Message, I18n.t('vagrant_hyperv.message_not_running')
                 next
               end
 
@@ -195,7 +195,7 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              b2.use Message, I18n.t('vagrant_hyperv.message_not_created')
               next
             end
 
@@ -205,18 +205,18 @@ module VagrantPlugins
       end
 
       # The autoload farm
-      action_root = Pathname.new(File.expand_path("../action", __FILE__))
-      autoload :CheckEnabled, action_root.join("check_enabled")
-      autoload :DeleteVM, action_root.join("delete_vm")
-      autoload :Import, action_root.join("import")
-      autoload :IsWindows, action_root.join("is_windows")
-      autoload :ReadState, action_root.join("read_state")
-      autoload :ResumeVM, action_root.join("resume_vm")
+      action_root = Pathname.new(File.expand_path('../action', __FILE__))
+      autoload :CheckEnabled, action_root.join('check_enabled')
+      autoload :DeleteVM, action_root.join('delete_vm')
+      autoload :Import, action_root.join('import')
+      autoload :IsWindows, action_root.join('is_windows')
+      autoload :ReadState, action_root.join('read_state')
+      autoload :ResumeVM, action_root.join('resume_vm')
       autoload :StartInstance, action_root.join('start_instance')
       autoload :StopInstance, action_root.join('stop_instance')
-      autoload :SuspendVM, action_root.join("suspend_vm")
-      autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
-      autoload :MessageWillNotDestroy, action_root.join("message_will_not_destroy")
+      autoload :SuspendVM, action_root.join('suspend_vm')
+      autoload :WaitForIPAddress, action_root.join('wait_for_ip_address')
+      autoload :MessageWillNotDestroy, action_root.join('message_will_not_destroy')
     end
   end
 end

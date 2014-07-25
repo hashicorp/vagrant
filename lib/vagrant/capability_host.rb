@@ -29,19 +29,19 @@ module Vagrant
         "vagrant::capability_host::#{self.class.to_s.downcase}")
 
       if host && !hosts[host]
-        raise Errors::CapabilityHostExplicitNotDetected, value: host.to_s
+        fail Errors::CapabilityHostExplicitNotDetected, value: host.to_s
       end
 
-      if !host
-        host = autodetect_capability_host(hosts, *args) if !host
-        raise Errors::CapabilityHostNotDetected if !host
+      unless host
+        host = autodetect_capability_host(hosts, *args) unless host
+        fail Errors::CapabilityHostNotDetected unless host
       end
 
-      if !hosts[host]
+      unless hosts[host]
         # This should never happen because the autodetect above uses the
         # hosts hash to look up hosts. And if an explicit host is specified,
         # we do another check higher up.
-        raise "Internal error. Host not found: #{host}"
+        fail "Internal error. Host not found: #{host}"
       end
 
       name      = host
@@ -90,10 +90,10 @@ module Vagrant
     # @param [Symbol] cap_name Name of the capability
     def capability(cap_name, *args)
       cap_mod = capability_module(cap_name.to_sym)
-      if !cap_mod
-        raise Errors::CapabilityNotFound,
-          cap:  cap_name.to_s,
-          host: @cap_host_chain[0][0].to_s
+      unless cap_mod
+        fail Errors::CapabilityNotFound,
+             cap:  cap_name.to_s,
+             host: @cap_host_chain[0][0].to_s
       end
 
       cap_method = nil
@@ -101,8 +101,8 @@ module Vagrant
         cap_method = cap_mod.method(cap_name)
       rescue NameError
         raise Errors::CapabilityInvalid,
-          cap: cap_name.to_s,
-          host: @cap_host_chain[0][0].to_s
+              cap: cap_name.to_s,
+              host: @cap_host_chain[0][0].to_s
       end
 
       args = @cap_args + args
@@ -152,7 +152,7 @@ module Vagrant
         end
       end
 
-      return nil
+      nil
     end
 
     # Returns the registered module for a capability with the given name.
@@ -161,11 +161,11 @@ module Vagrant
     # @return [Module]
     def capability_module(cap_name)
       @cap_logger.debug("Searching for cap: #{cap_name}")
-      @cap_host_chain.each do |host_name, host|
+      @cap_host_chain.each do |host_name, _host|
         @cap_logger.debug("Checking in: #{host_name}")
         caps = @cap_caps[host_name]
 
-        if caps && caps.has_key?(cap_name)
+        if caps && caps.key?(cap_name)
           @cap_logger.debug("Found cap: #{cap_name} in #{host_name}")
           return caps[cap_name]
         end

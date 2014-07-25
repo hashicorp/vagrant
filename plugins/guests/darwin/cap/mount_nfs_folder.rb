@@ -1,4 +1,4 @@
-require "vagrant/util/retryable"
+require 'vagrant/util/retryable'
 
 module VagrantPlugins
   module GuestDarwin
@@ -6,7 +6,7 @@ module VagrantPlugins
       class MountNFSFolder
         extend Vagrant::Util::Retryable
         def self.mount_nfs_folder(machine, ip, folders)
-          folders.each do |name, opts|
+          folders.each do |_name, opts|
             # Expand the guest path so we can handle things like "~/vagrant"
             expanded_guest_path = machine.guest.capability(
               :shell_expand_guest_path, opts[:guestpath])
@@ -16,13 +16,13 @@ module VagrantPlugins
 
             # Figure out any options
             mount_opts = ["vers=#{opts[:nfs_version]}"]
-            mount_opts << "udp" if opts[:nfs_udp]
+            mount_opts << 'udp' if opts[:nfs_udp]
             if opts[:mount_options]
               mount_opts = opts[:mount_options].dup
             end
 
-            mount_command = "mount -t nfs " +
-              "-o '#{mount_opts.join(",")}' " +
+            mount_command = 'mount -t nfs ' \
+              "-o '#{mount_opts.join(',')}' " \
               "'#{ip}:#{opts[:hostpath]}' '#{expanded_guest_path}'"
             retryable(on: Vagrant::Errors::DarwinNFSMountFailed, tries: 10, sleep: 5) do
               machine.communicate.sudo(

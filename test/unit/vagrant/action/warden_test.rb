@@ -1,4 +1,4 @@
-require File.expand_path("../../../base", __FILE__)
+require File.expand_path('../../../base', __FILE__)
 
 describe Vagrant::Action::Warden do
   let(:data) { { data: [] } }
@@ -7,19 +7,19 @@ describe Vagrant::Action::Warden do
   # This returns a proc that can be used with the builder
   # that simply appends data to an array in the env.
   def appender_proc(data)
-    Proc.new { |env| env[:data] << data }
+    proc { |env| env[:data] << data }
   end
 
-  it "calls the actions like normal" do
+  it 'calls the actions like normal' do
     instance = described_class.new([appender_proc(1), appender_proc(2)], data)
     instance.call(data)
 
     expect(data[:data]).to eq([1, 2])
   end
 
-  it "starts a recovery sequence when an exception is raised" do
+  it 'starts a recovery sequence when an exception is raised' do
     class Action
-      def initialize(app, env)
+      def initialize(app, _env)
         @app = app
       end
 
@@ -33,7 +33,7 @@ describe Vagrant::Action::Warden do
     end
 
     class ActionTwo
-      def initialize(app, env)
+      def initialize(app, _env)
         @app = app
       end
 
@@ -46,7 +46,7 @@ describe Vagrant::Action::Warden do
       end
     end
 
-    error_proc = Proc.new { raise "ERROR!" }
+    error_proc = proc { fail 'ERROR!' }
 
     data     = { recover: [] }
     instance = described_class.new([Action, ActionTwo, error_proc], data)
@@ -59,12 +59,12 @@ describe Vagrant::Action::Warden do
     expect(data[:recover]).to eq([2, 1])
 
     # Verify that the error is available in the data
-    expect(data["vagrant.error"]).to be_kind_of(RuntimeError)
+    expect(data['vagrant.error']).to be_kind_of(RuntimeError)
   end
 
-  it "does not do a recovery sequence if SystemExit is raised" do
+  it 'does not do a recovery sequence if SystemExit is raised' do
     class Action
-      def initialize(app, env)
+      def initialize(app, _env)
         @app = app
       end
 
@@ -79,7 +79,7 @@ describe Vagrant::Action::Warden do
 
     # Make a proc that just calls "abort" which raises a
     # SystemExit exception.
-    error_proc = Proc.new { abort }
+    error_proc = proc { abort }
 
     instance = described_class.new([Action, error_proc], data)
 
@@ -87,6 +87,6 @@ describe Vagrant::Action::Warden do
     expect { instance.call(data) }.to raise_error(SystemExit)
 
     # The recover should not have been called
-    expect(data.has_key?(:recover)).not_to be
+    expect(data.key?(:recover)).not_to be
   end
 end

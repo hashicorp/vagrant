@@ -8,23 +8,23 @@ module Vagrant
     class Runner
       @@reported_interrupt = false
 
-      def initialize(globals=nil, &block)
+      def initialize(globals = nil, &block)
         @globals      = globals || {}
         @lazy_globals = block
-        @logger       = Log4r::Logger.new("vagrant::action::runner")
+        @logger       = Log4r::Logger.new('vagrant::action::runner')
       end
 
-      def run(callable_id, options=nil)
+      def run(callable_id, options = nil)
         callable = callable_id
-        if !callable.kind_of?(Builder)
-          if callable_id.kind_of?(Class) || callable_id.respond_to?(:call)
+        unless callable.is_a?(Builder)
+          if callable_id.is_a?(Class) || callable_id.respond_to?(:call)
             callable = Builder.build(callable_id)
           end
         end
 
         if !callable || !callable.respond_to?(:call)
-          raise ArgumentError,
-            "Argument to run must be a callable object or registered action."
+          fail ArgumentError,
+               'Argument to run must be a callable object or registered action.'
         end
 
         # Create the initial environment with the options given
@@ -34,9 +34,9 @@ module Vagrant
         environment.merge!(options || {})
 
         # Setup the action hooks
-        hooks = Vagrant.plugin("2").manager.action_hooks(environment[:action_name])
-        if !hooks.empty?
-          @logger.info("Preparing hooks for middleware sequence...")
+        hooks = Vagrant.plugin('2').manager.action_hooks(environment[:action_name])
+        unless hooks.empty?
+          @logger.info('Preparing hooks for middleware sequence...')
           environment[:action_hooks] = hooks.map do |hook_proc|
             Hook.new.tap do |h|
               hook_proc.call(h)
@@ -49,14 +49,14 @@ module Vagrant
         # Run the action chain in a busy block, marking the environment as
         # interrupted if a SIGINT occurs, and exiting cleanly once the
         # chain has been run.
-        ui = environment[:ui] if environment.has_key?(:ui)
+        ui = environment[:ui] if environment.key?(:ui)
         int_callback = lambda do
           if environment[:interrupted]
-            ui.error I18n.t("vagrant.actions.runner.exit_immediately") if ui
+            ui.error I18n.t('vagrant.actions.runner.exit_immediately') if ui
             abort
           end
 
-          ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup") if ui && !@@reported_interrupt
+          ui.warn I18n.t('vagrant.actions.runner.waiting_cleanup') if ui && !@@reported_interrupt
           environment[:interrupted] = true
           @@reported_interrupt = true
         end

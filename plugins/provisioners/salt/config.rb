@@ -1,10 +1,9 @@
-require "vagrant"
-require "vagrant/util/deep_merge"
+require 'vagrant'
+require 'vagrant/util/deep_merge'
 
 module VagrantPlugins
   module Salt
-    class Config < Vagrant.plugin("2", :config)
-
+    class Config < Vagrant.plugin('2', :config)
       ## salty-vagrant options
       attr_accessor :minion_config
       attr_accessor :minion_key
@@ -18,7 +17,7 @@ module VagrantPlugins
       attr_accessor :bootstrap_script
       attr_accessor :verbose
       attr_accessor :seed_master
-      attr_reader   :pillar_data
+      attr_reader :pillar_data
       attr_accessor :colorize
       attr_accessor :log_level
 
@@ -79,7 +78,6 @@ module VagrantPlugins
         @install_syndic     = nil if @install_syndic == UNSET_VALUE
         @no_minion          = nil if @no_minion == UNSET_VALUE
         @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
-
       end
 
       def pillar(data)
@@ -91,38 +89,36 @@ module VagrantPlugins
         errors = _detected_errors
         if @minion_config
           expanded = Pathname.new(@minion_config).expand_path(machine.env.root_path)
-          if !expanded.file?
-            errors << I18n.t("vagrant.provisioners.salt.minion_config_nonexist")
+          unless expanded.file?
+            errors << I18n.t('vagrant.provisioners.salt.minion_config_nonexist')
           end
         end
 
         if @master_config
           expanded = Pathname.new(@master_config).expand_path(machine.env.root_path)
-          if !expanded.file?
-            errors << I18n.t("vagrant.provisioners.salt.master_config_nonexist")
+          unless expanded.file?
+            errors << I18n.t('vagrant.provisioners.salt.master_config_nonexist')
           end
         end
 
         if @minion_key || @minion_pub
           if !@minion_key || !@minion_pub
-            errors << I18n.t("vagrant.provisioners.salt.missing_key")
+            errors << I18n.t('vagrant.provisioners.salt.missing_key')
           end
         end
 
         if @master_key || @master_pub
           if !@master_key || !@master_pub
-            errors << I18n.t("vagrant.provisioners.salt.missing_key")
+            errors << I18n.t('vagrant.provisioners.salt.missing_key')
           end
         end
 
         if @install_master && !@no_minion && !@seed_master && @run_highstate
-          errors << I18n.t("vagrant.provisioners.salt.must_accept_keys")
+          errors << I18n.t('vagrant.provisioners.salt.must_accept_keys')
         end
 
-        return {"salt provisioner" => errors}
+        { 'salt provisioner' => errors }
       end
-
-
     end
   end
 end

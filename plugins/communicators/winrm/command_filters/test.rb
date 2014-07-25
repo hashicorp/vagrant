@@ -8,7 +8,7 @@ module VagrantPlugins
           # test -f /tmp/afile
           # test -L /somelink
           # test -x /tmp/some.exe
-          
+
           cmd_parts = command.strip.split(/\s+/)
           flag = cmd_parts[1]
           path = cmd_parts[2]
@@ -23,7 +23,7 @@ module VagrantPlugins
         end
 
         def accept?(command)
-          command.start_with?("test ")
+          command.start_with?('test ')
         end
 
         private

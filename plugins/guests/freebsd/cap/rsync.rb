@@ -4,24 +4,24 @@ module VagrantPlugins
       class RSync
         def self.rsync_install(machine)
           version = nil
-          machine.communicate.execute("uname -r") do |type, result|
+          machine.communicate.execute('uname -r') do |type, result|
             version = result.split('.')[0].to_i if type == :stdout
           end
 
-          pkg_cmd = "pkg_add -r"
+          pkg_cmd = 'pkg_add -r'
           if version && version >= 10
-            pkg_cmd = "pkg install -y"
+            pkg_cmd = 'pkg install -y'
           end
 
           machine.communicate.sudo("#{pkg_cmd} rsync")
         end
 
         def self.rsync_installed(machine)
-          machine.communicate.test("which rsync")
+          machine.communicate.test('which rsync')
         end
 
-        def self.rsync_command(machine)
-          "sudo rsync"
+        def self.rsync_command(_machine)
+          'sudo rsync'
         end
 
         def self.rsync_pre(machine, opts)
@@ -31,12 +31,12 @@ module VagrantPlugins
         end
 
         def self.rsync_post(machine, opts)
-          if opts.has_key?(:chown) && !opts[:chown]
+          if opts.key?(:chown) && !opts[:chown]
             return
           end
 
           machine.communicate.sudo(
-            "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
+            "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " \
             "xargs -0 -r chown #{opts[:owner]}:#{opts[:group]}")
         end
       end

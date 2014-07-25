@@ -1,41 +1,41 @@
-require "log4r"
+require 'log4r'
 require 'optparse'
-require "thread"
+require 'thread'
 
-require "vagrant/action/builtin/mixin_synced_folders"
-require "vagrant/util/busy"
-require "vagrant/util/platform"
+require 'vagrant/action/builtin/mixin_synced_folders'
+require 'vagrant/util/busy'
+require 'vagrant/util/platform'
 
-require_relative "../helper"
+require_relative '../helper'
 
 # This is to avoid a bug in nio 1.0.0. Remove around nio 1.0.1
 if Vagrant::Util::Platform.windows?
-  ENV["NIO4R_PURE"] = "1"
+  ENV['NIO4R_PURE'] = '1'
 end
 
-require "listen"
+require 'listen'
 
 module VagrantPlugins
   module SyncedFolderRSync
     module Command
-      class RsyncAuto < Vagrant.plugin("2", :command)
+      class RsyncAuto < Vagrant.plugin('2', :command)
         include Vagrant::Action::Builtin::MixinSyncedFolders
 
         def self.synopsis
-          "syncs rsync synced folders automatically when files change"
+          'syncs rsync synced folders automatically when files change'
         end
 
         def execute
-          @logger = Log4r::Logger.new("vagrant::commands::rsync-auto")
+          @logger = Log4r::Logger.new('vagrant::commands::rsync-auto')
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant rsync-auto [vm-name]"
-            o.separator ""
+            o.banner = 'Usage: vagrant rsync-auto [vm-name]'
+            o.separator ''
           end
 
           # Parse the options and return if we don't have any target.
           argv = parse_options(opts)
-          return if !argv
+          return unless argv
 
           # Build up the paths that we need to listen to.
           paths = {}
@@ -44,8 +44,8 @@ module VagrantPlugins
             cached = synced_folders(machine, cached: true)
             fresh  = synced_folders(machine)
             diff   = synced_folders_diff(cached, fresh)
-            if !diff[:added].empty?
-              machine.ui.warn(I18n.t("vagrant.rsync_auto_new_folders"))
+            unless diff[:added].empty?
+              machine.ui.warn(I18n.t('vagrant.rsync_auto_new_folders'))
             end
 
             folders = cached[:rsync]
@@ -55,8 +55,8 @@ module VagrantPlugins
             # sync to the VM.
             ssh_info = machine.ssh_info
             if ssh_info
-              machine.ui.info(I18n.t("vagrant.rsync_auto_initial"))
-              folders.each do |id, folder_opts|
+              machine.ui.info(I18n.t('vagrant.rsync_auto_initial'))
+              folders.each do |_id, folder_opts|
                 RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
               end
             end
@@ -64,7 +64,7 @@ module VagrantPlugins
             folders.each do |id, folder_opts|
               # If we marked this folder to not auto sync, then
               # don't do it.
-              next if folder_opts.has_key?(:auto) && !folder_opts[:auto]
+              next if folder_opts.key?(:auto) && !folder_opts[:auto]
 
               hostpath = folder_opts[:hostpath]
               hostpath = File.expand_path(hostpath, machine.env.root_path)
@@ -85,7 +85,7 @@ module VagrantPlugins
 
           # Exit immediately if there is nothing to watch
           if paths.empty?
-            @env.ui.info(I18n.t("vagrant.rsync_auto_no_paths"))
+            @env.ui.info(I18n.t('vagrant.rsync_auto_no_paths'))
             return 1
           end
 
@@ -93,7 +93,7 @@ module VagrantPlugins
           paths.keys.sort.each do |path|
             paths[path].each do |path_opts|
               path_opts[:machine].ui.info(I18n.t(
-                "vagrant.rsync_auto_path",
+                'vagrant.rsync_auto_path',
                 path: path.to_s,
               ))
             end
@@ -102,7 +102,7 @@ module VagrantPlugins
           @logger.info("Listening to paths: #{paths.keys.sort.inspect}")
           @logger.info("Ignoring #{ignores.length} paths:")
           ignores.each do |ignore|
-            @logger.info("  -- #{ignore.to_s}")
+            @logger.info("  -- #{ignore}")
           end
           @logger.info("Listening via: #{Listen::Adapter.select.inspect}")
           callback = method(:callback).to_proc.curry[paths]
@@ -129,7 +129,7 @@ module VagrantPlugins
 
         # This is the callback that is called when any changes happen
         def callback(paths, modified, added, removed)
-          @logger.info("File change callback called!")
+          @logger.info('File change callback called!')
           @logger.info("  - Modified: #{modified.inspect}")
           @logger.info("  - Added: #{added.inspect}")
           @logger.info("  - Removed: #{removed.inspect}")
@@ -163,7 +163,7 @@ module VagrantPlugins
                 # Error communicating to the machine, probably a reload or
                 # halt is happening. Just notify the user but don't fail out.
                 opts[:machine].ui.error(I18n.t(
-                  "vagrant.rsync_communicator_not_ready_callback"))
+                  'vagrant.rsync_communicator_not_ready_callback'))
               end
             end
           end

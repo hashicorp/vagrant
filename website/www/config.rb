@@ -1,12 +1,12 @@
-require File.expand_path("../helpers/download_helpers", __FILE__)
+require File.expand_path('../helpers/download_helpers', __FILE__)
 
-page "/blog_feed.xml", layout: false
-ignore "/download-archive-single.html"
+page '/blog_feed.xml', layout: false
+ignore '/download-archive-single.html'
 
 # Archived download pages
 $vagrant_versions.each do |version|
-  proxy "/download-archive/v#{version}.html", "/download-archive-single.html",
-    locals: { version: version }, ignore: true
+  proxy "/download-archive/v#{version}.html", '/download-archive-single.html',
+        locals: { version: version }, ignore: true
 end
 
 set :css_dir, 'stylesheets'
@@ -21,12 +21,12 @@ set :markdown,
 
 # Enable the blog and set the time zone so that post times appear
 # correctly.
-Time.zone = "America/Los_Angeles"
+Time.zone = 'America/Los_Angeles'
 
 activate :blog do |b|
-  b.layout = "blog_post"
-  b.permalink = ":title.html"
-  b.prefix = "blog"
+  b.layout = 'blog_post'
+  b.permalink = ':title.html'
+  b.prefix = 'blog'
 end
 
 # Build-specific configuration

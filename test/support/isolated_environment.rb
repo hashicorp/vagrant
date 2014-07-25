@@ -1,8 +1,8 @@
-require "fileutils"
-require "pathname"
-require "tmpdir"
+require 'fileutils'
+require 'pathname'
+require 'tmpdir'
 
-require "log4r"
+require 'log4r'
 
 # This class manages an isolated environment for Vagrant to
 # run in. It creates a temporary directory to act as the
@@ -23,15 +23,15 @@ class IsolatedEnvironment
   # @param [Hash] env Additional environmental variables to inject
   #   into the execution environments.
   def initialize
-    @logger = Log4r::Logger.new("test::isolated_environment")
+    @logger = Log4r::Logger.new('test::isolated_environment')
 
     # Create a temporary directory for our work
-    @tempdir = Dir.mktmpdir("vagrant")
+    @tempdir = Dir.mktmpdir('vagrant')
     @logger.info("Initialize isolated environment: #{@tempdir}")
 
     # Setup the home and working directories
-    @homedir = Pathname.new(File.join(@tempdir, "home"))
-    @workdir = Pathname.new(File.join(@tempdir, "work"))
+    @homedir = Pathname.new(File.join(@tempdir, 'home'))
+    @workdir = Pathname.new(File.join(@tempdir, 'work'))
 
     @homedir.mkdir
     @workdir.mkdir

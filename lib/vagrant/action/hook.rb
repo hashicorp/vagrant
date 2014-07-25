@@ -69,10 +69,10 @@ module Vagrant
       # called directly.
       #
       # @param [Builder] builder
-      def apply(builder, options=nil)
+      def apply(builder, options = nil)
         options ||= {}
 
-        if !options[:no_prepend_or_append]
+        unless options[:no_prepend_or_append]
           # Prepends first
           @prepend_hooks.each do |klass, args, block|
             builder.insert(0, klass, *args, &block)
@@ -86,7 +86,7 @@ module Vagrant
 
         # Before hooks
         @before_hooks.each do |key, list|
-          next if !builder.index(key)
+          next unless builder.index(key)
 
           list.each do |klass, args, block|
             builder.insert_before(key, klass, *args, &block)
@@ -95,7 +95,7 @@ module Vagrant
 
         # After hooks
         @after_hooks.each do |key, list|
-          next if !builder.index(key)
+          next unless builder.index(key)
 
           list.each do |klass, args, block|
             builder.insert_after(key, klass, *args, &block)

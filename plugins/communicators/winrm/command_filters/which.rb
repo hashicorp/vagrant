@@ -5,7 +5,7 @@ module VagrantPlugins
       class Which
         def filter(command)
           executable = command.strip.split(/\s+/)[1]
-          return <<-EOH
+          <<-EOH
             $command = [Array](Get-Command #{executable} -errorAction SilentlyContinue)
             if ($null -eq $command) { exit 1 }
             write-host $command[0].Definition

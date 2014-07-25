@@ -2,7 +2,7 @@ require 'json'
 
 module VagrantPlugins
   module Salt
-    class Provisioner < Vagrant.plugin("2", :provisioner)
+    class Provisioner < Vagrant.plugin('2', :provisioner)
       def provision
         upload_configs
         upload_keys
@@ -12,16 +12,16 @@ module VagrantPlugins
       end
 
       # Return a list of accepted keys
-      def keys(group='minions')
-        out = @machine.communicate.sudo("salt-key --out json") do |type, output|
+      def keys(group = 'minions')
+        out = @machine.communicate.sudo('salt-key --out json') do |type, output|
           begin
             if type == :stdout
-              out = JSON::load(output)
+              out = JSON.load(output)
               break out[group]
             end
           end
         end
-        return out
+        out
       end
 
       ## Utilities
@@ -32,7 +32,7 @@ module VagrantPlugins
       def binaries_found
         ## Determine States, ie: install vs configure
         desired_binaries = []
-        if !@config.no_minion
+        unless @config.no_minion
           if @machine.config.vm.communicator == :winrm
             desired_binaries.push('C:\\salt\\salt-minion.exe')
             desired_binaries.push('C:\\salt\\salt-call.exe')
@@ -44,8 +44,8 @@ module VagrantPlugins
 
         if @config.install_master
           if @machine.config.vm.communicator == :winrm
-            raise Vagrant::Errors::ProvisionerWinRMUnsupported,
-              name: "salt.install_master"
+            fail Vagrant::Errors::ProvisionerWinRMUnsupported,
+                 name: 'salt.install_master'
           else
             desired_binaries.push('salt-master')
           end
@@ -53,8 +53,8 @@ module VagrantPlugins
 
         if @config.install_syndic
           if @machine.config.vm.communicator == :winrm
-            raise Vagrant::Errors::ProvisionerWinRMUnsupported,
-              name: "salt.install_syndic"
+            fail Vagrant::Errors::ProvisionerWinRMUnsupported,
+                 name: 'salt.install_syndic'
           else
             desired_binaries.push('salt-syndic')
           end
@@ -62,53 +62,53 @@ module VagrantPlugins
 
         found = true
         for binary in desired_binaries
-          @machine.env.ui.info "Checking if %s is installed" % binary
-          if !@machine.communicate.test("which %s" % binary)
-            @machine.env.ui.info "%s was not found." % binary
+          @machine.env.ui.info 'Checking if %s is installed' % binary
+          if !@machine.communicate.test('which %s' % binary)
+            @machine.env.ui.info '%s was not found.' % binary
             found = false
           else
-            @machine.env.ui.info "%s found" % binary
+            @machine.env.ui.info '%s found' % binary
           end
         end
 
-        return found
+        found
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key
+        @config.minion_config || @config.minion_key || @config.master_config || @config.master_key
       end
 
       def need_install
         if @config.always_install
           return true
         else
-          return !binaries_found()
+          return !binaries_found
         end
       end
 
       def temp_config_dir
         if @machine.config.vm.communicator == :winrm
-          return @config.temp_config_dir || "C:\\tmp"
+          return @config.temp_config_dir || 'C:\\tmp'
         else
-          return @config.temp_config_dir || "/tmp"
+          return @config.temp_config_dir || '/tmp'
         end
       end
 
       # Generates option string for bootstrap script
       def bootstrap_options(install, configure, config_dir)
-        options = ""
+        options = ''
 
         # Any extra options passed to bootstrap
         if @config.bootstrap_options
-          options = "%s %s" % [options, @config.bootstrap_options]
+          options = '%s %s' % [options, @config.bootstrap_options]
         end
 
         if configure
-          options = "%s -F -c %s" % [options, config_dir]
+          options = '%s -F -c %s' % [options, config_dir]
         end
 
         if @config.seed_master && @config.install_master
-          seed_dir = "/tmp/minion-seed-keys"
+          seed_dir = '/tmp/minion-seed-keys'
           @machine.communicate.sudo("mkdir -p -m777 #{seed_dir}")
           @config.seed_master.each do |name, keyfile|
             sourcepath = expanded_path(keyfile).to_s
@@ -119,84 +119,84 @@ module VagrantPlugins
         end
 
         if configure && !install
-          options = "%s -C" % options
+          options = '%s -C' % options
         end
 
         if @config.install_master
-          options = "%s -M" % options
+          options = '%s -M' % options
         end
 
         if @config.install_syndic
-          options = "%s -S" % options
+          options = '%s -S' % options
         end
 
         if @config.no_minion
-          options = "%s -N" % options
+          options = '%s -N' % options
         end
 
         if @config.install_type
-          options = "%s %s" % [options, @config.install_type]
+          options = '%s %s' % [options, @config.install_type]
         end
 
         if @config.install_args
-          options = "%s %s" % [options, @config.install_args]
+          options = '%s %s' % [options, @config.install_args]
         end
 
         if @config.verbose
-          @machine.env.ui.info "Using Bootstrap Options: %s" % options
+          @machine.env.ui.info 'Using Bootstrap Options: %s' % options
         end
 
-        return options
+        options
       end
 
       ## Actions
       # Get pillar string to pass with the salt command
       def get_pillar
-        " pillar='#{@config.pillar_data.to_json}'" if !@config.pillar_data.empty?
+        " pillar='#{@config.pillar_data.to_json}'" unless @config.pillar_data.empty?
       end
 
       # Get colorization option string to pass with the salt command
       def get_colorize
-        @config.colorize ? " --force-color" : " --no-color"
+        @config.colorize ? ' --force-color' : ' --no-color'
       end
 
       # Get log output level option string to pass with the salt command
       def get_loglevel
-        log_levels = ["all", "garbage", "trace", "debug", "info", "warning", "error", "quiet"]
+        log_levels = %w(all garbage trace debug info warning error quiet)
         if log_levels.include? @config.log_level
           " --log-level=#{@config.log_level}"
         else
-          " --log-level=debug"
+          ' --log-level=debug'
         end
       end
 
       # Copy master and minion configs to VM
       def upload_configs
         if @config.minion_config
-          @machine.env.ui.info "Copying salt minion config to vm."
-          @machine.communicate.upload(expanded_path(@config.minion_config).to_s, temp_config_dir + "/minion")
+          @machine.env.ui.info 'Copying salt minion config to vm.'
+          @machine.communicate.upload(expanded_path(@config.minion_config).to_s, temp_config_dir + '/minion')
         end
 
         if @config.master_config
-          @machine.env.ui.info "Copying salt master config to vm."
-          @machine.communicate.upload(expanded_path(@config.master_config).to_s, temp_config_dir + "/master")
+          @machine.env.ui.info 'Copying salt master config to vm.'
+          @machine.communicate.upload(expanded_path(@config.master_config).to_s, temp_config_dir + '/master')
         end
       end
 
       # Copy master and minion keys to VM
       def upload_keys
-        if @config.minion_key and @config.minion_pub
-          @machine.env.ui.info "Uploading minion keys."
-          @machine.communicate.upload(expanded_path(@config.minion_key).to_s, temp_config_dir + "/minion.pem")
+        if @config.minion_key && @config.minion_pub
+          @machine.env.ui.info 'Uploading minion keys.'
+          @machine.communicate.upload(expanded_path(@config.minion_key).to_s, temp_config_dir + '/minion.pem')
           @machine.communicate.sudo("chmod u+w #{temp_config_dir}/minion.pem")
-          @machine.communicate.upload(expanded_path(@config.minion_pub).to_s, temp_config_dir + "/minion.pub")
+          @machine.communicate.upload(expanded_path(@config.minion_pub).to_s, temp_config_dir + '/minion.pub')
         end
 
-        if @config.master_key and @config.master_pub
-          @machine.env.ui.info "Uploading master keys."
-          @machine.communicate.upload(expanded_path(@config.master_key).to_s, temp_config_dir + "/master.pem")
+        if @config.master_key && @config.master_pub
+          @machine.env.ui.info 'Uploading master keys.'
+          @machine.communicate.upload(expanded_path(@config.master_key).to_s, temp_config_dir + '/master.pem')
           @machine.communicate.sudo("chmod u+w #{temp_config_dir}/master.pem")
-          @machine.communicate.upload(expanded_path(@config.master_pub).to_s, temp_config_dir + "/master.pub")
+          @machine.communicate.upload(expanded_path(@config.master_pub).to_s, temp_config_dir + '/master.pub')
         end
       end
 
@@ -206,41 +206,41 @@ module VagrantPlugins
           bootstrap_abs_path = expanded_path(@config.bootstrap_script)
         else
           if @machine.config.vm.communicator == :winrm
-            bootstrap_abs_path = Pathname.new("../bootstrap-salt.ps1").expand_path(__FILE__)
+            bootstrap_abs_path = Pathname.new('../bootstrap-salt.ps1').expand_path(__FILE__)
           else
-            bootstrap_abs_path = Pathname.new("../bootstrap-salt.sh").expand_path(__FILE__)
+            bootstrap_abs_path = Pathname.new('../bootstrap-salt.sh').expand_path(__FILE__)
           end
         end
 
-        return bootstrap_abs_path
+        bootstrap_abs_path
       end
 
       # Determine if we are configure and/or installing, then do either
       def run_bootstrap_script
-        install = need_install()
-        configure = need_configure()
-        config_dir = temp_config_dir()
+        install = need_install
+        configure = need_configure
+        config_dir = temp_config_dir
         options = bootstrap_options(install, configure, config_dir)
 
         if configure or install
           if configure and !install
-            @machine.env.ui.info "Salt binaries found. Configuring only."
+            @machine.env.ui.info 'Salt binaries found. Configuring only.'
           else
-            @machine.env.ui.info "Bootstrapping Salt... (this may take a while)"
+            @machine.env.ui.info 'Bootstrapping Salt... (this may take a while)'
           end
 
           bootstrap_path = get_bootstrap
           if @machine.config.vm.communicator == :winrm
-            bootstrap_destination = File.join(config_dir, "bootstrap_salt.ps1")
+            bootstrap_destination = File.join(config_dir, 'bootstrap_salt.ps1')
           else
-            bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
+            bootstrap_destination = File.join(config_dir, 'bootstrap_salt.sh')
           end
- 
-          @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
+
+          @machine.communicate.sudo('rm -f %s' % bootstrap_destination)
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
-          @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
+          @machine.communicate.sudo('chmod +x %s' % bootstrap_destination)
           if @machine.config.vm.communicator == :winrm
-            bootstrap = @machine.communicate.sudo("powershell.exe -executionpolicy bypass -file %s" % [bootstrap_destination]) do |type, data|
+            bootstrap = @machine.communicate.sudo('powershell.exe -executionpolicy bypass -file %s' % [bootstrap_destination]) do |_type, data|
               if data[0] == "\n"
                 # Remove any leading newline but not whitespace. If we wanted to
                 # remove newlines and whitespace we would have used data.lstrip
@@ -251,7 +251,7 @@ module VagrantPlugins
               end
             end
           else
-            bootstrap = @machine.communicate.sudo("%s %s" % [bootstrap_destination, options]) do |type, data|
+            bootstrap = @machine.communicate.sudo('%s %s' % [bootstrap_destination, options]) do |_type, data|
               if data[0] == "\n"
                 # Remove any leading newline but not whitespace. If we wanted to
                 # remove newlines and whitespace we would have used data.lstrip
@@ -263,46 +263,46 @@ module VagrantPlugins
             end
           end
 
-          if !bootstrap
-            raise Salt::Errors::SaltError, :bootstrap_failed
+          unless bootstrap
+            fail Salt::Errors::SaltError, :bootstrap_failed
           end
-           
+
           if configure and !install
-            @machine.env.ui.info "Salt successfully configured!"
+            @machine.env.ui.info 'Salt successfully configured!'
           elsif configure and install
-            @machine.env.ui.info "Salt successfully configured and installed!"
+            @machine.env.ui.info 'Salt successfully configured and installed!'
           elsif !configure and install
-            @machine.env.ui.info "Salt successfully installed!"
+            @machine.env.ui.info 'Salt successfully installed!'
           end
         else
-          @machine.env.ui.info "Salt did not need installing or configuring."
+          @machine.env.ui.info 'Salt did not need installing or configuring.'
         end
       end
-      
+
       def call_overstate
         if @config.run_overstate
           if @config.install_master
-            @machine.env.ui.info "Calling state.overstate... (this may take a while)"
+            @machine.env.ui.info 'Calling state.overstate... (this may take a while)'
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt-run state.over") do |type, data|
+            @machine.communicate.sudo('salt-run state.over') do |_type, data|
               if @config.verbose
                 @machine.env.ui.info(data)
               end
             end
           else
-            @machine.env.ui.info "run_overstate does not make sense on a minion. Not running state.overstate."
+            @machine.env.ui.info 'run_overstate does not make sense on a minion. Not running state.overstate.'
           end
         else
-          @machine.env.ui.info "run_overstate set to false. Not running state.overstate."
+          @machine.env.ui.info 'run_overstate set to false. Not running state.overstate.'
         end
       end
 
       def call_highstate
         if @config.run_highstate
-          @machine.env.ui.info "Calling state.highstate... (this may take a while)"
+          @machine.env.ui.info 'Calling state.highstate... (this may take a while)'
           if @config.install_master
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |_type, data|
               if @config.verbose
                 @machine.env.ui.info(data)
               end
@@ -310,15 +310,15 @@ module VagrantPlugins
           else
             if @machine.config.vm.communicator == :winrm
               opts = { elevated: true }
-              @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all", opts)
-              @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
+              @machine.communicate.execute('C:\\salt\\salt-call.exe saltutil.sync_all', opts)
+              @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |_type, data|
                 if @config.verbose
                   @machine.env.ui.info(data)
                 end
               end
             else
-              @machine.communicate.sudo("salt-call saltutil.sync_all")
-              @machine.communicate.sudo("salt-call state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+              @machine.communicate.sudo('salt-call saltutil.sync_all')
+              @machine.communicate.sudo("salt-call state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |_type, data|
                 if @config.verbose
                   @machine.env.ui.info(data)
                 end
@@ -326,7 +326,7 @@ module VagrantPlugins
             end
           end
         else
-          @machine.env.ui.info "run_highstate set to false. Not running state.highstate."
+          @machine.env.ui.info 'run_highstate set to false. Not running state.highstate.'
         end
       end
     end

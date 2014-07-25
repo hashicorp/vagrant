@@ -2,7 +2,7 @@ module VagrantPlugins
   module DockerProvider
     module Action
       class Create
-        def initialize(app, env)
+        def initialize(app, _env)
           @app = app
         end
 
@@ -33,11 +33,11 @@ module VagrantPlugins
             # TODO
           end
 
-          env[:ui].output(I18n.t("docker_provider.creating"))
+          env[:ui].output(I18n.t('docker_provider.creating'))
           env[:ui].detail("  Name: #{params[:name]}")
           env[:ui].detail(" Image: #{params[:image]}")
           if params[:cmd] && !params[:cmd].empty?
-            env[:ui].detail("   Cmd: #{params[:cmd].join(" ")}")
+            env[:ui].detail("   Cmd: #{params[:cmd].join(' ')}")
           end
           params[:volumes].each do |volume|
             env[:ui].detail("Volume: #{volume}")
@@ -52,11 +52,11 @@ module VagrantPlugins
           if env[:machine_action] != :run_command
             # For regular "ups" create it and get the CID
             cid = @driver.create(params)
-            env[:ui].detail(" \n"+I18n.t(
-              "docker_provider.created", id: cid[0...16]))
+            env[:ui].detail(" \n" + I18n.t(
+              'docker_provider.created', id: cid[0...16]))
             @machine.id = cid
           elsif params[:detach]
-            env[:ui].detail(" \n"+I18n.t("docker_provider.running_detached"))
+            env[:ui].detail(" \n" + I18n.t('docker_provider.running_detached'))
           else
             ui_opts = {}
 
@@ -69,8 +69,8 @@ module VagrantPlugins
             end
 
             # For run commands, we run it and stream back the output
-            env[:ui].detail(" \n"+I18n.t("docker_provider.running")+"\n ")
-            @driver.create(params, stdin: env[:run_pty]) do |type, data|
+            env[:ui].detail(" \n" + I18n.t('docker_provider.running') + "\n ")
+            @driver.create(params, stdin: env[:run_pty]) do |_type, data|
               env[:ui].detail(data.chomp, **ui_opts)
             end
           end
@@ -80,9 +80,9 @@ module VagrantPlugins
 
         def create_params
           container_name = @provider_config.name
-          if !container_name
-            container_name = "#{@env[:root_path].basename.to_s}_#{@machine.name}"
-            container_name.gsub!(/[^-a-z0-9_]/i, "")
+          unless container_name
+            container_name = "#{@env[:root_path].basename}_#{@machine.name}"
+            container_name.gsub!(/[^-a-z0-9_]/i, '')
             container_name << "_#{Time.now.to_i}"
           end
 
@@ -91,7 +91,7 @@ module VagrantPlugins
 
           links = {}
           @provider_config._links.each do |link|
-            parts = link.split(":", 2)
+            parts = link.split(':', 2)
             links[parts[0]] = parts[1]
           end
 
@@ -112,20 +112,20 @@ module VagrantPlugins
           }
         end
 
-        def forwarded_ports(include_ssh=false)
+        def forwarded_ports(include_ssh = false)
           mappings = {}
           @machine.config.vm.networks.each do |type, options|
             next if type != :forwarded_port
 
             # Don't include SSH if we've explicitly asked not to
-            next if options[:id] == "ssh" && !include_ssh
+            next if options[:id] == 'ssh' && !include_ssh
 
             mappings[options[:host]] = options
           end
 
           mappings.values.map do |fp|
-            protocol = ""
-            protocol = "/udp" if fp[:protocol].to_s == "udp"
+            protocol = ''
+            protocol = '/udp' if fp[:protocol].to_s == 'udp'
             "#{fp[:host]}:#{fp[:guest]}#{protocol}"
           end.compact
         end

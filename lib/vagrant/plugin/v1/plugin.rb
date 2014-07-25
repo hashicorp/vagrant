@@ -1,6 +1,6 @@
-require "set"
+require 'set'
 
-require "log4r"
+require 'log4r'
 
 module Vagrant
   module Plugin
@@ -12,7 +12,7 @@ module Vagrant
         ALL_ACTIONS = :__all_actions__
 
         # The logger for this class.
-        LOGGER = Log4r::Logger.new("vagrant::plugin::v1::plugin")
+        LOGGER = Log4r::Logger.new('vagrant::plugin::v1::plugin')
 
         # Set the root class up to be ourself, so that we can reference this
         # from within methods which are probably in subclasses.
@@ -32,7 +32,7 @@ module Vagrant
         #
         # @param [String] name Name of the plugin.
         # @return [String] The name of the plugin.
-        def self.name(name=UNSET_VALUE)
+        def self.name(name = UNSET_VALUE)
           # Get or set the value first, so we have a name for logging when
           # we register.
           result = get_or_set(:name, name)
@@ -48,7 +48,7 @@ module Vagrant
         #
         # @param [String] value Description of the plugin.
         # @return [String] Description of the plugin.
-        def self.description(value=UNSET_VALUE)
+        def self.description(value = UNSET_VALUE)
           get_or_set(:description, value)
         end
 
@@ -64,7 +64,7 @@ module Vagrant
           hooks = data[:action_hooks][name.to_sym] ||= []
 
           # Return the list if we don't have a block
-          return hooks if !block_given?
+          return hooks unless block_given?
 
           # Otherwise add the block to the list of hooks for this action.
           hooks << block
@@ -75,13 +75,13 @@ module Vagrant
         # "vagrant foo" becomes available.
         #
         # @param [String] name Subcommand key.
-        def self.command(name=UNSET_VALUE, &block)
+        def self.command(name = UNSET_VALUE, &block)
           data[:command] ||= Registry.new
 
           if name != UNSET_VALUE
             # Validate the name of the command
             if name.to_s !~ /^[-a-z0-9]+$/i
-              raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"
+              fail InvalidCommandName, 'Commands can only contain letters, numbers, and hyphens'
             end
 
             # Register a new command class only if a name was given.
@@ -100,7 +100,7 @@ module Vagrant
         # versions of Vagrant.
         #
         # @param [String] name Communicator name.
-        def self.communicator(name=UNSET_VALUE, &block)
+        def self.communicator(name = UNSET_VALUE, &block)
           data[:communicator] ||= Registry.new
 
           # Register a new communicator class only if a name was given.
@@ -124,7 +124,7 @@ module Vagrant
         #   you really know what you're doing, since you can cause Vagrant
         #   to crash (although Vagrant will output a user-friendly error
         #   message if this were to happen).
-        def self.config(name=UNSET_VALUE, upgrade_safe=false, &block)
+        def self.config(name = UNSET_VALUE, upgrade_safe = false, &block)
           data[:config] ||= Registry.new
 
           # Register a new config class only if a name was given.
@@ -147,7 +147,7 @@ module Vagrant
         # the given key.
         #
         # @param [String] name Name of the guest.
-        def self.guest(name=UNSET_VALUE, &block)
+        def self.guest(name = UNSET_VALUE, &block)
           data[:guests] ||= Registry.new
 
           # Register a new guest class only if a name was given
@@ -161,7 +161,7 @@ module Vagrant
         # the given key.
         #
         # @param [String] name Name of the host.
-        def self.host(name=UNSET_VALUE, &block)
+        def self.host(name = UNSET_VALUE, &block)
           data[:hosts] ||= Registry.new
 
           # Register a new host class only if a name was given
@@ -174,7 +174,7 @@ module Vagrant
         # Registers additional providers to be available.
         #
         # @param [Symbol] name Name of the provider.
-        def self.provider(name=UNSET_VALUE, &block)
+        def self.provider(name = UNSET_VALUE, &block)
           data[:providers] ||= Registry.new
 
           # Register a new provider class only if a name was given
@@ -187,7 +187,7 @@ module Vagrant
         # Registers additional provisioners to be available.
         #
         # @param [String] name Name of the provisioner.
-        def self.provisioner(name=UNSET_VALUE, &block)
+        def self.provisioner(name = UNSET_VALUE, &block)
           data[:provisioners] ||= Registry.new
 
           # Register a new provisioner class only if a name was given
@@ -216,7 +216,7 @@ module Vagrant
         # @param [Symbol] key Key for the data
         # @param [Object] value Value to store.
         # @return [Object] Stored value.
-        def self.get_or_set(key, value=UNSET_VALUE)
+        def self.get_or_set(key, value = UNSET_VALUE)
           # If no value is to be set, then return the value we have already set
           return data[key] if value.eql?(UNSET_VALUE)
 

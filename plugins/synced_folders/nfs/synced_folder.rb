@@ -2,9 +2,9 @@ require 'fileutils'
 require 'thread'
 require 'zlib'
 
-require "log4r"
+require 'log4r'
 
-require "vagrant/util/platform"
+require 'vagrant/util/platform'
 
 module VagrantPlugins
   module SyncedFolderNFS
@@ -15,56 +15,56 @@ module VagrantPlugins
     #   - `:nfs_machine_ip` - The IP of the machine where the NFS folder
     #     will be mounted.
     #
-    class SyncedFolder < Vagrant.plugin("2", :synced_folder)
+    class SyncedFolder < Vagrant.plugin('2', :synced_folder)
       @@lock = Mutex.new
 
       def initialize(*args)
         super
 
-        @logger = Log4r::Logger.new("vagrant::synced_folders::nfs")
+        @logger = Log4r::Logger.new('vagrant::synced_folders::nfs')
       end
 
-      def usable?(machine, raise_error=false)
+      def usable?(machine, raise_error = false)
         # If the machine explicitly said NFS is not supported, then
         # it isn't supported.
-        if !machine.config.nfs.functional
+        unless machine.config.nfs.functional
           return false
         end
         return true if machine.env.host.capability(:nfs_installed)
-        return false if !raise_error
-        raise Vagrant::Errors::NFSNotSupported
+        return false unless raise_error
+        fail Vagrant::Errors::NFSNotSupported
       end
 
-      def prepare(machine, folders, opts)
+      def prepare(_machine, _folders, _opts)
         # Nothing is necessary to do before VM boot.
       end
 
       def enable(machine, folders, nfsopts)
-        raise Vagrant::Errors::NFSNoHostIP if !nfsopts[:nfs_host_ip]
-        raise Vagrant::Errors::NFSNoGuestIP if !nfsopts[:nfs_machine_ip]
+        fail Vagrant::Errors::NFSNoHostIP unless nfsopts[:nfs_host_ip]
+        fail Vagrant::Errors::NFSNoGuestIP unless nfsopts[:nfs_machine_ip]
 
         if machine.guest.capability?(:nfs_client_installed)
           installed = machine.guest.capability(:nfs_client_installed)
-          if !installed
+          unless installed
             can_install = machine.guest.capability?(:nfs_client_install)
-            raise Vagrant::Errors::NFSClientNotInstalledInGuest if !can_install
-            machine.ui.info I18n.t("vagrant.actions.vm.nfs.installing")
+            fail Vagrant::Errors::NFSClientNotInstalledInGuest unless can_install
+            machine.ui.info I18n.t('vagrant.actions.vm.nfs.installing')
             machine.guest.capability(:nfs_client_install)
           end
         end
 
         machine_ip = nfsopts[:nfs_machine_ip]
-        machine_ip = [machine_ip] if !machine_ip.is_a?(Array)
+        machine_ip = [machine_ip] unless machine_ip.is_a?(Array)
 
         # Prepare the folder, this means setting up various options
         # and such on the folder itself.
-        folders.each { |id, opts| prepare_folder(machine, opts) }
+        folders.each { |_id, opts| prepare_folder(machine, opts) }
 
         # Determine what folders we'll export
         export_folders = folders.dup
         export_folders.keys.each do |id|
           opts = export_folders[id]
-          if opts.has_key?(:nfs_export) && !opts[:nfs_export]
+          if opts.key?(:nfs_export) && !opts[:nfs_export]
             export_folders.delete(id)
           end
         end
@@ -74,8 +74,8 @@ module VagrantPlugins
         # overlapping input requests. [GH-2680]
         @@lock.synchronize do
           begin
-            machine.env.lock("nfs-export") do
-              machine.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
+            machine.env.lock('nfs-export') do
+              machine.ui.info I18n.t('vagrant.actions.vm.nfs.exporting')
               machine.env.host.capability(
                 :nfs_export,
                 machine.ui, machine.id, machine_ip, export_folders)
@@ -87,7 +87,7 @@ module VagrantPlugins
         end
 
         # Mount
-        machine.ui.info I18n.t("vagrant.actions.vm.nfs.mounting")
+        machine.ui.info I18n.t('vagrant.actions.vm.nfs.mounting')
 
         # Only mount folders that have a guest path specified.
         mount_folders = {}
@@ -102,7 +102,7 @@ module VagrantPlugins
 
       def cleanup(machine, opts)
         ids = opts[:nfs_valid_ids]
-        raise Vagrant::Errors::NFSNoValidIds if !ids
+        fail Vagrant::Errors::NFSNoValidIds unless ids
 
         # Prune any of the unused machines
         @logger.info("NFS pruning. Valid IDs: #{ids.inspect}")
@@ -114,7 +114,7 @@ module VagrantPlugins
       def prepare_folder(machine, opts)
         opts[:map_uid] = prepare_permission(machine, :uid, opts)
         opts[:map_gid] = prepare_permission(machine, :gid, opts)
-        opts[:nfs_udp] = true if !opts.has_key?(:nfs_udp)
+        opts[:nfs_udp] = true unless opts.key?(:nfs_udp)
         opts[:nfs_version] ||= 3
 
         # We use a CRC32 to generate a 32-bit checksum so that the
@@ -125,17 +125,17 @@ module VagrantPlugins
       # Prepares the UID/GID settings for a single folder.
       def prepare_permission(machine, perm, opts)
         key = "map_#{perm}".to_sym
-        return nil if opts.has_key?(key) && opts[key].nil?
+        return nil if opts.key?(key) && opts[key].nil?
 
         # The options on the hash get priority, then the default
         # values
-        value = opts.has_key?(key) ? opts[key] : machine.config.nfs.send(key)
+        value = opts.key?(key) ? opts[key] : machine.config.nfs.send(key)
         return value if value != :auto
 
         # Get UID/GID from folder if we've made it this far
         # (value == :auto)
         stat = File.stat(opts[:hostpath])
-        return stat.send(perm)
+        stat.send(perm)
       end
     end
   end

@@ -2,7 +2,7 @@ module VagrantPlugins
   module HyperV
     module Action
       class IsWindows
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
         end
 

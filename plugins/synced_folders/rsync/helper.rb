@@ -1,5 +1,5 @@
-require "vagrant/util/platform"
-require "vagrant/util/subprocess"
+require 'vagrant/util/platform'
+require 'vagrant/util/subprocess'
 
 module VagrantPlugins
   module SyncedFolderRSync
@@ -11,21 +11,21 @@ module VagrantPlugins
       def self.exclude_to_regexp(path, exclude)
         start_anchor = false
 
-        if exclude.start_with?("/")
+        if exclude.start_with?('/')
           start_anchor = true
           exclude      = exclude[1..-1]
         end
 
-        path   = "#{path}/" if !path.end_with?("/")
+        path   = "#{path}/" unless path.end_with?('/')
         regexp = "^#{Regexp.escape(path)}"
-        regexp += ".*" if !start_anchor
+        regexp += '.*' unless start_anchor
 
         # This is REALLY ghetto, but its a start. We can improve and
         # keep unit tests passing in the future.
-        exclude = exclude.gsub("**", "|||GLOBAL|||")
-        exclude = exclude.gsub("*", "|||PATH|||")
-        exclude = exclude.gsub("|||PATH|||", "[^/]*")
-        exclude = exclude.gsub("|||GLOBAL|||", ".*")
+        exclude = exclude.gsub('**', '|||GLOBAL|||')
+        exclude = exclude.gsub('*', '|||PATH|||')
+        exclude = exclude.gsub('|||PATH|||', '[^/]*')
+        exclude = exclude.gsub('|||GLOBAL|||', '.*')
         regexp += exclude
 
         Regexp.new(regexp)
@@ -45,8 +45,8 @@ module VagrantPlugins
 
         # Make sure the host path ends with a "/" to avoid creating
         # a nested directory...
-        if !hostpath.end_with?("/")
-          hostpath += "/"
+        unless hostpath.end_with?('/')
+          hostpath += '/'
         end
 
         # Folder options
@@ -56,7 +56,7 @@ module VagrantPlugins
         # Connection information
         username = ssh_info[:username]
         host     = ssh_info[:host]
-        proxy_command = ""
+        proxy_command = ''
         if ssh_info[:proxy_command]
           proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' "
         end
@@ -64,10 +64,10 @@ module VagrantPlugins
         rsh = [
           "ssh -p #{ssh_info[:port]} " +
           proxy_command +
-          "-o StrictHostKeyChecking=no " +
-          "-o UserKnownHostsFile=/dev/null",
+          '-o StrictHostKeyChecking=no ' \
+          '-o UserKnownHostsFile=/dev/null',
           ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
-        ].flatten.join(" ")
+        ].flatten.join(' ')
 
         # Exclude some files by default, and any that might be configured
         # by the user.
@@ -78,35 +78,35 @@ module VagrantPlugins
         # Get the command-line arguments
         args = nil
         args = Array(opts[:args]).dup if opts[:args]
-        args ||= ["--verbose", "--archive", "--delete", "-z", "--copy-links"]
+        args ||= ['--verbose', '--archive', '--delete', '-z', '--copy-links']
 
         # On Windows, we have to set a default chmod flag to avoid permission issues
-        if Vagrant::Util::Platform.windows? && !args.any? { |arg| arg.start_with?("--chmod=") }
+        if Vagrant::Util::Platform.windows? && !args.any? { |arg| arg.start_with?('--chmod=') }
           # Ensures that all non-masked bits get enabled
-          args << "--chmod=ugo=rwX"
+          args << '--chmod=ugo=rwX'
 
           # Remove the -p option if --archive is enabled (--archive equals -rlptgoD)
           # otherwise new files will not have the destination-default permissions
-          args << "--no-perms" if args.include?("--archive") || args.include?("-a")
+          args << '--no-perms' if args.include?('--archive') || args.include?('-a')
         end
 
         # Disable rsync's owner/group preservation (implied by --archive) unless
         # specifically requested, since we adjust owner/group to match shared
         # folder setting ourselves.
-        args << "--no-owner" unless args.include?("--owner") || args.include?("-o")
-        args << "--no-group" unless args.include?("--group") || args.include?("-g")
+        args << '--no-owner' unless args.include?('--owner') || args.include?('-o')
+        args << '--no-group' unless args.include?('--group') || args.include?('-g')
 
         # Tell local rsync how to invoke remote rsync with sudo
         if machine.guest.capability?(:rsync_command)
-          args << "--rsync-path"<< machine.guest.capability(:rsync_command)
+          args << '--rsync-path' << machine.guest.capability(:rsync_command)
         end
 
         # Build up the actual command to execute
         command = [
-          "rsync",
+          'rsync',
           args,
-          "-e", rsh,
-          excludes.map { |e| ["--exclude", e] },
+          '-e', rsh,
+          excludes.map { |e| ['--exclude', e] },
           hostpath,
           "#{username}@#{host}:#{guestpath}",
         ].flatten
@@ -116,10 +116,10 @@ module VagrantPlugins
         command_opts[:workdir] = machine.env.root_path.to_s
 
         machine.ui.info(I18n.t(
-          "vagrant.rsync_folder", guestpath: guestpath, hostpath: hostpath))
+          'vagrant.rsync_folder', guestpath: guestpath, hostpath: hostpath))
         if excludes.length > 1
           machine.ui.info(I18n.t(
-            "vagrant.rsync_folder_excludes", excludes: excludes.inspect))
+            'vagrant.rsync_folder_excludes', excludes: excludes.inspect))
         end
 
         # If we have tasks to do before rsyncing, do those.
@@ -129,11 +129,11 @@ module VagrantPlugins
 
         r = Vagrant::Util::Subprocess.execute(*(command + [command_opts]))
         if r.exit_code != 0
-          raise Vagrant::Errors::RSyncError,
-            command: command.join(" "),
-            guestpath: guestpath,
-            hostpath: hostpath,
-            stderr: r.stderr
+          fail Vagrant::Errors::RSyncError,
+               command: command.join(' '),
+               guestpath: guestpath,
+               hostpath: hostpath,
+               stderr: r.stderr
         end
 
         # If we have tasks to do after rsyncing, do those.

@@ -26,7 +26,7 @@ module Vagrant
         result = original.dup
 
         original.each do |key, value|
-          parts = key.to_s.split("__", 2)
+          parts = key.to_s.split('__', 2)
 
           # If we don't have the proper parts, then bail
           next if parts.length != 2

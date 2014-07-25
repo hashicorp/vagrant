@@ -2,7 +2,7 @@ module VagrantPlugins
   module DockerProvider
     module Action
       class IsBuild
-        def initialize(app, env)
+        def initialize(app, _env)
           @app    = app
         end
 

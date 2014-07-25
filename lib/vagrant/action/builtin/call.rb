@@ -23,8 +23,8 @@ module Vagrant
         #   can be a class, a lambda, or an object that responds to `call`.
         # @yield [result, builder] This block is expected to build on `builder`
         #   which is the next middleware sequence that will be run.
-        def initialize(app, env, callable, *callable_args, &block)
-          raise ArgumentError, "A block must be given to Call" if !block
+        def initialize(app, _env, callable, *callable_args, &block)
+          fail ArgumentError, 'A block must be given to Call' unless block
 
           @app      = app
           @callable = callable

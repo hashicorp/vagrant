@@ -1,4 +1,4 @@
-require "log4r"
+require 'log4r'
 
 module Vagrant
   module Plugin
@@ -10,7 +10,7 @@ module Vagrant
         attr_reader :registered
 
         def initialize
-          @logger = Log4r::Logger.new("vagrant::plugin::v2::manager")
+          @logger = Log4r::Logger.new('vagrant::plugin::v2::manager')
           @registered = []
         end
 
@@ -188,7 +188,7 @@ module Vagrant
         # automatically register V2 plugins when a name is set on the
         # plugin.
         def register(plugin)
-          if !@registered.include?(plugin)
+          unless @registered.include?(plugin)
             @logger.info("Registered plugin: #{plugin.name}")
             @registered << plugin
           end

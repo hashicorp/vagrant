@@ -30,4 +30,3 @@ module Vagrant
     end
   end
 end
-

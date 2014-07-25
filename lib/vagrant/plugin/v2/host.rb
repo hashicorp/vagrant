@@ -10,7 +10,7 @@ module Vagrant
         # matches the host class.
         #
         # @return [Boolean]
-        def detect?(env)
+        def detect?(_env)
           false
         end
       end

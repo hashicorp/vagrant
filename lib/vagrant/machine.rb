@@ -1,7 +1,7 @@
-require "digest/md5"
-require "thread"
+require 'digest/md5'
+require 'thread'
 
-require "log4r"
+require 'log4r'
 
 module Vagrant
   # This represents a machine that Vagrant manages. This provides a singular
@@ -85,8 +85,8 @@ module Vagrant
     # @param [Box] box The box that is backing this virtual machine.
     # @param [Environment] env The environment that this machine is a
     #   part of.
-    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base=false)
-      @logger = Log4r::Logger.new("vagrant::machine")
+    def initialize(name, provider_name, provider_cls, provider_config, provider_options, config, data_dir, box, env, vagrantfile, base = false)
+      @logger = Log4r::Logger.new('vagrant::machine')
       @logger.info("Initializing machine: #{name}")
       @logger.info("  - Provider: #{provider_cls}")
       @logger.info("  - Box: #{box}")
@@ -99,8 +99,8 @@ module Vagrant
       @vagrantfile     = vagrantfile
       @guest           = Guest.new(
         self,
-        Vagrant.plugin("2").manager.guests,
-        Vagrant.plugin("2").manager.guest_capabilities)
+        Vagrant.plugin('2').manager.guests,
+        Vagrant.plugin('2').manager.guest_capabilities)
       @name            = name
       @provider_config = provider_config
       @provider_name   = provider_name
@@ -117,13 +117,13 @@ module Vagrant
       else
         # Read the id file from the data directory if it exists as the
         # ID for the pre-existing physical representation of this machine.
-        id_file = @data_dir.join("id")
+        id_file = @data_dir.join('id')
         @id = id_file.read.chomp if id_file.file?
       end
 
       # Keep track of where our UUID should be placed
       @index_uuid_file = nil
-      @index_uuid_file = @data_dir.join("index_uuid") if @data_dir
+      @index_uuid_file = @data_dir.join('index_uuid') if @data_dir
 
       # Initializes the provider last so that it has access to all the
       # state we setup on this machine.
@@ -133,7 +133,7 @@ module Vagrant
       # If we're using WinRM, we eager load the plugin because of
       # GH-3390
       if @config.vm.communicator == :winrm
-        @logger.debug("Eager loading WinRM communicator to avoid GH-3390")
+        @logger.debug('Eager loading WinRM communicator to avoid GH-3390')
         communicate
       end
     end
@@ -145,7 +145,7 @@ module Vagrant
     # @param [Hash] extra_env This data will be passed into the action runner
     #   as extra data set on the environment hash for the middleware
     #   runner.
-    def action(name, extra_env=nil)
+    def action(name, extra_env = nil)
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
       # Create a deterministic ID for this machine
@@ -154,8 +154,8 @@ module Vagrant
       # We only lock if we're not executing an SSH action. In the future
       # we will want to do more fine-grained unlocking in actions themselves
       # but for a 1.6.2 release this will work.
-      locker = Proc.new { |*args, &block| block.call }
-      locker = @env.method(:lock) if !name.to_s.start_with?("ssh")
+      locker = proc { |*_args, &block| block.call }
+      locker = @env.method(:lock) unless name.to_s.start_with?('ssh')
 
       # Lock this machine for the duration of this action
       locker.call("machine-action-#{id}") do
@@ -165,17 +165,17 @@ module Vagrant
         # If this action doesn't exist on the provider, then an exception
         # must be raised.
         if callable.nil?
-          raise Errors::UnimplementedProviderAction,
-            action: name,
-            provider: @provider.to_s
+          fail Errors::UnimplementedProviderAction,
+               action: name,
+               provider: @provider.to_s
         end
 
         action_raw(name, callable, extra_env)
       end
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
-        action: name,
-        name: @name
+            action: name,
+            name: @name
     end
 
     # This calls a raw callable in the proper context of the machine using
@@ -185,7 +185,7 @@ module Vagrant
     # @param [Proc] callable
     # @param [Hash] extra_env Extra env for the action env.
     # @return [Hash] The resulting env
-    def action_raw(name, callable, extra_env=nil)
+    def action_raw(name, callable, extra_env = nil)
       # Run the action with the action runner on the environment
       env = {
         action_name: "machine_action_#{name}".to_sym,
@@ -211,11 +211,11 @@ module Vagrant
     #
     # @return [Object]
     def communicate
-      if !@communicator
+      unless @communicator
         requested  = @config.vm.communicator
         requested ||= :ssh
-        klass = Vagrant.plugin("2").manager.communicators[requested]
-        raise Errors::CommunicatorNotFound, comm: requested.to_s if !klass
+        klass = Vagrant.plugin('2').manager.communicators[requested]
+        fail Errors::CommunicatorNotFound, comm: requested.to_s unless klass
         @communicator = klass.new(self)
       end
 
@@ -228,8 +228,8 @@ module Vagrant
     #
     # @return [Guest]
     def guest
-      raise Errors::MachineGuestNotReady if !communicate.ready?
-      @guest.detect! if !@guest.ready?
+      fail Errors::MachineGuestNotReady unless communicate.ready?
+      @guest.detect! unless @guest.ready?
       @guest
     end
 
@@ -250,13 +250,13 @@ module Vagrant
         # The file that will store the id if we have one. This allows the
         # ID to persist across Vagrant runs. Also, store the UUID for the
         # machine index.
-        id_file = @data_dir.join("id")
+        id_file = @data_dir.join('id')
       end
 
       if value
         if id_file
           # Write the "id" file with the id given.
-          id_file.open("w+") do |f|
+          id_file.open('w+') do |f|
             f.write(value)
           end
         end
@@ -268,15 +268,15 @@ module Vagrant
           entry.local_data_path = @env.local_data_path
           entry.name = @name.to_s
           entry.provider = @provider_name.to_s
-          entry.state = "preparing"
+          entry.state = 'preparing'
           entry.vagrantfile_path = @env.root_path
           entry.vagrantfile_name = @env.vagrantfile_name
 
           if @box
-            entry.extra_data["box"] = {
-              "name"     => @box.name,
-              "provider" => @box.provider.to_s,
-              "version"  => @box.version.to_s,
+            entry.extra_data['box'] = {
+              'name'     => @box.name,
+              'provider' => @box.provider.to_s,
+              'version'  => @box.version.to_s,
             }
           end
 
@@ -285,7 +285,7 @@ module Vagrant
 
           # Store our UUID so we can access it later
           if @index_uuid_file
-            @index_uuid_file.open("w+") do |f|
+            @index_uuid_file.open('w+') do |f|
               f.write(entry.id)
             end
           end
@@ -327,9 +327,9 @@ module Vagrant
     #
     # @return [String] UUID or nil if we don't have one yet.
     def index_uuid
-      return nil if !@index_uuid_file
+      return nil unless @index_uuid_file
       return @index_uuid_file.read.chomp if @index_uuid_file.file?
-      return nil
+      nil
     end
 
     # This returns a clean inspect value so that printing the value via
@@ -407,7 +407,7 @@ module Vagrant
 
       # If we have a private key in our data dir, then use that
       if @data_dir
-        data_private_key = @data_dir.join("private_key")
+        data_private_key = @data_dir.join('private_key')
         if data_private_key.file?
           info[:private_key_path] = [data_private_key.to_s]
         end
@@ -432,7 +432,7 @@ module Vagrant
     # @return [MachineState]
     def state
       result = @provider.state
-      raise Errors::MachineStateInvalid if !result.is_a?(MachineState)
+      fail Errors::MachineStateInvalid unless result.is_a?(MachineState)
 
       # If the ID is the special not created ID, then set our ID to
       # nil so that we destroy all our data.

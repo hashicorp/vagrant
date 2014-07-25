@@ -1,10 +1,10 @@
-require "vagrant"
+require 'vagrant'
 
 module VagrantPlugins
   module HostGentoo
-    class Host < Vagrant.plugin("2", :host)
-      def detect?(env)
-        File.exists?("/etc/gentoo-release")
+    class Host < Vagrant.plugin('2', :host)
+      def detect?(_env)
+        File.exist?('/etc/gentoo-release')
       end
     end
   end

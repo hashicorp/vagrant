@@ -1,2 +1,2 @@
-require "vagrant-spec/acceptance"
-require_relative "shared/context_virtualbox"
+require 'vagrant-spec/acceptance'
+require_relative 'shared/context_virtualbox'

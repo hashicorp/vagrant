@@ -1,6 +1,6 @@
-require "vagrant"
+require 'vagrant'
 
-require_relative "ssh_connect"
+require_relative 'ssh_connect'
 
 module VagrantPlugins
   module Kernel_V2
@@ -45,15 +45,15 @@ module VagrantPlugins
         @keep_alive = true if @keep_alive == UNSET_VALUE
         @proxy_command = nil if @proxy_command == UNSET_VALUE
         @pty        = false if @pty == UNSET_VALUE
-        @shell      = "bash -l" if @shell == UNSET_VALUE
+        @shell      = 'bash -l' if @shell == UNSET_VALUE
 
-        @default.username = "vagrant" if @default.username == UNSET_VALUE
+        @default.username = 'vagrant' if @default.username == UNSET_VALUE
         @default.port     = @guest_port if @default.port == UNSET_VALUE
         @default.finalize!
       end
 
       def to_s
-        "SSH"
+        'SSH'
       end
 
       def validate(machine)
@@ -64,7 +64,7 @@ module VagrantPlugins
 
         # Figure out the errors for the defaults
         default_errors = @default.validate(machine)
-        result["SSH Defaults"] = default_errors if !default_errors.empty?
+        result['SSH Defaults'] = default_errors unless default_errors.empty?
 
         result
       end

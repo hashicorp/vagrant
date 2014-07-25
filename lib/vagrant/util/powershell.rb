@@ -1,5 +1,5 @@
-require_relative "subprocess"
-require_relative "which"
+require_relative 'subprocess'
+require_relative 'which'
 
 module Vagrant
   module Util
@@ -9,7 +9,7 @@ module Vagrant
     # properly sets powershell flags for you.
     class PowerShell
       def self.available?
-        !!Which.which("powershell")
+        !!Which.which('powershell')
       end
 
       # Execute a powershell script.
@@ -18,9 +18,9 @@ module Vagrant
       # @return [Subprocess::Result]
       def self.execute(path, *args, **opts, &block)
         command = [
-          "powershell",
-          "-NoProfile",
-          "-ExecutionPolicy", "Bypass",
+          'powershell',
+          '-NoProfile',
+          '-ExecutionPolicy', 'Bypass',
           "&('#{path}')",
           args
         ].flatten
@@ -37,15 +37,15 @@ module Vagrant
       # @return [String]
       def self.version
         command = [
-          "powershell",
-          "-NoProfile",
-          "-ExecutionPolicy", "Bypass",
-          "$PSVersionTable.PSVersion.Major"
+          'powershell',
+          '-NoProfile',
+          '-ExecutionPolicy', 'Bypass',
+          '$PSVersionTable.PSVersion.Major'
         ].flatten
 
         r = Subprocess.execute(*command)
         return nil if r.exit_code != 0
-        return r.stdout.chomp
+        r.stdout.chomp
       end
     end
   end
