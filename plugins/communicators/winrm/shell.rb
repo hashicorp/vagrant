@@ -34,6 +34,8 @@ module VagrantPlugins
       attr_reader :logger
       attr_reader :host
       attr_reader :port
+      attr_reader :username
+      attr_reader :password
       attr_reader :config
 
       def initialize(host, port, config)
@@ -42,6 +44,8 @@ module VagrantPlugins
 
         @host                  = host
         @port                  = port
+        @username              = config.username
+        @password              = config.password
         @config                = config
       end
 
@@ -137,8 +141,8 @@ module VagrantPlugins
       end
 
       def endpoint_options
-        { user: @config.username,
-          pass: @config.password,
+        { user: @username,
+          pass: @password,
           host: @host,
           port: @port,
           basic_auth_only: true,
