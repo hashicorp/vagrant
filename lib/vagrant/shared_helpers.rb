@@ -81,7 +81,7 @@ module Vagrant
     # Use user spcified env var if available
     path = ENV["VAGRANT_HOME"]
 
-    # On Windows, we default ot the USERPROFILE directory if it
+    # On Windows, we default to the USERPROFILE directory if it
     # is available. This is more compatible with Cygwin and sharing
     # the home directory across shells.
     if !path && ENV["USERPROFILE"]
