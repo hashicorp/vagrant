@@ -3,7 +3,7 @@
 auto eth<%= options[:interface] %>
 iface eth<%= options[:interface] %> inet dhcp
 <% if !options[:use_dhcp_assigned_default_route] %>
-    post-up route del default dev $IFACE
+    post-up route del default dev $IFACE || true
 <% else %>
     # We need to disable eth0, see GH-2648
     post-up route del default dev eth0
