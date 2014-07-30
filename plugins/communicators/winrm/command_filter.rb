@@ -11,6 +11,7 @@ module VagrantPlugins
         "test",
         "uname",
         "which",
+        "mkdir",
       ]
 
       # Filter the given Vagrant command to ensure compatibility with Windows
