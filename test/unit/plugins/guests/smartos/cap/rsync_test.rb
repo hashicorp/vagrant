@@ -30,5 +30,19 @@ describe "VagrantPlugins::VagrantPlugins::Cap::Rsync" do
       end
     end
   end
+
+  describe ".rsync_pre" do
+    it 'makes the guestpath directory with pfexec' do
+      communicator.expect_command("pfexec mkdir -p '/sync_dir'")
+      plugin.rsync_pre(machine, guestpath: '/sync_dir')
+    end
+  end
+
+  describe ".rsync_post" do
+    it 'chowns incorrectly owned files in sync dir' do
+      communicator.expect_command("find '/sync_dir' '(' ! -user somebody -or ! -group somegroup ')' -print0 | pfexec xargs -0 chown somebody:somegroup")
+      plugin.rsync_post(machine, guestpath: '/sync_dir', owner: 'somebody', group: 'somegroup')
+    end
+  end
 end
 
