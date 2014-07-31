@@ -191,7 +191,7 @@ module Vagrant
           @logger.debug("#{io_name}: #{extra_data.chomp}")
 
           # Yield to any listeners any remaining data
-          yield io_name, extra_data if block_given?
+          yield io_name, extra_data if block_given? && notify_table[io_name]
         end
 
         if RUBY_PLATFORM == "java"
