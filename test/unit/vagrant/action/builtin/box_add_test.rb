@@ -306,6 +306,53 @@ describe Vagrant::Action::Builtin::BoxAdd do
       end
     end
 
+    it "add from shorthand path with configured server url" do
+      box_path = iso_env.box2_file(:virtualbox)
+      td = Pathname.new(Dir.mktmpdir)
+      tf = td.join("mitchellh", "precise64.json")
+      tf.dirname.mkpath
+      tf.open("w") do |f|
+        f.write(<<-RAW)
+        {
+          "name": "mitchellh/precise64",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+      end
+
+      with_web_server(tf.dirname) do |port|
+        url = "http://127.0.0.1:#{port}"
+        env[:box_url] = "mitchellh/precise64.json"
+        env[:box_server_url] = url
+
+        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+          expect(name).to eq("mitchellh/precise64")
+          expect(version).to eq("0.7")
+          expect(checksum(path)).to eq(checksum(box_path))
+          expect(opts[:metadata_url]).to eq(
+            "#{url}/#{env[:box_url]}")
+          true
+        }.and_return(box)
+
+        expect(app).to receive(:call).with(env)
+
+        subject.call(env)
+      end
+    end
+
     it "authenticates HTTP URLs and adds them" do
       box_path = iso_env.box2_file(:virtualbox)
       tf = Tempfile.new(["vagrant", ".json"]).tap do |f|

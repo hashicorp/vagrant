@@ -71,6 +71,18 @@ describe Vagrant do
         expect(subject.server_url).to eq("foo")
       end
     end
+
+    it "is the VAGRANT_SERVER_URL value if the server url is configured" do
+      with_temp_env("VAGRANT_SERVER_URL" => "foo") do
+        expect(subject.server_url('bar')).to eq("foo")
+      end
+    end
+
+    it "is the configured server url if VAGRANT_SERVER_URL is not set" do
+      with_temp_env("VAGRANT_SERVER_URL" => nil) do
+        expect(subject.server_url("bar")).to eq("bar")
+      end
+    end
   end
 
   describe "#user_data_path" do
