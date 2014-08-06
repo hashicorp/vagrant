@@ -435,10 +435,6 @@ module Vagrant
             # means we were interrupted as well.
             @download_interrupted = true
             env[:ui].info(I18n.t("vagrant.actions.box.download.interrupted"))
-          rescue Errors::DownloaderError
-            # The download failed for some reason, clean out the temp path
-            File.unlink(d.destination) if File.file?(d.destination)
-            raise
           end
 
           Pathname.new(d.destination)

@@ -19,6 +19,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Downloading box files should resume in more cases since the
+      temporary file is preserved in more cases. [GH-4301]
   - core: Windows is not detected as NixOS in some cases. [GH-4302]
   - core: Fix encoding issues with Windows. There are still some outlying
       but this fixes a few. [GH-4159]
