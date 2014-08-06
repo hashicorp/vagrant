@@ -38,6 +38,15 @@ When DHCP is used, the IP can be determined by using `vagrant ssh` to
 SSH into the machine and using the appropriate command line tool to find
 the IP, such as `ifconfig`.
 
+## Static IP
+
+Depending on your setup, you may wish to manually set the IP of your
+bridged interface. To do so, add a `:ip` clause to the network definition.
+
+```ruby
+config.vm.network "public_network", ip: "192.168.0.17"
+```
+
 ## Default Network Interface
 
 If more than one network interface is available on the host machine, Vagrant will
