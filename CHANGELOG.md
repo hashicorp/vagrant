@@ -22,6 +22,8 @@ BUG FIXES:
       but this fixes a few. [GH-4159]
   - commands/package: base package won't crash with exception [GH-4017]
   - communicators/winrm: Support `mkdir` [GH-4271]
+  - guests/centos: Fix issues when NFS client is installed by restarting
+      NFS [GH-4088]
   - guests/debian: Deleting default route on DHCP networks can fail. [GH-4262]
   - guests/fedora: Fix networks on Fedora 20 with libvirt. [GH-4104]
   - guests/freebsd: Rsync install for rsync synced folders work on
