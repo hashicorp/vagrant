@@ -1,5 +1,11 @@
+# Salt version to install
+$version = '2014.1.4'
+
+# Create C:\tmp\ - if Vagrant doesn't upload keys and/or config it might not exist
+New-Item C:\tmp\ -ItemType directory | out-null
+
 # Copy minion keys & config to correct location
-New-Item c:\salt\conf\pki\minion\ -ItemType directory | out-null
+New-Item C:\salt\conf\pki\minion\ -ItemType directory | out-null
 
 # Check if minion keys have been uploaded
 if (Test-Path C:\tmp\minion.pem) {
@@ -22,7 +28,7 @@ if ([IntPtr]::Size -eq 4) {
 # Download minion setup file
 Write-Host "Downloading Salt minion installer ($arch)..."
 $webclient = New-Object System.Net.WebClient
-$url = "https://docs.saltstack.com/downloads/Salt-Minion-2014.1.3-1-$arch-Setup.exe"
+$url = "https://docs.saltstack.com/downloads/Salt-Minion-$version-$arch-Setup.exe"
 $file = "C:\tmp\salt.exe"
 $webclient.DownloadFile($url, $file)
 
