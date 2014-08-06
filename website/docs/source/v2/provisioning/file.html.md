@@ -15,6 +15,12 @@ File provisioning is a simple way to, for example, replicate your local
 you won't have to run `git config --global` every time you provision a
 new VM.
 
+    Vagrant.configure("2") do |config|
+      # ... other configuration
+
+      config.vm.provision "file", source: "~/.gitconfig", destination: ".gitconfig"
+    end
+
 Note that, unlike with synced folders, files that are uploaded will not
 be kept in sync. Continuing with the example above, if you make further
 changes to your local ~/.gitconfig, they will not be immediately reflected
