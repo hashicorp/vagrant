@@ -39,6 +39,8 @@ BUG FIXES:
   - provisioners/puppet: Manifest file can be a directory. [GH-4169]
   - provisioners/puppet: Properly escape facter variables for PowerShell
       on Windows guests. [GH-3959]
+  - provisioners/puppet: When provisioning fails, don't repeat all of
+      stdout/stderr. [GH-4303]
   - provisioners/salt: Update salt minion version on Windows. [GH-3932]
   - provisioners/shell: If args is an array and contains numbers, it no
       longer crashes. [GH-4234]

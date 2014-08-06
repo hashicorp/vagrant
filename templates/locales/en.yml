@@ -969,8 +969,10 @@ en:
 
         %{stderr}
       ssh_bad_exit_status_muted: |-
-        The SSH command responded with a non-zero exit status.
-        Vagrant assumes that this means the command failed!
+        The SSH command responded with a non-zero exit status. Vagrant
+        assumes that this means the command failed. The output for this command
+        should be in the log above. Please read the output to determine what
+        went wrong.
       ssh_connect_eacces: |-
         SSH is getting permission denied errors when attempting to connect
         to the IP for SSH. This is usually caused by network rules and not being
