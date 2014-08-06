@@ -24,6 +24,7 @@ BUG FIXES:
   - core: Windows is not detected as NixOS in some cases. [GH-4302]
   - core: Fix encoding issues with Windows. There are still some outlying
       but this fixes a few. [GH-4159]
+  - core: Fix crash case when destroying with an invalid provisioner. [GH-4281]
   - commands/package: base package won't crash with exception [GH-4017]
   - communicators/winrm: Support `mkdir` [GH-4271]
   - guests/centos: Fix issues when NFS client is installed by restarting
