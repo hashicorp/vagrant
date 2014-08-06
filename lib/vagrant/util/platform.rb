@@ -124,7 +124,7 @@ module Vagrant
             # Traverse each part and join it into the resulting path
             original.each do |single|
               Dir.entries(path).each do |entry|
-                if entry.downcase == single.downcase
+                if entry.downcase == single.encode('filesystem').downcase
                   path = path.join(entry)
                 end
               end

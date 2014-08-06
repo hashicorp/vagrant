@@ -153,7 +153,7 @@ module Vagrant
     #
     # @return [String]
     def inspect
-      "#<#{self.class}: #{@cwd}>"
+      "#<#{self.class}: #{@cwd}>".encode('external')
     end
 
     # Action runner for executing actions in the context of this environment.
