@@ -9,6 +9,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - commands/package: base package won't crash with exception [GH-4017]
+  - communicators/winrm: Support `mkdir` [GH-4271]
   - guests/fedora: Fix networks on Fedora 20 with libvirt. [GH-4104]
   - guests/freebsd: Rsync install for rsync synced folders work on
       FreeBSD 10. [GH-4008]
