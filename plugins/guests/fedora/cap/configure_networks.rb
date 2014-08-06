@@ -14,25 +14,40 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           network_scripts_dir = machine.guest.capability("network_scripts_dir")
 
+          virtual = false
           interface_names = Array.new
-          machine.communicate.sudo("/usr/sbin/biosdevname -d | grep Kernel | cut -f2 -d: | sed -e 's/ //;'") do |_, result|
-            interface_names = result.split("\n")
+          machine.communicate.sudo("/usr/sbin/biosdevname; echo $?") do |_, result|
+            virtual = true if result.chomp == '4'
           end
 
-          interface_name_pairs = Array.new
-          interface_names.each do |interface_name|
-            machine.communicate.sudo("/usr/sbin/biosdevname --policy=all_ethN -i #{interface_name}") do |_, result|
-              interface_name_pairs.push([interface_name, result.gsub("\n", "")])
+          if virtual
+            machine.communicate.sudo("ls /sys/class/net | grep -v lo") do |_, result|
+              interface_names = result.split("\n")
             end
-          end
 
-          setting_interface_names = networks.map do |network|
-             "eth#{network[:interface]}"
-          end
+            interface_names = networks.map do |network|
+               "eth#{network[:interface]}"
+            end
+          else
+            machine.communicate.sudo("/usr/sbin/biosdevname -d | grep Kernel | cut -f2 -d: | sed -e 's/ //;'") do |_, result|
+              interface_names = result.split("\n")
+            end
 
-          interface_name_pairs.each do |interface_name, previous_interface_name| 
-            if setting_interface_names.index(previous_interface_name) == nil
-              interface_names.delete(interface_name)
+            interface_name_pairs = Array.new
+            interface_names.each do |interface_name|
+              machine.communicate.sudo("/usr/sbin/biosdevname --policy=all_ethN -i #{interface_name}") do |_, result|
+                interface_name_pairs.push([interface_name, result.gsub("\n", "")])
+              end
+            end
+
+            setting_interface_names = networks.map do |network|
+               "eth#{network[:interface]}"
+            end
+
+            interface_name_pairs.each do |interface_name, previous_interface_name|
+              if setting_interface_names.index(previous_interface_name) == nil
+                interface_names.delete(interface_name)
+              end
             end
           end
 
