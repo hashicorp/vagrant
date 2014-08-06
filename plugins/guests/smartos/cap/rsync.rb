@@ -12,13 +12,13 @@ module VagrantPlugins
 
         def self.rsync_pre(machine, opts)
           machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p '#{opts[:guestpath]}'")
+            comm.execute("#{machine.config.smartos.suexec_cmd} mkdir -p '#{opts[:guestpath]}'")
           end
         end
 
         def self.rsync_post(machine, opts)
-          machine.communicate.sudo("find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
-              "xargs -0 -r chown #{opts[:owner]}:#{opts[:group]}")
+          machine.communicate.execute("find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
+              "#{machine.config.smartos.suexec_cmd} xargs -0 chown #{opts[:owner]}:#{opts[:group]}")
         end
       end
     end
