@@ -115,10 +115,7 @@ module Vagrant
       if base
         @id = name
       else
-        # Read the id file from the data directory if it exists as the
-        # ID for the pre-existing physical representation of this machine.
-        id_file = @data_dir.join("id")
-        @id = id_file.read.chomp if id_file.file?
+        reload
       end
 
       # Keep track of where our UUID should be placed
@@ -338,6 +335,18 @@ module Vagrant
     # @return [String]
     def inspect
       "#<#{self.class}: #{@name} (#{@provider.class})>"
+    end
+
+    # This reloads the ID of the underlying machine.
+    def reload
+      @id = nil
+
+      if @data_dir
+        # Read the id file from the data directory if it exists as the
+        # ID for the pre-existing physical representation of this machine.
+        id_file = @data_dir.join("id")
+        @id = id_file.read.chomp if id_file.file?
+      end
     end
 
     # This returns the SSH info for accessing this machine. This SSH info

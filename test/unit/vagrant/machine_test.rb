@@ -448,6 +448,28 @@ describe Vagrant::Machine do
     end
   end
 
+  describe "#reload" do
+    before do
+      allow(provider).to receive(:machine_id_changed)
+
+      subject.id = "foo"
+    end
+
+    it "should read the ID" do
+      subject.reload
+
+      expect(subject.id).to eq("foo")
+    end
+
+    it "should read the updated ID" do
+      new_instance.id = "bar"
+
+      subject.reload
+
+      expect(subject.id).to eq("bar")
+    end
+  end
+
   describe "ssh info" do
     describe "with the provider returning nil" do
       it "should return nil if the provider returns nil" do
