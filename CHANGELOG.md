@@ -9,6 +9,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Fix encoding issues with Windows. There are still some outlying
+      but this fixes a few. [GH-4159]
   - commands/package: base package won't crash with exception [GH-4017]
   - communicators/winrm: Support `mkdir` [GH-4271]
   - guests/debian: Deleting default route on DHCP networks can fail. [GH-4262]
