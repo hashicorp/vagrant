@@ -65,7 +65,11 @@ module VagrantPlugins
             end
 
             # Execute it with sudo
-            comm.execute(command, sudo: config.privileged) do |type, data|
+            comm.execute(
+              command,
+              sudo: config.privileged,
+              error_key: :ssh_bad_exit_status_muted
+            ) do |type, data|
               handle_comm(type, data)
             end
           end
