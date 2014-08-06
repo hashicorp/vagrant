@@ -17,6 +17,7 @@ BUG FIXES:
   - guests/redhat: NFS setup should use systemd for RH7+ [GH-4228]
   - guests/smartos: Use `pfexec` for rsync. [GH-4274]
   - guests/windows: Reboot after hostname change. [GH-3987]
+  - hosts/arch: NFS works with latest versions. [GH-4224]
   - hosts/windows: RDP command works without crash. [GH-3962]
   - provisioners/puppet: Properly escape facter variables for PowerShell
       on Windows guests. [GH-3959]
