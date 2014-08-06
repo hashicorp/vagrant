@@ -56,7 +56,7 @@ on this machine. Not supported on Windows.
 `false`. Not supported on Windows.
 
 * `install_type`  (stable | git | daily | testing) - Whether to install from a
-distribution's stable package manager, git tree-ish, daily ppa, or testing repository. 
+distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
 Not supported on Windows.
 
 * `install_args` (develop) - When performing a git install,
@@ -71,6 +71,9 @@ These only make sense when `no_minion` is `false`.
 
 * `minion_config`    (string, default: "salt/minion") - Path to
 a custom salt minion config file.
+
+* `minion_fail_on_error` - (boolean, default: `false`) If `true`, Vagrant will
+return an error code if Salt provisionning has failed
 
 * `minion_key`  (string) - Path to your minion key
 
