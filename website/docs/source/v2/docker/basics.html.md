@@ -58,6 +58,13 @@ based on that Dockerfile.
 
 The Dockerfile is rebuilt when `vagrant reload` is called.
 
+## Synced Folders and Networking
+
+When using Docker, Vagrant automatically converts synced folders
+and networking options into Docker volumes and forwarded ports.
+You don't have to use the Docker-specific configurations to do this.
+This helps keep your Vagrantfile similar to how it has always looked.
+
 ## Host VM
 
 On systems that can't run Linux containers natively, such as Mac OS X
