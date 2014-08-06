@@ -53,7 +53,7 @@ module Vagrant
             next if url[i] !~ /^[^\/]+\/[^\/]+$/
 
             if !File.file?(url[i])
-              server   = Vagrant.server_url
+              server = Vagrant.server_url env[:box_server_url]
               raise Errors::BoxServerNotSet if !server
 
               expanded = true

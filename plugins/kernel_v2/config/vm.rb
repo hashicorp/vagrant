@@ -19,6 +19,7 @@ module VagrantPlugins
       attr_accessor :box
       attr_accessor :box_check_update
       attr_accessor :box_url
+      attr_accessor :box_server_url
       attr_accessor :box_version
       attr_accessor :box_download_ca_cert
       attr_accessor :box_download_ca_path

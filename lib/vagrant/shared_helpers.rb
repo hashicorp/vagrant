@@ -60,9 +60,9 @@ module Vagrant
   # Returns the URL prefix to the server.
   #
   # @return [String]
-  def self.server_url
+  def self.server_url(config_server_url=nil)
     result = ENV["VAGRANT_SERVER_URL"]
-    result = nil if result == ""
+    result = config_server_url if result == "" or result == nil
     result || DEFAULT_SERVER_URL
   end
 
