@@ -1,5 +1,11 @@
 ## 1.6.4 (unreleased)
 
+BACKWARDS INCOMPATIBILITIES:
+
+  - providers/virtualbox: Host IO cache is no longer enabled by default
+      since it causes stale file issues. Please enable manually if you
+      require this. [GH-3934]
+
 IMPROVEMENTS:
 
   - core: Added `config.vm.box_server_url` setting to point at a
