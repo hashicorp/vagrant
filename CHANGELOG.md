@@ -2,6 +2,8 @@
 
 IMPROVEMENTS:
 
+  - core: Added `config.vm.box_server_url` setting to point at a
+     Vagrant Cloud instance. [GH-4282]
   - guests/nixos: Added better NFS support. [GH-3983]
 
 BUG FIXES:
