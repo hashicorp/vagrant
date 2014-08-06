@@ -14,17 +14,6 @@ module VagrantPlugins
           # helpers.
           @env = env
 
-          # Enable the host IO cache on the sata controller. Note that
-          # if this fails then its not a big deal, so we don't raise any
-          # errors. The Host IO cache vastly improves disk IO performance
-          # for VMs.
-          command = [
-            "storagectl", env[:machine].id,
-            "--name", "SATA Controller",
-            "--hostiocache", "on"
-          ]
-          attempt_and_log(command, "Enabling the Host I/O cache on the SATA controller...")
-
           # Use rtcuseutc so that the VM sees UTC time.
           command = ["modifyvm", env[:machine].id, "--rtcuseutc", "on"]
           attempt_and_log(command, "Enabling rtcuseutc...")
