@@ -30,7 +30,7 @@ module VagrantPlugins
           network_adapters_config = env[:machine].provider_config.network_adapters.dup
 
           # Assign the adapter slot for each high-level network
-          available_slots = Set.new(1..8)
+          available_slots = Set.new(1..36)
           network_adapters_config.each do |slot, _data|
             available_slots.delete(slot)
           end
