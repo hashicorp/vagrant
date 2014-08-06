@@ -8,6 +8,19 @@ en:
         Password: %{password}
         Endpoint: %{endpoint}
         Message: %{message}
+      winrm_bad_exit_status: |-
+        The following WinRM command responded with a non-zero exit status.
+        Vagrant assumes that this means the command failed!
+
+        %{command}
+
+        Stdout from the command:
+
+        %{stdout}
+
+        Stderr from the command:
+
+        %{stderr}
       execution_error: |-
         An error occurred executing a remote WinRM command.
 
