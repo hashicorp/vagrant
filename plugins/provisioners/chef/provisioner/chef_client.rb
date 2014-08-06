@@ -1,4 +1,6 @@
 require 'pathname'
+
+require 'vagrant'
 require 'vagrant/util/subprocess'
 
 require File.expand_path("../base", __FILE__)
@@ -106,15 +108,17 @@ module VagrantPlugins
 
           # Knife is not part of the current Vagrant bundle, so it needs to run
           # in the context of the system.
-          Bundler.with_clean_env do
-            command = ["knife", deletable, "delete", "--yes", node_name]
-            r = Vagrant::Util::Subprocess.execute(*command)
-            if r.exit_code != 0
-              @machine.ui.error(I18n.t(
-                "vagrant.chef_client_cleanup_failed",
-                deletable: deletable,
-                stdout: r.stdout,
-                stderr: r.stderr))
+          Vagrant.global_lock do
+            Bundler.with_clean_env do
+              command = ["knife", deletable, "delete", "--yes", node_name]
+              r = Vagrant::Util::Subprocess.execute(*command)
+              if r.exit_code != 0
+                @machine.ui.error(I18n.t(
+                  "vagrant.chef_client_cleanup_failed",
+                  deletable: deletable,
+                  stdout: r.stdout,
+                  stderr: r.stderr))
+              end
             end
           end
         end

@@ -8,6 +8,13 @@ describe Vagrant do
 
   subject { described_class }
 
+  describe "#global_lock" do
+    it "yields to the block" do
+      result = subject.global_lock { 42 }
+      expect(result).to eq(42)
+    end
+  end
+
   describe "#in_installer?" do
     it "is not if env is not set" do
       with_temp_env("VAGRANT_INSTALLER_ENV" => nil) do

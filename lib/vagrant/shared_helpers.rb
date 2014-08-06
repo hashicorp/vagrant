@@ -1,13 +1,25 @@
 require "pathname"
 require "tempfile"
+require "thread"
 
 module Vagrant
+  @@global_lock = Mutex.new
+
   # This is the default endpoint of the Vagrant Cloud in
   # use. API calls will be made to this for various functions
   # of Vagrant that may require remote access.
   #
   # @return [String]
   DEFAULT_SERVER_URL = "https://vagrantcloud.com"
+
+  # This holds a global lock for the duration of the block. This should
+  # be invoked around anything that is modifying process state (such as
+  # environmental variables).
+  def self.global_lock
+    @@global_lock.synchronize do
+      return yield
+    end
+  end
 
   # This returns a true/false showing whether we're running from the
   # environment setup by the Vagrant installers.

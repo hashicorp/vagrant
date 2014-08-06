@@ -23,6 +23,7 @@ BUG FIXES:
   - hosts/arch: NFS works with latest versions. [GH-4224]
   - hosts/windows: RDP command works without crash. [GH-3962]
   - providers/virtualbox: Increase network device limit to 36. [GH-4206]
+  - provisioners/chef: Chef client cleanup should work. [GH-4099]
   - provisioners/puppet: Manifest file can be a directory. [GH-4169]
   - provisioners/puppet: Properly escape facter variables for PowerShell
       on Windows guests. [GH-3959]
