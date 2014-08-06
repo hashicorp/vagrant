@@ -235,7 +235,7 @@ module VagrantPlugins
           else
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
           end
- 
+
           @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
@@ -266,7 +266,7 @@ module VagrantPlugins
           if !bootstrap
             raise Salt::Errors::SaltError, :bootstrap_failed
           end
-           
+
           if configure and !install
             @machine.env.ui.info "Salt successfully configured!"
           elsif configure and install
@@ -278,7 +278,7 @@ module VagrantPlugins
           @machine.env.ui.info "Salt did not need installing or configuring."
         end
       end
-      
+
       def call_overstate
         if @config.run_overstate
           if @config.install_master
