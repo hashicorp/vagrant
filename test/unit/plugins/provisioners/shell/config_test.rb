@@ -86,4 +86,22 @@ describe "VagrantPlugins::Shell::Config" do
       ])
     end
   end
+
+  describe 'finalize!' do
+    it 'changes fixnum args into strings' do
+      subject.path = file_that_exists
+      subject.args = 1
+      subject.finalize!
+
+      expect(subject.args).to eq '1'
+    end
+
+    it 'changes fixnum args in arrays into strings' do
+      subject.path = file_that_exists
+      subject.args = ["string", 1, 2]
+      subject.finalize!
+
+      expect(subject.args).to eq ["string", '1', '2']
+    end
+  end
 end
