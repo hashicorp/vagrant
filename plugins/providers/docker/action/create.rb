@@ -114,20 +114,32 @@ module VagrantPlugins
 
         def forwarded_ports(include_ssh=false)
           mappings = {}
+          random = []
+
           @machine.config.vm.networks.each do |type, options|
             next if type != :forwarded_port
 
             # Don't include SSH if we've explicitly asked not to
             next if options[:id] == "ssh" && !include_ssh
 
+            # If the guest port is 0, put it in the random group
+            if options[:guest] == 0
+              random << options[:host]
+              next
+            end
+
             mappings[options[:host]] = options
           end
 
-          mappings.values.map do |fp|
+          # Build the results
+          result = random.map(&:to_s)
+          result += mappings.values.map do |fp|
             protocol = ""
             protocol = "/udp" if fp[:protocol].to_s == "udp"
             "#{fp[:host]}:#{fp[:guest]}#{protocol}"
           end.compact
+
+          result
         end
       end
     end
