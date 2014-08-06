@@ -19,6 +19,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Windows is not detected as NixOS in some cases. [GH-4302]
   - core: Fix encoding issues with Windows. There are still some outlying
       but this fixes a few. [GH-4159]
   - commands/package: base package won't crash with exception [GH-4017]
