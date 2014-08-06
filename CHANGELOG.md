@@ -38,6 +38,8 @@ BUG FIXES:
   - provisioners/salt: Update salt minion version on Windows. [GH-3932]
   - provisioners/shell: If args is an array and contains numbers, it no
       longer crashes. [GH-4234]
+  - provisioners/shell: If fails, the output/stderr isn't repeated
+      again. [GH-4087]
 
 ## 1.6.3 (May 29, 2014)
 
