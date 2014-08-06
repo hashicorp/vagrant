@@ -20,6 +20,7 @@ module VagrantPlugins
       attr_accessor :seed_master
       attr_reader   :pillar_data
       attr_accessor :colorize
+      attr_accessor :minion_fail_on_error
       attr_accessor :log_level
 
       ## bootstrap options
@@ -46,6 +47,7 @@ module VagrantPlugins
         @seed_master = UNSET_VALUE
         @pillar_data = UNSET_VALUE
         @colorize = UNSET_VALUE
+        @minion_fail_on_error = UNSET_VALUE
         @log_level = UNSET_VALUE
         @temp_config_dir = UNSET_VALUE
         @install_type = UNSET_VALUE
@@ -57,28 +59,29 @@ module VagrantPlugins
       end
 
       def finalize!
-        @minion_config      = nil if @minion_config == UNSET_VALUE
-        @minion_key         = nil if @minion_key == UNSET_VALUE
-        @minion_pub         = nil if @minion_pub == UNSET_VALUE
-        @master_config      = nil if @master_config == UNSET_VALUE
-        @master_key         = nil if @master_key == UNSET_VALUE
-        @master_pub         = nil if @master_pub == UNSET_VALUE
-        @run_highstate      = nil if @run_highstate == UNSET_VALUE
-        @run_overstate      = nil if @run_overstate == UNSET_VALUE
-        @always_install     = nil if @always_install == UNSET_VALUE
-        @bootstrap_script   = nil if @bootstrap_script == UNSET_VALUE
-        @verbose            = nil if @verbose == UNSET_VALUE
-        @seed_master        = nil if @seed_master == UNSET_VALUE
-        @pillar_data        = {}  if @pillar_data == UNSET_VALUE
-        @colorize           = nil if @colorize == UNSET_VALUE
-        @log_level          = nil if @log_level == UNSET_VALUE
-        @temp_config_dir    = nil if @temp_config_dir == UNSET_VALUE
-        @install_type       = nil if @install_type == UNSET_VALUE
-        @install_args       = nil if @install_args == UNSET_VALUE
-        @install_master     = nil if @install_master == UNSET_VALUE
-        @install_syndic     = nil if @install_syndic == UNSET_VALUE
-        @no_minion          = nil if @no_minion == UNSET_VALUE
-        @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
+        @minion_config          = nil if @minion_config == UNSET_VALUE
+        @minion_key             = nil if @minion_key == UNSET_VALUE
+        @minion_pub             = nil if @minion_pub == UNSET_VALUE
+        @master_config          = nil if @master_config == UNSET_VALUE
+        @master_key             = nil if @master_key == UNSET_VALUE
+        @master_pub             = nil if @master_pub == UNSET_VALUE
+        @run_highstate          = nil if @run_highstate == UNSET_VALUE
+        @run_overstate          = nil if @run_overstate == UNSET_VALUE
+        @always_install         = nil if @always_install == UNSET_VALUE
+        @bootstrap_script       = nil if @bootstrap_script == UNSET_VALUE
+        @verbose                = nil if @verbose == UNSET_VALUE
+        @seed_master            = nil if @seed_master == UNSET_VALUE
+        @pillar_data            = {}  if @pillar_data == UNSET_VALUE
+        @colorize               = nil if @colorize == UNSET_VALUE
+        @minion_fail_on_error   = nil if @minion_fail_on_error == UNSET_VALUE
+        @log_level              = nil if @log_level == UNSET_VALUE
+        @temp_config_dir        = nil if @temp_config_dir == UNSET_VALUE
+        @install_type           = nil if @install_type == UNSET_VALUE
+        @install_args           = nil if @install_args == UNSET_VALUE
+        @install_master         = nil if @install_master == UNSET_VALUE
+        @install_syndic         = nil if @install_syndic == UNSET_VALUE
+        @no_minion              = nil if @no_minion == UNSET_VALUE
+        @bootstrap_options      = nil if @bootstrap_options == UNSET_VALUE
 
       end
 

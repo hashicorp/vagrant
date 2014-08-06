@@ -170,6 +170,11 @@ module VagrantPlugins
         end
       end
 
+      # Get retcode-passthrough option string to pass with the salt-call command
+      def get_retcodepassthrough
+        @config.minion_fail_on_error ? " --retcode-passthrough" : " "
+      end
+
       # Copy master and minion configs to VM
       def upload_configs
         if @config.minion_config
@@ -235,7 +240,7 @@ module VagrantPlugins
           else
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
           end
- 
+
           @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
@@ -266,7 +271,7 @@ module VagrantPlugins
           if !bootstrap
             raise Salt::Errors::SaltError, :bootstrap_failed
           end
-           
+
           if configure and !install
             @machine.env.ui.info "Salt successfully configured!"
           elsif configure and install
@@ -278,7 +283,7 @@ module VagrantPlugins
           @machine.env.ui.info "Salt did not need installing or configuring."
         end
       end
-      
+
       def call_overstate
         if @config.run_overstate
           if @config.install_master
@@ -318,7 +323,7 @@ module VagrantPlugins
               end
             else
               @machine.communicate.sudo("salt-call saltutil.sync_all")
-              @machine.communicate.sudo("salt-call state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+              @machine.communicate.sudo("salt-call state.highstate #{get_loglevel}#{get_colorize}#{get_pillar}#{get_retcodepassthrough}") do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data)
                 end
