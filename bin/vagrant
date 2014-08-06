@@ -86,6 +86,10 @@ rescue Bundler::VersionConflict => e
   $stderr.puts ""
   $stderr.puts "    rm -r ~/.vagrant.d/plugins.json ~/.vagrant.d/gems"
   $stderr.puts ""
+  $stderr.puts "Note if you have an alternate VAGRANT_HOME environmental variable"
+  $stderr.puts "set, the folders above will be in that directory rather than your"
+  $stderr.puts "user's home directory."
+  $stderr.puts ""
   $stderr.puts "The error message is shown below:\n\n"
   $stderr.puts e.message
   exit 1
