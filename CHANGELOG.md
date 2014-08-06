@@ -14,6 +14,7 @@ BUG FIXES:
   - guests/fedora: Fix networks on Fedora 20 with libvirt. [GH-4104]
   - guests/freebsd: Rsync install for rsync synced folders work on
       FreeBSD 10. [GH-4008]
+  - guests/redhat: NFS setup should use systemd for RH7+ [GH-4228]
   - guests/smartos: Use `pfexec` for rsync. [GH-4274]
   - guests/windows: Reboot after hostname change. [GH-3987]
   - hosts/windows: RDP command works without crash. [GH-3962]
