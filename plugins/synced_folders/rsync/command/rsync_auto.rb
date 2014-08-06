@@ -156,6 +156,13 @@ module VagrantPlugins
           # Sync all the folders that need to be synced
           tosync.each do |folders|
             folders.each do |opts|
+              # Reload so we get the latest ID
+              opts[:machine].reload
+              if !opts[:machine].id || opts[:machine].id == ""
+                # Skip since we can't get SSH info without an ID
+                next
+              end
+
               ssh_info = opts[:machine].ssh_info
               begin
                 RsyncHelper.rsync_single(opts[:machine], ssh_info, opts[:opts])

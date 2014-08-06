@@ -29,6 +29,8 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
     def machine_stub(name)
       double(name).tap do |m|
+        m.stub(id: "foo")
+        m.stub(reload: nil)
         m.stub(ssh_info: ssh_info)
         m.stub(ui: double("ui"))
 
@@ -112,6 +114,23 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
         expect(helper_class).to receive(:rsync_single).
           with(data[:machine], data[:machine].ssh_info, data[:opts]).
           and_raise(Vagrant::Errors::MachineGuestNotReady)
+      end
+
+      m = []
+      a = []
+      r = ["/foo/bar"]
+      expect { subject.callback(paths, m, a, r) }.
+        to_not raise_error
+    end
+
+    it "doesn't sync machines with no ID" do
+      paths["/foo"] = [
+        { machine: machine_stub("m1"), opts: double("opts_m1") },
+      ]
+
+      paths["/foo"].each do |data|
+        data[:machine].stub(id: nil)
+        expect(helper_class).to_not receive(:rsync_single)
       end
 
       m = []
