@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - commands/package: base package won't crash with exception [GH-4017]
+  - guests/fedora: Fix networks on Fedora 20 with libvirt. [GH-4104]
   - guests/freebsd: Rsync install for rsync synced folders work on
       FreeBSD 10. [GH-4008]
   - guests/windows: Reboot after hostname change. [GH-3987]
