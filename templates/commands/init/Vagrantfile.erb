@@ -103,6 +103,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #   chef.json = { mysql_password: "foo" }
   # end
 
+  # Enable provisioning with ansible, specifying a playbook path
+  # and inventory path (all relative to this Vagrantfile)
+  #
+  # config.vm.provision "ansible" do |ansible|
+  #   chef.playbook = "devops/user.yml"
+  #   chef.inventory_path = "devops/webhosts"
+  # end
+
   # Enable provisioning with chef server, specifying the chef server URL,
   # and the path to the validation key (relative to this Vagrantfile).
   #
