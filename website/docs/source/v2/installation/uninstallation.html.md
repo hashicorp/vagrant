@@ -20,7 +20,9 @@ On **Windows**, uninstall using the add/remove programs section of
 the control panel.
 
 On **Mac OS X**, remove the `/Applications/Vagrant` directory and
-the `/usr/bin/vagrant` file.
+the `/usr/bin/vagrant` file. Also execute
+`sudo pkgutil --forget com.vagrant.vagrant` to have OS X
+forget that Vagrant was ever installed.
 
 On **Linux**, remove the `/opt/vagrant` directory and the `/usr/bin/vagrant`
 file.
