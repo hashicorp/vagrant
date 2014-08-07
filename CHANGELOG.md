@@ -27,6 +27,7 @@ BUG FIXES:
   - core: Fix crash case when destroying with an invalid provisioner. [GH-4281]
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
+  - communicators/ssh: Nicer error if remote unexpectedly disconects. [GH-4038]
   - communicators/winrm: Support `mkdir` [GH-4271]
   - guests/centos: Fix issues when NFS client is installed by restarting
       NFS [GH-4088]

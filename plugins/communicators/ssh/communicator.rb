@@ -517,8 +517,11 @@ module VagrantPlugins
           begin
             channel.wait
           rescue Errno::ECONNRESET, IOError
-            @logger.info("SSH connection unexpected closed. Assuming reboot or something.")
+            @logger.info(
+              "SSH connection unexpected closed. Assuming reboot or something.")
             exit_status = 0
+          rescue Net::SSH::Disconnect
+            raise Vagrant::Errors::SSHDisconnected
           end
         ensure
           # Kill the keep-alive thread
