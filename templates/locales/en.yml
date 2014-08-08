@@ -1166,6 +1166,16 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_no_name: |-
+        Vagrant was unable to determine the recommended name for your
+        VirtualBox VM. This is usually an issue with VirtualBox. The output
+        from VirtualBox is shown below, which may contain an error to fix.
+        The best way to fix this issue is usually to uninstall VirtualBox,
+        restart your computer, then reinstall VirtualBox.
+
+        VirtualBox output:
+
+        %{output}
       virtualbox_no_room_for_high_level_network: |-
         There is no available slots on the VirtualBox VM for the configured
         high-level network interfaces. "private_network" and "public_network"

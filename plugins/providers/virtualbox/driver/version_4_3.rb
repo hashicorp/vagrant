@@ -171,6 +171,9 @@ module VagrantPlugins
           @logger.debug("Doing dry-run import to determine parallel-safe name...")
           output = execute("import", "-n", ovf)
           result = /Suggested VM name "(.+?)"/.match(output)
+          if !result
+            raise Vagrant::Errors::VirtualBoxNoName, output: output
+          end
           suggested_name = result[1].to_s
 
           # Append millisecond plus a random to the path in case we're
@@ -199,7 +202,7 @@ module VagrantPlugins
               # specified_name were "abc123", then "\\abc123\\".reverse would be "\\321cba\\", and the \3 would be treated as a back reference by the sub
               disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse) { "\\#{specified_name}\\".reverse }.reverse # Replace only last occurrence
             else
-              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence                
+              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence
             end
           end
 

@@ -43,6 +43,7 @@ BUG FIXES:
   - hosts/windows: RDP command works without crash. [GH-3962]
   - providers/docker: Port on its own will choose random host port. [GH-3991]
   - providers/virtualbox: Increase network device limit to 36. [GH-4206]
+  - providers/virtualbox: Error if can't detect VM name. [GH-4047]
   - provisioners/chef: Chef client cleanup should work. [GH-4099]
   - provisioners/puppet: Manifest file can be a directory. [GH-4169]
   - provisioners/puppet: Properly escape facter variables for PowerShell
