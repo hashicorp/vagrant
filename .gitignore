@@ -4,7 +4,6 @@
 # Vagrant stuff
 acceptance_config.yml
 boxes/*
-/Vagrantfile
 /.vagrant
 /website/docs/.vagrant
 /website/www/.vagrant
