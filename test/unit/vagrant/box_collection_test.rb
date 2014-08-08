@@ -26,14 +26,16 @@ describe Vagrant::BoxCollection do
       environment.box3("foo", "1.0", :vmware)
       environment.box3("bar", "0", :ec2)
       environment.box3("foo-VAGRANTSLASH-bar", "1.0", :virtualbox)
+      environment.box3("foo:bar", "1.0", :virtualbox)
 
       # Verify some output
       results = subject.all
-      expect(results.length).to eq(4)
+      expect(results.length).to eq(5)
       expect(results.include?(["foo", "1.0", :virtualbox])).to be
       expect(results.include?(["foo", "1.0", :vmware])).to be
       expect(results.include?(["bar", "0", :ec2])).to be
       expect(results.include?(["foo/bar", "1.0", :virtualbox])).to be
+      expect(results.include?(["foo:bar", "1.0", :virtualbox])).to be
     end
 
     it 'does not raise an exception when a file appears in the boxes dir' do
