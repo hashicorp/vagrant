@@ -146,7 +146,10 @@ module Vagrant
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
       # Create a deterministic ID for this machine
-      id = Digest::MD5.hexdigest("#{@env.root_path}#{@name}")
+      vf = nil
+      vf = @env.vagrantfile_name[0] if @env.vagrantfile_name
+      id = Digest::MD5.hexdigest(
+        "#{@env.root_path}#{vf}#{@name}")
 
       # We only lock if we're not executing an SSH action. In the future
       # we will want to do more fine-grained unlocking in actions themselves

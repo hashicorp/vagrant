@@ -42,6 +42,8 @@ BUG FIXES:
   - hosts/arch: NFS works with latest versions. [GH-4224]
   - hosts/windows: RDP command works without crash. [GH-3962]
   - providers/docker: Port on its own will choose random host port. [GH-3991]
+  - providers/docker: The proxy VM Vagrantfile can be in the same directory
+      as the main Vagrantfile. [GH-4065]
   - providers/virtualbox: Increase network device limit to 36. [GH-4206]
   - providers/virtualbox: Error if can't detect VM name. [GH-4047]
   - provisioners/chef: Chef client cleanup should work. [GH-4099]
