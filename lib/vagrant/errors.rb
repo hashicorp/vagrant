@@ -716,6 +716,10 @@ module Vagrant
       error_key(:virtualbox_install_incomplete)
     end
 
+    class VirtualBoxNoName < VagrantError
+      error_key(:virtualbox_no_name)
+    end
+
     class VMBaseMacNotSpecified < VagrantError
       error_key(:no_base_mac, "vagrant.actions.vm.match_mac")
     end
