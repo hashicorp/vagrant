@@ -973,6 +973,11 @@ en:
         assumes that this means the command failed. The output for this command
         should be in the log above. Please read the output to determine what
         went wrong.
+      ssh_channel_open_fail: |-
+        Failed to open an SSH channel on the remote end! This typically
+        means that the maximum number of active sessions was hit on the
+        SSH server. Please configure your remote SSH server to resolve
+        this issue.
       ssh_connect_eacces: |-
         SSH is getting permission denied errors when attempting to connect
         to the IP for SSH. This is usually caused by network rules and not being

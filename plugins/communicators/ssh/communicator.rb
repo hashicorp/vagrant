@@ -520,6 +520,8 @@ module VagrantPlugins
             @logger.info(
               "SSH connection unexpected closed. Assuming reboot or something.")
             exit_status = 0
+          rescue Net::SSH::ChannelOpenFailed
+            raise Vagrant::Errors::SSHChannelOpenFail
           rescue Net::SSH::Disconnect
             raise Vagrant::Errors::SSHDisconnected
           end
