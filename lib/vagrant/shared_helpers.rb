@@ -53,6 +53,8 @@ module Vagrant
     Vagrant::Util::Downloader.new(url, tf.path).download!
     data = JSON.parse(File.read(tf.path))
     data["version"]
+  ensure
+    tf.unlink if tf
   end
 
   # This returns whether or not 3rd party plugins should be loaded.

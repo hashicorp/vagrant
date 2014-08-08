@@ -103,8 +103,12 @@ env = nil
 begin
   require 'log4r'
   require 'vagrant'
+  require 'vagrant/bundler'
   require 'vagrant/cli'
   require 'vagrant/util/platform'
+
+  # Schedule the cleanup of things
+  at_exit(&Vagrant::Bundler.instance.method(:deinit))
 
   # Create a logger right away
   logger = Log4r::Logger.new("vagrant::bin::vagrant")
