@@ -4,6 +4,7 @@ require "tmpdir"
 
 require "log4r"
 
+require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 
 module Vagrant
@@ -349,12 +350,18 @@ module Vagrant
     # @param [String] name
     # @return [String]
     def dir_name(name)
-      name.gsub("/", "-VAGRANTSLASH-")
+      name = name.dup
+      name.gsub!(":", "-VAGRANTCOLON-") if Util::Platform.windows?
+      name.gsub!("/", "-VAGRANTSLASH-")
+      name
     end
 
     # Returns the directory name for the box cleaned up
     def undir_name(name)
-      name.gsub("-VAGRANTSLASH-", "/")
+      name = name.dup
+      name.gsub!("-VAGRANTCOLON-", ":")
+      name.gsub!("-VAGRANTSLASH-", "/")
+      name
     end
 
     # This checks if the given directory represents a V1 box on the

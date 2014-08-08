@@ -26,6 +26,7 @@ BUG FIXES:
   - core: Fix encoding issues with Windows. There are still some outlying
       but this fixes a few. [GH-4159]
   - core: Fix crash case when destroying with an invalid provisioner. [GH-4281]
+  - core: Box names with colons work on Windows. [GH-4100]
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
   - communicators/ssh: Nicer error if remote unexpectedly disconects. [GH-4038]
