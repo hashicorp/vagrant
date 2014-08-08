@@ -67,7 +67,7 @@ module VagrantPlugins
 
           env[:ui].detail("Cloning virtual hard drive...")
           source_path = image_path.to_s
-          dest_path   = env[:machine].data_dir.join("disk.#{image_ext}").to_s
+          dest_path   = env[:machine].data_dir.join("disk#{image_ext}").to_s
           FileUtils.cp(source_path, dest_path)
           image_path = dest_path
 
