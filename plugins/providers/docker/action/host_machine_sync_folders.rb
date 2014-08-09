@@ -123,9 +123,11 @@ module VagrantPlugins
                 data[:virtualbox__transient] = true
 
                 # mount folder with symlink support
-                env[:machine].provider.host_vm.provider.driver.execute_command(
-                  ["setextradata", env[:machine].provider.host_vm.id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{data[:id]}", "1"]
-                )
+                if env[:machine].provider_config.symlink_volumes
+                  host_machine.provider.driver.execute_command(
+                    ["setextradata", host_machine.id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{data[:id]}", "1"]
+                  )
+                end
 
                 new_config.synced_folder(
                   data[:hostpath],
