@@ -11,8 +11,8 @@ should be intuitive and simple.
 
 The Docker provider _does not_ require a `config.vm.box` setting. Since
 the "base image" for a Docker container is pulled from the
-[Docker Index](/v2/docker/images.html) or
-built from a [Dockerfile](/v2/docker/dockerfiles.html), the box doesn't
+Docker Index or
+built from a Dockerfile, the box doesn't
 add much value, and is optional for this provider.
 
 ## Docker Images
