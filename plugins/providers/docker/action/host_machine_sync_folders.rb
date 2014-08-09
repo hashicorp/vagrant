@@ -122,6 +122,11 @@ module VagrantPlugins
                 # the VirtualBox synced folder mechanism is smarter.
                 data[:virtualbox__transient] = true
 
+                # mount folder with symlink support
+                env[:machine].provider.host_vm.provider.driver.execute_command(
+                  ["setextradata", env[:machine].provider.host_vm.id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{data[:id]}", "1"]
+                )
+
                 new_config.synced_folder(
                   data[:hostpath],
                   data[:guestpath],
