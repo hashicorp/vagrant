@@ -69,7 +69,7 @@ module VagrantPlugins
           if existing_folders
             existing_folders.each do |impl, fs|
               fs.each do |_name, data|
-                if data[:docker_sfid] && data[:docker_host_sfid] == host_sfid
+                if data[:docker_sfid] && (data[:docker_host_sfid] == host_sfid || data[:docker_host_id] == host_machine.id)
                   existing_ids[data[:docker_sfid]] = data
                 end
               end
@@ -106,6 +106,7 @@ module VagrantPlugins
               data[:docker_guestpath] = data[:guestpath]
               data[:docker_sfid] = id
               data[:docker_host_sfid] = host_sfid
+              data[:docker_host_id] = host_machine.id
               data[:id] = id[0...6] + rand(10000).to_s
 
               # If we specify exact then we know what we're doing
