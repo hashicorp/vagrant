@@ -29,6 +29,9 @@ module VagrantPlugins
             # Allocate a pty if it was requested
             params[:pty] = true if env[:run_pty]
 
+            # Remove container after execution
+            params[:rm] = true if env[:run_rm]
+
             # We link to our original container
             # TODO
           end
