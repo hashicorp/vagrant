@@ -5,7 +5,10 @@ module VagrantPlugins
         def self.choose_addressable_ip_addr(machine, possible)
           machine.communicate.tap do |comm|
             possible.each do |ip|
-              return ip
+              command = "ping -n 1 -w 1 #{ip}"
+              if comm.test(command)
+                return ip
+              end
             end
           end
 
