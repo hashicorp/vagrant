@@ -125,7 +125,7 @@ module VagrantPlugins
         script = Vagrant::Util::TemplateRenderer.render(path, options: {
           username: shell.username,
           password: shell.password,
-          command: command,
+          command: command.gsub("\"", "`\""),
         })
         guest_script_path = "c:/tmp/vagrant-elevated-shell.ps1"
         file = Tempfile.new(["vagrant-elevated-shell", "ps1"])
