@@ -260,6 +260,20 @@ module VagrantPlugins
           end
         end
 
+        def read_shared_folders
+          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true).split("SharedFolderNameMachineMapping1")[1]
+
+          folders = []
+
+          info.split("\n").each do |line|
+            if name = line[/^SharedFolderNameTransientMapping[0-9]="(.+?)"$/, 1]
+              folders << name
+            end
+          end
+
+          return folders
+        end
+
         def read_guest_additions_version
           output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version",
                            retryable: true)

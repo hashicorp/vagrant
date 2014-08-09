@@ -101,6 +101,7 @@ module VagrantPlugins
           :read_machine_folder,
           :read_network_interfaces,
           :read_state,
+          :read_shared_folders,
           :read_used_ports,
           :read_vms,
           :resume,

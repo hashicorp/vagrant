@@ -222,11 +222,11 @@ module VagrantPlugins
                     post: true
                 end
               end
-            end
 
-            b2.use Call, IsState, :not_created do |env2, b3|
-              if !env2[:result]
-                b3.use EnvSet, host_machine_sync_folders: false
+              b2.use Call, IsState, :not_created do |env2, b3|
+                if !env2[:result]
+                  b3.use EnvSet, host_machine_sync_folders: false
+                end
               end
             end
 

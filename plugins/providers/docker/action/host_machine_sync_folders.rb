@@ -63,13 +63,15 @@ module VagrantPlugins
           proxy_ui.opts[:prefix_spaces] = true
           proxy_ui.opts[:target] = env[:machine].name.to_s
 
+          mounted = host_machine.provider.driver.read_shared_folders
+
           # Read the existing folders that are setup
           existing_folders = synced_folders(host_machine, cached: true)
           existing_ids = {}
           if existing_folders
             existing_folders.each do |impl, fs|
               fs.each do |_name, data|
-                if data[:docker_sfid] && (data[:docker_host_sfid] == host_sfid || data[:docker_host_id] == host_machine.id)
+                if data[:docker_sfid] && (data[:docker_host_sfid] == host_sfid || data[:docker_host_id] == host_machine.id) && mounted.include?(data[:id])
                   existing_ids[data[:docker_sfid]] = data
                 end
               end
