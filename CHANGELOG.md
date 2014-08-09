@@ -12,6 +12,7 @@ IMPROVEMENTS:
      Vagrant Cloud instance. [GH-4282]
   - core: File checksumming performance has been improved by at least
       100%. Memory requirements have gone down by half. [GH-4090]
+  - commands/reload: show post up messsage [GH-4168]
   - communicators/winrm: Show stdout/stderr if command fails. [GH-4094]
   - guests/nixos: Added better NFS support. [GH-3983]
   - providers/hyperv: Accept VHD disk format. [GH-4208]
