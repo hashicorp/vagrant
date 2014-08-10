@@ -7,17 +7,20 @@ module VagrantPlugins
   module HostWindows
     module Cap
       class PS
-        def self.rdp_client(env, ps_info)
+        def self.ps_client(env, ps_info)
+          logger = Log4r::Logger.new("vagrant::hosts::windows")
+
           command = <<-EOS
             $plain_password = "#{ps_info[:password]}"
             $username = "#{ps_info[:username]}"
             $port = "#{ps_info[:port]}"
-            $host = "#{ps_info[:host]}"
+            $hostname = "#{ps_info[:host]}"
             $password = ConvertTo-SecureString $plain_password -asplaintext -force
-            $creds = New-Object System.Management.Automation.PSCredential ("$host\\$username", $password)
-            Enter-PSSession -ComputerName $host -Credential $creds -Port $port
+            $creds = New-Object System.Management.Automation.PSCredential ("$hostname\\$username", $password)
+            Enter-PSSession -ComputerName $hostname -Credential $creds -Port $port
           EOS
 
+          logger.debug("Starting remote powershell with command:\n#{command}")
           command = command.chars.to_a.join("\x00").chomp
           command << "\x00" unless command[-1].eql? "\x00"
           if(defined?(command.encode))
@@ -31,6 +34,7 @@ module VagrantPlugins
           args = ["-NoProfile"]
           args << "-ExecutionPolicy"
           args << "Bypass"
+          args << "-NoExit"
           args << "-EncodedCommand"
           args << command
           if ps_info[:extra_args]

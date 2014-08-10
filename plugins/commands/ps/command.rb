@@ -29,7 +29,7 @@ module VagrantPlugins
         return if !argv
 
         # Check if the host even supports ps remoting
-        #raise Errors::HostUnsupported if !@env.host.capability?(:ps_remoting)
+        raise Errors::HostUnsupported if !@env.host.capability?(:ps_client)
 
         # Execute RDP if we can
         with_target_vms(argv, single_target: true) do |machine|
@@ -37,11 +37,14 @@ module VagrantPlugins
             raise Vagrant::Errors::VMNotCreatedError
           end
 
-          if machine.config.vm.communicator != :winrm || !machine.provider.capability?(:winrm_info)
-            raise Errors::WinRMNotReady
+          if machine.config.vm.communicator != :winrm #|| !machine.provider.capability?(:winrm_info)
+            raise VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady
           end
 
-          ps_info = Helper.winrm_info(@machine)
+          ps_info = VagrantPlugins::CommunicatorWinRM::Helper.winrm_info(machine)
+          ps_info[:username] = machine.config.winrm.username
+          ps_info[:password] = machine.config.winrm.password
+
           # raise Errors::RDPUndetected if !rdp_info
 
           # Extra arguments if we have any
