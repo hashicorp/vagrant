@@ -20,6 +20,7 @@ IMPROVEMENTS:
   - communicators/winrm: Show stdout/stderr if command fails. [GH-4094]
   - guests/nixos: Added better NFS support. [GH-3983]
   - providers/hyperv: Accept VHD disk format. [GH-4208]
+  - providers/hyperv: Support generation 2 VMs. [GH-4324]
   - provisioners/salt: Get proper exit codes to detect failed runs. [GH-4304]
 
 BUG FIXES:
