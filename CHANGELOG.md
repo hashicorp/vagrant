@@ -2,6 +2,8 @@
 
 BACKWARDS INCOMPATIBILITIES:
 
+  - commands/docker-run: Started containers are now deleted after run.
+      Specify the new `--no-rm` flag to retain the original behavior. [GH-4327]
   - providers/virtualbox: Host IO cache is no longer enabled by default
       since it causes stale file issues. Please enable manually if you
       require this. [GH-3934]
@@ -12,6 +14,8 @@ IMPROVEMENTS:
      Vagrant Cloud instance. [GH-4282]
   - core: File checksumming performance has been improved by at least
       100%. Memory requirements have gone down by half. [GH-4090]
+  - commands/docker-run: Add the `--no-rm` flag. Containers are
+      deleted by default. [GH-4327]
   - commands/reload: show post up messsage [GH-4168]
   - communicators/winrm: Show stdout/stderr if command fails. [GH-4094]
   - guests/nixos: Added better NFS support. [GH-3983]
