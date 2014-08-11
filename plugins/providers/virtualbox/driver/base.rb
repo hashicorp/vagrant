@@ -186,6 +186,12 @@ module VagrantPlugins
         def read_guest_additions_version
         end
 
+        # Returns a list of folders currently mounted on the virtual machine
+        #
+        # @return [Array<String>]
+        def read_shared_folders
+        end
+
         # Returns the value of a guest property on the current VM.
         #
         # @param  [String] property the name of the guest property to read

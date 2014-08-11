@@ -268,6 +268,20 @@ module VagrantPlugins
           return nil
         end
 
+        def read_shared_folders
+          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true).split("SharedFolderNameMachineMapping1")[1]
+
+          folders = []
+
+          info.split("\n").each do |line|
+            if name = line[/^SharedFolderNameTransientMapping[0-9]="(.+?)"$/, 1]
+              folders << name
+            end
+          end
+
+          return folders
+        end
+
         def read_guest_ip(adapter_number)
           read_guest_property("/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP")
         end
