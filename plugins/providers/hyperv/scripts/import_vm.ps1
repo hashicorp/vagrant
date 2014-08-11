@@ -15,6 +15,7 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 
 $vm_name = $vmconfig.configuration.properties.name.'#text'
 $processors = $vmconfig.configuration.settings.processors.count.'#text'
+$generation = [int]($vmconfig.configuration.properties.subtype.'#text')+1
 
 function GetUniqueName($name) {
     Get-VM | ForEach-Object -Process {
@@ -61,6 +62,7 @@ Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
 
 $vm_params = @{
     Name = $vm_name
+    Generation = $generation
     NoVHD = $True
     MemoryStartupBytes = $MemoryStartupBytes
     SwitchName = $switchname
