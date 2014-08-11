@@ -10,6 +10,7 @@ module VagrantPlugins
           options = {}
           options[:detach] = false
           options[:pty] = false
+          options[:rm] = true
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant docker-run [command...]"
@@ -23,6 +24,10 @@ module VagrantPlugins
 
             o.on("-t", "--[no-]tty", "Allocate a pty") do |t|
               options[:pty] = t
+            end
+
+            o.on("-r,", "--[no-]rm", "Remove container after execution") do |r|
+              options[:rm] = r
             end
           end
 
@@ -56,6 +61,7 @@ module VagrantPlugins
               run_command: command,
               run_detach: options[:detach],
               run_pty: options[:pty],
+              run_rm: options[:rm]
             )
           end
 
