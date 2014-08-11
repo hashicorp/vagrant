@@ -34,6 +34,8 @@ BUG FIXES:
   - core: Fix crash case when destroying with an invalid provisioner. [GH-4281]
   - core: Box names with colons work on Windows. [GH-4100]
   - core: Cleanup all temp files. [GH-4103]
+  - core: User curlrc is not loaded, preventing strange download issues.
+      [GH-4328]
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
   - communicators/ssh: Nicer error if remote unexpectedly disconects. [GH-4038]
