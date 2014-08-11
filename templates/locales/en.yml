@@ -1250,6 +1250,8 @@ en:
         hostname_invalid_characters: |-
           The hostname set for the VM should only contain letters, numbers,
           hyphens or dots. It cannot start with a hyphen or dot.
+        name_invalid: |-
+          The sub-VM name '%{name}' is invalid. Please don't use special characters.
         network_ip_ends_in_one: |-
           You assigned a static IP ending in ".1" to this machine.
           This is very often used by the router and can cause the

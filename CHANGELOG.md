@@ -36,6 +36,8 @@ BUG FIXES:
   - core: Cleanup all temp files. [GH-4103]
   - core: User curlrc is not loaded, preventing strange download issues.
       [GH-4328]
+  - core: VM names may no longer contain brackets, since they cause
+      issues with some providers. [GH-4319]
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
   - communicators/ssh: Nicer error if remote unexpectedly disconects. [GH-4038]
