@@ -132,6 +132,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     [
       "foo [1]",
       "bar {2}",
+      "foo/bar",
     ].each do |name|
       it "should disallow names with brackets" do
         subject.define name

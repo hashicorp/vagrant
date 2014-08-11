@@ -662,7 +662,7 @@ module VagrantPlugins
 
         # Validate sub-VMs if there are any
         @__defined_vms.each do |name, _|
-          if name =~ /[\[\]\{\}]/
+          if name =~ /[\[\]\{\}\/]/
             errors["vm"] << I18n.t(
               "vagrant.config.vm.name_invalid",
               name: name)
