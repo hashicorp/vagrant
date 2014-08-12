@@ -81,7 +81,7 @@ module VagrantPlugins
         end
 
         if @yum_repo_url == UNSET_VALUE
-          @yum_repo_url = "http://cfengine.com/pub/yum/"
+          @yum_repo_url = "http://cfengine.com/pub/yum/$basearch"
         end
 
         if @package_name == UNSET_VALUE
