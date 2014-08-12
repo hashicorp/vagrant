@@ -33,7 +33,7 @@ that the node can register with the Chef Server:
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.provision "chef_client" do |chef|
-    chef.chef_server_url = "http://mychefserver.com:4000/"
+    chef.chef_server_url = "http://mychefserver.com"
     chef.validation_key_path = "validation.pem"
   end
 end
