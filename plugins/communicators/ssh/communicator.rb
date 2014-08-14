@@ -169,6 +169,7 @@ module VagrantPlugins
           command:     command,
           shell:       nil,
           sudo:        false,
+          without_pty: false,
         }.merge(opts || {})
 
         opts[:good_exit] = Array(opts[:good_exit])
@@ -180,6 +181,7 @@ module VagrantPlugins
           shell_opts = {
             sudo: opts[:sudo],
             shell: opts[:shell],
+            without_pty: opts[:without_pty],
           }
 
           shell_execute(connection, command, **shell_opts) do |type, data|
@@ -405,7 +407,8 @@ module VagrantPlugins
       def shell_execute(connection, command, **opts)
         opts = {
           sudo: false,
-          shell: nil
+          shell: nil,
+          without_pty: false,
         }.merge(opts)
 
         sudo  = opts[:sudo]
@@ -423,7 +426,7 @@ module VagrantPlugins
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
-          if @machine.config.ssh.pty
+          if @machine.config.ssh.pty && !opts[:without_pty]
             ch.request_pty do |ch2, success|
               if success
                 @logger.debug("pty obtained for connection")
