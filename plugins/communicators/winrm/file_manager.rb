@@ -131,6 +131,7 @@ module VagrantPlugins
               exit 0
             }
           }
+          Write-Host "should upload file $dest_file_path"
           exit 1
         EOH
         @shell.powershell(cmd)[:exitcode] == 1
