@@ -17,6 +17,7 @@ module VagrantPlugins
             $hostname = "#{ps_info[:host]}"
             $password = ConvertTo-SecureString $plain_password -asplaintext -force
             $creds = New-Object System.Management.Automation.PSCredential ("$hostname\\$username", $password)
+            function prompt { kill $PID }
             Enter-PSSession -ComputerName $hostname -Credential $creds -Port $port
           EOS
 
@@ -30,7 +31,6 @@ module VagrantPlugins
             command = Base64.encode64(command).chomp
           end
 
-          # Build up the args to mstsc
           args = ["-NoProfile"]
           args << "-ExecutionPolicy"
           args << "Bypass"
