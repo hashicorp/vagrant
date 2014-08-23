@@ -1,5 +1,5 @@
 # Salt version to install
-$version = '2014.1.4'
+$version = '2014.1.10'
 
 # Create C:\tmp\ - if Vagrant doesn't upload keys and/or config it might not exist
 New-Item C:\tmp\ -ItemType directory | out-null
