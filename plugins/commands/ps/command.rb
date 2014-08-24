@@ -31,7 +31,7 @@ module VagrantPlugins
         # Check if the host even supports ps remoting
         raise Errors::HostUnsupported if !@env.host.capability?(:ps_client)
 
-        # Execute RDP if we can
+        # Execute ps session if we can
         with_target_vms(argv, single_target: true) do |machine|
           if !machine.communicate.ready?
             raise Vagrant::Errors::VMNotCreatedError
@@ -44,20 +44,57 @@ module VagrantPlugins
           ps_info = VagrantPlugins::CommunicatorWinRM::Helper.winrm_info(machine)
           ps_info[:username] = machine.config.winrm.username
           ps_info[:password] = machine.config.winrm.password
-
-          # raise Errors::RDPUndetected if !rdp_info
-
           # Extra arguments if we have any
           ps_info[:extra_args] = options[:extra_args]
+
+          result = ready_ps_remoting_for machine, ps_info
 
           machine.ui.detail(
             "Creating powershell session to #{ps_info[:host]}:#{ps_info[:port]}")
           machine.ui.detail("Username: #{ps_info[:username]}")
 
-          @env.host.capability(:ps_client, ps_info)
+          begin
+            @env.host.capability(:ps_client, ps_info)
+          ensure
+            if !result["PreviousTrustedHosts"].nil?
+              reset_ps_remoting_for machine, ps_info
+            end
+          end
         end
       end
 
+      def ready_ps_remoting_for(machine, ps_info)
+        machine.ui.output(I18n.t("vagrant_ps.detecting"))
+        script_path = File.expand_path("../scripts/enable_psremoting.ps1", __FILE__)
+        args = []
+        args << "-hostname" << ps_info[:host]
+        args << "-port" << ps_info[:port].to_s
+        args << "-username" << ps_info[:username]
+        args << "-password" << ps_info[:password]
+        result = Vagrant::Util::PowerShell.execute(script_path, *args)
+        if result.exit_code != 0
+          raise Errors::PowershellError,
+            script: script_path,
+            stderr: result.stderr
+        end
+
+        result_output = JSON.parse(result.stdout)
+        raise Errors::PSRemotingUndetected if !result_output["Success"]
+        result_output
+      end
+
+      def reset_ps_remoting_for(machine, ps_info)
+        machine.ui.output(I18n.t("vagrant_ps.reseting"))
+        script_path = File.expand_path("../scripts/reset_trustedhosts.ps1", __FILE__)
+        args = []
+        args << "-hostname" << ps_info[:host]
+        result = Vagrant::Util::PowerShell.execute(script_path, *args)
+        if result.exit_code != 0
+          raise Errors::PowershellError,
+            script: script_path,
+            stderr: result.stderr
+        end
+      end
     end
   end
 end
