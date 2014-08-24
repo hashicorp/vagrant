@@ -54,7 +54,7 @@ module VagrantPlugins
       def powershell(command, &block)
         # ensure an exit code
         command << "\r\n"
-        command << "if ($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 0 }"
+        command << "if ($?) { exit 0 } else { if($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 1 } }"
         execute_shell(command, :powershell, &block)
       end
 
