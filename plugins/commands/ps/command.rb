@@ -14,6 +14,14 @@ module VagrantPlugins
 
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant ps [-- extra ps args]"
+
+          o.separator ""
+          o.separator "Options:"
+          o.separator ""
+
+          o.on("-c", "--command COMMAND", "Execute a powershell command directly") do |c|
+            options[:command] = c
+          end
         end
 
         # Parse out the extra args to send to the ps session, which
@@ -39,6 +47,14 @@ module VagrantPlugins
 
           if machine.config.vm.communicator != :winrm #|| !machine.provider.capability?(:winrm_info)
             raise VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady
+          end
+
+          if !options[:command].nil?
+            out_code = machine.communicate.execute options[:command]
+            if out_code == 0
+              machine.ui.detail("Command: #{options[:command]} executed succesfully with output code #{out_code}.")
+            end
+            break
           end
 
           ps_info = VagrantPlugins::CommunicatorWinRM::Helper.winrm_info(machine)
