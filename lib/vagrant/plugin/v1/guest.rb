@@ -5,7 +5,7 @@ module Vagrant
       # within a machine that Vagrant manages. There are some portions of
       # Vagrant which are OS-specific such as mountaing shared folders and
       # halting the machine, and this abstraction allows the implementation
-      # for these to be seperate from the core of Vagrant.
+      # for these to be separate from the core of Vagrant.
       class Guest
         class BaseError < Errors::VagrantError
           error_namespace("vagrant.guest.base")

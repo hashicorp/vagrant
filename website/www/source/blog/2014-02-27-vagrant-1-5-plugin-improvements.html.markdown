@@ -38,7 +38,7 @@ no dependency resolution took place:
 * Plugin A depends on "foo >= 1.0, < 1.5".
 * Plugin B depends on "foo = 1.1"
 * When Plugin A is loaded, it would load the latest version satisfying
-  its contraints. This might be "foo 1.4".
+  its constraints. This might be "foo 1.4".
 * When Plugin B is loaded, it would try to load "foo 1.1" but since
   "foo 1.4" is already loaded, it would fail!
 

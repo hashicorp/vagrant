@@ -2055,7 +2055,7 @@ Note: 0.8.3 and 0.8.4 was yanked due to RubyGems encoding issue.
     `localhost` is not always loopback.
   - New `shell` provisioner which simply uploads and executes a script as
     root on the VM.
-  - Gentoo host only networking no longer fails if alrady setup. [GH-286]
+  - Gentoo host only networking no longer fails if already setup. [GH-286]
   - Set the host name of your guest OS with `config.vm.host_name` [GH-273]
   - `vagrant ssh-config` now outputs the configured `config.ssh.host`
 

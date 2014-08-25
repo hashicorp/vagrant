@@ -76,7 +76,7 @@ describe Vagrant::Machine do
     end
 
     describe "provider initialization" do
-      # This is a helper that generates a test for provider intialization.
+      # This is a helper that generates a test for provider initialization.
       # This is a separate helper method because it takes a block that can
       # be used to have additional tests on the received machine.
       #

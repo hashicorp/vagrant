@@ -129,7 +129,7 @@ have three choices out of the box for synced folders: VM shared folders,
 NFS, or rsync.
 
 NFS and VM shared folders are _not deprecated in any way_ and will be
-fully supported and improved for the forseeable future. Vagrant has always
+fully supported and improved for the foreseeable future. Vagrant has always
 been about choice and working with the technologies that work best for you
 and your team and rsync is now another really great choice Vagrant offers you.
 

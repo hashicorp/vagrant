@@ -122,7 +122,7 @@ module Vagrant
           end
         end
 
-        # This is pulled out into a seperate method so that users can
+        # This is pulled out into a separate method so that users can
         # subclass and implement custom behavior if they'd like to work around
         # this step.
         def run_provisioner(env)
