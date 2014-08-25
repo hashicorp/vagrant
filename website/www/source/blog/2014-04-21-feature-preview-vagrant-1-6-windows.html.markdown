@@ -50,7 +50,7 @@ Vagrant is able to communicate with Windows over either **SSH** or
 **WinRM**. WinRM is more conventional, but if you have Cygwin installed with
 an SSH server, Vagrant is able to use that too.
 
-The support for WinRM is new in 1.6. For backwards compatibily reasons,
+The support for WinRM is new in 1.6. For backwards compatibility reasons,
 you must explicitly tell Vagrant when to use WinRM:
 
 ```
