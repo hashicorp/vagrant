@@ -401,6 +401,9 @@ module VagrantPlugins
         return yield connection if block_given?
       end
 
+      DELIM_START = 'UniqueStartStringPTY'
+      DELIM_END = 'UniqueEndStringPTY'
+
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, **opts)
         opts = {
@@ -421,10 +424,14 @@ module VagrantPlugins
         shell_cmd = shell if shell
         shell_cmd = "sudo -E -H #{shell_cmd}" if sudo
 
+        use_tty = false
+        stdout = ''
+
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
           if @machine.config.ssh.pty
             ch.request_pty do |ch2, success|
+              use_tty = success and command != ''
               if success
                 @logger.debug("pty obtained for connection")
               else
@@ -439,7 +446,11 @@ module VagrantPlugins
               # Filter out the clear screen command
               data = remove_ansi_escape_codes(data)
               @logger.debug("stdout: #{data}")
-              yield :stdout, data if block_given?
+              if use_tty
+                stdout << data
+              else
+                yield :stdout, data if block_given?
+              end
             end
 
             ch2.on_extended_data do |ch3, type, data|
@@ -487,14 +498,29 @@ module VagrantPlugins
             end
 
             # Output the command
-            ch2.send_data "#{command}\n".force_encoding('ASCII-8BIT')
+            if use_tty
+              ch2.send_data "stty raw -echo\n"
+              ch2.send_data "export PS1=\n"
+              ch2.send_data "export PS2=\n"
+              ch2.send_data "export PROMPT_COMMAND=\n"
+              sleep(0.1)
+              data = "printf #{DELIM_START}\n"
+              data += "#{command}\n"
+              data += "printf #{DELIM_END}\n"
+              data = data.force_encoding('ASCII-8BIT')
+              ch2.send_data data
+            else
+              ch2.send_data "#{command}\n".force_encoding('ASCII-8BIT')
+            end
 
             # Remember to exit or this channel will hang open
             ch2.send_data "exit\n"
 
             # Send eof to let server know we're done
             ch2.eof!
+            ch2.wait
           end
+          ch.wait
         end
 
         begin
@@ -528,6 +554,17 @@ module VagrantPlugins
         ensure
           # Kill the keep-alive thread
           keep_alive.kill if keep_alive
+        end
+
+        if use_tty
+          @logger.debug("stdout: #{stdout}")
+          if not stdout.include? DELIM_START or not stdout.include? DELIM_END
+            @logger.error("Error parsing TTY output")
+            raise Vagrant::Errors::SSHInvalidShell.new
+          end
+          data = stdout[/.*#{DELIM_START}(.*?)#{DELIM_END}/m, 1]
+          @logger.debug("selected stdout: #{data}")
+          yield :stdout, data if block_given?
         end
 
         # Return the final exit status
