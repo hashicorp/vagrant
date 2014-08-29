@@ -18,11 +18,6 @@ module VagrantPlugins
                     "Enable only certain provisioners, by type.") do |list|
             options[:provision_types] = list.map { |type| type.to_sym }
           end
-
-          o.on("--[no-]parallel",
-               "Enable or disable parallelism if provider supports it.") do |parallel|
-            options[:parallel] = parallel
-          end
         end
 
         # Parse the options
