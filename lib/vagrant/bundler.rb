@@ -25,20 +25,13 @@ module Vagrant
 
       @gem_home = ENV["GEM_HOME"]
       @gem_path = ENV["GEM_PATH"]
-    end
-
-    # Initializes Bundler and the various gem paths so that we can begin
-    # loading gems. This must only be called once.
-    def init!(plugins)
-      # If we're not enabled, then we don't do anything.
-      return if !@enabled
 
       # Set the Bundler UI to be a silent UI. We have to add the
       # `silence` method to it because Bundler UI doesn't have it.
       ::Bundler.ui =
         if ::Bundler::UI.const_defined? :Silent
-          # bundler >= 1.6.0
-          ::Bundler::UI::Silent.new
+          # bundler >= 1.6.0, we use our custom UI
+          BundlerUI.new
         else
           # bundler < 1.6.0
           ::Bundler::UI.new
@@ -49,6 +42,13 @@ module Vagrant
           yield
         end
       end
+    end
+
+    # Initializes Bundler and the various gem paths so that we can begin
+    # loading gems. This must only be called once.
+    def init!(plugins)
+      # If we're not enabled, then we don't do anything.
+      return if !@enabled
 
       bundle_path = Vagrant.user_data_path.join("gems")
 
@@ -233,6 +233,18 @@ module Vagrant
     rescue ::Bundler::VersionConflict => e
       raise Errors::PluginInstallVersionConflict,
         conflicts: e.to_s.gsub("Bundler", "Vagrant")
+    rescue ::Bundler::BundlerError => e
+      if !::Bundler.ui.is_a?(BundlerUI)
+        raise
+      end
+
+      # Add the warn/error level output from Bundler if we have any
+      message = "#{e.message}"
+      if ::Bundler.ui.output != ""
+        message += "\n\n#{::Bundler.ui.output}"
+      end
+
+      raise ::Bundler::BundlerError, message
     end
 
     def with_isolated_gem
@@ -296,6 +308,60 @@ module Vagrant
         @hash           = {}
         @update_sources = true
         @verbose        = true
+      end
+    end
+
+    if ::Bundler::UI.const_defined? :Silent
+      class BundlerUI < ::Bundler::UI::Silent
+        attr_reader :output
+
+        def initialize
+          @output = ""
+        end
+
+        def info(message, newline = nil)
+        end
+
+        def confirm(message, newline = nil)
+        end
+
+        def warn(message, newline = nil)
+          @output += message
+          @output += "\n" if newline
+        end
+
+        def error(message, newline = nil)
+          @output += message
+          @output += "\n" if newline
+        end
+
+        def debug(message, newline = nil)
+        end
+
+        def debug?
+          false
+        end
+
+        def quiet?
+          false
+        end
+
+        def ask(message)
+        end
+
+        def level=(name)
+        end
+
+        def level(name = nil)
+          "info"
+        end
+
+        def trace(message, newline = nil)
+        end
+
+        def silence
+          yield
+        end
       end
     end
   end

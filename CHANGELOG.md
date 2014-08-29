@@ -16,6 +16,8 @@ IMPROVEMENTS:
       100%. Memory requirements have gone down by half. [GH-4090]
   - commands/docker-run: Add the `--no-rm` flag. Containers are
       deleted by default. [GH-4327]
+  - commands/plugin: Better error output is shown when plugin installation
+      fails.
   - commands/reload: show post up messsage [GH-4168]
   - communicators/winrm: Show stdout/stderr if command fails. [GH-4094]
   - guests/nixos: Added better NFS support. [GH-3983]
