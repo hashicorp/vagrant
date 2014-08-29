@@ -60,17 +60,17 @@ module VagrantPlugins
           rdp_info ||= {}
         end
 
-        ssh_info = machine.ssh_info
+        communicator_info = machine.communicator_info
 
         if !rdp_info[:username]
-          username = ssh_info[:username]
+          username = communicator_info[:username]
           if machine.config.vm.communicator == :winrm
             username = machine.config.winrm.username
           end
           rdp_info[:username] = username
         end
 
-        rdp_info[:host] ||= ssh_info[:host]
+        rdp_info[:host] ||= communicator_info[:host]
         rdp_info[:port] ||= machine.config.rdp.port
 
         if rdp_info[:host] == "127.0.0.1"

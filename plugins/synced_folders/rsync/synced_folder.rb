@@ -38,14 +38,14 @@ module VagrantPlugins
           end
         end
 
-        ssh_info = machine.ssh_info
+        communicator_info = machine.communicator_info
 
-        if ssh_info[:private_key_path].empty? && ssh_info[:password]
+        if communicator_info[:private_key_path].empty? && communicator_info[:password]
           machine.ui.warn(I18n.t("vagrant.rsync_ssh_password"))
         end
 
         folders.each do |id, folder_opts|
-          RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
+          RsyncHelper.rsync_single(machine, communicator_info, folder_opts)
         end
       end
     end

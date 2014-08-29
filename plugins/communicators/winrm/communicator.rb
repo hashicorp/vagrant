@@ -40,8 +40,8 @@ module VagrantPlugins
         @logger.info("WinRM not up: #{e.inspect}")
 
         # We reset the shell to trigger calling of winrm_finder again.
-        # This resolves a problem when using vSphere where the ssh_info was not refreshing
-        # thus never getting the correct hostname.
+        # This resolves a problem when using vSphere where the communicator_info
+        # was not refreshing thus never getting the correct hostname.
         @shell = nil
         return false
       end

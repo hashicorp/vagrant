@@ -112,7 +112,7 @@ module VagrantPlugins
         end
 
         # This is used for defaulting the owner/group
-        ssh_info = machine.ssh_info
+        communicator_info = machine.communicator_info
 
         folders.each do |id, data|
           data = data.dup
@@ -121,8 +121,8 @@ module VagrantPlugins
           data[:smb_password] ||= @creds[:password]
 
           # Default the owner/group of the folder to the SSH user
-          data[:owner] ||= ssh_info[:username]
-          data[:group] ||= ssh_info[:username]
+          data[:owner] ||= communicator_info[:username]
+          data[:group] ||= communicator_info[:username]
 
           machine.ui.detail(I18n.t(
             "vagrant_sf_smb.mounting_single",
@@ -158,8 +158,8 @@ module VagrantPlugins
             begin
               options = { share_name: data[:share_name],
                           guest_path: data[:guestpath].gsub("/", "\\"),
-                          guest_ip: ssh_info[:host],
-                          username: ssh_info[:username],
+                          guest_ip: communicator_info[:host],
+                          username: communicator_info[:username],
                           host_ip: result["host_ip"],
                           password: @env[:machine].provider_config.guest.password,
                           host_share_username: @env[:machine].provider_config.host_share.username,

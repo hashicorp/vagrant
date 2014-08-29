@@ -31,7 +31,7 @@ module VagrantPlugins
         Regexp.new(regexp)
       end
 
-      def self.rsync_single(machine, ssh_info, opts)
+      def self.rsync_single(machine, communicator_info, opts)
         # Folder info
         guestpath = opts[:guestpath]
         hostpath  = opts[:hostpath]
@@ -50,23 +50,23 @@ module VagrantPlugins
         end
 
         # Folder options
-        opts[:owner] ||= ssh_info[:username]
-        opts[:group] ||= ssh_info[:username]
+        opts[:owner] ||= communicator_info[:username]
+        opts[:group] ||= communicator_info[:username]
 
         # Connection information
-        username = ssh_info[:username]
-        host     = ssh_info[:host]
+        username = communicator_info[:username]
+        host     = communicator_info[:host]
         proxy_command = ""
-        if ssh_info[:proxy_command]
-          proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' "
+        if communicator_info[:proxy_command]
+          proxy_command = "-o ProxyCommand='#{communicator_info[:proxy_command]}' "
         end
 
         rsh = [
-          "ssh -p #{ssh_info[:port]} " +
+          "ssh -p #{communicator_info[:port]} " +
           proxy_command +
           "-o StrictHostKeyChecking=no " +
           "-o UserKnownHostsFile=/dev/null",
-          ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
+          communicator_info[:private_key_path].map { |p| "-i '#{p}'" },
         ].flatten.join(" ")
 
         # Exclude some files by default, and any that might be configured

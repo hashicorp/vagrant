@@ -7,10 +7,10 @@ describe Vagrant::Action::Builtin::SSHExec do
   let(:env) { { machine: machine } }
   let(:machine) do
     result = double("machine")
-    allow(result).to receive(:ssh_info).and_return(machine_ssh_info)
+    allow(result).to receive(:communicator_info).and_return(machine_communicator_info)
     result
   end
-  let(:machine_ssh_info) { {} }
+  let(:machine_communicator_info) { {} }
   let(:ssh_klass) { Vagrant::Util::SSH }
 
   before(:each) do
@@ -22,7 +22,7 @@ describe Vagrant::Action::Builtin::SSHExec do
 
   it "should raise an exception if SSH is not ready" do
     not_ready_machine = double("machine")
-    allow(not_ready_machine).to receive(:ssh_info).and_return(nil)
+    allow(not_ready_machine).to receive(:communicator_info).and_return(nil)
 
     env[:machine] = not_ready_machine
     expect { described_class.new(app, env).call(env) }.
@@ -31,7 +31,7 @@ describe Vagrant::Action::Builtin::SSHExec do
 
   it "should check key permissions then exec" do
     key_path = "/foo"
-    machine_ssh_info[:private_key_path] = [key_path]
+    machine_communicator_info[:private_key_path] = [key_path]
 
     expect(ssh_klass).to receive(:check_key_permissions).
       with(Pathname.new(key_path)).
@@ -39,7 +39,7 @@ describe Vagrant::Action::Builtin::SSHExec do
       ordered
 
     expect(ssh_klass).to receive(:exec).
-      with(machine_ssh_info, nil).
+      with(machine_communicator_info, nil).
       once.
       ordered
 
@@ -47,12 +47,12 @@ describe Vagrant::Action::Builtin::SSHExec do
   end
 
   it "should exec with the SSH info in the env if given" do
-    ssh_info = { foo: :bar }
+    communicator_info = { foo: :bar }
 
     expect(ssh_klass).to receive(:exec).
-      with(ssh_info, nil)
+      with(communicator_info, nil)
 
-    env[:ssh_info] = ssh_info
+    env[:ssh_info] = communicator_info
     described_class.new(app, env).call(env)
   end
 
@@ -60,7 +60,7 @@ describe Vagrant::Action::Builtin::SSHExec do
     ssh_opts = { foo: :bar }
 
     expect(ssh_klass).to receive(:exec).
-      with(machine_ssh_info, ssh_opts)
+      with(machine_communicator_info, ssh_opts)
 
     env[:ssh_opts] = ssh_opts
     described_class.new(app, env).call(env)

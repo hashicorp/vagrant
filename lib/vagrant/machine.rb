@@ -352,6 +352,32 @@ module Vagrant
       end
     end
 
+    # This returns the communicator info for accessing this machine. This info
+    # is queried from the underlying provider. This method returns `nil` if
+    # the machine is not ready for SSH or WinRM communication.
+    #
+    # The structure of the resulting hash is guaranteed to contain the
+    # following structure, although it may return other keys as well
+    # not documented here:
+    #
+    #     {
+    #       host: "1.2.3.4",
+    #       port: "22",
+    #       username: "mitchellh",
+    #       private_key_path: "/path/to/my/key"
+    #     }
+    #
+    # Note that Vagrant makes no guarantee that this info works or is
+    # correct. This is simply the data that the provider gives us or that
+    # is configured via a Vagrantfile. It is still possible after this
+    # point when attempting to connect via SSH to get authentication
+    # errors.
+    #
+    # @return [Hash] SSH information.
+    def communicator_info
+      return ssh_info
+    end
+
     # This returns the SSH info for accessing this machine. This SSH info
     # is queried from the underlying provider. This method returns `nil` if
     # the machine is not ready for SSH communication.

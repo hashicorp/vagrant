@@ -43,9 +43,9 @@ module VagrantPlugins
             data = data.dup
 
             # Calculate the owner and group
-            ssh_info = machine.ssh_info
-            data[:owner] ||= ssh_info[:username]
-            data[:group] ||= ssh_info[:username]
+            communicator_info = machine.communicator_info
+            data[:owner] ||= communicator_info[:username]
+            data[:group] ||= communicator_info[:username]
 
             # Mount the actual folder
             machine.guest.capability(

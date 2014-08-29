@@ -29,18 +29,18 @@ module VagrantPlugins
         return if !argv
 
         with_target_vms(argv) do |machine|
-          ssh_info = machine.ssh_info
-          raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
+          communicator_info = machine.communicator_info
+          raise Vagrant::Errors::SSHNotReady if communicator_info.nil?
 
           variables = {
             host_key: options[:host] || machine.name || "vagrant",
-            ssh_host: ssh_info[:host],
-            ssh_port: ssh_info[:port],
-            ssh_user: ssh_info[:username],
-            private_key_path: ssh_info[:private_key_path],
-            forward_agent: ssh_info[:forward_agent],
-            forward_x11:   ssh_info[:forward_x11],
-            proxy_command: ssh_info[:proxy_command]
+            ssh_host: communicator_info[:host],
+            ssh_port: communicator_info[:port],
+            ssh_user: communicator_info[:username],
+            private_key_path: communicator_info[:private_key_path],
+            forward_agent: communicator_info[:forward_agent],
+            forward_x11:   communicator_info[:forward_x11],
+            proxy_command: communicator_info[:proxy_command]
           }
 
           # Render the template and output directly to STDOUT

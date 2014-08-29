@@ -32,9 +32,9 @@ module VagrantPlugins
         addr = machine.config.winrm.host
         return addr if addr
 
-        ssh_info = machine.ssh_info
-        raise Errors::WinRMNotReady if !ssh_info
-        return ssh_info[:host]
+        communicator_info = machine.communicator_info
+        raise Errors::WinRMNotReady if !communicator_info
+        return communicator_info[:host]
       end
 
       # Returns the port to access WinRM.

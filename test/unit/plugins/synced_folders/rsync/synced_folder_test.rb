@@ -42,12 +42,12 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
   end
 
   describe "#enable" do
-    let(:ssh_info) {{
+    let(:communicator_info) {{
       private_key_path: [],
     }}
 
     before do
-      machine.stub(ssh_info: ssh_info)
+      machine.stub(communicator_info: communicator_info)
       allow(guest).to receive(:capability?).with(:rsync_installed)
     end
 
@@ -59,7 +59,7 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
 
       folders.each do |_, opts|
         expect(helper_class).to receive(:rsync_single).
-          with(machine, ssh_info, opts).
+          with(machine, communicator_info, opts).
           ordered
       end
 
