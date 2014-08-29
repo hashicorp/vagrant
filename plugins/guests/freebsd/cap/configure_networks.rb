@@ -27,7 +27,7 @@ module VagrantPlugins
             end
 
             entry  = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
-                                            options: network)
+                                            options: network, ifname: ifname)
 
             # Write the entry to a temporary location
             temp = Tempfile.new("vagrant")
