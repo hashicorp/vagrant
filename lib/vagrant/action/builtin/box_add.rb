@@ -481,7 +481,7 @@ module Vagrant
           end
 
           output = d.head
-          match  = output.scan(/^Content-Type: (.+?)$/).last
+          match  = output.scan(/^Content-Type: (.+?)$/i).last
           return false if !match
           match.last.chomp == "application/json"
         end

@@ -46,6 +46,8 @@ BUG FIXES:
       as root. [GH-4387]
   - core: "vagrant provision" will cause "vagrant up" to properly not
       reprovision. [GH-4393]
+  - commands/box/add: "Content-Type" header is now case-insensitive when
+      looking for metadata type. [GH-4369]
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
   - commands/ssh: Extra args are passed through to Docker container. [GH-4378]
