@@ -128,7 +128,7 @@ module Vagrant
         @logger.debug("Selecting on IO")
         while true
           writers = notify_stdin ? [process.io.stdin] : []
-          results = ::IO.select([stdout, stderr], writers, nil, timeout || 0.1)
+          results = ::IO.select([stdout, stderr], writers, nil, 0.1)
           results ||= []
           readers = results[0]
           writers = results[1]
