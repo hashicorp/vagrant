@@ -799,6 +799,15 @@ en:
         the proper location.
       multi_vm_target_required: |-
         This command requires a specific VM name to target in a multi-VM environment.
+      net_ssh_exception: |-
+        An error occurred in the underlying SSH library that Vagrant uses.
+        The error message is shown below. In many cases, errors from this
+        library are caused by ssh-agent issues. Try disabling your SSH
+        agent or removing some keys and try again.
+
+        If the problem persists, please report a bug to the net-ssh project.
+
+        %{message}
       nfs_bad_exports: |-
         NFS is reporting that your exports file is invalid. Vagrant does
         this check before making any changes to the file. Please correct

@@ -390,6 +390,9 @@ module VagrantPlugins
         rescue Errno::EHOSTUNREACH
           # This is raised if we can't work out how to route traffic.
           raise Vagrant::Errors::SSHNoRoute
+        rescue Net::SSH::Exception => e
+          # This is an internal error in Net::SSH
+          raise Vagrant::Errors::NetSSHException, message: e.message
         rescue NotImplementedError
           # This is raised if a private key type that Net-SSH doesn't support
           # is used. Show a nicer error.

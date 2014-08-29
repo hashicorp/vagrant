@@ -428,6 +428,10 @@ module Vagrant
       error_key(:multi_vm_target_required)
     end
 
+    class NetSSHException < VagrantError
+      error_key(:net_ssh_exception)
+    end
+
     class NetworkCollision < VagrantError
       error_key(:collides, "vagrant.actions.vm.host_only_network")
     end
