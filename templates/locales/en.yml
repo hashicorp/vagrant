@@ -750,6 +750,10 @@ en:
         can work properly. The command attempted was:
 
         %{command}
+
+        The error output from the last command was:
+
+        %{output}
       linux_nfs_mount_failed: |-
         Mounting NFS shared folders failed. This is most often caused by the NFS
         client software not being installed on the guest machine. Please verify

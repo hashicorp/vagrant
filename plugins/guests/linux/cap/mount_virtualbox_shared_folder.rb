@@ -41,10 +41,15 @@ module VagrantPlugins
           while true
             success = true
 
+            stderr = ""
             mount_commands.each do |command|
               no_such_device = false
+              stderr = ""
               status = machine.communicate.sudo(command, error_check: false) do |type, data|
-                no_such_device = true if type == :stderr && data =~ /No such device/i
+                if type == :stderr
+                  no_such_device = true if data =~ /No such device/i
+                  stderr += data.to_s
+                end
               end
 
               success = status == 0 && !no_such_device
@@ -56,7 +61,8 @@ module VagrantPlugins
             attempts += 1
             if attempts > 10
               raise Vagrant::Errors::LinuxMountFailed,
-                command: mount_commands.join("\n")
+                command: mount_commands.join("\n"),
+                output: stderr
             end
 
             sleep 2
