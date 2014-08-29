@@ -11,7 +11,9 @@ module VagrantPlugins
         @machine.communicate.tap do |comm|
           images.each do |path, opts|
             @machine.ui.info(I18n.t("vagrant.docker_building_single", path: path))
-            comm.sudo("docker build #{opts[:args]} #{path}")
+            comm.sudo("docker build #{opts[:args]} #{path}") do |type, data|
+              handle_comm(type, data)
+            end
           end
         end
       end
@@ -20,7 +22,9 @@ module VagrantPlugins
         @machine.communicate.tap do |comm|
           images.each do |image|
             @machine.ui.info(I18n.t("vagrant.docker_pulling_single", name: image))
-            comm.sudo("docker pull #{image}")
+            comm.sudo("docker pull #{image}") do |type, data|
+              handle_comm(type, data)
+            end
           end
         end
       end
@@ -104,6 +108,26 @@ module VagrantPlugins
                    comm.test("#{docker_ps} -notrunc | grep -wFq #{id}")
         end
       end
+      
+      protected
+
+      # This handles outputting the communication data back to the UI
+      def handle_comm(type, data)
+        if [:stderr, :stdout].include?(type)
+          # Output the data with the proper color based on the stream.
+          color = type == :stdout ? :green : :red
+
+          # Clear out the newline since we add one
+          data = data.chomp
+          return if data.empty?
+
+          options = {}
+          #options[:color] = color if !config.keep_color
+
+          @machine.ui.info(data.chomp, options)
+        end
+      end
+
     end
   end
 end
