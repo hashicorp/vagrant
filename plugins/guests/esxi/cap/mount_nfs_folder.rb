@@ -20,7 +20,7 @@ module VagrantPlugins
 
               # symlink vmfs volume to :guestpath
               if comm.test("test -L '#{guestpath}'")
-                comm.execute("rm '#{guestpath}'")
+                comm.execute("rm -f '#{guestpath}'")
               end
               if comm.test("test -d '#{guestpath}'")
                 comm.execute("rmdir '#{guestpath}'")

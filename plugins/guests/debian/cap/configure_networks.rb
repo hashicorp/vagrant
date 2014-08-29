@@ -15,7 +15,7 @@ module VagrantPlugins
             # from the interface file.
             comm.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces")
             comm.sudo("su -c 'cat /tmp/vagrant-network-interfaces > /etc/network/interfaces'")
-            comm.sudo("rm /tmp/vagrant-network-interfaces")
+            comm.sudo("rm -f /tmp/vagrant-network-interfaces")
 
             # Accumulate the configurations to add to the interfaces file as
             # well as what interfaces we're actually configuring since we use that
@@ -48,7 +48,7 @@ module VagrantPlugins
             end
 
             comm.sudo("cat /tmp/vagrant-network-entry >> /etc/network/interfaces")
-            comm.sudo("rm /tmp/vagrant-network-entry")
+            comm.sudo("rm -f /tmp/vagrant-network-entry")
 
             # Bring back up each network interface, reconfigured
             interfaces.each do |interface|

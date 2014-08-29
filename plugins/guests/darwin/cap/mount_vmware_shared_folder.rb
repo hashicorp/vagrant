@@ -12,7 +12,7 @@ module VagrantPlugins
           machine.communicate.tap do |comm|
             # clear prior symlink
             if comm.test("test -L \"#{guestpath}\"", sudo: true)
-              comm.sudo("rm \"#{guestpath}\"")
+              comm.sudo("rm -f \"#{guestpath}\"")
             end
 
             # clear prior directory if exists
