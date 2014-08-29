@@ -506,15 +506,17 @@ module VagrantPlugins
               sleep(0.1)
               data = "printf #{DELIM_START}\n"
               data += "#{command}\n"
+              data += "exitcode=$?\n"
               data += "printf #{DELIM_END}\n"
               data = data.force_encoding('ASCII-8BIT')
               ch2.send_data data
+              # Remember to exit or this channel will hang open
+              ch2.send_data "exit $exitcode\n"
             else
               ch2.send_data "#{command}\n".force_encoding('ASCII-8BIT')
+              # Remember to exit or this channel will hang open
+              ch2.send_data "exit\n"
             end
-
-            # Remember to exit or this channel will hang open
-            ch2.send_data "exit\n"
 
             # Send eof to let server know we're done
             ch2.eof!
@@ -546,6 +548,7 @@ module VagrantPlugins
             @logger.info(
               "SSH connection unexpected closed. Assuming reboot or something.")
             exit_status = 0
+            use_tty = false
           rescue Net::SSH::ChannelOpenFailed
             raise Vagrant::Errors::SSHChannelOpenFail
           rescue Net::SSH::Disconnect
