@@ -80,6 +80,12 @@ module VagrantPlugins
 
         def update_vms(argv)
           with_target_vms(argv) do |machine|
+            if !machine.config.vm.box
+              machine.ui.output(I18n.t(
+                "vagrant.errors.box_update_no_name"))
+              next
+            end
+
             if !machine.box
               machine.ui.output(I18n.t(
                 "vagrant.errors.box_update_no_box",

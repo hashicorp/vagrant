@@ -545,6 +545,8 @@ en:
         directly instead of from a box catalog. Vagrant can only
         check the versions of boxes that were added from a catalog
         such as from the public Vagrant Server.
+      box_update_no_name: |-
+        This machine doesn't have a box. Won't update anything.
       bundler_disabled: |-
         Vagrant's built-in bundler management mechanism is disabled because
         Vagrant is running in an external bundler environment. In these
