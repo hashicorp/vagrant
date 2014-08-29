@@ -370,14 +370,74 @@ module Vagrant
     # Note that Vagrant makes no guarantee that this info works or is
     # correct. This is simply the data that the provider gives us or that
     # is configured via a Vagrantfile. It is still possible after this
-    # point when attempting to connect via SSH to get authentication
-    # errors.
+    # point when attempting to connect to get authentication errors.
     #
-    # @return [Hash] SSH information.
+    # @return [Hash] Communicator WinRM/SSH information.
     def communicator_info
-      return ssh_info
+      if @config.vm.communicator == :winrm
+        return winrm_info
+      else
+        return ssh_info
+      end
     end
 
+    # Use communicator_info instead
+    #
+    # This returns the WinRM info for accessing this machine. This info
+    # is queried from the underlying provider. This method returns `nil` if
+    # the machine is not ready for WinRM communication.
+    #
+    # The structure of the resulting hash is guaranteed to contain the
+    # following structure, although it may return other keys as well
+    # not documented here:
+    #
+    #     {
+    #       host: "1.2.3.4",
+    #       port: "5985",
+    #       username: "sneal",
+    #       password: "secret"
+    #     }
+    #
+    # Note that Vagrant makes no guarantee that this info works or is
+    # correct. This is simply the data that the provider gives us or that
+    # is configured via a Vagrantfile. It is still possible after this
+    # point when attempting to connect to get WinRM authentication errors.
+    #
+    # @return [Hash] WinRM information.
+    def winrm_info
+      # Providers need to natively support WinRM, but not all do
+      if @provider.capability?(:winrm_info)
+        @logger.debug('Found winrm_info provider capability')
+        info = @provider.capability(:winrm_info)
+        return nil if info.nil?
+      else
+        @logger.warn(
+          "The current provider doesn't implement the winrm_info capability. " +
+          "Using the provider's SSH info to get the VM address. This will be " +
+          "removed in a future version of Vagrant.")
+
+        # If the VM is not running that we can't possibly connect to it
+        ssh_info = @provider.ssh_info
+        return nil if ssh_info.nil?
+
+        # Attempt to use the SSH host address from the provider
+        info = { }
+        info[:host] = ssh_info[:host]
+      end
+
+      # Always use the config settings if specified
+      info[:host] = @config.winrm.host if @config.winrm.host
+
+      # TODO: Config values should override provider data (need to remove default config values)
+      info[:port] ||= @config.winrm.port
+      info[:username] ||= @config.winrm.username
+      info[:password] ||= @config.winrm.password
+
+      return info
+    end
+
+    # Use communicator_info instead
+    # 
     # This returns the SSH info for accessing this machine. This SSH info
     # is queried from the underlying provider. This method returns `nil` if
     # the machine is not ready for SSH communication.

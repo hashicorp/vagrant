@@ -33,6 +33,11 @@ module VagrantPlugins
         require_relative "cap"
         Cap
       end
+
+      provider_capability(:virtualbox, :winrm_info) do
+        require_relative "cap"
+        Cap
+      end
     end
 
     autoload :Action, File.expand_path("../action", __FILE__)
