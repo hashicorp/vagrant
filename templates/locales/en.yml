@@ -867,6 +867,11 @@ en:
         The license file to install could not be found. Please verify
         the path you gave is correct. The path to the license file given
         was: '%{path}'
+      plugin_install_space: |-
+        The directory where plugins are installed (the Vagrant home directory)
+        has a space in it. On Windows, there is a bug in Ruby when compiling
+        plugins into directories with spaces. Please move your Vagrant home
+        directory to a path without spaces and try again.
       plugin_install_version_conflict: |-
         The plugin(s) can't be installed due to the version conflicts below.
         This means that the plugins depend on a library version that conflicts

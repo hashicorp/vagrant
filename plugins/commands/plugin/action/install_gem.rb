@@ -1,5 +1,6 @@
 require "log4r"
 require "vagrant/plugin/manager"
+require "vagrant/util/platform"
 
 module VagrantPlugins
   module CommandPlugin
@@ -17,6 +18,14 @@ module VagrantPlugins
           plugin_name = env[:plugin_name]
           sources     = env[:plugin_sources]
           version     = env[:plugin_version]
+
+          # If we're on Windows and the user data path has a space in it,
+          # then things won't work because of a Ruby bug.
+          if Vagrant::Util::Platform.windows?
+            if Vagrant.user_data_path.to_s.include?(" ")
+              raise Vagrant::Errors::PluginInstallSpace
+            end
+          end
 
           # Install the gem
           plugin_name_label = plugin_name

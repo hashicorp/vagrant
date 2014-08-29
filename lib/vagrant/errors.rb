@@ -528,6 +528,10 @@ module Vagrant
       error_key(:plugin_install_license_not_found)
     end
 
+    class PluginInstallSpace < VagrantError
+      error_key(:plugin_install_space)
+    end
+
     class PluginInstallVersionConflict < VagrantError
       error_key(:plugin_install_version_conflict)
     end
