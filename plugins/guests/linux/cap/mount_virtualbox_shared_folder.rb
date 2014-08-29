@@ -65,7 +65,7 @@ module VagrantPlugins
                 output: stderr
             end
 
-            sleep 2
+            sleep(2*attempts)
           end
 
           # Chown the directory to the proper user. We skip this if the
