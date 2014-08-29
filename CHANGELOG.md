@@ -48,6 +48,7 @@ BUG FIXES:
       reprovision. [GH-4393]
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
+  - commands/ssh: Extra args are passed through to Docker container. [GH-4378]
   - communicators/ssh: Nicer error if remote unexpectedly disconects. [GH-4038]
   - communicators/ssh: Clean error when max sessions is hit. [GH-4044]
   - communicators/ssh: Fix many issues around PTY-enabled output parsing.

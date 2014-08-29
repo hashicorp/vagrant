@@ -19,14 +19,15 @@ module VagrantPlugins
           # Modify the SSH options for when we `vagrant ssh`...
           ssh_opts = env[:ssh_opts] || {}
 
-          # Append "-t" to force a TTY allocation
-          ssh_opts[:extra_args] = Array(ssh_opts[:extra_args])
-          ssh_opts[:extra_args] << "-t"
+          # Build the command we'll execute within the host machine
+          ssh_command = env[:machine].communicate.container_ssh_command
+          if !Array(ssh_opts[:extra_args]).empty?
+            ssh_command << " #{Array(ssh_opts[:extra_args]).join(" ")}"
+          end
 
-          # Append our real SSH command. If we have a host VM we know
-          # we're using our special communicator, so we can call helpers there
-          ssh_opts[:extra_args] <<
-           env[:machine].communicate.container_ssh_command
+          # Append "-t" to force a TTY allocation
+          ssh_opts[:extra_args] = ["-t"]
+          ssh_opts[:extra_args] << ssh_command
 
           # Set the opts
           env[:ssh_opts] = ssh_opts
