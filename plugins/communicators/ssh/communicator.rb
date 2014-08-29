@@ -19,6 +19,9 @@ module VagrantPlugins
   module CommunicatorSSH
     # This class provides communication with the VM via SSH.
     class Communicator < Vagrant.plugin("2", :communicator)
+      PTY_DELIM_START = "bccbb768c119429488cfd109aacea6b5-pty"
+      PTY_DELIM_END = "bccbb768c119429488cfd109aacea6b5-pty"
+
       include Vagrant::Util::ANSIEscapeCodeRemover
       include Vagrant::Util::Retryable
 
@@ -401,9 +404,6 @@ module VagrantPlugins
         return yield connection if block_given?
       end
 
-      DELIM_START = 'UniqueStartStringPTY'
-      DELIM_END = 'UniqueEndStringPTY'
-
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, **opts)
         opts = {
@@ -424,14 +424,16 @@ module VagrantPlugins
         shell_cmd = shell if shell
         shell_cmd = "sudo -E -H #{shell_cmd}" if sudo
 
-        use_tty = false
-        stdout = ''
+        # These variables are used to scrub PTY output if we're in a PTY
+        pty = false
+        pty_stdout = ""
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
           if @machine.config.ssh.pty
             ch.request_pty do |ch2, success|
-              use_tty = success and command != ''
+              pty = success && command != ""
+
               if success
                 @logger.debug("pty obtained for connection")
               else
@@ -446,8 +448,8 @@ module VagrantPlugins
               # Filter out the clear screen command
               data = remove_ansi_escape_codes(data)
               @logger.debug("stdout: #{data}")
-              if use_tty
-                stdout << data
+              if pty
+                pty_stdout << data
               else
                 yield :stdout, data if block_given?
               end
@@ -497,21 +499,21 @@ module VagrantPlugins
               end
             end
 
-            # Output the command
-            if use_tty
-              ch2.send_data "stty raw -echo\n"
-              ch2.send_data "export PS1=\n"
-              ch2.send_data "export PS2=\n"
-              ch2.send_data "export PROMPT_COMMAND=\n"
-              sleep(0.1)
-              data = "printf #{DELIM_START}\n"
+            # Output the command. If we're using a pty we have to do
+            # a little dance to make sure we get all the output properly
+            # without the cruft added from pty mode.
+            if pty
+              data = "stty raw -echo\n"
+              data += "export PS1=\n"
+              data += "export PS2=\n"
+              data += "export PROMPT_COMMAND=\n"
+              data += "printf #{PTY_DELIM_START}\n"
               data += "#{command}\n"
               data += "exitcode=$?\n"
-              data += "printf #{DELIM_END}\n"
+              data += "printf #{PTY_DELIM_END}\n"
+              data += "exit $exitcode\n"
               data = data.force_encoding('ASCII-8BIT')
               ch2.send_data data
-              # Remember to exit or this channel will hang open
-              ch2.send_data "exit $exitcode\n"
             else
               ch2.send_data "#{command}\n".force_encoding('ASCII-8BIT')
               # Remember to exit or this channel will hang open
@@ -520,9 +522,7 @@ module VagrantPlugins
 
             # Send eof to let server know we're done
             ch2.eof!
-            ch2.wait
           end
-          ch.wait
         end
 
         begin
@@ -548,7 +548,7 @@ module VagrantPlugins
             @logger.info(
               "SSH connection unexpected closed. Assuming reboot or something.")
             exit_status = 0
-            use_tty = false
+            pty = false
           rescue Net::SSH::ChannelOpenFailed
             raise Vagrant::Errors::SSHChannelOpenFail
           rescue Net::SSH::Disconnect
@@ -559,14 +559,16 @@ module VagrantPlugins
           keep_alive.kill if keep_alive
         end
 
-        if use_tty
-          @logger.debug("stdout: #{stdout}")
-          if not stdout.include? DELIM_START or not stdout.include? DELIM_END
-            @logger.error("Error parsing TTY output")
+        # If we're in a PTY, we now finally parse the output
+        if pty
+          @logger.debug("PTY stdout: #{pty_stdout}")
+          if !pty_stdout.include?(PTY_DELIM_START) || !pty_stdout.include?(PTY_DELIM_END)
+            @logger.error("PTY stdout doesn't include delims")
             raise Vagrant::Errors::SSHInvalidShell.new
           end
-          data = stdout[/.*#{DELIM_START}(.*?)#{DELIM_END}/m, 1]
-          @logger.debug("selected stdout: #{data}")
+
+          data = stdout[/.*#{PTY_DELIM_START}(.*?)#{PTY_DELIM_END}/m, 1]
+          @logger.debug("PTY stdout parsed: #{data}")
           yield :stdout, data if block_given?
         end
 

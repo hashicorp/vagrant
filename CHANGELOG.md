@@ -45,6 +45,8 @@ BUG FIXES:
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
   - communicators/ssh: Nicer error if remote unexpectedly disconects. [GH-4038]
   - communicators/ssh: Clean error when max sessions is hit. [GH-4044]
+  - communicators/ssh: Fix many issues around PTY-enabled output parsing.
+      [GH-4408]
   - communicators/winrm: Support `mkdir` [GH-4271]
   - communicators/winrm: Properly escape double quotes. [GH-4309]
   - guests/centos: Fix issues when NFS client is installed by restarting
