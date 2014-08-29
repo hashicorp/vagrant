@@ -13,7 +13,7 @@ module VagrantPlugins
             # Remove any previous host only network additions to the interface file
             comm.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/conf.d/net > /tmp/vagrant-network-interfaces")
             comm.sudo("cat /tmp/vagrant-network-interfaces > /etc/conf.d/net")
-            comm.sudo("rm /tmp/vagrant-network-interfaces")
+            comm.sudo("rm -f /tmp/vagrant-network-interfaces")
 
             # Configure each network interface
             networks.each do |network|
@@ -32,7 +32,7 @@ module VagrantPlugins
               comm.sudo("ln -fs /etc/init.d/net.lo /etc/init.d/net.eth#{network[:interface]}")
               comm.sudo("/etc/init.d/net.eth#{network[:interface]} stop 2> /dev/null")
               comm.sudo("cat /tmp/vagrant-network-entry >> /etc/conf.d/net")
-              comm.sudo("rm /tmp/vagrant-network-entry")
+              comm.sudo("rm -f /tmp/vagrant-network-entry")
               comm.sudo("/etc/init.d/net.eth#{network[:interface]} start")
             end
           end

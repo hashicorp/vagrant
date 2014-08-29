@@ -159,7 +159,7 @@ describe VagrantPlugins::DockerProvider::Driver do
       before { subject.stub(created?: true) }
 
       it 'removes the container' do
-        subject.should_receive(:execute).with('docker', 'rm', '-v', cid)
+        subject.should_receive(:execute).with('docker', 'rm', '-f', '-v', cid)
         subject.rm(cid)
       end
     end
@@ -168,7 +168,7 @@ describe VagrantPlugins::DockerProvider::Driver do
       before { subject.stub(created?: false) }
 
       it 'does not attempt to remove the container' do
-        subject.should_not_receive(:execute).with('docker', 'rm', '-v', cid)
+        subject.should_not_receive(:execute).with('docker', 'rm', '-f', '-v', cid)
         subject.rm(cid)
       end
     end

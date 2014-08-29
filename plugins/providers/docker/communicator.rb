@@ -93,7 +93,7 @@ module VagrantPlugins
           block.call(type, data)
         end
 
-        @host_vm.communicate.execute("rm #{remote_temp}", error_check: false)
+        @host_vm.communicate.execute("rm -f #{remote_temp}", error_check: false)
 
         return result
       end
@@ -118,7 +118,7 @@ module VagrantPlugins
           "#{container_ssh_command} 'cat >#{to}' <#{to_temp}")
 
         # Remove the temporary file
-        @host_vm.communicate.execute("rm #{to_temp}", error_check: false)
+        @host_vm.communicate.execute("rm -f #{to_temp}", error_check: false)
       end
 
       #-------------------------------------------------------------------

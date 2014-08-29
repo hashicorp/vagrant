@@ -103,7 +103,7 @@ module VagrantPlugins
 
       def rm(cid)
         if created?(cid)
-          execute('docker', 'rm', '-v', cid)
+          execute('docker', 'rm', '-f', '-v', cid)
         end
       end
 

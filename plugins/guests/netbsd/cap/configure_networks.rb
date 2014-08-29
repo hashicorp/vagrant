@@ -28,7 +28,7 @@ module VagrantPlugins
             # upload it and append it to the new rc.conf file
             machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry")
             machine.communicate.sudo("cat /tmp/vagrant-network-entry >> #{newrcconf}")
-            machine.communicate.sudo("rm /tmp/vagrant-network-entry")
+            machine.communicate.sudo("rm -f /tmp/vagrant-network-entry")
 
             ifname = "wm#{network[:interface]}"
             # remove old configuration
