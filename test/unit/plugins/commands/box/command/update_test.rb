@@ -23,6 +23,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
   before do
     iso_env.stub(action_runner: action_runner)
+    machine.config.vm.box = "foo"
   end
 
   describe "execute" do
