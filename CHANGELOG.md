@@ -51,6 +51,7 @@ BUG FIXES:
       [GH-4408]
   - communicators/winrm: Support `mkdir` [GH-4271]
   - communicators/winrm: Properly escape double quotes. [GH-4309]
+  - communicators/winrm: Detect failed commands that aren't CLIs. [GH-4383]
   - guests/centos: Fix issues when NFS client is installed by restarting
       NFS [GH-4088]
   - guests/debian: Deleting default route on DHCP networks can fail. [GH-4262]
