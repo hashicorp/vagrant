@@ -17,7 +17,7 @@ module VagrantPlugins
         end
 
         def self.rsync_post(machine, opts)
-          machine.communicate.execute("find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
+          machine.communicate.execute("#{machine.config.smartos.suexec_cmd} find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
               "#{machine.config.smartos.suexec_cmd} xargs -0 chown #{opts[:owner]}:#{opts[:group]}")
         end
       end

@@ -40,7 +40,7 @@ describe "VagrantPlugins::VagrantPlugins::Cap::Rsync" do
 
   describe ".rsync_post" do
     it 'chowns incorrectly owned files in sync dir' do
-      communicator.expect_command("find '/sync_dir' '(' ! -user somebody -or ! -group somegroup ')' -print0 | pfexec xargs -0 chown somebody:somegroup")
+      communicator.expect_command("pfexec find '/sync_dir' '(' ! -user somebody -or ! -group somegroup ')' -print0 | pfexec xargs -0 chown somebody:somegroup")
       plugin.rsync_post(machine, guestpath: '/sync_dir', owner: 'somebody', group: 'somegroup')
     end
   end
