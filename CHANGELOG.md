@@ -23,6 +23,7 @@ IMPROVEMENTS:
   - guests/nixos: Added better NFS support. [GH-3983]
   - providers/hyperv: Accept VHD disk format. [GH-4208]
   - providers/hyperv: Support generation 2 VMs. [GH-4324]
+  - provisioners/docker: More verbose output. [GH-4377]
   - provisioners/salt: Get proper exit codes to detect failed runs. [GH-4304]
 
 BUG FIXES:
