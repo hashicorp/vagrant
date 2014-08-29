@@ -35,7 +35,7 @@ module VagrantPlugins
           if options[:box]
             update_specific(options[:box], options[:provider])
           else
-            update_vms(argv)
+            update_vms(argv, options[:provider])
           end
 
           0
@@ -78,8 +78,8 @@ module VagrantPlugins
           end
         end
 
-        def update_vms(argv)
-          with_target_vms(argv) do |machine|
+        def update_vms(argv, provider)
+          with_target_vms(argv, provider: provider) do |machine|
             if !machine.config.vm.box
               machine.ui.output(I18n.t(
                 "vagrant.errors.box_update_no_name"))
