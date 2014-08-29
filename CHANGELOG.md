@@ -41,6 +41,8 @@ BUG FIXES:
   - core: VM names may no longer contain brackets, since they cause
       issues with some providers. [GH-4319]
   - core: Use "-f" to `rm` files in case pty is true. [GH-4410]
+  - core: SSH key doesn't have to be owned by our user if we're running
+      as root. [GH-4387]
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
   - communicators/ssh: Nicer error if remote unexpectedly disconects. [GH-4038]

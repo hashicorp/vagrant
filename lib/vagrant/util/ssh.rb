@@ -33,8 +33,8 @@ module Vagrant
         LOGGER.debug("Checking key permissions: #{key_path}")
         stat = key_path.stat
 
-        if !(stat.owned? || (Process.uid == 0))
-          # The SSH key must be owned by ourselves
+        if !stat.owned? && Process.uid != 0
+          # The SSH key must be owned by ourselves, unless we're root
           raise Errors::SSHKeyBadOwner, key_path: key_path
         end
 
