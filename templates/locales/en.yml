@@ -351,7 +351,8 @@ en:
       box_add_no_matching_version: |-
         The box you're attempting to add has no available version that
         matches the constraints you requested. Please double-check your
-        settings.
+        settings. Also verify that if you specified version constraints,
+        that the provider you wish to use is available for these constriants.
 
         Box: %{name}
         Address: %{url}

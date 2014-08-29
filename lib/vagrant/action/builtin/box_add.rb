@@ -197,17 +197,17 @@ module Vagrant
           metadata_version  = metadata.version(
             version || ">= 0", provider: provider)
           if !metadata_version
-            if !provider
+            if provider && !metadata.version(">= 0", provider: provider)
+              raise Errors::BoxAddNoMatchingProvider,
+                name: metadata.name,
+                requested: provider,
+                url: url
+            else
               raise Errors::BoxAddNoMatchingVersion,
                 constraints: version || ">= 0",
                 name: metadata.name,
                 url: url,
                 versions: metadata.versions.join(", ")
-            else
-              raise Errors::BoxAddNoMatchingProvider,
-                name: metadata.name,
-                requested: provider,
-                url: url
             end
           end
 
