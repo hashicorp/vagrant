@@ -76,6 +76,7 @@ BUG FIXES:
   - guests/windows: Reboot after hostname change. [GH-3987]
   - hosts/arch: NFS works with latest versions. [GH-4224]
   - hosts/freebsd: NFS exports are proper syntax. [GH-4143]
+  - hosts/gentoo: NFS works with latest versions. [GH-4418]
   - hosts/windows: RDP command works without crash. [GH-3962]
   - providers/docker: Port on its own will choose random host port. [GH-3991]
   - providers/docker: The proxy VM Vagrantfile can be in the same directory
