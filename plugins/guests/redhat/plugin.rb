@@ -21,6 +21,11 @@ module VagrantPlugins
         Cap::ConfigureNetworks
       end
 
+      guest_capability("redhat", "flavor") do
+        require_relative "cap/flavor"
+        Cap::Flavor
+      end
+
       guest_capability("redhat", "network_scripts_dir") do
         require_relative "cap/network_scripts_dir"
         Cap::NetworkScriptsDir

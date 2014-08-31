@@ -69,6 +69,7 @@ BUG FIXES:
   - guests/linux: Show more verbose error when shared folder mount fails.
       [GH-4403]
   - guests/redhat: NFS setup should use systemd for RH7+ [GH-4228]
+  - guests/redhat: Detect RHEL 7 (and CentOS) and install Docker properly. [GH-4402]
   - guests/smartos: Use `pfexec` for rsync. [GH-4274]
   - guests/windows: Reboot after hostname change. [GH-3987]
   - hosts/arch: NFS works with latest versions. [GH-4224]
