@@ -12,6 +12,23 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
+          case machine.guest.capability("flavor")
+          when :rhel_7
+            configure_networks_rhel7(machine)
+          else
+            configure_networks_default(machine)
+          end
+        end
+
+        def self.configure_networks_rhel7(machine, networks)
+          # This is kind of jank but the configure networks is the same
+          # as Fedora at this point.
+          require File.expand_path("../../fedora/cap/configure_networks", __FILE__)
+          ::VagrantPlugins::GuestFedora::Cap::ConfigureNetworks.
+            configure_networks(machine, networks)
+        end
+
+        def self.configure_networks_default(machine, networks)
           network_scripts_dir = machine.guest.capability("network_scripts_dir")
 
           # Accumulate the configurations to add to the interfaces file as
