@@ -16,7 +16,7 @@ module VagrantPlugins
             end
           end
 
-          def docker_install_rhel7(machine)
+          def self.docker_install_rhel7(machine)
             machine.communicate.tap do |comm|
               comm.sudo("yum -y install docker")
               comm.sudo("systemctl start docker.service")
@@ -24,7 +24,7 @@ module VagrantPlugins
             end
           end
 
-          def docker_install_default(machine)
+          def self.docker_install_default(machine)
             machine.communicate.tap do |comm|
               if ! comm.test("rpm -qa | grep epel-release")
                 comm.sudo("rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm")
