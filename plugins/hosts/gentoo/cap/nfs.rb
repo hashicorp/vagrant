@@ -7,7 +7,7 @@ module VagrantPlugins
       class NFS
         def self.nfs_check_command(env)
           if systemd?
-            return "#{systemctl_path} status nfsd"
+            return "#{systemctl_path} status nfs-server.service"
           else
             return "/etc/init.d/nfs status"
           end
@@ -15,7 +15,7 @@ module VagrantPlugins
 
         def self.nfs_start_command(env)
           if systemd?
-            return "#{systemctl_path} start nfsd rpc-mountd rpcbind"
+            return "#{systemctl_path} start rpcbind nfs-server.service"
           else
             return "/etc/init.d/nfs restart"
           end
