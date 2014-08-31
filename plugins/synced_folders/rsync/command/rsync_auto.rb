@@ -113,7 +113,7 @@ module VagrantPlugins
           end
           @logger.info("Listening via: #{Listen::Adapter.select.inspect}")
           callback = method(:callback).to_proc.curry[paths]
-          listopts = { ignore: ignores, force_polling: !!opts[:poll] }
+          listopts = { ignore: ignores, force_polling: !!options[:poll] }
           listener = Listen.to(*paths.keys, listopts, &callback)
 
           # Create the callback that lets us know when we've been interrupted
