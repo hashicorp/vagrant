@@ -28,7 +28,6 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-  - core: Guard against SSHing to localhost:22 [GH-4070]
   - core: Downloading box files should resume in more cases since the
       temporary file is preserved in more cases. [GH-4301]
   - core: Windows is not detected as NixOS in some cases. [GH-4302]

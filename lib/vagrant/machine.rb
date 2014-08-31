@@ -434,13 +434,6 @@ module Vagrant
         File.expand_path(path, @env.root_path)
       end
 
-      # If we're connecting to localhost:22, then short-circuit
-      # and return nil here since this is something that nobody ever
-      # really wants.
-      if info[:host] == "127.0.0.1" && info[:port] == 22
-        return nil
-      end
-
       # Return the final compiled SSH info data
       info
     end

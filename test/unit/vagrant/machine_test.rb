@@ -605,13 +605,6 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:password]).to eql("")
       end
 
-      it "should return nil if localhost:22" do
-        provider_ssh_info[:host] = "127.0.0.1"
-        instance.config.ssh.port = 22
-
-        expect(instance.ssh_info).to be_nil
-      end
-
       context "with no data dir" do
         let(:base)     { true }
         let(:data_dir) { nil }
