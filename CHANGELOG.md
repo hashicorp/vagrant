@@ -48,6 +48,7 @@ BUG FIXES:
       reprovision. [GH-4393]
   - commands/box/add: "Content-Type" header is now case-insensitive when
       looking for metadata type. [GH-4369]
+  - commands/docker-run: Named docker containers no longer conflict. [GH-4294]
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
   - commands/ssh: Extra args are passed through to Docker container. [GH-4378]
