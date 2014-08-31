@@ -15,6 +15,13 @@ not exit until an interrupt is received.
 The change detection is optimized to use platform-specific APIs to listen
 for filesystem changes, and does not simply poll the directory.
 
+## Options
+
+* `--[no-]poll` - Force Vagrant to watch for changes using filesystem
+    polling instead of filesystem events. This is required for some filesystems
+    that don't support events. Warning: enabling this will make `rsync-auto`
+    _much_ slower. By default, polling is disabled.
+
 ## Machine State Changes
 
 The `rsync-auto` command does not currently handle machine state changes

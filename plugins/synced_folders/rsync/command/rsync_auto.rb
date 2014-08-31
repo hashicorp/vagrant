@@ -28,9 +28,16 @@ module VagrantPlugins
         def execute
           @logger = Log4r::Logger.new("vagrant::commands::rsync-auto")
 
+          options = {}
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant rsync-auto [vm-name]"
             o.separator ""
+            o.separator "Options:"
+            o.separator ""
+
+            o.on("--[no-]poll", "Force polling filesystem (slow)") do |poll|
+              options[:poll] = poll
+            end
           end
 
           # Parse the options and return if we don't have any target.
@@ -106,7 +113,8 @@ module VagrantPlugins
           end
           @logger.info("Listening via: #{Listen::Adapter.select.inspect}")
           callback = method(:callback).to_proc.curry[paths]
-          listener = Listen.to(*paths.keys, ignore: ignores, &callback)
+          listopts = { ignore: ignores, force_polling: !!opts[:poll] }
+          listener = Listen.to(*paths.keys, listopts, &callback)
 
           # Create the callback that lets us know when we've been interrupted
           queue    = Queue.new

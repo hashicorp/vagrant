@@ -19,6 +19,7 @@ IMPROVEMENTS:
   - commands/plugin: Better error output is shown when plugin installation
       fails.
   - commands/reload: show post up messsage [GH-4168]
+  - commands/rsync-auto: Add `--poll` flag. [GH-4392]
   - communicators/winrm: Show stdout/stderr if command fails. [GH-4094]
   - guests/nixos: Added better NFS support. [GH-3983]
   - providers/hyperv: Accept VHD disk format. [GH-4208]
