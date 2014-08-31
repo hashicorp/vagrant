@@ -71,6 +71,7 @@ BUG FIXES:
   - guests/redhat: NFS setup should use systemd for RH7+ [GH-4228]
   - guests/redhat: Detect RHEL 7 (and CentOS) and install Docker properly. [GH-4402]
   - guests/redhat: Configuring networks on EL7 works. [GH-4195]
+  - guests/redhat: Setting hostname on EL7 works. [GH-4352]
   - guests/smartos: Use `pfexec` for rsync. [GH-4274]
   - guests/windows: Reboot after hostname change. [GH-3987]
   - hosts/arch: NFS works with latest versions. [GH-4224]

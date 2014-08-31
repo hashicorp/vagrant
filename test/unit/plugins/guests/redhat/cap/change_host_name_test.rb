@@ -7,9 +7,12 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
   end
   let(:machine) { double("machine") }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:guest) { double("guest") }
 
   before do
+    allow(guest).to receive(:capability).and_return(nil)
     allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:guest).and_return(guest)
     communicator.stub_command('hostname -f', stdout: old_hostname)
     communicator.expect_command('hostname -f')
   end
@@ -17,7 +20,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
   after do
     communicator.verify_expectations!
   end
-  
+
   context 'when oldhostname is qualified' do
     let(:old_hostname) { 'oldhostname.olddomain.tld' }
     let(:similar_hostname) {'oldhostname'}
@@ -26,7 +29,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
 
     include_examples 'inserting hostname in /etc/hosts'
     include_examples 'swapping simple hostname in /etc/hosts'
-    include_examples 'swapping qualified hostname in /etc/hosts' 
+    include_examples 'swapping qualified hostname in /etc/hosts'
   end
 
   context 'when oldhostname is simple' do

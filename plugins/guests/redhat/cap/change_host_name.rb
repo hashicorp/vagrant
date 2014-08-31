@@ -3,7 +3,16 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          new(machine, name).change!
+          case machine.guest.capability("flavor")
+          when :rhel_7
+            change_host_name_rhel7(machine, name)
+          else
+            new(machine, name).change!
+          end
+        end
+
+        def self.change_host_name_rhel7(machine, name)
+          machine.communicate.sudo("homenamectl set-hostname #{name}")
         end
 
         attr_reader :machine, :new_hostname
