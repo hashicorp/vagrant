@@ -27,6 +27,9 @@ Gem::Specification.new do |s|
   s.add_dependency "wdm", "~> 0.1.0"
   s.add_dependency "winrm", "~> 1.1.3"
 
+  # We lock this down to avoid compilation issues.
+  s.add_dependency "nokogiri", "= 1.6.3.1"
+
   s.add_development_dependency "rake"
   s.add_development_dependency "contest", ">= 0.1.2"
   s.add_development_dependency "minitest", "~> 2.5.1"
