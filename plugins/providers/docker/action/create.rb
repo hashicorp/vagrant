@@ -32,18 +32,15 @@ module VagrantPlugins
             # Remove container after execution
             params[:rm] = true if env[:run_rm]
 
-            # Name should not be used with run_command
-            params[:name] = UNSET_VALUE
+            # Name should be unique
+            params[:name] = "#{params[:name]}_#{Time.now.to_i}"
 
             # We link to our original container
             # TODO
           end
 
           env[:ui].output(I18n.t("docker_provider.creating"))
-
-          if params[:name] != UNSET_VALUE
-            env[:ui].detail("  Name: #{params[:name]}")
-          end
+          env[:ui].detail("  Name: #{params[:name]}")
 
           env[:ui].detail(" Image: #{params[:image]}")
           if params[:cmd] && !params[:cmd].empty?
