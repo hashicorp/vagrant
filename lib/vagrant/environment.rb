@@ -130,10 +130,24 @@ module Vagrant
       # initialization. The cache file will cause this to mostly be a no-op
       # most of the time.
       @checkpoint_thr = Thread.new do
-        @checkpoint_result = Checkpoint.check(
+        Thread.current[:result] = nil
+
+        # If we disabled checkpoint via env var, don't run this
+        if ENV["VAGRANT_CHECKPOINT_DISABLE"].to_s != ""
+          next
+        end
+
+        # If we disabled state and knowing what alerts we've seen, then
+        # disable the signature file.
+        signature_file = @data_dir.join("checkpoint_signature")
+        if ENV["VAGRANT_CHECKPOINT_NO_STATE"].to_s != ""
+          signature_file = nil
+        end
+
+        Thread.current[:result] = Checkpoint.check(
           product: "vagrant",
           version: VERSION,
-          signature_file: @data_dir.join("checkpoint_signature"),
+          signature_file: signature_file,
           cache_file: @data_dir.join("checkpoint_cache"),
         )
       end
@@ -263,7 +277,7 @@ module Vagrant
     # @return [Hash]
     def checkpoint
       @checkpoint_thr.join
-      return @checkpoint_result
+      return @checkpoint_thr[:result]
     end
 
     # Makes a call to the CLI with the given arguments as if they

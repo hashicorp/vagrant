@@ -38,25 +38,6 @@ module Vagrant
     ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"]
   end
 
-  # Returns the latest version of Vagrant that is available.
-  #
-  # This makes an HTTP call.
-  #
-  # @return [String]
-  def self.latest_version
-    # Lazy-require this so that the overhead of this file is low
-    require "vagrant/util/downloader"
-
-    tf  = Tempfile.new("vagrant")
-    tf.close
-    url = "http://www.vagrantup.com/latest-version.json"
-    Vagrant::Util::Downloader.new(url, tf.path).download!
-    data = JSON.parse(File.read(tf.path))
-    data["version"]
-  ensure
-    tf.unlink if tf
-  end
-
   # This returns whether or not 3rd party plugins should be loaded.
   #
   # @return [Boolean]

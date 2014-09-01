@@ -22,8 +22,15 @@ module VagrantPlugins
           "vagrant.version_current", version: Vagrant::VERSION))
         @env.ui.machine("version-installed", Vagrant::VERSION)
 
-        # Load the latest version
-        latest = Vagrant.latest_version
+        # Load the latest information
+        cp = @env.checkpoint
+        if !cp
+          @env.ui.output("\n"+I18n.t(
+            "vagrant.version_no_checkpoint"))
+          return 0
+        end
+
+        latest = cp["current_version"]
 
         # Output latest version
         @env.ui.output(I18n.t(
