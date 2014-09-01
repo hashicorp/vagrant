@@ -1,4 +1,3 @@
-require "json"
 require "optparse"
 
 module VagrantPlugins
