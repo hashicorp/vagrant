@@ -1,5 +1,8 @@
 require "tmpdir"
 require "rubygems"
+
+# Gems
+require "checkpoint"
 require "rspec/autorun"
 
 # Require Vagrant itself so we can reference the proper
@@ -49,3 +52,6 @@ Vagrant.plugin("2").manager.registered.dup.each do |plugin|
     Vagrant.plugin("2").manager.unregister(plugin)
   end
 end
+
+# Disable checkpoint
+Checkpoint.disable!

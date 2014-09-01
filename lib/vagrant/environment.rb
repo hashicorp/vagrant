@@ -4,6 +4,7 @@ require 'pathname'
 require 'set'
 require 'thread'
 
+require "checkpoint"
 require 'log4r'
 
 require 'vagrant/util/file_mode'
@@ -125,6 +126,18 @@ module Vagrant
       # Prepare the directories
       setup_home_path
 
+      # Run checkpoint in a background thread on every environment
+      # initialization. The cache file will cause this to mostly be a no-op
+      # most of the time.
+      @checkpoint_thr = Thread.new do
+        @checkpoint_result = Checkpoint.check(
+          product: "vagrant",
+          version: VERSION,
+          signature_file: @data_dir.join("checkpoint_signature"),
+          cache_file: @data_dir.join("checkpoint_cache"),
+        )
+      end
+
       # Setup the local data directory. If a configuration path is given,
       # then it is expanded relative to the working directory. Otherwise,
       # we use the default which is expanded relative to the root path.
@@ -241,6 +254,16 @@ module Vagrant
           b.run
         end
       end
+    end
+
+    # Checkpoint returns the checkpoint result data. If checkpoint is
+    # disabled, this will return nil. See the hashicorp-checkpoint gem
+    # for more documentation on the return value.
+    #
+    # @return [Hash]
+    def checkpoint
+      @checkpoint_thr.join
+      return @checkpoint_result
     end
 
     # Makes a call to the CLI with the given arguments as if they
