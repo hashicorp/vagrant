@@ -10,6 +10,7 @@ require 'log4r'
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
 require "vagrant/vagrantfile"
+require "vagrant/version"
 
 module Vagrant
   # A "Vagrant environment" represents a configuration of how Vagrant
