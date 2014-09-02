@@ -135,6 +135,7 @@ module Vagrant
 
         # If we disabled checkpoint via env var, don't run this
         if ENV["VAGRANT_CHECKPOINT_DISABLE"].to_s != ""
+          @logger.info("checkpoint: disabled from env var")
           next
         end
 
@@ -142,6 +143,7 @@ module Vagrant
         # disable the signature file.
         signature_file = @data_dir.join("checkpoint_signature")
         if ENV["VAGRANT_CHECKPOINT_NO_STATE"].to_s != ""
+          @logger.info("checkpoint: will not store state")
           signature_file = nil
         end
 
