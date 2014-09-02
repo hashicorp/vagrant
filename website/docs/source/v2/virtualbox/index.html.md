@@ -18,4 +18,6 @@ VirtualBox can be installed by [downloading](https://www.virtualbox.org/wiki/Dow
 a package or installer for your operating system and using standard procedures
 to install that package.
 
+**The VirtualBox provider does not support the `--parallel` argument when VMs are brought up.**
+
 Use the navigation to the left to find a specific VirtualBox topic to read more about.
