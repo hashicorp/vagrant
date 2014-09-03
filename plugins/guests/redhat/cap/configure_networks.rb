@@ -23,7 +23,7 @@ module VagrantPlugins
         def self.configure_networks_rhel7(machine, networks)
           # This is kind of jank but the configure networks is the same
           # as Fedora at this point.
-          require File.expand_path("../../fedora/cap/configure_networks", __FILE__)
+          require File.expand_path("../../../fedora/cap/configure_networks", __FILE__)
           ::VagrantPlugins::GuestFedora::Cap::ConfigureNetworks.
             configure_networks(machine, networks)
         end
