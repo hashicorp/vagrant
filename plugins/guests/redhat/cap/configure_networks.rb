@@ -14,9 +14,9 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           case machine.guest.capability("flavor")
           when :rhel_7
-            configure_networks_rhel7(machine)
+            configure_networks_rhel7(machine, networks)
           else
-            configure_networks_default(machine)
+            configure_networks_default(machine, networks)
           end
         end
 
