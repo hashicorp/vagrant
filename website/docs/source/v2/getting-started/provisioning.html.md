@@ -26,8 +26,10 @@ and save it as `bootstrap.sh` in the same directory as your Vagrantfile:
 
 apt-get update
 apt-get install -y apache2
-rm -rf /var/www
-ln -fs /vagrant /var/www
+if ! [ -L /var/www ]; then
+  rm -rf /var/www
+  ln -fs /vagrant /var/www
+fi
 ```
 
 Next, we configure Vagrant to run this shell script when setting up
