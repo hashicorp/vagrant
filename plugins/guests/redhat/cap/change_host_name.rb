@@ -12,7 +12,7 @@ module VagrantPlugins
         end
 
         def self.change_host_name_rhel7(machine, name)
-          machine.communicate.sudo("homenamectl set-hostname #{name}")
+          machine.communicate.sudo("hostnamectl set-hostname #{name}")
         end
 
         attr_reader :machine, :new_hostname
