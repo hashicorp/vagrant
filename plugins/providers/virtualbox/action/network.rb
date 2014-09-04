@@ -197,7 +197,7 @@ module VagrantPlugins
               # The choice that the user has chosen as the bridging interface
               choice = nil
               while !valid.include?(choice)
-                choice = @env[:ui].ask("What interface should the network bridge to? ")
+                choice = @env[:ui].ask I18n.t("vagrant.actions.vm.bridged_networking.interface_selection")
                 choice = choice.to_i
               end
 
