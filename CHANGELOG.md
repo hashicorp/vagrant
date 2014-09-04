@@ -1,4 +1,4 @@
-## 1.6.5 (unreleased)
+## 1.6.5 (September 4, 2014)
 
 BUG FIXES:
 
