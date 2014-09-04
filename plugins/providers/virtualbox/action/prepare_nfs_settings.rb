@@ -67,7 +67,7 @@ module VagrantPlugins
         def read_static_machine_ips
           ips = []
           @machine.config.vm.networks.each do |type, options|
-            if type == :private_network && options[:ip].is_a?(String)
+            if type == :private_network && options[:type] == :static && options[:ip].is_a?(String)
               ips << options[:ip]
             end
           end
