@@ -1,3 +1,12 @@
+## 1.6.5 (unreleased)
+
+BUG FIXES:
+
+  - communicator/ssh: Fix crash when pty is enabled with SSH. [GH-4452]
+  - guests/redhat: Detect various RedHat flavors. [GH-4462]
+  - guests/redhat: Fix typo causing crash in configuring networks. [GH-4438]
+  - guests/redhat: Fix typo causing hostnames to not set. [GH-4443]
+
 ## 1.6.4 (September 2, 2014)
 
 BACKWARDS INCOMPATIBILITIES:
