@@ -374,7 +374,9 @@ module VagrantPlugins
               id: "winrm",
               auto_correct: true
           end
-        elsif !@__networks["forwarded_port-ssh"]
+        end
+
+        if !@__networks["forwarded_port-ssh"]
           network :forwarded_port,
             guest: 22,
             host: 2222,
