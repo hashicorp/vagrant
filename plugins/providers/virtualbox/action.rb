@@ -315,9 +315,9 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use BoxCheckOutdated
           b.use Call, IsRunning do |env, b2|
-            # If the VM is running, then our work here is done, exit
+            # If the VM is running, run the necessary provisioners
             if env[:result]
-              b2.use MessageAlreadyRunning
+              b2.use action_provision
               next
             end
 

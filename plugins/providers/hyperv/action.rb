@@ -106,7 +106,7 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env1, b1|
             if env1[:result]
-              b1.use Message, I18n.t("vagrant_hyperv.message_already_running")
+              b1.use action_provision
               next
             end
 
