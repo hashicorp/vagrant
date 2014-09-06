@@ -16,14 +16,6 @@ module VagrantPlugins
             interfaces = result.split("\n")
           end
 
-          # Cleaning of some dirty hacks documented here :
-          # (http://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/)
-          machine.communicate.sudo("rm -f
-                                   /etc/udev/rules.d/*-net-name-slot.rules")
-          machine.communicate.sudo("rm -f
-                                   /etc/udev/rules.d/*-persistent-net.rules")
-          machine.communicate.sudo("udevadm control --reload")
-
           networks.each do |network|
             # We use :device in the template instead of
             # eth#{network[:interface]} in order to support Predictable
