@@ -302,7 +302,7 @@ module VagrantPlugins
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt '*' state.highstate --retcode-passthrough --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
               if @config.verbose
                 @machine.env.ui.info(data)
               end
