@@ -122,6 +122,8 @@ module VagrantPlugins
             "vagrant.rsync_folder_excludes", excludes: excludes.inspect))
         end
 
+        machine.env.hook(:sync_pre)
+
         # If we have tasks to do before rsyncing, do those.
         if machine.guest.capability?(:rsync_pre)
           machine.guest.capability(:rsync_pre, opts)
@@ -140,6 +142,8 @@ module VagrantPlugins
         if machine.guest.capability?(:rsync_post)
           machine.guest.capability(:rsync_post, opts)
         end
+
+        machine.env.hook(:sync_post)
       end
     end
   end
