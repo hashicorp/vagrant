@@ -117,7 +117,9 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       }
       RAW
 
-      expect(box).to receive(:has_update?).with(machine.config.vm.box_version).
+      expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
+          {download_options:
+            {ca_cert: nil, ca_path: nil, client_cert: nil, insecure: false}}).
         and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
 
       expect(app).to receive(:call).with(env).once
@@ -179,6 +181,39 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(app).to receive(:call).with(env).once
 
       expect { subject.call(env) }.to_not raise_error
+    end
+
+    context "when machine download options are specified" do
+      before do
+        machine.config.vm.box_download_ca_cert = "foo"
+        machine.config.vm.box_download_ca_path = "bar"
+        machine.config.vm.box_download_client_cert = "baz"
+        machine.config.vm.box_download_insecure = true
+      end
+
+      it "uses download options from machine" do
+        expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
+          {download_options:
+            {ca_cert: "foo", ca_path: "bar", client_cert: "baz", insecure: true}})
+
+        expect(app).to receive(:call).with(env).once
+
+        subject.call(env)
+      end
+
+      it "overrides download options from machine with options from env" do
+        expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
+          {download_options:
+            {ca_cert: "oof", ca_path: "rab", client_cert: "zab", insecure: false}})
+
+        env[:ca_cert] = "oof"
+        env[:ca_path] = "rab"
+        env[:client_cert] = "zab"
+        env[:insecure] = false
+        expect(app).to receive(:call).with(env).once
+
+        subject.call(env)
+      end
     end
   end
 end
