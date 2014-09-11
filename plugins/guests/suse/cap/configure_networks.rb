@@ -5,7 +5,7 @@ require "vagrant/util/retryable"
 require "vagrant/util/template_renderer"
 
 module VagrantPlugins
-  module GuestSuse
+  module GuestSUSE
     module Cap
       class ConfigureNetworks
         extend Vagrant::Util::Retryable
