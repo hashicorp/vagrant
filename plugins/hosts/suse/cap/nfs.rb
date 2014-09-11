@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module HostOpenSUSE
+  module HostSUSE
     module Cap
       class NFS
         def self.nfs_check_command(env)

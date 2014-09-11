@@ -1,24 +1,22 @@
 require "vagrant"
 
 module VagrantPlugins
-  module HostOpenSUSE
+  module HostSUSE
     class Plugin < Vagrant.plugin("2")
-      name "OpenSUSE host"
-      description "OpenSUSE host support."
+      name "SUSE host"
+      description "SUSE host support."
 
-      host("opensuse", "linux") do
+      host("suse", "linux") do
         require_relative "host"
         Host
       end
 
-      # Linux-specific helpers we need to determine paths that can
-      # be overriden.
-      host_capability("opensuse", "nfs_check_command") do
+      host_capability("suse", "nfs_check_command") do
         require_relative "cap/nfs"
         Cap::NFS
       end
 
-      host_capability("opensuse", "nfs_start_command") do
+      host_capability("suse", "nfs_start_command") do
         require_relative "cap/nfs"
         Cap::NFS
       end
