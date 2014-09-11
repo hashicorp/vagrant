@@ -35,7 +35,7 @@ module VagrantPlugins
 
       guest_capability("suse", "cfengine_install") do
         require_relative "cap/suse/cfengine_install"
-        Cap::SuSE::CFEngineInstall
+        Cap::SUSE::CFEngineInstall
       end
 
       provisioner(:cfengine) do
