@@ -4,7 +4,7 @@ layout: "inner"
 
 # Reseller Information
 
-We are very happy to work with resllers for the Vagrant VMware provider.
+We are very happy to work with resellers for the Vagrant VMware provider.
 
 This page is intended to answer questions commonly
 needed by resellers. If you are a reseller,
