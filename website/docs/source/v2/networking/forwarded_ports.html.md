@@ -50,7 +50,7 @@ there are more detailed examples of using these options.
   this is empty.
 
 * `protocol` (string) - Either "udp" or "tcp". This specifies the protocol
-  that will be allowed through the forwared port. By default this is "tcp".
+  that will be allowed through the forwarded port. By default this is "tcp".
 
 ## Forwarded Port Protocols
 
