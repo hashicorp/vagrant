@@ -89,6 +89,9 @@ $ tree
 |           |-- default.rb
 ```
 
+The order of the calls to `add_recipe` will specify the order of the run list.
+Earlier recipes added with `add_recipe` are run before later recipes added.
+
 ## Custom Cookbooks Path
 
 Instead of using the default "cookbooks" directory, a custom cookbooks
