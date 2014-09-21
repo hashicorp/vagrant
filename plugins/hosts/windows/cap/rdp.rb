@@ -10,7 +10,6 @@ module VagrantPlugins
         def self.rdp_client(env, rdp_info)
           config = nil
           opts   = {
-            "drivestoredirect:s"       => "*",
             "full address:s"           => "#{rdp_info[:host]}:#{rdp_info[:port]}",
             "prompt for credentials:i" => "1",
             "username:s"               => rdp_info[:username],
