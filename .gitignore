@@ -31,6 +31,7 @@ doc/
 # IDE junk
 .idea/*
 *.iml
+.project
 
 # Ruby Managers
 .rbenv

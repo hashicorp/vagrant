@@ -100,14 +100,22 @@ module VagrantPlugins
             exec_path.gsub!('/', '\\')
             exec_path = "c:#{exec_path}" if exec_path.start_with?("\\")
 
-            # For PowerShell scripts bypass the execution policy
+            # Copy shell_args from configuration
+            shell_args = config.shell_args
+            
+            # For PowerShell scripts bypass the execution policy unless already specified
+            shell_args += " -ExecutionPolicy Bypass" if config.shell_args !~ /[-\/]ExecutionPolicy/i
+            
+            # CLIXML output is kinda useless, especially on non-windows hosts 
+            shell_args += " -OutputFormat Text" if config.shell_args !~ /[-\/]OutputFormat/i
+                                    
             command = "#{exec_path}#{args}"
-            command = "powershell -executionpolicy bypass -file #{command}" if
+            command = "powershell #{shell_args.to_s} -file #{command}" if
               File.extname(exec_path).downcase == '.ps1'
 
             if config.path
-              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
-                                      script: exec_path))
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.runningas",
+                                      local: config.path.to_s, remote: exec_path))
             else
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: "inline PowerShell script"))
