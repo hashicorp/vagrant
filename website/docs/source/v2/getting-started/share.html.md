@@ -23,7 +23,7 @@ Before being able to share your Vagrant environment, you'll need an account on
 Once you have an account, log in using `vagrant login`:
 
 ```
-$ vagrant login:
+$ vagrant login
 Username or Email: mitchellh
 Password (will be hidden):
 You're now logged in!
