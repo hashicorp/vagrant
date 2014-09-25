@@ -110,6 +110,7 @@ describe Vagrant::Plugin::V2::Command do
       foo_vm.stub(ui: Vagrant::UI::Silent.new)
       foo_vm.stub(state: nil)
 
+      environment.stub(machine_names: [:foo])
       allow(environment).to receive(:machine).with(:foo, environment.default_provider).and_return(foo_vm)
 
       vms = []
@@ -131,22 +132,25 @@ describe Vagrant::Plugin::V2::Command do
     end
 
     it "yields the given VM with proper provider if given" do
+      name = :foo
       foo_vm = double("foo")
       provider = :foobarbaz
 
-      foo_vm.stub(name: "foo", provider: provider)
       foo_vm.stub(ui: Vagrant::UI::Silent.new)
+      foo_vm.stub(name: name, provider: provider)
       foo_vm.stub(state: nil)
-      allow(environment).to receive(:machine).with(:foo, provider).and_return(foo_vm)
+      environment.stub(machine_names: [name])
+      allow(environment).to receive(:machine).with(name, provider).and_return(foo_vm)
 
       vms = []
-      instance.with_target_vms("foo", provider: provider) { |vm| vms << vm }
+      instance.with_target_vms(name.to_s, provider: provider) { |vm| vms << vm }
       expect(vms).to eq([foo_vm])
     end
 
     it "should raise an exception if an active machine exists with a different provider" do
       name = :foo
 
+      environment.stub(machine_names: [name])
       environment.stub(active_machines: [[name, :vmware]])
       expect { instance.with_target_vms(name.to_s, provider: :foo) }.
         to raise_error Vagrant::Errors::ActiveMachineWithDifferentProvider
@@ -157,6 +161,7 @@ describe Vagrant::Plugin::V2::Command do
       provider = :vmware
       vmware_vm = double("vmware_vm")
 
+      environment.stub(machine_names: [name])
       environment.stub(active_machines: [[name, provider]])
       allow(environment).to receive(:machine).with(name, provider).and_return(vmware_vm)
       vmware_vm.stub(name: name, provider: provider)
@@ -173,6 +178,7 @@ describe Vagrant::Plugin::V2::Command do
       provider = :vmware
       vmware_vm = double("vmware_vm")
 
+      environment.stub(machine_names: [name])
       environment.stub(active_machines: [[name, provider]])
       allow(environment).to receive(:machine).with(name, provider).and_return(vmware_vm)
       vmware_vm.stub(name: name, provider: provider, ui: Vagrant::UI::Silent.new)
@@ -187,6 +193,7 @@ describe Vagrant::Plugin::V2::Command do
       name = :foo
       machine = double("machine")
 
+      environment.stub(machine_names: [name])
       allow(environment).to receive(:machine).with(name, environment.default_provider).and_return(machine)
       machine.stub(name: name, provider: environment.default_provider)
       machine.stub(ui: Vagrant::UI::Silent.new)
@@ -252,7 +259,27 @@ describe Vagrant::Plugin::V2::Command do
       expect(results.length).to eq(1)
       expect(results[0].id).to eq(other_machine.id)
     end
+
+    it "access an vargantfile to yield a single named VM" do
+      name = :foo
+
+      foo_vm = double("foo")
+      foo_vm.stub(name: name, provider: :foobarbaz, ui: Vagrant::UI::Silent.new)
+
+      vagrantfile = double("foo")
+      vagrantfile.stub(machine_names: [name])
+
+      environment.stub(vagrantfile: vagrantfile)
+      allow(environment).to receive(:machine).with(name, environment.default_provider).and_return(foo_vm)
+
+      vms = []
+      instance.with_target_vms(name.to_s) { |vm| vms << vm }
+
+      expect(vms).to eq([foo_vm])
+    end
+
   end
+
 
   describe "splitting the main and subcommand args" do
     let(:instance) do
