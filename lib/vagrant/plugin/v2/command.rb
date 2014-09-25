@@ -189,7 +189,10 @@ module Vagrant
               else
                 # String name, just look for a specific VM
                 @logger.debug("Finding machine that match name: #{name}")
-                machines << get_machine.call(name.to_sym)
+                if @env.machine_names.include?(name.to_sym) ||
+                    @env.machine_index.include?(name.to_s)
+                  machines << get_machine.call(name.to_sym)
+                end
                 raise Errors::VMNotFoundError, name: name if !machines[0]
               end
             end
