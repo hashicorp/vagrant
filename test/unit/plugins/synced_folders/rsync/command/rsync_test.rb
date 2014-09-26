@@ -34,7 +34,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
 
   describe "#execute" do
     context "with a single machine" do
-      let(:ssh_info) {{
+      let(:communicator_info) {{
         private_key_path: [],
       }}
 
@@ -42,7 +42,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
 
       before do
         communicator.stub(ready?: true)
-        machine.stub(ssh_info: ssh_info)
+        machine.stub(communicator_info: communicator_info)
 
         synced_folders[:rsync] = [
           [:one, {}],
@@ -61,7 +61,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
       it "rsyncs each folder and exits successfully" do
         synced_folders[:rsync].each do |_, opts|
           expect(helper_class).to receive(:rsync_single).
-            with(machine, ssh_info, opts).
+            with(machine, communicator_info, opts).
             ordered
         end
 

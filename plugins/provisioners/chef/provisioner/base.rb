@@ -45,7 +45,7 @@ module VagrantPlugins
           @machine.communicate.tap do |comm|
             paths.each do |path|
               comm.sudo("mkdir -p #{path}")
-              comm.sudo("chown -h #{@machine.ssh_info[:username]} #{path}")
+              comm.sudo("chown -h #{@machine.communicator_info[:username]} #{path}")
             end
           end
         end

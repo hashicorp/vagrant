@@ -38,11 +38,11 @@ module VagrantPlugins
             next if !folders || folders.empty?
 
             # Get the SSH info for this machine so we can access it
-            ssh_info = machine.ssh_info
+            communicator_info = machine.communicator_info
 
             # Sync them!
             folders.each do |id, folder_opts|
-              RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
+              RsyncHelper.rsync_single(machine, communicator_info, folder_opts)
             end
           end
 

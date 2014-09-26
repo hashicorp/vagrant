@@ -22,6 +22,13 @@ module VagrantPlugins
       def self.nic_mac_addresses(machine)
         machine.provider.driver.read_mac_addresses
       end
+
+      # Returns the winrm_info for accessing the virtual machine.
+      #
+      # @return [Hash] Includes the host and port.
+      def self.winrm_info(machine)
+        machine.provider.winrm_info
+      end
     end
   end
 end

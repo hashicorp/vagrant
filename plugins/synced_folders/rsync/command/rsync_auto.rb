@@ -60,11 +60,11 @@ module VagrantPlugins
 
             # Get the SSH info for this machine so we can do an initial
             # sync to the VM.
-            ssh_info = machine.ssh_info
-            if ssh_info
+            communicator_info = machine.communicator_info
+            if communicator_info
               machine.ui.info(I18n.t("vagrant.rsync_auto_initial"))
               folders.each do |id, folder_opts|
-                RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
+                RsyncHelper.rsync_single(machine, communicator_info, folder_opts)
               end
             end
 
@@ -171,9 +171,9 @@ module VagrantPlugins
                 next
               end
 
-              ssh_info = opts[:machine].ssh_info
+              communicator_info = opts[:machine].communicator_info
               begin
-                RsyncHelper.rsync_single(opts[:machine], ssh_info, opts[:opts])
+                RsyncHelper.rsync_single(opts[:machine], communicator_info, opts[:opts])
               rescue Vagrant::Errors::MachineGuestNotReady
                 # Error communicating to the machine, probably a reload or
                 # halt is happening. Just notify the user but don't fail out.

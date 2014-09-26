@@ -40,19 +40,19 @@ module VagrantPlugins
 
       def wait_for_ready(timeout)
         Timeout.timeout(timeout) do
-          # Wait for ssh_info to be ready
-          ssh_info = nil
+          # Wait for communicator_info to be ready
+          communicator_info = nil
           while true
-            ssh_info = @machine.ssh_info
-            break if ssh_info
+            communicator_info = @machine.communicator_info
+            break if communicator_info
             sleep 0.5
           end
 
           # Got it! Let the user know what we're connecting to.
-          @machine.ui.detail("SSH address: #{ssh_info[:host]}:#{ssh_info[:port]}")
-          @machine.ui.detail("SSH username: #{ssh_info[:username]}")
+          @machine.ui.detail("SSH address: #{communicator_info[:host]}:#{communicator_info[:port]}")
+          @machine.ui.detail("SSH username: #{communicator_info[:username]}")
           ssh_auth_type = "private key"
-          ssh_auth_type = "password" if ssh_info[:password]
+          ssh_auth_type = "password" if communicator_info[:password]
           @machine.ui.detail("SSH auth method: #{ssh_auth_type}")
 
           last_message = nil
@@ -138,8 +138,8 @@ module VagrantPlugins
         end
 
         # If we used a password, then insert the insecure key
-        ssh_info = @machine.ssh_info
-        if ssh_info[:password] && ssh_info[:private_key_path].empty?
+        communicator_info = @machine.communicator_info
+        if communicator_info[:password] && communicator_info[:private_key_path].empty?
           @logger.info("Inserting insecure key to avoid password")
           @machine.ui.info(I18n.t("vagrant.inserting_insecure_key"))
           @machine.guest.capability(
@@ -284,8 +284,8 @@ module VagrantPlugins
 
         # Get the SSH info for the machine, raise an exception if the
         # provider is saying that SSH is not ready.
-        ssh_info = @machine.ssh_info
-        raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
+        communicator_info = @machine.communicator_info
+        raise Vagrant::Errors::SSHNotReady if communicator_info.nil?
 
         # Default some options
         opts[:retries] = 5 if !opts.has_key?(:retries)
@@ -294,19 +294,19 @@ module VagrantPlugins
         common_connect_opts = {
           auth_methods:          ["none", "publickey", "hostbased", "password"],
           config:                false,
-          forward_agent:         ssh_info[:forward_agent],
-          keys:                  ssh_info[:private_key_path],
+          forward_agent:         communicator_info[:forward_agent],
+          keys:                  communicator_info[:private_key_path],
           keys_only:             true,
           paranoid:              false,
-          password:              ssh_info[:password],
-          port:                  ssh_info[:port],
+          password:              communicator_info[:password],
+          port:                  communicator_info[:port],
           timeout:               15,
           user_known_hosts_file: [],
           verbose:               :debug,
         }
 
         # Check that the private key permissions are valid
-        ssh_info[:private_key_path].each do |path|
+        communicator_info[:private_key_path].each do |path|
           Vagrant::Util::SSH.check_key_permissions(Pathname.new(path))
         end
 
@@ -341,18 +341,18 @@ module VagrantPlugins
                 connect_opts = common_connect_opts.dup
                 connect_opts[:logger] = ssh_logger
 
-                if ssh_info[:proxy_command]
-                  connect_opts[:proxy] = Net::SSH::Proxy::Command.new(ssh_info[:proxy_command])
+                if communicator_info[:proxy_command]
+                  connect_opts[:proxy] = Net::SSH::Proxy::Command.new(communicator_info[:proxy_command])
                 end
 
                 @logger.info("Attempting to connect to SSH...")
-                @logger.info("  - Host: #{ssh_info[:host]}")
-                @logger.info("  - Port: #{ssh_info[:port]}")
-                @logger.info("  - Username: #{ssh_info[:username]}")
-                @logger.info("  - Password? #{!!ssh_info[:password]}")
-                @logger.info("  - Key Path: #{ssh_info[:private_key_path]}")
+                @logger.info("  - Host: #{communicator_info[:host]}")
+                @logger.info("  - Port: #{communicator_info[:port]}")
+                @logger.info("  - Username: #{communicator_info[:username]}")
+                @logger.info("  - Password? #{!!communicator_info[:password]}")
+                @logger.info("  - Key Path: #{communicator_info[:private_key_path]}")
 
-                Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
+                Net::SSH.start(communicator_info[:host], communicator_info[:username], connect_opts)
               ensure
                 # Make sure we output the connection log
                 @logger.debug("== Net-SSH connection debug-level log START ==")
@@ -400,7 +400,7 @@ module VagrantPlugins
         end
 
         @connection          = connection
-        @connection_ssh_info = ssh_info
+        @connection_communicator_info = communicator_info
 
         # Yield the connection that is ready to be used and
         # return the value of the block
@@ -480,7 +480,7 @@ module VagrantPlugins
             # Set SSH_AUTH_SOCK if we are in sudo and forwarding agent.
             # This is to work around often misconfigured boxes where
             # the SSH_AUTH_SOCK env var is not preserved.
-            if @connection_ssh_info[:forward_agent] && sudo
+            if @connection_communicator_info[:forward_agent] && sudo
               auth_socket = ""
               execute("echo; printf $SSH_AUTH_SOCK") do |type, data|
                 if type == :stdout

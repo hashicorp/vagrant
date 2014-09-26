@@ -38,7 +38,7 @@ VF
 
   let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
   let(:config)  { VagrantPlugins::Ansible::Config.new }
-  let(:ssh_info) {{
+  let(:communicator_info) {{
     private_key_path: ['/path/to/my/key'],
     username: 'testuser',
     host: '127.0.0.1',
@@ -50,7 +50,7 @@ VF
   let(:generated_inventory_file) { File.join(generated_inventory_dir, 'vagrant_ansible_inventory') }
 
   before do
-    machine.stub(ssh_info: ssh_info)
+    machine.stub(communicator_info: communicator_info)
     machine.env.stub(active_machines: [[iso_env.machine_names[0], :dummy], [iso_env.machine_names[1], :dummy]])
 
     config.playbook = 'playbook.yml'
@@ -65,8 +65,8 @@ VF
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
 
         expect(args[0]).to eq("ansible-playbook")
-        expect(args[1]).to eq("--private-key=#{machine.ssh_info[:private_key_path][0]}")
-        expect(args[2]).to eq("--user=#{machine.ssh_info[:username]}")
+        expect(args[1]).to eq("--private-key=#{machine.communicator_info[:private_key_path][0]}")
+        expect(args[2]).to eq("--user=#{machine.communicator_info[:username]}")
 
         inventory_count = args.count { |x| x =~ /^--inventory-file=.+$/ }
         expect(inventory_count).to be > 0
@@ -170,7 +170,7 @@ VF
         expect(config.inventory_path).to be_nil
         expect(File.exists?(generated_inventory_file)).to be_true
         inventory_content = File.read(generated_inventory_file)
-        expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]}\n")
+        expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.communicator_info[:host]} ansible_ssh_port=#{machine.communicator_info[:port]}\n")
         expect(inventory_content).to include("# MISSING: '#{iso_env.machine_names[1]}' machine was probably removed without using Vagrant. This machine should be recreated.\n")
       }
     end
@@ -417,7 +417,7 @@ VF
 
       describe "and with ssh forwarding enabled" do
         before do
-          ssh_info[:forward_agent] = true
+          communicator_info[:forward_agent] = true
         end
 
         it "sets '-o ForwardAgent=yes' via ANSIBLE_SSH_ARGS with higher priority than raw_ssh_args values" do
@@ -434,7 +434,7 @@ VF
 
     describe "with multiple SSH identities" do
       before do
-        ssh_info[:private_key_path] = ['/path/to/my/key', '/an/other/identity', '/yet/an/other/key']
+        communicator_info[:private_key_path] = ['/path/to/my/key', '/an/other/identity', '/yet/an/other/key']
       end
 
       it_should_set_arguments_and_environment_variables 6, 4
@@ -451,7 +451,7 @@ VF
 
     describe "with ssh forwarding enabled" do
       before do
-        ssh_info[:forward_agent] = true
+        communicator_info[:forward_agent] = true
       end
 
       it_should_set_arguments_and_environment_variables 6, 4
@@ -486,8 +486,8 @@ VF
     describe "with a maximum of options" do
       before do
         # vagrant general options
-        ssh_info[:forward_agent] = true
-        ssh_info[:private_key_path] = ['/my/key1', '/my/key2']
+        communicator_info[:forward_agent] = true
+        communicator_info[:private_key_path] = ['/my/key1', '/my/key2']
 
         # command line arguments
         config.extra_vars = "@#{existing_file}"

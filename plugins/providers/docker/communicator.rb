@@ -132,7 +132,7 @@ module VagrantPlugins
       # @return [String]
       def container_ssh_command
         # Get the container's SSH info
-        info = @machine.ssh_info
+        info = @machine.communicator_info
         return nil if !info
         info[:port] ||= 22
 

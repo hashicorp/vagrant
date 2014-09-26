@@ -54,6 +54,22 @@ module VagrantPlugins
         end
       end
 
+      # Returns the WinRM info for accessing the virtual machine.
+      #
+      # @return [Hash] Includes the host and port.
+      def winrm_info()
+        # If the VM is not running that we can't possibly connect to it
+        return nil if state.id != :running
+
+        # Return what we know. The host is always "127.0.0.1" because
+        # VirtualBox VMs are always local. The port we try to discover
+        # by reading the forwarded ports.
+        return {
+          host: "127.0.0.1",
+          port: @driver.forwarded_port(@machine.config.winrm.guest_port)
+        }
+      end
+
       # Returns the SSH info for accessing the VirtualBox VM.
       def ssh_info
         # If the VM is not running that we can't possibly SSH into it
@@ -64,7 +80,7 @@ module VagrantPlugins
         # by reading the forwarded ports.
         return {
           host: "127.0.0.1",
-          port: @driver.ssh_port(@machine.config.ssh.guest_port)
+          port: @driver.forwarded_port(@machine.config.ssh.guest_port)
         }
       end
 

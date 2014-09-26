@@ -2,7 +2,6 @@ require "timeout"
 
 require "log4r"
 
-require_relative "helper"
 require_relative "shell"
 require_relative "command_filter"
 
@@ -40,8 +39,8 @@ module VagrantPlugins
         @logger.info("WinRM not up: #{e.inspect}")
 
         # We reset the shell to trigger calling of winrm_finder again.
-        # This resolves a problem when using vSphere where the ssh_info was not refreshing
-        # thus never getting the correct hostname.
+        # This resolves a problem when using vSphere where the communicator_info
+        # was not refreshing thus never getting the correct hostname.
         @shell = nil
         return false
       end
@@ -102,13 +101,14 @@ module VagrantPlugins
       # This creates anew WinRMShell based on the information we know
       # about this machine.
       def create_shell
-        winrm_info = Helper.winrm_info(@machine)
+        communicator_info = @machine.communicator_info
+        raise Errors::WinRMNotReady if !communicator_info
 
         WinRMShell.new(
-          winrm_info[:host],
-          @machine.config.winrm.username,
-          @machine.config.winrm.password,
-          port: winrm_info[:port],
+          communicator_info[:host],
+          communicator_info[:username],
+          communicator_info[:password],
+          port: communicator_info[:port],
           timeout_in_seconds: @machine.config.winrm.timeout,
           max_tries: @machine.config.winrm.max_tries,
         )

@@ -9,14 +9,14 @@ module VagrantPlugins
       end
 
       def provision
-        @ssh_info = @machine.ssh_info
+        @communicator_info = @machine.communicator_info
 
         #
         # 1) Default Settings (lowest precedence)
         #
 
         # Connect with Vagrant SSH identity
-        options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
+        options = %W[--private-key=#{@communicator_info[:private_key_path][0]} --user=#{@communicator_info[:username]}]
 
         # Multiple SSH keys and/or SSH forwarding can be passed via
         # ANSIBLE_SSH_ARGS environment variable, which requires 'ssh' mode.
@@ -108,8 +108,8 @@ module VagrantPlugins
           @machine.env.active_machines.each do |am|
             begin
               m = @machine.env.machine(*am)
-              if !m.ssh_info.nil?
-                file.write("#{m.name} ansible_ssh_host=#{m.ssh_info[:host]} ansible_ssh_port=#{m.ssh_info[:port]}\n")
+              if !m.communicator_info.nil?
+                file.write("#{m.name} ansible_ssh_host=#{m.communicator_info[:host]} ansible_ssh_port=#{m.communicator_info[:port]}\n")
                 inventory_machines[m.name] = m
               else
                 @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")
@@ -186,12 +186,12 @@ module VagrantPlugins
         ssh_options = []
 
         # Multiple Private Keys
-        @ssh_info[:private_key_path].drop(1).each do |key|
+        @communicator_info[:private_key_path].drop(1).each do |key|
           ssh_options << "-o IdentityFile=#{key}"
         end
 
         # SSH Forwarding
-        ssh_options << "-o ForwardAgent=yes" if @ssh_info[:forward_agent]
+        ssh_options << "-o ForwardAgent=yes" if @communicator_info[:forward_agent]
 
         # Unchecked SSH Parameters
         ssh_options.concat(self.as_array(config.raw_ssh_args)) if config.raw_ssh_args

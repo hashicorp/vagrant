@@ -25,13 +25,13 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
   describe "#callback" do
     let(:paths) { {} }
-    let(:ssh_info) {{}}
+    let(:communicator_info) {{}}
 
     def machine_stub(name)
       double(name).tap do |m|
         m.stub(id: "foo")
         m.stub(reload: nil)
-        m.stub(ssh_info: ssh_info)
+        m.stub(communicator_info: communicator_info)
         m.stub(ui: double("ui"))
 
         m.ui.stub(error: nil)
@@ -49,7 +49,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
       paths["/foo"].each do |data|
         expect(helper_class).to receive(:rsync_single).
-          with(data[:machine], data[:machine].ssh_info, data[:opts]).
+          with(data[:machine], data[:machine].communicator_info, data[:opts]).
           once
       end
 
@@ -70,7 +70,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
       paths["/foo"].each do |data|
         expect(helper_class).to receive(:rsync_single).
-          with(data[:machine], data[:machine].ssh_info, data[:opts]).
+          with(data[:machine], data[:machine].communicator_info, data[:opts]).
           once
       end
 
@@ -91,7 +91,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
       paths["/foo"].each do |data|
         expect(helper_class).to receive(:rsync_single).
-          with(data[:machine], data[:machine].ssh_info, data[:opts]).
+          with(data[:machine], data[:machine].communicator_info, data[:opts]).
           once
       end
 
@@ -112,7 +112,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
       paths["/foo"].each do |data|
         expect(helper_class).to receive(:rsync_single).
-          with(data[:machine], data[:machine].ssh_info, data[:opts]).
+          with(data[:machine], data[:machine].communicator_info, data[:opts]).
           and_raise(Vagrant::Errors::MachineGuestNotReady)
       end
 

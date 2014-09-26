@@ -18,7 +18,7 @@ describe VagrantPlugins::CommandSSHConfig::Command do
   let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
 
   let(:argv)     { [] }
-  let(:ssh_info) {{
+  let(:communicator_info) {{
     host:             "testhost.vagrant.dev",
     port:             1234,
     username:         "testuser",
@@ -30,7 +30,7 @@ describe VagrantPlugins::CommandSSHConfig::Command do
   subject { described_class.new(argv, iso_env) }
 
   before do
-    machine.stub(ssh_info: ssh_info)
+    machine.stub(communicator_info: communicator_info)
     allow(subject).to receive(:with_target_vms) { |&block| block.call machine }
   end
 
@@ -57,7 +57,7 @@ Host #{machine.name}
     end
 
     it "turns on agent forwarding when it is configured" do
-      allow(machine).to receive(:ssh_info) { ssh_info.merge(forward_agent: true) }
+      allow(machine).to receive(:communicator_info) { communicator_info.merge(forward_agent: true) }
 
       output = ""
       allow(subject).to receive(:safe_puts) do |data|
@@ -70,7 +70,7 @@ Host #{machine.name}
     end
 
     it "turns on x11 forwarding when it is configured" do
-      allow(machine).to receive(:ssh_info) { ssh_info.merge(forward_x11: true) }
+      allow(machine).to receive(:communicator_info) { communicator_info.merge(forward_x11: true) }
 
       output = ""
       allow(subject).to receive(:safe_puts) do |data|
@@ -83,7 +83,7 @@ Host #{machine.name}
     end
 
     it "handles multiple private key paths" do
-      allow(machine).to receive(:ssh_info) { ssh_info.merge(private_key_path: ["foo", "bar"]) }
+      allow(machine).to receive(:communicator_info) { communicator_info.merge(private_key_path: ["foo", "bar"]) }
 
       output = ""
       allow(subject).to receive(:safe_puts) do |data|
@@ -97,7 +97,7 @@ Host #{machine.name}
     end
 
     it "puts quotes around an identityfile path if it has a space" do
-      allow(machine).to receive(:ssh_info) { ssh_info.merge(private_key_path: ["with a space"]) }
+      allow(machine).to receive(:communicator_info) { communicator_info.merge(private_key_path: ["with a space"]) }
       output = ""
       allow(subject).to receive(:safe_puts) do |data|
         output += data if data
