@@ -93,7 +93,7 @@ can be easily added via the Vagrantfile in most cases.
 
 Just about every aspect of Vagrant can be modified. However, Vagrant does
 expect some defaults which will cause your base box to "just work" out
-of the box. You should create these as defaults if you intent to publicly
+of the box. You should create these as defaults if you intend to publicly
 distribute your box.
 
 If you're creating a base box for private use, you should try _not_ to
