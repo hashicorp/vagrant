@@ -17,7 +17,7 @@ describe VagrantPlugins::DockerProvider::Driver do
       ports:      '8080:80',
       volumes:    '/host/path:guest/path',
       detach:     true,
-      links:      {janis: 'joplin'},
+      links:      [[:janis, 'joplin'], [:janis, 'janis']],
       env:        {key: 'value'},
       name:       cid,
       hostname:   'jimi-hendrix',
@@ -43,7 +43,9 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     it 'links containers' do
-      expect(cmd_executed).to match(/--link #{params[:links].to_a.flatten.join(':')} .+ #{Regexp.escape params[:image]}/)
+      params[:links].each do |link|
+        expect(cmd_executed).to match(/--link #{link.join(':')} .+ #{Regexp.escape params[:image]}/)
+      end
     end
 
     it 'sets environmental variables' do
