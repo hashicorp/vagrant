@@ -11,6 +11,11 @@ module VagrantPlugins
         Host
       end
 
+      host_capability("suse", "nfs_installed") do
+        require_relative "cap/nfs"
+        Cap::NFS
+      end
+
       host_capability("suse", "nfs_check_command") do
         require_relative "cap/nfs"
         Cap::NFS
