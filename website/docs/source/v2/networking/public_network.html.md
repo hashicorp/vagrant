@@ -23,6 +23,19 @@ general public access to your machine, public networks can.
 	</p>
 </div>
 
+<div class="alert alert-warning">
+	<p>
+		<strong>Warning!</strong> Vagrant boxes are insecure by default 
+		and by design, featuring public passwords, insecure keypairs 
+		for SSH access, and potentially allow root access over SSH.  With
+		these known credentials, your box is easily accessible by anyone on
+		your network.  Before configuring Vagrant to use a public network,
+		consider <em>all</em> potential security implications
+		and review the <a href="/v2/boxes/base.html">default box
+		configuration</a> to identify potential security risks.
+	</p>
+</div>
+
 ## DHCP
 
 The easiest way to use a public network is to allow the IP to be assigned
