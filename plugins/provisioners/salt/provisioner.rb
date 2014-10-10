@@ -236,7 +236,9 @@ module VagrantPlugins
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
           end
 
-          @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
+          if @machine.communicate.test("test -f %s" % bootstrap_destination)
+            @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
+          end
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
           if @machine.config.vm.communicator == :winrm
