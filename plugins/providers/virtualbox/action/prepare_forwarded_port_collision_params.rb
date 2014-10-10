@@ -14,7 +14,7 @@ module VagrantPlugins
           # Build the remap for any existing collision detections
           remap = {}
           env[:port_collision_remap] = remap
-          env[:machine].provider.driver.read_forwarded_ports.each do |_nic, name, hostport, _guestport|
+          env[:machine].provider.driver.read_forwarded_ports.each do |_nic, name, hostaddr, hostport, _guestport|
             env[:machine].config.vm.networks.each do |type, options|
               next if type != :forwarded_port
 

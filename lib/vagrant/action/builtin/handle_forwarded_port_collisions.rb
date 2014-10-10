@@ -92,6 +92,7 @@ module Vagrant
           with_forwarded_ports(env) do |options|
             guest_port = options[:guest]
             host_port  = options[:host]
+	    host_ip    = options[:host_ip]
 
             if options[:protocol] && options[:protocol] != "tcp"
               @logger.debug("Skipping #{host_port} because UDP protocol.")
@@ -105,8 +106,8 @@ module Vagrant
             end
 
             # If the port is open (listening for TCP connections)
-            in_use = extra_in_use.include?(host_port) ||
-              port_checker[host_port] ||
+            in_use = extra_in_use.include?([host_ip,host_port]) ||
+              port_checker[host_ip,host_port] ||
               lease_check(host_port)
             if in_use
               if !repair || !options[:auto_correct]
@@ -205,8 +206,8 @@ module Vagrant
           end
         end
 
-        def port_check(port)
-          is_port_open?("127.0.0.1", port)
+        def port_check(host="127.0.0.1",port)
+          is_port_open?(host, port)
         end
 
         def with_forwarded_ports(env)
