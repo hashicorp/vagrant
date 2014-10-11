@@ -5,11 +5,11 @@ sidebar_current: "provisioning-chefcommon"
 
 # Shared Chef Options
 
-This page documents the list of available options that are available in
-both the
-[Chef solo](/v2/provisioning/chef_solo.html)
+This page documents the list of available options that are available in the
+[Chef Solo](/v2/provisioning/chef_solo.html),
+[Chef Zero](/v2/provisioning/chef_zero.html)
 and
-[Chef client](/v2/provisioning/chef_client.html)
+[Chef Client](/v2/provisioning/chef_client.html)
 provisioners.
 
 * `arguments` (string) - A list of additional arguments to pass on the
