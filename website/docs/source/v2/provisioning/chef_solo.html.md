@@ -34,7 +34,7 @@ available below this section.
 
 Note that only the Chef-solo specific options are shown below. There is
 also a large set of [common options](/v2/provisioning/chef_common.html)
-that are available with both the Chef Solo and Chef client provisioners.
+that are available with all Chef provisioners.
 
 * `cookbooks_path` (string or array) - A list of paths to where cookbooks
   are stored. By default this is "cookbooks", expecting a cookbooks folder
