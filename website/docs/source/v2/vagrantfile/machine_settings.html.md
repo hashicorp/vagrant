@@ -85,6 +85,12 @@ constraints.
 
 <hr>
 
+`config.vm.communicator` - The communicator type to use to connect to the
+guest box. By default this is `:ssh`, but should be changed to `:winrm` for
+Windows guests.
+
+<hr>
+
 `config.vm.graceful_halt_timeout` - The time in seconds that Vagrant will
 wait for the machine to gracefully halt when `vagrant halt` is called.
 Defaults to 60 seconds.
