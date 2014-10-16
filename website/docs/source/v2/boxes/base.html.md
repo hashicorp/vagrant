@@ -157,6 +157,56 @@ in the SSH server configuration.
 This avoids a reverse DNS lookup on the connecting SSH client which
 can take many seconds.
 
+## Windows Boxes
+
+Supported Windows guest operating systems:
+- Windows 7
+- Windows 8
+- Windows Server 2008
+- Windows Server 2008 R2
+- Windows Server 2012
+- Windows Server 2012 R2
+
+Windows Server 2003 and Windows XP are _not_ supported, but if you're a die
+hard XP fan [this](http://stackoverflow.com/a/18593425/18475) may help you.
+
+### Base Windows Configuration
+
+  - Turn off UAC
+  - Disable complex passwords
+  - Disable "Shutdown Tracker"
+  - Disable "Server Manager" starting at login (for non-Core)
+
+### Base WinRM Configuration
+
+To enable and configure WinRM you'll need to set the WinRM service to
+auto-start and allow unencrypted basic auth (obviously this is not secure).
+Run the following commands from a regular Windows command prompt:
+```
+winrm quickconfig -q
+winrm set winrm/config/winrs @{MaxMemoryPerShellMB="512"}
+winrm set winrm/config @{MaxTimeoutms="1800000"}
+winrm set winrm/config/service @{AllowUnencrypted="true"}
+winrm set winrm/config/service/auth @{Basic="true"}
+sc config WinRM start= auto
+```
+
+### Additional WinRM 1.1 Configuration
+
+These additional configuration steps are specific to Windows Server 2008
+(WinRM 1.1). For Windows Server 2008 R2, Windows 7 and later versions of
+Windows you can ignore this section.
+
+1. Ensure the Windows PowerShell feature is installed
+2. Change the WinRM port to 5985 or upgrade to WinRM 2.0
+
+The following commands will change the WinRM 1.1 port to what's expected by
+Vagrant:
+```
+netsh firewall add portopening TCP 5985 "Port 5985"
+winrm set winrm/config/listener?Address=*+Transport=HTTP @{Port="5985"}
+```
+
 ## Other Software
 
 At this point, you have all the common software you absolutely _need_ for
