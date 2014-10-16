@@ -28,18 +28,19 @@ what most public boxes are made as.
 
 <hr>
 
-`config.winrm.host` - The hostname or IP to SSH into. By default this is
-empty, because the provider usually figures this out for you.
+`config.winrm.host` - The hostname or IP to connect to the WinRM service.
+By default this is empty, because the provider usually figures this out for
+you.
 
 <hr>
 
-`config.winrm.port` - The port to SSH into. By default this is port 22.
+`config.winrm.port` - The WinRM port to connect to, by default 5985.
 
 <hr>
 
-`config.winrm.guest_port` - The port on the guest that SSH is running on. This
-is used by some providers to detect forwarded ports for SSH. For example, if
-this is set to 22 (the default), and Vagrant detects a forwarded port to
-port 22 on the guest from port 4567 on the host, Vagrant will attempt
+`config.winrm.guest_port` - The port on the guest that WinRM is running on.
+This is used by some providers to detect forwarded ports for WinRM. For
+example, if this is set to 5985 (the default), and Vagrant detects a forwarded
+port to port 5985 on the guest from port 4567 on the host, Vagrant will attempt
 to use port 4567 to talk to the guest if there is no other option.
 
