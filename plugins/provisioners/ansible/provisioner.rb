@@ -15,6 +15,18 @@ module VagrantPlugins
         # 1) Default Settings (lowest precedence)
         #
 
+        # Checks that the permissions for a private key are valid, and fixes
+        # them if possible. Do nothing if they fail, one ansible provided
+        # Identity file might work just fine.
+        for key in @ssh_info[:private_key_path] do
+          begin
+            Vagrant::Util::SSH.check_key_permissions(key)
+          rescue Vagrant::Errors::SSHKeyBadPermissions || Vagrant::Errors::SSHKeyBadOwner
+            @logger.debug("Bad key permissions on file: #{key}. Assuming another key might work, Ansible provisionner will not fail")
+          end
+        end
+
+
         # Connect with Vagrant SSH identity
         options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
 

@@ -53,6 +53,8 @@ VF
     machine.stub(ssh_info: ssh_info)
     machine.env.stub(active_machines: [[iso_env.machine_names[0], :dummy], [iso_env.machine_names[1], :dummy]])
 
+    Vagrant::Util::SSH.stub(:check_key_permissions)
+
     config.playbook = 'playbook.yml'
   end
 
