@@ -11,5 +11,5 @@ providers.
 
 The value to use for the `--provider` flag is `virtualbox`.
 
-The Vagrant VirtualBox provider supports parallel execution with the
-optional `--parallel` flag.
+The Vagrant VirtualBox provider does not support parallel execution at this
+time. Specifying the `--parallel` option will have no effect.
