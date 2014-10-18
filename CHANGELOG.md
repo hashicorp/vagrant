@@ -8,6 +8,8 @@ BUG FIXES:
   - guests/redhat: Fix typo causing crash in configuring networks. [GH-4438]
   - guests/redhat: Fix typo causing hostnames to not set. [GH-4443]
   - providers/virtualbox: NFS works when using DHCP private network. [GH-4433]
+  - provisioners/salt: Fix error when removing non-existent bootstrap script
+      on Windows. [GH-4614]
 
 ## 1.6.4 (September 2, 2014)
 
