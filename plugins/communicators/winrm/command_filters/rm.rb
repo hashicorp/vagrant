@@ -20,7 +20,7 @@ module VagrantPlugins
               break
             end
           end
-          
+
           # Figure out which argument is the path
           dir = cmd_parts.pop
           while !dir.nil? && dir.start_with?('-')
