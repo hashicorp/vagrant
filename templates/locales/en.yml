@@ -348,6 +348,9 @@ en:
         provider. Double-check your requested provider to verify you didn't
         simply misspell it.
 
+        If you're adding a box from Vagrant Cloud, make sure the box is
+        released.
+
         Name: %{name}
         Address: %{url}
         Requested provider: %{requested}
