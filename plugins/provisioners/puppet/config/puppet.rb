@@ -10,6 +10,8 @@ module VagrantPlugins
         attr_accessor :hiera_config_path
         attr_accessor :manifest_file
         attr_accessor :manifests_path
+        attr_accessor :environment
+        attr_accessor :environmentpath
         attr_accessor :module_path
         attr_accessor :options
         attr_accessor :synced_folder_type
@@ -22,6 +24,8 @@ module VagrantPlugins
           @hiera_config_path = UNSET_VALUE
           @manifest_file     = UNSET_VALUE
           @manifests_path    = UNSET_VALUE
+          @environment       = UNSET_VALUE
+          @environmentpath   = UNSET_VALUE
           @module_path       = UNSET_VALUE
           @options           = []
           @facter            = {}
@@ -45,24 +49,45 @@ module VagrantPlugins
         def merge(other)
           super.tap do |result|
             result.facter  = @facter.merge(other.facter)
+            result.environmentpath  = @facter.merge(other.environmentpath)
+            result.environment  = @facter.merge(other.environment)
           end
         end
 
         def finalize!
           super
 
-          if @manifests_path == UNSET_VALUE
-            @manifests_path = [:host, "manifests"]
-          end
+          if @environmentpath == UNSET_VALUE
+            if @manifests_path == UNSET_VALUE
+              if 1  #If puppet 3.4+
+              puts "Puppet 3.4+, manifests_path is unset and environmentpath is unset, presuming an environment"
+                @environmentpath = [:host, "environments"]
+              else
+                @manifests_path = [:host, "manifests"]
+              end
+            end
 
-          if @manifests_path && !@manifests_path.is_a?(Array)
-            @manifests_path = [:host, @manifests_path]
+            if @manifests_path && !@manifests_path.is_a?(Array)
+              @manifests_path = [:host, @manifests_path]
+            end
+          else
+            if @environmentpath && !@environmentpath.is_a?(Array)
+              @environmentpath = [:host, @environmentpath]
+            end
           end
-
-          @manifests_path[0] = @manifests_path[0].to_sym
 
           @hiera_config_path = nil if @hiera_config_path == UNSET_VALUE
-          @manifest_file  = "default.pp" if @manifest_file == UNSET_VALUE
+
+          if @environmentpath == UNSET_VALUE
+            @manifests_path[0] = @manifests_path[0].to_sym
+            @environmentpath = nil
+            @manifest_file  = "default.pp" if @manifest_file == UNSET_VALUE
+          else
+            @environmentpath[0] = @environmentpath[0].to_sym
+            @environment  = "production" if @environment == UNSET_VALUE
+            @manifest_file = nil
+          end
+
           @module_path    = nil if @module_path == UNSET_VALUE
           @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
           @temp_dir       = nil if @temp_dir == UNSET_VALUE
@@ -96,8 +121,13 @@ module VagrantPlugins
           # Calculate the manifests and module paths based on env
           this_expanded_module_paths = expanded_module_paths(machine.env.root_path)
 
+          if environmentpath != UNSET_VALUE && manifests_path != UNSET_VALUE
+              errors << "You may not specify both environmentpath and manifests_path. Please specify environment and environmentpath only"
+          end
+
           # Manifests path/file validation
-          if manifests_path[0].to_sym == :host
+          puts "manifests_path is #{manifests_path}"
+          if manifests_path != UNSET_VALUE && manifests_path[0].to_sym == :host
             expanded_path = Pathname.new(manifests_path[1]).
               expand_path(machine.env.root_path)
             if !expanded_path.directory?
@@ -110,7 +140,28 @@ module VagrantPlugins
                                  manifest: expanded_manifest_file.to_s)
               end
             end
+          end          
+
+          # Environments path/file validation
+          if environmentpath != UNSET_VALUE && environmentpath[0].to_sym == :host
+            expanded_path = Pathname.new(environmentpath[1]).
+              expand_path(machine.env.root_path)
+            if !expanded_path.directory?
+              errors << I18n.t("vagrant.provisioners.puppet.environmentpath_missing",
+                               path: expanded_path.to_s)
+            else
+              expanded_environment_file = expanded_path.join(environment)
+              if !expanded_environment_file.file? && !expanded_environment_file.directory?
+                errors << I18n.t("vagrant.provisioners.puppet.environment_missing",
+                                 environment: environment.to_s,
+                                 environmentpath: expanded_path.to_s)
+              end
+            end
           end
+
+          if environmentpath == UNSET_VALUE && manifests_path == UNSET_VALUE
+              errors << "Please specify either a Puppet environmentpath + environment (preferred) or manifests_path (deprecated)."
+          end          
 
           # Module paths validation
           this_expanded_module_paths.each do |path|

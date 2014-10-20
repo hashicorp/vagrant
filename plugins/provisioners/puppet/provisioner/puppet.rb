@@ -18,7 +18,6 @@ module VagrantPlugins
           # Calculate the paths we're going to use based on the environment
           root_path = @machine.env.root_path
           @expanded_module_paths   = @config.expanded_module_paths(root_path)
-          @manifest_file           = File.join(manifests_guest_path, @config.manifest_file)
 
           # Setup the module paths
           @module_paths = []
@@ -30,11 +29,23 @@ module VagrantPlugins
           folder_opts[:type] = @config.synced_folder_type if @config.synced_folder_type
           folder_opts[:owner] = "root" if !@config.synced_folder_type
 
-          # Share the manifests directory with the guest
-          if @config.manifests_path[0].to_sym == :host
-            root_config.vm.synced_folder(
-              File.expand_path(@config.manifests_path[1], root_path),
-              manifests_guest_path, folder_opts)
+          if @config.environmentpath.is_a?(Array)
+            # Share the environments directory with the guest
+            if @config.environmentpath[0].to_sym == :host
+              root_config.vm.synced_folder(
+                File.expand_path(@config.environmentpath[1], root_path),
+                environments_guest_path, folder_opts)
+            end
+            parse_environment_metadata()
+          else
+            # Non-Environment mode
+            @manifest_file  = File.join(manifests_guest_path, @config.manifest_file)
+            # Share the manifests directory with the guest
+            if @config.manifests_path[0].to_sym == :host
+              root_config.vm.synced_folder(
+                File.expand_path(@config.manifests_path[1], root_path),
+                manifests_guest_path, folder_opts)
+            end
           end
 
           # Share the module paths
@@ -42,6 +53,24 @@ module VagrantPlugins
             root_config.vm.synced_folder(from, to, folder_opts)
           end
         end
+
+        # For convenience, add in any module_paths from the Puppet environment.cfg to the vagrant module_paths
+        # This is needed because puppet apply does not read environment metadata (as of v3.6)
+        def parse_environment_metadata
+          environment_conf = File.join(environments_guest_path, @config.environment, "environment.conf")
+          if @machine.communicate.test("test -e #{environment_conf}", sudo: true)
+            conf = @machine.communicate.sudo("cat #{environment_conf}") do | type, data|
+              if type == :stdout
+                #modulepath = $basemodulepath:modules/private:modules/public
+                puts "got line #{data}"
+              end
+            end
+            puts "Found an environment cfg at: #{environment_conf} - #{conf}"
+          else
+            puts "env cfg not found, looked for #{environment_conf}"
+          end
+        end
+
 
         def provision
           # If the machine has a wait for reboot functionality, then
@@ -52,8 +81,11 @@ module VagrantPlugins
 
           # Check that the shared folders are properly shared
           check = []
-          if @config.manifests_path[0] == :host
+          if @config.manifests_path.is_a?(Array) && @config.manifests_path[0] == :host
             check << manifests_guest_path
+          end
+          if @config.environmentpath.is_a?(Array) && @config.environmentpath[0] == :host
+            check << environments_guest_path
           end
           @module_paths.each do |host_path, guest_path|
             check << guest_path
@@ -92,6 +124,16 @@ module VagrantPlugins
           end
         end
 
+        def environments_guest_path
+          if config.environmentpath[0] == :host
+            # The path is on the host, so point to where it is shared
+            File.join(config.temp_dir, "environments")
+          else
+            # The path is on the VM, so just point directly to it
+            config.environmentpath[1]
+          end
+        end
+
         def verify_binary(binary)
           @machine.communicate.sudo(
             "which #{binary}",
@@ -125,10 +167,18 @@ module VagrantPlugins
             options << "--color=false"
           end
 
-          options << "--manifestdir #{manifests_guest_path}"
           options << "--detailed-exitcodes"
-          options << @manifest_file
+
+          if !config.environmentpath.empty?
+            options << "#{environments_guest_path}/#{@config.environment}/manifests"
+            options << "--environment #{@config.environment}"
+          else
+            options << "--manifestdir #{manifests_guest_path}"
+            options << @manifest_file
+          end
           options = options.join(" ")
+          
+          @machine.ui.info("Running ye puppet apply with options #{options}")
 
           # Build up the custom facts if we have any
           facter = ""
@@ -155,9 +205,15 @@ module VagrantPlugins
             end
           end
 
-          @machine.ui.info(I18n.t(
-            "vagrant.provisioners.puppet.running_puppet",
-            manifest: config.manifest_file))
+          if !config.environmentpath.empty?
+            @machine.ui.info(I18n.t(
+              "vagrant.provisioners.puppet.running_puppet_env",
+              environment: config.environment))
+          else
+            @machine.ui.info(I18n.t(
+              "vagrant.provisioners.puppet.running_puppet",
+              manifest: config.manifest_file))
+          end
 
           opts = {
             elevated: true,
