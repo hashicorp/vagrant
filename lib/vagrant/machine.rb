@@ -72,6 +72,12 @@ module Vagrant
     # @return [Vagrantfile]
     attr_reader :vagrantfile
 
+    # The SSH information for accessing this machine. 
+    # This attribute is set only when the machine is ready for SSH communication.
+    #
+    # @return [Hash]
+    attr_reader :ssh_info
+
     # Initialize a new machine.
     #
     # @param [String] name Name of the virtual machine.
@@ -377,6 +383,9 @@ module Vagrant
     #
     # @return [Hash] SSH information.
     def ssh_info
+
+      return @ssh_info unless @ssh_info.nil?
+
       # First, ask the provider for their information. If the provider
       # returns nil, then the machine is simply not ready for SSH, and
       # we return nil as well.
@@ -444,8 +453,8 @@ module Vagrant
         end
       end
 
-      # Return the final compiled SSH info data
-      info
+      # Memoize the final compiled SSH info data and return it
+      @ssh_info = info
     end
 
     # Returns the state of this machine. The state is queried from the
