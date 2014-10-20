@@ -38,5 +38,16 @@ shared_examples "a version 4.x virtualbox driver" do |options|
 
       expect(value).to eq("127.1.2.3")
     end
+
+    it "does not accept 0.0.0.0 as a valid IP address" do
+      key = "/VirtualBox/GuestInfo/Net/1/V4/IP"
+
+      expect(subprocess).to receive(:execute).
+        with("VBoxManage", "guestproperty", "get", uuid, key, an_instance_of(Hash)).
+        and_return(subprocess_result(stdout: "Value: 0.0.0.0"))
+
+      expect { subject.read_guest_ip(1) }.
+        to raise_error Vagrant::Errors::VirtualBoxGuestPropertyNotFound
+    end
   end
 end
