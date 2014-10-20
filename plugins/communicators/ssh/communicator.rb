@@ -13,7 +13,6 @@ require 'vagrant/util/ansi_escape_code_remover'
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
 require 'vagrant/util/retryable'
-require 'vagrant/util/ssh'
 
 module VagrantPlugins
   module CommunicatorSSH
@@ -304,11 +303,6 @@ module VagrantPlugins
           user_known_hosts_file: [],
           verbose:               :debug,
         }
-
-        # Check that the private key permissions are valid
-        ssh_info[:private_key_path].each do |path|
-          Vagrant::Util::SSH.check_key_permissions(Pathname.new(path))
-        end
 
         # Connect to SSH, giving it a few tries
         connection = nil

@@ -1,3 +1,5 @@
+require_relative "util/ssh"
+
 require "digest/md5"
 require "thread"
 
@@ -432,6 +434,14 @@ module Vagrant
       # Expand the private key path relative to the root path
       info[:private_key_path].map! do |path|
         File.expand_path(path, @env.root_path)
+      end
+
+      # Check that the private key permissions are valid
+      info[:private_key_path].each do |path|
+        key_path = Pathname.new(path)
+        if key_path.exist?
+          Vagrant::Util::SSH.check_key_permissions(key_path)
+        end
       end
 
       # Return the final compiled SSH info data
