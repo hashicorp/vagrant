@@ -19,7 +19,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     config.vm.provision "puppet" do |puppet|
-      puppet.environmentpath = "../puppet/environments"
+      puppet.environment_path = "../puppet/environments"
       puppet.environment = "testenv"
     #  puppet.manifests_path = "../puppet/manifests"
     #  puppet.manifest_file  = "site.pp"
