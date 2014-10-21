@@ -429,12 +429,7 @@ module VagrantPlugins
           p.run = p.run.to_sym if p.run
         end
 
-        # If we didn't share our current directory, then do it
-        # manually.
-        if !@__synced_folders["/vagrant"]
-          synced_folder(".", "/vagrant")
-        end
-
+        current_dir_shared = false
         @__synced_folders.each do |id, options|
           if options[:nfs]
             options[:type] = :nfs
@@ -444,6 +439,14 @@ module VagrantPlugins
           if options[:type] == :nfs && Vagrant::Util::Platform.windows?
             options.delete(:type)
           end
+
+          if options[:hostpath]  == '.'
+            current_dir_shared = true
+          end
+        end
+
+        if !current_dir_shared && !@__synced_folders["/vagrant"]
+          synced_folder(".", "/vagrant")
         end
 
         # Flag that we finalized
