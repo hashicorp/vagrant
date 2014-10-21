@@ -4,6 +4,7 @@ BUG FIXES:
 
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
+  - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
 
 ## 1.6.5 (September 4, 2014)
 
