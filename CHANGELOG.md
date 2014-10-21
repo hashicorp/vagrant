@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - core: Fix cases where sometimes SSH connection would hang.
   - providers/docker: Create args works. [GH-4526]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]

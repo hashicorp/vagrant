@@ -265,8 +265,13 @@ module VagrantPlugins
           # There is a chance that the socket is closed despite us checking
           # 'closed?' above. To test this we need to send data through the
           # socket.
+          #
+          # We wrap the check itself in a 5 second timeout because there
+          # are some cases where this will just hang.
           begin
-            @connection.exec!("")
+            Timeout.timeout(5) do
+              @connection.exec!("")
+            end
           rescue Exception => e
             @logger.info("Connection errored, not re-using. Will reconnect.")
             @logger.debug(e.inspect)
