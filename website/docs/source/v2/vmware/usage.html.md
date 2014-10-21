@@ -12,7 +12,7 @@ providers.
 The value to use for the `--provider` flag is `vmware_fusion` for VMware
 Fusion, and `vmware_workstation` for VMware Workstation.
 
-The Vagrant VMWare provider does not support parallel execution at this time.
+The Vagrant VMware provider does not support parallel execution at this time.
 Specifying the `--parallel` option will have no effect.
 
 <p>

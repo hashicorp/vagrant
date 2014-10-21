@@ -6,7 +6,7 @@ require "log4r"
 module Vagrant
   # This represents a machine that Vagrant manages. This provides a singular
   # API for querying the state and making state changes to the machine, which
-  # is backed by any sort of provider (VirtualBox, VMWare, etc.).
+  # is backed by any sort of provider (VirtualBox, VMware, etc.).
   class Machine
     # The box that is backing this machine.
     #
