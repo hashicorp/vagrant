@@ -475,6 +475,13 @@ module VagrantPlugins
 
         def set_name(name)
           execute("modifyvm", @uuid, "--name", name, retryable: true)
+        rescue Vagrant::Errors::VBoxManageError => e
+          raise if !e.extra_data[:stderr].include?("VERR_ALREADY_EXISTS")
+
+          # We got VERR_ALREADY_EXISTS. This means that we're renaming to
+          # a VM name that already exists. Raise a custom error.
+          raise Vagrant::Errors::VirtualBoxNameExists,
+            stderr: e.extra_data[:stderr]
         end
 
         def share_folders(folders)

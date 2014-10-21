@@ -1,3 +1,10 @@
+## 1.7.0 (unreleased)
+
+BUG FIXES:
+
+  - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
+      clean up an existing VM. [GH-4681]
+
 ## 1.6.5 (September 4, 2014)
 
 BUG FIXES:

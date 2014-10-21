@@ -1193,6 +1193,18 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_name_exists: |-
+        The name of your virtual machine couldn't be set because VirtualBox
+        is reporting another VM with that name already exists. Most of the
+        time, this is because of an error with VirtualBox not cleaning up
+        properly. To fix this, verify that no VMs with that name do exist
+        (by opening the VirtualBox GUI). If they don't, then look at the
+        folder in the error message from VirtualBox below and remove it
+        if there isn't any information you need in there.
+
+        VirtualBox error:
+
+        %{stderr}
       virtualbox_no_name: |-
         Vagrant was unable to determine the recommended name for your
         VirtualBox VM. This is usually an issue with VirtualBox. The output
