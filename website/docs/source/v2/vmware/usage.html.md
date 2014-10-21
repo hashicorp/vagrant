@@ -5,12 +5,15 @@ sidebar_current: "vmware-usage"
 
 # Usage
 
-The VMware providers are used just like any other provider. Please
+The Vagrant VMware providers are used just like any other provider. Please
 read the general [basic usage](/v2/providers/basic_usage.html) page for
 providers.
 
 The value to use for the `--provider` flag is `vmware_fusion` for VMware
 Fusion, and `vmware_workstation` for VMware Workstation.
+
+The Vagrant VMWare provider does not support parallel execution at this time.
+Specifying the `--parallel` option will have no effect.
 
 <p>
 To get started, a 64-bit Ubuntu 12.04 LTS VMware box is available at:
