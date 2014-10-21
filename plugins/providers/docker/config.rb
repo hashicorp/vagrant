@@ -87,7 +87,7 @@ module VagrantPlugins
         @build_args = []
         @build_dir  = UNSET_VALUE
         @cmd        = UNSET_VALUE
-        @create_args = []
+        @create_args = UNSET_VALUE
         @env        = {}
         @expose     = []
         @force_host_vm = UNSET_VALUE

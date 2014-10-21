@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - providers/docker: Create args works. [GH-4526]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
