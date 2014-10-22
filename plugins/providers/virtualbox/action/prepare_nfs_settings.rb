@@ -1,7 +1,10 @@
+require "vagrant/action/builtin/mixin_synced_folders"
+
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class PrepareNFSSettings
+        include Vagrant::Action::Builtin::MixinSyncedFolders
         include Vagrant::Util::Retryable
 
         def initialize(app, env)
@@ -14,7 +17,13 @@ module VagrantPlugins
 
           @app.call(env)
 
-          if using_nfs?
+          opts = {
+            cached: !!env[:synced_folders_cached],
+            config: env[:synced_folders_config],
+          }
+          folders = synced_folders(env[:machine], **opts)
+
+          if folders.has_key?(:nfs)
             @logger.info("Using NFS, preparing NFS settings by reading host IP and machine IP")
             add_ips_to_env!(env)
           end

@@ -14,6 +14,7 @@ BUG FIXES:
   - providers/docker: Protocol is now honored in direct `ports settings.
   - providers/docker: Images built using `build\_dir` will more robustly
       capture the final image. [GH-4598]
+  - providers/docker: NFS synced folders now work. [GH-4344]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
