@@ -48,6 +48,18 @@ module VagrantPlugins
           paths = {}
           ignores = []
           with_target_vms(argv) do |machine|
+            if machine.provider.capability?(:proxy_machine)
+              proxy = machine.provider.capability(:proxy_machine)
+              if proxy
+                machine.ui.warn(I18n.t(
+                  "vagrant.rsync_proxy_machine",
+                  name: machine.name.to_s,
+                  provider: machine.provider_name.to_s))
+
+                machine = proxy
+              end
+            end
+
             cached = synced_folders(machine, cached: true)
             fresh  = synced_folders(machine)
             diff   = synced_folders_diff(cached, fresh)
