@@ -53,7 +53,7 @@ module VagrantPlugins
         run_cmd += params[:extra_args] if params[:extra_args]
         run_cmd += [image, cmd]
 
-        execute(*run_cmd.flatten, **opts, &block).chomp
+        execute(*run_cmd.flatten, **opts, &block).chomp.lines.last
       end
 
       def state(cid)
