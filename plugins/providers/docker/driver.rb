@@ -95,9 +95,9 @@ module VagrantPlugins
         end
       end
 
-      def stop(cid)
+      def stop(cid, timeout)
         if running?(cid)
-          execute('docker', 'stop', '-t', '1', cid)
+          execute('docker', 'stop', '-t', timeout.to_s, cid)
         end
       end
 

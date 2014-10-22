@@ -61,6 +61,12 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :remains_running
 
+      # The time to wait before sending a SIGTERM to the container
+      # when it is stopped.
+      #
+      # @return [Integer]
+      attr_accessor :stop_timeout
+
       # The name of the machine in the Vagrantfile set with
       # "vagrant_vagrantfile" that will be the docker host. Defaults
       # to "default"
@@ -99,6 +105,7 @@ module VagrantPlugins
         @ports      = UNSET_VALUE
         @privileged = UNSET_VALUE
         @remains_running = UNSET_VALUE
+        @stop_timeout = UNSET_VALUE
         @volumes    = []
         @vagrant_machine = UNSET_VALUE
         @vagrant_vagrantfile = UNSET_VALUE
@@ -151,6 +158,7 @@ module VagrantPlugins
         @ports      = [] if @ports == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
         @remains_running = true if @remains_running == UNSET_VALUE
+        @stop_timeout = 1 if @stop_timeout == UNSET_VALUE
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE
         @vagrant_vagrantfile = nil if @vagrant_vagrantfile == UNSET_VALUE
 

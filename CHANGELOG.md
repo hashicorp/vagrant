@@ -1,5 +1,10 @@
 ## 1.7.0 (unreleased)
 
+IMPROVEMENTS:
+
+  - providers/docker: `stop_timeout` can be used to modify the `docker stop`
+      timeout. [GH-4504]
+
 BUG FIXES:
 
   - core: Fix cases where sometimes SSH connection would hang.

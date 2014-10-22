@@ -47,6 +47,7 @@ describe VagrantPlugins::DockerProvider::Config do
     its(:image) { should be_nil }
     its(:name) { should be_nil }
     its(:privileged) { should be_false }
+    its(:stop_timeout) { should eq(1) }
     its(:vagrant_machine) { should be_nil }
     its(:vagrant_vagrantfile) { should be_nil }
   end

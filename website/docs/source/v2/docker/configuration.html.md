@@ -62,6 +62,9 @@ you may set. A complete reference is shown below.
     of time. If false, then Vagrant expects that this container will
     automatically stop at some point, and won't error if it sees it do that.
 
+  * `stop_timeout` (integer) - The amount of time to wait when stopping
+    a container before sending a SIGTERM to the process.
+
   * `vagrant_machine` (string) - The name of the Vagrant machine in the
     `vagrant_vagrantfile` to use as the host machine. This defaults to
     "default".
