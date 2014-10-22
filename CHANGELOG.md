@@ -4,6 +4,7 @@ BUG FIXES:
 
   - core: Fix cases where sometimes SSH connection would hang.
   - providers/docker: Create args works. [GH-4526]
+  - providers/docker: Nicer error if package is called. [GH-4595]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]

@@ -151,6 +151,11 @@ en:
         is functional and properly configured.
 
         Host VM ID: %{id}
+      package_not_supported: |-
+        The "package" command is not supported with the Docker provider.
+        If you'd like to commit or push your Docker container, please SSH
+        into the host VM (if there is one), and run `docker commit` and
+        so on manually.
       state_not_running: |-
         The container never entered the "running" state, or entered it
         briefly but reverted back to another state. Please verify that

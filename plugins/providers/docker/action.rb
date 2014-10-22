@@ -45,6 +45,12 @@ module VagrantPlugins
         end
       end
 
+      def self.action_package
+        lambda do |env|
+          raise Errors::PackageNotSupported
+        end
+      end
+
       # This action just runs the provisioners on the machine.
       def self.action_provision
         Vagrant::Action::Builder.new.tap do |b|
