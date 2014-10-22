@@ -93,11 +93,12 @@ module Vagrant
 
           config = opts[:config]
           config ||= machine.config.vm
+          config_folders = config.synced_folders
           folders = {}
 
           # Determine all the synced folders as well as the implementation
           # they're going to use.
-          config.synced_folders.each do |id, data|
+          config_folders.each do |id, data|
             # Ignore disabled synced folders
             next if data[:disabled]
 

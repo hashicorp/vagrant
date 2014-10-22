@@ -56,6 +56,11 @@ module VagrantPlugins
         Cap::PublicAddress
       end
 
+      provider_capability("docker", "proxy_machine") do
+        require_relative "cap/proxy_machine"
+        Cap::ProxyMachine
+      end
+
       protected
 
       def self.init!
