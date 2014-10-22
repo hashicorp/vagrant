@@ -39,7 +39,7 @@ $ vagrant up
 ```
 
 After running the above two commands, you'll have a fully running
-virtual machine in [VirtualBox](http://virtualbox.org) running
+virtual machine in [VirtualBox](https://www.virtualbox.org) running
 Ubuntu 12.04 LTS 32-bit. You can SSH into this machine with
 `vagrant ssh`, and when you're done playing around, you can remove
 all traces of it with `vagrant destroy`.
