@@ -221,6 +221,19 @@ module Vagrant
           data[:provisioners]
         end
 
+        # Registers additional pushes to be available.
+        #
+        # @param [String] name Name of the push.
+        def self.push(name=UNSET_VALUE, &block)
+          data[:pushes] ||= Registry.new
+
+          # Register a new pusher class only if a name was given
+          data[:pushes].register(name.to_sym, &block) if name != UNSET_VALUE
+
+          # Return the registry
+          data[:pushes]
+        end
+
         # Registers additional synced folder implementations.
         #
         # @param [String] name Name of the implementation.
