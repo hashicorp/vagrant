@@ -16,13 +16,13 @@ BUG FIXES:
   - providers/docker: Nicer error if package is called. [GH-4595]
   - providers/docker: Host IP restriction is forwarded through. [GH-4505]
   - providers/docker: Protocol is now honored in direct `ports settings.
-  - providers/docker: Images built using `build\_dir` will more robustly
+  - providers/docker: Images built using `build_dir` will more robustly
       capture the final image. [GH-4598]
   - providers/docker: NFS synced folders now work. [GH-4344]
   - providers/docker: Read the created container ID more robustly.
   - providers/docker: `vagrant share` uses correct IP of proxy VM if it
       exists. [GH-4342]
-  - providers/docker: `vagrant\_vagrantfile` expands home directory. [GH-4000]
+  - providers/docker: `vagrant_vagrantfile` expands home directory. [GH-4000]
   - providers/docker: Fix issue where multiple identical proxy VMs would
       be created. [GH-3963]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
@@ -31,7 +31,7 @@ BUG FIXES:
 
 PLUGIN AUTHOR CHANGES:
 
-  - `Machine#reload` will now properly trigger the `machine\_id\_changed`
+  - `Machine#reload` will now properly trigger the `machine_id_changed`
       callback on providers.
 
 ## 1.6.5 (September 4, 2014)
