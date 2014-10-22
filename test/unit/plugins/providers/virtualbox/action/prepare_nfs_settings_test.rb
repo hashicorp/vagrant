@@ -25,6 +25,10 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
 
   subject { described_class.new(app, env) }
 
+  before do
+    env[:test] = true
+  end
+
   it "calls the next action in the chain" do
     called = false
     app = lambda { |*args| called = true }

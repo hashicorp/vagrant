@@ -20,6 +20,7 @@ module VagrantPlugins
           opts = {
             cached: !!env[:synced_folders_cached],
             config: env[:synced_folders_config],
+            disable_usable_check: !!env[:test],
           }
           folders = synced_folders(env[:machine], **opts)
 
