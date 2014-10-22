@@ -8,6 +8,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: Fix cases where sometimes SSH connection would hang.
+  - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - providers/docker: Create args works. [GH-4526]
   - providers/docker: Nicer error if package is called. [GH-4595]
   - providers/docker: Host IP restriction is forwarded through. [GH-4505]
