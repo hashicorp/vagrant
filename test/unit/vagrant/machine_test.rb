@@ -451,11 +451,12 @@ describe Vagrant::Machine do
   describe "#reload" do
     before do
       allow(provider).to receive(:machine_id_changed)
-
       subject.id = "foo"
     end
 
     it "should read the ID" do
+      expect(provider).to_not receive(:machine_id_changed)
+
       subject.reload
 
       expect(subject.id).to eq("foo")
@@ -463,6 +464,8 @@ describe Vagrant::Machine do
 
     it "should read the updated ID" do
       new_instance.id = "bar"
+
+      expect(provider).to receive(:machine_id_changed)
 
       subject.reload
 

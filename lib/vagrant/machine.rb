@@ -342,6 +342,7 @@ module Vagrant
 
     # This reloads the ID of the underlying machine.
     def reload
+      old_id = @id
       @id = nil
 
       if @data_dir
@@ -350,6 +351,13 @@ module Vagrant
         id_file = @data_dir.join("id")
         @id = id_file.read.chomp if id_file.file?
       end
+
+      if @id != old_id && @provider
+        # It changed, notify the provider
+        @provider.machine_id_changed
+      end
+
+      @id
     end
 
     # This returns the SSH info for accessing this machine. This SSH info

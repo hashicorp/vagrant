@@ -20,9 +20,16 @@ BUG FIXES:
   - providers/docker: `vagrant share` uses correct IP of proxy VM if it
       exists. [GH-4342]
   - providers/docker: `vagrant\_vagrantfile` expands home directory. [GH-4000]
+  - providers/docker: Fix issue where multiple identical proxy VMs would
+      be created. [GH-3963]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
+
+PLUGIN AUTHOR CHANGES:
+
+  - `Machine#reload` will now properly trigger the `machine\_id\_changed`
+      callback on providers.
 
 ## 1.6.5 (September 4, 2014)
 
