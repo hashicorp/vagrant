@@ -89,6 +89,37 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :vagrant_vagrantfile
 
+      #--------------------------------------------------------------
+      # Auth Settings
+      #--------------------------------------------------------------
+
+      # Server to authenticate to. If blank, will use the default
+      # Docker authentication endpoint (which is the Docker Hub at the
+      # time of this comment).
+      #
+      # @return [String]
+      attr_accessor :auth_server
+
+      # Email for logging in to a remote Docker server.
+      #
+      # @return [String]
+      attr_accessor :email
+
+      # Email for logging in to a remote Docker server.
+      #
+      # @return [String]
+      attr_accessor :username
+
+      # Password for logging in to a remote Docker server. If this is
+      # not blank, then Vagrant will run `docker login` prior to any
+      # Docker runs.
+      #
+      # The presence of auth will also force the Docker environments to
+      # serialize on `up` so that different users/passwords don't overlap.
+      #
+      # @return [String]
+      attr_accessor :password
+
       def initialize
         @build_args = []
         @build_dir  = UNSET_VALUE
@@ -109,6 +140,11 @@ module VagrantPlugins
         @volumes    = []
         @vagrant_machine = UNSET_VALUE
         @vagrant_vagrantfile = UNSET_VALUE
+
+        @auth_server = UNSET_VALUE
+        @email    = UNSET_VALUE
+        @username = UNSET_VALUE
+        @password = UNSET_VALUE
       end
 
       def link(name)
@@ -161,6 +197,11 @@ module VagrantPlugins
         @stop_timeout = 1 if @stop_timeout == UNSET_VALUE
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE
         @vagrant_vagrantfile = nil if @vagrant_vagrantfile == UNSET_VALUE
+
+        @auth_server = nil if @auth_server == UNSET_VALUE
+        @email = "" if @email == UNSET_VALUE
+        @username = "" if @username == UNSET_VALUE
+        @password = "" if @password == UNSET_VALUE
 
         if @host_vm_build_dir_options == UNSET_VALUE
           @host_vm_build_dir_options = nil

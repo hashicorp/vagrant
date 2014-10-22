@@ -48,9 +48,6 @@ module VagrantPlugins
           # hold the lock, we'll see the updated state.
           host_machine.reload
 
-          p host_machine.id
-          p host_machine.ssh_info
-
           # See if the machine is ready already. If not, start it.
           if host_machine.communicate.ready?
             env[:machine].ui.detail(I18n.t("docker_provider.host_machine_ready"))

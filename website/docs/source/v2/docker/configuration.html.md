@@ -18,6 +18,8 @@ you may set. A complete reference is shown below.
 
 ### Optional
 
+General settings:
+
   * `build_args` (array of strings) - Extra arguments to pass to
       `docker build` when `build_dir` is in use.
 
@@ -76,3 +78,16 @@ you may set. A complete reference is shown below.
     volumes into the container. These directories must exist in the
     host where Docker is running. If you want to sync folders from the
     host Vagrant is running, just use synced folders.
+
+Below, we have settings related to auth. If these are set, then Vagrant
+will `docker login` prior to starting containers, allowing you to pull
+images from private repositories.
+
+  * `email` (string) - Email address for logging in.
+
+  * `username` (string) - Username for logging in.
+
+  * `password` (string) - Password for logging in.
+
+  * `auth_server` (string) - The server to use for authentication. If not
+      set, the Docker Hub will be used.

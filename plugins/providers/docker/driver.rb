@@ -86,6 +86,22 @@ module VagrantPlugins
         inspect_container(cid)['HostConfig']['Privileged']
       end
 
+      def login(email, username, password, server)
+        cmd = %W(docker login)
+        cmd += ["-e", email] if email != ""
+        cmd += ["-u", username] if username != ""
+        cmd += ["-p", password] if password != ""
+        cmd << server if server && server != ""
+
+        execute(*cmd.flatten)
+      end
+
+      def logout(server)
+        cmd = %W(docker logout)
+        cmd << server if server && server != ""
+        execute(*cmd.flatten)
+      end
+
       def start(cid)
         if !running?(cid)
           execute('docker', 'start', cid)

@@ -241,6 +241,7 @@ module VagrantPlugins
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
             b2.use PrepareNFSSettings
+            b2.use Login
             b2.use Build
 
             if env[:machine_action] != :run_command
@@ -295,6 +296,7 @@ module VagrantPlugins
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
       autoload :IsBuild, action_root.join("is_build")
       autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
+      autoload :Login, action_root.join("login")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")

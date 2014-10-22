@@ -50,6 +50,11 @@ describe VagrantPlugins::DockerProvider::Config do
     its(:stop_timeout) { should eq(1) }
     its(:vagrant_machine) { should be_nil }
     its(:vagrant_vagrantfile) { should be_nil }
+
+    its(:auth_server) { should be_nil }
+    its(:email) { should eq("") }
+    its(:username) { should eq("") }
+    its(:password) { should eq("") }
   end
 
   before do
