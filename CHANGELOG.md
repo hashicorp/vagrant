@@ -7,6 +7,8 @@ BUG FIXES:
   - providers/docker: Nicer error if package is called. [GH-4595]
   - providers/docker: Host IP restriction is forwarded through. [GH-4505]
   - providers/docker: Protocol is now honored in direct `ports settings.
+  - providers/docker: Images built using `build\_dir` will more robustly
+      capture the final image. [GH-4598]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]

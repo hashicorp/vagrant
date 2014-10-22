@@ -18,15 +18,15 @@ module VagrantPlugins
         args   = Array(opts[:extra_args])
         args   << dir
         result = execute('docker', 'build', *args)
-        regexp = /Successfully built (.+)$/i
-        match  = regexp.match(result)
-        if !match
+        matches = result.scan(/Successfully built (.+)$/i)
+        if matches.empty?
           # This will cause a stack trace in Vagrant, but it is a bug
           # if this happens anyways.
           raise "UNKNOWN OUTPUT: #{result}"
         end
 
-        match[1]
+        # Return the last match, and the capture of it
+        matches[-1][0]
       end
 
       def create(params, **opts, &block)
