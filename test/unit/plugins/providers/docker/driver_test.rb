@@ -140,7 +140,12 @@ describe VagrantPlugins::DockerProvider::Driver do
 
       it 'stops the container' do
         subject.should_receive(:execute).with('docker', 'stop', '-t', '1', cid)
-        subject.stop(cid)
+        subject.stop(cid, 1)
+      end
+
+      it "stops the container with the set timeout" do
+        subject.should_receive(:execute).with('docker', 'stop', '-t', '5', cid)
+        subject.stop(cid, 5)
       end
     end
 
@@ -149,7 +154,7 @@ describe VagrantPlugins::DockerProvider::Driver do
 
       it 'does not stop container' do
         subject.should_not_receive(:execute).with('docker', 'stop', '-t', '1', cid)
-        subject.stop(cid)
+        subject.stop(cid, 1)
       end
     end
   end
