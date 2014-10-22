@@ -73,6 +73,10 @@ module VagrantPlugins
           host_machine_name = :default
         end
 
+        # Expand it so that the home directories and so on get processed
+        # properly.
+        vf_path = File.expand_path(vf_path, @machine.env.root_path)
+
         vf_file = File.basename(vf_path)
         vf_path = File.dirname(vf_path)
 

@@ -18,6 +18,7 @@ BUG FIXES:
   - providers/docker: Read the created container ID more robustly.
   - providers/docker: `vagrant share` uses correct IP of proxy VM if it
       exists. [GH-4342]
+  - providers/docker: `vagrant\_vagrantfile` expands home directory. [GH-4000]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
