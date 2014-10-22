@@ -47,7 +47,7 @@ After purchase, license files are generated and emailed to you.
 
 ## Software EULA/Terms
 
-You can download a copy of the EULA [here](https://s3.amazonaws.com/hc-public/sales/EULA_standalone.docx).
+You can download a copy of the EULA [here](https://s3.amazonaws.com/hc-public/sales/EULA_standalone.pdf).
 
 ## Company Details
 
