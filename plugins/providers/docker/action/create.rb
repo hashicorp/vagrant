@@ -143,7 +143,9 @@ module VagrantPlugins
           result += mappings.values.map do |fp|
             protocol = ""
             protocol = "/udp" if fp[:protocol].to_s == "udp"
-            "#{fp[:host]}:#{fp[:guest]}#{protocol}"
+            host_ip = ""
+            host_ip = "#{fp[:host_ip]}:" if fp[:host_ip]
+            "#{host_ip}#{fp[:host]}:#{fp[:guest]}#{protocol}"
           end.compact
 
           result

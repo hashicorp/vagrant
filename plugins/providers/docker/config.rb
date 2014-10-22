@@ -96,7 +96,7 @@ module VagrantPlugins
         @image      = UNSET_VALUE
         @name       = UNSET_VALUE
         @links      = []
-        @ports      = []
+        @ports      = UNSET_VALUE
         @privileged = UNSET_VALUE
         @remains_running = UNSET_VALUE
         @volumes    = []
@@ -148,6 +148,7 @@ module VagrantPlugins
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
         @name       = nil if @name == UNSET_VALUE
+        @ports      = [] if @ports == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
         @remains_running = true if @remains_running == UNSET_VALUE
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE
