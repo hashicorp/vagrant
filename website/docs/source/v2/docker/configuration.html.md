@@ -34,7 +34,9 @@ you may set. A complete reference is shown below.
     but not to the host machine. Useful for links.
 
   * `link` (method, string argument) - Link this container to another
-    by name. Example: `docker.link("db:db")`.
+    by name. Example: `docker.link("db:db")`. Note, if you're linking to
+    another container in the same Vagrantfile, make sure you call
+    `vagrant up` with the `--no-parallel` flag.
 
   * `force_host_vm` (boolean) - If true, then a host VM will be spun up
     even if the computer running Vagrant supports Linux containers. This
