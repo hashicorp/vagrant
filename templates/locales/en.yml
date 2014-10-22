@@ -1810,3 +1810,7 @@ en:
           You must include both public and private keys.
         must_accept_keys: |-
           You must accept keys when running highstate with master!
+
+    pushes:
+      file:
+        no_destination: "File destination must be specified."
