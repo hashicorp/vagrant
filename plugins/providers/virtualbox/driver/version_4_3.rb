@@ -18,7 +18,7 @@ module VagrantPlugins
 
         def clear_forwarded_ports
           args = []
-          read_forwarded_ports(@uuid).each do |nic, name, _,  _, _|
+          read_forwarded_ports(@uuid).each do |nic, name, _, _|
             args.concat(["--natpf#{nic}", "delete", name])
           end
 
@@ -261,9 +261,8 @@ module VagrantPlugins
               end
 
             # Parse out the forwarded port information
-            if line =~ /^Forwarding.+?="(.+?),.*?,.(.+?),(.+?),.*?,(.+?)"$/
-              result = [current_nic, $1.to_s, $2.to_s, $3.to_i, $4.to_i]
-			#[["nat", "ssh", "127.0.0.1", 2222, 22]]
+            if line =~ /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/
+              result = [current_nic, $1.to_s, $2.to_i, $3.to_i]
               @logger.debug("  - #{result.inspect}")
               results << result
             end
@@ -456,8 +455,8 @@ module VagrantPlugins
               # Ignore our own used ports
               next if uuid == @uuid
 
-              read_forwarded_ports(uuid, true).each do |_, _, hostaddr, hostport, _|
-                ports << [hostaddr, hostport]
+              read_forwarded_ports(uuid, true).each do |_, _, hostport, _|
+                ports << hostport
               end
             end
           end
@@ -511,7 +510,7 @@ module VagrantPlugins
           @logger.debug("Searching for SSH port: #{expected_port.inspect}")
 
           # Look for the forwarded port only by comparing the guest port
-          read_forwarded_ports.each do |_, _, _, hostport, guestport|
+          read_forwarded_ports.each do |_, _, hostport, guestport|
             return hostport if guestport == expected_port
           end
 
