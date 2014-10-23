@@ -316,7 +316,8 @@ module VagrantPlugins
         def read_guest_ip(adapter_number)
           ip = read_guest_property("/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP")
           if !valid_ip_address?(ip)
-            raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, guest_property: "/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP"
+            raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound,
+              guest_property: "/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP"
           end
 
           return ip
@@ -562,16 +563,6 @@ module VagrantPlugins
           end
         end
 
-        def valid_ip_address?(ip)
-          # Filter out invalid IP addresses
-          # GH-4658 VirtualBox can report an IP address of 0.0.0.0 for FreeBSD guests.
-          if ip == "0.0.0.0"
-            return false
-          else
-            return true
-          end
-        end
-
         def verify!
           # This command sometimes fails if kernel drivers aren't properly loaded
           # so we just run the command and verify that it succeeded.
@@ -601,6 +592,18 @@ module VagrantPlugins
           # exception if it fails again.
           execute("showvminfo", uuid)
           return true
+        end
+
+        protected
+
+        def valid_ip_address?(ip)
+          # Filter out invalid IP addresses
+          # GH-4658 VirtualBox can report an IP address of 0.0.0.0 for FreeBSD guests.
+          if ip == "0.0.0.0"
+            return false
+          else
+            return true
+          end
         end
       end
     end
