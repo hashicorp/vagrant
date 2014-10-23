@@ -946,6 +946,23 @@ en:
         You can however, install a plugin with the same name to replace
         these plugins. User-installed plugins take priority over
         system-installed plugins.
+      pushes_not_defined: |-
+        The Vagrantfile does not define any 'push' strategies. In order to use
+        `vagrant push`, you must define at least one push strategy:
+
+            config.push :ftp do |strategy|
+              # ... strategy-specific options
+            end
+      push_strategy_not_defined: |-
+        The push strategy '%{name}' is not defined in the Vagrantfile. Defined
+        strategies are:
+
+         %{pushes}
+      push_strategy_not_provided: |-
+        The Vagrantfile defines more than one 'push' strategy. Please specify a
+        strategy. Defined strategies are:
+
+         %{pushes}
       package_include_symlink: |-
         A file or directory you're attempting to include with your packaged
         box has symlinks in it. Vagrant cannot include symlinks in the

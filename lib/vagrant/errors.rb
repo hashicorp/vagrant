@@ -556,6 +556,18 @@ module Vagrant
       error_key(:plugin_uninstall_system)
     end
 
+    class PushesNotDefined < VagrantError
+      error_key(:pushes_not_defined)
+    end
+
+    class PushStrategyNotDefined < VagrantError
+      error_key(:push_strategy_not_defined)
+    end
+
+    class PushStrategyNotProvided < VagrantError
+      error_key(:push_strategy_not_provided)
+    end
+
     class RSyncError < VagrantError
       error_key(:rsync_error)
     end
