@@ -25,6 +25,7 @@ BUG FIXES:
   - guests/freebsd: NFS mounting can specify the version. [GH-4518]
   - guests/linux: More descriptive error message if SMB mount fails. [GH-4641]
   - guests/rhel: Hostname setting on 7.x series works properly. [GH-4527]
+  - guests/rhel: Installing NFS client works properly on 7.x [GH-4499]
   - guests/solaris11: Static IP address preserved after restart. [GH-4621]
   - guests/ubuntu: Detect with `lsb_release` instead of `/etc/issue`. [GH-4565]
   - hosts/windows: RDP client shouldn't map all drives by default. [GH-4534]
