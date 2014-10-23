@@ -1,20 +1,19 @@
 require "vagrant"
 
 module VagrantPlugins
-  module FileDeploy
+  module NoopDeploy
     class Plugin < Vagrant.plugin("2")
-      name "file"
+      name "noop"
       description <<-DESC
-      Deploy by pushing to a filepath on your local system or a remote share
-      attached to this system
+      Literally do nothing
       DESC
 
-      config(:file, :push) do
+      config(:noop, :push) do
         require File.expand_path("../config", __FILE__)
         Config
       end
 
-      push(:file) do
+      push(:noop) do
         require File.expand_path("../push", __FILE__)
         Push
       end
