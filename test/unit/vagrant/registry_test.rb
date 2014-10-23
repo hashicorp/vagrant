@@ -116,6 +116,17 @@ describe Vagrant::Registry do
     end
   end
 
+  describe "#empty" do
+    it "should return true when the registry is empty" do
+      expect(instance.empty?).to be(true)
+    end
+
+    it "should return false when there is at least one element" do
+      instance.register("foo") { }
+      expect(instance.empty?).to be(false)
+    end
+  end
+
   describe "merging" do
     it "should merge in another registry" do
       one = described_class.new

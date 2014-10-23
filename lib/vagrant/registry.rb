@@ -59,6 +59,13 @@ module Vagrant
     end
     alias_method :size, :length
 
+    # Checks if this registry has any items.
+    #
+    # @return [Boolean]
+    def empty?
+      @items.keys.empty?
+    end
+
     # Merge one registry with another and return a completely new
     # registry. Note that the result cache is completely busted, so
     # any gets on the new registry will result in a cache miss.
