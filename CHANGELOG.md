@@ -26,6 +26,7 @@ BUG FIXES:
       doesn't support byte ranges. [GH-4479]
   - core: Box downloads recognize more complex content types that include
       "application/json" [GH-4525]
+  - core: If all sub-machines are `autostart: false`, don't start any. [GH-4552]
   - commands/box: `--cert` flag works properly. [GH-4691]
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/docker-run: Synced folders will be attached properly. [GH-3873]

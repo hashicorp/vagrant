@@ -216,6 +216,10 @@ en:
       Error! Your console doesn't support hiding input. We'll ask for
       input again below, but we WILL NOT be able to hide input. If this
       is a problem for you, ctrl-C to exit and fix your stdin.
+    up_no_machines: |-
+      No machines to bring up. This is usually because all machines are
+      set to `autostart: false`, which means you have to explicitly specify
+      the name of the machine to bring up.
     upgrading_home_path_v1_5: |-
       Vagrant is upgrading some internal state for the latest version.
       Please do not quit Vagrant at this time. While upgrading, Vagrant
