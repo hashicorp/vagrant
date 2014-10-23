@@ -184,12 +184,15 @@ module VagrantPlugins
             else
               # More than one bridgable interface requires a user decision, so
               # show options to choose from.
-              @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.available",
-                                    prefix: false)
+              @env[:ui].info I18n.t(
+                "vagrant.actions.vm.bridged_networking.available",
+                prefix: false)
               bridgedifs.each_index do |index|
                 interface = bridgedifs[index]
                 @env[:ui].info("#{index + 1}) #{interface[:name]}", prefix: false)
               end
+              @env[:ui].info(I18n.t(
+                "vagrant.actions.vm.bridged_networking.choice_help")+"\n")
 
               # The range of valid choices
               valid = Range.new(1, bridgedifs.length)
@@ -197,7 +200,8 @@ module VagrantPlugins
               # The choice that the user has chosen as the bridging interface
               choice = nil
               while !valid.include?(choice)
-                choice = @env[:ui].ask("What interface should the network bridge to? ")
+                choice = @env[:ui].ask(
+                  "What interface should the network bridge to? ")
                 choice = choice.to_i
               end
 

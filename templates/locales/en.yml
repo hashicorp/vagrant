@@ -1466,6 +1466,9 @@ en:
             Enabling bridged network...
           preparing: |-
             Preparing bridged networking...
+          choice_help: |-
+            When choosing an interface, it is usually the one that is
+            being used to connect to the internet.
           specific_not_found: |-
             Specific bridge '%{bridge}' not found. You may be asked to specify
             which network to bridge to.
