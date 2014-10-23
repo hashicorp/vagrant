@@ -162,7 +162,7 @@ module Vagrant
             end
 
             # Use the default provider if nothing else
-            provider_to_use ||= @env.default_provider
+            provider_to_use ||= @env.default_provider(machine: name)
 
             # Get the right machine with the right provider
             @env.machine(name, provider_to_use)
