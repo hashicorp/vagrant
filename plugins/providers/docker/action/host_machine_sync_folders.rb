@@ -46,7 +46,6 @@ module VagrantPlugins
         def setup_synced_folders(host_machine, env)
           # Write the host machine SFID if we have one
           id_path   = env[:machine].data_dir.join("host_machine_sfid")
-          host_sfid = nil
           if !id_path.file?
             host_sfid = SecureRandom.uuid
             id_path.open("w") do |f|

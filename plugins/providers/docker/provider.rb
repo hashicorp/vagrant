@@ -156,6 +156,11 @@ module VagrantPlugins
         state_id = driver.state(@machine.id) if @machine.id && !state_id
         state_id = :unknown if !state_id
 
+        # This is a special pseudo-state so that we don't set the
+        # NOT_CREATED_ID while we're setting up the machine. This avoids
+        # clearing the data dir.
+        state_id = :preparing if @machine.id == "preparing"
+
         short = state_id.to_s.gsub("_", " ")
         long  = I18n.t("docker_provider.status.#{state_id}")
 
