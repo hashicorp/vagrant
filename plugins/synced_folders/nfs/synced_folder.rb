@@ -69,20 +69,23 @@ module VagrantPlugins
           end
         end
 
-        # Export the folders. We do this with a class-wide lock because
-        # NFS exporting often requires sudo privilege and we don't want
-        # overlapping input requests. [GH-2680]
-        @@lock.synchronize do
-          begin
-            machine.env.lock("nfs-export") do
-              machine.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
-              machine.env.host.capability(
-                :nfs_export,
-                machine.ui, machine.id, machine_ip, export_folders)
+        # Update the exports when there are actually exports [GH-4148]
+        if !export_folders.empty?
+          # Export the folders. We do this with a class-wide lock because
+          # NFS exporting often requires sudo privilege and we don't want
+          # overlapping input requests. [GH-2680]
+          @@lock.synchronize do
+            begin
+              machine.env.lock("nfs-export") do
+                machine.ui.info I18n.t("vagrant.actions.vm.nfs.exporting")
+                machine.env.host.capability(
+                  :nfs_export,
+                  machine.ui, machine.id, machine_ip, export_folders)
+              end
+            rescue Vagrant::Errors::EnvironmentLockedError
+              sleep 1
+              retry
             end
-          rescue Vagrant::Errors::EnvironmentLockedError
-            sleep 1
-            retry
           end
         end
 
