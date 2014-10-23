@@ -22,6 +22,8 @@ BUG FIXES:
   - core: Don't share `/vagrant` if any "." folder is shared. [GH-4675]
   - core: Fix SSH private key permissions more aggressively. [GH-4670]
   - core: Custom Vagrant Cloud server URL now respected in more cases.
+  - core: On downloads, don't continue downloads if the remote server
+      doesn't support byte ranges. [GH-4479]
   - commands/box: `--cert` flag works properly. [GH-4691]
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/docker-run: Synced folders will be attached properly. [GH-3873]

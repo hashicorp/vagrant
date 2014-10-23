@@ -58,18 +58,15 @@ module Vagrant
       # If this method returns without an exception, the download
       # succeeded. An exception will be raised if the download failed.
       def download!
-        options, subprocess_options = self.options
-        options += ["--output", @destination]
-        options << @source
-
         # This variable can contain the proc that'll be sent to
         # the subprocess execute.
         data_proc = nil
 
+        extra_subprocess_opts = {}
         if @ui
           # If we're outputting progress, then setup the subprocess to
           # tell us output so we can parse it out.
-          subprocess_options[:notify] = :stderr
+          extra_subprocess_opts[:notify] = :stderr
 
           progress_data = ""
           progress_regexp = /(\r(.+?))\r/
@@ -121,8 +118,31 @@ module Vagrant
         @logger.info("  -- Source: #{@source}")
         @logger.info("  -- Destination: #{@destination}")
 
+        retried = false
         begin
+          # Get the command line args and the subprocess opts based
+          # on our downloader settings.
+          options, subprocess_options = self.options
+          options += ["--output", @destination]
+          options << @source
+
+          # Merge in any extra options we set
+          subprocess_options.merge!(extra_subprocess_opts)
+
+          # Go!
           execute_curl(options, subprocess_options, &data_proc)
+        rescue Errors::DownloaderError => e
+          # If we already retried, raise it.
+          raise if retried
+
+          # If its any error other than 33, it is an error.
+          raise if e.extra_data[:exit_code].to_i != 33
+
+          # Exit code 33 means that the server doesn't support ranges.
+          # In this case, try again without resume.
+          @continue = false
+          retried = true
+          retry
         ensure
           # If we're outputting to the UI, clear the output to
           # avoid lingering progress meters.
@@ -177,7 +197,9 @@ module Vagrant
           @logger.warn("Downloader exit code: #{result.exit_code}")
           parts    = result.stderr.split(/\n*curl:\s+\(\d+\)\s*/, 2)
           parts[1] ||= ""
-          raise Errors::DownloaderError, message: parts[1].chomp
+          raise Errors::DownloaderError,
+            code: result.exit_code,
+            message: parts[1].chomp
         end
 
         result
