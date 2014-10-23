@@ -10,6 +10,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: Fix cases where sometimes SSH connection would hang.
+  - commands/box: `--cert` flag works properly. [GH-4691]
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/rsync: Sync to Docker containers properly. [GH-4066]
   - providers/docker: Create args works. [GH-4526]
