@@ -45,6 +45,7 @@ BUG FIXES:
   - provisioners/docker: Get GPG key over SSL. [GH-4597]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
   - provisioners/salt: Highstate works properly with a master. [GH-4471]
+  - provisioners/shell: PowerShell scripts can have args. [GH-4548]
   - synced\_folders/nfs: Don't modify NFS exports file if no exports. [GH-4619]
 
 PLUGIN AUTHOR CHANGES:

@@ -100,15 +100,15 @@ module VagrantPlugins
             exec_path.gsub!('/', '\\')
             exec_path = "c:#{exec_path}" if exec_path.start_with?("\\")
 
-            # Copy shell_args from configuration
-            shell_args = config.shell_args
-            
+            # Copy powershell_args from configuration
+            shell_args = config.powershell_args
+
             # For PowerShell scripts bypass the execution policy unless already specified
-            shell_args += " -ExecutionPolicy Bypass" if config.shell_args !~ /[-\/]ExecutionPolicy/i
-            
-            # CLIXML output is kinda useless, especially on non-windows hosts 
-            shell_args += " -OutputFormat Text" if config.shell_args !~ /[-\/]OutputFormat/i
-                                    
+            shell_args += " -ExecutionPolicy Bypass" if config.powershell_args !~ /[-\/]ExecutionPolicy/i
+
+            # CLIXML output is kinda useless, especially on non-windows hosts
+            shell_args += " -OutputFormat Text" if config.powershell_args !~ /[-\/]OutputFormat/i
+
             command = "#{exec_path}#{args}"
             command = "powershell #{shell_args.to_s} -file #{command}" if
               File.extname(exec_path).downcase == '.ps1'
