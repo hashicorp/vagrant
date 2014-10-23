@@ -81,7 +81,7 @@ module Vagrant
               box_url: machine.config.vm.box_url || machine.config.vm.box,
               box_provider: box_formats,
               box_version: machine.config.vm.box_version,
-              box_client_cert: box_download_client_cert,
+              box_download_client_cert: box_download_client_cert,
               box_download_ca_cert: box_download_ca_cert,
               box_download_ca_path: box_download_ca_path,
               box_download_insecure: box_download_insecure,
