@@ -76,8 +76,8 @@ Vagrant attempts to find the default provider in the following order:
   1. The `--provider` flag on a `vagrant up` is chosen above all else, if
      it is present.
 
-  2. If `VAGRANT_DEFAULT_PROVIDER` is set, it takes next priority and will
-     be the provider chosen.
+  2. If the `VAGRANT_DEFAULT_PROVIDER` environmental variable is set,
+     it takes next priority and will be the provider chosen.
 
   3. Vagrant will go through all of the `config.vm.provider` calls in the
      Vagrantfile and try each in order. It will choose the first provider
