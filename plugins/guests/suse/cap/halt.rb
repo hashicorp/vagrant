@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module GuestSuse
+  module GuestSUSE
     module Cap
       class Halt
         def self.halt(machine)
