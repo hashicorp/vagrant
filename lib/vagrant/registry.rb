@@ -4,6 +4,8 @@ module Vagrant
   # This allows certain components (such as guest systems, configuration
   # pieces, etc.) to be registered and queried, lazily.
   class Registry
+    include Enumerable
+
     def initialize
       @items = {}
       @results_cache = {}
