@@ -473,7 +473,8 @@ describe Vagrant::Machine do
     end
   end
 
-  describe "ssh info" do
+  describe "#ssh_info" do
+
     describe "with the provider returning nil" do
       it "should return nil if the provider returns nil" do
         expect(provider).to receive(:ssh_info).and_return(nil)
@@ -483,9 +484,13 @@ describe Vagrant::Machine do
 
     describe "with the provider returning data" do
       let(:provider_ssh_info) { {} }
+      let(:ssh_klass) { Vagrant::Util::SSH }
 
       before(:each) do
         allow(provider).to receive(:ssh_info).and_return(provider_ssh_info)
+        # Stub the check_key_permissions method so that even if we test incorrectly,
+        # no side effects actually happen.
+        allow(ssh_klass).to receive(:check_key_permissions)
       end
 
       [:host, :port, :username].each do |type|
@@ -555,6 +560,41 @@ describe Vagrant::Machine do
           File.expand_path("/foo", env.root_path),
           File.expand_path("/bar", env.root_path),
         ])
+      end
+
+      it "should check and try to fix the permissions of the default private key file" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = nil
+
+        expect(ssh_klass).to receive(:check_key_permissions).once.with(Pathname.new(instance.env.default_private_key_path.to_s))
+        instance.ssh_info
+      end
+
+      it "should check and try to fix the permissions of given private key files" do
+        provider_ssh_info[:private_key_path] = nil
+        # Use __FILE__ to provide an existing file
+        instance.config.ssh.private_key_path = [File.expand_path(__FILE__), File.expand_path(__FILE__)]
+
+        expect(ssh_klass).to receive(:check_key_permissions).twice.with(Pathname.new(File.expand_path(__FILE__)))
+        instance.ssh_info
+      end
+
+      it "should not check the permissions of a private key file that does not exist" do
+        provider_ssh_info[:private_key_path] = "/foo"
+        
+        expect(ssh_klass).to_not receive(:check_key_permissions)
+        instance.ssh_info
+      end
+
+      # It is not possible to test the memoization of a Ruby Hash with object equality,
+      # but we can verify that some code of ssh_info method is not executed again.
+      it "should check and try to fix the permissions of the private key file only once" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = nil
+
+        expect(ssh_klass).to receive(:check_key_permissions).once.with(Pathname.new(instance.env.default_private_key_path.to_s))
+        instance.ssh_info
+        instance.ssh_info
       end
 
       context "expanding path relative to the root path" do

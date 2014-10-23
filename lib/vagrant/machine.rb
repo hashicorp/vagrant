@@ -1,3 +1,5 @@
+require_relative "util/ssh"
+
 require "digest/md5"
 require "thread"
 
@@ -69,6 +71,12 @@ module Vagrant
     #
     # @return [Vagrantfile]
     attr_reader :vagrantfile
+
+    # The SSH information for accessing this machine. 
+    # This attribute is set only when the machine is ready for SSH communication.
+    #
+    # @return [Hash]
+    attr_reader :ssh_info
 
     # Initialize a new machine.
     #
@@ -383,6 +391,9 @@ module Vagrant
     #
     # @return [Hash] SSH information.
     def ssh_info
+
+      return @ssh_info unless @ssh_info.nil?
+
       # First, ask the provider for their information. If the provider
       # returns nil, then the machine is simply not ready for SSH, and
       # we return nil as well.
@@ -442,8 +453,16 @@ module Vagrant
         File.expand_path(path, @env.root_path)
       end
 
-      # Return the final compiled SSH info data
-      info
+      # Check that the private key permissions are valid
+      info[:private_key_path].each do |path|
+        key_path = Pathname.new(path)
+        if key_path.exist?
+          Vagrant::Util::SSH.check_key_permissions(key_path)
+        end
+      end
+
+      # Memoize the final compiled SSH info data and return it
+      @ssh_info = info
     end
 
     # Returns the state of this machine. The state is queried from the
