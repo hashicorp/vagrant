@@ -545,21 +545,21 @@ module Vagrant
     def push(name=nil)
       @logger.info("Getting push: #{name}")
 
-      if vagrantfile.pushes.nil? || vagrantfile.pushes.empty?
+      if pushes.nil? || pushes.empty?
         raise Vagrant::Errors::PushesNotDefined
       end
 
       if name.nil?
-        if vagrantfile.pushes.length != 1
+        if pushes.length != 1
           raise Vagrant::Errors::PushStrategyNotProvided,
-            pushes: vagrantfile.pushes
+            pushes: pushes
         end
-        name = vagrantfile.pushes.first
+        name = pushes.first
       else
-        if !vagrantfile.pushes.include?(name.to_sym)
+        if !pushes.include?(name.to_sym)
           raise Vagrant::Errors::PushStrategyNotDefined,
             name: name,
-            pushes: vagrantfile.pushes
+            pushes: pushes
         end
       end
 
@@ -582,6 +582,13 @@ module Vagrant
         # blocks, or should it?
         plugin.new(self, config_blocks).push
       end
+    end
+
+    # The list of pushes defined in this Vagrantfile.
+    #
+    # @return [Array<Symbol>]
+    def pushes
+      vagrantfile.pushes
     end
 
     # This returns a machine with the proper provider for this environment.
