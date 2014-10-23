@@ -16,6 +16,7 @@ BUG FIXES:
       is missing. [GH-4684]
   - core: Don't share `/vagrant` if any "." folder is shared. [GH-4675]
   - core: Fix SSH private key permissions more aggressively. [GH-4670]
+  - core: Custom Vagrant Cloud server URL now respected in more cases.
   - commands/box: `--cert` flag works properly. [GH-4691]
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/docker-run: Synced folders will be attached properly. [GH-3873]
@@ -35,6 +36,7 @@ BUG FIXES:
   - providers/docker: `vagrant_vagrantfile` expands home directory. [GH-4000]
   - providers/docker: Fix issue where multiple identical proxy VMs would
       be created. [GH-3963]
+  - providers/docker: Multiple links with the same name work. [GH-4571]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - providers/virtualbox: Detect case when VirtualBox reports 0.0.0.0 as
