@@ -96,10 +96,10 @@ module VagrantPlugins
           image = @env[:create_image]
           image ||= @provider_config.image
 
-          links = {}
+          links = []
           @provider_config._links.each do |link|
             parts = link.split(":", 2)
-            links[parts[0]] = parts[1]
+            links << parts
           end
 
           {
