@@ -45,15 +45,17 @@ module VagrantPlugins
         script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
 
         # If we need auth information, then ask the user.
-        need_auth = false
+        have_auth = false
         folders.each do |id, data|
-          if !data[:smb_username] || !data[:smb_password]
-            need_auth = true
+          if data[:smb_username] && data[:smb_password]
+            @creds[:username] = data[:smb_username]
+            @creds[:password] = data[:smb_password]
+            have_auth = true
             break
           end
         end
 
-        if need_auth
+        if !have_auth
           machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
           @creds[:username] = machine.ui.ask("Username: ")
           @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
