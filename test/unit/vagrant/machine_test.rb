@@ -216,6 +216,10 @@ describe Vagrant::Machine do
   end
 
   describe "#action" do
+    before do
+      provider.stub(state: Vagrant::MachineState.new(:foo, "", ""))
+    end
+
     it "should be able to run an action that exists" do
       action_name = :up
       called      = false
@@ -265,6 +269,17 @@ describe Vagrant::Machine do
 
       expect { instance.action(action_name) }.
         to raise_error(Vagrant::Errors::UnimplementedProviderAction)
+    end
+
+    it "calls #state to update the machine index" do
+      action_name = :up
+      called      = false
+      callable    = lambda { |_env| called = true }
+
+      expect(provider).to receive(:action).with(action_name).and_return(callable)
+      expect(instance).to receive(:state)
+      instance.action(:up)
+      expect(called).to be
     end
   end
 
