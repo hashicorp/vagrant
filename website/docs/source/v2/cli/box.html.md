@@ -144,10 +144,11 @@ what versions to delete with the `--box-version` flag.
 
 # Box Repackage
 
-**Command: `vagrant box repackage NAME PROVIDER`**
+**Command: `vagrant box repackage NAME PROVIDER VERSION`**
 
 This command repackages the given box and puts it in the current
-directory so you can redistribute it.
+directory so you can redistribute it. The name, provider, and version
+of the box can retrieved using `vagrant box list`.
 
 When you add a box, Vagrant unpacks it and stores it internally. The
 original `*.box` file is not preserved. This command is useful for
