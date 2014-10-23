@@ -85,8 +85,17 @@ module VagrantPlugins
               raise
             rescue Vagrant::Errors::SSHKeyTypeNotSupported
               raise
+            rescue Vagrant::Errors::SSHKeyBadOwner
+              # TODO: It would be more polite to check for key ownership/permissions before starting the machine
+              # so that this exception would never happen (currently it may happen)
+              raise
+            rescue Vagrant::Errors::SSHKeyBadPermissions
+              # TODO: It would be more polite to check for key ownership/permissions before starting the machine
+              # so that this exception would never happen (currently it may happen)            
+              raise  
             rescue Vagrant::Errors::VagrantError => e
               # Ignore it, SSH is not ready, some other error.
+              message = e.message
             end
 
             # If we have a message to show, then show it. We don't show
