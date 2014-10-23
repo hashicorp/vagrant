@@ -315,6 +315,14 @@ module Vagrant
         config[key] = idx
       end
 
+      # Determine the max priority so that we can add the config priority
+      # to that to make sure it is highest.
+      max_priority = 0
+      Vagrant.plugin("2").manager.providers.each do |key, data|
+        priority = data[1][:priority]
+        max_priority = priority if priority > max_priority
+      end
+
       ordered = []
       Vagrant.plugin("2").manager.providers.each do |key, data|
         impl  = data[0]
@@ -329,12 +337,8 @@ module Vagrant
         # The priority is higher if it is in our config. Otherwise, it is
         # the priority it set PLUS the length of the config to make sure it
         # is never higher than the configuration keys.
-        priority = config[key]
-        priority ||= popts[:priority] + config.length
-
-        # If we have config, we multiply by -1 so that the ordering is
-        # such that the smallest numbers win.
-        priority *= -1 if !config.empty?
+        priority = popts[:priority]
+        priority = config[key] + max_priority if config.has_key?(key)
 
         ordered << [priority, key, impl, popts]
       end
