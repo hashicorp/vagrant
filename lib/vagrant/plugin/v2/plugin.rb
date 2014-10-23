@@ -224,16 +224,13 @@ module Vagrant
         # Registers additional pushes to be available.
         #
         # @param [String] name Name of the push.
+        # @param [Hash] options List of options for the push.
         def self.push(name=UNSET_VALUE, options=nil, &block)
-          data[:pushes] ||= Registry.new
-
-          # Register a new pusher class only if a name was given
-          if name != UNSET_VALUE
-            data[:pushes].register(name.to_sym) { [block.call, options] }
+          components.pushes.register(name.to_sym) do
+            [block.call, options]
           end
 
-          # Return the registry
-          data[:pushes]
+          nil
         end
 
         # Registers additional synced folder implementations.
