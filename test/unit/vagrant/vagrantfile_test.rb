@@ -149,6 +149,21 @@ describe Vagrant::Vagrantfile do
       expect(results[:provider_cls]).to equal(provider_cls)
     end
 
+    it "configures without a provider or boxes" do
+      register_provider("foo")
+
+      configure do |config|
+        config.vm.box = "foo"
+      end
+
+      results = subject.machine_config(:default, nil, nil)
+      box     = results[:box]
+      config  = results[:config]
+      expect(config.vm.box).to eq("foo")
+      expect(box).to be_nil
+      expect(results[:provider_cls]).to be_nil
+    end
+
     it "configures with sub-machine config" do
       register_provider("foo")
 

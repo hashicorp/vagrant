@@ -308,10 +308,19 @@ module Vagrant
       # that (the default behavior)
       return default if default && opts[:force_default]
 
+      # Determine the config to use to look for provider definitions. By
+      # default it is the global but if we're targeting a specific machine,
+      # then look there.
+      root_config = vagrantfile.config
+      if opts[:machine]
+        machine_info = vagrantfile.machine_config(opts[:machine], nil, nil)
+        root_config = machine_info[:config]
+      end
+
       # Get the list of providers within our configuration and assign
       # a priority to each in the order they exist so that we try these first.
       config = {}
-      vagrantfile.config.vm.__providers.each_with_index do |key, idx|
+      root_config.vm.__providers.each_with_index do |key, idx|
         config[key] = idx
       end
 
