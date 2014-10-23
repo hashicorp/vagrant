@@ -59,6 +59,9 @@ The remainder of the available options are optional:
   true, Vagrant will not do this, allowing the native colors from the script
   to be outputted.
 
+* `powershell_args` (string) - Extra arguments to pass to `PowerShell`
+  if you're provisioning with PowerShell on Windows.
+
 <a name="inline-scripts"></a>
 ## Inline Scripts
 
