@@ -567,10 +567,7 @@ module Vagrant
 
       push_config = vagrantfile.push(name)
       push_config.each do |strategy, config_blocks|
-        plugin, options = push_registry.get(strategy)
-
-        # TODO: What do we do with options?
-        # options
+        plugin, _ = push_registry.get(strategy)
 
         if plugin.nil?
           raise Vagrant::Errors::PushStrategyNotLoaded,
