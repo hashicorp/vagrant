@@ -564,6 +564,10 @@ module Vagrant
       error_key(:push_strategy_not_defined)
     end
 
+    class PushStrategyNotLoaded < VagrantError
+      error_key(:push_strategy_not_loaded)
+    end
+
     class PushStrategyNotProvided < VagrantError
       error_key(:push_strategy_not_provided)
     end

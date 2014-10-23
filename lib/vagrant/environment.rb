@@ -539,6 +539,51 @@ module Vagrant
       end
     end
 
+    # This executes the push with the given name, raising any exceptions that
+    # occur.
+    #
+    def push(name=nil)
+      @logger.info("Getting push: #{name}")
+
+      if vagrantfile.pushes.nil? || vagrantfile.pushes.empty?
+        raise Vagrant::Errors::PushesNotDefined
+      end
+
+      if name.nil?
+        if vagrantfile.pushes.length != 1
+          raise Vagrant::Errors::PushStrategyNotProvided,
+            pushes: vagrantfile.pushes
+        end
+        name = vagrantfile.pushes.first
+      else
+        if !vagrantfile.pushes.include?(name.to_sym)
+          raise Vagrant::Errors::PushStrategyNotDefined,
+            name: name,
+            pushes: vagrantfile.pushes
+        end
+      end
+
+      push_registry = Vagrant.plugin("2").manager.pushes
+
+      push_config = vagrantfile.push(name)
+      push_config.each do |strategy, config_blocks|
+        plugin, options = push_registry.get(strategy)
+
+        # TODO: What do we do with options?
+        # options
+
+        if plugin.nil?
+          raise Vagrant::Errors::PushStrategyNotLoaded,
+            name: strategy,
+            pushes: push_registry.keys
+        end
+
+        # TODO: This should take a plugin configuration, not a list of config
+        # blocks, or should it?
+        plugin.new(self, config_blocks).push
+      end
+    end
+
     # This returns a machine with the proper provider for this environment.
     # The machine named by `name` must be in this environment.
     #

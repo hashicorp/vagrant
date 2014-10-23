@@ -247,6 +247,20 @@ module Vagrant
       nil
     end
 
+    # Returns the list of defined pushes in this Vagrantfile.
+    #
+    # @return [Array<Symbol>]
+    def pushes
+      @config.push.defined_pushes
+    end
+
+    # Get the push by the given name.
+    #
+    # @return [idk]
+    def push(name)
+      @config.push.get_push(name)
+    end
+
     protected
 
     def find_vagrantfile(search_path)

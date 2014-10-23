@@ -955,12 +955,19 @@ en:
             end
       push_strategy_not_defined: |-
         The push strategy '%{name}' is not defined in the Vagrantfile. Defined
-        strategies are:
+        strategy names are:
+
+         %{pushes}
+
+      push_strategy_not_defined: |-
+        There are no push strategies named '%{name}'. Please make sure you
+        spelled it correctly. If you are using an external push strategy, you
+        may need to install a plugin. Loaded push strategies are:
 
          %{pushes}
       push_strategy_not_provided: |-
         The Vagrantfile defines more than one 'push' strategy. Please specify a
-        strategy. Defined strategies are:
+        strategy. Defined strategy names are:
 
          %{pushes}
       package_include_symlink: |-

@@ -6,14 +6,6 @@ describe VagrantPlugins::CommandPush::Command do
   include_context "unit"
   include_context "command plugin helpers"
 
-  def create_registry(items={})
-    Vagrant::Registry.new.tap do |registry|
-      items.each do |k,v|
-        registry.register(k) { v }
-      end
-    end
-  end
-
   let(:env) do
     isolated_environment.tap do |env|
       env.vagrantfile("")
@@ -22,7 +14,7 @@ describe VagrantPlugins::CommandPush::Command do
   end
 
   let(:argv)   { [] }
-  let(:pushes) { create_registry }
+  let(:pushes) { {} }
 
   subject { described_class.new(argv, env) }
 
@@ -50,7 +42,7 @@ describe VagrantPlugins::CommandPush::Command do
 
   describe "#validate_pushes!" do
     context "when there are no pushes defined" do
-      let(:pushes) { create_registry }
+      let(:pushes) { {} }
 
       context "when a strategy is given" do
         it "raises an exception" do
@@ -69,7 +61,7 @@ describe VagrantPlugins::CommandPush::Command do
 
     context "when there is one push defined" do
       let(:noop) { double("noop") }
-      let(:pushes) { create_registry(noop: noop) }
+      let(:pushes) { { noop: noop } }
 
       context "when a strategy is given" do
         context "when that strategy is not defined" do
@@ -98,7 +90,7 @@ describe VagrantPlugins::CommandPush::Command do
     context "when there are multiple pushes defined" do
       let(:noop) { double("noop") }
       let(:ftp)  { double("ftp") }
-      let(:pushes) { create_registry(noop: noop, ftp: ftp) }
+      let(:pushes) { { noop: noop, ftp: ftp } }
 
       context "when a strategy is given" do
         context "when that strategy is not defined" do

@@ -17,13 +17,14 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
-        name, options = argv
+        name = argv[0]
         pushes = @env.pushes
 
+        # TODO: this logic is 100% duplicated in Enviroment#push - should we
+        # just not validate here?
         validate_pushes!(pushes, name)
 
         @logger.debug("'push' environment with strategy: `#{name}'")
-
         @env.push(name)
 
         0
@@ -50,7 +51,7 @@ module VagrantPlugins
             raise Vagrant::Errors::PushStrategyNotProvided, pushes: pushes
           end
         else
-          if !pushes.has_key?(name.to_sym)
+          if !pushes.key?(name.to_sym)
             raise Vagrant::Errors::PushStrategyNotDefined,
               name: name,
               pushes: pushes
