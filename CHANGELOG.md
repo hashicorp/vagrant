@@ -25,6 +25,7 @@ BUG FIXES:
   - guests/linux: More descriptive error message if SMB mount fails. [GH-4641]
   - guests/solaris11: Static IP address preserved after restart. [GH-4621]
   - guests/ubuntu: Detect with `lsb_release` instead of `/etc/issue`. [GH-4565]
+  - hosts/windows: RDP client shouldn't map all drives by default. [GH-4534]
   - providers/docker: Create args works. [GH-4526]
   - providers/docker: Nicer error if package is called. [GH-4595]
   - providers/docker: Host IP restriction is forwarded through. [GH-4505]
