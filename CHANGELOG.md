@@ -34,6 +34,8 @@ BUG FIXES:
       be created. [GH-3963]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
+  - providers/virtualbox: Detect case when VirtualBox reports 0.0.0.0 as
+      IP address and don't allow it. [GH-4671]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
   - provisioners/salt: Highstate works properly with a master. [GH-4471]
 
