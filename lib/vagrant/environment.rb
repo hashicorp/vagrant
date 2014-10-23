@@ -369,8 +369,8 @@ module Vagrant
         return key if impl.usable?(false)
       end
 
-      # If all else fails, return VirtualBox
-      return :virtualbox
+      # No providers available is a critical error for Vagrant.
+      raise Errors::NoDefaultProvider
     end
 
     # Returns the collection of boxes for the environment.
