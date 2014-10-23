@@ -63,6 +63,7 @@ module VagrantPlugins
         @__finalized                   = false
         @__networks                    = {}
         @__providers                   = {}
+        @__provider_order              = []
         @__provider_overrides          = {}
         @__synced_folders              = {}
       end
@@ -111,6 +112,12 @@ module VagrantPlugins
             new_providers[key] ||= []
             new_providers[key] += blocks
           end
+
+          # Merge the provider ordering. Anything defined in our CURRENT
+          # scope is before anything else.
+          other_order = other.instance_variable_get(:@__provider_order)
+          new_order   = @__provider_order.dup
+          new_order   = (new_order + other_order).uniq
 
           # Merge the provider overrides by appending them...
           other_overrides = other.instance_variable_get(:@__provider_overrides)
@@ -162,6 +169,7 @@ module VagrantPlugins
           result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
           result.instance_variable_set(:@__defined_vms, new_defined_vms)
           result.instance_variable_set(:@__providers, new_providers)
+          result.instance_variable_set(:@__provider_order, new_order)
           result.instance_variable_set(:@__provider_overrides, new_overrides)
           result.instance_variable_set(:@__synced_folders, new_folders)
         end
@@ -254,6 +262,9 @@ module VagrantPlugins
         name = name.to_sym
         @__providers[name] ||= []
         @__provider_overrides[name] ||= []
+
+        # Add the provider to the ordering list
+        @__provider_order << name
 
         if block_given?
           @__providers[name] << block if block_given?
@@ -675,6 +686,10 @@ module VagrantPlugins
         end
 
         errors
+      end
+
+      def __providers
+        @__provider_order
       end
     end
   end

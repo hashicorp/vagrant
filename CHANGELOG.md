@@ -1,5 +1,10 @@
 ## 1.7.0 (unreleased)
 
+FEATURES:
+
+  - Default provider logic improved: Providers in `config.vm.provider` blocks
+      in your Vagrantfile now have higher priority than plugins. [GH-3812]
+
 IMPROVEMENTS:
 
   - core: `has_plugin?` function now takes a second argument which is a

@@ -262,6 +262,41 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#provider and #__providers" do
+    it "returns the providers in order" do
+      subject.provider "foo"
+      subject.provider "bar"
+      subject.finalize!
+
+      expect(subject.__providers).to eq([:foo, :bar])
+    end
+
+    describe "merging" do
+      it "prioritizes new orders in later configs" do
+        subject.provider "foo"
+
+        other = described_class.new
+        other.provider "bar"
+
+        merged = subject.merge(other)
+
+        expect(merged.__providers).to eq([:foo, :bar])
+      end
+
+      it "prioritizes duplicates in new orders in later configs" do
+        subject.provider "foo"
+
+        other = described_class.new
+        other.provider "bar"
+        other.provider "foo"
+
+        merged = subject.merge(other)
+
+        expect(merged.__providers).to eq([:foo, :bar])
+      end
+    end
+  end
+
   describe "#provider and #get_provider_config" do
     it "compiles the configurations for a provider" do
       subject.provider "virtualbox" do |vb|

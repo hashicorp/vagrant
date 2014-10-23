@@ -308,6 +308,13 @@ module Vagrant
       # that (the default behavior)
       return default if default && opts[:force_default]
 
+      # Get the list of providers within our configuration and assign
+      # a priority to each in the order they exist so that we try these first.
+      config = {}
+      vagrantfile.config.vm.__providers.each_with_index do |key, idx|
+        config[key] = idx
+      end
+
       ordered = []
       Vagrant.plugin("2").manager.providers.each do |key, data|
         impl  = data[0]
@@ -319,7 +326,17 @@ module Vagrant
         # Skip providers that can't be defaulted
         next if popts.has_key?(:defaultable) && !popts[:defaultable]
 
-        ordered << [popts[:priority], key, impl, popts]
+        # The priority is higher if it is in our config. Otherwise, it is
+        # the priority it set PLUS the length of the config to make sure it
+        # is never higher than the configuration keys.
+        priority = config[key]
+        priority ||= popts[:priority] + config.length
+
+        # If we have config, we multiply by -1 so that the ordering is
+        # such that the smallest numbers win.
+        priority *= -1 if !config.empty?
+
+        ordered << [priority, key, impl, popts]
       end
 
       # Order the providers by priority. Higher values are tried first.

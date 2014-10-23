@@ -807,6 +807,34 @@ VF
         expect(subject.default_provider).to eq(:virtualbox)
       end
     end
+
+    it "is the provider in the Vagrantfile that is usable" do
+      subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider).to eq(:foo)
+      end
+    end
+
+    it "is the provider in the Vagrantfile that is usable" do
+      subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider).to eq(:bar)
+      end
+    end
   end
 
   describe "local data path" do
