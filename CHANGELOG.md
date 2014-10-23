@@ -41,6 +41,7 @@ BUG FIXES:
       IP address and don't allow it. [GH-4671]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
   - provisioners/salt: Highstate works properly with a master. [GH-4471]
+  - synced\_folders/nfs: Don't modify NFS exports file if no exports. [GH-4619]
 
 PLUGIN AUTHOR CHANGES:
 
