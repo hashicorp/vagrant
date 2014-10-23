@@ -581,19 +581,8 @@ describe Vagrant::Machine do
 
       it "should not check the permissions of a private key file that does not exist" do
         provider_ssh_info[:private_key_path] = "/foo"
-        
+
         expect(ssh_klass).to_not receive(:check_key_permissions)
-        instance.ssh_info
-      end
-
-      # It is not possible to test the memoization of a Ruby Hash with object equality,
-      # but we can verify that some code of ssh_info method is not executed again.
-      it "should check and try to fix the permissions of the private key file only once" do
-        provider_ssh_info[:private_key_path] = nil
-        instance.config.ssh.private_key_path = nil
-
-        expect(ssh_klass).to receive(:check_key_permissions).once.with(Pathname.new(instance.env.default_private_key_path.to_s))
-        instance.ssh_info
         instance.ssh_info
       end
 

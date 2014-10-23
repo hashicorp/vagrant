@@ -15,6 +15,7 @@ BUG FIXES:
   - core: On a graceful halt, force halt if capability "insert public key"
       is missing. [GH-4684]
   - core: Don't share `/vagrant` if any "." folder is shared. [GH-4675]
+  - core: Fix SSH private key permissions more aggressively. [GH-4670]
   - commands/box: `--cert` flag works properly. [GH-4691]
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/docker-run: Synced folders will be attached properly. [GH-3873]
