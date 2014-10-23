@@ -1469,6 +1469,8 @@ en:
           specific_not_found: |-
             Specific bridge '%{bridge}' not found. You may be asked to specify
             which network to bridge to.
+          interface_selection: |-
+            What interface should the network bridge to? (Usually the internet-connected interface)
         check_box:
           not_found: |-
             Box '%{name}' was not found. Fetching box from specified URL for
