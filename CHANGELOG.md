@@ -22,6 +22,7 @@ BUG FIXES:
   - command/docker-run: Synced folders will be attached properly. [GH-3873]
   - command/rsync: Sync to Docker containers properly. [GH-4066]
   - guests/darwin: Hostname sets bonjour name and local host name. [GH-4535]
+  - guests/freebsd: NFS mounting can specify the version. [GH-4518]
   - guests/linux: More descriptive error message if SMB mount fails. [GH-4641]
   - guests/rhel: Hostname setting on 7.x series works properly. [GH-4527]
   - guests/solaris11: Static IP address preserved after restart. [GH-4621]

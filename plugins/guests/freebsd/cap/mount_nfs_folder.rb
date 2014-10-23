@@ -6,8 +6,11 @@ module VagrantPlugins
           folders.each do |name, opts|
             if opts[:nfs_version]
               nfs_version_mount_option="-o nfsv#{opts[:nfs_version]}"
-   	        end
-            machine.communicate.sudo("mount -t nfs #{nfs_version_mount_option} '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'", {shell: "sh"})
+            end
+
+            machine.communicate.sudo(
+              "mount -t nfs #{nfs_version_mount_option} " +
+              "'#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'", {shell: "sh"})
           end
         end
       end
