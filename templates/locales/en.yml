@@ -1792,6 +1792,7 @@ en:
         path_and_inline_set: "Only one of `path` or `inline` may be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
         running: "Running: %{script}"
+        runningas: "Running: %{local} as %{remote}"
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
 
       ansible:
