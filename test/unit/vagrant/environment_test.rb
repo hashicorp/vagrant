@@ -798,13 +798,14 @@ VF
       end
     end
 
-    it "is VirtualBox if nothing else is usable" do
+    it "raise an error if nothing else is usable" do
       plugin_providers[:foo] = [provider_usable_class(false), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(false), { priority: 5 }]
       plugin_providers[:baz] = [provider_usable_class(false), { priority: 5 }]
 
       with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
-        expect(subject.default_provider).to eq(:virtualbox)
+        expect { subject.default_provider }.to raise_error(
+          Vagrant::Errors::NoDefaultProvider)
       end
     end
 
