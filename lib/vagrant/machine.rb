@@ -170,7 +170,10 @@ module Vagrant
             provider: @provider.to_s
         end
 
-        action_raw(name, callable, extra_env)
+        ui.machine("action","#{name.to_s}:start:#{@provider.to_s}")
+        action_result = action_raw(name, callable, extra_env)
+        ui.machine("action","#{name.to_s}:end:#{@provider.to_s}")
+        action_result
       end
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,

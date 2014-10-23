@@ -103,6 +103,17 @@ module Vagrant
           safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
         end
       end
+
+      [:detail, :info, :warn, :error, :output, :success].each do |method|
+        class_eval <<-CODE
+          def #{method}(message, *args)
+            opts = {}
+            opts.merge(args.pop) if args.last.kind_of?(Hash)
+            machine(#{method.inspect}, message, opts)
+          end
+        CODE
+      end
+
     end
 
     # This is a UI implementation that outputs the text as is. It
@@ -296,10 +307,17 @@ module Vagrant
         target = @prefix
         target = opts[:target] if opts.has_key?(:target)
 
+
+
         # Get the lines. The first default is because if the message
         # is an empty string, then we want to still use the empty string.
         lines = [message]
         lines = message.split("\n") if message != ""
+
+        if @ui.is_a?(Vagrant::UI::MachineReadable)
+          return machine(type, message, { :target => target })
+        end
+         
 
         # Otherwise, make sure to prefix every line properly
         lines.map do |line|
