@@ -10,6 +10,7 @@ IMPROVEMENTS:
   - guests/suse: Support NFS client install, rsync setup. [GH-4492]
   - guests/tinycore: Support changing host names. [GH-4469]
   - guests/windows: Hostname can be set without reboot. [GH-4687]
+  - providers/docker: Build output is now shown. [GH-3739]
   - providers/docker: Can now start containers from private repositories
       more easily. Vagrant will login for you if you specify auth. [GH-4042]
   - providers/docker: `stop_timeout` can be used to modify the `docker stop`

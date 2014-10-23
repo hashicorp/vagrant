@@ -14,10 +14,10 @@ module VagrantPlugins
         @executor = Executor::Local.new
       end
 
-      def build(dir, **opts)
+      def build(dir, **opts, &block)
         args   = Array(opts[:extra_args])
         args   << dir
-        result = execute('docker', 'build', *args)
+        result = execute('docker', 'build', *args, &block)
         matches = result.scan(/Successfully built (.+)$/i)
         if matches.empty?
           # This will cause a stack trace in Vagrant, but it is a bug
