@@ -161,6 +161,7 @@ module VagrantPlugins
 
           opts = {
             elevated: true,
+            error_class: Vagrant::Errors::VagrantError,
             error_key: :ssh_bad_exit_status_muted,
             good_exit: [0,2],
           }
