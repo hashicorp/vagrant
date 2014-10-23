@@ -224,11 +224,13 @@ module Vagrant
         # Registers additional pushes to be available.
         #
         # @param [String] name Name of the push.
-        def self.push(name=UNSET_VALUE, &block)
+        def self.push(name=UNSET_VALUE, options=nil, &block)
           data[:pushes] ||= Registry.new
 
           # Register a new pusher class only if a name was given
-          data[:pushes].register(name.to_sym, &block) if name != UNSET_VALUE
+          if name != UNSET_VALUE
+            data[:pushes].register(name.to_sym) { [block.call, options] }
+          end
 
           # Return the registry
           data[:pushes]
