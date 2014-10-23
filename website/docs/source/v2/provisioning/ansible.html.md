@@ -32,7 +32,7 @@ this by way of an [inventory](http://docs.ansible.com/intro_inventory.html) file
 there are two ways to approach working with inventory files.
 
 The first and simplest option is to not provide one to Vagrant at all. Vagrant will generate an
-inventory file encompassing all of the virtual machine it manages, and use it for provisioning
+inventory file encompassing all of the virtual machines it manages, and use it for provisioning
 machines. The generated inventory file is stored as part of your local Vagrant environment in `.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory`.
 
 The `ansible.groups` option can be used to pass a hash of group
@@ -232,7 +232,7 @@ Note that it is also possible to reference an Ansible configuration file via `AN
 
 ### Why does the Ansible provisioner connect as the wrong user?
 
-It is good to know that following Ansible settings always override the `config.ssh.username` option defined in [Vagrant SSH Settings](/v2/vagrantfile/ssh_settings.html):
+It is good to know that the following Ansible settings always override the `config.ssh.username` option defined in [Vagrant SSH Settings](/v2/vagrantfile/ssh_settings.html):
 
 * `ansible_ssh_user` variable
 * `remote_user` (or `user`) play attribute
