@@ -7,12 +7,14 @@ IMPROVEMENTS:
       more easily. Vagrant will login for you if you specify auth. [GH-4042]
   - providers/docker: `stop_timeout` can be used to modify the `docker stop`
       timeout. [GH-4504]
+  - synced\_folders/smb: Credentials from one SMB will be copied to the rest. [GH-4675]
 
 BUG FIXES:
 
   - core: Fix cases where sometimes SSH connection would hang.
   - core: On a graceful halt, force halt if capability "insert public key"
       is missing. [GH-4684]
+  - core: Don't share `/vagrant` if any "." folder is shared. [GH-4675]
   - commands/box: `--cert` flag works properly. [GH-4691]
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/docker-run: Synced folders will be attached properly. [GH-3873]
