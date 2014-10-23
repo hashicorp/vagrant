@@ -3,10 +3,6 @@ require File.expand_path("../../base", __FILE__)
 describe Vagrant::Registry do
   let(:instance) { described_class.new }
 
-  it "should include enumerable" do
-    expect(instance).to be_a(Enumerable)
-  end
-
   it "should return nil for nonexistent items" do
     expect(instance.get("foo")).to be_nil
   end
