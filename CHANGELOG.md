@@ -21,6 +21,7 @@ BUG FIXES:
   - command/docker-run: Synced folders will be attached properly. [GH-3873]
   - command/rsync: Sync to Docker containers properly. [GH-4066]
   - guests/linux: More descriptive error message if SMB mount fails. [GH-4641]
+  - guests/solaris11: Static IP address preserved after restart. [GH-4621]
   - providers/docker: Create args works. [GH-4526]
   - providers/docker: Nicer error if package is called. [GH-4595]
   - providers/docker: Host IP restriction is forwarded through. [GH-4505]
