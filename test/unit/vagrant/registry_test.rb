@@ -90,6 +90,28 @@ describe Vagrant::Registry do
     expect(result["bar"]).to eq("barvalue")
   end
 
+  describe "#length" do
+    it "should return 0 when the registry is empty" do
+      expect(instance.length).to eq(0)
+    end
+
+    it "should return the number of items in the registry" do
+      instance.register("foo") { }
+      instance.register("bar") { }
+
+      expect(instance.length).to eq(2)
+    end
+  end
+
+  describe "#size" do
+    it "should be an alias to #length" do
+      size = described_class.instance_method(:size)
+      length = described_class.instance_method(:length)
+
+      expect(size).to eq(length)
+    end
+  end
+
   describe "merging" do
     it "should merge in another registry" do
       one = described_class.new

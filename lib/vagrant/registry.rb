@@ -34,7 +34,7 @@ module Vagrant
     def has_key?(key)
       @items.has_key?(key)
     end
-    
+
     # Returns an array populated with the keys of this object.
     #
     # @return [Array]
@@ -48,6 +48,14 @@ module Vagrant
         yield key, get(key)
       end
     end
+
+    # Return the number of elements in this registry.
+    #
+    # @return [Fixnum]
+    def length
+      @items.keys.length
+    end
+    alias_method :size, :length
 
     # Merge one registry with another and return a completely new
     # registry. Note that the result cache is completely busted, so
