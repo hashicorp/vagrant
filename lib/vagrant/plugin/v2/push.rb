@@ -2,20 +2,16 @@ module Vagrant
   module Plugin
     module V2
       class Push
-        attr_reader :machine
+        attr_reader :environment
         attr_reader :config
 
-        # Initializes the pusher with the machine that exists for this project
-        # as well as the configuration (the push configuration, not the full machine
-        # configuration).
+        # Initializes the pusher with the given environment the push
+        # configuration.
         #
-        # The pusher should _not_ do anything at this point except
-        # initialize internal state.
-        #
-        # @param [Machine] machine The machine associated with this code.
-        # @param [Object] config Push configuration, if one was set.
-        def initialize(machine, config)
-          @machine = machine
+        # @param [environment] environment
+        # @param [Object] config Push configuration
+        def initialize(environment, config)
+          @environment = environment
           @config  = config
         end
 
