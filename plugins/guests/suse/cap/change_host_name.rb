@@ -5,7 +5,7 @@ module VagrantPlugins
         def self.change_host_name(machine, name)
           machine.communicate.tap do |comm|
             # Only do this if the hostname is not already set
-            unless comm.test("sudo hostname | grep '#{name}'")
+            if !comm.test("sudo hostname | grep '#{name}'")
               comm.sudo("echo #{name} > /etc/HOSTNAME")
               comm.sudo("hostname #{name}")
 
