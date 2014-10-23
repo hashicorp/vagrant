@@ -32,6 +32,7 @@ BUG FIXES:
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
+  - provisioners/salt: Highstate works properly with a master. [GH-4471]
 
 PLUGIN AUTHOR CHANGES:
 
