@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+  - guests/arch: Support predictable network interface naming. [GH-4468]
   - guests/suse: Support NFS client install, rsync setup. [GH-4492]
   - guests/tinycore: Support changing host names. [GH-4469]
   - guests/windows: Hostname can be set without reboot. [GH-4687]
