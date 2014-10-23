@@ -2,6 +2,8 @@
 
 IMPROVEMENTS:
 
+  - core: `has_plugin?` function now takes a second argument which is a
+      version constraint requirement. [GH-4650]
   - guests/arch: Support predictable network interface naming. [GH-4468]
   - guests/suse: Support NFS client install, rsync setup. [GH-4492]
   - guests/tinycore: Support changing host names. [GH-4469]
