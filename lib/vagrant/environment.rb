@@ -320,7 +320,7 @@ module Vagrant
       # Get the list of providers within our configuration and assign
       # a priority to each in the order they exist so that we try these first.
       config = {}
-      root_config.vm.__providers.each_with_index do |key, idx|
+      root_config.vm.__providers.reverse.each_with_index do |key, idx|
         config[key] = idx
       end
 
@@ -340,8 +340,11 @@ module Vagrant
         # Skip excluded providers
         next if opts[:exclude] && opts[:exclude].include?(key)
 
-        # Skip providers that can't be defaulted
-        next if popts.has_key?(:defaultable) && !popts[:defaultable]
+        # Skip providers that can't be defaulted, unless they're in our
+        # config, in which case someone made our decision for us.
+        if !config.has_key?(key)
+          next if popts.has_key?(:defaultable) && !popts[:defaultable]
+        end
 
         # The priority is higher if it is in our config. Otherwise, it is
         # the priority it set PLUS the length of the config to make sure it

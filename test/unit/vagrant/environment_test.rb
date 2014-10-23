@@ -810,6 +810,7 @@ VF
 
     it "is the provider in the Vagrantfile that is usable" do
       subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.provider "bar"
       subject.vagrantfile.config.vm.finalize!
 
       plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
