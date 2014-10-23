@@ -30,13 +30,6 @@ module VagrantPlugins
           end
         end
 
-        # We're using NFS if we have any synced folder with NFS configured. If
-        # we are not using NFS we don't need to do the extra work to
-        # populate these fields in the environment.
-        def using_nfs?
-          @machine.config.vm.synced_folders.any? { |_, opts| opts[:type] == :nfs }
-        end
-
         # Extracts the proper host and guest IPs for NFS mounts and stores them
         # in the environment for the SyncedFolder action to use them in
         # mounting.
