@@ -21,6 +21,7 @@ BUG FIXES:
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/docker-run: Synced folders will be attached properly. [GH-3873]
   - command/rsync: Sync to Docker containers properly. [GH-4066]
+  - guests/darwin: Hostname sets bonjour name and local host name. [GH-4535]
   - guests/linux: More descriptive error message if SMB mount fails. [GH-4641]
   - guests/solaris11: Static IP address preserved after restart. [GH-4621]
   - guests/ubuntu: Detect with `lsb_release` instead of `/etc/issue`. [GH-4565]
