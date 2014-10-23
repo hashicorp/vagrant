@@ -483,7 +483,7 @@ module Vagrant
           output = d.head
           match  = output.scan(/^Content-Type: (.+?)$/i).last
           return false if !match
-          match.last.chomp == "application/json"
+          !!(match.last.chomp =~ /application\/json/)
         end
 
         def validate_checksum(checksum_type, checksum, path)

@@ -34,12 +34,14 @@ describe Vagrant::Action::Builtin::BoxAdd do
     FileChecksum.new(path, Digest::SHA1).checksum
   end
 
-  def with_web_server(path)
+  def with_web_server(path, **opts)
     tf = Tempfile.new("vagrant")
     tf.close
 
+    opts[:json_type] ||= "application/json"
+
     mime_types = WEBrick::HTTPUtils::DefaultMimeTypes
-    mime_types.store "json", "application/json"
+    mime_types.store "json", opts[:json_type]
 
     port   = 3838
     server = WEBrick::HTTPServer.new(
@@ -242,6 +244,51 @@ describe Vagrant::Action::Builtin::BoxAdd do
 
       md_path = Pathname.new(tf.path)
       with_web_server(md_path) do |port|
+        env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
+
+        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+          expect(name).to eq("foo/bar")
+          expect(version).to eq("0.7")
+          expect(checksum(path)).to eq(checksum(box_path))
+          expect(opts[:metadata_url]).to eq(env[:box_url])
+          true
+        }.and_return(box)
+
+        expect(app).to receive(:call).with(env)
+
+        subject.call(env)
+      end
+    end
+
+    it "adds from HTTP URL with complex JSON mime type" do
+      box_path = iso_env.box2_file(:virtualbox)
+      tf = Tempfile.new(["vagrant", ".json"]).tap do |f|
+        f.write(<<-RAW)
+        {
+          "name": "foo/bar",
+          "versions": [
+            {
+              "version": "0.5"
+            },
+            {
+              "version": "0.7",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url":  "#{box_path}"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+        f.close
+      end
+
+      opts = { json_type: "application/json; charset=utf-8" }
+
+      md_path = Pathname.new(tf.path)
+      with_web_server(md_path, **opts) do |port|
         env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
 
         expect(box_collection).to receive(:add).with { |path, name, version, **opts|
