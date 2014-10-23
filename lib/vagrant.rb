@@ -141,13 +141,16 @@ module Vagrant
   # This checks if a plugin with the given name is installed. This can
   # be used from the Vagrantfile to easily branch based on plugin
   # availability.
-  def self.has_plugin?(name)
-    # We check the plugin names first because those are cheaper to check
-    return true if plugin("2").manager.registered.any? { |p| p.name == name }
+  def self.has_plugin?(name, version = nil)
+    #this check wont help with version confirmation, so skip if specified
+    unless version
+      # We check the plugin names first because those are cheaper to check
+      return true if plugin("2").manager.registered.any? { |p| p.name == name }
+    end
 
     # Now check the plugin gem names
     require "vagrant/plugin/manager"
-    Plugin::Manager.instance.installed_specs.any? { |s| s.name == name }
+    Plugin::Manager.instance.installed_specs.any? { |s| s.name == name && (version.nil? || s.version.to_s == version) }
   end
 
   # Returns a superclass to use when creating a plugin for Vagrant.
