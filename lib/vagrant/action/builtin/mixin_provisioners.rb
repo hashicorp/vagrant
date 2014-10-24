@@ -27,6 +27,7 @@ module Vagrant
 
             # Build up the options
             options = {
+              id:  provisioner.id,
               run: provisioner.run,
             }
 
