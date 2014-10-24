@@ -7,6 +7,8 @@ FEATURES:
   - Default provider logic improved: Providers in `config.vm.provider` blocks
       in your Vagrantfile now have higher priority than plugins. Earlier
       providers are chosen before later ones. [GH-3812]
+  - If the default insecure keypair is used, Vagrant will automatically replace
+      it with a randomly generated keypair on first `vagrant up`. [GH-2608]
 
 IMPROVEMENTS:
 
