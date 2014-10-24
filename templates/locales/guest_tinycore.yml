@@ -1,0 +1,8 @@
+en:
+  vagrant_tinycore:
+    errors:
+      network_static_only: |-
+        The TinyCore guest doesn't support DHCP for networks. Please use
+        a static assigned IP. If you know how to configure DHCP for
+        TinyCore, please open an issue on Vagrant with the steps and we'd
+        be happy to bring this functionality in.
