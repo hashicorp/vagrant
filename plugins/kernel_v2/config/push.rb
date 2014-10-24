@@ -8,12 +8,59 @@ module VagrantPlugins
       attr_accessor :name
 
       def initialize
+        @logger = Log4r::Logger.new("vagrant::config::push")
+
         # Internal state
-        @__defined_pushes = {}
-        @__finalized   = false
+        @__defined_pushes  = {}
+        @__compiled_pushes = {}
+        @__finalized       = false
       end
 
       def finalize!
+        @logger.debug("finalizing")
+
+        # Compile all the provider configurations
+        @__defined_pushes.each do |name, tuples|
+          # Find the configuration class for this push
+          config_class = Vagrant.plugin("2").manager.push_configs[name]
+          config_class ||= Vagrant::Config::V2::DummyConfig
+
+          # Load it up
+          config = config_class.new
+
+          # Capture the strategy so we can use it later. This will be used in
+          # the block iteration for merging/overwriting
+          strategy = (tuples[0] && tuples[0][0]) || name
+
+          begin
+            tuples.each do |s, b|
+              # Update the strategy if it has changed, reseting the current
+              # config object.
+              if s != strategy
+                @logger.warn("duplicate strategy defined, overwriting config")
+                strategy = s
+                config = config_class.new
+              end
+
+              # If we don't have any blocks, then ignore it
+              next if b.nil?
+
+              new_config = config_class.new
+              b.call(new_config, Vagrant::Config::V2::DummyConfig.new)
+              config = config.merge(new_config)
+            end
+          rescue Exception => e
+            raise Vagrant::Errors::VagrantfileLoadError,
+              path: "<push config: #{name}>",
+              message: e.message
+          end
+
+          config.finalize!
+
+          # Store it for retrieval later
+          @__compiled_pushes[name] = [strategy, config]
+        end
+
         @__finalized = true
       end
 
@@ -38,8 +85,6 @@ module VagrantPlugins
       # @param [Hash] options The list of options
       #
       def define(name, **options, &block)
-        validate_options!(options)
-
         name = name.to_sym
         strategy = options[:strategy] || name
 
@@ -69,30 +114,12 @@ module VagrantPlugins
         end
       end
 
-      # This returns the list of pushes defined in the Vagrantfile.
+      # This returns the list of compiled pushes as a hash by name.
       #
-      # @return [Array<Symbol>]
-      def defined_pushes
+      # @return [Hash<Symbol, Array<Class, Object>>]
+      def __compiled_pushes
         raise "Must finalize first!" if !@__finalized
-        @__defined_pushes.keys
-      end
-
-      # This returns the compiled push-specific configuration for the given
-      # provider.
-      #
-      # @param [#to_sym] name Name of the push
-      def get_push(name)
-        raise "Must finalize first!" if !@__finalized
-        @__defined_pushes[name.to_sym]
-      end
-
-      private
-
-      def validate_options!(options)
-        extra_keys = VALID_OPTIONS - options.keys
-        if !extra_keys.empty?
-          raise "Invalid option(s): #{extra_keys.join(", ")}"
-        end
+        @__compiled_pushes.dup
       end
     end
   end
