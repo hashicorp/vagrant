@@ -83,6 +83,7 @@ BUG FIXES:
   - provisioners/shell: Retry getting SSH info a few times. [GH-3924]
   - provisioners/shell: PowerShell scripts can have args. [GH-4548]
   - synced\_folders/nfs: Don't modify NFS exports file if no exports. [GH-4619]
+  - synced\_folders/nfs: Prune exports for file path IDs. [GH-3815]
 
 PLUGIN AUTHOR CHANGES:
 
