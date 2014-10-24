@@ -957,19 +957,18 @@ en:
         The push strategy '%{name}' is not defined in the Vagrantfile. Defined
         strategy names are:
 
-         %{pushes}
-
-      push_strategy_not_defined: |-
+            %{pushes}
+      push_strategy_not_loaded: |-
         There are no push strategies named '%{name}'. Please make sure you
         spelled it correctly. If you are using an external push strategy, you
         may need to install a plugin. Loaded push strategies are:
 
-         %{pushes}
+            %{pushes}
       push_strategy_not_provided: |-
         The Vagrantfile defines more than one 'push' strategy. Please specify a
         strategy. Defined strategy names are:
 
-         %{pushes}
+            %{pushes}
       package_include_symlink: |-
         A file or directory you're attempting to include with your packaged
         box has symlinks in it. Vagrant cannot include symlinks in the
