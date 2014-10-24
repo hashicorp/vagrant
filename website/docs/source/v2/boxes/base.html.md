@@ -116,6 +116,10 @@ that OpenSSH is very picky about file permissions. Therefore, make sure
 that `~/.ssh` has `0700` permissions and the authorized keys file has
 `0600` permissions.
 
+When Vagrant boots a box and detects the insecure keypair, it will
+automatically replace it with a randomly generated keypair for additional
+security while the box is running.
+
 ### Root Password: "vagrant"
 
 Vagrant doesn't actually use or expect any root password. However, having
