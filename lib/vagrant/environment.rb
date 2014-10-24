@@ -164,6 +164,15 @@ module Vagrant
         @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
       end
 
+      # If we have a root path, load the ".vagrantplugins" file.
+      if root_path
+        plugins_file = root_path.join(".vagrantplugins")
+        if plugins_file.file?
+          @logger.info("Loading plugins file: #{plugins_file}")
+          load plugins_file
+        end
+      end
+
       setup_local_data_path
 
       # Setup the default private key

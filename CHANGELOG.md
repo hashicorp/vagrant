@@ -12,6 +12,8 @@ IMPROVEMENTS:
 
   - core: `has_plugin?` function now takes a second argument which is a
       version constraint requirement. [GH-4650]
+  - core: ".vagrantplugins" file in the same file as your Vagrantfile
+      will be loaded for defining inline plugins. [GH-3775]
   - commands/plugin: Plugin list machine-readable output contains the plugin
       name as the target for versions and other info. [GH-4506]
   - guests/arch: Support predictable network interface naming. [GH-4468]
