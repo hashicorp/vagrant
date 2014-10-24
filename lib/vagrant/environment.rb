@@ -542,50 +542,36 @@ module Vagrant
     # This executes the push with the given name, raising any exceptions that
     # occur.
     #
-    def push(name=nil)
+    # Precondition: the push is not nil and exists.
+    def push(name)
       @logger.info("Getting push: #{name}")
 
-      if pushes.nil? || pushes.empty?
-        raise Vagrant::Errors::PushesNotDefined
+      name = name.to_sym
+
+      pushes = self.vagrantfile.config.push.__compiled_pushes
+      if !pushes.key?(name)
+        raise Vagrant::Errors::PushStrategyNotDefined,
+          name: name,
+          pushes: pushes.keys
       end
 
-      if name.nil?
-        if pushes.length != 1
-          raise Vagrant::Errors::PushStrategyNotProvided,
-            pushes: pushes
-        end
-        name = pushes.first
-      else
-        if !pushes.include?(name.to_sym)
-          raise Vagrant::Errors::PushStrategyNotDefined,
-            name: name,
-            pushes: pushes
-        end
-      end
-
+      strategy, config = pushes[name]
       push_registry = Vagrant.plugin("2").manager.pushes
-
-      push_config = vagrantfile.push(name)
-      push_config.each do |strategy, config_blocks|
-        plugin, _ = push_registry.get(strategy)
-
-        if plugin.nil?
-          raise Vagrant::Errors::PushStrategyNotLoaded,
-            name: strategy,
-            pushes: push_registry.keys
-        end
-
-        # TODO: This should take a plugin configuration, not a list of config
-        # blocks, or should it?
-        plugin.new(self, config_blocks).push
+      klass, _ = push_registry.get(strategy)
+      if klass.nil?
+        raise Vagrant::Errors::PushStrategyNotLoaded,
+          name: strategy,
+          pushes: push_registry.keys
       end
+
+      klass.new(self, config).push
     end
 
     # The list of pushes defined in this Vagrantfile.
     #
     # @return [Array<Symbol>]
     def pushes
-      vagrantfile.pushes
+      vagrantfile.config.push.__compiled_pushes.keys
     end
 
     # This returns a machine with the proper provider for this environment.
