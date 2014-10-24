@@ -7,7 +7,7 @@ require "vagrant/util/retryable"
 module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
-      extend Vagrant::Util::Retryable
+      include Vagrant::Util::Retryable
 
       def provision
         args = ""
