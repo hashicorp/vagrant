@@ -109,9 +109,14 @@ module Vagrant
             # Don't run if sentinel is around and we're not always running
             next if !provision_enabled && options[:run] != :always
 
+            name = type_name
+            if options[:name]
+              name = "#{options[:name]} (#{type_name})"
+            end
+
             env[:ui].info(I18n.t(
               "vagrant.actions.vm.provision.beginning",
-              provisioner: type_name))
+              provisioner: name))
 
             env[:hook].call(:provisioner_run, env.merge(
               callable: method(:run_provisioner),

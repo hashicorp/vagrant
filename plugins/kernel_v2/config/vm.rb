@@ -296,6 +296,7 @@ module VagrantPlugins
 
         prov = nil
         if name
+          name = name.to_sym
           prov = @provisioners.find { |p| p.name == name }
         end
 
