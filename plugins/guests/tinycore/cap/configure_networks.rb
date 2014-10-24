@@ -8,7 +8,8 @@ module VagrantPlugins
           machine.communicate.tap do |comm|
             networks.each do |n|
               if n[:type] == :dhcp
-                raise Errors::NetworkStaticOnly
+                comm.sudo("/sbin/udhcpc -b -i eth#{n[:interface]} -p /var/run/udhcpc.eth#{n[:interface]}.pid")
+                return
               end
 
               ifc = "/sbin/ifconfig eth#{n[:interface]}"
