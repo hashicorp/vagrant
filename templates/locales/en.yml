@@ -1250,6 +1250,15 @@ en:
         Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
         this to be available on the PATH. If VirtualBox is installed, please find the
         `VBoxManage` binary and add it to the PATH environmental variable.
+      virtualbox_version_empty: |-
+        Vagrant detected that VirtualBox appears installed on your system,
+        but calls to detect the version are returning empty. This is often
+        indicative of installation issues with VirtualBox. Please verify
+        that VirtualBox is properly installed. As a final verification,
+        please run the following command manually and verify a version is
+        outputted:
+
+        %{vboxmanage} --version
       vm_creation_required: |-
         VM must be created before running this command. Run `vagrant up` first.
       vm_inaccessible: |-
