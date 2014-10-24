@@ -357,6 +357,7 @@ describe Vagrant::Plugin::V2::Plugin do
       }.to raise_error(StandardError)
     end
   end
+
   describe "synced folders" do
     it "should register implementations" do
       plugin = Class.new(described_class) do
