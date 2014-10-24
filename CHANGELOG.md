@@ -88,6 +88,8 @@ BUG FIXES:
 
 PLUGIN AUTHOR CHANGES:
 
+  - `Machine#action` can be called with the option `lock: false` to not
+      acquire a machine lock.
   - `Machine#reload` will now properly trigger the `machine_id_changed`
       callback on providers.
 
