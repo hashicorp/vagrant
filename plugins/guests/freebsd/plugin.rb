@@ -36,6 +36,11 @@ module VagrantPlugins
         Cap::MountNFSFolder
       end
 
+      guest_capability("freebsd", "remove_public_key") do
+        require_relative "cap/remove_public_key"
+        Cap::RemovePublicKey
+      end
+
       guest_capability("freebsd", "rsync_install") do
         require_relative "cap/rsync"
         Cap::RSync

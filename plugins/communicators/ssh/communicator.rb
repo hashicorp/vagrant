@@ -11,6 +11,7 @@ require 'net/scp'
 
 require 'vagrant/util/ansi_escape_code_remover'
 require 'vagrant/util/file_mode'
+require 'vagrant/util/keypair'
 require 'vagrant/util/platform'
 require 'vagrant/util/retryable'
 
@@ -88,6 +89,8 @@ module VagrantPlugins
               raise
             rescue Vagrant::Errors::SSHKeyBadPermissions
               raise
+            rescue Vagrant::Errors::SSHInsertKeyUnsupported
+              raise
             rescue Vagrant::Errors::VagrantError => e
               # Ignore it, SSH is not ready, some other error.
             end
@@ -142,20 +145,41 @@ module VagrantPlugins
 
         # If we used a password, then insert the insecure key
         ssh_info = @machine.ssh_info
-        if ssh_info[:password] && ssh_info[:private_key_path].empty?
-          @logger.info("Inserting insecure key to avoid password")
-          @machine.ui.info(I18n.t("vagrant.inserting_insecure_key"))
-          @machine.guest.capability(
-            :insert_public_key,
-            Vagrant.source_root.join("keys", "vagrant.pub").read.chomp)
+        insert   = ssh_info[:password] && ssh_info[:private_key_path].empty?
+        ssh_info[:private_key_path].each do |pk|
+          if insecure_key?(pk)
+            insert = true
+            @machine.ui.detail("\n"+I18n.t("vagrant.inserting_insecure_detected"))
+            break
+          end
+        end
+
+        if insert
+          # If we don't have the power to insert/remove keys, then its an error
+          cap = @machine.guest.capability?(:insert_public_key) &&
+            @machine.guest.capability?(:remove_public_key)
+          raise Vagrant::Errors::SSHInsertKeyUnsupported if !cap
+
+          _pub, priv, openssh = Vagrant::Util::Keypair.create
+
+          @logger.info("Inserting key to avoid password: #{openssh}")
+          @machine.ui.detail("\n"+I18n.t("vagrant.inserting_random_key"))
+          @machine.guest.capability(:insert_public_key, openssh)
 
           # Write out the private key in the data dir so that the
           # machine automatically picks it up.
           @machine.data_dir.join("private_key").open("w+") do |f|
-            f.write(Vagrant.source_root.join("keys", "vagrant").read)
+            f.write(priv)
           end
 
-          @machine.ui.info(I18n.t("vagrant.inserted_key"))
+          # Remove the old key if it exists
+          @machine.ui.detail(I18n.t("vagrant.inserting_remove_key"))
+          @machine.guest.capability(
+            :remove_public_key,
+            Vagrant.source_root.join("keys", "vagrant.pub").read.chomp)
+
+          # Done, restart.
+          @machine.ui.detail(I18n.t("vagrant.inserted_key"))
           @connection.close
           @connection = nil
 
@@ -596,6 +620,16 @@ module VagrantPlugins
 
         # Otherwise, just raise the error up
         raise
+      end
+
+      # This will test whether path is the Vagrant insecure private key.
+      #
+      # @param [String] path
+      def insecure_key?(path)
+        return false if !path
+        return false if !File.file?(path)
+        source_path = Vagrant.source_root.join("keys", "vagrant")
+        return File.read(path).chomp == source_path.read.chomp
       end
     end
   end

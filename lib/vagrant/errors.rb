@@ -620,6 +620,10 @@ module Vagrant
       error_key(:ssh_invalid_shell)
     end
 
+    class SSHInsertKeyUnsupported < VagrantError
+      error_key(:ssh_insert_key_unsupported)
+    end
+
     class SSHIsPuttyLink < VagrantError
       error_key(:ssh_is_putty_link)
     end

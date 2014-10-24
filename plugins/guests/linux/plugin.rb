@@ -62,6 +62,11 @@ module VagrantPlugins
         Cap::ReadIPAddress
       end
 
+      guest_capability("linux", "remove_public_key") do
+        require_relative "cap/remove_public_key"
+        Cap::RemovePublicKey
+      end
+
       guest_capability("linux", "rsync_installed") do
         require_relative "cap/rsync"
         Cap::RSync
