@@ -144,11 +144,15 @@ module Vagrant
     # @param [Hash] extra_env This data will be passed into the action runner
     #   as extra data set on the environment hash for the middleware
     #   runner.
-    def action(name, extra_env=nil, **opts)
+    def action(name, **opts)
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
-      # Default to locking
-      opts[:lock] = true if !opts.has_key?(:lock)
+      # Determine whether we lock or not
+      lock = true
+      lock = opts.delete(:lock) if opts.has_key?(:lock)
+
+      # Extra env keys are the remaining opts
+      extra_env = opts.dup
 
       # Create a deterministic ID for this machine
       vf = nil
@@ -160,7 +164,7 @@ module Vagrant
       # we will want to do more fine-grained unlocking in actions themselves
       # but for a 1.6.2 release this will work.
       locker = Proc.new { |*args, &block| block.call }
-      locker = @env.method(:lock) if opts[:lock] && !name.to_s.start_with?("ssh")
+      locker = @env.method(:lock) if lock && !name.to_s.start_with?("ssh")
 
       # Lock this machine for the duration of this action
       locker.call("machine-action-#{id}") do
