@@ -225,7 +225,7 @@ module Vagrant
         #
         # @param [String] name Name of the push.
         # @param [Hash] options List of options for the push.
-        def self.push(name=UNSET_VALUE, options=nil, &block)
+        def self.push(name, options=nil, &block)
           components.pushes.register(name.to_sym) do
             [block.call, options]
           end
