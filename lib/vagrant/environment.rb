@@ -824,7 +824,10 @@ module Vagrant
     # This upgrades a home directory that was in the v1.1 format to the
     # v1.5 format. It will raise exceptions if anything fails.
     def upgrade_home_path_v1_1
-      @ui.ask(I18n.t("vagrant.upgrading_home_path_v1_5"))
+      if !ENV["VAGRANT_UPGRADE_SILENT_1_5"]
+        @ui.ask(I18n.t("vagrant.upgrading_home_path_v1_5"))
+      end
+
       collection = BoxCollection.new(
         @home_path.join("boxes"), temp_dir_root: tmp_path)
       collection.upgrade_v1_1_v1_5
