@@ -2,10 +2,13 @@ require "pathname"
 require "tempfile"
 
 require "vagrant/util/downloader"
+require "vagrant/util/retryable"
 
 module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
+      extend Vagrant::Util::Retryable
+
       def provision
         args = ""
         if config.args.is_a?(String)
@@ -50,7 +53,13 @@ module VagrantPlugins
           # Upload the script to the machine
           @machine.communicate.tap do |comm|
             # Reset upload path permissions for the current ssh user
-            user = @machine.ssh_info[:username]
+            info = nil
+            retryable(on: Vagrant::Errors::SSHNotReady, tries: 3, sleep: 2) do
+              info = @machine.ssh_info
+              raise Vagrant::Errors::SSHNotReady if info.nil?
+            end
+
+            user = info[:username]
             comm.sudo("chown -R #{user} #{config.upload_path}",
                       error_check: false)
 
