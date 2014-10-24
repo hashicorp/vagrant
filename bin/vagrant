@@ -15,7 +15,7 @@ end
 
 # Fast path the version of Vagrant
 if argv.include?("-v") || argv.include?("--version")
-  require "vagrant/version"
+  require_relative "../lib/vagrant/version"
   puts "Vagrant #{Vagrant::VERSION}"
   exit 0
 end
