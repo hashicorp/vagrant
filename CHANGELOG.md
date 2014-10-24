@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - **Named provisioners**: Provisioners can now be named. This name is used
+      for output as well as `--provision-with` for better control.
   - Default provider logic improved: Providers in `config.vm.provider` blocks
       in your Vagrantfile now have higher priority than plugins. Earlier
       providers are chosen before later ones. [GH-3812]
