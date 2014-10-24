@@ -20,8 +20,6 @@ module VagrantPlugins
         name = argv[0]
         pushes = @env.pushes
 
-        # TODO: this logic is 100% duplicated in Enviroment#push - should we
-        # just not validate here?
         validate_pushes!(pushes, name)
 
         @logger.debug("'push' environment with strategy: `#{name}'")
