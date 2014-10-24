@@ -30,7 +30,8 @@ module VagrantPlugins
 
           # Capture the strategy so we can use it later. This will be used in
           # the block iteration for merging/overwriting
-          strategy = (tuples[0] && tuples[0][0]) || name
+          strategy = name
+          strategy = tuples[0][0] if tuples[0]
 
           begin
             tuples.each do |s, b|
