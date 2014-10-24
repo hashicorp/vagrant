@@ -132,8 +132,8 @@ module VagrantPlugins
           new_provs   = []
           other_provs = other.provisioners.dup
           @provisioners.each do |p|
-            if p.id
-              other_p = other_provs.find { |o| p.id == o.id }
+            if p.name
+              other_p = other_provs.find { |o| p.name == o.name }
               if other_p
                 # There is an override. Take it.
                 other_p.config = p.config.merge(other_p.config)
@@ -278,15 +278,30 @@ module VagrantPlugins
       end
 
       def provision(name, **options, &block)
-        id = options.delete(:id).to_s if options.has_key?(:id)
+        type = name
+        if options.has_key?(:type)
+          type = options.delete(:type)
+        else
+          name = nil
+        end
+
+        if options.has_key?(:id)
+          puts "Setting `id` on a provisioner is deprecated. Please use the"
+          puts "new syntax of `config.vm.provision \"name\", type: \"type\""
+          puts "where \"name\" is the replacement for `id`. This will be"
+          puts "fully removed in Vagrant 1.8."
+
+          name = id
+        end
 
         prov = nil
-        if id
-          prov = @provisioners.find { |p| p.id == id }
+        if name
+          name = name.to_sym
+          prov = @provisioners.find { |p| p.name == name }
         end
 
         if !prov
-          prov = VagrantConfigProvisioner.new(id, name.to_sym)
+          prov = VagrantConfigProvisioner.new(name, type.to_sym)
           @provisioners << prov
         end
 
