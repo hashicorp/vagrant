@@ -104,7 +104,7 @@ module Vagrant
             type_name = type_map[p]
             next if env[:provision_types] && \
               !env[:provision_types].include?(type_name) && \
-              !env[:provision_types].include?(options[:id]) &&
+              !env[:provision_types].include?(options[:name])
 
             # Don't run if sentinel is around and we're not always running
             next if !provision_enabled && options[:run] != :always
