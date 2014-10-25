@@ -212,6 +212,8 @@ module Vagrant
             # Report the generic exception
             raise Errors::VagrantfileLoadError,
               path: path,
+              line: e.backtrace[0].split(':')[1],
+              exception_class: e.class,
               message: e.message
           end
         end
