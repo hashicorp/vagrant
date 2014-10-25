@@ -18,7 +18,7 @@ module VagrantPlugins
         end
 
         def provision
-          verify_binary(chef_binary_path("chef-client"))
+          verify_binary(chef_binary_path('chef-client'))
           chown_provisioning_folder
           create_client_key_folder
           upload_validation_key

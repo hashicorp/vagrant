@@ -7,7 +7,8 @@ sidebar_current: "provisioning-chefcommon"
 
 This page documents the list of available options that are available in
 both the
-[Chef solo](/v2/provisioning/chef_solo.html)
+[Chef solo](/v2/provisioning/chef_solo.html),
+[Chef zero](/v2/provisioning/chef_zero.html)
 and
 [Chef client](/v2/provisioning/chef_client.html)
 provisioners.

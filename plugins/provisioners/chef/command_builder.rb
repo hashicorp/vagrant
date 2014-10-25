@@ -33,6 +33,7 @@ module VagrantPlugins
       def chef_arguments
         chef_arguments = "-c #{provisioning_path("#{@client_type}.rb")}"
         chef_arguments << " -j #{provisioning_path("dna.json")}"
+        chef_arguments << ' -z' if @config.local_mode
         chef_arguments << " #{@config.arguments}" if @config.arguments
         chef_arguments << " --no-color" unless @is_ui_colored
         chef_arguments.strip
