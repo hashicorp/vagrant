@@ -1200,7 +1200,8 @@ en:
         a syntax error.
 
         Path: %{path}
-        Message: %{message}
+        Line number: %{line}
+        Message: %{exception_class}: %{message}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:

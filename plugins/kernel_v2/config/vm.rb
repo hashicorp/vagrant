@@ -37,6 +37,8 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
+        @logger = Log4r::Logger.new("vagrant::config::vm")
+
         @base_mac                      = UNSET_VALUE
         @boot_timeout                  = UNSET_VALUE
         @box                           = UNSET_VALUE
@@ -446,8 +448,13 @@ module VagrantPlugins
               config = config.merge(new_config)
             end
           rescue Exception => e
+            @logger.error("Vagrantfile load error: #{e.message}")
+            @logger.error(e.backtrace.join("\n"))
+
             raise Vagrant::Errors::VagrantfileLoadError,
               path: "<provider config: #{name}>",
+              line: e.backtrace[0].split(':')[1],
+              exception_class: e.class,
               message: e.message
           end
 
