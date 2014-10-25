@@ -54,6 +54,8 @@ module VagrantPlugins
             interfaces.each do |interface|
               comm.sudo("/sbin/ifup eth#{interface}")
             end
+            # Bring up all the interfaces
+            comm.sudo("/sbin/ifup --force -a")
           end
         end
       end
