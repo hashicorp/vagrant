@@ -66,13 +66,19 @@ Synced folders are automatically setup during `vagrant up` and
 
 ## Disabling
 
-Shared folders can be disabled by adding the `disabled` option to
+Synced folders can be disabled by adding the `disabled` option to
 any definition:
 
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.synced_folder "src/", "/srv/website", disabled: true
 end
+```
+
+Disabling the default `/vagrant` share can be done as follows:
+
+```ruby
+config.vm.synced_folder ".", "/vagrant", disabled: true
 ```
 
 ## Modifying the Owner/Group
