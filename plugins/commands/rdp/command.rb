@@ -71,11 +71,11 @@ module VagrantPlugins
         end
         
         if !rdp_info[:password]
-          username = ssh_info[:password]
+          password = ssh_info[:password]
           if machine.config.vm.communicator == :winrm
-            username = machine.config.winrm.password
+            password = machine.config.winrm.password
           end
-          rdp_info[:password] = username
+          rdp_info[:password] = password
         end
         
         rdp_info[:host] ||= ssh_info[:host]
