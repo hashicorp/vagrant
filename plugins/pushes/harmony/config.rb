@@ -33,12 +33,21 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :vcs
 
+      # The path to the uploader binary to shell out to. This usually
+      # is only set for debugging/development. If not set, the uploader
+      # will be looked for within the Vagrant installer dir followed by
+      # the PATH.
+      #
+      # @return [String]
+      attr_accessor :uploader_path
+
       def initialize
         @app = UNSET_VALUE
         @dir = UNSET_VALUE
         @vcs = UNSET_VALUE
         @include = []
         @exclude = []
+        @uploader_path = UNSET_VALUE
       end
 
       def merge(other)
@@ -56,6 +65,7 @@ module VagrantPlugins
       def finalize!
         @app = nil if @app == UNSET_VALUE
         @dir = "." if @dir == UNSET_VALUE
+        @uploader_path = nil if @uploader_path == UNSET_VALUE
         @vcs = true if @vcs == UNSET_VALUE
       end
 

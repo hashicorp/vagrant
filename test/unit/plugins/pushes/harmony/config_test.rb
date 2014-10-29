@@ -35,6 +35,7 @@ describe VagrantPlugins::HarmonyPush::Config do
     its(:dir) { should eq(".") }
     its(:exclude) { should be_empty }
     its(:include) { should be_empty }
+    its(:uploader_path) { should be_nil }
     its(:vcs) { should be_true }
   end
 
