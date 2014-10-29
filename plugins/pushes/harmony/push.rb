@@ -27,7 +27,7 @@ module VagrantPlugins
         cmd += @config.include.map { |v| ["-include", v] } if !@config.include.empty?
         cmd += @config.exclude.map { |v| ["-exclude", v] } if !@config.exclude.empty?
         cmd << @config.app
-        cmd << @config.dir
+        cmd << File.expand_path(@config.dir, @environment.root_path)
         Vagrant::Util::SafeExec.exec(uploader, *cmd.flatten)
       end
 

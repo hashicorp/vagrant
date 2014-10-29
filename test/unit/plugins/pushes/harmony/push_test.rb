@@ -12,13 +12,16 @@ describe VagrantPlugins::HarmonyPush::Push do
     end
   end
 
-  let(:machine) { double("machine") }
+  let(:environment) { double("environment") }
 
-  subject { described_class.new(machine, config) }
+  subject { described_class.new(environment, config) }
 
   before do
     # Stub this right away to avoid real execs
     allow(Vagrant::Util::SafeExec).to receive(:exec)
+
+    allow(environment).to receive(:root_path).and_return(
+      File.expand_path("../", __FILE__))
   end
 
   describe "#push" do
@@ -47,14 +50,14 @@ describe VagrantPlugins::HarmonyPush::Push do
 
     it "sends the basic flags" do
       expect(Vagrant::Util::SafeExec).to receive(:exec).
-        with("foo", "-vcs", app, ".")
+        with("foo", "-vcs", app, environment.root_path.to_s)
 
       subject.execute("foo")
     end
 
     it "doesn't send VCS if disabled" do
       expect(Vagrant::Util::SafeExec).to receive(:exec).
-        with("foo", app, ".")
+        with("foo", app, environment.root_path.to_s)
 
       config.vcs = false
       subject.execute("foo")
@@ -62,7 +65,8 @@ describe VagrantPlugins::HarmonyPush::Push do
 
     it "sends includes" do
       expect(Vagrant::Util::SafeExec).to receive(:exec).
-        with("foo", "-vcs", "-include", "foo", "-include", "bar", app, ".")
+        with("foo", "-vcs", "-include", "foo", "-include",
+             "bar", app, environment.root_path.to_s)
 
       config.include = ["foo", "bar"]
       subject.execute("foo")
@@ -70,7 +74,8 @@ describe VagrantPlugins::HarmonyPush::Push do
 
     it "sends excludes" do
       expect(Vagrant::Util::SafeExec).to receive(:exec).
-        with("foo", "-vcs", "-exclude", "foo", "-exclude", "bar", app, ".")
+        with("foo", "-vcs", "-exclude", "foo", "-exclude",
+             "bar", app, environment.root_path.to_s)
 
       config.exclude = ["foo", "bar"]
       subject.execute("foo")
