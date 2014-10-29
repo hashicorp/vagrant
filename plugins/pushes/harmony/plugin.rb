@@ -11,13 +11,13 @@ module VagrantPlugins
       DESC
 
       config(:harmony, :push) do
-        require File.expand_path("../config", __FILE__)
+        require_relative "config"
         init!
         Config
       end
 
       push(:harmony) do
-        require File.expand_path("../push", __FILE__)
+        require_relative "push"
         init!
         Push
       end

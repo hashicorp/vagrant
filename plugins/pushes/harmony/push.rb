@@ -5,7 +5,7 @@ require "vagrant/util/which"
 module VagrantPlugins
   module HarmonyPush
     class Push < Vagrant.plugin("2", :push)
-      UPLOADER_BIN = "harmony-upload"
+      UPLOADER_BIN = "harmony-upload".freeze
 
       def push
         uploader = self.uploader_path
