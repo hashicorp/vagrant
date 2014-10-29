@@ -24,8 +24,8 @@ module VagrantPlugins
       def execute(uploader)
         cmd = []
         cmd << "-vcs" if @config.vcs
-        cmd += @config.include.map { |v| ["-include", v] } if !@config.include.empty?
-        cmd += @config.exclude.map { |v| ["-exclude", v] } if !@config.exclude.empty?
+        cmd += @config.include.map { |v| ["-include", v] }
+        cmd += @config.exclude.map { |v| ["-exclude", v] }
         cmd << @config.app
         cmd << File.expand_path(@config.dir, @environment.root_path)
         Vagrant::Util::SafeExec.exec(uploader, *cmd.flatten)
