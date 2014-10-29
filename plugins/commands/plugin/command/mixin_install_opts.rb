@@ -3,6 +3,11 @@ module VagrantPlugins
     module Command
       module MixinInstallOpts
         def build_install_opts(o, options)
+          options[:plugin_sources] = [
+            "https://rubygems.org",
+            "http://gems.hashicorp.com",
+          ]
+
           o.on("--entry-point NAME", String,
                "The name of the entry point file for loading the plugin.") do |entry_point|
             options[:entry_point] = entry_point
@@ -17,9 +22,13 @@ module VagrantPlugins
             puts
           end
 
+          o.on("--plugin-clean-sources", String,
+            "Remove all plugin sources defined so far (including defaults)") do
+            options[:plugin_sources] = []
+          end
+
           o.on("--plugin-source PLUGIN_SOURCE", String,
                "Add a RubyGems repository source") do |plugin_source|
-            options[:plugin_sources] ||= []
             options[:plugin_sources] << plugin_source
           end
 
