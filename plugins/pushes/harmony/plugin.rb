@@ -2,6 +2,8 @@ require "vagrant"
 
 module VagrantPlugins
   module HarmonyPush
+    autoload :Errors, File.expand_path("../errors", __FILE__)
+
     class Plugin < Vagrant.plugin("2")
       name "harmony"
       description <<-DESC
