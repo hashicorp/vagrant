@@ -72,7 +72,7 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
-        if @app == nil || @app == ""
+        if @app.to_s.strip.empty?
           errors << I18n.t("push_harmony.errors.config.app_required")
         end
 

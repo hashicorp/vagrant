@@ -50,6 +50,12 @@ describe VagrantPlugins::HarmonyPush::Config do
       assert_invalid
     end
 
+    it "is invalid if blank" do
+      subject.app = "   "
+      subject.finalize!
+      assert_invalid
+    end
+
     it "is valid if set" do
       subject.app = "foo/bar"
       subject.finalize!
