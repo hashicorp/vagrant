@@ -2,7 +2,7 @@ require_relative "../../../../base"
 
 require Vagrant.source_root.join("plugins/provisioners/chef/config/base")
 
-describe VagrantPlugins::Chef::Config::Base, :focus do
+describe VagrantPlugins::Chef::Config::Base do
   include_context "unit"
 
   subject { described_class.new }
