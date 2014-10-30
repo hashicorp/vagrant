@@ -2,11 +2,10 @@ require "pathname"
 
 require "vagrant"
 
+require_relative "command_builder"
+
 module VagrantPlugins
   module Chef
-    root = Pathname.new(File.expand_path("../", __FILE__))
-    autoload :CommandBuilder, root.join("command_builder")
-
     class Plugin < Vagrant.plugin("2")
       name "chef"
       description <<-DESC
@@ -15,32 +14,32 @@ module VagrantPlugins
       DESC
 
       config(:chef_solo, :provisioner) do
-        require File.expand_path("../config/chef_solo", __FILE__)
+        require_relative "config/chef_solo"
         Config::ChefSolo
       end
 
       config(:chef_client, :provisioner) do
-        require File.expand_path("../config/chef_client", __FILE__)
+        require_relative "config/chef_client"
         Config::ChefClient
       end
 
       config(:chef_zero, :provisioner) do
-        require File.expand_path("../config/chef_zero", __FILE__)
+        require_relative "config/chef_zero"
         Config::ChefZero
       end
 
       provisioner(:chef_solo)   do
-        require File.expand_path("../provisioner/chef_solo", __FILE__)
+        require_relative "provisioner/chef_solo"
         Provisioner::ChefSolo
       end
 
       provisioner(:chef_client) do
-        require File.expand_path("../provisioner/chef_client", __FILE__)
+        require_relative "provisioner/chef_client"
         Provisioner::ChefClient
       end
 
       provisioner(:chef_zero)   do
-        require File.expand_path("../provisioner/chef_zero", __FILE__)
+        require_relative "provisioner/chef_zero"
         Provisioner::ChefZero
       end
     end
