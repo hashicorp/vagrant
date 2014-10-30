@@ -65,10 +65,14 @@ module VagrantPlugins
         def validate(machine)
           errors = _detected_errors
           errors.concat(validate_base(machine))
-          errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
-            !cookbooks_path || [cookbooks_path].flatten.empty?
-          errors << I18n.t("vagrant.config.chef.environment_path_required") if \
-            environment && environments_path.empty?
+
+          if [cookbooks_path].flatten.compact.empty?
+            errors << I18n.t("vagrant.config.chef.cookbooks_path_empty")
+          end
+
+          if environment && environments_path.empty?
+            errors << I18n.t("vagrant.config.chef.environment_path_required")
+          end
 
           environments_path.each do |type, raw_path|
             next if type != :host
@@ -76,7 +80,8 @@ module VagrantPlugins
             path = Pathname.new(raw_path).expand_path(machine.env.root_path)
             if !path.directory?
               errors << I18n.t("vagrant.config.chef.environment_path_missing",
-                               path: raw_path.to_s)
+                path: raw_path.to_s
+              )
             end
           end
 
@@ -92,6 +97,8 @@ module VagrantPlugins
         def prepare_folders_config(config)
           # Make sure the path is an array
           config = [config] if !config.is_a?(Array) || config.first.is_a?(Symbol)
+
+          return [] if config.flatten.compact.empty?
 
           # Make sure all the paths are in the proper format
           config.map do |path|
