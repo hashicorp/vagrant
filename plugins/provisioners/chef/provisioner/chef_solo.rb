@@ -19,6 +19,7 @@ module VagrantPlugins
         def initialize(machine, config)
           super
           @logger = Log4r::Logger.new("vagrant::provisioners::chef_solo")
+          @shared_folders = []
         end
 
         def configure(root_config)
@@ -36,13 +37,11 @@ module VagrantPlugins
         def provision
           # Verify that the proper shared folders exist.
           check = []
-          [@cookbook_folders, @role_folders, @data_bags_folders, @environments_folders].each do |folders|
-            folders.each do |type, local_path, remote_path|
-              # We only care about checking folders that have a local path, meaning
-              # they were shared from the local machine, rather than assumed to
-              # exist on the VM.
-              check << remote_path if local_path
-            end
+          @shared_folders.each do |type, local_path, remote_path|
+            # We only care about checking folders that have a local path, meaning
+            # they were shared from the local machine, rather than assumed to
+            # exist on the VM.
+            check << remote_path if local_path
           end
 
           chown_provisioning_folder
@@ -113,20 +112,21 @@ module VagrantPlugins
               root_config.vm.synced_folder(local_path, remote_path, opts)
             end
           end
+          @shared_folders += folders
         end
 
         def setup_solo_config
-          cookbooks_path = guest_paths(@cookbook_folders)
-          roles_path = guest_paths(@role_folders)
-          data_bags_path = guest_paths(@data_bags_folders).first
-          environments_path = guest_paths(@environments_folders).first
-          setup_config("provisioners/chef_solo/solo", "solo.rb", {
-            cookbooks_path: cookbooks_path,
+          setup_config("provisioners/chef_solo/solo", "solo.rb", solo_config)
+        end
+
+        def solo_config
+          {
+            cookbooks_path: guest_paths(@cookbook_folders),
             recipe_url: @config.recipe_url,
-            roles_path: roles_path,
-            data_bags_path: data_bags_path,
-            environments_path: environments_path,
-          })
+            roles_path: guest_paths(@role_folders),
+            data_bags_path: guest_paths(@data_bags_folders).first,
+            environments_path: guest_paths(@environments_folders).first
+          }
         end
 
         def run_chef_solo
