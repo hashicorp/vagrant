@@ -1310,8 +1310,8 @@ en:
           Cookbook path doesn't exist: %{path}
         custom_config_path_missing: |-
           Path specified for "custom_config_path" does not exist.
-        server_url_empty: "Chef server URL must be populated."
-        validation_key_path: "Validation key path must be valid path to your chef server validation key."
+        server_url_empty: "Chef Server URL must be populated."
+        validation_key_path: "Validation key path must be valid path to your Chef Server validation key."
       loader:
         bad_v1_key: |-
           Unknown configuration section '%{key}'. If this section was part of
