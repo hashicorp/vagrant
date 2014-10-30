@@ -17,13 +17,12 @@ provisioner. It runs a local in-memory Chef Server and fakes the validation
 and client key registration.
 
 <div class="alert alert-warn">
-	<p>
-		<strong>Warning:</strong> If you're not familiar with Chef and Vagrant already,
-		I recommend starting with the <a href="/v2/provisioning/shell.html">shell
-		provisioner</a>. However, if you're comfortable with Vagrant already, Vagrant
-		is the best way to learn Chef.
-
-	</p>
+  <p>
+    <strong>Warning:</strong> If you're not familiar with Chef and Vagrant already,
+    I recommend starting with the <a href="/v2/provisioning/shell.html">shell
+    provisioner</a>. However, if you're comfortable with Vagrant already, Vagrant
+    is the best way to learn Chef.
+  </p>
 </div>
 
 ## Options
