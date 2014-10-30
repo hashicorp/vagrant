@@ -3,7 +3,7 @@ require 'pathname'
 require 'vagrant'
 require 'vagrant/util/subprocess'
 
-require File.expand_path("../base", __FILE__)
+require_relative "base"
 
 module VagrantPlugins
   module Chef

@@ -2,7 +2,7 @@ require "log4r"
 
 require "vagrant/util/counter"
 
-require File.expand_path("../base", __FILE__)
+require_relative "base"
 
 module VagrantPlugins
   module Chef

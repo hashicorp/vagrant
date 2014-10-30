@@ -1,6 +1,6 @@
-require File.expand_path("../base", __FILE__)
-
 require "vagrant/util/which"
+
+require_relative "base"
 
 module VagrantPlugins
   module Chef
