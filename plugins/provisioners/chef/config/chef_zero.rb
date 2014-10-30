@@ -22,7 +22,7 @@ module VagrantPlugins
         end
 
         def validate(machine)
-          { "Chef Zero provisioner" => super["chef solo provisioner"] }
+          { "chef zero provisioner" => super["chef solo provisioner"] }
         end
       end
     end
