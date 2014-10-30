@@ -16,23 +16,23 @@ module VagrantPlugins
         def initialize
           super
 
-          @chef_server_url                    = UNSET_VALUE
-          @client_key_path                    = UNSET_VALUE
-          @delete_client                      = UNSET_VALUE
-          @delete_node                        = UNSET_VALUE
-          @validation_key_path                = UNSET_VALUE
-          @validation_client_name             = UNSET_VALUE
+          @chef_server_url        = UNSET_VALUE
+          @client_key_path        = UNSET_VALUE
+          @delete_client          = UNSET_VALUE
+          @delete_node            = UNSET_VALUE
+          @validation_key_path    = UNSET_VALUE
+          @validation_client_name = UNSET_VALUE
         end
 
         def finalize!
           super
 
-          @chef_server_url = nil if @chef_server_url == UNSET_VALUE
+          @chef_server_url        = nil if @chef_server_url == UNSET_VALUE
           @client_key_path        = "/etc/chef/client.pem" if @client_key_path == UNSET_VALUE
-          @delete_client = false if @delete_client == UNSET_VALUE
-          @delete_node = false if @delete_node == UNSET_VALUE
+          @delete_client          = false if @delete_client == UNSET_VALUE
+          @delete_node            = false if @delete_node == UNSET_VALUE
           @validation_client_name = "chef-validator" if @validation_client_name == UNSET_VALUE
-          @validation_key_path = nil if @validation_key_path == UNSET_VALUE
+          @validation_key_path    = nil if @validation_key_path == UNSET_VALUE
         end
 
         def validate(machine)

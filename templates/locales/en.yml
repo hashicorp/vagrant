@@ -1754,10 +1754,18 @@ en:
           "The cookbook path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
+        log_level_empty: |-
+          The Chef provisioner requires a log level. If you did not set a
+          log level, this is probably a bug and should be reported.
         upload_validation_key: "Uploading chef client validation key..."
         upload_encrypted_data_bag_secret_key: "Uploading chef encrypted data bag secret key..."
+        recipe_empty: |-
+          Chef Apply provisioning requires that the `config.chef.recipe` be set
+          to a string containing the recipe contents you want to execute on the
+          guest.
         running_client: "Running chef-client..."
         running_client_again: "Running chef-client again (failed to converge)..."
+        running_client_apply: "Running chef-apply..."
         running_solo: "Running chef-solo..."
         running_solo_again: "Running chef-solo again (failed to converge)..."
         missing_shared_folders: |-
@@ -1784,6 +1792,9 @@ en:
         server_validation_key_doesnt_exist: |-
           The validation key set for `config.chef.validation_key_path` does not exist! This
           file needs to exist so it can be uploaded to the virtual machine.
+        upload_path_empty: |-
+          The Chef Apply provisioner requires that the `config.chef.upload_path`
+          be set to a non-nil, non-empty value.
         deleting_from_server: "Deleting %{deletable} \"%{name}\" from Chef server..."
 
       file:
