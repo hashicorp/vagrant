@@ -4,7 +4,7 @@ module VagrantPlugins
       class RSync
         def self.rsync_install(machine)
           machine.communicate.tap do |comm|
-            comm.sudo("yum -y install rsync")
+            comm.sudo("type rsync yum -y install rsync> /dev/null || yum -y install rsync")
           end
         end
       end
