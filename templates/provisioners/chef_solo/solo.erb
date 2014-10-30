@@ -32,6 +32,13 @@ environment_path <%= environments_path.inspect %>
 environment "<%= environment %>"
 <% end -%>
 
+<% if local_mode -%>
+local_mode true
+<% end -%>
+<% if node_path -%>
+node_path <%= node_path.inspect %>
+<% end -%>
+
 http_proxy <%= http_proxy.inspect %>
 http_proxy_user <%= http_proxy_user.inspect %>
 http_proxy_pass <%= http_proxy_pass.inspect %>
