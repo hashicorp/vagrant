@@ -14,7 +14,7 @@ all the information required should be here.
 
 We do not offer reseller discounts. However, we do offer volume pricing
 when purchasing more than 100 licenses. In that case, please email
-biz@hashicorp.com to learn more.
+sales@hashicorp.com to learn more.
 
 ## Quote
 
