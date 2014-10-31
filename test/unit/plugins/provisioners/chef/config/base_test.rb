@@ -28,6 +28,12 @@ describe VagrantPlugins::Chef::Config::Base do
       subject.finalize!
       expect(subject.install).to be(true)
     end
+
+    it "is converted to a symbol" do
+      subject.install = "force"
+      subject.finalize!
+      expect(subject.install).to eq(:force)
+    end
   end
 
   describe "#log_level" do
@@ -40,6 +46,13 @@ describe VagrantPlugins::Chef::Config::Base do
       subject.log_level = "foo"
       subject.finalize!
       expect(subject.log_level).to eq(:foo)
+    end
+  end
+
+  describe "#prerelease" do
+    it "defaults to true" do
+      subject.finalize!
+      expect(subject.prerelease).to be(false)
     end
   end
 

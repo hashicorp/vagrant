@@ -1,3 +1,5 @@
+require_relative "base"
+
 module VagrantPlugins
   module Chef
     module Config

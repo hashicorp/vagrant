@@ -30,6 +30,10 @@ module VagrantPlugins
         # @return [String, Symbol]
         attr_accessor :log_level
 
+        # Install a prerelease version of Chef.
+        # @return [true, false]
+        attr_accessor :prerelease
+
         # The version of Chef to install. If Chef is already installed on the
         # system, the installed version is compared with the requested version.
         # If they match, no action is taken. If they do not match, version of
@@ -47,19 +51,26 @@ module VagrantPlugins
         def initialize
           super
 
-          @binary_path      = UNSET_VALUE
-          @binary_env       = UNSET_VALUE
-          @install          = UNSET_VALUE
-          @log_level        = UNSET_VALUE
-          @version          = UNSET_VALUE
+          @binary_path = UNSET_VALUE
+          @binary_env  = UNSET_VALUE
+          @install     = UNSET_VALUE
+          @log_level   = UNSET_VALUE
+          @prerelease  = UNSET_VALUE
+          @version     = UNSET_VALUE
         end
 
         def finalize!
-          @binary_path      = nil     if @binary_path == UNSET_VALUE
-          @binary_env       = nil     if @binary_env == UNSET_VALUE
-          @install          = true    if @install == UNSET_VALUE
-          @log_level        = :info   if @log_level == UNSET_VALUE
-          @version          = :latest if @version == UNSET_VALUE
+          @binary_path = nil     if @binary_path == UNSET_VALUE
+          @binary_env  = nil     if @binary_env == UNSET_VALUE
+          @install     = true    if @install == UNSET_VALUE
+          @log_level   = :info   if @log_level == UNSET_VALUE
+          @prerelease  = false   if @prerelease == UNSET_VALUE
+          @version     = :latest if @version == UNSET_VALUE
+
+          # Make sure the install is a symbol if it's not a boolean
+          if @install.respond_to?(:to_sym)
+            @install = @install.to_sym
+          end
 
           # Make sure the version is a symbol if it's not a boolean
           if @version.respond_to?(:to_sym)
