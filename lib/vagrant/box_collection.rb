@@ -224,7 +224,7 @@ module Vagrant
           # Otherwise, traverse the subdirectories and see what versions
           # we have.
           child.children(true).each do |versiondir|
-            next if !versiondir.directory?
+            next if !versiondir.directory? || versiondir.basename.to_s[0] == '.'
 
             version = versiondir.basename.to_s
 
@@ -269,7 +269,7 @@ module Vagrant
         end
 
         versions = box_directory.children(true).map do |versiondir|
-          next if !versiondir.directory?
+          next if !versiondir.directory? || versiondir.basename.to_s[0] == '.'
           version = versiondir.basename.to_s
           Gem::Version.new(version)
         end.compact
