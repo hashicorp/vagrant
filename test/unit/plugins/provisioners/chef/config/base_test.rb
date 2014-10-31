@@ -9,20 +9,6 @@ describe VagrantPlugins::Chef::Config::Base do
 
   let(:machine) { double("machine") }
 
-  describe "#arguments" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.arguments).to be(nil)
-    end
-  end
-
-  describe "#attempts" do
-    it "defaults to 1" do
-      subject.finalize!
-      expect(subject.attempts).to eq(1)
-    end
-  end
-
   describe "#binary_path" do
     it "defaults to nil" do
       subject.finalize!
@@ -37,66 +23,10 @@ describe VagrantPlugins::Chef::Config::Base do
     end
   end
 
-  describe "#custom_config_path" do
-    it "defaults to nil" do
+  describe "#install" do
+    it "defaults to true" do
       subject.finalize!
-      expect(subject.custom_config_path).to be(nil)
-    end
-  end
-
-  describe "#environment" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.environment).to be(nil)
-    end
-  end
-
-  describe "#formatter" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.formatter).to be(nil)
-    end
-  end
-
-  describe "#http_proxy" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.http_proxy).to be(nil)
-    end
-  end
-
-  describe "#http_proxy_user" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.http_proxy_user).to be(nil)
-    end
-  end
-
-  describe "#http_proxy_pass" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.http_proxy_pass).to be(nil)
-    end
-  end
-
-  describe "#https_proxy" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.https_proxy).to be(nil)
-    end
-  end
-
-  describe "#https_proxy_user" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.https_proxy_user).to be(nil)
-    end
-  end
-
-  describe "#https_proxy_pass" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.https_proxy_pass).to be(nil)
+      expect(subject.install).to be(true)
     end
   end
 
@@ -113,150 +43,16 @@ describe VagrantPlugins::Chef::Config::Base do
     end
   end
 
-  describe "#no_proxy" do
-    it "defaults to nil" do
+  describe "#version" do
+    it "defaults to :latest" do
       subject.finalize!
-      expect(subject.no_proxy).to be(nil)
+      expect(subject.version).to eq(:latest)
     end
-  end
 
-  describe "#node_name" do
-    it "defaults to nil" do
+    it "converts the string 'latest' to a symbol" do
+      subject.version = "latest"
       subject.finalize!
-      expect(subject.node_name).to be(nil)
-    end
-  end
-
-  describe "#provisioning_path" do
-    it "defaults to a tmp_path" do
-      subject.finalize!
-      expect(subject.provisioning_path).to match(%r{/tmp/vagrant-chef-\d+})
-    end
-  end
-
-  describe "#file_backup_path" do
-    it "defaults to /var/chef/backup" do
-      subject.finalize!
-      expect(subject.file_backup_path).to eq("/var/chef/backup")
-    end
-  end
-
-  describe "#file_cache_path" do
-    it "defaults to /var/chef/cache" do
-      subject.finalize!
-      expect(subject.file_cache_path).to eq("/var/chef/cache")
-    end
-  end
-
-  describe "#verbose_logging" do
-    it "defaults to false" do
-      subject.finalize!
-      expect(subject.verbose_logging).to be(false)
-    end
-  end
-
-  describe "#run_list" do
-    it "defaults to an empty array" do
-      subject.finalize!
-      expect(subject.run_list).to be_a(Array)
-      expect(subject.run_list).to be_empty
-    end
-  end
-
-  describe "#json" do
-    it "defaults to an empty hash" do
-      subject.finalize!
-      expect(subject.json).to be_a(Hash)
-      expect(subject.json).to be_empty
-    end
-  end
-
-  describe "#add_recipe" do
-    context "when the prefix is given" do
-      it "adds the value to the run_list" do
-        subject.add_recipe("recipe[foo::bar]")
-        expect(subject.run_list).to eq %w(recipe[foo::bar])
-      end
-    end
-
-    context "when the prefix is not given" do
-      it "adds the prefixed value to the run_list" do
-        subject.add_recipe("foo::bar")
-        expect(subject.run_list).to eq %w(recipe[foo::bar])
-      end
-    end
-  end
-
-  describe "#add_role" do
-    context "when the prefix is given" do
-      it "adds the value to the run_list" do
-        subject.add_role("role[foo]")
-        expect(subject.run_list).to eq %w(role[foo])
-      end
-    end
-
-    context "when the prefix is not given" do
-      it "adds the prefixed value to the run_list" do
-        subject.add_role("foo")
-        expect(subject.run_list).to eq %w(role[foo])
-      end
-    end
-  end
-
-   describe "#validate_base" do
-    context "when #custom_config_path does not exist" do
-      let(:path) { "/path/to/file" }
-
-      before do
-        allow(File).to receive(:file?)
-          .with(path)
-          .and_return(false)
-
-        allow(machine).to receive(:env)
-          .and_return(double("env",
-            root_path: "",
-          ))
-      end
-
-      it "returns an error" do
-        subject.custom_config_path = path
-        subject.finalize!
-
-        expect(subject.validate_base(machine))
-          .to eq ['Path specified for "custom_config_path" does not exist.']
-      end
-    end
-  end
-
-  describe "#merge" do
-    it "merges the json hash" do
-      a = described_class.new.tap do |i|
-        i.json = { "foo" => "bar" }
-      end
-      b = described_class.new.tap do |i|
-        i.json = { "zip" => "zap" }
-      end
-
-      result = a.merge(b)
-      expect(result.json).to eq(
-        "foo" => "bar",
-        "zip" => "zap",
-      )
-    end
-
-    it "appends the run_list array" do
-      a = described_class.new.tap do |i|
-        i.run_list = ["recipe[foo::bar]"]
-      end
-      b = described_class.new.tap do |i|
-        i.run_list = ["recipe[zip::zap]"]
-      end
-
-      result = a.merge(b)
-      expect(result.run_list).to eq %w(
-        recipe[foo::bar]
-        recipe[zip::zap]
-      )
+      expect(subject.version).to eq(:latest)
     end
   end
 end

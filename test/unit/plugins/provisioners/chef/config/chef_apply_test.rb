@@ -20,19 +20,6 @@ describe VagrantPlugins::Chef::Config::ChefApply do
     end
   end
 
-  describe "#log_level" do
-    it "defaults to :info" do
-      subject.finalize!
-      expect(subject.log_level).to be(:info)
-    end
-
-    it "is converted to a symbol" do
-      subject.log_level = "foo"
-      subject.finalize!
-      expect(subject.log_level).to eq(:foo)
-    end
-  end
-
   describe "#upload_path" do
     it "defaults to /tmp/vagrant-chef-apply.rb" do
       subject.finalize!
