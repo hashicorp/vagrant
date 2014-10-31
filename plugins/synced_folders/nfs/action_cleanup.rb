@@ -19,6 +19,8 @@ module VagrantPlugins
           return @app.call(env)
         end
 
+        # never clean up the machine we're starting
+        env[:nfs_valid_ids] << env[:machine].id
         @logger.info("NFS pruning. Valid IDs: #{env[:nfs_valid_ids].inspect}")
         env[:machine].env.host.capability(
           :nfs_prune, env[:machine].ui, env[:nfs_valid_ids])
