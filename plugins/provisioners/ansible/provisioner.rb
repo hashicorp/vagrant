@@ -50,6 +50,7 @@ module VagrantPlugins
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
         options << "--limit=#{as_list_argument(config.limit)}" if config.limit
         options << "--start-at-task=#{config.start_at_task}" if config.start_at_task
+        options << "--force-read" if config.force_read
 
         # Assemble the full ansible-playbook command
         command = (%w(ansible-playbook) << options << config.playbook).flatten
