@@ -16,6 +16,7 @@ module VagrantPlugins
       attr_accessor :start_at_task
       attr_accessor :groups
       attr_accessor :host_key_checking
+      attr_accessor :force_read
 
       # Joker attribute, used to pass unsupported arguments to ansible-playbook anyway
       attr_accessor :raw_arguments
@@ -40,6 +41,7 @@ module VagrantPlugins
         @host_key_checking   = UNSET_VALUE
         @raw_arguments       = UNSET_VALUE
         @raw_ssh_args        = UNSET_VALUE
+        @force_read          = UNSET_VALUE
       end
 
       def finalize!
@@ -60,6 +62,7 @@ module VagrantPlugins
         @host_key_checking   = false unless @host_key_checking == true
         @raw_arguments       = nil if @raw_arguments == UNSET_VALUE
         @raw_ssh_args        = nil if @raw_ssh_args == UNSET_VALUE
+        @force_read          = false unless @force_read == true
       end
 
       def validate(machine)
