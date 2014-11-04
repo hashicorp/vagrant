@@ -32,7 +32,6 @@ Gem::Specification.new do |s|
   s.add_dependency "nokogiri", "= 1.6.3.1"
 
   s.add_development_dependency "rake"
-  s.add_development_dependency "mocha"
   s.add_development_dependency "rspec", "~> 2.14.0"
 
   # The following block of code determines the files that should be included
