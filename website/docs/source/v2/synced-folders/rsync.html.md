@@ -62,7 +62,6 @@ The rsync synced folder type accepts the following options:
   pattern. By default, the ".vagrant/" directory is excluded. We recommend
   excluding revision control directories such as ".git/" as well.
 
-
 ## Example
 
 The following is an example of using RSync to sync a folder:
