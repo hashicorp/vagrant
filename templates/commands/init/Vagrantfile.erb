@@ -126,4 +126,11 @@ Vagrant.configure(2) do |config|
   # chef-validator, unless you changed the configuration.
   #
   #   chef.validation_client_name = "ORGNAME-validator"
+
+  # Enable provisioning with ansible, specifying a playbook path
+  # (relative to this Vagrantfile)
+  #
+  # config.vm.provision "ansible" do |ansible|
+  #   ansible.playbook = "ansible/box.yml"
+  # end
 end
