@@ -180,18 +180,7 @@ module Vagrant
         end
 
         # Call the action
-        result = action_raw(name, callable, extra_env)
-
-        # Call the state method so that we update our index state. Don't
-        # worry about exceptions here, since we just care about updating
-        # the cache.
-        begin
-          # Called for side effects
-          self.state
-        rescue Errors::VagrantError
-        end
-
-        return result
+        action_raw(name, callable, extra_env)
       end
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
