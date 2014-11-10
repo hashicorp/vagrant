@@ -18,6 +18,7 @@ module VagrantPlugins
         end
 
         def provision
+          install_chef
           verify_binary(chef_binary_path("chef-client"))
           chown_provisioning_folder
           create_client_key_folder

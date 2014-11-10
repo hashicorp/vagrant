@@ -52,6 +52,21 @@ module VagrantPlugins
         require_relative "provisioner/chef_zero"
         Provisioner::ChefZero
       end
+
+      guest_capability(:linux, :chef_installed) do
+        require_relative "cap/linux/chef_installed"
+        Cap::Linux::ChefInstalled
+      end
+
+      guest_capability(:debian, :chef_install) do
+        require_relative "cap/debian/chef_install"
+        Cap::Debian::ChefInstall
+      end
+
+      guest_capability(:redhat, :chef_install) do
+        require_relative "cap/redhat/chef_install"
+        Cap::Redhat::ChefInstall
+      end
     end
   end
 end

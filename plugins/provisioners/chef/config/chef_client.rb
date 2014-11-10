@@ -1,16 +1,33 @@
 require "vagrant/util/which"
 
-require_relative "base"
+require_relative "base_runner"
 
 module VagrantPlugins
   module Chef
     module Config
-      class ChefClient < Base
+      class ChefClient < BaseRunner
+        # The URL endpoint to the Chef Server.
+        # @return [String]
         attr_accessor :chef_server_url
+
+        # The path on disk to the Chef client key,
+        # @return [String]
         attr_accessor :client_key_path
+
+        # Delete the client key when the VM is destroyed. Default is false.
+        # @return [true, false]
         attr_accessor :delete_client
+
+        # Delete the node when the VM is destroyed. Default is false.
+        # @return [true, false]
         attr_accessor :delete_node
+
+        # The path to the validation key on disk.
+        # @return [String]
         attr_accessor :validation_key_path
+
+        # The name of the validation client.
+        # @return [String]
         attr_accessor :validation_client_name
 
         def initialize
@@ -36,8 +53,7 @@ module VagrantPlugins
         end
 
         def validate(machine)
-          errors = _detected_errors
-          errors.concat(validate_base(machine))
+          errors = validate_base(machine)
 
           if chef_server_url.to_s.strip.empty?
             errors << I18n.t("vagrant.config.chef.server_url_empty")

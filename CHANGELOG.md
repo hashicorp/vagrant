@@ -32,6 +32,7 @@ IMPROVEMENTS:
       more easily. Vagrant will login for you if you specify auth. [GH-4042]
   - providers/docker: `stop_timeout` can be used to modify the `docker stop`
       timeout. [GH-4504]
+  - provisioners/chef: Automatically install Chef when using a Chef provisioner.
   - synced\_folders/nfs: Won't use `sudo` to write to /etc/exports if there
       are write privileges. [GH-2643]
   - synced\_folders/smb: Credentials from one SMB will be copied to the rest. [GH-4675]
