@@ -22,8 +22,13 @@ module VagrantTests
     end
 
     def state
-      state_id = :running
-      state_id = state_file.read.to_sym if state_file.file?
+      if !state_file.file?
+        new_state = @machine.id
+        new_state = Vagrant::MachineState::NOT_CREATED_ID if !new_state
+        self.state = new_state
+      end
+
+      state_id = state_file.read.to_sym
       Vagrant::MachineState.new(state_id, state_id.to_s, state_id.to_s)
     end
 
