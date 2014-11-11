@@ -23,11 +23,11 @@ module VagrantPlugins
       # if we're on a system that doesn't support exec, so handle that properly.
       def execute(uploader)
         cmd = []
-        cmd << "-vcs" if @config.vcs
-        cmd += @config.include.map { |v| ["-include", v] }
-        cmd += @config.exclude.map { |v| ["-exclude", v] }
-        cmd << @config.app
-        cmd << File.expand_path(@config.dir, @environment.root_path)
+        cmd << "-vcs" if config.vcs
+        cmd += config.include.map { |v| ["-include", v] }
+        cmd += config.exclude.map { |v| ["-exclude", v] }
+        cmd << config.app
+        cmd << File.expand_path(config.dir, env.root_path)
         Vagrant::Util::SafeExec.exec(uploader, *cmd.flatten)
       end
 
@@ -37,7 +37,7 @@ module VagrantPlugins
       # @return [String]
       def uploader_path
         # Determine the uploader path
-        uploader = @config.uploader_path
+        uploader = config.uploader_path
         if uploader
           return uploader
         end
