@@ -22,6 +22,8 @@ IMPROVEMENTS:
       will be loaded for defining inline plugins. [GH-3775]
   - commands/plugin: Plugin list machine-readable output contains the plugin
       name as the target for versions and other info. [GH-4506]
+  - env/with_cleanenv: New helper for plugin developers to use when shelling out
+      to another Ruby environment
   - guests/arch: Support predictable network interface naming. [GH-4468]
   - guests/suse: Support NFS client install, rsync setup. [GH-4492]
   - guests/tinycore: Support changing host names. [GH-4469]
@@ -51,6 +53,7 @@ BUG FIXES:
       "application/json" [GH-4525]
   - core: If all sub-machines are `autostart: false`, don't start any. [GH-4552]
   - core: Update global-status state in more cases. [GH-4513]
+  - core: Only delete machine state if the machine is not created in initialize
   - commands/box: `--cert` flag works properly. [GH-4691]
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/docker-run: Synced folders will be attached properly. [GH-3873]
