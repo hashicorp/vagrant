@@ -1,5 +1,5 @@
 module VagrantPlugins
-  module HarmonyPush
+  module AtlasPush
     class Config < Vagrant.plugin("2", :config)
       # The name of the application to push to. This will be created (with
       # user confirmation) if it doesn't already exist.
@@ -23,8 +23,8 @@ module VagrantPlugins
       # to the directory being packaged.
       #
       # @return [Array<String>]
-      attr_accessor :include
-      attr_accessor :exclude
+      attr_accessor :includes
+      attr_accessor :excludes
 
       # If set to true, Vagrant will automatically use VCS data to determine
       # the files to upload. As a caveat: uncommitted changes will not be
@@ -45,20 +45,15 @@ module VagrantPlugins
         @app = UNSET_VALUE
         @dir = UNSET_VALUE
         @vcs = UNSET_VALUE
-        @include = []
-        @exclude = []
+        @includes = []
+        @excludes = []
         @uploader_path = UNSET_VALUE
       end
 
       def merge(other)
         super.tap do |result|
-          inc = self.include.dup
-          inc.concat(other.include)
-          result.include = inc
-
-          exc = self.exclude.dup
-          exc.concat(other.exclude)
-          result.exclude = exc
+          result.includes = self.includes.dup.concat(other.includes).uniq
+          result.excludes = self.excludes.dup.concat(other.excludes).uniq
         end
       end
 
@@ -72,11 +67,41 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
-        if @app.to_s.strip.empty?
-          errors << I18n.t("push_harmony.errors.config.app_required")
+        if missing?(@app)
+          errors << I18n.t("atlas_push.errors.missing_attribute",
+            attribute: "app",
+          )
         end
 
-        { "Harmony push" => errors }
+        if missing?(@dir)
+          errors << I18n.t("atlas_push.errors.missing_attribute",
+            attribute: "dir",
+          )
+        end
+
+        { "Atlas push" => errors }
+      end
+
+      # Add the filepath to the list of includes
+      # @param [String] filepath
+      def include(filepath)
+        @includes << filepath
+      end
+      alias_method :include=, :include
+
+      # Add the filepath to the list of excludes
+      # @param [String] filepath
+      def exclude(filepath)
+        @excludes << filepath
+      end
+      alias_method :exclude=, :exclude
+
+      private
+
+      # Determine if the given string is "missing" (blank)
+      # @return [true, false]
+      def missing?(obj)
+        obj.to_s.strip.empty?
       end
     end
   end

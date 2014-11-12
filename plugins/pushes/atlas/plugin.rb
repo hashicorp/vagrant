@@ -1,22 +1,22 @@
 require "vagrant"
 
 module VagrantPlugins
-  module HarmonyPush
+  module AtlasPush
     autoload :Errors, File.expand_path("../errors", __FILE__)
 
     class Plugin < Vagrant.plugin("2")
-      name "harmony"
+      name "atlas"
       description <<-DESC
-      Deploy using HashiCorp's Harmony service.
+      Deploy using HashiCorp's Atlas service.
       DESC
 
-      config(:harmony, :push) do
+      config(:atlas, :push) do
         require_relative "config"
         init!
         Config
       end
 
-      push(:harmony) do
+      push(:atlas) do
         require_relative "push"
         init!
         Push

@@ -1,27 +1,28 @@
 require_relative "../../../base"
 
-require Vagrant.source_root.join("plugins/pushes/harmony/config")
-require Vagrant.source_root.join("plugins/pushes/harmony/push")
+require Vagrant.source_root.join("plugins/pushes/atlas/config")
+require Vagrant.source_root.join("plugins/pushes/atlas/push")
 
-describe VagrantPlugins::HarmonyPush::Push do
+describe VagrantPlugins::AtlasPush::Push do
   include_context "unit"
 
+  let(:env) do
+    double("env",
+      root_path: File.expand_path("..", __FILE__)
+    )
+  end
+
   let(:config) do
-    VagrantPlugins::HarmonyPush::Config.new.tap do |c|
+    VagrantPlugins::AtlasPush::Config.new.tap do |c|
       c.finalize!
     end
   end
 
-  let(:environment) { double("environment") }
-
-  subject { described_class.new(environment, config) }
+  subject { described_class.new(env, config) }
 
   before do
     # Stub this right away to avoid real execs
     allow(Vagrant::Util::SafeExec).to receive(:exec)
-
-    allow(environment).to receive(:root_path).and_return(
-      File.expand_path("../", __FILE__))
   end
 
   describe "#push" do
@@ -37,7 +38,7 @@ describe VagrantPlugins::HarmonyPush::Push do
       expect(subject).to receive(:uploader_path).and_return(nil)
 
       expect { subject.push }.to raise_error(
-        VagrantPlugins::HarmonyPush::Errors::UploaderNotFound)
+        VagrantPlugins::AtlasPush::Errors::UploaderNotFound)
     end
   end
 
@@ -50,14 +51,14 @@ describe VagrantPlugins::HarmonyPush::Push do
 
     it "sends the basic flags" do
       expect(Vagrant::Util::SafeExec).to receive(:exec).
-        with("foo", "-vcs", app, environment.root_path.to_s)
+        with("foo", "-vcs", app, env.root_path.to_s)
 
       subject.execute("foo")
     end
 
     it "doesn't send VCS if disabled" do
       expect(Vagrant::Util::SafeExec).to receive(:exec).
-        with("foo", app, environment.root_path.to_s)
+        with("foo", app, env.root_path.to_s)
 
       config.vcs = false
       subject.execute("foo")
@@ -66,18 +67,18 @@ describe VagrantPlugins::HarmonyPush::Push do
     it "sends includes" do
       expect(Vagrant::Util::SafeExec).to receive(:exec).
         with("foo", "-vcs", "-include", "foo", "-include",
-             "bar", app, environment.root_path.to_s)
+             "bar", app, env.root_path.to_s)
 
-      config.include = ["foo", "bar"]
+      config.includes = ["foo", "bar"]
       subject.execute("foo")
     end
 
     it "sends excludes" do
       expect(Vagrant::Util::SafeExec).to receive(:exec).
         with("foo", "-vcs", "-exclude", "foo", "-exclude",
-             "bar", app, environment.root_path.to_s)
+             "bar", app, env.root_path.to_s)
 
-      config.exclude = ["foo", "bar"]
+      config.excludes = ["foo", "bar"]
       subject.execute("foo")
     end
   end

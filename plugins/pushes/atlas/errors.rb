@@ -1,8 +1,8 @@
 module VagrantPlugins
-  module HarmonyPush
+  module AtlasPush
     module Errors
       class Error < Vagrant::Errors::VagrantError
-        error_namespace("harmony_push.errors")
+        error_namespace("atlas_push.errors")
       end
 
       class UploaderNotFound < Error

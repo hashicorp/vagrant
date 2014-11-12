@@ -3,9 +3,9 @@ require "vagrant/util/subprocess"
 require "vagrant/util/which"
 
 module VagrantPlugins
-  module HarmonyPush
+  module AtlasPush
     class Push < Vagrant.plugin("2", :push)
-      UPLOADER_BIN = "harmony-upload".freeze
+      UPLOADER_BIN = "atlas-upload".freeze
 
       def push
         uploader = self.uploader_path
@@ -24,8 +24,8 @@ module VagrantPlugins
       def execute(uploader)
         cmd = []
         cmd << "-vcs" if config.vcs
-        cmd += config.include.map { |v| ["-include", v] }
-        cmd += config.exclude.map { |v| ["-exclude", v] }
+        cmd += config.includes.map { |v| ["-include", v] }
+        cmd += config.excludes.map { |v| ["-exclude", v] }
         cmd << config.app
         cmd << File.expand_path(config.dir, env.root_path)
         Vagrant::Util::SafeExec.exec(uploader, *cmd.flatten)
