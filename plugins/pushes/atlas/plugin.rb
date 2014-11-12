@@ -26,8 +26,7 @@ module VagrantPlugins
 
       def self.init!
         return if defined?(@_init)
-        I18n.load_path << File.expand_path(
-          "templates/locales/TODO.yml", Vagrant.source_root)
+        I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
         I18n.reload!
         @_init = true
       end
