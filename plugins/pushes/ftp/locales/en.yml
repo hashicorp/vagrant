@@ -6,4 +6,6 @@ en:
         requires you set this attribute. Please set this attribute in your
         Vagrantfile, for example:
 
-            push.%{attribute} = "..."
+            config.push.define "ftp" do |push|
+              push.%{attribute} = "..."
+            end
