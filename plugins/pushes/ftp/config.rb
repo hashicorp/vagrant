@@ -109,12 +109,14 @@ module VagrantPlugins
       def include(filepath)
         @includes << filepath
       end
+      alias_method :include=, :include
 
       # Add the filepath to the list of excludes
       # @param [String] filepath
       def exclude(filepath)
         @excludes << filepath
       end
+      alias_method :exclude=, :exclude
 
       private
 
