@@ -87,6 +87,14 @@ en:
       CFEngine running in "single run" mode. Will execute one file.
     cfengine_single_run_execute: |-
       Executing run file for CFEngine...
+    chef_cant_detect: |-
+      Vagrant does not support detecting whether Chef is installed
+      for the guest OS running in the machine. Vagrant will assume it is
+      installed and attempt to continue.
+    chef_already_installed: |-
+      Detected Chef (%{version}) is already installed
+    chef_installing: |-
+      Installing Chef (%{version})...
     chef_client_cleanup_failed: |-
       Cleaning up the '%{deletable}' for Chef failed. The stdout and
       stderr are shown below. Vagrant will continue destroying the machine,
@@ -1754,6 +1762,16 @@ en:
           "The cookbook path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
+        install_failed: |-
+          Vagrant could not detect Chef on the guest! Even after Vagrant
+          attempted to install Chef, it could still not find Chef on the system.
+          Please make sure you are connected to the Internet and can access
+          Chef's package distribution servers. If you already have Chef
+          installed on this guest, you can disable the automatic Chef detection
+          by setting the 'install' option in the Chef configuration section of
+          your Vagrantfile:
+
+              chef.install = false
         log_level_empty: |-
           The Chef provisioner requires a log level. If you did not set a
           log level, this is probably a bug and should be reported.
@@ -1765,7 +1783,7 @@ en:
           guest.
         running_client: "Running chef-client..."
         running_client_again: "Running chef-client again (failed to converge)..."
-        running_client_apply: "Running chef-apply..."
+        running_apply: "Running chef-apply..."
         running_solo: "Running chef-solo..."
         running_solo_again: "Running chef-solo again (failed to converge)..."
         missing_shared_folders: |-

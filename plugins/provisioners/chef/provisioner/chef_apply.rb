@@ -1,13 +1,18 @@
 require "tempfile"
 
+require_relative "base"
+
 module VagrantPlugins
   module Chef
     module Provisioner
-      class ChefApply < Vagrant.plugin("2", :provisioner)
+      class ChefApply < Base
         def provision
+          install_chef
+          verify_binary(chef_binary_path("chef-apply"))
+
           command = "chef-apply"
-          command << " --log-level #{config.log_level}"
-          command << " #{config.upload_path}"
+          command << " \"#{target_recipe_path}\""
+          command << " --log_level #{config.log_level}"
 
           user = @machine.ssh_info[:username]
 
@@ -18,7 +23,7 @@ module VagrantPlugins
           # Upload the recipe
           upload_recipe
 
-          @machine.ui.info(I18n.t("vagrant.provisioners.chef.running_chef_apply",
+          @machine.ui.info(I18n.t("vagrant.provisioners.chef.running_apply",
             script: config.path)
           )
 
@@ -34,6 +39,12 @@ module VagrantPlugins
           end
         end
 
+        # The destination (on the guest) where the recipe will live
+        # @return [String]
+        def target_recipe_path
+          File.join(config.upload_path, "recipe.rb")
+        end
+
         # Write the raw recipe contents to a tempfile and upload that to the
         # machine.
         def upload_recipe
@@ -43,8 +54,7 @@ module VagrantPlugins
           file.rewind
 
           # Upload the tempfile to the guest
-          destination = File.join(config.upload_path, "recipe.rb")
-          @machine.communicate.upload(file.path, destination)
+          @machine.communicate.upload(file.path, target_recipe_path)
         ensure
           # Delete our template
           file.close

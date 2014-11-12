@@ -48,3 +48,4 @@ website/docs/Rakefile
 website/www/.sass-cache
 website/www/build
 website/www/Rakefile
+exec/

@@ -135,6 +135,12 @@ module Vagrant
         @logger.debug("Eager loading WinRM communicator to avoid GH-3390")
         communicate
       end
+
+      # If the ID is the special not created ID, then set our ID to
+      # nil so that we destroy all our data.
+      if state.id == MachineState::NOT_CREATED_ID
+        self.id = nil
+      end
     end
 
     # This calls an action on the provider. The provider may or may not
@@ -180,18 +186,7 @@ module Vagrant
         end
 
         # Call the action
-        result = action_raw(name, callable, extra_env)
-
-        # Call the state method so that we update our index state. Don't
-        # worry about exceptions here, since we just care about updating
-        # the cache.
-        begin
-          # Called for side effects
-          self.state
-        rescue Errors::VagrantError
-        end
-
-        return result
+        action_raw(name, callable, extra_env)
       end
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
@@ -482,12 +477,6 @@ module Vagrant
     def state
       result = @provider.state
       raise Errors::MachineStateInvalid if !result.is_a?(MachineState)
-
-      # If the ID is the special not created ID, then set our ID to
-      # nil so that we destroy all our data.
-      if result.id == MachineState::NOT_CREATED_ID
-        self.id = nil
-      end
 
       # Update our state cache if we have a UUID and an entry in the
       # master index.

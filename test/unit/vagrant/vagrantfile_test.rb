@@ -26,7 +26,7 @@ describe Vagrant::Vagrantfile do
 
   # A helper to register a provider for use in tests.
   def register_provider(name, config_class=nil, options=nil)
-    provider_cls = Class.new(Vagrant.plugin("2", :provider)) do
+    provider_cls = Class.new(VagrantTests::DummyProvider) do
       if options && options[:unusable]
         def self.usable?(raise_error=false)
           raise Vagrant::Errors::VagrantError if raise_error

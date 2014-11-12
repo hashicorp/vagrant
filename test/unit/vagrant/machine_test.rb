@@ -7,11 +7,7 @@ describe Vagrant::Machine do
   include_context "unit"
 
   let(:name)     { "foo" }
-  let(:provider) do
-    double("provider").tap do |obj|
-      obj.stub(_initialize: nil)
-    end
-  end
+  let(:provider) { new_provider_mock }
   let(:provider_cls) do
     obj = double("provider_cls")
     obj.stub(new: provider)
@@ -46,6 +42,15 @@ describe Vagrant::Machine do
 
   subject { instance }
 
+  def new_provider_mock
+    double("provider").tap do |obj|
+      obj.stub(_initialize: nil)
+      obj.stub(machine_id_changed: nil)
+      allow(obj).to receive(:state).and_return(Vagrant::MachineState.new(
+        :created, "", ""))
+    end
+  end
+
   # Returns a new instance with the test data
   def new_instance
     described_class.new(name, provider_name, provider_cls, provider_config,
@@ -54,6 +59,17 @@ describe Vagrant::Machine do
   end
 
   describe "initialization" do
+    it "should set the ID to nil if the state is not created" do
+      subject.id = "foo"
+
+      allow(provider).to receive(:state).and_return(Vagrant::MachineState.new(
+        Vagrant::MachineState::NOT_CREATED_ID, "short", "long"))
+
+      subject = new_instance
+      expect(subject.state.id).to eq(Vagrant::MachineState::NOT_CREATED_ID)
+      expect(subject.id).to be_nil
+    end
+
     describe "communicator loading" do
       it "doesn't eager load SSH" do
         config.vm.communicator = :ssh
@@ -86,8 +102,7 @@ describe Vagrant::Machine do
         received_machine = nil
 
         if !instance
-          instance = double("instance")
-          instance.stub(_initialize: nil)
+          instance = new_provider_mock
         end
 
         provider_cls = double("provider_cls")
@@ -166,7 +181,7 @@ describe Vagrant::Machine do
       end
 
       it "should initialize the capabilities" do
-        instance = double("instance")
+        instance = new_provider_mock
         expect(instance).to receive(:_initialize).with { |p, m|
           expect(p).to eq(provider_name)
           expect(m.name).to eq(name)
@@ -216,10 +231,6 @@ describe Vagrant::Machine do
   end
 
   describe "#action" do
-    before do
-      provider.stub(state: Vagrant::MachineState.new(:foo, "", ""))
-    end
-
     it "should be able to run an action that exists" do
       action_name = :up
       called      = false
@@ -269,17 +280,6 @@ describe Vagrant::Machine do
 
       expect { instance.action(action_name) }.
         to raise_error(Vagrant::Errors::UnimplementedProviderAction)
-    end
-
-    it "calls #state to update the machine index" do
-      action_name = :up
-      called      = false
-      callable    = lambda { |_env| called = true }
-
-      expect(provider).to receive(:action).with(action_name).and_return(callable)
-      expect(instance).to receive(:state)
-      instance.action(:up)
-      expect(called).to be
     end
   end
 
@@ -425,6 +425,10 @@ describe Vagrant::Machine do
     end
 
     it "is set one when setting an ID" do
+      # Stub the message we want
+      allow(provider).to receive(:state).and_return(Vagrant::MachineState.new(
+        :preparing, "preparing", "preparing"))
+
       # Setup the box information
       box = double("box")
       box.stub(name: "foo")
@@ -672,7 +676,7 @@ describe Vagrant::Machine do
     it "should query state from the provider" do
       state = Vagrant::MachineState.new(:id, "short", "long")
 
-      expect(provider).to receive(:state).and_return(state)
+      allow(provider).to receive(:state).and_return(state)
       expect(instance.state.id).to eq(:id)
     end
 
@@ -695,18 +699,6 @@ describe Vagrant::Machine do
       expect(entry).to_not be_nil
       expect(entry.state).to eq("short")
       env.machine_index.release(entry)
-    end
-
-    it "should set the ID to nil if the state is not created" do
-      state = Vagrant::MachineState.new(
-       Vagrant::MachineState::NOT_CREATED_ID, "short", "long")
-
-      allow(provider).to receive(:machine_id_changed)
-      subject.id = "foo"
-
-      expect(provider).to receive(:state).and_return(state)
-      expect(subject.state.id).to eq(Vagrant::MachineState::NOT_CREATED_ID)
-      expect(subject.id).to be_nil
     end
   end
 

@@ -253,7 +253,7 @@ describe Vagrant::Environment do
   describe "#machine" do
     # A helper to register a provider for use in tests.
     def register_provider(name, config_class=nil, options=nil)
-      provider_cls = Class.new(Vagrant.plugin("2", :provider))
+      provider_cls = Class.new(VagrantTests::DummyProvider)
 
       register_plugin("2") do |p|
         p.provider(name, options) { provider_cls }
