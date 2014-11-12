@@ -950,8 +950,8 @@ en:
         The Vagrantfile does not define any 'push' strategies. In order to use
         `vagrant push`, you must define at least one push strategy:
 
-            config.push :ftp do |strategy|
-              # ... strategy-specific options
+            config.push.define "ftp" do |push|
+              # ... push-specific options
             end
       push_strategy_not_defined: |-
         The push strategy '%{name}' is not defined in the Vagrantfile. Defined
