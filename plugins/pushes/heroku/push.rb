@@ -1,4 +1,3 @@
-require "vagrant/util/safe_exec"
 require "vagrant/util/subprocess"
 require "vagrant/util/which"
 
