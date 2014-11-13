@@ -222,6 +222,12 @@ describe VagrantPlugins::HerokuPush::Push do
     end
   end
 
+  describe "#interpret_app" do
+    it "returns the basename of the directory" do
+      expect(subject.interpret_app("/foo/bar/blitz")).to eq("blitz")
+    end
+  end
+
   describe "#heroku_git_url" do
     it "returns the proper string" do
       expect(subject.heroku_git_url("bacon"))

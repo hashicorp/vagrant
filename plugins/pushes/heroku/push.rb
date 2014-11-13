@@ -19,9 +19,12 @@ module VagrantPlugins
         # Get the current branch
         branch = git_branch(dir)
 
+        # Get the name of the app
+        app = config.app || interpret_app(dir)
+
         # Check if we need to add the git remote
         if !has_git_remote?(config.remote, dir)
-          add_heroku_git_remote(config.remote, config.app, dir)
+          add_heroku_git_remote(config.remote, app, dir)
         end
 
         # Push to Heroku
@@ -43,6 +46,13 @@ module VagrantPlugins
         if !File.directory?(git_dir(path))
           raise Errors::NotAGitRepo, path: path
         end
+      end
+
+      # Interpret the name of the Heroku application from the given path.
+      # @param [String] path
+      # @return [String]
+      def interpret_app(path)
+        File.basename(path)
       end
 
       # The git directory for the given path.
