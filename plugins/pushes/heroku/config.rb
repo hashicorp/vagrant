@@ -22,17 +22,12 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :remote
 
-      # The Git branch to push to (default: "master").
-      # @return [String]
-      attr_accessor :branch
-
       def initialize
         @app = UNSET_VALUE
         @dir = UNSET_VALUE
 
         @git_bin = UNSET_VALUE
         @remote = UNSET_VALUE
-        @branch = UNSET_VALUE
       end
 
       def finalize!
@@ -41,7 +36,6 @@ module VagrantPlugins
 
         @git_bin = "git" if @git_bin == UNSET_VALUE
         @remote = "heroku" if @remote == UNSET_VALUE
-        @branch = "master" if @branch == UNSET_VALUE
       end
 
       def validate(machine)
@@ -62,12 +56,6 @@ module VagrantPlugins
         if missing?(@remote)
           errors << I18n.t("heroku_push.errors.missing_attribute",
             attribute: "remote",
-          )
-        end
-
-        if missing?(@branch)
-          errors << I18n.t("heroku_push.errors.missing_attribute",
-            attribute: "branch",
           )
         end
 

@@ -42,13 +42,6 @@ describe VagrantPlugins::HerokuPush::Config do
     end
   end
 
-  describe "#branch" do
-    it "defaults to git" do
-      subject.finalize!
-      expect(subject.branch).to eq("master")
-    end
-  end
-
   describe "#validate" do
     before do
       allow(machine).to receive(:env)
@@ -60,7 +53,6 @@ describe VagrantPlugins::HerokuPush::Config do
       subject.dir = "."
       subject.git_bin = "git"
       subject.remote = "heroku"
-      subject.branch = "master"
     end
 
     let(:result) { subject.validate(machine) }
@@ -90,16 +82,6 @@ describe VagrantPlugins::HerokuPush::Config do
         subject.finalize!
         expect(errors).to include(I18n.t("heroku_push.errors.missing_attribute",
           attribute: "remote",
-        ))
-      end
-    end
-
-    context "when the branch is missing" do
-      it "returns an error" do
-        subject.branch = ""
-        subject.finalize!
-        expect(errors).to include(I18n.t("heroku_push.errors.missing_attribute",
-          attribute: "branch",
         ))
       end
     end
