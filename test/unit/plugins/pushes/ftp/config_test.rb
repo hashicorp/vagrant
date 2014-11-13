@@ -57,7 +57,7 @@ describe VagrantPlugins::FTPPush::Config do
   end
 
   describe "#dir" do
-    it "defaults to nil" do
+    it "defaults to ." do
       subject.finalize!
       expect(subject.dir).to eq(".")
     end
