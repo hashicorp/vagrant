@@ -10,14 +10,14 @@ module VagrantPlugins
         # Expand any paths relative to the root
         dir = File.expand_path(config.dir, env.root_path)
 
-        # Get the current branch
-        branch = git_branch(dir)
-
         # Verify git is installed
         verify_git_bin!(config.git_bin)
 
         # Verify we are operating in a git repo
         verify_git_repo!(dir)
+
+        # Get the current branch
+        branch = git_branch(dir)
 
         # Check if we need to add the git remote
         if !has_git_remote?(config.remote, dir)
