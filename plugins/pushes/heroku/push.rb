@@ -10,6 +10,9 @@ module VagrantPlugins
         # Expand any paths relative to the root
         dir = File.expand_path(config.dir, env.root_path)
 
+        # Get the current branch
+        branch = git_branch(dir)
+
         # Verify git is installed
         verify_git_bin!(config.git_bin)
 
@@ -22,7 +25,7 @@ module VagrantPlugins
         end
 
         # Push to Heroku
-        git_push_heroku(config.remote, config.branch, dir)
+        git_push_heroku(config.remote, branch, dir)
       end
 
       # Verify that git is installed.
@@ -49,6 +52,20 @@ module VagrantPlugins
         "#{path}/.git"
       end
 
+      # The name of the current git branch.
+      # @param [String] path
+      # @return [String]
+      def git_branch(path)
+        result = execute!("git",
+          "--git-dir", git_dir(path),
+          "--work-tree", path,
+          "branch",
+        )
+
+        # Returns something like "* master"
+        result.stdout.sub("*", "").strip
+      end
+
       # Push to the Heroku remote.
       # @param [String] remote
       # @param [String] branch
@@ -56,7 +73,7 @@ module VagrantPlugins
         execute!("git",
           "--git-dir", git_dir(path),
           "--work-tree", path,
-          "push", remote, branch,
+          "push", remote, "#{branch}:master",
         )
       end
 

@@ -17,17 +17,20 @@ describe VagrantPlugins::HerokuPush::Push do
       dir:     "lib",
       git_bin: "git",
       remote:  "heroku",
-      branch:  "master",
     )
   end
 
   subject { described_class.new(env, config) }
 
   describe "#push" do
+    let(:branch) { "master" }
+
     let(:root_path) { "/handy/dandy" }
     let(:dir) { "#{root_path}/#{config.dir}" }
 
     before do
+      allow(subject).to receive(:git_branch)
+        .and_return(branch)
       allow(subject).to receive(:verify_git_bin!)
       allow(subject).to receive(:verify_git_repo!)
       allow(subject).to receive(:has_git_remote?)
@@ -78,7 +81,7 @@ describe VagrantPlugins::HerokuPush::Push do
 
     it "pushes to heroku" do
       expect(subject).to receive(:git_push_heroku)
-        .with(config.remote, config.branch, dir)
+        .with(config.remote, branch, dir)
       subject.push
     end
   end
@@ -157,7 +160,7 @@ describe VagrantPlugins::HerokuPush::Push do
         .with("git",
           "--git-dir", "#{dir}/.git",
           "--work-tree", dir,
-          "push", "bacon", "hamlet",
+          "push", "bacon", "hamlet:master",
         )
       subject.git_push_heroku("bacon", "hamlet", dir)
     end
@@ -229,6 +232,42 @@ describe VagrantPlugins::HerokuPush::Push do
   describe "#git_dir" do
     it "returns the .git directory for the path" do
       expect(subject.git_dir("/path")).to eq("/path/.git")
+    end
+  end
+
+  describe "#git_branch" do
+    let(:stdout) { "" }
+    let(:process) { double("process", stdout: stdout) }
+
+    before do
+      allow(subject).to receive(:execute!)
+        .and_return(process)
+    end
+
+    let(:branch) { subject.git_branch("/path") }
+
+    context "when the branch is prefixed with a star" do
+      let(:stdout) { "*bacon" }
+
+      it "returns the correct name" do
+        expect(branch).to eq("bacon")
+      end
+    end
+
+    context "when the branch is prefixed with a star space" do
+      let(:stdout) { "* bacon" }
+
+      it "returns the correct name" do
+        expect(branch).to eq("bacon")
+      end
+    end
+
+    context "when the branch is not prefixed" do
+      let(:stdout) { "bacon" }
+
+      it "returns the correct name" do
+        expect(branch).to eq("bacon")
+      end
     end
   end
 
