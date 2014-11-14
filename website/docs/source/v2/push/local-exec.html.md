@@ -2,8 +2,8 @@
 page_title: "Vagrant Push - Local Exec Strategy"
 sidebar_current: "push-local-exec"
 description: |-
-  The Vagrant Push Heroku strategy pushes your application's code to Heroku.
-  Only files which are committed to the Git repository are pushed to Heroku.
+  The Vagrant Push Local Exec strategy pushes your application's code using a
+  user-defined script.
 ---
 
 # Vagrant Push
