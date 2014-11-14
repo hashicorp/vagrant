@@ -39,6 +39,15 @@ config.push.define "local-exec" do |push|
 end
 ```
 
+For more complicated scripts, you may store them in a separate file and read
+them from the `Vagrantfile` like so:
+
+```ruby
+config.push.define "local-exec" do |push|
+  push.command = File.read("my-script.sh")
+end
+```
+
 And then invoke the push with Vagrant:
 
 ```shell
