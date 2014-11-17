@@ -12,10 +12,17 @@ describe VagrantPlugins::LocalExecPush::Config do
 
   let(:machine) { double("machine") }
 
-  describe "#command" do
+  describe "#script" do
     it "defaults to nil" do
       subject.finalize!
-      expect(subject.command).to be(nil)
+      expect(subject.script).to be(nil)
+    end
+  end
+
+  describe "#inline" do
+    it "defaults to nil" do
+      subject.finalize!
+      expect(subject.inline).to be(nil)
     end
   end
 
@@ -25,20 +32,53 @@ describe VagrantPlugins::LocalExecPush::Config do
         .and_return(double("env",
           root_path: "",
         ))
-
-      subject.command = "echo"
+      subject.finalize!
     end
 
     let(:result) { subject.validate(machine) }
     let(:errors) { result["Local Exec push"] }
 
-    context "when the command is missing" do
-      it "returns an error" do
-        subject.command = ""
-        subject.finalize!
-        expect(errors).to include(I18n.t("local_exec_push.errors.missing_attribute",
-          attribute: "command",
-        ))
+    context "when script is present" do
+      before { subject.script = "foo.sh" }
+
+      context "when inline is present" do
+        before { subject.inline = "echo" }
+
+        it "returns an error" do
+          expect(errors).to include(
+            I18n.t("local_exec_push.errors.cannot_specify_script_and_inline")
+          )
+        end
+      end
+
+      context "when inline is not present" do
+        before { subject.inline = "" }
+
+        it "does not return an error" do
+          expect(errors).to be_empty
+        end
+      end
+    end
+
+    context "when script is not present" do
+      before { subject.script = "" }
+
+      context "when inline is present" do
+        before { subject.inline = "echo" }
+
+        it "does not return an error" do
+          expect(errors).to be_empty
+        end
+      end
+
+      context "when inline is not present" do
+        before { subject.inline = "" }
+
+        it "returns an error" do
+          expect(errors).to include(I18n.t("local_exec_push.errors.missing_attribute",
+            attribute: "script",
+          ))
+        end
       end
     end
   end
