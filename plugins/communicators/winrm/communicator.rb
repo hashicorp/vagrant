@@ -144,7 +144,7 @@ module VagrantPlugins
       # Handles the raw WinRM shell result and converts it to a
       # standard Vagrant communicator result
       def execution_output(output, opts)
-        if opts[:fail_on_stderr]
+        if output && opts[:fail_on_stderr]
           collected = output[:data].collect { |e| e[:stderr] }.join
 
           unless collected.empty?
