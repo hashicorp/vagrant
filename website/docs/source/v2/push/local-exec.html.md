@@ -23,8 +23,13 @@ shell command or script as part of a push.
 The Vagrant Push Local Exec strategy supports the following configuration
 options:
 
-- `command` - The command to execute (as a string).
+- `script` - The path to a script on disk (relative to the `Vagrantfile`) to
+  execute. Vagrant will attempt to convert this script to an executable, but an
+  exception will be raised if that fails.
+- `inline` - The inline script to execute (as a string).
 
+Please note - only one of the `script` and `inline` options may be specified in
+a single push definition.
 
 ### Usage
 
@@ -33,7 +38,7 @@ The Vagrant Push Local Exec strategy is defined in the `Vagrantfile` using the
 
 ```ruby
 config.push.define "local-exec" do |push|
-  push.command = <<-SCRIPT
+  push.inline = <<-SCRIPT
     scp . /var/www/website
   SCRIPT
 end
@@ -44,7 +49,7 @@ them from the `Vagrantfile` like so:
 
 ```ruby
 config.push.define "local-exec" do |push|
-  push.command = File.read("my-script.sh")
+  push.script = "my-script.sh"
 end
 ```
 
