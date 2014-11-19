@@ -3,7 +3,6 @@ module VagrantPlugins
     module Cap
       class NFSClient
         def self.nfs_client_install(machine)
-          @logger = Log4r::Logger.new("vagrant::guest::fedora::cap::nfsclient")
           machine.communicate.tap do |comm|
             comm.sudo("yum -y install nfs-utils nfs-utils-lib")
           end
