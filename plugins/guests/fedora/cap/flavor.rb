@@ -3,9 +3,6 @@ module VagrantPlugins
     module Cap
       class Flavor
         def self.flavor(machine)
-          # Establish the simple fedora symbol
-          #:fedora
-
           # Read the version file
           output = ""
           machine.communicate.sudo("grep VERSION_ID /etc/os-release") do |type, data|
