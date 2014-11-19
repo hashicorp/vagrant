@@ -201,7 +201,7 @@ module VagrantPlugins
               choice = nil
               while !valid.include?(choice)
                 choice = @env[:ui].ask(
-                  "What interface should the network bridge to? ")
+                  "Which interface should the network bridge to? ")
                 choice = choice.to_i
               end
 

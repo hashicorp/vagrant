@@ -224,6 +224,15 @@ module Vagrant
 
             @logger.info("With machine: #{machine.name} (#{machine.provider.inspect})")
             yield machine
+
+            # Call the state method so that we update our index state. Don't
+            # worry about exceptions here, since we just care about updating
+            # the cache.
+            begin
+              # Called for side effects
+              machine.state
+            rescue Errors::VagrantError
+            end
           end
         end
 

@@ -9,6 +9,10 @@ FEATURES:
       providers are chosen before later ones. [GH-3812]
   - If the default insecure keypair is used, Vagrant will automatically replace
       it with a randomly generated keypair on first `vagrant up`. [GH-2608]
+  - Chef Zero provisioner: Use Chef 11's "local" mode to run recipes against an
+      in-memory Chef Server
+  - Chef Apply provisioner: Specify inline Chef recipes and recipe snippets
+      using the Chef Apply provisioner
 
 IMPROVEMENTS:
 
@@ -18,6 +22,8 @@ IMPROVEMENTS:
       will be loaded for defining inline plugins. [GH-3775]
   - commands/plugin: Plugin list machine-readable output contains the plugin
       name as the target for versions and other info. [GH-4506]
+  - env/with_cleanenv: New helper for plugin developers to use when shelling out
+      to another Ruby environment
   - guests/arch: Support predictable network interface naming. [GH-4468]
   - guests/suse: Support NFS client install, rsync setup. [GH-4492]
   - guests/tinycore: Support changing host names. [GH-4469]
@@ -28,6 +34,7 @@ IMPROVEMENTS:
       more easily. Vagrant will login for you if you specify auth. [GH-4042]
   - providers/docker: `stop_timeout` can be used to modify the `docker stop`
       timeout. [GH-4504]
+  - provisioners/chef: Automatically install Chef when using a Chef provisioner.
   - synced\_folders/nfs: Won't use `sudo` to write to /etc/exports if there
       are write privileges. [GH-2643]
   - synced\_folders/smb: Credentials from one SMB will be copied to the rest. [GH-4675]
@@ -46,6 +53,7 @@ BUG FIXES:
       "application/json" [GH-4525]
   - core: If all sub-machines are `autostart: false`, don't start any. [GH-4552]
   - core: Update global-status state in more cases. [GH-4513]
+  - core: Only delete machine state if the machine is not created in initialize
   - commands/box: `--cert` flag works properly. [GH-4691]
   - command/docker-logs: Won't crash if container is removed. [GH-3990]
   - command/docker-run: Synced folders will be attached properly. [GH-3873]

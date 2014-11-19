@@ -89,14 +89,42 @@ Vagrant.configure(2) do |config|
   #   puppet.manifest_file  = "default.pp"
   # end
 
-  # Enable provisioning with chef solo, specifying a cookbooks path, roles
+  # Enable provisioning with Chef Solo, specifying a cookbooks path, roles
   # path, and data_bags path (all relative to this Vagrantfile), and adding
   # some recipes and/or roles.
   #
   # config.vm.provision "chef_solo" do |chef|
-  #   chef.cookbooks_path = "../my-recipes/cookbooks"
-  #   chef.roles_path = "../my-recipes/roles"
-  #   chef.data_bags_path = "../my-recipes/data_bags"
+  #   chef.cookbooks_path = "~/chef/cookbooks"
+  #   chef.roles_path     = "~/chef/roles"
+  #   chef.data_bags_path = "~/chef/data_bags"
+  #
+  #   chef.add_recipe "mysql"
+  #   chef.add_role "web"
+  #
+  #   chef.json = { mysql_password: "foo" }
+  # end
+  #
+  # Chef Solo will automatically install the latest version of Chef for you.
+  # This can be configured in the provisioner block:
+  #
+  # config.vm.provision "chef_solo" do |chef|
+  #   chef.version = "11.16.4"
+  # end
+  #
+  # Alternative you can disable the installation of Chef entirely:
+  #
+  # config.vm.provision "chef_solo" do |chef|
+  #   chef.install = false
+  # end
+
+  # Enable provisioning with Chef Zero. The Chef Zero provisioner accepts the
+  # exact same parameter as the Chef Solo provisioner:
+  #
+  # config.vm.provision "chef_zero" do |chef|
+  #   chef.cookbooks_path = "~/chef/cookbooks"
+  #   chef.roles_path     = "~/chef/roles"
+  #   chef.data_bags_path = "~/chef/data_bags"
+  #
   #   chef.add_recipe "mysql"
   #   chef.add_role "web"
   #
@@ -104,10 +132,10 @@ Vagrant.configure(2) do |config|
   #   chef.json = { mysql_password: "foo" }
   # end
 
-  # Enable provisioning with chef server, specifying the chef server URL,
+  # Enable provisioning with Chef Server, specifying the chef server URL,
   # and the path to the validation key (relative to this Vagrantfile).
   #
-  # The Opscode Platform uses HTTPS. Substitute your organization for
+  # The Hosted Chef platform uses HTTPS. Substitute your organization for
   # ORGNAME in the URL and validation key.
   #
   # If you have your own Chef Server, use the appropriate URL, which may be
@@ -115,15 +143,44 @@ Vagrant.configure(2) do |config|
   # validation key to validation.pem.
   #
   # config.vm.provision "chef_client" do |chef|
-  #   chef.chef_server_url = "https://api.opscode.com/organizations/ORGNAME"
+  #   chef.chef_server_url     = "https://api.opscode.com/organizations/ORGNAME"
   #   chef.validation_key_path = "ORGNAME-validator.pem"
   # end
   #
-  # If you're using the Opscode platform, your validator client is
+  # If you're using the Hosted Chef platform, your validator client is
   # ORGNAME-validator, replacing ORGNAME with your organization name.
   #
   # If you have your own Chef Server, the default validation client name is
   # chef-validator, unless you changed the configuration.
   #
   #   chef.validation_client_name = "ORGNAME-validator"
+  #
+  # Chef Client will automatically install the latest version of Chef for you.
+  # This can be configured in the provisioner block:
+  #
+  # config.vm.provision "chef_client" do |chef|
+  #   chef.version = "11.16.4"
+  # end
+  #
+  # Alternative you can disable the installation of Chef entirely:
+  #
+  # config.vm.provision "chef_client" do |chef|
+  #   chef.install = false
+  # end
+
+  # Enable provisioning with Chef Apply, specifying an inline recipe to execute
+  # on the target system.
+  #
+  # config.vm.provision "chef_apply" do |chef|
+  #   chef.recipe = <<-RECIPE
+  #     package "curl"
+  #   RECIPE
+  # end
+  #
+  # Chef Apply will automatically install the latest version of Chef for you.
+  # This can be configured in the provisioner block:
+  #
+  # config.vm.provision "chef_apply" do |chef|
+  #   chef.version = "11.16.4"
+  # end
 end

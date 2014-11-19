@@ -35,6 +35,7 @@ module VagrantPlugins
         end
 
         def provision
+          install_chef
           # Verify that the proper shared folders exist.
           check = []
           @shared_folders.each do |type, local_path, remote_path|
