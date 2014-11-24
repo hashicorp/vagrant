@@ -1,3 +1,4 @@
+require "fileutils"
 require "monitor"
 require "pathname"
 require "set"
@@ -79,9 +80,9 @@ module Vagrant
 
     # Removes any temporary files created by init
     def deinit
-      File.unlink(ENV["BUNDLE_APP_CONFIG"]) rescue nil
-      File.unlink(ENV["BUNDLE_CONFIG"]) rescue nil
-      File.unlink(ENV["GEMFILE"]) rescue nil
+      %w{ BUNDLE_APP_CONFIG BUNDLE_CONFIG BUNDLE_GEMFILE }.each do |entry|
+        FileUtils.remove_entry_secure(ENV[entry], true)
+      end
     end
 
     # Installs the list of plugins.
