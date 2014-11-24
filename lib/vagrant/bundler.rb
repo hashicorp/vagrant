@@ -1,3 +1,4 @@
+require "fileutils"
 require "monitor"
 require "pathname"
 require "set"
@@ -79,7 +80,7 @@ module Vagrant
 
     # Removes any temporary files created by init
     def deinit
-      File.unlink(ENV["BUNDLE_APP_CONFIG"]) rescue nil
+      FileUtils.remove_entry_secure(ENV["BUNDLE_APP_CONFIG"]) rescue nil
       File.unlink(ENV["BUNDLE_CONFIG"]) rescue nil
       File.unlink(ENV["GEMFILE"]) rescue nil
     end
