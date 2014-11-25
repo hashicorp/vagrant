@@ -66,7 +66,7 @@ module VagrantPlugins
         # Support Multiple SSH keys and SSH forwarding:
         env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
 
-        show_ansible_playbook_command(env, command) if config.verbose
+        show_ansible_playbook_command(env, command) if (config.verbose || @logger.debug?)
 
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {

@@ -50,6 +50,8 @@ VF
   let(:generated_inventory_file) { File.join(generated_inventory_dir, 'vagrant_ansible_inventory') }
 
   before do
+    subject.instance_variable_get(:@logger).stub(:debug?).and_return(false)
+
     machine.stub(ssh_info: ssh_info)
     machine.env.stub(active_machines: [[iso_env.machine_names[0], :dummy], [iso_env.machine_names[1], :dummy]])
 
@@ -461,6 +463,19 @@ VF
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ForwardAgent=yes")
+        }
+      end
+    end
+
+    describe "with VAGRANT_LOG=debug, but without verbose option" do
+      before do
+        subject.instance_variable_get(:@logger).stub(:debug?).and_return(true)
+        config.verbose = false
+      end
+
+      it "shows the ansible-playbook command" do
+        expect(machine.env.ui).to receive(:detail).with { |full_command|
+          expect(full_command).to eq("ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false PYTHONUNBUFFERED=1 ansible-playbook --private-key=/path/to/my/key --user=testuser --limit='machine1' --inventory-file=#{generated_inventory_dir} playbook.yml")
         }
       end
     end
