@@ -31,10 +31,6 @@ module VagrantPlugins
         Regexp.new(regexp)
       end
 
-      # Output rsync process stdout/stderr line by line
-      def self.outputRsyncData(io_name, data)
-      end
-
       def self.rsync_single(machine, ssh_info, opts)
         # Folder info
         guestpath = opts[:guestpath]
