@@ -31,6 +31,10 @@ module VagrantPlugins
         Regexp.new(regexp)
       end
 
+      # Output rsync process stdout/stderr line by line
+      def self.outputRsyncData(io_name, data)
+      end
+
       def self.rsync_single(machine, ssh_info, opts)
         # Folder info
         guestpath = opts[:guestpath]
@@ -122,7 +126,7 @@ module VagrantPlugins
             "vagrant.rsync_folder_excludes", excludes: excludes.inspect))
         end
         if opts.include?(:showoutput)
-          machine.ui.info(I18n.t("vagrant.rsync_showingoutput"));
+          machine.ui.info(I18n.t("vagrant.rsync_showing_output"));
         end
 
         # If we have tasks to do before rsyncing, do those.
@@ -132,8 +136,9 @@ module VagrantPlugins
 
         if opts.include?(:showoutput)
 	  command_opts[:notify] = [ :stdout, :stderr ];
-          r = Vagrant::Util::Subprocess.execute(
-            *(command + [command_opts])) { |io_name,data| machine.ui.info("rsync[#{io_name}] -> #{data}") }
+          r = Vagrant::Util::Subprocess.execute(*(command + [command_opts])) { 
+            |io_name,data| data.each_line { |line| machine.ui.info("rsync[#{io_name}] -> #{line}") } 
+          }
         else
           r = Vagrant::Util::Subprocess.execute(*(command + [command_opts]))
         end
