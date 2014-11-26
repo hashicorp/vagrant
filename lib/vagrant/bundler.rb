@@ -80,6 +80,7 @@ module Vagrant
 
     # Removes any temporary files created by init
     def deinit
+      return if !@enabled
       %w{ BUNDLE_APP_CONFIG BUNDLE_CONFIG BUNDLE_GEMFILE }.each do |entry|
         FileUtils.remove_entry_secure(ENV[entry], true)
       end
