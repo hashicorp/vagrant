@@ -27,6 +27,8 @@ module Vagrant
       @gem_home = ENV["GEM_HOME"]
       @gem_path = ENV["GEM_PATH"]
 
+      @tempfiles = []   # temporary files & directories
+
       # Set the Bundler UI to be a silent UI. We have to add the
       # `silence` method to it because Bundler UI doesn't have it.
       ::Bundler.ui =
@@ -56,12 +58,13 @@ module Vagrant
       # Setup the "local" Bundler configuration. We need to set BUNDLE_PATH
       # because the existence of this actually suppresses `sudo`.
       @appconfigpath = Dir.mktmpdir
+      @tempfiles << @appconfigpath  # add dir manually
       File.open(File.join(@appconfigpath, "config"), "w+") do |f|
         f.write("BUNDLE_PATH: \"#{bundle_path}\"")
       end
 
       # Setup the Bundler configuration
-      @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
+      @configfile = tempfile("vagrant", "1")
       @configfile.close
 
       # Build up the Gemfile for our Bundler context. We make sure to
@@ -78,10 +81,10 @@ module Vagrant
       Gem.clear_paths
     end
 
-    # Removes any temporary files created by init
+    # Removes any temporary files created
     def deinit
-      %w{ BUNDLE_APP_CONFIG BUNDLE_CONFIG BUNDLE_GEMFILE }.each do |entry|
-        FileUtils.remove_entry_secure(ENV[entry], true)
+      @tempfiles.each do |file|
+        FileUtils.remove_entry_secure(file, true)
       end
     end
 
@@ -170,6 +173,20 @@ module Vagrant
 
     protected
 
+    # Creates a temporary file (with optional postfix) and adds it to
+    # @tempfiles so it can be cleaned up later.
+    #
+    # NB: postfix usage is not secure, kept for legacy reasons.
+    #
+    # @return [Tempfile] if postfix is not set
+    # @return [File] if postfix is set
+    def tempfile(name, postfix = nil)
+      tf1 = Tempfile.new(name)
+      tf2 = postfix ? File.open(tf1.path + postfix, "w+") : tf1
+      @tempfiles << tf2
+      tf2
+    end
+
     # Builds a valid Gemfile for use with Bundler given the list of
     # plugins.
     #
@@ -177,7 +194,7 @@ module Vagrant
     def build_gemfile(plugins)
       sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
 
-      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      f = tempfile("vagrant", "2")
       f.tap do |gemfile|
         if !sources.include?("http://rubygems.org")
           gemfile.puts(%Q[source "https://rubygems.org"])
@@ -255,7 +272,7 @@ module Vagrant
       # native extensions because it causes all sorts of problems.
       old_rubyopt = ENV["RUBYOPT"]
       old_gemfile = ENV["BUNDLE_GEMFILE"]
-      ENV["BUNDLE_GEMFILE"] = Tempfile.new("vagrant-gemfile").path
+      ENV["BUNDLE_GEMFILE"] = tempfile("vagrant-gemfile").path
       ENV["RUBYOPT"] = (ENV["RUBYOPT"] || "").gsub(/-rbundler\/setup\s*/, "")
 
       # Set the GEM_HOME so gems are installed only to our local gem dir
