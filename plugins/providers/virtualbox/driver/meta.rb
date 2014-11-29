@@ -96,6 +96,7 @@ module VagrantPlugins
           :import,
           :read_forwarded_ports,
           :read_bridged_interfaces,
+          :read_dhcp_servers,
           :read_guest_additions_version,
           :read_guest_ip,
           :read_guest_property,

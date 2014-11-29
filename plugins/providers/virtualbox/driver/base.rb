@@ -180,6 +180,22 @@ module VagrantPlugins
         def read_bridged_interfaces
         end
 
+        # Returns a list of configured DHCP servers
+        #
+        # Each DHCP server is represented as a Hash with the following details:
+        #
+        # {
+        #  :network => String, # name of the associated network interface as
+        #                      #   parsed from the NetworkName, e.g. "vboxnet0"
+        #  :ip      => String, # IP address of the DHCP server, e.g. "172.28.128.2"
+        #  :lower   => String, # lower IP address of the DHCP lease range, e.g. "172.28.128.3"
+        #  :upper   => String, # upper IP address of the DHCP lease range, e.g. "172.28.128.254"
+        # }
+        #
+        # @return [Array<Hash>] See comment above for details
+        def read_dhcp_servers
+        end
+
         # Returns the guest additions version that is installed on this VM.
         #
         # @return [String]
@@ -196,7 +212,16 @@ module VagrantPlugins
 
         # Returns a list of available host only interfaces.
         #
-        # @return [Hash]
+        # Each interface is represented as a Hash with the following details:
+        #
+        # {
+        #  :name    => String, # interface name, e.g. "vboxnet0"
+        #  :ip      => String, # IP address of the interface, e.g. "172.28.128.1"
+        #  :netmask => String, # netmask associated with the interface, e.g. "255.255.255.0"
+        #  :status  => String, # status of the interface, e.g. "Up", "Down"
+        # }
+        #
+        # @return [Array<Hash>] See comment above for details
         def read_host_only_interfaces
         end
 

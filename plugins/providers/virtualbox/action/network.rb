@@ -329,10 +329,11 @@ module VagrantPlugins
           if config[:type] == :dhcp
             # Check that if there is a DHCP server attached on our interface,
             # then it is identical. Otherwise, we can't set it.
-            if interface[:dhcp]
-              valid = interface[:dhcp][:ip] == config[:dhcp_ip] &&
-                  interface[:dhcp][:lower] == config[:dhcp_lower] &&
-                  interface[:dhcp][:upper] == config[:dhcp_upper]
+            existing_dhcp_server = find_matching_dhcp_server(interface)
+            if existing_dhcp_server
+              valid = existing_dhcp_server[:ip] == config[:dhcp_ip] &&
+                  existing_dhcp_server[:lower] == config[:dhcp_lower] &&
+                  existing_dhcp_server[:upper] == config[:dhcp_upper]
 
               raise Vagrant::Errors::NetworkDHCPAlreadyAttached if !valid
 
@@ -470,6 +471,16 @@ module VagrantPlugins
           end
 
           nil
+        end
+
+        def find_matching_dhcp_server(interface)
+          dhcp_servers.detect do |dhcp_server|
+            interface[:name] && interface[:name] == dhcp_server[:network]
+          end
+        end
+
+        def dhcp_servers
+          @dhcp_servers ||= @env[:machine].provider.driver.read_dhcp_servers
         end
       end
     end
