@@ -34,10 +34,11 @@ shared_examples "a version 4.x virtualbox driver" do |options|
 
       it "returns a list with one entry describing that server" do
         expect(subject.read_dhcp_servers).to eq([{
-          network: 'vboxnet0',
-          ip:      '172.28.128.2',
-          lower:   '172.28.128.3',
-          upper:   '172.28.128.254',
+          network_name: 'HostInterfaceNetworking-vboxnet0',
+          network:      'vboxnet0',
+          ip:           '172.28.128.2',
+          lower:        '172.28.128.3',
+          upper:        '172.28.128.254',
         }])
       end
     end
@@ -64,8 +65,8 @@ shared_examples "a version 4.x virtualbox driver" do |options|
 
       it "returns a list with one entry for each server" do
         expect(subject.read_dhcp_servers).to eq([
-          {network: 'vboxnet0', ip: '172.28.128.2', lower: '172.28.128.3', upper: '172.28.128.254'},
-          {network: 'vboxnet1', ip: '10.0.0.2', lower: '10.0.0.3', upper: '10.0.0.254'},
+          {network_name: 'HostInterfaceNetworking-vboxnet0', network: 'vboxnet0', ip: '172.28.128.2', lower: '172.28.128.3', upper: '172.28.128.254'},
+          {network_name: 'HostInterfaceNetworking-vboxnet1', network: 'vboxnet1', ip: '10.0.0.2', lower: '10.0.0.3', upper: '10.0.0.254'},
         ])
       end
     end
@@ -198,6 +199,16 @@ shared_examples "a version 4.x virtualbox driver" do |options|
           {name: 'vboxnet1', ip: '10.0.0.1', netmask: '255.255.255.0', status: 'Up'},
         ])
       end
+    end
+  end
+
+  describe "remove_dhcp_server" do
+    it "removes the dhcp server with the specified network name" do
+      expect(subprocess).to receive(:execute).
+        with("VBoxManage", "dhcpserver", "remove", "--netname", "HostInterfaceNetworking-vboxnet0", an_instance_of(Hash)).
+        and_return(subprocess_result(stdout: ''))
+
+      subject.remove_dhcp_server("HostInterfaceNetworking-vboxnet0")
     end
   end
 end

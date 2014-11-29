@@ -263,6 +263,13 @@ module VagrantPlugins
         def read_vms
         end
 
+        # Removes the DHCP server identified by the provided network name.
+        #
+        # @param [String] network_name The the full network name associated
+        #   with the DHCP server to be removed, e.g. "HostInterfaceNetworking-vboxnet0"
+        def remove_dhcp_server(network_name)
+        end
+
         # Sets the MAC address of the first network adapter.
         #
         # @param [String] mac MAC address without any spaces/hyphens.

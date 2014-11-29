@@ -47,9 +47,10 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     let(:hostonlyifs) { [] }
     let(:dhcpservers) { [] }
     let(:guest)       { double("guest") }
+    let(:network_args) {{ type: :dhcp }}
 
     before do
-      machine.config.vm.network 'private_network', type: :dhcp
+      machine.config.vm.network 'private_network', network_args
       allow(driver).to receive(:read_bridged_interfaces) { bridgedifs }
       allow(driver).to receive(:read_host_only_interfaces) { hostonlyifs }
       allow(driver).to receive(:read_dhcp_servers) { dhcpservers }
@@ -57,7 +58,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     end
 
     it "creates a host only interface and a dhcp server using default ips, then tells the guest to configure the network after boot" do
-      allow(driver).to receive(:create_host_only_network) {{ name: 'HostInterfaceNetworking-vboxnet0' }}
+      allow(driver).to receive(:create_host_only_network) {{ name: 'vboxnet0' }}
       allow(driver).to receive(:create_dhcp_server)
       allow(guest).to receive(:capability)
 
@@ -68,7 +69,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
         netmask: '255.255.255.0',
       })
 
-      expect(driver).to have_received(:create_dhcp_server).with('HostInterfaceNetworking-vboxnet0', {
+      expect(driver).to have_received(:create_dhcp_server).with('vboxnet0', {
         adapter_ip: "172.28.128.1",
         auto_config: true,
         ip: "172.28.128.1",
@@ -90,6 +91,51 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
         auto_config: true,
         interface: nil
       }])
+    end
+
+    context "when the default vbox dhcpserver is present from a fresh vbox install (see issue #3803)" do
+      let(:dhcpservers) {[
+        {
+          network_name: 'HostInterfaceNetworking-vboxnet0',
+          network: 'vboxnet0',
+          ip: '192.168.56.100',
+          netmask: '255.255.255.0',
+          lower: '192.168.56.101',
+          upper: '192.168.56.254'
+        }
+      ]}
+
+      it "removes the invalid dhcpserver so it won't collide with any host only interface" do
+        allow(driver).to receive(:remove_dhcp_server)
+        allow(driver).to receive(:create_host_only_network) {{ name: 'vboxnet0' }}
+        allow(driver).to receive(:create_dhcp_server)
+        allow(guest).to receive(:capability)
+
+        subject.call(env)
+
+        expect(driver).to have_received(:remove_dhcp_server).with('HostInterfaceNetworking-vboxnet0')
+      end
+
+      context "but the user has intentionally configured their network just that way" do
+        let (:network_args) {{
+          type: :dhcp,
+          adapter_ip: '192.168.56.1',
+          dhcp_ip: '192.168.56.100',
+          dhcp_lower: '192.168.56.101',
+          dhcp_upper: '192.168.56.254'
+        }}
+
+        it "does not attempt to remove the dhcpserver" do
+          allow(driver).to receive(:remove_dhcp_server)
+          allow(driver).to receive(:create_host_only_network) {{ name: 'vboxnet0' }}
+          allow(driver).to receive(:create_dhcp_server)
+          allow(guest).to receive(:capability)
+
+          subject.call(env)
+
+          expect(driver).not_to have_received(:remove_dhcp_server).with('HostInterfaceNetworking-vboxnet0')
+        end
+      end
     end
   end
 end

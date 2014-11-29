@@ -261,7 +261,8 @@ module VagrantPlugins
 
             block.split("\n").each do |line|
               if network = line[/^NetworkName:\s+HostInterfaceNetworking-(.+?)$/, 1]
-                info[:network] = network
+                info[:network]      = network
+                info[:network_name] = "HostInterfaceNetworking-#{network}"
               elsif ip = line[/^IP:\s+(.+?)$/, 1]
                 info[:ip] = ip
               elsif lower = line[/^lowerIPAddress:\s+(.+?)$/, 1]
@@ -424,6 +425,10 @@ module VagrantPlugins
           end
 
           results
+        end
+
+        def remove_dhcp_server(network_name)
+          execute("dhcpserver", "remove", "--netname", network_name)
         end
 
         def set_mac_address(mac)
