@@ -18,11 +18,10 @@ module VagrantPlugins
         # Connect with Vagrant SSH identity
         options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
 
-        # Multiple SSH keys and/or SSH forwarding can be passed via
-        # ANSIBLE_SSH_ARGS environment variable, which requires 'ssh' mode.
-        # Note that multiple keys and ssh-forwarding settings are not supported
-        # by deprecated 'paramiko' mode.
-        options << "--connection=ssh" unless ansible_ssh_args.empty?
+        # Connect with native OpenSSH client
+        # Other modes (e.g. paramiko) are not officially supported,
+        # but can be enabled via raw_arguments option.
+        options << "--connection=ssh"
 
         # By default we limit by the current machine.
         # This can be overridden by the limit config option.
@@ -54,16 +53,17 @@ module VagrantPlugins
         # Assemble the full ansible-playbook command
         command = (%w(ansible-playbook) << options << config.playbook).flatten
 
-        # Some Ansible options must be passed as environment variables
         env = {
-          "ANSIBLE_FORCE_COLOR" => "true",
-          "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
-
           # Ensure Ansible output isn't buffered so that we receive output
           # on a task-by-task basis.
-          "PYTHONUNBUFFERED" => 1
+          "PYTHONUNBUFFERED" => 1,
+
+          # Some Ansible options must be passed as environment variables,
+          # as there is no equivalent command line arguments
+          "ANSIBLE_FORCE_COLOR" => "true",
+          "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
         }
-        # Support Multiple SSH keys and SSH forwarding:
+        # ANSIBLE_SSH_ARGS is required for Multiple SSH keys, SSH forwarding and custom SSH settings
         env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
 
         show_ansible_playbook_command(env, command) if (config.verbose || @logger.debug?)

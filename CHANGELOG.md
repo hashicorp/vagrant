@@ -88,6 +88,7 @@ BUG FIXES:
       IP address and don't allow it. [GH-4671]
   - providers/virtualbox: Show more descriptive error if VirtualBox is
       reporting an empty version. [GH-4657]
+  - provisioners/ansible: Force `ssh` (OpenSSH) connection by default [GH-3396]
   - provisioners/docker: Get GPG key over SSL. [GH-4597]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
   - provisioners/salt: Highstate works properly with a master. [GH-4471]

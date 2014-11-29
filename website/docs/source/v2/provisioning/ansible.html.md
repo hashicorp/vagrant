@@ -8,7 +8,7 @@ sidebar_current: "provisioning-ansible"
 **Provisioner name: `"ansible"`**
 
 The ansible provisioner allows you to provision the guest using
-[Ansible](http://ansible.com) playbooks.
+[Ansible](http://ansible.com) playbooks by executing `ansible-playbook` from the Vagrant host.
 
 Ansible playbooks are [YAML](http://en.wikipedia.org/wiki/YAML) documents that
 comprise the set of steps to be orchestrated on one or more machines. This documentation
@@ -24,6 +24,11 @@ a single page of documentation.
     is a great way to learn Ansible.
   </p>
 </div>
+
+## Setup Requirements
+
+* [Install Ansible](http://docs.ansible.com/intro_installation.html#installing-the-control-machine) on your Vagrant host.
+* Your Vagrant host should ideally provide a recent version of OpenSSH that [supports ControlPersist](http://docs.ansible.com/faq.html#how-do-i-get-ansible-to-reuse-connections-enable-kerberized-ssh-or-have-ansible-pay-attention-to-my-local-ssh-config-file)
 
 ## Inventory File
 

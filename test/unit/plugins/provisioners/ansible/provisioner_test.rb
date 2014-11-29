@@ -62,13 +62,16 @@ VF
   # Class methods for code reuse across examples
   #
 
-  def self.it_should_set_arguments_and_environment_variables(expected_args_count = 5, expected_vars_count = 3, expected_host_key_checking = false)
+  def self.it_should_set_arguments_and_environment_variables(
+    expected_args_count = 6, expected_vars_count = 3, expected_host_key_checking = false, expected_transport_mode = "ssh")
+
     it "sets implicit arguments in a specific order" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
 
         expect(args[0]).to eq("ansible-playbook")
         expect(args[1]).to eq("--private-key=#{machine.ssh_info[:private_key_path][0]}")
         expect(args[2]).to eq("--user=#{machine.ssh_info[:username]}")
+        expect(args[3]).to eq("--connection=ssh")
 
         inventory_count = args.count { |x| x =~ /^--inventory-file=.+$/ }
         expect(inventory_count).to be > 0
@@ -111,6 +114,15 @@ VF
         expect(args.last[:env].length).to eq(expected_vars_count)
       }
     end
+
+    it "enables '#{expected_transport_mode}' transport mode" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        index = args.rindex("--connection=#{expected_transport_mode}")
+        expect(index).to be > 0
+        expect(find_last_argument_after(index, args, /--connection=\w+/)).to be_false
+      }
+    end
+
   end
 
   def self.it_should_set_optional_arguments(arg_map)
@@ -128,35 +140,7 @@ VF
     end
   end
 
-  def self.it_should_use_smart_transport_mode
-    it "does not export ANSIBLE_SSH_ARGS" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-        cmd_opts = args.last
-        expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to be_nil
-      }
-    end
-
-    it "does not force any transport mode" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-        total = args.count { |x| x =~ /^--connection=\w+$/ }
-        expect(total).to eql(0)
-      }
-    end
-  end
-
-  def self.it_should_use_transport_mode(transport_mode)
-    it "enables '#{transport_mode}' transport mode" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-        index = args.rindex("--connection=#{transport_mode}")
-        expect(index).to be > 0
-        expect(find_last_argument_after(index, args, /--connection=\w+/)).to be_false
-      }
-    end
-  end
-
-  def self.it_should_force_ssh_transport_mode
-    it_should_use_transport_mode('ssh')
-
+  def self.it_should_explicitly_enable_ansible_ssh_control_persist_defaults
     it "configures ControlPersist (like Ansible defaults) via ANSIBLE_SSH_ARGS" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
         cmd_opts = args.last
@@ -212,7 +196,6 @@ VF
 
     describe "with default options" do
       it_should_set_arguments_and_environment_variables
-      it_should_use_smart_transport_mode
       it_should_create_and_use_generated_inventory
 
       it "does not add any group section to the generated inventory" do
@@ -281,8 +264,7 @@ VF
         config.host_key_checking = true
       end
 
-      it_should_set_arguments_and_environment_variables 5, 3, true
-      it_should_use_smart_transport_mode
+      it_should_set_arguments_and_environment_variables 6, 3, true
     end
 
     describe "with boolean (flag) options disabled" do
@@ -294,7 +276,7 @@ VF
         config.sudo_user = 'root'
       end
 
-      it_should_set_arguments_and_environment_variables 6
+      it_should_set_arguments_and_environment_variables 7
       it_should_set_optional_arguments({ "sudo_user" => "--sudo-user=root" })
 
       it "it does not set boolean flag when corresponding option is set to false" do
@@ -321,9 +303,8 @@ VF
                                 "--new-arg=yeah"]
       end
 
-      it_should_set_arguments_and_environment_variables 15
+      it_should_set_arguments_and_environment_variables 16, 3, false, "paramiko"
       it_should_create_and_use_generated_inventory
-      it_should_use_transport_mode('paramiko')
 
       it "sets all raw arguments" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -361,7 +342,6 @@ VF
       end
 
       it_should_set_arguments_and_environment_variables
-      it_should_use_smart_transport_mode
 
       it "does not generate the inventory and uses given inventory path instead" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -377,7 +357,7 @@ VF
         config.ask_vault_pass = true
       end
 
-      it_should_set_arguments_and_environment_variables 6
+      it_should_set_arguments_and_environment_variables 7
 
       it "should ask the vault password" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -391,7 +371,7 @@ VF
         config.vault_password_file = existing_file
       end
 
-      it_should_set_arguments_and_environment_variables 6
+      it_should_set_arguments_and_environment_variables 7
 
       it "uses the given vault password file" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -406,7 +386,7 @@ VF
       end
 
       it_should_set_arguments_and_environment_variables 6, 4
-      it_should_force_ssh_transport_mode
+      it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes custom SSH options via ANSIBLE_SSH_ARGS with the highest priority" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -440,7 +420,7 @@ VF
       end
 
       it_should_set_arguments_and_environment_variables 6, 4
-      it_should_force_ssh_transport_mode
+      it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes additional Identity Files via ANSIBLE_SSH_ARGS" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -457,7 +437,7 @@ VF
       end
 
       it_should_set_arguments_and_environment_variables 6, 4
-      it_should_force_ssh_transport_mode
+      it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "enables SSH-Forwarding via ANSIBLE_SSH_ARGS" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -475,7 +455,7 @@ VF
 
       it "shows the ansible-playbook command" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false PYTHONUNBUFFERED=1 ansible-playbook --private-key=/path/to/my/key --user=testuser --limit='machine1' --inventory-file=#{generated_inventory_dir} playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --limit='machine1' --inventory-file=#{generated_inventory_dir} playbook.yml")
         }
       end
     end
@@ -485,12 +465,12 @@ VF
         config.verbose = 'v'
       end
 
-      it_should_set_arguments_and_environment_variables 6
+      it_should_set_arguments_and_environment_variables 7
       it_should_set_optional_arguments({ "verbose" => "-v" })
 
       it "shows the ansible-playbook command" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false PYTHONUNBUFFERED=1 ansible-playbook --private-key=/path/to/my/key --user=testuser --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
         }
       end
     end
@@ -524,7 +504,7 @@ VF
       end
 
       it_should_set_arguments_and_environment_variables 20, 4, true
-      it_should_force_ssh_transport_mode
+      it_should_explicitly_enable_ansible_ssh_control_persist_defaults
       it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars=@#{File.expand_path(__FILE__)}",
                                           "sudo"                => "--sudo",
                                           "sudo_user"           => "--sudo-user=deployer",
@@ -537,7 +517,7 @@ VF
                                           "limit"               => "--limit=machine*:&vagrant:!that_one",
                                           "start_at_task"       => "--start-at-task=an awesome task",
                                         })
-    
+
       it "also includes given raw arguments" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           expect(args).to include("--su-user=foot")
@@ -548,7 +528,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true PYTHONUNBUFFERED=1 ANSIBLE_SSH_ARGS='-o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --why-not --su-user=foot --ask-su-pass --limit='all' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --ask-sudo-pass --ask-vault-pass --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --limit='machine*:&vagrant:!that_one' --start-at-task='an awesome task' playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --why-not --su-user=foot --ask-su-pass --limit='all' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --ask-sudo-pass --ask-vault-pass --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --limit='machine*:&vagrant:!that_one' --start-at-task='an awesome task' playbook.yml")
         }
       end
     end
