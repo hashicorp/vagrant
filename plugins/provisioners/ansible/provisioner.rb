@@ -12,7 +12,7 @@ module VagrantPlugins
         @ssh_info = @machine.ssh_info
 
         #
-        # 1) Default Settings (lowest precedence)
+        # Ansible provisioner options
         #
 
         # Connect with Vagrant SSH identity
@@ -23,19 +23,13 @@ module VagrantPlugins
         # but can be enabled via raw_arguments option.
         options << "--connection=ssh"
 
-        # By default we limit by the current machine.
-        # This can be overridden by the limit config option.
-        options << "--limit=#{@machine.name}" unless config.limit
-
-        #
-        # 2) Configuration Joker
-        #
-
-        options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
-
-        #
-        # 3) Append Provisioner options (highest precedence):
-        #
+        # By default we limit by the current machine, but
+        # this can be overridden by the `limit` option.
+        if config.limit
+          options << "--limit=#{as_list_argument(config.limit)}"
+        else
+          options << "--limit=#{@machine.name}"
+        end
 
         options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--extra-vars=#{self.get_extra_vars_argument}" if config.extra_vars
@@ -47,10 +41,16 @@ module VagrantPlugins
         options << "--vault-password-file=#{config.vault_password_file}" if config.vault_password_file
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
-        options << "--limit=#{as_list_argument(config.limit)}" if config.limit
         options << "--start-at-task=#{config.start_at_task}" if config.start_at_task
 
+        # Finally, add the configuration joker, which has the highest precedence and
+        # can therefore potentially override any other options of this provisioner.
+        options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
+
+        #
         # Assemble the full ansible-playbook command
+        #
+
         command = (%w(ansible-playbook) << options << config.playbook).flatten
 
         env = {

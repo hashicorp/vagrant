@@ -1,5 +1,11 @@
 ## 1.7.0 (unreleased)
 
+BREAKING CHANGES:
+
+  - provisioners/ansible: `raw_arguments` has now highest priority
+  - provisioners/ansible: only the `ssh` connection transport is supported
+      (`paramiko` can be enabled with `raw_arguments` at your own risks)
+
 FEATURES:
 
   - **Named provisioners**: Provisioners can now be named. This name is used

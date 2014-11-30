@@ -82,18 +82,18 @@ VF
 
     it "sets --limit argument" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-        raw_limits = []
+        all_limits = args.select { |x| x =~ /^(--limit=|-l)/ }
         if config.raw_arguments
           raw_limits = config.raw_arguments.select { |x| x =~ /^(--limit=|-l)/ }
-        end
-        all_limits = args.select { |x| x =~ /^(--limit=|-l)/ }
-        expect(all_limits.length - raw_limits.length).to eq(1)
-
-        if config.limit
-          limit = config.limit.kind_of?(Array) ? config.limit.join(',') : config.limit
-          expect(all_limits.last).to eq("--limit=#{limit}")
+          expect(all_limits.length - raw_limits.length).to eq(1)
+          expect(all_limits.last).to eq(raw_limits.last)
         else
-          expect(all_limits.first).to eq("--limit=#{machine.name}")
+          if config.limit
+            limit = config.limit.kind_of?(Array) ? config.limit.join(',') : config.limit
+            expect(all_limits.last).to eq("--limit=#{limit}")
+          else
+            expect(all_limits.first).to eq("--limit=#{machine.name}")
+          end
         end
       }
     end
@@ -292,6 +292,7 @@ VF
       before do
         config.sudo = false
         config.skip_tags = %w(foo bar)
+        config.limit = "all"
         config.raw_arguments = ["--connection=paramiko",
                                 "--skip-tags=ignored",
                                 "--module-path=/other/modules",
@@ -300,11 +301,11 @@ VF
                                 "--limit=foo",
                                 "--limit=bar",
                                 "--inventory-file=/forget/it/my/friend",
+                                "--user=lion",
                                 "--new-arg=yeah"]
       end
 
-      it_should_set_arguments_and_environment_variables 16, 3, false, "paramiko"
-      it_should_create_and_use_generated_inventory
+      it_should_set_arguments_and_environment_variables 17, 3, false, "paramiko"
 
       it "sets all raw arguments" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -314,9 +315,12 @@ VF
         }
       end
 
-      it "sets raw arguments before arguments related to supported options" do
+      it "sets raw arguments after arguments related to supported options" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-          expect(args.index("--skip-tags=foo,bar")).to be > args.index("--skip-tags=ignored")
+          expect(args.index("--user=lion")).to be > args.index("--user=testuser")
+          expect(args.index("--inventory-file=/forget/it/my/friend")).to be > args.index("--inventory-file=#{generated_inventory_dir}")
+          expect(args.index("--limit=bar")).to be > args.index("--limit=all")
+          expect(args.index("--skip-tags=ignored")).to be > args.index("--skip-tags=foo,bar")
         }
       end
 
@@ -528,7 +532,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --why-not --su-user=foot --ask-su-pass --limit='all' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --ask-sudo-pass --ask-vault-pass --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --limit='machine*:&vagrant:!that_one' --start-at-task='an awesome task' playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --limit='machine*:&vagrant:!that_one' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --ask-sudo-pass --ask-vault-pass --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task='an awesome task' --why-not --su-user=foot --ask-su-pass --limit='all' playbook.yml")
         }
       end
     end
