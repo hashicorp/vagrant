@@ -183,8 +183,13 @@ module VagrantPlugins
         @ansible_ssh_args ||= get_ansible_ssh_args
       end
 
+      # Use ANSIBLE_SSH_ARGS to pass some OpenSSH options that are not wrapped by
+      # an ad-hoc Ansible option. Last update corresponds to Ansible 1.8
       def get_ansible_ssh_args
         ssh_options = []
+
+        # Don't access user's known_hosts file, except when host_key_checking is enabled.
+        ssh_options << "-o UserKnownHostsFile=/dev/null" unless config.host_key_checking
 
         # Multiple Private Keys
         @ssh_info[:private_key_path].drop(1).each do |key|

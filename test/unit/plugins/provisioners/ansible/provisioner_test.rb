@@ -63,7 +63,7 @@ VF
   #
 
   def self.it_should_set_arguments_and_environment_variables(
-    expected_args_count = 6, expected_vars_count = 3, expected_host_key_checking = false, expected_transport_mode = "ssh")
+    expected_args_count = 6, expected_vars_count = 4, expected_host_key_checking = false, expected_transport_mode = "ssh")
 
     it "sets implicit arguments in a specific order" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -101,6 +101,12 @@ VF
     it "exports environment variables" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
         cmd_opts = args.last
+
+        if expected_host_key_checking
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to be_nil unless config.raw_arguments
+        else
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o UserKnownHostsFile=/dev/null")
+        end
         expect(cmd_opts[:env]['ANSIBLE_FORCE_COLOR']).to eql("true")
         expect(cmd_opts[:env]['ANSIBLE_HOST_KEY_CHECKING']).to eql(expected_host_key_checking.to_s)
         expect(cmd_opts[:env]['PYTHONUNBUFFERED']).to eql(1)
@@ -305,7 +311,7 @@ VF
                                 "--new-arg=yeah"]
       end
 
-      it_should_set_arguments_and_environment_variables 17, 3, false, "paramiko"
+      it_should_set_arguments_and_environment_variables 17, 4, false, "paramiko"
 
       it "sets all raw arguments" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -459,7 +465,7 @@ VF
 
       it "shows the ansible-playbook command" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --limit='machine1' --inventory-file=#{generated_inventory_dir} playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --limit='machine1' --inventory-file=#{generated_inventory_dir} playbook.yml")
         }
       end
     end
@@ -474,7 +480,7 @@ VF
 
       it "shows the ansible-playbook command" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
         }
       end
     end
