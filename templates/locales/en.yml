@@ -1652,6 +1652,8 @@ en:
             using the other host only network.
           preparing: |-
             Preparing network interfaces based on configuration...
+          cleanup_vbox_default_dhcp: |-
+            Found default DHCP server from initial VirtualBox install. Cleaning it up...
         host_only_network:
           collides: |-
             The specified host network collides with a non-hostonly network!
