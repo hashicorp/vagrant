@@ -7,6 +7,7 @@ module VagrantPlugins
         "deploys code in this environment to a configured destination"
       end
 
+      # @todo support multiple strategies if requested by the community
       def execute
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant push [strategy] [options]"
