@@ -83,6 +83,14 @@ describe VagrantPlugins::AtlasPush::Push do
       config.excludes = ["foo", "bar"]
       subject.execute("foo")
     end
+
+    it "sends custom server address" do
+      expect(Vagrant::Util::SafeExec).to receive(:exec).
+        with("foo", "-vcs", "-address", "foo", app, env.root_path.to_s)
+
+      config.address = "foo"
+      subject.execute("foo")
+    end
   end
 
   describe "#uploader_path" do

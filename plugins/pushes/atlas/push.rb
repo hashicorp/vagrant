@@ -26,6 +26,7 @@ module VagrantPlugins
         cmd << "-vcs" if config.vcs
         cmd += config.includes.map { |v| ["-include", v] }
         cmd += config.excludes.map { |v| ["-exclude", v] }
+        cmd += ["-address", config.address] if config.address
         cmd << config.app
         cmd << File.expand_path(config.dir, env.root_path)
         Vagrant::Util::SafeExec.exec(uploader, *cmd.flatten)

@@ -41,10 +41,17 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :uploader_path
 
+      # The address of the Atlas server to upload to. By default this will
+      # be the public Atlas server.
+      #
+      # @return [String]
+      attr_accessor :address
+
       def initialize
         @app = UNSET_VALUE
         @dir = UNSET_VALUE
         @vcs = UNSET_VALUE
+        @address = UNSET_VALUE
         @includes = []
         @excludes = []
         @uploader_path = UNSET_VALUE
@@ -58,6 +65,7 @@ module VagrantPlugins
       end
 
       def finalize!
+        @address = nil if @address == UNSET_VALUE
         @app = nil if @app == UNSET_VALUE
         @dir = "." if @dir == UNSET_VALUE
         @uploader_path = nil if @uploader_path == UNSET_VALUE
