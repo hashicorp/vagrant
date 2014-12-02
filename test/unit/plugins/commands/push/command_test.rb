@@ -31,27 +31,8 @@ describe VagrantPlugins::CommandPush::Command do
     end
 
     it "validates the pushes" do
-      expect(subject).to receive(:validate_pushes!)
-        .with(nil, argv, kind_of(Hash))
-        .once
+      expect(subject).to receive(:validate_pushes!).once
       subject.execute
-    end
-
-    it "parses arguments" do
-      list = ["noop", "ftp"]
-      instance = described_class.new(list, env)
-      expect(instance).to receive(:validate_pushes!)
-        .with(nil, list, kind_of(Hash))
-        .and_return([])
-      instance.execute
-    end
-
-    it "parses options" do
-      instance = described_class.new(["--all"], env)
-      expect(instance).to receive(:validate_pushes!)
-        .with(nil, argv, all: true)
-        .and_return([])
-      instance.execute
     end
 
     it "delegates to Environment#push" do
@@ -93,21 +74,14 @@ describe VagrantPlugins::CommandPush::Command do
 
         context "when that strategy is defined" do
           it "returns that push" do
-            expect(subject.validate_pushes!(pushes, :noop)).to eq([:noop])
+            expect(subject.validate_pushes!(pushes, :noop)).to eq(:noop)
           end
         end
       end
 
       context "when no strategy is given" do
         it "returns the push" do
-          expect(subject.validate_pushes!(pushes)).to eq([:noop])
-        end
-      end
-
-      context "when --all is given" do
-        it "returns the push" do
-          expect(subject.validate_pushes!(pushes, [], all: true))
-            .to eq([:noop])
+          expect(subject.validate_pushes!(pushes)).to eq(:noop)
         end
       end
     end
@@ -127,16 +101,9 @@ describe VagrantPlugins::CommandPush::Command do
 
         context "when that strategy is defined" do
           it "returns the strategy" do
-            expect(subject.validate_pushes!(pushes, :noop)).to eq([:noop])
-            expect(subject.validate_pushes!(pushes, :ftp)).to eq([:ftp])
+            expect(subject.validate_pushes!(pushes, :noop)).to eq(:noop)
+            expect(subject.validate_pushes!(pushes, :ftp)).to eq(:ftp)
           end
-        end
-      end
-
-      context "when multiple strategies are given" do
-        it "returns the pushes" do
-          expect(subject.validate_pushes!(pushes, [:noop, :ftp]))
-            .to eq([:noop, :ftp])
         end
       end
 
@@ -144,13 +111,6 @@ describe VagrantPlugins::CommandPush::Command do
         it "raises an exception" do
           expect { subject.validate_pushes!(pushes) }
             .to raise_error(Vagrant::Errors::PushStrategyNotProvided)
-        end
-      end
-
-      context "when --all is given" do
-        it "returns the pushes" do
-          expect(subject.validate_pushes!(pushes, [], all: true))
-            .to eq([:noop, :ftp])
         end
       end
     end

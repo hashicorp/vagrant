@@ -52,16 +52,6 @@ subcommand:
 $ vagrant push staging
 ```
 
-Pushes will be run in the order you specify on the command line, **not the order
-they are specified in the `Vagrantfile`!**
-
-To execute all the Vagrant Push strategies, specify the `--all` flag with no
-other arguments:
-
-```shell
-$ vagrant push --all
-```
-
 Vagrant Push is the easiest way to deploy your application. You can read more
 in the documentation links on the sidebar.
 

@@ -8,24 +8,18 @@ module VagrantPlugins
       end
 
       def execute
-        options = { all: false }
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant push [strategy] [options]"
-          o.on("-a", "--all", "Run all defined push strategies") do
-            options[:all] = true
-          end
         end
 
         # Parse the options
         argv = parse_options(opts)
         return if !argv
 
-        names = validate_pushes!(@env.pushes, argv, options)
+        name = validate_pushes!(@env.pushes, argv[0])
 
-        names.each do |name|
-          @logger.debug("'push' environment with strategy: `#{name}'")
-          @env.push(name)
-        end
+        @logger.debug("'push' environment with strategy: `#{name}'")
+        @env.push(name)
 
         0
       end
@@ -36,44 +30,37 @@ module VagrantPlugins
       #   if there are no pushes defined
       # @raise Vagrant::Errors::PushStrategyNotProvided
       #   if there are multiple push strategies defined and none were specified
-      #   and `--all` was not given
       # @raise Vagrant::Errors::PushStrategyNotDefined
-      #   if any of the given push names do not correspond to a push strategy
+      #   if the given push name do not correspond to a push strategy
       #
       # @param [Array<Symbol>] pushes
       #   the list of pushes defined by the environment
-      # @param [Array<String>] names
-      #   the list of names provided by the user on the command line
-      # @param [Hash] options
-      #   a list of options to pass to the validation
+      # @param [String] name
+      #   the name provided by the user on the command line
       #
-      # @return [Array<Symbol>]
+      # @return [Symbol]
       #   the compiled list of pushes
       #
-      def validate_pushes!(pushes, names = [], options = {})
+      def validate_pushes!(pushes, name = nil)
         if pushes.nil? || pushes.empty?
           raise Vagrant::Errors::PushesNotDefined
         end
 
-        names = Array(names).flatten.compact.map(&:to_sym)
-
-        if names.empty? || options[:all]
-          if options[:all] || pushes.length == 1
-            return pushes.map(&:to_sym)
+        if name.nil?
+          if pushes.length == 1
+            return pushes.first.to_sym
           else
             raise Vagrant::Errors::PushStrategyNotProvided, pushes: pushes
           end
         end
 
-        names.each do |name|
-          if !pushes.include?(name)
-            raise Vagrant::Errors::PushStrategyNotDefined,
-              name: name,
-              pushes: pushes
-          end
+        if !pushes.include?(name)
+          raise Vagrant::Errors::PushStrategyNotDefined,
+            name: name,
+            pushes: pushes
         end
 
-        return names
+        return name.to_sym
       end
     end
   end
