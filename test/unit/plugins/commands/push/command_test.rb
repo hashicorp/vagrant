@@ -80,7 +80,7 @@ describe VagrantPlugins::CommandPush::Command do
       end
 
       context "when no strategy is given" do
-        it "returns the push" do
+        it "returns the strategy" do
           expect(subject.validate_pushes!(pushes)).to eq(:noop)
         end
       end
