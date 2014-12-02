@@ -6,7 +6,7 @@ module VagrantPlugins
       end
 
       class UploaderNotFound < Error
-        error_key(:uploader_error)
+        error_key(:uploader_not_found)
       end
     end
   end

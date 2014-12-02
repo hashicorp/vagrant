@@ -9,3 +9,9 @@ en:
             config.push.define "atlas" do |push|
               push.%{attribute} = "..."
             end
+      uploader_not_found: |-
+        Vagrant was unable to find the Atlas uploader CLI. If your Vagrantfile
+        specifies the path explicitly with "uploader_path", then make sure that
+        path is valid. Otherwise, make sure that you have a valid install of
+        Vagrant. If you installed Vagrant outside of the official installers,
+        the "atlas-upload" binary must exist on your PATH.

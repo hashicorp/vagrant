@@ -49,7 +49,7 @@ module VagrantPlugins
             raise Vagrant::Errors::PushStrategyNotProvided, pushes: pushes
           end
         else
-          if !pushes.key?(name.to_sym)
+          if !pushes.include?(name.to_sym)
             raise Vagrant::Errors::PushStrategyNotDefined,
               name: name,
               pushes: pushes

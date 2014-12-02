@@ -42,7 +42,7 @@ describe VagrantPlugins::CommandPush::Command do
 
   describe "#validate_pushes!" do
     context "when there are no pushes defined" do
-      let(:pushes) { {} }
+      let(:pushes) { [] }
 
       context "when a strategy is given" do
         it "raises an exception" do
@@ -61,7 +61,7 @@ describe VagrantPlugins::CommandPush::Command do
 
     context "when there is one push defined" do
       let(:noop) { double("noop") }
-      let(:pushes) { { noop: noop } }
+      let(:pushes) { [:noop] }
 
       context "when a strategy is given" do
         context "when that strategy is not defined" do
@@ -90,7 +90,7 @@ describe VagrantPlugins::CommandPush::Command do
     context "when there are multiple pushes defined" do
       let(:noop) { double("noop") }
       let(:ftp)  { double("ftp") }
-      let(:pushes) { { noop: noop, ftp: ftp } }
+      let(:pushes) { [:noop, :ftp] }
 
       context "when a strategy is given" do
         context "when that strategy is not defined" do
