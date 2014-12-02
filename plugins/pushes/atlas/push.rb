@@ -43,10 +43,12 @@ module VagrantPlugins
         end
 
         if Vagrant.in_installer?
-          # TODO: look up uploader in embedded dir
-        else
-          return Vagrant::Util::Which.which(UPLOADER_BIN)
+          path = File.join(
+            Vagrant.installer_embedded_dir, "bin", UPLOADER_BIN)
+          return path if File.file?(path)
         end
+
+        return Vagrant::Util::Which.which(UPLOADER_BIN)
       end
     end
   end

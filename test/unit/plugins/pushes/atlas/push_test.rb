@@ -6,6 +6,8 @@ require Vagrant.source_root.join("plugins/pushes/atlas/push")
 describe VagrantPlugins::AtlasPush::Push do
   include_context "unit"
 
+  let(:bin) { VagrantPlugins::AtlasPush::Push::UPLOADER_BIN }
+
   let(:env) do
     double("env",
       root_path: File.expand_path("..", __FILE__)
@@ -91,6 +93,32 @@ describe VagrantPlugins::AtlasPush::Push do
 
     it "should look up the uploader via PATH if not set" do
       allow(Vagrant).to receive(:in_installer?).and_return(false)
+
+      expect(Vagrant::Util::Which).to receive(:which).
+        with(described_class.const_get(:UPLOADER_BIN)).
+        and_return("bar")
+
+      expect(subject.uploader_path).to eq("bar")
+    end
+
+    it "should look up the uploader in the embedded dir if installer" do
+      dir = temporary_dir
+
+      allow(Vagrant).to receive(:in_installer?).and_return(true)
+      allow(Vagrant).to receive(:installer_embedded_dir).and_return(dir.to_s)
+
+      bin_path = dir.join("bin", bin)
+      bin_path.dirname.mkpath
+      bin_path.open("w+") { |f| f.write("hi") }
+
+      expect(subject.uploader_path).to eq(bin_path.to_s)
+    end
+
+    it "should look up the uploader in the PATH if not in the installer" do
+      dir = temporary_dir
+
+      allow(Vagrant).to receive(:in_installer?).and_return(true)
+      allow(Vagrant).to receive(:installer_embedded_dir).and_return(dir.to_s)
 
       expect(Vagrant::Util::Which).to receive(:which).
         with(described_class.const_get(:UPLOADER_BIN)).
