@@ -571,7 +571,7 @@ module Vagrant
     #
     # @return [Array<Symbol>]
     def pushes
-      vagrantfile.config.push.__compiled_pushes.keys
+      self.vagrantfile.config.push.__compiled_pushes.keys
     end
 
     # This returns a machine with the proper provider for this environment.

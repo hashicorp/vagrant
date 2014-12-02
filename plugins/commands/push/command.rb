@@ -7,56 +7,73 @@ module VagrantPlugins
         "deploys code in this environment to a configured destination"
       end
 
-      # @todo support multiple strategies if requested by the community
       def execute
+        options = { all: false }
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant push [strategy] [options]"
+          o.on("-a", "--all", "Run all defined push strategies") do
+            options[:all] = true
+          end
         end
 
         # Parse the options
         argv = parse_options(opts)
         return if !argv
 
-        name = argv[0]
-        pushes = @env.pushes
+        names = validate_pushes!(@env.pushes, argv, options)
 
-        validate_pushes!(pushes, name)
-
-        @logger.debug("'push' environment with strategy: `#{name}'")
-        @env.push(name)
+        names.each do |name|
+          @logger.debug("'push' environment with strategy: `#{name}'")
+          @env.push(name)
+        end
 
         0
       end
 
-      # Validate that the given list of pushes and strategy are valid.
+      # Validate that the given list of names corresponds to valid pushes.
       #
-      # @raise [PushesNotDefined] if there are no pushes defined for the
-      #   environment
-      # @raise [PushStrategyNotDefined] if a strategy is given, but does not
-      #   correspond to one that exists in the environment
+      # @raise Vagrant::Errors::PushesNotDefined
+      #   if there are no pushes defined
+      # @raise Vagrant::Errors::PushStrategyNotProvided
+      #   if there are multiple push strategies defined and none were specified
+      #   and `--all` was not given
+      # @raise Vagrant::Errors::PushStrategyNotDefined
+      #   if any of the given push names do not correspond to a push strategy
       #
-      # @param [Registry] pushes The list of pushes as a {Registry}
-      # @param [#to_sym, nil] name The name of the strategy
+      # @param [Array<Symbol>] pushes
+      #   the list of pushes defined by the environment
+      # @param [Array<String>] names
+      #   the list of names provided by the user on the command line
+      # @param [Hash] options
+      #   a list of options to pass to the validation
       #
-      # @return [true]
-      def validate_pushes!(pushes, name=nil)
+      # @return [Array<Symbol>]
+      #   the compiled list of pushes
+      #
+      def validate_pushes!(pushes, names = [], options = {})
         if pushes.nil? || pushes.empty?
           raise Vagrant::Errors::PushesNotDefined
         end
 
-        if name.nil?
-          if pushes.length != 1
+        names = Array(names).flatten.compact.map(&:to_sym)
+
+        if names.empty? || options[:all]
+          if options[:all] || pushes.length == 1
+            return pushes.map(&:to_sym)
+          else
             raise Vagrant::Errors::PushStrategyNotProvided, pushes: pushes
           end
-        else
-          if !pushes.include?(name.to_sym)
+        end
+
+        names.each do |name|
+          if !pushes.include?(name)
             raise Vagrant::Errors::PushStrategyNotDefined,
               name: name,
               pushes: pushes
           end
         end
 
-        true
+        return names
       end
     end
   end
