@@ -25,7 +25,7 @@ describe VagrantPlugins::CommandPush::Command do
   describe "#execute" do
     before do
       allow(subject).to receive(:validate_pushes!)
-        .and_return([:noop])
+        .and_return(:noop)
       allow(env).to receive(:pushes)
       allow(env).to receive(:push)
     end
