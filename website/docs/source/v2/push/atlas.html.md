@@ -32,7 +32,7 @@ The Vagrant Push Atlas strategy supports the following configuration options:
   the same directory as the Vagrantfile, but you can specify this if you have
   a `src` folder or `bin` folder or some other folder you want to upload.
 
-- `vsc` - If set to true, Vagrant will automatically use VCS data to determine
+- `vcs` - If set to true, Vagrant will automatically use VCS data to determine
   the files to upload. Uncommitted changes will not be deployed.
 
 
