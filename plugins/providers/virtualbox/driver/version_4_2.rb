@@ -283,6 +283,27 @@ module VagrantPlugins
           end
         end
 
+        def read_dhcp_servers
+          execute("list", "dhcpservers", retryable: true).split("\n\n").collect do |block|
+            info = {}
+
+            block.split("\n").each do |line|
+              if network = line[/^NetworkName:\s+HostInterfaceNetworking-(.+?)$/, 1]
+                info[:network]      = network
+                info[:network_name] = "HostInterfaceNetworking-#{network}"
+              elsif ip = line[/^IP:\s+(.+?)$/, 1]
+                info[:ip] = ip
+              elsif lower = line[/^lowerIPAddress:\s+(.+?)$/, 1]
+                info[:lower] = lower
+              elsif upper = line[/^upperIPAddress:\s+(.+?)$/, 1]
+                info[:upper] = upper
+              end
+            end
+
+            info
+          end
+        end
+
         def read_guest_additions_version
           output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version",
                            retryable: true)
@@ -323,26 +344,6 @@ module VagrantPlugins
         end
 
         def read_host_only_interfaces
-          dhcp = {}
-          execute("list", "dhcpservers", retryable: true).split("\n\n").each do |block|
-            info = {}
-
-            block.split("\n").each do |line|
-              if line =~ /^NetworkName:\s+HostInterfaceNetworking-(.+?)$/
-                info[:network] = $1.to_s
-              elsif line =~ /^IP:\s+(.+?)$/
-                info[:ip] = $1.to_s
-              elsif line =~ /^lowerIPAddress:\s+(.+?)$/
-                info[:lower] = $1.to_s
-              elsif line =~ /^upperIPAddress:\s+(.+?)$/
-                info[:upper] = $1.to_s
-              end
-            end
-
-            # Set the DHCP info
-            dhcp[info[:network]] = info
-          end
-
           execute("list", "hostonlyifs", retryable: true).split("\n\n").collect do |block|
             info = {}
 
@@ -357,9 +358,6 @@ module VagrantPlugins
                 info[:status] = $1.to_s
               end
             end
-
-            # Set the DHCP info if it exists
-            info[:dhcp] = dhcp[info[:name]] if dhcp[info[:name]]
 
             info
           end
@@ -463,6 +461,10 @@ module VagrantPlugins
           end
 
           results
+        end
+
+        def remove_dhcp_server(network_name)
+          execute("dhcpserver", "remove", "--netname", network_name)
         end
 
         def set_mac_address(mac)
