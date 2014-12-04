@@ -306,7 +306,7 @@ module VagrantPlugins
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
             @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
               if @config.verbose
-                @machine.env.ui.info(data)
+                @machine.env.ui.info(data.rstrip)
               end
             end
           else
@@ -315,14 +315,14 @@ module VagrantPlugins
               @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all", opts)
               @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
                 if @config.verbose
-                  @machine.env.ui.info(data)
+                  @machine.env.ui.info(data.rstrip)
                 end
               end
             else
               @machine.communicate.sudo("salt-call saltutil.sync_all")
               @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
                 if @config.verbose
-                  @machine.env.ui.info(data)
+                  @machine.env.ui.info(data.rstrip)
                 end
               end
             end
