@@ -19,14 +19,19 @@ module VagrantPlugins
           # Modify the SSH options for when we `vagrant ssh`...
           ssh_opts = env[:ssh_opts] || {}
 
-          # Build the command we'll execute within the host machine
+          # Build the command we'll execute within the Docker host machine:
           ssh_command = env[:machine].communicate.container_ssh_command
           if !Array(ssh_opts[:extra_args]).empty?
             ssh_command << " #{Array(ssh_opts[:extra_args]).join(" ")}"
           end
 
+          # Modify the SSH options for the original command:
           # Append "-t" to force a TTY allocation
           ssh_opts[:extra_args] = ["-t"]
+          # Enable Agent forwarding when requested for the target VM
+          if env[:machine].ssh_info[:forward_agent]
+            ssh_opts[:extra_args] << "-o ForwardAgent=yes"
+          end
           ssh_opts[:extra_args] << ssh_command
 
           # Set the opts
