@@ -82,6 +82,7 @@ BUG FIXES:
   - providers/docker: Fix issue where multiple identical proxy VMs would
       be created. [GH-3963]
   - providers/docker: Multiple links with the same name work. [GH-4571]
+  - providers/docker: Add support of SSH agent forwarding. [GH-4905]
   - providers/virtualbox: Show a human-friendly error if VirtualBox didn't
       clean up an existing VM. [GH-4681]
   - providers/virtualbox: Detect case when VirtualBox reports 0.0.0.0 as
