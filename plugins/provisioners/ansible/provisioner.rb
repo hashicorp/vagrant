@@ -43,8 +43,8 @@ module VagrantPlugins
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
         options << "--start-at-task=#{config.start_at_task}" if config.start_at_task
 
-        # Finally, add the configuration joker, which has the highest precedence and
-        # can therefore potentially override any other options of this provisioner.
+        # Finally, add the raw configuration options, which has the highest precedence
+        # and can therefore potentially override any other options of this provisioner.
         options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
 
         #
