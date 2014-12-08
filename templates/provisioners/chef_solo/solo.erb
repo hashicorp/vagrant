@@ -5,7 +5,7 @@ file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
 cookbook_path <%= cookbooks_path.inspect %>
 <% if roles_path %>
-if Chef::VERSION.to_f < 11.8
+if roles_path.length == 1
   role_path <%= roles_path.first.inspect %>
 else
   role_path <%= roles_path.inspect %>
