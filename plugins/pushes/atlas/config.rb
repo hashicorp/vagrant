@@ -139,12 +139,8 @@ module VagrantPlugins
       # @return [String, nil]
       #   the token, or nil if it does not exist
       def token_from_vagrant_login(env)
-        if defined?(VagrantPlugins::Login::Client)
-          client = VagrantPlugins::Login::Client.new(env)
-          return client.token
-        end
-
-        nil
+        client = VagrantPlugins::LoginCommand::Client.new(env)
+        client.token
       end
     end
   end
