@@ -12,9 +12,9 @@ module VagrantPlugins
       DESC
 
       command(:login) do
-        require_relative "login"
+        require_relative "command"
         init!
-        Push
+        Command
       end
 
       action_hook(:cloud_authenticated_boxes, :authenticate_box_url) do |hook|
