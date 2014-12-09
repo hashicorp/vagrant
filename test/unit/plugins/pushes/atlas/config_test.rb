@@ -59,6 +59,7 @@ describe VagrantPlugins::AtlasPush::Config do
       allow(machine).to receive(:env)
         .and_return(double("env",
           root_path: "",
+          data_dir:  Pathname.new(""),
         ))
 
       subject.app           = "sethvargo/bacon"

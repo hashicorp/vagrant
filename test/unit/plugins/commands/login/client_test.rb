@@ -77,7 +77,7 @@ describe VagrantPlugins::LoginCommand::Client do
       stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
         to_return(status: 401, body: "")
 
-      expect(subject.login("foo", "bar")).to be_nil
+      expect(subject.login("foo", "bar")).to be(false)
     end
 
     it "raises an exception if it can't reach the sever" do
