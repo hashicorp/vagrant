@@ -96,20 +96,49 @@ module VagrantPlugins
         end
       end
 
-      def raise_winrm_exception(winrm_exception, shell, command)
-        # If the error is a 401, we can return a more specific error message
-        if winrm_exception.message.include?("401")
-          raise Errors::AuthError,
-            user: @config.username,
-            password: @config.password,
-            endpoint: endpoint,
-            message: winrm_exception.message
-        end
+      def raise_winrm_exception(exception, shell = nil, command = nil)
+        case exception
+        when WinRM::WinRMAuthorizationError
+          raise Errors::AuthenticationFailed,
+              user: @config.username,
+              password: @config.password,
+              endpoint: endpoint,
+              message: exception.message
+        when WinRM::WinRMHTTPTransportError
+          case exception.response_code
+          # If the error is a 401, we can return a more specific error message
+          when 401
+            raise Errors::AuthenticationFailed,
+              user: @config.username,
+              password: @config.password,
+              endpoint: endpoint,
+              message: exception.message
+          end
 
-        raise Errors::ExecutionError,
-          shell: shell,
-          command: command,
-          message: winrm_exception.message
+          raise Errors::ExecutionError,
+            shell: shell,
+            command: command,
+            message: exception.message
+        when OpenSSL::SSL::SSLError
+          raise Errors::SSLError, message: exception.message
+        when HTTPClient::TimeoutError
+          raise Errors::ConnectionTimeout, message: exception.message
+        when Errno::ECONNREFUSED
+          # This is raised if we failed to connect the max amount of times
+          raise Errors::ConnectionRefused
+        when Errno::ECONNRESET
+          # This is raised if we failed to connect the max number of times
+          # due to an ECONNRESET.
+          raise Errors::ConnectionReset
+        when Errno::EHOSTDOWN
+          # This is raised if we get an ICMP DestinationUnknown error.
+          raise Errors::HostDown
+        when Errno::EHOSTUNREACH
+          # This is raised if we can't work out how to route traffic.
+          raise Errors::NoRoute
+        else
+          raise
+        end
       end
 
       def new_session
