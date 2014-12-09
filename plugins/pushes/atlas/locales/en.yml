@@ -9,6 +9,11 @@ en:
             config.push.define "atlas" do |push|
               push.%{attribute} = "..."
             end
+      missing_token: |-
+        Missing required configuration parameter 'token'. This is required for
+        Vagrant to securely communicate with your Atlas account.
+
+        To generate an access token, run 'vagrant login'.
       uploader_not_found: |-
         Vagrant was unable to find the Atlas uploader CLI. If your Vagrantfile
         specifies the path explicitly with "uploader_path", then make sure that

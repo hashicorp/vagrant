@@ -1,6 +1,19 @@
 module VagrantPlugins
   module AtlasPush
     class Config < Vagrant.plugin("2", :config)
+      # The address of the Atlas server to upload to. By default this will
+      # be the public Atlas server.
+      #
+      # @return [String]
+      attr_accessor :address
+
+      # The Atlas token to use. If the user has run `vagrant login`, this will
+      # use that token. If the environment variable `ATLAS_TOKEN` is set, the
+      # uploader will use this value. By default, this is nil.
+      #
+      # @return [String, nil]
+      attr_accessor :token
+
       # The name of the application to push to. This will be created (with
       # user confirmation) if it doesn't already exist.
       #
@@ -41,17 +54,12 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :uploader_path
 
-      # The address of the Atlas server to upload to. By default this will
-      # be the public Atlas server.
-      #
-      # @return [String]
-      attr_accessor :address
-
       def initialize
+        @address = UNSET_VALUE
+        @token = UNSET_VALUE
         @app = UNSET_VALUE
         @dir = UNSET_VALUE
         @vcs = UNSET_VALUE
-        @address = UNSET_VALUE
         @includes = []
         @excludes = []
         @uploader_path = UNSET_VALUE
@@ -66,6 +74,7 @@ module VagrantPlugins
 
       def finalize!
         @address = nil if @address == UNSET_VALUE
+        @token = nil if @token == UNSET_VALUE
         @app = nil if @app == UNSET_VALUE
         @dir = "." if @dir == UNSET_VALUE
         @uploader_path = nil if @uploader_path == UNSET_VALUE
@@ -74,6 +83,15 @@ module VagrantPlugins
 
       def validate(machine)
         errors = _detected_errors
+
+        if missing?(@token)
+          token = token_from_vagrant_login(machine.env) || ENV["ATLAS_TOKEN"]
+          if missing?(token)
+            errors << I18n.t("atlas_push.errors.missing_token")
+          else
+            @token = token
+          end
+        end
 
         if missing?(@app)
           errors << I18n.t("atlas_push.errors.missing_attribute",
@@ -110,6 +128,23 @@ module VagrantPlugins
       # @return [true, false]
       def missing?(obj)
         obj.to_s.strip.empty?
+      end
+
+      # Attempt to load the token from disk using the vagrant-login plugin. If
+      # the constant is not defined, that means the user is operating in some
+      # bespoke and unsupported Ruby environment.
+      #
+      # @param [Vagrant::Environment] env
+      #
+      # @return [String, nil]
+      #   the token, or nil if it does not exist
+      def token_from_vagrant_login(env)
+        if defined?(VagrantPlugins::Login::Client)
+          client = VagrantPlugins::Login::Client.new(env)
+          return client.token
+        end
+
+        nil
       end
     end
   end
