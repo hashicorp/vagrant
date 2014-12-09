@@ -46,13 +46,7 @@ module VagrantPlugins
             message  = nil
             begin
               begin
-                standard_shell = shell.cmd('echo vagrant')
-                powershell = shell.cmd('@PowerShell Write-Host vagrant')
-
-                unless standard_shell[:exitcode] == 0 || powershell[:exitcode] == 0
-                  raise Errors::InvalidShell
-                end
-                return true if shell(true).sane?
+                return true if ready?
               rescue Vagrant::Errors::VagrantError => e
                 @logger.info("WinRM not ready: #{e.inspect}")
                 raise
