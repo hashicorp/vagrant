@@ -23,14 +23,12 @@ module VagrantPlugins
         token = self.token
         return false if !token
 
-        url = "#{Vagrant.server_url}/api/v1/authenticate" +
-          "?access_token=#{token}"
-        RestClient.get(url, content_type: :json)
-        true
-      rescue RestClient::Unauthorized
-        false
-      rescue SocketError
-        raise Errors::ServerUnreachable, url: Vagrant.server_url.to_s
+        with_error_handling do
+          url = "#{Vagrant.server_url}/api/v1/authenticate" +
+            "?access_token=#{token}"
+          RestClient.get(url, content_type: :json)
+          true
+        end
       end
 
       # Login logs a user in and returns the token for that user. The token
@@ -40,16 +38,14 @@ module VagrantPlugins
       # @param [String] pass
       # @return [String] token The access token, or nil if auth failed.
       def login(user, pass)
-        url      = "#{Vagrant.server_url}/api/v1/authenticate"
-        request  = { "user" => { "login" => user, "password" => pass } }
-        response = RestClient.post(
-          url, JSON.dump(request), content_type: :json)
-        data = JSON.load(response.to_s)
-        data["token"]
-      rescue RestClient::Unauthorized
-        return nil
-      rescue SocketError
-        raise Errors::ServerUnreachable, url: Vagrant.server_url.to_s
+        with_error_handling do
+          url      = "#{Vagrant.server_url}/api/v1/authenticate"
+          request  = { "user" => { "login" => user, "password" => pass } }
+          response = RestClient.post(
+            url, JSON.dump(request), content_type: :json)
+          data = JSON.load(response.to_s)
+          data["token"]
+        end
       end
 
       # Stores the given token locally, removing any previous tokens.
@@ -72,6 +68,24 @@ module VagrantPlugins
       end
 
       protected
+
+      def with_error_handling(&block)
+        yield
+      rescue RestClient::Unauthorized
+        false
+      rescue RestClient::NotAcceptable => e
+        begin
+          errors = JSON.parse(e.response)["errors"]
+            .map { |h| h["message"] }
+            .join("\n")
+
+          raise Errors::ServerError, errors: errors
+        rescue JSON::ParserError; end
+
+        raise "An unexpected error occurred: #{e.inspect}"
+      rescue SocketError
+        raise Errors::ServerUnreachable, url: Vagrant.server_url.to_s
+      end
 
       def token_path
         @env.data_dir.join("vagrant_login_token")

@@ -1,6 +1,10 @@
 en:
   login_command:
     errors:
+      server_error: |-
+        The Atlas server responded with an not-OK response:
+
+        %{errors}
       server_unreachable: |-
         The Atlas server is not currently accepting connections. Please check
         your network connection and try again later.
