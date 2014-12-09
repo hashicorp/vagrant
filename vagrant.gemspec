@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency "net-sftp", "~> 2.1"
   s.add_dependency "net-scp", "~> 1.1.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
+  s.add_dependency "rest-client", "~> 1.7"
   s.add_dependency "wdm", "~> 0.1.0"
   s.add_dependency "winrm", "~> 1.1.3"
 
@@ -34,6 +35,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", "~> 2.14.0"
+  s.add_development_dependency "webmock", "~> 1.20"
   s.add_development_dependency "fake_ftp", "~> 0.1"
 
   # The following block of code determines the files that should be included
