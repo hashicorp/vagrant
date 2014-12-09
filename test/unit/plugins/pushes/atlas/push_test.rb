@@ -91,6 +91,14 @@ describe VagrantPlugins::AtlasPush::Push do
       config.address = "foo"
       subject.execute("foo")
     end
+
+    it "sends custom token" do
+      expect(Vagrant::Util::SafeExec).to receive(:exec).
+        with("foo", "-vcs", "-token", "atlas_token", app, env.root_path.to_s)
+
+      config.token = "atlas_token"
+      subject.execute("foo")
+    end
   end
 
   describe "#uploader_path" do

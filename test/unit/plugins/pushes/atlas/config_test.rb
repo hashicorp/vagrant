@@ -12,6 +12,20 @@ describe VagrantPlugins::AtlasPush::Config do
 
   let(:machine) { double("machine") }
 
+  describe "#address" do
+    it "defaults to nil" do
+      subject.finalize!
+      expect(subject.address).to be(nil)
+    end
+  end
+
+  describe "#token" do
+    it "defaults to nil" do
+      subject.finalize!
+      expect(subject.token).to be(nil)
+    end
+  end
+
   describe "#app" do
     it "defaults to nil" do
       subject.finalize!
@@ -55,6 +69,79 @@ describe VagrantPlugins::AtlasPush::Config do
 
     let(:result) { subject.validate(machine) }
     let(:errors) { result["Atlas push"] }
+
+    context "when the token is missing" do
+      context "when a vagrant-login token exists" do
+        before do
+          allow(subject).to receive(:token_from_vagrant_login)
+            .and_return("token_from_vagrant_login")
+
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[])
+            .with("ATLAS_TOKEN").and_return("token_from_env")
+        end
+
+        it "uses the token in the Vagrantfile" do
+          subject.token = ""
+          subject.finalize!
+          expect(errors).to be_empty
+          expect(subject.token).to eq("token_from_vagrant_login")
+        end
+      end
+
+      context "when ATLAS_TOKEN is set in the environment" do
+        before do
+          allow(subject).to receive(:token_from_vagrant_login)
+            .and_return(nil)
+
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[])
+            .with("ATLAS_TOKEN").and_return("token_from_env")
+        end
+
+        it "uses the token in the environment" do
+          subject.token = ""
+          subject.finalize!
+          expect(errors).to be_empty
+          expect(subject.token).to eq("token_from_env")
+        end
+      end
+
+      context "when a token is given in the Vagrantfile" do
+        before do
+          allow(subject).to receive(:token_from_vagrant_login)
+            .and_return("token_from_vagrant_login")
+
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[])
+            .with("ATLAS_TOKEN").and_return("token_from_env")
+        end
+
+        it "uses the token in the Vagrantfile" do
+          subject.token = "token_from_vagrantfile"
+          subject.finalize!
+          expect(errors).to be_empty
+          expect(subject.token).to eq("token_from_vagrantfile")
+        end
+      end
+
+      context "when no token is given" do
+        before do
+          allow(subject).to receive(:token_from_vagrant_login)
+            .and_return(nil)
+
+          allow(ENV).to receive(:[]).and_call_original
+          allow(ENV).to receive(:[])
+            .with("ATLAS_TOKEN").and_return(nil)
+        end
+
+        it "returns an error" do
+          subject.token = ""
+          subject.finalize!
+          expect(errors).to include(I18n.t("atlas_push.errors.missing_token"))
+        end
+      end
+    end
 
     context "when the app is missing" do
       it "returns an error" do
