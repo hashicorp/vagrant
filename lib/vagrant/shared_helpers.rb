@@ -5,12 +5,12 @@ require "thread"
 module Vagrant
   @@global_lock = Mutex.new
 
-  # This is the default endpoint of the Vagrant Cloud in
+  # This is the default endpoint of the Atlas in
   # use. API calls will be made to this for various functions
   # of Vagrant that may require remote access.
   #
   # @return [String]
-  DEFAULT_SERVER_URL = "https://vagrantcloud.com"
+  DEFAULT_SERVER_URL = "https://atlas.hashicorp.com"
 
   # This holds a global lock for the duration of the block. This should
   # be invoked around anything that is modifying process state (such as
