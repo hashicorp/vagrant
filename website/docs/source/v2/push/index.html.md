@@ -7,7 +7,7 @@ description: |-
 
 # Vagrant Push
 
-As of version 1.8, Vagrant is capable of deploying or "pushing" application code
+As of version 1.7, Vagrant is capable of deploying or "pushing" application code
 in the same directory as your Vagrantfile to a remote such as an FTP server or
 [HashiCorp's Atlas][Atlas].
 
