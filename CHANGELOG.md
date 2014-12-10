@@ -1,4 +1,4 @@
-## 1.7.0 (unreleased)
+## 1.7.0 (December 9, 2014)
 
 BREAKING CHANGES:
 
