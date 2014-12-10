@@ -28,11 +28,12 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       expect(subject.powershell("dir")[:exitcode]).to eq(0)
     end
 
-    it "should raise auth error when exception message contains 401" do
-      expect(session).to receive(:powershell).with(/^dir.+/).and_raise(
-        StandardError.new("Oh no! a 401 SOAP error!"))
+    it "should raise auth error when WinRM exception has a response code of 401" do
+      # The default settings might an account lockout - 20 auth failures!
+      expect(session).to receive(:powershell).with(/^dir.+/).exactly(20).times.and_raise(
+        WinRM::WinRMHTTPTransportError.new("Oh no!!", 401))
       expect { subject.powershell("dir") }.to raise_error(
-        VagrantPlugins::CommunicatorWinRM::Errors::AuthError)
+        VagrantPlugins::CommunicatorWinRM::Errors::AuthenticationFailed)
     end
 
     it "should raise an execution error when an exception occurs" do

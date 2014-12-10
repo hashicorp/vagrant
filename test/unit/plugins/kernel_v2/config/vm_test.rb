@@ -167,14 +167,15 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.communicator = "winrm"
       subject.finalize!
       n = subject.networks
-      expect(n.length).to eq(1)
+      expect(n.length).to eq(2)
 
       # WinRM HTTP
-      expect(n[0][0]).to eq(:forwarded_port)
-      expect(n[0][1][:guest]).to eq(5985)
-      expect(n[0][1][:host]).to eq(55985)
-      expect(n[0][1][:host_ip]).to eq("127.0.0.1")
-      expect(n[0][1][:id]).to eq("winrm")
+      network = find_network("winrm")
+      # expect(n[0][0]).to eq(:forwarded_port)
+      expect(network[:guest]).to eq(5985)
+      expect(network[:host]).to eq(55985)
+      expect(network[:host_ip]).to eq("127.0.0.1")
+      expect(network[:id]).to eq("winrm")
     end
 
     it "allows overriding SSH" do

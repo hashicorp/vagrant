@@ -105,7 +105,7 @@ module VagrantPlugins
               endpoint: endpoint,
               message: exception.message
         when WinRM::WinRMHTTPTransportError
-          case exception.response_code
+          case exception.status_code
           # If the error is a 401, we can return a more specific error message
           when 401
             raise Errors::AuthenticationFailed,
@@ -137,7 +137,10 @@ module VagrantPlugins
           # This is raised if we can't work out how to route traffic.
           raise Errors::NoRoute
         else
-          raise
+          raise Errors::ExecutionError,
+            shell: shell,
+            command: command,
+            message: exception.message
         end
       end
 
