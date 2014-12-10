@@ -58,13 +58,21 @@ module VagrantPlugins
         nil
       end
 
-      # Reads the access token if there is one, or returns nil otherwise.
+      # Reads the access token if there is one. This will first read the
+      # `ATLAS_TOKEN` environment variable and then fallback to the stored
+      # access token on disk.
       #
       # @return [String]
       def token
-        token_path.read
-      rescue Errno::ENOENT
-        return nil
+        if ENV["ATLAS_TOKEN"] && !ENV["ATLAS_TOKEN"].empty?
+          return ENV["ATLAS_TOKEN"]
+        end
+
+        if token_path.exist?
+          return token_path.read.strip
+        end
+
+        nil
       end
 
       protected
