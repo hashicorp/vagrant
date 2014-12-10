@@ -189,6 +189,42 @@ describe Vagrant::Plugin::V2::Manager do
     expect(instance.provider_configs[:bar]).to eq("bar")
   end
 
+  it "should enumerate registered push classes" do
+    pA = plugin do |p|
+      p.push("foo") { "bar" }
+    end
+
+    pB = plugin do |p|
+      p.push("bar", foo: "bar") { "baz" }
+    end
+
+    instance.register(pA)
+    instance.register(pB)
+
+    expect(instance.pushes.to_hash.length).to eq(2)
+    expect(instance.pushes[:foo]).to eq(["bar", nil])
+    expect(instance.pushes[:bar]).to eq(["baz", { foo: "bar" }])
+  end
+
+  it "provides the collection of registered push configs" do
+    pA = plugin do |p|
+      p.config("foo", :push) { "foo" }
+    end
+
+    pB = plugin do |p|
+      p.config("bar", :push) { "bar" }
+      p.config("baz") { "baz" }
+    end
+
+    instance.register(pA)
+    instance.register(pB)
+
+    expect(instance.push_configs.to_hash.length).to eq(2)
+    expect(instance.push_configs[:foo]).to eq("foo")
+    expect(instance.push_configs[:bar]).to eq("bar")
+  end
+
+
   it "should enumerate all registered synced folder implementations" do
     pA = plugin do |p|
       p.synced_folder("foo") { "bar" }

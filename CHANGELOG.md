@@ -15,6 +15,7 @@ FEATURES:
       providers are chosen before later ones. [GH-3812]
   - If the default insecure keypair is used, Vagrant will automatically replace
       it with a randomly generated keypair on first `vagrant up`. [GH-2608]
+  - Vagrant Login is now part of Vagrant core
   - Chef Zero provisioner: Use Chef 11's "local" mode to run recipes against an
       in-memory Chef Server
   - Chef Apply provisioner: Specify inline Chef recipes and recipe snippets

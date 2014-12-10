@@ -147,7 +147,7 @@ module Vagrant
         #   element is an authenticated URL.
         # @param [Hash] env
         # @param [Bool] expanded True if the metadata URL was expanded with
-        #   a Vagrant Cloud server URL.
+        #   a Atlas server URL.
         def add_from_metadata(url, env, expanded)
           original_url = env[:box_url]
           provider = env[:box_provider]

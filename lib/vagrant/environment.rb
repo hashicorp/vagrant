@@ -539,6 +539,41 @@ module Vagrant
       end
     end
 
+    # This executes the push with the given name, raising any exceptions that
+    # occur.
+    #
+    # Precondition: the push is not nil and exists.
+    def push(name)
+      @logger.info("Getting push: #{name}")
+
+      name = name.to_sym
+
+      pushes = self.vagrantfile.config.push.__compiled_pushes
+      if !pushes.key?(name)
+        raise Vagrant::Errors::PushStrategyNotDefined,
+          name: name,
+          pushes: pushes.keys
+      end
+
+      strategy, config = pushes[name]
+      push_registry = Vagrant.plugin("2").manager.pushes
+      klass, _ = push_registry.get(strategy)
+      if klass.nil?
+        raise Vagrant::Errors::PushStrategyNotLoaded,
+          name: strategy,
+          pushes: push_registry.keys
+      end
+
+      klass.new(self, config).push
+    end
+
+    # The list of pushes defined in this Vagrantfile.
+    #
+    # @return [Array<Symbol>]
+    def pushes
+      self.vagrantfile.config.push.__compiled_pushes.keys
+    end
+
     # This returns a machine with the proper provider for this environment.
     # The machine named by `name` must be in this environment.
     #

@@ -23,7 +23,7 @@ Today, there are two different components:
   box file and so on.
 
 * Box Catalog Metadata - This is a JSON document (typically exchanged
-  during interactions with [Vagrant Cloud](https://vagrantcloud.com))
+  during interactions with [HashiCorp's Atlas](https://atlas.hashicorp.com))
   that specifies the name of the box, a description, available
   versions, available providers, and URLs to the actual box files
   (next component) for each provider and version. If this catalog
@@ -78,8 +78,8 @@ providers from a single file, and more.
 
 <div class="alert alert-block alert-info">
 <strong>You don't need to manually make the metadata.</strong> If you
-have an account with <a href="https://vagrantcloud.com">Vagrant Cloud</a>, you
-can create boxes there, and Vagrant Cloud automatically creates
+have an account with <a href="https://atlas.hashicorp.com">HashiCorp's Atlas</a>, you
+can create boxes there, and HashiCorp's Atlas automatically creates
 the metadata for you. The format is still documented here.
 </div>
 

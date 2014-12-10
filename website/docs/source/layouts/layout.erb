@@ -288,6 +288,17 @@
 								</ul>
 								<% end %>
 
+								<li<%= sidebar_current("push") %>><a href="/v2/push/index.html">Push</a></li>
+
+								<% if sidebar_section == "push" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("push-atlas") %>><a href="/v2/push/atlas.html">Atlas</a></li>
+									<li<%= sidebar_current("push-ftp") %>><a href="/v2/push/ftp.html">FTP / SFTP</a></li>
+									<li<%= sidebar_current("push-heroku") %>><a href="/v2/push/heroku.html">Heroku</a></li>
+									<li<%= sidebar_current("push-local-exec") %>><a href="/v2/push/local-exec.html">Local Exec</a></li>
+								</ul>
+								<% end %>
+
 								<li<%= sidebar_current("other") %>><a href="/v2/other/index.html">Other</a></li>
 
 								<% if sidebar_section == "other" %>

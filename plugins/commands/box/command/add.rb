@@ -47,7 +47,7 @@ module VagrantPlugins
             end
 
             o.separator ""
-            o.separator "The box descriptor can be the name of a box on Vagrant Cloud,"
+            o.separator "The box descriptor can be the name of a box on HashiCorp's Atlas,"
             o.separator "or a URL, or a local .box file, or a local .json file containing"
             o.separator "the catalog metadata."
             o.separator ""

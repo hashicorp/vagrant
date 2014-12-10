@@ -8,7 +8,7 @@ sidebar_current: "cli-login"
 **Command: `vagrant login`**
 
 The login command is used to authenticate with a
-[Vagrant Cloud](https://vagrantcloud.com) server. Logging is only
+[HashiCorp's Atlas](https://atlas.hashicorp.com) server. Logging is only
 necessary if you're accessing protected boxes or using
 [Vagrant Share](/v2/share/index.html).
 
