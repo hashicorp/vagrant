@@ -12,17 +12,14 @@ describe VagrantPlugins::AtlasPush::Config do
 
   let(:machine) { double("machine") }
 
+  before do
+    subject.token = "foo"
+  end
+
   describe "#address" do
     it "defaults to nil" do
       subject.finalize!
       expect(subject.address).to be(nil)
-    end
-  end
-
-  describe "#token" do
-    it "defaults to nil" do
-      subject.finalize!
-      expect(subject.token).to be(nil)
     end
   end
 
