@@ -85,7 +85,7 @@ module VagrantPlugins
         errors = _detected_errors
 
         if missing?(@token)
-          token = token_from_vagrant_login(machine.env) || ENV["ATLAS_TOKEN"]
+          token = token_from_vagrant_login(machine.env)
           if missing?(token)
             errors << I18n.t("atlas_push.errors.missing_token")
           else
