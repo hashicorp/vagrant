@@ -75,10 +75,7 @@ module VagrantPlugins
         false
       rescue RestClient::NotAcceptable => e
         begin
-          errors = JSON.parse(e.response)["errors"]
-            .map { |h| h["message"] }
-            .join("\n")
-
+          errors = JSON.parse(e.response)["errors"].join("\n")
           raise Errors::ServerError, errors: errors
         rescue JSON::ParserError; end
 
