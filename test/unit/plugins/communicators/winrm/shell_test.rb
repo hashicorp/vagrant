@@ -1,14 +1,23 @@
 require File.expand_path("../../../../base", __FILE__)
 
 require Vagrant.source_root.join("plugins/communicators/winrm/shell")
+require Vagrant.source_root.join("plugins/communicators/winrm/config")
 
 describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   include_context "unit"
 
   let(:session) { double("winrm_session") }
+  let(:port) { config.transport == :ssl ? 5986 : 5985 }
+  let(:config)  {
+    VagrantPlugins::CommunicatorWinRM::Config.new.tap do |c|
+      c.username = 'username'
+      c.password = 'password'
+      c.finalize!
+    end
+  }
 
   subject do
-    described_class.new('localhost', 'username', 'password').tap do |comm|
+    described_class.new('localhost', port, config).tap do |comm|
       allow(comm).to receive(:new_session).and_return(session)
     end
   end
@@ -42,8 +51,22 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   end
 
   describe ".endpoint" do
-    it "should create winrm endpoint address" do
-      expect(subject.send(:endpoint)).to eq("http://localhost:5985/wsman")
+    context 'when transport is :ssl' do
+      let(:config)  {
+        VagrantPlugins::CommunicatorWinRM::Config.new.tap do |c|
+          c.transport = :ssl
+          c.finalize!
+        end
+      }
+      it "should create winrm endpoint address using https" do
+        expect(subject.send(:endpoint)).to eq("https://localhost:5986/wsman")
+      end
+    end
+
+    context "when transport is :plaintext" do
+      it "should create winrm endpoint address using http" do
+        expect(subject.send(:endpoint)).to eq("http://localhost:5985/wsman")
+      end
     end
   end
 
@@ -51,7 +74,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     it "should create endpoint options" do
       expect(subject.send(:endpoint_options)).to eq(
         { user: "username", pass: "password", host: "localhost", port: 5985,
-          operation_timeout: 60, basic_auth_only: true })
+          basic_auth_only: true, no_ssl_peer_verification: false })
     end
   end
 
