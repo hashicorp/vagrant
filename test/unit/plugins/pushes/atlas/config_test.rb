@@ -73,13 +73,9 @@ describe VagrantPlugins::AtlasPush::Config do
         before do
           allow(subject).to receive(:token_from_vagrant_login)
             .and_return("token_from_vagrant_login")
-
-          allow(ENV).to receive(:[]).and_call_original
-          allow(ENV).to receive(:[])
-            .with("ATLAS_TOKEN").and_return("token_from_env")
         end
 
-        it "uses the token in the Vagrantfile" do
+        it "uses the token from vagrant-login" do
           subject.token = ""
           subject.finalize!
           expect(errors).to be_empty
@@ -87,32 +83,10 @@ describe VagrantPlugins::AtlasPush::Config do
         end
       end
 
-      context "when ATLAS_TOKEN is set in the environment" do
-        before do
-          allow(subject).to receive(:token_from_vagrant_login)
-            .and_return(nil)
-
-          allow(ENV).to receive(:[]).and_call_original
-          allow(ENV).to receive(:[])
-            .with("ATLAS_TOKEN").and_return("token_from_env")
-        end
-
-        it "uses the token in the environment" do
-          subject.token = ""
-          subject.finalize!
-          expect(errors).to be_empty
-          expect(subject.token).to eq("token_from_env")
-        end
-      end
-
       context "when a token is given in the Vagrantfile" do
         before do
           allow(subject).to receive(:token_from_vagrant_login)
             .and_return("token_from_vagrant_login")
-
-          allow(ENV).to receive(:[]).and_call_original
-          allow(ENV).to receive(:[])
-            .with("ATLAS_TOKEN").and_return("token_from_env")
         end
 
         it "uses the token in the Vagrantfile" do
@@ -127,10 +101,6 @@ describe VagrantPlugins::AtlasPush::Config do
         before do
           allow(subject).to receive(:token_from_vagrant_login)
             .and_return(nil)
-
-          allow(ENV).to receive(:[]).and_call_original
-          allow(ENV).to receive(:[])
-            .with("ATLAS_TOKEN").and_return(nil)
         end
 
         it "returns an error" do
