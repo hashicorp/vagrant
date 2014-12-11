@@ -169,13 +169,17 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       n = subject.networks
       expect(n.length).to eq(2)
 
-      # WinRM HTTP
-      network = find_network("winrm")
-      # expect(n[0][0]).to eq(:forwarded_port)
-      expect(network[:guest]).to eq(5985)
-      expect(network[:host]).to eq(55985)
-      expect(network[:host_ip]).to eq("127.0.0.1")
-      expect(network[:id]).to eq("winrm")
+      expect(n[0][0]).to eq(:forwarded_port)
+      expect(n[0][1][:guest]).to eq(5985)
+      expect(n[0][1][:host]).to eq(55985)
+      expect(n[0][1][:host_ip]).to eq("127.0.0.1")
+      expect(n[0][1][:id]).to eq("winrm")
+
+      expect(n[1][0]).to eq(:forwarded_port)
+      expect(n[1][1][:guest]).to eq(5986)
+      expect(n[1][1][:host]).to eq(55986)
+      expect(n[1][1][:host_ip]).to eq("127.0.0.1")
+      expect(n[1][1][:id]).to eq("winrm-ssl")
     end
 
     it "allows overriding SSH" do
