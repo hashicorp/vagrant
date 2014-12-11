@@ -27,7 +27,7 @@ $ vagrant box add hashicorp/precise32
 ```
 
 This will download the box named "hashicorp/precise32" from
-[HashiCorp's Atlas](https://atlas.hashicorp.com), a place where you can find
+[HashiCorp's Atlas box catalog](https://atlas.hashicorp.com/boxes/search), a place where you can find
 and host boxes. While it is easiest to download boxes from HashiCorp's Atlas
 you can also add boxes from a local file, custom URL, etc.
 
@@ -64,7 +64,7 @@ For the remainder of this getting started guide, we'll only use the
 this getting started guide, the first question you'll probably have is
 "where do I find more boxes?"
 
-The best place to find more boxes is [HashiCorp's Atlas](https://atlas.hashicorp.com).
+The best place to find more boxes is [HashiCorp's Atlas box catalog](https://atlas.hashicorp.com/boxes/search).
 HashiCorp's Atlas has a public directory of freely available boxes that
 run various platforms and technologies. HashiCorp's Atlas also has a great search
 feature to allow you to find the box you care about.

@@ -26,10 +26,10 @@ This adds a box with the given address to Vagrant. The address can be
 one of three things:
 
 * A shorthand name from the
-[public catalog of available Vagrant images](https://atlas.hashicorp.com),
+[public catalog of available Vagrant images](https://atlas.hashicorp.com/boxes/search),
 such as "hashicorp/precise64".
 
-* File path or HTTP URL to a box in a [catalog](https://atlas.hashicorp.com).
+* File path or HTTP URL to a box in a [catalog](https://atlas.hashicorp.com/boxes/search).
 For HTTP, basic authentication is supported and `http_proxy` environmental
 variables are respected. HTTPS is also supported.
 
