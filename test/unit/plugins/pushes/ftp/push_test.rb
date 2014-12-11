@@ -9,7 +9,7 @@ describe VagrantPlugins::FTPPush::Push do
   let(:env) { isolated_environment }
   let(:config) do
     double("config",
-      host:        "127.0.0.1:21212",
+      host:        "127.0.0.1:51234",
       username:    "sethvargo",
       password:    "bacon",
       passive:     false,
@@ -22,7 +22,7 @@ describe VagrantPlugins::FTPPush::Push do
 
   describe "#push" do
     before(:all) do
-      @server = FakeFtp::Server.new(21212, 21213)
+      @server = FakeFtp::Server.new(51234, 21213)
       @server.start
 
       @dir = Dir.mktmpdir
