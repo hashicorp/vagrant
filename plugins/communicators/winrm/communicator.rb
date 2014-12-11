@@ -106,11 +106,8 @@ module VagrantPlugins
 
         WinRMShell.new(
           winrm_info[:host],
-          @machine.config.winrm.username,
-          @machine.config.winrm.password,
-          port: winrm_info[:port],
-          timeout_in_seconds: @machine.config.winrm.timeout,
-          max_tries: @machine.config.winrm.max_tries,
+          winrm_info[:port],
+          @machine.config.winrm
         )
       end
 
