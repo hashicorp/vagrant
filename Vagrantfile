@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.push.define "docs", strategy: "local-exec" do |push|
-    push.script = "scripts/website_push_www.sh"
+    push.script = "scripts/website_push_docs.sh"
   end
 end
 
