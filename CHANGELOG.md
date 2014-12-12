@@ -1,6 +1,9 @@
 ## 1.7.2 (unreleased)
 
+BUG FIXES:
 
+  - core: private boxes still referencing vagrantcloud.com will have
+      their vagrant login access token properly appended.
 
 ## 1.7.1 (December 11, 2014)
 
