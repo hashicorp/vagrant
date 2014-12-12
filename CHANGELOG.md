@@ -1,3 +1,9 @@
+## 1.7.1 (December 11, 2014)
+
+IMPROVEMENTS:
+
+  - provisioners/ansible: Use Docker proxy if needed. [GH-4906]
+
 ## 1.7.0 (December 9, 2014)
 
 BREAKING CHANGES:
