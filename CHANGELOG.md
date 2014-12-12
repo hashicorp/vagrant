@@ -102,6 +102,7 @@ BUG FIXES:
   - provisioners/ansible: Force `ssh` (OpenSSH) connection by default [GH-3396]
   - provisioners/ansible: Don't use or modify `~/.ssh/known_hosts` file by default,
       similarly to native vagrant commands [GH-3900]
+  - provisioners/ansible: Use intermediate Docker host when needed. [GH-4071]
   - provisioners/docker: Get GPG key over SSL. [GH-4597]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
   - provisioners/salt: Highstate works properly with a master. [GH-4471]
