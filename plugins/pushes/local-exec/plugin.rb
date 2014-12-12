@@ -8,13 +8,13 @@ module VagrantPlugins
       Run a local command or script to push
       DESC
 
-      config(:local_exec, :push) do
+      config(:"local-exec", :push) do
         require File.expand_path("../config", __FILE__)
         init!
         Config
       end
 
-      push(:local_exec) do
+      push(:"local-exec") do
         require File.expand_path("../push", __FILE__)
         init!
         Push
