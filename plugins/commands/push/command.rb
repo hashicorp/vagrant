@@ -55,13 +55,14 @@ module VagrantPlugins
           end
         end
 
+        name = name.to_sym
         if !pushes.include?(name)
           raise Vagrant::Errors::PushStrategyNotDefined,
-            name: name,
-            pushes: pushes
+            name: name.to_s,
+            pushes: pushes.map(&:to_s)
         end
 
-        return name.to_sym
+        return name
       end
     end
   end
