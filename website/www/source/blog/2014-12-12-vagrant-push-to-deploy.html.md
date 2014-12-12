@@ -6,12 +6,12 @@ author_url: https://github.com/mitchellh
 ---
 
 Vagrant 1.7 comes with a new command: `vagrant push`. Just as "vagrant up"
-creates a development environment for any application, `vagrant push` is
-a single command to _deploy_ any application.
+is a single command to create a development environment for any application,
+`vagrant push` is a single command to _deploy_ any application.
 
 The goal of Vagrant is to give developers a single workflow to develop
-applications effectively. "vagrant up" creates a development for any
-applications, "vagrant share" enables collaboration for any application.
+applications effectively. "vagrant up" creates a development environment for any
+application and "vagrant share" enables collaboration for any application.
 Deploying was the next logical step for Vagrant, now possible with
 "vagrant push".
 
@@ -52,13 +52,17 @@ $ vagrant push
 ...
 ```
 
-Multiple `config.push.define` declarations can be in a Vagrantfile to
+The "ftp" in the configuration above defines the strategy Vagrant will
+use to push. Below, we cover strategies in more detail.
+
+Additionally, multiple `config.push.define` declarations can be in a Vagrantfile to
 define multiple pushes, perhaps one to staging and one to production, for
-example.
+example. To learn more about multiple push definitions,
+[read the complete documentation](https://docs.vagrantup.com/v2/push/index.html).
 
 ### A Single Command
 
-The biggest benefit of Vagrant Push is defining a single command
+The biggest benefit of Vagrant Push is being able to define a single command
 to deploy any application. Whether the deploy process is complex or
 is just a simple push to Heroku, developers only need to know that any
 application within their organizations can be deployed with `vagrant push`.
@@ -70,9 +74,9 @@ automatically configure your Git remote so the push works. Prior to this,
 you'd at least have to know the Heroku application name and configure
 your local repository to be able to push to it.
 
-Of course, not applications stay that simple, and if your application
+Of course, not all applications stay that simple, and if your application
 outgrows Heroku, then the deploy process doesn't change with Vagrant:
-`vagrant push`, to deploy any application.
+`vagrant push` to deploy any application.
 
 ### Push Strategies
 
