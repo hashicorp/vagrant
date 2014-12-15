@@ -51,7 +51,8 @@ module VagrantPlugins
           if pushes.length == 1
             return pushes.first.to_sym
           else
-            raise Vagrant::Errors::PushStrategyNotProvided, pushes: pushes
+            raise Vagrant::Errors::PushStrategyNotProvided,
+              pushes: pushes.map(&:to_s)
           end
         end
 
