@@ -17,6 +17,7 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
 
   before do
     allow(Vagrant).to receive(:server_url).and_return(server_url)
+    stub_env("ATLAS_TOKEN" => nil)
   end
 
   describe "#call" do
