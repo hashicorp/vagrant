@@ -243,7 +243,7 @@ en:
       Press ctrl-c now to exit if you want to remove some boxes or free
       up some disk space.
 
-      Press any other key to continue.
+      Press the Enter or Return key to continue.
     version_current: |-
       Installed Version: %{version}
     version_latest: |-
