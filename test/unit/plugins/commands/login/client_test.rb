@@ -5,19 +5,12 @@ require Vagrant.source_root.join("plugins/commands/login/command")
 describe VagrantPlugins::LoginCommand::Client do
   include_context "unit"
 
-  def stub_env(key, value = nil)
-    allow(ENV).to receive(:[]).and_call_original
-    allow(ENV).to receive(:[])
-      .with(key)
-      .and_return(value)
-  end
-
   let(:env) { isolated_environment.create_vagrant_env }
 
   subject { described_class.new(env) }
 
   before do
-    stub_env("ATLAS_TOKEN", nil)
+    stub_env("ATLAS_TOKEN" => nil)
     subject.clear_token
   end
 
@@ -101,7 +94,7 @@ describe VagrantPlugins::LoginCommand::Client do
 
   describe "#token" do
     it "reads ATLAS_TOKEN" do
-      stub_env("ATLAS_TOKEN", "ABCD1234")
+      stub_env("ATLAS_TOKEN" => "ABCD1234")
       expect(subject.token).to eq("ABCD1234")
     end
 
@@ -111,7 +104,7 @@ describe VagrantPlugins::LoginCommand::Client do
     end
 
     it "prefers the environment variable" do
-      stub_env("ATLAS_TOKEN", "ABCD1234")
+      stub_env("ATLAS_TOKEN" => "ABCD1234")
       subject.store_token("EFGH5678")
       expect(subject.token).to eq("ABCD1234")
     end
