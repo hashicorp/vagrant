@@ -1,15 +1,16 @@
 ## 1.7.2 (unreleased)
 
+FEATURES:
+
+  - provisioners/salt: add support for grains [GH-4895]
+
 BUG FIXES:
 
   - core: private boxes still referencing vagrantcloud.com will have
       their vagrant login access token properly appended
-  - push: push lookups are by user-defined name, not push strategy name [GH-4975]
+  - commands/push: push lookups are by user-defined name, not push 
+      strategy name [GH-4975]
   - guests/arch: fix network configuration due to poor line breaks. [GH-4964]
-
-FEATURES:
-
-  - provisioners/salt: add support for grains [GH-4895]
 
 ## 1.7.1 (December 11, 2014)
 
