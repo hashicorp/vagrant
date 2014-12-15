@@ -9,7 +9,7 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::communication::filemanager")
         @shell = shell
       end
-      
+
       # Uploads the given file or directory from the host to the guest (recursively).
       #
       # @param [String] The source file or directory path on the host
@@ -30,7 +30,7 @@ module VagrantPlugins
       # @param [String] The destination file path on the host
       def download(guest_src_file_path, host_dest_file_path)
         @logger.debug("#{guest_src_file_path} -> #{host_dest_file_path}")
-        
+
         output = @shell.powershell("[System.convert]::ToBase64String([System.IO.File]::ReadAllBytes(\"#{guest_src_file_path}\"))")
         contents = output[:data].map!{|line| line[:stdout]}.join.gsub("\\n\\r", '')
         out = Base64.decode64(contents)
@@ -72,13 +72,18 @@ module VagrantPlugins
       def upload_to_temp_file(host_src_file_path)
         tmp_file_path = File.join(guest_temp_dir, "winrm-upload-#{rand()}")
         @logger.debug("Uploading '#{host_src_file_path}' to temp file '#{tmp_file_path}'")
-        
+
         base64_host_file = Base64.encode64(IO.binread(host_src_file_path)).gsub("\n",'')
-        base64_host_file.chars.to_a.each_slice(8000-tmp_file_path.size) do |chunk|
-          out = @shell.cmd("echo #{chunk.join} >> \"#{tmp_file_path}\"")
+        if base64_host_file.empty?
+          out = @shell.powershell("New-Item #{tmp_file_path} -type file")
           raise_upload_error_if_failed(out, host_src_file_path, tmp_file_path)
+        else
+          base64_host_file.chars.to_a.each_slice(8000-tmp_file_path.size) do |chunk|
+            out = @shell.cmd("echo #{chunk.join} >> \"#{tmp_file_path}\"")
+            raise_upload_error_if_failed(out, host_src_file_path, tmp_file_path)
+          end
         end
-        
+
         tmp_file_path
       end
 
@@ -102,8 +107,12 @@ module VagrantPlugins
           }
 
           $base64_string = Get-Content $tmp_file_path
-          $bytes = [System.Convert]::FromBase64String($base64_string) 
-          [System.IO.File]::WriteAllBytes($dest_file_path, $bytes)
+          if ($base64_string -eq $null) {
+            New-Item -ItemType file $dest_file_path
+          } else {
+            $bytes = [System.Convert]::FromBase64String($base64_string)
+            [System.IO.File]::WriteAllBytes($dest_file_path, $bytes)
+          }
         EOH
         raise_upload_error_if_failed(out, guest_tmp_file_path, guest_dest_file_path)
       end
