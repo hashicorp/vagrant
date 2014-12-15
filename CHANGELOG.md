@@ -8,9 +8,11 @@ BUG FIXES:
 
   - core: private boxes still referencing vagrantcloud.com will have
       their vagrant login access token properly appended
-  - commands/push: push lookups are by user-defined name, not push 
+  - commands/push: push lookups are by user-defined name, not push
       strategy name [GH-4975]
   - guests/arch: fix network configuration due to poor line breaks. [GH-4964]
+  - provisioners/chef: remove Chef version check from solo.rb generation and
+      make `roles_path` populate correctly
 
 ## 1.7.1 (December 11, 2014)
 
