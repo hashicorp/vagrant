@@ -1,7 +1,7 @@
 module VagrantPlugins
   module Chef
     module Omnibus
-      OMNITRUCK = "https://www.getchef.com/chef/install.sh".freeze
+      OMNITRUCK = "https://www.chef.io/chef/install.sh".freeze
 
       # Read more about the Omnibus installer here:
       # https://docs.getchef.com/install_omnibus.html
