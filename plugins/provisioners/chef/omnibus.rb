@@ -5,10 +5,10 @@ module VagrantPlugins
 
       # Read more about the Omnibus installer here:
       # https://docs.getchef.com/install_omnibus.html
-      def build_command(version, prerelease = false)
+      def build_command(version, prerelease = false, download_path = nil)
         command = "curl -sL #{OMNITRUCK} | sudo bash"
 
-        if prerelease || version != :latest
+        if prerelease || version != :latest || download_path != nil
           command << " -s --"
         end
 
@@ -18,6 +18,10 @@ module VagrantPlugins
 
         if version != :latest
           command << " -v \"#{version}\""
+        end
+
+        if download_path
+          command << " -d \"#{download_path}\""
         end
 
         command
