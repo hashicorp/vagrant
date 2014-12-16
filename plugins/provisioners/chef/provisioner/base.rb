@@ -29,6 +29,7 @@ module VagrantPlugins
             force:      config.install == :force,
             version:    config.version,
             prerelease: config.prerelease,
+            download_path:  config.installer_download_path
           )
           installer.ensure_installed
         end
