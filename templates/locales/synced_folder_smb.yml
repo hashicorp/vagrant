@@ -28,7 +28,9 @@ en:
         host.
 
         As another option, you can manually specify an IP for the machine
-        to mount from using the `smb_host` option to the synced folder.
+        to mount from using the `smb_host` option to the synced folder. This
+        is mandatory if the host system is not Windows because the detection
+        of the host IP address is not supported yet on non-Windows hosts.
       powershell_error: |-
         An error occurred while executing a PowerShell script. This error
         is shown below. Please read the error message and see if this is
@@ -48,7 +50,10 @@ en:
         privileges. This is a limitation of Windows, since creating new
         network shares requires admin privileges. Please try again in a
         console with proper permissions or use another synced folder type.
-      windows_host_required: |-
-        SMB shared folders are only available when Vagrant is running
-        on Windows. The guest machine can be running non-Windows. Please use
-        another synced folder type.
+      smb_id_required: |-
+        SMB shared folders require a unique identifier in the 'smb_id'
+        configuration key when the host system is not Windows. The identifier
+        must be equal to the name of the SMB share under which the shared folder
+        is available. Please provide this key for the following shared folder:
+
+        %{id}
