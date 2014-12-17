@@ -373,6 +373,10 @@ module VagrantPlugins
           @usable_port_range = (2200..2250)
         end
 
+        if @allowed_synced_folder_types
+          @allowed_synced_folder_types = Array(@allowed_synced_folder_types).map(&:to_sym)
+        end
+
         # Make sure that the download checksum is a string and that
         # the type is a symbol
         @box_download_checksum = "" if !@box_download_checksum
