@@ -27,6 +27,11 @@ their purpose.
     - `"force"` (string) - install Chef, even if it is already installed at the
       proper version on the guest
 
+- `installer_download_path` (string) - The path where the Chef installer will be
+  downloaded to. This option is only honored if the `install` attribute is
+  `true` or `"force"`. The default value is to use the path provided by Chef's
+  Omnibus installer, which varies between releases.
+
 - `log_level` (string) - The Chef log level. See the Chef docs for acceptable
   values.
 
