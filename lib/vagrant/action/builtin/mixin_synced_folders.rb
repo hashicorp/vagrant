@@ -27,9 +27,11 @@ module Vagrant
 
           allowed_types = machine.config.vm.allowed_synced_folder_types
           if allowed_types
-            ordered = ordered.select do |_, key, impl|
-              allowed_types.include? key
-            end
+            ordered = allowed_types.map do |type|
+              ordered.find do |_, key, impl|
+                key == type
+              end
+            end.compact
           end
 
           # Find the proper implementation

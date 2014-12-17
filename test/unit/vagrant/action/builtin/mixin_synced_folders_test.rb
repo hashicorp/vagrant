@@ -53,6 +53,22 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       result = subject.default_synced_folder_type(machine, plugins)
       expect(result).to eq("good")
     end
+
+    it "reprioritizes based on allowed_synced_folder_types" do
+      plugins = {
+        "bad" => [impl(false, "bad"), 0],
+        "good" => [impl(true, "good"), 1],
+        "same" => [impl(true, "same"), 1],
+      }
+
+      expect(vm_config).to receive(:allowed_synced_folder_types).and_return(["good", "same"])
+      result = subject.default_synced_folder_type(machine, plugins)
+      expect(result).to eq("good")
+
+      expect(vm_config).to receive(:allowed_synced_folder_types).and_return(["same", "good"])
+      result = subject.default_synced_folder_type(machine, plugins)
+      expect(result).to eq("same")
+    end
   end
 
   describe "impl_opts" do
