@@ -14,6 +14,7 @@ module VagrantPlugins
     class VMConfig < Vagrant.plugin("2", :config)
       DEFAULT_VM_NAME = :default
 
+      attr_accessor :allowed_synced_folder_types
       attr_accessor :base_mac
       attr_accessor :boot_timeout
       attr_accessor :box
@@ -36,6 +37,7 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
+        @allowed_synced_folder_types  = UNSET_VALUE
         @base_mac                     = UNSET_VALUE
         @boot_timeout                 = UNSET_VALUE
         @box                          = UNSET_VALUE
@@ -347,6 +349,7 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @allowed_synced_folder_types = nil if @allowed_synced_folder_types == UNSET_VALUE
         @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box = nil if @box == UNSET_VALUE
