@@ -252,6 +252,32 @@ letter-spacing: 5px;
   a:hover {
     color: @white;
   }
+	&.next-button,
+	&.prev-button {
+		max-width: 33%;
+		white-space: nowrap;
+	}
+	&.next-button {
+		float: right;
+		&:before {
+			content: "Next:";
+			display: inline-block;
+			padding-right: 3px;
+		}
+		&:after {
+			content: "\00BB";
+			display: inline-block;
+			padding-left: 3px;
+		}
+	}
+	&.prev-button {
+		float: left;
+		&:before {
+			content: "\00AB\0020Previous: ";
+			display: inline-block;
+			padding-right: 3px;
+		}
+	}
 }
 
 &.white-button {
