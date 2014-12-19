@@ -72,3 +72,6 @@ feature to allow you to find the box you care about.
 In addition to finding free boxes, HashiCorp's Atlas lets you host your own
 boxes, as well as private boxes if you intend on creating boxes for your
 own organization.
+
+<a href="/v2/getting-started/project_setup.html" class="button inline-button prev-button">Project Setup</a>
+<a href="/v2/getting-started/up.html" class="button inline-button next-button">Up And SSH</a>
