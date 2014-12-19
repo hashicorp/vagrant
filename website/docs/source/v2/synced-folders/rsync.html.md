@@ -43,21 +43,21 @@ the destination folder.
 
 The rsync synced folder type accepts the following options:
 
-* `rsync__args` (array of strings) - A list of arguments to supply
+* `rsync_args` (array of strings) - A list of arguments to supply
   to `rsync`. By default this is `["--verbose", "--archive", "--delete", "-z"]`.
 
-* `rsync__auto` (boolean) - If false, then `rsync-auto` will not
+* `rsync_auto` (boolean) - If false, then `rsync-auto` will not
   watch and automatically sync this folder. By default, this is true.
 
-* `rsync__chown` (boolean) - If false, then the
+* `rsync_chown` (boolean) - If false, then the
   [`owner` and `group`](/v2/synced-folders/basic_usage.html)
   options for the synced folder are ignored and Vagrant won't execute
   a recursive `chown`. This defaults to true. This option exists because
   the `chown` causes issues for some development environments. Note that
-  any `rsync__args` options for ownership **will be overridden** by
-  `rsync__chown`.
+  any `rsync_args` options for ownership **will be overridden** by
+  `rsync_chown`.
 
-* `rsync__exclude` (string or array of strings) - A list of files or directories
+* `rsync_exclude` (string or array of strings) - A list of files or directories
   to exclude from the sync. The values can be any acceptable rsync exclude
   pattern. By default, the ".vagrant/" directory is excluded. We recommend
   excluding revision control directories such as ".git/" as well.
@@ -69,7 +69,7 @@ The following is an example of using RSync to sync a folder:
 <pre class="prettyprint">
 Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", type: "rsync",
-    rsync__exclude: ".git/"
+    rsync_exclude: ".git/"
 end
 </pre>
 
@@ -81,7 +81,7 @@ permissions, use `"--rsync-path='sudo rsync'"` to run rsync with sudo on the gue
 <pre class="prettyprint">
 Vagrant.configure("2") do |config|
   config.vm.synced_folder "bin", "/usr/local/bin", type: "rsync",
-    rsync__exclude: ".git/"
-    rsync__args: ["--verbose", "--rsync-path='sudo rsync'", "--archive", "--delete", "-z"]
+    rsync_exclude: ".git/"
+    rsync_args: ["--verbose", "--rsync-path='sudo rsync'", "--archive", "--delete", "-z"]
 end
 </pre>
