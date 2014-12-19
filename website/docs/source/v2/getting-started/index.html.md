@@ -54,3 +54,5 @@ comfort of your own machine.
 
 The rest of this guide will walk you through setting up a more
 complete project, covering more features of Vagrant.
+
+<a href="/v2/getting-started/project_setup.html" class="button inline-button next-button">Project Setup</a>
