@@ -269,7 +269,7 @@ VF
         config.host_key_checking = true
       end
 
-      it_should_set_arguments_and_environment_variables 6, 3, true
+      it_should_set_arguments_and_environment_variables 5, 3, true
     end
 
     describe "with boolean (flag) options disabled" do
@@ -281,7 +281,7 @@ VF
         config.sudo_user = 'root'
       end
 
-      it_should_set_arguments_and_environment_variables 7
+      it_should_set_arguments_and_environment_variables 6
       it_should_set_optional_arguments({ "sudo_user" => "--sudo-user=root" })
 
       it "it does not set boolean flag when corresponding option is set to false" do
@@ -310,7 +310,7 @@ VF
                                 "--new-arg=yeah"]
       end
 
-      it_should_set_arguments_and_environment_variables 17, 4, false, "paramiko"
+      it_should_set_arguments_and_environment_variables 16, 4, false, "paramiko"
 
       it "sets all raw arguments" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -366,7 +366,7 @@ VF
         config.ask_vault_pass = true
       end
 
-      it_should_set_arguments_and_environment_variables 7
+      it_should_set_arguments_and_environment_variables 6
 
       it "should ask the vault password" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -380,7 +380,7 @@ VF
         config.vault_password_file = existing_file
       end
 
-      it_should_set_arguments_and_environment_variables 7
+      it_should_set_arguments_and_environment_variables 6
 
       it "uses the given vault password file" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -394,7 +394,7 @@ VF
         config.raw_ssh_args = ['-o ControlMaster=no', '-o ForwardAgent=no']
       end
 
-      it_should_set_arguments_and_environment_variables 6, 4
+      it_should_set_arguments_and_environment_variables 5, 4
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes custom SSH options via ANSIBLE_SSH_ARGS with the highest priority" do
@@ -428,7 +428,7 @@ VF
         ssh_info[:private_key_path] = ['/path/to/my/key', '/an/other/identity', '/yet/an/other/key']
       end
 
-      it_should_set_arguments_and_environment_variables 6, 4
+      it_should_set_arguments_and_environment_variables 5, 4
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes additional Identity Files via ANSIBLE_SSH_ARGS" do
@@ -445,7 +445,7 @@ VF
         ssh_info[:forward_agent] = true
       end
 
-      it_should_set_arguments_and_environment_variables 6, 4
+      it_should_set_arguments_and_environment_variables 5, 4
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "enables SSH-Forwarding via ANSIBLE_SSH_ARGS" do
@@ -474,7 +474,7 @@ VF
         config.verbose = 'v'
       end
 
-      it_should_set_arguments_and_environment_variables 7
+      it_should_set_arguments_and_environment_variables 6
       it_should_set_optional_arguments({ "verbose" => "-v" })
 
       it "shows the ansible-playbook command" do
@@ -512,7 +512,7 @@ VF
         config.raw_ssh_args = ['-o ControlMaster=no']
       end
 
-      it_should_set_arguments_and_environment_variables 20, 4, true
+      it_should_set_arguments_and_environment_variables 19, 4, true
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
       it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars=@#{File.expand_path(__FILE__)}",
                                           "sudo"                => "--sudo",
