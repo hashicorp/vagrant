@@ -242,7 +242,9 @@ module VagrantPlugins
 
       def sudo(command, opts=nil, &block)
         # Run `execute` but with the `sudo` option.
-        opts = { sudo: true }.merge(opts || {})
+        if not @machine.ssh_info[:privileged]
+          opts = { sudo: true }.merge(opts || {})
+        end
         execute(command, opts, &block)
       end
 
