@@ -17,7 +17,7 @@ since it is free, available on every major platform, and built-in to
 Vagrant. After reading the guide though, don't forget that Vagrant
 can work with [many other providers](/v2/getting-started/providers.html).
 
-Before diving into your first project, please [install Vagrant](/v2/installation/index.html).
+Before diving into your first project, please [install the latest version of Vagrant](/v2/installation/index.html).
 And because we'll be using [VirtualBox](http://www.virtualbox.org) as our
 provider for the getting started guide, please install that as well.
 
