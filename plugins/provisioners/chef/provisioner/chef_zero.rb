@@ -22,6 +22,10 @@ module VagrantPlugins
           share_folders(root_config, "csn", @node_folders)
         end
 
+        def provision
+          super(:zero)
+        end
+
         def solo_config
           super.merge(
             local_mode: true,
