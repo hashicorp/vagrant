@@ -24,6 +24,9 @@ module VagrantPlugins
           [file, destination]
         end]
 
+        ftp = "#{config.username}@#{config.host}:#{config.destination}"
+        env.ui.info "Uploading #{env.root_path} to #{ftp}"
+
         connect do |ftp|
           files.each do |local, remote|
             @logger.info "Uploading #{local} => #{remote}"
