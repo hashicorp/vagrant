@@ -54,8 +54,8 @@ describe VagrantPlugins::FTPPush::FTPAdapter do
   end
 
   describe "#default_port" do
-    it "is 20" do
-      expect(subject.default_port).to eq(20)
+    it "is 21" do
+      expect(subject.default_port).to eq(21)
     end
   end
 
