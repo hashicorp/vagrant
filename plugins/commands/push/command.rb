@@ -19,6 +19,11 @@ module VagrantPlugins
 
         name = validate_pushes!(@env.pushes, argv[0])
 
+        # Validate the configuration
+        @env.machine(@env.machine_names.first, @env.default_provider).action_raw(
+          :config_validate,
+          Vagrant::Action::Builtin::ConfigValidate)
+
         @logger.debug("'push' environment with strategy: `#{name}'")
         @env.push(name)
 

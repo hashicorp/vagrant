@@ -6,11 +6,14 @@ describe VagrantPlugins::CommandPush::Command do
   include_context "unit"
   include_context "command plugin helpers"
 
+  let(:iso_env) { isolated_environment }
   let(:env) do
-    isolated_environment.tap do |env|
-      env.vagrantfile("")
-      env.create_vagrant_env
-    end
+    iso_env.vagrantfile(<<-VF)
+Vagrant.configure("2") do |config|
+  config.vm.box = "nope"
+end
+VF
+    iso_env.create_vagrant_env
   end
 
   let(:argv)   { [] }
@@ -33,6 +36,17 @@ describe VagrantPlugins::CommandPush::Command do
     it "validates the pushes" do
       expect(subject).to receive(:validate_pushes!).once
       subject.execute
+    end
+
+    it "validates the configuration" do
+      iso_env.vagrantfile("")
+
+      subject = described_class.new(argv, iso_env.create_vagrant_env)
+      allow(subject).to receive(:validate_pushes!)
+        .and_return(:noop)
+
+      expect { subject.execute }.to raise_error(
+        Vagrant::Errors::ConfigInvalid)
     end
 
     it "delegates to Environment#push" do
