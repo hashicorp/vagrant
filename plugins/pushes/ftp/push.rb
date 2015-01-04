@@ -7,6 +7,7 @@ module VagrantPlugins
   module FTPPush
     class Push < Vagrant.plugin("2", :push)
       IGNORED_FILES = %w(. ..).freeze
+      DEFAULT_EXCLUDES = %w(.git .hg .svn .vagrant).freeze
 
       def push
         # Grab files early so if there's an exception or issue, we don't have to
@@ -62,7 +63,10 @@ module VagrantPlugins
       # @param [Array<String>] excludes
       #   the exclude patterns or files
       def filter_excludes!(list, excludes)
-        excludes = Array(excludes).flat_map { |e| [e, "#{e}/*"] }
+        excludes = Array(excludes)
+        excludes = excludes + DEFAULT_EXCLUDES
+        excludes = excludes.flat_map { |e| [e, "#{e}/*"] }
+
         list.reject! do |file|
           basename = relative_path_for(file, config.dir)
 
