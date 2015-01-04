@@ -93,34 +93,6 @@ describe VagrantPlugins::FTPPush::Push do
     end
   end
 
-  describe "#parse_host" do
-    let(:result) { subject.parse_host(host) }
-
-    context "when no port is given" do
-      let(:host) { "127.0.0.1" }
-
-      it "returns the url and port 22" do
-        expect(result).to eq(["127.0.0.1", "22"])
-      end
-    end
-
-    context "when a port is given" do
-      let(:host) { "127.0.0.1:23456" }
-
-      it "returns the url and port 23456" do
-        expect(result).to eq(["127.0.0.1", "23456"])
-      end
-    end
-
-    context "when more than more port is given" do
-      let(:host) { "127.0.0.1:22:33:44" }
-
-      it "returns the url and everything after" do
-        expect(result).to eq(["127.0.0.1", "22:33:44"])
-      end
-    end
-  end
-
   describe "#all_files" do
     before(:all) do
       @dir = Dir.mktmpdir

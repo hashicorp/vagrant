@@ -33,16 +33,6 @@ module VagrantPlugins
         ftp.connect(&block)
       end
 
-      # Parse the host into it's url and port parts.
-      # @return [Array]
-      def parse_host(host)
-        if host.include?(":")
-          host.split(":", 2)
-        else
-          [host, "22"]
-        end
-      end
-
       # The list of all files that should be pushed by this push. This method
       # only returns **files**, not folders or symlinks!
       # @return [Array<String>]
