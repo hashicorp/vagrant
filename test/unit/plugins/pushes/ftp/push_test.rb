@@ -20,6 +20,11 @@ describe VagrantPlugins::FTPPush::Push do
 
   subject { described_class.new(env, config) }
 
+  before do
+    allow(env).to receive(:root_path)
+      .and_return(File.expand_path("..", __FILE__))
+  end
+
   describe "#push" do
     before(:all) do
       @server = FakeFtp::Server.new(51234, 21213)
