@@ -50,7 +50,7 @@ module VagrantPlugins
       end
 
       def default_port
-        20
+        21
       end
 
       def connect(&block)
