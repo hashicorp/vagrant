@@ -9,6 +9,11 @@ module VagrantPlugins
       IGNORED_FILES = %w(. ..).freeze
       DEFAULT_EXCLUDES = %w(.git .hg .svn .vagrant).freeze
 
+      def initialize(*)
+        super
+        @logger = Log4r::Logger.new("vagrant::pushes::ftp")
+      end
+
       def push
         # Grab files early so if there's an exception or issue, we don't have to
         # wait and close the (S)FTP connection as well
@@ -20,6 +25,7 @@ module VagrantPlugins
 
         connect do |ftp|
           files.each do |local, remote|
+            @logger.info "Uploading #{local} => #{remote}"
             ftp.upload(local, remote)
           end
         end
