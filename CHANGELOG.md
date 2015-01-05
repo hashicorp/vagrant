@@ -14,6 +14,7 @@ BUG FIXES:
       strategy name [GH-4975]
   - commands/push: validate the configuration
   - guests/arch: fix network configuration due to poor line breaks. [GH-4964]
+  - providers/hyperv: VM start errors turn into proper Vagrant errors. [GH-5101]
   - provisioners/chef: remove Chef version check from solo.rb generation and
       make `roles_path` populate correctly
   - pushes/ftp: expand file paths relative to the Vagrantfile
