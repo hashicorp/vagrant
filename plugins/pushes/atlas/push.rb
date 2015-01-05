@@ -23,6 +23,7 @@ module VagrantPlugins
       # if we're on a system that doesn't support exec, so handle that properly.
       def execute(uploader)
         cmd = []
+        cmd << "-debug" if !Vagrant.log_level.nil?
         cmd << "-vcs" if config.vcs
         cmd += config.includes.map { |v| ["-include", v] }
         cmd += config.excludes.map { |v| ["-exclude", v] }
