@@ -10,7 +10,7 @@ module VagrantPlugins
       name "chef"
       description <<-DESC
       Provides support for provisioning your virtual machines with
-      Chef via `chef-solo`, `chef-client`, or `chef-apply`.
+      Chef via `chef-solo`, `chef-client`, `chef-zero` or `chef-apply`.
       DESC
 
       config(:chef_apply, :provisioner) do

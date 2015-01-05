@@ -8,7 +8,7 @@ sidebar_current: "provisioning-ansible"
 **Provisioner name: `"ansible"`**
 
 The ansible provisioner allows you to provision the guest using
-[Ansible](http://ansible.com) playbooks.
+[Ansible](http://ansible.com) playbooks by executing `ansible-playbook` from the Vagrant host.
 
 Ansible playbooks are [YAML](http://en.wikipedia.org/wiki/YAML) documents that
 comprise the set of steps to be orchestrated on one or more machines. This documentation
@@ -24,6 +24,11 @@ a single page of documentation.
     is a great way to learn Ansible.
   </p>
 </div>
+
+## Setup Requirements
+
+* [Install Ansible](http://docs.ansible.com/intro_installation.html#installing-the-control-machine) on your Vagrant host.
+* Your Vagrant host should ideally provide a recent version of OpenSSH that [supports ControlPersist](http://docs.ansible.com/faq.html#how-do-i-get-ansible-to-reuse-connections-enable-kerberized-ssh-or-have-ansible-pay-attention-to-my-local-ssh-config-file)
 
 ## Inventory File
 
@@ -191,11 +196,9 @@ by the sudo command.
 * `ansible.tags` can be set to a string or an array of tags. Only plays, roles and tasks tagged with these values will be executed.
 * `ansible.skip_tags` can be set to a string or an array of tags. Only plays, roles and tasks that *do not match* these values will be executed.
 * `ansible.start_at_task` can be set to a string corresponding to the task name where the playbook provision will start.
-* `ansible.raw_arguments` can be set to an array of strings corresponding to a list of `ansible-playbook` arguments (e.g. `['--check', '-M /my/modules']`). It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. Following precedence rules apply:
-  * Any supported options (described above) will override conflicting `raw_arguments` value (e.g. `--tags` or `--start-at-task`)
-  * Vagrant default user authentication can be overridden via `raw_arguments` (with custom values for `--user` and `--private-key`)
+* `ansible.raw_arguments` can be set to an array of strings corresponding to a list of `ansible-playbook` arguments (e.g. `['--check', '-M /my/modules']`). It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. As of Vagrant 1.7, `raw_arguments` has the highest priority and its values can potentially override or break other Vagrant settings.
 * `ansible.raw_ssh_args` can be set to an array of strings corresponding to a list of OpenSSH client parameters (e.g. `['-o ControlMaster=no']`). It is an *unsafe wildcard* that can be used to pass additional SSH settings to Ansible via `ANSIBLE_SSH_ARGS` environment variable.
-* `ansible.host_key_checking` can be set to `true` which will enable host key checking. As Vagrant 1.5, the default value is `false`, to avoid connection problems when creating new virtual machines.
+* `ansible.host_key_checking` can be set to `true` which will enable host key checking. As of Vagrant 1.5, the default value is `false` and as of Vagrant 1.7 the user kownn host file (e.g. `~/.ssh/known_hosts`) is no longer read nor modified. In other words: by default, the Ansible provisioner behaves the same as Vagrant native commands (e.g `vagrant ssh`).
 
 ## Tips and Tricks
 

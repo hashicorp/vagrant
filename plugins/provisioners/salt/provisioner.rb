@@ -75,7 +75,7 @@ module VagrantPlugins
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key
+        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config
       end
 
       def need_install
@@ -180,6 +180,11 @@ module VagrantPlugins
         if @config.master_config
           @machine.env.ui.info "Copying salt master config to vm."
           @machine.communicate.upload(expanded_path(@config.master_config).to_s, temp_config_dir + "/master")
+        end
+
+        if @config.grains_config
+          @machine.env.ui.info "Copying salt grains config to vm."
+          @machine.communicate.upload(expanded_path(@config.grains_config).to_s, temp_config_dir + "/grains")
         end
       end
 
@@ -306,7 +311,7 @@ module VagrantPlugins
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
             @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
               if @config.verbose
-                @machine.env.ui.info(data)
+                @machine.env.ui.info(data.rstrip)
               end
             end
           else
@@ -315,14 +320,14 @@ module VagrantPlugins
               @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all", opts)
               @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
                 if @config.verbose
-                  @machine.env.ui.info(data)
+                  @machine.env.ui.info(data.rstrip)
                 end
               end
             else
               @machine.communicate.sudo("salt-call saltutil.sync_all")
               @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
                 if @config.verbose
-                  @machine.env.ui.info(data)
+                  @machine.env.ui.info(data.rstrip)
                 end
               end
             end

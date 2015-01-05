@@ -83,6 +83,18 @@ shared_context "unit" do
     return Pathname.new(d)
   end
 
+  # Stub the given environment in ENV, without actually touching ENV. Keys and
+  # values are converted to strings because that's how the real ENV works.
+  def stub_env(hash)
+    allow(ENV).to receive(:[]).and_call_original
+
+    hash.each do |key, value|
+      allow(ENV).to receive(:[])
+        .with(key.to_s)
+        .and_return(value.to_s)
+    end
+  end
+
   # This helper provides temporary environmental variable changes.
   def with_temp_env(environment)
     # Build up the new environment, preserving the old values so we

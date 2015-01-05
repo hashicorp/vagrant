@@ -31,12 +31,11 @@ This section lists the complete set of available options for the Chef Zero
 provisioner. More detailed examples of how to use the provisioner are
 available below this section.
 
-Note that only the Chef Zero specific options are shown below, but all [Chef
-Solo options](/v2/provisioning/chef_solo.html), including the [common Chef
-provisioner options](/v2/provisioning/chef_common.html), are also inherited.
-
 * `nodes_path` (string) - A path where the Chef nodes are stored. Be default,
   no node path is set.
+
+In addition to all the options listed above, the Chef Zero provisioner supports
+the [common options for all Chef provisioners](/v2/provisioning/chef_common.html).
 
 ## Usage
 

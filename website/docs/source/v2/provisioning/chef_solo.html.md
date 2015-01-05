@@ -32,10 +32,6 @@ This section lists the complete set of available options for the Chef Solo
 provisioner. More detailed examples of how to use the provisioner are
 available below this section.
 
-Note that only the Chef-solo specific options are shown below. There is
-also a large set of [common options](/v2/provisioning/chef_common.html)
-that are available with all Chef provisioners.
-
 * `cookbooks_path` (string or array) - A list of paths to where cookbooks
   are stored. By default this is "cookbooks", expecting a cookbooks folder
   relative to the Vagrantfile location.
@@ -61,6 +57,9 @@ that are available with all Chef provisioners.
   sharing the data required for the provisioner to work properly. By default
   this will use the default synced folder type. For example, you can set this
   to "nfs" to use NFS synced folders.
+
+In addition to all the options listed above, the Chef Solo provisioner supports
+the [common options for all Chef provisioners](/v2/provisioning/chef_common.html).
 
 ## Specifying a Run List
 

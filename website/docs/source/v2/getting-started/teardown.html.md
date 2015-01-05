@@ -23,19 +23,22 @@ work. The downside is that the virtual machine still eats up your disk space,
 and requires even more disk space to store all the state of the virtual
 machine RAM on disk.
 
-**Halting** the virtual machine by calling `vagrant halt` will gracefully 
-shut down the guest operating system and power down the guest machine. 
-You can use `vagrant up` when you're ready to boot it again. The benefit of 
-this method is that it will cleanly shut down your machine, preserving the 
+**Halting** the virtual machine by calling `vagrant halt` will gracefully
+shut down the guest operating system and power down the guest machine.
+You can use `vagrant up` when you're ready to boot it again. The benefit of
+this method is that it will cleanly shut down your machine, preserving the
 contents of disk, and allowing it to be cleanly started again. The downside is
 that it'll take some extra time to start from a cold boot, and the guest machine
 still consumes disk space.
 
-**Destroying** the virtual machine by calling `vagrant destroy` will remove 
-all traces of the guest machine from your system. It'll stop the guest machine, 
-power it down, and remove all of the guest hard disks. Again, when you're ready to 
+**Destroying** the virtual machine by calling `vagrant destroy` will remove
+all traces of the guest machine from your system. It'll stop the guest machine,
+power it down, and remove all of the guest hard disks. Again, when you're ready to
 work again, just issue a `vagrant up`. The benefit of this is that _no cruft_
 is left on your machine. The disk space and RAM consumed by the guest machine
 is reclaimed and your host machine is left clean. The downside is that
 `vagrant up` to get working again will take some extra time since it
 has to reimport the machine and reprovision it.
+
+<a href="/v2/getting-started/share.html" class="button inline-button prev-button">Share</a>
+<a href="/v2/getting-started/rebuild.html" class="button inline-button next-button">Rebuild</a>

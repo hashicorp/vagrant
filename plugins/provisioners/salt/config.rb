@@ -12,6 +12,7 @@ module VagrantPlugins
       attr_accessor :master_config
       attr_accessor :master_key
       attr_accessor :master_pub
+      attr_accessor :grains_config
       attr_accessor :run_highstate
       attr_accessor :run_overstate
       attr_accessor :always_install
@@ -38,6 +39,7 @@ module VagrantPlugins
         @master_config = UNSET_VALUE
         @master_key = UNSET_VALUE
         @master_pub = UNSET_VALUE
+        @grains_config = UNSET_VALUE
         @run_highstate = UNSET_VALUE
         @run_overstate = UNSET_VALUE
         @always_install = UNSET_VALUE
@@ -63,6 +65,7 @@ module VagrantPlugins
         @master_config      = nil if @master_config == UNSET_VALUE
         @master_key         = nil if @master_key == UNSET_VALUE
         @master_pub         = nil if @master_pub == UNSET_VALUE
+        @grains_config      = nil if @grains_config == UNSET_VALUE
         @run_highstate      = nil if @run_highstate == UNSET_VALUE
         @run_overstate      = nil if @run_overstate == UNSET_VALUE
         @always_install     = nil if @always_install == UNSET_VALUE
@@ -112,6 +115,13 @@ module VagrantPlugins
         if @master_key || @master_pub
           if !@master_key || !@master_pub
             errors << I18n.t("vagrant.provisioners.salt.missing_key")
+          end
+        end
+
+        if @grains_config
+          expanded = Pathname.new(@grains_config).expand_path(machine.env.root_path)
+          if !expanded.file?
+            errors << I18n.t("vagrant.provisioners.salt.grains_config_nonexist")
           end
         end
 

@@ -14,7 +14,7 @@ boxes. You can read the documentation on the [vagrant box](/v2/cli/box.html)
 command for more information.
 
 The easiest way to use a box is to add a box from the
-[publicly available catalog of Vagrant boxes](https://vagrantcloud.com).
+[publicly available catalog of Vagrant boxes](https://atlas.hashicorp.com/boxes/search).
 You can also add and share your own customized boxes on this website.
 
 Boxes also support versioning so that members of your team using Vagrant
@@ -27,7 +27,7 @@ sub-pages in the navigation to the left.
 ## Discovering Boxes
 
 The easiest way to find boxes is to look on the
-[public Vagrant box catalog](https://vagrantcloud.com)
+[public Vagrant box catalog](https://atlas.hashicorp.com/boxes/search)
 for a box matching your use case. The catalog contains most major operating
 systems as bases, as well as specialized boxes to get you up and running
 quickly with LAMP stacks, Ruby, Python, etc.

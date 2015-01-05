@@ -1,7 +1,58 @@
-## 1.7.0 (unreleased)
+## 1.7.2 (unreleased)
 
 FEATURES:
 
+  - provisioners/salt: add support for grains [GH-4895]
+
+IMPROVEMENTS:
+
+  - commands/reload,up: `--provision-with` implies `--provision` [GH-5085]
+
+BUG FIXES:
+
+  - core: private boxes still referencing vagrantcloud.com will have
+      their vagrant login access token properly appended
+  - core: push plugin configuration is properly validated
+  - core: restore box packaging functionality
+  - commands/push: push lookups are by user-defined name, not push
+      strategy name [GH-4975]
+  - commands/push: validate the configuration
+  - guests/arch: fix network configuration due to poor line breaks. [GH-4964]
+  - guests/solaris: Merge configurations properly so configs can be set
+      in default Vagrantfiles. [GH-5092]
+  - providers/docker: Symlinks in shared folders work. [GH-5093]
+  - providers/hyperv: VM start errors turn into proper Vagrant errors. [GH-5101]
+  - provisioners/chef: remove Chef version check from solo.rb generation and
+      make `roles_path` populate correctly
+  - pushes/ftp: expand file paths relative to the Vagrantfile
+  - pushes/ftp: improved debugging output
+  - pushes/ftp: create parent directories if they do not exist on the remote
+      server
+
+## 1.7.1 (December 11, 2014)
+
+IMPROVEMENTS:
+
+  - provisioners/ansible: Use Docker proxy if needed. [GH-4906]
+
+BUG FIXES:
+
+  - providers/docker: Add support of SSH agent forwarding. [GH-4905]
+
+## 1.7.0 (December 9, 2014)
+
+BREAKING CHANGES:
+
+  - provisioners/ansible: `raw_arguments` has now highest priority
+  - provisioners/ansible: only the `ssh` connection transport is supported
+      (`paramiko` can be enabled with `raw_arguments` at your own risks)
+
+FEATURES:
+
+  - **Vagrant Push**: Vagrant can now deploy! `vagrant push` is a single
+      command to deploy your application. Deploy to Heroku, FTP, or
+      HashiCorp's commercial product Atlas. New push strategies can be
+      added with plugins.
   - **Named provisioners**: Provisioners can now be named. This name is used
       for output as well as `--provision-with` for better control.
   - Default provider logic improved: Providers in `config.vm.provider` blocks
@@ -9,6 +60,7 @@ FEATURES:
       providers are chosen before later ones. [GH-3812]
   - If the default insecure keypair is used, Vagrant will automatically replace
       it with a randomly generated keypair on first `vagrant up`. [GH-2608]
+  - Vagrant Login is now part of Vagrant core
   - Chef Zero provisioner: Use Chef 11's "local" mode to run recipes against an
       in-memory Chef Server
   - Chef Apply provisioner: Specify inline Chef recipes and recipe snippets
@@ -88,6 +140,10 @@ BUG FIXES:
       IP address and don't allow it. [GH-4671]
   - providers/virtualbox: Show more descriptive error if VirtualBox is
       reporting an empty version. [GH-4657]
+  - provisioners/ansible: Force `ssh` (OpenSSH) connection by default [GH-3396]
+  - provisioners/ansible: Don't use or modify `~/.ssh/known_hosts` file by default,
+      similarly to native vagrant commands [GH-3900]
+  - provisioners/ansible: Use intermediate Docker host when needed. [GH-4071]
   - provisioners/docker: Get GPG key over SSL. [GH-4597]
   - provisioners/docker: Search for docker binary in multiple places. [GH-4580]
   - provisioners/salt: Highstate works properly with a master. [GH-4471]

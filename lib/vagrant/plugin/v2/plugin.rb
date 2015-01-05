@@ -221,6 +221,18 @@ module Vagrant
           data[:provisioners]
         end
 
+        # Registers additional pushes to be available.
+        #
+        # @param [String] name Name of the push.
+        # @param [Hash] options List of options for the push.
+        def self.push(name, options=nil, &block)
+          components.pushes.register(name.to_sym) do
+            [block.call, options]
+          end
+
+          nil
+        end
+
         # Registers additional synced folder implementations.
         #
         # @param [String] name Name of the implementation.

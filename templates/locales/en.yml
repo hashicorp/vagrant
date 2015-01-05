@@ -244,7 +244,7 @@ en:
       Press ctrl-c now to exit if you want to remove some boxes or free
       up some disk space.
 
-      Press any other key to continue.
+      Press the Enter or Return key to continue.
     version_current: |-
       Installed Version: %{version}
     version_latest: |-
@@ -370,7 +370,7 @@ en:
         provider. Double-check your requested provider to verify you didn't
         simply misspell it.
 
-        If you're adding a box from Vagrant Cloud, make sure the box is
+        If you're adding a box from HashiCorp's Atlas, make sure the box is
         released.
 
         Name: %{name}
@@ -389,7 +389,7 @@ en:
       box_add_short_not_found: |-
         The box '%{name}' could not be found or
         could not be accessed in the remote catalog. If this is a private
-        box on Vagrant Cloud, please verify you're logged in via
+        box on HashiCorp's Atlas, please verify you're logged in via
         `vagrant login`. Also, please double-check the name. The expanded
         URL and error message are shown below:
 
@@ -551,16 +551,14 @@ en:
 
         %{versions}
       box_server_not_set: |-
-        A URL to a Vagrant Cloud server is not set, so boxes cannot
-        be added with a shorthand ("mitchellh/precise64") format.
-        You may also be seeing this error if you meant to type in
-        a path to a box file which doesn't exist locally on your
-        system.
+        A URL to an Atlas server is not set, so boxes cannot be added with a
+        shorthand ("mitchellh/precise64") format. You may also be seeing this
+        error if you meant to type in a path to a box file which doesn't exist
+        locally on your system.
 
-        To set a URL to a Vagrant Cloud server, set the
-        `VAGRANT_SERVER_URL` environmental variable. Or, if you
-        meant to use a file path, make sure the path to the file
-        is valid.
+        To set a URL to an Atlas server, set the `VAGRANT_SERVER_URL`
+        environmental variable. Or, if you meant to use a file path, make sure
+        the path to the file is valid.
       box_update_multi_provider: |-
         You requested to update the box '%{name}'. This box has
         multiple providers. You must explicitly select a single
@@ -947,6 +945,29 @@ en:
         You can however, install a plugin with the same name to replace
         these plugins. User-installed plugins take priority over
         system-installed plugins.
+      pushes_not_defined: |-
+        The Vagrantfile does not define any 'push' strategies. In order to use
+        `vagrant push`, you must define at least one push strategy:
+
+            config.push.define "ftp" do |push|
+              # ... push-specific options
+            end
+      push_strategy_not_defined: |-
+        The push strategy '%{name}' is not defined in the Vagrantfile. Defined
+        strategy names are:
+
+            %{pushes}
+      push_strategy_not_loaded: |-
+        There are no push strategies named '%{name}'. Please make sure you
+        spelled it correctly. If you are using an external push strategy, you
+        may need to install a plugin. Loaded push strategies are:
+
+            %{pushes}
+      push_strategy_not_provided: |-
+        The Vagrantfile defines more than one 'push' strategy. Please specify a
+        strategy. Defined strategy names are:
+
+            %{pushes}
       package_include_symlink: |-
         A file or directory you're attempting to include with your packaged
         box has symlinks in it. Vagrant cannot include symlinks in the
@@ -1789,6 +1810,8 @@ en:
         running_apply: "Running chef-apply..."
         running_solo: "Running chef-solo..."
         running_solo_again: "Running chef-solo again (failed to converge)..."
+        running_zero: "Running chef-zero..."
+        running_zero_again: "Running chef-zero again (failed to converge)..."
         missing_shared_folders: |-
           Shared folders that Chef requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
@@ -1889,7 +1912,13 @@ en:
           The specified minion_config file could not be found.
         master_config_nonexist: |-
           The specified master_config file could not be found.
+        grains_config_nonexist: |-
+          The specified grains_config file could not be found.
         missing_key: |-
           You must include both public and private keys.
         must_accept_keys: |-
           You must accept keys when running highstate with master!
+
+    pushes:
+      file:
+        no_destination: "File destination must be specified."
