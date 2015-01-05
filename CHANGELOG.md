@@ -4,6 +4,10 @@ FEATURES:
 
   - provisioners/salt: add support for grains [GH-4895]
 
+IMPROVEMENTS:
+
+  - commands/reload,up: `--provision-with` implies `--provision` [GH-5085]
+
 BUG FIXES:
 
   - core: private boxes still referencing vagrantcloud.com will have
