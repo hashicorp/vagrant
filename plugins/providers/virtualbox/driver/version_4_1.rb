@@ -450,7 +450,7 @@ module VagrantPlugins
               folder[:name],
               "--hostpath",
               folder[:hostpath]]
-            args << "--transient" if folder.has_key?(:transient) && folder[:transient]
+            args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Enable symlinks on the shared folder
             execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1")

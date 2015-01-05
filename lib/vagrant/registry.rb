@@ -22,8 +22,8 @@ module Vagrant
     # This will evaluate the block given to `register` and return the
     # resulting value.
     def get(key)
-      return nil if !@items.has_key?(key)
-      return @results_cache[key] if @results_cache.has_key?(key)
+      return nil if !@items.key?(key)
+      return @results_cache[key] if @results_cache.key?(key)
       @results_cache[key] = @items[key].call
     end
     alias :[] :get
@@ -31,9 +31,10 @@ module Vagrant
     # Checks if the given key is registered with the registry.
     #
     # @return [Boolean]
-    def has_key?(key)
-      @items.has_key?(key)
+    def key?(key)
+      @items.key?(key)
     end
+    alias_method :has_key?, :key?
 
     # Returns an array populated with the keys of this object.
     #

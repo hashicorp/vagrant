@@ -20,7 +20,7 @@ module Vagrant
         # used for Vagrant and load the proper configuration classes for
         # each.
         def method_missing(name, *args)
-          return @keys[name] if @keys.has_key?(name)
+          return @keys[name] if @keys.key?(name)
 
           config_klass = @config_map[name.to_sym]
           if config_klass
