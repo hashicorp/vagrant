@@ -452,11 +452,11 @@ module VagrantPlugins
               folder[:hostpath]]
             args << "--transient" if folder.has_key?(:transient) && folder[:transient]
 
-            # Add the shared folder
-            execute("sharedfolder", "add", @uuid, *args)
-
             # Enable symlinks on the shared folder
             execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1")
+
+            # Add the shared folder
+            execute("sharedfolder", "add", @uuid, *args)
           end
         end
 
