@@ -17,12 +17,19 @@ describe VagrantPlugins::FTPPush::Push do
       destination: "/var/www/site",
     )
   end
+  let(:ui) do
+    double("ui",
+      info: nil,
+    )
+  end
 
   subject { described_class.new(env, config) }
 
   before do
     allow(env).to receive(:root_path)
       .and_return(File.expand_path("..", __FILE__))
+    allow(env).to receive(:ui)
+      .and_return(ui)
   end
 
   describe "#push" do
