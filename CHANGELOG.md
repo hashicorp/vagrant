@@ -40,8 +40,6 @@ IMPROVEMENTS:
   - synced\_folders/nfs: Won't use `sudo` to write to /etc/exports if there
       are write privileges. [GH-2643]
   - synced\_folders/smb: Credentials from one SMB will be copied to the rest. [GH-4675]
-  - synced\_folders/rsync: Added rsync__showoutput option to echo rsync output
-      to console [GH-4201]
 
 BUG FIXES:
 

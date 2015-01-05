@@ -121,7 +121,7 @@ module VagrantPlugins
           machine.ui.info(I18n.t(
             "vagrant.rsync_folder_excludes", excludes: excludes.inspect))
         end
-        if opts.include?(:showoutput)
+        if opts.include?(:verbose)
           machine.ui.info(I18n.t("vagrant.rsync_showing_output"));
         end
 
@@ -130,7 +130,7 @@ module VagrantPlugins
           machine.guest.capability(:rsync_pre, opts)
         end
 
-        if opts.include?(:showoutput)
+        if opts.include?(:verbose)
 	  command_opts[:notify] = [ :stdout, :stderr ];
           r = Vagrant::Util::Subprocess.execute(*(command + [command_opts])) { 
             |io_name,data| data.each_line { |line| machine.ui.info("rsync[#{io_name}] -> #{line}") } 
