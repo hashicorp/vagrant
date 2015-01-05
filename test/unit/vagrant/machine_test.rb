@@ -252,13 +252,24 @@ describe Vagrant::Machine do
       expect(machine).to eql(instance)
     end
 
+    it "should pass any extra options to the environment" do
+      action_name = :up
+      foo         = nil
+      callable    = lambda { |env| foo = env[:foo] }
+
+      allow(provider).to receive(:action).with(action_name).and_return(callable)
+      instance.action(:up, foo: :bar)
+
+      expect(foo).to eq(:bar)
+    end
+
     it "should pass any extra options to the environment as strings" do
       action_name = :up
       foo         = nil
       callable    = lambda { |env| foo = env["foo"] }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up, foo: :bar)
+      instance.action(:up, "foo" => :bar)
 
       expect(foo).to eq(:bar)
     end

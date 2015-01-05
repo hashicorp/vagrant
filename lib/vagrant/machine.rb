@@ -150,8 +150,10 @@ module Vagrant
     # @param [Hash] extra_env This data will be passed into the action runner
     #   as extra data set on the environment hash for the middleware
     #   runner.
-    def action(name, **opts)
+    def action(name, opts=nil)
       @logger.info("Calling action: #{name} on provider #{@provider}")
+
+      opts ||= {}
 
       # Determine whether we lock or not
       lock = true
