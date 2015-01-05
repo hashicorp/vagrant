@@ -160,6 +160,9 @@ module Vagrant
       # Extra env keys are the remaining opts
       extra_env = opts.dup
 
+      # Convert the extra keys back to strings
+      extra_env = extra_env.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
+
       # Create a deterministic ID for this machine
       vf = nil
       vf = @env.vagrantfile_name[0] if @env.vagrantfile_name

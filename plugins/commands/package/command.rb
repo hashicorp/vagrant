@@ -80,6 +80,9 @@ module VagrantPlugins
           acc
         end
 
+        # Symbolize all keys
+        opts = opts.inject({}) { |h,(k,v)| h[k.to_sym] = v; h }
+
         vm.action(:package, **opts)
       end
     end
