@@ -9,6 +9,7 @@ BUG FIXES:
   - core: private boxes still referencing vagrantcloud.com will have
       their vagrant login access token properly appended
   - core: push plugin configuration is properly validated
+  - core: restore box packaging functionality
   - commands/push: push lookups are by user-defined name, not push
       strategy name [GH-4975]
   - commands/push: validate the configuration
@@ -18,7 +19,7 @@ BUG FIXES:
   - pushes/ftp: expand file paths relative to the Vagrantfile
   - pushes/ftp: improved debugging output
   - pushes/ftp: create parent directories if they do not exist on the remote
-    server
+      server
 
 ## 1.7.1 (December 11, 2014)
 
