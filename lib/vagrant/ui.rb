@@ -136,9 +136,9 @@ module Vagrant
 
         # Setup the options so that the new line is suppressed
         opts ||= {}
-        opts[:echo]     = true  if !opts.has_key?(:echo)
-        opts[:new_line] = false if !opts.has_key?(:new_line)
-        opts[:prefix]   = false if !opts.has_key?(:prefix)
+        opts[:echo]     = true  if !opts.key?(:echo)
+        opts[:new_line] = false if !opts.key?(:new_line)
+        opts[:prefix]   = false if !opts.key?(:prefix)
 
         # Output the data
         say(:info, message, opts)
@@ -249,7 +249,7 @@ module Vagrant
         class_eval <<-CODE
           def #{method}(message, *args, **opts)
             super(message)
-            if !@ui.opts.has_key?(:bold) && !opts.has_key?(:bold)
+            if !@ui.opts.key?(:bold) && !opts.key?(:bold)
               opts[:bold] = #{method.inspect} != :detail && \
                 #{method.inspect} != :ask
             end
@@ -284,7 +284,7 @@ module Vagrant
         opts = self.opts.merge(opts)
 
         prefix = ""
-        if !opts.has_key?(:prefix) || opts[:prefix]
+        if !opts.key?(:prefix) || opts[:prefix]
           prefix = OUTPUT_PREFIX
           prefix = " " * OUTPUT_PREFIX.length if \
             type == :detail || type == :ask || opts[:prefix_spaces]
@@ -294,7 +294,7 @@ module Vagrant
         return message if prefix.empty?
 
         target = @prefix
-        target = opts[:target] if opts.has_key?(:target)
+        target = opts[:target] if opts.key?(:target)
 
         # Get the lines. The first default is because if the message
         # is an empty string, then we want to still use the empty string.

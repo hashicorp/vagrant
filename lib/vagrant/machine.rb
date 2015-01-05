@@ -157,7 +157,7 @@ module Vagrant
 
       # Determine whether we lock or not
       lock = true
-      lock = opts.delete(:lock) if opts.has_key?(:lock)
+      lock = opts.delete(:lock) if opts.key?(:lock)
 
       # Extra env keys are the remaining opts
       extra_env = opts.dup

@@ -143,7 +143,7 @@ module Vagrant
 
           # If we already have a newer version in our list of installed,
           # then ignore it
-          next if installed_map.has_key?(spec.name) &&
+          next if installed_map.key?(spec.name) &&
             installed_map[spec.name].version >= spec.version
 
           installed_map[spec.name] = spec

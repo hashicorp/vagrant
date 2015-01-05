@@ -80,7 +80,7 @@ module Vagrant
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
-      opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.has_key?("VAGRANT_CWD")
+      opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.key?("VAGRANT_CWD")
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
       if !opts[:cwd].directory?
@@ -94,7 +94,7 @@ module Vagrant
       # Set the Vagrantfile name up. We append "Vagrantfile" and "vagrantfile" so that
       # those continue to work as well, but anything custom will take precedence.
       opts[:vagrantfile_name] ||= ENV["VAGRANT_VAGRANTFILE"] if \
-        ENV.has_key?("VAGRANT_VAGRANTFILE")
+        ENV.key?("VAGRANT_VAGRANTFILE")
       opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if \
         opts[:vagrantfile_name] && !opts[:vagrantfile_name].is_a?(Array)
 
@@ -307,7 +307,7 @@ module Vagrant
     # @return [Symbol] Name of the default provider.
     def default_provider(**opts)
       opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
-      opts[:force_default] = true if !opts.has_key?(:force_default)
+      opts[:force_default] = true if !opts.key?(:force_default)
 
       default = ENV["VAGRANT_DEFAULT_PROVIDER"]
       default = nil if default == ""
@@ -351,15 +351,15 @@ module Vagrant
 
         # Skip providers that can't be defaulted, unless they're in our
         # config, in which case someone made our decision for us.
-        if !config.has_key?(key)
-          next if popts.has_key?(:defaultable) && !popts[:defaultable]
+        if !config.key?(key)
+          next if popts.key?(:defaultable) && !popts[:defaultable]
         end
 
         # The priority is higher if it is in our config. Otherwise, it is
         # the priority it set PLUS the length of the config to make sure it
         # is never higher than the configuration keys.
         priority = popts[:priority]
-        priority = config[key] + max_priority if config.has_key?(key)
+        priority = config[key] + max_priority if config.key?(key)
 
         ordered << [priority, key, impl, popts]
       end
@@ -596,7 +596,7 @@ module Vagrant
         @machines.delete(cache_key)
       end
 
-      if @machines.has_key?(cache_key)
+      if @machines.key?(cache_key)
         @logger.info("Returning cached machine: #{name} (#{provider})")
         return @machines[cache_key]
       end

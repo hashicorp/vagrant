@@ -32,9 +32,9 @@ module VagrantPlugins
           # Verify the name is not taken
           vms = env[:machine].provider.driver.read_vms
           raise Vagrant::Errors::VMNameExists, name: name if \
-            vms.has_key?(name) && vms[name] != env[:machine].id
+            vms.key?(name) && vms[name] != env[:machine].id
 
-          if vms.has_key?(name)
+          if vms.key?(name)
             @logger.info("Not setting the name because our name is already set.")
           else
             env[:ui].info(I18n.t(
