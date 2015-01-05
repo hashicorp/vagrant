@@ -96,7 +96,7 @@ module Unit
     # @param [String] version
     # @param [String] provider
     # @return [Pathname]
-    def box3(name, version, provider, **opts)
+    def box3(name, version, provider, opts = {})
       # Create the directory for the box
       box_dir = boxes_dir.join(name, version, provider.to_s)
       box_dir.mkpath

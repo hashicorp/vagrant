@@ -78,7 +78,7 @@ module VagrantPlugins
             # For run commands, we run it and stream back the output
             env[:ui].detail(" \n"+I18n.t("docker_provider.running")+"\n ")
             @driver.create(params, stdin: env[:run_pty]) do |type, data|
-              env[:ui].detail(data.chomp, **ui_opts)
+              env[:ui].detail(data.chomp, ui_opts)
             end
           end
 

@@ -34,7 +34,7 @@ module VagrantPlugins
         raise "NOT IMPLEMENTED YET"
       end
 
-      def execute(command, **opts, &block)
+      def execute(command, opts = {}, &block)
         fence = {}
         fence[:stderr] = "VAGRANT FENCE: #{Time.now.to_i} #{rand(100000)}"
         fence[:stdout] = "VAGRANT FENCE: #{Time.now.to_i} #{rand(100000)}"
@@ -98,12 +98,12 @@ module VagrantPlugins
         return result
       end
 
-      def sudo(command, **opts, &block)
+      def sudo(command, opts = {}, &block)
         opts = { sudo: true }.merge(opts)
         execute(command, opts, &block)
       end
 
-      def test(command, **opts)
+      def test(command, opts = {})
         opts = { error_check: false }.merge(opts)
         execute(command, opts) == 0
       end
@@ -141,7 +141,7 @@ module VagrantPlugins
           "-i #{path}"
         end
 
-        # Use ad-hoc SSH options for the hop on the docker proxy 
+        # Use ad-hoc SSH options for the hop on the docker proxy
         if info[:forward_agent]
           ssh_args << "-o ForwardAgent=yes"
         end

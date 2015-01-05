@@ -212,7 +212,7 @@ module VagrantPlugins
             shell: opts[:shell],
           }
 
-          shell_execute(connection, command, **shell_opts) do |type, data|
+          shell_execute(connection, command, shell_opts) do |type, data|
             if type == :stdout
               stdout += data
             elsif type == :stderr
@@ -287,7 +287,7 @@ module VagrantPlugins
       protected
 
       # Opens an SSH connection and yields it to a block.
-      def connect(**opts)
+      def connect(opts = {})
         if @connection && !@connection.closed?
           # There is a chance that the socket is closed despite us checking
           # 'closed?' above. To test this we need to send data through the
@@ -435,7 +435,7 @@ module VagrantPlugins
       end
 
       # Executes the command on an SSH connection within a login shell.
-      def shell_execute(connection, command, **opts)
+      def shell_execute(connection, command, opts = {})
         opts = {
           sudo: false,
           shell: nil

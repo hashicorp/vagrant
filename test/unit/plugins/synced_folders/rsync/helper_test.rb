@@ -23,7 +23,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     machine.stub(guest: guest)
 
     # Don't do all the crazy Cygwin stuff
-    allow(Vagrant::Util::Platform).to receive(:cygwin_path) do |path, **opts|
+    allow(Vagrant::Util::Platform).to receive(:cygwin_path) do |path, opts = {}|
       path
     end
   end

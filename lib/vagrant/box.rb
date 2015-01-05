@@ -54,7 +54,7 @@ module Vagrant
     # @param [Symbol] provider The provider that this box implements.
     # @param [Pathname] directory The directory where this box exists on
     #   disk.
-    def initialize(name, provider, version, directory, **opts)
+    def initialize(name, provider, version, directory, opts = {})
       @name      = name
       @version   = version
       @provider  = provider
@@ -128,7 +128,7 @@ module Vagrant
       end
 
       opts = { headers: ["Accept: application/json"] }
-      Util::Downloader.new(url, tf.path, **opts).download!
+      Util::Downloader.new(url, tf.path, opts).download!
       BoxMetadata.new(File.open(tf.path, "r"))
     rescue Errors::DownloaderError => e
       raise Errors::BoxMetadataDownloadError,

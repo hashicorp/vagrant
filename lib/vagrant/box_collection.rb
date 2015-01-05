@@ -71,7 +71,7 @@ module Vagrant
     #   the box represents will be added.
     # @param [Boolean] force If true, any existing box with the same name
     #   and provider will be replaced.
-    def add(path, name, version, **opts)
+    def add(path, name, version, opts = {})
       providers = opts[:providers]
       providers = Array(providers) if providers
       provider = nil

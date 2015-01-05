@@ -32,7 +32,7 @@ describe VagrantPlugins::CommandBox::Command::Add do
     let(:argv) { ["foo"] }
 
     it "executes the runner with the proper actions" do
-      expect(action_runner).to receive(:run).with { |action, **opts|
+      expect(action_runner).to receive(:run).with { |action, opts = {}|
         expect(opts[:box_name]).to be_nil
         expect(opts[:box_url]).to eq("foo")
         true
@@ -46,7 +46,7 @@ describe VagrantPlugins::CommandBox::Command::Add do
     let(:argv) { ["foo", "bar"] }
 
     it "executes the runner with the proper actions" do
-      expect(action_runner).to receive(:run).with { |action, **opts|
+      expect(action_runner).to receive(:run).with { |action, opts = {}|
         expect(opts[:box_name]).to eq("foo")
         expect(opts[:box_url]).to eq("bar")
         true

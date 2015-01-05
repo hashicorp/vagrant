@@ -11,7 +11,7 @@ module Vagrant
         # @param [String] message The message to ask the user.
         # @param [Symbol] force_key The key that if present and true in
         #   the environment hash will skip the confirmation question.
-        def initialize(app, env, message, force_key=nil, **opts)
+        def initialize(app, env, message, force_key = nil, **opts)
           @app      = app
           @message  = message
           @force_key = force_key

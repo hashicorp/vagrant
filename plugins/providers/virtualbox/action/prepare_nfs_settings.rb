@@ -22,7 +22,7 @@ module VagrantPlugins
             config: env[:synced_folders_config],
             disable_usable_check: !!env[:test],
           }
-          folders = synced_folders(env[:machine], **opts)
+          folders = synced_folders(env[:machine], opts)
 
           if folders.key?(:nfs)
             @logger.info("Using NFS, preparing NFS settings by reading host IP and machine IP")

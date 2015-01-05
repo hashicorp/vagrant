@@ -10,8 +10,11 @@ module VagrantPlugins
           @host_machine = host_machine
         end
 
-        def execute(*cmd, **opts, &block)
+        def execute(*args, &block)
+          opts = args.last.is_a?(Hash) ? args.pop : {}
+
           quote = '"'
+          cmd = args.dup
           cmd   = cmd.map do |a|
             "#{quote}#{::Vagrant::Util::ShellQuote.escape(a, quote)}#{quote}"
           end.join(" ")

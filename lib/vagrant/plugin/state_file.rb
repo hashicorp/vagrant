@@ -27,7 +27,7 @@ module Vagrant
       # Add a plugin that is installed to the state file.
       #
       # @param [String] name The name of the plugin
-      def add_plugin(name, **opts)
+      def add_plugin(name, opts = {})
         @data["installed"][name] = {
           "ruby_version"    => RUBY_VERSION,
           "vagrant_version" => Vagrant::VERSION,

@@ -283,7 +283,7 @@ module Vagrant
         # @param [String] provider
         # @param [Hash] env
         # @return [Box]
-        def box_add(urls, name, version, provider, md_url, env, **opts)
+        def box_add(urls, name, version, provider, md_url, env, opts = {})
           env[:ui].output(I18n.t(
             "vagrant.box_add_with_version",
             name: name,
@@ -368,7 +368,7 @@ module Vagrant
         # Returns the download options for the download.
         #
         # @return [Hash]
-        def downloader(url, env, **opts)
+        def downloader(url, env, opts = {})
           opts[:ui] = true if !opts.key?(:ui)
 
           temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
@@ -409,10 +409,10 @@ module Vagrant
           Util::Downloader.new(url, temp_path, downloader_options)
         end
 
-        def download(url, env, **opts)
+        def download(url, env, opts = {})
           opts[:ui] = true if !opts.key?(:ui)
 
-          d = downloader(url, env, **opts)
+          d = downloader(url, env, opts)
 
           # Download the box to a temporary path. We store the temporary
           # path as an instance variable so that the `#recover` method can

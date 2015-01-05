@@ -16,7 +16,8 @@ module Vagrant
       #
       # @param [String] path Path to the PowerShell script to execute.
       # @return [Subprocess::Result]
-      def self.execute(path, *args, **opts, &block)
+      def self.execute(path, *args, &block)
+        opts = args.last.is_a?(Hash) ? args.pop : {}
         command = [
           "powershell",
           "-NoProfile",

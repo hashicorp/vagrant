@@ -14,7 +14,7 @@ module VagrantPlugins
         @executor = Executor::Local.new
       end
 
-      def build(dir, **opts, &block)
+      def build(dir, opts = {}, &block)
         args   = Array(opts[:extra_args])
         args   << dir
         result = execute('docker', 'build', *args, &block)
@@ -29,7 +29,7 @@ module VagrantPlugins
         matches[-1][0]
       end
 
-      def create(params, **opts, &block)
+      def create(params, opts = {}, &block)
         image   = params.fetch(:image)
         links   = params.fetch(:links)
         ports   = Array(params[:ports])
@@ -53,7 +53,7 @@ module VagrantPlugins
         run_cmd += params[:extra_args] if params[:extra_args]
         run_cmd += [image, cmd]
 
-        execute(*run_cmd.flatten, **opts, &block).chomp.lines.last
+        execute(*run_cmd.flatten, opts, &block).chomp.lines.last
       end
 
       def state(cid)
@@ -151,8 +151,8 @@ module VagrantPlugins
         end
       end
 
-      def execute(*cmd, **opts, &block)
-        @executor.execute(*cmd, **opts, &block)
+      def execute(*args, &block)
+        @executor.execute(*args, &block)
       end
     end
   end

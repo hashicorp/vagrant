@@ -85,7 +85,7 @@ module VagrantPlugins
       #   to customize this behavior
       # @param [Hash] options The list of options
       #
-      def define(name, **options, &block)
+      def define(name, options = {}, &block)
         name = name.to_sym
         strategy = options[:strategy] || name
 

@@ -110,7 +110,7 @@ module Vagrant
 
         # This expands the path and ensures proper casing of each part
         # of the path.
-        def fs_real_path(path, **opts)
+        def fs_real_path(path, opts = {})
           path = Pathname.new(File.expand_path(path))
 
           if path.exist? && !fs_case_sensitive?
