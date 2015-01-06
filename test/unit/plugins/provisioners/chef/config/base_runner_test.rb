@@ -123,7 +123,7 @@ describe VagrantPlugins::Chef::Config::BaseRunner do
   describe "#provisioning_path" do
     it "defaults to a tmp_path" do
       subject.finalize!
-      expect(subject.provisioning_path).to match(%r{/tmp/vagrant-chef-\d+})
+      expect(subject.provisioning_path).to eq("/tmp/vagrant-chef")
     end
   end
 

@@ -1,3 +1,4 @@
+require "digest/md5"
 require "tempfile"
 
 require_relative "base"
@@ -41,8 +42,8 @@ module VagrantPlugins
 
         # The destination (on the guest) where the recipe will live
         # @return [String]
-        def target_recipe_path
-          File.join(config.upload_path, "recipe.rb")
+        def target_recipe_path(key)
+          File.join(config.upload_path, "recipe-#{key}.rb")
         end
 
         # Write the raw recipe contents to a tempfile and upload that to the
@@ -54,7 +55,9 @@ module VagrantPlugins
           file.rewind
 
           # Upload the tempfile to the guest
-          @machine.communicate.upload(file.path, target_recipe_path)
+          @machine.communicate.upload(
+            file.path,
+            target_recipe_path(Digest::MD5.hexdigest(config.recipe)))
         ensure
           # Delete our template
           file.close
