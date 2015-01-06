@@ -17,6 +17,7 @@ BUG FIXES:
   - commands/push: push lookups are by user-defined name, not push
       strategy name [GH-4975]
   - commands/push: validate the configuration
+  - communicators/winrm: detect parse errors in PowerShell and error
   - guests/arch: fix network configuration due to poor line breaks. [GH-4964]
   - guests/solaris: Merge configurations properly so configs can be set
       in default Vagrantfiles. [GH-5092]
