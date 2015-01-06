@@ -14,6 +14,7 @@ BUG FIXES:
       their vagrant login access token properly appended
   - core: push plugin configuration is properly validated
   - core: restore box packaging functionality
+  - commands/package: fix crash
   - commands/push: push lookups are by user-defined name, not push
       strategy name [GH-4975]
   - commands/push: validate the configuration
