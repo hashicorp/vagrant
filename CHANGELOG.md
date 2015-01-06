@@ -30,6 +30,7 @@ BUG FIXES:
       dependencies fixed, fixing load issues on some platforms
   - providers/docker: Symlinks in shared folders work. [GH-5093]
   - providers/hyperv: VM start errors turn into proper Vagrant errors. [GH-5101]
+  - provisioners/chef: fix missing shared folder error [GH-4988]
   - provisioners/chef: remove Chef version check from solo.rb generation and
       make `roles_path` populate correctly
   - provisioners/chef: fix bad invocation of `with_clean_env` [GH-5021]
