@@ -24,6 +24,7 @@ BUG FIXES:
   - providers/hyperv: VM start errors turn into proper Vagrant errors. [GH-5101]
   - provisioners/chef: remove Chef version check from solo.rb generation and
       make `roles_path` populate correctly
+  - provisioners/chef: fix bad invocation of `with_clean_env` [GH-5021]
   - pushes/atlas: support more verbose logging
   - pushes/ftp: expand file paths relative to the Vagrantfile
   - pushes/ftp: improved debugging output
