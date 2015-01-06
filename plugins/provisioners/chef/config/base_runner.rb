@@ -81,19 +81,13 @@ module VagrantPlugins
           @https_proxy_pass   = nil if @https_proxy_pass == UNSET_VALUE
           @no_proxy           = nil if @no_proxy == UNSET_VALUE
           @node_name          = nil if @node_name == UNSET_VALUE
-          @provisioning_path  = nil if @provisioning_path == UNSET_VALUE
+          @provisioning_path = "/tmp/vagrant-chef" if @provisioning_path == UNSET_VALUE
           @file_backup_path   = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
           @file_cache_path    = "/var/chef/cache"  if @file_cache_path == UNSET_VALUE
           @verbose_logging    = false if @verbose_logging == UNSET_VALUE
 
           if @encrypted_data_bag_secret_key_path == UNSET_VALUE
             @encrypted_data_bag_secret_key_path = nil
-          end
-
-          # Set the default provisioning path to be a unique path in /tmp
-          if !@provisioning_path
-            counter = self.class.get_and_update_counter(:chef_config)
-            @provisioning_path = "/tmp/vagrant-chef-#{counter}"
           end
         end
 

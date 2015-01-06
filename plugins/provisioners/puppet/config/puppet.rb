@@ -1,11 +1,7 @@
-require "vagrant/util/counter"
-
 module VagrantPlugins
   module Puppet
     module Config
       class Puppet < Vagrant.plugin("2", :config)
-        extend Vagrant::Util::Counter
-
         attr_accessor :facter
         attr_accessor :hiera_config_path
         attr_accessor :manifest_file
@@ -65,15 +61,8 @@ module VagrantPlugins
           @manifest_file  = "default.pp" if @manifest_file == UNSET_VALUE
           @module_path    = nil if @module_path == UNSET_VALUE
           @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
-          @temp_dir       = nil if @temp_dir == UNSET_VALUE
+          @temp_dir       = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
           @working_directory = nil if @working_directory == UNSET_VALUE
-
-          # Set a default temp dir that has an increasing counter so
-          # that multiple Puppet definitions won't overwrite each other
-          if !@temp_dir
-            counter   = self.class.get_and_update_counter(:puppet_config)
-            @temp_dir = "/tmp/vagrant-puppet-#{counter}"
-          end
         end
 
         # Returns the module paths as an array of paths expanded relative to the
