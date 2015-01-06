@@ -1,6 +1,8 @@
 ## 1.7.3 (unreleased)
 
+BUG FIXES:
 
+  - guests/funtoo: Fix incorrect path in configure networks [GH-4812]
 
 ## 1.7.2 (January 6, 2015)
 
