@@ -1,4 +1,4 @@
-## 1.7.2 (unreleased)
+## 1.7.2 (January 6, 2015)
 
 FEATURES:
 
