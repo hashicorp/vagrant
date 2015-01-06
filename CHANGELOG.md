@@ -1,5 +1,14 @@
 ## 1.7.2 (January 6, 2015)
 
+BREAKING CHANGES:
+
+  - If you depended on the paths that Chef/Puppet provisioners use to
+    store cookbooks (ex. "/tmp/vagrant-chef-1"), these will no longer be
+    correct. Without this change, Chef/Puppet didn't work at all with
+    `vagrant provision`. We expect this to affect only a minor number of
+    people, since its not something that was every documented or recommended
+    by Vagrant, or even meant to be supported.
+
 FEATURES:
 
   - provisioners/salt: add support for grains [GH-4895]
