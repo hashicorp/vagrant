@@ -21,6 +21,12 @@ BUG FIXES:
   - guests/arch: fix network configuration due to poor line breaks. [GH-4964]
   - guests/solaris: Merge configurations properly so configs can be set
       in default Vagrantfiles. [GH-5092]
+  - installer: SSL cert bundle contains 1024-bit keys, fixing SSL verification
+      for a lot of sites.
+  - installer: vagrant executable properly `cygpaths` the SSL bundle path
+      for Cygwin
+  - installer: Nokogiri (XML lib used by Vagrant and dependencies) linker
+      dependencies fixed, fixing load issues on some platforms
   - providers/docker: Symlinks in shared folders work. [GH-5093]
   - providers/hyperv: VM start errors turn into proper Vagrant errors. [GH-5101]
   - provisioners/chef: remove Chef version check from solo.rb generation and
