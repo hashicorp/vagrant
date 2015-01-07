@@ -12,7 +12,7 @@ BREAKING CHANGES:
     store cookbooks (ex. "/tmp/vagrant-chef-1"), these will no longer be
     correct. Without this change, Chef/Puppet didn't work at all with
     `vagrant provision`. We expect this to affect only a minor number of
-    people, since its not something that was every documented or recommended
+    people, since it's not something that was ever documented or recommended
     by Vagrant, or even meant to be supported.
 
 FEATURES:
