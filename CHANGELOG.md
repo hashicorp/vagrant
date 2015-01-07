@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - core: push configurations are validated with global configs [GH-5130]
   - guests/funtoo: Fix incorrect path in configure networks [GH-4812]
 
 ## 1.7.2 (January 6, 2015)
