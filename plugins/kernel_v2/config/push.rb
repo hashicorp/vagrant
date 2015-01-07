@@ -115,6 +115,22 @@ module VagrantPlugins
         end
       end
 
+      # Validate all pushes
+      def validate(machine)
+        errors = { "push" => _detected_errors }
+
+        __compiled_pushes.each do |_, push|
+          config = push[1]
+          push_errors = config.validate(machine)
+
+          if push_errors
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, push_errors)
+          end
+        end
+
+        errors
+      end
+
       # This returns the list of compiled pushes as a hash by name.
       #
       # @return [Hash<Symbol, Array<Class, Object>>]

@@ -1005,7 +1005,6 @@ VF
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
           Vagrant.configure("2") do |config|
-            config.vm.box = "hashicorp/precise64"
             config.push.define "lolwatbacon"
           end
         VF
@@ -1014,58 +1013,6 @@ VF
       env = environment.create_vagrant_env
       expect { env.push("lolwatbacon") }
         .to raise_error(Vagrant::Errors::PushStrategyNotLoaded)
-    end
-
-    it "runs global config validation" do
-      environment = isolated_environment do |env|
-        env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
-          Vagrant.configure("2") do |config|
-            config.push.define "noop"
-          end
-        VF
-      end
-
-      env = environment.create_vagrant_env
-      expect { env.push("noop") }
-        .to raise_error(Vagrant::Errors::ConfigInvalid)
-    end
-
-    it "runs push config validations" do
-      config_class = Class.new(Vagrant.plugin("2", :config)) do
-        def self.validated?
-          !!class_variable_get(:@@validated)
-        end
-
-        def validate(machine)
-          self.class.class_variable_set(:@@validated, true)
-          {}
-        end
-      end
-
-      register_plugin("2") do |plugin|
-        plugin.name "foo"
-
-        plugin.config(:foo, :push) do
-          config_class
-        end
-
-        plugin.push(:foo) do
-          push_class
-        end
-      end
-
-      environment = isolated_environment do |env|
-        env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
-          Vagrant.configure("2") do |config|
-            config.vm.box = "hashicorp/precise64"
-            config.push.define "foo"
-          end
-        VF
-      end
-
-      env = environment.create_vagrant_env
-      env.push("foo")
-      expect(config_class.validated?).to be(true)
     end
 
     it "executes the push action" do
@@ -1080,7 +1027,6 @@ VF
       environment = isolated_environment do |env|
         env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
           Vagrant.configure("2") do |config|
-            config.vm.box = "hashicorp/precise64"
             config.push.define "foo"
           end
         VF
