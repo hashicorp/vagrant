@@ -25,7 +25,7 @@ module VagrantPlugins
           # Setup the module paths
           @module_paths = []
           @expanded_module_paths.each_with_index do |path, _|
-            key = Digest::MD5.hexdigest(path)
+            key = Digest::MD5.hexdigest(path.to_s)
             @module_paths << [path, File.join(config.temp_dir, "modules-#{key}")]
           end
 
