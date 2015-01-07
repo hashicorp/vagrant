@@ -556,6 +556,7 @@ module Vagrant
       end
 
       strategy, config = pushes[name]
+
       push_registry = Vagrant.plugin("2").manager.pushes
       klass, _ = push_registry.get(strategy)
       if klass.nil?
@@ -563,6 +564,11 @@ module Vagrant
           name: strategy,
           pushes: push_registry.keys
       end
+
+      # Validate the global push configuration and our local push configuration
+      machine = self.machine(self.machine_names.first, self.default_provider)
+      machine.action_raw(:config_validate, Vagrant::Action::Builtin::ConfigValidate)
+      config.validate(machine)
 
       klass.new(self, config).push
     end
