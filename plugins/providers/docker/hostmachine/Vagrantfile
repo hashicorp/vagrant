@@ -18,4 +18,9 @@ Vagrant.configure("2") do |config|
 
   # b2d doesn't support NFS
   config.nfs.functional = false
+
+  # b2d doesn't persist filesystem between reboots
+  if config.ssh.respond_to?(:insert_key)
+    config.ssh.insert_key = false
+  end
 end
