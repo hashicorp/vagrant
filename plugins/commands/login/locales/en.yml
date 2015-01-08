@@ -28,3 +28,5 @@ en:
       You are now logged in.
     logged_out: |-
       You are logged out.
+    token_saved: |-
+      The token was successfully saved.
