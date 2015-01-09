@@ -64,14 +64,32 @@ describe VagrantPlugins::LoginCommand::Command do
     context "with --token" do
       let(:argv) { ["--token", "efgh5678"] }
 
-      it "returns 0" do
-        expect(subject.execute).to eq(0)
+      context "when the token is valid" do
+        before do
+          stub_request(:get, %r{^#{Vagrant.server_url}/api/v1/authenticate})
+            .to_return(status: 200)
+        end
+
+        it "sets the token" do
+          subject.execute
+          token = File.read(token_path).strip
+          expect(token).to eq("efgh5678")
+        end
+
+        it "returns 0" do
+          expect(subject.execute).to eq(0)
+        end
       end
 
-      it "sets the token" do
-        subject.execute
-        token = File.read(token_path).strip
-        expect(token).to eq("efgh5678")
+      context "when the token is invalid" do
+        before do
+          stub_request(:get, %r{^#{Vagrant.server_url}/api/v1/authenticate})
+            .to_return(status: 401)
+        end
+
+        it "returns 1" do
+          expect(subject.execute).to eq(1)
+        end
       end
     end
   end

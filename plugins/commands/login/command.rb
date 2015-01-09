@@ -88,7 +88,14 @@ module VagrantPlugins
       def execute_token(token)
         @client.store_token(token)
         @env.ui.success(I18n.t("login_command.token_saved"))
-        return 0
+
+        if @client.logged_in?
+          @env.ui.success(I18n.t("login_command.check_logged_in"))
+          return 0
+        else
+          @env.ui.error(I18n.t("login_command.invalid_token"))
+          return 1
+        end
       end
     end
   end
