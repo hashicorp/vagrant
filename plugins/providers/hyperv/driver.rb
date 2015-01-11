@@ -77,6 +77,10 @@ module VagrantPlugins
          execute('import_vm.ps1', options)
        end
 
+       def net_set_vlan(vlan_id)
+          execute("set_network_vlan.ps1", { VmId: vm_id, VlanId: vlan_id })
+       end
+
       protected
 
       def execute_powershell(path, options, &block)
