@@ -34,9 +34,18 @@ module VagrantPlugins
           installer.ensure_installed
         end
 
+        def verify_which
+          @machine.communicate.sudo(
+            "which -v",
+            error_class: ChefError,
+            error_key: :which_not_detected,
+            binary: "which",
+          )
+        end
         def verify_binary(binary)
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
+          verify_which
           @machine.communicate.sudo(
             "which #{binary}",
             error_class: ChefError,
