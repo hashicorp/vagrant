@@ -16,7 +16,7 @@ module VagrantPlugins
         #
 
         # Connect with Vagrant SSH identity
-        options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
+        options = %W[--user=#{@ssh_info[:username]}]
 
         # Connect with native OpenSSH client
         # Other modes (e.g. paramiko) are not officially supported,
@@ -110,7 +110,8 @@ module VagrantPlugins
               m = @machine.env.machine(*am)
               m_ssh_info = m.ssh_info
               if !m_ssh_info.nil?
-                file.write("#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]}\n")
+                # Pass the private key generated for each VM to ansible
+                file.write("#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_private_key_file=#{m_ssh_info[:private_key_path][0]} ansible_ssh_port=#{m_ssh_info[:port]}\n")
                 inventory_machines[m.name] = m
               else
                 @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")
