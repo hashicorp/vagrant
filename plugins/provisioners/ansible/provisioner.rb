@@ -26,7 +26,7 @@ module VagrantPlugins
         options << "--connection=ssh"
 
         # Increase the SSH connection timeout, as the Ansible default value (10 seconds)
-        # is a bit demanding for some overloaded developer boxes. This is particularly 
+        # is a bit demanding for some overloaded developer boxes. This is particularly
         # helpful when additioal virtual networks are configured, as their availability
         # is not controlled during vagrant boot process.
         options << "--timeout=30"
