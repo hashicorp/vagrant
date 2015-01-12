@@ -1,3 +1,5 @@
+require "vagrant/util/platform"
+
 module VagrantPlugins
   module Ansible
     class Provisioner < Vagrant.plugin("2", :provisioner)
@@ -208,6 +210,12 @@ module VagrantPlugins
 
         # Don't access user's known_hosts file, except when host_key_checking is enabled.
         ssh_options << "-o UserKnownHostsFile=/dev/null" unless config.host_key_checking
+
+        # Set IdentitiesOnly=yes to avoid authentication errors when the host has more than 5 ssh keys.
+        # Notes:
+        #  - Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option. 
+        #  - this could be improved by sharing logic with lib/vagrant/util/ssh.rb
+        ssh_options << "-o IdentitiesOnly=yes" unless Vagrant::Util::Platform.solaris?
 
         # Multiple Private Keys
         @ssh_info[:private_key_path].drop(1).each do |key|
