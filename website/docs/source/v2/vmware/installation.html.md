@@ -82,7 +82,8 @@ student.
 
 **Q: Do I need to keep the Vagrant VMware plugin license file on disk?**<br>
 After you have installed the Vagrant VMware plugin license, it is safe to remove
-your copy from disk. Vagrant installs the license into its structure
+your copy from disk. Vagrant copies the license into its structure for reference
+on boot.
 
 **Q: I lost my original email, where can I download my Vagrant VMware plugin license again?**<br>
 Please [contact support](mailto:support@hashicorp.com?subject=Lost My License&body=Hello support! I seem to have misplaced my Vagrant VMware license. Could you please send it to me? Thanks!). **Note:**
