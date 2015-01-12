@@ -546,6 +546,38 @@ VF
     end
 
     #
+    # Special cases related to the VM provider context
+    #
+
+    context "with Docker provider on a non-Linux host" do
+      
+      let(:fake_host_ssh_info) {{
+        private_key_path: ['/path/to/docker/host/key'],
+        username: 'boot9docker',
+        host: '127.0.0.1',
+        port: 2299
+      }}
+      let(:fake_host_vm) {
+        double("host_vm").tap do |h|
+          h.stub(ssh_info: fake_host_ssh_info)
+        end      
+      }
+
+      before do
+        machine.stub(provider_name: :docker)
+        machine.provider.stub(host_vm?: true)
+        machine.provider.stub(host_vm: fake_host_vm)
+      end
+
+      it "uses an SSH ProxyCommand to reach the VM" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ProxyCommand='ssh boot9docker@127.0.0.1 -p 2299 -i /path/to/docker/host/key -o Compression=yes -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no exec nc %h %p 2>/dev/null'")
+        }
+      end
+    end
+
+    #
     # Special cases related to the Vagrant Host operating system in use
     #
 
