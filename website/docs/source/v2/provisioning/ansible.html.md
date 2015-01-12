@@ -207,6 +207,11 @@ by the sudo command.
 Vagrant is designed to provision [multi-machine environments](/v2/multi-machine) in sequence, but the following configuration pattern can be used to take advantage of Ansible parallelism:
 
 ```
+  # By default, Vagrant 1.7+ automatically inserts a different insecure keypair
+  # for each new VM created. The easiest way to use the same keypair for all
+  # the machines is to disable this feature and rely on the legacy insecure key.
+  config.ssh.insert_key = false
+
   config.vm.define 'machine2' do |machine|
     machine.vm.hostname = 'machine2'
     machine.vm.network "private_network", ip: "192.168.77.22"
