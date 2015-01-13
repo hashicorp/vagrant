@@ -39,29 +39,69 @@ module VagrantPlugins
             # TODO
           end
 
-          env[:ui].output(I18n.t("docker_provider.creating"))
-          env[:ui].detail("  Name: #{params[:name]}")
+          if env[:machine_action] == :exec_command
+            # Use the command that is given to us
+            params[:cmd] = env[:exec_command]
 
-          env[:ui].detail(" Image: #{params[:image]}")
-          if params[:cmd] && !params[:cmd].empty?
-            env[:ui].detail("   Cmd: #{params[:cmd].join(" ")}")
-          end
-          params[:volumes].each do |volume|
-            env[:ui].detail("Volume: #{volume}")
-          end
-          params[:ports].each do |pair|
-            env[:ui].detail("  Port: #{pair}")
-          end
-          params[:links].each do |name, other|
-            env[:ui].detail("  Link: #{name}:#{other}")
+            # Don't detach, we want to watch the command run
+            params[:detach] = false
+
+            # No ports should be shared to the host
+            params[:ports] = []
+
+            # Allocate a pty if it was requested
+            params[:pty] = true if env[:exec_pty]
+
+            # Remove container after execution
+            params[:rm] = true if env[:exec_rm]
+
+            # machine id
+            params[:id] = @machine.id
           end
 
-          if env[:machine_action] != :run_command
+          if env[:machine_action] != :exec_command
+            env[:ui].output(I18n.t("docker_provider.creating"))
+            env[:ui].detail("  Name: #{params[:name]}")
+
+            env[:ui].detail(" Image: #{params[:image]}")
+            if params[:cmd] && !params[:cmd].empty?
+              env[:ui].detail("   Cmd: #{params[:cmd].join(" ")}")
+            end
+            params[:volumes].each do |volume|
+              env[:ui].detail("Volume: #{volume}")
+            end
+            params[:ports].each do |pair|
+              env[:ui].detail("  Port: #{pair}")
+            end
+            params[:links].each do |name, other|
+              env[:ui].detail("  Link: #{name}:#{other}")
+            end
+          end
+
+          if env[:machine_action] != :run_command && env[:machine_action] != :exec_command
             # For regular "ups" create it and get the CID
             cid = @driver.create(params)
             env[:ui].detail(" \n"+I18n.t(
               "docker_provider.created", id: cid[0...16]))
             @machine.id = cid
+          elsif env[:machine_action] == :exec_command
+            ui_opts = {}
+
+            ui_opts[:prefix] = env[:exec_prefix]
+
+            # If we're running with a pty, we want the output to look as
+            # authentic as possible. We don't prefix things and we don't
+            # output a newline.
+            if env[:exec_pty]
+              ui_opts[:prefix] = false
+              ui_opts[:new_line] = false
+            end
+
+            # For exec commands, we run it and stream back the output
+            env[:ui].detail("Connecting to container...")
+            @driver.exec(params, stdin: env[:exec_pty]) do |type, data|
+              env[:ui].detail(data.chomp, **ui_opts)
+            end
           elsif params[:detach]
             env[:ui].detail(" \n"+I18n.t("docker_provider.running_detached"))
           else

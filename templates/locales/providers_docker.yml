@@ -55,6 +55,14 @@ en:
 
         vagrant docker-run web -- rails new .
 
+    exec_command_required: |-
+      `vagrant docker-exec` requires a command to execute. This command
+      must be specified after a `--` in the command line. This is used
+      to separate machine name and options from the actual command to
+      execute. An example is show below:
+
+        vagrant docker-exec -t -- bash
+
     running: |-
       Container is starting. Output will stream in below...
     running_detached: |-
