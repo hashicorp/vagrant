@@ -29,6 +29,13 @@ module VagrantPlugins
               entries << entry
             end
 
+            # If we generated any interface definitions, surround them with
+            # VAGRANT-BEGIN and VAGRANT-END so we can find them later.
+            if entries.length
+              entries.unshift("#VAGRANT-BEGIN")
+              entries << "#VAGRANT-END\n"
+            end
+
             # Perform the careful dance necessary to reconfigure
             # the network interfaces
             temp = Tempfile.new("vagrant")
