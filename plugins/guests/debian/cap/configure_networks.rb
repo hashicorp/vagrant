@@ -31,7 +31,7 @@ module VagrantPlugins
 
             # If we generated any interface definitions, surround them with
             # VAGRANT-BEGIN and VAGRANT-END so we can find them later.
-            if entries.length
+            if entries.length > 0
               entries.unshift("#VAGRANT-BEGIN")
               entries << "#VAGRANT-END\n"
             end
