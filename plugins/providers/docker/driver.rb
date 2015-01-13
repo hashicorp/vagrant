@@ -151,6 +151,32 @@ module VagrantPlugins
         end
       end
 
+      def exec(params, **opts, &block)
+        cmd     = Array(params.fetch(:cmd))
+        # docker exec -t -i nodejs bash 
+        # execute('docker', 'exec', '-t', '-i', 'redis', 'bash')
+        run_cmd = %W(docker exec)
+        run_cmd << "-i" << "-t" if params[:pty]
+        run_cmd << params[:name]
+        #run_cmd << "bash"
+        run_cmd += params[:extra_args] if params[:extra_args]
+        run_cmd << cmd
+        # run_cmd << "-d" if params[:detach]
+        # run_cmd += env.map { |k,v| ['-e', "#{k}=#{v}"] }
+        # run_cmd += expose.map { |p| ['--expose', "#{p}"] }
+        # run_cmd += links.map { |k, v| ['--link', "#{k}:#{v}"] }
+        # run_cmd += ports.map { |p| ['-p', p.to_s] }
+        # run_cmd += volumes.map { |v| ['-v', v.to_s] }
+        # run_cmd += %W(--privileged) if params[:privileged]
+        # run_cmd += %W(-h #{params[:hostname]}) if params[:hostname]
+        # run_cmd << "-i" << "-t" if params[:pty]
+        # run_cmd << "--rm=true" if params[:rm]
+        # run_cmd += params[:extra_args] if params[:extra_args]
+        # run_cmd += [image, cmd]
+
+        execute(*run_cmd.flatten, **opts, &block).chomp.lines.last
+      end
+
       def execute(*cmd, **opts, &block)
         @executor.execute(*cmd, **opts, &block)
       end
