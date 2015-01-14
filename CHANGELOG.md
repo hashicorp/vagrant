@@ -5,6 +5,7 @@ BUG FIXES:
   - core: push configurations are validated with global configs [GH-5130]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - plugins/login: allow users to login with a token [GH-5145]
+  - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
 
