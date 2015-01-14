@@ -43,7 +43,7 @@ module VagrantPlugins
           end
 
           if env[:machine_action] == :exec_command
-            env[:ui].output("Exec command")
+            env[:ui].output("Exec command...")
             # Use the command that is given to us
             params[:cmd] = env[:exec_command]
 
