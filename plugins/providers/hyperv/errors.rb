@@ -37,6 +37,23 @@ module VagrantPlugins
       class WindowsRequired < HyperVError
         error_key(:windows_required)
       end
+
+      class NetworkDown < HyperVError
+        error_key(:network_down)
+      end
+
+      class NoSwitchFound < HyperVError
+        error_key(:switch_not_found)
+      end
+
+      class ExternalSwitchExist < HyperVError
+        error_key(:external_switch_exist)
+      end
+
+      class NoNetworkAdapter < HyperVError
+        error_key(:no_network_adapter)
+      end
+
     end
   end
 end

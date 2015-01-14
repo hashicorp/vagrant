@@ -77,6 +77,26 @@ module VagrantPlugins
          execute('import_vm.ps1', options)
        end
 
+       def list_net_adapters
+         execute("get_adapters.ps1", {})
+       end
+
+       def find_vm_switch_name
+        execute("find_vm_switch_name.ps1", { VmId: vm_id })
+       end
+
+       def add_swith_to_vm(options)
+         execute("add_switch_to_vm.ps1", options)
+       end
+
+       def switch_exist(options)
+         execute("switch_exist.ps1", options)
+       end
+
+       def create_network_switch(options)
+         execute('create_switch.ps1', options)
+       end
+
       protected
 
       def execute_powershell(path, options, &block)

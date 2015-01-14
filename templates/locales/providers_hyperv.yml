@@ -4,12 +4,30 @@ en:
       Please choose a switch to attach to your Hyper-V instance.
       If none of these are appropriate, please open the Hyper-V manager
       to create a new virtual switch.
+    choose_adapter: |-
+      Please choose an adapter to attach to your External switch.
     message_already_running: |-
       Hyper-V instance already running.
     message_not_created: |-
       VM not created. Moving on...
     message_not_running: |-
       Hyper-V machine isn't running. Can't SSH in!
+    private_switch_not_allowed: |-
+      Vagrant cannot work with Hyper-V's private switch, since this configuration
+      will not allow the host to communicate with the VM. Please refer to Hyper-V's
+      virtual switch configuration for more information.
+    internal_switch_warn: |-
+      Vagrant works best with Hyper-V's External Switch. If you are using an
+      Internal switch please make sure that this switch is properly configured
+      for network connection. The virtual machine must be reachable from the
+      host for Vagrant to work.
+    net_adapter_warn: |-
+      You seems to have provided an invalid adapter, please choose one from
+      the available list of adapters.
+    creating_switch: |-
+      Creating a virtual switch of type "%{type}" with name %{name}
+    add_switch_to_vm: |-
+      Setting the VM to use a Virtual switch of type "%{type}" with name %{name}
 
     errors:
       admin_required: |-
@@ -71,3 +89,16 @@ en:
       windows_required: |-
         The Hyper-V provider only works on Windows. Please try to
         use another provider.
+      network_down: |-
+        The host network seems to be down, this generally happens while creating
+        an external network, it looked like Hyper-V manager took a long time to
+        bring back the network. Please check the network connection and try again.
+      no_network_adapter: |-
+        No Network adapter is connected to this VM. Please use the HyperV Manage
+        to add a network adapter.
+      external_switch_exist: |-
+        Hyper-V allows to have only one external switch. There already exist one
+        with name "%{name}"
+      switch_not_found: |-
+        A Virtual switch of type "%{type}" and name "%{name}" is not found, please
+        create the same using Hyper-V "Virtual Switch Manager".
