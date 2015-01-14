@@ -218,22 +218,91 @@ module VagrantPlugins
         end
       end
 
+      def self.action_exec_start
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, IsState, :running do |env, b2|
+            b2.use Call, HasSSH do |env2, b3|
+              if env2[:result]
+                b3.use Provision
+              end
+            end
+
+            b2.use Call, IsState, :not_created do |env2, b3|
+              if env2[:result]
+                # First time making this thing, set to the "preparing" state
+                b3.use InitState
+              else
+                b3.use EnvSet, host_machine_sync_folders: false
+              end
+            end
+
+            b2.use HostMachineBuildDir
+            b2.use HostMachineSyncFolders
+            b2.use PrepareNFSValidIds
+            b2.use SyncedFolderCleanup
+            b2.use PrepareNFSSettings
+            b2.use Login
+            b2.use Build
+              
+            # If the container is NOT created yet, then do some setup steps
+            # necessary for creating it.
+            b2.use Call, IsState, :preparing do |env2, b3|
+              if env2[:result]
+                b3.use EnvSet, port_collision_repair: true
+                b3.use HostMachinePortWarning
+                b3.use HostMachinePortChecker
+                b3.use HandleForwardedPortCollisions
+                b3.use SyncedFolders
+                b3.use ForwardedPorts
+
+                # unset machine_action so we can start the container
+                b3.use EnvSet, machine_action: nil
+                b3.use Create
+                b3.use WaitForRunning
+                
+                # set machine_action and create again to run our action
+                b3.use EnvSet, machine_action: :exec_command
+                b3.use Create
+                b3.use WaitForRunning
+              else
+                b3.use CompareSyncedFolders
+                b3.use HandleBox
+                
+                b3.use Call, IsState, :running do |env3, b4|
+                  if !env3[:result]
+                    b4.use Start
+                  end
+                end
+
+                b3.use WaitForRunning
+                b3.use Create
+              end
+            end
+          end
+        end
+      end
+
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
+
+            # If we're executing a command on the container we need to start a little differently
+            if env[:machine_action] == :exec_command
+              b2.use action_exec_start
+              next
+            end
+
             # If the container is running and we're not doing a run, we're done
-            next if env[:result] && env[:machine_action] != :run_command && env[:machine_action] != :exec_command
+            next if env[:result] && env[:machine_action] != :run_command
 
             if env[:machine_action] != :run_command
               b2.use Call, HasSSH do |env2, b3|
                 if env2[:result]
                   b3.use Provision
                 else
-                  if env2[:machine_action] != :exec_command
-                    b3.use Message,
-                      I18n.t("docker_provider.messages.provision_no_ssh"),
-                      post: true
-                  end
+                  b3.use Message,
+                    I18n.t("docker_provider.messages.provision_no_ssh"),
+                    post: true
                 end
               end
             end
@@ -266,46 +335,19 @@ module VagrantPlugins
                   b3.use HandleForwardedPortCollisions
                   b3.use SyncedFolders
                   b3.use ForwardedPorts
-                  if env2[:machine_action] == :exec_command
-                    # unset machine_action so we can start the container
-                    b3.use EnvSet, machine_action: nil
-                    b3.use Create
-                    b3.use WaitForRunning
-                    # set machine_action and create again to run our action
-                    b3.use EnvSet, machine_action: :exec_command
-                    b3.use Create
-                    b3.use WaitForRunning
-                  else
-                    b3.use Create
-                    b3.use WaitForRunning
-                  end
+                  b3.use Create
+                  b3.use WaitForRunning
                 else
                   b3.use CompareSyncedFolders
-
-                  if env2[:machine_action] == :exec_command
-                    b3.use HandleBox
-                    b3.use HostMachine
-                    b3.use Start
-                    b3.use WaitForRunning
-
-                    b3.use Call, HasSSH do |env3, b4|
-                      if env3[:result]
-                        b4.use WaitForCommunicator
-                      end
-                    end
-                    b3.use Create
-                  end
                 end
               end
 
-              if env[:machine_action] != :exec_command
-                b2.use Start
-                b2.use WaitForRunning
+              b2.use Start
+              b2.use WaitForRunning
 
-                b2.use Call, HasSSH do |env2, b3|
-                  if env2[:result]
-                    b3.use WaitForCommunicator
-                  end
+              b2.use Call, HasSSH do |env2, b3|
+                if env2[:result]
+                  b3.use WaitForCommunicator
                 end
               end
             else
