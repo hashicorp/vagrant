@@ -16,6 +16,9 @@ module VagrantPlugins
         end
       end
 
+      # This action runs a single command on a running container. If the container
+      # is not already container, and new container will be started and will remain
+      # running after the command has executed
       def self.action_exec_command
         Vagrant::Action::Builder.new.tap do |b|
           b.use action_up

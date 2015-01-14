@@ -3,7 +3,7 @@ module VagrantPlugins
     module Command
       class Exec < Vagrant.plugin("2", :command)
         def self.synopsis
-          "run a new command in the context of a running container"
+          "run a command in the context of a running container"
         end
 
         def execute
@@ -13,7 +13,7 @@ module VagrantPlugins
           options[:rm] = false
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant docker-run [command...]"
+            o.banner = "Usage: vagrant docker-exec [command...]"
             o.separator ""
             o.separator "Options:"
             o.separator ""

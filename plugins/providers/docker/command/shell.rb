@@ -3,7 +3,7 @@ module VagrantPlugins
     module Command
       class Exec < Vagrant.plugin("2", :command)
         def self.synopsis
-          "open a bash shell for a running container"
+          "open a bash shell in a running container"
         end
 
         def execute
