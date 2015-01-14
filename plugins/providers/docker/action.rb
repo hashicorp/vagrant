@@ -18,7 +18,7 @@ module VagrantPlugins
 
       def self.action_exec_command
         Vagrant::Action::Builder.new.tap do |b|
-          b.use action_start
+          b.use action_up
         end
       end
 

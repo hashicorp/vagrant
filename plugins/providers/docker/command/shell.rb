@@ -20,26 +20,10 @@ module VagrantPlugins
           argv = parse_options(opts)
           return if !argv
 
-          # This keeps track of if we ran our action on any machines...
-          any_success = false
-
           target_opts = { provider: :docker }
           target_opts[:single_target] = options[:pty]
 
           with_target_vms(argv, target_opts) do |machine|
-
-            state = machine.state.id
-            if state == :host_state_unknown
-              machine.ui.output(I18n.t("docker_provider.logs_host_state_unknown"))
-              next
-            elsif state == :not_created
-              machine.ui.output(I18n.t("docker_provider.not_created_skip"))
-              next
-            end
-
-            # At least one was run!
-            any_success = true
-
             # Run it!
             machine.action(
               :exec_command,
@@ -50,7 +34,7 @@ module VagrantPlugins
             )
           end
 
-          return any_success ? 0 : 1
+          0
         end
       end
     end
