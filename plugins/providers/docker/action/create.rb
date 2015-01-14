@@ -15,13 +15,8 @@ module VagrantPlugins
 
           params = create_params
 
-          if env[:machine_action] != :exec_command
-            env[:ui].output("Create...")
-          end
-
           # If we're running a single command, we modify the params a bit
           if env[:machine_action] == :run_command
-            env[:ui].output("Run command...")
             # Use the command that is given to us
             params[:cmd] = env[:run_command]
 
@@ -45,7 +40,6 @@ module VagrantPlugins
           end
 
           if env[:machine_action] == :exec_command
-            env[:ui].output("Exec command...")
             # Use the command that is given to us
             params[:cmd] = env[:exec_command]
 
