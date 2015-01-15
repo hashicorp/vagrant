@@ -81,7 +81,7 @@ permissions, use `"--rsync-path='sudo rsync'"` to run rsync with sudo on the gue
 <pre class="prettyprint">
 Vagrant.configure("2") do |config|
   config.vm.synced_folder "bin", "/usr/local/bin", type: "rsync",
-    rsync__exclude: ".git/"
+    rsync__exclude: ".git/",
     rsync__args: ["--verbose", "--rsync-path='sudo rsync'", "--archive", "--delete", "-z"]
 end
 </pre>
