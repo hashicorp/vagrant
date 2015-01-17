@@ -42,8 +42,9 @@ describe VagrantPlugins::SyncedFolderNFS::ActionCleanup do
   it "prunes the NFS entries if valid IDs are given" do
     env[:nfs_valid_ids] = [1,2,3]
 
+    expect(machine).to receive(:id).and_return(4)
     allow(host).to receive(:capability?).with(:nfs_prune).and_return(true)
-    expect(host).to receive(:capability).with(:nfs_prune, machine.ui, [1,2,3]).ordered
+    expect(host).to receive(:capability).with(:nfs_prune, machine.ui, [1,2,3,4]).ordered
     expect(app).to receive(:call).with(env).ordered
 
     subject.call(env)

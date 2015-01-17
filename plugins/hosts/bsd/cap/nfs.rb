@@ -93,21 +93,36 @@ module VagrantPlugins
                                            ips: ips,
                                            folders: dirmap,
                                            user: Process.uid)
+          lines = output.split("\n")
+
+          # Check if we even need to touch /etc/exports
+          if File.readable?("/etc/exports")
+            existing_lines = nfs_readblock(id)
+            if existing_lines == lines
+              # make sure nfs is running
+              r = Vagrant::Util::Subprocess.execute("nfsd", "status")
+              if r.stdout =~ /not running/
+                system("sudo", "nfsd", "start")
+              end
+              # and return, not actually modifying /etc/exports
+              return
+            end
+          end
 
           # The sleep ensures that the output is truly flushed before any `sudo`
           # commands are issued.
           ui.info I18n.t("vagrant.hosts.bsd.nfs_export")
           sleep 0.5
 
-          # First, clean up the old entry
-          nfs_cleanup(id)
-
           # Only use "sudo" if we can't write to /etc/exports directly
           sudo_command = ""
           sudo_command = "sudo " if !File.writable?("/etc/exports")
 
+          # Clean up the old entry
+          nfs_cleanup(id)
+
           # Output the rendered template into the exports
-          output.split("\n").each do |line|
+          lines.each do |line|
             line = Vagrant::Util::ShellQuote.escape(line, "'")
             system(
               "echo '#{line}' | " +
@@ -161,6 +176,18 @@ module VagrantPlugins
         end
 
         protected
+
+        def self.nfs_readblock(id)
+          lines = File.read("/etc/exports").split("\n")
+
+          user = Process.uid
+          id = Regexp.escape(id)
+
+          first_line = lines.index { |line| line =~ /^# VAGRANT-BEGIN:( #{user})? #{id}/ }
+          last_line = lines.index { |line| line =~ /^# VAGRANT-END:( #{user})? #{id}/ }
+          return [] unless first_line && last_line
+          lines[first_line..last_line]
+        end
 
         def self.nfs_cleanup(id)
           return if !File.exist?("/etc/exports")
