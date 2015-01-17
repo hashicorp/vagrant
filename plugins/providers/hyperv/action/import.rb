@@ -59,7 +59,7 @@ module VagrantPlugins
           env[:machine].config.vm.networks.each do |type, opts|
             next if type != :public_network && type != :private_network
 
-            switchToFind = opts[:network_name]
+            switchToFind = opts[:bridge]
 
             if switchToFind
               puts "Looking for switch with name: #{switchToFind}"
