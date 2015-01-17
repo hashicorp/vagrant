@@ -50,6 +50,7 @@ VF
   let(:generated_inventory_file) { File.join(generated_inventory_dir, 'vagrant_ansible_inventory') }
 
   before do
+    Vagrant::Util::Platform.stub(solaris?: false)
     subject.instance_variable_get(:@logger).stub(:debug?).and_return(false)
 
     machine.stub(ssh_info: ssh_info)
@@ -63,7 +64,7 @@ VF
   #
 
   def self.it_should_set_arguments_and_environment_variables(
-    expected_args_count = 6, expected_vars_count = 4, expected_host_key_checking = false, expected_transport_mode = "ssh")
+    expected_args_count = 7, expected_vars_count = 4, expected_host_key_checking = false, expected_transport_mode = "ssh")
 
     it "sets implicit arguments in a specific order" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -72,6 +73,7 @@ VF
         expect(args[1]).to eq("--private-key=#{machine.ssh_info[:private_key_path][0]}")
         expect(args[2]).to eq("--user=#{machine.ssh_info[:username]}")
         expect(args[3]).to eq("--connection=ssh")
+        expect(args[4]).to eq("--timeout=30")
 
         inventory_count = args.count { |x| x =~ /^--inventory-file=.+$/ }
         expect(inventory_count).to be > 0
@@ -103,10 +105,11 @@ VF
         cmd_opts = args.last
 
         if expected_host_key_checking
-          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to be_nil unless config.raw_arguments
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o UserKnownHostsFile=/dev/null")
         else
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o UserKnownHostsFile=/dev/null")
         end
+        expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentitiesOnly=yes")
         expect(cmd_opts[:env]['ANSIBLE_FORCE_COLOR']).to eql("true")
         expect(cmd_opts[:env]['ANSIBLE_HOST_KEY_CHECKING']).to eql(expected_host_key_checking.to_s)
         expect(cmd_opts[:env]['PYTHONUNBUFFERED']).to eql(1)
@@ -270,7 +273,7 @@ VF
         config.host_key_checking = true
       end
 
-      it_should_set_arguments_and_environment_variables 6, 3, true
+      it_should_set_arguments_and_environment_variables 7, 4, true
     end
 
     describe "with boolean (flag) options disabled" do
@@ -282,7 +285,7 @@ VF
         config.sudo_user = 'root'
       end
 
-      it_should_set_arguments_and_environment_variables 7
+      it_should_set_arguments_and_environment_variables 8
       it_should_set_optional_arguments({ "sudo_user" => "--sudo-user=root" })
 
       it "it does not set boolean flag when corresponding option is set to false" do
@@ -311,7 +314,7 @@ VF
                                 "--new-arg=yeah"]
       end
 
-      it_should_set_arguments_and_environment_variables 17, 4, false, "paramiko"
+      it_should_set_arguments_and_environment_variables 18, 4, false, "paramiko"
 
       it "sets all raw arguments" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -367,7 +370,7 @@ VF
         config.ask_vault_pass = true
       end
 
-      it_should_set_arguments_and_environment_variables 7
+      it_should_set_arguments_and_environment_variables 8
 
       it "should ask the vault password" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -381,7 +384,7 @@ VF
         config.vault_password_file = existing_file
       end
 
-      it_should_set_arguments_and_environment_variables 7
+      it_should_set_arguments_and_environment_variables 8
 
       it "uses the given vault password file" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
@@ -395,7 +398,7 @@ VF
         config.raw_ssh_args = ['-o ControlMaster=no', '-o ForwardAgent=no']
       end
 
-      it_should_set_arguments_and_environment_variables 6, 4
+      it_should_set_arguments_and_environment_variables 7, 4
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes custom SSH options via ANSIBLE_SSH_ARGS with the highest priority" do
@@ -429,7 +432,7 @@ VF
         ssh_info[:private_key_path] = ['/path/to/my/key', '/an/other/identity', '/yet/an/other/key']
       end
 
-      it_should_set_arguments_and_environment_variables 6, 4
+      it_should_set_arguments_and_environment_variables 7, 4
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes additional Identity Files via ANSIBLE_SSH_ARGS" do
@@ -446,7 +449,7 @@ VF
         ssh_info[:forward_agent] = true
       end
 
-      it_should_set_arguments_and_environment_variables 6, 4
+      it_should_set_arguments_and_environment_variables 7, 4
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "enables SSH-Forwarding via ANSIBLE_SSH_ARGS" do
@@ -465,7 +468,7 @@ VF
 
       it "shows the ansible-playbook command" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --limit='machine1' --inventory-file=#{generated_inventory_dir} playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} playbook.yml")
         }
       end
     end
@@ -475,12 +478,12 @@ VF
         config.verbose = 'v'
       end
 
-      it_should_set_arguments_and_environment_variables 7
+      it_should_set_arguments_and_environment_variables 8
       it_should_set_optional_arguments({ "verbose" => "-v" })
 
       it "shows the ansible-playbook command" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
         }
       end
     end
@@ -513,7 +516,7 @@ VF
         config.raw_ssh_args = ['-o ControlMaster=no']
       end
 
-      it_should_set_arguments_and_environment_variables 20, 4, true
+      it_should_set_arguments_and_environment_variables 21, 4, true
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
       it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars=@#{File.expand_path(__FILE__)}",
                                           "sudo"                => "--sudo",
@@ -538,10 +541,84 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --limit='machine*:&vagrant:!that_one' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --ask-sudo-pass --ask-vault-pass --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task='an awesome task' --why-not --su-user=foot --ask-su-pass --limit='all' playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --timeout=30 --limit='machine*:&vagrant:!that_one' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --ask-sudo-pass --ask-vault-pass --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task='an awesome task' --why-not --su-user=foot --ask-su-pass --limit='all' playbook.yml")
         }
       end
     end
 
+    #
+    # Special cases related to the VM provider context
+    #
+
+    context "with Docker provider on a non-Linux host" do
+      
+      let(:fake_host_ssh_info) {{
+        private_key_path: ['/path/to/docker/host/key'],
+        username: 'boot9docker',
+        host: '127.0.0.1',
+        port: 2299
+      }}
+      let(:fake_host_vm) {
+        double("host_vm").tap do |h|
+          h.stub(ssh_info: fake_host_ssh_info)
+        end      
+      }
+
+      before do
+        machine.stub(provider_name: :docker)
+        machine.provider.stub(host_vm?: true)
+        machine.provider.stub(host_vm: fake_host_vm)
+      end
+
+      it "uses an SSH ProxyCommand to reach the VM" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ProxyCommand='ssh boot9docker@127.0.0.1 -p 2299 -i /path/to/docker/host/key -o Compression=yes -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no exec nc %h %p 2>/dev/null'")
+        }
+      end
+    end
+
+    #
+    # Special cases related to the Vagrant Host operating system in use
+    #
+
+    context "with a Solaris-like host" do
+      before do
+        Vagrant::Util::Platform.stub(solaris?: true)
+      end
+
+      it "does not set IdentitiesOnly=yes in ANSIBLE_SSH_ARGS" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o IdentitiesOnly=yes")
+
+          # Note:
+          # The expectation below is a workaround to a possible misuse (or bug) in RSpec/Ruby stack.
+          # If 'args' variable is not required by in this block, the "Vagrant::Util::Subprocess).to receive"
+          # surprisingly expects to receive "no args".
+          # This problem can be "solved" by using args the "unnecessary" (but harmless) expectation below:
+          expect(true).to be_true
+        }
+      end
+
+      describe "and with host_key_checking option enabled" do
+        it "does not set ANSIBLE_SSH_ARGS environment variable" do
+          config.host_key_checking = true
+
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+            cmd_opts = args.last
+            expect(cmd_opts[:env]).to_not include('ANSIBLE_SSH_ARGS')
+
+            # Note:
+            # The expectation below is a workaround to a possible misuse (or bug) in RSpec/Ruby stack.
+            # If 'args' variable is not required by in this block, the "Vagrant::Util::Subprocess).to receive"
+            # surprisingly expects to receive "no args".
+            # This problem can be "solved" by using args the "unnecessary" (but harmless) expectation below:
+            expect(true).to be_true
+          }
+        end
+      end
+
+    end
   end
 end
