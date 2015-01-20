@@ -75,7 +75,7 @@ module VagrantPlugins
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key
+        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config
       end
 
       def need_install
@@ -180,6 +180,11 @@ module VagrantPlugins
         if @config.master_config
           @machine.env.ui.info "Copying salt master config to vm."
           @machine.communicate.upload(expanded_path(@config.master_config).to_s, temp_config_dir + "/master")
+        end
+
+        if @config.grains_config
+          @machine.env.ui.info "Copying salt grains config to vm."
+          @machine.communicate.upload(expanded_path(@config.grains_config).to_s, temp_config_dir + "/grains")
         end
       end
 

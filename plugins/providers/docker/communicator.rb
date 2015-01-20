@@ -137,18 +137,21 @@ module VagrantPlugins
         info[:port] ||= 22
 
         # Make sure our private keys are synced over to the host VM
-        key_args = sync_private_keys(info).map do |path|
+        ssh_args = sync_private_keys(info).map do |path|
           "-i #{path}"
-        end.join(" ")
+        end
+
+        # Use ad-hoc SSH options for the hop on the docker proxy 
+        if info[:forward_agent]
+          ssh_args << "-o ForwardAgent=yes"
+        end
+        ssh_args.concat(["-o Compression=yes",
+                         "-o ConnectTimeout=5",
+                         "-o StrictHostKeyChecking=no",
+                         "-o UserKnownHostsFile=/dev/null"])
 
         # Build the SSH command
-        "ssh #{key_args} " +
-          "-o Compression=yes " +
-          "-o ConnectTimeout=5 " +
-          "-o StrictHostKeyChecking=no " +
-          "-o UserKnownHostsFile=/dev/null " +
-          "-p#{info[:port]} " +
-          "#{info[:username]}@#{info[:host]}"
+        "ssh #{info[:username]}@#{info[:host]} -p#{info[:port]} #{ssh_args.join(" ")}"
       end
 
       protected

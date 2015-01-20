@@ -188,6 +188,24 @@ module VagrantPlugins
       def get_ansible_ssh_args
         ssh_options = []
 
+        # Use an SSH ProxyCommand when using the Docker provider with the intermediate host
+        if @machine.provider_name == :docker && machine.provider.host_vm?
+          docker_host_ssh_info = machine.provider.host_vm.ssh_info
+
+          proxy_cmd = "ssh #{docker_host_ssh_info[:username]}@#{docker_host_ssh_info[:host]}" +
+            " -p #{docker_host_ssh_info[:port]} -i #{docker_host_ssh_info[:private_key_path][0]}"
+
+          # Use same options than plugins/providers/docker/communicator.rb
+          # Note: this could be improved (DRY'ed) by sharing these settings. 
+          proxy_cmd += " -o Compression=yes -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+
+          proxy_cmd += " -o ForwardAgent=yes" if @ssh_info[:forward_agent]
+
+          proxy_cmd += " exec nc %h %p 2>/dev/null"
+
+          ssh_options << "-o ProxyCommand='#{ proxy_cmd }'"
+        end
+
         # Don't access user's known_hosts file, except when host_key_checking is enabled.
         ssh_options << "-o UserKnownHostsFile=/dev/null" unless config.host_key_checking
 

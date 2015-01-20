@@ -13,6 +13,14 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "shell", inline: $shell
+
+  config.push.define "www", strategy: "local-exec" do |push|
+    push.script = "scripts/website_push_www.sh"
+  end
+
+  config.push.define "docs", strategy: "local-exec" do |push|
+    push.script = "scripts/website_push_docs.sh"
+  end
 end
 
 $shell = <<-CONTENTS

@@ -29,7 +29,7 @@ machines. `vagrant connect` creates a tiny virtual machine that takes up
 only around 20 MB in RAM, using VirtualBox or VMware (more provider support
 is coming soon).
 
-Any traffic sent to this tiny virtual machine is then proxies through to
+Any traffic sent to this tiny virtual machine is then proxied through to
 the shared Vagrant environment as if it were directed at it.
 
 ## Beware: Vagrant Insecure Key

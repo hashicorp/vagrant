@@ -93,47 +93,9 @@ describe VagrantPlugins::LocalExecPush::Push do
   end
 
   describe "#execute!" do
-    let(:exit_code) { 0 }
-    let(:stdout) { "This is the output" }
-    let(:stderr) { "This is the errput" }
-
-    let(:process) do
-      double("process",
-        exit_code: exit_code,
-        stdout:    stdout,
-        stderr:    stderr,
-      )
-    end
-
-    before do
-      allow(Vagrant::Util::Subprocess).to receive(:execute)
-        .and_return(process)
-    end
-
-    it "creates a subprocess" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute)
+    it "safe execs" do
+      expect(Vagrant::Util::SafeExec).to receive(:exec)
       expect { subject.execute! }.to_not raise_error
-    end
-
-    it "returns the resulting process" do
-      expect(subject.execute!).to be(process)
-    end
-
-    context "when the exit code is non-zero" do
-      let(:exit_code) { 1 }
-
-      it "raises an exception" do
-        klass = VagrantPlugins::LocalExecPush::Errors::CommandFailed
-        cmd = ["foo", "bar"]
-
-        expect { subject.execute!(*cmd) }.to raise_error(klass) { |error|
-          expect(error.message).to eq(I18n.t("local_exec_push.errors.command_failed",
-            cmd:    cmd.join(" "),
-            stdout: stdout,
-            stderr: stderr,
-          ))
-        }
-      end
     end
   end
 end

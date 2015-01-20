@@ -17,6 +17,7 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
 
   before do
     allow(Vagrant).to receive(:server_url).and_return(server_url)
+    stub_env("ATLAS_TOKEN" => nil)
   end
 
   describe "#call" do
@@ -49,6 +50,29 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
         "http://google.com/box.box",
         "#{server_url}/foo.box",
         "#{server_url}/bar.box?arg=true",
+      ]
+
+      expected = original.dup
+      expected[1] = "#{original[1]}?access_token=#{token}"
+      expected[2] = "#{original[2]}&access_token=#{token}"
+
+      env[:box_urls] = original.dup
+      subject.call(env)
+
+      expect(env[:box_urls]).to eq(expected)
+    end
+
+    it "appends the access token to vagrantcloud.com URLs if Atlas" do
+      server_url = "https://atlas.hashicorp.com"
+      allow(Vagrant).to receive(:server_url).and_return(server_url)
+
+      token = "foobarbaz"
+      VagrantPlugins::LoginCommand::Client.new(iso_env).store_token(token)
+
+      original = [
+        "http://google.com/box.box",
+        "http://vagrantcloud.com/foo.box",
+        "http://vagrantcloud.com/bar.box?arg=true",
       ]
 
       expected = original.dup

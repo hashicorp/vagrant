@@ -10,7 +10,7 @@ description: |-
 
 ## Heroku Strategy
 
-[Heroku][] is a public IAAS provider that makes it easy to deploy an
+[Heroku][] is a public PAAS provider that makes it easy to deploy an
 application. The Vagrant Push Heroku strategy pushes your application's code to
 Heroku.
 
