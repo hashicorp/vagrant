@@ -21,17 +21,17 @@ module VagrantPlugins
 
         # Compile all the provider configurations
         @__defined_pushes.each do |name, tuples|
-          # Find the configuration class for this push
-          config_class = Vagrant.plugin("2").manager.push_configs[name]
-          config_class ||= Vagrant::Config::V2::DummyConfig
-
-          # Load it up
-          config = config_class.new
-
           # Capture the strategy so we can use it later. This will be used in
           # the block iteration for merging/overwriting
           strategy = name
           strategy = tuples[0][0] if tuples[0]
+
+          # Find the configuration class for this push
+          config_class = Vagrant.plugin("2").manager.push_configs[strategy]
+          config_class ||= Vagrant::Config::V2::DummyConfig
+
+          # Load it up
+          config = config_class.new
 
           begin
             tuples.each do |s, b|
@@ -113,6 +113,22 @@ module VagrantPlugins
 
           result.instance_variable_set(:@__defined_pushes, new_pushes)
         end
+      end
+
+      # Validate all pushes
+      def validate(machine)
+        errors = { "push" => _detected_errors }
+
+        __compiled_pushes.each do |_, push|
+          config = push[1]
+          push_errors = config.validate(machine)
+
+          if push_errors
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, push_errors)
+          end
+        end
+
+        errors
       end
 
       # This returns the list of compiled pushes as a hash by name.

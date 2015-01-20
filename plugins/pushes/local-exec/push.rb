@@ -1,6 +1,6 @@
 require "fileutils"
 require "tempfile"
-require "vagrant/util/subprocess"
+require "vagrant/util/safe_exec"
 
 require_relative "errors"
 
@@ -38,16 +38,7 @@ module VagrantPlugins
 
       # Execute the script, raising an exception if it fails.
       def execute!(*cmd)
-        result = Vagrant::Util::Subprocess.execute(*cmd)
-
-        if result.exit_code != 0
-          raise Errors::CommandFailed,
-            cmd:    cmd.join(" "),
-            stdout: result.stdout,
-            stderr: result.stderr
-        end
-
-        result
+        Vagrant::Util::SafeExec.exec(cmd[0], *cmd[1..-1])
       end
     end
   end

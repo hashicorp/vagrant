@@ -6,6 +6,7 @@ module VagrantPlugins
         @version    = options.fetch(:version, :latest)
         @prerelease = options.fetch(:prerelease, :latest)
         @force      = options.fetch(:force, false)
+        @download_path  = options.fetch(:download_path, nil)
       end
 
       # This handles verifying the Chef installation, installing it if it was
@@ -27,7 +28,7 @@ module VagrantPlugins
 
         @machine.ui.detail(I18n.t("vagrant.chef_installing",
           version: @version.to_s))
-        @machine.guest.capability(:chef_install, @version, @prerelease)
+        @machine.guest.capability(:chef_install, @version, @prerelease, @download_path)
 
         if !@machine.guest.capability(:chef_installed, @version)
           raise Provisioner::Base::ChefError, :install_failed

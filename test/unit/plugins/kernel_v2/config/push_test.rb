@@ -89,6 +89,7 @@ describe VagrantPlugins::Kernel_V2::PushConfig do
     let(:key)    { pushes[:foo][0] }
     let(:config) { pushes[:foo][1] }
     let(:unset)  { Vagrant.plugin("2", :config).const_get(:UNSET_VALUE) }
+    let(:dummy_klass) { Vagrant::Config::V2::DummyConfig }
 
     before do
       register_plugin("2") do |plugin|
@@ -112,6 +113,62 @@ describe VagrantPlugins::Kernel_V2::PushConfig do
       end
     end
 
+    it "compiles the proper configuration with a single strategy" do
+      instance = described_class.new.tap do |i|
+        i.define "foo"
+      end
+
+      instance.finalize!
+
+      pushes = instance.__compiled_pushes
+      strategy, config = pushes[:foo]
+      expect(strategy).to eq(:foo)
+      expect(config.bar).to be(unset)
+    end
+
+    it "compiles the proper configuration with a single strategy and block" do
+      instance = described_class.new.tap do |i|
+        i.define "foo" do |b|
+          b.bar = 42
+        end
+      end
+
+      instance.finalize!
+
+      pushes = instance.__compiled_pushes
+      strategy, config = pushes[:foo]
+      expect(strategy).to eq(:foo)
+      expect(config.bar).to eq(42)
+    end
+
+    it "compiles the proper config with a name and explicit strategy" do
+      instance = described_class.new.tap do |i|
+        i.define "bar", strategy: "foo"
+      end
+
+      instance.finalize!
+
+      pushes = instance.__compiled_pushes
+      strategy, config = pushes[:bar]
+      expect(strategy).to eq(:foo)
+      expect(config.bar).to be(unset)
+    end
+
+    it "compiles the proper config with a name and explicit strategy with block" do
+      instance = described_class.new.tap do |i|
+        i.define "bar", strategy: "foo" do |b|
+          b.bar = 42
+        end
+      end
+
+      instance.finalize!
+
+      pushes = instance.__compiled_pushes
+      strategy, config = pushes[:bar]
+      expect(strategy).to eq(:foo)
+      expect(config.bar).to eq(42)
+    end
+
     context "with the same name but different strategy" do
       context "with no block" do
         let(:a) do
@@ -128,8 +185,7 @@ describe VagrantPlugins::Kernel_V2::PushConfig do
 
         it "chooses the last config" do
           expect(key).to eq(:zip)
-          expect(config.bar).to be(unset)
-          expect(config.zip).to be(unset)
+          expect(config).to be_kind_of(dummy_klass)
         end
       end
 
@@ -152,8 +208,7 @@ describe VagrantPlugins::Kernel_V2::PushConfig do
 
         it "chooses the last config" do
           expect(key).to eq(:zip)
-          expect(config.bar).to eq(unset)
-          expect(config.zip).to eq("b")
+          expect(config).to be_kind_of(dummy_klass)
         end
       end
 
@@ -174,8 +229,7 @@ describe VagrantPlugins::Kernel_V2::PushConfig do
 
         it "chooses the last config" do
           expect(key).to eq(:zip)
-          expect(config.bar).to be(unset)
-          expect(config.zip).to be(unset)
+          expect(config).to be_kind_of(dummy_klass)
         end
       end
 
@@ -196,8 +250,7 @@ describe VagrantPlugins::Kernel_V2::PushConfig do
 
         it "chooses the last config" do
           expect(key).to eq(:zip)
-          expect(config.bar).to eq("b")
-          expect(config.zip).to eq("b")
+          expect(config).to be_kind_of(dummy_klass)
         end
       end
     end
@@ -286,8 +339,7 @@ describe VagrantPlugins::Kernel_V2::PushConfig do
 
         it "merges the configs" do
           expect(key).to eq(:zip)
-          expect(config.bar).to eq(unset)
-          expect(config.zip).to eq("b")
+          expect(config).to be_kind_of(dummy_klass)
         end
       end
     end

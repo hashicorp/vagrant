@@ -1,3 +1,5 @@
+require "vagrant/util/platform"
+
 module VagrantPlugins
   module Ansible
     class Provisioner < Vagrant.plugin("2", :provisioner)
@@ -22,6 +24,12 @@ module VagrantPlugins
         # Other modes (e.g. paramiko) are not officially supported,
         # but can be enabled via raw_arguments option.
         options << "--connection=ssh"
+
+        # Increase the SSH connection timeout, as the Ansible default value (10 seconds)
+        # is a bit demanding for some overloaded developer boxes. This is particularly
+        # helpful when additional virtual networks are configured, as their availability
+        # is not controlled during vagrant boot process.
+        options << "--timeout=30"
 
         # By default we limit by the current machine, but
         # this can be overridden by the `limit` option.
@@ -188,8 +196,32 @@ module VagrantPlugins
       def get_ansible_ssh_args
         ssh_options = []
 
+        # Use an SSH ProxyCommand when using the Docker provider with the intermediate host
+        if @machine.provider_name == :docker && machine.provider.host_vm?
+          docker_host_ssh_info = machine.provider.host_vm.ssh_info
+
+          proxy_cmd = "ssh #{docker_host_ssh_info[:username]}@#{docker_host_ssh_info[:host]}" +
+            " -p #{docker_host_ssh_info[:port]} -i #{docker_host_ssh_info[:private_key_path][0]}"
+
+          # Use same options than plugins/providers/docker/communicator.rb
+          # Note: this could be improved (DRY'ed) by sharing these settings. 
+          proxy_cmd += " -o Compression=yes -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+
+          proxy_cmd += " -o ForwardAgent=yes" if @ssh_info[:forward_agent]
+
+          proxy_cmd += " exec nc %h %p 2>/dev/null"
+
+          ssh_options << "-o ProxyCommand='#{ proxy_cmd }'"
+        end
+
         # Don't access user's known_hosts file, except when host_key_checking is enabled.
         ssh_options << "-o UserKnownHostsFile=/dev/null" unless config.host_key_checking
+
+        # Set IdentitiesOnly=yes to avoid authentication errors when the host has more than 5 ssh keys.
+        # Notes:
+        #  - Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option. 
+        #  - this could be improved by sharing logic with lib/vagrant/util/ssh.rb
+        ssh_options << "-o IdentitiesOnly=yes" unless Vagrant::Util::Platform.solaris?
 
         # Multiple Private Keys
         @ssh_info[:private_key_path].drop(1).each do |key|

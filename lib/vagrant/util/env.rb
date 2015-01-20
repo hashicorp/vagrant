@@ -26,7 +26,7 @@ module Vagrant
       # @param [Proc] block
       #   the block to execute with the cleaned environment
       #
-      def with_clean_env(&block)
+      def self.with_clean_env(&block)
         original = ENV.to_hash
 
         ENV.delete('_ORIGINAL_GEM_PATH')

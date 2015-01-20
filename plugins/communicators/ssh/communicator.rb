@@ -320,7 +320,7 @@ module VagrantPlugins
         raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
 
         # Default some options
-        opts[:retries] = 5 if !opts.has_key?(:retries)
+        opts[:retries] = 5 if !opts.key?(:retries)
 
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {

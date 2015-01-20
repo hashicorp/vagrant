@@ -156,7 +156,7 @@ module Vagrant
     Plugin::Manager.instance.installed_specs.any? do |s|
       match = s.name == name
       next match if !version
-      next version.satisfied_by?(s.version)
+      next match && version.satisfied_by?(s.version)
     end
   end
 

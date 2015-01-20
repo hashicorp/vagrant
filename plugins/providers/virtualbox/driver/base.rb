@@ -30,8 +30,8 @@ module VagrantPlugins
 
             # On Windows, we use the VBOX_INSTALL_PATH environmental
             # variable to find VBoxManage.
-            if ENV.has_key?("VBOX_INSTALL_PATH") ||
-              ENV.has_key?("VBOX_MSI_INSTALL_PATH")
+            if ENV.key?("VBOX_INSTALL_PATH") ||
+              ENV.key?("VBOX_MSI_INSTALL_PATH")
               # Get the path.
               path = ENV["VBOX_INSTALL_PATH"] || ENV["VBOX_MSI_INSTALL_PATH"]
               @logger.debug("VBOX_INSTALL_PATH value: #{path}")

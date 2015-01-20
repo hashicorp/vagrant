@@ -91,7 +91,23 @@ module VagrantPlugins
             block.call(:stdout, out) if block_given? && out
             block.call(:stderr, err) if block_given? && err
           end
+
           @logger.debug("Output: #{output.inspect}")
+
+          # Verify that we didn't get a parser error, and if so we should
+          # set the exit code to 1. Parse errors return exit code 0 so we
+          # need to do this.
+          if output[:exitcode] == 0
+            (output[:data] || []).each do |data|
+              next if !data[:stderr]
+              if data[:stderr].include?("ParserError")
+                @logger.warn("Detected ParserError, setting exit code to 1")
+                output[:exitcode] = 1
+                break
+              end
+            end
+          end
+
           return output
         end
       end

@@ -23,7 +23,7 @@ GEM
     compass-import-once (1.0.5)
       sass (>= 3.2, < 3.5)
     daemons (1.1.9)
-    eventmachine (1.0.3)
+    eventmachine (1.0.4)
     execjs (1.4.1)
       multi_json (~> 1.0)
     ffi (1.9.6)

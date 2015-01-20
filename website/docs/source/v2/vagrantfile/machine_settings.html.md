@@ -64,7 +64,7 @@ bundle.
 
 `config.vm.box_download_ca_path` - Path to a directory containing
 CA certificates for downloading a box directly. By default, Vagrant will
-use the Mozilla CA cert bundle..
+use the Mozilla CA cert bundle.
 
 <hr>
 `config.vm.box_download_insecure` - If true, then SSL certificates

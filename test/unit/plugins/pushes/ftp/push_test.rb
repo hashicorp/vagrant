@@ -9,7 +9,7 @@ describe VagrantPlugins::FTPPush::Push do
   let(:env) { isolated_environment }
   let(:config) do
     double("config",
-      host:        "127.0.0.1:21212",
+      host:        "127.0.0.1:51234",
       username:    "sethvargo",
       password:    "bacon",
       passive:     false,
@@ -17,12 +17,24 @@ describe VagrantPlugins::FTPPush::Push do
       destination: "/var/www/site",
     )
   end
+  let(:ui) do
+    double("ui",
+      info: nil,
+    )
+  end
 
   subject { described_class.new(env, config) }
 
+  before do
+    allow(env).to receive(:root_path)
+      .and_return(File.expand_path("..", __FILE__))
+    allow(env).to receive(:ui)
+      .and_return(ui)
+  end
+
   describe "#push" do
     before(:all) do
-      @server = FakeFtp::Server.new(21212, 21213)
+      @server = FakeFtp::Server.new(51234, 21213)
       @server.start
 
       @dir = Dir.mktmpdir
@@ -89,34 +101,6 @@ describe VagrantPlugins::FTPPush::Push do
 
       it "yields a new FTPAdapter" do
         expect { |b| subject.connect(&b) }.to yield_with_args(:ftp)
-      end
-    end
-  end
-
-  describe "#parse_host" do
-    let(:result) { subject.parse_host(host) }
-
-    context "when no port is given" do
-      let(:host) { "127.0.0.1" }
-
-      it "returns the url and port 22" do
-        expect(result).to eq(["127.0.0.1", "22"])
-      end
-    end
-
-    context "when a port is given" do
-      let(:host) { "127.0.0.1:23456" }
-
-      it "returns the url and port 23456" do
-        expect(result).to eq(["127.0.0.1", "23456"])
-      end
-    end
-
-    context "when more than more port is given" do
-      let(:host) { "127.0.0.1:22:33:44" }
-
-      it "returns the url and everything after" do
-        expect(result).to eq(["127.0.0.1", "22:33:44"])
       end
     end
   end

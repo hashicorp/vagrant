@@ -24,7 +24,11 @@ en:
       https://atlas.hashicorp.com.
     invalid_login: |-
       Invalid username or password. Please try again.
+    invalid_token: |-
+      Invalid token. Please try again.
     logged_in: |-
       You are now logged in.
     logged_out: |-
       You are logged out.
+    token_saved: |-
+      The token was successfully saved.

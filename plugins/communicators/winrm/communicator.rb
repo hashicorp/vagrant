@@ -79,12 +79,21 @@ module VagrantPlugins
       alias_method :sudo, :execute
 
       def test(command, opts=nil)
-        # If this is a *nix command with no Windows equivilant, assume failure
+        # If this is a *nix command (which we know about) with no Windows
+        # equivilant, assume failure
         command = @cmd_filter.filter(command)
         return false if command.empty?
 
-        opts = { error_check: false }.merge(opts || {})
-        execute(command, opts) == 0
+        opts = {
+          command:     command,
+          elevated:    false,
+          error_check: false,
+        }.merge(opts || {})
+
+        # If we're passed a *nix command which PS can't parse we get exit code
+        # 0, but output in stderr. We need to check both exit code and stderr.
+        output = shell.send(:powershell, command)
+        return output[:exitcode] == 0 && flatten_stderr(output).length == 0
       end
 
       def upload(from, to)
@@ -153,8 +162,8 @@ module VagrantPlugins
       def raise_execution_error(output, opts)
         # WinRM can return multiple stderr and stdout entries
         error_opts = opts.merge(
-          stdout: output[:data].collect { |e| e[:stdout] }.join,
-          stderr: output[:data].collect { |e| e[:stderr] }.join
+          stdout: flatten_stdout(output),
+          stderr: flatten_stderr(output)
         )
 
         # Use a different error message key if the caller gave us one,
@@ -163,6 +172,20 @@ module VagrantPlugins
 
         # Raise the error, use the type the caller gave us or the comm default
         raise opts[:error_class], error_opts
+      end
+
+
+      # TODO: Replace with WinRM Output class when WinRM 1.3 is released
+      def flatten_stderr(output)
+        output[:data].map do | line |
+          line[:stderr]
+        end.compact.join
+      end
+
+      def flatten_stdout(output)
+        output[:data].map do | line |
+          line[:flatten_stdout]
+        end.compact.join
       end
     end #WinRM class
   end

@@ -60,7 +60,7 @@ module Vagrant
           new_keys = new_state["keys"]
           keys     = {}
           old_keys.each do |key, old_value|
-            if new_keys.has_key?(key)
+            if new_keys.key?(key)
               # We need to do a merge, which we expect to be available
               # on the config class itself.
               keys[key] = old_value.merge(new_keys[key])
@@ -72,7 +72,7 @@ module Vagrant
 
           new_keys.each do |key, new_value|
             # Add in the keys that the new class has that we haven't merged.
-            if !keys.has_key?(key)
+            if !keys.key?(key)
               keys[key] = new_value.dup
             end
           end

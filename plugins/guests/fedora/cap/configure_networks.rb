@@ -26,7 +26,7 @@ module VagrantPlugins
             end
 
             interface_names = networks.map do |network|
-               "eth#{network[:interface]}"
+               "#{interface_names[network[:interface]]}"
             end
           else
             machine.communicate.sudo("/usr/sbin/biosdevname -d | grep Kernel | cut -f2 -d: | sed -e 's/ //;'") do |_, result|
