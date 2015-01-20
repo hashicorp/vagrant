@@ -7,6 +7,12 @@ module VagrantPlugins
   module FTPPush
     class Push < Vagrant.plugin("2", :push)
       IGNORED_FILES = %w(. ..).freeze
+      DEFAULT_EXCLUDES = %w(.git .hg .svn .vagrant).freeze
+
+      def initialize(*)
+        super
+        @logger = Log4r::Logger.new("vagrant::pushes::ftp")
+      end
 
       def push
         # Grab files early so if there's an exception or issue, we don't have to
@@ -14,11 +20,16 @@ module VagrantPlugins
         files = Hash[*all_files.flat_map do |file|
           relative_path = relative_path_for(file, config.dir)
           destination = File.expand_path(File.join(config.destination, relative_path))
+          file = File.expand_path(file, env.root_path)
           [file, destination]
         end]
 
+        ftp = "#{config.username}@#{config.host}:#{config.destination}"
+        env.ui.info "Uploading #{env.root_path} to #{ftp}"
+
         connect do |ftp|
           files.each do |local, remote|
+            @logger.info "Uploading #{local} => #{remote}"
             ftp.upload(local, remote)
           end
         end
@@ -31,16 +42,6 @@ module VagrantPlugins
         ftp = klass.new(config.host, config.username, config.password,
           passive: config.passive)
         ftp.connect(&block)
-      end
-
-      # Parse the host into it's url and port parts.
-      # @return [Array]
-      def parse_host(host)
-        if host.include?(":")
-          host.split(":", 2)
-        else
-          [host, "22"]
-        end
       end
 
       # The list of all files that should be pushed by this push. This method
@@ -72,7 +73,10 @@ module VagrantPlugins
       # @param [Array<String>] excludes
       #   the exclude patterns or files
       def filter_excludes!(list, excludes)
-        excludes = Array(excludes).flat_map { |e| [e, "#{e}/*"] }
+        excludes = Array(excludes)
+        excludes = excludes + DEFAULT_EXCLUDES
+        excludes = excludes.flat_map { |e| [e, "#{e}/*"] }
+
         list.reject! do |file|
           basename = relative_path_for(file, config.dir)
 

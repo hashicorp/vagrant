@@ -18,6 +18,10 @@ module VagrantPlugins
           o.on("-k", "--logout", "Logs you out if you're logged in") do |k|
             options[:logout] = k
           end
+
+          o.on("-t", "--token TOKEN", String, "Set the Atlas token") do |t|
+            options[:token] = t
+          end
         end
 
         # Parse the options
@@ -31,6 +35,8 @@ module VagrantPlugins
           return execute_check
         elsif options[:logout]
           return execute_logout
+        elsif options[:token]
+          return execute_token(options[:token])
         end
 
         # Let the user know what is going on.
@@ -77,6 +83,19 @@ module VagrantPlugins
         @client.clear_token
         @env.ui.success(I18n.t("login_command.logged_out"))
         return 0
+      end
+
+      def execute_token(token)
+        @client.store_token(token)
+        @env.ui.success(I18n.t("login_command.token_saved"))
+
+        if @client.logged_in?
+          @env.ui.success(I18n.t("login_command.check_logged_in"))
+          return 0
+        else
+          @env.ui.error(I18n.t("login_command.invalid_token"))
+          return 1
+        end
       end
     end
   end

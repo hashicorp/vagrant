@@ -44,7 +44,7 @@ the destination folder.
 The rsync synced folder type accepts the following options:
 
 * `rsync__args` (array of strings) - A list of arguments to supply
-  to `rsync`. By default this is `["--verbose", "--archive", "--delete", "-z"]`.
+  to `rsync`. By default this is `["--verbose", "--archive", "--delete", "-z", "--copy-links"]`.
 
 * `rsync__auto` (boolean) - If false, then `rsync-auto` will not
   watch and automatically sync this folder. By default, this is true.
@@ -81,7 +81,7 @@ permissions, use `"--rsync-path='sudo rsync'"` to run rsync with sudo on the gue
 <pre class="prettyprint">
 Vagrant.configure("2") do |config|
   config.vm.synced_folder "bin", "/usr/local/bin", type: "rsync",
-    rsync__exclude: ".git/"
+    rsync__exclude: ".git/",
     rsync__args: ["--verbose", "--rsync-path='sudo rsync'", "--archive", "--delete", "-z"]
 end
 </pre>

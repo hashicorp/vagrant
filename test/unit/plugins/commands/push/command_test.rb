@@ -6,11 +6,14 @@ describe VagrantPlugins::CommandPush::Command do
   include_context "unit"
   include_context "command plugin helpers"
 
+  let(:iso_env) { isolated_environment }
   let(:env) do
-    isolated_environment.tap do |env|
-      env.vagrantfile("")
-      env.create_vagrant_env
-    end
+    iso_env.vagrantfile(<<-VF)
+      Vagrant.configure("2") do |config|
+        config.vm.box = "hashicorp/precise64"
+      end
+    VF
+    iso_env.create_vagrant_env
   end
 
   let(:argv)   { [] }
@@ -38,6 +41,26 @@ describe VagrantPlugins::CommandPush::Command do
     it "delegates to Environment#push" do
       expect(env).to receive(:push).once
       subject.execute
+    end
+
+    it "validates the configuration" do
+      iso_env.vagrantfile <<-EOH
+        Vagrant.configure("2") do |config|
+          config.vm.box = "hashicorp/precise64"
+
+          config.push.define "noop" do |push|
+            push.bad = "ham"
+          end
+        end
+      EOH
+
+      subject = described_class.new(argv, iso_env.create_vagrant_env)
+      allow(subject).to receive(:validate_pushes!)
+        .and_return(:noop)
+
+      expect { subject.execute }.to raise_error(Vagrant::Errors::ConfigInvalid) { |err|
+        expect(err.message).to include("The following settings shouldn't exist: bad")
+      }
     end
   end
 

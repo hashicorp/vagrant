@@ -80,7 +80,7 @@ module VagrantPlugins
           acc
         end
 
-        vm.action(:package, **opts)
+        vm.action(:package, opts)
       end
     end
   end

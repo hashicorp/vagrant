@@ -24,13 +24,13 @@ module Vagrant
 
           # Tracks whether we were configured to provision
           config_enabled = true
-          config_enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)
+          config_enabled = env[:provision_enabled] if env.key?(:provision_enabled)
 
           # Check if we already provisioned, and if so, disable the rest
           provision_enabled = true
 
           ignore_sentinel = true
-          if env.has_key?(:provision_ignore_sentinel)
+          if env.key?(:provision_ignore_sentinel)
             ignore_sentinel = env[:provision_ignore_sentinel]
           end
           if ignore_sentinel
@@ -69,7 +69,7 @@ module Vagrant
           end
 
           # Store the value so that other actions can use it
-          env[:provision_enabled] = provision_enabled if !env.has_key?(:provision_enabled)
+          env[:provision_enabled] = provision_enabled if !env.key?(:provision_enabled)
 
           # Ask the provisioners to modify the configuration if needed
           provisioner_instances(env).each do |p, _|

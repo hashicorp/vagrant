@@ -1,18 +1,68 @@
-## 1.7.2 (unreleased)
+## 1.7.3 (unreleased)
+
+BUG FIXES:
+
+  - core: push configurations are validated with global configs [GH-5130]
+  - core: remove executable permissions on internal file [GH-5220]
+  - core: check name and version in `has_plugin?` [GH-5218]
+  - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
+  - guests/funtoo: fix incorrect path in configure networks [GH-4812]
+  - plugins/login: allow users to login with a token [GH-5145]
+  - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
+  - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
+  - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
+  - provisioners/docker: use docker.com instead of docker.io [GH-5216]
+
+## 1.7.2 (January 6, 2015)
+
+BREAKING CHANGES:
+
+  - If you depended on the paths that Chef/Puppet provisioners use to
+    store cookbooks (ex. "/tmp/vagrant-chef-1"), these will no longer be
+    correct. Without this change, Chef/Puppet didn't work at all with
+    `vagrant provision`. We expect this to affect only a minor number of
+    people, since it's not something that was ever documented or recommended
+    by Vagrant, or even meant to be supported.
 
 FEATURES:
 
   - provisioners/salt: add support for grains [GH-4895]
 
+IMPROVEMENTS:
+
+  - commands/reload,up: `--provision-with` implies `--provision` [GH-5085]
+
 BUG FIXES:
 
   - core: private boxes still referencing vagrantcloud.com will have
       their vagrant login access token properly appended
+  - core: push plugin configuration is properly validated
+  - core: restore box packaging functionality
+  - commands/package: fix crash
   - commands/push: push lookups are by user-defined name, not push
       strategy name [GH-4975]
+  - commands/push: validate the configuration
+  - communicators/winrm: detect parse errors in PowerShell and error
   - guests/arch: fix network configuration due to poor line breaks. [GH-4964]
+  - guests/solaris: Merge configurations properly so configs can be set
+      in default Vagrantfiles. [GH-5092]
+  - installer: SSL cert bundle contains 1024-bit keys, fixing SSL verification
+      for a lot of sites.
+  - installer: vagrant executable properly `cygpaths` the SSL bundle path
+      for Cygwin
+  - installer: Nokogiri (XML lib used by Vagrant and dependencies) linker
+      dependencies fixed, fixing load issues on some platforms
+  - providers/docker: Symlinks in shared folders work. [GH-5093]
+  - providers/hyperv: VM start errors turn into proper Vagrant errors. [GH-5101]
+  - provisioners/chef: fix missing shared folder error [GH-4988]
   - provisioners/chef: remove Chef version check from solo.rb generation and
       make `roles_path` populate correctly
+  - provisioners/chef: fix bad invocation of `with_clean_env` [GH-5021]
+  - pushes/atlas: support more verbose logging
+  - pushes/ftp: expand file paths relative to the Vagrantfile
+  - pushes/ftp: improved debugging output
+  - pushes/ftp: create parent directories if they do not exist on the remote
+      server
 
 ## 1.7.1 (December 11, 2014)
 

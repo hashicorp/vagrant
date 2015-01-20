@@ -36,3 +36,6 @@ set up Vagrant for an existing project.
 The Vagrantfile is meant to be committed to version control with
 your project, if you use version control. This way, every person working
 with that project can benefit from Vagrant without any upfront work.
+
+<a href="/v2/getting-started/index.html" class="button inline-button prev-button">Getting Started</a>
+<a href="/v2/getting-started/boxes.html" class="button inline-button next-button">Boxes</a>

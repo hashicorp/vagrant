@@ -52,6 +52,13 @@ module Vagrant
     !!ENV["VAGRANT_I_KNOW_WHAT_IM_DOING_PLEASE_BE_QUIET"]
   end
 
+  # The current log level for Vagrant
+  #
+  # @return [String]
+  def self.log_level
+    ENV["VAGRANT_LOG"]
+  end
+
   # Returns the URL prefix to the server.
   #
   # @return [String]

@@ -991,7 +991,7 @@ VF
         end
 
         def push
-          !!self.class.class_variable_set(:@@pushed, true)
+          self.class.class_variable_set(:@@pushed, true)
         end
       end
     end

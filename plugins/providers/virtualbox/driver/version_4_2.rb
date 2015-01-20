@@ -189,9 +189,9 @@ module VagrantPlugins
               # we use the block form of sub here to ensure that if the specified_name happens to end with a number (which is fairly likely) then
               # we won't end up having the character sequence of a \ followed by a number be interpreted as a back reference.  For example, if
               # specified_name were "abc123", then "\\abc123\\".reverse would be "\\321cba\\", and the \3 would be treated as a back reference by the sub
-              disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse) { "\\#{specified_name}\\".reverse }.reverse # Replace only last occurrence              
+              disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse) { "\\#{specified_name}\\".reverse }.reverse # Replace only last occurrence
             else
-              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence                
+              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence
             end
           end
 
@@ -481,13 +481,13 @@ module VagrantPlugins
               folder[:name],
               "--hostpath",
               folder[:hostpath]]
-            args << "--transient" if folder.has_key?(:transient) && folder[:transient]
-
-            # Add the shared folder
-            execute("sharedfolder", "add", @uuid, *args)
+            args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Enable symlinks on the shared folder
             execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1")
+
+            # Add the shared folder
+            execute("sharedfolder", "add", @uuid, *args)
           end
         end
 

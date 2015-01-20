@@ -33,3 +33,6 @@ virtual machine. Cool.
 When you're done fiddling around with the machine, run `vagrant destroy`
 back on your host machine, and Vagrant will remove all traces of the
 virtual machine.
+
+<a href="/v2/getting-started/boxes.html" class="button inline-button prev-button">Boxes</a>
+<a href="/v2/getting-started/synced_folders.html" class="button inline-button next-button">Synced Folders</a>

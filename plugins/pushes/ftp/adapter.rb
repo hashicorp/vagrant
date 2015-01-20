@@ -1,3 +1,5 @@
+require "pathname"
+
 module VagrantPlugins
   module FTPPush
     class Adapter
@@ -50,7 +52,7 @@ module VagrantPlugins
       end
 
       def default_port
-        20
+        21
       end
 
       def connect(&block)
@@ -67,15 +69,24 @@ module VagrantPlugins
       end
 
       def upload(local, remote)
-        parent = File.dirname(remote)
+        parent   = File.dirname(remote)
+        fullpath = Pathname.new(File.expand_path(parent, pwd))
 
-        # Create the parent directory if it does not exist
-        if !@server.list("/").any? { |f| f.start_with?(parent) }
-          @server.mkdir(parent)
+        # Create the parent directories if they does not exist (naive mkdir -p)
+        fullpath.descend do |path|
+          if @server.list(path.to_s).empty?
+            @server.mkdir(path.to_s)
+          end
         end
 
         # Upload the file
         @server.putbinaryfile(local, remote)
+      end
+
+      private
+
+      def pwd
+        @pwd ||= @server.pwd
       end
     end
 

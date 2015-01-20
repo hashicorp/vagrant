@@ -144,7 +144,7 @@ en:
     inserting_random_key: |-
       Inserting generated public key within guest...
     inserting_remove_key: |-
-      Removing insecure key from the guest if its present...
+      Removing insecure key from the guest if it's present...
     list_commands: |-
       Below is a listing of all available Vagrant commands and a brief
       description of what they do.
@@ -1809,6 +1809,8 @@ en:
         running_apply: "Running chef-apply..."
         running_solo: "Running chef-solo..."
         running_solo_again: "Running chef-solo again (failed to converge)..."
+        running_zero: "Running chef-zero..."
+        running_zero_again: "Running chef-zero again (failed to converge)..."
         missing_shared_folders: |-
           Shared folders that Chef requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the

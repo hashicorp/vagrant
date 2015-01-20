@@ -23,7 +23,7 @@ describe VagrantPlugins::Chef::Config::ChefApply do
   describe "#upload_path" do
     it "defaults to /tmp/vagrant-chef-apply.rb" do
       subject.finalize!
-      expect(subject.upload_path).to match(%r{/tmp/vagrant-chef-apply-\d+})
+      expect(subject.upload_path).to eq("/tmp/vagrant-chef-apply")
     end
   end
 

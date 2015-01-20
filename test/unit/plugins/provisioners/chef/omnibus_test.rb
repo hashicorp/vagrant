@@ -2,7 +2,7 @@ require_relative "../../../base"
 
 require Vagrant.source_root.join("plugins/provisioners/chef/omnibus")
 
-describe VagrantPlugins::Chef::Omnibus, :focus do
+describe VagrantPlugins::Chef::Omnibus do
   let(:prefix) { "curl -sL #{described_class.const_get(:OMNITRUCK)}" }
 
   let(:version) { :latest }

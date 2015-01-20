@@ -6,7 +6,7 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "hashicorp/precise64"
 
-  ["virtualbox", "vmware_fusion", "vmware_workstation"].each do |provider|
+  ["vmware_fusion", "vmware_workstation", "virtualbox"].each do |provider|
     config.vm.provider provider do |v, override|
       v.memory = "1024"
     end

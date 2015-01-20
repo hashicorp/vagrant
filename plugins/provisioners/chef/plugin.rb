@@ -10,7 +10,7 @@ module VagrantPlugins
       name "chef"
       description <<-DESC
       Provides support for provisioning your virtual machines with
-      Chef via `chef-solo`, `chef-client`, or `chef-apply`.
+      Chef via `chef-solo`, `chef-client`, `chef-zero` or `chef-apply`.
       DESC
 
       config(:chef_apply, :provisioner) do
@@ -67,6 +67,17 @@ module VagrantPlugins
         require_relative "cap/redhat/chef_install"
         Cap::Redhat::ChefInstall
       end
+
+      guest_capability(:omnios, :chef_installed) do
+        require_relative "cap/omnios/chef_installed"
+        Cap::OmniOS::ChefInstalled
+      end
+
+      guest_capability(:omnios, :chef_install) do
+        require_relative "cap/omnios/chef_install"
+        Cap::OmniOS::ChefInstall
+      end
+
     end
   end
 end
