@@ -4,6 +4,7 @@ BUG FIXES:
 
   - core: push configurations are validated with global configs [GH-5130]
   - core: remove executable permissions on internal file [GH-5220]
+  - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - plugins/login: allow users to login with a token [GH-5145]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
