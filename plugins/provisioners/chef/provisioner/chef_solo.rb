@@ -34,7 +34,7 @@ module VagrantPlugins
           @data_bags_folders = expanded_folders(@config.data_bags_path, "data_bags")
           @environments_folders = expanded_folders(@config.environments_path, "environments")
 
-          existing = synced_folders(@machine, cached: true)
+          existing = synced_folders(@machine, cached: false)
           share_folders(root_config, "csc", @cookbook_folders, existing)
           share_folders(root_config, "csr", @role_folders, existing)
           share_folders(root_config, "csdb", @data_bags_folders, existing)
