@@ -64,6 +64,8 @@ module Vagrant
           box_download_ca_path = machine.config.vm.box_download_ca_path
           box_download_client_cert = machine.config.vm.box_download_client_cert
           box_download_insecure = machine.config.vm.box_download_insecure
+          box_download_checksum_type = machine.config.vm.box_download_checksum_type
+          box_download_checksum = machine.config.vm.box_download_checksum
           box_formats = machine.provider_options[:box_format] ||
             machine.provider_name
 
@@ -86,6 +88,8 @@ module Vagrant
               box_download_ca_cert: box_download_ca_cert,
               box_download_ca_path: box_download_ca_path,
               box_download_insecure: box_download_insecure,
+              box_checksum_type: box_download_checksum_type,
+              box_checksum: box_download_checksum,
             }))
           rescue Errors::BoxAlreadyExists
             # Just ignore this, since it means the next part will succeed!
