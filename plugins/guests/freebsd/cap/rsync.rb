@@ -31,7 +31,7 @@ module VagrantPlugins
         end
 
         def self.rsync_post(machine, opts)
-          if opts.has_key?(:chown) && !opts[:chown]
+          if opts.key?(:chown) && !opts[:chown]
             return
           end
 

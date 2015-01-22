@@ -45,6 +45,12 @@ module VagrantPlugins
         end
       end
 
+      def self.action_package
+        lambda do |env|
+          raise Errors::PackageNotSupported
+        end
+      end
+
       # This action just runs the provisioners on the machine.
       def self.action_provision
         Vagrant::Action::Builder.new.tap do |b|
@@ -209,7 +215,7 @@ module VagrantPlugins
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
-            # If the container is running and we're doing a run, we're done
+            # If the container is running and we're not doing a run, we're done
             next if env[:result] && env[:machine_action] != :run_command
 
             if env[:machine_action] != :run_command
@@ -225,7 +231,10 @@ module VagrantPlugins
             end
 
             b2.use Call, IsState, :not_created do |env2, b3|
-              if !env2[:result]
+              if env2[:result]
+                # First time making this thing, set to the "preparing" state
+                b3.use InitState
+              else
                 b3.use EnvSet, host_machine_sync_folders: false
               end
             end
@@ -235,12 +244,13 @@ module VagrantPlugins
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
             b2.use PrepareNFSSettings
+            b2.use Login
             b2.use Build
 
             if env[:machine_action] != :run_command
               # If the container is NOT created yet, then do some setup steps
               # necessary for creating it.
-              b2.use Call, IsState, :not_created do |env2, b3|
+              b2.use Call, IsState, :preparing do |env2, b3|
                 if env2[:result]
                   b3.use EnvSet, port_collision_repair: true
                   b3.use HostMachinePortWarning
@@ -264,6 +274,7 @@ module VagrantPlugins
                 end
               end
             else
+              # We're in a run command, so we do things a bit differently.
               b2.use SyncedFolders
               b2.use Create
             end
@@ -287,8 +298,10 @@ module VagrantPlugins
       autoload :HostMachineRequired, action_root.join("host_machine_required")
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
+      autoload :InitState, action_root.join("init_state")
       autoload :IsBuild, action_root.join("is_build")
       autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
+      autoload :Login, action_root.join("login")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")

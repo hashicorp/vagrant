@@ -96,10 +96,10 @@ module VagrantPlugins
           image = @env[:create_image]
           image ||= @provider_config.image
 
-          links = {}
+          links = []
           @provider_config._links.each do |link|
             parts = link.split(":", 2)
-            links[parts[0]] = parts[1]
+            links << parts
           end
 
           {
@@ -143,7 +143,9 @@ module VagrantPlugins
           result += mappings.values.map do |fp|
             protocol = ""
             protocol = "/udp" if fp[:protocol].to_s == "udp"
-            "#{fp[:host]}:#{fp[:guest]}#{protocol}"
+            host_ip = ""
+            host_ip = "#{fp[:host_ip]}:" if fp[:host_ip]
+            "#{host_ip}#{fp[:host]}:#{fp[:guest]}#{protocol}"
           end.compact
 
           result

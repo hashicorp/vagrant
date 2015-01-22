@@ -102,10 +102,16 @@ module VagrantPlugins
           # First, clean up the old entry
           nfs_cleanup(id)
 
+          # Only use "sudo" if we can't write to /etc/exports directly
+          sudo_command = ""
+          sudo_command = "sudo " if !File.writable?("/etc/exports")
+
           # Output the rendered template into the exports
           output.split("\n").each do |line|
             line = Vagrant::Util::ShellQuote.escape(line, "'")
-            system("echo '#{line}' | sudo tee -a /etc/exports >/dev/null")
+            system(
+              "echo '#{line}' | " +
+              "#{sudo_command}tee -a /etc/exports >/dev/null")
           end
 
           # We run restart here instead of "update" just in case nfsd
@@ -131,7 +137,7 @@ module VagrantPlugins
           user = Process.uid
 
           File.read("/etc/exports").lines.each do |line|
-            if id = line[/^# VAGRANT-BEGIN:( #{user})? ([A-Za-z0-9-]+?)$/, 2]
+            if id = line[/^# VAGRANT-BEGIN:( #{user})? ([\.\/A-Za-z0-9\-_:]+?)$/, 2]
               if valid_ids.include?(id)
                 logger.debug("Valid ID: #{id}")
               else
@@ -165,12 +171,19 @@ module VagrantPlugins
 
           user = Process.uid
 
+          command = []
+          command << "sudo" if !File.writable?("/etc/exports")
+          command += [
+            "sed", "-E", "-e",
+            "/^# VAGRANT-BEGIN:( #{user})? #{id}/," +
+            "/^# VAGRANT-END:( #{user})? #{id}/ d",
+            "-ibak",
+            "/etc/exports"
+          ]
+
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant, and restart NFS.
-          system(
-            "sudo", "sed", "-E", "-e",
-            "/^# VAGRANT-BEGIN:( #{user})? #{id}/,/^# VAGRANT-END:( #{user})? #{id}/ d",
-            "-ibak", "/etc/exports")
+          system(*command)
         end
 
         def self.nfs_checkexports!

@@ -44,6 +44,10 @@ module VagrantPlugins
           proxy_ui.opts[:prefix_spaces] = true
           proxy_ui.opts[:target] = env[:machine].name.to_s
 
+          # Reload the machine so that if it was created while we didn't
+          # hold the lock, we'll see the updated state.
+          host_machine.reload
+
           # See if the machine is ready already. If not, start it.
           if host_machine.communicate.ready?
             env[:machine].ui.detail(I18n.t("docker_provider.host_machine_ready"))

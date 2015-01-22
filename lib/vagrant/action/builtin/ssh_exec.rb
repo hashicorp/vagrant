@@ -31,11 +31,6 @@ module Vagrant
 
           info[:private_key_path] ||= []
 
-          # Check SSH key permissions
-          info[:private_key_path].each do |path|
-            SSH.check_key_permissions(Pathname.new(path))
-          end
-
           if info[:private_key_path].empty? && info[:password]
             env[:ui].warn(I18n.t("vagrant.ssh_exec_password"))
           end

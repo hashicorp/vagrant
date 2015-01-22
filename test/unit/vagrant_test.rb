@@ -74,6 +74,17 @@ describe Vagrant do
       expect(described_class.has_plugin?("foo")).to be_true
       expect(described_class.has_plugin?("bar")).to be_false
     end
+
+    it "finds plugins by gem name and version" do
+      specs = [Gem::Specification.new]
+      specs[0].name = "foo"
+      specs[0].version = "1.2.3"
+      Vagrant::Plugin::Manager.instance.stub(installed_specs: specs)
+
+      expect(described_class.has_plugin?("foo", "~> 1.2.0")).to be_true
+      expect(described_class.has_plugin?("foo", "~> 1.0.0")).to be_false
+      expect(described_class.has_plugin?("bar", "~> 1.2.0")).to be_false
+    end
   end
 
   describe "require_version" do

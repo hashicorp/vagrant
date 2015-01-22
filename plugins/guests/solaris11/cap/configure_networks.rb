@@ -19,6 +19,9 @@ module VagrantPlugins
               #machine.communicate.execute("#{ifconfig_cmd} up")
               #machine.communicate.execute("#{su_cmd} sh -c \"echo '#{network[:ip]}' > /etc/hostname.#{device}\"")
               # ipadm create-addr -T static -a local=172.16.10.15/24 net2/v4
+              if machine.communicate.test("ipadm | grep #{device}/v4")
+                machine.communicate.execute("#{su_cmd} ipadm delete-addr #{device}/v4")
+              end
               machine.communicate.execute("#{su_cmd} ipadm create-addr -T static -a #{network[:ip]}/#{cidr} #{device}/v4")
             elsif network[:type].to_sym == :dhcp
               #machine.communicate.execute("#{ifconfig_cmd} dhcp start")

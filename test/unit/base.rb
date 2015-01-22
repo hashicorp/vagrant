@@ -4,6 +4,7 @@ require "rubygems"
 # Gems
 require "checkpoint"
 require "rspec/autorun"
+require "webmock/rspec"
 
 # Require Vagrant itself so we can reference the proper
 # classes to test.
@@ -28,7 +29,6 @@ $stderr.sync = true
 
 # Configure RSpec
 RSpec.configure do |c|
-  c.expect_with :rspec, :stdlib
   c.treat_symbols_as_metadata_keys_with_true_values = true
 
   if Vagrant::Util::Platform.windows?

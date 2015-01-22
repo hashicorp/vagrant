@@ -102,12 +102,14 @@ module Vagrant
         options[:username] = ssh_info[:username]
         options[:private_key_path] = ssh_info[:private_key_path]
 
+        log_level = ssh_info[:log_level] || "FATAL"
+
         # Command line options
         command_options = [
           "-p", options[:port].to_s,
           "-o", "Compression=yes",
           "-o", "DSAAuthentication=yes",
-          "-o", "LogLevel=FATAL",
+          "-o", "LogLevel=#{log_level}",
           "-o", "StrictHostKeyChecking=no",
           "-o", "UserKnownHostsFile=/dev/null"]
 

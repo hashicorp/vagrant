@@ -1,7 +1,5 @@
 require File.expand_path("../../../../base", __FILE__)
 
-require "vagrant/util/ssh"
-
 describe Vagrant::Action::Builtin::SSHExec do
   let(:app) { lambda { |env| } }
   let(:env) { { machine: machine } }
@@ -16,7 +14,6 @@ describe Vagrant::Action::Builtin::SSHExec do
   before(:each) do
     # Stub the methods so that even if we test incorrectly, no side
     # effects actually happen.
-    allow(ssh_klass).to receive(:check_key_permissions)
     allow(ssh_klass).to receive(:exec)
   end
 
@@ -27,23 +24,6 @@ describe Vagrant::Action::Builtin::SSHExec do
     env[:machine] = not_ready_machine
     expect { described_class.new(app, env).call(env) }.
       to raise_error(Vagrant::Errors::SSHNotReady)
-  end
-
-  it "should check key permissions then exec" do
-    key_path = "/foo"
-    machine_ssh_info[:private_key_path] = [key_path]
-
-    expect(ssh_klass).to receive(:check_key_permissions).
-      with(Pathname.new(key_path)).
-      once.
-      ordered
-
-    expect(ssh_klass).to receive(:exec).
-      with(machine_ssh_info, nil).
-      once.
-      ordered
-
-    described_class.new(app, env).call(env)
   end
 
   it "should exec with the SSH info in the env if given" do

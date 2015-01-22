@@ -1,25 +1,60 @@
-require File.expand_path("../base", __FILE__)
+require_relative "base_runner"
 
 module VagrantPlugins
   module Chef
     module Config
-      class ChefSolo < Base
+      class ChefSolo < BaseRunner
+        # The path on disk where Chef cookbooks are stored.
+        # Default is "cookbooks".
+        # @return [String]
         attr_accessor :cookbooks_path
+
+        # The path where data bags are stored on disk.
+        # @return [String]
         attr_accessor :data_bags_path
+
+        # The path where environments are stored on disk.
+        # @return [String]
         attr_accessor :environments_path
+
+        # A URL download a remote recipe from. Note: you should use chef-apply
+        # instead.
+        #
+        # @deprecated
+        #
+        # @return [String]
         attr_accessor :recipe_url
+
+        # The path where roles are stored on disk.
+        # @return [String]
         attr_accessor :roles_path
+
+        # The type of synced folders to use.
+        # @return [String]
         attr_accessor :synced_folder_type
 
         def initialize
           super
 
-          @cookbooks_path            = UNSET_VALUE
-          @data_bags_path            = UNSET_VALUE
-          @environments_path         = UNSET_VALUE
-          @recipe_url                = UNSET_VALUE
-          @roles_path                = UNSET_VALUE
-          @synced_folder_type        = UNSET_VALUE
+          @cookbooks_path      = UNSET_VALUE
+          @data_bags_path      = UNSET_VALUE
+          @environments_path   = UNSET_VALUE
+          @recipe_url          = UNSET_VALUE
+          @roles_path          = UNSET_VALUE
+          @synced_folder_type  = UNSET_VALUE
+        end
+
+        # @deprecated This is deprecated in Chef and will be removed in Chef 12.
+        def recipe_url=(value)
+          puts "DEPRECATION: The 'recipe_url' setting for the Chef Solo"
+          puts "provisioner is deprecated. This value will be removed in"
+          puts "Chef 12. It is recommended you use the Chef Apply provisioner"
+          puts "instead. The 'recipe_url' setting will be removed in the next"
+          puts "version of Vagrant."
+
+          if value
+            @recipe_url = value
+          end
         end
 
         def nfs=(value)
@@ -63,12 +98,15 @@ module VagrantPlugins
         end
 
         def validate(machine)
-          errors = _detected_errors
-          errors.concat(validate_base(machine))
-          errors << I18n.t("vagrant.config.chef.cookbooks_path_empty") if \
-            !cookbooks_path || [cookbooks_path].flatten.empty?
-          errors << I18n.t("vagrant.config.chef.environment_path_required") if \
-            environment && environments_path.empty?
+          errors = validate_base(machine)
+
+          if [cookbooks_path].flatten.compact.empty?
+            errors << I18n.t("vagrant.config.chef.cookbooks_path_empty")
+          end
+
+          if environment && environments_path.empty?
+            errors << I18n.t("vagrant.config.chef.environment_path_required")
+          end
 
           environments_path.each do |type, raw_path|
             next if type != :host
@@ -76,7 +114,8 @@ module VagrantPlugins
             path = Pathname.new(raw_path).expand_path(machine.env.root_path)
             if !path.directory?
               errors << I18n.t("vagrant.config.chef.environment_path_missing",
-                               path: raw_path.to_s)
+                path: raw_path.to_s
+              )
             end
           end
 
@@ -92,6 +131,8 @@ module VagrantPlugins
         def prepare_folders_config(config)
           # Make sure the path is an array
           config = [config] if !config.is_a?(Array) || config.first.is_a?(Symbol)
+
+          return [] if config.flatten.compact.empty?
 
           # Make sure all the paths are in the proper format
           config.map do |path|

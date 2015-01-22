@@ -25,6 +25,10 @@ module VagrantPlugins
         error_key(:docker_provider_nfs_without_privileged)
       end
 
+      class PackageNotSupported < DockerError
+        error_key(:package_not_supported)
+      end
+
       class StateNotRunning < DockerError
         error_key(:state_not_running)
       end

@@ -147,7 +147,7 @@ module Vagrant
         #   element is an authenticated URL.
         # @param [Hash] env
         # @param [Bool] expanded True if the metadata URL was expanded with
-        #   a Vagrant Cloud server URL.
+        #   a Atlas server URL.
         def add_from_metadata(url, env, expanded)
           original_url = env[:box_url]
           provider = env[:box_provider]
@@ -369,7 +369,7 @@ module Vagrant
         #
         # @return [Hash]
         def downloader(url, env, **opts)
-          opts[:ui] = true if !opts.has_key?(:ui)
+          opts[:ui] = true if !opts.key?(:ui)
 
           temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
           @logger.info("Downloading box: #{url} => #{temp_path}")
@@ -401,7 +401,7 @@ module Vagrant
           downloader_options[:ca_path] = env[:box_download_ca_path]
           downloader_options[:continue] = true
           downloader_options[:insecure] = env[:box_download_insecure]
-          downloader_options[:client_cert] = env[:box_client_cert]
+          downloader_options[:client_cert] = env[:box_download_client_cert]
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
 
@@ -409,7 +409,7 @@ module Vagrant
         end
 
         def download(url, env, **opts)
-          opts[:ui] = true if !opts.has_key?(:ui)
+          opts[:ui] = true if !opts.key?(:ui)
 
           d = downloader(url, env, **opts)
 
@@ -483,7 +483,7 @@ module Vagrant
           output = d.head
           match  = output.scan(/^Content-Type: (.+?)$/i).last
           return false if !match
-          match.last.chomp == "application/json"
+          !!(match.last.chomp =~ /application\/json/)
         end
 
         def validate_checksum(checksum_type, checksum, path)

@@ -253,7 +253,7 @@ describe Vagrant::Environment do
   describe "#machine" do
     # A helper to register a provider for use in tests.
     def register_provider(name, config_class=nil, options=nil)
-      provider_cls = Class.new(Vagrant.plugin("2", :provider))
+      provider_cls = Class.new(VagrantTests::DummyProvider)
 
       register_plugin("2") do |p|
         p.provider(name, options) { provider_cls }
@@ -798,13 +798,60 @@ VF
       end
     end
 
-    it "is VirtualBox if nothing else is usable" do
+    it "raise an error if nothing else is usable" do
       plugin_providers[:foo] = [provider_usable_class(false), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(false), { priority: 5 }]
       plugin_providers[:baz] = [provider_usable_class(false), { priority: 5 }]
 
       with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
-        expect(subject.default_provider).to eq(:virtualbox)
+        expect { subject.default_provider }.to raise_error(
+          Vagrant::Errors::NoDefaultProvider)
+      end
+    end
+
+    it "is the provider in the Vagrantfile that is usable" do
+      subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.provider "bar"
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider).to eq(:foo)
+      end
+    end
+
+    it "is the highest usable provider outside the Vagrantfile" do
+      subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider).to eq(:bar)
+      end
+    end
+
+    it "is the provider in the Vagrantfile that is usable for a machine" do
+      subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.define "sub" do |v|
+        v.vm.provider "bar"
+      end
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider(machine: :sub)).to eq(:bar)
       end
     end
   end
@@ -918,6 +965,76 @@ VF
 
       instance.action_runner.run(callable)
       expect(result).to eql(instance.ui)
+    end
+  end
+
+  describe "#pushes" do
+    it "returns the pushes from the Vagrantfile config" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
+          Vagrant.configure("2") do |config|
+            config.push.define "noop"
+          end
+        VF
+      end
+
+      env = environment.create_vagrant_env
+      expect(env.pushes).to eq([:noop])
+    end
+  end
+
+  describe "#push" do
+    let(:push_class) do
+      Class.new(Vagrant.plugin("2", :push)) do
+        def self.pushed?
+          !!class_variable_get(:@@pushed)
+        end
+
+        def push
+          self.class.class_variable_set(:@@pushed, true)
+        end
+      end
+    end
+
+    it "raises an exception when the push does not exist" do
+      expect { instance.push("lolwatbacon") }
+        .to raise_error(Vagrant::Errors::PushStrategyNotDefined)
+    end
+
+    it "raises an exception if the strategy does not exist" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
+          Vagrant.configure("2") do |config|
+            config.push.define "lolwatbacon"
+          end
+        VF
+      end
+
+      env = environment.create_vagrant_env
+      expect { env.push("lolwatbacon") }
+        .to raise_error(Vagrant::Errors::PushStrategyNotLoaded)
+    end
+
+    it "executes the push action" do
+      register_plugin("2") do |plugin|
+        plugin.name "foo"
+
+        plugin.push(:foo) do
+          push_class
+        end
+      end
+
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
+          Vagrant.configure("2") do |config|
+            config.push.define "foo"
+          end
+        VF
+      end
+
+      env = environment.create_vagrant_env
+      env.push("foo")
+      expect(push_class.pushed?).to be_true
     end
   end
 

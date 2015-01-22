@@ -1,3 +1,5 @@
+require_relative "util/ssh"
+
 require "digest/md5"
 require "thread"
 
@@ -6,7 +8,7 @@ require "log4r"
 module Vagrant
   # This represents a machine that Vagrant manages. This provides a singular
   # API for querying the state and making state changes to the machine, which
-  # is backed by any sort of provider (VirtualBox, VMWare, etc.).
+  # is backed by any sort of provider (VirtualBox, VMware, etc.).
   class Machine
     # The box that is backing this machine.
     #
@@ -133,6 +135,12 @@ module Vagrant
         @logger.debug("Eager loading WinRM communicator to avoid GH-3390")
         communicate
       end
+
+      # If the ID is the special not created ID, then set our ID to
+      # nil so that we destroy all our data.
+      if state.id == MachineState::NOT_CREATED_ID
+        self.id = nil
+      end
     end
 
     # This calls an action on the provider. The provider may or may not
@@ -142,8 +150,17 @@ module Vagrant
     # @param [Hash] extra_env This data will be passed into the action runner
     #   as extra data set on the environment hash for the middleware
     #   runner.
-    def action(name, extra_env=nil)
+    def action(name, opts=nil)
       @logger.info("Calling action: #{name} on provider #{@provider}")
+
+      opts ||= {}
+
+      # Determine whether we lock or not
+      lock = true
+      lock = opts.delete(:lock) if opts.key?(:lock)
+
+      # Extra env keys are the remaining opts
+      extra_env = opts.dup
 
       # Create a deterministic ID for this machine
       vf = nil
@@ -155,7 +172,7 @@ module Vagrant
       # we will want to do more fine-grained unlocking in actions themselves
       # but for a 1.6.2 release this will work.
       locker = Proc.new { |*args, &block| block.call }
-      locker = @env.method(:lock) if !name.to_s.start_with?("ssh")
+      locker = @env.method(:lock) if lock && !name.to_s.start_with?("ssh")
 
       # Lock this machine for the duration of this action
       locker.call("machine-action-#{id}") do
@@ -170,6 +187,7 @@ module Vagrant
             provider: @provider.to_s
         end
 
+        # Call the action
         action_raw(name, callable, extra_env)
       end
     rescue Errors::EnvironmentLockedError
@@ -342,6 +360,7 @@ module Vagrant
 
     # This reloads the ID of the underlying machine.
     def reload
+      old_id = @id
       @id = nil
 
       if @data_dir
@@ -350,6 +369,13 @@ module Vagrant
         id_file = @data_dir.join("id")
         @id = id_file.read.chomp if id_file.file?
       end
+
+      if @id != old_id && @provider
+        # It changed, notify the provider
+        @provider.machine_id_changed
+      end
+
+      @id
     end
 
     # This returns the SSH info for accessing this machine. This SSH info
@@ -434,6 +460,14 @@ module Vagrant
         File.expand_path(path, @env.root_path)
       end
 
+      # Check that the private key permissions are valid
+      info[:private_key_path].each do |path|
+        key_path = Pathname.new(path)
+        if key_path.exist?
+          Vagrant::Util::SSH.check_key_permissions(key_path)
+        end
+      end
+
       # Return the final compiled SSH info data
       info
     end
@@ -445,12 +479,6 @@ module Vagrant
     def state
       result = @provider.state
       raise Errors::MachineStateInvalid if !result.is_a?(MachineState)
-
-      # If the ID is the special not created ID, then set our ID to
-      # nil so that we destroy all our data.
-      if result.id == MachineState::NOT_CREATED_ID
-        self.id = nil
-      end
 
       # Update our state cache if we have a UUID and an entry in the
       # master index.

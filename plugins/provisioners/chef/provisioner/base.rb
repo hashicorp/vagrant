@@ -2,6 +2,8 @@ require 'tempfile'
 
 require "vagrant/util/template_renderer"
 
+require_relative "../installer"
+
 module VagrantPlugins
   module Chef
     module Provisioner
@@ -13,6 +15,25 @@ module VagrantPlugins
           error_namespace("vagrant.provisioners.chef")
         end
 
+        def initialize(machine, config)
+          super
+
+          @logger = Log4r::Logger.new("vagrant::provisioners::chef")
+        end
+
+        def install_chef
+          return if !config.install
+
+          @logger.info("Checking for Chef installation...")
+          installer = Installer.new(@machine,
+            force:      config.install == :force,
+            version:    config.version,
+            prerelease: config.prerelease,
+            download_path:  config.installer_download_path
+          )
+          installer.ensure_installed
+        end
+
         def verify_binary(binary)
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
@@ -20,7 +41,8 @@ module VagrantPlugins
             "which #{binary}",
             error_class: ChefError,
             error_key: :chef_not_detected,
-            binary: binary)
+            binary: binary,
+          )
         end
 
         # This returns the command to run Chef for the given client

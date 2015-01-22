@@ -61,7 +61,7 @@ module Vagrant
       #
       # @return [Boolean]
       def has_plugin?(name)
-        @data["installed"].has_key?(name)
+        @data["installed"].key?(name)
       end
 
       # Remove a plugin that is installed from the state file.

@@ -58,22 +58,35 @@ module VagrantPlugins
         @env.batch(options[:parallel]) do |batch|
           names = argv
           if names.empty?
+            autostart = false
             @env.vagrantfile.machine_names_and_options.each do |n, o|
-              o[:autostart] = true if !o.has_key?(:autostart)
+              autostart = true if o.key?(:autostart)
+              o[:autostart] = true if !o.key?(:autostart)
               names << n.to_s if o[:autostart]
             end
+
+            # If we have an autostart key but no names, it means that
+            # all machines are autostart: false and we don't start anything.
+            names = nil if autostart && names.empty?
           end
 
-          with_target_vms(names, provider: options[:provider]) do |machine|
-            @env.ui.info(I18n.t(
-              "vagrant.commands.up.upping",
-              name: machine.name,
-              provider: machine.provider_name))
+          if names
+            with_target_vms(names, provider: options[:provider]) do |machine|
+              @env.ui.info(I18n.t(
+                "vagrant.commands.up.upping",
+                name: machine.name,
+                provider: machine.provider_name))
 
-            machines << machine
+              machines << machine
 
-            batch.action(machine, :up, options)
+              batch.action(machine, :up, options)
+            end
           end
+        end
+
+        if machines.empty?
+          @env.ui.info(I18n.t("vagrant.up_no_machines"))
+          return 0
         end
 
         # Output the post-up messages that we have, if any

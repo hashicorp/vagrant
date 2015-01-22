@@ -51,7 +51,7 @@ module VagrantPlugins
 
           options ||= {}
           @auto_correct = false
-          @auto_correct = options[:auto_correct] if options.has_key?(:auto_correct)
+          @auto_correct = options[:auto_correct] if options.key?(:auto_correct)
           @adapter  = (options[:adapter] || 1).to_i
           @guest_ip = options[:guest_ip] || nil
           @host_ip = options[:host_ip] || nil

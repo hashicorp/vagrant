@@ -260,6 +260,29 @@ module VagrantPlugins
           end
         end
 
+        def read_dhcp_servers
+          execute("list", "dhcpservers", retryable: true).split("\n\n").collect do |block|
+            info = {}
+
+            block.split("\n").each do |line|
+              if network = line[/^NetworkName:\s+HostInterfaceNetworking-(.+?)$/, 1]
+                info[:network]      = network
+                info[:network_name] = "HostInterfaceNetworking-#{network}"
+              elsif ip = line[/^IP:\s+(.+?)$/, 1]
+                info[:ip] = ip
+              elsif netmask = line[/^NetworkMask:\s+(.+?)$/, 1]
+                info[:netmask] = netmask
+              elsif lower = line[/^lowerIPAddress:\s+(.+?)$/, 1]
+                info[:lower] = lower
+              elsif upper = line[/^upperIPAddress:\s+(.+?)$/, 1]
+                info[:upper] = upper
+              end
+            end
+
+            info
+          end
+        end
+
         def read_guest_additions_version
           output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version",
                            retryable: true)
@@ -274,7 +297,12 @@ module VagrantPlugins
         end
 
         def read_guest_ip(adapter_number)
-          read_guest_property("/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP")
+          ip = read_guest_property("/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP")
+          if !valid_ip_address?(ip)
+            raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound, guest_property: "/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP"
+          end
+
+          return ip
         end
 
         def read_guest_property(property)
@@ -287,26 +315,6 @@ module VagrantPlugins
         end
 
         def read_host_only_interfaces
-          dhcp = {}
-          execute("list", "dhcpservers", retryable: true).split("\n\n").each do |block|
-            info = {}
-
-            block.split("\n").each do |line|
-              if network = line[/^NetworkName:\s+HostInterfaceNetworking-(.+?)$/, 1]
-                info[:network] = network
-              elsif ip = line[/^IP:\s+(.+?)$/, 1]
-                info[:ip] = ip
-              elsif lower = line[/^lowerIPAddress:\s+(.+?)$/, 1]
-                info[:lower] = lower
-              elsif upper = line[/^upperIPAddress:\s+(.+?)$/, 1]
-                info[:upper] = upper
-              end
-            end
-
-            # Set the DHCP info
-            dhcp[info[:network]] = info
-          end
-
           execute("list", "hostonlyifs", retryable: true).split("\n\n").collect do |block|
             info = {}
 
@@ -321,9 +329,6 @@ module VagrantPlugins
                 info[:status] = status
               end
             end
-
-            # Set the DHCP info if it exists
-            info[:dhcp] = dhcp[info[:name]] if dhcp[info[:name]]
 
             info
           end
@@ -429,6 +434,10 @@ module VagrantPlugins
           results
         end
 
+        def remove_dhcp_server(network_name)
+          execute("dhcpserver", "remove", "--netname", network_name)
+        end
+
         def set_mac_address(mac)
           execute("modifyvm", @uuid, "--macaddress1", mac)
         end
@@ -443,13 +452,13 @@ module VagrantPlugins
               folder[:name],
               "--hostpath",
               folder[:hostpath]]
-            args << "--transient" if folder.has_key?(:transient) && folder[:transient]
-
-            # Add the shared folder
-            execute("sharedfolder", "add", @uuid, *args)
+            args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Enable symlinks on the shared folder
             execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1")
+
+            # Add the shared folder
+            execute("sharedfolder", "add", @uuid, *args)
           end
         end
 
@@ -507,6 +516,16 @@ module VagrantPlugins
                 raise
               end
             end
+          end
+        end
+
+        def valid_ip_address?(ip)
+          # Filter out invalid IP addresses
+          # GH-4658 VirtualBox can report an IP address of 0.0.0.0 for FreeBSD guests.
+          if ip == "0.0.0.0"
+            return false
+          else
+            return true
           end
         end
 

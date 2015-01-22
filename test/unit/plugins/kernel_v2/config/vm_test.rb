@@ -262,6 +262,41 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#provider and #__providers" do
+    it "returns the providers in order" do
+      subject.provider "foo"
+      subject.provider "bar"
+      subject.finalize!
+
+      expect(subject.__providers).to eq([:foo, :bar])
+    end
+
+    describe "merging" do
+      it "prioritizes new orders in later configs" do
+        subject.provider "foo"
+
+        other = described_class.new
+        other.provider "bar"
+
+        merged = subject.merge(other)
+
+        expect(merged.__providers).to eq([:foo, :bar])
+      end
+
+      it "prioritizes duplicates in new orders in later configs" do
+        subject.provider "foo"
+
+        other = described_class.new
+        other.provider "bar"
+        other.provider "foo"
+
+        merged = subject.merge(other)
+
+        expect(merged.__providers).to eq([:foo, :bar])
+      end
+    end
+  end
+
   describe "#provider and #get_provider_config" do
     it "compiles the configurations for a provider" do
       subject.provider "virtualbox" do |vb|
@@ -306,8 +341,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
 
     it "allows provisioner settings to be overriden" do
-      subject.provision("shell", path: "foo", id: "s") { |s| s.inline = "foo" }
-      subject.provision("shell", inline: "bar", id: "s") { |s| s.args = "bar" }
+      subject.provision("s", path: "foo", type: "shell") { |s| s.inline = "foo" }
+      subject.provision("s", inline: "bar", type: "shell") { |s| s.args = "bar" }
       subject.finalize!
 
       r = subject.provisioners
@@ -377,12 +412,12 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       end
 
       it "uses the proper order when merging overrides" do
-        subject.provision("shell", inline: "foo", id: "original")
-        subject.provision("shell", inline: "other", id: "other")
+        subject.provision("original", inline: "foo", type: "shell")
+        subject.provision("other", inline: "other", type: "shell")
 
         other = described_class.new
         other.provision("shell", inline: "bar")
-        other.provision("shell", inline: "foo-overload", id: "original")
+        other.provision("original", inline: "foo-overload", type: "shell")
 
         merged = subject.merge(other)
         merged_provs = merged.provisioners
@@ -397,13 +432,13 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       end
 
       it "can preserve order for overrides" do
-        subject.provision("shell", inline: "foo", id: "original")
-        subject.provision("shell", inline: "other", id: "other")
+        subject.provision("original", inline: "foo", type: "shell")
+        subject.provision("other", inline: "other", type: "shell")
 
         other = described_class.new
         other.provision("shell", inline: "bar")
         other.provision(
-          "shell", inline: "foo-overload", id: "original",
+          "original", inline: "foo-overload", type: "shell",
           preserve_order: true)
 
         merged = subject.merge(other)

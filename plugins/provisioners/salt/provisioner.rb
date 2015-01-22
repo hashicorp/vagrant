@@ -75,7 +75,7 @@ module VagrantPlugins
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key
+        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config
       end
 
       def need_install
@@ -181,6 +181,11 @@ module VagrantPlugins
           @machine.env.ui.info "Copying salt master config to vm."
           @machine.communicate.upload(expanded_path(@config.master_config).to_s, temp_config_dir + "/master")
         end
+
+        if @config.grains_config
+          @machine.env.ui.info "Copying salt grains config to vm."
+          @machine.communicate.upload(expanded_path(@config.grains_config).to_s, temp_config_dir + "/grains")
+        end
       end
 
       # Copy master and minion keys to VM
@@ -236,7 +241,9 @@ module VagrantPlugins
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
           end
 
-          @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
+          if @machine.communicate.test("test -f %s" % bootstrap_destination)
+            @machine.communicate.sudo("rm -f %s" % bootstrap_destination)
+          end
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
           if @machine.config.vm.communicator == :winrm
@@ -302,9 +309,9 @@ module VagrantPlugins
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt '*' state.highstate --retcode-passthrough --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
               if @config.verbose
-                @machine.env.ui.info(data)
+                @machine.env.ui.info(data.rstrip)
               end
             end
           else
@@ -313,14 +320,14 @@ module VagrantPlugins
               @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all", opts)
               @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
                 if @config.verbose
-                  @machine.env.ui.info(data)
+                  @machine.env.ui.info(data.rstrip)
                 end
               end
             else
               @machine.communicate.sudo("salt-call saltutil.sync_all")
               @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
                 if @config.verbose
-                  @machine.env.ui.info(data)
+                  @machine.env.ui.info(data.rstrip)
                 end
               end
             end

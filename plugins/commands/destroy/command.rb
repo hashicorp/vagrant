@@ -32,7 +32,7 @@ module VagrantPlugins
             :destroy, force_confirm_destroy: options[:force])
 
           total    += 1
-          declined += 1 if action_env.has_key?(:force_confirm_destroy_result) &&
+          declined += 1 if action_env.key?(:force_confirm_destroy_result) &&
             action_env[:force_confirm_destroy_result] == false
         end
 

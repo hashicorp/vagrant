@@ -88,7 +88,7 @@ module Vagrant
           end
 
           # By default, the command is primary
-          opts[:primary] = true if !opts.has_key?(:primary)
+          opts[:primary] = true if !opts.key?(:primary)
 
           # Register the command
           components.commands.register(name.to_sym) do
@@ -219,6 +219,18 @@ module Vagrant
 
           # Return the registry
           data[:provisioners]
+        end
+
+        # Registers additional pushes to be available.
+        #
+        # @param [String] name Name of the push.
+        # @param [Hash] options List of options for the push.
+        def self.push(name, options=nil, &block)
+          components.pushes.register(name.to_sym) do
+            [block.call, options]
+          end
+
+          nil
         end
 
         # Registers additional synced folder implementations.
