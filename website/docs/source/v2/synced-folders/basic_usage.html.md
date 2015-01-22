@@ -27,7 +27,7 @@ if it doesn't exist.
 
 ## Options
 
-You may also specify some additional parameters when configuring 
+You may also specify additional optional parameters when configuring 
 synced folders. These options are listed below. More detailed examples of using
 some of these options are shown below this section, note the owner/group example
 supplies two additional options separated by commas.
