@@ -10,6 +10,7 @@ BUG FIXES:
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - plugins/login: allow users to login with a token [GH-5145]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
+  - providers/virtualbox: read netmask from dhcpservers [GH-5233]
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
