@@ -12,6 +12,8 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     VagrantPlugins::CommunicatorWinRM::Config.new.tap do |c|
       c.username = 'username'
       c.password = 'password'
+      c.max_tries = 3
+      c.retry_delay = 0
       c.finalize!
     end
   }
@@ -28,10 +30,13 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       expect(subject.powershell("dir")[:exitcode]).to eq(0)
     end
 
-    it "should raise auth error when WinRM exception has a response code of 401" do
-      # The default settings might an account lockout - 20 auth failures!
-      expect(session).to receive(:powershell).with(/^dir.+/).exactly(20).times.and_raise(
-        WinRM::WinRMAuthorizationError.new("Oh no!!", 401))
+    it "should retry when a WinRMAuthorizationError is received" do
+      expect(session).to receive(:powershell).with(/^dir.+/).exactly(3).times.and_raise(
+        # Note: The initialize for WinRMAuthorizationError may require a status_code as
+        # the second argument in a future WinRM release. Currently it doesn't track the
+        # status code.
+        WinRM::WinRMAuthorizationError.new("Oh no!! Unauthrorized")
+      )
       expect { subject.powershell("dir") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::AuthenticationFailed)
     end

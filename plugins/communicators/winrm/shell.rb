@@ -88,7 +88,7 @@ module VagrantPlugins
       end
 
       def execute_shell_with_retry(command, shell, &block)
-        retryable(tries: @config.max_tries, on: @@exceptions_to_retry_on, sleep: 10) do
+        retryable(tries: @config.max_tries, on: @@exceptions_to_retry_on, sleep: @config.retry_delay) do
           @logger.debug("#{shell} executing:\n#{command}")
           output = session.send(shell, command) do |out, err|
             block.call(:stdout, out) if block_given? && out
@@ -124,7 +124,6 @@ module VagrantPlugins
               endpoint: endpoint,
               message: exception.message
         when WinRM::WinRMHTTPTransportError
-          case exception.status_code
           raise Errors::ExecutionError,
             shell: shell,
             command: command,
