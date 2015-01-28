@@ -31,7 +31,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     it "should raise auth error when WinRM exception has a response code of 401" do
       # The default settings might an account lockout - 20 auth failures!
       expect(session).to receive(:powershell).with(/^dir.+/).exactly(20).times.and_raise(
-        WinRM::WinRMHTTPTransportError.new("Oh no!!", 401))
+        WinRM::WinRMAuthorizationError.new("Oh no!!", 401))
       expect { subject.powershell("dir") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::AuthenticationFailed)
     end

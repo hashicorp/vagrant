@@ -22,6 +22,7 @@ module VagrantPlugins
       @@exceptions_to_retry_on = [
         HTTPClient::KeepAliveDisconnected,
         WinRM::WinRMHTTPTransportError,
+        WinRM::WinRMAuthorizationError,
         Errno::EACCES,
         Errno::EADDRINUSE,
         Errno::ECONNREFUSED,
@@ -124,15 +125,6 @@ module VagrantPlugins
               message: exception.message
         when WinRM::WinRMHTTPTransportError
           case exception.status_code
-          # If the error is a 401, we can return a more specific error message
-          when 401
-            raise Errors::AuthenticationFailed,
-              user: @config.username,
-              password: @config.password,
-              endpoint: endpoint,
-              message: exception.message
-          end
-
           raise Errors::ExecutionError,
             shell: shell,
             command: command,
