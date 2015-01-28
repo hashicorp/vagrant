@@ -9,7 +9,7 @@ Vagrant::Util::SilenceWarnings.silence! do
   require "winrm"
 end
 
-require_relative "file_manager"
+require "winrm-fs/file_manager"
 
 module VagrantPlugins
   module CommunicatorWinRM
@@ -65,11 +65,13 @@ module VagrantPlugins
       end
 
       def upload(from, to)
-        FileManager.new(self).upload(from, to)
+        file_manager = WinRM::FS::FileManager.new(session)
+        file_manager.upload(from, to)
       end
 
       def download(from, to)
-        FileManager.new(self).download(from, to)
+        file_manager = WinRM::FS::FileManager.new(session)
+        file_manager.download(from, to)
       end
 
       protected
