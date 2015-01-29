@@ -22,3 +22,8 @@ accepts.
 In depth documentation and use cases of various Vagrant commands is
 available by reading the appropriate sub-section available in the left
 navigational area of this site.
+
+You may also wish to consult the
+[documentation](/v2/other/environmental-variables.html) regarding the
+environmental variables that can be used to configure and control
+Vagrant in a global way.
