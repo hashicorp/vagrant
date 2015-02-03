@@ -57,7 +57,7 @@ module Vagrant
               raise Errors::BoxServerNotSet if !server
 
               expanded = true
-              url[i] = "#{server}/api/v1/vagrant/#{url[i]}"
+              url[i] = "#{server}/#{url[i]}"
             end
           end
 
