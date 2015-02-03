@@ -48,7 +48,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
       AccessLog: [],
       Logger: WEBrick::Log.new(tf.path, 7),
       Port: port,
-      DocumentRoot: path.dirname.to_s,
+      DocumentRoot: path.to_s,
       MimeTypes: mime_types)
     thr = Thread.new { server.start }
     yield port
@@ -308,7 +308,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
     it "adds from shorthand path" do
       box_path = iso_env.box2_file(:virtualbox)
       td = Pathname.new(Dir.mktmpdir)
-      tf = td.join("mitchellh", "precise64.json")
+      tf = td.join("api", "v1", "vagrant", "mitchellh", "precise64.json")
       tf.dirname.mkpath
       tf.open("w") do |f|
         f.write(<<-RAW)
@@ -332,7 +332,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         RAW
       end
 
-      with_web_server(tf.dirname) do |port|
+      with_web_server(td) do |port|
         url = "http://127.0.0.1:#{port}"
         env[:box_url] = "mitchellh/precise64.json"
 
@@ -341,7 +341,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
           expect(opts[:metadata_url]).to eq(
-            "#{url}/#{env[:box_url]}")
+            "#{url}/api/v1/vagrant/#{env[:box_url]}")
           true
         }.and_return(box)
 
@@ -356,7 +356,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
     it "add from shorthand path with configured server url" do
       box_path = iso_env.box2_file(:virtualbox)
       td = Pathname.new(Dir.mktmpdir)
-      tf = td.join("mitchellh", "precise64.json")
+      tf = td.join("api", "v1", "vagrant", "mitchellh", "precise64.json")
       tf.dirname.mkpath
       tf.open("w") do |f|
         f.write(<<-RAW)
@@ -380,7 +380,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
         RAW
       end
 
-      with_web_server(tf.dirname) do |port|
+      with_web_server(td) do |port|
         url = "http://127.0.0.1:#{port}"
         env[:box_url] = "mitchellh/precise64.json"
         env[:box_server_url] = url
@@ -390,7 +390,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
           expect(opts[:metadata_url]).to eq(
-            "#{url}/#{env[:box_url]}")
+            "#{url}/api/v1/vagrant/#{env[:box_url]}")
           true
         }.and_return(box)
 
@@ -558,10 +558,11 @@ describe Vagrant::Action::Builtin::BoxAdd do
     end
 
     it "raises an error if shorthand is invalid" do
-      tf = Tempfile.new("foo")
-      tf.close
+      td = Pathname.new(Dir.mktmpdir)
+      tf = td.join("api", "v1", "vagrant", "foo")
+      tf.dirname.mkpath
 
-      with_web_server(Pathname.new(tf.path)) do |port|
+      with_web_server(td) do |port|
         env[:box_url] = "mitchellh/precise64.json"
 
         expect(box_collection).to receive(:add).never
