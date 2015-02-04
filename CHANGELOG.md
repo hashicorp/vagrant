@@ -14,6 +14,7 @@ BUG FIXES:
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
+  - pushes/atlas: send additional box metadata [GH-5283]
 
 ## 1.7.2 (January 6, 2015)
 
