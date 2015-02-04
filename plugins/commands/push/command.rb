@@ -9,17 +9,8 @@ module VagrantPlugins
 
       # @todo support multiple strategies if requested by the community
       def execute
-        options = {}
-
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant push [strategy] [options]"
-          o.separator ""
-          o.separator "Options:"
-          o.separator ""
-
-          o.on("-m", "--message BODY", "Text to identify this push") do |m|
-            options[:message] = m
-          end
         end
 
         # Parse the options
