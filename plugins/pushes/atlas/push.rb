@@ -58,10 +58,20 @@ module VagrantPlugins
       #
       # @return [Array<String>]
       def metadata
-        hash = {
-          "box"     => env.vagrantfile.config.vm.box,
-          "box_url" => env.vagrantfile.config.vm.box_url,
-        }.reject { |k,v| v.nil? || v.empty? }
+        box     = env.vagrantfile.config.vm.box
+        box_url = env.vagrantfile.config.vm.box_url
+
+        result = {}
+
+        if !box.nil? && !box.empty?
+          result["box"] = box
+        end
+
+        if !box_url.nil? && !box_url.empty?
+          result["box_url"] = Array(box_url).first
+        end
+
+        return result
       end
     end
   end
