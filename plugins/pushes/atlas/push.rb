@@ -41,8 +41,7 @@ module VagrantPlugins
       # @return [String]
       def uploader_path
         # Determine the uploader path
-        uploader = config.uploader_path
-        if uploader
+        if uploader = config.uploader_path
           return uploader
         end
 
