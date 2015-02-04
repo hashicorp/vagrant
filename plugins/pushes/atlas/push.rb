@@ -30,6 +30,7 @@ module VagrantPlugins
         cmd += metadata.map { |k,v| ["-metadata", "#{k}=#{v}"] }
         cmd += ["-address", config.address] if config.address
         cmd += ["-token", config.token] if config.token
+        cmd += ["-message", message] if message
         cmd << config.app
         cmd << File.expand_path(config.dir, env.root_path)
         Vagrant::Util::SafeExec.exec(uploader, *cmd.flatten)
