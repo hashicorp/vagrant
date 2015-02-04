@@ -8,10 +8,17 @@ describe VagrantPlugins::AtlasPush::Push do
 
   let(:bin) { VagrantPlugins::AtlasPush::Push::UPLOADER_BIN }
 
+  # let(:env) do
+  #   double("env",
+  #     root_path: File.expand_path("..", __FILE__)
+  #   )
+  # end
+
   let(:env) do
-    double("env",
-      root_path: File.expand_path("..", __FILE__)
-    )
+    # We have to create a Vagrantfile so there is a root path
+    env = isolated_environment
+    env.vagrantfile("")
+    env.create_vagrant_env
   end
 
   let(:config) do
