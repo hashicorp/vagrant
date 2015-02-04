@@ -49,6 +49,16 @@ module VagrantPlugins
         require_relative "cap/rsync"
         Cap::RSync
       end
+
+      guest_capability("solaris11", "insert_public_key") do
+        require_relative "cap/insert_public_key"
+        Cap::InsertPublicKey
+      end
+
+      guest_capability("solaris11", "remove_public_key") do
+        require_relative "cap/remove_public_key"
+        Cap::RemovePublicKey
+      end
     end
   end
 end
