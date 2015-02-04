@@ -27,6 +27,7 @@ module VagrantPlugins
         cmd << "-vcs" if config.vcs
         cmd += config.includes.map { |v| ["-include", v] }
         cmd += config.excludes.map { |v| ["-exclude", v] }
+        cmd += metadata.map { |k,v| ["-metadata", "#{k}=#{v}"] }
         cmd += ["-address", config.address] if config.address
         cmd += ["-token", config.token] if config.token
         cmd << config.app
@@ -52,6 +53,16 @@ module VagrantPlugins
         end
 
         return Vagrant::Util::Which.which(UPLOADER_BIN)
+      end
+
+      # The metadata command for this push.
+      #
+      # @return [Array<String>]
+      def metadata
+        hash = {
+          "box"     => env.vagrantfile.config.vm.box,
+          "box_url" => env.vagrantfile.config.vm.box_url,
+        }.reject { |k,v| v.nil? || v.empty? }
       end
     end
   end
