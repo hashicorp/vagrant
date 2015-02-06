@@ -53,7 +53,7 @@ config.vm.provider "vmware_fusion" do |v|
 end
 ```
 
-Use "vmware_workstation" if you're using VMware workstation.
+Use `"vmware_workstation"` if you're using VMware workstation.
 
 ## VMX Customization
 
@@ -67,7 +67,7 @@ config.vm.provider "vmware_fusion" do |v|
 end
 ```
 
-Use "vmware_workstation" if you're using VMware workstation.
+Use `"vmware_workstation"` if you're using VMware workstation.
 
 In the example above, the "custom-key" key will be set to "value" and the
 "another-key" key will be removed from the VMX file.
@@ -89,3 +89,21 @@ config.vm.provider "vmware_fusion" do |v|
   v.vmx["numvcpus"] = "2"
 end
 ```
+
+## IP Lookup Strategy
+
+By default, the VMWare attempts to use the `vmrun getGuestIpAddress` command to
+look up the address of the guest, and then falls back to an IP lookup strategy
+that parses a machine's VMX information and DHCP lease files.
+
+There are certain cases on guests with multiple network interfaces where
+`getGuestIpAddress` successfully returns, but reports an incorrect IP.  You can
+manually disable the `vmrun` IP lookup with this provider config:
+
+```ruby
+config.vm.provider "vmware_fusion" do |v|
+  v.enable_vmrun_ip_lookup = false
+end
+```
+
+Use `"vmware_workstation"` if you're using VMware workstation.
