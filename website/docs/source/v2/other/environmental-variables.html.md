@@ -9,6 +9,14 @@ Vagrant has a set of environmental variables that can be used to
 configure and control it in a global way. This page lists those environmental
 variables.
 
+## VAGRANT\_CHECKPOINT\_DISABLE 
+
+Vagrant does occasional network calls to check whether the version of Vagrant
+that is running locally is up to date. We understand that software making remote
+calls over the internet for any reason can be undesirable. To surpress these
+calls, set the environment variable `VAGRANT_CHECKPOINT_DISABLE` to any
+non-empty value.
+
 ## VAGRANT\_CWD
 
 `VAGRANT_CWD` can be set to change the working directory of Vagrant. By

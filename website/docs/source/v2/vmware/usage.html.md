@@ -15,10 +15,29 @@ Fusion, and `vmware_workstation` for VMware Workstation.
 The Vagrant VMware provider does not support parallel execution at this time.
 Specifying the `--parallel` option will have no effect.
 
-<p>
-To get started, a 64-bit Ubuntu 12.04 LTS VMware box is available at:
-<a href="http://files.vagrantup.com/precise64_vmware.box">http://files.vagrantup.com/precise64_vmware.box</a>
-</p>
+To get started, create a new `Vagrantfile` that points to a VMware box:
+
+```ruby
+# vagrant init hashicorp/precise64
+Vagrant.configure(2) do |config|
+  config.vm.box = "hashicorp/precise64"
+end
+```
+
+VMware Fusion users should then run:
+
+```shell
+$ vagrant up --provider vmware_fusion
+```
+
+VMware Workstation users should then run:
+
+```shell
+$ vagrant up --provider vmware_workstation
+```
+
+This will download and bring up a new VMware Fusion/Workstation virtual machine
+in Vagrant.
 
 <div class="alert alert-info">
 	<p>
