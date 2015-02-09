@@ -27,6 +27,7 @@ module VagrantPlugins
         cmd << "-vcs" if config.vcs
         cmd += config.includes.map { |v| ["-include", v] }
         cmd += config.excludes.map { |v| ["-exclude", v] }
+        cmd += metadata.map { |k,v| ["-metadata", "#{k}=#{v}"] }
         cmd += ["-address", config.address] if config.address
         cmd += ["-token", config.token] if config.token
         cmd << config.app
@@ -40,8 +41,7 @@ module VagrantPlugins
       # @return [String]
       def uploader_path
         # Determine the uploader path
-        uploader = config.uploader_path
-        if uploader
+        if uploader = config.uploader_path
           return uploader
         end
 
@@ -52,6 +52,26 @@ module VagrantPlugins
         end
 
         return Vagrant::Util::Which.which(UPLOADER_BIN)
+      end
+
+      # The metadata command for this push.
+      #
+      # @return [Array<String>]
+      def metadata
+        box     = env.vagrantfile.config.vm.box
+        box_url = env.vagrantfile.config.vm.box_url
+
+        result = {}
+
+        if !box.nil? && !box.empty?
+          result["box"] = box
+        end
+
+        if !box_url.nil? && !box_url.empty?
+          result["box_url"] = Array(box_url).first
+        end
+
+        return result
       end
     end
   end

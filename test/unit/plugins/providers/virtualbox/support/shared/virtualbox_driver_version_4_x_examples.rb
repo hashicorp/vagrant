@@ -37,6 +37,7 @@ shared_examples "a version 4.x virtualbox driver" do |options|
           network_name: 'HostInterfaceNetworking-vboxnet0',
           network:      'vboxnet0',
           ip:           '172.28.128.2',
+          netmask:      '255.255.255.0',
           lower:        '172.28.128.3',
           upper:        '172.28.128.254',
         }])
@@ -65,8 +66,8 @@ shared_examples "a version 4.x virtualbox driver" do |options|
 
       it "returns a list with one entry for each server" do
         expect(subject.read_dhcp_servers).to eq([
-          {network_name: 'HostInterfaceNetworking-vboxnet0', network: 'vboxnet0', ip: '172.28.128.2', lower: '172.28.128.3', upper: '172.28.128.254'},
-          {network_name: 'HostInterfaceNetworking-vboxnet1', network: 'vboxnet1', ip: '10.0.0.2', lower: '10.0.0.3', upper: '10.0.0.254'},
+          {network_name: 'HostInterfaceNetworking-vboxnet0', network: 'vboxnet0', ip: '172.28.128.2', netmask: '255.255.255.0', lower: '172.28.128.3', upper: '172.28.128.254'},
+          {network_name: 'HostInterfaceNetworking-vboxnet1', network: 'vboxnet1', ip: '10.0.0.2', netmask: '255.255.255.0', lower: '10.0.0.3', upper: '10.0.0.254'},
         ])
       end
     end

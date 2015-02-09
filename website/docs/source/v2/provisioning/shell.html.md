@@ -136,6 +136,16 @@ that the external path has the proper extension (".bat" or ".ps1"), because
 Windows uses this to determine what kind fo file it is to execute. If you
 exclude this extension, it likely won't work.
 
+To run a script already available on the guest you can use an inline script to
+invoke the remote script on the guest.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell",
+    inline: "/bin/sh /path/to/the/script/already/on/the/guest.sh"
+end
+```
+
 ## Script Arguments
 
 You can parameterize your scripts as well like any normal shell script.
