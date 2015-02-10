@@ -1,9 +1,9 @@
 require_relative "../../../base"
 require_relative "../support/shared/config"
 
-require Vagrant.source_root.join("plugins/provisioners/ansible/config")
+require Vagrant.source_root.join("plugins/provisioners/ansible/config/host")
 
-describe VagrantPlugins::Ansible::Config do
+describe VagrantPlugins::Ansible::Config::Host do
   include_context "unit"
 
   subject { described_class.new }
@@ -15,6 +15,7 @@ describe VagrantPlugins::Ansible::Config do
   it "supports a list of options" do
     config_options = subject.public_methods(false).find_all { |i| i.to_s.end_with?('=') }
     config_options.map! { |i| i.to_s.sub('=', '') }
+
     supported_options = %w( ask_sudo_pass
                             ask_vault_pass
                             extra_vars
@@ -33,7 +34,7 @@ describe VagrantPlugins::Ansible::Config do
                             vault_password_file
                             verbose )
 
-    expect(config_options.sort).to eql(supported_options)
+    expect(get_provisioner_option_names(described_class)).to eql(supported_options)
   end
 
   it "assigns default values to unset options" do
@@ -47,7 +48,7 @@ describe VagrantPlugins::Ansible::Config do
     expect(subject.limit).to be_nil
     expect(subject.sudo).to be_false
     expect(subject.sudo_user).to be_nil
-    expect(subject.verbose).to be_nil
+    expect(subject.verbose).to be_false
     expect(subject.tags).to be_nil
     expect(subject.skip_tags).to be_nil
     expect(subject.start_at_task).to be_nil
@@ -79,7 +80,7 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([])
+      expect(result["ansible remote provisioner"]).to eql([])
     end
 
     it "returns an error if the playbook option is undefined" do
@@ -87,7 +88,7 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([
+      expect(result["ansible remote provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.no_playbook")
       ])
     end
@@ -97,9 +98,9 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([
+      expect(result["ansible remote provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.playbook_path_invalid",
-               path: non_existing_file)
+               path: non_existing_file, system: "host")
       ])
     end
 
@@ -108,7 +109,7 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([])
+      expect(result["ansible remote provisioner"]).to eql([])
     end
 
     it "passes if the extra_vars option is a hash" do
@@ -116,7 +117,7 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([])
+      expect(result["ansible remote provisioner"]).to eql([])
     end
 
     it "returns an error if the extra_vars option refers to a file that does not exist" do
@@ -124,7 +125,7 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([
+      expect(result["ansible remote provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
                type:  subject.extra_vars.class.to_s,
                value: subject.extra_vars.to_s)
@@ -136,7 +137,7 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([
+      expect(result["ansible remote provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
                type:  subject.extra_vars.class.to_s,
                value: subject.extra_vars.to_s)
@@ -148,7 +149,7 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([])
+      expect(result["ansible remote provisioner"]).to eql([])
     end
 
     it "returns an error if inventory_path is specified, but does not exist" do
@@ -156,9 +157,9 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([
+      expect(result["ansible remote provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
-               path: non_existing_file)
+               path: non_existing_file, system: "host")
       ])
     end
 
@@ -167,9 +168,9 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to eql([
+      expect(result["ansible remote provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.vault_password_file_invalid",
-               path: non_existing_file)
+               path: non_existing_file, system: "host")
       ])
     end
 
@@ -180,16 +181,16 @@ describe VagrantPlugins::Ansible::Config do
       subject.finalize!
 
       result = subject.validate(machine)
-      expect(result["ansible provisioner"]).to include(
+      expect(result["ansible remote provisioner"]).to include(
         I18n.t("vagrant.provisioners.ansible.playbook_path_invalid",
-               path: non_existing_file))
-      expect(result["ansible provisioner"]).to include(
+               path: non_existing_file, system: "host"))
+      expect(result["ansible remote provisioner"]).to include(
         I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
                type:  subject.extra_vars.class.to_s,
                value: subject.extra_vars.to_s))
-      expect(result["ansible provisioner"]).to include(
+      expect(result["ansible remote provisioner"]).to include(
         I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
-               path: non_existing_file))
+               path: non_existing_file, system: "host"))
     end
 
   end

@@ -1,3 +1,9 @@
+def get_provisioner_option_names(provisioner_class)
+  config_options = provisioner_class.instance_methods(true).find_all { |i| i.to_s.end_with?('=') }
+  config_options.map! { |i| i.to_s.sub('=', '') }
+  (config_options - ["!", "=", "=="]).sort
+end
+
 shared_examples_for 'any VagrantConfigProvisioner strict boolean attribute' do |attr_name, attr_default_value|
 
   [true, false].each do |bool|
