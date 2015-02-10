@@ -1,3 +1,4 @@
+require "find"
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 
@@ -32,6 +33,10 @@ module VagrantPlugins
       end
 
       def self.winrm_single(machine, winrm_info, opts)
+        # DRY but violates encapsulation...
+        winrm_session = machine.communicate.shell.new_session
+        file_manager = WinRM::FS::FileManager.new(winrm_session)
+
         # Folder info
         guestpath = opts[:guestpath]
         hostpath  = opts[:hostpath]
@@ -75,14 +80,26 @@ module VagrantPlugins
             "vagrant_winrm.winrm_folder_excludes", excludes: excludes.inspect))
         end
 
+        files = []
+        Find.find(hostpath) do | file |
+          excludes.each do | pattern |
+            Find.prune if File.fnmatch?(pattern, file, File::FNM_DOTMATCH)
+          end
+          files << file
+        end
+
+        manifest = Tempfile.new(['files', '.txt']) # because files is too long to pass via CLI
+        manifest.write(files.join("\n"))
+
         # If we have tasks to do before winrming, do those.
         if machine.guest.capability?(:winrm_pre)
           machine.guest.capability(:winrm_pre, opts)
         end
 
-        shell = machine.communicate.shell # FIXME: Hacky!
-        file_manager = VagrantPlugins::CommunicatorWinRM::FileManager.new(shell)
-        file_manager.upload(hostpath, guestpath)
+        file_manager.upload(files, guestpath) do |bytes_copied, total_bytes, local_path, remote_path|
+          machine.ui.clear_line
+          machine.ui.report_progress(bytes_copied, total_bytes, false)
+        end
 
         # If we have tasks to do after winrming, do those.
         if machine.guest.capability?(:winrm_post)
