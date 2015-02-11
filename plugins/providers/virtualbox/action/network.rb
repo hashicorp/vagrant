@@ -157,8 +157,10 @@ module VagrantPlugins
             @logger.debug("Bridge was directly specified in config, searching for: #{config[:bridge]}")
 
             # Search for a matching bridged interface
+            bridge = config[:bridge]
+            bridge = bridge.downcase if bridge.respond_to?(:downcase)
             bridgedifs.each do |interface|
-              if interface[:name].downcase == config[:bridge].downcase
+              if bridge === interface[:name].downcase
                 @logger.debug("Specific bridge found as configured in the Vagrantfile. Using it.")
                 chosen_bridge = interface[:name]
                 break
