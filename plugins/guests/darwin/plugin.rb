@@ -26,6 +26,11 @@ module VagrantPlugins
         Cap::Halt
       end
 
+      guest_capability("darwin", "insert_public_key") do
+        require_relative "cap/insert_public_key"
+        Cap::InsertPublicKey
+      end
+
       guest_capability("darwin", "mount_nfs_folder") do
         require_relative "cap/mount_nfs_folder"
         Cap::MountNFSFolder
@@ -34,6 +39,11 @@ module VagrantPlugins
       guest_capability("darwin", "mount_vmware_shared_folder") do
         require_relative "cap/mount_vmware_shared_folder"
         Cap::MountVmwareSharedFolder
+      end
+
+      guest_capability("darwin", "remove_public_key") do
+        require_relative "cap/remove_public_key"
+        Cap::RemovePublicKey
       end
 
       guest_capability("darwin", "rsync_installed") do
