@@ -32,6 +32,7 @@ module VagrantPlugins
           folder_opts = {}
           folder_opts[:type] = @config.synced_folder_type if @config.synced_folder_type
           folder_opts[:owner] = "root" if !@config.synced_folder_type
+          folder_opts[:args] = @config.synced_folder_args if @config.synced_folder_args
 
           # Share the manifests directory with the guest
           if @config.manifests_path[0].to_sym == :host
