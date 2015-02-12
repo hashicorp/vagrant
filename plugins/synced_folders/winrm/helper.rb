@@ -7,6 +7,8 @@ module VagrantPlugins
     # This is a helper that abstracts out the functionality of syncing
     # folders over winrm so that it can be called from anywhere.
     class WinRMHelper
+      DEFAULT_EXCLUDES = %w(.git .hg .svn .vagrant).freeze
+
       # This converts an exclude pattern to a regular expression
       # we can send to Listen.
       def self.exclude_to_regexp(path, exclude)
@@ -43,12 +45,6 @@ module VagrantPlugins
         hostpath  = File.expand_path(hostpath, machine.env.root_path)
         hostpath  = Vagrant::Util::Platform.fs_real_path(hostpath).to_s
 
-        # WinRM probably doesn't need cygwin_path like rsync.
-        # if Vagrant::Util::Platform.windows?
-          # winrm for Windows expects cygwin style paths, always.
-          # hostpath = Vagrant::Util::Platform.cygwin_path(hostpath)
-        # end
-
         # Make sure the host path ends with a "/" to avoid creating
         # a nested directory...
         if !hostpath.end_with?("/")
@@ -65,7 +61,7 @@ module VagrantPlugins
 
         # Exclude some files by default, and any that might be configured
         # by the user.
-        excludes = ['.vagrant/']
+        excludes = DEFAULT_EXCLUDES.dup
         excludes += Array(opts[:exclude]).map(&:to_s) if opts[:exclude]
         excludes.uniq!
 
