@@ -1,5 +1,8 @@
 en:
   vagrant_winrm:
+    winrm_folder: |-
+      WinRM copying folder: %{hostpath} => %{guestpath}
+    winrm_folder_excludes: "  - Exclude: %{excludes}"
     errors:
       auth_error: |-
         An authorization error occurred while connecting to WinRM.

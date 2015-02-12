@@ -76,6 +76,19 @@ module VagrantPlugins
         file_manager.download(from, to)
       end
 
+      def new_session
+        @logger.info("Attempting to connect to WinRM...")
+        @logger.info("  - Host: #{@host}")
+        @logger.info("  - Port: #{@port}")
+        @logger.info("  - Username: #{@username}")
+
+        client = ::WinRM::WinRMWebService.new(endpoint, :plaintext, endpoint_options)
+        client.set_timeout(@timeout_in_seconds)
+        client.toggle_nori_type_casting(:off) #we don't want coersion of types
+        client
+      end
+
+
       protected
 
       def execute_shell(command, shell=:powershell, &block)
@@ -130,18 +143,6 @@ module VagrantPlugins
           shell: shell,
           command: command,
           message: winrm_exception.message
-      end
-
-      def new_session
-        @logger.info("Attempting to connect to WinRM...")
-        @logger.info("  - Host: #{@host}")
-        @logger.info("  - Port: #{@port}")
-        @logger.info("  - Username: #{@username}")
-
-        client = ::WinRM::WinRMWebService.new(endpoint, :plaintext, endpoint_options)
-        client.set_timeout(@timeout_in_seconds)
-        client.toggle_nori_type_casting(:off) #we don't want coersion of types
-        client
       end
 
       def session
