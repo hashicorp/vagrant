@@ -148,6 +148,13 @@ describe VagrantPlugins::Chef::Config::BaseRunner do
     end
   end
 
+  describe "#enable_reporting" do
+    it "defaults to true" do
+      subject.finalize!
+      expect(subject.enable_reporting).to be(true)
+    end
+  end
+
   describe "#run_list" do
     it "defaults to an empty array" do
       subject.finalize!
