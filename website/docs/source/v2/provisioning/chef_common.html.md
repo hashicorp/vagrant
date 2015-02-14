@@ -105,3 +105,6 @@ which include [Chef Solo](/v2/provisioning/chef_solo.html), [Chef Zero](/v2/prov
 
 * `verbose_logging` (boolean) - Whether or not to enable the Chef
   `verbose_logging` option. By default this is false.
+
+* `enable_reporting` (boolean) - Whether or not to enable the Chef
+  `enable_reporting` option. By default this is true.
