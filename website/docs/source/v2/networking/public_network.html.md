@@ -60,6 +60,43 @@ bridged interface. To do so, add a `:ip` clause to the network definition.
 config.vm.network "public_network", ip: "192.168.0.17"
 ```
 
+## Disable Auto-Configuration
+
+If you want to manually configure the network interface yourself, you
+can disable Vagrant's auto-configure feature by specifying `auto_config`:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "public_network", auto_config: false
+end
+```
+
+Then shell provisioner can be used to configure the ip of the interface:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "public_network", auto_config: false
+  #manual ip
+  config.vm.provision :shell, run: "always", inline: "ifconfig eth1 192.168.0.17 netmask 255.255.255.0 up"
+  #manual ipv6
+  config.vm.provision :shell, run: "always", inline: "ifconfig eth1 inet6 add fc00::17/7"
+end
+```
+
+## Default Router
+
+Depending on your setup, you may wish to manually override the default router configuration. This is required if you need access from other networks to the Vagrant box over the public network. To do so, you can use a shell provisioner script.
+
+```ruby
+  config.vm.network "public_network", ip: "192.168.0.17"
+  #default router
+  config.vm.provision :shell, run: "always", inline: "route add default gw 192.168.0.1"
+  #default router ipv6
+  config.vm.provision :shell, run: "always", inline: "route -A inet6 add default gw fc00::1 eth1"
+  #delete default gw on eth0
+  config.vm.provision :shell, run: "always", inline: "eval `route -n | awk '{ if ($8 ==\"eth0\" && $2 != \"0.0.0.0\") print \"route del default gw \" $2; }'`"
+```
+
 ## Default Network Interface
 
 If more than one network interface is available on the host machine, Vagrant will
