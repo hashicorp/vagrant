@@ -93,6 +93,7 @@ module VagrantPlugins
             log_level:        @config.log_level.to_sym,
             node_name:        @config.node_name,
             verbose_logging:  @config.verbose_logging,
+            enable_reporting: @config.enable_reporting,
             http_proxy:       @config.http_proxy,
             http_proxy_user:  @config.http_proxy_user,
             http_proxy_pass:  @config.http_proxy_pass,
