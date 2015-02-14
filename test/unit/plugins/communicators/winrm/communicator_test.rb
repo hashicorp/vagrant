@@ -109,6 +109,6 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
       expect(shell).to receive(:download).with("from", "to")
       subject.download("from", "to")
     end
-  end  
+  end
 
 end
