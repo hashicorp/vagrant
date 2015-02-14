@@ -36,10 +36,22 @@ a single push definition.
 The Vagrant Push Local Exec strategy is defined in the `Vagrantfile` using the
 `local-exec` key:
 
+Remote path:
+
 ```ruby
 config.push.define "local-exec" do |push|
   push.inline = <<-SCRIPT
-    scp . /var/www/website
+    scp -r . server:/var/www/website
+  SCRIPT
+end
+```
+
+Local path:
+
+```ruby
+config.push.define "local-exec" do |push|
+  push.inline = <<-SCRIPT
+    cp -r . /var/www/website
   SCRIPT
 end
 ```
