@@ -128,28 +128,6 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
-  describe "#define" do
-    it "should allow regular names" do
-      subject.define "foo"
-      subject.finalize!
-
-      assert_valid
-    end
-
-    [
-      "foo [1]",
-      "bar {2}",
-      "foo/bar",
-    ].each do |name|
-      it "should disallow names with brackets" do
-        subject.define name
-        subject.finalize!
-
-        assert_invalid
-      end
-    end
-  end
-
   describe "#guest" do
     it "is nil by default" do
       subject.finalize!

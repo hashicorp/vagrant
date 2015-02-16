@@ -25,22 +25,89 @@ module VagrantPlugins
         @logger.info("Initializing WinRMCommunicator")
       end
 
+      def wait_for_ready(timeout)
+        Timeout.timeout(timeout) do
+          # Wait for winrm_info to be ready
+          winrm_info = nil
+          while true
+            winrm_info = Helper.winrm_info(@machine)
+            break if winrm_info
+            sleep 0.5
+          end
+
+          # Got it! Let the user know what we're connecting to.
+          @machine.ui.detail("WinRM address: #{shell.host}:#{shell.port}")
+          @machine.ui.detail("WinRM username: #{shell.username}")
+          @machine.ui.detail("WinRM transport: #{shell.config.transport}")
+
+          last_message = nil
+          last_message_repeat_at = 0
+          while true
+            message  = nil
+            begin
+              begin
+                return true if ready?
+              rescue Vagrant::Errors::VagrantError => e
+                @logger.info("WinRM not ready: #{e.inspect}")
+                raise
+              end
+            rescue Errors::ConnectionTimeout
+              message = "Connection timeout."
+            rescue Errors::AuthenticationFailed
+              message = "Authentication failure."
+            rescue Errors::Disconnected
+              message = "Remote connection disconnect."
+            rescue Errors::ConnectionRefused
+              message = "Connection refused."
+            rescue Errors::ConnectionReset
+              message = "Connection reset."
+            rescue Errors::HostDown
+              message = "Host appears down."
+            rescue Errors::NoRoute
+              message = "Host unreachable."
+            rescue Errors::TransientError => e
+              # Any other retriable errors
+              message = e.message
+            end
+
+            # If we have a message to show, then show it. We don't show
+            # repeated messages unless they've been repeating longer than
+            # 10 seconds.
+            if message
+              message_at   = Time.now.to_f
+              show_message = true
+              if last_message == message
+                show_message = (message_at - last_message_repeat_at) > 10.0
+              end
+
+              if show_message
+                @machine.ui.detail("Warning: #{message} Retrying...")
+                last_message = message
+                last_message_repeat_at = message_at
+              end
+            end
+          end
+        end
+      rescue Timeout::Error
+        return false
+      end
+
       def ready?
         @logger.info("Checking whether WinRM is ready...")
 
-        Timeout.timeout(@machine.config.winrm.timeout) do
+        result = Timeout.timeout(@machine.config.winrm.timeout) do
           shell(true).powershell("hostname")
         end
 
         @logger.info("WinRM is ready!")
         return true
-      rescue Vagrant::Errors::VagrantError => e
-        # We catch a `VagrantError` which would signal that something went
-        # wrong expectedly in the `connect`, which means we didn't connect.
+      rescue Errors::TransientError => e
+        # We catch a `TransientError` which would signal that something went
+        # that might work if we wait and retry.
         @logger.info("WinRM not up: #{e.inspect}")
 
         # We reset the shell to trigger calling of winrm_finder again.
-        # This resolves a problem when using vSphere where the ssh_info was not refreshing
+        # This resolves a problem when using vSphere where the winrm_info was not refreshing
         # thus never getting the correct hostname.
         @shell = nil
         return false

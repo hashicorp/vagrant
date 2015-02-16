@@ -22,6 +22,7 @@ module VagrantPlugins
       @@exceptions_to_retry_on = [
         HTTPClient::KeepAliveDisconnected,
         WinRM::WinRMHTTPTransportError,
+        WinRM::WinRMAuthorizationError,
         Errno::EACCES,
         Errno::EADDRINUSE,
         Errno::ECONNREFUSED,
@@ -87,7 +88,7 @@ module VagrantPlugins
       end
 
       def execute_shell_with_retry(command, shell, &block)
-        retryable(tries: @config.max_tries, on: @@exceptions_to_retry_on, sleep: 10) do
+        retryable(tries: @config.max_tries, on: @@exceptions_to_retry_on, sleep: @config.retry_delay) do
           @logger.debug("#{shell} executing:\n#{command}")
           output = session.send(shell, command) do |out, err|
             block.call(:stdout, out) if block_given? && out
@@ -114,20 +115,42 @@ module VagrantPlugins
         end
       end
 
-      def raise_winrm_exception(winrm_exception, shell, command)
-        # If the error is a 401, we can return a more specific error message
-        if winrm_exception.message.include?("401")
-          raise Errors::AuthError,
-            user: @username,
-            password: @password,
-            endpoint: endpoint,
-            message: winrm_exception.message
+      def raise_winrm_exception(exception, shell = nil, command = nil)
+        case exception
+        when WinRM::WinRMAuthorizationError
+          raise Errors::AuthenticationFailed,
+              user: @config.username,
+              password: @config.password,
+              endpoint: endpoint,
+              message: exception.message
+        when WinRM::WinRMHTTPTransportError
+          raise Errors::ExecutionError,
+            shell: shell,
+            command: command,
+            message: exception.message
+        when OpenSSL::SSL::SSLError
+          raise Errors::SSLError, message: exception.message
+        when HTTPClient::TimeoutError
+          raise Errors::ConnectionTimeout, message: exception.message
+        when Errno::ECONNREFUSED
+          # This is raised if we failed to connect the max amount of times
+          raise Errors::ConnectionRefused
+        when Errno::ECONNRESET
+          # This is raised if we failed to connect the max number of times
+          # due to an ECONNRESET.
+          raise Errors::ConnectionReset
+        when Errno::EHOSTDOWN
+          # This is raised if we get an ICMP DestinationUnknown error.
+          raise Errors::HostDown
+        when Errno::EHOSTUNREACH
+          # This is raised if we can't work out how to route traffic.
+          raise Errors::NoRoute
+        else
+          raise Errors::ExecutionError,
+            shell: shell,
+            command: command,
+            message: exception.message
         end
-
-        raise Errors::ExecutionError,
-          shell: shell,
-          command: command,
-          message: winrm_exception.message
       end
 
       def new_session
