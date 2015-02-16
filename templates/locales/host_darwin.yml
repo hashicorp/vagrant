@@ -1,0 +1,17 @@
+en:
+  host_darwin:
+    errors:
+      sudo_command_failed: |-
+        The command "%{command}" returned a non-zero exit code. Please
+        inspect the error message and correct any problems.
+
+        Stderr: %{stderr}
+
+        Stdout: %{stdout}
+      wrong_user: |-
+        On Mac OS X, the username used for SMB folders MUST be the same
+        as the currently logged on user (%{current_user}). Please fix
+        your configuration and try again.
+    warning_password: |-
+      You will be asked for the password to use for cleanup of SMB shared
+      folders. Please use the proper password of your Mac OS X account.

@@ -6,6 +6,10 @@ module VagrantPlugins
         error_namespace("vagrant_sf_smb.errors")
       end
 
+      class DarwinVersion < SMBError
+        error_key(:darwin_version)
+      end
+
       class DefineShareFailed < SMBError
         error_key(:define_share_failed)
       end
@@ -22,8 +26,8 @@ module VagrantPlugins
         error_key(:powershell_version)
       end
 
-      class WindowsHostRequired < SMBError
-        error_key(:windows_host_required)
+      class WindowsDarwinHostRequired < SMBError
+        error_key(:windows_darwin_host_required)
       end
 
       class WindowsAdminRequired < SMBError

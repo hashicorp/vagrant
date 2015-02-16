@@ -1,5 +1,7 @@
 en:
   vagrant_sf_smb:
+    cleaning: |-
+      Clearing any previously set SMB shared folders...
     mounting: |-
       Mounting SMB shared folders...
     mounting_single: |-
@@ -9,9 +11,12 @@ en:
     warning_password: |-
       You will be asked for the username and password to use for the SMB
       folders shortly. Please use the proper username/password of your
-      Windows account.
+      Windows/Mac OS X account.
 
     errors:
+      darwin_version: |-
+        Mac OS X 10.8 or later is required for SMB synced folders to work
+        on Mac OS X hosts.
       define_share_failed: |-
         Exporting an SMB share failed! Details about the failure are shown
         below. Please inspect the error message and correct any problems.
@@ -44,11 +49,12 @@ en:
         to work on Windows. You have version: '%{version}'. Please update
         your PowerShell installation.
       windows_admin_required: |-
-        SMB shared folders require running Vagrant with administrative
-        privileges. This is a limitation of Windows, since creating new
-        network shares requires admin privileges. Please try again in a
-        console with proper permissions or use another synced folder type.
-      windows_host_required: |-
-        SMB shared folders are only available when Vagrant is running
-        on Windows. The guest machine can be running non-Windows. Please use
+        SMB shared folders on Windows hosts require running Vagrant with
+        administrative privileges. This is a limitation of Windows itself,
+        since creating new network shares requires admin privileges.
+        Please try again in a console with proper permissions or use
         another synced folder type.
+      windows_darwin_host_required: |-
+        SMB shared folders are only available when Vagrant is running
+        on Windows or Mac OS X. The guest machine can be running a different OS.
+        Please use another synced folder type.

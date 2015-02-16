@@ -1,6 +1,3 @@
-require "digest/md5"
-require "json"
-
 require "log4r"
 
 require "vagrant/util/platform"
@@ -17,32 +14,38 @@ module VagrantPlugins
       end
 
       def usable?(machine, raise_error=false)
-        if !Vagrant::Util::Platform.windows?
-          raise Errors::WindowsHostRequired if raise_error
-          return false
-        end
-
-        if !Vagrant::Util::Platform.windows_admin?
-          raise Errors::WindowsAdminRequired if raise_error
-          return false
-        end
-
-        psv = Vagrant::Util::PowerShell.version.to_i
-        if psv < 3
-          if raise_error
-            raise Errors::PowershellVersion,
-              version: psv.to_s
+        if Vagrant::Util::Platform.windows?
+          if !Vagrant::Util::Platform.windows_admin?
+            raise Errors::WindowsAdminRequired if raise_error
+            return false
           end
-          return false
-        end
 
-        true
+          psv = Vagrant::Util::PowerShell.version.to_i
+          if psv < 3
+            if raise_error
+              raise Errors::PowershellVersion,
+                version: psv.to_s
+            end
+            return false
+          end
+
+          true
+        elsif Vagrant::Util::Platform.darwin?
+          if Vagrant::Util::Platform.platform < 'darwin12.0'
+            raise Errors::DarwinVersion
+            return false
+          end
+
+          true
+        else
+          raise Errors::WindowsDarwinHostRequired if raise_error
+
+          false
+        end
       end
 
       def prepare(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
-
-        script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
 
         # If we need auth information, then ask the user.
         have_auth = false
@@ -61,24 +64,16 @@ module VagrantPlugins
           @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
         end
 
+        if machine.env.host.capability?(:enable_smb_sharing)
+          @logger.debug("Enabling SMB sharing on the host if needed")
+          # Hide interactive password from logs enclosing credentials in a lambda. If
+          # instead credentials have been specified in Vagrantfile, logs are less of
+          # a problem.
+          machine.env.host.capability(:enable_smb_sharing, machine, folders, lambda { @creds })
+        end
+
         folders.each do |id, data|
-          hostpath = data[:hostpath]
-
-          data[:smb_id] ||= Digest::MD5.hexdigest(
-            "#{machine.id}-#{id.gsub("/", "-")}")
-
-          args = []
-          args << "-path" << "\"#{hostpath.gsub("/", "\\")}\""
-          args << "-share_name" << data[:smb_id]
-          #args << "-host_share_username" << @creds[:username]
-
-          r = Vagrant::Util::PowerShell.execute(script_path, *args)
-          if r.exit_code != 0
-            raise Errors::DefineShareFailed,
-              host: hostpath.to_s,
-              stderr: r.stderr,
-              stdout: r.stdout
-          end
+          machine.env.host.capability(:create_smb_share, machine, id, data)
         end
       end
 
@@ -104,7 +99,7 @@ module VagrantPlugins
         end
 
         if need_host_ip
-          candidate_ips = load_host_ips
+          candidate_ips = machine.env.host.capability(:load_host_ips)
           @logger.debug("Potential host IPs: #{candidate_ips.inspect}")
           host_ip = machine.guest.capability(
             :choose_addressable_ip_addr, candidate_ips)
@@ -126,6 +121,13 @@ module VagrantPlugins
           data[:owner] ||= ssh_info[:username]
           data[:group] ||= ssh_info[:username]
 
+          # Set mount options depending on the host OS
+          if Vagrant::Util::Platform.windows?
+            data[:mount_options] = ["sec=ntlm"]
+          elsif Vagrant::Util::Platform.darwin?
+            data[:mount_options] = ["noserverino", "nounix", "sec=ntlmssp"]
+          end
+
           machine.ui.detail(I18n.t(
             "vagrant_sf_smb.mounting_single",
             host: data[:hostpath].to_s,
@@ -136,21 +138,11 @@ module VagrantPlugins
       end
 
       def cleanup(machine, opts)
-
-      end
-
-      protected
-
-      def load_host_ips
-        script_path = File.expand_path("../scripts/host_info.ps1", __FILE__)
-        r = Vagrant::Util::PowerShell.execute(script_path)
-        if r.exit_code != 0
-          raise Errors::PowershellError,
-            script: script_path,
-            stderr: r.stderr
+        if machine.env.host.capability?(:cleanup_smb_shares)
+          @logger.debug("Cleaning up SMB shares on the host")
+          machine.ui.output(I18n.t("vagrant_sf_smb.cleaning"))
+          machine.env.host.capability(:cleanup_smb_shares, machine, opts)
         end
-
-        JSON.parse(r.stdout)["ip_addresses"]
       end
     end
   end
