@@ -1,8 +1,8 @@
 $ErrorAction = "Stop"
 
-$net = Get-WmiObject -class win32_NetworkAdapterConfiguration -Filter 'ipenabled = "true"'
+$net = Get-NetIPAddress
 $result = @{
-    ip_addresses = $net.ipaddress
+	ip_addresses = $net.IPAddress
 }
 
 Write-Output $(ConvertTo-Json $result)
