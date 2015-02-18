@@ -1,6 +1,6 @@
 $ErrorAction = "Stop"
 
-$net = Get-NetIPAddress
+$net = Get-NetIPAddress | Where-Object {($_.IPAddress -ne "127.0.0.1") -and ($_.IPAddress -ne "::1")}
 $result = @{
 	ip_addresses = $net.IPAddress
 }
