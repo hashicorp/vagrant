@@ -58,6 +58,10 @@ available below this section.
   this will use the default synced folder type. For example, you can set this
   to "nfs" to use NFS synced folders.
 
+* `synced_folder_args` (array) - Arguments that are passed to the folder sync.
+  For example ['-a', '--delete', '--exclude=fixtures'] for the rsync sync
+  command.
+
 * `temp_dir` (string) - The directory where all the data associated with
   the Puppet run (manifest files, modules, etc.) will be stored on the
   guest machine.
@@ -65,6 +69,7 @@ available below this section.
 * `working_directory` (string) - Path in the guest that will be the working
   directory when Puppet is executed. This is usually only set because relative
   paths are used in the Hiera configuration.
+  
 
 ~> If only `environment` and `environments_path` are specified, it will parse
 and use the manifest specified in the `environment.conf` file. If
