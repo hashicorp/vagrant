@@ -10,12 +10,12 @@ module VagrantPlugins
         require File.expand_path("../guest", __FILE__)
         Guest
       end
-      
+
       guest_capability("debian8", "halt") do
         require_relative "cap/halt"
         Cap::Halt
       end
-      
+
     end
   end
 end
