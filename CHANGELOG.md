@@ -11,6 +11,7 @@ BUG FIXES:
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
   - guests/debian: Halt works properly on Debian 8. [GH-5369]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
+  - hosts/windows: More accurately get host IP address in VPNs. [GH-5349]
   - plugins/login: allow users to login with a token [GH-5145]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
   - providers/virtualbox: read netmask from dhcpservers [GH-5233]
