@@ -13,9 +13,7 @@ configuration of the NFS server on the host and guest for you.
 
 <div class="alert alert-info">
 	<p>
-		<strong>Windows users:</strong> NFS folders do not work on Windows
-		hosts. Vagrant will ignore your request for NFS synced folders on
-		Windows.
+		<strong>Windows users:</strong> Refer to [this vagrant plugin](https://github.com/GM-Alex/vagrant-winnfsd) for NFS support.
 	</p>
 </div>
 
