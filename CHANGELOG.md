@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+  - guests/redhat: Support Scientific Linux 7 [GH-5303]
   - providers/virtualbox: regexp supported for bridge configuration. [GH-5320]
 
 BUG FIXES:
