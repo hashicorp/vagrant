@@ -6,6 +6,8 @@ BUG FIXES:
   - core: remove executable permissions on internal file [GH-5220]
   - core: check name and version in `has_plugin?` [GH-5218]
   - core/cli: fix box checksum validation [GH-4665, GH-5221]
+  - communicators/winrm: improve error handling significantly and improve
+      the error messages shown to be more human-friendly. [GH-4943]
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - plugins/login: allow users to login with a token [GH-5145]
