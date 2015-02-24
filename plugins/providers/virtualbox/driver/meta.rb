@@ -152,7 +152,8 @@ module VagrantPlugins
               # This seems to happen on Windows for uncertain reasons.
               # Raise an error otherwise the error is that they have an
               # incompatible version of VirtualBox which isn't true.
-              raise Vagrant::Errors::VirtualBoxVersionEmpty
+              raise Vagrant::Errors::VirtualBoxVersionEmpty,
+                vboxmanage: @vboxmanage_path.to_s
             end
           end
 
