@@ -66,6 +66,9 @@ you can specify a branch, tag, or any treeish. Not supported on Windows.
  if they are already detected, default `false`
 
 
+* `bootstrap_options` (string) - Additional command-line options to
+  pass to the bootstrap script.
+
 ## Minion Options
 These only make sense when `no_minion` is `false`.
 
@@ -111,13 +114,6 @@ These may be used to control the output of state execution:
 * `log_level` (string) - The verbosity of the outputs. Defaults to "debug".
   Can be one of "all", "garbage", "trace", "debug", "info", or
   "warning".
-
-## Miscellaneous
-
-You can pass any additional command line options to the salt bootstrap script
-with the following:
-
-* `bootstrap_options` (string) - Command line options.
 
 ## Pillar Data
 
