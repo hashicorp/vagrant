@@ -9,6 +9,7 @@ BUG FIXES:
   - communicators/winrm: improve error handling significantly and improve
       the error messages shown to be more human-friendly. [GH-4943]
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
+  - guests/debian: Halt works properly on Debian 8. [GH-5369]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - plugins/login: allow users to login with a token [GH-5145]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
