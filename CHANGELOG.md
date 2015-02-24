@@ -36,6 +36,7 @@ BUG FIXES:
   - provisioners/chef-zero: support more chef-zero/local mode attributes [GH-5339]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
   - pushes/atlas: send additional box metadata [GH-5283]
+  - synced\_folders/rsync: Add `IdentitiesOnly=yes` to the rsync command. [GH-5175]
 
 ## 1.7.2 (January 6, 2015)
 
