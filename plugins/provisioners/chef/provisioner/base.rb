@@ -38,7 +38,7 @@ module VagrantPlugins
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
           @machine.communicate.sudo(
-            "sh -c 'which #{binary}'",
+            "sh -c 'command -v #{binary}'",
             error_class: ChefError,
             error_key: :chef_not_detected,
             binary: binary,
