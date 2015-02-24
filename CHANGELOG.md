@@ -33,6 +33,8 @@ BUG FIXES:
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
   - provisioners/docker: Only add docker user to group if exists. [GH-5315]
+  - provisioners/chef: Use `command -v` to check for binary instead of
+      `which` since that doesn't exist on some systems. [GH-5170]
   - provisioners/chef-zero: support more chef-zero/local mode attributes [GH-5339]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
   - pushes/atlas: send additional box metadata [GH-5283]
