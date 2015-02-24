@@ -26,6 +26,11 @@ module VagrantPlugins
         Cap::ConfigureNetworks
       end
 
+      guest_capability("solaris", "insert_public_key") do
+        require_relative "cap/insert_public_key"
+        Cap::InsertPublicKey
+      end
+
       guest_capability("solaris", "halt") do
         require_relative "cap/halt"
         Cap::Halt
@@ -34,6 +39,11 @@ module VagrantPlugins
       guest_capability("solaris", "mount_virtualbox_shared_folder") do
         require_relative "cap/mount_virtualbox_shared_folder"
         Cap::MountVirtualBoxSharedFolder
+      end
+
+      guest_capability("solaris", "remove_public_key") do
+        require_relative "cap/remove_public_key"
+        Cap::RemovePublicKey
       end
 
       guest_capability("solaris", "rsync_installed") do
