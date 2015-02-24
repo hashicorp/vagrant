@@ -19,6 +19,8 @@ BUG FIXES:
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - hosts/windows: More accurately get host IP address in VPNs. [GH-5349]
   - plugins/login: allow users to login with a token [GH-5145]
+  - providers/docker: Build image from `/var/lib/docker` for more disk
+      space on some systems. [GH-5302]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
   - providers/virtualbox: read netmask from dhcpservers [GH-5233]
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
