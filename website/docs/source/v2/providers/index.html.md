@@ -5,7 +5,7 @@ sidebar_current: "providers"
 
 # Providers
 
-While Vagrant ships out of the box with support for [VirtualBox](http://www.virtualbox.org),
+While Vagrant is mostly known for its [VirtualBox](http://www.virtualbox.org),
 Vagrant has the ability to manage other types of machines as well. This is done
 by using other _providers_ with Vagrant.
 
@@ -14,9 +14,9 @@ For example, if you're using Vagrant for any real work, [VMware](http://www.vmwa
 providers are recommended since they're well supported and generally more
 stable and performant than VirtualBox.
 
-Before you can use another provider, you must install it. Vagrant only ships
-with VirtualBox support. Installation of other providers is done via the
-Vagrant plugin system.
+Vagrant ships with VirtualBox, [Docker](https://www.docker.com/) and [Hyper-V](https://en.wikipedia.org/wiki/Hyper-V)
+support but other providers are also supported by leveraging the Vagrant plugin system.
+Before you can use another provider, you must install it.
 
 Once the provider is installed, usage is straightforward and simple, as
 you would expect with Vagrant. Read into the relevant subsections found in
