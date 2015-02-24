@@ -20,6 +20,8 @@ BUG FIXES:
   - guests/debian: Halt works properly on Debian 8. [GH-5369]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - guests/windows: Create rsync folder prior to rsync-ing. [GH-5282]
+  - guests/windows: Changing hostname requires reboot again since
+      the non-reboot code path was crashing Windows server. [GH-5261]
   - hosts/windows: More accurately get host IP address in VPNs. [GH-5349]
   - plugins/login: allow users to login with a token [GH-5145]
   - providers/docker: Build image from `/var/lib/docker` for more disk
