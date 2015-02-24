@@ -1,5 +1,9 @@
 ## 1.7.3 (unreleased)
 
+IMPROVEMENTS:
+
+  - providers/virtualbox: regexp supported for bridge configuration. [GH-5320]
+
 BUG FIXES:
 
   - core: push configurations are validated with global configs [GH-5130]
