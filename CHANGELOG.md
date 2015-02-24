@@ -27,6 +27,7 @@ BUG FIXES:
   - providers/docker: Build image from `/var/lib/docker` for more disk
       space on some systems. [GH-5302]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
+  - providers/hyperv: import respects secure boot. [GH-5209]
   - providers/virtualbox: read netmask from dhcpservers [GH-5233]
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
