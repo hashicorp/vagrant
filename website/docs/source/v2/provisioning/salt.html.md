@@ -112,6 +112,13 @@ These may be used to control the output of state execution:
   Can be one of "all", "garbage", "trace", "debug", "info", or
   "warning".
 
+## Miscellaneous
+
+You can pass any additional command line options to the salt bootstrap script
+with the following:
+
+* `bootstrap_options` (string) - Command line options.
+
 ## Pillar Data
 
 You can export pillar data for use during provisioning by using the ``pillar``
