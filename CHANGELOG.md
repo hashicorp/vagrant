@@ -2,7 +2,9 @@
 
 IMPROVEMENTS:
 
+  - guests/darwin: Support inserting generated key. [GH-5204]
   - guests/redhat: Support Scientific Linux 7 [GH-5303]
+  - guests/solaris11: Support inserting generated key. [GH-5290]
   - providers/virtualbox: regexp supported for bridge configuration. [GH-5320]
 
 BUG FIXES:
@@ -14,7 +16,6 @@ BUG FIXES:
   - communicators/winrm: improve error handling significantly and improve
       the error messages shown to be more human-friendly. [GH-4943]
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
-  - guests/darwin: Support inserting generated key. [GH-5204]
   - guests/debian: Halt works properly on Debian 8. [GH-5369]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - hosts/windows: More accurately get host IP address in VPNs. [GH-5349]
