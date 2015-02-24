@@ -28,7 +28,7 @@ module VagrantPlugins
           # We're on a host VM, so we need to move our build dir to
           # that machine. We do this by putting the synced folder on
           # ourself and letting HostMachineSyncFolders handle it.
-          new_build_dir = "/mnt/docker_build_#{Digest::MD5.hexdigest(build_dir)}"
+          new_build_dir = "/var/lib/docker/docker_build_#{Digest::MD5.hexdigest(build_dir)}"
           options       = {
             docker__ignore: true,
             docker__exact: true,
