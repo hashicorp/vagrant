@@ -6,13 +6,13 @@ sidebar_current: "providers"
 # Providers
 
 While Vagrant ships out of the box with support for [VirtualBox](http://www.virtualbox.org),
-Vagrant has the ability to manage other types of machines as well. This is done
+and Hype-V Vagrant has the ability to manage other types of machines as well. This is done
 by using other _providers_ with Vagrant.
 
 Alternate providers can offer different features that make more sense in your use case.
-For example, if you're using Vagrant for any real work, [VMware](http://www.vmware.com)
-providers are recommended since they're well supported and generally more
-stable and performant than VirtualBox.
+For example, if you're using Vagrant for any real work, Hyper-V (Windows hosts only) or 
+[VMware](http://www.vmware.com) providers are recommended since they're well supported and 
+generally more stable and performant than VirtualBox.
 
 Before you can use another provider, you must install it. Vagrant only ships
 with VirtualBox support. Installation of other providers is done via the
