@@ -29,9 +29,10 @@ module Vagrant
 
         def call(env)
           @env = env
-
+          file_name = File.basename(@env["package.output"].to_s)
+          
           raise Errors::PackageOutputDirectory if File.directory?(tar_path)
-          raise Errors::PackageOutputExists if File.exist?(tar_path)
+          raise Errors::PackageOutputExists, file_name:file_name if File.exist?(tar_path)
           raise Errors::PackageRequiresDirectory if !env["package.directory"] ||
             !File.directory?(env["package.directory"])
 
