@@ -23,10 +23,19 @@ module VagrantPlugins
           o.on("--host NAME", "Name the host for the config") do |h|
             options[:host] = h
           end
+          options[:output] = "text"
+          o.on("--json", "Print config in json format") do
+            options[:output] = "json"
+          end
+          o.on("--yaml", "Print config in yaml format") do
+            options[:output] = "yaml"
+          end
         end
 
         argv = parse_options(opts)
         return if !argv
+
+        vm = {vagrant_machines: []}
 
         with_target_vms(argv) do |machine|
           ssh_info = machine.ssh_info
@@ -43,11 +52,14 @@ module VagrantPlugins
             proxy_command: ssh_info[:proxy_command]
           }
 
+          vm[:vagrant_machines].push(variables)
           # Render the template and output directly to STDOUT
           template = "commands/ssh_config/config"
-          safe_puts(Vagrant::Util::TemplateRenderer.render(template, variables))
-          safe_puts
+          safe_puts(Vagrant::Util::TemplateRenderer.render(template, variables)) if options[:output] == "text"
+          safe_puts if options[:output] == "text"
         end
+        safe_puts(JSON.pretty_generate(vm)) if options[:output] == "json"
+        safe_puts(YAML.dump(vm)) if options[:output] == "yaml"
 
         # Success, exit status 0
         0
