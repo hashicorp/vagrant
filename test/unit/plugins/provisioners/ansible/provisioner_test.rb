@@ -1,7 +1,7 @@
 require_relative "../../../base"
 
-require Vagrant.source_root.join("plugins/provisioners/ansible/config")
-require Vagrant.source_root.join("plugins/provisioners/ansible/provisioner")
+require Vagrant.source_root.join("plugins/provisioners/ansible/config/host")
+require Vagrant.source_root.join("plugins/provisioners/ansible/provisioner/host")
 
 #
 # Helper Functions
@@ -15,7 +15,7 @@ def find_last_argument_after(ref_index, ansible_playbook_args, arg_pattern)
   return false
 end
 
-describe VagrantPlugins::Ansible::Provisioner do
+describe VagrantPlugins::Ansible::Provisioner::Host do
   include_context "unit"
 
   subject { described_class.new(machine, config) }
@@ -37,7 +37,7 @@ VF
   end
 
   let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
-  let(:config)  { VagrantPlugins::Ansible::Config.new }
+  let(:config)  { VagrantPlugins::Ansible::Config::Host.new }
   let(:ssh_info) {{
     private_key_path: ['/path/to/my/key'],
     username: 'testuser',
@@ -199,7 +199,7 @@ VF
         config.finalize!
         Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
 
-        expect {subject.provision}.to raise_error(Vagrant::Errors::AnsibleFailed)
+        expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsiblePlaybookAppFailed)
       end
     end
 
@@ -212,16 +212,13 @@ VF
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to_not match(/^\s*\[^\\+\]\s*$/)
 
-          # Note:
-          # The expectation below is a workaround to a possible misuse (or bug) in RSpec/Ruby stack.
-          # If 'args' variable is not required by in this block, the "Vagrant::Util::Subprocess).to receive"
-          # surprisingly expects to receive "no args".
-          # This problem can be "solved" by using args the "unnecessary" (but harmless) expectation below:
-          expect(args.length).to be > 0
+          # Ending this block with a negative expectation (to_not / not_to)
+          # would lead to a failure of the above expectation.
+          true
         }
       end
 
-      it "does not show the ansible-playbook command" do
+      it "doesn't show the ansible-playbook command" do
         expect(machine.env.ui).not_to receive(:detail).with { |full_command|
           expect(full_command).to include("ansible-playbook")
         }
@@ -460,37 +457,87 @@ VF
       end
     end
 
-    describe "with VAGRANT_LOG=debug, but without verbose option" do
+    context "with verbose option disabled" do
       before do
-        subject.instance_variable_get(:@logger).stub(:debug?).and_return(true)
         config.verbose = false
       end
 
-      it "shows the ansible-playbook command" do
-        expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} playbook.yml")
+      describe "and VAGRANT_LOG=info" do
+        before do
+          Vagrant.stub(log_level: :info)
+          subject.instance_variable_get(:@logger).stub(:info?).and_return(true)
+        end
+
+        it "shows the ansible-playbook command and set verbosity to '-v' level" do
+          expect(machine.env.ui).to receive(:detail).with { |full_command|
+            expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
+          }
+        end
+      end
+
+      it "doesn't show the ansible-playbook command" do
+        expect(machine.env.ui).not_to receive(:detail).with { |full_command|
+          expect(full_command).to include("ansible-playbook")
         }
       end
     end
 
-    describe "with verbose option" do
-      before do
-        config.verbose = 'v'
+    context "with verbose option defined" do
+      %w(vv vvvv).each do |verbose_option|
+
+        describe "with a value of '#{verbose_option}'" do
+          before do
+            config.verbose = verbose_option
+          end
+
+          it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
+            expect(machine.env.ui).to receive(:detail).with { |full_command|
+              expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
+            }
+          end
+        end
+
+        describe "with a value of '-#{verbose_option}'" do
+          before do
+            config.verbose = "-#{verbose_option}"
+          end
+
+          it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
+            expect(machine.env.ui).to receive(:detail).with { |full_command|
+              expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
+            }
+          end
+        end
       end
 
-      it_should_set_arguments_and_environment_variables 8
-      it_should_set_optional_arguments({ "verbose" => "-v" })
+      describe "with an invalid string" do
+        before do
+          config.verbose = "wrong"
+        end
 
-      it "shows the ansible-playbook command" do
-        expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
-        }
+        it "shows the ansible-playbook command and set verbosity to '-v' level" do
+          expect(machine.env.ui).to receive(:detail).with { |full_command|
+            expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/path/to/my/key --user=testuser --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
+          }
+        end
       end
+
+      describe "with an empty string" do
+        before do
+          config.verbose = ""
+        end
+
+        it "doesn't show the ansible-playbook command" do
+          expect(machine.env.ui).not_to receive(:detail).with { |full_command|
+            expect(full_command).to include("ansible-playbook")
+          }
+        end
+      end
+
     end
 
-    # Note:
-    # The Vagrant Ansible provisioner does not validate the coherency of argument combinations,
-    # and let ansible-playbook complain.
+    # The Vagrant Ansible provisioner does not validate the coherency of
+    # argument combinations, and let ansible-playbook complain.
     describe "with a maximum of options" do
       before do
         # vagrant general options
@@ -541,7 +588,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --timeout=30 --limit='machine*:&vagrant:!that_one' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --ask-sudo-pass --ask-vault-pass --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task='an awesome task' --why-not --su-user=foot --ask-su-pass --limit='all' playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/my/key1 --user=testuser --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit='machine*:&vagrant:!that_one' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task='an awesome task' --why-not --su-user=foot --ask-su-pass --limit='all' playbook.yml")
         }
       end
     end
@@ -551,7 +598,7 @@ VF
     #
 
     context "with Docker provider on a non-Linux host" do
-      
+
       let(:fake_host_ssh_info) {{
         private_key_path: ['/path/to/docker/host/key'],
         username: 'boot9docker',
@@ -561,7 +608,7 @@ VF
       let(:fake_host_vm) {
         double("host_vm").tap do |h|
           h.stub(ssh_info: fake_host_ssh_info)
-        end      
+        end
       }
 
       before do
@@ -592,12 +639,9 @@ VF
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o IdentitiesOnly=yes")
 
-          # Note:
-          # The expectation below is a workaround to a possible misuse (or bug) in RSpec/Ruby stack.
-          # If 'args' variable is not required by in this block, the "Vagrant::Util::Subprocess).to receive"
-          # surprisingly expects to receive "no args".
-          # This problem can be "solved" by using args the "unnecessary" (but harmless) expectation below:
-          expect(true).to be_true
+          # Ending this block with a negative expectation (to_not / not_to)
+          # would lead to a failure of the above expectation.
+          true
         }
       end
 
@@ -609,12 +653,9 @@ VF
             cmd_opts = args.last
             expect(cmd_opts[:env]).to_not include('ANSIBLE_SSH_ARGS')
 
-            # Note:
-            # The expectation below is a workaround to a possible misuse (or bug) in RSpec/Ruby stack.
-            # If 'args' variable is not required by in this block, the "Vagrant::Util::Subprocess).to receive"
-            # surprisingly expects to receive "no args".
-            # This problem can be "solved" by using args the "unnecessary" (but harmless) expectation below:
-            expect(true).to be_true
+            # Ending this block with a negative expectation (to_not / not_to)
+            # would lead to a failure of the above expectation.
+            true
           }
         end
       end
