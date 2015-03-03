@@ -32,8 +32,8 @@ module VagrantPlugins
       end
 
       guest_capability("fedora", "nfs_client_install") do
-       	require_relative "cap/nfs_client"
-       	Cap::NFSClient
+        require_relative "cap/nfs_client"
+        Cap::NFSClient
       end
 
     end
