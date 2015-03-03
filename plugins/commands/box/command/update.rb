@@ -6,6 +6,7 @@ module VagrantPlugins
       class Update < Vagrant.plugin("2", :command)
         def execute
           options = {}
+          secure_options = {}
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box update [options]"
@@ -27,21 +28,38 @@ module VagrantPlugins
             o.on("--provider PROVIDER", String, "Update box with specific provider") do |p|
               options[:provider] = p.to_sym
             end
+
+            o.on("--insecure", "Do not validate SSL certificates") do |i|
+              secure_options[:insecure] = i
+            end
+
+            o.on("--cacert FILE", String, "CA certificate for SSL download") do |c|
+              secure_options[:ca_cert] = c
+            end
+
+            o.on("--capath DIR", String, "CA certificate directory for SSL download") do |c|
+              secure_options[:ca_path] = c
+            end
+
+            o.on("--cert FILE", String,
+                 "A client SSL cert, if needed") do |c|
+              secure_options[:client_cert] = c
+            end
           end
 
           argv = parse_options(opts)
           return if !argv
 
           if options[:box]
-            update_specific(options[:box], options[:provider])
+            update_specific(options[:box], options[:provider], secure_options)
           else
-            update_vms(argv, options[:provider])
+            update_vms(argv, options[:provider], secure_options)
           end
 
           0
         end
 
-        def update_specific(name, provider)
+        def update_specific(name, provider, secure_options)
           boxes = {}
           @env.boxes.all.each do |n, v, p|
             boxes[n] ||= {}
@@ -74,11 +92,11 @@ module VagrantPlugins
 
           to_update.each do |n, p, v|
             box = @env.boxes.find(n, p, v)
-            box_update(box, "> #{v}", @env.ui)
+            box_update(box, "> #{v}", @env.ui, secure_options)
           end
         end
 
-        def update_vms(argv, provider)
+        def update_vms(argv, provider, secure_options)
           with_target_vms(argv, provider: provider) do |machine|
             if !machine.config.vm.box
               machine.ui.output(I18n.t(
@@ -95,11 +113,11 @@ module VagrantPlugins
 
             box = machine.box
             version = machine.config.vm.box_version
-            box_update(box, version, machine.ui)
+            box_update(box, version, machine.ui, secure_options)
           end
         end
 
-        def box_update(box, version, ui)
+        def box_update(box, version, ui, secure_options)
           ui.output(I18n.t("vagrant.box_update_checking", name: box.name))
           ui.detail("Latest installed version: #{box.version}")
           ui.detail("Version constraints: #{version}")
@@ -123,6 +141,10 @@ module VagrantPlugins
             box_url: box.metadata_url,
             box_provider: update[2].name,
             box_version: update[1].version,
+            box_download_ca_cert: secure_options[:ca_cert],
+            box_download_ca_path: secure_options[:ca_path],
+            box_download_client_cert: secure_options[:client_cert],
+            box_download_insecure: secure_options[:insecure],
             ui: ui,
           })
         end
