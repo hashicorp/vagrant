@@ -404,6 +404,7 @@ module Vagrant
           downloader_options[:client_cert] = env[:box_download_client_cert]
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
+          downloader_options[:max_size] = opts[:max_size] if opts[:max_size]
 
           Util::Downloader.new(url, temp_path, downloader_options)
         end
@@ -441,49 +442,66 @@ module Vagrant
         end
 
         # Tests whether the given URL points to a metadata file or a
-        # box file without completely downloading the file.
+        # box file.
         #
         # @param [String] url
         # @return [Boolean] true if metadata
         def metadata_url?(url, env)
-          d = downloader(url, env, json: true, ui: false)
 
-          # If we're downloading a file, cURL just returns no
-          # content-type (makes sense), so we just test if it is JSON
-          # by trying to parse JSON!
-          uri = URI.parse(d.source)
+          metadata_path = url
+          uri = URI.parse(url)
+
+          # If the scheme is not file, download the metadata to
+          # a temporary file.
           if uri.scheme == "file"
-            url = uri.path
-            url ||= uri.opaque
-
-            begin
-              File.open(url, "r") do |f|
-                if f.size > METADATA_SIZE_LIMIT
-                  # Quit early, don't try to parse the JSON of gigabytes
-                  # of box files...
-                  return false
-                end
-
-                BoxMetadata.new(f)
+            metadata_path = uri.path
+            metadata_path ||= uri.opaque
+          else
+            # Let the caller catch Errors::DownloaderError exceptions.
+            # Specifying max_size is necessary to avoid downloading
+            # gigabytes of box files...
+            metadata_path = download(url, env, json: true, ui: false, max_size: METADATA_SIZE_LIMIT)
+            if @download_interrupted
+              @logger.debug("Deleting temporary metadata file: #{metadata_path}")
+              begin
+                metadata_path.delete if metadata_path
+              rescue Errno::ENOENT
+                # Not a big deal, the temp file may not actually exist
               end
-              return true
-            rescue Errors::BoxMetadataMalformed
-              return false
-            rescue Errno::EINVAL
-              # Actually not sure what causes this, but its always
-              # in a case that isn't true.
-              return false
-            rescue Errno::EISDIR
-              return false
-            rescue Errno::ENOENT
               return false
             end
           end
 
-          output = d.head
-          match  = output.scan(/^Content-Type: (.+?)$/i).last
-          return false if !match
-          !!(match.last.chomp =~ /application\/json/)
+          # Read and parse the supposedly metadata file as if it was
+          # a valid one. Return the parsed metadata is everything went
+          # fine.
+          begin
+            File.open(metadata_path, "r") do |f|
+              # Check again in case the file was on the local system
+              # all along or to avoid timing attachs.
+              if f.size > METADATA_SIZE_LIMIT
+                return false
+              end
+
+              BoxMetadata.new(f)
+              return true
+            end
+          rescue Errors::BoxMetadataMalformed
+            return false
+          rescue Errno::EINVAL
+            # Actually not sure what causes this, but its always
+            # in a case that isn't true.
+            return false
+          rescue Errno::EISDIR
+            return false
+          rescue Errno::ENOENT
+            return false
+          ensure
+            # Only delete temporary file if metadata file was downloaded
+            if uri.scheme != "file"
+              metadata_path.delete if metadata_path && metadata_path.file?
+            end
+          end
         end
 
         def validate_checksum(checksum_type, checksum, path)
