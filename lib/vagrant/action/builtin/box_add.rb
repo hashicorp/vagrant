@@ -72,7 +72,7 @@ module Vagrant
           end
 
           # Test if any of our URLs point to metadata
-          is_metadata_results = authed_urls.map do |u|
+          metadata_results = authed_urls.map do |u|
             begin
               metadata_url?(u, env)
             rescue Errors::DownloaderError => e
@@ -80,8 +80,8 @@ module Vagrant
             end
           end
 
-          if expanded && url.length == 1
-            is_error = is_metadata_results.find do |b|
+          if url.length == 1
+            is_error = metadata_results.find do |b|
               b.is_a?(Errors::DownloaderError)
             end
 
@@ -93,7 +93,7 @@ module Vagrant
             end
           end
 
-          is_metadata = is_metadata_results.any? { |b| b === true }
+          is_metadata = metadata_results.all? { |b| b != false }
           if is_metadata && url.length > 1
             raise Errors::BoxAddMetadataMultiURL,
               urls: url.join(", ")
@@ -101,7 +101,7 @@ module Vagrant
 
           if is_metadata
             url = [url.first, authed_urls.first]
-            add_from_metadata(url, env, expanded)
+            add_from_metadata(url, metadata_results.first, env, expanded)
           else
             add_direct(url, env)
           end
@@ -146,9 +146,10 @@ module Vagrant
         #   array where the first element is the original URL and the second
         #   element is an authenticated URL.
         # @param [Hash] env
+        # @param [BoxMetadata] metadata
         # @param [Bool] expanded True if the metadata URL was expanded with
         #   a Atlas server URL.
-        def add_from_metadata(url, env, expanded)
+        def add_from_metadata(url, metadata, env, expanded)
           original_url = env[:box_url]
           provider = env[:box_provider]
           provider = Array(provider) if provider
@@ -162,30 +163,9 @@ module Vagrant
             url               = url[0]
           end
 
-          env[:ui].output(I18n.t(
-            "vagrant.box_loading_metadata",
-            name: Array(original_url).first))
           if original_url != url
             env[:ui].detail(I18n.t(
               "vagrant.box_expanding_url", url: url))
-          end
-
-          metadata = nil
-          begin
-            metadata_path = download(
-              authenticated_url, env, json: true, ui: false)
-
-            File.open(metadata_path) do |f|
-              metadata = BoxMetadata.new(f)
-            end
-          rescue Errors::DownloaderError => e
-            raise if !expanded
-            raise Errors::BoxAddShortNotFound,
-              error: e.extra_data[:message],
-              name: original_url,
-              url: url
-          ensure
-            metadata_path.delete if metadata_path && metadata_path.file?
           end
 
           if env[:box_name] && metadata.name != env[:box_name]
@@ -447,6 +427,9 @@ module Vagrant
         # @param [String] url
         # @return [Boolean] true if metadata
         def metadata_url?(url, env)
+          env[:ui].output(I18n.t(
+            "vagrant.box_loading_metadata",
+            name: url))
 
           metadata_path = url
           uri = URI.parse(url)
@@ -460,15 +443,18 @@ module Vagrant
             # Let the caller catch Errors::DownloaderError exceptions.
             # Specifying max_size is necessary to avoid downloading
             # gigabytes of box files...
-            metadata_path = download(url, env, json: true, ui: false, max_size: METADATA_SIZE_LIMIT)
-            if @download_interrupted
-              @logger.debug("Deleting temporary metadata file: #{metadata_path}")
-              begin
-                metadata_path.delete if metadata_path
-              rescue Errno::ENOENT
-                # Not a big deal, the temp file may not actually exist
+            begin
+              metadata_path = download(url, env, json: true, ui: false, max_size: METADATA_SIZE_LIMIT)
+            ensure
+              if @download_interrupted
+                @logger.debug("Deleting partially donwloaded metadata file: #{metadata_path}")
+                begin
+                  metadata_path.delete if metadata_path
+                rescue Errno::ENOENT
+                  # Not a big deal, the temp file may not actually exist
+                end
+                return false
               end
-              return false
             end
           end
 
@@ -483,8 +469,9 @@ module Vagrant
                 return false
               end
 
-              BoxMetadata.new(f)
-              return true
+              metadata = BoxMetadata.new(f)
+              @logger.debug("Succesfully parsed metadata file: #{metadata_path}")
+              return metadata
             end
           rescue Errors::BoxMetadataMalformed
             return false
