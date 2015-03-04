@@ -135,7 +135,11 @@ module VagrantPlugins
         end
 
         if @config.install_type
-          options = "%s %s" % [options, @config.install_type]
+          # Allow passing install_args as an arbitrary string rather
+          # than trying to format it based on known options
+          if @config.install_type != "custom"
+            options = "%s %s" % [options, @config.install_type]
+          end
         end
 
         if @config.install_args
