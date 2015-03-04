@@ -49,6 +49,7 @@ module Vagrant
         @insecure    = options[:insecure]
         @ui          = options[:ui]
         @client_cert = options[:client_cert]
+        @max_size    = options[:max_size]
       end
 
       # This executes the actual download, downloading the source file
@@ -224,6 +225,7 @@ module Vagrant
         options << "--insecure" if @insecure
         options << "--cert" << @client_cert if @client_cert
         options << "-u" << @auth if @auth
+        options += ["--range", "0-" + @max_size.to_s] if @max_size
 
         if @headers
           Array(@headers).each do |header|
