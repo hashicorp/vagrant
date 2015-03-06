@@ -15,7 +15,7 @@ if (Test-Path C:\tmp\minion.pem) {
 
 # Detect architecture
 if ([IntPtr]::Size -eq 4) {
-  $arch = "win32"
+  $arch = "x86"
 } else {
   $arch = "AMD64"
 }
