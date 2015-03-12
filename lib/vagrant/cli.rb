@@ -57,6 +57,7 @@ module Vagrant
       opts = OptionParser.new do |o|
         o.banner = "Usage: vagrant [options] <command> [<args>]"
         o.separator ""
+        o.on("-p", "--path", "Search for Vagrantfile on this path.")
         o.on("-v", "--version", "Print the version and exit.")
         o.on("-h", "--help", "Print this help.")
         o.separator ""
