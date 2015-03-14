@@ -17,6 +17,12 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :build_dir
 
+      # An optional file name of a Dockerfile to be used when building
+      # the image. This requires Docker >1.5.0.
+      #
+      # @return [String]
+      attr_accessor :dockerfile
+
       # Additional arguments to pass to `docker run` when creating
       # the container for the first time. This is an array of args.
       #
