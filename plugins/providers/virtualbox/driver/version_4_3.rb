@@ -499,7 +499,7 @@ module VagrantPlugins
             args = ["--name",
               folder[:name],
               "--hostpath",
-              folder[:hostpath]]
+              Vagrant::Util::Platform.windows? ? ("//?/" + File.expand_path(folder[:hostpath])).gsub("/","\\") : folder[:hostpath]]
             args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Enable symlinks on the shared folder
