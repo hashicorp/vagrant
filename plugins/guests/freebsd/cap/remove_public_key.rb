@@ -11,7 +11,7 @@ module VagrantPlugins
           machine.communicate.tap do |comm|
             if comm.test("test -f ~/.ssh/authorized_keys")
               comm.execute(
-                "sed -i '/^.*#{contents}.*$/d' ~/.ssh/authorized_keys")
+                "sed -i .bak '/^.*#{contents}.*$/d' ~/.ssh/authorized_keys")
             end
           end
         end
