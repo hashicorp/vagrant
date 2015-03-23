@@ -49,8 +49,8 @@ The SMB synced folder type has a variety of options it accepts:
 * `smb_username` (string) - The username used for authentication to mount
   the SMB mount. This is the username to access the mount, _not_ the username
   of the account where the folder is being mounted to. This is usually your
-  Windows username. If this isn't specified, Vagrant will prompt you for
-  it.
+  Windows username. If you sign into a domain, specify it as `user@domain`.
+  If this option isn't specified, Vagrant will prompt you for it.
 
 ## Example
 

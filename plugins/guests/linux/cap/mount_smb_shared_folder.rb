@@ -27,10 +27,14 @@ module VagrantPlugins
 
           smb_password = Shellwords.shellescape(options[:smb_password])
 
+          # If a domain is provided in the username, separate it
+          username, domain = (options[:smb_username] || '').split('@', 2)
+
           options[:mount_options] ||= []
           options[:mount_options] << "sec=ntlm"
-          options[:mount_options] << "username=#{options[:smb_username]}"
+          options[:mount_options] << "username=#{username}"
           options[:mount_options] << "pass=#{smb_password}"
+          options[:mount_options] << "domain=#{domain}" if domain
 
           # First mount command uses getent to get the group
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
