@@ -68,9 +68,10 @@ module VagrantPlugins
 
           # Some Ansible options must be passed as environment variables,
           # as there is no equivalent command line arguments
-          "ANSIBLE_FORCE_COLOR" => "true",
           "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
         }
+        env["ANSIBLE_NOCOLOR"] = "true" unless @machine.env.ui.is_a?(Vagrant::UI::Colored)
+
         # ANSIBLE_SSH_ARGS is required for Multiple SSH keys, SSH forwarding and custom SSH settings
         env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
 
