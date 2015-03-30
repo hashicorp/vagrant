@@ -285,7 +285,7 @@ en:
         id_in_pre_import: |-
           The ':id' parameter is not available in "pre-import" customizations.
         intnet_on_bad_type: |-
-          VirtualBox internal networks can only be enabled on "private_networks"
+          VirtualBox internal networks can only be enabled on "private_network"
         invalid_event: |-
           %{event} is not a valid event for customization. Valid events
           are: %{valid_events}
