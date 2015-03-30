@@ -13,12 +13,18 @@ module VagrantPlugins
       attr_accessor :cpus
       attr_accessor :vmname
 
+      # The default VLAN ID for network interface for the virtual machine.
+      #
+      # @return [Integer]
+      attr_accessor :vlan_id
+
       def initialize
         @ip_address_timeout = UNSET_VALUE
         @memory = UNSET_VALUE
         @maxmemory = UNSET_VALUE
         @cpus = UNSET_VALUE
         @vmname = UNSET_VALUE
+        @vlan_id  = UNSET_VALUE
       end
 
       def finalize!
@@ -29,6 +35,7 @@ module VagrantPlugins
         @maxmemory = nil if @maxmemory == UNSET_VALUE
         @cpus = nil if @cpus == UNSET_VALUE 
         @vmname = nil if @vmname == UNSET_VALUE
+        @vlan_id = 0 if @vlan_id == UNSET_VALUE
       end
 
       def validate(machine)
