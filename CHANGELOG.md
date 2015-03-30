@@ -29,6 +29,7 @@ BUG FIXES:
       space on some systems. [GH-5302]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
   - providers/hyperv: import respects secure boot. [GH-5209]
+  - providers/hyperv: only set EFI secure boot for gen 2 machines [GH-5538]
   - providers/virtualbox: read netmask from dhcpservers [GH-5233]
   - providers/virtualbox: Fix exception when VirtualBox version is empty. [GH-5308]
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
@@ -39,7 +40,8 @@ BUG FIXES:
   - provisioners/chef-zero: support more chef-zero/local mode attributes [GH-5339]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
   - pushes/atlas: send additional box metadata [GH-5283]
-  - synced\_folders/rsync: Add `IdentitiesOnly=yes` to the rsync command. [GH-5175]
+  - synced\_folders/rsync: add `IdentitiesOnly=yes` to the rsync command. [GH-5175]
+  - virtualbox/config: fix misleading error message for private_network [GH-5536, GH-5418]
 
 ## 1.7.2 (January 6, 2015)
 
