@@ -20,11 +20,6 @@ describe VagrantPlugins::HyperV::Config do
       subject.finalize!
       expect(subject.vlan_id).to eq(100)
     end
-
-    it "defaults to a number" do
-      subject.finalize!
-      expect(subject.vlan_id).to eq(0)
-    end
   end
   describe "#vmname" do
     it "can be set" do
