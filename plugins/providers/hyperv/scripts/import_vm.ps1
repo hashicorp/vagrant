@@ -136,11 +136,14 @@ $vm | Set-VM @more_vm_params -Passthru
 # Add drives to the virtual machine
 $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'controller')]"
 
-# Set EFI secure boot 
-if ($secure_boot_enabled -eq "True") {
-    Set-VMFirmware -VM $vm -EnableSecureBoot On
-}  else {
-    Set-VMFirmware -VM $vm -EnableSecureBoot Off
+# Only set EFI secure boot for Gen 2 machines, not gen 1
+if ($generation -ne 1) {
+	# Set EFI secure boot 
+	if ($secure_boot_enabled -eq "True") {
+		Set-VMFirmware -VM $vm -EnableSecureBoot On
+	}  else {
+		Set-VMFirmware -VM $vm -EnableSecureBoot Off
+	}
 }
 
 # A regular expression pattern to pull the number from controllers
