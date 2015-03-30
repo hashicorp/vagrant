@@ -8,9 +8,10 @@ module VagrantPlugins
 
         def call(env)
           vlan_id = env[:machine].provider_config.vlan_id
-
-          env[:ui].info("[Settings] [Network Adapter] Setting Vlan ID to: #{vlan_id}")
-          env[:machine].provider.driver.net_set_vlan(vlan_id)
+          if  vlan_id
+            env[:ui].info("[Settings] [Network Adapter] Setting Vlan ID to: #{vlan_id}")
+            env[:machine].provider.driver.net_set_vlan(vlan_id)
+          end  
           @app.call(env)
         end
       end
