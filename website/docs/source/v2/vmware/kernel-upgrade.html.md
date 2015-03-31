@@ -25,7 +25,7 @@ enable auto-upgrading:
 # when we update the linux images
 $fix_vmware_tools_script = <<SCRIPT
 sed -i.bak 's/answer AUTO_KMODS_ENABLED_ANSWER no/answer AUTO_KMODS_ENABLED_ANSWER yes/g' /etc/vmware-tools/locations
-sed -i.bak 's/answer AUTO_KMODS_ENABLED no/answer AUTO_KMODS_ENABLED yes/g' /etc/vmware-tools/locations
+sed -i 's/answer AUTO_KMODS_ENABLED no/answer AUTO_KMODS_ENABLED yes/g' /etc/vmware-tools/locations
 SCRIPT
 
 Vagrant.configure(2) do |config|
