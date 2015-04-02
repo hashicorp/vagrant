@@ -74,13 +74,22 @@ module VagrantPlugins
 
         # Create the parent directories if they does not exist (naive mkdir -p)
         fullpath.descend do |path|
-          if @server.list(path.to_s).empty?
+          unless check_dir_exists? path.to_s
             @server.mkdir(path.to_s)
           end
         end
 
         # Upload the file
         @server.putbinaryfile(local, remote)
+      end
+
+      def check_dir_exists?(path)
+        begin
+          @server.chdir(path)
+          return true
+        rescue Net::FTPPermError
+          return false
+        end
       end
 
       private
