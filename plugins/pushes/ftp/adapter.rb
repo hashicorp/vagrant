@@ -74,7 +74,7 @@ module VagrantPlugins
 
         # Create the parent directories if they does not exist (naive mkdir -p)
         fullpath.descend do |path|
-          unless check_dir_exists? path.to_s
+          if !directory_exists?(path.to_s)
             @server.mkdir(path.to_s)
           end
         end
@@ -83,7 +83,7 @@ module VagrantPlugins
         @server.putbinaryfile(local, remote)
       end
 
-      def check_dir_exists?(path)
+      def directory_exists?(path)
         begin
           @server.chdir(path)
           return true
