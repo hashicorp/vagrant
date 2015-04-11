@@ -1696,7 +1696,7 @@ en:
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
-            Machine not provisioning because `--no-provision` is specified.
+            Machine not provisioned because `--no-provision` is specified.
           disabled_by_sentinel: |-
             Machine already provisioned. Run `vagrant provision` or use the `--provision`
             to force provisioning. Provisioners marked to run always will still run.
