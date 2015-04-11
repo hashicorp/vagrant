@@ -22,10 +22,21 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
   let(:env)    {{ machine: machine }}
   let(:app)    { lambda { |*args| }}
   let(:driver) { double("driver") }
+  let(:host)   { double("host") }
 
   subject { described_class.new(app, env) }
 
+  before do
+    env[:test] = true
+    allow(machine.env).to receive(:host) { host }
+    allow(host).to receive(:capability).with(:nfs_installed) { true }
+  end
+
   it "calls the next action in the chain" do
+    driver.stub(read_network_interfaces: {2 => {type: :hostonly, hostonly: "vmnet2"}})
+    driver.stub(read_host_only_interfaces: [{name: "vmnet2", ip: "1.2.3.4"}])
+    allow(driver).to receive(:read_guest_ip).with(1).and_return("2.3.4.5")
+
     called = false
     app = lambda { |*args| called = true }
 

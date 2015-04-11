@@ -14,6 +14,15 @@ module VagrantPlugins
         def call(env)
           vm_dir = env[:machine].box.directory.join("Virtual Machines")
           hd_dir = env[:machine].box.directory.join("Virtual Hard Disks")
+          memory = env[:machine].provider_config.memory
+          maxmemory = env[:machine].provider_config.maxmemory
+          cpus = env[:machine].provider_config.cpus
+          vmname = env[:machine].provider_config.vmname
+
+          env[:ui].output("Configured Dynamical memory allocation, maxmemory is #{maxmemory}") if maxmemory
+          env[:ui].output("Configured startup memory is #{memory}") if memory
+          env[:ui].output("Configured cpus number is #{cpus}") if cpus
+          env[:ui].output("Configured vmname is #{vmname}") if vmname
 
           if !vm_dir.directory? || !hd_dir.directory?
             raise Errors::BoxInvalid
@@ -78,6 +87,10 @@ module VagrantPlugins
             image_path:      image_path.to_s.gsub("/", "\\")
           }
           options[:switchname] = switch if switch
+          options[:memory] = memory if memory 
+          options[:maxmemory] = maxmemory if maxmemory
+          options[:cpus] = cpus if cpus
+          options[:vmname] = vmname if vmname 
 
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)

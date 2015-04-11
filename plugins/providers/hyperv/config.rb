@@ -8,15 +8,27 @@ module VagrantPlugins
       #
       # @return [Integer]
       attr_accessor :ip_address_timeout
+      attr_accessor :memory
+      attr_accessor :maxmemory
+      attr_accessor :cpus
+      attr_accessor :vmname
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
+        @memory = UNSET_VALUE
+        @maxmemory = UNSET_VALUE
+        @cpus = UNSET_VALUE
+        @vmname = UNSET_VALUE
       end
 
       def finalize!
         if @ip_address_timeout == UNSET_VALUE
           @ip_address_timeout = 120
         end
+        @memory = nil if @memory == UNSET_VALUE
+        @maxmemory = nil if @maxmemory == UNSET_VALUE
+        @cpus = nil if @cpus == UNSET_VALUE 
+        @vmname = nil if @vmname == UNSET_VALUE
       end
 
       def validate(machine)

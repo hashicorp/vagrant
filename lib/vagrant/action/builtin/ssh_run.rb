@@ -29,11 +29,6 @@ module Vagrant
 
           info[:private_key_path] ||= []
 
-          # Check SSH key permissions
-          info[:private_key_path].each do |path|
-            SSH.check_key_permissions(Pathname.new(path))
-          end
-
           if info[:private_key_path].empty?
             raise Errors::SSHRunRequiresKeys
           end

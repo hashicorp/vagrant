@@ -65,6 +65,7 @@ module VagrantPlugins
           "ssh -p #{ssh_info[:port]} " +
           proxy_command +
           "-o StrictHostKeyChecking=no " +
+          "-o IdentitiesOnly=true " +
           "-o UserKnownHostsFile=/dev/null",
           ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
         ].flatten.join(" ")

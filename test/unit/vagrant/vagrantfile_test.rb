@@ -26,7 +26,7 @@ describe Vagrant::Vagrantfile do
 
   # A helper to register a provider for use in tests.
   def register_provider(name, config_class=nil, options=nil)
-    provider_cls = Class.new(Vagrant.plugin("2", :provider)) do
+    provider_cls = Class.new(VagrantTests::DummyProvider) do
       if options && options[:unusable]
         def self.usable?(raise_error=false)
           raise Vagrant::Errors::VagrantError if raise_error
@@ -147,6 +147,21 @@ describe Vagrant::Vagrantfile do
       expect(config.vm.box).to eq("foo")
       expect(box).to be_nil
       expect(results[:provider_cls]).to equal(provider_cls)
+    end
+
+    it "configures without a provider or boxes" do
+      register_provider("foo")
+
+      configure do |config|
+        config.vm.box = "foo"
+      end
+
+      results = subject.machine_config(:default, nil, nil)
+      box     = results[:box]
+      config  = results[:config]
+      expect(config.vm.box).to eq("foo")
+      expect(box).to be_nil
+      expect(results[:provider_cls]).to be_nil
     end
 
     it "configures with sub-machine config" do

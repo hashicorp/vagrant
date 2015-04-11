@@ -16,6 +16,7 @@ module Vagrant
       autoload :Manager, "vagrant/plugin/v2/manager"
       autoload :Plugin, "vagrant/plugin/v2/plugin"
       autoload :Provider, "vagrant/plugin/v2/provider"
+      autoload :Push, "vagrant/plugin/v2/push"
       autoload :Provisioner, "vagrant/plugin/v2/provisioner"
       autoload :SyncedFolder, "vagrant/plugin/v2/synced_folder"
     end

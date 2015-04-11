@@ -65,6 +65,8 @@ and networking options into Docker volumes and forwarded ports.
 You don't have to use the Docker-specific configurations to do this.
 This helps keep your Vagrantfile similar to how it has always looked.
 
+Private and public networks are not currently supported.
+
 ## Host VM
 
 On systems that can't run Linux containers natively, such as Mac OS X

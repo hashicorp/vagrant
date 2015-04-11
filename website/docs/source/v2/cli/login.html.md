@@ -7,8 +7,8 @@ sidebar_current: "cli-login"
 
 **Command: `vagrant login`**
 
-The login command is used to authenticate with a
-[Vagrant Cloud](https://vagrantcloud.com) server. Logging is only
+The login command is used to authenticate with the
+[HashiCorp's Atlas](https://atlas.hashicorp.com) server. Logging is only
 necessary if you're accessing protected boxes or using
 [Vagrant Share](/v2/share/index.html).
 
@@ -19,6 +19,7 @@ boxes or [Vagrant Share](/v2/share/index.html) require a login.
 The reference of available command-line flags to this command
 is available below.
 
+
 ## Options
 
 * `--check` - This will check if you're logged in. In addition to outputting
@@ -28,3 +29,32 @@ is available below.
 * `--logout` - This will log you out if you're logged in. If you're already
   logged out, this command will do nothing. It is not an error to call this
   command if you're already logged out.
+
+* `--token` - This will set the Atlas login token manually to the provided
+  string. It is assumed this token is a valid Atlas access token.
+
+
+## Examples
+
+Securely authenticate to Atlas using a username and password:
+
+```text
+$ vagrant login
+# ...
+Atlas username:
+Atlas password:
+```
+
+Check if the current user is authenticated:
+
+```text
+$ vagrant login --check
+You are already logged in.
+```
+
+Securely authenticate with Atlas using a token:
+
+```text
+$ vagrant login --token ABCD1234
+The token was successfully saved.
+```

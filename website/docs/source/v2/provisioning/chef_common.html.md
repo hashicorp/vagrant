@@ -5,12 +5,55 @@ sidebar_current: "provisioning-chefcommon"
 
 # Shared Chef Options
 
-This page documents the list of available options that are available in
-both the
-[Chef solo](/v2/provisioning/chef_solo.html)
-and
-[Chef client](/v2/provisioning/chef_client.html)
-provisioners.
+## All Chef Provisioners
+
+The following options are available to all Chef provisioners. Many of these
+options are for advanced users only and should not be used unless you understand
+their purpose.
+
+- `binary_path` (string) - The path to Chef's `bin/` directory on the guest
+  machine.
+
+- `binary_env` (string) - Arbitrary environment variables to set before running
+  the Chef provisioner command. This should be of the format `KEY=value` as a
+  string.
+
+- `install` (boolean, string) - Install Chef on the system if it does not exist.
+  The default value is "true", which will use the official Omnibus installer
+  from Chef. This is a trinary attribute (it can have three values):
+
+    - `true` (boolean) - install Chef
+    - `false` (boolean) - do not install Chef
+    - `"force"` (string) - install Chef, even if it is already installed at the
+      proper version on the guest
+
+- `installer_download_path` (string) - The path where the Chef installer will be
+  downloaded to. This option is only honored if the `install` attribute is
+  `true` or `"force"`. The default value is to use the path provided by Chef's
+  Omnibus installer, which varies between releases.
+
+- `log_level` (string) - The Chef log level. See the Chef docs for acceptable
+  values.
+
+- `prerelease` (boolean) - Install a prerelease version of Chef. The default
+  value is false.
+
+- `version` (string) - The version of Chef to install on the guest. If Chef is
+  already installed on the system, the installed version is compared with the
+  requested version. If they match, no action is taken. If they do not match,
+  the value specified in this attribute will be installed in favor of the
+  existing version (a message will be displayed).
+
+  You can also specify "latest" (default), which will install the latest
+  version of Chef on the system. In this case, Chef will use whatever
+  version is on the system. To force the newest version of Chef to be
+  installed on every provision, set the {#install} option to "force".
+
+
+## Runner Chef Provisioners
+
+The following options are available to any of the Chef "runner" provisioners
+which include [Chef Solo](/v2/provisioning/chef_solo.html), [Chef Zero](/v2/provisioning/chef_zero.html), and [Chef Client](/v2/provisioning/chef_client.html).
 
 * `arguments` (string) - A list of additional arguments to pass on the
   command-line to Chef. Since these are passed in a shell-like environment,
@@ -20,9 +63,6 @@ provisioners.
 * `attempts` (int) - The number of times Chef will be run if an error occurs.
   This defaults to 1. This can be increased to a higher number if your Chef
   runs take multiple runs to reach convergence.
-
-* `binary_path` (string) - The path to the directory of the Chef executable
-  binaries. By default, Vagrant looks for the proper Chef binary on the PATH.
 
 * `custom_config_path` (string) - A path to a custom Chef configuration local
   on your machine that will be used as the Chef configuration. This Chef
@@ -65,3 +105,6 @@ provisioners.
 
 * `verbose_logging` (boolean) - Whether or not to enable the Chef
   `verbose_logging` option. By default this is false.
+
+* `enable_reporting` (boolean) - Whether or not to enable the Chef
+  `enable_reporting` option. By default this is true.

@@ -51,10 +51,15 @@ module VagrantPlugins
           while true
             success = true
 
+            stderr = ""
             mount_commands.each do |command|
               no_such_device = false
+              stderr = ""
               status = machine.communicate.sudo(command, error_check: false) do |type, data|
-                no_such_device = true if type == :stderr && data =~ /No such device/i
+                if type == :stderr
+                  no_such_device = true if data =~ /No such device/i
+                  stderr += data.to_s
+                end
               end
 
               success = status == 0 && !no_such_device
@@ -69,7 +74,8 @@ module VagrantPlugins
               command.gsub!(smb_password, "PASSWORDHIDDEN")
 
               raise Vagrant::Errors::LinuxMountFailed,
-                command: command
+                command: command,
+                output: stderr
             end
 
             sleep 2

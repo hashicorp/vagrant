@@ -79,4 +79,23 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
     end
   end
 
+  describe "smb" do
+
+    let(:described_class) do
+      VagrantPlugins::GuestWindows::Plugin.components.guest_capabilities[:windows].get(:mount_smb_shared_folder)
+    end
+
+    describe ".mount_shared_folder" do
+      it "should call mount_volume script with correct args" do
+        expect(Vagrant::Util::TemplateRenderer).to receive(:render).with(
+          /.+scripts\/mount_volume.ps1/, options: {
+              mount_point: "guestpath",
+              share_name: "name",
+              vm_provider_unc_path: "\\\\host\\name",
+            })
+        described_class.mount_smb_shared_folder(machine, 'name', 'guestpath', {:smb_username => "user", :smb_password => "pass", :smb_host => "host"})
+      end
+    end
+  end
+
 end

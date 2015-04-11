@@ -16,6 +16,11 @@ module VagrantPlugins
           mount_shared_folder(machine, name, guestpath, "\\\\psf\\")
         end
 
+        def self.mount_smb_shared_folder(machine, name, guestpath, options)
+          machine.communicate.execute("cmdkey /add:#{options[:smb_host]} /user:#{options[:smb_username]} /pass:#{options[:smb_password]}", {shell: :powershell, elevated: true})
+          mount_shared_folder(machine, name, guestpath, "\\\\#{options[:smb_host]}\\")
+        end
+
         protected
 
         def self.mount_shared_folder(machine, name, guestpath, vm_provider_unc_base)

@@ -28,9 +28,14 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
       expect(subject.ready?).to be_true
     end
 
-    it "returns false if hostname command fails to execute without error" do
-      expect(shell).to receive(:powershell).with("hostname").and_raise(Vagrant::Errors::VagrantError)
+    it "returns false if hostname command fails with a transient error" do
+      expect(shell).to receive(:powershell).with("hostname").and_raise(VagrantPlugins::CommunicatorWinRM::Errors::TransientError)
       expect(subject.ready?).to be_false
+    end
+
+    it "raises an error if hostname command fails with an unknown error" do
+      expect(shell).to receive(:powershell).with("hostname").and_raise(Vagrant::Errors::VagrantError)
+      expect { subject.ready? }.to raise_error(Vagrant::Errors::VagrantError)
     end
 
     it "raises timeout error when hostname command takes longer then winrm timeout" do
@@ -75,13 +80,21 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
 
   describe ".test" do
     it "returns true when exit code is zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 0 })
+      output = { exitcode: 0, data:[{ stderr: '' }] }
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(output)
       expect(subject.test("test -d c:/windows")).to be_true
     end
 
     it "returns false when exit code is non-zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 1 })
+      output = { exitcode: 1, data:[{ stderr: '' }] }
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(output)
       expect(subject.test("test -d /tmp/foobar")).to be_false
+    end
+
+    it "returns false when stderr contains output" do
+      output = { exitcode: 0, data:[{ stderr: 'this is an error' }] }
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(output)
+      expect(subject.test("[-x stuff] && foo")).to be_false
     end
 
     it "returns false when command is testing for linux OS" do
@@ -101,6 +114,6 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
       expect(shell).to receive(:download).with("from", "to")
       subject.download("from", "to")
     end
-  end  
+  end
 
 end

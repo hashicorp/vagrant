@@ -1,3 +1,5 @@
+require "digest/md5"
+
 require "log4r"
 
 module VagrantPlugins
@@ -21,8 +23,9 @@ module VagrantPlugins
 
           # Setup the module paths
           @module_paths = []
-          @expanded_module_paths.each_with_index do |path, i|
-            @module_paths << [path, File.join(config.temp_dir, "modules-#{i}")]
+          @expanded_module_paths.each_with_index do |path, _|
+            key = Digest::MD5.hexdigest(path.to_s)
+            @module_paths << [path, File.join(config.temp_dir, "modules-#{key}")]
           end
 
           folder_opts = {}
@@ -117,7 +120,8 @@ module VagrantPlugins
         def manifests_guest_path
           if config.manifests_path[0] == :host
             # The path is on the host, so point to where it is shared
-            File.join(config.temp_dir, "manifests")
+            key = Digest::MD5.hexdigest(config.manifests_path[1])
+            File.join(config.temp_dir, "manifests-#{key}")
           else
             # The path is on the VM, so just point directly to it
             config.manifests_path[1]
@@ -217,6 +221,7 @@ module VagrantPlugins
 
           opts = {
             elevated: true,
+            error_class: Vagrant::Errors::VagrantError,
             error_key: :ssh_bad_exit_status_muted,
             good_exit: [0,2],
           }

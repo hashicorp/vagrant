@@ -148,7 +148,7 @@ module Vagrant
         # output.
         def terminal_supports_colors?
           if windows?
-            return true if ENV.has_key?("ANSICON")
+            return true if ENV.key?("ANSICON")
             return true if cygwin?
             return true if ENV["TERM"] == "cygwin"
             return false

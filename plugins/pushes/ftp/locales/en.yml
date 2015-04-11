@@ -1,0 +1,11 @@
+en:
+  ftp_push:
+    errors:
+      missing_attribute: |-
+        Missing required attribute '%{attribute}'. The Vagrant FTP Push plugin
+        requires you set this attribute. Please set this attribute in your
+        Vagrantfile, for example:
+
+            config.push.define "ftp" do |push|
+              push.%{attribute} = "..."
+            end

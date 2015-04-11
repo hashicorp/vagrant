@@ -35,12 +35,16 @@ can automatically install rsync into many operating systems. If Vagrant
 is unable to automatically install rsync for your operating system,
 it will tell you.
 
+The destination folder will be created as the user initiating the connection,
+this is `vagrant` by default. This user requires the appropiate permissions on
+the destination folder.
+
 ## Options
 
 The rsync synced folder type accepts the following options:
 
 * `rsync__args` (array of strings) - A list of arguments to supply
-  to `rsync`. By default this is `["--verbose", "--archive", "--delete", "-z"]`.
+  to `rsync`. By default this is `["--verbose", "--archive", "--delete", "-z", "--copy-links"]`.
 
 * `rsync__auto` (boolean) - If false, then `rsync-auto` will not
   watch and automatically sync this folder. By default, this is true.
@@ -66,5 +70,18 @@ The following is an example of using RSync to sync a folder:
 Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", type: "rsync",
     rsync__exclude: ".git/"
+end
+</pre>
+
+## Rsync to a restricted folder
+
+If required to copy to a destination where `vagrant` user doesn't have
+permissions, use `"--rsync-path='sudo rsync'"` to run rsync with sudo on the guest
+
+<pre class="prettyprint">
+Vagrant.configure("2") do |config|
+  config.vm.synced_folder "bin", "/usr/local/bin", type: "rsync",
+    rsync__exclude: ".git/",
+    rsync__args: ["--verbose", "--rsync-path='sudo rsync'", "--archive", "--delete", "-z"]
 end
 </pre>

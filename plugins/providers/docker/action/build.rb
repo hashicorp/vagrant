@@ -1,9 +1,13 @@
 require "log4r"
 
+require "vagrant/util/ansi_escape_code_remover"
+
 module VagrantPlugins
   module DockerProvider
     module Action
       class Build
+        include Vagrant::Util::ANSIEscapeCodeRemover
+
         def initialize(app, env)
           @app = app
           @logger = Log4r::Logger.new("vagrant::docker::build")
@@ -37,9 +41,13 @@ module VagrantPlugins
             machine.ui.output(I18n.t("docker_provider.building"))
             image = machine.provider.driver.build(
               build_dir,
-              extra_args: machine.provider_config.build_args,
-            )
-            machine.ui.detail("Image: #{image}")
+              extra_args: machine.provider_config.build_args) do |type, data|
+              data = remove_ansi_escape_codes(data.chomp).chomp
+              env[:ui].detail(data) if data != ""
+            end
+
+            # Output the final image
+            machine.ui.detail("\nImage: #{image}")
 
             # Store the image ID
             image_file.open("w") do |f|

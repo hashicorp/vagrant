@@ -48,6 +48,18 @@ module VagrantPlugins
           paths = {}
           ignores = []
           with_target_vms(argv) do |machine|
+            if machine.provider.capability?(:proxy_machine)
+              proxy = machine.provider.capability(:proxy_machine)
+              if proxy
+                machine.ui.warn(I18n.t(
+                  "vagrant.rsync_proxy_machine",
+                  name: machine.name.to_s,
+                  provider: machine.provider_name.to_s))
+
+                machine = proxy
+              end
+            end
+
             cached = synced_folders(machine, cached: true)
             fresh  = synced_folders(machine)
             diff   = synced_folders_diff(cached, fresh)
@@ -71,7 +83,7 @@ module VagrantPlugins
             folders.each do |id, folder_opts|
               # If we marked this folder to not auto sync, then
               # don't do it.
-              next if folder_opts.has_key?(:auto) && !folder_opts[:auto]
+              next if folder_opts.key?(:auto) && !folder_opts[:auto]
 
               hostpath = folder_opts[:hostpath]
               hostpath = File.expand_path(hostpath, machine.env.root_path)

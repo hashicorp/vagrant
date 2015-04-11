@@ -1,8 +1,12 @@
+require "digest/md5"
+require "securerandom"
+require "set"
+
 require "log4r"
 
 require "vagrant/util/counter"
 
-require File.expand_path("../base", __FILE__)
+require_relative "base"
 
 module VagrantPlugins
   module Chef
@@ -11,6 +15,8 @@ module VagrantPlugins
       class ChefSolo < Base
         extend Vagrant::Util::Counter
         include Vagrant::Util::Counter
+        include Vagrant::Action::Builtin::MixinSyncedFolders
+
         attr_reader :environments_folders
         attr_reader :cookbook_folders
         attr_reader :role_folders
@@ -19,6 +25,7 @@ module VagrantPlugins
         def initialize(machine, config)
           super
           @logger = Log4r::Logger.new("vagrant::provisioners::chef_solo")
+          @shared_folders = []
         end
 
         def configure(root_config)
@@ -27,22 +34,22 @@ module VagrantPlugins
           @data_bags_folders = expanded_folders(@config.data_bags_path, "data_bags")
           @environments_folders = expanded_folders(@config.environments_path, "environments")
 
-          share_folders(root_config, "csc", @cookbook_folders)
-          share_folders(root_config, "csr", @role_folders)
-          share_folders(root_config, "csdb", @data_bags_folders)
-          share_folders(root_config, "cse", @environments_folders)
+          existing = synced_folders(@machine, cached: true)
+          share_folders(root_config, "csc", @cookbook_folders, existing)
+          share_folders(root_config, "csr", @role_folders, existing)
+          share_folders(root_config, "csdb", @data_bags_folders, existing)
+          share_folders(root_config, "cse", @environments_folders, existing)
         end
 
-        def provision
+        def provision(mode = :solo)
+          install_chef
           # Verify that the proper shared folders exist.
           check = []
-          [@cookbook_folders, @role_folders, @data_bags_folders, @environments_folders].each do |folders|
-            folders.each do |type, local_path, remote_path|
-              # We only care about checking folders that have a local path, meaning
-              # they were shared from the local machine, rather than assumed to
-              # exist on the VM.
-              check << remote_path if local_path
-            end
+          @shared_folders.each do |type, local_path, remote_path|
+            # We only care about checking folders that have a local path, meaning
+            # they were shared from the local machine, rather than assumed to
+            # exist on the VM.
+            check << remote_path if local_path
           end
 
           chown_provisioning_folder
@@ -51,7 +58,7 @@ module VagrantPlugins
           upload_encrypted_data_bag_secret
           setup_json
           setup_solo_config
-          run_chef_solo
+          run_chef(mode)
           delete_encrypted_data_bag_secret
         end
 
@@ -72,8 +79,10 @@ module VagrantPlugins
               local_path = File.expand_path(path, @machine.env.root_path)
 
               if File.exist?(local_path)
-                # Path exists on the host, setup the remote path
-                remote_path = "#{@config.provisioning_path}/chef-solo-#{get_and_update_counter(:cookbooks_path)}"
+                # Path exists on the host, setup the remote path. We use
+                # the MD5 of the local path so that it is predictable.
+                key         = Digest::MD5.hexdigest(local_path)
+                remote_path = "#{@config.provisioning_path}/#{key}"
               else
                 @machine.ui.warn(I18n.t("vagrant.provisioners.chef.cookbook_folder_not_found_warning",
                                        path: local_path.to_s))
@@ -103,33 +112,49 @@ module VagrantPlugins
 
         # Shares the given folders with the given prefix. The folders should
         # be of the structure resulting from the `expanded_folders` function.
-        def share_folders(root_config, prefix, folders)
-          folders.each do |type, local_path, remote_path|
-            if type == :host
-              opts = {}
-              opts[:id] = "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}"
-              opts[:type] = @config.synced_folder_type if @config.synced_folder_type
-
-              root_config.vm.synced_folder(local_path, remote_path, opts)
+        def share_folders(root_config, prefix, folders, existing=nil)
+          existing_set = Set.new
+          (existing || []).each do |_, fs|
+            fs.each do |id, data|
+              existing_set.add(data[:guestpath])
             end
           end
+
+          folders.each do |type, local_path, remote_path|
+            next if type != :host
+
+            # If this folder already exists, then we don't share it, it means
+            # it was already put down on disk.
+            if existing_set.include?(remote_path)
+              @logger.debug("Not sharing #{local_path}, exists as #{remote_path}")
+              next
+            end
+
+            opts = {}
+            opts[:id] = "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}"
+            opts[:type] = @config.synced_folder_type if @config.synced_folder_type
+
+            root_config.vm.synced_folder(local_path, remote_path, opts)
+          end
+
+          @shared_folders += folders
         end
 
         def setup_solo_config
-          cookbooks_path = guest_paths(@cookbook_folders)
-          roles_path = guest_paths(@role_folders)
-          data_bags_path = guest_paths(@data_bags_folders).first
-          environments_path = guest_paths(@environments_folders).first
-          setup_config("provisioners/chef_solo/solo", "solo.rb", {
-            cookbooks_path: cookbooks_path,
-            recipe_url: @config.recipe_url,
-            roles_path: roles_path,
-            data_bags_path: data_bags_path,
-            environments_path: environments_path,
-          })
+          setup_config("provisioners/chef_solo/solo", "solo.rb", solo_config)
         end
 
-        def run_chef_solo
+        def solo_config
+          {
+            cookbooks_path: guest_paths(@cookbook_folders),
+            recipe_url: @config.recipe_url,
+            roles_path: guest_paths(@role_folders),
+            data_bags_path: guest_paths(@data_bags_folders).first,
+            environments_path: guest_paths(@environments_folders).first
+          }
+        end
+
+        def run_chef(mode)
           if @config.run_list && @config.run_list.empty?
             @machine.ui.warn(I18n.t("vagrant.chef_run_list_empty"))
           end
@@ -142,9 +167,9 @@ module VagrantPlugins
 
           @config.attempts.times do |attempt|
             if attempt == 0
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_#{mode}")
             else
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_solo_again")
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_#{mode}_again")
             end
 
             opts = { error_check: false, elevated: true }

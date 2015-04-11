@@ -75,3 +75,6 @@ directory, which is the default synced folder setup by Vagrant.
 You can play around some more by creating some more files and viewing
 them from the terminal, but in the next step we'll cover networking
 options so that you can use your own browser to access the guest machine.
+
+<a href="/v2/getting-started/synced_folders.html" class="button inline-button prev-button">Synced Folders</a>
+<a href="/v2/getting-started/networking.html" class="button inline-button next-button">Networking</a>

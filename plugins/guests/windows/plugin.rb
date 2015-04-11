@@ -54,6 +54,21 @@ module VagrantPlugins
         Cap::Reboot
       end
 
+      guest_capability(:windows, :choose_addressable_ip_addr) do
+        require_relative "cap/choose_addressable_ip_addr"
+        Cap::ChooseAddressableIPAddr
+      end
+
+      guest_capability(:windows, :mount_smb_shared_folder) do
+        require_relative "cap/mount_shared_folder"
+        Cap::MountSharedFolder
+      end
+
+      guest_capability(:windows, :rsync_pre) do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
       protected
 
       def self.init!

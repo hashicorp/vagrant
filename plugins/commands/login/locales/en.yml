@@ -1,0 +1,34 @@
+en:
+  login_command:
+    errors:
+      server_error: |-
+        The Atlas server responded with an not-OK response:
+
+        %{errors}
+      server_unreachable: |-
+        The Atlas server is not currently accepting connections. Please check
+        your network connection and try again later.
+
+    check_logged_in: |-
+      You are already logged in.
+    check_not_logged_in: |-
+      You are not currently logged in. Please run `vagrant login` and provide
+      your login information to authenticate.
+    command_header: |-
+      In a moment we will ask for your username and password to HashiCorp's
+      Atlas. After authenticating, we will store an access token locally on
+      disk. Your login details will be transmitted over a secure connection, and
+      are never stored on disk locally.
+
+      If you do not have an Atlas account, sign up at
+      https://atlas.hashicorp.com.
+    invalid_login: |-
+      Invalid username or password. Please try again.
+    invalid_token: |-
+      Invalid token. Please try again.
+    logged_in: |-
+      You are now logged in.
+    logged_out: |-
+      You are logged out.
+    token_saved: |-
+      The token was successfully saved.
