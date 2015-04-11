@@ -29,7 +29,7 @@ module Vagrant
     #   * BOX_NAME - The name of the box. This is a logical name given by
     #     the user of Vagrant.
     #   * PROVIDER - The provider that the box was built for (VirtualBox,
-    #     VMWare, etc.).
+    #     VMware, etc.).
     #   * metadata.json - A simple JSON file that at the bare minimum
     #     contains a "provider" key that matches the provider for the
     #     box. This metadata JSON, however, can contain anything.

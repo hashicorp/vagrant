@@ -22,7 +22,7 @@ describe Vagrant::Util::HashWithIndifferentAccess do
   it "allows indifferent key lookup" do
     instance["foo"] = "bar"
     expect(instance.key?(:foo)).to be
-    expect(instance.has_key?(:foo)).to be
+    expect(instance.key?(:foo)).to be
     expect(instance.include?(:foo)).to be
     expect(instance.member?(:foo)).to be
   end

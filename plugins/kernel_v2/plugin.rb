@@ -25,6 +25,11 @@ module VagrantPlugins
         PackageConfig
       end
 
+      config("push") do
+        require File.expand_path("../config/push", __FILE__)
+        PushConfig
+      end
+
       config("vagrant") do
         require File.expand_path("../config/vagrant", __FILE__)
         VagrantConfig

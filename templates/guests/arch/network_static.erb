@@ -1,5 +1,5 @@
 Connection=ethernet
 Description='A basic static ethernet connection'
-Interface=eth<%= options[:interface] %>
+Interface=<%= options[:device] %>
 IP=static
 Address=('<%= options[:ip]%>/24')

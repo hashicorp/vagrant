@@ -1,139 +1,109 @@
-require "vagrant/util/counter"
-
 module VagrantPlugins
   module Chef
     module Config
       class Base < Vagrant.plugin("2", :config)
-        extend Vagrant::Util::Counter
-
-        attr_accessor :arguments
-        attr_accessor :attempts
+        # The path to Chef's bin/ directory.
+        # @return [String]
         attr_accessor :binary_path
+
+        # Arbitrary environment variables to set before running the Chef
+        # provisioner command.
+        # @return [String]
         attr_accessor :binary_env
-        attr_accessor :custom_config_path
-        attr_accessor :encrypted_data_bag_secret_key_path
-        attr_accessor :environment
-        attr_accessor :formatter
-        attr_accessor :http_proxy
-        attr_accessor :http_proxy_user
-        attr_accessor :http_proxy_pass
-        attr_accessor :https_proxy
-        attr_accessor :https_proxy_user
-        attr_accessor :https_proxy_pass
-        attr_accessor :json
+
+        # Install Chef on the system if it does not exist. Default is true.
+        # This is a trinary attribute (it can have three values):
+        #
+        # - true (bool) install Chef
+        # - false (bool) do not install Chef
+        # - "force" (string) install Chef, even if it is already installed at
+        #   the proper version
+        #
+        # @return [true, false, String]
+        attr_accessor :install
+
+        # The Chef log level. See the Chef docs for acceptable values.
+        # @return [String, Symbol]
         attr_accessor :log_level
-        attr_accessor :no_proxy
-        attr_accessor :node_name
-        attr_accessor :provisioning_path
-        attr_accessor :run_list
-        attr_accessor :file_cache_path
-        attr_accessor :file_backup_path
-        attr_accessor :verbose_logging
+
+        # Install a prerelease version of Chef.
+        # @return [true, false]
+        attr_accessor :prerelease
+
+        # The version of Chef to install. If Chef is already installed on the
+        # system, the installed version is compared with the requested version.
+        # If they match, no action is taken. If they do not match, version of
+        # the value specified in this attribute will be installed over top of
+        # the existing version (a warning will be displayed).
+        #
+        # You can also specify "latest" (default), which will install the latest
+        # version of Chef on the system. In this case, Chef will use whatever
+        # version is on the system. To force the newest version of Chef to be
+        # installed on every provision, set the {#install} option to "force".
+        #
+        # @return [String]
+        attr_accessor :version
+
+        # The path where the Chef installer will be downloaded to. Only valid if
+        # install is true or "force". It defaults to nil, which means that the
+        # omnibus installer will choose the destination and you have no control
+        # over it.
+        #
+        # @return [String]
+        attr_accessor :installer_download_path
 
         def initialize
           super
 
-          @arguments         = UNSET_VALUE
-          @attempts          = UNSET_VALUE
-          @binary_path       = UNSET_VALUE
-          @binary_env        = UNSET_VALUE
-          @custom_config_path = UNSET_VALUE
-          @encrypted_data_bag_secret_key_path = UNSET_VALUE
-          @environment       = UNSET_VALUE
-          @formatter         = UNSET_VALUE
-          @http_proxy        = UNSET_VALUE
-          @http_proxy_user   = UNSET_VALUE
-          @http_proxy_pass   = UNSET_VALUE
-          @https_proxy       = UNSET_VALUE
-          @https_proxy_user  = UNSET_VALUE
-          @https_proxy_pass  = UNSET_VALUE
-          @log_level         = UNSET_VALUE
-          @no_proxy          = UNSET_VALUE
-          @node_name         = UNSET_VALUE
-          @provisioning_path = UNSET_VALUE
-          @file_cache_path   = UNSET_VALUE
-          @file_backup_path  = UNSET_VALUE
-          @verbose_logging   = UNSET_VALUE
-
-          @json              = {}
-          @run_list          = []
-        end
-
-        def encrypted_data_bag_secret=(value)
-          puts "DEPRECATION: Chef encrypted_data_bag_secret has no effect anymore."
-          puts "Remove this from your Vagrantfile since it'll be removed in the next"
-          puts "Vagrant version."
+          @binary_path = UNSET_VALUE
+          @binary_env  = UNSET_VALUE
+          @install     = UNSET_VALUE
+          @log_level   = UNSET_VALUE
+          @prerelease  = UNSET_VALUE
+          @version     = UNSET_VALUE
+          @installer_download_path = UNSET_VALUE
         end
 
         def finalize!
-          @arguments         = nil if @arguments == UNSET_VALUE
-          @attempts          = 1 if @attempts == UNSET_VALUE
-          @binary_path       = nil if @binary_path == UNSET_VALUE
-          @binary_env        = nil if @binary_env == UNSET_VALUE
-          @custom_config_path = nil if @custom_config_path == UNSET_VALUE
-          @environment       = nil if @environment == UNSET_VALUE
-          @formatter         = nil if @formatter == UNSET_VALUE
-          @http_proxy        = nil if @http_proxy == UNSET_VALUE
-          @http_proxy_user   = nil if @http_proxy_user == UNSET_VALUE
-          @http_proxy_pass   = nil if @http_proxy_pass == UNSET_VALUE
-          @https_proxy       = nil if @https_proxy == UNSET_VALUE
-          @https_proxy_user  = nil if @https_proxy_user == UNSET_VALUE
-          @https_proxy_pass  = nil if @https_proxy_pass == UNSET_VALUE
-          @log_level         = :info if @log_level == UNSET_VALUE
-          @no_proxy          = nil if @no_proxy == UNSET_VALUE
-          @node_name         = nil if @node_name == UNSET_VALUE
-          @provisioning_path = nil if @provisioning_path == UNSET_VALUE
-          @file_backup_path  = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
-          @file_cache_path   = "/var/chef/cache" if @file_cache_path == UNSET_VALUE
-          @verbose_logging   = false if @verbose_logging == UNSET_VALUE
+          @binary_path = nil     if @binary_path == UNSET_VALUE
+          @binary_env  = nil     if @binary_env == UNSET_VALUE
+          @install     = true    if @install == UNSET_VALUE
+          @log_level   = :info   if @log_level == UNSET_VALUE
+          @prerelease  = false   if @prerelease == UNSET_VALUE
+          @version     = :latest if @version == UNSET_VALUE
+          @installer_download_path = nil  if @installer_download_path == UNSET_VALUE
 
-          if @encrypted_data_bag_secret_key_path == UNSET_VALUE
-            @encrypted_data_bag_secret_key_path = nil
+          # Make sure the install is a symbol if it's not a boolean
+          if @install.respond_to?(:to_sym)
+            @install = @install.to_sym
+          end
+
+          # Make sure the version is a symbol if it's not a boolean
+          if @version.respond_to?(:to_sym)
+            @version = @version.to_sym
           end
 
           # Make sure the log level is a symbol
           @log_level = @log_level.to_sym
-
-          # Set the default provisioning path to be a unique path in /tmp
-          if !@provisioning_path
-            counter = self.class.get_and_update_counter(:chef_config)
-            @provisioning_path = "/tmp/vagrant-chef-#{counter}"
-          end
         end
 
-        def merge(other)
-          super.tap do |result|
-            result.instance_variable_set(:@json, @json.merge(other.json))
-            result.instance_variable_set(:@run_list, (@run_list + other.run_list))
-          end
-        end
-
-        # Just like the normal configuration "validate" method except that
-        # it returns an array of errors that should be merged into some
-        # other error accumulator.
+        # Like validate, but returns a list of errors to append.
+        #
+        # @return [Array<String>]
         def validate_base(machine)
           errors = _detected_errors
 
-          if @custom_config_path
-            expanded = File.expand_path(@custom_config_path, machine.env.root_path)
-            if !File.file?(expanded)
-              errors << I18n.t("vagrant.config.chef.custom_config_path_missing")
-            end
+          if missing?(log_level)
+            errors << I18n.t("vagrant.provisioners.chef.log_level_empty")
           end
 
           errors
         end
 
-        # Adds a recipe to the run list
-        def add_recipe(name)
-          name = "recipe[#{name}]" unless name =~ /^recipe\[(.+?)\]$/
-            run_list << name
-        end
-
-        # Adds a role to the run list
-        def add_role(name)
-          name = "role[#{name}]" unless name =~ /^role\[(.+?)\]$/
-            run_list << name
+        # Determine if the given string is "missing" (blank)
+        # @return [true, false]
+        def missing?(obj)
+          obj.to_s.strip.empty?
         end
       end
     end

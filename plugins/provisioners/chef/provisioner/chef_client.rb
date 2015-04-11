@@ -3,7 +3,7 @@ require 'pathname'
 require 'vagrant'
 require 'vagrant/util/subprocess'
 
-require File.expand_path("../base", __FILE__)
+require_relative "base"
 
 module VagrantPlugins
   module Chef
@@ -18,6 +18,7 @@ module VagrantPlugins
         end
 
         def provision
+          install_chef
           verify_binary(chef_binary_path("chef-client"))
           chown_provisioning_folder
           create_client_key_folder
@@ -109,7 +110,7 @@ module VagrantPlugins
           # Knife is not part of the current Vagrant bundle, so it needs to run
           # in the context of the system.
           Vagrant.global_lock do
-            Bundler.with_clean_env do
+            Vagrant::Util::Env.with_clean_env do
               command = ["knife", deletable, "delete", "--yes", node_name]
               r = Vagrant::Util::Subprocess.execute(*command)
               if r.exit_code != 0

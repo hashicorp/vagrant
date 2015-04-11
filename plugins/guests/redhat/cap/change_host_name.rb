@@ -3,16 +3,7 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          case machine.guest.capability("flavor")
-          when :rhel_7
-            change_host_name_rhel7(machine, name)
-          else
-            new(machine, name).change!
-          end
-        end
-
-        def self.change_host_name_rhel7(machine, name)
-          machine.communicate.sudo("hostnamectl set-hostname #{name}")
+          new(machine, name).change!
         end
 
         attr_reader :machine, :new_hostname
@@ -25,11 +16,17 @@ module VagrantPlugins
         def change!
           return unless should_change?
 
-          update_sysconfig
-          update_hostname
-          update_etc_hosts
-          update_dhcp_hostnames
-          restart_networking
+          case machine.guest.capability("flavor")
+          when :rhel_7
+            update_hostname_rhel7
+            update_etc_hosts
+          else
+            update_sysconfig
+            update_hostname
+            update_etc_hosts
+            update_dhcp_hostnames
+            restart_networking
+          end
         end
 
         def should_change?
@@ -59,6 +56,10 @@ module VagrantPlugins
 
         def update_hostname
           sudo "hostname #{fqdn}"
+        end
+
+        def update_hostname_rhel7
+          sudo "hostnamectl set-hostname #{fqdn}"
         end
 
         # /etc/hosts should resemble:

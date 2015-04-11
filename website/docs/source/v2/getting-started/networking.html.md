@@ -26,7 +26,7 @@ is a simple edit to the Vagrantfile, which now looks like this:
 Vagrant.configure("2") do |config|
   config.vm.box = "hashicorp/precise32"
   config.vm.provision :shell, path: "bootstrap.sh"
-  config.vm.network :forwarded_port, host: 4567, guest: 80
+  config.vm.network :forwarded_port, guest: 80, host: 4567
 end
 ```
 
@@ -43,3 +43,6 @@ Vagrant also has other forms of networking, allowing you to assign
 a static IP address to the guest machine, or to bridge the guest
 machine onto an existing network. If you're interested in other options,
 read the [networking](/v2/networking/index.html) page.
+
+<a href="/v2/getting-started/provisioning.html" class="button inline-button prev-button">Provisioning</a>
+<a href="/v2/getting-started/share.html" class="button inline-button next-button">Share</a>

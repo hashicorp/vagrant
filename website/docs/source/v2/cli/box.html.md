@@ -26,10 +26,10 @@ This adds a box with the given address to Vagrant. The address can be
 one of three things:
 
 * A shorthand name from the
-[public catalog of available Vagrant images](https://vagrantcloud.com),
+[public catalog of available Vagrant images](https://atlas.hashicorp.com/boxes/search),
 such as "hashicorp/precise64".
 
-* File path or HTTP URL to a box in a [catalog](https://vagrantcloud.com).
+* File path or HTTP URL to a box in a [catalog](https://atlas.hashicorp.com/boxes/search).
 For HTTP, basic authentication is supported and `http_proxy` environmental
 variables are respected. HTTPS is also supported.
 
@@ -93,8 +93,8 @@ you're not using a catalog).
   to be specified.
 
 <div class="alert alert-block alert-warn">
-<strong>Checksums for versioned boxes or boxes from Vagrant Cloud:</strong>
-For boxes from Vagrant Cloud, the checksums are embedded in the metadata
+<strong>Checksums for versioned boxes or boxes from HashiCorp's Atlas:</strong>
+For boxes from HashiCorp's Atlas, the checksums are embedded in the metadata
 of the box. The metadata itself is served over TLS and its format is validated.
 </div>
 
@@ -144,10 +144,11 @@ what versions to delete with the `--box-version` flag.
 
 # Box Repackage
 
-**Command: `vagrant box repackage NAME PROVIDER`**
+**Command: `vagrant box repackage NAME PROVIDER VERSION`**
 
 This command repackages the given box and puts it in the current
-directory so you can redistribute it.
+directory so you can redistribute it. The name, provider, and version
+of the box can be retrieved using `vagrant box list`.
 
 When you add a box, Vagrant unpacks it and stores it internally. The
 original `*.box` file is not preserved. This command is useful for

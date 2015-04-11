@@ -47,7 +47,7 @@ Implementations of hosts subclass `Vagrant.plugin("2", "host")`. Within
 this implementation, only the `detect?` method needs to be implemented.
 
 The `detect?` method is called by Vagrant very early on in its initialization
-process to determine if the OS that Vagrant is running on is this hsot.
+process to determine if the OS that Vagrant is running on is this host.
 If you detect that it is your operating system, return `true` from `detect?`.
 Otherwise, return `false`.
 

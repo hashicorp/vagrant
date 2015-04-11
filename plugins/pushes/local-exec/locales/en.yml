@@ -1,0 +1,22 @@
+en:
+  local_exec_push:
+    errors:
+      cannot_specify_script_and_inline: |-
+        You have specified both the 'script' and 'inline' attributes for the
+        Vagrant Local Exec Push plugin. You may only specify one of these
+        attributes.
+      command_failed: |-
+        The following command exited with a non-zero exit status:
+
+            %{cmd}
+
+        stdout: %{stdout}
+        stderr: %{stderr}
+      missing_attribute: |-
+        Missing required attribute '%{attribute}'. The Vagrant Local Exec Push
+        plugin requires you set this attribute. Please set this attribute in
+        your Vagrantfile, for example:
+
+            config.push.define "local-exec" do |push|
+              push.%{attribute} = "..."
+            end

@@ -87,6 +87,6 @@ describe Vagrant::Action::Warden do
     expect { instance.call(data) }.to raise_error(SystemExit)
 
     # The recover should not have been called
-    expect(data.has_key?(:recover)).not_to be
+    expect(data.key?(:recover)).not_to be
   end
 end

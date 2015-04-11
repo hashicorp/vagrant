@@ -1,0 +1,44 @@
+<% if node_name %>
+node_name "<%= node_name %>"
+<% end %>
+file_cache_path    "<%= file_cache_path %>"
+file_backup_path   "<%= file_backup_path %>"
+cookbook_path <%= cookbooks_path.inspect %>
+<% if roles_path %>
+role_path <%= roles_path.size == 1 ? roles_path.first.inspect : roles_path.inspect %>
+<% end %>
+log_level <%= log_level.inspect %>
+verbose_logging <%= verbose_logging.inspect %>
+<% if !enable_reporting %>
+enable_reporting <%= enable_reporting.inspect %>
+<% end %>
+
+encrypted_data_bag_secret <%= encrypted_data_bag_secret.inspect %>
+
+<% if data_bags_path -%>
+data_bag_path <%= data_bags_path.inspect %>
+<% end %>
+
+<% if environments_path %>
+environment_path <%= environments_path.inspect %>
+<% end -%>
+
+<% if environment %>
+environment "<%= environment %>"
+<% end -%>
+
+<% if local_mode -%>
+chef_zero.enabled true
+local_mode true
+<% end -%>
+<% if node_path -%>
+node_path <%= node_path.inspect %>
+<% end -%>
+
+<% if formatter %>
+add_formatter "<%= formatter %>"
+<% end %>
+
+<% if custom_configuration -%>
+Chef::Config.from_file "<%= custom_configuration %>"
+<% end -%>

@@ -27,8 +27,8 @@ $ vagrant box add hashicorp/precise32
 ```
 
 This will download the box named "hashicorp/precise32" from
-[Vagrant Cloud](https://vagrantcloud.com), a place where you can find
-and host boxes. While it is easiest to download boxes from Vagrant Cloud
+[HashiCorp's Atlas box catalog](https://atlas.hashicorp.com/boxes/search), a place where you can find
+and host boxes. While it is easiest to download boxes from HashiCorp's Atlas
 you can also add boxes from a local file, custom URL, etc.
 
 Added boxes can be re-used by multiple projects. Each project uses a box
@@ -64,11 +64,14 @@ For the remainder of this getting started guide, we'll only use the
 this getting started guide, the first question you'll probably have is
 "where do I find more boxes?"
 
-The best place to find more boxes is [Vagrant Cloud](https://vagrantcloud.com).
-Vagrant Cloud has a public directory of freely available boxes that
-run various platforms and technologies. Vagrant Cloud also has a great search
+The best place to find more boxes is [HashiCorp's Atlas box catalog](https://atlas.hashicorp.com/boxes/search).
+HashiCorp's Atlas has a public directory of freely available boxes that
+run various platforms and technologies. HashiCorp's Atlas also has a great search
 feature to allow you to find the box you care about.
 
-In addition to finding free boxes, Vagrant Cloud lets you host your own
+In addition to finding free boxes, HashiCorp's Atlas lets you host your own
 boxes, as well as private boxes if you intend on creating boxes for your
 own organization.
+
+<a href="/v2/getting-started/project_setup.html" class="button inline-button prev-button">Project Setup</a>
+<a href="/v2/getting-started/up.html" class="button inline-button next-button">Up And SSH</a>

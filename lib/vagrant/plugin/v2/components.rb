@@ -54,6 +54,11 @@ module Vagrant
         # @return [Hash<Symbol, Registry>]
         attr_reader :provider_capabilities
 
+        # This contains all the push implementations by name.
+        #
+        # @return [Registry<Symbol, Array<Class, Hash>>]
+        attr_reader :pushes
+
         # This contains all the synced folder implementations by name.
         #
         # @return [Registry<Symbol, Array<Class, Integer>>]
@@ -71,6 +76,7 @@ module Vagrant
           @host_capabilities = Hash.new { |h, k| h[k] = Registry.new }
           @providers = Registry.new
           @provider_capabilities = Hash.new { |h, k| h[k] = Registry.new }
+          @pushes = Registry.new
           @synced_folders = Registry.new
         end
       end

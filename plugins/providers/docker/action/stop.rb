@@ -11,7 +11,7 @@ module VagrantPlugins
           driver  = machine.provider.driver
           if driver.running?(machine.id)
             env[:ui].info I18n.t("docker_provider.messages.stopping")
-            driver.stop(machine.id)
+            driver.stop(machine.id, machine.provider_config.stop_timeout)
           end
           @app.call(env)
         end

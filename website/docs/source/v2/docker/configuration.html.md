@@ -18,6 +18,8 @@ you may set. A complete reference is shown below.
 
 ### Optional
 
+General settings:
+
   * `build_args` (array of strings) - Extra arguments to pass to
       `docker build` when `build_dir` is in use.
 
@@ -34,7 +36,10 @@ you may set. A complete reference is shown below.
     but not to the host machine. Useful for links.
 
   * `link` (method, string argument) - Link this container to another
-    by name. Example: `docker.link("db:db")`.
+    by name. The argument should be in the format of `(name:alias)`.
+    Example: `docker.link("db:db")`. Note, if you're linking to
+    another container in the same Vagrantfile, make sure you call
+    `vagrant up` with the `--no-parallel` flag.
 
   * `force_host_vm` (boolean) - If true, then a host VM will be spun up
     even if the computer running Vagrant supports Linux containers. This
@@ -60,6 +65,9 @@ you may set. A complete reference is shown below.
     of time. If false, then Vagrant expects that this container will
     automatically stop at some point, and won't error if it sees it do that.
 
+  * `stop_timeout` (integer) - The amount of time to wait when stopping
+    a container before sending a SIGTERM to the process.
+
   * `vagrant_machine` (string) - The name of the Vagrant machine in the
     `vagrant_vagrantfile` to use as the host machine. This defaults to
     "default".
@@ -71,3 +79,16 @@ you may set. A complete reference is shown below.
     volumes into the container. These directories must exist in the
     host where Docker is running. If you want to sync folders from the
     host Vagrant is running, just use synced folders.
+
+Below, we have settings related to auth. If these are set, then Vagrant
+will `docker login` prior to starting containers, allowing you to pull
+images from private repositories.
+
+  * `email` (string) - Email address for logging in.
+
+  * `username` (string) - Username for logging in.
+
+  * `password` (string) - Password for logging in.
+
+  * `auth_server` (string) - The server to use for authentication. If not
+      set, the Docker Hub will be used.

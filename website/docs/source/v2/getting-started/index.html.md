@@ -17,7 +17,7 @@ since it is free, available on every major platform, and built-in to
 Vagrant. After reading the guide though, don't forget that Vagrant
 can work with [many other providers](/v2/getting-started/providers.html).
 
-Before diving into your first project, please [install Vagrant](/v2/installation/index.html).
+Before diving into your first project, please [install the latest version of Vagrant](/v2/installation/index.html).
 And because we'll be using [VirtualBox](http://www.virtualbox.org) as our
 provider for the getting started guide, please install that as well.
 
@@ -39,7 +39,7 @@ $ vagrant up
 ```
 
 After running the above two commands, you'll have a fully running
-virtual machine in [VirtualBox](http://virtualbox.org) running
+virtual machine in [VirtualBox](https://www.virtualbox.org) running
 Ubuntu 12.04 LTS 32-bit. You can SSH into this machine with
 `vagrant ssh`, and when you're done playing around, you can remove
 all traces of it with `vagrant destroy`.
@@ -54,3 +54,5 @@ comfort of your own machine.
 
 The rest of this guide will walk you through setting up a more
 complete project, covering more features of Vagrant.
+
+<a href="/v2/getting-started/project_setup.html" class="button inline-button next-button">Project Setup</a>

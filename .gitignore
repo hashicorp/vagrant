@@ -16,6 +16,7 @@ pkg/*
 tags
 /Gemfile.lock
 test/tmp/
+vendor/
 
 # Documentation
 _site/*
@@ -31,6 +32,7 @@ doc/
 # IDE junk
 .idea/*
 *.iml
+.project
 
 # Ruby Managers
 .rbenv
@@ -47,3 +49,4 @@ website/docs/Rakefile
 website/www/.sass-cache
 website/www/build
 website/www/Rakefile
+exec/

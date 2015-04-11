@@ -172,6 +172,28 @@ module Vagrant
           end
         end
 
+        # This returns all registered pushes.
+        #
+        # @return [Registry]
+        def pushes
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.components.pushes)
+            end
+          end
+        end
+
+        # This returns all the config classes for the various pushes.
+        #
+        # @return [Registry]
+        def push_configs
+          Registry.new.tap do |result|
+            @registered.each do |plugin|
+              result.merge!(plugin.components.configs[:push])
+            end
+          end
+        end
+
         # This returns all synced folder implementations.
         #
         # @return [Registry]

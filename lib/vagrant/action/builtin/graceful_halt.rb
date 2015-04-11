@@ -24,7 +24,7 @@ module Vagrant
 
         def call(env)
           graceful = true
-          graceful = !env[:force_halt] if env.has_key?(:force_halt)
+          graceful = !env[:force_halt] if env.key?(:force_halt)
 
           # By default, we didn't succeed.
           env[:result] = false
@@ -59,6 +59,9 @@ module Vagrant
               rescue Timeout::Error
                 # Don't worry about it, we catch the case later.
               end
+            rescue Errors::GuestCapabilityNotFound
+              # This happens if insert_public_key is called on a guest that
+              # doesn't support it. This will block a destroy so we let it go.
             rescue Errors::MachineGuestNotReady
               env[:ui].detail(I18n.t("vagrant.actions.vm.halt.guest_not_ready"))
             end

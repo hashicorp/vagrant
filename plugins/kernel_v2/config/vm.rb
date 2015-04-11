@@ -63,6 +63,7 @@ module VagrantPlugins
         @__finalized                   = false
         @__networks                    = {}
         @__providers                   = {}
+        @__provider_order              = []
         @__provider_overrides          = {}
         @__synced_folders              = {}
       end
@@ -95,7 +96,7 @@ module VagrantPlugins
           end
 
           other_defined_vms.each do |key, subvm|
-            if !new_defined_vms.has_key?(key)
+            if !new_defined_vms.key?(key)
               new_defined_vms[key] = subvm.clone
             else
               new_defined_vms[key].config_procs.concat(subvm.config_procs)
@@ -112,6 +113,12 @@ module VagrantPlugins
             new_providers[key] += blocks
           end
 
+          # Merge the provider ordering. Anything defined in our CURRENT
+          # scope is before anything else.
+          other_order = other.instance_variable_get(:@__provider_order)
+          new_order   = @__provider_order.dup
+          new_order   = (new_order + other_order).uniq
+
           # Merge the provider overrides by appending them...
           other_overrides = other.instance_variable_get(:@__provider_overrides)
           new_overrides   = @__provider_overrides.dup
@@ -125,8 +132,8 @@ module VagrantPlugins
           new_provs   = []
           other_provs = other.provisioners.dup
           @provisioners.each do |p|
-            if p.id
-              other_p = other_provs.find { |o| p.id == o.id }
+            if p.name
+              other_p = other_provs.find { |o| p.name == o.name }
               if other_p
                 # There is an override. Take it.
                 other_p.config = p.config.merge(other_p.config)
@@ -162,6 +169,7 @@ module VagrantPlugins
           result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
           result.instance_variable_set(:@__defined_vms, new_defined_vms)
           result.instance_variable_set(:@__providers, new_providers)
+          result.instance_variable_set(:@__provider_order, new_order)
           result.instance_variable_set(:@__provider_overrides, new_overrides)
           result.instance_variable_set(:@__synced_folders, new_folders)
         end
@@ -189,7 +197,7 @@ module VagrantPlugins
         options ||= {}
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
-        options[:disabled]  = false if !options.has_key?(:disabled)
+        options[:disabled]  = false if !options.key?(:disabled)
         options = (@__synced_folders[options[:guestpath]] || {}).
           merge(options.dup)
 
@@ -239,7 +247,7 @@ module VagrantPlugins
         id      = "#{type}-#{id}"
 
         # Merge in the previous settings if we have them.
-        if @__networks.has_key?(id)
+        if @__networks.key?(id)
           options = @__networks[id][1].merge(options)
         end
 
@@ -255,6 +263,9 @@ module VagrantPlugins
         @__providers[name] ||= []
         @__provider_overrides[name] ||= []
 
+        # Add the provider to the ordering list
+        @__provider_order << name
+
         if block_given?
           @__providers[name] << block if block_given?
 
@@ -267,21 +278,36 @@ module VagrantPlugins
       end
 
       def provision(name, **options, &block)
-        id = options.delete(:id).to_s if options.has_key?(:id)
+        type = name
+        if options.key?(:type)
+          type = options.delete(:type)
+        else
+          name = nil
+        end
+
+        if options.key?(:id)
+          puts "Setting `id` on a provisioner is deprecated. Please use the"
+          puts "new syntax of `config.vm.provision \"name\", type: \"type\""
+          puts "where \"name\" is the replacement for `id`. This will be"
+          puts "fully removed in Vagrant 1.8."
+
+          name = id
+        end
 
         prov = nil
-        if id
-          prov = @provisioners.find { |p| p.id == id }
+        if name
+          name = name.to_sym
+          prov = @provisioners.find { |p| p.name == name }
         end
 
         if !prov
-          prov = VagrantConfigProvisioner.new(id, name.to_sym)
+          prov = VagrantConfigProvisioner.new(name, type.to_sym)
           @provisioners << prov
         end
 
         prov.preserve_order = !!options.delete(:preserve_order) if \
-          options.has_key?(:preserve_order)
-        prov.run = options.delete(:run) if options.has_key?(:run)
+          options.key?(:preserve_order)
+        prov.run = options.delete(:run) if options.key?(:run)
         prov.add_config(options, &block)
         nil
       end
@@ -373,10 +399,15 @@ module VagrantPlugins
               host_ip: "127.0.0.1",
               id: "winrm",
               auto_correct: true
-          end
-        end
 
-        if !@__networks["forwarded_port-ssh"]
+            network :forwarded_port,
+              guest: 5986,
+              host: 55986,
+              host_ip: "127.0.0.1",
+              id: "winrm-ssl",
+              auto_correct: true
+          end
+        elsif !@__networks["forwarded_port-ssh"]
           network :forwarded_port,
             guest: 22,
             host: 2222,
@@ -429,12 +460,7 @@ module VagrantPlugins
           p.run = p.run.to_sym if p.run
         end
 
-        # If we didn't share our current directory, then do it
-        # manually.
-        if !@__synced_folders["/vagrant"]
-          synced_folder(".", "/vagrant")
-        end
-
+        current_dir_shared = false
         @__synced_folders.each do |id, options|
           if options[:nfs]
             options[:type] = :nfs
@@ -444,6 +470,14 @@ module VagrantPlugins
           if options[:type] == :nfs && Vagrant::Util::Platform.windows?
             options.delete(:type)
           end
+
+          if options[:hostpath]  == '.'
+            current_dir_shared = true
+          end
+        end
+
+        if !current_dir_shared && !@__synced_folders["/vagrant"]
+          synced_folder(".", "/vagrant")
         end
 
         # Flag that we finalized
@@ -672,6 +706,10 @@ module VagrantPlugins
         end
 
         errors
+      end
+
+      def __providers
+        @__provider_order
       end
     end
   end

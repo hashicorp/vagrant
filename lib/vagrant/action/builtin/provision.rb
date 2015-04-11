@@ -24,13 +24,13 @@ module Vagrant
 
           # Tracks whether we were configured to provision
           config_enabled = true
-          config_enabled = env[:provision_enabled] if env.has_key?(:provision_enabled)
+          config_enabled = env[:provision_enabled] if env.key?(:provision_enabled)
 
           # Check if we already provisioned, and if so, disable the rest
           provision_enabled = true
 
           ignore_sentinel = true
-          if env.has_key?(:provision_ignore_sentinel)
+          if env.key?(:provision_ignore_sentinel)
             ignore_sentinel = env[:provision_ignore_sentinel]
           end
           if ignore_sentinel
@@ -69,7 +69,7 @@ module Vagrant
           end
 
           # Store the value so that other actions can use it
-          env[:provision_enabled] = provision_enabled if !env.has_key?(:provision_enabled)
+          env[:provision_enabled] = provision_enabled if !env.key?(:provision_enabled)
 
           # Ask the provisioners to modify the configuration if needed
           provisioner_instances(env).each do |p, _|
@@ -103,14 +103,20 @@ module Vagrant
           provisioner_instances(env).each do |p, options|
             type_name = type_map[p]
             next if env[:provision_types] && \
-              !env[:provision_types].include?(type_name)
+              !env[:provision_types].include?(type_name) && \
+              !env[:provision_types].include?(options[:name])
 
             # Don't run if sentinel is around and we're not always running
             next if !provision_enabled && options[:run] != :always
 
+            name = type_name
+            if options[:name]
+              name = "#{options[:name]} (#{type_name})"
+            end
+
             env[:ui].info(I18n.t(
               "vagrant.actions.vm.provision.beginning",
-              provisioner: type_name))
+              provisioner: name))
 
             env[:hook].call(:provisioner_run, env.merge(
               callable: method(:run_provisioner),

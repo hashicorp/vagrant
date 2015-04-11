@@ -12,7 +12,7 @@ sharing," and is enabled by default when `vagrant share` is used.
 Because this mode of sharing creates a publicly accessible URL, the accessing
 party does not need to have Vagrant installed in order to view your environment.
 
-This has a number of useful use cases: you can test webooks by exposing
+This has a number of useful use cases: you can test webhooks by exposing
 your Vagrant environment to the internet, you can show your work to clients,
 teammates, or managers, etc.
 

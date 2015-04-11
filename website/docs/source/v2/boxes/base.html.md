@@ -93,7 +93,7 @@ can be easily added via the Vagrantfile in most cases.
 
 Just about every aspect of Vagrant can be modified. However, Vagrant does
 expect some defaults which will cause your base box to "just work" out
-of the box. You should create these as defaults if you intent to publicly
+of the box. You should create these as defaults if you intend to publicly
 distribute your box.
 
 If you're creating a base box for private use, you should try _not_ to
@@ -115,6 +115,10 @@ key into the `~/.ssh/authorized_keys` file for the "vagrant" user. Note
 that OpenSSH is very picky about file permissions. Therefore, make sure
 that `~/.ssh` has `0700` permissions and the authorized keys file has
 `0600` permissions.
+
+When Vagrant boots a box and detects the insecure keypair, it will
+automatically replace it with a randomly generated keypair for additional
+security while the box is running.
 
 ### Root Password: "vagrant"
 
@@ -157,6 +161,63 @@ in the SSH server configuration.
 This avoids a reverse DNS lookup on the connecting SSH client which
 can take many seconds.
 
+## Windows Boxes
+
+Supported Windows guest operating systems:
+- Windows 7
+- Windows 8
+- Windows Server 2008
+- Windows Server 2008 R2
+- Windows Server 2012
+- Windows Server 2012 R2
+
+Windows Server 2003 and Windows XP are _not_ supported, but if you're a die
+hard XP fan [this](http://stackoverflow.com/a/18593425/18475) may help you.
+
+### Base Windows Configuration
+
+  - Turn off UAC
+  - Disable complex passwords
+  - Disable "Shutdown Tracker"
+  - Disable "Server Manager" starting at login (for non-Core)
+
+In addition to disabling UAC in the control panel, you also must disable
+UAC in the registry. This may vary from Windows version to Windows version,
+but Windows 8/8.1 use the command below. This will allow some things like
+automated Puppet installs to work within Vagrant Windows base boxes.
+
+    reg add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /d 0 /t REG_DWORD /f /reg:64
+
+### Base WinRM Configuration
+
+To enable and configure WinRM you'll need to set the WinRM service to
+auto-start and allow unencrypted basic auth (obviously this is not secure).
+Run the following commands from a regular Windows command prompt:
+```
+winrm quickconfig -q
+winrm set winrm/config/winrs @{MaxMemoryPerShellMB="512"}
+winrm set winrm/config @{MaxTimeoutms="1800000"}
+winrm set winrm/config/service @{AllowUnencrypted="true"}
+winrm set winrm/config/service/auth @{Basic="true"}
+sc config WinRM start= auto
+```
+
+### Additional WinRM 1.1 Configuration
+
+These additional configuration steps are specific to Windows Server 2008
+(WinRM 1.1). For Windows Server 2008 R2, Windows 7 and later versions of
+Windows you can ignore this section.
+
+1. Ensure the Windows PowerShell feature is installed
+2. Change the WinRM port to 5985 or upgrade to WinRM 2.0
+
+The following commands will change the WinRM 1.1 port to what's expected by
+Vagrant:
+```
+netsh firewall add portopening TCP 5985 "Port 5985"
+winrm set winrm/config/listener?Address=*+Transport=HTTP @{Port="5985"}
+```
+
 ## Other Software
 
 At this point, you have all the common software you absolutely _need_ for
@@ -185,7 +246,7 @@ provider-specific guides are linked to towards the top of this page.
 You can distribute the box file however you'd like. However, if you want
 to support versioning, putting multiple providers at a single URL, pushing
 updates, analytics, and more, we recommend you add the box to
-[Vagrant Cloud](https://vagrantcloud.com).
+[HashiCorp's Atlas](https://atlas.hashicorp.com).
 
 You can upload both public and private boxes to this service.
 

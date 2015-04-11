@@ -1,0 +1,22 @@
+en:
+  atlas_push:
+    errors:
+      missing_attribute: |-
+        Missing required attribute '%{attribute}'. The Vagrant Atlas Push plugin
+        requires you set this attribute. Please set this attribute in your
+        Vagrantfile, for example:
+
+            config.push.define "atlas" do |push|
+              push.%{attribute} = "..."
+            end
+      missing_token: |-
+        Missing required configuration parameter 'token'. This is required for
+        Vagrant to securely communicate with your Atlas account.
+
+        To generate an access token, run 'vagrant login'.
+      uploader_not_found: |-
+        Vagrant was unable to find the Atlas uploader CLI. If your Vagrantfile
+        specifies the path explicitly with "uploader_path", then make sure that
+        path is valid. Otherwise, make sure that you have a valid install of
+        Vagrant. If you installed Vagrant outside of the official installers,
+        the "atlas-upload" binary must exist on your PATH.

@@ -43,7 +43,7 @@ module VagrantPlugins
                 next
               end
 
-              state = machine.state
+              state = machine.state.id
               if state == :host_state_unknown
                 machine.ui.output(I18n.t("docker_provider.logs_host_state_unknown"))
                 next

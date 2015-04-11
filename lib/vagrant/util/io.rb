@@ -29,7 +29,7 @@ module Vagrant
               break if !results || results[0].empty?
 
               # Read!
-              data << io.readpartial(READ_CHUNK_SIZE)
+              data << io.readpartial(READ_CHUNK_SIZE).encode("UTF-8", Encoding.default_external)
             else
               # Do a simple non-blocking read on the IO object
               data << io.read_nonblock(READ_CHUNK_SIZE)
