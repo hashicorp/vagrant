@@ -117,8 +117,8 @@ module VagrantPlugins
           # Calculate the manifests and module paths based on env
           this_expanded_module_paths = expanded_module_paths(machine.env.root_path)
 
-          if environment_path != UNSET_VALUE && manifests_path != UNSET_VALUE
-              errors << "You may not specify both environment_path and manifests_path. Please specify environment and environment_path only"
+          if environment_path != nil && manifests_path != nil
+              errors << I18n.t("vagrant.provisioners.puppet.environment_manifest_conflict")
           end
 
           # Manifests path/file validation

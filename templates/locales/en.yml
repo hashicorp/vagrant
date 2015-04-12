@@ -1859,16 +1859,15 @@ en:
 
           %{manifest}
         environment_missing: |-
-          The configured Puppet environment folder '%{environment}' was not found in the 
+          The configured Puppet environment folder %{environment} was not found in the 
           specified environmentpath %{environmentpath}.
           Please specify a path to an existing Puppet directory environment.
+        environment_path_missing: "The environment path specified for Puppet does not exist: %{path}"
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
-        manifest_missing: |-
-          The configured Puppet envrionment is missing. Please specify a path to an
-          existing envrionment file:
-
-          %{environment}
-        manifests_path_missing: "The environment path specified for Puppet does not exist: %{path}"
+        environment_manifest_conflict: |-
+          You may not specify both environment_path and manifests_path. 
+          Please specify environment and environment_path without manifests_path, or
+          manifests_path without environment_path (deprecated).
         missing_shared_folders: |-
           Shared folders that Puppet requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
