@@ -39,7 +39,6 @@ module VagrantPlugins
                 File.expand_path(@config.environment_path[1], root_path),
                 environments_guest_path, folder_opts)
             end
-            parse_environment_metadata()
           else
             # Non-Environment mode
             @manifest_file  = File.join(manifests_guest_path, @config.manifest_file)
@@ -114,6 +113,7 @@ module VagrantPlugins
             @machine.communicate.upload(local_hiera_path, @hiera_config_path)
           end
 
+          parse_environment_metadata
           run_puppet_apply
         end
 
