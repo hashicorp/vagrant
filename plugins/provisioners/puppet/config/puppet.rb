@@ -1,7 +1,12 @@
 module VagrantPlugins
   module Puppet
     module Config
-      class Puppet < Vagrant.plugin("2", :config)
+      class Puppet < Vagrant.plugin("2", :config)        
+
+        # The path to Puppet's bin/ directory.
+        # @return [String]
+        attr_accessor :binary_path
+
         attr_accessor :facter
         attr_accessor :hiera_config_path
         attr_accessor :manifest_file
@@ -17,6 +22,7 @@ module VagrantPlugins
         def initialize
           super
 
+          @binary_path        = UNSET_VALUE
           @hiera_config_path  = UNSET_VALUE
           @manifest_file      = UNSET_VALUE
           @manifests_path     = UNSET_VALUE
@@ -88,6 +94,7 @@ module VagrantPlugins
           @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
           @temp_dir       = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
           @working_directory = nil if @working_directory == UNSET_VALUE
+          @binary_path        = nil     if @binary_path == UNSET_VALUE
         end
 
         # Returns the module paths as an array of paths expanded relative to the
