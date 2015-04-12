@@ -39,8 +39,8 @@ module VagrantPlugins
                 File.expand_path(@config.environment_path[1], root_path),
                 environments_guest_path, folder_opts)
             end
-          else
-            # Non-Environment mode
+          end
+          if @config.manifest_file
             @manifest_file  = File.join(manifests_guest_path, @config.manifest_file)
             # Share the manifests directory with the guest
             if @config.manifests_path[0].to_sym == :host
@@ -63,8 +63,8 @@ module VagrantPlugins
               if type == :stdout
                 # Parse out the environment manifest path since puppet apply doesnt do that for us.
                 if data =~ /\s+manifest\s+=\s(.*)/
-                  @environment_manifest_path = $1
-                  @environment_manifest_path.gsub! '$basemodulepath:', "#{environments_guest_path}/#{@config.environment}/"
+                  @manifest_file = $1
+                  @manifest_file.gsub! '$basemodulepath:', "#{environments_guest_path}/#{@config.environment}/"
                 end
               end
             end
@@ -78,13 +78,17 @@ module VagrantPlugins
             @machine.guest.capability(:wait_for_reboot)
           end
 
+          # In environment mode we still need to specify a manifest file, if its not, use the one from env config if specified.
+          if !@manifest_file
+            @manifest_file = "#{environments_guest_path}/#{@config.environment}/manifests/site.pp"
+            parse_environment_metadata
+          end
           # Check that the shared folders are properly shared
           check = []
           if @config.manifests_path.is_a?(Array) && @config.manifests_path[0] == :host
             check << manifests_guest_path
           end
           if @config.environment_path.is_a?(Array) && @config.environment_path[0] == :host
-            @environment_manifest_path = "#{environments_guest_path}/#{@config.environment}/manifests/site.pp"
             check << environments_guest_path
           end
           @module_paths.each do |host_path, guest_path|
@@ -111,7 +115,6 @@ module VagrantPlugins
             @machine.communicate.upload(local_hiera_path, @hiera_config_path)
           end
 
-          parse_environment_metadata
           run_puppet_apply
         end
 
@@ -181,15 +184,14 @@ module VagrantPlugins
 
           options << "--detailed-exitcodes"
           if config.environment_path
-            options << " #{@environment_manifest_path}"
             options << "--environmentpath #{environments_guest_path}/"
             options << "--environment #{@config.environment}"
           else
             options << "--manifestdir #{manifests_guest_path}"
-            options << @manifest_file
           end
+
+          options << @manifest_file
           options = options.join(" ")
-          
           @machine.ui.info("Running ye puppet apply with options #{options}")
 
           # Build up the custom facts if we have any

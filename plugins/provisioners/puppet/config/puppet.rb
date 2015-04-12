@@ -59,24 +59,18 @@ module VagrantPlugins
         def finalize!
           super
 
-          if @environment_path == UNSET_VALUE
-            if @manifests_path == UNSET_VALUE
-              if 1  #If both are unset, assume 'environment' mode.
-                @environment_path = [:host, "environments"]
-              else
-                @manifests_path = [:host, "manifests"]
-              end
-            end
-
-            if @manifests_path != UNSET_VALUE && !@manifests_path.is_a?(Array)
-              @manifests_path = [:host, @manifests_path]
-            end
-          else
-            if @environment_path != UNSET_VALUE && !@environment_path.is_a?(Array)
-              @environment_path = [:host, @environment_path]
-            end
+          if @environment_path == UNSET_VALUE && @manifests_path == UNSET_VALUE
+            #If both are unset, assume 'manifests' mode for now. TBD: Switch to environments by default?
+            @manifests_path = [:host, "manifests"]
           end
 
+          # If the paths are just strings, assume they are 'host' paths (rather than guest)
+          if @environment_path != UNSET_VALUE && !@environment_path.is_a?(Array)
+            @environment_path = [:host, @environment_path]
+          end
+          if @manifests_path != UNSET_VALUE && !@manifests_path.is_a?(Array)
+            @manifests_path = [:host, @manifests_path]
+          end
           @hiera_config_path = nil if @hiera_config_path == UNSET_VALUE
 
           if @environment_path == UNSET_VALUE
@@ -86,8 +80,12 @@ module VagrantPlugins
           else
             @environment_path[0] = @environment_path[0].to_sym
             @environment  = "production" if @environment == UNSET_VALUE
-            @manifest_file = nil
-            @manifests_path = nil
+            if @manifests_path == UNSET_VALUE
+              @manifests_path = nil
+            end            
+            if @manifest_file == UNSET_VALUE
+              @manifest_file = nil
+            end
           end
 
           @binary_path        = nil     if @binary_path == UNSET_VALUE
@@ -117,10 +115,6 @@ module VagrantPlugins
 
           # Calculate the manifests and module paths based on env
           this_expanded_module_paths = expanded_module_paths(machine.env.root_path)
-
-          if environment_path != nil && manifests_path != nil
-              errors << I18n.t("vagrant.provisioners.puppet.environment_manifest_conflict")
-          end
 
           # Manifests path/file validation
           if manifests_path != nil && manifests_path[0].to_sym == :host
