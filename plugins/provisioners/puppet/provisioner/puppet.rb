@@ -145,12 +145,12 @@ module VagrantPlugins
 
         def verify_binary(binary)
           if !machine.communicate.test("sh -c 'command -v #{binary}'")
-              @config.binary_path = "/opt/puppetlabs/bin"
-              @machine.communicate.sudo(
-                "test -x /opt/puppetlabs/bin/#{binary}",
-                error_class: PuppetError,
-                error_key: :not_detected,
-                binary: binary)
+            @config.binary_path = "/opt/puppetlabs/bin/"
+            @machine.communicate.sudo(
+              "test -x /opt/puppetlabs/bin/#{binary}",
+              error_class: PuppetError,
+              error_key: :not_detected,
+              binary: binary)
           end
         end
 
@@ -208,7 +208,7 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "#{facter} #{config.binary_path}/puppet apply #{options}"
+          command = "#{facter} #{config.binary_path}puppet apply #{options}"
           if config.working_directory
             if windows?
               command = "cd #{config.working_directory}; if (`$?) \{ #{command} \}"
