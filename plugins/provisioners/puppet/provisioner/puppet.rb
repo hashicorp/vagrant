@@ -183,7 +183,7 @@ module VagrantPlugins
 
           options << "--detailed-exitcodes"
           if config.environment_path
-            options << "#{environments_guest_path}/#{@config.environment}/manifests"
+            options << "--environmentpath #{environments_guest_path}/"
             options << "--environment #{@config.environment}"
           else
             options << "--manifestdir #{manifests_guest_path}"
