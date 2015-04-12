@@ -32,11 +32,11 @@ module VagrantPlugins
           folder_opts[:type] = @config.synced_folder_type if @config.synced_folder_type
           folder_opts[:owner] = "root" if !@config.synced_folder_type
 
-          if @config.environmentpath.is_a?(Array)
+          if @config.environment_path.is_a?(Array)
             # Share the environments directory with the guest
-            if @config.environmentpath[0].to_sym == :host
+            if @config.environment_path[0].to_sym == :host
               root_config.vm.synced_folder(
-                File.expand_path(@config.environmentpath[1], root_path),
+                File.expand_path(@config.environment_path[1], root_path),
                 environments_guest_path, folder_opts)
             end
             parse_environment_metadata()
@@ -87,7 +87,7 @@ module VagrantPlugins
           if @config.manifests_path.is_a?(Array) && @config.manifests_path[0] == :host
             check << manifests_guest_path
           end
-          if @config.environmentpath.is_a?(Array) && @config.environmentpath[0] == :host
+          if @config.environment_path.is_a?(Array) && @config.environment_path[0] == :host
             check << environments_guest_path
           end
           @module_paths.each do |host_path, guest_path|
@@ -129,12 +129,12 @@ module VagrantPlugins
         end
 
         def environments_guest_path
-          if config.environmentpath[0] == :host
+          if config.environment_path[0] == :host
             # The path is on the host, so point to where it is shared
             File.join(config.temp_dir, "environments")
           else
             # The path is on the VM, so just point directly to it
-            config.environmentpath[1]
+            config.environment_path[1]
           end
         end
 
@@ -184,7 +184,7 @@ module VagrantPlugins
 
           options << "--detailed-exitcodes"
 
-          if !config.environmentpath.empty?
+          if !config.environment_path.empty?
             options << "#{environments_guest_path}/#{@config.environment}/manifests"
             options << "--environment #{@config.environment}"
           else
@@ -220,7 +220,7 @@ module VagrantPlugins
             end
           end
 
-          if !config.environmentpath.empty?
+          if !config.environment_path.empty?
             @machine.ui.info(I18n.t(
               "vagrant.provisioners.puppet.running_puppet_env",
               environment: config.environment))
