@@ -182,8 +182,7 @@ module VagrantPlugins
           end
 
           options << "--detailed-exitcodes"
-
-          if !config.environment_path.empty?
+          if config.environment_path
             options << "#{environments_guest_path}/#{@config.environment}/manifests"
             options << "--environment #{@config.environment}"
           else
@@ -219,7 +218,7 @@ module VagrantPlugins
             end
           end
 
-          if !config.environment_path.empty?
+          if config.environment_path
             @machine.ui.info(I18n.t(
               "vagrant.provisioners.puppet.running_puppet_env",
               environment: config.environment))

@@ -61,19 +61,18 @@ module VagrantPlugins
 
           if @environment_path == UNSET_VALUE
             if @manifests_path == UNSET_VALUE
-              if 1  #If puppet 3.4+
-              puts "Puppet 3.4+, manifests_path is unset and environment_path is unset, presuming an environment"
+              if 1  #If both are unset, assume 'environment' mode.
                 @environment_path = [:host, "environments"]
               else
                 @manifests_path = [:host, "manifests"]
               end
             end
 
-            if @manifests_path && !@manifests_path.is_a?(Array)
+            if @manifests_path != UNSET_VALUE && !@manifests_path.is_a?(Array)
               @manifests_path = [:host, @manifests_path]
             end
           else
-            if @environment_path && !@environment_path.is_a?(Array)
+            if @environment_path != UNSET_VALUE && !@environment_path.is_a?(Array)
               @environment_path = [:host, @environment_path]
             end
           end
@@ -88,13 +87,15 @@ module VagrantPlugins
             @environment_path[0] = @environment_path[0].to_sym
             @environment  = "production" if @environment == UNSET_VALUE
             @manifest_file = nil
+            @manifests_path = nil
           end
 
-          @module_path    = nil if @module_path == UNSET_VALUE
-          @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
-          @temp_dir       = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
-          @working_directory = nil if @working_directory == UNSET_VALUE
           @binary_path        = nil     if @binary_path == UNSET_VALUE
+          @module_path        = nil     if @module_path == UNSET_VALUE
+          @synced_folder_type = nil     if @synced_folder_type == UNSET_VALUE
+          @temp_dir           = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
+          @working_directory  = nil     if @working_directory == UNSET_VALUE
+
         end
 
         # Returns the module paths as an array of paths expanded relative to the
@@ -122,8 +123,7 @@ module VagrantPlugins
           end
 
           # Manifests path/file validation
-          puts "manifests_path is #{manifests_path}"
-          if manifests_path != UNSET_VALUE && manifests_path[0].to_sym == :host
+          if manifests_path != nil && manifests_path[0].to_sym == :host
             expanded_path = Pathname.new(manifests_path[1]).
               expand_path(machine.env.root_path)
             if !expanded_path.directory?
@@ -136,10 +136,8 @@ module VagrantPlugins
                                  manifest: expanded_manifest_file.to_s)
               end
             end
-          end          
-
-          # Environments path/file validation
-          if environment_path != UNSET_VALUE && environment_path[0].to_sym == :host
+          elsif environment_path != nil && environment_path[0].to_sym == :host
+            # Environments path/file validation
             expanded_path = Pathname.new(environment_path[1]).
               expand_path(machine.env.root_path)
             if !expanded_path.directory?
@@ -155,7 +153,7 @@ module VagrantPlugins
             end
           end
 
-          if environment_path == UNSET_VALUE && manifests_path == UNSET_VALUE
+          if environment_path == nil && manifests_path == nil
               errors << "Please specify either a Puppet environment_path + environment (preferred) or manifests_path (deprecated)."
           end          
 
@@ -166,7 +164,6 @@ module VagrantPlugins
                                path: path)
             end
           end
-
           { "puppet provisioner" => errors }
         end
       end
