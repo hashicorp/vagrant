@@ -146,7 +146,6 @@ module VagrantPlugins
         end
 
         def verify_binary(binary)
-          puts "verify_binary:  #{binary}"
           if !machine.communicate.test("sh -c 'command -v #{binary}'")
               @config.binary_path = "/opt/puppetlabs/bin"
               @machine.communicate.sudo(
