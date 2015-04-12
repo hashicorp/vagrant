@@ -56,23 +56,20 @@ module VagrantPlugins
           end
         end
 
-        # For convenience, add in any module_paths from the Puppet environment.cfg to the vagrant module_paths
-        # This is needed because puppet apply does not read environment metadata (as of v3.6)
         def parse_environment_metadata
           environment_conf = File.join(environments_guest_path, @config.environment, "environment.conf")
           if @machine.communicate.test("test -e #{environment_conf}", sudo: true)
             conf = @machine.communicate.sudo("cat #{environment_conf}") do | type, data|
               if type == :stdout
-                #modulepath = $basemodulepath:modules/private:modules/public
-                puts "got line #{data}"
+                # Parse out the environment manifest path since puppet apply doesnt do that for us.
+                if data =~ /\s+manifest\s+=\s(.*)/
+                  @environment_manifest_path = $1
+                  @environment_manifest_path.gsub! '$basemodulepath:', "#{environments_guest_path}/#{@config.environment}/"
+                end
               end
             end
-            puts "Found an environment cfg at: #{environment_conf} - #{conf}"
-          else
-            puts "env cfg not found, looked for #{environment_conf}"
           end
         end
-
 
         def provision
           # If the machine has a wait for reboot functionality, then
@@ -87,6 +84,7 @@ module VagrantPlugins
             check << manifests_guest_path
           end
           if @config.environment_path.is_a?(Array) && @config.environment_path[0] == :host
+            @environment_manifest_path = "#{environments_guest_path}/#{@config.environment}/manifests/site.pp"
             check << environments_guest_path
           end
           @module_paths.each do |host_path, guest_path|
@@ -183,6 +181,7 @@ module VagrantPlugins
 
           options << "--detailed-exitcodes"
           if config.environment_path
+            options << " #{@environment_manifest_path}"
             options << "--environmentpath #{environments_guest_path}/"
             options << "--environment #{@config.environment}"
           else
