@@ -2,10 +2,10 @@
 $version = '2014.1.10'
 
 # Create C:\tmp\ - if Vagrant doesn't upload keys and/or config it might not exist
-New-Item C:\tmp\ -ItemType directory | out-null
+New-Item C:\tmp\ -ItemType directory -force | out-null
 
 # Copy minion keys & config to correct location
-New-Item C:\salt\conf\pki\minion\ -ItemType directory | out-null
+New-Item C:\salt\conf\pki\minion\ -ItemType directory -force | out-null
 
 # Check if minion keys have been uploaded
 if (Test-Path C:\tmp\minion.pem) {
