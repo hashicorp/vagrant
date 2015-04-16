@@ -192,7 +192,6 @@ module VagrantPlugins
 
           options << @manifest_file
           options = options.join(" ")
-          @machine.ui.info("Running ye puppet apply with options #{options}")
 
           # Build up the custom facts if we have any
           facter = ""
