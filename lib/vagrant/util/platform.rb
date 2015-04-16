@@ -148,7 +148,7 @@ module Vagrant
         # @param [String] path Path to convert to UNC for Windows
         # @return [String]
         def windows_unc_path(path)
-          "//?/" + path.gsub("/", "\\")
+          "\\\\?\\" + path.gsub("/", "\\")
         end
 
         # Returns a boolean noting whether the terminal supports color.

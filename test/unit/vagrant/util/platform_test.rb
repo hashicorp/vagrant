@@ -13,7 +13,7 @@ describe Vagrant::Util::Platform do
 
   describe "#windows_unc_path" do
     it "correctly converts a path" do
-      expect(described_class.windows_unc_path("c:/foo").to_s).to eql("//?/c:\\foo")
+      expect(described_class.windows_unc_path("c:/foo").to_s).to eql("\\\\?\\c:\\foo")
     end
   end
 end
