@@ -65,7 +65,10 @@ module VagrantPlugins
 
             comm.upload(path.to_s, config.upload_path)
 
-            if config.path
+            if not(config.name.nil?)
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "Name: #{config.name}"))
+            elsif config.path
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: path.to_s))
             else
@@ -122,7 +125,10 @@ module VagrantPlugins
             command = "powershell #{shell_args.to_s} -file #{command}" if
               File.extname(exec_path).downcase == '.ps1'
 
-            if config.path
+            if not(config.name.nil?)
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "Name: #{config.name}"))
+            elsif config.path
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.runningas",
                                       local: config.path.to_s, remote: exec_path))
             else
