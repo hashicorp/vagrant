@@ -5,6 +5,7 @@ IMPROVEMENTS:
   - guests/darwin: Support inserting generated key. [GH-5204]
   - guests/fedora: Support Fedora 21. [GH-5277]
   - guests/redhat: Support Scientific Linux 7 [GH-5303]
+  - guests/photon: Initial support [GH-5612]
   - guests/solaris,solaris11: Support inserting generated key. [GH-5182]
       [GH-5290]
   - providers/virtualbox: regexp supported for bridge configuration. [GH-5320]
