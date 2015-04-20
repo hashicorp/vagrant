@@ -19,6 +19,21 @@ module VagrantPlugins
             networks.each do |network|
               comm.sudo("ifconfig #{interfaces[network[:interface].to_i]} #{network[:ip]} netmask #{network[:netmask]}")
             end
+
+            primary_machine_config = machine.env.active_machines.first
+            primary_machine = machine.env.machine(*primary_machine_config, true)
+
+            get_ip = lambda do |machine|
+              ip = nil
+              machine.config.vm.networks.each do |type, opts|
+                if type == :private_network && opts[:ip]
+                  ip = opts[:ip]
+                  break
+                end
+              end
+
+              ip
+            end
           end
         end
       end
