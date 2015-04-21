@@ -65,6 +65,45 @@ the final part of the `config.vm.synced_folder` definition, along with the
 * `nfs_version` (string | integer) - The NFS protocol version to use when
   mounting the folder on the guest. This defaults to 3.
 
+## Specifying NFS Arguments
+
+In addition to the options specified above, it is possible for Vagrant to
+specify additional NFS arguments when mounting the NFS share by using the
+`mount_options` key. For example, to append the `actimeo=2` client mount option:
+
+```
+config.vm.synced_folder ".", "/vagrant",
+    :nfs => true,
+    :mount_options => ['actimeo=2']
+```
+
+This would result in the following `mount` command being executed on the guest:
+ 
+```
+mount -o 'actimeo=2' 172.28.128.1:'/path/to/vagrantfile' /vagrant
+```
+
+You can also tweak the arguments specified in the `/etc/exports` template
+when the mount is added, by using the OS-specific `linux__nfs_options` or
+`bsd__nfs_options` keys. Note that these options completely override the default
+arguments that are added by Vagrant automatically. For example, to make the
+NFS share asynchronous:
+
+```
+config.vm.synced_folder ".", "/vagrant",
+    :nfs => true,
+    :linux__nfs_options => ['rw','no_subtree_check','all_squash','async']
+```
+
+This would result in the following content in `/etc/exports` on the host (note
+the added `async` flag):
+
+```
+# VAGRANT-BEGIN: 21171 5b8f0135-9e73-4166-9bfd-ac43d5f14261
+"/path/to/vagrantfile" 172.28.128.5(rw,no_subtree_check,all_squash,async,anonuid=21171,anongid=660,fsid=3382034405)
+# VAGRANT-END: 21171 5b8f0135-9e73-4166-9bfd-ac43d5f14261
+```
+
 ## Root Privilege Requirement
 
 To configure NFS, Vagrant must modify system files on the host. Therefore,
