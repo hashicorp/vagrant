@@ -25,7 +25,7 @@ alternative to some other mechanisms such as VirtualBox shared folders.
 ## Prerequisites
 
 To use the SMB synced folder type, the machine running Vagrant must be
-a Windows machine. In addition to this, the command prompt executing Vagrant
+a Windows machine with PowerShell version 3 or later installed. In addition to this, the command prompt executing Vagrant
 must have administrative privileges. Vagrant requires these privileges in
 order to create new network folder shares.
 
