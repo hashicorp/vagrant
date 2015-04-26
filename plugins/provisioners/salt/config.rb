@@ -95,14 +95,14 @@ module VagrantPlugins
         if @minion_config
           expanded = Pathname.new(@minion_config).expand_path(machine.env.root_path)
           if !expanded.file?
-            errors << I18n.t("vagrant.provisioners.salt.minion_config_nonexist")
+            errors << I18n.t("vagrant.provisioners.salt.minion_config_nonexist", missing_config_file: expanded)
           end
         end
 
         if @master_config
           expanded = Pathname.new(@master_config).expand_path(machine.env.root_path)
           if !expanded.file?
-            errors << I18n.t("vagrant.provisioners.salt.master_config_nonexist")
+            errors << I18n.t("vagrant.provisioners.salt.master_config_nonexist",  missing_config_file: expanded)
           end
         end
 
