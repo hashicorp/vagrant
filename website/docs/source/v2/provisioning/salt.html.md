@@ -85,7 +85,7 @@ public key
 ## Master Options
 These only make sense when `install_master` is `true`.
 
-* `master_config` (string, default: "salt/minion")
+* `master_config` (string, default: "salt/master")
   Path to a custom salt master config file
 
 * `master_key` (salt/key/master.pem) - Path to your master key
