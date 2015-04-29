@@ -23,8 +23,7 @@ module VagrantPlugins
               return if env[:interrupted]
 
               # Try to get the IP
-              network_info = env[:machine].provider.driver.read_guest_ip
-              guest_ip = network_info["ip"]
+              guest_ip = env[:machine].provider.driver.read_guest_ip[0]
 
               if guest_ip
                 begin

@@ -30,6 +30,11 @@ module VagrantPlugins
         PackageConfig
       end
 
+      config("synced_folder", true) do
+        require File.expand_path("../config/synced_folder", __FILE__)
+        SyncedFolderConfig
+      end
+
       config("vagrant", true) do
         require File.expand_path("../config/vagrant", __FILE__)
         VagrantConfig

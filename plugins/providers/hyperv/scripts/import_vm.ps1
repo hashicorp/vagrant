@@ -3,8 +3,7 @@ Param(
     [string]$vm_xml_config,
     [Parameter(Mandatory=$true)]
     [string]$image_path,
-
-    [string]$switchname=$null,
+    [string]$generation='1',
     [string]$memory=$null,
     [string]$maxmemory=$null,   
     [string]$cpus=$null,
@@ -34,12 +33,15 @@ if (!$cpus) {
 }
 
 function GetUniqueName($name) {
+    $nextName = $name
+    $instanceNumber = 0
     Get-VM | ForEach-Object -Process {
-        if ($name -eq $_.Name) {
-            $name =  $name + "_1"
+        if ($nextName -eq $_.Name) {
+            $instanceNumber = $instanceNumber + 1
+            $nextName = $name + "_" + $instanceNumber
         }
     }
-    return $name
+    return $nextName
 }
 
 do {
@@ -75,18 +77,13 @@ else {
     }
 }
 
-
-if (!$switchname) {
-    # Get the name of the virtual switch
-    $switchname = (Select-Xml -xml $vmconfig -XPath "//AltSwitchName").node."#text"
-}
-
 # Determine boot device
 Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
     "Floppy"    { $bootdevice = "floppy" }
     "HardDrive" { $bootdevice = "IDE" }
     "Optical"   { $bootdevice = "CD" }
     "Network"   { $bootdevice = "LegacyNetworkAdapter" }
+    "VHD"       { $bootdevice = "VHD" }
     "Default"   { $bootdevice = "IDE" }
 } #switch
 
@@ -100,7 +97,6 @@ $vm_params = @{
     Generation = $generation
     NoVHD = $True
     MemoryStartupBytes = $MemoryStartupBytes
-    SwitchName = $switchname
     BootDevice = $bootdevice
     ErrorAction = "Stop"
 }
@@ -179,6 +175,16 @@ foreach ($controller in $controllers) {
             $vm | Add-VMHardDiskDrive @AddDriveparam
         }
     }
+}
+
+if ($generation -ne '1') {
+    $SecureBoot = (Select-Xml -xml $vmconfig -XPath "//secure_boot_enabled").Node.'#text' -eq 'True'
+    if (!$SecureBoot) {
+        Set-VMFirmware -Vmname $vm_name -EnableSecureBoot Off
+    }
+
+    $firstBootDevice = Get-VMFirmware -Vmname $vm_name |%{$_.BootOrder.Device}| ?{$_ -is [Microsoft.HyperV.PowerShell.HardDiskDrive]} | Select-Object -First 1
+    Set-VMFirmware -Vmname $vm_name -EnableSecureBoot Off -FirstBootDevice $firstBootDevice
 }
 
 $vm_id = (Get-VM $vm_name).id.guid

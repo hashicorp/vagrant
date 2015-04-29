@@ -51,6 +51,15 @@ en:
 
         For more help, please see the documentation on the Vagrant website
         for Hyper-V.
+      switch_does_not_exist: |-
+        There are no virtual switch named ('%{switch}') for Hyper-V! Please 
+        open the Hyper-V Manager, go to the "Virtual Switch Manager", and 
+        create it.
+
+        A virtual switch is required for each adapter.
+
+        For more help, please see the documentation on the Vagrant website
+        for Hyper-V.
       powershell_features_disabled: |-
         The Hyper-V cmdlets for PowerShell are not available! Vagrant
         requires these to control Hyper-V. Please enable them in the

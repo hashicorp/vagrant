@@ -26,8 +26,7 @@ module VagrantPlugins
           begin
             Timeout.timeout(120) do
             begin
-              network_info  = env[:machine].provider.driver.read_guest_ip
-              host_ip = network_info["ip"]
+              host_ip = env[:machine].provider.driver.read_guest_ip[0]
               sleep 10 if host_ip.empty?
               end while host_ip.empty?
             end

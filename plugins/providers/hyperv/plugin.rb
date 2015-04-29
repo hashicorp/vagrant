@@ -27,6 +27,11 @@ module VagrantPlugins
         Cap::PublicAddress
       end
 
+      provider_capability("hyperv", "nic_mac_addresses") do
+        require_relative "cap/nic_mac_addresses"
+        Cap::NicMacAddresses
+      end
+
       protected
 
       def self.init!

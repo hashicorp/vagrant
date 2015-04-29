@@ -52,41 +52,21 @@ module VagrantPlugins
 
           env[:ui].output("Importing a Hyper-V instance")
 
-          switches = env[:machine].provider.driver.execute("get_switches.ps1", {})
-          raise Errors::NoSwitches if switches.empty?
-
-          switch = switches[0]["Name"]
-          if switches.length > 1
-            env[:ui].detail(I18n.t("vagrant_hyperv.choose_switch") + "\n ")
-            switches.each_index do |i|
-              switch = switches[i]
-              env[:ui].detail("#{i+1}) #{switch["Name"]}")
-            end
-            env[:ui].detail(" ")
-
-            switch = nil
-            while !switch
-              switch = env[:ui].ask("What switch would you like to use? ")
-              next if !switch
-              switch = switch.to_i - 1
-              switch = nil if switch < 0 || switch >= switches.length
-            end
-            switch = switches[switch]["Name"]
-          end
-
           env[:ui].detail("Cloning virtual hard drive...")
           source_path = image_path.to_s
           dest_path   = env[:machine].data_dir.join("disk#{image_ext}").to_s
           FileUtils.cp(source_path, dest_path)
           image_path = dest_path
+          generation = env[:machine].provider_config.generation.to_s
 
           # We have to normalize the paths to be Windows paths since
           # we're executing PowerShell.
           options = {
             vm_xml_config:  config_path.to_s.gsub("/", "\\"),
-            image_path:      image_path.to_s.gsub("/", "\\")
+            image_path:      image_path.to_s.gsub("/", "\\"),
+            generation: generation
           }
-          options[:switchname] = switch if switch
+          
           options[:memory] = memory if memory 
           options[:maxmemory] = maxmemory if maxmemory
           options[:cpus] = cpus if cpus

@@ -116,6 +116,7 @@ module VagrantPlugins
               end
 
               b2.use Provision
+              b2.use Network
               b2.use StartInstance
               b2.use WaitForIPAddress
               b2.use WaitForCommunicator, [:running]
@@ -209,6 +210,7 @@ module VagrantPlugins
       autoload :CheckEnabled, action_root.join("check_enabled")
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :Import, action_root.join("import")
+      autoload :Network, action_root.join("network")
       autoload :IsWindows, action_root.join("is_windows")
       autoload :ReadState, action_root.join("read_state")
       autoload :ResumeVM, action_root.join("resume_vm")

@@ -86,12 +86,12 @@ module VagrantPlugins
         return nil if state.id != :running
 
         # Read the IP of the machine using Hyper-V APIs
-        network = @driver.read_guest_ip
-        return nil if !network["ip"]
+        ip = @driver.read_guest_ip[0]
 
+        return nil if !ip
         {
-          host: network["ip"],
-          port: 22,
+          host: ip,
+          port: @machine.config.ssh.guest_port
         }
       end
     end
