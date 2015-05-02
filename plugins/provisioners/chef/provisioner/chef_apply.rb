@@ -18,8 +18,12 @@ module VagrantPlugins
           user = @machine.ssh_info[:username]
 
           # Reset upload path permissions for the current ssh user
-          @machine.communicate.sudo("mkdir -p #{config.upload_path}")
-          @machine.communicate.sudo("chown -R #{user} #{config.upload_path}")
+          if windows?
+            @machine.communicate.sudo("mkdir ""#{config.upload_path}"" -f")
+          else
+            @machine.communicate.sudo("mkdir -p #{config.upload_path}")
+            @machine.communicate.sudo("chown -R #{user} #{config.upload_path}")
+          end
 
           # Upload the recipe
           upload_recipe
