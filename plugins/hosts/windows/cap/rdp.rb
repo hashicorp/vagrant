@@ -9,7 +9,7 @@ module VagrantPlugins
       class RDP
         def self.rdp_client(env, rdp_info)
           # Setup password
-          cmdKeyArgs = ["/add:TERMSRV/#{rdp_info[:host]}:#{rdp_info[:port]}", "/user:#{rdp_info[:username]}", "/pass:#{rdp_info[:password]}"]
+          cmdKeyArgs = ["/add:#{rdp_info[:host]}:#{rdp_info[:port]}", "/user:#{rdp_info[:username]}", "/pass:#{rdp_info[:password]}"]
           Vagrant::Util::Subprocess.execute("cmdkey", *cmdKeyArgs )
           
           # Build up the args to mstsc
