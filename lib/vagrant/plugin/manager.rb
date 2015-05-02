@@ -52,9 +52,10 @@ module Vagrant
 
         plugins = installed_plugins
         plugins[name] = {
-          "require"     => opts[:require],
-          "gem_version" => opts[:version],
-          "sources"     => opts[:sources],
+          "require"      => opts[:require],
+          "gem_version"  => opts[:version],
+          "sources"      => opts[:sources],
+          "force_source" => opts[:force_source]
         }
 
         result = nil

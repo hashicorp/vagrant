@@ -175,14 +175,20 @@ module Vagrant
     # @return [Tempfile]
     def build_gemfile(plugins)
       sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
+      
+      force_provided_plugin_source = false
+      plugins.values.map { |p| p["force_source"] && force_provided_plugin_source = true }
 
       f = File.open(Tempfile.new("vagrant").path + "2", "w+")
       f.tap do |gemfile|
-        if !sources.include?("http://rubygems.org")
-          gemfile.puts(%Q[source "https://rubygems.org"])
+        # use only the prodived plugin source if called together with the force switch 
+        if !force_provided_plugin_source
+          if !sources.include?("http://rubygems.org")
+            gemfile.puts(%Q[source "https://rubygems.org"])
+          end
+          gemfile.puts(%Q[source "http://gems.hashicorp.com"])
         end
 
-        gemfile.puts(%Q[source "http://gems.hashicorp.com"])
         sources.each do |source|
           next if source == ""
           gemfile.puts(%Q[source "#{source}"])
