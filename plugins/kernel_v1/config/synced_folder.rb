@@ -1,5 +1,3 @@
-ui.askrequire "vagrant"
-
 module VagrantPlugins
   module Kernel_V1
     class SyncedFolderConfig < Vagrant.plugin("1", :config)
