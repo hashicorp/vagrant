@@ -16,6 +16,8 @@ BUG FIXES:
   - core: remove executable permissions on internal file [GH-5220]
   - core: check name and version in `has_plugin?` [GH-5218]
   - core/cli: fix box checksum validation [GH-4665, GH-5221]
+  - core/windows: allow Windows UNC paths to allow more than 256
+      characters [GH-4815]
   - communicators/winrm: improve error handling significantly and improve
       the error messages shown to be more human-friendly. [GH-4943]
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
