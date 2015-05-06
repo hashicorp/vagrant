@@ -80,12 +80,15 @@ VMX is an undocumented format and there is no official reference for
 the available keys and values. This customization option is exposed for
 people who have knowledge of exactly what they want.
 
-The most common keys people look for are setting memory and CPUs.
+The most common keys people look for are setting memory, CPUs, and enabling
+time syncronization.
+
 The example below sets both:
 
 ```ruby
 config.vm.provider "vmware_fusion" do |v|
   v.vmx["memsize"] = "1024"
   v.vmx["numvcpus"] = "2"
+  v.vmx["tools.synctime"] = TRUE
 end
 ```
