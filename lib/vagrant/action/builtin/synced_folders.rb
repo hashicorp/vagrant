@@ -74,15 +74,20 @@ module Vagrant
             [instance, impl_name, fs]
           end
 
-          # Go through each folder and prepare the folders
-          folders.each do |impl, impl_name, fs|
-            @logger.info("Invoking synced folder prepare for: #{impl_name}")
-            impl.prepare(env[:machine], fs, impl_opts(impl_name, env))
-          end
+          @logger.debug("Checking if we have to prepare synced folders...")
+          if !env[:synced_folders_disable]
+            @logger.debug("Preparation is required, preparing")
+           # Go through each folder and prepare the folders
+            folders.each do |impl, impl_name, fs|
+              @logger.info("Invoking synced folder prepare for: #{impl_name}")
+              impl.prepare(env[:machine], fs, impl_opts(impl_name, env))
+            end
 
-          # Continue, we need the VM to be booted.
-          @app.call(env)
-
+            # Continue, we need the VM to be booted.
+            @app.call(env)
+         end
+         
+         @logger.debug("Checking if we have synced folders to enable")
           # Once booted, setup the folder contents
           folders.each do |impl, impl_name, fs|
             if !env[:synced_folders_disable]
@@ -92,9 +97,11 @@ module Vagrant
             end
 
             # We're disabling synced folders
+             @logger.debug("Checking if we have synced folders to disable")
             to_disable = {}
             fs.each do |id, data|
               next if !env[:synced_folders_disable].include?(id)
+              @logger.debug("Will disable #{id}")
               to_disable[id] = data
             end
 
