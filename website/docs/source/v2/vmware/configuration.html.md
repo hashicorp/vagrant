@@ -83,7 +83,7 @@ people who have knowledge of exactly what they want.
 The most common keys people look for are setting memory, CPUs, and enabling
 time syncronization.
 
-The example below sets both:
+The example below sets all three:
 
 ```ruby
 config.vm.provider "vmware_fusion" do |v|
