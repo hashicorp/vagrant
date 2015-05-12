@@ -17,7 +17,7 @@ module VagrantPlugins
           virtual = false
           interface_names = Array.new
           machine.communicate.sudo("/usr/sbin/biosdevname; echo $?") do |_, result|
-            virtual = true if result.chomp == '4'
+            virtual = true if ['4', '127'].include? result.chomp
           end
 
           if virtual
