@@ -26,6 +26,9 @@ module VagrantPlugins
           require File.expand_path("../../../fedora/cap/configure_networks", __FILE__)
           ::VagrantPlugins::GuestFedora::Cap::ConfigureNetworks.
             configure_networks(machine, networks)
+
+          machine.communicate.sudo("systemctl restart NetworkManager")
+          machine.communicate.sudo("systemctl restart network")
         end
 
         def self.configure_networks_default(machine, networks)
