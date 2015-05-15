@@ -18,6 +18,7 @@ describe VagrantPlugins::Ansible::Config do
     supported_options = %w( ask_sudo_pass
                             ask_vault_pass
                             extra_vars
+                            generated_inventory_path
                             groups
                             host_key_checking
                             inventory_path
