@@ -40,7 +40,10 @@ In the context of Vagrant, there are two ways to approach working with inventory
 
 The first and simplest option is to not provide one to Vagrant at all. Vagrant will generate an
 inventory file encompassing all of the virtual machines it manages, and use it for provisioning
-machines. The generated inventory file is stored as part of your local Vagrant environment in `.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory`.
+machines. The generated inventory file is stored as part of your local
+Vagrant environment in
+`.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory`,
+unless other path is specified in `generated_inventory_path` option.
 
 **Groups of Hosts**
 

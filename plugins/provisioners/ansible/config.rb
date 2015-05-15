@@ -4,6 +4,7 @@ module VagrantPlugins
       attr_accessor :playbook
       attr_accessor :extra_vars
       attr_accessor :inventory_path
+      attr_accessor :generated_inventory_path
       attr_accessor :ask_sudo_pass
       attr_accessor :ask_vault_pass
       attr_accessor :vault_password_file
@@ -26,6 +27,7 @@ module VagrantPlugins
         @playbook            = UNSET_VALUE
         @extra_vars          = UNSET_VALUE
         @inventory_path      = UNSET_VALUE
+        @generated_inventory_path = UNSET_VALUE
         @ask_sudo_pass       = UNSET_VALUE
         @ask_vault_pass      = UNSET_VALUE
         @vault_password_file = UNSET_VALUE
@@ -46,6 +48,7 @@ module VagrantPlugins
         @playbook            = nil if @playbook == UNSET_VALUE
         @extra_vars          = nil if @extra_vars == UNSET_VALUE
         @inventory_path      = nil if @inventory_path == UNSET_VALUE
+        @generated_inventory_path = nil if @generated_inventory_path == UNSET_VALUE
         @ask_sudo_pass       = false unless @ask_sudo_pass == true
         @ask_vault_pass      = false unless @ask_vault_pass == true
         @vault_password_file = nil if @vault_password_file == UNSET_VALUE

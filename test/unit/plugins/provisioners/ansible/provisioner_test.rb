@@ -48,6 +48,7 @@ VF
   let(:existing_file) { File.expand_path(__FILE__) }
   let(:generated_inventory_dir) { File.join(machine.env.local_data_path, %w(provisioners ansible inventory)) }
   let(:generated_inventory_file) { File.join(generated_inventory_dir, 'vagrant_ansible_inventory') }
+  let(:custom_generated_inventory_file) { File.join(machine.env.local_data_path, %w(provisioners ansible custom inventory)) }
 
   before do
     Vagrant::Util::Platform.stub(solaris?: false)
@@ -356,11 +357,26 @@ VF
 
       it_should_set_arguments_and_environment_variables
 
-      it "does not generate the inventory and uses given inventory path instead" do
+      it "does generate the inventory even when other inventory path is given" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           expect(args).to include("--inventory-file=#{existing_file}")
           expect(args).not_to include("--inventory-file=#{generated_inventory_file}")
-          expect(File.exists?(generated_inventory_file)).to be_false
+          expect(File.exists?(generated_inventory_file)).to be_true
+        }
+      end
+    end
+
+    describe "with generated_inventory_path option" do
+      before do
+        config.generated_inventory_path = custom_generated_inventory_file
+      end
+
+      it_should_set_arguments_and_environment_variables
+
+      it "generates the inventory on a custom path and sets it as the inventory path" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(args).to include("--inventory-file=#{custom_generated_inventory_file}")
+          expect(File.exists?(custom_generated_inventory_file)).to be_true
         }
       end
     end
