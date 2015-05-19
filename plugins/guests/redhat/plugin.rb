@@ -3,8 +3,8 @@ require "vagrant"
 module VagrantPlugins
   module GuestRedHat
     class Plugin < Vagrant.plugin("2")
-      name "RedHat guest"
-      description "RedHat guest support."
+      name "Red Hat Enterprise Linux guest"
+      description "Red Hat Enterprise Linux guest support."
 
       guest("redhat", "linux") do
         require File.expand_path("../guest", __FILE__)
