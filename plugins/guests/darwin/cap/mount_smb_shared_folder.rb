@@ -18,7 +18,7 @@ module VagrantPlugins
             "'//#{options[:smb_username]}:#{smb_password}@#{options[:smb_host]}/#{name}' " +
             "#{expanded_guest_path}"
           retryable(on: Vagrant::Errors::DarwinMountFailed, tries: 10, sleep: 5) do 
-            machine.communicate.sudo(
+            machine.communicate.execute(
               mount_command,
               error_class: Vagrant::Errors::DarwinMountFailed)
           end
