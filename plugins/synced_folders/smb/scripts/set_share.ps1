@@ -8,8 +8,13 @@ Param(
 
 $ErrorAction = "Stop"
 
-if (net share | Select-String $share_name) {
-  net share $share_name /delete /y
+$result = net share "$share_name"
+if ($LastExitCode -eq 0) {
+    $result = net share "$share_name" /delete /y
+
+    if ($LastExitCode -ne 0) {
+        exit $LastExitCode
+    }
 }
 
 # The names of the user are language dependent!
@@ -35,7 +40,7 @@ if (![string]::IsNullOrEmpty($host_share_username)) {
     #>
 }
 
-$result = net share $share_name=$path /unlimited /GRANT:$grant
+$result = net share "$share_name=$path" /unlimited "/GRANT:$grant"
 if ($LastExitCode -eq 0) {
     exit 0
 }

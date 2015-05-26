@@ -56,21 +56,30 @@ module VagrantPlugins
         end
 
         if !have_auth
-          machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          @creds[:username] = machine.ui.ask("Username: ")
-          @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+          if machine.config.synced_folder.username
+            @creds[:username] = machine.config.synced_folder.username
+          elsif !@creds[:username] || !@creds[:password]
+            machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
+            @creds[:username] = machine.ui.ask("Username: ")
+          end
+
+          if machine.config.synced_folder.password
+            @creds[:password] = machine.config.synced_folder.password
+          elsif !@creds[:username] || !@creds[:password]
+            machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
+            @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+          end
         end
 
         folders.each do |id, data|
           hostpath = data[:hostpath]
 
-          data[:smb_id] ||= Digest::MD5.hexdigest(
-            "#{machine.id}-#{id.gsub("/", "-")}")
+          data[:smb_id] ||= Digest::MD5.hexdigest("#{machine.id}-#{id.gsub("/", "-")}")
 
           args = []
-          args << "-path" << "\"#{hostpath.gsub("/", "\\")}\""
+          args << "-path" << "#{hostpath.gsub("/", "\\")}"
           args << "-share_name" << data[:smb_id]
-          #args << "-host_share_username" << @creds[:username]
+          args << "-host_share_username" << @creds[:username]
 
           r = Vagrant::Util::PowerShell.execute(script_path, *args)
           if r.exit_code != 0
@@ -135,8 +144,33 @@ module VagrantPlugins
         end
       end
 
-      def cleanup(machine, opts)
+      def disable(machine, folders, _opts)
+        # Make sure that this machine knows this dance
+        if !machine.guest.capability?(:mount_smb_shared_folder)
+          raise Vagrant::Errors::GuestCapabilityNotFound,
+            cap: "mount_smb_shared_folder",
+            guest: machine.guest.name.to_s
+        end
 
+        script_path = File.expand_path("../scripts/remove_share.ps1", __FILE__)
+
+        folders.each do |id, data|
+          data[:smb_id] ||= Digest::MD5.hexdigest("#{machine.id}-#{id.gsub("/", "-")}")
+
+          args = []
+          args << "-share_name" << data[:smb_id]
+
+          r = Vagrant::Util::PowerShell.execute(script_path, *args)
+          if r.exit_code != 0
+            raise Errors::DefineShareFailed,
+              host: hostpath.to_s,
+              stderr: r.stderr,
+              stdout: r.stdout
+          end
+        end
+      end
+
+      def cleanup(machine, opts)
       end
 
       protected

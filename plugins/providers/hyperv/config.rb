@@ -8,6 +8,12 @@ module VagrantPlugins
       #
       # @return [Integer]
       attr_accessor :ip_address_timeout
+      # The defined network adapters.
+      #
+      # @return [Hash]
+      attr_reader :network_adapters
+
+      attr_accessor :generation
       attr_accessor :memory
       attr_accessor :maxmemory
       attr_accessor :cpus
@@ -15,11 +21,25 @@ module VagrantPlugins
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
+        @network_adapters = {}
+        @generation = "1"
         @memory = UNSET_VALUE
         @maxmemory = UNSET_VALUE
         @cpus = UNSET_VALUE
         @vmname = UNSET_VALUE
+
+        # We require that network adapter 1 is a NAT device.
+        network_adapter(1, :nat)
       end
+
+       # This defines a network adapter that will be added to the VirtualBox
+      # virtual machine in the given slot.
+      #
+      # @param [Integer] slot The slot for this network adapter.
+      # @param [Symbol] type The type of adapter.
+      def network_adapter(slot, type, **opts)
+        @network_adapters[slot] = [type, opts]
+       end
 
       def finalize!
         if @ip_address_timeout == UNSET_VALUE

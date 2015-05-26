@@ -49,33 +49,73 @@ module VagrantPlugins
         execute('get_vm_status.ps1', { VmId: vm_id })
       end
 
-       def delete_vm
-         execute('delete_vm.ps1', { VmId: vm_id })
-       end
+      def delete_vm
+        execute('delete_vm.ps1', { VmId: vm_id })
+      end
 
-       def read_guest_ip
-         execute('get_network_config.ps1', { VmId: vm_id })
-       end
+      def read_guest_ip
+        execute('get_network_config.ps1', { VmId: vm_id })
+      end
 
-       def resume
-         execute('resume_vm.ps1', { VmId: vm_id })
-       end
+      def resume
+        execute('resume_vm.ps1', { VmId: vm_id })
+      end
 
-       def start
-         execute('start_vm.ps1', { VmId: vm_id })
-       end
+      def start
+        execute('start_vm.ps1', { VmId: vm_id })
+      end
 
-       def stop
-         execute('stop_vm.ps1', { VmId: vm_id })
-       end
+      def stop
+        execute('stop_vm.ps1', { VmId: vm_id })
+      end
 
-       def suspend
-         execute("suspend_vm.ps1", { VmId: vm_id })
-       end
+      def suspend
+        execute("suspend_vm.ps1", { VmId: vm_id })
+      end
 
-       def import(options)
-         execute('import_vm.ps1', options)
-       end
+      def import(options)
+        execute('import_vm.ps1', options)
+      end
+
+      def enable_adapters(adapters)
+        nics = {}
+        nics[:VmId] = vm_id
+        nics[:Adapters] = adapters.to_json.gsub('"', '\"')
+
+        execute("enable_adapters.ps1", nics)
+      end
+
+      def read_network_interfaces
+        nics = {}
+        info = execute('get_network_interfaces.ps1', { VmId: vm_id })
+        info.each_with_index do |nic, index|
+            adapter = index + 1
+
+            nics[adapter] ||= {}
+            nics[adapter][:network_name] = nic["SwitchName"]
+            nics[adapter][:mac_address] = nic["MacAddress"]
+            nics[adapter][:id] = nic["Id"]
+        end
+
+        nics
+      end
+
+      # Share a set of folders on this VM.
+      #
+      # @param [Array<Hash>] folders
+      def share_folders(folders)
+      end
+
+      def read_mac_addresses
+        nics = {}
+        info = execute('get_network_interfaces.ps1', { VmId: vm_id })
+        info.each_with_index do |nic, index|
+            adapter = index + 1
+
+            nics[adapter] = nic["MacAddress"].gsub(":", "")
+        end
+        nics
+      end
 
       protected
 
@@ -86,7 +126,7 @@ module VagrantPlugins
         ps_options = []
         options.each do |key, value|
           ps_options << "-#{key}"
-          ps_options << "'#{value}'"
+          ps_options << "#{value}"
         end
 
         # Always have a stop error action for failures
