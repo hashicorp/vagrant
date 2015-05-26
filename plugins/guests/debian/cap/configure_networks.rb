@@ -13,8 +13,14 @@ module VagrantPlugins
           machine.communicate.tap do |comm|
             # First, remove any previous network modifications
             # from the interface file.
+
+            # Grab all of the lines before the first instance of #VAGRANT-BEGIN
+            # and write to the pre file
             comm.sudo("sed -e '/^#VAGRANT-BEGIN/,$ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces.pre")
-            comm.sudo("sed -ne '/^#VAGRANT-END/,$ p' /etc/network/interfaces | tail -n +2 > /tmp/vagrant-network-interfaces.post")
+
+            # Find the last instance of #VAGRANT-END and print all of the lines
+            # after it to the post file
+            comm.sudo("tail -n +$(expr $(grep -n \"#VAGRANT-END\" /etc/network/interfaces | tail -n 1 | sed -rn 's/^([[:digit:]]+):.*$/\\1/p') + 1) /etc/network/interfaces > /tmp/vagrant-network-interfaces.post")
 
             # Accumulate the configurations to add to the interfaces file as
             # well as what interfaces we're actually configuring since we use that
@@ -27,6 +33,13 @@ module VagrantPlugins
                                               options: network)
 
               entries << entry
+            end
+
+            # If we generated any interface definitions, surround them with
+            # VAGRANT-BEGIN and VAGRANT-END so we can find them later.
+            unless entries.empty?
+              entries.unshift("#VAGRANT-BEGIN")
+              entries << "#VAGRANT-END\n"
             end
 
             # Perform the careful dance necessary to reconfigure
