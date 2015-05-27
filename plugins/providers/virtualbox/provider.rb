@@ -56,9 +56,6 @@ module VagrantPlugins
 
       # Returns the SSH info for accessing the VirtualBox VM.
       def ssh_info
-        # If the VM is not running that we can't possibly SSH into it
-        return nil if state.id != :running
-
         # Return what we know. The host is always "127.0.0.1" because
         # VirtualBox VMs are always local. The port we try to discover
         # by reading the forwarded ports.
