@@ -19,13 +19,11 @@ module VagrantPlugins
 
           # Read our random ID for this instance
           id_path   = env[:machine].data_dir.join("host_machine_sfid")
+          @logger.debug("Docker host id_path: #{id_path}")
           return @app.call(env) if !id_path.file?
           host_sfid = id_path.read.chomp
 
           host_machine = env[:machine].provider.host_vm
-
-          @app.call(env)
-
           begin
             env[:machine].provider.host_vm_lock do
               setup_synced_folders(host_machine, host_sfid, env)
@@ -40,7 +38,6 @@ module VagrantPlugins
 
         def setup_synced_folders(host_machine, host_sfid, env)
           to_disable = []
-
           # Read the existing folders that are setup
           existing_folders = synced_folders(host_machine, cached: true)
           if existing_folders
@@ -48,6 +45,7 @@ module VagrantPlugins
               fs.each do |id, data|
                 if data[:docker_host_sfid] == host_sfid
                   to_disable << id
+                  @logger.debug("Folder #{id} will be disabled")
                 end
               end
             end
