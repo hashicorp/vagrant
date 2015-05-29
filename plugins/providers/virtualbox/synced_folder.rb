@@ -81,7 +81,7 @@ module VagrantPlugins
 
       # This is here so that we can stub it for tests
       def driver(machine)
-        machine.provider.driver
+        machine.provider.driver.getDriver
       end
 
       def os_friendly_id(id)
