@@ -242,8 +242,10 @@ module VagrantPlugins
         ssh_options << "-o IdentitiesOnly=yes" unless Vagrant::Util::Platform.solaris?
 
         # Multiple Private Keys
-        @ssh_info[:private_key_path].drop(1).each do |key|
-          ssh_options << "-o IdentityFile=#{key}"
+        unless !config.inventory_path && @ssh_info[:private_key_path].size == 1
+          @ssh_info[:private_key_path].each do |key|
+            ssh_options << "-o IdentityFile=#{key}"
+          end
         end
 
         # SSH Forwarding
