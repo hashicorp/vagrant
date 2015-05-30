@@ -2,6 +2,7 @@
 
 IMPROVEMENTS:
 
+  - core: add password authentication to rdp_info hash [GH-4726]
   - guests/darwin: Support inserting generated key. [GH-5204]
   - guests/fedora: Support Fedora 21. [GH-5277]
   - guests/redhat: Support Scientific Linux 7 [GH-5303]
