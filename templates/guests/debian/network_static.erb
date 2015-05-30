@@ -4,4 +4,7 @@ auto eth<%= options[:interface] %>
 iface eth<%= options[:interface] %> inet static
       address <%= options[:ip] %>
       netmask <%= options[:netmask] %>
+<% if options[:gateway] %>
+      gateway <%= options[:gateway] %>
+<% end %>
 #VAGRANT-END
