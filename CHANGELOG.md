@@ -9,6 +9,7 @@ IMPROVEMENTS:
   - guests/solaris,solaris11: Support inserting generated key. [GH-5182]
       [GH-5290]
   - providers/virtualbox: regexp supported for bridge configuration. [GH-5320]
+  - providers/virtualbox: add support for 5.0 [GH-5647]
 
 BUG FIXES:
 
