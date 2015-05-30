@@ -23,6 +23,7 @@ BUG FIXES:
   - core: check name and version in `has_plugin?` [GH-5218]
   - core: do not create duplicates when defining two private network addresses [GH-5325]
   - core: update ssh to check for Plink [GH-5604]
+  - core: do not report plugins as installed when plugins are disabled [GH-5698, GH-5430]
   - core/cli: fix box checksum validation [GH-4665, GH-5221]
   - core/windows: allow Windows UNC paths to allow more than 256
       characters [GH-4815]
