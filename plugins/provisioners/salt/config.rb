@@ -94,10 +94,7 @@ module VagrantPlugins
       end
 
       def default_config_dir(machine)
-        guest_type = machine.config.vm.guest
-        if guest_type == nil
-          guest_type = :linux
-        end
+        guest_type = machine.config.vm.guest || :linux
 
         # FIXME: there should be a way to do that a bit smarter
         if guest_type == :windows
@@ -105,7 +102,6 @@ module VagrantPlugins
         else
           return "/etc/salt"
         end
-
       end
 
       def validate(machine)
@@ -147,7 +143,7 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.salt.must_accept_keys")
         end
 
-        if @config_dir == nil
+        if @config_dir.nil?
           @config_dir = default_config_dir(machine)
         end
 
