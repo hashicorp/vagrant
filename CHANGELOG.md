@@ -11,6 +11,7 @@ IMPROVEMENTS:
   - provisioners/salt: add configurable `config_dir` [GH-3138]
   - provisioners/salt: add support for masterless configuration [GH-3235]
   - providers/hyperv: select a Hyper-V switch based on a network_name [GH-5207]
+  - providers/hyperv: allow configuring VladID [GH-5539]
   - providers/virtualbox: regexp supported for bridge configuration [GH-5320]
   - providers/virtualbox: add support for 5.0 [GH-5647]
 
