@@ -6,6 +6,7 @@ IMPROVEMENTS:
   - core: improve error message when packaging fails [GH-5399]
   - core: improve message when adding a box from a file path [GH-5395]
   - core: add support for network gateways [GH-5721]
+  - core: allow redirecting stdout and stderr in the UI [GH-5433]
   - guests/darwin: Support inserting generated key. [GH-5204]
   - guests/fedora: Support Fedora 21. [GH-5277]
   - guests/redhat: Support Scientific Linux 7 [GH-5303]
