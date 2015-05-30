@@ -25,6 +25,7 @@ BUG FIXES:
   - core: do not create duplicates when defining two private network addresses [GH-5325]
   - core: update ssh to check for Plink [GH-5604]
   - core: do not report plugins as installed when plugins are disabled [GH-5698, GH-5430]
+  - core: Only take files when packaging a box to avoid duplicates [GH-5658, GH-5657]
   - core/cli: fix box checksum validation [GH-4665, GH-5221]
   - core/windows: allow Windows UNC paths to allow more than 256
       characters [GH-4815]
