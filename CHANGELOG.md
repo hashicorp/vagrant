@@ -30,6 +30,7 @@ BUG FIXES:
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
   - guests/debian: Halt works properly on Debian 8. [GH-5369]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
+  - guests/tinycore: fix change hostname functionality [GH-5623]
   - guests/windows: Create rsync folder prior to rsync-ing. [GH-5282]
   - guests/windows: Changing hostname requires reboot again since
       the non-reboot code path was crashing Windows server. [GH-5261]
