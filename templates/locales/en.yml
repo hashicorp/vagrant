@@ -24,6 +24,8 @@ en:
       Downloading: %{url}
     box_download_error: |-
       Error downloading: %{message}
+    box_unpacking: |-
+      Unpacking necessary files from: %{url}
     box_expanding_url: |-
       URL: %{url}
     box_loading_metadata: |-

@@ -420,8 +420,15 @@ module Vagrant
             show_url = opts[:show_url]
             show_url ||= url
 
+            textLoading = "vagrant.box_downloading"
+
+            # Adjust status message when 'downloading' a local box.
+            if(show_url.start_with?('file://'))
+              textLoading = "vagrant.box_unpacking"
+            end
+
             env[:ui].detail(I18n.t(
-              "vagrant.box_downloading",
+              textLoading,
               url: show_url))
             if File.file?(d.destination)
               env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
