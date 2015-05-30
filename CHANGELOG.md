@@ -4,6 +4,7 @@ IMPROVEMENTS:
 
   - core: add password authentication to rdp_info hash [GH-4726]
   - core: improve error message when packaging fails [GH-5399]
+  - core: improve message when adding a box from a file path [GH-5395]
   - guests/darwin: Support inserting generated key. [GH-5204]
   - guests/fedora: Support Fedora 21. [GH-5277]
   - guests/redhat: Support Scientific Linux 7 [GH-5303]
