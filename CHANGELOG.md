@@ -35,6 +35,7 @@ BUG FIXES:
   - guests/darwin: remove dots from LocalHostName [GH-5558]
   - guests/debian: Halt works properly on Debian 8. [GH-5369]
   - guests/fedora: recognize future fedora releases [GH-5730]
+  - guests/fedora: reload iface connection by NetworkManager [GH-5709]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - guests/tinycore: fix change hostname functionality [GH-5623]
   - guests/windows: Create rsync folder prior to rsync-ing. [GH-5282]
