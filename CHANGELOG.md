@@ -15,6 +15,7 @@ IMPROVEMENTS:
   - providers/hyperv: allow configuring VladID [GH-5539]
   - providers/virtualbox: regexp supported for bridge configuration [GH-5320]
   - providers/virtualbox: add support for 5.0 [GH-5647]
+  - providers/virtualbox: handle a list of bridged NICs [GH-5691]
 
 BUG FIXES:
 
