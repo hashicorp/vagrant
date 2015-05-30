@@ -14,6 +14,13 @@ describe VagrantPlugins::HyperV::Config do
       expect(subject.ip_address_timeout).to eq(120)
     end
   end
+  describe "#vlan_id" do
+    it "can be set" do
+      subject.vlan_id = 100
+      subject.finalize!
+      expect(subject.vlan_id).to eq(100)
+    end
+  end
   describe "#vmname" do
     it "can be set" do
       subject.vmname = "test"
