@@ -32,6 +32,7 @@ BUG FIXES:
   - communicators/winrm: improve error handling significantly and improve
       the error messages shown to be more human-friendly. [GH-4943]
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
+  - guests/darwin: remove dots from LocalHostName [GH-5558]
   - guests/debian: Halt works properly on Debian 8. [GH-5369]
   - guests/fedora: recognize future fedora releases [GH-5730]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
