@@ -452,7 +452,7 @@ module VagrantPlugins
         # need to wrap the shell in a `sudo` call.
         shell_cmd = @machine.config.ssh.shell
         shell_cmd = shell if shell
-        shell_cmd = "sudo -E -H #{shell_cmd}" if sudo
+        shell_cmd = "sudo -H #{shell_cmd}" if sudo
 
         # These variables are used to scrub PTY output if we're in a PTY
         pty = false
