@@ -1,7 +1,7 @@
 module VagrantPlugins
   module Puppet
     module Config
-      class Puppet < Vagrant.plugin("2", :config)        
+      class Puppet < Vagrant.plugin("2", :config)
 
         # The path to Puppet's bin/ directory.
         # @return [String]
@@ -16,6 +16,7 @@ module VagrantPlugins
         attr_accessor :module_path
         attr_accessor :options
         attr_accessor :synced_folder_type
+        attr_accessor :synced_folder_args
         attr_accessor :temp_dir
         attr_accessor :working_directory
 
@@ -82,7 +83,7 @@ module VagrantPlugins
             @environment  = "production" if @environment == UNSET_VALUE
             if @manifests_path == UNSET_VALUE
               @manifests_path = nil
-            end            
+            end
             if @manifest_file == UNSET_VALUE
               @manifest_file = nil
             end
@@ -91,9 +92,9 @@ module VagrantPlugins
           @binary_path        = nil     if @binary_path == UNSET_VALUE
           @module_path        = nil     if @module_path == UNSET_VALUE
           @synced_folder_type = nil     if @synced_folder_type == UNSET_VALUE
+          @synced_folder_args = nil if @synced_folder_args == UNSET_VALUE
           @temp_dir           = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
           @working_directory  = nil     if @working_directory == UNSET_VALUE
-
         end
 
         # Returns the module paths as an array of paths expanded relative to the
@@ -149,7 +150,7 @@ module VagrantPlugins
 
           if environment_path == nil && manifests_path == nil
               errors << "Please specify either a Puppet environment_path + environment (preferred) or manifests_path (deprecated)."
-          end          
+          end
 
           # Module paths validation
           this_expanded_module_paths.each do |path|
