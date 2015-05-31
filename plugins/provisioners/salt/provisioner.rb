@@ -9,6 +9,7 @@ module VagrantPlugins
         run_bootstrap_script
         call_overstate
         call_highstate
+        call_orchestrate
       end
 
       # Return a list of accepted keys
@@ -355,6 +356,34 @@ module VagrantPlugins
           end
         else
           @machine.env.ui.info "run_highstate set to false. Not running state.highstate."
+        end
+      end
+
+      def call_orchestrate
+        if not @config.orchestrations
+          @machine.env.ui.info "orchestrate is nil. Not running state.orchestrate."
+          return
+        end
+
+        if not @config.install_master
+          @machine.env.ui.info "orchestrate does not make sense on a minion. Not running state.orchestrate"
+          return
+        end
+
+        log_output = lambda do |type, data|
+          if @config.verbose
+            @machine.env.ui.info(data)
+          end
+        end
+
+        @machine.env.ui.info "Running the following orchestrations: #{@config.orchestrations}"
+        @machine.env.ui.info "Running saltutil.sync_all before orchestrating"
+        @machine.communicate.sudo("salt '*' saltutil.sync_all", &log_output)
+
+        @config.orchestrations.each do |orchestration|
+          cmd = "salt-run -l info state.orchestrate #{orchestration}"
+          @machine.env.ui.info "Calling #{cmd}... (this may take a while)"
+          @machine.communicate.sudo(cmd, &log_output)
         end
       end
     end

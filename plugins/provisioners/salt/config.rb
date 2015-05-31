@@ -15,6 +15,7 @@ module VagrantPlugins
       attr_accessor :grains_config
       attr_accessor :run_highstate
       attr_accessor :run_overstate
+      attr_accessor :orchestrations
       attr_accessor :always_install
       attr_accessor :bootstrap_script
       attr_accessor :verbose
