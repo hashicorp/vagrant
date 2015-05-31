@@ -55,6 +55,7 @@ module VagrantPlugins
         @post_up_message              = UNSET_VALUE
         @provisioners                 = []
         @usable_port_range            = UNSET_VALUE
+        @logger        = Log4r::Logger.new("vagrant::config::vm")
 
         # Internal state
         @__compiled_provider_configs   = {}
@@ -443,8 +444,13 @@ module VagrantPlugins
               config = config.merge(new_config)
             end
           rescue Exception => e
+            @logger.error("Vagrantfile load error: #{e.message}")
+            @logger.error(e.backtrace.join("\n"))
+
             raise Vagrant::Errors::VagrantfileLoadError,
               path: "<provider config: #{name}>",
+              line: e.backtrace[0].split(':')[1],
+              exception_class: e.class,
               message: e.message
           end
 
