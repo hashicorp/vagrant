@@ -13,6 +13,7 @@ IMPROVEMENTS:
   - guests/photon: Initial support [GH-5612]
   - guests/solaris,solaris11: Support inserting generated key. [GH-5182]
       [GH-5290]
+  - provisioners/puppet: add support for Puppet 4 and configuration options [GH-5601]
   - provisioners/salt: add configurable `config_dir` [GH-3138]
   - provisioners/salt: add support for masterless configuration [GH-3235]
   - provisioners/salt: provider path to missing file in errors [GH-5637]
