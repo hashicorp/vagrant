@@ -7,6 +7,7 @@ IMPROVEMENTS:
   - core: improve message when adding a box from a file path [GH-5395]
   - core: add support for network gateways [GH-5721]
   - core: allow redirecting stdout and stderr in the UI [GH-5433]
+  - core: update version of winrm-fs to 0.2.0 [GH-5738]
   - guests/darwin: support inserting generated key [GH-5204]
   - guests/darwin: support mounting SMB shares [GH-5750]
   - guests/fedora: support Fedora 21. [GH-5277]
