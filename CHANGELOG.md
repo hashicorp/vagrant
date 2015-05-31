@@ -23,6 +23,7 @@ IMPROVEMENTS:
   - providers/virtualbox: regexp supported for bridge configuration [GH-5320]
   - providers/virtualbox: add support for 5.0 [GH-5647]
   - providers/virtualbox: handle a list of bridged NICs [GH-5691]
+  - synced_folders/rsync: allow showing rsync output in debug mode [GH-4867]
 
 BUG FIXES:
 
