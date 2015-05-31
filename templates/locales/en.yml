@@ -1854,11 +1854,17 @@ en:
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
         running_puppet: "Running Puppet with %{manifest}..."
+        running_puppet_env: "Running Puppet with environment %{environment}..."
         manifest_missing: |-
           The configured Puppet manifest is missing. Please specify a path to an
           existing manifest:
 
           %{manifest}
+        environment_missing: |-
+          The configured Puppet environment folder %{environment} was not found in the 
+          specified environmentpath %{environmentpath}.
+          Please specify a path to an existing Puppet directory environment.
+        environment_path_missing: "The environment path specified for Puppet does not exist: %{path}"
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
         missing_shared_folders: |-
           Shared folders that Puppet requires are missing on the virtual machine.
