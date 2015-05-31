@@ -69,7 +69,6 @@ available below this section.
 * `working_directory` (string) - Path in the guest that will be the working
   directory when Puppet is executed. This is usually only set because relative
   paths are used in the Hiera configuration.
-  
 
 ~> If only `environment` and `environments_path` are specified, it will parse
 and use the manifest specified in the `environment.conf` file. If
