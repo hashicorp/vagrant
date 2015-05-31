@@ -27,10 +27,10 @@ module Vagrant
         @destination = destination.to_s
 
         begin
-          url = URI.parse(@source)
+          url = URI.parse(URI.escape(@source))
           if url.scheme && url.scheme.start_with?("http") && url.user
-            auth = "#{url.user}"
-            auth += ":#{url.password}" if url.password
+            auth = "#{URI.unescape(url.user)}"
+            auth += ":#{URI.unescape(url.password)}" if url.password
             url.user = nil
             url.password = nil
             options[:auth] ||= auth
