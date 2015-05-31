@@ -214,6 +214,7 @@ en:
       The provider ('%{provider}') for the machine '%{name}' is
       using a proxy machine. RSync will sync to this proxy
       instead of directly to the environment itself.
+    rsync_showing_output: "Showing rsync output..."
     rsync_ssh_password: |-
       The machine you're rsyncing folders to is configured to use
       password-based authentication. Vagrant can't script rsync to automatically
