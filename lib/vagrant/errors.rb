@@ -316,6 +316,10 @@ module Vagrant
       error_key(:corrupt_machine_index)
     end
 
+    class DarwinMountFailed < VagrantError
+      error_key(:darwin_mount_failed)
+    end
+
     class DarwinNFSMountFailed < VagrantError
       error_key(:darwin_nfs_mount_failed)
     end
