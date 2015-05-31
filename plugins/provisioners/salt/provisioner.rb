@@ -360,13 +360,13 @@ module VagrantPlugins
       end
 
       def call_orchestrate
-        if not @config.orchestrations
+        if !@config.orchestrations
           @machine.env.ui.info "orchestrate is nil. Not running state.orchestrate."
           return
         end
 
-        if not @config.install_master
-          @machine.env.ui.info "orchestrate does not make sense on a minion. Not running state.orchestrate"
+        if !@config.install_master
+          @machine.env.ui.info "orchestrate does not make sense on a minion. Not running state.orchestrate."
           return
         end
 
