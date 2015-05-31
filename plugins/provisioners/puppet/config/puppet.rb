@@ -9,6 +9,7 @@ module VagrantPlugins
         attr_accessor :module_path
         attr_accessor :options
         attr_accessor :synced_folder_type
+        attr_accessor :synced_folder_args
         attr_accessor :temp_dir
         attr_accessor :working_directory
 
@@ -61,6 +62,7 @@ module VagrantPlugins
           @manifest_file  = "default.pp" if @manifest_file == UNSET_VALUE
           @module_path    = nil if @module_path == UNSET_VALUE
           @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
+          @synced_folder_args = nil if @synced_folder_args == UNSET_VALUE
           @temp_dir       = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
           @working_directory = nil if @working_directory == UNSET_VALUE
         end
