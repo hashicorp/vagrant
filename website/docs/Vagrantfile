@@ -10,7 +10,7 @@ curl -sSL https://get.rvm.io | bash -s stable
 . ~/.bash_profile
 rvm install 2.0.0
 rvm --default use 2.0.0
-gem install bundle
+gem install bundler
 cd /vagrant
 bundle
 SCRIPT
