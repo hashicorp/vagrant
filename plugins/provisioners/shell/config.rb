@@ -39,9 +39,6 @@ module VagrantPlugins
         if @args && args_valid?
           @args = @args.is_a?(Array) ? @args.map { |a| a.to_s } : @args.to_s
         end
-        if not(@name.nil?) and not(@name.is_a?(String))
-          @name = nil
-        end
       end
 
       def validate(machine)
