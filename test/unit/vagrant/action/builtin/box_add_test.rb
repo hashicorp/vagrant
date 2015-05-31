@@ -176,7 +176,7 @@ describe Vagrant::Action::Builtin::BoxAdd do
       expect(app).to receive(:call).never
 
       expect { subject.call(env) }.
-        to raise_error(Vagrant::Errors::DownloaderError)
+        to raise_error(Vagrant::Errors::BoxAddShortNotFound)
     end
 
     it "raises an error if a version was specified" do

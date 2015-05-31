@@ -72,7 +72,7 @@ module Vagrant
           end
 
           # Test if any of our URLs point to metadata
-          is_metadata_results = authed_urls.map do |u|
+          metadata_results = authed_urls.map do |u|
             begin
               metadata_url?(u, env)
             rescue Errors::DownloaderError => e
@@ -80,8 +80,8 @@ module Vagrant
             end
           end
 
-          if expanded && url.length == 1
-            is_error = is_metadata_results.find do |b|
+          if url.length == 1
+            is_error = metadata_results.find do |b|
               b.is_a?(Errors::DownloaderError)
             end
 
@@ -93,7 +93,7 @@ module Vagrant
             end
           end
 
-          is_metadata = is_metadata_results.any? { |b| b === true }
+          is_metadata = metadata_results.all? { |b| b != false }
           if is_metadata && url.length > 1
             raise Errors::BoxAddMetadataMultiURL,
               urls: url.join(", ")
@@ -101,7 +101,7 @@ module Vagrant
 
           if is_metadata
             url = [url.first, authed_urls.first]
-            add_from_metadata(url, env, expanded)
+            add_from_metadata(url, metadata_results.first, env, expanded)
           else
             add_direct(url, env)
           end
@@ -146,9 +146,10 @@ module Vagrant
         #   array where the first element is the original URL and the second
         #   element is an authenticated URL.
         # @param [Hash] env
+        # @param [BoxMetadata] metadata
         # @param [Bool] expanded True if the metadata URL was expanded with
         #   a Atlas server URL.
-        def add_from_metadata(url, env, expanded)
+        def add_from_metadata(url, metadata, env, expanded)
           original_url = env[:box_url]
           provider = env[:box_provider]
           provider = Array(provider) if provider
@@ -162,30 +163,9 @@ module Vagrant
             url               = url[0]
           end
 
-          env[:ui].output(I18n.t(
-            "vagrant.box_loading_metadata",
-            name: Array(original_url).first))
           if original_url != url
             env[:ui].detail(I18n.t(
               "vagrant.box_expanding_url", url: url))
-          end
-
-          metadata = nil
-          begin
-            metadata_path = download(
-              authenticated_url, env, json: true, ui: false)
-
-            File.open(metadata_path) do |f|
-              metadata = BoxMetadata.new(f)
-            end
-          rescue Errors::DownloaderError => e
-            raise if !expanded
-            raise Errors::BoxAddShortNotFound,
-              error: e.extra_data[:message],
-              name: original_url,
-              url: url
-          ensure
-            metadata_path.delete if metadata_path && metadata_path.file?
           end
 
           if env[:box_name] && metadata.name != env[:box_name]
@@ -404,6 +384,7 @@ module Vagrant
           downloader_options[:client_cert] = env[:box_download_client_cert]
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
+          downloader_options[:max_size] = opts[:max_size] if opts[:max_size]
 
           Util::Downloader.new(url, temp_path, downloader_options)
         end
@@ -448,49 +429,73 @@ module Vagrant
         end
 
         # Tests whether the given URL points to a metadata file or a
-        # box file without completely downloading the file.
+        # box file.
         #
         # @param [String] url
         # @return [Boolean] true if metadata
         def metadata_url?(url, env)
-          d = downloader(url, env, json: true, ui: false)
+          env[:ui].output(I18n.t(
+            "vagrant.box_loading_metadata",
+            name: url))
 
-          # If we're downloading a file, cURL just returns no
-          # content-type (makes sense), so we just test if it is JSON
-          # by trying to parse JSON!
-          uri = URI.parse(d.source)
+          metadata_path = url
+          uri = URI.parse(url)
+
+          # If the scheme is not file, download the metadata to
+          # a temporary file.
           if uri.scheme == "file"
-            url = uri.path
-            url ||= uri.opaque
-
+            metadata_path = uri.path
+            metadata_path ||= uri.opaque
+          else
+            # Let the caller catch Errors::DownloaderError exceptions.
+            # Specifying max_size is necessary to avoid downloading
+            # gigabytes of box files...
             begin
-              File.open(url, "r") do |f|
-                if f.size > METADATA_SIZE_LIMIT
-                  # Quit early, don't try to parse the JSON of gigabytes
-                  # of box files...
-                  return false
+              metadata_path = download(url, env, json: true, ui: false, max_size: METADATA_SIZE_LIMIT)
+            ensure
+              if @download_interrupted
+                @logger.debug("Deleting partially donwloaded metadata file: #{metadata_path}")
+                begin
+                  metadata_path.delete if metadata_path
+                rescue Errno::ENOENT
+                  # Not a big deal, the temp file may not actually exist
                 end
-
-                BoxMetadata.new(f)
+                return false
               end
-              return true
-            rescue Errors::BoxMetadataMalformed
-              return false
-            rescue Errno::EINVAL
-              # Actually not sure what causes this, but its always
-              # in a case that isn't true.
-              return false
-            rescue Errno::EISDIR
-              return false
-            rescue Errno::ENOENT
-              return false
             end
           end
 
-          output = d.head
-          match  = output.scan(/^Content-Type: (.+?)$/i).last
-          return false if !match
-          !!(match.last.chomp =~ /application\/json/)
+          # Read and parse the supposedly metadata file as if it was
+          # a valid one. Return the parsed metadata is everything went
+          # fine.
+          begin
+            File.open(metadata_path, "r") do |f|
+              # Check again in case the file was on the local system
+              # all along or to avoid timing attachs.
+              if f.size > METADATA_SIZE_LIMIT
+                return false
+              end
+
+              metadata = BoxMetadata.new(f)
+              @logger.debug("Succesfully parsed metadata file: #{metadata_path}")
+              return metadata
+            end
+          rescue Errors::BoxMetadataMalformed
+            return false
+          rescue Errno::EINVAL
+            # Actually not sure what causes this, but its always
+            # in a case that isn't true.
+            return false
+          rescue Errno::EISDIR
+            return false
+          rescue Errno::ENOENT
+            return false
+          ensure
+            # Only delete temporary file if metadata file was downloaded
+            if uri.scheme != "file"
+              metadata_path.delete if metadata_path && metadata_path.file?
+            end
+          end
         end
 
         def validate_checksum(checksum_type, checksum, path)
