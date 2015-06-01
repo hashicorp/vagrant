@@ -26,6 +26,7 @@ IMPROVEMENTS:
   - provisioners/salt: add support for masterless configuration [GH-3235]
   - provisioners/salt: provider path to missing file in errors [GH-5637]
   - provisioners/salt: add ability to run salt orchestrations [GH-4371]
+  - provisioners/salt: update to 2014.7.1 [GH-4152, GH-5437]
   - provisioners/shell: add :name attribute to shell provisioner [GH-5607]
   - providers/hyperv: select a Hyper-V switch based on a network_name [GH-5207]
   - providers/hyperv: allow configuring VladID [GH-5539]
