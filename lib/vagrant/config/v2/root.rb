@@ -22,7 +22,7 @@ module Vagrant
         # used for Vagrant and load the proper configuration classes for
         # each.
         def method_missing(name, *args)
-          return @keys[name] if @keys.has_key?(name)
+          return @keys[name] if @keys.key?(name)
 
           config_klass = @config_map[name.to_sym]
           if config_klass
@@ -41,7 +41,7 @@ module Vagrant
         # mutate itself.
         def finalize!
           @config_map.each do |key, klass|
-            if !@keys.has_key?(key)
+            if !@keys.key?(key)
               @keys[key] = klass.new
             end
           end
@@ -102,9 +102,9 @@ module Vagrant
         # This sets the internal state. This is used by the core to do some
         # merging logic and shouldn't be used by the general public.
         def __set_internal_state(state)
-          @config_map        = state["config_map"] if state.has_key?("config_map")
-          @keys              = state["keys"] if state.has_key?("keys")
-          @missing_key_calls = state["missing_key_calls"] if state.has_key?("missing_key_calls")
+          @config_map        = state["config_map"] if state.key?("config_map")
+          @keys              = state["keys"] if state.key?("keys")
+          @missing_key_calls = state["missing_key_calls"] if state.key?("missing_key_calls")
         end
       end
     end

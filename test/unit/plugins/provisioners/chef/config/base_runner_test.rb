@@ -123,7 +123,7 @@ describe VagrantPlugins::Chef::Config::BaseRunner do
   describe "#provisioning_path" do
     it "defaults to a tmp_path" do
       subject.finalize!
-      expect(subject.provisioning_path).to match(%r{/tmp/vagrant-chef-\d+})
+      expect(subject.provisioning_path).to eq("/tmp/vagrant-chef")
     end
   end
 
@@ -145,6 +145,13 @@ describe VagrantPlugins::Chef::Config::BaseRunner do
     it "defaults to false" do
       subject.finalize!
       expect(subject.verbose_logging).to be(false)
+    end
+  end
+
+  describe "#enable_reporting" do
+    it "defaults to true" do
+      subject.finalize!
+      expect(subject.enable_reporting).to be(true)
     end
   end
 

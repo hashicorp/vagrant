@@ -1,11 +1,7 @@
-require "vagrant/util/counter"
-
 module VagrantPlugins
   module Chef
     module Config
       class Base < Vagrant.plugin("2", :config)
-        extend Vagrant::Util::Counter
-
         # The path to Chef's bin/ directory.
         # @return [String]
         attr_accessor :binary_path
@@ -48,6 +44,14 @@ module VagrantPlugins
         # @return [String]
         attr_accessor :version
 
+        # The path where the Chef installer will be downloaded to. Only valid if
+        # install is true or "force". It defaults to nil, which means that the
+        # omnibus installer will choose the destination and you have no control
+        # over it.
+        #
+        # @return [String]
+        attr_accessor :installer_download_path
+
         def initialize
           super
 
@@ -57,6 +61,7 @@ module VagrantPlugins
           @log_level   = UNSET_VALUE
           @prerelease  = UNSET_VALUE
           @version     = UNSET_VALUE
+          @installer_download_path = UNSET_VALUE
         end
 
         def finalize!
@@ -66,6 +71,7 @@ module VagrantPlugins
           @log_level   = :info   if @log_level == UNSET_VALUE
           @prerelease  = false   if @prerelease == UNSET_VALUE
           @version     = :latest if @version == UNSET_VALUE
+          @installer_download_path = nil  if @installer_download_path == UNSET_VALUE
 
           # Make sure the install is a symbol if it's not a boolean
           if @install.respond_to?(:to_sym)

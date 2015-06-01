@@ -9,7 +9,7 @@ Vagrant::Util::SilenceWarnings.silence! do
   require "winrm"
 end
 
-require_relative "file_manager"
+require "winrm-fs/file_manager"
 
 module VagrantPlugins
   module CommunicatorWinRM
@@ -22,6 +22,7 @@ module VagrantPlugins
       @@exceptions_to_retry_on = [
         HTTPClient::KeepAliveDisconnected,
         WinRM::WinRMHTTPTransportError,
+        WinRM::WinRMAuthorizationError,
         Errno::EACCES,
         Errno::EADDRINUSE,
         Errno::ECONNREFUSED,
@@ -32,23 +33,21 @@ module VagrantPlugins
       ]
 
       attr_reader :logger
-      attr_reader :username
-      attr_reader :password
       attr_reader :host
       attr_reader :port
-      attr_reader :timeout_in_seconds
-      attr_reader :max_tries
+      attr_reader :username
+      attr_reader :password
+      attr_reader :config
 
-      def initialize(host, username, password, options = {})
+      def initialize(host, port, config)
         @logger = Log4r::Logger.new("vagrant::communication::winrmshell")
         @logger.debug("initializing WinRMShell")
 
-        @host               = host
-        @port               = options[:port] || 5985
-        @username           = username
-        @password           = password
-        @timeout_in_seconds = options[:timeout_in_seconds] || 60
-        @max_tries          = options[:max_tries] || 20
+        @host                  = host
+        @port                  = port
+        @username              = config.username
+        @password              = config.password
+        @config                = config
       end
 
       def powershell(command, &block)
@@ -67,11 +66,13 @@ module VagrantPlugins
       end
 
       def upload(from, to)
-        FileManager.new(self).upload(from, to)
+        file_manager = WinRM::FS::FileManager.new(session)
+        file_manager.upload(from, to)
       end
 
       def download(from, to)
-        FileManager.new(self).download(from, to)
+        file_manager = WinRM::FS::FileManager.new(session)
+        file_manager.download(from, to)
       end
 
       protected
@@ -87,41 +88,80 @@ module VagrantPlugins
       end
 
       def execute_shell_with_retry(command, shell, &block)
-        retryable(tries: @max_tries, on: @@exceptions_to_retry_on, sleep: 10) do
+        retryable(tries: @config.max_tries, on: @@exceptions_to_retry_on, sleep: @config.retry_delay) do
           @logger.debug("#{shell} executing:\n#{command}")
           output = session.send(shell, command) do |out, err|
             block.call(:stdout, out) if block_given? && out
             block.call(:stderr, err) if block_given? && err
           end
+
           @logger.debug("Output: #{output.inspect}")
+
+          # Verify that we didn't get a parser error, and if so we should
+          # set the exit code to 1. Parse errors return exit code 0 so we
+          # need to do this.
+          if output[:exitcode] == 0
+            (output[:data] || []).each do |data|
+              next if !data[:stderr]
+              if data[:stderr].include?("ParserError")
+                @logger.warn("Detected ParserError, setting exit code to 1")
+                output[:exitcode] = 1
+                break
+              end
+            end
+          end
+
           return output
         end
       end
 
-      def raise_winrm_exception(winrm_exception, shell, command)
-        # If the error is a 401, we can return a more specific error message
-        if winrm_exception.message.include?("401")
-          raise Errors::AuthError,
-            user: @username,
-            password: @password,
-            endpoint: endpoint,
-            message: winrm_exception.message
+      def raise_winrm_exception(exception, shell = nil, command = nil)
+        case exception
+        when WinRM::WinRMAuthorizationError
+          raise Errors::AuthenticationFailed,
+              user: @config.username,
+              password: @config.password,
+              endpoint: endpoint,
+              message: exception.message
+        when WinRM::WinRMHTTPTransportError
+          raise Errors::ExecutionError,
+            shell: shell,
+            command: command,
+            message: exception.message
+        when OpenSSL::SSL::SSLError
+          raise Errors::SSLError, message: exception.message
+        when HTTPClient::TimeoutError
+          raise Errors::ConnectionTimeout, message: exception.message
+        when Errno::ECONNREFUSED
+          # This is raised if we failed to connect the max amount of times
+          raise Errors::ConnectionRefused
+        when Errno::ECONNRESET
+          # This is raised if we failed to connect the max number of times
+          # due to an ECONNRESET.
+          raise Errors::ConnectionReset
+        when Errno::EHOSTDOWN
+          # This is raised if we get an ICMP DestinationUnknown error.
+          raise Errors::HostDown
+        when Errno::EHOSTUNREACH
+          # This is raised if we can't work out how to route traffic.
+          raise Errors::NoRoute
+        else
+          raise Errors::ExecutionError,
+            shell: shell,
+            command: command,
+            message: exception.message
         end
-
-        raise Errors::ExecutionError,
-          shell: shell,
-          command: command,
-          message: winrm_exception.message
       end
 
       def new_session
         @logger.info("Attempting to connect to WinRM...")
         @logger.info("  - Host: #{@host}")
         @logger.info("  - Port: #{@port}")
-        @logger.info("  - Username: #{@username}")
+        @logger.info("  - Username: #{@config.username}")
+        @logger.info("  - Transport: #{@config.transport}")
 
-        client = ::WinRM::WinRMWebService.new(endpoint, :plaintext, endpoint_options)
-        client.set_timeout(@timeout_in_seconds)
+        client = ::WinRM::WinRMWebService.new(endpoint, @config.transport.to_sym, endpoint_options)
+        client.set_timeout(@config.timeout)
         client.toggle_nori_type_casting(:off) #we don't want coersion of types
         client
       end
@@ -131,7 +171,14 @@ module VagrantPlugins
       end
 
       def endpoint
-        "http://#{@host}:#{@port}/wsman"
+        case @config.transport.to_sym
+        when :ssl
+          "https://#{@host}:#{@port}/wsman"
+        when :plaintext
+          "http://#{@host}:#{@port}/wsman"
+        else
+          raise Errors::WinRMInvalidTransport, transport: @config.transport
+        end
       end
 
       def endpoint_options
@@ -139,8 +186,8 @@ module VagrantPlugins
           pass: @password,
           host: @host,
           port: @port,
-          operation_timeout: @timeout_in_seconds,
-          basic_auth_only: true }
+          basic_auth_only: true,
+          no_ssl_peer_verification: !@config.ssl_peer_verification }
       end
     end #WinShell class
   end

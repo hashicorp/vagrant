@@ -22,7 +22,7 @@ module VagrantPlugins
         def call(env)
           return @app.call(env) if !env[:machine].provider.host_vm?
 
-          if !env.has_key?(:host_machine_sync_folders)
+          if !env.key?(:host_machine_sync_folders)
             env[:host_machine_sync_folders] = true
           end
 
@@ -115,7 +115,7 @@ module VagrantPlugins
 
               # Add this synced folder onto the new config if we haven't
               # already shared it before.
-              if !existing_ids.has_key?(id)
+              if !existing_ids.key?(id)
                 # A bit of a hack for VirtualBox to mount our
                 # folder as transient. This can be removed once
                 # the VirtualBox synced folder mechanism is smarter.

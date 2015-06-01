@@ -8,6 +8,9 @@
 		<!-- meta -->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+		<!-- favicon -->    
+		<link rel="shortcut icon" href="favicon.ico">
+
 		<!-- lib styles -->
 		<%= stylesheet_link_tag "bootstrap", "vagrantup" %>
 
@@ -173,6 +176,7 @@
 									<li<%= sidebar_current("provisioning-ansible") %>><a href="/v2/provisioning/ansible.html">Ansible</a></li>
 									<li<%= sidebar_current("provisioning-cfengine") %>><a href="/v2/provisioning/cfengine.html">CFEngine</a></li>
 									<li<%= sidebar_current("provisioning-chefsolo") %>><a href="/v2/provisioning/chef_solo.html">Chef Solo</a></li>
+									<li<%= sidebar_current("provisioning-chefzero") %>><a href="/v2/provisioning/chef_zero.html">Chef Zero</a></li>
 									<li<%= sidebar_current("provisioning-chefclient") %>><a href="/v2/provisioning/chef_client.html">Chef Client</a></li>
 									<li<%= sidebar_current("provisioning-chefapply") %>><a href="/v2/provisioning/chef_apply.html">Chef Apply</a></li>
 									<li<%= sidebar_current("provisioning-docker") %>><a href="/v2/provisioning/docker.html">Docker</a></li>
@@ -285,6 +289,17 @@
 									<li<%= sidebar_current("plugins-providers") %>><a href="/v2/plugins/providers.html">Providers</a></li>
 									<li<%= sidebar_current("plugins-provisioners") %>><a href="/v2/plugins/provisioners.html">Provisioners</a></li>
 									<li<%= sidebar_current("plugins-packaging") %>><a href="/v2/plugins/packaging.html">Packaging & Distribution</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("push") %>><a href="/v2/push/index.html">Push</a></li>
+
+								<% if sidebar_section == "push" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("push-atlas") %>><a href="/v2/push/atlas.html">Atlas</a></li>
+									<li<%= sidebar_current("push-ftp") %>><a href="/v2/push/ftp.html">FTP / SFTP</a></li>
+									<li<%= sidebar_current("push-heroku") %>><a href="/v2/push/heroku.html">Heroku</a></li>
+									<li<%= sidebar_current("push-local-exec") %>><a href="/v2/push/local-exec.html">Local Exec</a></li>
 								</ul>
 								<% end %>
 

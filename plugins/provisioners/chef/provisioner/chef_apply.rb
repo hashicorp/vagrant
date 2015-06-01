@@ -1,3 +1,4 @@
+require "digest/md5"
 require "tempfile"
 
 require_relative "base"
@@ -17,8 +18,12 @@ module VagrantPlugins
           user = @machine.ssh_info[:username]
 
           # Reset upload path permissions for the current ssh user
-          @machine.communicate.sudo("mkdir -p #{config.upload_path}")
-          @machine.communicate.sudo("chown -R #{user} #{config.upload_path}")
+          if windows?
+            @machine.communicate.sudo("mkdir ""#{config.upload_path}"" -f")
+          else
+            @machine.communicate.sudo("mkdir -p #{config.upload_path}")
+            @machine.communicate.sudo("chown -R #{user} #{config.upload_path}")
+          end
 
           # Upload the recipe
           upload_recipe
@@ -42,7 +47,8 @@ module VagrantPlugins
         # The destination (on the guest) where the recipe will live
         # @return [String]
         def target_recipe_path
-          File.join(config.upload_path, "recipe.rb")
+          key = Digest::MD5.hexdigest(config.recipe)
+          File.join(config.upload_path, "recipe-#{key}.rb")
         end
 
         # Write the raw recipe contents to a tempfile and upload that to the

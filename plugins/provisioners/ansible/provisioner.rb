@@ -1,3 +1,5 @@
+require "vagrant/util/platform"
+
 module VagrantPlugins
   module Ansible
     class Provisioner < Vagrant.plugin("2", :provisioner)
@@ -12,31 +14,30 @@ module VagrantPlugins
         @ssh_info = @machine.ssh_info
 
         #
-        # 1) Default Settings (lowest precedence)
+        # Ansible provisioner options
         #
 
         # Connect with Vagrant SSH identity
         options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
 
-        # Multiple SSH keys and/or SSH forwarding can be passed via
-        # ANSIBLE_SSH_ARGS environment variable, which requires 'ssh' mode.
-        # Note that multiple keys and ssh-forwarding settings are not supported
-        # by deprecated 'paramiko' mode.
-        options << "--connection=ssh" unless ansible_ssh_args.empty?
+        # Connect with native OpenSSH client
+        # Other modes (e.g. paramiko) are not officially supported,
+        # but can be enabled via raw_arguments option.
+        options << "--connection=ssh"
 
-        # By default we limit by the current machine.
-        # This can be overridden by the limit config option.
-        options << "--limit=#{@machine.name}" unless config.limit
+        # Increase the SSH connection timeout, as the Ansible default value (10 seconds)
+        # is a bit demanding for some overloaded developer boxes. This is particularly
+        # helpful when additional virtual networks are configured, as their availability
+        # is not controlled during vagrant boot process.
+        options << "--timeout=30"
 
-        #
-        # 2) Configuration Joker
-        #
-
-        options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
-
-        #
-        # 3) Append Provisioner options (highest precedence):
-        #
+        # By default we limit by the current machine, but
+        # this can be overridden by the `limit` option.
+        if config.limit
+          options << "--limit=#{as_list_argument(config.limit)}"
+        else
+          options << "--limit=#{@machine.name}"
+        end
 
         options << "--inventory-file=#{self.setup_inventory_file}"
         options << "--extra-vars=#{self.get_extra_vars_argument}" if config.extra_vars
@@ -48,25 +49,39 @@ module VagrantPlugins
         options << "--vault-password-file=#{config.vault_password_file}" if config.vault_password_file
         options << "--tags=#{as_list_argument(config.tags)}" if config.tags
         options << "--skip-tags=#{as_list_argument(config.skip_tags)}" if config.skip_tags
-        options << "--limit=#{as_list_argument(config.limit)}" if config.limit
         options << "--start-at-task=#{config.start_at_task}" if config.start_at_task
 
+        # Finally, add the raw configuration options, which has the highest precedence
+        # and can therefore potentially override any other options of this provisioner.
+        options.concat(self.as_array(config.raw_arguments)) if config.raw_arguments
+
+        #
         # Assemble the full ansible-playbook command
+        #
+
         command = (%w(ansible-playbook) << options << config.playbook).flatten
 
-        # Some Ansible options must be passed as environment variables
         env = {
-          "ANSIBLE_FORCE_COLOR" => "true",
-          "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
-
           # Ensure Ansible output isn't buffered so that we receive output
           # on a task-by-task basis.
-          "PYTHONUNBUFFERED" => 1
+          "PYTHONUNBUFFERED" => 1,
+
+          # Some Ansible options must be passed as environment variables,
+          # as there is no equivalent command line arguments
+          "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
         }
-        # Support Multiple SSH keys and SSH forwarding:
+
+        # When Ansible output is piped in Vagrant integration, its default colorization is
+        # automatically disabled and the only way to re-enable colors is to use ANSIBLE_FORCE_COLOR.
+        env["ANSIBLE_FORCE_COLOR"] = "true" if @machine.env.ui.is_a?(Vagrant::UI::Colored)
+        # Setting ANSIBLE_NOCOLOR is "unnecessary" at the moment, but this could change in the future
+        # (e.g. local provisioner [GH-2103], possible change in vagrant/ansible integration, etc.)
+        env["ANSIBLE_NOCOLOR"] = "true" unless @machine.env.ui.is_a?(Vagrant::UI::Colored)
+
+        # ANSIBLE_SSH_ARGS is required for Multiple SSH keys, SSH forwarding and custom SSH settings
         env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
 
-        show_ansible_playbook_command(env, command) if config.verbose
+        show_ansible_playbook_command(env, command) if (config.verbose || @logger.debug?)
 
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {
@@ -183,8 +198,37 @@ module VagrantPlugins
         @ansible_ssh_args ||= get_ansible_ssh_args
       end
 
+      # Use ANSIBLE_SSH_ARGS to pass some OpenSSH options that are not wrapped by
+      # an ad-hoc Ansible option. Last update corresponds to Ansible 1.8
       def get_ansible_ssh_args
         ssh_options = []
+
+        # Use an SSH ProxyCommand when using the Docker provider with the intermediate host
+        if @machine.provider_name == :docker && machine.provider.host_vm?
+          docker_host_ssh_info = machine.provider.host_vm.ssh_info
+
+          proxy_cmd = "ssh #{docker_host_ssh_info[:username]}@#{docker_host_ssh_info[:host]}" +
+            " -p #{docker_host_ssh_info[:port]} -i #{docker_host_ssh_info[:private_key_path][0]}"
+
+          # Use same options than plugins/providers/docker/communicator.rb
+          # Note: this could be improved (DRY'ed) by sharing these settings. 
+          proxy_cmd += " -o Compression=yes -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+
+          proxy_cmd += " -o ForwardAgent=yes" if @ssh_info[:forward_agent]
+
+          proxy_cmd += " exec nc %h %p 2>/dev/null"
+
+          ssh_options << "-o ProxyCommand='#{ proxy_cmd }'"
+        end
+
+        # Don't access user's known_hosts file, except when host_key_checking is enabled.
+        ssh_options << "-o UserKnownHostsFile=/dev/null" unless config.host_key_checking
+
+        # Set IdentitiesOnly=yes to avoid authentication errors when the host has more than 5 ssh keys.
+        # Notes:
+        #  - Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option. 
+        #  - this could be improved by sharing logic with lib/vagrant/util/ssh.rb
+        ssh_options << "-o IdentitiesOnly=yes" unless Vagrant::Util::Platform.solaris?
 
         # Multiple Private Keys
         @ssh_info[:private_key_path].drop(1).each do |key|

@@ -68,4 +68,11 @@ describe VagrantPlugins::Chef::Config::Base do
       expect(subject.version).to eq(:latest)
     end
   end
+
+  describe "#installer_download_path" do
+    it "defaults to nil" do
+      subject.finalize!
+      expect(subject.installer_download_path).to be(nil)
+    end
+  end
 end

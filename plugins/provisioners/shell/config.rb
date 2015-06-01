@@ -10,6 +10,7 @@ module VagrantPlugins
       attr_accessor :privileged
       attr_accessor :binary
       attr_accessor :keep_color
+      attr_accessor :name
       attr_accessor :powershell_args
 
       def initialize
@@ -20,6 +21,7 @@ module VagrantPlugins
         @privileged  = UNSET_VALUE
         @binary      = UNSET_VALUE
         @keep_color  = UNSET_VALUE
+        @name        = UNSET_VALUE
         @powershell_args  = UNSET_VALUE
       end
 
@@ -31,6 +33,7 @@ module VagrantPlugins
         @privileged  = true if @privileged == UNSET_VALUE
         @binary      = false if @binary == UNSET_VALUE
         @keep_color  = false if @keep_color == UNSET_VALUE
+        @name        = nil if @name == UNSET_VALUE
         @powershell_args  = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
 
         if @args && args_valid?

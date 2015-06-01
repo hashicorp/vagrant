@@ -38,6 +38,10 @@ module VagrantPlugins
               options[:client_cert] = c
             end
 
+            o.on("--location-trusted", "Trust 'Location' header from HTTP redirects and use the same credentials for subsequent urls as for the initial one") do |l|
+                options[:location_trusted] = l
+            end
+
             o.on("--provider PROVIDER", String, "Provider the box should satisfy") do |p|
               options[:provider] = p
             end
@@ -47,7 +51,7 @@ module VagrantPlugins
             end
 
             o.separator ""
-            o.separator "The box descriptor can be the name of a box on Vagrant Cloud,"
+            o.separator "The box descriptor can be the name of a box on HashiCorp's Atlas,"
             o.separator "or a URL, or a local .box file, or a local .json file containing"
             o.separator "the catalog metadata."
             o.separator ""
@@ -95,6 +99,7 @@ module VagrantPlugins
             box_download_ca_path: options[:ca_path],
             box_download_client_cert: options[:client_cert],
             box_download_insecure: options[:insecure],
+            box_download_location_trusted: options[:location_trusted],
             ui: Vagrant::UI::Prefixed.new(@env.ui, "box"),
           })
 

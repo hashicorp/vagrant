@@ -49,7 +49,7 @@ module Vagrant
         # Gather the procs for every source, since that is what we care about.
         procs = []
         sources.each do |source|
-          if !@proc_cache.has_key?(source)
+          if !@proc_cache.key?(source)
             # Load the procs for this source and cache them. This caching
             # avoids the issue where a file may have side effects when loading
             # and loading it multiple times causes unexpected behavior.
@@ -92,10 +92,10 @@ module Vagrant
         errors   = []
 
         order.each do |key|
-          next if !@sources.has_key?(key)
+          next if !@sources.key?(key)
 
           @sources[key].each do |version, proc|
-            if !@config_cache.has_key?(proc)
+            if !@config_cache.key?(proc)
               @logger.debug("Loading from: #{key} (evaluating)")
 
               # Get the proper version loader for this version and load
@@ -209,9 +209,16 @@ module Vagrant
             @logger.error("Vagrantfile load error: #{e.message}")
             @logger.error(e.backtrace.join("\n"))
 
+            line = "(unknown)"
+            if e.backtrace && e.backtrace[0]
+              line = e.backtrace[0].split(":")[1]
+            end
+
             # Report the generic exception
             raise Errors::VagrantfileLoadError,
               path: path,
+              line: line,
+              exception_class: e.class,
               message: e.message
           end
         end

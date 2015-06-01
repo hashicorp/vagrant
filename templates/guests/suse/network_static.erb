@@ -4,7 +4,10 @@ BOOTPROTO='static'
 IPADDR='<%= options[:ip] %>'
 NETMASK='<%= options[:netmask] %>'
 DEVICE='eth<%= options[:interface] %>'
-PEERDNS=no
+<% if options[:gateway] %>
+GATEWAY='<%= options[:gateway] %>'
+<% end %>
+PEERDNS='no'
 STARTMODE='auto'
 USERCONTROL='no'
 #VAGRANT-END

@@ -29,6 +29,7 @@ module VagrantPlugins
             force:      config.install == :force,
             version:    config.version,
             prerelease: config.prerelease,
+            download_path:  config.installer_download_path
           )
           installer.ensure_installed
         end
@@ -36,8 +37,14 @@ module VagrantPlugins
         def verify_binary(binary)
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
+          if windows?
+            command = "if ((&'#{binary}' -v) -Match 'Chef: *'){ exit 0 } else { exit 1 }"
+          else
+            command = "sh -c 'command -v #{binary}'"
+          end
+
           @machine.communicate.sudo(
-            "which #{binary}",
+            command,
             error_class: ChefError,
             error_key: :chef_not_detected,
             binary: binary,
@@ -65,8 +72,12 @@ module VagrantPlugins
 
           @machine.communicate.tap do |comm|
             paths.each do |path|
-              comm.sudo("mkdir -p #{path}")
-              comm.sudo("chown -h #{@machine.ssh_info[:username]} #{path}")
+              if windows?
+                comm.sudo("mkdir ""#{path}"" -f")
+              else
+                comm.sudo("mkdir -p #{path}")
+                comm.sudo("chown -h #{@machine.ssh_info[:username]} #{path}")
+              end
             end
           end
         end
@@ -92,6 +103,7 @@ module VagrantPlugins
             log_level:        @config.log_level.to_sym,
             node_name:        @config.node_name,
             verbose_logging:  @config.verbose_logging,
+            enable_reporting: @config.enable_reporting,
             http_proxy:       @config.http_proxy,
             http_proxy_user:  @config.http_proxy_user,
             http_proxy_pass:  @config.http_proxy_pass,
@@ -131,7 +143,13 @@ module VagrantPlugins
 
           remote_file = File.join(@config.provisioning_path, "dna.json")
           @machine.communicate.tap do |comm|
-            comm.sudo("rm -f #{remote_file}", error_check: false)
+            if windows?
+              command = "if (test-path '#{remote_file}') {rm '#{remote_file}' -force -recurse}"
+            else
+              command = "rm -f #{remote_file}"
+            end
+
+            comm.sudo(command, error_check: false)
             comm.upload(temp.path, remote_file)
           end
         end
@@ -144,7 +162,13 @@ module VagrantPlugins
             "vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
 
           @machine.communicate.tap do |comm|
-            comm.sudo("rm -f #{remote_file}", error_check: false)
+            if windows?
+              command = "if (test-path ""#{remote_file}"") {rm ""#{remote_file}"" -force -recurse}"
+            else
+              command = "rm -f #{remote_file}"
+            end
+
+            comm.sudo(command, error_check: false)
             comm.upload(encrypted_data_bag_secret_key_path, remote_file)
           end
         end
@@ -152,7 +176,13 @@ module VagrantPlugins
         def delete_encrypted_data_bag_secret
           remote_file = guest_encrypted_data_bag_secret_key_path
           if remote_file
-            @machine.communicate.sudo("rm -f #{remote_file}", error_check: false)
+            if windows?
+              command = "if (test-path ""#{remote_file}"") {rm ""#{remote_file}"" -force -recurse}"
+            else
+              command = "rm -f #{remote_file}"
+            end
+
+            @machine.communicate.sudo(command, error_check: false)
           end
         end
 

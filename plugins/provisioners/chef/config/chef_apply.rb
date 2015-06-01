@@ -24,11 +24,7 @@ module VagrantPlugins
           super
 
           @recipe = nil if @recipe == UNSET_VALUE
-
-          if @upload_path == UNSET_VALUE
-            counter = self.class.get_and_update_counter(:chef_apply)
-            @upload_path = "/tmp/vagrant-chef-apply-#{counter}"
-          end
+          @upload_path = "/tmp/vagrant-chef-apply" if @upload_path == UNSET_VALUE
         end
 
         def validate(machine)

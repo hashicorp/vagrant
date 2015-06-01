@@ -8,6 +8,8 @@ module VagrantPlugins
               nfs_version_mount_option="-o nfsv#{opts[:nfs_version]}"
             end
 
+            machine.communicate.sudo("mkdir -p #{opts[:guestpath]}", {shell: "sh"})
+
             machine.communicate.sudo(
               "mount -t nfs #{nfs_version_mount_option} " +
               "'#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'", {shell: "sh"})

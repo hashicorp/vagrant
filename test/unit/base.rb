@@ -4,6 +4,7 @@ require "rubygems"
 # Gems
 require "checkpoint"
 require "rspec/autorun"
+require "webmock/rspec"
 
 # Require Vagrant itself so we can reference the proper
 # classes to test.

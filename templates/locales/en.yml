@@ -24,6 +24,8 @@ en:
       Downloading: %{url}
     box_download_error: |-
       Error downloading: %{message}
+    box_unpacking: |-
+      Unpacking necessary files from: %{url}
     box_expanding_url: |-
       URL: %{url}
     box_loading_metadata: |-
@@ -144,7 +146,7 @@ en:
     inserting_random_key: |-
       Inserting generated public key within guest...
     inserting_remove_key: |-
-      Removing insecure key from the guest if its present...
+      Removing insecure key from the guest if it's present...
     list_commands: |-
       Below is a listing of all available Vagrant commands and a brief
       description of what they do.
@@ -212,6 +214,7 @@ en:
       The provider ('%{provider}') for the machine '%{name}' is
       using a proxy machine. RSync will sync to this proxy
       instead of directly to the environment itself.
+    rsync_showing_output: "Showing rsync output..."
     rsync_ssh_password: |-
       The machine you're rsyncing folders to is configured to use
       password-based authentication. Vagrant can't script rsync to automatically
@@ -243,7 +246,7 @@ en:
       Press ctrl-c now to exit if you want to remove some boxes or free
       up some disk space.
 
-      Press any other key to continue.
+      Press the Enter or Return key to continue.
     version_current: |-
       Installed Version: %{version}
     version_latest: |-
@@ -285,7 +288,7 @@ en:
         id_in_pre_import: |-
           The ':id' parameter is not available in "pre-import" customizations.
         intnet_on_bad_type: |-
-          VirtualBox internal networks can only be enabled on "private_networks"
+          VirtualBox internal networks can only be enabled on "private_network"
         invalid_event: |-
           %{event} is not a valid event for customization. Valid events
           are: %{valid_events}
@@ -369,7 +372,7 @@ en:
         provider. Double-check your requested provider to verify you didn't
         simply misspell it.
 
-        If you're adding a box from Vagrant Cloud, make sure the box is
+        If you're adding a box from HashiCorp's Atlas, make sure the box is
         released.
 
         Name: %{name}
@@ -388,7 +391,7 @@ en:
       box_add_short_not_found: |-
         The box '%{name}' could not be found or
         could not be accessed in the remote catalog. If this is a private
-        box on Vagrant Cloud, please verify you're logged in via
+        box on HashiCorp's Atlas, please verify you're logged in via
         `vagrant login`. Also, please double-check the name. The expanded
         URL and error message are shown below:
 
@@ -550,16 +553,14 @@ en:
 
         %{versions}
       box_server_not_set: |-
-        A URL to a Vagrant Cloud server is not set, so boxes cannot
-        be added with a shorthand ("mitchellh/precise64") format.
-        You may also be seeing this error if you meant to type in
-        a path to a box file which doesn't exist locally on your
-        system.
+        A URL to an Atlas server is not set, so boxes cannot be added with a
+        shorthand ("mitchellh/precise64") format. You may also be seeing this
+        error if you meant to type in a path to a box file which doesn't exist
+        locally on your system.
 
-        To set a URL to a Vagrant Cloud server, set the
-        `VAGRANT_SERVER_URL` environmental variable. Or, if you
-        meant to use a file path, make sure the path to the file
-        is valid.
+        To set a URL to an Atlas server, set the `VAGRANT_SERVER_URL`
+        environmental variable. Or, if you meant to use a file path, make sure
+        the path to the file is valid.
       box_update_multi_provider: |-
         You requested to update the box '%{name}'. This box has
         multiple providers. You must explicitly select a single
@@ -946,6 +947,29 @@ en:
         You can however, install a plugin with the same name to replace
         these plugins. User-installed plugins take priority over
         system-installed plugins.
+      pushes_not_defined: |-
+        The Vagrantfile does not define any 'push' strategies. In order to use
+        `vagrant push`, you must define at least one push strategy:
+
+            config.push.define "ftp" do |push|
+              # ... push-specific options
+            end
+      push_strategy_not_defined: |-
+        The push strategy '%{name}' is not defined in the Vagrantfile. Defined
+        strategy names are:
+
+            %{pushes}
+      push_strategy_not_loaded: |-
+        There are no push strategies named '%{name}'. Please make sure you
+        spelled it correctly. If you are using an external push strategy, you
+        may need to install a plugin. Loaded push strategies are:
+
+            %{pushes}
+      push_strategy_not_provided: |-
+        The Vagrantfile defines more than one 'push' strategy. Please specify a
+        strategy. Defined strategy names are:
+
+            %{pushes}
       package_include_symlink: |-
         A file or directory you're attempting to include with your packaged
         box has symlinks in it. Vagrant cannot include symlinks in the
@@ -1176,7 +1200,8 @@ en:
         a syntax error.
 
         Path: %{path}
-        Message: %{message}
+        Line number: %{line}
+        Message: %{exception_class}: %{message}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:
@@ -1652,6 +1677,8 @@ en:
             using the other host only network.
           preparing: |-
             Preparing network interfaces based on configuration...
+          cleanup_vbox_default_dhcp: |-
+            Found default DHCP server from initial VirtualBox install. Cleaning it up...
         host_only_network:
           collides: |-
             The specified host network collides with a non-hostonly network!
@@ -1673,10 +1700,10 @@ en:
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
-            Machine not provisioning because `--no-provision` is specified.
+            Machine not provisioned because `--no-provision` is specified.
           disabled_by_sentinel: |-
             Machine already provisioned. Run `vagrant provision` or use the `--provision`
-            to force provisioning. Provisioners marked to run always will still run.
+            flag to force provisioning. Provisioners marked to run always will still run.
         resume:
           resuming: Resuming suspended VM...
           unpausing: |-
@@ -1726,7 +1753,7 @@ en:
           packaging: "Packaging additional file: %{file}"
           compressing: "Compressing package to: %{tar_path}"
           output_exists: |-
-            The specified file to save the package as already exists. Please
+            The specified file '%{file_name}' to save the package as already exists. Please
             remove this file or specify a different file name for outputting.
           output_is_directory: |-
             The specified output is a directory. Please specify a path including
@@ -1786,6 +1813,8 @@ en:
         running_apply: "Running chef-apply..."
         running_solo: "Running chef-solo..."
         running_solo_again: "Running chef-solo again (failed to converge)..."
+        running_zero: "Running chef-zero..."
+        running_zero_again: "Running chef-zero again (failed to converge)..."
         missing_shared_folders: |-
           Shared folders that Chef requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
@@ -1827,11 +1856,17 @@ en:
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
         running_puppet: "Running Puppet with %{manifest}..."
+        running_puppet_env: "Running Puppet with environment %{environment}..."
         manifest_missing: |-
           The configured Puppet manifest is missing. Please specify a path to an
           existing manifest:
 
           %{manifest}
+        environment_missing: |-
+          The configured Puppet environment folder %{environment} was not found in the 
+          specified environmentpath %{environmentpath}.
+          Please specify a path to an existing Puppet directory environment.
+        environment_path_missing: "The environment path specified for Puppet does not exist: %{path}"
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
         missing_shared_folders: |-
           Shared folders that Puppet requires are missing on the virtual machine.
@@ -1883,10 +1918,16 @@ en:
 
       salt:
         minion_config_nonexist: |-
-          The specified minion_config file could not be found.
+          The specified minion_config '%{missing_config_file}' file could not be found.
         master_config_nonexist: |-
-          The specified master_config file could not be found.
+          The specified master_config '%{missing_config_file}' file could not be found.
+        grains_config_nonexist: |-
+          The specified grains_config file could not be found.
         missing_key: |-
           You must include both public and private keys.
         must_accept_keys: |-
           You must accept keys when running highstate with master!
+
+    pushes:
+      file:
+        no_destination: "File destination must be specified."

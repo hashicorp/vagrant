@@ -36,7 +36,8 @@ General settings:
     but not to the host machine. Useful for links.
 
   * `link` (method, string argument) - Link this container to another
-    by name. Example: `docker.link("db:db")`. Note, if you're linking to
+    by name. The argument should be in the format of `(name:alias)`.
+    Example: `docker.link("db:db")`. Note, if you're linking to
     another container in the same Vagrantfile, make sure you call
     `vagrant up` with the `--no-parallel` flag.
 

@@ -968,6 +968,76 @@ VF
     end
   end
 
+  describe "#pushes" do
+    it "returns the pushes from the Vagrantfile config" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
+          Vagrant.configure("2") do |config|
+            config.push.define "noop"
+          end
+        VF
+      end
+
+      env = environment.create_vagrant_env
+      expect(env.pushes).to eq([:noop])
+    end
+  end
+
+  describe "#push" do
+    let(:push_class) do
+      Class.new(Vagrant.plugin("2", :push)) do
+        def self.pushed?
+          !!class_variable_get(:@@pushed)
+        end
+
+        def push
+          self.class.class_variable_set(:@@pushed, true)
+        end
+      end
+    end
+
+    it "raises an exception when the push does not exist" do
+      expect { instance.push("lolwatbacon") }
+        .to raise_error(Vagrant::Errors::PushStrategyNotDefined)
+    end
+
+    it "raises an exception if the strategy does not exist" do
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
+          Vagrant.configure("2") do |config|
+            config.push.define "lolwatbacon"
+          end
+        VF
+      end
+
+      env = environment.create_vagrant_env
+      expect { env.push("lolwatbacon") }
+        .to raise_error(Vagrant::Errors::PushStrategyNotLoaded)
+    end
+
+    it "executes the push action" do
+      register_plugin("2") do |plugin|
+        plugin.name "foo"
+
+        plugin.push(:foo) do
+          push_class
+        end
+      end
+
+      environment = isolated_environment do |env|
+        env.vagrantfile(<<-VF.gsub(/^ {10}/, ''))
+          Vagrant.configure("2") do |config|
+            config.push.define "foo"
+          end
+        VF
+      end
+
+      env = environment.create_vagrant_env
+      env.push("foo")
+      expect(push_class.pushed?).to be_true
+    end
+  end
+
   describe "#hook" do
     it "should call the action runner with the proper hook" do
       hook_name = :foo

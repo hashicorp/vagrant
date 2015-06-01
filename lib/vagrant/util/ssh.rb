@@ -83,7 +83,7 @@ module Vagrant
         # underneath the covers. In this case, we tell the user.
         if Platform.windows?
           r = Subprocess.execute(ssh_path)
-          if r.stdout.include?("PuTTY Link")
+          if r.stdout.include?("PuTTY Link") || r.stdout.include?("Plink: command-line connection utility")
             raise Errors::SSHIsPuttyLink,
               host: ssh_info[:host],
               port: ssh_info[:port],

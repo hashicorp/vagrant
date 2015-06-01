@@ -17,7 +17,7 @@ module VagrantPlugins
           virtual = false
           interface_names = Array.new
           machine.communicate.sudo("/usr/sbin/biosdevname; echo $?") do |_, result|
-            virtual = true if result.chomp == '4'
+            virtual = true if ['4', '127'].include? result.chomp
           end
 
           if virtual
@@ -26,7 +26,7 @@ module VagrantPlugins
             end
 
             interface_names = networks.map do |network|
-               "eth#{network[:interface]}"
+               "#{interface_names[network[:interface]]}"
             end
           else
             machine.communicate.sudo("/usr/sbin/biosdevname -d | grep Kernel | cut -f2 -d: | sed -e 's/ //;'") do |_, result|
@@ -85,6 +85,7 @@ module VagrantPlugins
           interfaces.each do |interface|
             retryable(on: Vagrant::Errors::VagrantError, tries: 3, sleep: 2) do
               machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-#{interface}")
+              machine.communicate.sudo("which nmcli >/dev/null 2>&1 && nmcli c reload #{interface}")
               machine.communicate.sudo("/sbin/ifdown #{interface}", error_check: true)
               machine.communicate.sudo("/sbin/ifup #{interface}")
             end

@@ -44,3 +44,17 @@ example, if this is set to 5985 (the default), and Vagrant detects a forwarded
 port to port 5985 on the guest from port 4567 on the host, Vagrant will attempt
 to use port 4567 to talk to the guest if there is no other option.
 
+<hr>
+
+<strong>Warning:</strong> In order for Vagrant to communicate with a Windows
+guest, you must allow unencrypted WinRM connections on the guest machine
+itself. Some public boxes already have this configured, but if you are
+attempting to `vagrant up` a Windows box and the command hangs at 
+`Waiting for WinRM to become available...`, then you will need to run the
+commands below on the guest machine itself, at the box setup stage,
+after provisioning, or through a start up script.
+
+<pre class="prettyprint">
+Set-Item WSMan:\localhost\Service\AllowUnencrypted -Value True
+Set-Item WSMan:\localhost\Service\Auth\Basic -Value True
+</pre>

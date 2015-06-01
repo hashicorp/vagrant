@@ -24,7 +24,7 @@ module VagrantPlugins
           }
           folders = synced_folders(env[:machine], **opts)
 
-          if folders.has_key?(:nfs)
+          if folders.key?(:nfs)
             @logger.info("Using NFS, preparing NFS settings by reading host IP and machine IP")
             add_ips_to_env!(env)
           end

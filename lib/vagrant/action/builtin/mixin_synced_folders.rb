@@ -129,7 +129,7 @@ module Vagrant
 
           # If we have folders with the "default" key, then determine the
           # most appropriate implementation for this.
-          if folders.has_key?("") && !folders[""].empty?
+          if folders.key?("") && !folders[""].empty?
             default_impl = default_synced_folder_type(machine, plugins)
             if !default_impl
               types = plugins.to_hash.keys.map { |t| t.to_s }.sort.join(", ")

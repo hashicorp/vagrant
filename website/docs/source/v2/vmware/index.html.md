@@ -21,10 +21,11 @@ VirtualBox feature that Vagrant supports is fully functional in VMware as
 well. However, there are some VMware-specific things such as box formats,
 configurations, etc. that are documented here.
 
-The VMware provider is currently compatible with Fusion 5 and 6 or Workstation 9 and 10.
-Fusion and Workstation must be purchased and installed separately prior to using the
-provider. If the proper VMware software isn't properly installed, or an invalid version is
-installed, the provider will give you a human-friendly error message.
+For the most up-to-date information on compatability and supported versions of
+VMware Fusion and VMware Workstation, please visit the
+[Vagrant VMware product page](https://www.vagrantup.com/vmware). Please note
+that VMware Fusion and VMware Workstation are third-party products that must be
+purchased and installed separately prior to using the provider.
 
 Use the navigation to the left to find a specific VMware topic to read
 more about.
