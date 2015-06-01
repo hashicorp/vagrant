@@ -11,8 +11,7 @@ module VagrantPlugins
             end
           end
 
-          # Detect various flavors we care about
-          if version.nil? || version < 20
+          if version.nil?
             return :fedora
           else
             return "fedora_#{version}".to_sym
