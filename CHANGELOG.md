@@ -57,6 +57,7 @@ BUG FIXES:
   - guests/fedora: recognize future fedora releases [GH-5730]
   - guests/fedora: reload iface connection by NetworkManager [GH-5709]
   - guests/fedora: do not use biosdevname if it is not installed [GH-5707]
+  - guests/freebsd: provide an argument to the backup file [GH-5516, GH-5517]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
   - guests/tinycore: fix change hostname functionality [GH-5623]
   - guests/windows: Create rsync folder prior to rsync-ing. [GH-5282]
