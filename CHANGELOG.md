@@ -61,6 +61,7 @@ BUG FIXES:
   - guests/windows: Create rsync folder prior to rsync-ing. [GH-5282]
   - guests/windows: Changing hostname requires reboot again since
       the non-reboot code path was crashing Windows server. [GH-5261]
+  - guests/windows: ignore virtual NICs [GH-5478]
   - hosts/windows: More accurately get host IP address in VPNs. [GH-5349]
   - plugins/login: allow users to login with a token [GH-5145]
   - providers/docker: Build image from `/var/lib/docker` for more disk
