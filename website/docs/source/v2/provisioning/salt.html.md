@@ -55,16 +55,18 @@ on this machine. Not supported on Windows.
 * `install_syndic`   (boolean) - Install the salt-syndic, default
 `false`. Not supported on Windows.
 
-* `install_type`  (stable | git | daily | testing | custom) - Whether to install from a
+* `install_type`  (stable | git | daily | testing) - Whether to install from a
 distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
-The custom type allows passing an arbitrary string of arguments via `install_args`
-rather than formatting the arguments based on known install types.
 Not supported on Windows.
 
 * `install_args` (develop) - When performing a git install,
 you can specify a branch, tag, or any treeish. If using the `custom` install type,
 you can also specify a different repository to install from.
 Not supported on Windows.
+
+* `install_command` (string) - Allow specifying an arbitrary string of arguments
+to the bootstrap script. This will completely ignore `install_type` and `install_args`
+to allow more flexibility with the bootstrap process.
 
 * `always_install`   (boolean) - Installs salt binaries even
  if they are already detected, default `false`
