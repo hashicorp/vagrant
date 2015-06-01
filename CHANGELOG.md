@@ -15,6 +15,7 @@ IMPROVEMENTS:
   - guests/darwin: support mounting SMB shares [GH-5750]
   - guests/fedora: support Fedora 21 [GH-5277]
   - guests/fedora: add capabilities for nfs and flavor [GH-5770, GH-4847]
+  - guests/linux: specify user's domain as separate parameter [GH-3620, GH-5512]
   - guests/redhat: support Scientific Linux 7 [GH-5303]
   - guests/photon: initial support [GH-5612]
   - guests/solaris,solaris11: support inserting generated key [GH-5182]
