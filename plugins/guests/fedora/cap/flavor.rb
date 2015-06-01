@@ -4,19 +4,18 @@ module VagrantPlugins
       class Flavor
         def self.flavor(machine)
           # Read the version file
-          output = ""
+          version = nil
           machine.communicate.sudo("grep VERSION_ID /etc/os-release") do |type, data|
-            output += data if type == :stdout
+            if type == :stdout
+              version = data.split("=")[1].chomp.to_i
+            end
           end
-          version = output.split("=")[1].chomp!.to_i
 
           # Detect various flavors we care about
-          if version >= 20
-            return :"fedora_#{version}"
-          else if version >= 20
-            return :"fedora_#{version}"
-	  else
+          if version.nil? || version < 20
             return :fedora
+          else
+            return "fedora_#{version}".to_sym
           end
         end
       end
