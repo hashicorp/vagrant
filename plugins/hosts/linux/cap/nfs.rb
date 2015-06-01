@@ -102,7 +102,7 @@ module VagrantPlugins
 
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant
-          system("#{sudo_command}sed -r -e '\\\x01^# VAGRANT-BEGIN:( #{user})? #{id}\x01,\\\x01^# VAGRANT-END:( #{user})? #{id}\x01 d' -ibak /etc/exports")
+          system("cp /etc/exports /tmp && #{sudo_command}sed -r -e '\\\x01^# VAGRANT-BEGIN:( #{user})? #{id}\x01,\\\x01^# VAGRANT-END:( #{user})? #{id}\x01 d' -ibak /tmp/exports ; cp /tmp/exports /etc/exports")
         end
 
         def self.nfs_opts_setup(folders)
