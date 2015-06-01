@@ -67,12 +67,25 @@ ask you to choose which interface the virtual machine should bridge to. A defaul
 interface can be specified by adding a `:bridge` clause to the network definition.
 
 ```ruby
-config.vm.network "public_network", bridge: 'en1: Wi-Fi (AirPort)'
+config.vm.network "public_network", bridge: "en1: Wi-Fi (AirPort)"
 ```
 
 The string identifying the desired interface must exactly match the name of an
 available interface. If it can't be found, Vagrant will ask you to pick
 from a list of available network interfaces.
+
+With some providers, it is possible to specify a list of adapters to bridge
+against:
+
+```ruby
+config.vm.network "public_network", bridge: [
+  "en1: Wi-Fi (AirPort)",
+  "en6: Broadcom NetXtreme Gigabit Ethernet Controller",
+]
+```
+
+In this example, the first network adapter that exists and can successfully be
+bridge will be used.
 
 ## Disable Auto-Configuration
 

@@ -55,23 +55,39 @@ module VagrantPlugins
           switches = env[:machine].provider.driver.execute("get_switches.ps1", {})
           raise Errors::NoSwitches if switches.empty?
 
-          switch = switches[0]["Name"]
-          if switches.length > 1
-            env[:ui].detail(I18n.t("vagrant_hyperv.choose_switch") + "\n ")
-            switches.each_index do |i|
-              switch = switches[i]
-              env[:ui].detail("#{i+1}) #{switch["Name"]}")
-            end
-            env[:ui].detail(" ")
+          switch = nil
+          env[:machine].config.vm.networks.each do |type, opts|
+            next if type != :public_network && type != :private_network
 
-            switch = nil
-            while !switch
-              switch = env[:ui].ask("What switch would you like to use? ")
-              next if !switch
-              switch = switch.to_i - 1
-              switch = nil if switch < 0 || switch >= switches.length
+            switchToFind = opts[:bridge]
+
+            if switchToFind
+              puts "Looking for switch with name: #{switchToFind}"
+              switch = switches.find { |s| s["Name"].downcase == switchToFind.downcase }["Name"]
+              puts "Found switch: #{switch}"
             end
-            switch = switches[switch]["Name"]
+          end
+
+          if switch.nil?
+            if switches.length > 1
+              env[:ui].detail(I18n.t("vagrant_hyperv.choose_switch") + "\n ")
+              switches.each_index do |i|
+                switch = switches[i]
+                env[:ui].detail("#{i+1}) #{switch["Name"]}")
+              end
+              env[:ui].detail(" ")
+
+              switch = nil
+              while !switch
+                switch = env[:ui].ask("What switch would you like to use? ")
+                next if !switch
+                switch = switch.to_i - 1
+                switch = nil if switch < 0 || switch >= switches.length
+              end
+              switch = switches[switch]["Name"]
+            else
+              switch = switches[0]["Name"]
+            end
           end
 
           env[:ui].detail("Cloning virtual hard drive...")

@@ -404,6 +404,7 @@ module Vagrant
           downloader_options[:client_cert] = env[:box_download_client_cert]
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
+          downloader_options[:location_trusted] = env[:box_download_location_trusted]
 
           Util::Downloader.new(url, temp_path, downloader_options)
         end
@@ -420,8 +421,15 @@ module Vagrant
             show_url = opts[:show_url]
             show_url ||= url
 
+            translation = "vagrant.box_downloading"
+
+            # Adjust status message when 'downloading' a local box.
+            if show_url.start_with?("file://")
+              translation = "vagrant.box_unpacking"
+            end
+
             env[:ui].detail(I18n.t(
-              "vagrant.box_downloading",
+              translation,
               url: show_url))
             if File.file?(d.destination)
               env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))

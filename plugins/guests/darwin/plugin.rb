@@ -16,6 +16,11 @@ module VagrantPlugins
         Cap::ChangeHostName
       end
 
+      guest_capability("darwin", "choose_addressable_ip_addr") do
+        require_relative "cap/choose_addressable_ip_addr"
+        Cap::ChooseAddressableIPAddr
+      end
+
       guest_capability("darwin", "configure_networks") do
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
@@ -34,6 +39,11 @@ module VagrantPlugins
       guest_capability("darwin", "mount_nfs_folder") do
         require_relative "cap/mount_nfs_folder"
         Cap::MountNFSFolder
+      end
+
+      guest_capability("darwin", "mount_smb_shared_folder") do
+        require_relative "cap/mount_smb_shared_folder"
+        Cap::MountSMBSharedFolder
       end
 
       guest_capability("darwin", "mount_vmware_shared_folder") do

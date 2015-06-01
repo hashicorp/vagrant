@@ -48,7 +48,7 @@ the [common options for all Chef provisioners](/v2/provisioning/chef_common.html
 
 The easiest way to get started with the Chef Apply provisioner is to just
 specify an inline
-[Chef recipe](https://docs.getchef.com/essentials_cookbook_recipes.html). For
+[Chef recipe](http://docs.chef.io/recipes.html). For
 example:
 
 ```ruby

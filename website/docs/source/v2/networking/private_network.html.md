@@ -63,6 +63,9 @@ the [reserved private address space](http://en.wikipedia.org/wiki/Private_networ
 and most routers actually block traffic from going to them from the
 outside world.
 
+For some operating systems, additional configuration options for the static
+IP address are available such as setting the default gateway or MTU.
+
 ## Disable Auto-Configuration
 
 If you want to manually configure the network interface yourself, you
