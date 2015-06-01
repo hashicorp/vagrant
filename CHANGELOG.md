@@ -9,6 +9,8 @@ IMPROVEMENTS:
   - core: allow redirecting stdout and stderr in the UI [GH-5433]
   - core: update version of winrm-fs to 0.2.0 [GH-5738]
   - core: add option to enabled trusted http(s) redirects [GH-4422]
+  - core: capture additional information such as line numbers during
+    Vagrantfile loading [GH-4711, GH-5769]
   - guests/darwin: support inserting generated key [GH-5204]
   - guests/darwin: support mounting SMB shares [GH-5750]
   - guests/fedora: support Fedora 21. [GH-5277]
