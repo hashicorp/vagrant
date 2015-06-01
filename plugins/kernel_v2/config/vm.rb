@@ -449,11 +449,18 @@ module VagrantPlugins
             end
           rescue Exception => e
             @logger.error("Vagrantfile load error: #{e.message}")
+            @logger.error(e.inspect)
+            @logger.error(e.message)
             @logger.error(e.backtrace.join("\n"))
+
+            line = "(unknown)"
+            if e.backtrace && e.backtrace[0]
+              line = e.backtrace[0].split(":")[1]
+            end
 
             raise Vagrant::Errors::VagrantfileLoadError,
               path: "<provider config: #{name}>",
-              line: e.backtrace[0].split(':')[1],
+              line: line,
               exception_class: e.class,
               message: e.message
           end
