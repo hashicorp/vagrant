@@ -587,9 +587,14 @@ module VagrantPlugins
             result = raw("showvminfo", uuid)
             return true if result.exit_code == 0
 
-            # GH-2479: Sometimes this happens. In this case, retry. If
-            # we don't see this text, the VM really probably doesn't exist.
-            return false if !result.stderr.include?("CO_E_SERVER_EXEC_FAILURE")
+            # GH-2479: Sometimes this happens. In this case, retry.
+            #
+            # VirtualBox issue https://www.virtualbox.org/ticket/13190
+            # On Windows, `VBoxManage showvminfo` crashes specially after
+            # a suspend. This leads to a new VM being restart each time.
+            # Until fixed in VirtualBox, allow at least one retry even if
+            # stderr does not include CO_E_SERVER_EXEC_FAILURE.
+            return false if i >= 1 && !result.stderr.include?("CO_E_SERVER_EXEC_FAILURE")
 
             # Sleep a bit though to give VirtualBox time to fix itself
             sleep 2
