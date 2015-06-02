@@ -73,6 +73,12 @@ describe Vagrant::UI::Basic do
     end
   end
 
+  context "#color?" do
+    it "returns false" do
+      expect(subject.color?).to be(false)
+    end
+  end
+
   context "#detail" do
     it "outputs details" do
       expect(subject).to receive(:safe_puts).with { |message, **opts|
@@ -94,6 +100,12 @@ end
 
 describe Vagrant::UI::Colored do
   include_context "unit"
+
+  describe "#color?" do
+    it "returns true" do
+      expect(subject.color?).to be(true)
+    end
+  end
 
   describe "#detail" do
     it "colors output nothing by default" do
