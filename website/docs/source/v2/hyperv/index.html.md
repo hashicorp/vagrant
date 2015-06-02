@@ -14,7 +14,8 @@ of Hyper-V do not include the necessary APIs for Vagrant to work.
 
 Hyper-V must be enabled prior to using the provider. Most Windows installations
 will not have Hyper-V enabled by default. To enable Hyper-V, go to
-"Programs and Features" and check the box next to "Hyper-V."
+"Programs and Features", click on "Turn Windows features on or off" and check
+the box next to "Hyper-V."
 
 <div class="alert alert-block alert-warn">
 <strong>Warning:</strong> Enabling Hyper-V will cause VirtualBox, VMware,
