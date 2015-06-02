@@ -139,10 +139,12 @@ module Vagrant
     Config.run(version, &block)
   end
 
-  # This checks if a plugin with the given name is installed. This can
-  # be used from the Vagrantfile to easily branch based on plugin
-  # availability.
+  # This checks if a plugin with the given name is available (installed
+  # and enabled). This can be used from the Vagrantfile to easily branch
+  # based on plugin availability.
   def self.has_plugin?(name, version=nil)
+    return false unless Vagrant.plugins_enabled?
+
     if !version
       # We check the plugin names first because those are cheaper to check
       return true if plugin("2").manager.registered.any? { |p| p.name == name }
@@ -156,7 +158,7 @@ module Vagrant
     Plugin::Manager.instance.installed_specs.any? do |s|
       match = s.name == name
       next match if !version
-      next version.satisfied_by?(s.version)
+      next match && version.satisfied_by?(s.version)
     end
   end
 

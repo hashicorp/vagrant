@@ -173,7 +173,7 @@ module Vagrant
 
       Util::SafeChdir.safe_chdir(@directory) do
         # Find all the files in our current directory and tar it up!
-        files = Dir.glob(File.join(".", "**", "*"))
+        files = Dir.glob(File.join(".", "**", "*")).select { |f| File.file?(f) }
 
         # Package!
         Util::Subprocess.execute("bsdtar", "-czf", path.to_s, *files)

@@ -29,6 +29,7 @@ module VagrantPlugins
         attr_accessor :file_cache_path
         attr_accessor :file_backup_path
         attr_accessor :verbose_logging
+        attr_accessor :enable_reporting
 
         def initialize
           super
@@ -53,6 +54,7 @@ module VagrantPlugins
           @file_cache_path    = UNSET_VALUE
           @file_backup_path   = UNSET_VALUE
           @verbose_logging    = UNSET_VALUE
+          @enable_reporting   = UNSET_VALUE
 
           # Runner options
           @json     = {}
@@ -85,6 +87,7 @@ module VagrantPlugins
           @file_backup_path   = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
           @file_cache_path    = "/var/chef/cache"  if @file_cache_path == UNSET_VALUE
           @verbose_logging    = false if @verbose_logging == UNSET_VALUE
+          @enable_reporting   = true  if @enable_reporting == UNSET_VALUE
 
           if @encrypted_data_bag_secret_key_path == UNSET_VALUE
             @encrypted_data_bag_secret_key_path = nil

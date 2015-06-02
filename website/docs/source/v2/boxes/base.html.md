@@ -181,6 +181,13 @@ hard XP fan [this](http://stackoverflow.com/a/18593425/18475) may help you.
   - Disable "Shutdown Tracker"
   - Disable "Server Manager" starting at login (for non-Core)
 
+In addition to disabling UAC in the control panel, you also must disable
+UAC in the registry. This may vary from Windows version to Windows version,
+but Windows 8/8.1 use the command below. This will allow some things like
+automated Puppet installs to work within Vagrant Windows base boxes.
+
+    reg add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /d 0 /t REG_DWORD /f /reg:64
+
 ### Base WinRM Configuration
 
 To enable and configure WinRM you'll need to set the WinRM service to

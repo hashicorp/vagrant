@@ -49,7 +49,8 @@ module VagrantPlugins
             "4.0" => Version_4_0,
             "4.1" => Version_4_1,
             "4.2" => Version_4_2,
-            "4.3" => Version_4_3
+            "4.3" => Version_4_3,
+            "5.0" => Version_5_0,
           }
 
           if @version.start_with?("4.2.14")
@@ -152,7 +153,8 @@ module VagrantPlugins
               # This seems to happen on Windows for uncertain reasons.
               # Raise an error otherwise the error is that they have an
               # incompatible version of VirtualBox which isn't true.
-              raise Vagrant::Errors::VirtualBoxVersionEmpty
+              raise Vagrant::Errors::VirtualBoxVersionEmpty,
+                vboxmanage: @vboxmanage_path.to_s
             end
           end
 

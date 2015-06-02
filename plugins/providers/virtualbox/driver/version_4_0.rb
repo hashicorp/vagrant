@@ -265,6 +265,8 @@ module VagrantPlugins
                 info[:network_name] = "HostInterfaceNetworking-#{network}"
               elsif ip = line[/^IP:\s+(.+?)$/, 1]
                 info[:ip] = ip
+              elsif netmask = line[/^NetworkMask:\s+(.+?)$/, 1]
+                info[:netmask] = netmask
               elsif lower = line[/^lowerIPAddress:\s+(.+?)$/, 1]
                 info[:lower] = lower
               elsif upper = line[/^upperIPAddress:\s+(.+?)$/, 1]

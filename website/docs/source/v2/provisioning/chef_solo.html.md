@@ -8,7 +8,7 @@ sidebar_current: "provisioning-chefsolo"
 **Provisioner name: `chef_solo`**
 
 The Chef Solo provisioner allows you to provision the guest using
-[Chef](http://www.opscode.com/chef/), specifically with
+[Chef](https://www.chef.io/chef/), specifically with
 [Chef Solo](http://docs.opscode.com/chef_solo.html).
 
 Chef Solo is ideal for people who are already experienced with Chef,
@@ -64,7 +64,7 @@ the [common options for all Chef provisioners](/v2/provisioning/chef_common.html
 ## Specifying a Run List
 
 The easiest way to get started with the Chef Solo provisioner is to just
-specify a [run list](http://docs.opscode.com/essentials_node_object_run_lists.html). This looks like:
+specify a [run list](https://docs.chef.io/nodes.html#about-run-lists). This looks like:
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -119,7 +119,7 @@ end
 
 ## Roles
 
-Vagrant also supports provisioning with [Chef roles](http://docs.opscode.com/essentials_roles.html).
+Vagrant also supports provisioning with [Chef roles](http://docs.chef.io/roles.html).
 This is done by specifying a path to a roles folder where roles are defined
 and by adding roles to your run list:
 
@@ -145,7 +145,7 @@ Vagrant.
 
 ## Data Bags
 
-[Data bags](http://docs.opscode.com/essentials_data_bags.html) are also
+[Data bags](http://docs.chef.io/data_bags.html) are also
 supported by the Chef Solo provisioner. This is done by specifying
 a path to your data bags directory:
 

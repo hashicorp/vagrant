@@ -4,11 +4,13 @@
 $script = <<SCRIPT
 sudo apt-get -y update
 sudo apt-get -y install curl
+gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
 curl -sSL https://get.rvm.io | bash -s stable
 . ~/.bashrc
 . ~/.bash_profile
 rvm install 2.0.0
 rvm --default use 2.0.0
+gem install bundler
 cd /vagrant
 bundle
 SCRIPT

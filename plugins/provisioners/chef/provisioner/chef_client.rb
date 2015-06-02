@@ -39,7 +39,11 @@ module VagrantPlugins
           @machine.ui.info I18n.t("vagrant.provisioners.chef.client_key_folder")
           path = Pathname.new(@config.client_key_path)
 
-          @machine.communicate.sudo("mkdir -p #{path.dirname}")
+          if windows?
+            @machine.communicate.sudo("mkdir ""#{path.dirname}"" -f")
+          else
+            @machine.communicate.sudo("mkdir -p #{path.dirname}")
+          end
         end
 
         def upload_validation_key

@@ -71,7 +71,7 @@ module VagrantPlugins
           user = Process.uid
 
           File.read("/etc/exports").lines.each do |line|
-            if id = line[/^# VAGRANT-BEGIN:( #{user})? ([\.\/A-Za-z0-9\-_]+?)$/, 2]
+            if id = line[/^# VAGRANT-BEGIN:( #{user})? ([\.\/A-Za-z0-9\-_:]+?)$/, 2]
               if valid_ids.include?(id)
                 logger.debug("Valid ID: #{id}")
               else

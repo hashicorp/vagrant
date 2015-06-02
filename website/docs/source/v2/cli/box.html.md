@@ -148,7 +148,7 @@ what versions to delete with the `--box-version` flag.
 
 This command repackages the given box and puts it in the current
 directory so you can redistribute it. The name, provider, and version
-of the box can retrieved using `vagrant box list`.
+of the box can be retrieved using `vagrant box list`.
 
 When you add a box, Vagrant unpacks it and stores it internally. The
 original `*.box` file is not preserved. This command is useful for

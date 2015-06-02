@@ -27,6 +27,7 @@ module VagrantPlugins
       attr_accessor :box_download_checksum_type
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
+      attr_accessor :box_download_location_trusted
       attr_accessor :communicator
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
@@ -36,25 +37,28 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
-        @base_mac                     = UNSET_VALUE
-        @boot_timeout                 = UNSET_VALUE
-        @box                          = UNSET_VALUE
-        @box_check_update             = UNSET_VALUE
-        @box_download_ca_cert         = UNSET_VALUE
-        @box_download_ca_path         = UNSET_VALUE
-        @box_download_checksum        = UNSET_VALUE
-        @box_download_checksum_type   = UNSET_VALUE
-        @box_download_client_cert     = UNSET_VALUE
-        @box_download_insecure        = UNSET_VALUE
-        @box_url                      = UNSET_VALUE
-        @box_version                  = UNSET_VALUE
-        @communicator                 = UNSET_VALUE
-        @graceful_halt_timeout        = UNSET_VALUE
-        @guest                        = UNSET_VALUE
-        @hostname                     = UNSET_VALUE
-        @post_up_message              = UNSET_VALUE
-        @provisioners                 = []
-        @usable_port_range            = UNSET_VALUE
+        @logger = Log4r::Logger.new("vagrant::config::vm")
+
+        @base_mac                      = UNSET_VALUE
+        @boot_timeout                  = UNSET_VALUE
+        @box                           = UNSET_VALUE
+        @box_check_update              = UNSET_VALUE
+        @box_download_ca_cert          = UNSET_VALUE
+        @box_download_ca_path          = UNSET_VALUE
+        @box_download_checksum         = UNSET_VALUE
+        @box_download_checksum_type    = UNSET_VALUE
+        @box_download_client_cert      = UNSET_VALUE
+        @box_download_insecure         = UNSET_VALUE
+        @box_download_location_trusted = UNSET_VALUE
+        @box_url                       = UNSET_VALUE
+        @box_version                   = UNSET_VALUE
+        @communicator                  = UNSET_VALUE
+        @graceful_halt_timeout         = UNSET_VALUE
+        @guest                         = UNSET_VALUE
+        @hostname                      = UNSET_VALUE
+        @post_up_message               = UNSET_VALUE
+        @provisioners                  = []
+        @usable_port_range             = UNSET_VALUE
 
         # Internal state
         @__compiled_provider_configs   = {}
@@ -357,6 +361,7 @@ module VagrantPlugins
         @box_download_checksum_type = nil if @box_download_checksum_type == UNSET_VALUE
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
+        @box_download_location_trusted = false if @box_download_location_trusted == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
         @box_version = nil if @box_version == UNSET_VALUE
         @communicator = nil if @communicator == UNSET_VALUE
@@ -399,10 +404,15 @@ module VagrantPlugins
               host_ip: "127.0.0.1",
               id: "winrm",
               auto_correct: true
-          end
-        end
 
-        if !@__networks["forwarded_port-ssh"]
+            network :forwarded_port,
+              guest: 5986,
+              host: 55986,
+              host_ip: "127.0.0.1",
+              id: "winrm-ssl",
+              auto_correct: true
+          end
+        elsif !@__networks["forwarded_port-ssh"]
           network :forwarded_port,
             guest: 22,
             host: 2222,
@@ -438,8 +448,20 @@ module VagrantPlugins
               config = config.merge(new_config)
             end
           rescue Exception => e
+            @logger.error("Vagrantfile load error: #{e.message}")
+            @logger.error(e.inspect)
+            @logger.error(e.message)
+            @logger.error(e.backtrace.join("\n"))
+
+            line = "(unknown)"
+            if e.backtrace && e.backtrace[0]
+              line = e.backtrace[0].split(":")[1]
+            end
+
             raise Vagrant::Errors::VagrantfileLoadError,
               path: "<provider config: #{name}>",
+              line: line,
+              exception_class: e.class,
               message: e.message
           end
 

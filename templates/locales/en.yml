@@ -24,6 +24,8 @@ en:
       Downloading: %{url}
     box_download_error: |-
       Error downloading: %{message}
+    box_unpacking: |-
+      Unpacking necessary files from: %{url}
     box_expanding_url: |-
       URL: %{url}
     box_loading_metadata: |-
@@ -212,6 +214,7 @@ en:
       The provider ('%{provider}') for the machine '%{name}' is
       using a proxy machine. RSync will sync to this proxy
       instead of directly to the environment itself.
+    rsync_showing_output: "Showing rsync output..."
     rsync_ssh_password: |-
       The machine you're rsyncing folders to is configured to use
       password-based authentication. Vagrant can't script rsync to automatically
@@ -285,7 +288,7 @@ en:
         id_in_pre_import: |-
           The ':id' parameter is not available in "pre-import" customizations.
         intnet_on_bad_type: |-
-          VirtualBox internal networks can only be enabled on "private_networks"
+          VirtualBox internal networks can only be enabled on "private_network"
         invalid_event: |-
           %{event} is not a valid event for customization. Valid events
           are: %{valid_events}
@@ -1197,7 +1200,8 @@ en:
         a syntax error.
 
         Path: %{path}
-        Message: %{message}
+        Line number: %{line}
+        Message: %{exception_class}: %{message}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:
@@ -1696,10 +1700,10 @@ en:
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
-            Machine not provisioning because `--no-provision` is specified.
+            Machine not provisioned because `--no-provision` is specified.
           disabled_by_sentinel: |-
             Machine already provisioned. Run `vagrant provision` or use the `--provision`
-            to force provisioning. Provisioners marked to run always will still run.
+            flag to force provisioning. Provisioners marked to run always will still run.
         resume:
           resuming: Resuming suspended VM...
           unpausing: |-
@@ -1749,7 +1753,7 @@ en:
           packaging: "Packaging additional file: %{file}"
           compressing: "Compressing package to: %{tar_path}"
           output_exists: |-
-            The specified file to save the package as already exists. Please
+            The specified file '%{file_name}' to save the package as already exists. Please
             remove this file or specify a different file name for outputting.
           output_is_directory: |-
             The specified output is a directory. Please specify a path including
@@ -1852,11 +1856,17 @@ en:
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
         running_puppet: "Running Puppet with %{manifest}..."
+        running_puppet_env: "Running Puppet with environment %{environment}..."
         manifest_missing: |-
           The configured Puppet manifest is missing. Please specify a path to an
           existing manifest:
 
           %{manifest}
+        environment_missing: |-
+          The configured Puppet environment folder %{environment} was not found in the 
+          specified environmentpath %{environmentpath}.
+          Please specify a path to an existing Puppet directory environment.
+        environment_path_missing: "The environment path specified for Puppet does not exist: %{path}"
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
         missing_shared_folders: |-
           Shared folders that Puppet requires are missing on the virtual machine.
@@ -1908,9 +1918,9 @@ en:
 
       salt:
         minion_config_nonexist: |-
-          The specified minion_config file could not be found.
+          The specified minion_config '%{missing_config_file}' file could not be found.
         master_config_nonexist: |-
-          The specified master_config file could not be found.
+          The specified master_config '%{missing_config_file}' file could not be found.
         grains_config_nonexist: |-
           The specified grains_config file could not be found.
         missing_key: |-

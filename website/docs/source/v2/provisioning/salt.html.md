@@ -65,6 +65,10 @@ you can specify a branch, tag, or any treeish. Not supported on Windows.
 * `always_install`   (boolean) - Installs salt binaries even
  if they are already detected, default `false`
 
+* `bootstrap_script` (string) - Path to your customized salt-bootstrap.sh script.
+
+* `bootstrap_options` (string) - Additional command-line options to
+  pass to the bootstrap script.
 
 ## Minion Options
 These only make sense when `no_minion` is `false`.
@@ -82,7 +86,7 @@ public key
 ## Master Options
 These only make sense when `install_master` is `true`.
 
-* `master_config` (string, default: "salt/minion")
+* `master_config` (string, default: "salt/master")
   Path to a custom salt master config file
 
 * `master_key` (salt/key/master.pem) - Path to your master key

@@ -69,17 +69,6 @@ automated system, it might have been flagged as spam by your email provider. If
 you do not see the email there, please [contact support](mailto:support@hashicorp.com?subject=License Not Received)
 and include the original order number.
 
-**Q: Do you offer trial periods for the Vagrant VMware plugins?**<br>
-We do not offer a trial mechanism at this time, but we do offer a 30-day, no
-questions asked, 100% money-back guarantee. If you are not satisfied with the
-product, contact us within 30 days and you will receive a full refund.
-
-**Q: Do you offer educational discounts on the Vagrant VMware plugins?**<br>
-A select number of educational discounts are available for students, staff, and
-faculty. Please [contact support](mailto:support@hashicorp.com?subject=Educational Discounts&body=Hello support! I would like to learn more about educational discounts on the Vagrant VMware plugins. Thanks!) for more
-information. You will be asked to verify your status as an employee of active
-student.
-
 **Q: Do I need to keep the Vagrant VMware plugin license file on disk?**<br>
 After you have installed the Vagrant VMware plugin license, it is safe to remove
 your copy from disk. Vagrant copies the license into its structure for reference
@@ -90,16 +79,6 @@ Please [contact support](mailto:support@hashicorp.com?subject=Lost My License&bo
 please contact support using the email address with which you made the
 original purchase. If you use an alternate email, you will be asked to verify
 that you are the owner of the requested license.
-
-**Q: Where can I find the EULA for the Vagrant VMware plugins?**<br>
-The [EULA for the Vagrant VMware plugins](http://www.vagrantup.com/vmware/eula)
-is available on the Vagrant website.
-
-**Q: Do you offer bulk/volume discounts for the Vagrant VMware plugins?**<br>
-We certainly do! [Email support](mailto:support@hashicorp.com?subject=Bulk Discounts)
-with the number of licenses you need and we can give you bulk pricing
-information. Please note that bulk pricing requires the purchase of at least 150
-seats.
 
 **Q: I upgraded my VMware product and now my license is invalid?**<br>
 The Vagrant VMware plugin licenses are valid for specific VMware product
@@ -124,11 +103,6 @@ Sure! Even though the Vagrant VMware Fusion plugin and the Vagrant VMware
 Workstation plugin are different products, they are the same price and fall
 under the same EULA. As such, we can transfer the license for you. Please
 [contact support](mailto:support@hashicorp.com?subject=Transfer License).
-
-**Q: Since each license comes with two "seats", can I use one seat for the Vagrant VMware Fusion plugin and one seat for the Vagrant VMware Workstation plugin?**<br>
-Unfortunately this is not permitted. The Vagrant VMware Fusion plugin and the
-Vagrant VMware Workstation plugin are separate products and cannot be shared in
-this manner. We apologize for the inconvenience.
 
 **Q: How do I upgrade my currently installed Vagrant VMware plugin?**<br>
 You can update the Vagrant VMware plugin to the latest version by re-running the
