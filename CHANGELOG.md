@@ -12,6 +12,7 @@ IMPROVEMENTS:
   - core: capture additional information such as line numbers during
     Vagrantfile loading [GH-4711, GH-5769]
   - core: add .color? to UI objects to see if they support color [GH-5771]
+  - core: ignore hidden directories when searching for boxes [GH-5748, GH-5785]
   - guests/darwin: support inserting generated key [GH-5204]
   - guests/darwin: support mounting SMB shares [GH-5750]
   - guests/fedora: support Fedora 21 [GH-5277]
