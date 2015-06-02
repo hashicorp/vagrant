@@ -13,7 +13,7 @@ module VagrantPlugins
           options[:rm] = false
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant docker-exec [command...]"
+            o.banner = "Usage: vagrant docker-exec [options] -- <command>"
             o.separator ""
             o.separator "Options:"
             o.separator ""
@@ -61,7 +61,7 @@ module VagrantPlugins
             )
           end
 
-          0
+          return 0
         end
       end
     end

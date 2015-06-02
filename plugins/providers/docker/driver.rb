@@ -153,7 +153,7 @@ module VagrantPlugins
 
       def exec(params, **opts, &block)
         cmd      = Array(params.fetch(:cmd))
-        exec_cmd = %W(docker exec)
+        exec_cmd = %w(docker exec)
         exec_cmd << "-i" << "-t" if params[:pty]
         exec_cmd << params[:name]
         exec_cmd += params[:extra_args] if params[:extra_args]
