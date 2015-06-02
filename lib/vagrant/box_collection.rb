@@ -225,7 +225,7 @@ module Vagrant
           # we have.
           child.children(true).each do |versiondir|
             next if !versiondir.directory?
-            next if versiondir.basename.start_with(".") # Ignore hidden directories
+            next if versiondir.basename.start_with?(".") # Ignore hidden directories
 
             version = versiondir.basename.to_s
 
