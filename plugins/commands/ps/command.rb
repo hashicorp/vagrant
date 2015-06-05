@@ -50,9 +50,11 @@ module VagrantPlugins
           end
 
           if !options[:command].nil?
-            out_code = machine.communicate.execute(options[:command])
+            out_code = machine.communicate.execute(options[:command].dup) do |type,data|
+              machine.ui.detail(data) if type == :stdout
+            end
             if out_code == 0
-              machine.ui.detail("Command: #{options[:command]} executed succesfully with output code #{out_code}.")
+              machine.ui.success("Command: #{options[:command]} executed succesfully with output code #{out_code}.")
             end
             next
           end
