@@ -45,16 +45,16 @@ module VagrantPlugins
             raise Vagrant::Errors::VMNotCreatedError
           end
 
-          if machine.config.vm.communicator != :winrm #|| !machine.provider.capability?(:winrm_info)
+          if machine.config.vm.communicator != :winrm
             raise VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady
           end
 
           if !options[:command].nil?
-            out_code = machine.communicate.execute options[:command]
+            out_code = machine.communicate.execute(options[:command])
             if out_code == 0
               machine.ui.detail("Command: #{options[:command]} executed succesfully with output code #{out_code}.")
             end
-            break
+            next
           end
 
           ps_info = VagrantPlugins::CommunicatorWinRM::Helper.winrm_info(machine)
@@ -63,7 +63,7 @@ module VagrantPlugins
           # Extra arguments if we have any
           ps_info[:extra_args] = options[:extra_args]
 
-          result = ready_ps_remoting_for machine, ps_info
+          result = ready_ps_remoting_for(machine, ps_info)
 
           machine.ui.detail(
             "Creating powershell session to #{ps_info[:host]}:#{ps_info[:port]}")
@@ -73,7 +73,7 @@ module VagrantPlugins
             @env.host.capability(:ps_client, ps_info)
           ensure
             if !result["PreviousTrustedHosts"].nil?
-              reset_ps_remoting_for machine, ps_info
+              reset_ps_remoting_for(machine, ps_info)
             end
           end
         end

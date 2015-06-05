@@ -1,16 +1,16 @@
 en:
   vagrant_ps:
     detecting: |-
-      Detecting if a remote powershell connection can be made with the guest...
+      Detecting if a remote PowerShell connection can be made with the guest...
     reseting: |-
       Reseting WinRM TrustedHosts to their original value.
 
     errors:
       host_unsupported: |-
-        Your host does not support powershell. A remote powershell connection
+        Your host does not support PowerShell. A remote PowerShell connection
         can only be made from a windows host.
 
       ps_remoting_undetected: |-
-        Unable to establish a remote powershell connection with the guest. 
+        Unable to establish a remote PowerShell connection with the guest. 
         Check if the firewall rules on the guest allow connections to the 
-        windows remote management service.
+        Windows remote management service.
