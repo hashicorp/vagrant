@@ -12,7 +12,7 @@ module VagrantPlugins
       DESC
 
       command("ps") do
-        require_relative "../command"
+        require_relative "command"
         init!
         Command
       end
