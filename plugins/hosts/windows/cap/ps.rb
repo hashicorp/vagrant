@@ -22,21 +22,13 @@ module VagrantPlugins
           EOS
 
           logger.debug("Starting remote powershell with command:\n#{command}")
-          command = command.chars.to_a.join("\x00").chomp
-          command << "\x00" unless command[-1].eql? "\x00"
-          if(defined?(command.encode))
-            command = command.encode('ASCII-8BIT')
-            command = Base64.strict_encode64(command)
-          else
-            command = Base64.encode64(command).chomp
-          end
 
           args = ["-NoProfile"]
           args << "-ExecutionPolicy"
           args << "Bypass"
           args << "-NoExit"
           args << "-EncodedCommand"
-          args << command
+          args << ::WinRM::PowershellScript.new(command).encoded
           if ps_info[:extra_args]
             args << ps_info[:extra_args]
           end
