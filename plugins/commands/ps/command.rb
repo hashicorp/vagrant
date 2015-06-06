@@ -91,7 +91,7 @@ module VagrantPlugins
         args << "-password" << ps_info[:password]
         result = Vagrant::Util::PowerShell.execute(script_path, *args)
         if result.exit_code != 0
-          raise Errors::PowershellError,
+          raise Errors::PowerShellError,
             script: script_path,
             stderr: result.stderr
         end
@@ -108,7 +108,7 @@ module VagrantPlugins
         args << "-hostname" << ps_info[:host]
         result = Vagrant::Util::PowerShell.execute(script_path, *args)
         if result.exit_code != 0
-          raise Errors::PowershellError,
+          raise Errors::PowerShellError,
             script: script_path,
             stderr: result.stderr
         end
