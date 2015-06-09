@@ -21,9 +21,22 @@ module Vagrant
       # specific. See the implementation for more docs.
       attr_accessor :opts
 
+      # @return [IO] UI input. Defaults to `$stdin`.
+      attr_accessor :stdin
+
+      # @return [IO] UI output. Defaults to `$stdout`.
+      attr_accessor :stdout
+
+      # @return [IO] UI error output. Defaults to `$stderr`.
+      attr_accessor :stderr
+
       def initialize
         @logger   = Log4r::Logger.new("vagrant::ui::interface")
         @opts     = {}
+
+        @stdin  = $stdin
+        @stdout = $stdout
+        @stderr = $stderr
       end
 
       def initialize_copy(original)
@@ -48,6 +61,11 @@ module Vagrant
       [:clear_line, :report_progress].each do |method|
         # By default do nothing, these aren't logged
         define_method(method) { |*args| }
+      end
+
+      # @return [false]
+      def color?
+        return false
       end
 
       # For machine-readable output.
@@ -132,7 +150,7 @@ module Vagrant
         super(message)
 
         # We can't ask questions when the output isn't a TTY.
-        raise Errors::UIExpectsTTY if !$stdin.tty? && !Vagrant::Util::Platform.cygwin?
+        raise Errors::UIExpectsTTY if !@stdin.tty? && !Vagrant::Util::Platform.cygwin?
 
         # Setup the options so that the new line is suppressed
         opts ||= {}
@@ -144,11 +162,11 @@ module Vagrant
         say(:info, message, opts)
 
         input = nil
-        if opts[:echo]
-          input = $stdin.gets
+        if opts[:echo] || !@stdin.respond_to?(:noecho)
+          input = @stdin.gets
         else
           begin
-            input = $stdin.noecho(&:gets)
+            input = @stdin.noecho(&:gets)
 
             # Output a newline because without echo, the newline isn't
             # echoed either.
@@ -206,7 +224,7 @@ module Vagrant
 
         # Determine the proper IO channel to send this message
         # to based on the type of the message
-        channel = type == :error || opts[:channel] == :error ? $stderr : $stdout
+        channel = type == :error || opts[:channel] == :error ? @stderr : @stdout
 
         # Output! We wrap this in a lock so that it safely outputs only
         # one line at a time. We wrap this in a thread because as of Ruby 2.0
@@ -322,6 +340,11 @@ module Vagrant
         cyan:    36,
         white:   37,
       }
+
+      # @return [true]
+      def color?
+        return true
+      end
 
       # This is called by `say` to format the message for output.
       def format_message(type, message, **opts)

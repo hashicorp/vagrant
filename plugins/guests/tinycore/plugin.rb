@@ -16,6 +16,11 @@ module VagrantPlugins
         Cap::ConfigureNetworks
       end
 
+      guest_capability("tinycore", "change_host_name") do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
+
       guest_capability("tinycore", "halt") do
         require_relative "cap/halt"
         Cap::Halt

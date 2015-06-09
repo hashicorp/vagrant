@@ -496,10 +496,14 @@ module VagrantPlugins
 
         def share_folders(folders)
           folders.each do |folder|
+            hostpath = folder[:hostpath]
+            if Vagrant::Util::Platform.windows?
+              hostpath = Vagrant::Util::Platform.windows_unc_path(hostpath)
+            end
             args = ["--name",
               folder[:name],
               "--hostpath",
-              folder[:hostpath]]
+              hostpath]
             args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Enable symlinks on the shared folder

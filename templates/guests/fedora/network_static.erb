@@ -6,7 +6,11 @@ ONBOOT=yes
 IPADDR=<%= options[:ip] %>
 NETMASK=<%= options[:netmask] %>
 DEVICE=<%= options[:device] %>
-<%= options[:gateway] ? "GATEWAY=#{options[:gateway]}" : '' %>
-<%= options[:mac_address] ? "HWADDR=#{options[:mac_address]}" : '' %>
+<% if options[:gateway] %>
+GATEWAY=<%= options[:gateway] %>
+<% end %>
+<% if options[:mac_address] %>
+HWADDR=<%= options[:mac_address] %>
+<% end %>
 PEERDNS=no
 #VAGRANT-END

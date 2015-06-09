@@ -22,7 +22,7 @@ public boxes are made as.
 
 `config.ssh.password` - This sets a password that Vagrant will use to
 authenticate the SSH user. Note that Vagrant recommends you use key-based
-authentiation rather than a password (see `private_key_path`) below. If
+authentication rather than a password (see `private_key_path`) below. If
 you use a password, Vagrant will automatically insert a keypair if
 `insert_key` is true.
 

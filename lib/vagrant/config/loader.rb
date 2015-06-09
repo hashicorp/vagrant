@@ -209,9 +209,16 @@ module Vagrant
             @logger.error("Vagrantfile load error: #{e.message}")
             @logger.error(e.backtrace.join("\n"))
 
+            line = "(unknown)"
+            if e.backtrace && e.backtrace[0]
+              line = e.backtrace[0].split(":")[1]
+            end
+
             # Report the generic exception
             raise Errors::VagrantfileLoadError,
               path: path,
+              line: line,
+              exception_class: e.class,
               message: e.message
           end
         end

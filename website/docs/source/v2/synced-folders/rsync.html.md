@@ -62,6 +62,10 @@ The rsync synced folder type accepts the following options:
   pattern. By default, the ".vagrant/" directory is excluded. We recommend
   excluding revision control directories such as ".git/" as well.
 
+* `rsync__verbose` (boolean) - If true, then the output from the rsync
+  process will be echoed to the console. The output of rsync is subject
+  to rsync__args of course. By default, this is false.
+
 ## Example
 
 The following is an example of using RSync to sync a folder:

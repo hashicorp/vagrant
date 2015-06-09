@@ -9,7 +9,7 @@ sidebar_current: "provisioning-chefsolo"
 
 The Chef Solo provisioner allows you to provision the guest using
 [Chef](https://www.chef.io/chef/), specifically with
-[Chef Solo](http://docs.opscode.com/chef_solo.html).
+[Chef Solo](http://docs.chef.io/chef_solo.html).
 
 Chef Solo is ideal for people who are already experienced with Chef,
 already have Chef cookbooks, or are looking to learn Chef. Specifically,

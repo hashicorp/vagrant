@@ -225,6 +225,7 @@ module Vagrant
           # we have.
           child.children(true).each do |versiondir|
             next if !versiondir.directory?
+            next if versiondir.basename.to_s.start_with?(".")
 
             version = versiondir.basename.to_s
 
@@ -270,6 +271,8 @@ module Vagrant
 
         versions = box_directory.children(true).map do |versiondir|
           next if !versiondir.directory?
+          next if versiondir.basename.to_s.start_with?(".")
+
           version = versiondir.basename.to_s
           Gem::Version.new(version)
         end.compact

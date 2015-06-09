@@ -4,7 +4,6 @@ module VagrantPlugins
       class ChangeHostName
         def self.change_host_name(machine, name)
           if !machine.communicate.test("hostname | grep '^#{name}$'")
-            machine.communicate.sudo("sh -c 'echo \"#{name}\" > /etc/hostname'")
             machine.communicate.sudo("/usr/bin/sethostname #{name}")
           end
         end

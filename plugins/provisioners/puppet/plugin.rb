@@ -10,22 +10,22 @@ module VagrantPlugins
       DESC
 
       config(:puppet, :provisioner) do
-        require File.expand_path("../config/puppet", __FILE__)
+        require_relative "config/puppet"
         Config::Puppet
       end
 
       config(:puppet_server, :provisioner) do
-        require File.expand_path("../config/puppet_server", __FILE__)
+        require_relative "config/puppet_server"
         Config::PuppetServer
       end
 
       provisioner(:puppet) do
-        require File.expand_path("../provisioner/puppet", __FILE__)
+        require_relative "provisioner/puppet"
         Provisioner::Puppet
       end
 
       provisioner(:puppet_server) do
-        require File.expand_path("../provisioner/puppet_server", __FILE__)
+        require_relative "provisioner/puppet_server"
         Provisioner::PuppetServer
       end
     end

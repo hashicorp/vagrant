@@ -68,9 +68,16 @@ module VagrantPlugins
 
           # Some Ansible options must be passed as environment variables,
           # as there is no equivalent command line arguments
-          "ANSIBLE_FORCE_COLOR" => "true",
           "ANSIBLE_HOST_KEY_CHECKING" => "#{config.host_key_checking}",
         }
+
+        # When Ansible output is piped in Vagrant integration, its default colorization is
+        # automatically disabled and the only way to re-enable colors is to use ANSIBLE_FORCE_COLOR.
+        env["ANSIBLE_FORCE_COLOR"] = "true" if @machine.env.ui.color?
+        # Setting ANSIBLE_NOCOLOR is "unnecessary" at the moment, but this could change in the future
+        # (e.g. local provisioner [GH-2103], possible change in vagrant/ansible integration, etc.)
+        env["ANSIBLE_NOCOLOR"] = "true" if !@machine.env.ui.color?
+
         # ANSIBLE_SSH_ARGS is required for Multiple SSH keys, SSH forwarding and custom SSH settings
         env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
 
@@ -204,7 +211,7 @@ module VagrantPlugins
             " -p #{docker_host_ssh_info[:port]} -i #{docker_host_ssh_info[:private_key_path][0]}"
 
           # Use same options than plugins/providers/docker/communicator.rb
-          # Note: this could be improved (DRY'ed) by sharing these settings. 
+          # Note: this could be improved (DRY'ed) by sharing these settings.
           proxy_cmd += " -o Compression=yes -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
           proxy_cmd += " -o ForwardAgent=yes" if @ssh_info[:forward_agent]
@@ -219,7 +226,7 @@ module VagrantPlugins
 
         # Set IdentitiesOnly=yes to avoid authentication errors when the host has more than 5 ssh keys.
         # Notes:
-        #  - Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option. 
+        #  - Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option.
         #  - this could be improved by sharing logic with lib/vagrant/util/ssh.rb
         ssh_options << "-o IdentitiesOnly=yes" unless Vagrant::Util::Platform.solaris?
 
