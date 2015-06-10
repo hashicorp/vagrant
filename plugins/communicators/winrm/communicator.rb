@@ -134,12 +134,7 @@ module VagrantPlugins
         }.merge(opts || {})
 
         opts[:good_exit] = Array(opts[:good_exit])
-
-        if opts[:elevated]
-          guest_script_path = create_elevated_shell_script(command)
-          command = "powershell -executionpolicy bypass -file #{guest_script_path}"
-        end
-
+        command = wrap_in_scheduled_task(command) if opts[:elevated]
         output = shell.send(opts[:shell], command, &block)
         execution_output(output, opts)
       end
@@ -187,19 +182,15 @@ module VagrantPlugins
         )
       end
 
-      # Creates and uploads a PowerShell script which wraps the specified
-      # command in a scheduled task. The scheduled task allows commands to
-      # run on the guest as a true local admin without any of the restrictions
-      # that WinRM puts in place.
+      # Creates and uploads a PowerShell script which wraps a command in a
+      # scheduled task. The scheduled task allows commands to run on the guest
+      # as a true local admin without any of the restrictions that WinRM puts
+      # in place.
       #
-      # @return The path to elevated_shell.ps1 on the guest
-      def create_elevated_shell_script(command)
+      # @return The wrapper command to execute
+      def wrap_in_scheduled_task(command)
         path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
-        script = Vagrant::Util::TemplateRenderer.render(path, options: {
-          username: shell.username,
-          password: shell.password,
-          command: command.gsub("\"", "`\""),
-        })
+        script = Vagrant::Util::TemplateRenderer.render(path)
         guest_script_path = "c:/tmp/vagrant-elevated-shell.ps1"
         file = Tempfile.new(["vagrant-elevated-shell", "ps1"])
         begin
@@ -211,7 +202,15 @@ module VagrantPlugins
           file.close
           file.unlink
         end
-        guest_script_path
+
+        # convert to double byte unicode string then base64 encode
+        # just like PowerShell -EncodedCommand expects
+        wrapped_encoded_command = Base64.strict_encode64(
+          "#{command}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
+
+        "powershell -executionpolicy bypass -file \"#{guest_script_path}\" " +
+          "-username \"#{shell.username}\" -password \"#{shell.password}\" " +
+          "-encoded_command \"#{wrapped_encoded_command}\""
       end
 
       # Handles the raw WinRM shell result and converts it to a
