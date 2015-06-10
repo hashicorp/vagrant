@@ -33,7 +33,7 @@ module VagrantPlugins
           options[:mount_options] ||= []
           options[:mount_options] << "sec=ntlm"
           options[:mount_options] << "username=#{username}"
-          options[:mount_options] << "pass=#{smb_password}"
+          options[:mount_options] << "password=#{smb_password}"
           options[:mount_options] << "domain=#{domain}" if domain
 
           # First mount command uses getent to get the group
