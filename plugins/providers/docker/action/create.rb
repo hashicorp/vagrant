@@ -54,6 +54,9 @@ module VagrantPlugins
 
             # Remove container after execution
             params[:rm] = true if env[:exec_rm]
+
+            # machine id
+            params[:id] = @machine.id
           end
 
           if env[:machine_action] != :exec_command
