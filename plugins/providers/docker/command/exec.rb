@@ -11,6 +11,7 @@ module VagrantPlugins
           options[:detach] = false
           options[:pty] = false
           options[:rm] = false
+          options[:prefix] = false
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant docker-exec [options] -- <command>"
@@ -24,6 +25,10 @@ module VagrantPlugins
 
             o.on("-t", "--[no-]tty", "Allocate a pty") do |t|
               options[:pty] = t
+            end
+
+            o.on("--[no-]prefix", "Prefix output with machine names") do |p|
+              options[:prefix] = p
             end
           end
 
@@ -57,7 +62,8 @@ module VagrantPlugins
               exec_command: command,
               exec_detach: options[:detach],
               exec_pty: options[:pty],
-              exec_rm: options[:rm]
+              exec_rm: options[:rm],
+              exec_prefix: options[:prefix]
             )
           end
 

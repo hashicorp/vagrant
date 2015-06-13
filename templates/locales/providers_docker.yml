@@ -57,7 +57,7 @@ en:
       to separate machine name and options from the actual command to
       execute. An example is show below:
 
-        vagrant docker-exec web -- rails new .
+        vagrant docker-exec -t -- bash
 
     running: |-
       Container is starting. Output will stream in below...

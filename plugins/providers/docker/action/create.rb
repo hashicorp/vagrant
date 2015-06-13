@@ -87,6 +87,8 @@ module VagrantPlugins
           elsif env[:machine_action] == :exec_command
             ui_opts = {}
 
+            ui_opts[:prefix] = env[:exec_prefix]
+
             # If we're running with a pty, we want the output to look as
             # authentic as possible. We don't prefix things and we don't
             # output a newline.
