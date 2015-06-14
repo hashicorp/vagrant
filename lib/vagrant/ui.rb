@@ -63,6 +63,11 @@ module Vagrant
         define_method(method) { |*args| }
       end
 
+      # @return [false]
+      def color?
+        return false
+      end
+
       # For machine-readable output.
       #
       # @param [String] type The type of the data
@@ -335,6 +340,11 @@ module Vagrant
         cyan:    36,
         white:   37,
       }
+
+      # @return [true]
+      def color?
+        return true
+      end
 
       # This is called by `say` to format the message for output.
       def format_message(type, message, **opts)

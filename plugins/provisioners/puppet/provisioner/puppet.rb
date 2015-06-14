@@ -182,7 +182,7 @@ module VagrantPlugins
             options << "--hiera_config=#{@hiera_config_path}"
           end
 
-          if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
+          if !@machine.env.ui.color?
             options << "--color=false"
           end
 

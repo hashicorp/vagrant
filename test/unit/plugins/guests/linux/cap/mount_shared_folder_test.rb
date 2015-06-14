@@ -18,7 +18,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSharedFolder" do
 
     describe ".mount_shared_folder" do
       describe "with a domain" do
-        let(:mount_command) { "mount -t cifs -o uid=`id -u `,gid=`getent group  | cut -d: -f3`,sec=ntlm,username=user,pass=pass,domain=domain //host/name " }
+        let(:mount_command) { "mount -t cifs -o uid=`id -u `,gid=`getent group  | cut -d: -f3`,sec=ntlm,username=user,password=pass,domain=domain //host/name " }
         before do
           communicator.expect_command mount_command
           communicator.stub_command mount_command, exit_code: 0
@@ -29,7 +29,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSharedFolder" do
         end
       end
       describe "without a domain" do
-        let(:mount_command) { "mount -t cifs -o uid=`id -u `,gid=`getent group  | cut -d: -f3`,sec=ntlm,username=user,pass=pass //host/name " }
+        let(:mount_command) { "mount -t cifs -o uid=`id -u `,gid=`getent group  | cut -d: -f3`,sec=ntlm,username=user,password=pass //host/name " }
         before do
           communicator.expect_command mount_command
           communicator.stub_command mount_command, exit_code: 0

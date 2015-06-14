@@ -11,6 +11,8 @@ IMPROVEMENTS:
   - core: add option to enabled trusted http(s) redirects [GH-4422]
   - core: capture additional information such as line numbers during
     Vagrantfile loading [GH-4711, GH-5769]
+  - core: add .color? to UI objects to see if they support color [GH-5771]
+  - core: ignore hidden directories when searching for boxes [GH-5748, GH-5785]
   - guests/darwin: support inserting generated key [GH-5204]
   - guests/darwin: support mounting SMB shares [GH-5750]
   - guests/fedora: support Fedora 21 [GH-5277]
@@ -86,6 +88,7 @@ BUG FIXES:
   - pushes/atlas: send additional box metadata [GH-5283]
   - pushes/ftp: improve check for remote directory existence [GH-5549]
   - synced\_folders/rsync: add `IdentitiesOnly=yes` to the rsync command. [GH-5175]
+  - synced\_folders/smb: use correct `password` option [GH-5805]
   - virtualbox/config: fix misleading error message for private_network [GH-5536, GH-5418]
 
 ## 1.7.2 (January 6, 2015)
