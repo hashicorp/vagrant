@@ -69,6 +69,12 @@ end
 require "bundler"
 begin
   Bundler.setup(:default, :plugins)
+# Invalidate the cached Gemfile.lock if necessary and try again
+rescue Bundler::GemNotFound
+  FileUtils.rm File.expand_path("~/.vagrant.d/Gemfile") if File.exists? File.expand_path("~/.vagrant.d/Gemfile")
+  FileUtils.rm File.expand_path("~/.vagrant.d/Gemfile.lock") if File.exists? File.expand_path("~/.vagrant.d/Gemfile.lock")
+
+  Bundler.setup(:default, :plugins)
 rescue Bundler::GemNotFound
   $stderr.puts "Bundler, the underlying system used to manage Vagrant plugins,"
   $stderr.puts "is reporting that a plugin or its dependency can't be found."

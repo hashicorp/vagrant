@@ -63,6 +63,13 @@ module Vagrant
       @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
       @configfile.close
 
+      # Ensure the path to user's Gemfile exists
+      gemfile = Vagrant.user_data_path.join("Gemfile")
+      unless File.exists? gemfile
+        FileUtils.mkdir_p(File.dirname(gemfile))
+        File.open(gemfile, 'w') {}
+      end
+
       # Build up the Gemfile for our Bundler context. We make sure to
       # lock Vagrant to our current Vagrant version. In addition to that,
       # we add all our plugin dependencies.
@@ -141,7 +148,7 @@ module Vagrant
 
     # Clean removes any unused gems.
     def clean(plugins)
-      gemfile    = build_gemfile(plugins)
+      gemfile    = build_gemfile(plugins, false, true)
       lockfile   = "#{gemfile.path}.lock"
       definition = ::Bundler::Definition.build(gemfile, lockfile, nil)
       root       = File.dirname(gemfile.path)
@@ -172,11 +179,24 @@ module Vagrant
     # Builds a valid Gemfile for use with Bundler given the list of
     # plugins.
     #
+    # @param [Hash|Bool] update Hash of gems to update or true for all
+    # @param [Bool] invalidate Invalidate Gemfile.lock
     # @return [Tempfile]
-    def build_gemfile(plugins)
+    def build_gemfile(plugins, update = false, invalidate = false)
       sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
 
-      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      # Determine what gems to update
+      if update.is_a? Hash
+        update_gems = update[:gems]
+      elsif update === true
+        update_gems = plugins.map{ |p| p[0] }
+      else
+        update_gems = []
+      end
+
+      gemfile = Vagrant.user_data_path.join("Gemfile")
+      f = File.open(gemfile, "w+")
+
       f.tap do |gemfile|
         if !sources.include?("http://rubygems.org")
           gemfile.puts(%Q[source "https://rubygems.org"])
@@ -190,6 +210,19 @@ module Vagrant
 
         gemfile.puts(%Q[gem "vagrant", "= #{VERSION}"])
 
+        locked_gems = []
+
+        # Use Gemfile.lock to lock the gem versions
+        if ENV["VAGRANT_INTERNAL_BUNDLERIZED"] && File.exist?("#{gemfile.path}.lock") && !invalidate
+          lockfile = ::Bundler::LockfileParser.new(::Bundler.read_file("#{gemfile.path}.lock"))
+          lockfile.specs.each do |s|
+            if s.name != 'vagrant' && !(update_gems.include? s.name)
+              gemfile.puts(%Q[gem "#{s.name}", "#{s.version.to_s}"])
+            end
+          end
+          locked_gems = lockfile.specs.map(&:name) - update_gems
+        end
+
         gemfile.puts("group :plugins do")
         plugins.each do |name, plugin|
           version = plugin["gem_version"]
@@ -199,13 +232,19 @@ module Vagrant
           if plugin["require"] && plugin["require"] != ""
             opts[:require] = plugin["require"]
           end
-
-          gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}])
+          gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}]) unless locked_gems.include? name
         end
         gemfile.puts("end")
-
         gemfile.close
       end
+
+      # Create Gemfile.lock if missing and re-generate Gemfile
+      if !File.exist?("#{f.path}.lock") && File.exist?(f.path)
+        lockfile = "#{f.path}.lock"
+        ENV['BUNDLE_GEMFILE'] = f.path
+        definition = ::Bundler::Definition.build(f.path, lockfile, false)
+      end
+      f
     end
 
     # This installs a set of plugins and optionally updates those gems.
@@ -215,7 +254,7 @@ module Vagrant
     #   can be a hash of options. See Bundler.definition.
     # @return [Array<Gem::Specification>]
     def internal_install(plugins, update, **extra)
-      gemfile    = build_gemfile(plugins)
+      gemfile    = build_gemfile(plugins, update)
       lockfile   = "#{gemfile.path}.lock"
       definition = ::Bundler::Definition.build(gemfile, lockfile, update)
       root       = File.dirname(gemfile.path)
