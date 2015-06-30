@@ -30,11 +30,6 @@ module VagrantPlugins
         require_relative "cap/flavor"
         Cap::Flavor
       end
-
-      guest_capability("fedora", "nfs_client_install") do
-        require_relative "cap/nfs_client"
-        Cap::NFSClient
-      end
     end
   end
 end
