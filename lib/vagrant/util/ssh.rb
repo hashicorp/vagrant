@@ -158,17 +158,20 @@ module Vagrant
         # we really don't care since both work.
         ENV["nodosfilewarning"] = "1" if Platform.cygwin?
 
+        ssh = ssh_info[:ssh_command] || 'ssh'
+
         # Invoke SSH with all our options
         if !opts[:subprocess]
-          LOGGER.info("Invoking SSH: #{command_options.inspect}")
-          SafeExec.exec("ssh", *command_options)
+          LOGGER.info("Invoking SSH: #{ssh} #{command_options.inspect}")
+          # msabramo
+          SafeExec.exec(ssh, *command_options)
           return
         end
 
         # If we're still here, it means we're supposed to subprocess
         # out to ssh rather than exec it.
-        LOGGER.info("Executing SSH in subprocess: #{command_options.inspect}")
-        process = ChildProcess.build("ssh", *command_options)
+        LOGGER.info("Executing SSH in subprocess: #{ssh} #{command_options.inspect}")
+        process = ChildProcess.build(ssh, *command_options)
         process.io.inherit!
         process.start
         process.wait
