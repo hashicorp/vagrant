@@ -76,7 +76,7 @@ module VagrantPlugins
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config
+        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config or @config.version
       end
 
       def need_install
@@ -237,6 +237,9 @@ module VagrantPlugins
 
           bootstrap_path = get_bootstrap
           if @machine.config.vm.communicator == :winrm
+            if @config.version
+              options = "-version %s" % @config.version            
+            end
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.ps1")
           else
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
@@ -248,7 +251,7 @@ module VagrantPlugins
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
           if @machine.config.vm.communicator == :winrm
-            bootstrap = @machine.communicate.sudo("powershell.exe -executionpolicy bypass -file %s" % [bootstrap_destination]) do |type, data|
+            bootstrap = @machine.communicate.sudo("powershell.exe -executionpolicy bypass -file %s %s" % [bootstrap_destination, options]) do |type, data|
               if data[0] == "\n"
                 # Remove any leading newline but not whitespace. If we wanted to
                 # remove newlines and whitespace we would have used data.lstrip
