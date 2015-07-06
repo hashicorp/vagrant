@@ -444,7 +444,7 @@ module Vagrant
       end
 
       # If we have a private key in our data dir, then use that
-      if @data_dir
+      if @data_dir && !@config.ssh.private_key_path
         data_private_key = @data_dir.join("private_key")
         if data_private_key.file?
           info[:private_key_path] = [data_private_key.to_s]

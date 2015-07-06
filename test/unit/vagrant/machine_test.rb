@@ -667,6 +667,17 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:password]).to eql("")
       end
 
+      it "should return the private key in the Vagrantfile if the data dir exists" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = "/foo"
+
+        instance.data_dir.join("private_key").open("w+") do |f|
+          f.write("hey")
+        end
+
+        expect(instance.ssh_info[:private_key_path]).to eql(["/foo"])
+      end
+
       context "with no data dir" do
         let(:base)     { true }
         let(:data_dir) { nil }
