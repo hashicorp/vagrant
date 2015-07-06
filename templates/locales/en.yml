@@ -1145,6 +1145,13 @@ en:
         permissions on the following file to 0600 and then try running this command again:
 
         %{key_path}
+
+        Note that this error occurs after Vagrant automatically tries to
+        do this for you. The likely cause of this error is a lack of filesystem
+        permissions or even filesystem functionality. For example, if your
+        Vagrant data is on a USB stick, a common case is that chmod is
+        not supported. The key will need to be moved to a filesystem that
+        supports chmod.
       ssh_key_type_not_supported: |-
         The private key you're attempting to use with this Vagrant box uses
         an unsupported encryption type. The SSH library Vagrant uses does not support
