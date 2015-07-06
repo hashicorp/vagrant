@@ -36,6 +36,7 @@ IMPROVEMENTS:
   - provisioners/salt: update to 2015.5.2 [GH-4152, GH-5437]
   - provisioners/salt: support specifying version to install [GH-5892]
   - provisioners/shell: add :name attribute to shell provisioner [GH-5607]
+  - providers/docker: supports file downloads with the file provisioner [GH-5651]
   - providers/hyperv: select a Hyper-V switch based on a `network_name` [GH-5207]
   - providers/hyperv: allow configuring VladID [GH-5539]
   - providers/virtualbox: regexp supported for bridge configuration [GH-5320]
