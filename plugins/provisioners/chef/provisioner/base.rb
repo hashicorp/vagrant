@@ -132,7 +132,8 @@ module VagrantPlugins
 
           # Get the JSON that we're going to expose to Chef
           json = @config.json
-          json[:run_list] = @config.run_list if !@config.run_list.empty?
+          json[:run_list] = @config.run_list if @config.run_list &&
+            !@config.run_list.empty?
           json = JSON.pretty_generate(json)
 
           # Create a temporary file to store the data so we
