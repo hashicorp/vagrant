@@ -20,6 +20,8 @@ en:
       Adding box '%{name}' (v%{version}) for provider: %{providers}
     box_added: |-
       Successfully added box '%{name}' (v%{version}) for '%{provider}'!
+    box_adding_direct: |-
+      Box file was not detected as metadata. Adding it directly...
     box_downloading: |-
       Downloading: %{url}
     box_download_error: |-

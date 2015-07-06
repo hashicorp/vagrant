@@ -115,6 +115,8 @@ module Vagrant
         # @param [Array<String>] urls
         # @param [Hash] env
         def add_direct(urls, env)
+          env[:ui].output(I18n.t("vagrant.box_adding_direct"))
+
           name = env[:box_name]
           if !name || name == ""
             raise Errors::BoxAddNameRequired
