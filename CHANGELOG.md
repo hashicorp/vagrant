@@ -60,6 +60,8 @@ BUG FIXES:
       characters [GH-4815]
   - communicators/winrm: improve error handling significantly and improve
       the error messages shown to be more human-friendly. [GH-4943]
+  - communicators/winrm: remove plaintext passwords from files after
+      provisioner is complete [GH-5818]
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
   - guests/darwin: remove dots from LocalHostName [GH-5558]
   - guests/debian: Halt works properly on Debian 8. [GH-5369]
