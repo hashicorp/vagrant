@@ -120,9 +120,13 @@ module VagrantPlugins
         opts[:nfs_udp] = true if !opts.key?(:nfs_udp)
         opts[:nfs_version] ||= 3
 
+        # We need to store machine UUID so we could detect
+        # no longer valid exports on prune action.
+        opts[:uuid] = machine.id
+
         # We use a CRC32 to generate a 32-bit checksum so that the
         # fsid is compatible with both old and new kernels.
-        opts[:uuid] = Zlib.crc32(opts[:hostpath]).to_s
+        opts[:fsid] = Zlib.crc32(opts[:hostpath]).to_s
       end
 
       # Prepares the UID/GID settings for a single folder.
