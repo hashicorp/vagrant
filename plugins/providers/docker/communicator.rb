@@ -31,7 +31,17 @@ module VagrantPlugins
       end
 
       def download(from, to)
-        raise "NOT IMPLEMENTED YET"
+        # Same process as upload, but in reverse
+
+        # First, we use `cat` to copy that file from the Docker container.
+        temp = "/tmp/docker_d#{Time.now.to_i}_#{rand(100000)}"
+        @host_vm.communicate.execute("#{container_ssh_command} 'cat #{from}' >#{temp}")
+
+        # Then, we download this from the host VM.
+        @host_vm.communicate.download(temp, to)
+
+        # Remove the temporary file
+        @host_vm.communicate.execute("rm -f #{temp}", error_check: false)
       end
 
       def execute(command, **opts, &block)
