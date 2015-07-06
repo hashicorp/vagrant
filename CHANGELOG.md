@@ -48,6 +48,7 @@ BUG FIXES:
   - core: do not report plugins as installed when plugins are disabled [GH-5698, GH-5430]
   - core: Only take files when packaging a box to avoid duplicates [GH-5658, GH-5657]
   - core: escape curl urls and authentication [GH-5677]
+  - core: fix crash if a value is missing for CLI arguments [GH-5550]
   - core/cli: fix box checksum validation [GH-4665, GH-5221]
   - core/windows: allow Windows UNC paths to allow more than 256
       characters [GH-4815]
