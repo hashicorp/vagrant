@@ -76,6 +76,7 @@ BUG FIXES:
       permissions are available [GH-5773]
   - guests/openbsd: output newline after inserted public key [GH-5881]
   - guests/tinycore: fix change hostname functionality [GH-5623]
+  - guests/ubuntu: use `hostnamectl` to set hostname on Ubuntu Vivid [GH-5753]
   - guests/windows: Create rsync folder prior to rsync-ing. [GH-5282]
   - guests/windows: Changing hostname requires reboot again since
       the non-reboot code path was crashing Windows server. [GH-5261]
