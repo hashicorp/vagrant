@@ -27,7 +27,7 @@ module Vagrant
         @destination = destination.to_s
 
         begin
-          url = URI.parse(URI.escape(@source))
+          url = URI.parse(@source)
           if url.scheme && url.scheme.start_with?("http") && url.user
             auth = "#{URI.unescape(url.user)}"
             auth += ":#{URI.unescape(url.password)}" if url.password
