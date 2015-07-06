@@ -89,6 +89,8 @@ BUG FIXES:
   - provisioners/docker: use `service` to restart Docker instad of upstart [GH-5245, GH-5577]
   - provisioners/docker: Only add docker user to group if exists. [GH-5315]
   - provisioners/docker: Use https for repo [GH-5749]
+  - provisioners/docker: `apt-get update` before installing linux kernel
+      images to get the correct version [GH-5860]
   - provisioners/chef: Use `command -v` to check for binary instead of
       `which` since that doesn't exist on some systems. [GH-5170]
   - provisioners/chef-zero: support more chef-zero/local mode attributes [GH-5339]
