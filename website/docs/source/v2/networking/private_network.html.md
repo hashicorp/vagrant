@@ -77,3 +77,7 @@ Vagrant.configure("2") do |config|
     auto_config: false
 end
 ```
+
+If you already started the Vagrant environment before setting `auto_config`,
+the files it initially placed there will stay there. You'll have to remove
+those files manually or destroy and recreate the machine.
