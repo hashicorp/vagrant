@@ -25,7 +25,7 @@ module Vagrant
       def initialize(*command)
         @options = command.last.is_a?(Hash) ? command.pop : {}
         @command = command.dup
-        @command.each { |s| s.encode(Encoding.default_external) }
+        @command = @command.map { |s| s.encode(Encoding.default_external) }
         @command[0] = Which.which(@command[0]) if !File.file?(@command[0])
         if !@command[0]
           raise Errors::CommandUnavailableWindows, file: command[0] if Platform.windows?
