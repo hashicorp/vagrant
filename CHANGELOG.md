@@ -61,6 +61,8 @@ BUG FIXES:
   - guests/fedora: do not use biosdevname if it is not installed [GH-5707]
   - guests/freebsd: provide an argument to the backup file [GH-5516, GH-5517]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
+  - guests/linux: fix edge case exception where no home directory
+      is available on guest [GH-5846]
   - guests/openbsd: output newline after inserted public key [GH-5881]
   - guests/tinycore: fix change hostname functionality [GH-5623]
   - guests/windows: Create rsync folder prior to rsync-ing. [GH-5282]
