@@ -91,6 +91,7 @@ BUG FIXES:
       `which` since that doesn't exist on some systems. [GH-5170]
   - provisioners/chef-zero: support more chef-zero/local mode attributes [GH-5339]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
+  - provisioners/file: validation of source is relative to Vagrantfile [GH-5252]
   - pushes/atlas: send additional box metadata [GH-5283]
   - pushes/ftp: improve check for remote directory existence [GH-5549]
   - synced\_folders/rsync: add `IdentitiesOnly=yes` to the rsync command. [GH-5175]
