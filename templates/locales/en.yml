@@ -1231,6 +1231,13 @@ en:
         Command: %{command}
 
         Stderr: %{stderr}
+      vboxmanage_launch_error: |-
+        There was an error running VBoxManage. This is usually a permissions
+        problem or installation problem with VirtualBox itself, and not Vagrant.
+        Please note the error message below (if any), resolve the issue, and
+        try Vagrant again.
+
+        %{message}
       vboxmanage_not_found_error: |-
         The "VBoxManage" command or one of its dependencies could not
         be found. Please verify VirtualBox is properly installed. You can verify
@@ -1863,7 +1870,7 @@ en:
 
           %{manifest}
         environment_missing: |-
-          The configured Puppet environment folder %{environment} was not found in the 
+          The configured Puppet environment folder %{environment} was not found in the
           specified environmentpath %{environmentpath}.
           Please specify a path to an existing Puppet directory environment.
         environment_path_missing: "The environment path specified for Puppet does not exist: %{path}"
