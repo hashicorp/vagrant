@@ -480,6 +480,12 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(sf["/vagrant"][:disabled]).to be_false
       expect(sf["/vagrant"][:foo]).to eq(:bar)
     end
+
+    it "is not an error if guest path is empty" do
+      subject.synced_folder(".", "")
+      subject.finalize!
+      assert_valid
+    end
   end
 
   describe "#usable_port_range" do

@@ -603,16 +603,18 @@ module VagrantPlugins
           guestpath = Pathname.new(options[:guestpath])
           hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
-          if guestpath.relative? && guestpath.to_s !~ /^\w+:/
-            errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
-                             path: options[:guestpath])
-          else
-            if used_guest_paths.include?(options[:guestpath])
-              errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_duplicate",
+          if guestpath.to_s != ""
+            if guestpath.relative? && guestpath.to_s !~ /^\w+:/
+              errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
                                path: options[:guestpath])
-            end
+            else
+              if used_guest_paths.include?(options[:guestpath])
+                errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_duplicate",
+                                 path: options[:guestpath])
+              end
 
-            used_guest_paths.add(options[:guestpath])
+              used_guest_paths.add(options[:guestpath])
+            end
           end
 
           if !hostpath.directory? && !options[:create]
