@@ -408,6 +408,9 @@ en:
         GUI often has more helpful error messages than Vagrant can retrieve.
         For example, if you're using VirtualBox, run `vagrant up` while the
         VirtualBox GUI is open.
+
+        The primary issue for this error is that the provider you're using
+        is not properly configured. This is very rarely a Vagrant issue.
       boot_timeout: |-
         Timed out while waiting for the machine to boot. This means that
         Vagrant was unable to communicate with the guest machine within
