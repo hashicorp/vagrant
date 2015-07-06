@@ -1,5 +1,9 @@
 ## 1.7.3 (unreleased)
 
+FEATURES:
+
+  - **New guest: `atomic`* - Project Atomic is supported as a guest
+
 IMPROVEMENTS:
 
   - core: add password authentication to rdp_info hash [GH-4726]
