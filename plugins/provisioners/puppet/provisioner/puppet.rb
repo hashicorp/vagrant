@@ -32,6 +32,7 @@ module VagrantPlugins
           folder_opts[:type] = @config.synced_folder_type if @config.synced_folder_type
           folder_opts[:owner] = "root" if !@config.synced_folder_type
           folder_opts[:args] = @config.synced_folder_args if @config.synced_folder_args
+          folder_opts[:nfs__quiet] = true
 
           if @config.environment_path.is_a?(Array)
             # Share the environments directory with the guest

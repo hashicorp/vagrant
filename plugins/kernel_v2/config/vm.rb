@@ -620,7 +620,7 @@ module VagrantPlugins
                              path: options[:hostpath])
           end
 
-          if options[:type] == :nfs
+          if options[:type] == :nfs && !options[:nfs__quiet]
             if options[:owner] || options[:group]
               # Owner/group don't work with NFS
               errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
