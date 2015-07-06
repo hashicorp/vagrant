@@ -75,6 +75,7 @@ module VagrantPlugins
       def finalize!
         @address = nil if @address == UNSET_VALUE
         @token = nil if @token == UNSET_VALUE
+        @token = ENV["ATLAS_TOKEN"] if !@token && ENV["ATLAS_TOKEN"] != ""
         @app = nil if @app == UNSET_VALUE
         @dir = "." if @dir == UNSET_VALUE
         @uploader_path = nil if @uploader_path == UNSET_VALUE
