@@ -31,7 +31,7 @@ describe "templates/guests/debian/network_dhcp" do
         auto eth
         iface eth inet dhcp
             # We need to disable eth0, see GH-2648
-            post-up route del default dev eth0
+            post-up route del default dev eth0 || true
             post-up dhclient $IFACE
             pre-down route add default dev eth0
         #VAGRANT-END
