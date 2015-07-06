@@ -106,6 +106,7 @@ BUG FIXES:
   - pushes/ftp: improve check for remote directory existence [GH-5549]
   - synced\_folders/rsync: add `IdentitiesOnly=yes` to the rsync command. [GH-5175]
   - synced\_folders/smb: use correct `password` option [GH-5805]
+  - synced\_folders/smb: prever IPv4 over IPv6 address to mount [GH-5798]
   - virtualbox/config: fix misleading error message for private_network [GH-5536, GH-5418]
 
 ## 1.7.2 (January 6, 2015)
