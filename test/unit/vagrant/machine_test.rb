@@ -424,6 +424,21 @@ describe Vagrant::Machine do
       third = new_instance
       expect(third.id).to be_nil
     end
+
+    it "should set the UID that created the machine" do
+      instance.id = "foo"
+
+      second = new_instance
+      expect(second.uid).to eq(Process.uid.to_s)
+    end
+
+    it "should delete the UID when the id is nil" do
+      instance.id = "foo"
+      instance.id = nil
+
+      second = new_instance
+      expect(second.uid).to be_nil
+    end
   end
 
   describe "#index_uuid" do

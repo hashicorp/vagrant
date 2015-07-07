@@ -279,6 +279,13 @@ module Vagrant
           end
         end
 
+        if uid_file
+          # Write the user id that created this machine
+          uid_file.open("w+") do |f|
+            f.write(Process.uid.to_s)
+          end
+        end
+
         # If we don't have a UUID, then create one
         if index_uuid.nil?
           # Create the index entry and save it
@@ -311,6 +318,7 @@ module Vagrant
       else
         # Delete the file, since the machine is now destroyed
         id_file.delete if id_file && id_file.file?
+        uid_file.delete if uid_file && uid_file.file?
 
         # If we have a UUID associated with the index, remove it
         uuid = index_uuid
@@ -495,6 +503,17 @@ module Vagrant
       result
     end
 
+    # Returns the user ID that created this machine. This is specific to
+    # the host machine that this was created on.
+    #
+    # @return [String]
+    def uid
+      path = uid_file
+      return nil if !path
+      return nil if !path.file?
+      return uid_file.read.chomp
+    end
+
     # Temporarily changes the machine UI. This is useful if you want
     # to execute an {#action} with a different UI.
     def with_ui(ui)
@@ -507,6 +526,14 @@ module Vagrant
           @ui = old_ui
         end
       end
+    end
+
+    protected
+
+    # Returns the path to the file that stores the UID.
+    def uid_file
+      return nil if !@data_dir
+      @data_dir.join("creator_uid")
     end
   end
 end
