@@ -176,6 +176,7 @@ module Vagrant
           begin
             metadata_path = download(
               authenticated_url, env, json: true, ui: false)
+            return if @download_interrupted
 
             File.open(metadata_path) do |f|
               metadata = BoxMetadata.new(f)
