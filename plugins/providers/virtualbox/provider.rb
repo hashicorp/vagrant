@@ -76,8 +76,10 @@ module VagrantPlugins
         # We have to check if the UID matches to avoid issues with
         # VirtualBox.
         uid = @machine.uid
-        if uid && uid.to_s == Process.uid.to_s
-          raise Vagrant::Errors::VirtualBoxUserMismatch, uid: uid.to_s
+        if uid && uid.to_s != Process.uid.to_s
+          raise Vagrant::Errors::VirtualBoxUserMismatch,
+            original_uid: uid.to_s,
+            uid: Process.uid.to_s
         end
 
         # Determine the ID of the state here.

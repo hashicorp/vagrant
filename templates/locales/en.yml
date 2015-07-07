@@ -1321,9 +1321,10 @@ en:
         The VirtualBox VM was created with a user that doesn't match the
         current user running Vagrant. VirtualBox requires that the same user
         be used to manage the VM that was created. Please re-run Vagrant with
-        that user.
+        that user. This is not a Vagrant issue.
 
-        The UID used to create the VM was: %{uid}
+        The UID used to create the VM was: %{original_uid}
+        Your UID is: %{uid}
       virtualbox_version_empty: |-
         Vagrant detected that VirtualBox appears installed on your system,
         but calls to detect the version are returning empty. This is often
