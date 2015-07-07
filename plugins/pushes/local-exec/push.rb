@@ -20,6 +20,7 @@ module VagrantPlugins
         script = Tempfile.new(["vagrant-local-exec-script", ".sh"])
         script.write(inline)
         script.rewind
+        script.close
 
         execute_script!(script.path)
       ensure
