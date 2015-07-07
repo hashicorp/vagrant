@@ -1317,6 +1317,13 @@ en:
         Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
         this to be available on the PATH. If VirtualBox is installed, please find the
         `VBoxManage` binary and add it to the PATH environmental variable.
+      virtualbox_user_mismatch: |-
+        The VirtualBox VM was created with a user that doesn't match the
+        current user running Vagrant. VirtualBox requires that the same user
+        be used to manage the VM that was created. Please re-run Vagrant with
+        that user.
+
+        The UID used to create the VM was: %{uid}
       virtualbox_version_empty: |-
         Vagrant detected that VirtualBox appears installed on your system,
         but calls to detect the version are returning empty. This is often
