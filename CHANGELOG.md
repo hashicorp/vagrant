@@ -110,6 +110,7 @@ BUG FIXES:
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
   - provisioners/file: validation of source is relative to Vagrantfile [GH-5252]
   - pushes/atlas: send additional box metadata [GH-5283]
+  - pushes/local-exec: fix "text file busy" error for inline [GH-5695]
   - pushes/ftp: improve check for remote directory existence [GH-5549]
   - synced\_folders/rsync: add `IdentitiesOnly=yes` to the rsync command. [GH-5175]
   - synced\_folders/smb: use correct `password` option [GH-5805]
