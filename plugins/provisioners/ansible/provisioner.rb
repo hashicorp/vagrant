@@ -81,7 +81,7 @@ module VagrantPlugins
         # ANSIBLE_SSH_ARGS is required for Multiple SSH keys, SSH forwarding and custom SSH settings
         env["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
 
-        show_ansible_playbook_command(env, command) if (config.verbose || @logger.debug?)
+        show_ansible_playbook_command(env, command) if config.verbose
 
         # Write stdout and stderr data, since it's the regular Ansible output
         command << {

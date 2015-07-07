@@ -99,6 +99,7 @@ BUG FIXES:
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
   - provisioners/ansible: disable color if Vagrant is not colored [GH-5531, GH-5532]
+  - provisioners/ansible: only show ansible-playbook command when `verbose` option is enabled [GH-5803]
   - provisioners/docker: use `service` to restart Docker instad of upstart [GH-5245, GH-5577]
   - provisioners/docker: Only add docker user to group if exists. [GH-5315]
   - provisioners/docker: Use https for repo [GH-5749]
