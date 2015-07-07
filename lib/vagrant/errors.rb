@@ -764,6 +764,10 @@ module Vagrant
       error_key(:virtualbox_name_exists)
     end
 
+    class VirtualBoxUserMismatch < VagrantError
+      error_key(:virtualbox_user_mismatch)
+    end
+
     class VirtualBoxVersionEmpty < VagrantError
       error_key(:virtualbox_version_empty)
     end
