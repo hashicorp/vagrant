@@ -104,7 +104,7 @@ constraints.
 <hr>
 
 `config.vm.communicator` - The communicator type to use to connect to the
-guest box. By default this is `:ssh`, but should be changed to `:winrm` for
+guest box. By default this is `"ssh"`, but should be changed to `"winrm"` for
 Windows guests.
 
 <hr>
