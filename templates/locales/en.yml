@@ -124,8 +124,11 @@ en:
     docker_configure_autostart: |-
       Configuring Docker to autostart containers...
     docker_install_with_version_not_supported: |-
-      Vagrant is not capable of installing an specific version of Docker
+      Vagrant is not capable of installing a specific version of Docker
       onto the guest machine and the latest version will be installed.
+      This is a limitation of Vagrant knowing how to interact with this
+      operating system. This isn't a bug, but if you know how to fix this
+      please report it to Vagrant.
     docker_installing: |-
       Installing Docker (%{version}) onto machine...
     docker_pulling_images:
