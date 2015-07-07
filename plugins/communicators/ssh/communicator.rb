@@ -322,9 +322,15 @@ module VagrantPlugins
         # Default some options
         opts[:retries] = 5 if !opts.key?(:retries)
 
+        # Set some valid auth methods. We disable the auth methods that
+        # we're not using if we don't have the right auth info.
+        auth_methods = ["none", "hostbased"]
+        auth_methods << "publickey" if ssh_info[:private_key_path]
+        auth_methods << "password" if ssh_info[:password]
+
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
-          auth_methods:          ["none", "publickey", "hostbased", "password"],
+          auth_methods:          auth_methods,
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
           keys:                  ssh_info[:private_key_path],
@@ -439,7 +445,7 @@ module VagrantPlugins
       def shell_cmd(opts)
         sudo  = opts[:sudo]
         shell = opts[:shell]
-        
+
         # Determine the shell to execute. Prefer the explicitly passed in shell
         # over the default configured shell. If we are using `sudo` then we
         # need to wrap the shell in a `sudo` call.
