@@ -53,7 +53,8 @@ of these functions have examples in more detailed sections below.
 
 * `pull_images` - Pull the given images. This does not start these images.
 
-* `run` - Run a container and configure it to start on boot.
+* `run` - Run a container and configure it to start on boot. This can
+  only be specified once.
 
 ## Building Images
 
