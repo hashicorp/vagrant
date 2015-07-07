@@ -45,6 +45,11 @@ it can greatly improve readability. Additionally, some provisioners, like
 the Chef provisioner, have special methods that can be called within that
 block to ease configuration that can't be done with the key/value approach.
 
+The attributes that can be set in a single-line are the attributes that
+are set with the `=` style, such as `inline = "echo hello"` above. If the
+style is instead more of a function call, such as `add_recipe "foo"`, then
+this can't be specified in a single line.
+
 Provisioners can also be named (since 1.7.0). These names are used cosmetically for output
 as well as overriding provisioner settings (covered further below). An example
 of naming provisioners is shown below:
