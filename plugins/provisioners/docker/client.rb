@@ -90,6 +90,7 @@ module VagrantPlugins
         args = "--cidfile=#{config[:cidfile]} "
         args << "-d " if config[:daemonize]
         args << "--name #{name} " if name && config[:auto_assign_name]
+        args << "--restart=#{config[:restart]}" if config[:restart]
         args << config[:args] if config[:args]
         @machine.communicate.sudo %[
           rm -f #{config[:cidfile]}
@@ -105,18 +106,15 @@ module VagrantPlugins
           # recent versions use the full container ID
           # See https://github.com/dotcloud/docker/pull/2140 for more information
           return comm.test("#{docker_ps} | grep -wFq #{id}") ||
-                   comm.test("#{docker_ps} -notrunc | grep -wFq #{id}")
+            comm.test("#{docker_ps} -notrunc | grep -wFq #{id}")
         end
       end
-      
+
       protected
 
       # This handles outputting the communication data back to the UI
       def handle_comm(type, data)
         if [:stderr, :stdout].include?(type)
-          # Output the data with the proper color based on the stream.
-          color = type == :stdout ? :green : :red
-
           # Clear out the newline since we add one
           data = data.chomp
           return if data.empty?

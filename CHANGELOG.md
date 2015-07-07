@@ -108,6 +108,7 @@ BUG FIXES:
       `which` since that doesn't exist on some systems. [GH-5170]
   - provisioners/chef-zero: support more chef-zero/local mode attributes [GH-5339]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
+  - provisioners/docker: use `--restart` instead of `-r` on daemon [GH-4477]
   - provisioners/file: validation of source is relative to Vagrantfile [GH-5252]
   - pushes/atlas: send additional box metadata [GH-5283]
   - pushes/local-exec: fix "text file busy" error for inline [GH-5695]
