@@ -66,6 +66,14 @@ outside world.
 For some operating systems, additional configuration options for the static
 IP address are available such as setting the default gateway or MTU.
 
+<div class="alert alert-block alert-warn">
+<p>
+<strong>Warning!</strong> Do not choose an IP that overlaps with any
+other IP space on your system. This can cause the network to not be
+reachable.
+</p>
+</div>
+
 ## Disable Auto-Configuration
 
 If you want to manually configure the network interface yourself, you
