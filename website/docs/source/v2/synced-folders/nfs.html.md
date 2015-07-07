@@ -78,7 +78,7 @@ config.vm.synced_folder ".", "/vagrant",
 ```
 
 This would result in the following `mount` command being executed on the guest:
- 
+
 ```
 mount -o 'actimeo=2' 172.28.128.1:'/path/to/vagrantfile' /vagrant
 ```
@@ -151,3 +151,11 @@ Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
 Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /bin/sed -r -e * d -ibak /etc/exports
 %vagrant ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD_CHECK, VAGRANT_NFSD_START, VAGRANT_NFSD_APPLY, VAGRANT_EXPORTS_REMOVE
 ```
+
+## Other Notes
+
+**Encrypted folders:** If you have an encrypted disk, then NFS very often
+will refuse to export the filesystem. The error message given by NFS is
+often not clear. One error message seen is `<path> does not support NFS`.
+There is no workaround for this other than sharing a directory which isn't
+encrypted.
