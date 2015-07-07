@@ -27,7 +27,7 @@ if it doesn't exist.
 
 ## Options
 
-You may also specify additional optional parameters when configuring 
+You may also specify additional optional parameters when configuring
 synced folders. These options are listed below. More detailed examples of using
 some of these options are shown below this section, note the owner/group example
 supplies two additional options separated by commas.
@@ -92,3 +92,15 @@ owner and group. It is possible to set these options:
 config.vm.synced_folder "src/", "/srv/website",
   owner: "root", group: "root"
 ```
+
+## Symbolic Links
+
+Support for symbolic links across synced folder implementations and
+host/guest combinations is not consistent. Vagrant does its best to
+make sure symbolic links work by configuring various hypervisors (such
+as VirtualBox), but some host/guest combinations still do not work
+properly. This can affect some development environments that rely on
+symbolic links.
+
+The recommendation is to make sure to test symbolic links on all the
+host/guest combinations you sync folders on if this is important to you.
