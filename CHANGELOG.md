@@ -94,6 +94,8 @@ BUG FIXES:
   - providers/virtualbox: Fix exception when VirtualBox version is empty. [GH-5308]
   - providers/virtualbox: Fix exception when VBoxManage.exe can't be run
       on Windows [GH-1483]
+  - providers/virtualbox: Error if another user is running after a VM is
+      created to avoid issue with VirtualBox "losing" the VM [GH-5895]
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
   - provisioners/ansible: disable color if Vagrant is not colored [GH-5531, GH-5532]
