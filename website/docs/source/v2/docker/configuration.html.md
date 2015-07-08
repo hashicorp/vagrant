@@ -30,6 +30,9 @@ General settings:
     `docker run` when the container is started. This can be used to set
     parameters that aren't exposed via the Vagrantfile.
 
+  * `dockerfile` (string) - Name of the Dockerfile in the build directory.
+    This defaults to "Dockerfile"
+
   * `env` (hash) - Environmental variables to expose into the container.
 
   * `expose` (array of integers) - Ports to expose from the container
