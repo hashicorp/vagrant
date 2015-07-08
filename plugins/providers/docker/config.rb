@@ -131,6 +131,7 @@ module VagrantPlugins
         @build_dir  = UNSET_VALUE
         @cmd        = UNSET_VALUE
         @create_args = UNSET_VALUE
+        @dockerfile = UNSET_VALUE
         @env        = {}
         @expose     = []
         @force_host_vm = UNSET_VALUE
@@ -192,6 +193,7 @@ module VagrantPlugins
         @build_dir  = nil if @build_dir == UNSET_VALUE
         @cmd        = [] if @cmd == UNSET_VALUE
         @create_args = [] if @create_args == UNSET_VALUE
+        @dockerfile = nil if @dockerfile == UNSET_VALUE
         @env       ||= {}
         @force_host_vm = false if @force_host_vm == UNSET_VALUE
         @has_ssh    = false if @has_ssh == UNSET_VALUE
@@ -232,7 +234,7 @@ module VagrantPlugins
 
         if @build_dir
           build_dir_pn = Pathname.new(@build_dir)
-          if !build_dir_pn.directory? || !build_dir_pn.join("Dockerfile").file?
+          if !build_dir_pn.directory?
             errors << I18n.t("docker_provider.errors.config.build_dir_invalid")
           end
         end

@@ -39,11 +39,11 @@ module VagrantPlugins
           if !image || env[:build_rebuild]
             # Build it
             args = machine.provider_config.build_args.clone
-            if (machine.provider_config.dockerfile)
+            if machine.provider_config.dockerfile
               dockerfile      = machine.provider_config.dockerfile
               dockerfile_path = File.join(build_dir, dockerfile)
 
-              args.push "--file=\"#{dockerfile_path}\""
+              args.push("--file=\"#{dockerfile_path}\"")
               machine.ui.output(
                 I18n.t("docker_provider.building_named_dockerfile",
                 file: machine.provider_config.dockerfile))
