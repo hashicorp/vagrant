@@ -231,6 +231,10 @@ module VagrantPlugins
           end
         end
 
+        if !@create_args.is_a?(Array)
+          errors << I18n.t("docker_provider.errors.config.create_args_array")
+        end
+
         @links.each do |link|
           parts = link.split(":")
           if parts.length != 2 || parts[0] == "" || parts[1] == ""

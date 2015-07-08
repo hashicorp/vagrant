@@ -123,6 +123,8 @@ en:
           "build_dir" must exist and contain a Dockerfile
         build_dir_or_image: |-
           One of "build_dir" or "image" must be set
+        create_args_array: |-
+          "create_args" must be an array
         invalid_link: |-
           Invalid link (should be 'name:alias'): "%{link}"
         invalid_vagrantfile: |-

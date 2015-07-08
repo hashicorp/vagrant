@@ -90,6 +90,18 @@ describe VagrantPlugins::DockerProvider::Config do
     end
   end
 
+  describe "#create_args" do
+    before do
+      valid_defaults
+    end
+
+    it "is invalid if it isn't an array" do
+      subject.create_args = "foo"
+      subject.finalize!
+      assert_invalid
+    end
+  end
+
   describe "#expose" do
     before do
       valid_defaults
