@@ -12,9 +12,10 @@ module VagrantPlugins
           @provider_config = @machine.provider_config
           @driver          = @machine.provider.driver
 
-          image = @env[:create_image]
-          image ||= @provider_config.image
+          # Skip pulling if the image is built
+          return @app.call(env) if @env[:create_image]
 
+          image = @provider_config.image
           env[:ui].output(I18n.t("docker_provider.pull", image: image))
           @driver.pull(image)
 
