@@ -102,6 +102,10 @@ module VagrantPlugins
         execute(*cmd.flatten)
       end
 
+      def pull(image)
+        execute('docker', 'pull', image)
+      end
+
       def start(cid)
         if !running?(cid)
           execute('docker', 'start', cid)

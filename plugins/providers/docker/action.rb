@@ -258,6 +258,7 @@ module VagrantPlugins
                   b3.use HandleForwardedPortCollisions
                   b3.use SyncedFolders
                   b3.use ForwardedPorts
+                  b3.use Pull
                   b3.use Create
                   b3.use WaitForRunning
                 else
@@ -302,6 +303,7 @@ module VagrantPlugins
       autoload :IsBuild, action_root.join("is_build")
       autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
       autoload :Login, action_root.join("login")
+      autoload :Pull, action_root.join("pull")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")

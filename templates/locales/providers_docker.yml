@@ -43,6 +43,8 @@ en:
       Container not created. Skipping.
     not_docker_provider: |-
       Not backed by Docker provider. Skipping.
+    pull: |-
+      Pulling image '%{image}'...
     run_command_required: |-
       `vagrant docker-run` requires a command to execute. This command
       must be specified after a `--` in the command line. This is used
