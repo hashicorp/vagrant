@@ -44,6 +44,10 @@ module VagrantPlugins
       class SyncedFolderNonDocker < DockerError
         error_key(:synced_folder_non_docker)
       end
+
+      class VagrantfileNotFound < DockerError
+        error_key(:vagrantfile_not_found)
+      end
     end
   end
 end

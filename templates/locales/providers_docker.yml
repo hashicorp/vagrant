@@ -196,3 +196,7 @@ en:
         The "docker" synced folder type can't be used because the  provider
         in use is not Docker. This synced folder type only works with the
         Docker provider. The provider this machine is using is: %{provider}
+      vagrantfile_not_found: |-
+        The configured host VM Vagrantfile could not be found. Please fix
+        the Vagrantfile for this Docker environment to point to a valid
+        host VM.

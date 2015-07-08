@@ -88,6 +88,8 @@ BUG FIXES:
   - plugins/login: allow users to login with a token [GH-5145]
   - providers/docker: Build image from `/var/lib/docker` for more disk
       space on some systems. [GH-5302]
+  - providers/docker: Fix crash that could occur in some scenarios when
+      the host VM path changed.
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
   - providers/hyperv: import respects secure boot. [GH-5209]
   - providers/hyperv: only set EFI secure boot for gen 2 machines [GH-5538]
