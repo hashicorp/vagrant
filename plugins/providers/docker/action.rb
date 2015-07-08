@@ -283,6 +283,12 @@ module VagrantPlugins
         end
       end
 
+      def self.action_suspend
+        lambda do |env|
+          raise Errors::SuspendNotSupported
+        end
+      end
+
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :Build, action_root.join("build")

@@ -185,6 +185,11 @@ en:
             d.remains_running = false
           end
 
+      suspend_not_supported: |-
+        The "suspend" command is not supported with the Docker provider.
+        Docker containers don't natively support suspend. If you're using
+        a host machine, you can suspend the host machine by finding it
+        in `vagrant global-status` and using `vagrant suspend <id>`.
       synced_folder_non_docker: |-
         The "docker" synced folder type can't be used because the  provider
         in use is not Docker. This synced folder type only works with the
