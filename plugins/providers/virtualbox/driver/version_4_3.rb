@@ -553,6 +553,7 @@ module VagrantPlugins
         def unshare_folders(names)
           names.each do |name|
             begin
+              @logger.debug("Unsharing folder #{name}")
               execute(
                 "sharedfolder", "remove", @uuid,
                 "--name", name,
