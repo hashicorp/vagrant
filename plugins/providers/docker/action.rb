@@ -20,14 +20,13 @@ module VagrantPlugins
       # container, configuring metadata, and booting.
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
-          b.use ConfigValidate
-
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
               b2.use HandleBox
             end
           end
 
+          b.use ConfigValidate
           b.use HostMachine
 
           # Yeah, this is supposed to be here twice (once more above). This
