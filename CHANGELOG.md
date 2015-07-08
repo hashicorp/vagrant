@@ -90,6 +90,8 @@ BUG FIXES:
       space on some systems. [GH-5302]
   - providers/docker: Fix crash that could occur in some scenarios when
       the host VM path changed.
+  - providers/docker: Fix crash that could occur on container destroy
+      with VirtualBox shared folders [GH-5143]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
   - providers/hyperv: import respects secure boot. [GH-5209]
   - providers/hyperv: only set EFI secure boot for gen 2 machines [GH-5538]
