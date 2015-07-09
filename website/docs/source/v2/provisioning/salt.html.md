@@ -60,7 +60,13 @@ distribution's stable package manager, git tree-ish, daily ppa, or testing repos
 Not supported on Windows.
 
 * `install_args` (develop) - When performing a git install,
-you can specify a branch, tag, or any treeish. Not supported on Windows.
+you can specify a branch, tag, or any treeish. If using the `custom` install type,
+you can also specify a different repository to install from.
+Not supported on Windows.
+
+* `install_command` (string) - Allow specifying an arbitrary string of arguments
+to the bootstrap script. This will completely ignore `install_type` and `install_args`
+to allow more flexibility with the bootstrap process.
 
 * `always_install`   (boolean) - Installs salt binaries even
  if they are already detected, default `false`
