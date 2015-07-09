@@ -103,7 +103,8 @@ module Vagrant
           # the original environment - this is required for shelling out to
           # other subprocesses that depend on environment variables (like Ruby
           # and $GEM_PATH for example)
-          if !command[0].include?(installer_dir)
+          if !@command[0].downcase.include?(installer_dir)
+            @logger.info("Command not in installer, restoring original environment...")
             Vagrant.original_env.each do |k, v|
               process.environemnt[k] = v
             end
