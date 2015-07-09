@@ -1,11 +1,13 @@
 language: ruby
 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq -y bsdtar
-  - rvm @global do gem uninstall bundler --all --executables
-  - gem uninstall bundler --all --executables
-  - gem install bundler --version '< 1.7.0'
+sudo: false
+
+cache: bundler
+
+addons:
+  apt:
+    packages:
+    - bsdtar
 
 rvm:
   - 2.0.0
@@ -18,4 +20,4 @@ env:
   global:
     - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 
-script: rake test:unit
+script: bundle exec rake test:unit
