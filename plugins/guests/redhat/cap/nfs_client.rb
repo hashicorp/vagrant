@@ -3,14 +3,27 @@ module VagrantPlugins
     module Cap
       class NFSClient
         def self.nfs_client_install(machine)
-          machine.communicate.tap do |comm|
-            comm.sudo("yum -y install nfs-utils nfs-utils-lib")
-            case machine.guest.capability("flavor")
-            when :rhel_7
-              comm.sudo("/bin/systemctl restart rpcbind nfs")
-            else
-              comm.sudo("/etc/init.d/rpcbind restart; /etc/init.d/nfs restart")
-            end
+          machine.communicate.sudo("yum -y install nfs-utils nfs-utils-lib")
+          restart_nfs(machine)
+        end
+
+        def self.nfs_client_installed(machine)
+          installed = machine.communicate.test("test -x /sbin/mount.nfs")
+          restart_nfs(machine) if installed
+          installed
+        end
+
+        protected
+
+        def self.systemd?
+          `ps -o comm= 1`.chomp == 'systemd'
+        end
+
+        def self.restart_nfs(machine)
+          if systemd?
+            machine.communicate.sudo("/bin/systemctl restart rpcbind nfs")
+          else
+            machine.communicate.sudo("/etc/init.d/rpcbind restart; /etc/init.d/nfs restart")
           end
         end
       end
