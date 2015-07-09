@@ -91,6 +91,15 @@ module Vagrant
           end
         end
 
+        # Reset the Bundler environment back - this is required for anyone who
+        # is not using the official Vagrant installers and is running Vagrant
+        # via bundler
+        if defined?(Bundler::ORIGINAL_ENV)
+          Bundler::ORIGINAL_ENV.each do |k, v|
+            process.environment[k] = v
+          end
+        end
+
         # Set the environment on the process if we must
         if @options[:env]
           @options[:env].each do |k, v|
