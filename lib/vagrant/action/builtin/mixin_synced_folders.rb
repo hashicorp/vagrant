@@ -25,6 +25,15 @@ module Vagrant
           # Order the plugins by priority. Higher is tried before lower.
           ordered = ordered.sort { |a, b| b[0] <=> a[0] }
 
+          allowed_types = machine.config.vm.allowed_synced_folder_types
+          if allowed_types
+            ordered = allowed_types.map do |type|
+              ordered.find do |_, key, impl|
+                key == type
+              end
+            end.compact
+          end
+
           # Find the proper implementation
           ordered.each do |_, key, impl|
             return key if impl.new.usable?(machine)
