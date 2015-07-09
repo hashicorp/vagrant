@@ -114,16 +114,14 @@ module VagrantPlugins
           # Knife is not part of the current Vagrant bundle, so it needs to run
           # in the context of the system.
           Vagrant.global_lock do
-            Vagrant::Util::Env.with_clean_env do
-              command = ["knife", deletable, "delete", "--yes", node_name]
-              r = Vagrant::Util::Subprocess.execute(*command)
-              if r.exit_code != 0
-                @machine.ui.error(I18n.t(
-                  "vagrant.chef_client_cleanup_failed",
-                  deletable: deletable,
-                  stdout: r.stdout,
-                  stderr: r.stderr))
-              end
+            command = ["knife", deletable, "delete", "--yes", node_name]
+            r = Vagrant::Util::Subprocess.execute(*command)
+            if r.exit_code != 0
+              @machine.ui.error(I18n.t(
+                "vagrant.chef_client_cleanup_failed",
+                deletable: deletable,
+                stdout: r.stdout,
+                stderr: r.stderr))
             end
           end
         end
