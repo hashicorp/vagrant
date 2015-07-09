@@ -117,8 +117,12 @@ module VagrantPlugins
 
             b2.use Call, IsBuild do |env2, b3|
               if env2[:result]
-                b3.use EnvSet, force_confirm_destroy: true
-                b3.use action_destroy.flatten
+                b3.use ConfigValidate
+                b3.use EnvSet, force_halt: true
+                b3.use action_halt
+                b3.use HostMachineSyncFoldersDisable
+                b3.use Destroy
+                b3.use ProvisionerCleanup
               end
             end
 
