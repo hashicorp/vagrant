@@ -62,6 +62,17 @@ Vagrant.configure("2") do |config|
 end
 </pre>
 
+## Preventing Idle Disconnects
+
+On Windows, if a file isn't accessed for some period of time, it may
+disconnect from the guest and prevent the guest from accessing the SMB-mounted
+share. To prevent this, the following command can be used in a superuser
+shell. Note that you should research if this is the right option for you.
+
+<pre class="prettyprint">
+net config server /autodisconnect:-1
+</pre>
+
 ## Limitations
 
 Because SMB is a relatively new synced folder type in Vagrant, it still
