@@ -20,4 +20,4 @@ env:
   global:
     - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 
-script: rake test:unit
+script: bundle exec rake test:unit
