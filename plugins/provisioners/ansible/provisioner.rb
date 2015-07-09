@@ -123,7 +123,11 @@ module VagrantPlugins
           @machine.env.active_machines.each do |am|
             begin
               m = @machine.env.machine(*am)
-              m_ssh_info = m.ssh_info
+              begin
+                m_ssh_info = m.ssh_info
+              rescue => e
+                @logger.error(e)
+              end
               if !m_ssh_info.nil?
                 file.write("#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]}\n")
                 inventory_machines[m.name] = m
