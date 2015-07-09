@@ -14,6 +14,7 @@ module VagrantPlugins
     class VMConfig < Vagrant.plugin("2", :config)
       DEFAULT_VM_NAME = :default
 
+      attr_accessor :allowed_synced_folder_types
       attr_accessor :base_mac
       attr_accessor :boot_timeout
       attr_accessor :box
@@ -39,6 +40,7 @@ module VagrantPlugins
       def initialize
         @logger = Log4r::Logger.new("vagrant::config::vm")
 
+        @allowed_synced_folder_types   = UNSET_VALUE
         @base_mac                      = UNSET_VALUE
         @boot_timeout                  = UNSET_VALUE
         @box                           = UNSET_VALUE
@@ -351,6 +353,7 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @allowed_synced_folder_types = nil if @allowed_synced_folder_types == UNSET_VALUE
         @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box = nil if @box == UNSET_VALUE
@@ -373,6 +376,10 @@ module VagrantPlugins
 
         if @usable_port_range == UNSET_VALUE
           @usable_port_range = (2200..2250)
+        end
+
+        if @allowed_synced_folder_types
+          @allowed_synced_folder_types = Array(@allowed_synced_folder_types).map(&:to_sym)
         end
 
         # Make sure that the download checksum is a string and that
