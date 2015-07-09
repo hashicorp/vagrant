@@ -68,6 +68,8 @@ BUG FIXES:
   - core: fix crash if a value is missing for CLI arguments [GH-5550]
   - core: retry SSH key generation for transient RSA errors [GH-5056]
   - core: `ssh.private_key_path` will override the insecure key [GH-5632]
+  - core: restore the original environment when shelling out to subprocesses
+      outside of the installer [GH-5912]
   - core/cli: fix box checksum validation [GH-4665, GH-5221]
   - core/windows: allow Windows UNC paths to allow more than 256
       characters [GH-4815]
@@ -128,6 +130,7 @@ BUG FIXES:
   - provisioners/chef: Use `command -v` to check for binary instead of
       `which` since that doesn't exist on some systems. [GH-5170]
   - provisioners/chef-zero: support more chef-zero/local mode attributes [GH-5339]
+  - provisioners/chef: use windows-specific paths in Chef provisioners [GH-5913]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
   - provisioners/docker: use `--restart` instead of `-r` on daemon [GH-4477]
   - provisioners/file: validation of source is relative to Vagrantfile [GH-5252]
