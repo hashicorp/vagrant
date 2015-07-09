@@ -306,6 +306,7 @@ module VagrantPlugins
             auto_config: options[:auto_config],
             ip:          options[:ip],
             mac:         options[:mac],
+            name:        options[:name],
             netmask:     options[:netmask],
             nic_type:    options[:nic_type],
             type:        options[:type]
