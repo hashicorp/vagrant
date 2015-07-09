@@ -8,6 +8,7 @@ module VagrantPlugins
         attr_accessor :options
         attr_accessor :puppet_server
         attr_accessor :puppet_node
+        attr_accessor :ignore_errors
 
         def initialize
           super
@@ -18,6 +19,7 @@ module VagrantPlugins
           @options                 = []
           @puppet_node             = UNSET_VALUE
           @puppet_server           = UNSET_VALUE
+          @ignore_errors           = UNSET_VALUE
         end
 
         def merge(other)
