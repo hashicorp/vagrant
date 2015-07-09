@@ -204,6 +204,12 @@ en:
       have specified `rsync_auto` to be false.
     rsync_auto_path: |-
       Watching: %{path}
+    rsync_auto_rsync_error: |-
+      There was an error while executing rsync. The error is shown below.
+      This may not be critical since rsync sometimes fails, but if this message
+      repeats, then please fix the issue:
+
+      %{message}
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communicate with it. Verify that this machine is properly running.
