@@ -98,8 +98,12 @@ module VagrantPlugins
         args << "--no-group" unless args.include?("--group") || args.include?("-g")
 
         # Tell local rsync how to invoke remote rsync with sudo
-        if machine.guest.capability?(:rsync_command)
-          args << "--rsync-path"<< machine.guest.capability(:rsync_command)
+        rsync_path = opts[:rsync_path]
+        if !rsync_path && machine.guest.capability?(:rsync_command)
+          rsync_path = machine.guest.capability(:rsync_command)
+        end
+        if rsync_path
+          args << "--rsync-path"<< rsync_path
         end
 
         # Build up the actual command to execute
@@ -132,9 +136,10 @@ module VagrantPlugins
         end
 
         if opts.include?(:verbose)
-	  command_opts[:notify] = [ :stdout, :stderr ];
-          r = Vagrant::Util::Subprocess.execute(*(command + [command_opts])) { 
-            |io_name,data| data.each_line { |line| machine.ui.info("rsync[#{io_name}] -> #{line}") } 
+          command_opts[:notify] = [:stdout, :stderr]
+          r = Vagrant::Util::Subprocess.execute(*(command + [command_opts])) {
+            |io_name,data| data.each_line { |line|
+              machine.ui.info("rsync[#{io_name}] -> #{line}") }
           }
         else
           r = Vagrant::Util::Subprocess.execute(*(command + [command_opts]))
