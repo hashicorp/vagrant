@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_dependency "childprocess", "~> 0.5.0"
   s.add_dependency "erubis", "~> 2.7.0"
   s.add_dependency "i18n", ">= 0.6.0", "<= 0.8.0"
-  s.add_dependency "listen", "~> 2.8.0"
+  s.add_dependency "listen", "~> 3.0.2"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.1"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "net-ssh", ">= 2.6.6", "< 2.10.0"
