@@ -98,3 +98,9 @@ a way to not use a pty, that is recommended instead.
 Vagrant. By default this is `bash -l`. Note that this has no effect on
 the shell you get when you run `vagrant ssh`. This configuration option
 only affects the shell to use when executing commands internally in Vagrant.
+
+<hr>
+
+`config.ssh.sudo_command` - The command to use when executing a command
+with `sudo`. This defaults to `sudo -E -H %c`. The `%c` will be replaced by
+the command that is being executed.

@@ -451,7 +451,7 @@ module VagrantPlugins
         # need to wrap the shell in a `sudo` call.
         cmd = @machine.config.ssh.shell
         cmd = shell if shell
-        cmd = "sudo -E -H #{cmd}" if sudo
+        cmd = @machine.config.ssh.sudo_command.gsub("%c", cmd) if sudo
         cmd
       end
 
