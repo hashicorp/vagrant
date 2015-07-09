@@ -98,7 +98,7 @@ module VagrantPlugins
         args << "--no-group" unless args.include?("--group") || args.include?("-g")
 
         # Tell local rsync how to invoke remote rsync with sudo
-        if machine.guest.capability?(:rsync_command)
+        if not ssh_info[:privileged] && machine.guest.capability?(:rsync_command)
           args << "--rsync-path"<< machine.guest.capability(:rsync_command)
         end
 
