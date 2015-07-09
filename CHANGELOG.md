@@ -3,6 +3,7 @@
 FEATURES:
 
   - **New guest: `atomic`* - Project Atomic is supported as a guest
+  - providers/virtualbox: add support for 5.0 [GH-5647]
 
 IMPROVEMENTS:
 
@@ -49,7 +50,6 @@ IMPROVEMENTS:
   - providers/hyperv: select a Hyper-V switch based on a `network_name` [GH-5207]
   - providers/hyperv: allow configuring VladID [GH-5539]
   - providers/virtualbox: regexp supported for bridge configuration [GH-5320]
-  - providers/virtualbox: add support for 5.0 [GH-5647]
   - providers/virtualbox: handle a list of bridged NICs [GH-5691]
   - synced_folders/rsync: allow showing rsync output in debug mode [GH-4867]
   - synced_folders/rsync: set `rsync__rsync_path` to specify the remote
