@@ -40,6 +40,7 @@ module VagrantPlugins
             private_key_path: ssh_info[:private_key_path],
             forward_agent: ssh_info[:forward_agent],
             forward_x11:   ssh_info[:forward_x11],
+            forward_env:   ssh_info[:forward_env],
             proxy_command: ssh_info[:proxy_command]
           }
 

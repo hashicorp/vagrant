@@ -67,6 +67,11 @@ is enabled. Defaults to false.
 
 <hr>
 
+`config.ssh.forward_env` - A hash of host environment variable names to guest
+environment variable names.
+
+<hr>
+
 `config.ssh.insert_key` - If `true`, Vagrant will automatically insert
 an keypair to use for SSH, replacing the default Vagrant's insecure key
 inside the machine if detected. By default, this is true.
