@@ -82,7 +82,7 @@ module VagrantPlugins
                 # Path exists on the host, setup the remote path. We use
                 # the MD5 of the local path so that it is predictable.
                 key         = Digest::MD5.hexdigest(local_path)
-                remote_path = "#{@config.provisioning_path}/#{key}"
+                remote_path = "#{guest_provisioning_path}/#{key}"
               else
                 @machine.ui.warn(I18n.t("vagrant.provisioners.chef.cookbook_folder_not_found_warning",
                                        path: local_path.to_s))
@@ -91,7 +91,7 @@ module VagrantPlugins
             else
               # Path already exists on the virtual machine. Expand it
               # relative to where we're provisioning.
-              remote_path = File.expand_path(path, @config.provisioning_path)
+              remote_path = File.expand_path(path, guest_provisioning_path)
 
               # Remove drive letter if running on a windows host. This is a bit
               # of a hack but is the most portable way I can think of at the moment

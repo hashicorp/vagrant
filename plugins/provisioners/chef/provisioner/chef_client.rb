@@ -37,7 +37,7 @@ module VagrantPlugins
 
         def create_client_key_folder
           @machine.ui.info I18n.t("vagrant.provisioners.chef.client_key_folder")
-          path = Pathname.new(@config.client_key_path)
+          path = Pathname.new(guest_client_key_path)
 
           if windows?
             @machine.communicate.sudo("mkdir ""#{path.dirname}"" -f")
@@ -56,7 +56,7 @@ module VagrantPlugins
             chef_server_url: @config.chef_server_url,
             validation_client_name: @config.validation_client_name,
             validation_key: guest_validation_key_path,
-            client_key: @config.client_key_path,
+            client_key: guest_client_key_path,
           })
         end
 
@@ -101,8 +101,20 @@ module VagrantPlugins
           File.expand_path(@config.validation_key_path, @machine.env.root_path)
         end
 
+        def guest_client_key_path
+          if !@config.client_key_path.nil?
+            return @config.client_key_path
+          end
+
+          if windows?
+            "C:/chef/client.pem"
+          else
+            "/etc/chef/client.pem"
+          end
+        end
+
         def guest_validation_key_path
-          File.join(@config.provisioning_path, "validation.pem")
+          File.join(guest_provisioning_path, "validation.pem")
         end
 
         def delete_from_chef_server(deletable)

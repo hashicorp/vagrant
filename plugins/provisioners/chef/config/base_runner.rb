@@ -83,9 +83,9 @@ module VagrantPlugins
           @https_proxy_pass   = nil if @https_proxy_pass == UNSET_VALUE
           @no_proxy           = nil if @no_proxy == UNSET_VALUE
           @node_name          = nil if @node_name == UNSET_VALUE
-          @provisioning_path = "/tmp/vagrant-chef" if @provisioning_path == UNSET_VALUE
-          @file_backup_path   = "/var/chef/backup" if @file_backup_path == UNSET_VALUE
-          @file_cache_path    = "/var/chef/cache"  if @file_cache_path == UNSET_VALUE
+          @provisioning_path  = nil if @provisioning_path == UNSET_VALUE
+          @file_backup_path   = nil if @file_backup_path == UNSET_VALUE
+          @file_cache_path    = nil if @file_cache_path == UNSET_VALUE
           @verbose_logging    = false if @verbose_logging == UNSET_VALUE
           @enable_reporting   = true  if @enable_reporting == UNSET_VALUE
 
