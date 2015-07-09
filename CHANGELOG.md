@@ -118,6 +118,7 @@ BUG FIXES:
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
   - provisioners/ansible: disable color if Vagrant is not colored [GH-5531, GH-5532]
   - provisioners/ansible: only show ansible-playbook command when `verbose` option is enabled [GH-5803]
+  - provisioners/ansible: fix a race condition in the inventory file generation [GH-5551]
   - provisioners/docker: use `service` to restart Docker instad of upstart [GH-5245, GH-5577]
   - provisioners/docker: Only add docker user to group if exists. [GH-5315]
   - provisioners/docker: Use https for repo [GH-5749]
