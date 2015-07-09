@@ -47,6 +47,8 @@ IMPROVEMENTS:
   - providers/virtualbox: add support for 5.0 [GH-5647]
   - providers/virtualbox: handle a list of bridged NICs [GH-5691]
   - synced_folders/rsync: allow showing rsync output in debug mode [GH-4867]
+  - synced_folders/rsync: set `rsync__rsync_path` to specify the remote
+      command used to execute rsync [GH-3966]
 
 BUG FIXES:
 
