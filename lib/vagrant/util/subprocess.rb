@@ -72,6 +72,15 @@ module Vagrant
         process.io.stderr = stderr_writer
         process.duplex = true
 
+        # Reset the Bundler environment back - this is required for anyone who
+        # is not using the official Vagrant installers and is running Vagrant
+        # via bundler
+        if defined?(Bundler::ORIGINAL_ENV)
+          Bundler::ORIGINAL_ENV.each do |k, v|
+            process.environment[k] = v
+          end
+        end
+
         # If we're in an installer on Mac and we're executing a command
         # in the installer context, then force DYLD_LIBRARY_PATH to look
         # at our libs first.
@@ -89,14 +98,15 @@ module Vagrant
             @logger.info("Command is setuid/setgid, clearing DYLD_LIBRARY_PATH")
             process.environment["DYLD_LIBRARY_PATH"] = ""
           end
-        end
 
-        # Reset the Bundler environment back - this is required for anyone who
-        # is not using the official Vagrant installers and is running Vagrant
-        # via bundler
-        if defined?(Bundler::ORIGINAL_ENV)
-          Bundler::ORIGINAL_ENV.each do |k, v|
-            process.environment[k] = v
+          # If the command that is being run is not inside the installer, reset
+          # the original environment - this is required for shelling out to
+          # other subprocesses that depend on environment variables (like Ruby
+          # and $GEM_PATH for example)
+          if !command[0].include?(installer_dir)
+            Vagrant.original_env.each do |k, v|
+              process.environemnt[k] = v
+            end
           end
         end
 
