@@ -98,4 +98,23 @@ describe Vagrant do
         to raise_error(Vagrant::Errors::VagrantVersionBad)
     end
   end
+
+  describe "original_env" do
+    before do
+      ENV["VAGRANT_OLD_ENV_foo"] = "test"
+      ENV["VAGRANT_OLD_ENV_bar"] = "test"
+    end
+
+    after do
+      ENV["VAGRANT_OLD_ENV_foo"] = "test"
+      ENV["VAGRANT_OLD_ENV_bar"] = "test"
+    end
+
+    it "should return the original environment" do
+      expect(Vagrant.original_env).to eq(
+        "foo" => "test",
+        "bar" => "test",
+      )
+    end
+  end
 end
