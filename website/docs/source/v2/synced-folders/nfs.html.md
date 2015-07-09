@@ -68,8 +68,8 @@ the final part of the `config.vm.synced_folder` definition, along with the
 ## Specifying NFS Arguments
 
 In addition to the options specified above, it is possible for Vagrant to
-specify additional NFS arguments when mounting the NFS share by using the
-`mount_options` key. For example, to append the `actimeo=2` client mount option:
+specify alternate NFS arguments when mounting the NFS share by using the
+`mount_options` key. For example, to use the `actimeo=2` client mount option:
 
 ```
 config.vm.synced_folder ".", "/vagrant",
