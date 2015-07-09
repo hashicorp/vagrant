@@ -18,6 +18,11 @@ module VagrantPlugins
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant rsync [vm-name]"
             o.separator ""
+            o.separator "This command forces any synced folders with type 'rsync' to sync."
+            o.separator "RSync is not an automatic sync so a manual command is used."
+            o.separator ""
+            o.separator "Options:"
+            o.separator ""
           end
 
           # Parse the options and return if we don't have any target.
