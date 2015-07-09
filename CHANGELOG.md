@@ -19,6 +19,9 @@ IMPROVEMENTS:
   - core: ignore hidden directories when searching for boxes [GH-5748, GH-5785]
   - core: use `config.ssh.sudo_command` to customize the sudo command
       format [GH-5573]
+  - core: add `Vagrant.original_env` for Vagrant and plugins to restore or
+      inspect the original environment when Vagrant is being run from the
+      installer [GH-5910]
   - guests/darwin: support inserting generated key [GH-5204]
   - guests/darwin: support mounting SMB shares [GH-5750]
   - guests/fedora: support Fedora 21 [GH-5277]
