@@ -166,7 +166,7 @@ module Vagrant
       vf = nil
       vf = @env.vagrantfile_name[0] if @env.vagrantfile_name
       id = Digest::MD5.hexdigest(
-        "#{@env.root_path}#{vf}#{@name}")
+        "#{@env.root_path}#{vf}#{@env.local_data_path}#{@name}")
 
       # We only lock if we're not executing an SSH action. In the future
       # we will want to do more fine-grained unlocking in actions themselves
