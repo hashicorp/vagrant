@@ -9,7 +9,15 @@ Vagrant has a set of environmental variables that can be used to
 configure and control it in a global way. This page lists those environmental
 variables.
 
-## VAGRANT\_CHECKPOINT\_DISABLE 
+## VAGRANT\_DEBUG\_LAUNCHER
+
+For performance reasons, especially for Windows users, Vagrant uses a static
+binary to launch the actual Vagrant process. If you have _very_ early issues
+when launching Vagrant from the official installer, you can specify the
+`VAGRANT_DEBUG_LAUNCHER` environment variable to output debugging information
+about the launch process.
+
+## VAGRANT\_CHECKPOINT\_DISABLE
 
 Vagrant does occasional network calls to check whether the version of Vagrant
 that is running locally is up to date. We understand that software making remote
