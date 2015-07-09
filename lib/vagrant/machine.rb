@@ -437,6 +437,8 @@ module Vagrant
       info[:forward_agent] = @config.ssh.forward_agent
       info[:forward_x11]   = @config.ssh.forward_x11
 
+      info[:ssh_command] = @config.ssh.ssh_command if @config.ssh.ssh_command
+
       # Add in provided proxy command config
       info[:proxy_command] = @config.ssh.proxy_command if @config.ssh.proxy_command
 
