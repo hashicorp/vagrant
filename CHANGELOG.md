@@ -44,6 +44,8 @@ IMPROVEMENTS:
   - provisioners/shell: add :name attribute to shell provisioner [GH-5607]
   - providers/docker: supports file downloads with the file provisioner [GH-5651]
   - providers/docker: support named Dockerfile [GH-5480]
+  - providers/docker: don't remove image on reload so that build cache can
+      be used fully [GH-5905]
   - providers/hyperv: select a Hyper-V switch based on a `network_name` [GH-5207]
   - providers/hyperv: allow configuring VladID [GH-5539]
   - providers/virtualbox: regexp supported for bridge configuration [GH-5320]
