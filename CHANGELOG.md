@@ -66,6 +66,7 @@ BUG FIXES:
   - core/cli: fix box checksum validation [GH-4665, GH-5221]
   - core/windows: allow Windows UNC paths to allow more than 256
       characters [GH-4815]
+  - command/rsync-auto: don't crash if rsync command fails [GH-4991]
   - communicators/winrm: improve error handling significantly and improve
       the error messages shown to be more human-friendly. [GH-4943]
   - communicators/winrm: remove plaintext passwords from files after
