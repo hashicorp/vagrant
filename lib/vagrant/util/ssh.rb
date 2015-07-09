@@ -163,7 +163,6 @@ module Vagrant
         # Invoke SSH with all our options
         if !opts[:subprocess]
           LOGGER.info("Invoking SSH: #{ssh} #{command_options.inspect}")
-          # msabramo
           SafeExec.exec(ssh, *command_options)
           return
         end
