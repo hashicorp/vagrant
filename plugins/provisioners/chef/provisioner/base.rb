@@ -66,9 +66,11 @@ module VagrantPlugins
         end
 
         def chown_provisioning_folder
-          paths = [@config.provisioning_path,
-                   @config.file_backup_path,
-                   @config.file_cache_path]
+          paths = [
+            guest_provisioning_path,
+            guest_file_backup_path,
+            guest_file_cache_path,
+          ]
 
           @machine.communicate.tap do |comm|
             paths.each do |path|
@@ -89,7 +91,7 @@ module VagrantPlugins
             expanded = File.expand_path(
               @config.custom_config_path, @machine.env.root_path)
             remote_custom_config_path = File.join(
-              config.provisioning_path, "custom-config.rb")
+              guest_provisioning_path, "custom-config.rb")
 
             @machine.communicate.upload(expanded, remote_custom_config_path)
           end
@@ -98,8 +100,8 @@ module VagrantPlugins
             custom_configuration: remote_custom_config_path,
             encrypted_data_bag_secret: guest_encrypted_data_bag_secret_key_path,
             environment:      @config.environment,
-            file_cache_path:  @config.file_cache_path,
-            file_backup_path: @config.file_backup_path,
+            file_cache_path:  file_cache_path,
+            file_backup_path: file_backup_path,
             log_level:        @config.log_level.to_sym,
             node_name:        @config.node_name,
             verbose_logging:  @config.verbose_logging,
@@ -120,7 +122,7 @@ module VagrantPlugins
           temp.write(config_file)
           temp.close
 
-          remote_file = File.join(config.provisioning_path, filename)
+          remote_file = File.join(guest_provisioning_path, filename)
           @machine.communicate.tap do |comm|
             comm.sudo("rm -f #{remote_file}", error_check: false)
             comm.upload(temp.path, remote_file)
@@ -142,7 +144,7 @@ module VagrantPlugins
           temp.write(json)
           temp.close
 
-          remote_file = File.join(@config.provisioning_path, "dna.json")
+          remote_file = File.join(guest_provisioning_path, "dna.json")
           @machine.communicate.tap do |comm|
             if windows?
               command = "if (test-path '#{remote_file}') {rm '#{remote_file}' -force -recurse}"
@@ -194,7 +196,43 @@ module VagrantPlugins
 
         def guest_encrypted_data_bag_secret_key_path
           if @config.encrypted_data_bag_secret_key_path
-            File.join(@config.provisioning_path, "encrypted_data_bag_secret_key")
+            File.join(guest_provisioning_path, "encrypted_data_bag_secret_key")
+          end
+        end
+
+        def guest_provisioning_path
+          if !@config.provisioning_path.nil?
+            return @config.provisioning_path
+          end
+
+          if windows?
+            "C:/vagrant-chef"
+          else
+            "/tmp/vagrant-chef"
+          end
+        end
+
+        def guest_file_backup_path
+          if !@config.file_backup_path.nil?
+            return @config.file_backup_path
+          end
+
+          if windows?
+            "C:/chef/backup"
+          else
+            "/var/chef/backup"
+          end
+        end
+
+        def guest_file_cache_path
+          if !@config.file_cache_path.nil?
+            return @config.file_cache_path
+          end
+
+          if windows?
+            "C:/chef/cache"
+          else
+            "/var/chef/cache"
           end
         end
 
