@@ -103,6 +103,7 @@ module Vagrant
             jailbreak(process.environment)
           end
         else
+          @logger.info("Vagrant not running in installer, restoring original environment...")
           jailbreak(process.environment)
         end
 
