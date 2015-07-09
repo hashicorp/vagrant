@@ -65,6 +65,24 @@ the final part of the `config.vm.synced_folder` definition, along with the
 * `nfs_version` (string | integer) - The NFS protocol version to use when
   mounting the folder on the guest. This defaults to 3.
 
+## NFS Global Options
+
+There are also more global NFS options you can set with `config.nfs` in
+the Vagrantfile. These are documented below:
+
+* `functional` (bool) - Defaults to true. If false, then NFS won't be used
+  as a synced folder type. If a synced folder specifically requests NFS,
+  it will error.
+
+* `map_uid` and `map_gid` (int) - The UID/GID, respectively, to map all
+  read/write requests too. This will not affect the owner/group within the
+  guest machine itself, but any writes will behave as if they were written
+  as this UID/GID on the host. This defaults to the current user running
+  Vagrant.
+
+* `verify_installed` (bool) - Defaults to true. If this is false, then
+  Vagrant will skip checking if NFS is installed.
+
 ## Specifying NFS Arguments
 
 In addition to the options specified above, it is possible for Vagrant to
