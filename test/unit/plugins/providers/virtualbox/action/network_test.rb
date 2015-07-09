@@ -74,6 +74,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
         auto_config: true,
         ip: "172.28.128.1",
         mac: nil,
+        name: nil,
         netmask: "255.255.255.0",
         nic_type: nil,
         type: :dhcp,
