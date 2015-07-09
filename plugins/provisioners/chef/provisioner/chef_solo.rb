@@ -125,13 +125,23 @@ module VagrantPlugins
 
             # If this folder already exists, then we don't share it, it means
             # it was already put down on disk.
+            #
+            # NOTE: This is currently commented out because it was causing
+            # major bugs (GH-5199). We will investigate why this is in more
+            # detail for 1.8.0, but we wanted to fix this in a patch release
+            # and this was the hammer that did that.
+=begin
             if existing_set.include?(remote_path)
               @logger.debug("Not sharing #{local_path}, exists as #{remote_path}")
               next
             end
+=end
+
+            key = Digest::MD5.hexdigest(remote_path)
+            key = key[0..8]
 
             opts = {}
-            opts[:id] = "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}"
+            opts[:id] = "v-#{prefix}-#{key}"
             opts[:type] = @config.synced_folder_type if @config.synced_folder_type
 
             root_config.vm.synced_folder(local_path, remote_path, opts)
