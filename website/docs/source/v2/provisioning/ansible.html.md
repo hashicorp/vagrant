@@ -245,14 +245,15 @@ N = 3
     machine.vm.hostname = "machine#{machine_id}"
     machine.vm.network "private_network", ip: "192.168.77.#{20+machine_id}"
 
+    # Only execute once the Ansible provisioner,
+    # when all the machines are up and ready.
     if machine_id == N
-
-      # TODO add a comment
       machine.vm.provision :ansible do |ansible|
+
+        # Disable default limit to connect to all the machines
+        ansible.limit = 'all'
         ansible.playbook = "playbook.yml"
 
-        # Disable default limit (required with Vagrant 1.5+)
-        ansible.limit = 'all'
       end
     end
 
@@ -262,12 +263,7 @@ end
 
 **Caveats:**
 
-- Vagrant will only
-
-
-TODO: add a note about mixing parallel and custom inventory
-TODO: multiple keys are not supported with parallelism, except if you pass them as raw_ssh_args!
-
+If you apply this parallel provisioning pattern with a static Ansible inventory, you'll have to organize the things so that [all the relevant private keys are provided to the `ansible-playbook` command](https://github.com/mitchellh/vagrant/pull/5765#issuecomment-120247738). The same kind of considerations applies if you are using multiple private keys for a same machine (see [`config.ssh.private_key_path` SSH setting](/v2/vagrantfile/ssh_settings.html)).
 
 ### Provide a local `ansible.cfg` file
 
