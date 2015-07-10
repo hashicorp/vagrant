@@ -288,7 +288,7 @@ end
 if Vagrant.plugins_enabled?
   begin
     global_logger.info("Loading plugins!")
-    Bundler.require(:plugins)
+    $vagrant_bundler_runtime.require(:plugins)
   rescue Exception => e
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
   end
