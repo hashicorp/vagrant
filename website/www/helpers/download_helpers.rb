@@ -23,7 +23,7 @@ if ENV["VAGRANT_VERSION"]
   response = http.request(req)
 
   response.body.split("\n").each do |line|
-    next if line !~ /\/mitchellh\/vagrant\/(.+?)'/
+    next if line !~ /#(vagrant_.+?)"/
     filename = $1.to_s
 
     # Ignore any files that don't appear to have a version in it
