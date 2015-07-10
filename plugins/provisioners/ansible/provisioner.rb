@@ -20,8 +20,8 @@ module VagrantPlugins
         # Ansible provisioner options
         #
 
-        # Connect with Vagrant SSH identity
-        options = %W[--private-key=#{@ssh_info[:private_key_path][0]} --user=#{@ssh_info[:username]}]
+        # By default, connect with Vagrant SSH username
+        options = %W[--user=#{@ssh_info[:username]}]
 
         # Connect with native OpenSSH client
         # Other modes (e.g. paramiko) are not officially supported,
@@ -127,7 +127,7 @@ module VagrantPlugins
             m = @machine.env.machine(*am)
             m_ssh_info = m.ssh_info
             if !m_ssh_info.nil?
-              inventory += "#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]}\n"
+              inventory += "#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]} ansible_ssh_private_key_file=#{m_ssh_info[:private_key_path][0]}\n"
               inventory_machines[m.name] = m
             else
               @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")
@@ -242,8 +242,10 @@ module VagrantPlugins
         ssh_options << "-o IdentitiesOnly=yes" unless Vagrant::Util::Platform.solaris?
 
         # Multiple Private Keys
-        @ssh_info[:private_key_path].drop(1).each do |key|
-          ssh_options << "-o IdentityFile=#{key}"
+        unless !config.inventory_path && @ssh_info[:private_key_path].size == 1
+          @ssh_info[:private_key_path].each do |key|
+            ssh_options << "-o IdentityFile=#{key}"
+          end
         end
 
         # SSH Forwarding
