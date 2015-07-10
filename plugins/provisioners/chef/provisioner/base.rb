@@ -51,13 +51,6 @@ module VagrantPlugins
           )
         end
 
-        # This returns the command to run Chef for the given client
-        # type.
-        def build_command(client)
-          builder = CommandBuilder.new(@config, client, windows?, @machine.env.ui.color?)
-          return builder.build_command
-        end
-
         # Returns the path to the Chef binary, taking into account the
         # `binary_path` configuration option.
         def chef_binary_path(binary)
