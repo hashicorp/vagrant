@@ -91,7 +91,7 @@ module VagrantPlugins
         args << "-d " if config[:daemonize]
         args << "--name #{name} " if name && config[:auto_assign_name]
         args << "--restart=#{config[:restart]}" if config[:restart]
-        args << config[:args] if config[:args]
+        args << " #{config[:args]}" if config[:args]
         @machine.communicate.sudo %[
           rm -f #{config[:cidfile]}
           docker run #{args} #{config[:image]} #{config[:cmd]}
