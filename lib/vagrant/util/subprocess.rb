@@ -98,7 +98,9 @@ module Vagrant
           # the original environment - this is required for shelling out to
           # other subprocesses that depend on environment variables (like Ruby
           # and $GEM_PATH for example)
-          if !@command[0].downcase.include?(installer_dir)
+          internal = [installer_dir, Vagrant.user_data_path.to_s.downcase].
+            any? { |path| @command[0].downcase.include?(path) }
+          if !internal
             @logger.info("Command not in installer, restoring original environment...")
             jailbreak(process.environment)
           end
