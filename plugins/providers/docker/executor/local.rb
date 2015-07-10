@@ -7,8 +7,11 @@ module VagrantPlugins
       # The Local executor executes a Docker client that is running
       # locally.
       class Local
-        def execute(*cmd, **opts, &block)
+        def execute(*args, &block)
+          opts = args.last.is_a?(Hash) ? args.pop : {}
+
           # Append in the options for subprocess
+          cmd = args.dup
           cmd << { notify: [:stdout, :stderr] }
 
           interrupted  = false

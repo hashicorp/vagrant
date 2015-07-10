@@ -94,13 +94,13 @@ module VagrantPlugins
 
               lines.each do |line|
                 line = " " if line == ""
-                machine.ui.output(line, **output_options)
+                machine.ui.output(line, output_options)
               end
             end
           end
 
           # Output any remaining data
-          machine.ui.output(data_acc, **output_options) if !data_acc.empty?
+          machine.ui.output(data_acc, output_options) if !data_acc.empty?
         end
       end
     end

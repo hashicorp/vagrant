@@ -23,7 +23,7 @@ module Vagrant
             config: env[:synced_folders_config],
           }
 
-          folders = synced_folders(env[:machine], **opts)
+          folders = synced_folders(env[:machine], opts)
           original_folders = folders
 
           folders.each do |impl_name, fs|

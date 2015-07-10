@@ -305,7 +305,7 @@ module Vagrant
     # environment.
     #
     # @return [Symbol] Name of the default provider.
-    def default_provider(**opts)
+    def default_provider(opts = {})
       opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
       opts[:force_default] = true if !opts.key?(:force_default)
 
@@ -475,7 +475,7 @@ module Vagrant
     #
     # @param [String] name Name of the lock, since multiple locks can
     #   be held at one time.
-    def lock(name="global", **opts)
+    def lock(name = "global", opts = {})
       f = nil
 
       # If we don't have a block, then locking is useless, so ignore it

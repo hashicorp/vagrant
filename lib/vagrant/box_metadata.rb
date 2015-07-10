@@ -48,7 +48,7 @@ module Vagrant
     #   be a constraint.
     # @return [Version] The matching version or nil if a matching
     #   version was not found.
-    def version(version, **opts)
+    def version(version, opts = {})
       requirements = version.split(",").map do |v|
         Gem::Requirement.new(v.strip)
       end

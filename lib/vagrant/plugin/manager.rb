@@ -40,7 +40,7 @@ module Vagrant
       #
       # @param [String] name Name of the plugin (gem)
       # @return [Gem::Specification]
-      def install_plugin(name, **opts)
+      def install_plugin(name, opts = {})
         local = false
         if name =~ /\.gem$/
           # If this is a gem file, then we install that gem locally.

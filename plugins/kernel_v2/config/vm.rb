@@ -229,7 +229,7 @@ module VagrantPlugins
       #
       # @param [Symbol] type Type of network
       # @param [Hash] options Options for the network.
-      def network(type, **options)
+      def network(type, options = {})
         options = options.dup
         options[:protocol] ||= "tcp"
 
@@ -283,7 +283,7 @@ module VagrantPlugins
         end
       end
 
-      def provision(name, **options, &block)
+      def provision(name, options = {}, &block)
         type = name
         if options.key?(:type)
           type = options.delete(:type)

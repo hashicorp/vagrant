@@ -214,7 +214,7 @@ module Vagrant
     # @param [Hash, Boolean] update If true, updates all plugins, otherwise
     #   can be a hash of options. See Bundler.definition.
     # @return [Array<Gem::Specification>]
-    def internal_install(plugins, update, **extra)
+    def internal_install(plugins, update, extra = {})
       gemfile    = build_gemfile(plugins)
       lockfile   = "#{gemfile.path}.lock"
       definition = ::Bundler::Definition.build(gemfile, lockfile, update)

@@ -81,7 +81,7 @@ module Vagrant
         # "vagrant foo" becomes available.
         #
         # @param [String] name Subcommand key.
-        def self.command(name, **opts, &block)
+        def self.command(name, opts = {}, &block)
           # Validate the name of the command
           if name.to_s !~ /^[-a-z0-9]+$/i
             raise InvalidCommandName, "Commands can only contain letters, numbers, and hyphens"

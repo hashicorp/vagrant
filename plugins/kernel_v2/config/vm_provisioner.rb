@@ -64,7 +64,7 @@ module VagrantPlugins
         @config = @config.dup if @config
       end
 
-      def add_config(**options, &block)
+      def add_config(options = {}, &block)
         return if invalid?
 
         current = @config_class.new

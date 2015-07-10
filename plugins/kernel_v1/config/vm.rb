@@ -147,7 +147,7 @@ module VagrantPlugins
         # Provisioners
         self.provisioners.each do |name, options, block|
           options ||= {}
-          new.vm.provision(name, **options, &block)
+          new.vm.provision(name, options, &block)
         end
 
         # Shared folders

@@ -452,7 +452,7 @@ module Vagrant
       # Creates a {Vagrant::Environment} for this entry.
       #
       # @return [Vagrant::Environment]
-      def vagrant_env(home_path, **opts)
+      def vagrant_env(home_path, opts = {})
         Vagrant::Util::SilenceWarnings.silence! do
           Environment.new({
             cwd: @vagrantfile_path,

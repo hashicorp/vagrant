@@ -14,7 +14,7 @@ describe Vagrant::UI::Basic do
     end
 
     it "outputs using `puts` by default" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with { |message, opts = {}|
         expect(opts[:printer]).to eq(:puts)
         true
       }
@@ -23,7 +23,7 @@ describe Vagrant::UI::Basic do
     end
 
     it "outputs using `print` if new_line is false" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with { |message, opts = {}|
         expect(opts[:printer]).to eq(:print)
         true
       }
@@ -32,7 +32,7 @@ describe Vagrant::UI::Basic do
     end
 
     it "outputs using `print` if new_line is false" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with { |message, opts = {}|
         expect(opts[:printer]).to eq(:print)
         true
       }
@@ -41,10 +41,7 @@ describe Vagrant::UI::Basic do
     end
 
     it "outputs to the assigned stdout" do
-      stdout = StringIO.new
-      subject.stdout = stdout
-
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with { |message, opts = {}|
         expect(opts[:io]).to be(stdout)
         true
       }
@@ -57,10 +54,7 @@ describe Vagrant::UI::Basic do
     end
 
     it "outputs to the assigned stderr for errors" do
-      stderr = StringIO.new
-      subject.stderr = stderr
-
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with { |message, opts = {}|
         expect(opts[:io]).to be(stderr)
         true
       }
@@ -81,7 +75,7 @@ describe Vagrant::UI::Basic do
 
   context "#detail" do
     it "outputs details" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with { |message, opts = {}|
         expect(message).to eq("foo")
         true
       }

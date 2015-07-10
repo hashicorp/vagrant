@@ -97,7 +97,7 @@ module VagrantPlugins
         ps_options << "-ErrorAction" << "Stop"
 
         opts = { notify: [:stdout, :stderr, :stdin] }
-        Vagrant::Util::PowerShell.execute(path, *ps_options, **opts, &block)
+        Vagrant::Util::PowerShell.execute(path, *ps_options, opts, &block)
       end
     end
   end

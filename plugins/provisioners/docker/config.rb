@@ -28,7 +28,7 @@ module VagrantPlugins
       #
       # @param [String] path Path to the Dockerfile to pass to
       #   `docker build`.
-      def build_image(path, **opts)
+      def build_image(path, opts = {})
         @__build_images << [path, opts]
       end
 
@@ -40,7 +40,7 @@ module VagrantPlugins
         @images += images.map(&:to_s)
       end
 
-      def run(name, **options)
+      def run(name, options = {})
         @__containers[name.to_s] = options.dup
       end
 
