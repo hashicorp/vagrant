@@ -1,4 +1,6 @@
+require "json"
 require "net/http"
+require "net/https"
 
 $vagrant_files = {}
 $vagrant_os = []
@@ -17,14 +19,15 @@ $vagrant_versions  = []
 if ENV["VAGRANT_VERSION"]
   puts "Finding downloads for Vagrant"
   raise "BINTRAY_API_KEY must be set." if !ENV["BINTRAY_API_KEY"]
-  http = Net::HTTP.new("dl.bintray.com", 80)
-  req = Net::HTTP::Get.new("/mitchellh/vagrant/")
+  http = Net::HTTP.new("bintray.com", 443)
+  http.use_ssl = true
+  req = Net::HTTP::Get.new("/api/v1/packages/mitchellh/vagrant/vagrant/files")
   req.basic_auth "mitchellh", ENV["BINTRAY_API_KEY"]
   response = http.request(req)
+  data = JSON.parse(response.body)
 
-  response.body.split("\n").each do |line|
-    next if line !~ /#(vagrant_.+?)"/
-    filename = $1.to_s
+  data.each do |file|
+    filename = file["name"]
 
     # Ignore any files that don't appear to have a version in it
     next if filename !~ /[-_]?(\d+\.\d+\.\d+[^-_.]*)/
