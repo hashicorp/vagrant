@@ -33,6 +33,7 @@ IMPROVEMENTS:
   - guests/solaris,solaris11: support inserting generated key [GH-5182]
       [GH-5290]
   - providers/docker: images are pulled prior to starting [GH-5249]
+  - provisioners/ansible: store the first ssh private key in the auto-generated inventory [GH-5765]
   - provisioners/chef: add capability for checking if Chef is installed on Windows [GH-5669]
   - provisioners/puppet: add support for Puppet 4 and configuration options [GH-5601]
   - provisioners/puppet: add support for `synced_folder_args` in apply [GH-5359]
