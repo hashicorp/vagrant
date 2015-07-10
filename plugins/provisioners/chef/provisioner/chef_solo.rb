@@ -41,7 +41,7 @@ module VagrantPlugins
           share_folders(root_config, "cse", @environments_folders, existing)
         end
 
-        def provision(mode = :solo)
+        def provision
           install_chef
           # Verify that the proper shared folders exist.
           check = []
@@ -58,7 +58,7 @@ module VagrantPlugins
           upload_encrypted_data_bag_secret
           setup_json
           setup_solo_config
-          run_chef(mode)
+          run_chef_solo
           delete_encrypted_data_bag_secret
         end
 
@@ -164,7 +164,7 @@ module VagrantPlugins
           }
         end
 
-        def run_chef(mode)
+        def run_chef_solo
           if @config.run_list && @config.run_list.empty?
             @machine.ui.warn(I18n.t("vagrant.chef_run_list_empty"))
           end
@@ -173,13 +173,16 @@ module VagrantPlugins
             @machine.guest.capability(:wait_for_reboot)
           end
 
-          command = build_command(:solo)
+          command = CommandBuilder.command(:solo, @config,
+            windows: windows?,
+            colored: @machine.env.ui.color?,
+          )
 
           @config.attempts.times do |attempt|
             if attempt == 0
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_#{mode}")
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_solo")
             else
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_#{mode}_again")
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.running_solo_again")
             end
 
             opts = { error_check: false, elevated: true }

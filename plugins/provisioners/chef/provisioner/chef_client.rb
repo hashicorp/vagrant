@@ -69,7 +69,10 @@ module VagrantPlugins
             @machine.guest.capability(:wait_for_reboot)
           end
 
-          command = build_command(:client)
+          command = CommandBuilder.command(:client, @config,
+            windows: windows?,
+            colored: @machine.env.ui.color?,
+          )
 
           @config.attempts.times do |attempt|
             if attempt == 0
