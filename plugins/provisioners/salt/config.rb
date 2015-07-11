@@ -91,7 +91,7 @@ module VagrantPlugins
         @install_args       = nil if @install_args == UNSET_VALUE
         @install_master     = nil if @install_master == UNSET_VALUE
         @install_syndic     = nil if @install_syndic == UNSET_VALUE
-        @install_command     = nil if @install_command == UNSET_VALUE
+        @install_command    = nil if @install_command == UNSET_VALUE
         @no_minion          = nil if @no_minion == UNSET_VALUE
         @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
         @config_dir         = nil if @config_dir == UNSET_VALUE
