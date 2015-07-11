@@ -107,6 +107,14 @@ module VagrantPlugins
         customize("pre-boot", ["modifyvm", :id, "--cpus", count.to_i])
       end
 
+      # Shortcut for setting para-Virtualization setting for the virtual machine.
+      # Calls #customize internally.
+      #
+      # @param type [String] para-Virtualization type(v5.0: legacy,minimal,hyperv,kvm)
+      def paravirtprovider=(type)
+        customize("pre-boot", ["modifyvm", :id, "--paravirtprovider", type])
+      end
+
       def merge(other)
         super.tap do |result|
           c = customizations.dup
