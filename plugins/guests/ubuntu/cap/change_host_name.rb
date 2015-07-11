@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def update_etc_hostname
-          super unless vivid?
+          return super unless vivid?
           sudo("hostnamectl set-hostname '#{short_hostname}'")
         end
 
