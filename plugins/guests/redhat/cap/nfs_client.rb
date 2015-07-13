@@ -15,12 +15,12 @@ module VagrantPlugins
 
         protected
 
-        def self.systemd?
-          `ps -o comm= 1`.chomp == 'systemd'
+        def self.systemd?(machine)
+          machine.communicate.test("test $(ps -o comm= 1) == 'systemd'")
         end
 
         def self.restart_nfs(machine)
-          if systemd?
+          if systemd?(machine)
             machine.communicate.sudo("/bin/systemctl restart rpcbind nfs")
           else
             machine.communicate.sudo("/etc/init.d/rpcbind restart; /etc/init.d/nfs restart")
