@@ -1,6 +1,11 @@
 ## 1.7.4 (unreleased)
 
+BUG FIXES:
 
+  - guests/fedora: networks can be configured without nmcli [GH-5931]
+  - guests/redhat: systemd detection should happen on guest [GH-5948]
+  - guests/ubuntu: setting hostname fixed in 12.04 [GH-5937]
+  - hosts/linux: NFS can be configured without `$TMP` set on the host [GH-5954]
 
 ## 1.7.3 (July 10, 2015)
 
