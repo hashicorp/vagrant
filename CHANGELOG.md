@@ -6,6 +6,7 @@ BUG FIXES:
   - guests/redhat: systemd detection should happen on guest [GH-5948]
   - guests/ubuntu: setting hostname fixed in 12.04 [GH-5937]
   - hosts/linux: NFS can be configured without `$TMP` set on the host [GH-5954]
+  - provisioners/salt: fix "dummy config" error on bootstrap [GH-5936]
 
 ## 1.7.3 (July 10, 2015)
 
