@@ -11,7 +11,8 @@ points common to all provisioners that are important to know.
 
 ## Configuration
 
-First, every provisioner is configured within your [Vagrantfile](/v2/vagrantfile/index.html)
+First, every provisioner is configured within your
+[Vagrantfile](/v2/vagrantfile/index.html)
 using the `config.vm.provision` method call. For example, the Vagrantfile
 below enables shell provisioning:
 
@@ -44,6 +45,29 @@ it can greatly improve readability. Additionally, some provisioners, like
 the Chef provisioner, have special methods that can be called within that
 block to ease configuration that can't be done with the key/value approach.
 
+The attributes that can be set in a single-line are the attributes that
+are set with the `=` style, such as `inline = "echo hello"` above. If the
+style is instead more of a function call, such as `add_recipe "foo"`, then
+this can't be specified in a single line.
+
+Provisioners can also be named (since 1.7.0). These names are used cosmetically for output
+as well as overriding provisioner settings (covered further below). An example
+of naming provisioners is shown below:
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ... other configuration
+
+  config.vm.provision "bootstrap", type: "shell" do |s|
+    s.inline = "echo hello"
+  end
+end
+```
+
+Naming provisioners is simple. The first argument to `config.vm.provision`
+becomes the name, and then a `type` option is used to specify the provisioner
+type, such as `type: "shell"` above.
+
 ## Running Provisioners
 
 Provisioners are run in three cases: the initial `vagrant up`, `vagrant
@@ -57,6 +81,8 @@ The `--provision-with` flag can be used if you only want to run a
 specific provisioner if you have multiple provisioners specified. For
 example, if you have a shell and Puppet provisioner and only want to
 run the shell one, you can do `vagrant provision --provision-with shell`.
+The arguments to `--provision-with` can be the provisioner type (such as
+"shell") or the provisioner name (such as "bootstrap" from above).
 
 ## Run Once or Always
 
@@ -118,6 +144,9 @@ The ordering of the provisioners will be to echo "foo", "baz", then
 "bar" (note the second one might not be what you expect!). Remember:
 ordering is _outside in_.
 
+With multiple provisioners, use the `--provision-with` setting along
+with names to get more fine grainted control over what is run and when.
+
 ## Overriding Provisioner Settings
 
 <div class="alert alert-block alert-warn">
@@ -135,17 +164,16 @@ you may want to define common provisioners in the global configuration
 scope of a Vagrantfile, but override certain aspects of them internally.
 Vagrant allows you to do this, but has some details to consider.
 
-To override settings, you must assign an ID to your provisioner. Then
-it is only a matter of specifying the same ID to override:
+To override settings, you must assign a name to your provisioner.
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision "shell",
-    inline: "echo foo", id: "foo"
+  config.vm.provision "foo", type: "shell",
+    inline: "echo foo"
 
   config.vm.define "web" do |web|
-    web.vm.provision "shell",
-      inline: "echo bar", id: "foo"
+    web.vm.provision "foo", type: "shell",
+      inline: "echo bar"
   end
 end
 ```
@@ -162,14 +190,14 @@ below, the output would be "foo" then "bar":
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision "shell",
-    inline: "echo ORIGINAL!", id: "foo"
+  config.vm.provision "foo", type: "shell",
+    inline: "echo ORIGINAL!"
 
   config.vm.define "web" do |web|
     web.vm.provision "shell",
       inline: "echo foo"
-    web.vm.provision "shell",
-      inline: "echo bar", id: "foo"
+    web.vm.provision "foo", type: "shell",
+      inline: "echo bar"
   end
 end
 ```

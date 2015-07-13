@@ -28,7 +28,7 @@ module VagrantPlugins
                 temp.binmode
                 temp.write(entry)
                 temp.close
-                comm.upload(temp.path, "/tmp/vagrant-network-entry-#{ifFile}")
+                comm.upload(temp.path, "/tmp/vagrant-#{ifFile}")
                 comm.sudo("cp /tmp/vagrant-#{ifFile} /etc/conf.d/#{ifFile}")
                 comm.sudo("chmod 0644 /etc/conf.d/#{ifFile}")
                 comm.sudo("ln -fs /etc/init.d/netif.tmpl /etc/init.d/#{ifFile}")

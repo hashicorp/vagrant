@@ -153,7 +153,7 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
-        valid_events = ["pre-import", "pre-boot", "post-boot"]
+        valid_events = ["pre-import", "pre-boot", "post-boot", "post-comm"]
         @customizations.each do |event, _|
           if !valid_events.include?(event)
             errors << I18n.t(

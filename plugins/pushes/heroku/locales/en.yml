@@ -1,0 +1,30 @@
+en:
+  heroku_push:
+    errors:
+      command_failed: |-
+        The following command exited with a non-zero exit status:
+
+            %{cmd}
+
+        stdout: %{stdout}
+        stderr: %{stderr}
+      git_not_found: |-
+        The Git binary '%{bin}' could not be found. Please ensure you
+        have downloaded and installed the latest version of Git:
+
+            http://git-scm.com/downloads
+      missing_attribute: |-
+        Missing required attribute '%{attribute}'. The Vagrant Heroku Push
+        plugin requires you set this attribute. Please set this attribute in
+        your Vagrantfile, for example:
+
+            config.push.define "heroku" do |push|
+              push.%{attribute} = "..."
+            end
+      not_a_git_repo: |-
+        The following path is not a valid Git repository:
+
+            %{path}
+
+        Please ensure you are working in the correct directory. In order to use
+        the Vagrant Heroku Push plugin, you must have a git repository.

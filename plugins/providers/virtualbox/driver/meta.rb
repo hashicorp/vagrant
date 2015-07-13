@@ -2,6 +2,8 @@ require "forwardable"
 
 require "log4r"
 
+require "vagrant/util/retryable"
+
 require File.expand_path("../base", __FILE__)
 
 module VagrantPlugins
@@ -20,6 +22,8 @@ module VagrantPlugins
 
         # The version of virtualbox that is running.
         attr_reader :version
+
+        include Vagrant::Util::Retryable
 
         def initialize(uuid=nil)
           # Setup the base
@@ -45,7 +49,8 @@ module VagrantPlugins
             "4.0" => Version_4_0,
             "4.1" => Version_4_1,
             "4.2" => Version_4_2,
-            "4.3" => Version_4_3
+            "4.3" => Version_4_3,
+            "5.0" => Version_5_0,
           }
 
           if @version.start_with?("4.2.14")
@@ -94,6 +99,7 @@ module VagrantPlugins
           :import,
           :read_forwarded_ports,
           :read_bridged_interfaces,
+          :read_dhcp_servers,
           :read_guest_additions_version,
           :read_guest_ip,
           :read_guest_property,
@@ -105,6 +111,7 @@ module VagrantPlugins
           :read_state,
           :read_used_ports,
           :read_vms,
+          :remove_dhcp_server,
           :resume,
           :set_mac_address,
           :set_name,
@@ -132,16 +139,25 @@ module VagrantPlugins
 
           # Note: We split this into multiple lines because apparently "".split("_")
           # is [], so we have to check for an empty array in between.
-          output = execute("--version")
-          if output =~ /vboxdrv kernel module is not loaded/ ||
-            output =~ /VirtualBox kernel modules are not loaded/i
-            raise Vagrant::Errors::VirtualBoxKernelModuleNotLoaded
-          elsif output =~ /Please install/
-            # Check for installation incomplete warnings, for example:
-            # "WARNING: The character device /dev/vboxdrv does not
-            # exist. Please install the virtualbox-ose-dkms package and
-            # the appropriate headers, most likely linux-headers-generic."
-            raise Vagrant::Errors::VirtualBoxInstallIncomplete
+          output = ""
+          retryable(on: Vagrant::Errors::VirtualBoxVersionEmpty, tries: 3, sleep: 1) do
+            output = execute("--version")
+            if output =~ /vboxdrv kernel module is not loaded/ ||
+              output =~ /VirtualBox kernel modules are not loaded/i
+              raise Vagrant::Errors::VirtualBoxKernelModuleNotLoaded
+            elsif output =~ /Please install/
+              # Check for installation incomplete warnings, for example:
+              # "WARNING: The character device /dev/vboxdrv does not
+              # exist. Please install the virtualbox-ose-dkms package and
+              # the appropriate headers, most likely linux-headers-generic."
+              raise Vagrant::Errors::VirtualBoxInstallIncomplete
+            elsif output.chomp == ""
+              # This seems to happen on Windows for uncertain reasons.
+              # Raise an error otherwise the error is that they have an
+              # incompatible version of VirtualBox which isn't true.
+              raise Vagrant::Errors::VirtualBoxVersionEmpty,
+                vboxmanage: @vboxmanage_path.to_s
+            end
           end
 
           parts = output.split("_")

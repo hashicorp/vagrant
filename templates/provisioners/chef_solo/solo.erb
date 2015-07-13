@@ -5,11 +5,7 @@ file_cache_path    "<%= file_cache_path %>"
 file_backup_path   "<%= file_backup_path %>"
 cookbook_path <%= cookbooks_path.inspect %>
 <% if roles_path %>
-if Chef::VERSION.to_f < 11.8
-  role_path <%= roles_path.first.inspect %>
-else
-  role_path <%= roles_path.inspect %>
-end
+role_path <%= roles_path.size == 1 ? roles_path.first.inspect : roles_path.inspect %>
 <% end %>
 log_level <%= log_level.inspect %>
 verbose_logging    <%= verbose_logging.inspect %>
@@ -30,6 +26,13 @@ environment_path <%= environments_path.inspect %>
 
 <% if environment %>
 environment "<%= environment %>"
+<% end -%>
+
+<% if local_mode -%>
+local_mode true
+<% end -%>
+<% if node_path -%>
+node_path <%= node_path.inspect %>
 <% end -%>
 
 http_proxy <%= http_proxy.inspect %>

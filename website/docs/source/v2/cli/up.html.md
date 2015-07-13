@@ -21,7 +21,8 @@ on a day-to-day basis.
   By default this is set.
 
 * `--[no-]parallel` - Bring multiple machines up in parallel if the provider
-  supports it.
+  supports it. Please consult the provider documentation to see if this feature
+  is supported.
 
 * `--provider x` - Bring the machine up with the given
   [provider](/v2/providers/index.html). By default this is "virtualbox".

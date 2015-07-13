@@ -74,6 +74,17 @@ describe Vagrant do
       expect(described_class.has_plugin?("foo")).to be_true
       expect(described_class.has_plugin?("bar")).to be_false
     end
+
+    it "finds plugins by gem name and version" do
+      specs = [Gem::Specification.new]
+      specs[0].name = "foo"
+      specs[0].version = "1.2.3"
+      Vagrant::Plugin::Manager.instance.stub(installed_specs: specs)
+
+      expect(described_class.has_plugin?("foo", "~> 1.2.0")).to be_true
+      expect(described_class.has_plugin?("foo", "~> 1.0.0")).to be_false
+      expect(described_class.has_plugin?("bar", "~> 1.2.0")).to be_false
+    end
   end
 
   describe "require_version" do
@@ -85,6 +96,25 @@ describe Vagrant do
     it "should not succeed if bad range" do
       expect { described_class.require_version("> #{Vagrant::VERSION}") }.
         to raise_error(Vagrant::Errors::VagrantVersionBad)
+    end
+  end
+
+  describe "original_env" do
+    before do
+      ENV["VAGRANT_OLD_ENV_foo"] = "test"
+      ENV["VAGRANT_OLD_ENV_bar"] = "test"
+    end
+
+    after do
+      ENV["VAGRANT_OLD_ENV_foo"] = "test"
+      ENV["VAGRANT_OLD_ENV_bar"] = "test"
+    end
+
+    it "should return the original environment" do
+      expect(Vagrant.original_env).to eq(
+        "foo" => "test",
+        "bar" => "test",
+      )
     end
   end
 end

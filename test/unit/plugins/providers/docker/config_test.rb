@@ -47,8 +47,14 @@ describe VagrantPlugins::DockerProvider::Config do
     its(:image) { should be_nil }
     its(:name) { should be_nil }
     its(:privileged) { should be_false }
+    its(:stop_timeout) { should eq(1) }
     its(:vagrant_machine) { should be_nil }
     its(:vagrant_vagrantfile) { should be_nil }
+
+    its(:auth_server) { should be_nil }
+    its(:email) { should eq("") }
+    its(:username) { should eq("") }
+    its(:password) { should eq("") }
   end
 
   before do
@@ -76,9 +82,15 @@ describe VagrantPlugins::DockerProvider::Config do
       subject.finalize!
       assert_valid
     end
+  end
 
-    it "should be invalid with a directory that doesn't have a Dockerfile" do
-      subject.build_dir = temporary_dir.to_s
+  describe "#create_args" do
+    before do
+      valid_defaults
+    end
+
+    it "is invalid if it isn't an array" do
+      subject.create_args = "foo"
       subject.finalize!
       assert_invalid
     end

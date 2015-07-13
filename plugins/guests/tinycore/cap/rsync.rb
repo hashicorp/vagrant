@@ -4,8 +4,11 @@ module VagrantPlugins
       class RSync
         def self.rsync_install(machine)
           machine.communicate.tap do |comm|
-            # do not sudo tce-load
-            comm.execute("tce-load -wi rsync")
+            # Run it but don't error check because this is always failing currently
+            comm.execute("tce-load -wi acl attr rsync", error_check: false)
+
+            # Verify it by executing rsync
+            comm.execute("rsync --help")
           end
         end
       end

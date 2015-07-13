@@ -30,8 +30,8 @@ module VagrantPlugins
 
             # On Windows, we use the VBOX_INSTALL_PATH environmental
             # variable to find VBoxManage.
-            if ENV.has_key?("VBOX_INSTALL_PATH") ||
-              ENV.has_key?("VBOX_MSI_INSTALL_PATH")
+            if ENV.key?("VBOX_INSTALL_PATH") ||
+              ENV.key?("VBOX_MSI_INSTALL_PATH")
               # Get the path.
               path = ENV["VBOX_INSTALL_PATH"] || ENV["VBOX_MSI_INSTALL_PATH"]
               @logger.debug("VBOX_INSTALL_PATH value: #{path}")
@@ -180,6 +180,22 @@ module VagrantPlugins
         def read_bridged_interfaces
         end
 
+        # Returns a list of configured DHCP servers
+        #
+        # Each DHCP server is represented as a Hash with the following details:
+        #
+        # {
+        #  :network => String, # name of the associated network interface as
+        #                      #   parsed from the NetworkName, e.g. "vboxnet0"
+        #  :ip      => String, # IP address of the DHCP server, e.g. "172.28.128.2"
+        #  :lower   => String, # lower IP address of the DHCP lease range, e.g. "172.28.128.3"
+        #  :upper   => String, # upper IP address of the DHCP lease range, e.g. "172.28.128.254"
+        # }
+        #
+        # @return [Array<Hash>] See comment above for details
+        def read_dhcp_servers
+        end
+
         # Returns the guest additions version that is installed on this VM.
         #
         # @return [String]
@@ -196,7 +212,16 @@ module VagrantPlugins
 
         # Returns a list of available host only interfaces.
         #
-        # @return [Hash]
+        # Each interface is represented as a Hash with the following details:
+        #
+        # {
+        #  :name    => String, # interface name, e.g. "vboxnet0"
+        #  :ip      => String, # IP address of the interface, e.g. "172.28.128.1"
+        #  :netmask => String, # netmask associated with the interface, e.g. "255.255.255.0"
+        #  :status  => String, # status of the interface, e.g. "Up", "Down"
+        # }
+        #
+        # @return [Array<Hash>] See comment above for details
         def read_host_only_interfaces
         end
 
@@ -236,6 +261,13 @@ module VagrantPlugins
         #
         # @return [Array<String>]
         def read_vms
+        end
+
+        # Removes the DHCP server identified by the provided network name.
+        #
+        # @param [String] network_name The the full network name associated
+        #   with the DHCP server to be removed, e.g. "HostInterfaceNetworking-vboxnet0"
+        def remove_dhcp_server(network_name)
         end
 
         # Sets the MAC address of the first network adapter.
@@ -371,6 +403,9 @@ module VagrantPlugins
           Vagrant::Util::Busy.busy(int_callback) do
             Vagrant::Util::Subprocess.execute(@vboxmanage_path, *command, &block)
           end
+        rescue Vagrant::Util::Subprocess::LaunchError => e
+          raise Vagrant::Errors::VBoxManageLaunchError,
+            message: e.to_s
         end
       end
     end

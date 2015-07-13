@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby "2.2.2"
+
 gem "builder", "~> 3.2.2"
 gem "less", "~> 2.2.2"
 gem "middleman", "~> 3.1.5"

@@ -1,11 +1,17 @@
-# Salt version to install
-$version = '2014.1.10'
+Param(
+    [string]$version
+)
+ 
+# Salt version to install - default to latest if there is an issue
+if ($version -notmatch "201[0-9]\.[0-9]\.[0-9](\-\d{1})?"){
+  $version = '2015.5.2'
+}
 
 # Create C:\tmp\ - if Vagrant doesn't upload keys and/or config it might not exist
-New-Item C:\tmp\ -ItemType directory | out-null
+New-Item C:\tmp\ -ItemType directory -force | out-null
 
 # Copy minion keys & config to correct location
-New-Item C:\salt\conf\pki\minion\ -ItemType directory | out-null
+New-Item C:\salt\conf\pki\minion\ -ItemType directory -force | out-null
 
 # Check if minion keys have been uploaded
 if (Test-Path C:\tmp\minion.pem) {
@@ -13,20 +19,15 @@ if (Test-Path C:\tmp\minion.pem) {
   cp C:\tmp\minion.pub C:\salt\conf\pki\minion\
 }
 
-# Check if minion config has been uploaded
-if (Test-Path C:\tmp\minion) {
-  cp C:\tmp\minion C:\salt\conf\
-}
-
 # Detect architecture
 if ([IntPtr]::Size -eq 4) {
-  $arch = "win32"
+  $arch = "x86"
 } else {
   $arch = "AMD64"
 }
 
 # Download minion setup file
-Write-Host "Downloading Salt minion installer ($arch)..."
+Write-Host "Downloading Salt minion installer $version-$arch..."
 $webclient = New-Object System.Net.WebClient
 $url = "https://docs.saltstack.com/downloads/Salt-Minion-$version-$arch-Setup.exe"
 $file = "C:\tmp\salt.exe"
@@ -34,7 +35,13 @@ $webclient.DownloadFile($url, $file)
 
 # Install minion silently
 Write-Host "Installing Salt minion..."
-C:\tmp\salt.exe /S
+#Wait for process to exit before continuing...
+C:\tmp\salt.exe /S | Out-Null
+
+# Check if minion config has been uploaded
+if (Test-Path C:\tmp\minion) {
+  cp C:\tmp\minion C:\salt\conf\
+}
 
 # Wait for salt-minion service to be registered before trying to start it
 $service = Get-Service salt-minion -ErrorAction SilentlyContinue

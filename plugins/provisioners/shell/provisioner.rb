@@ -2,10 +2,13 @@ require "pathname"
 require "tempfile"
 
 require "vagrant/util/downloader"
+require "vagrant/util/retryable"
 
 module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
+      include Vagrant::Util::Retryable
+
       def provision
         args = ""
         if config.args.is_a?(String)
@@ -50,13 +53,22 @@ module VagrantPlugins
           # Upload the script to the machine
           @machine.communicate.tap do |comm|
             # Reset upload path permissions for the current ssh user
-            user = @machine.ssh_info[:username]
+            info = nil
+            retryable(on: Vagrant::Errors::SSHNotReady, tries: 3, sleep: 2) do
+              info = @machine.ssh_info
+              raise Vagrant::Errors::SSHNotReady if info.nil?
+            end
+
+            user = info[:username]
             comm.sudo("chown -R #{user} #{config.upload_path}",
                       error_check: false)
 
             comm.upload(path.to_s, config.upload_path)
 
-            if config.path
+            if config.name
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "script: #{config.name}"))
+            elsif config.path
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: path.to_s))
             else
@@ -100,14 +112,25 @@ module VagrantPlugins
             exec_path.gsub!('/', '\\')
             exec_path = "c:#{exec_path}" if exec_path.start_with?("\\")
 
-            # For PowerShell scripts bypass the execution policy
+            # Copy powershell_args from configuration
+            shell_args = config.powershell_args
+
+            # For PowerShell scripts bypass the execution policy unless already specified
+            shell_args += " -ExecutionPolicy Bypass" if config.powershell_args !~ /[-\/]ExecutionPolicy/i
+
+            # CLIXML output is kinda useless, especially on non-windows hosts
+            shell_args += " -OutputFormat Text" if config.powershell_args !~ /[-\/]OutputFormat/i
+
             command = "#{exec_path}#{args}"
-            command = "powershell -executionpolicy bypass -file #{command}" if
+            command = "powershell #{shell_args.to_s} -file #{command}" if
               File.extname(exec_path).downcase == '.ps1'
 
-            if config.path
+            if config.name
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
-                                      script: exec_path))
+                                      script: "script: #{config.name}"))
+            elsif config.path
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.runningas",
+                                      local: config.path.to_s, remote: exec_path))
             else
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: "inline PowerShell script"))

@@ -115,6 +115,8 @@ module Vagrant
         # @param [Array<String>] urls
         # @param [Hash] env
         def add_direct(urls, env)
+          env[:ui].output(I18n.t("vagrant.box_adding_direct"))
+
           name = env[:box_name]
           if !name || name == ""
             raise Errors::BoxAddNameRequired
@@ -147,7 +149,7 @@ module Vagrant
         #   element is an authenticated URL.
         # @param [Hash] env
         # @param [Bool] expanded True if the metadata URL was expanded with
-        #   a Vagrant Cloud server URL.
+        #   a Atlas server URL.
         def add_from_metadata(url, env, expanded)
           original_url = env[:box_url]
           provider = env[:box_provider]
@@ -174,6 +176,7 @@ module Vagrant
           begin
             metadata_path = download(
               authenticated_url, env, json: true, ui: false)
+            return if @download_interrupted
 
             File.open(metadata_path) do |f|
               metadata = BoxMetadata.new(f)
@@ -369,7 +372,7 @@ module Vagrant
         #
         # @return [Hash]
         def downloader(url, env, **opts)
-          opts[:ui] = true if !opts.has_key?(:ui)
+          opts[:ui] = true if !opts.key?(:ui)
 
           temp_path = env[:tmp_path].join("box" + Digest::SHA1.hexdigest(url))
           @logger.info("Downloading box: #{url} => #{temp_path}")
@@ -401,15 +404,16 @@ module Vagrant
           downloader_options[:ca_path] = env[:box_download_ca_path]
           downloader_options[:continue] = true
           downloader_options[:insecure] = env[:box_download_insecure]
-          downloader_options[:client_cert] = env[:box_client_cert]
+          downloader_options[:client_cert] = env[:box_download_client_cert]
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
+          downloader_options[:location_trusted] = env[:box_download_location_trusted]
 
           Util::Downloader.new(url, temp_path, downloader_options)
         end
 
         def download(url, env, **opts)
-          opts[:ui] = true if !opts.has_key?(:ui)
+          opts[:ui] = true if !opts.key?(:ui)
 
           d = downloader(url, env, **opts)
 
@@ -420,8 +424,15 @@ module Vagrant
             show_url = opts[:show_url]
             show_url ||= url
 
+            translation = "vagrant.box_downloading"
+
+            # Adjust status message when 'downloading' a local box.
+            if show_url.start_with?("file://")
+              translation = "vagrant.box_unpacking"
+            end
+
             env[:ui].detail(I18n.t(
-              "vagrant.box_downloading",
+              translation,
               url: show_url))
             if File.file?(d.destination)
               env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
@@ -483,7 +494,7 @@ module Vagrant
           output = d.head
           match  = output.scan(/^Content-Type: (.+?)$/i).last
           return false if !match
-          match.last.chomp == "application/json"
+          !!(match.last.chomp =~ /application\/json/)
         end
 
         def validate_checksum(checksum_type, checksum, path)

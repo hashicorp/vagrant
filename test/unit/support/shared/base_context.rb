@@ -12,6 +12,9 @@ shared_context "unit" do
     # Create a thing to store our temporary files so that they aren't
     # unlinked right away.
     @_temp_files = []
+
+    # Roughly simulate the embedded Bundler availability
+    $vagrant_bundler_runtime = Object.new
   end
 
   after(:each) do
@@ -81,6 +84,18 @@ shared_context "unit" do
 
     # Return the pathname
     return Pathname.new(d)
+  end
+
+  # Stub the given environment in ENV, without actually touching ENV. Keys and
+  # values are converted to strings because that's how the real ENV works.
+  def stub_env(hash)
+    allow(ENV).to receive(:[]).and_call_original
+
+    hash.each do |key, value|
+      allow(ENV).to receive(:[])
+        .with(key.to_s)
+        .and_return(value.to_s)
+    end
   end
 
   # This helper provides temporary environmental variable changes.

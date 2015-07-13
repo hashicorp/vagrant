@@ -60,5 +60,23 @@ describe VagrantPlugins::Salt::Config do
         expect(result[error_key]).to be_empty
       end
     end
+
+    context "grains_config" do
+      it "fails if grains_config is set and missing" do
+        subject.grains_config = "/nope/still/not/here"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to_not be_empty
+      end
+
+      it "is valid if is set and not missing" do
+        subject.grains_config = File.expand_path(__FILE__)
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+    end
   end
 end

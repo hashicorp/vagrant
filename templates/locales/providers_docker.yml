@@ -12,6 +12,8 @@ en:
       Build image no longer exists. Rebuilding...
     building: |-
       Building the container from a Dockerfile...
+    building_named_dockerfile: |-
+      Building the container from the named Dockerfile: %{file}...
     creating: |-
       Creating the container...
     created: |-
@@ -33,6 +35,8 @@ en:
       host. You'll see the output of the `vagrant up` for this VM below.
     host_machine_syncing_folders: |-
       Syncing folders to the host VM...
+    logging_in: |-
+      Logging in to Docker server...
     logs_host_state_unknown: |-
       This container requires a host VM, and the state of that VM
       is unknown. Run `vagrant up` to verify that the container and
@@ -41,6 +45,8 @@ en:
       Container not created. Skipping.
     not_docker_provider: |-
       Not backed by Docker provider. Skipping.
+    pull: |-
+      Pulling image '%{image}'...
     run_command_required: |-
       `vagrant docker-run` requires a command to execute. This command
       must be specified after a `--` in the command line. This is used
@@ -119,6 +125,8 @@ en:
           "build_dir" must exist and contain a Dockerfile
         build_dir_or_image: |-
           One of "build_dir" or "image" must be set
+        create_args_array: |-
+          "create_args" must be an array
         invalid_link: |-
           Invalid link (should be 'name:alias'): "%{link}"
         invalid_vagrantfile: |-
@@ -151,6 +159,11 @@ en:
         is functional and properly configured.
 
         Host VM ID: %{id}
+      package_not_supported: |-
+        The "package" command is not supported with the Docker provider.
+        If you'd like to commit or push your Docker container, please SSH
+        into the host VM (if there is one), and run `docker commit` and
+        so on manually.
       state_not_running: |-
         The container never entered the "running" state, or entered it
         briefly but reverted back to another state. Please verify that
@@ -176,7 +189,16 @@ en:
             d.remains_running = false
           end
 
+      suspend_not_supported: |-
+        The "suspend" command is not supported with the Docker provider.
+        Docker containers don't natively support suspend. If you're using
+        a host machine, you can suspend the host machine by finding it
+        in `vagrant global-status` and using `vagrant suspend <id>`.
       synced_folder_non_docker: |-
         The "docker" synced folder type can't be used because the  provider
         in use is not Docker. This synced folder type only works with the
         Docker provider. The provider this machine is using is: %{provider}
+      vagrantfile_not_found: |-
+        The configured host VM Vagrantfile could not be found. Please fix
+        the Vagrantfile for this Docker environment to point to a valid
+        host VM.

@@ -8,7 +8,7 @@ sidebar_current: "provisioning-chefclient"
 **Provisioner name: `chef_client`**
 
 The Chef Client provisioner allows you to provision the guest using
-[Chef](http://www.opscode.com/chef/), specifically by connecting
+[Chef](http://www.chef.io/chef/), specifically by connecting
 to an existing Chef Server and registering the Vagrant machine as a
 node within your infrastructure.
 
@@ -65,7 +65,7 @@ server itself.
 
 ## Environments
 
-You can specify the [environment](http://wiki.opscode.com/display/chef/Environments)
+You can specify the [environment](http://docs.chef.io/environments.html)
 for the node to come up in using the `environment` configuration option:
 
 ```ruby
@@ -82,11 +82,14 @@ end
 
 There are a few more configuration options available. These generally don't
 need to be modified but are available if your Chef Server requires customization
-of these variables:
+of these variables.
 
 * `client_key_path`
 * `node_name`
 * `validation_client_name`
+
+In addition to all the options listed above, the Chef Client provisioner supports
+the [common options for all Chef provisioners](/v2/provisioning/chef_common.html).
 
 ## Cleanup
 

@@ -73,6 +73,10 @@ module VagrantPlugins
           host_machine_name = :default
         end
 
+        # Expand it so that the home directories and so on get processed
+        # properly.
+        vf_path = File.expand_path(vf_path, @machine.env.root_path)
+
         vf_file = File.basename(vf_path)
         vf_path = File.dirname(vf_path)
 
@@ -84,6 +88,10 @@ module VagrantPlugins
             ui_class: @machine.env.ui_class,
             vagrantfile_name: vf_file,
           )
+
+          # If there is no root path, then the Vagrantfile wasn't found
+          # and it is an error...
+          raise Errors::VagrantfileNotFound if !host_env.root_path
 
           host_env.machine(
             host_machine_name,
@@ -145,12 +153,23 @@ module VagrantPlugins
       def state
         state_id = nil
         state_id = :not_created if !@machine.id
-        state_id = :host_state_unknown if !state_id && \
-          host_vm? && !host_vm.communicate.ready?
+
+        begin
+          state_id = :host_state_unknown if !state_id && \
+            host_vm? && !host_vm.communicate.ready?
+        rescue Errors::VagrantfileNotFound
+          state_id = :host_state_unknown
+        end
+
         state_id = :not_created if !state_id && \
           (!@machine.id || !driver.created?(@machine.id))
         state_id = driver.state(@machine.id) if @machine.id && !state_id
         state_id = :unknown if !state_id
+
+        # This is a special pseudo-state so that we don't set the
+        # NOT_CREATED_ID while we're setting up the machine. This avoids
+        # clearing the data dir.
+        state_id = :preparing if @machine.id == "preparing"
 
         short = state_id.to_s.gsub("_", " ")
         long  = I18n.t("docker_provider.status.#{state_id}")

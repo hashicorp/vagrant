@@ -5,7 +5,7 @@ module VagrantPlugins
         def self.read_ip_address(machine)
           command = "LANG=en ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1 }'"
           result  = ""
-          machine.communicate.execute(command) do |type, data|
+          machine.communicate.sudo(command) do |type, data|
             result << data if type == :stdout
           end
 

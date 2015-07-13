@@ -22,7 +22,7 @@ module VagrantPlugins
         def call(env)
           return @app.call(env) if !env[:machine].provider.host_vm?
 
-          if !env.has_key?(:host_machine_sync_folders)
+          if !env.key?(:host_machine_sync_folders)
             env[:host_machine_sync_folders] = true
           end
 
@@ -46,7 +46,6 @@ module VagrantPlugins
         def setup_synced_folders(host_machine, env)
           # Write the host machine SFID if we have one
           id_path   = env[:machine].data_dir.join("host_machine_sfid")
-          host_sfid = nil
           if !id_path.file?
             host_sfid = SecureRandom.uuid
             id_path.open("w") do |f|
@@ -116,7 +115,7 @@ module VagrantPlugins
 
               # Add this synced folder onto the new config if we haven't
               # already shared it before.
-              if !existing_ids.has_key?(id)
+              if !existing_ids.key?(id)
                 # A bit of a hack for VirtualBox to mount our
                 # folder as transient. This can be removed once
                 # the VirtualBox synced folder mechanism is smarter.
@@ -148,7 +147,6 @@ module VagrantPlugins
 
           if !env[:host_machine_sync_folders]
             @logger.info("Not syncing folders because container created.")
-            return
           end
 
           if !new_config.synced_folders.empty?

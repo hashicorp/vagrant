@@ -3,7 +3,7 @@ require 'pathname'
 require 'vagrant'
 require 'vagrant/util/subprocess'
 
-require File.expand_path("../base", __FILE__)
+require_relative "base"
 
 module VagrantPlugins
   module Chef
@@ -18,6 +18,7 @@ module VagrantPlugins
         end
 
         def provision
+          install_chef
           verify_binary(chef_binary_path("chef-client"))
           chown_provisioning_folder
           create_client_key_folder
@@ -36,9 +37,13 @@ module VagrantPlugins
 
         def create_client_key_folder
           @machine.ui.info I18n.t("vagrant.provisioners.chef.client_key_folder")
-          path = Pathname.new(@config.client_key_path)
+          path = Pathname.new(guest_client_key_path)
 
-          @machine.communicate.sudo("mkdir -p #{path.dirname}")
+          if windows?
+            @machine.communicate.sudo("mkdir ""#{path.dirname}"" -f")
+          else
+            @machine.communicate.sudo("mkdir -p #{path.dirname}")
+          end
         end
 
         def upload_validation_key
@@ -51,7 +56,7 @@ module VagrantPlugins
             chef_server_url: @config.chef_server_url,
             validation_client_name: @config.validation_client_name,
             validation_key: guest_validation_key_path,
-            client_key: @config.client_key_path,
+            client_key: guest_client_key_path,
           })
         end
 
@@ -64,7 +69,10 @@ module VagrantPlugins
             @machine.guest.capability(:wait_for_reboot)
           end
 
-          command = build_command(:client)
+          command = CommandBuilder.command(:client, @config,
+            windows: windows?,
+            colored: @machine.env.ui.color?,
+          )
 
           @config.attempts.times do |attempt|
             if attempt == 0
@@ -96,8 +104,20 @@ module VagrantPlugins
           File.expand_path(@config.validation_key_path, @machine.env.root_path)
         end
 
+        def guest_client_key_path
+          if !@config.client_key_path.nil?
+            return @config.client_key_path
+          end
+
+          if windows?
+            "C:/chef/client.pem"
+          else
+            "/etc/chef/client.pem"
+          end
+        end
+
         def guest_validation_key_path
-          File.join(@config.provisioning_path, "validation.pem")
+          File.join(guest_provisioning_path, "validation.pem")
         end
 
         def delete_from_chef_server(deletable)
@@ -109,16 +129,14 @@ module VagrantPlugins
           # Knife is not part of the current Vagrant bundle, so it needs to run
           # in the context of the system.
           Vagrant.global_lock do
-            Bundler.with_clean_env do
-              command = ["knife", deletable, "delete", "--yes", node_name]
-              r = Vagrant::Util::Subprocess.execute(*command)
-              if r.exit_code != 0
-                @machine.ui.error(I18n.t(
-                  "vagrant.chef_client_cleanup_failed",
-                  deletable: deletable,
-                  stdout: r.stdout,
-                  stderr: r.stderr))
-              end
+            command = ["knife", deletable, "delete", "--yes", node_name]
+            r = Vagrant::Util::Subprocess.execute(*command)
+            if r.exit_code != 0
+              @machine.ui.error(I18n.t(
+                "vagrant.chef_client_cleanup_failed",
+                deletable: deletable,
+                stdout: r.stdout,
+                stderr: r.stderr))
             end
           end
         end

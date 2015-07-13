@@ -11,8 +11,10 @@ module VagrantPlugins
             end
           end
 
-          # The last line is the path we care about
-          real_path = real_path.split("\n").last.chomp
+          if real_path
+            # The last line is the path we care about
+            real_path = real_path.split("\n").last.chomp
+          end
 
           if !real_path
             # If no real guest path was detected, this is really strange

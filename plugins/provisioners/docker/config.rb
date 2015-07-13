@@ -70,8 +70,9 @@ module VagrantPlugins
 
         @__containers.each do |name, params|
           params[:image] ||= name
-          params[:auto_assign_name] = true if !params.has_key?(:auto_assign_name)
-          params[:daemonize] = true if !params.has_key?(:daemonize)
+          params[:auto_assign_name] = true if !params.key?(:auto_assign_name)
+          params[:daemonize] = true if !params.key?(:daemonize)
+          params[:restart] = "always" if !params.key?(:restart)
         end
       end
     end

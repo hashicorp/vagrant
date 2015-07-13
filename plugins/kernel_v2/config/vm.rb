@@ -14,6 +14,7 @@ module VagrantPlugins
     class VMConfig < Vagrant.plugin("2", :config)
       DEFAULT_VM_NAME = :default
 
+      attr_accessor :allowed_synced_folder_types
       attr_accessor :base_mac
       attr_accessor :boot_timeout
       attr_accessor :box
@@ -27,6 +28,7 @@ module VagrantPlugins
       attr_accessor :box_download_checksum_type
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
+      attr_accessor :box_download_location_trusted
       attr_accessor :communicator
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
@@ -36,25 +38,29 @@ module VagrantPlugins
       attr_reader :provisioners
 
       def initialize
-        @base_mac                     = UNSET_VALUE
-        @boot_timeout                 = UNSET_VALUE
-        @box                          = UNSET_VALUE
-        @box_check_update             = UNSET_VALUE
-        @box_download_ca_cert         = UNSET_VALUE
-        @box_download_ca_path         = UNSET_VALUE
-        @box_download_checksum        = UNSET_VALUE
-        @box_download_checksum_type   = UNSET_VALUE
-        @box_download_client_cert     = UNSET_VALUE
-        @box_download_insecure        = UNSET_VALUE
-        @box_url                      = UNSET_VALUE
-        @box_version                  = UNSET_VALUE
-        @communicator                 = UNSET_VALUE
-        @graceful_halt_timeout        = UNSET_VALUE
-        @guest                        = UNSET_VALUE
-        @hostname                     = UNSET_VALUE
-        @post_up_message              = UNSET_VALUE
-        @provisioners                 = []
-        @usable_port_range            = UNSET_VALUE
+        @logger = Log4r::Logger.new("vagrant::config::vm")
+
+        @allowed_synced_folder_types   = UNSET_VALUE
+        @base_mac                      = UNSET_VALUE
+        @boot_timeout                  = UNSET_VALUE
+        @box                           = UNSET_VALUE
+        @box_check_update              = UNSET_VALUE
+        @box_download_ca_cert          = UNSET_VALUE
+        @box_download_ca_path          = UNSET_VALUE
+        @box_download_checksum         = UNSET_VALUE
+        @box_download_checksum_type    = UNSET_VALUE
+        @box_download_client_cert      = UNSET_VALUE
+        @box_download_insecure         = UNSET_VALUE
+        @box_download_location_trusted = UNSET_VALUE
+        @box_url                       = UNSET_VALUE
+        @box_version                   = UNSET_VALUE
+        @communicator                  = UNSET_VALUE
+        @graceful_halt_timeout         = UNSET_VALUE
+        @guest                         = UNSET_VALUE
+        @hostname                      = UNSET_VALUE
+        @post_up_message               = UNSET_VALUE
+        @provisioners                  = []
+        @usable_port_range             = UNSET_VALUE
 
         # Internal state
         @__compiled_provider_configs   = {}
@@ -63,6 +69,7 @@ module VagrantPlugins
         @__finalized                   = false
         @__networks                    = {}
         @__providers                   = {}
+        @__provider_order              = []
         @__provider_overrides          = {}
         @__synced_folders              = {}
       end
@@ -95,7 +102,7 @@ module VagrantPlugins
           end
 
           other_defined_vms.each do |key, subvm|
-            if !new_defined_vms.has_key?(key)
+            if !new_defined_vms.key?(key)
               new_defined_vms[key] = subvm.clone
             else
               new_defined_vms[key].config_procs.concat(subvm.config_procs)
@@ -112,6 +119,12 @@ module VagrantPlugins
             new_providers[key] += blocks
           end
 
+          # Merge the provider ordering. Anything defined in our CURRENT
+          # scope is before anything else.
+          other_order = other.instance_variable_get(:@__provider_order)
+          new_order   = @__provider_order.dup
+          new_order   = (new_order + other_order).uniq
+
           # Merge the provider overrides by appending them...
           other_overrides = other.instance_variable_get(:@__provider_overrides)
           new_overrides   = @__provider_overrides.dup
@@ -125,8 +138,8 @@ module VagrantPlugins
           new_provs   = []
           other_provs = other.provisioners.dup
           @provisioners.each do |p|
-            if p.id
-              other_p = other_provs.find { |o| p.id == o.id }
+            if p.name
+              other_p = other_provs.find { |o| p.name == o.name }
               if other_p
                 # There is an override. Take it.
                 other_p.config = p.config.merge(other_p.config)
@@ -162,6 +175,7 @@ module VagrantPlugins
           result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
           result.instance_variable_set(:@__defined_vms, new_defined_vms)
           result.instance_variable_set(:@__providers, new_providers)
+          result.instance_variable_set(:@__provider_order, new_order)
           result.instance_variable_set(:@__provider_overrides, new_overrides)
           result.instance_variable_set(:@__synced_folders, new_folders)
         end
@@ -189,7 +203,7 @@ module VagrantPlugins
         options ||= {}
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
-        options[:disabled]  = false if !options.has_key?(:disabled)
+        options[:disabled]  = false if !options.key?(:disabled)
         options = (@__synced_folders[options[:guestpath]] || {}).
           merge(options.dup)
 
@@ -239,7 +253,7 @@ module VagrantPlugins
         id      = "#{type}-#{id}"
 
         # Merge in the previous settings if we have them.
-        if @__networks.has_key?(id)
+        if @__networks.key?(id)
           options = @__networks[id][1].merge(options)
         end
 
@@ -255,6 +269,9 @@ module VagrantPlugins
         @__providers[name] ||= []
         @__provider_overrides[name] ||= []
 
+        # Add the provider to the ordering list
+        @__provider_order << name
+
         if block_given?
           @__providers[name] << block if block_given?
 
@@ -267,21 +284,36 @@ module VagrantPlugins
       end
 
       def provision(name, **options, &block)
-        id = options.delete(:id).to_s if options.has_key?(:id)
+        type = name
+        if options.key?(:type)
+          type = options.delete(:type)
+        else
+          name = nil
+        end
+
+        if options.key?(:id)
+          puts "Setting `id` on a provisioner is deprecated. Please use the"
+          puts "new syntax of `config.vm.provision \"name\", type: \"type\""
+          puts "where \"name\" is the replacement for `id`. This will be"
+          puts "fully removed in Vagrant 1.8."
+
+          name = id
+        end
 
         prov = nil
-        if id
-          prov = @provisioners.find { |p| p.id == id }
+        if name
+          name = name.to_sym
+          prov = @provisioners.find { |p| p.name == name }
         end
 
         if !prov
-          prov = VagrantConfigProvisioner.new(id, name.to_sym)
+          prov = VagrantConfigProvisioner.new(name, type.to_sym)
           @provisioners << prov
         end
 
         prov.preserve_order = !!options.delete(:preserve_order) if \
-          options.has_key?(:preserve_order)
-        prov.run = options.delete(:run) if options.has_key?(:run)
+          options.key?(:preserve_order)
+        prov.run = options.delete(:run) if options.key?(:run)
         prov.add_config(options, &block)
         nil
       end
@@ -321,6 +353,7 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @allowed_synced_folder_types = nil if @allowed_synced_folder_types == UNSET_VALUE
         @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box = nil if @box == UNSET_VALUE
@@ -331,6 +364,7 @@ module VagrantPlugins
         @box_download_checksum_type = nil if @box_download_checksum_type == UNSET_VALUE
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
+        @box_download_location_trusted = false if @box_download_location_trusted == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
         @box_version = nil if @box_version == UNSET_VALUE
         @communicator = nil if @communicator == UNSET_VALUE
@@ -342,6 +376,10 @@ module VagrantPlugins
 
         if @usable_port_range == UNSET_VALUE
           @usable_port_range = (2200..2250)
+        end
+
+        if @allowed_synced_folder_types
+          @allowed_synced_folder_types = Array(@allowed_synced_folder_types).map(&:to_sym)
         end
 
         # Make sure that the download checksum is a string and that
@@ -373,10 +411,15 @@ module VagrantPlugins
               host_ip: "127.0.0.1",
               id: "winrm",
               auto_correct: true
-          end
-        end
 
-        if !@__networks["forwarded_port-ssh"]
+            network :forwarded_port,
+              guest: 5986,
+              host: 55986,
+              host_ip: "127.0.0.1",
+              id: "winrm-ssl",
+              auto_correct: true
+          end
+        elsif !@__networks["forwarded_port-ssh"]
           network :forwarded_port,
             guest: 22,
             host: 2222,
@@ -412,8 +455,20 @@ module VagrantPlugins
               config = config.merge(new_config)
             end
           rescue Exception => e
+            @logger.error("Vagrantfile load error: #{e.message}")
+            @logger.error(e.inspect)
+            @logger.error(e.message)
+            @logger.error(e.backtrace.join("\n"))
+
+            line = "(unknown)"
+            if e.backtrace && e.backtrace[0]
+              line = e.backtrace[0].split(":")[1]
+            end
+
             raise Vagrant::Errors::VagrantfileLoadError,
               path: "<provider config: #{name}>",
+              line: line,
+              exception_class: e.class,
               message: e.message
           end
 
@@ -429,12 +484,7 @@ module VagrantPlugins
           p.run = p.run.to_sym if p.run
         end
 
-        # If we didn't share our current directory, then do it
-        # manually.
-        if !@__synced_folders["/vagrant"]
-          synced_folder(".", "/vagrant")
-        end
-
+        current_dir_shared = false
         @__synced_folders.each do |id, options|
           if options[:nfs]
             options[:type] = :nfs
@@ -444,6 +494,14 @@ module VagrantPlugins
           if options[:type] == :nfs && Vagrant::Util::Platform.windows?
             options.delete(:type)
           end
+
+          if options[:hostpath]  == '.'
+            current_dir_shared = true
+          end
+        end
+
+        if !current_dir_shared && !@__synced_folders["/vagrant"]
+          synced_folder(".", "/vagrant")
         end
 
         # Flag that we finalized
@@ -552,16 +610,18 @@ module VagrantPlugins
           guestpath = Pathname.new(options[:guestpath])
           hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
-          if guestpath.relative? && guestpath.to_s !~ /^\w+:/
-            errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
-                             path: options[:guestpath])
-          else
-            if used_guest_paths.include?(options[:guestpath])
-              errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_duplicate",
+          if guestpath.to_s != ""
+            if guestpath.relative? && guestpath.to_s !~ /^\w+:/
+              errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
                                path: options[:guestpath])
-            end
+            else
+              if used_guest_paths.include?(options[:guestpath])
+                errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_duplicate",
+                                 path: options[:guestpath])
+              end
 
-            used_guest_paths.add(options[:guestpath])
+              used_guest_paths.add(options[:guestpath])
+            end
           end
 
           if !hostpath.directory? && !options[:create]
@@ -569,7 +629,7 @@ module VagrantPlugins
                              path: options[:hostpath])
           end
 
-          if options[:type] == :nfs
+          if options[:type] == :nfs && !options[:nfs__quiet]
             if options[:owner] || options[:group]
               # Owner/group don't work with NFS
               errors << I18n.t("vagrant.config.vm.shared_folder_nfs_owner_group",
@@ -649,8 +709,10 @@ module VagrantPlugins
         # Validate provisioners
         @provisioners.each do |vm_provisioner|
           if vm_provisioner.invalid?
+            name = vm_provisioner.name.to_s
+            name = vm_provisioner.type.to_s if name.empty?
             errors["vm"] << I18n.t("vagrant.config.vm.provisioner_not_found",
-                                   name: vm_provisioner.name)
+                                   name: name)
             next
           end
 
@@ -672,6 +734,10 @@ module VagrantPlugins
         end
 
         errors
+      end
+
+      def __providers
+        @__provider_order
       end
     end
   end

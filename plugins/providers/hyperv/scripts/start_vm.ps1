@@ -10,7 +10,7 @@ forEach ($module in $modules) { . $module }
 
 try {
   $vm = Get-VM -Id $VmId -ErrorAction "stop"
-  Start-VM $vm
+  Start-VM $vm -ErrorAction "stop"
   $state = $vm.state
   $status = $vm.status
   $name = $vm.name

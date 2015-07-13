@@ -1,9 +1,9 @@
 module VagrantPlugins
-  module GuestSuse
+  module GuestSUSE
     module Cap
       class NetworkScriptsDir
         def self.network_scripts_dir(machine)
-          "/etc/sysconfig/network/"
+          "/etc/sysconfig/network"
         end
       end
     end

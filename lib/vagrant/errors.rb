@@ -316,6 +316,10 @@ module Vagrant
       error_key(:corrupt_machine_index)
     end
 
+    class DarwinMountFailed < VagrantError
+      error_key(:darwin_mount_failed)
+    end
+
     class DarwinNFSMountFailed < VagrantError
       error_key(:darwin_nfs_mount_failed)
     end
@@ -476,6 +480,10 @@ module Vagrant
       error_key(:nfs_client_not_installed_in_guest)
     end
 
+    class NoDefaultProvider < VagrantError
+      error_key(:no_default_provider)
+    end
+
     class NoDefaultSyncedFolderImpl < VagrantError
       error_key(:no_default_synced_folder_impl)
     end
@@ -552,6 +560,22 @@ module Vagrant
       error_key(:plugin_uninstall_system)
     end
 
+    class PushesNotDefined < VagrantError
+      error_key(:pushes_not_defined)
+    end
+
+    class PushStrategyNotDefined < VagrantError
+      error_key(:push_strategy_not_defined)
+    end
+
+    class PushStrategyNotLoaded < VagrantError
+      error_key(:push_strategy_not_loaded)
+    end
+
+    class PushStrategyNotProvided < VagrantError
+      error_key(:push_strategy_not_provided)
+    end
+
     class RSyncError < VagrantError
       error_key(:rsync_error)
     end
@@ -614,6 +638,10 @@ module Vagrant
 
     class SSHInvalidShell< VagrantError
       error_key(:ssh_invalid_shell)
+    end
+
+    class SSHInsertKeyUnsupported < VagrantError
+      error_key(:ssh_insert_key_unsupported)
     end
 
     class SSHIsPuttyLink < VagrantError
@@ -692,6 +720,10 @@ module Vagrant
       error_key(:vboxmanage_error)
     end
 
+    class VBoxManageLaunchError < VagrantError
+      error_key(:vboxmanage_launch_error)
+    end
+
     class VBoxManageNotFoundError < VagrantError
       error_key(:vboxmanage_not_found_error)
     end
@@ -726,6 +758,18 @@ module Vagrant
 
     class VirtualBoxNoName < VagrantError
       error_key(:virtualbox_no_name)
+    end
+
+    class VirtualBoxNameExists < VagrantError
+      error_key(:virtualbox_name_exists)
+    end
+
+    class VirtualBoxUserMismatch < VagrantError
+      error_key(:virtualbox_user_mismatch)
+    end
+
+    class VirtualBoxVersionEmpty < VagrantError
+      error_key(:virtualbox_version_empty)
     end
 
     class VMBaseMacNotSpecified < VagrantError

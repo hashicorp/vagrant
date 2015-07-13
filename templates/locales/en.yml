@@ -20,10 +20,14 @@ en:
       Adding box '%{name}' (v%{version}) for provider: %{providers}
     box_added: |-
       Successfully added box '%{name}' (v%{version}) for '%{provider}'!
+    box_adding_direct: |-
+      Box file was not detected as metadata. Adding it directly...
     box_downloading: |-
       Downloading: %{url}
     box_download_error: |-
       Error downloading: %{message}
+    box_unpacking: |-
+      Unpacking necessary files from: %{url}
     box_expanding_url: |-
       URL: %{url}
     box_loading_metadata: |-
@@ -87,6 +91,14 @@ en:
       CFEngine running in "single run" mode. Will execute one file.
     cfengine_single_run_execute: |-
       Executing run file for CFEngine...
+    chef_cant_detect: |-
+      Vagrant does not support detecting whether Chef is installed
+      for the guest OS running in the machine. Vagrant will assume it is
+      installed and attempt to continue.
+    chef_already_installed: |-
+      Detected Chef (%{version}) is already installed
+    chef_installing: |-
+      Installing Chef (%{version})...
     chef_client_cleanup_failed: |-
       Cleaning up the '%{deletable}' for Chef failed. The stdout and
       stderr are shown below. Vagrant will continue destroying the machine,
@@ -112,8 +124,11 @@ en:
     docker_configure_autostart: |-
       Configuring Docker to autostart containers...
     docker_install_with_version_not_supported: |-
-      Vagrant is not capable of installing an specific version of Docker
+      Vagrant is not capable of installing a specific version of Docker
       onto the guest machine and the latest version will be installed.
+      This is a limitation of Vagrant knowing how to interact with this
+      operating system. This isn't a bug, but if you know how to fix this
+      please report it to Vagrant.
     docker_installing: |-
       Installing Docker (%{version}) onto machine...
     docker_pulling_images:
@@ -126,12 +141,19 @@ en:
       Building Docker images...
     docker_running: |-
       -- Container: %{name}
-    docker_starting_containers:
+    docker_restarting_container: |-
+      -- Detected changes to container '%{name}', restarting...
+    docker_starting_containers: |-
       Starting Docker containers...
     inserted_key: |-
       Key inserted! Disconnecting and reconnecting using new SSH key...
-    inserting_insecure_key: |-
-      Inserting Vagrant public key within guest...
+    inserting_insecure_detected: |-
+      Vagrant insecure key detected. Vagrant will automatically replace
+      this with a newly generated keypair for better security.
+    inserting_random_key: |-
+      Inserting generated public key within guest...
+    inserting_remove_key: |-
+      Removing insecure key from the guest if it's present...
     list_commands: |-
       Below is a listing of all available Vagrant commands and a brief
       description of what they do.
@@ -184,6 +206,12 @@ en:
       have specified `rsync_auto` to be false.
     rsync_auto_path: |-
       Watching: %{path}
+    rsync_auto_rsync_error: |-
+      There was an error while executing rsync. The error is shown below.
+      This may not be critical since rsync sometimes fails, but if this message
+      repeats, then please fix the issue:
+
+      %{message}
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communicate with it. Verify that this machine is properly running.
@@ -195,6 +223,11 @@ en:
       Rsyncing folder: %{hostpath} => %{guestpath}
     rsync_folder_excludes: "  - Exclude: %{excludes}"
     rsync_installing: "Installing rsync to the VM..."
+    rsync_proxy_machine: |-
+      The provider ('%{provider}') for the machine '%{name}' is
+      using a proxy machine. RSync will sync to this proxy
+      instead of directly to the environment itself.
+    rsync_showing_output: "Showing rsync output..."
     rsync_ssh_password: |-
       The machine you're rsyncing folders to is configured to use
       password-based authentication. Vagrant can't script rsync to automatically
@@ -212,6 +245,10 @@ en:
       Error! Your console doesn't support hiding input. We'll ask for
       input again below, but we WILL NOT be able to hide input. If this
       is a problem for you, ctrl-C to exit and fix your stdin.
+    up_no_machines: |-
+      No machines to bring up. This is usually because all machines are
+      set to `autostart: false`, which means you have to explicitly specify
+      the name of the machine to bring up.
     upgrading_home_path_v1_5: |-
       Vagrant is upgrading some internal state for the latest version.
       Please do not quit Vagrant at this time. While upgrading, Vagrant
@@ -222,7 +259,7 @@ en:
       Press ctrl-c now to exit if you want to remove some boxes or free
       up some disk space.
 
-      Press any other key to continue.
+      Press the Enter or Return key to continue.
     version_current: |-
       Installed Version: %{version}
     version_latest: |-
@@ -264,7 +301,7 @@ en:
         id_in_pre_import: |-
           The ':id' parameter is not available in "pre-import" customizations.
         intnet_on_bad_type: |-
-          VirtualBox internal networks can only be enabled on "private_networks"
+          VirtualBox internal networks can only be enabled on "private_network"
         invalid_event: |-
           %{event} is not a valid event for customization. Valid events
           are: %{valid_events}
@@ -348,6 +385,9 @@ en:
         provider. Double-check your requested provider to verify you didn't
         simply misspell it.
 
+        If you're adding a box from HashiCorp's Atlas, make sure the box is
+        released.
+
         Name: %{name}
         Address: %{url}
         Requested provider: %{requested}
@@ -364,7 +404,7 @@ en:
       box_add_short_not_found: |-
         The box '%{name}' could not be found or
         could not be accessed in the remote catalog. If this is a private
-        box on Vagrant Cloud, please verify you're logged in via
+        box on HashiCorp's Atlas, please verify you're logged in via
         `vagrant login`. Also, please double-check the name. The expanded
         URL and error message are shown below:
 
@@ -381,6 +421,9 @@ en:
         GUI often has more helpful error messages than Vagrant can retrieve.
         For example, if you're using VirtualBox, run `vagrant up` while the
         VirtualBox GUI is open.
+
+        The primary issue for this error is that the provider you're using
+        is not properly configured. This is very rarely a Vagrant issue.
       boot_timeout: |-
         Timed out while waiting for the machine to boot. This means that
         Vagrant was unable to communicate with the guest machine within
@@ -526,16 +569,14 @@ en:
 
         %{versions}
       box_server_not_set: |-
-        A URL to a Vagrant Cloud server is not set, so boxes cannot
-        be added with a shorthand ("mitchellh/precise64") format.
-        You may also be seeing this error if you meant to type in
-        a path to a box file which doesn't exist locally on your
-        system.
+        A URL to an Atlas server is not set, so boxes cannot be added with a
+        shorthand ("mitchellh/precise64") format. You may also be seeing this
+        error if you meant to type in a path to a box file which doesn't exist
+        locally on your system.
 
-        To set a URL to a Vagrant Cloud server, set the
-        `VAGRANT_SERVER_URL` environmental variable. Or, if you
-        meant to use a file path, make sure the path to the file
-        is valid.
+        To set a URL to an Atlas server, set the `VAGRANT_SERVER_URL`
+        environmental variable. Or, if you meant to use a file path, make sure
+        the path to the file is valid.
       box_update_multi_provider: |-
         You requested to update the box '%{name}'. This box has
         multiple providers. You must explicitly select a single
@@ -850,6 +891,21 @@ en:
 
         If this message is erroneous, you may disable this check by setting
         `config.nfs.verify_installed` to `false` in your Vagrantfile.
+      no_default_provider: |-
+        No usable default provider could be found for your system.
+
+        Vagrant relies on interactions with 3rd party systems, known as
+        "providers", to provide Vagrant with resources to run development
+        environments. Examples are VirtualBox, VMware, Hyper-V.
+
+        The easiest solution to this message is to install VirtualBox, which
+        is available for free on all major platforms.
+
+        If you believe you already have a provider available, make sure it
+        is properly installed and configured. You can see more details about
+        why a particular provider isn't working by forcing usage with
+        `vagrant up --provider=PROVIDER`, which should give you a more specific
+        error message for that particular provider.
       no_default_synced_folder_impl: |-
         No synced folder implementation is available for your synced folders!
         Please consult the documentation to learn why this may be the case.
@@ -907,6 +963,29 @@ en:
         You can however, install a plugin with the same name to replace
         these plugins. User-installed plugins take priority over
         system-installed plugins.
+      pushes_not_defined: |-
+        The Vagrantfile does not define any 'push' strategies. In order to use
+        `vagrant push`, you must define at least one push strategy:
+
+            config.push.define "ftp" do |push|
+              # ... push-specific options
+            end
+      push_strategy_not_defined: |-
+        The push strategy '%{name}' is not defined in the Vagrantfile. Defined
+        strategy names are:
+
+            %{pushes}
+      push_strategy_not_loaded: |-
+        There are no push strategies named '%{name}'. Please make sure you
+        spelled it correctly. If you are using an external push strategy, you
+        may need to install a plugin. Loaded push strategies are:
+
+            %{pushes}
+      push_strategy_not_provided: |-
+        The Vagrantfile defines more than one 'push' strategy. Please specify a
+        strategy. Defined strategy names are:
+
+            %{pushes}
       package_include_symlink: |-
         A file or directory you're attempting to include with your packaged
         box has symlinks in it. Vagrant cannot include symlinks in the
@@ -1045,6 +1124,16 @@ en:
         using a shell that is unavailable on the system. Please verify
         you're using the full path to the shell and that the shell is
         executable by the SSH user.
+      ssh_insert_key_unsupported: |-
+        Vagrant is configured to generate a random keypair and insert it
+        onto the guest machine, but it appears Vagrant doesn't know how to do
+        this with your guest OS. Please disable key insertion by setting
+        `config.ssh.insert_key = false` in the Vagrantfile.
+
+        After doing so, run `vagrant reload` for the setting to take effect.
+
+        If you'd like Vagrant to learn how to insert keys on this OS, please
+        open an issue with details about your environment.
       ssh_is_putty_link: |-
         The `ssh` executable found in the PATH is a PuTTY Link SSH client.
         Vagrant is only compatible with OpenSSH SSH clients. Please install
@@ -1069,6 +1158,13 @@ en:
         permissions on the following file to 0600 and then try running this command again:
 
         %{key_path}
+
+        Note that this error occurs after Vagrant automatically tries to
+        do this for you. The likely cause of this error is a lack of filesystem
+        permissions or even filesystem functionality. For example, if your
+        Vagrant data is on a USB stick, a common case is that chmod is
+        not supported. The key will need to be moved to a filesystem that
+        supports chmod.
       ssh_key_type_not_supported: |-
         The private key you're attempting to use with this Vagrant box uses
         an unsupported encryption type. The SSH library Vagrant uses does not support
@@ -1127,7 +1223,8 @@ en:
         a syntax error.
 
         Path: %{path}
-        Message: %{message}
+        Line number: %{line}
+        Message: %{exception_class}: %{message}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:
@@ -1157,6 +1254,13 @@ en:
         Command: %{command}
 
         Stderr: %{stderr}
+      vboxmanage_launch_error: |-
+        There was an error running VBoxManage. This is usually a permissions
+        problem or installation problem with VirtualBox itself, and not Vagrant.
+        Please note the error message below (if any), resolve the issue, and
+        try Vagrant again.
+
+        %{message}
       vboxmanage_not_found_error: |-
         The "VBoxManage" command or one of its dependencies could not
         be found. Please verify VirtualBox is properly installed. You can verify
@@ -1190,6 +1294,18 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_name_exists: |-
+        The name of your virtual machine couldn't be set because VirtualBox
+        is reporting another VM with that name already exists. Most of the
+        time, this is because of an error with VirtualBox not cleaning up
+        properly. To fix this, verify that no VMs with that name do exist
+        (by opening the VirtualBox GUI). If they don't, then look at the
+        folder in the error message from VirtualBox below and remove it
+        if there isn't any information you need in there.
+
+        VirtualBox error:
+
+        %{stderr}
       virtualbox_no_name: |-
         Vagrant was unable to determine the recommended name for your
         VirtualBox VM. This is usually an issue with VirtualBox. The output
@@ -1212,6 +1328,23 @@ en:
         Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
         this to be available on the PATH. If VirtualBox is installed, please find the
         `VBoxManage` binary and add it to the PATH environmental variable.
+      virtualbox_user_mismatch: |-
+        The VirtualBox VM was created with a user that doesn't match the
+        current user running Vagrant. VirtualBox requires that the same user
+        be used to manage the VM that was created. Please re-run Vagrant with
+        that user. This is not a Vagrant issue.
+
+        The UID used to create the VM was: %{original_uid}
+        Your UID is: %{uid}
+      virtualbox_version_empty: |-
+        Vagrant detected that VirtualBox appears installed on your system,
+        but calls to detect the version are returning empty. This is often
+        indicative of installation issues with VirtualBox. Please verify
+        that VirtualBox is properly installed. As a final verification,
+        please run the following command manually and verify a version is
+        outputted:
+
+        %{vboxmanage} --version
       vm_creation_required: |-
         VM must be created before running this command. Run `vagrant up` first.
       vm_inaccessible: |-
@@ -1248,8 +1381,8 @@ en:
           Cookbook path doesn't exist: %{path}
         custom_config_path_missing: |-
           Path specified for "custom_config_path" does not exist.
-        server_url_empty: "Chef server URL must be populated."
-        validation_key_path: "Validation key path must be valid path to your chef server validation key."
+        server_url_empty: "Chef Server URL must be populated."
+        validation_key_path: "Validation key path must be valid path to your Chef Server validation key."
       loader:
         bad_v1_key: |-
           Unknown configuration section '%{key}'. If this section was part of
@@ -1447,6 +1580,9 @@ en:
             Enabling bridged network...
           preparing: |-
             Preparing bridged networking...
+          choice_help: |-
+            When choosing an interface, it is usually the one that is
+            being used to connect to the internet.
           specific_not_found: |-
             Specific bridge '%{bridge}' not found. You may be asked to specify
             which network to bridge to.
@@ -1587,6 +1723,8 @@ en:
             using the other host only network.
           preparing: |-
             Preparing network interfaces based on configuration...
+          cleanup_vbox_default_dhcp: |-
+            Found default DHCP server from initial VirtualBox install. Cleaning it up...
         host_only_network:
           collides: |-
             The specified host network collides with a non-hostonly network!
@@ -1608,10 +1746,10 @@ en:
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
-            Machine not provisioning because `--no-provision` is specified.
+            Machine not provisioned because `--no-provision` is specified.
           disabled_by_sentinel: |-
             Machine already provisioned. Run `vagrant provision` or use the `--provision`
-            to force provisioning. Provisioners marked to run always will still run.
+            flag to force provisioning. Provisioners marked to run always will still run.
         resume:
           resuming: Resuming suspended VM...
           unpausing: |-
@@ -1661,7 +1799,7 @@ en:
           packaging: "Packaging additional file: %{file}"
           compressing: "Compressing package to: %{tar_path}"
           output_exists: |-
-            The specified file to save the package as already exists. Please
+            The specified file '%{file_name}' to save the package as already exists. Please
             remove this file or specify a different file name for outputting.
           output_is_directory: |-
             The specified output is a directory. Please specify a path including
@@ -1697,12 +1835,32 @@ en:
           "The cookbook path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
+        install_failed: |-
+          Vagrant could not detect Chef on the guest! Even after Vagrant
+          attempted to install Chef, it could still not find Chef on the system.
+          Please make sure you are connected to the Internet and can access
+          Chef's package distribution servers. If you already have Chef
+          installed on this guest, you can disable the automatic Chef detection
+          by setting the 'install' option in the Chef configuration section of
+          your Vagrantfile:
+
+              chef.install = false
+        log_level_empty: |-
+          The Chef provisioner requires a log level. If you did not set a
+          log level, this is probably a bug and should be reported.
         upload_validation_key: "Uploading chef client validation key..."
         upload_encrypted_data_bag_secret_key: "Uploading chef encrypted data bag secret key..."
+        recipe_empty: |-
+          Chef Apply provisioning requires that the `config.chef.recipe` be set
+          to a string containing the recipe contents you want to execute on the
+          guest.
         running_client: "Running chef-client..."
         running_client_again: "Running chef-client again (failed to converge)..."
+        running_apply: "Running chef-apply..."
         running_solo: "Running chef-solo..."
         running_solo_again: "Running chef-solo again (failed to converge)..."
+        running_zero: "Running chef-client (local-mode)..."
+        running_zero_again: "Running chef-client (local-mode) again (failed to converge)..."
         missing_shared_folders: |-
           Shared folders that Chef requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
@@ -1727,6 +1885,9 @@ en:
         server_validation_key_doesnt_exist: |-
           The validation key set for `config.chef.validation_key_path` does not exist! This
           file needs to exist so it can be uploaded to the virtual machine.
+        upload_path_empty: |-
+          The Chef Apply provisioner requires that the `config.chef.upload_path`
+          be set to a non-nil, non-empty value.
         deleting_from_server: "Deleting %{deletable} \"%{name}\" from Chef server..."
 
       file:
@@ -1741,11 +1902,17 @@ en:
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
         running_puppet: "Running Puppet with %{manifest}..."
+        running_puppet_env: "Running Puppet with environment %{environment}..."
         manifest_missing: |-
           The configured Puppet manifest is missing. Please specify a path to an
           existing manifest:
 
           %{manifest}
+        environment_missing: |-
+          The configured Puppet environment folder %{environment} was not found in the
+          specified environmentpath %{environmentpath}.
+          Please specify a path to an existing Puppet directory environment.
+        environment_path_missing: "The environment path specified for Puppet does not exist: %{path}"
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
         missing_shared_folders: |-
           Shared folders that Puppet requires are missing on the virtual machine.
@@ -1781,6 +1948,7 @@ en:
         path_and_inline_set: "Only one of `path` or `inline` may be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"
         running: "Running: %{script}"
+        runningas: "Running: %{local} as %{remote}"
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
 
       ansible:
@@ -1796,10 +1964,16 @@ en:
 
       salt:
         minion_config_nonexist: |-
-          The specified minion_config file could not be found.
+          The specified minion_config '%{missing_config_file}' file could not be found.
         master_config_nonexist: |-
-          The specified master_config file could not be found.
+          The specified master_config '%{missing_config_file}' file could not be found.
+        grains_config_nonexist: |-
+          The specified grains_config file could not be found.
         missing_key: |-
           You must include both public and private keys.
         must_accept_keys: |-
           You must accept keys when running highstate with master!
+
+    pushes:
+      file:
+        no_destination: "File destination must be specified."

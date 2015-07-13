@@ -5,8 +5,8 @@ sidebar_current: "gettingstarted-projectsetup"
 
 # Project Setup
 
-The first step for any project to use Vagrant is to configure Vagrant
-using a [Vagrantfile](/v2/vagrantfile/index.html). The purpose of the
+The first step in configuring any Vagrant project is to create a
+[Vagrantfile](/v2/vagrantfile/index.html). The purpose of the
 Vagrantfile is twofold:
 
 1. Mark the root directory of your project. A lot of the configuration
@@ -36,3 +36,6 @@ set up Vagrant for an existing project.
 The Vagrantfile is meant to be committed to version control with
 your project, if you use version control. This way, every person working
 with that project can benefit from Vagrant without any upfront work.
+
+<a href="/v2/getting-started/index.html" class="button inline-button prev-button">Getting Started</a>
+<a href="/v2/getting-started/boxes.html" class="button inline-button next-button">Boxes</a>

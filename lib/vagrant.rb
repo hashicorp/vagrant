@@ -123,6 +123,7 @@ module Vagrant
     c.register([:"2", :host])         { Plugin::V2::Host }
     c.register([:"2", :provider])     { Plugin::V2::Provider }
     c.register([:"2", :provisioner])  { Plugin::V2::Provisioner }
+    c.register([:"2", :push])         { Plugin::V2::Push }
     c.register([:"2", :synced_folder]) { Plugin::V2::SyncedFolder }
   end
 
@@ -138,16 +139,27 @@ module Vagrant
     Config.run(version, &block)
   end
 
-  # This checks if a plugin with the given name is installed. This can
-  # be used from the Vagrantfile to easily branch based on plugin
-  # availability.
-  def self.has_plugin?(name)
-    # We check the plugin names first because those are cheaper to check
-    return true if plugin("2").manager.registered.any? { |p| p.name == name }
+  # This checks if a plugin with the given name is available (installed
+  # and enabled). This can be used from the Vagrantfile to easily branch
+  # based on plugin availability.
+  def self.has_plugin?(name, version=nil)
+    return false unless Vagrant.plugins_enabled?
+
+    if !version
+      # We check the plugin names first because those are cheaper to check
+      return true if plugin("2").manager.registered.any? { |p| p.name == name }
+    end
+
+    # Make the requirement object
+    version = Gem::Requirement.new([version]) if version
 
     # Now check the plugin gem names
     require "vagrant/plugin/manager"
-    Plugin::Manager.instance.installed_specs.any? { |s| s.name == name }
+    Plugin::Manager.instance.installed_specs.any? do |s|
+      match = s.name == name
+      next match if !version
+      next match && version.satisfied_by?(s.version)
+    end
   end
 
   # Returns a superclass to use when creating a plugin for Vagrant.
@@ -215,6 +227,22 @@ module Vagrant
       requirements: requirements.join(", "),
       version: VERSION
   end
+
+  # This allows plugin developers to access the original environment before
+  # Vagrant even ran. This is useful when shelling out, especially to other
+  # Ruby processes.
+  #
+  # @return [Hash]
+  def self.original_env
+    {}.tap do |h|
+      ENV.each do |k,v|
+        if k.start_with?("VAGRANT_OLD_ENV")
+          key = k.sub(/^VAGRANT_OLD_ENV_/, "")
+          h[key] = v
+        end
+      end
+    end
+  end
 end
 
 # Default I18n to load the en locale
@@ -260,7 +288,7 @@ end
 if Vagrant.plugins_enabled?
   begin
     global_logger.info("Loading plugins!")
-    Bundler.require(:plugins)
+    $vagrant_bundler_runtime.require(:plugins)
   rescue Exception => e
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
   end

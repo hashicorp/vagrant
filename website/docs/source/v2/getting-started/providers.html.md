@@ -35,3 +35,5 @@ flags necessary.
 
 For more information on providers, read the full documentation on
 [providers](/v2/providers/index.html).
+
+<a href="/v2/getting-started/rebuild.html" class="button inline-button prev-button">Rebuild</a>

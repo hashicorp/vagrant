@@ -40,3 +40,6 @@ the folders in sync.
 With [synced folders](/v2/synced-folders/index.html), you can continue
 to use your own editor on your host machine and have the files sync
 into the guest machine.
+
+<a href="/v2/getting-started/up.html" class="button inline-button prev-button">Up And SSH</a>
+<a href="/v2/getting-started/provisioning.html" class="button inline-button next-button">Provisioning</a>

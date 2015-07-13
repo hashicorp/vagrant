@@ -33,3 +33,21 @@ Vagrant.configure("2") do |config|
     virtualbox__intnet: "mynetwork"
 end
 ```
+
+## VirtualBox NIC Type
+
+You can specify a specific nictype for the created network interface
+by using the `nictype` parameter. This isn't prefixed by `virtualbox__`
+for legacy reasons, but is VirtualBox-specific.
+
+This is an advanced option and should only be used if you know what
+you're using, since it can cause the network device to not work at all.
+
+Example:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "private_network", ip: "192.168.50.4",
+    nictype: "virtio"
+end
+```

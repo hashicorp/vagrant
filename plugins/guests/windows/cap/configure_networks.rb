@@ -64,7 +64,9 @@ module VagrantPlugins
           guest_network.network_adapters.each do |nic|
             @@logger.debug("nic: #{nic.inspect}")
             naked_mac = nic[:mac_address].gsub(':','')
-            if driver_mac_address[naked_mac]
+            # If the :net_connection_id entry is nil then it is probably a virtual connection
+            # and should be ignored.
+            if driver_mac_address[naked_mac] && !nic[:net_connection_id].nil?
               vm_interface_map[driver_mac_address[naked_mac]] = {
                 net_connection_id: nic[:net_connection_id],
                 mac_address: naked_mac,

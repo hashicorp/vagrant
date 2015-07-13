@@ -294,6 +294,16 @@ module VagrantPlugins
         end
       end
 
+      # This is the action that is called to sync folders to a running
+      # machine without a reboot.
+      def self.action_sync_folders
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use PrepareNFSValidIds
+          b.use SyncedFolders
+          b.use PrepareNFSSettings
+        end
+      end
+
       # This action brings the machine up from nothing, including importing
       # the box, configuring metadata, and booting.
       def self.action_up

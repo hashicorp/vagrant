@@ -17,7 +17,7 @@ describe VagrantPlugins::DockerProvider::Driver do
       ports:      '8080:80',
       volumes:    '/host/path:guest/path',
       detach:     true,
-      links:      {janis: 'joplin'},
+      links:      [[:janis, 'joplin'], [:janis, 'janis']],
       env:        {key: 'value'},
       name:       cid,
       hostname:   'jimi-hendrix',
@@ -43,7 +43,9 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     it 'links containers' do
-      expect(cmd_executed).to match(/--link #{params[:links].to_a.flatten.join(':')} .+ #{Regexp.escape params[:image]}/)
+      params[:links].each do |link|
+        expect(cmd_executed).to match(/--link #{link.join(':')} .+ #{Regexp.escape params[:image]}/)
+      end
     end
 
     it 'sets environmental variables' do
@@ -79,6 +81,13 @@ describe VagrantPlugins::DockerProvider::Driver do
     context 'when container does not exist' do
       before { subject.stub(execute: "foo\n#{cid}extra\nbar") }
       it { expect(result).to be_false }
+    end
+  end
+
+  describe '#pull' do
+    it 'should pull images' do
+      subject.should_receive(:execute).with('docker', 'pull', 'foo')
+      subject.pull('foo')
     end
   end
 
@@ -140,7 +149,12 @@ describe VagrantPlugins::DockerProvider::Driver do
 
       it 'stops the container' do
         subject.should_receive(:execute).with('docker', 'stop', '-t', '1', cid)
-        subject.stop(cid)
+        subject.stop(cid, 1)
+      end
+
+      it "stops the container with the set timeout" do
+        subject.should_receive(:execute).with('docker', 'stop', '-t', '5', cid)
+        subject.stop(cid, 5)
       end
     end
 
@@ -149,7 +163,7 @@ describe VagrantPlugins::DockerProvider::Driver do
 
       it 'does not stop container' do
         subject.should_not_receive(:execute).with('docker', 'stop', '-t', '1', cid)
-        subject.stop(cid)
+        subject.stop(cid, 1)
       end
     end
   end

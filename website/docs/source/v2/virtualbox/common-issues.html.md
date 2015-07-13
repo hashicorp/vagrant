@@ -20,3 +20,10 @@ it with the same access level as the console running Vagrant.
 To fix this issue, completely shut down all VirtualBox machines and GUIs.
 Wait a few seconds. Then, launch VirtualBox only with the access level you
 wish to use.
+
+## DNS Not Working
+
+If DNS is not working within your VM, then you may need to enable
+a DNS proxy (built-in to VirtualBox). Please [see the StackOverflow answers
+here](http://serverfault.com/questions/453185/vagrant-virtualbox-dns-10-0-2-3-not-working)
+for a guide on how to do that.

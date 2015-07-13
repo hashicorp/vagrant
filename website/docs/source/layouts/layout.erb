@@ -8,6 +8,9 @@
 		<!-- meta -->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+		<!-- favicon -->    
+		<link rel="shortcut icon" href="favicon.ico">
+
 		<!-- lib styles -->
 		<%= stylesheet_link_tag "bootstrap", "vagrantup" %>
 
@@ -22,21 +25,6 @@
 		<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
 		<script type="text/javascript" src="http://use.typekit.net/xfs6zus.js"></script>
 		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
-
-		<!-- Google analytics -->
-		<script type="text/javascript">
-
-			var _gaq = _gaq || [];
-			_gaq.push(['_setAccount', 'UA-15091924-1']);
-			_gaq.push(['_trackPageview']);
-
-			(function() {
-			 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-			 ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-			 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-			 })();
-
-		 </script>
 	</head>
 	<body>
 		<!-- wrap everything -->
@@ -150,6 +138,7 @@
 									<li<%= sidebar_current("vagrantfile-tips") %>><a href="/v2/vagrantfile/tips.html">Tips & Tricks</a></li>
 									<li<%= sidebar_current("vagrantfile-machine") %>><a href="/v2/vagrantfile/machine_settings.html" class="nocap">config.vm</a></li>
 									<li<%= sidebar_current("vagrantfile-ssh") %>><a href="/v2/vagrantfile/ssh_settings.html" class="nocap">config.ssh</a></li>
+									<li<%= sidebar_current("vagrantfile-winrm") %>><a href="/v2/vagrantfile/winrm_settings.html" class="nocap">config.winrm</a></li>
 									<li<%= sidebar_current("vagrantfile-vagrant") %>><a href="/v2/vagrantfile/vagrant_settings.html" class="nocap">config.vagrant</a></li>
 								</ul>
 								<% end %>
@@ -172,7 +161,9 @@
 									<li<%= sidebar_current("provisioning-ansible") %>><a href="/v2/provisioning/ansible.html">Ansible</a></li>
 									<li<%= sidebar_current("provisioning-cfengine") %>><a href="/v2/provisioning/cfengine.html">CFEngine</a></li>
 									<li<%= sidebar_current("provisioning-chefsolo") %>><a href="/v2/provisioning/chef_solo.html">Chef Solo</a></li>
+									<li<%= sidebar_current("provisioning-chefzero") %>><a href="/v2/provisioning/chef_zero.html">Chef Zero</a></li>
 									<li<%= sidebar_current("provisioning-chefclient") %>><a href="/v2/provisioning/chef_client.html">Chef Client</a></li>
+									<li<%= sidebar_current("provisioning-chefapply") %>><a href="/v2/provisioning/chef_apply.html">Chef Apply</a></li>
 									<li<%= sidebar_current("provisioning-docker") %>><a href="/v2/provisioning/docker.html">Docker</a></li>
 									<li<%= sidebar_current("provisioning-puppetapply") %>><a href="/v2/provisioning/puppet_apply.html">Puppet Apply</a></li>
 									<li<%= sidebar_current("provisioning-puppetagent") %>><a href="/v2/provisioning/puppet_agent.html">Puppet Agent</a></li>
@@ -252,6 +243,7 @@
 									<li<%= sidebar_current("vmware-boxes") %>><a href="/v2/vmware/boxes.html">Boxes</a></li>
 									<li<%= sidebar_current("vmware-configuration") %>><a href="/v2/vmware/configuration.html">Configuration</a></li>
 									<li<%= sidebar_current("vmware-known-issues") %>><a href="/v2/vmware/known-issues.html">Known Issues</a></li>
+									<li<%= sidebar_current("vmware-kernel-upgrade") %>><a href="/v2/vmware/kernel-upgrade.html">Kernel Upgrade</a></li>
 								</ul>
 								<% end %>
 								<% end %>
@@ -282,6 +274,17 @@
 									<li<%= sidebar_current("plugins-providers") %>><a href="/v2/plugins/providers.html">Providers</a></li>
 									<li<%= sidebar_current("plugins-provisioners") %>><a href="/v2/plugins/provisioners.html">Provisioners</a></li>
 									<li<%= sidebar_current("plugins-packaging") %>><a href="/v2/plugins/packaging.html">Packaging & Distribution</a></li>
+								</ul>
+								<% end %>
+
+								<li<%= sidebar_current("push") %>><a href="/v2/push/index.html">Push</a></li>
+
+								<% if sidebar_section == "push" %>
+								<ul class="sub unstyled">
+									<li<%= sidebar_current("push-atlas") %>><a href="/v2/push/atlas.html">Atlas</a></li>
+									<li<%= sidebar_current("push-ftp") %>><a href="/v2/push/ftp.html">FTP / SFTP</a></li>
+									<li<%= sidebar_current("push-heroku") %>><a href="/v2/push/heroku.html">Heroku</a></li>
+									<li<%= sidebar_current("push-local-exec") %>><a href="/v2/push/local-exec.html">Local Exec</a></li>
 								</ul>
 								<% end %>
 
@@ -341,7 +344,7 @@
 
 				<div class="row">
 					<h6 class="legal">
-						&#169; 2013 HashiCorp
+						Copyright &copy; <%= Time.now.year %> HashiCorp
 					</h6>
 				</div> <!-- row -->
 			</div> <!-- container -->
@@ -354,6 +357,40 @@
 		<!-- load full-width image into any div with class="big-background -->
 		<script>
 			$(".big-background").backstretch("assets/photos/full_width.jpg");
+		</script>
+
+		<!-- Google analytics -->
+		<script type="text/javascript">
+
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-15091924-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+			 var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			 ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			 })();
+
+		 </script>
+
+		<!-- AdRoll -->
+		<script type="text/javascript">
+		adroll_adv_id = "6QAAFJDIWBG3DJBDRJ7BEX";
+		adroll_pix_id = "PYT5HSNKNRDS7LMUR5B6YG";
+		(function () {
+		var oldonload = window.onload;
+		window.onload = function(){
+		   __adroll_loaded=true;
+		   var scr = document.createElement("script");
+		   var host = (("https:" == document.location.protocol) ? "https://s.adroll.com" : "http://a.adroll.com");
+		   scr.setAttribute('async', 'true');
+		   scr.type = "text/javascript";
+		   scr.src = host + "/j/roundtrip.js";
+		   ((document.getElementsByTagName('head') || [null])[0] ||
+		    document.getElementsByTagName('script')[0].parentNode).appendChild(scr);
+		   if(oldonload){oldonload()}};
+		}());
 		</script>
 	</body>
 </html>

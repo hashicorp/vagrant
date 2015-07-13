@@ -59,6 +59,12 @@ The remainder of the available options are optional:
   true, Vagrant will not do this, allowing the native colors from the script
   to be outputted.
 
+* `name` (string) - This value will be displayed in the output so that
+  identification by the user is easier when many shell provisioners are present.
+
+* `powershell_args` (string) - Extra arguments to pass to `PowerShell`
+  if you're provisioning with PowerShell on Windows.
+
 <a name="inline-scripts"></a>
 ## Inline Scripts
 
@@ -132,6 +138,16 @@ If you're running a Batch of PowerShell script for Windows, make sure
 that the external path has the proper extension (".bat" or ".ps1"), because
 Windows uses this to determine what kind fo file it is to execute. If you
 exclude this extension, it likely won't work.
+
+To run a script already available on the guest you can use an inline script to
+invoke the remote script on the guest.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell",
+    inline: "/bin/sh /path/to/the/script/already/on/the/guest.sh"
+end
+```
 
 ## Script Arguments
 

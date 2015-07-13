@@ -8,8 +8,8 @@ sidebar_current: "provisioning-chefsolo"
 **Provisioner name: `chef_solo`**
 
 The Chef Solo provisioner allows you to provision the guest using
-[Chef](http://www.opscode.com/chef/), specifically with
-[Chef Solo](http://docs.opscode.com/chef_solo.html).
+[Chef](https://www.chef.io/chef/), specifically with
+[Chef Solo](http://docs.chef.io/chef_solo.html).
 
 Chef Solo is ideal for people who are already experienced with Chef,
 already have Chef cookbooks, or are looking to learn Chef. Specifically,
@@ -31,10 +31,6 @@ of a single page of documentation.
 This section lists the complete set of available options for the Chef Solo
 provisioner. More detailed examples of how to use the provisioner are
 available below this section.
-
-Note that only the Chef-solo specific options are shown below. There is
-also a large set of [common options](/v2/provisioning/chef_common.html)
-that are available with both the Chef Solo and Chef client provisioners.
 
 * `cookbooks_path` (string or array) - A list of paths to where cookbooks
   are stored. By default this is "cookbooks", expecting a cookbooks folder
@@ -62,10 +58,13 @@ that are available with both the Chef Solo and Chef client provisioners.
   this will use the default synced folder type. For example, you can set this
   to "nfs" to use NFS synced folders.
 
+In addition to all the options listed above, the Chef Solo provisioner supports
+the [common options for all Chef provisioners](/v2/provisioning/chef_common.html).
+
 ## Specifying a Run List
 
 The easiest way to get started with the Chef Solo provisioner is to just
-specify a [run list](http://docs.opscode.com/essentials_node_object_run_lists.html). This looks like:
+specify a [run list](https://docs.chef.io/nodes.html#about-run-lists). This looks like:
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -88,6 +87,9 @@ $ tree
 |       |-- recipes
 |           |-- default.rb
 ```
+
+The order of the calls to `add_recipe` will specify the order of the run list.
+Earlier recipes added with `add_recipe` are run before later recipes added.
 
 ## Custom Cookbooks Path
 
@@ -117,7 +119,7 @@ end
 
 ## Roles
 
-Vagrant also supports provisioning with [Chef roles](http://docs.opscode.com/essentials_roles.html).
+Vagrant also supports provisioning with [Chef roles](http://docs.chef.io/roles.html).
 This is done by specifying a path to a roles folder where roles are defined
 and by adding roles to your run list:
 
@@ -143,7 +145,7 @@ Vagrant.
 
 ## Data Bags
 
-[Data bags](http://docs.opscode.com/essentials_data_bags.html) are also
+[Data bags](http://docs.chef.io/data_bags.html) are also
 supported by the Chef Solo provisioner. This is done by specifying
 a path to your data bags directory:
 

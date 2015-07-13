@@ -157,12 +157,16 @@ module VagrantPlugins
             @logger.debug("Bridge was directly specified in config, searching for: #{config[:bridge]}")
 
             # Search for a matching bridged interface
-            bridgedifs.each do |interface|
-              if interface[:name].downcase == config[:bridge].downcase
-                @logger.debug("Specific bridge found as configured in the Vagrantfile. Using it.")
-                chosen_bridge = interface[:name]
-                break
+            Array(config[:bridge]).each do |bridge|
+              bridge = bridge.downcase if bridge.respond_to?(:downcase)
+              bridgedifs.each do |interface|
+                if bridge === interface[:name].downcase
+                  @logger.debug("Specific bridge found as configured in the Vagrantfile. Using it.")
+                  chosen_bridge = interface[:name]
+                  break
+                end
               end
+              break if chosen_bridge
             end
 
             # If one wasn't found, then we notify the user here.
@@ -184,12 +188,15 @@ module VagrantPlugins
             else
               # More than one bridgable interface requires a user decision, so
               # show options to choose from.
-              @env[:ui].info I18n.t("vagrant.actions.vm.bridged_networking.available",
-                                    prefix: false)
+              @env[:ui].info I18n.t(
+                "vagrant.actions.vm.bridged_networking.available",
+                prefix: false)
               bridgedifs.each_index do |index|
                 interface = bridgedifs[index]
                 @env[:ui].info("#{index + 1}) #{interface[:name]}", prefix: false)
               end
+              @env[:ui].info(I18n.t(
+                "vagrant.actions.vm.bridged_networking.choice_help")+"\n")
 
               # The range of valid choices
               valid = Range.new(1, bridgedifs.length)
@@ -197,7 +204,8 @@ module VagrantPlugins
               # The choice that the user has chosen as the bridging interface
               choice = nil
               while !valid.include?(choice)
-                choice = @env[:ui].ask("What interface should the network bridge to? ")
+                choice = @env[:ui].ask(
+                  "Which interface should the network bridge to? ")
                 choice = choice.to_i
               end
 
@@ -281,16 +289,16 @@ module VagrantPlugins
             # with the final octet + 2. So "172.28.0.0" turns into "172.28.0.2"
             dhcp_ip    = ip_parts.dup
             dhcp_ip[3] += 2
-            dhcp_options[:dhcp_ip] ||= dhcp_ip.join(".")
+            dhcp_options[:dhcp_ip] = options[:dhcp_ip] || dhcp_ip.join(".")
 
             # Calculate the lower and upper bound for the DHCP server
             dhcp_lower    = ip_parts.dup
             dhcp_lower[3] += 3
-            dhcp_options[:dhcp_lower] ||= dhcp_lower.join(".")
+            dhcp_options[:dhcp_lower] = options[:dhcp_lower] || dhcp_lower.join(".")
 
             dhcp_upper    = ip_parts.dup
             dhcp_upper[3] = 254
-            dhcp_options[:dhcp_upper] ||= dhcp_upper.join(".")
+            dhcp_options[:dhcp_upper] = options[:dhcp_upper] || dhcp_upper.join(".")
           end
 
           return {
@@ -298,6 +306,7 @@ module VagrantPlugins
             auto_config: options[:auto_config],
             ip:          options[:ip],
             mac:         options[:mac],
+            name:        options[:name],
             netmask:     options[:netmask],
             nic_type:    options[:nic_type],
             type:        options[:type]
@@ -323,21 +332,7 @@ module VagrantPlugins
           end
 
           if config[:type] == :dhcp
-            # Check that if there is a DHCP server attached on our interface,
-            # then it is identical. Otherwise, we can't set it.
-            if interface[:dhcp]
-              valid = interface[:dhcp][:ip] == config[:dhcp_ip] &&
-                  interface[:dhcp][:lower] == config[:dhcp_lower] &&
-                  interface[:dhcp][:upper] == config[:dhcp_upper]
-
-              raise Vagrant::Errors::NetworkDHCPAlreadyAttached if !valid
-
-              @logger.debug("DHCP server already properly configured")
-            else
-              # Configure the DHCP server for the network.
-              @logger.debug("Creating a DHCP server...")
-              @env[:machine].provider.driver.create_dhcp_server(interface[:name], config)
-            end
+            create_dhcp_server_if_necessary(interface, config)
           end
 
           return {
@@ -466,6 +461,70 @@ module VagrantPlugins
           end
 
           nil
+        end
+
+        #-----------------------------------------------------------------
+        # DHCP Server Helper Functions
+        #-----------------------------------------------------------------
+
+        DEFAULT_DHCP_SERVER_FROM_VBOX_INSTALL = {
+          network_name: 'HostInterfaceNetworking-vboxnet0',
+          network:      'vboxnet0',
+          ip:           '192.168.56.100',
+          netmask:      '255.255.255.0',
+          lower:        '192.168.56.101',
+          upper:        '192.168.56.254'
+        }.freeze
+
+        #
+        # When a host-only network of type: :dhcp is configured,
+        # this handles the potential creation of a vbox dhcpserver to manage
+        # it.
+        #
+        # @param [Hash<String>] interface hash as returned from read_host_only_interfaces
+        # @param [Hash<String>] config hash as returned from hostonly_config
+        def create_dhcp_server_if_necessary(interface, config)
+          existing_dhcp_server = find_matching_dhcp_server(interface)
+
+          if existing_dhcp_server
+            if dhcp_server_matches_config?(existing_dhcp_server, config)
+              @logger.debug("DHCP server already properly configured")
+              return
+            elsif existing_dhcp_server == DEFAULT_DHCP_SERVER_FROM_VBOX_INSTALL
+              @env[:ui].info I18n.t("vagrant.actions.vm.network.cleanup_vbox_default_dhcp")
+              @env[:machine].provider.driver.remove_dhcp_server(existing_dhcp_server[:network_name])
+            else
+              # We have an invalid DHCP server that we're not able to
+              # automatically clean up, so we need to give up and tell the user
+              # to sort out their own vbox dhcpservers and hostonlyifs
+              raise Vagrant::Errors::NetworkDHCPAlreadyAttached
+            end
+          end
+
+          @logger.debug("Creating a DHCP server...")
+          @env[:machine].provider.driver.create_dhcp_server(interface[:name], config)
+        end
+
+        # Detect when an existing DHCP server matches precisely the
+        # requested config for a hostonly interface.
+        #
+        # @param [Hash<String>] dhcp_server as found by read_dhcp_servers
+        # @param [Hash<String>] config as returned from hostonly_config
+        # @return [Boolean]
+        def dhcp_server_matches_config?(dhcp_server, config)
+          dhcp_server[:ip]    == config[:dhcp_ip]    &&
+          dhcp_server[:lower] == config[:dhcp_lower] &&
+          dhcp_server[:upper] == config[:dhcp_upper]
+        end
+
+        # Returns the existing dhcp server, if any, that is attached to the
+        # specified interface.
+        #
+        # @return [Hash<String>] dhcp_server or nil if not found
+        def find_matching_dhcp_server(interface)
+          @env[:machine].provider.driver.read_dhcp_servers.detect do |dhcp_server|
+            interface[:name] && interface[:name] == dhcp_server[:network]
+          end
         end
       end
     end

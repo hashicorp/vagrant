@@ -25,6 +25,10 @@ module VagrantPlugins
         error_key(:docker_provider_nfs_without_privileged)
       end
 
+      class PackageNotSupported < DockerError
+        error_key(:package_not_supported)
+      end
+
       class StateNotRunning < DockerError
         error_key(:state_not_running)
       end
@@ -33,8 +37,16 @@ module VagrantPlugins
         error_key(:state_stopped)
       end
 
+      class SuspendNotSupported < DockerError
+        error_key(:suspend_not_supported)
+      end
+
       class SyncedFolderNonDocker < DockerError
         error_key(:synced_folder_non_docker)
+      end
+
+      class VagrantfileNotFound < DockerError
+        error_key(:vagrantfile_not_found)
       end
     end
   end

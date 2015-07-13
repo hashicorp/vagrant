@@ -1,3 +1,5 @@
+require "digest/md5"
+
 require "log4r"
 
 module VagrantPlugins
@@ -18,28 +20,59 @@ module VagrantPlugins
           # Calculate the paths we're going to use based on the environment
           root_path = @machine.env.root_path
           @expanded_module_paths   = @config.expanded_module_paths(root_path)
-          @manifest_file           = File.join(manifests_guest_path, @config.manifest_file)
 
           # Setup the module paths
           @module_paths = []
-          @expanded_module_paths.each_with_index do |path, i|
-            @module_paths << [path, File.join(config.temp_dir, "modules-#{i}")]
+          @expanded_module_paths.each_with_index do |path, _|
+            key = Digest::MD5.hexdigest(path.to_s)
+            @module_paths << [path, File.join(config.temp_dir, "modules-#{key}")]
           end
 
           folder_opts = {}
           folder_opts[:type] = @config.synced_folder_type if @config.synced_folder_type
           folder_opts[:owner] = "root" if !@config.synced_folder_type
+          folder_opts[:args] = @config.synced_folder_args if @config.synced_folder_args
+          folder_opts[:nfs__quiet] = true
 
-          # Share the manifests directory with the guest
-          if @config.manifests_path[0].to_sym == :host
-            root_config.vm.synced_folder(
-              File.expand_path(@config.manifests_path[1], root_path),
-              manifests_guest_path, folder_opts)
+          if @config.environment_path.is_a?(Array)
+            # Share the environments directory with the guest
+            if @config.environment_path[0].to_sym == :host
+              root_config.vm.synced_folder(
+                File.expand_path(@config.environment_path[1], root_path),
+                environments_guest_path, folder_opts)
+            end
+          end
+          if @config.manifest_file
+            @manifest_file  = File.join(manifests_guest_path, @config.manifest_file)
+            # Share the manifests directory with the guest
+            if @config.manifests_path[0].to_sym == :host
+              root_config.vm.synced_folder(
+                File.expand_path(@config.manifests_path[1], root_path),
+                manifests_guest_path, folder_opts)
+            end
           end
 
           # Share the module paths
           @module_paths.each do |from, to|
             root_config.vm.synced_folder(from, to, folder_opts)
+          end
+        end
+
+        def parse_environment_metadata
+          # Parse out the environment manifest path since puppet apply doesnt do that for us.
+          environment_conf = File.join(environments_guest_path, @config.environment, "environment.conf")
+          if @machine.communicate.test("test -e #{environment_conf}", sudo: true)
+            conf = @machine.communicate.sudo("cat #{environment_conf}") do | type, data|
+              if type == :stdout
+                data.each_line do |line|
+                  if line =~ /^\s*manifest\s+=\s+([^\s]+)/
+                    @manifest_file = $1
+                    @manifest_file.gsub! '$basemodulepath:', "#{environments_guest_path}/#{@config.environment}/"
+                    @logger.debug("Using manifest from environment.conf: #{@manifest_file}")
+                  end
+                end
+              end
+            end
           end
         end
 
@@ -50,10 +83,18 @@ module VagrantPlugins
             @machine.guest.capability(:wait_for_reboot)
           end
 
+          # In environment mode we still need to specify a manifest file, if its not, use the one from env config if specified.
+          if !@manifest_file
+            @manifest_file = "#{environments_guest_path}/#{@config.environment}/manifests/site.pp"
+            parse_environment_metadata
+          end
           # Check that the shared folders are properly shared
           check = []
-          if @config.manifests_path[0] == :host
+          if @config.manifests_path.is_a?(Array) && @config.manifests_path[0] == :host
             check << manifests_guest_path
+          end
+          if @config.environment_path.is_a?(Array) && @config.environment_path[0] == :host
+            check << environments_guest_path
           end
           @module_paths.each do |host_path, guest_path|
             check << guest_path
@@ -68,7 +109,7 @@ module VagrantPlugins
           verify_shared_folders(check)
 
           # Verify Puppet is installed and run it
-          verify_binary("puppet")
+          verify_binary(puppet_binary_path("puppet"))
 
           # Upload Hiera configuration if we have it
           @hiera_config_path = nil
@@ -85,19 +126,40 @@ module VagrantPlugins
         def manifests_guest_path
           if config.manifests_path[0] == :host
             # The path is on the host, so point to where it is shared
-            File.join(config.temp_dir, "manifests")
+            key = Digest::MD5.hexdigest(config.manifests_path[1])
+            File.join(config.temp_dir, "manifests-#{key}")
           else
             # The path is on the VM, so just point directly to it
             config.manifests_path[1]
           end
         end
 
+        def environments_guest_path
+          if config.environment_path[0] == :host
+            # The path is on the host, so point to where it is shared
+            File.join(config.temp_dir, "environments")
+          else
+            # The path is on the VM, so just point directly to it
+            config.environment_path[1]
+          end
+        end
+
+        # Returns the path to the Puppet binary, taking into account the
+        # `binary_path` configuration option.
+        def puppet_binary_path(binary)
+          return binary if !@config.binary_path
+          return File.join(@config.binary_path, binary)
+        end
+
         def verify_binary(binary)
-          @machine.communicate.sudo(
-            "which #{binary}",
-            error_class: PuppetError,
-            error_key: :not_detected,
-            binary: binary)
+          if !machine.communicate.test("sh -c 'command -v #{binary}'")
+            @config.binary_path = "/opt/puppetlabs/bin/"
+            @machine.communicate.sudo(
+              "test -x /opt/puppetlabs/bin/#{binary}",
+              error_class: PuppetError,
+              error_key: :not_detected,
+              binary: binary)
+          end
         end
 
         def run_puppet_apply
@@ -121,12 +183,18 @@ module VagrantPlugins
             options << "--hiera_config=#{@hiera_config_path}"
           end
 
-          if !@machine.env.ui.is_a?(Vagrant::UI::Colored)
+          if !@machine.env.ui.color?
             options << "--color=false"
           end
 
-          options << "--manifestdir #{manifests_guest_path}"
           options << "--detailed-exitcodes"
+          if config.environment_path
+            options << "--environmentpath #{environments_guest_path}/"
+            options << "--environment #{@config.environment}"
+          else
+            options << "--manifestdir #{manifests_guest_path}"
+          end
+
           options << @manifest_file
           options = options.join(" ")
 
@@ -146,7 +214,7 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          command = "#{facter}puppet apply #{options}"
+          command = "#{facter} #{config.binary_path}puppet apply #{options}"
           if config.working_directory
             if windows?
               command = "cd #{config.working_directory}; if (`$?) \{ #{command} \}"
@@ -155,12 +223,19 @@ module VagrantPlugins
             end
           end
 
-          @machine.ui.info(I18n.t(
-            "vagrant.provisioners.puppet.running_puppet",
-            manifest: config.manifest_file))
+          if config.environment_path
+            @machine.ui.info(I18n.t(
+              "vagrant.provisioners.puppet.running_puppet_env",
+              environment: config.environment))
+          else
+            @machine.ui.info(I18n.t(
+              "vagrant.provisioners.puppet.running_puppet",
+              manifest: config.manifest_file))
+          end
 
           opts = {
             elevated: true,
+            error_class: Vagrant::Errors::VagrantError,
             error_key: :ssh_bad_exit_status_muted,
             good_exit: [0,2],
           }

@@ -11,9 +11,9 @@ require 'net/scp'
 
 require 'vagrant/util/ansi_escape_code_remover'
 require 'vagrant/util/file_mode'
+require 'vagrant/util/keypair'
 require 'vagrant/util/platform'
 require 'vagrant/util/retryable'
-require 'vagrant/util/ssh'
 
 module VagrantPlugins
   module CommunicatorSSH
@@ -85,6 +85,12 @@ module VagrantPlugins
               raise
             rescue Vagrant::Errors::SSHKeyTypeNotSupported
               raise
+            rescue Vagrant::Errors::SSHKeyBadOwner
+              raise
+            rescue Vagrant::Errors::SSHKeyBadPermissions
+              raise
+            rescue Vagrant::Errors::SSHInsertKeyUnsupported
+              raise
             rescue Vagrant::Errors::VagrantError => e
               # Ignore it, SSH is not ready, some other error.
             end
@@ -139,20 +145,41 @@ module VagrantPlugins
 
         # If we used a password, then insert the insecure key
         ssh_info = @machine.ssh_info
-        if ssh_info[:password] && ssh_info[:private_key_path].empty?
-          @logger.info("Inserting insecure key to avoid password")
-          @machine.ui.info(I18n.t("vagrant.inserting_insecure_key"))
-          @machine.guest.capability(
-            :insert_public_key,
-            Vagrant.source_root.join("keys", "vagrant.pub").read.chomp)
+        insert   = ssh_info[:password] && ssh_info[:private_key_path].empty?
+        ssh_info[:private_key_path].each do |pk|
+          if insecure_key?(pk)
+            insert = true
+            @machine.ui.detail("\n"+I18n.t("vagrant.inserting_insecure_detected"))
+            break
+          end
+        end
+
+        if insert
+          # If we don't have the power to insert/remove keys, then its an error
+          cap = @machine.guest.capability?(:insert_public_key) &&
+            @machine.guest.capability?(:remove_public_key)
+          raise Vagrant::Errors::SSHInsertKeyUnsupported if !cap
+
+          _pub, priv, openssh = Vagrant::Util::Keypair.create
+
+          @logger.info("Inserting key to avoid password: #{openssh}")
+          @machine.ui.detail("\n"+I18n.t("vagrant.inserting_random_key"))
+          @machine.guest.capability(:insert_public_key, openssh)
 
           # Write out the private key in the data dir so that the
           # machine automatically picks it up.
           @machine.data_dir.join("private_key").open("w+") do |f|
-            f.write(Vagrant.source_root.join("keys", "vagrant").read)
+            f.write(priv)
           end
 
-          @machine.ui.info(I18n.t("vagrant.inserted_key"))
+          # Remove the old key if it exists
+          @machine.ui.detail(I18n.t("vagrant.inserting_remove_key"))
+          @machine.guest.capability(
+            :remove_public_key,
+            Vagrant.source_root.join("keys", "vagrant.pub").read.chomp)
+
+          # Done, restart.
+          @machine.ui.detail(I18n.t("vagrant.inserted_key"))
           @connection.close
           @connection = nil
 
@@ -265,8 +292,13 @@ module VagrantPlugins
           # There is a chance that the socket is closed despite us checking
           # 'closed?' above. To test this we need to send data through the
           # socket.
+          #
+          # We wrap the check itself in a 5 second timeout because there
+          # are some cases where this will just hang.
           begin
-            @connection.exec!("")
+            Timeout.timeout(5) do
+              @connection.exec!("")
+            end
           rescue Exception => e
             @logger.info("Connection errored, not re-using. Will reconnect.")
             @logger.debug(e.inspect)
@@ -288,11 +320,17 @@ module VagrantPlugins
         raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
 
         # Default some options
-        opts[:retries] = 5 if !opts.has_key?(:retries)
+        opts[:retries] = 5 if !opts.key?(:retries)
+
+        # Set some valid auth methods. We disable the auth methods that
+        # we're not using if we don't have the right auth info.
+        auth_methods = ["none", "hostbased"]
+        auth_methods << "publickey" if ssh_info[:private_key_path]
+        auth_methods << "password" if ssh_info[:password]
 
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
-          auth_methods:          ["none", "publickey", "hostbased", "password"],
+          auth_methods:          auth_methods,
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
           keys:                  ssh_info[:private_key_path],
@@ -304,11 +342,6 @@ module VagrantPlugins
           user_known_hosts_file: [],
           verbose:               :debug,
         }
-
-        # Check that the private key permissions are valid
-        ssh_info[:private_key_path].each do |path|
-          Vagrant::Util::SSH.check_key_permissions(Pathname.new(path))
-        end
 
         # Connect to SSH, giving it a few tries
         connection = nil
@@ -407,6 +440,21 @@ module VagrantPlugins
         return yield connection if block_given?
       end
 
+      # The shell wrapper command used in shell_execute defined by
+      # the sudo and shell options.
+      def shell_cmd(opts)
+        sudo  = opts[:sudo]
+        shell = opts[:shell]
+
+        # Determine the shell to execute. Prefer the explicitly passed in shell
+        # over the default configured shell. If we are using `sudo` then we
+        # need to wrap the shell in a `sudo` call.
+        cmd = @machine.config.ssh.shell
+        cmd = shell if shell
+        cmd = @machine.config.ssh.sudo_command.gsub("%c", cmd) if sudo
+        cmd
+      end
+
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, **opts)
         opts = {
@@ -415,17 +463,9 @@ module VagrantPlugins
         }.merge(opts)
 
         sudo  = opts[:sudo]
-        shell = opts[:shell]
 
         @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
-
-        # Determine the shell to execute. Prefer the explicitly passed in shell
-        # over the default configured shell. If we are using `sudo` then we
-        # need to wrap the shell in a `sudo` call.
-        shell_cmd = @machine.config.ssh.shell
-        shell_cmd = shell if shell
-        shell_cmd = "sudo -E -H #{shell_cmd}" if sudo
 
         # These variables are used to scrub PTY output if we're in a PTY
         pty = false
@@ -445,7 +485,7 @@ module VagrantPlugins
             end
           end
 
-          ch.exec(shell_cmd) do |ch2, _|
+          ch.exec(shell_cmd(opts)) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
               # Filter out the clear screen command
@@ -593,6 +633,16 @@ module VagrantPlugins
 
         # Otherwise, just raise the error up
         raise
+      end
+
+      # This will test whether path is the Vagrant insecure private key.
+      #
+      # @param [String] path
+      def insecure_key?(path)
+        return false if !path
+        return false if !File.file?(path)
+        source_path = Vagrant.source_root.join("keys", "vagrant")
+        return File.read(path).chomp == source_path.read.chomp
       end
     end
   end

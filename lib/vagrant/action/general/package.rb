@@ -1,4 +1,5 @@
 require 'fileutils'
+require "pathname"
 
 require 'vagrant/util/safe_chdir'
 require 'vagrant/util/subprocess'
@@ -28,14 +29,18 @@ module Vagrant
 
         def call(env)
           @env = env
-
+          file_name = File.basename(@env["package.output"].to_s)
+          
           raise Errors::PackageOutputDirectory if File.directory?(tar_path)
-          raise Errors::PackageOutputExists if File.exist?(tar_path)
+          raise Errors::PackageOutputExists, file_name:file_name if File.exist?(tar_path)
           raise Errors::PackageRequiresDirectory if !env["package.directory"] ||
             !File.directory?(env["package.directory"])
 
           @app.call(env)
 
+          @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", tar_path: tar_path)
+          copy_include_files
+          setup_private_key
           compress
         end
 
@@ -81,11 +86,6 @@ module Vagrant
 
         # Compress the exported file into a package
         def compress
-          @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", tar_path: tar_path)
-
-          # Copy over the included files
-          copy_include_files
-
           # Get the output path. We have to do this up here so that the
           # pwd returns the proper thing.
           output_path = tar_path.to_s
@@ -97,6 +97,39 @@ module Vagrant
 
             # Package!
             Util::Subprocess.execute("bsdtar", "-czf", output_path, *files)
+          end
+        end
+
+        # This will copy the generated private key into the box and use
+        # it for SSH by default. We have to do this because we now generate
+        # random keypairs on boot, so packaged boxes would stop working
+        # without this.
+        def setup_private_key
+          # If we don't have machine, we do nothing (weird)
+          return if !@env[:machine]
+
+          # If we don't have a data dir, we also do nothing (base package)
+          return if !@env[:machine].data_dir
+
+          # If we don't have a generated private key, we do nothing
+          path = @env[:machine].data_dir.join("private_key")
+          return if !path.file?
+
+          # Copy it into our box directory
+          dir = Pathname.new(@env["package.directory"])
+          new_path = dir.join("vagrant_private_key")
+          FileUtils.cp(path, new_path)
+
+          # Append it to the Vagrantfile (or create a Vagrantfile)
+          vf_path = dir.join("Vagrantfile")
+          mode = "w+"
+          mode = "a" if vf_path.file?
+          vf_path.open(mode) do |f|
+            f.binmode
+            f.puts
+            f.puts %Q[Vagrant.configure("2") do |config|]
+            f.puts %Q[  config.ssh.private_key_path = File.expand_path("../vagrant_private_key", __FILE__)]
+            f.puts %Q[end]
           end
         end
 

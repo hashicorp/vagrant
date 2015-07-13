@@ -20,14 +20,13 @@ module VagrantPlugins
       # container, configuring metadata, and booting.
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
-          b.use ConfigValidate
-
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
               b2.use HandleBox
             end
           end
 
+          b.use ConfigValidate
           b.use HostMachine
 
           # Yeah, this is supposed to be here twice (once more above). This
@@ -42,6 +41,12 @@ module VagrantPlugins
           end
 
           b.use action_start
+        end
+      end
+
+      def self.action_package
+        lambda do |env|
+          raise Errors::PackageNotSupported
         end
       end
 
@@ -112,8 +117,11 @@ module VagrantPlugins
 
             b2.use Call, IsBuild do |env2, b3|
               if env2[:result]
-                b3.use EnvSet, force_confirm_destroy: true
-                b3.use action_destroy.flatten
+                b3.use EnvSet, force_halt: true
+                b3.use action_halt
+                b3.use HostMachineSyncFoldersDisable
+                b3.use Destroy
+                b3.use ProvisionerCleanup
               end
             end
 
@@ -209,7 +217,7 @@ module VagrantPlugins
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
-            # If the container is running and we're doing a run, we're done
+            # If the container is running and we're not doing a run, we're done
             next if env[:result] && env[:machine_action] != :run_command
 
             if env[:machine_action] != :run_command
@@ -225,7 +233,10 @@ module VagrantPlugins
             end
 
             b2.use Call, IsState, :not_created do |env2, b3|
-              if !env2[:result]
+              if env2[:result]
+                # First time making this thing, set to the "preparing" state
+                b3.use InitState
+              else
                 b3.use EnvSet, host_machine_sync_folders: false
               end
             end
@@ -235,12 +246,13 @@ module VagrantPlugins
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
             b2.use PrepareNFSSettings
+            b2.use Login
             b2.use Build
 
             if env[:machine_action] != :run_command
               # If the container is NOT created yet, then do some setup steps
               # necessary for creating it.
-              b2.use Call, IsState, :not_created do |env2, b3|
+              b2.use Call, IsState, :preparing do |env2, b3|
                 if env2[:result]
                   b3.use EnvSet, port_collision_repair: true
                   b3.use HostMachinePortWarning
@@ -248,6 +260,7 @@ module VagrantPlugins
                   b3.use HandleForwardedPortCollisions
                   b3.use SyncedFolders
                   b3.use ForwardedPorts
+                  b3.use Pull
                   b3.use Create
                   b3.use WaitForRunning
                 else
@@ -264,10 +277,17 @@ module VagrantPlugins
                 end
               end
             else
+              # We're in a run command, so we do things a bit differently.
               b2.use SyncedFolders
               b2.use Create
             end
           end
+        end
+      end
+
+      def self.action_suspend
+        lambda do |env|
+          raise Errors::SuspendNotSupported
         end
       end
 
@@ -287,8 +307,11 @@ module VagrantPlugins
       autoload :HostMachineRequired, action_root.join("host_machine_required")
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
+      autoload :InitState, action_root.join("init_state")
       autoload :IsBuild, action_root.join("is_build")
       autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
+      autoload :Login, action_root.join("login")
+      autoload :Pull, action_root.join("pull")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")

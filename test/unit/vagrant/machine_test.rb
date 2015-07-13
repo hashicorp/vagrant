@@ -7,11 +7,7 @@ describe Vagrant::Machine do
   include_context "unit"
 
   let(:name)     { "foo" }
-  let(:provider) do
-    double("provider").tap do |obj|
-      obj.stub(_initialize: nil)
-    end
-  end
+  let(:provider) { new_provider_mock }
   let(:provider_cls) do
     obj = double("provider_cls")
     obj.stub(new: provider)
@@ -46,6 +42,15 @@ describe Vagrant::Machine do
 
   subject { instance }
 
+  def new_provider_mock
+    double("provider").tap do |obj|
+      obj.stub(_initialize: nil)
+      obj.stub(machine_id_changed: nil)
+      allow(obj).to receive(:state).and_return(Vagrant::MachineState.new(
+        :created, "", ""))
+    end
+  end
+
   # Returns a new instance with the test data
   def new_instance
     described_class.new(name, provider_name, provider_cls, provider_config,
@@ -54,6 +59,17 @@ describe Vagrant::Machine do
   end
 
   describe "initialization" do
+    it "should set the ID to nil if the state is not created" do
+      subject.id = "foo"
+
+      allow(provider).to receive(:state).and_return(Vagrant::MachineState.new(
+        Vagrant::MachineState::NOT_CREATED_ID, "short", "long"))
+
+      subject = new_instance
+      expect(subject.state.id).to eq(Vagrant::MachineState::NOT_CREATED_ID)
+      expect(subject.id).to be_nil
+    end
+
     describe "communicator loading" do
       it "doesn't eager load SSH" do
         config.vm.communicator = :ssh
@@ -86,8 +102,7 @@ describe Vagrant::Machine do
         received_machine = nil
 
         if !instance
-          instance = double("instance")
-          instance.stub(_initialize: nil)
+          instance = new_provider_mock
         end
 
         provider_cls = double("provider_cls")
@@ -166,7 +181,7 @@ describe Vagrant::Machine do
       end
 
       it "should initialize the capabilities" do
-        instance = double("instance")
+        instance = new_provider_mock
         expect(instance).to receive(:_initialize).with { |p, m|
           expect(p).to eq(provider_name)
           expect(m.name).to eq(name)
@@ -244,6 +259,17 @@ describe Vagrant::Machine do
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
       instance.action(:up, foo: :bar)
+
+      expect(foo).to eq(:bar)
+    end
+
+    it "should pass any extra options to the environment as strings" do
+      action_name = :up
+      foo         = nil
+      callable    = lambda { |env| foo = env["foo"] }
+
+      allow(provider).to receive(:action).with(action_name).and_return(callable)
+      instance.action(:up, "foo" => :bar)
 
       expect(foo).to eq(:bar)
     end
@@ -398,6 +424,21 @@ describe Vagrant::Machine do
       third = new_instance
       expect(third.id).to be_nil
     end
+
+    it "should set the UID that created the machine" do
+      instance.id = "foo"
+
+      second = new_instance
+      expect(second.uid).to eq(Process.uid.to_s)
+    end
+
+    it "should delete the UID when the id is nil" do
+      instance.id = "foo"
+      instance.id = nil
+
+      second = new_instance
+      expect(second.uid).to be_nil
+    end
   end
 
   describe "#index_uuid" do
@@ -410,6 +451,10 @@ describe Vagrant::Machine do
     end
 
     it "is set one when setting an ID" do
+      # Stub the message we want
+      allow(provider).to receive(:state).and_return(Vagrant::MachineState.new(
+        :preparing, "preparing", "preparing"))
+
       # Setup the box information
       box = double("box")
       box.stub(name: "foo")
@@ -451,11 +496,12 @@ describe Vagrant::Machine do
   describe "#reload" do
     before do
       allow(provider).to receive(:machine_id_changed)
-
       subject.id = "foo"
     end
 
     it "should read the ID" do
+      expect(provider).to_not receive(:machine_id_changed)
+
       subject.reload
 
       expect(subject.id).to eq("foo")
@@ -464,13 +510,16 @@ describe Vagrant::Machine do
     it "should read the updated ID" do
       new_instance.id = "bar"
 
+      expect(provider).to receive(:machine_id_changed)
+
       subject.reload
 
       expect(subject.id).to eq("bar")
     end
   end
 
-  describe "ssh info" do
+  describe "#ssh_info" do
+
     describe "with the provider returning nil" do
       it "should return nil if the provider returns nil" do
         expect(provider).to receive(:ssh_info).and_return(nil)
@@ -480,9 +529,13 @@ describe Vagrant::Machine do
 
     describe "with the provider returning data" do
       let(:provider_ssh_info) { {} }
+      let(:ssh_klass) { Vagrant::Util::SSH }
 
       before(:each) do
         allow(provider).to receive(:ssh_info).and_return(provider_ssh_info)
+        # Stub the check_key_permissions method so that even if we test incorrectly,
+        # no side effects actually happen.
+        allow(ssh_klass).to receive(:check_key_permissions)
       end
 
       [:host, :port, :username].each do |type|
@@ -554,6 +607,30 @@ describe Vagrant::Machine do
         ])
       end
 
+      it "should check and try to fix the permissions of the default private key file" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = nil
+
+        expect(ssh_klass).to receive(:check_key_permissions).once.with(Pathname.new(instance.env.default_private_key_path.to_s))
+        instance.ssh_info
+      end
+
+      it "should check and try to fix the permissions of given private key files" do
+        provider_ssh_info[:private_key_path] = nil
+        # Use __FILE__ to provide an existing file
+        instance.config.ssh.private_key_path = [File.expand_path(__FILE__), File.expand_path(__FILE__)]
+
+        expect(ssh_klass).to receive(:check_key_permissions).twice.with(Pathname.new(File.expand_path(__FILE__)))
+        instance.ssh_info
+      end
+
+      it "should not check the permissions of a private key file that does not exist" do
+        provider_ssh_info[:private_key_path] = "/foo"
+
+        expect(ssh_klass).to_not receive(:check_key_permissions)
+        instance.ssh_info
+      end
+
       context "expanding path relative to the root path" do
         it "should with the provider key path" do
           provider_ssh_info[:private_key_path] = "~/foo"
@@ -605,6 +682,17 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:password]).to eql("")
       end
 
+      it "should return the private key in the Vagrantfile if the data dir exists" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = "/foo"
+
+        instance.data_dir.join("private_key").open("w+") do |f|
+          f.write("hey")
+        end
+
+        expect(instance.ssh_info[:private_key_path]).to eql(["/foo"])
+      end
+
       context "with no data dir" do
         let(:base)     { true }
         let(:data_dir) { nil }
@@ -625,7 +713,7 @@ describe Vagrant::Machine do
     it "should query state from the provider" do
       state = Vagrant::MachineState.new(:id, "short", "long")
 
-      expect(provider).to receive(:state).and_return(state)
+      allow(provider).to receive(:state).and_return(state)
       expect(instance.state.id).to eq(:id)
     end
 
@@ -648,18 +736,6 @@ describe Vagrant::Machine do
       expect(entry).to_not be_nil
       expect(entry.state).to eq("short")
       env.machine_index.release(entry)
-    end
-
-    it "should set the ID to nil if the state is not created" do
-      state = Vagrant::MachineState.new(
-       Vagrant::MachineState::NOT_CREATED_ID, "short", "long")
-
-      allow(provider).to receive(:machine_id_changed)
-      subject.id = "foo"
-
-      expect(provider).to receive(:state).and_return(state)
-      expect(subject.state.id).to eq(Vagrant::MachineState::NOT_CREATED_ID)
-      expect(subject.id).to be_nil
     end
   end
 

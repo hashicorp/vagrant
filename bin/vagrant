@@ -15,7 +15,7 @@ end
 
 # Fast path the version of Vagrant
 if argv.include?("-v") || argv.include?("--version")
-  require "vagrant/version"
+  require_relative "../lib/vagrant/version"
   puts "Vagrant #{Vagrant::VERSION}"
   exit 0
 end
@@ -68,7 +68,7 @@ end
 # then also initialize the paths to the plugins.
 require "bundler"
 begin
-  Bundler.setup(:default, :plugins)
+  $vagrant_bundler_runtime = Bundler.setup(:default, :plugins)
 rescue Bundler::GemNotFound
   $stderr.puts "Bundler, the underlying system used to manage Vagrant plugins,"
   $stderr.puts "is reporting that a plugin or its dependency can't be found."

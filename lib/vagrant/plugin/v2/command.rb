@@ -58,7 +58,7 @@ module Vagrant
 
           opts.parse!(argv)
           return argv
-        rescue OptionParser::InvalidOption
+        rescue OptionParser::InvalidOption, OptionParser::MissingArgument
           raise Errors::CLIInvalidOptions, help: opts.help.chomp
         end
 
@@ -162,7 +162,7 @@ module Vagrant
             end
 
             # Use the default provider if nothing else
-            provider_to_use ||= @env.default_provider
+            provider_to_use ||= @env.default_provider(machine: name)
 
             # Get the right machine with the right provider
             @env.machine(name, provider_to_use)
@@ -224,6 +224,15 @@ module Vagrant
 
             @logger.info("With machine: #{machine.name} (#{machine.provider.inspect})")
             yield machine
+
+            # Call the state method so that we update our index state. Don't
+            # worry about exceptions here, since we just care about updating
+            # the cache.
+            begin
+              # Called for side effects
+              machine.state
+            rescue Errors::VagrantError
+            end
           end
         end
 

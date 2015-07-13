@@ -17,6 +17,12 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :build_dir
 
+      # An optional file name of a Dockerfile to be used when building
+      # the image. This requires Docker >1.5.0.
+      #
+      # @return [String]
+      attr_accessor :dockerfile
+
       # Additional arguments to pass to `docker run` when creating
       # the container for the first time. This is an array of args.
       #
@@ -61,6 +67,12 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :remains_running
 
+      # The time to wait before sending a SIGTERM to the container
+      # when it is stopped.
+      #
+      # @return [Integer]
+      attr_accessor :stop_timeout
+
       # The name of the machine in the Vagrantfile set with
       # "vagrant_vagrantfile" that will be the docker host. Defaults
       # to "default"
@@ -83,11 +95,43 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :vagrant_vagrantfile
 
+      #--------------------------------------------------------------
+      # Auth Settings
+      #--------------------------------------------------------------
+
+      # Server to authenticate to. If blank, will use the default
+      # Docker authentication endpoint (which is the Docker Hub at the
+      # time of this comment).
+      #
+      # @return [String]
+      attr_accessor :auth_server
+
+      # Email for logging in to a remote Docker server.
+      #
+      # @return [String]
+      attr_accessor :email
+
+      # Email for logging in to a remote Docker server.
+      #
+      # @return [String]
+      attr_accessor :username
+
+      # Password for logging in to a remote Docker server. If this is
+      # not blank, then Vagrant will run `docker login` prior to any
+      # Docker runs.
+      #
+      # The presence of auth will also force the Docker environments to
+      # serialize on `up` so that different users/passwords don't overlap.
+      #
+      # @return [String]
+      attr_accessor :password
+
       def initialize
         @build_args = []
         @build_dir  = UNSET_VALUE
         @cmd        = UNSET_VALUE
-        @create_args = []
+        @create_args = UNSET_VALUE
+        @dockerfile = UNSET_VALUE
         @env        = {}
         @expose     = []
         @force_host_vm = UNSET_VALUE
@@ -96,12 +140,18 @@ module VagrantPlugins
         @image      = UNSET_VALUE
         @name       = UNSET_VALUE
         @links      = []
-        @ports      = []
+        @ports      = UNSET_VALUE
         @privileged = UNSET_VALUE
         @remains_running = UNSET_VALUE
+        @stop_timeout = UNSET_VALUE
         @volumes    = []
         @vagrant_machine = UNSET_VALUE
         @vagrant_vagrantfile = UNSET_VALUE
+
+        @auth_server = UNSET_VALUE
+        @email    = UNSET_VALUE
+        @username = UNSET_VALUE
+        @password = UNSET_VALUE
       end
 
       def link(name)
@@ -143,15 +193,23 @@ module VagrantPlugins
         @build_dir  = nil if @build_dir == UNSET_VALUE
         @cmd        = [] if @cmd == UNSET_VALUE
         @create_args = [] if @create_args == UNSET_VALUE
+        @dockerfile = nil if @dockerfile == UNSET_VALUE
         @env       ||= {}
         @force_host_vm = false if @force_host_vm == UNSET_VALUE
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
         @name       = nil if @name == UNSET_VALUE
+        @ports      = [] if @ports == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
         @remains_running = true if @remains_running == UNSET_VALUE
+        @stop_timeout = 1 if @stop_timeout == UNSET_VALUE
         @vagrant_machine = nil if @vagrant_machine == UNSET_VALUE
         @vagrant_vagrantfile = nil if @vagrant_vagrantfile == UNSET_VALUE
+
+        @auth_server = nil if @auth_server == UNSET_VALUE
+        @email = "" if @email == UNSET_VALUE
+        @username = "" if @username == UNSET_VALUE
+        @password = "" if @password == UNSET_VALUE
 
         if @host_vm_build_dir_options == UNSET_VALUE
           @host_vm_build_dir_options = nil
@@ -176,9 +234,13 @@ module VagrantPlugins
 
         if @build_dir
           build_dir_pn = Pathname.new(@build_dir)
-          if !build_dir_pn.directory? || !build_dir_pn.join("Dockerfile").file?
+          if !build_dir_pn.directory?
             errors << I18n.t("docker_provider.errors.config.build_dir_invalid")
           end
+        end
+
+        if !@create_args.is_a?(Array)
+          errors << I18n.t("docker_provider.errors.config.create_args_array")
         end
 
         @links.each do |link|

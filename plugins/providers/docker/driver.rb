@@ -14,19 +14,19 @@ module VagrantPlugins
         @executor = Executor::Local.new
       end
 
-      def build(dir, **opts)
+      def build(dir, **opts, &block)
         args   = Array(opts[:extra_args])
         args   << dir
-        result = execute('docker', 'build', *args)
-        regexp = /Successfully built (.+)$/i
-        match  = regexp.match(result)
-        if !match
+        result = execute('docker', 'build', *args, &block)
+        matches = result.scan(/Successfully built (.+)$/i)
+        if matches.empty?
           # This will cause a stack trace in Vagrant, but it is a bug
           # if this happens anyways.
           raise "UNKNOWN OUTPUT: #{result}"
         end
 
-        match[1]
+        # Return the last match, and the capture of it
+        matches[-1][0]
       end
 
       def create(params, **opts, &block)
@@ -53,7 +53,7 @@ module VagrantPlugins
         run_cmd += params[:extra_args] if params[:extra_args]
         run_cmd += [image, cmd]
 
-        execute(*run_cmd.flatten, **opts, &block).chomp
+        execute(*run_cmd.flatten, **opts, &block).chomp.lines.last
       end
 
       def state(cid)
@@ -86,6 +86,26 @@ module VagrantPlugins
         inspect_container(cid)['HostConfig']['Privileged']
       end
 
+      def login(email, username, password, server)
+        cmd = %W(docker login)
+        cmd += ["-e", email] if email != ""
+        cmd += ["-u", username] if username != ""
+        cmd += ["-p", password] if password != ""
+        cmd << server if server && server != ""
+
+        execute(*cmd.flatten)
+      end
+
+      def logout(server)
+        cmd = %W(docker logout)
+        cmd << server if server && server != ""
+        execute(*cmd.flatten)
+      end
+
+      def pull(image)
+        execute('docker', 'pull', image)
+      end
+
       def start(cid)
         if !running?(cid)
           execute('docker', 'start', cid)
@@ -95,9 +115,9 @@ module VagrantPlugins
         end
       end
 
-      def stop(cid)
+      def stop(cid, timeout)
         if running?(cid)
-          execute('docker', 'stop', '-t', '1', cid)
+          execute('docker', 'stop', '-t', timeout.to_s, cid)
         end
       end
 

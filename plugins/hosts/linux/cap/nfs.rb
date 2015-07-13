@@ -38,9 +38,13 @@ module VagrantPlugins
 
           nfs_cleanup(id)
 
+          # Only use "sudo" if we can't write to /etc/exports directly
+          sudo_command = ""
+          sudo_command = "sudo " if !File.writable?("/etc/exports")
+
           output.split("\n").each do |line|
             line = Vagrant::Util::ShellQuote.escape(line, "'")
-            system(%Q[echo '#{line}' | sudo tee -a /etc/exports >/dev/null])
+            system(%Q[echo '#{line}' | #{sudo_command}tee -a /etc/exports >/dev/null])
           end
 
           if nfs_running?(nfs_check_command)
@@ -67,7 +71,7 @@ module VagrantPlugins
           user = Process.uid
 
           File.read("/etc/exports").lines.each do |line|
-            if id = line[/^# VAGRANT-BEGIN:( #{user})? ([A-Za-z0-9-]+?)$/, 2]
+            if id = line[/^# VAGRANT-BEGIN:( #{user})? ([\.\/A-Za-z0-9\-_:]+?)$/, 2]
               if valid_ids.include?(id)
                 logger.debug("Valid ID: #{id}")
               else
@@ -92,9 +96,13 @@ module VagrantPlugins
           user = Regexp.escape(Process.uid.to_s)
           id   = Regexp.escape(id.to_s)
 
+          # Only use "sudo" if we can't write to /etc/exports directly
+          sudo_command = ""
+          sudo_command = "sudo " if !File.writable?("/etc/exports")
+
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant
-          system("sudo sed -r -e '\\\x01^# VAGRANT-BEGIN:( #{user})? #{id}\x01,\\\x01^# VAGRANT-END:( #{user})? #{id}\x01 d' -ibak /etc/exports")
+          system("cp /etc/exports $TMPDIR && #{sudo_command}sed -r -e '\\\x01^# VAGRANT-BEGIN:( #{user})? #{id}\x01,\\\x01^# VAGRANT-END:( #{user})? #{id}\x01 d' -ibak $TMPDIR/exports ; cp $TMPDIR/exports /etc/exports")
         end
 
         def self.nfs_opts_setup(folders)

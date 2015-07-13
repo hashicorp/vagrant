@@ -83,7 +83,7 @@ module Vagrant
         # underneath the covers. In this case, we tell the user.
         if Platform.windows?
           r = Subprocess.execute(ssh_path)
-          if r.stdout.include?("PuTTY Link")
+          if r.stdout.include?("PuTTY Link") || r.stdout.include?("Plink: command-line connection utility")
             raise Errors::SSHIsPuttyLink,
               host: ssh_info[:host],
               port: ssh_info[:port],
@@ -102,12 +102,14 @@ module Vagrant
         options[:username] = ssh_info[:username]
         options[:private_key_path] = ssh_info[:private_key_path]
 
+        log_level = ssh_info[:log_level] || "FATAL"
+
         # Command line options
         command_options = [
           "-p", options[:port].to_s,
           "-o", "Compression=yes",
           "-o", "DSAAuthentication=yes",
-          "-o", "LogLevel=FATAL",
+          "-o", "LogLevel=#{log_level}",
           "-o", "StrictHostKeyChecking=no",
           "-o", "UserKnownHostsFile=/dev/null"]
 
@@ -156,17 +158,19 @@ module Vagrant
         # we really don't care since both work.
         ENV["nodosfilewarning"] = "1" if Platform.cygwin?
 
+        ssh = ssh_info[:ssh_command] || 'ssh'
+
         # Invoke SSH with all our options
         if !opts[:subprocess]
-          LOGGER.info("Invoking SSH: #{command_options.inspect}")
-          SafeExec.exec("ssh", *command_options)
+          LOGGER.info("Invoking SSH: #{ssh} #{command_options.inspect}")
+          SafeExec.exec(ssh, *command_options)
           return
         end
 
         # If we're still here, it means we're supposed to subprocess
         # out to ssh rather than exec it.
-        LOGGER.info("Executing SSH in subprocess: #{command_options.inspect}")
-        process = ChildProcess.build("ssh", *command_options)
+        LOGGER.info("Executing SSH in subprocess: #{ssh} #{command_options.inspect}")
+        process = ChildProcess.build(ssh, *command_options)
         process.io.inherit!
         process.start
         process.wait

@@ -27,10 +27,14 @@ module VagrantPlugins
 
           smb_password = Shellwords.shellescape(options[:smb_password])
 
+          # If a domain is provided in the username, separate it
+          username, domain = (options[:smb_username] || '').split('@', 2)
+
           options[:mount_options] ||= []
           options[:mount_options] << "sec=ntlm"
-          options[:mount_options] << "username=#{options[:smb_username]}"
-          options[:mount_options] << "pass=#{smb_password}"
+          options[:mount_options] << "username=#{username}"
+          options[:mount_options] << "password=#{smb_password}"
+          options[:mount_options] << "domain=#{domain}" if domain
 
           # First mount command uses getent to get the group
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
@@ -51,10 +55,15 @@ module VagrantPlugins
           while true
             success = true
 
+            stderr = ""
             mount_commands.each do |command|
               no_such_device = false
+              stderr = ""
               status = machine.communicate.sudo(command, error_check: false) do |type, data|
-                no_such_device = true if type == :stderr && data =~ /No such device/i
+                if type == :stderr
+                  no_such_device = true if data =~ /No such device/i
+                  stderr += data.to_s
+                end
               end
 
               success = status == 0 && !no_such_device
@@ -69,14 +78,15 @@ module VagrantPlugins
               command.gsub!(smb_password, "PASSWORDHIDDEN")
 
               raise Vagrant::Errors::LinuxMountFailed,
-                command: command
+                command: command,
+                output: stderr
             end
 
             sleep 2
           end
 
           # Emit an upstart event if we can
-          if machine.communicate.test("test -x /sbin/initctl")
+          if machine.communicate.test("test -x /sbin/initctl && test 'upstart' = $(basename $(sudo readlink /proc/1/exe))")
             machine.communicate.sudo(
               "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{expanded_guest_path}")
           end

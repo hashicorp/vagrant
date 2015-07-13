@@ -80,7 +80,7 @@ module Vagrant
       }.merge(opts || {})
 
       # Set the default working directory to look for the vagrantfile
-      opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.has_key?("VAGRANT_CWD")
+      opts[:cwd] ||= ENV["VAGRANT_CWD"] if ENV.key?("VAGRANT_CWD")
       opts[:cwd] ||= Dir.pwd
       opts[:cwd] = Pathname.new(opts[:cwd])
       if !opts[:cwd].directory?
@@ -94,7 +94,7 @@ module Vagrant
       # Set the Vagrantfile name up. We append "Vagrantfile" and "vagrantfile" so that
       # those continue to work as well, but anything custom will take precedence.
       opts[:vagrantfile_name] ||= ENV["VAGRANT_VAGRANTFILE"] if \
-        ENV.has_key?("VAGRANT_VAGRANTFILE")
+        ENV.key?("VAGRANT_VAGRANTFILE")
       opts[:vagrantfile_name] = [opts[:vagrantfile_name]] if \
         opts[:vagrantfile_name] && !opts[:vagrantfile_name].is_a?(Array)
 
@@ -162,6 +162,15 @@ module Vagrant
       opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA) if !root_path.nil?
       if opts[:local_data_path]
         @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
+      end
+
+      # If we have a root path, load the ".vagrantplugins" file.
+      if root_path
+        plugins_file = root_path.join(".vagrantplugins")
+        if plugins_file.file?
+          @logger.info("Loading plugins file: #{plugins_file}")
+          load plugins_file
+        end
       end
 
       setup_local_data_path
@@ -298,7 +307,7 @@ module Vagrant
     # @return [Symbol] Name of the default provider.
     def default_provider(**opts)
       opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
-      opts[:force_default] = true if !opts.has_key?(:force_default)
+      opts[:force_default] = true if !opts.key?(:force_default)
 
       default = ENV["VAGRANT_DEFAULT_PROVIDER"]
       default = nil if default == ""
@@ -308,6 +317,30 @@ module Vagrant
       # that (the default behavior)
       return default if default && opts[:force_default]
 
+      # Determine the config to use to look for provider definitions. By
+      # default it is the global but if we're targeting a specific machine,
+      # then look there.
+      root_config = vagrantfile.config
+      if opts[:machine]
+        machine_info = vagrantfile.machine_config(opts[:machine], nil, nil)
+        root_config = machine_info[:config]
+      end
+
+      # Get the list of providers within our configuration and assign
+      # a priority to each in the order they exist so that we try these first.
+      config = {}
+      root_config.vm.__providers.reverse.each_with_index do |key, idx|
+        config[key] = idx
+      end
+
+      # Determine the max priority so that we can add the config priority
+      # to that to make sure it is highest.
+      max_priority = 0
+      Vagrant.plugin("2").manager.providers.each do |key, data|
+        priority = data[1][:priority]
+        max_priority = priority if priority > max_priority
+      end
+
       ordered = []
       Vagrant.plugin("2").manager.providers.each do |key, data|
         impl  = data[0]
@@ -316,10 +349,19 @@ module Vagrant
         # Skip excluded providers
         next if opts[:exclude] && opts[:exclude].include?(key)
 
-        # Skip providers that can't be defaulted
-        next if popts.has_key?(:defaultable) && !popts[:defaultable]
+        # Skip providers that can't be defaulted, unless they're in our
+        # config, in which case someone made our decision for us.
+        if !config.key?(key)
+          next if popts.key?(:defaultable) && !popts[:defaultable]
+        end
 
-        ordered << [popts[:priority], key, impl, popts]
+        # The priority is higher if it is in our config. Otherwise, it is
+        # the priority it set PLUS the length of the config to make sure it
+        # is never higher than the configuration keys.
+        priority = popts[:priority]
+        priority = config[key] + max_priority if config.key?(key)
+
+        ordered << [priority, key, impl, popts]
       end
 
       # Order the providers by priority. Higher values are tried first.
@@ -336,8 +378,8 @@ module Vagrant
         return key if impl.usable?(false)
       end
 
-      # If all else fails, return VirtualBox
-      return :virtualbox
+      # No providers available is a critical error for Vagrant.
+      raise Errors::NoDefaultProvider
     end
 
     # Returns the collection of boxes for the environment.
@@ -501,6 +543,41 @@ module Vagrant
       end
     end
 
+    # This executes the push with the given name, raising any exceptions that
+    # occur.
+    #
+    # Precondition: the push is not nil and exists.
+    def push(name)
+      @logger.info("Getting push: #{name}")
+
+      name = name.to_sym
+
+      pushes = self.vagrantfile.config.push.__compiled_pushes
+      if !pushes.key?(name)
+        raise Vagrant::Errors::PushStrategyNotDefined,
+          name: name,
+          pushes: pushes.keys
+      end
+
+      strategy, config = pushes[name]
+      push_registry = Vagrant.plugin("2").manager.pushes
+      klass, _ = push_registry.get(strategy)
+      if klass.nil?
+        raise Vagrant::Errors::PushStrategyNotLoaded,
+          name: strategy,
+          pushes: push_registry.keys
+      end
+
+      klass.new(self, config).push
+    end
+
+    # The list of pushes defined in this Vagrantfile.
+    #
+    # @return [Array<Symbol>]
+    def pushes
+      self.vagrantfile.config.push.__compiled_pushes.keys
+    end
+
     # This returns a machine with the proper provider for this environment.
     # The machine named by `name` must be in this environment.
     #
@@ -523,7 +600,7 @@ module Vagrant
         @machines.delete(cache_key)
       end
 
-      if @machines.has_key?(cache_key)
+      if @machines.key?(cache_key)
         @logger.info("Returning cached machine: #{name} (#{provider})")
         return @machines[cache_key]
       end
@@ -531,10 +608,8 @@ module Vagrant
       @logger.info("Uncached load of machine.")
 
       # Determine the machine data directory and pass it to the machine.
-      # XXX: Permissions error here.
       machine_data_path = @local_data_path.join(
         "machines/#{name}/#{provider}")
-      FileUtils.mkdir_p(machine_data_path)
 
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
@@ -786,7 +861,10 @@ module Vagrant
     # This upgrades a home directory that was in the v1.1 format to the
     # v1.5 format. It will raise exceptions if anything fails.
     def upgrade_home_path_v1_1
-      @ui.ask(I18n.t("vagrant.upgrading_home_path_v1_5"))
+      if !ENV["VAGRANT_UPGRADE_SILENT_1_5"]
+        @ui.ask(I18n.t("vagrant.upgrading_home_path_v1_5"))
+      end
+
       collection = BoxCollection.new(
         @home_path.join("boxes"), temp_dir_root: tmp_path)
       collection.upgrade_v1_1_v1_5

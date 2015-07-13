@@ -56,15 +56,25 @@ on this machine. Not supported on Windows.
 `false`. Not supported on Windows.
 
 * `install_type`  (stable | git | daily | testing) - Whether to install from a
-distribution's stable package manager, git tree-ish, daily ppa, or testing repository. 
+distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
 Not supported on Windows.
 
 * `install_args` (develop) - When performing a git install,
-you can specify a branch, tag, or any treeish. Not supported on Windows.
+you can specify a branch, tag, or any treeish. If using the `custom` install type,
+you can also specify a different repository to install from.
+Not supported on Windows.
+
+* `install_command` (string) - Allow specifying an arbitrary string of arguments
+to the bootstrap script. This will completely ignore `install_type` and `install_args`
+to allow more flexibility with the bootstrap process.
 
 * `always_install`   (boolean) - Installs salt binaries even
  if they are already detected, default `false`
 
+* `bootstrap_script` (string) - Path to your customized salt-bootstrap.sh script.
+
+* `bootstrap_options` (string) - Additional command-line options to
+  pass to the bootstrap script.
 
 ## Minion Options
 These only make sense when `no_minion` is `false`.
@@ -77,11 +87,12 @@ a custom salt minion config file.
 * `minion_pub`  (salt/key/minion.pub) - Path to your minion
 public key
 
+* `grains_config`  (string) - Path to a custom salt grains file.
 
 ## Master Options
 These only make sense when `install_master` is `true`.
 
-* `master_config` (string, default: "salt/minion")
+* `master_config` (string, default: "salt/master")
   Path to a custom salt master config file
 
 * `master_key` (salt/key/master.pem) - Path to your master key

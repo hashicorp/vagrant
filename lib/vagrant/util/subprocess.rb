@@ -25,6 +25,7 @@ module Vagrant
       def initialize(*command)
         @options = command.last.is_a?(Hash) ? command.pop : {}
         @command = command.dup
+        @command = @command.map { |s| s.encode(Encoding.default_external) }
         @command[0] = Which.which(@command[0]) if !File.file?(@command[0])
         if !@command[0]
           raise Errors::CommandUnavailableWindows, file: command[0] if Platform.windows?
@@ -71,23 +72,41 @@ module Vagrant
         process.io.stderr = stderr_writer
         process.duplex = true
 
-        # If we're in an installer on Mac and we're executing a command
-        # in the installer context, then force DYLD_LIBRARY_PATH to look
-        # at our libs first.
-        if Vagrant.in_installer? && Platform.darwin?
+        # Special installer-related things
+        if Vagrant.in_installer?
           installer_dir = ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"].to_s.downcase
-          if @command[0].downcase.include?(installer_dir)
-            @logger.info("Command in the installer. Specifying DYLD_LIBRARY_PATH...")
-            process.environment["DYLD_LIBRARY_PATH"] =
-              "#{installer_dir}/lib:#{ENV["DYLD_LIBRARY_PATH"]}"
-          else
-            @logger.debug("Command not in installer, not touching env vars.")
+
+          # If we're in an installer on Mac and we're executing a command
+          # in the installer context, then force DYLD_LIBRARY_PATH to look
+          # at our libs first.
+          if Platform.darwin?
+            if @command[0].downcase.include?(installer_dir)
+              @logger.info("Command in the installer. Specifying DYLD_LIBRARY_PATH...")
+              process.environment["DYLD_LIBRARY_PATH"] =
+                "#{installer_dir}/lib:#{ENV["DYLD_LIBRARY_PATH"]}"
+            else
+              @logger.debug("Command not in installer, not touching env vars.")
+            end
+
+            if File.setuid?(@command[0]) || File.setgid?(@command[0])
+              @logger.info("Command is setuid/setgid, clearing DYLD_LIBRARY_PATH")
+              process.environment["DYLD_LIBRARY_PATH"] = ""
+            end
           end
 
-          if File.setuid?(@command[0]) || File.setgid?(@command[0])
-            @logger.info("Command is setuid/setgid, clearing DYLD_LIBRARY_PATH")
-            process.environment["DYLD_LIBRARY_PATH"] = ""
+          # If the command that is being run is not inside the installer, reset
+          # the original environment - this is required for shelling out to
+          # other subprocesses that depend on environment variables (like Ruby
+          # and $GEM_PATH for example)
+          internal = [installer_dir, Vagrant.user_data_path.to_s.downcase].
+            any? { |path| @command[0].downcase.include?(path) }
+          if !internal
+            @logger.info("Command not in installer, restoring original environment...")
+            jailbreak(process.environment)
           end
+        else
+          @logger.info("Vagrant not running in installer, restoring original environment...")
+          jailbreak(process.environment)
         end
 
         # Set the environment on the process if we must
@@ -237,6 +256,58 @@ module Vagrant
           @stdout    = stdout
           @stderr    = stderr
         end
+      end
+
+      private
+
+      # This is, quite possibly, the saddest function in all of Vagrant.
+      #
+      # If a user is running Vagrant via Bundler (but not via the official
+      # installer), we want to reset to the "original" environment so that when
+      # shelling out to other Ruby processes (specifically), the original
+      # environment is restored. This is super important for things like
+      # rbenv and chruby, who rely on environment variables to locate gems, but
+      # Bundler stomps on those environment variables like an angry T-Rex after
+      # watching Jurassic Park 2 and realizing they replaced you with CGI.
+      #
+      # If a user is running in Vagrant via the official installer, BUT trying
+      # to execute a subprocess *outside* of the installer, we want to reset to
+      # the "original" environment. In this case, the Vagrant installer actually
+      # knows what the original environment was and replaces it completely.
+      #
+      # Finally, we reset any Bundler-specific environment variables, since the
+      # subprocess being called could, itself, be Bundler. And Bundler does not
+      # behave very nicely in these circumstances.
+      #
+      # This function was added in Vagrant 1.7.3, but there is a failsafe
+      # because the author doesn't trust himself that this functionality won't
+      # break existing assumptions, so users can specify
+      # `VAGRANT_SKIP_SUBPROCESS_JAILBREAK` and none of the above will happen.
+      #
+      # This function modifies the given hash in place!
+      #
+      # @return [nil]
+      def jailbreak(env = {})
+        return if ENV.key?("VAGRANT_SKIP_SUBPROCESS_JAILBREAK")
+
+        env.replace(::Bundler::ORIGINAL_ENV) if defined?(::Bundler::ORIGINAL_ENV)
+        env.merge!(Vagrant.original_env)
+
+        # Bundler does this, so I guess we should as well, since I think it
+        # other subprocesses that use Bundler will reload it
+        env["MANPATH"] = ENV["BUNDLE_ORIG_MANPATH"]
+
+        # Replace all current environment BUNDLE_ variables to nil
+        ENV.each do |k,_|
+          env[k] = nil if k[0,7] == "BUNDLE_"
+        end
+
+        # If RUBYOPT was set, unset it with Bundler
+        if ENV.key?("RUBYOPT")
+          env["RUBYOPT"] = ENV["RUBYOPT"].sub("-rbundler/setup", "")
+        end
+
+        nil
       end
     end
   end

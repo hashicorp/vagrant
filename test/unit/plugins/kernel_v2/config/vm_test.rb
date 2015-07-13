@@ -23,6 +23,13 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  def find_network(name)
+    network_definitions = subject.networks.map do |n|
+      n[1]
+    end
+    network_definitions.find {|n| n[:id] == name}
+  end
+
   before do
     env = double("env")
     env.stub(root_path: nil)
@@ -121,28 +128,6 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
-  describe "#define" do
-    it "should allow regular names" do
-      subject.define "foo"
-      subject.finalize!
-
-      assert_valid
-    end
-
-    [
-      "foo [1]",
-      "bar {2}",
-      "foo/bar",
-    ].each do |name|
-      it "should disallow names with brackets" do
-        subject.define name
-        subject.finalize!
-
-        assert_invalid
-      end
-    end
-  end
-
   describe "#guest" do
     it "is nil by default" do
       subject.finalize!
@@ -183,6 +168,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.finalize!
       n = subject.networks
       expect(n.length).to eq(2)
+
       expect(n[0][0]).to eq(:forwarded_port)
       expect(n[0][1][:guest]).to eq(5985)
       expect(n[0][1][:host]).to eq(55985)
@@ -190,9 +176,10 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(n[0][1][:id]).to eq("winrm")
 
       expect(n[1][0]).to eq(:forwarded_port)
-      expect(n[1][1][:guest]).to eq(22)
-      expect(n[1][1][:host]).to eq(2222)
-      expect(n[1][1][:id]).to eq("ssh")
+      expect(n[1][1][:guest]).to eq(5986)
+      expect(n[1][1][:host]).to eq(55986)
+      expect(n[1][1][:host_ip]).to eq("127.0.0.1")
+      expect(n[1][1][:id]).to eq("winrm-ssl")
     end
 
     it "allows overriding SSH" do
@@ -214,12 +201,22 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
         guest: 22, host: 14100, id: "winrm"
       subject.finalize!
 
-      n = subject.networks
-      expect(n.length).to eq(2)
-      expect(n[0][0]).to eq(:forwarded_port)
-      expect(n[0][1][:guest]).to eq(22)
-      expect(n[0][1][:host]).to eq(14100)
-      expect(n[0][1][:id]).to eq("winrm")
+      winrm_network = find_network 'winrm'
+      expect(winrm_network[:guest]).to eq(22)
+      expect(winrm_network[:host]).to eq(14100)
+      expect(winrm_network[:id]).to eq("winrm")
+    end
+
+    it "allows overriding WinRM SSL" do
+      subject.communicator = :winrmssl
+      subject.network "forwarded_port",
+        guest: 22, host: 14100, id: "winrmssl"
+      subject.finalize!
+
+      winrmssl_network = find_network 'winrmssl'
+      expect(winrmssl_network[:guest]).to eq(22)
+      expect(winrmssl_network[:host]).to eq(14100)
+      expect(winrmssl_network[:id]).to eq("winrmssl")
     end
 
     it "turns all forwarded port ports to ints" do
@@ -259,6 +256,41 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.post_up_message = "foo"
       subject.finalize!
       expect(subject.post_up_message).to eq("foo")
+    end
+  end
+
+  describe "#provider and #__providers" do
+    it "returns the providers in order" do
+      subject.provider "foo"
+      subject.provider "bar"
+      subject.finalize!
+
+      expect(subject.__providers).to eq([:foo, :bar])
+    end
+
+    describe "merging" do
+      it "prioritizes new orders in later configs" do
+        subject.provider "foo"
+
+        other = described_class.new
+        other.provider "bar"
+
+        merged = subject.merge(other)
+
+        expect(merged.__providers).to eq([:foo, :bar])
+      end
+
+      it "prioritizes duplicates in new orders in later configs" do
+        subject.provider "foo"
+
+        other = described_class.new
+        other.provider "bar"
+        other.provider "foo"
+
+        merged = subject.merge(other)
+
+        expect(merged.__providers).to eq([:foo, :bar])
+      end
     end
   end
 
@@ -306,8 +338,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
 
     it "allows provisioner settings to be overriden" do
-      subject.provision("shell", path: "foo", id: "s") { |s| s.inline = "foo" }
-      subject.provision("shell", inline: "bar", id: "s") { |s| s.args = "bar" }
+      subject.provision("s", path: "foo", type: "shell") { |s| s.inline = "foo" }
+      subject.provision("s", inline: "bar", type: "shell") { |s| s.args = "bar" }
       subject.finalize!
 
       r = subject.provisioners
@@ -377,12 +409,12 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       end
 
       it "uses the proper order when merging overrides" do
-        subject.provision("shell", inline: "foo", id: "original")
-        subject.provision("shell", inline: "other", id: "other")
+        subject.provision("original", inline: "foo", type: "shell")
+        subject.provision("other", inline: "other", type: "shell")
 
         other = described_class.new
         other.provision("shell", inline: "bar")
-        other.provision("shell", inline: "foo-overload", id: "original")
+        other.provision("original", inline: "foo-overload", type: "shell")
 
         merged = subject.merge(other)
         merged_provs = merged.provisioners
@@ -397,13 +429,13 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       end
 
       it "can preserve order for overrides" do
-        subject.provision("shell", inline: "foo", id: "original")
-        subject.provision("shell", inline: "other", id: "other")
+        subject.provision("original", inline: "foo", type: "shell")
+        subject.provision("other", inline: "other", type: "shell")
 
         other = described_class.new
         other.provision("shell", inline: "bar")
         other.provision(
-          "shell", inline: "foo-overload", id: "original",
+          "original", inline: "foo-overload", type: "shell",
           preserve_order: true)
 
         merged = subject.merge(other)
@@ -447,6 +479,12 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(sf).to have_key("/vagrant")
       expect(sf["/vagrant"][:disabled]).to be_false
       expect(sf["/vagrant"][:foo]).to eq(:bar)
+    end
+
+    it "is not an error if guest path is empty" do
+      subject.synced_folder(".", "")
+      subject.finalize!
+      assert_valid
     end
   end
 

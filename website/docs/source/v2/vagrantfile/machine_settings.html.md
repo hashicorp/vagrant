@@ -20,7 +20,7 @@ for the machine to boot and be accessible. By default this is 300 seconds.
 `config.vm.box` - This configures what [box](/v2/boxes.html) the
 machine will be brought up against. The value here should be the name
 of an installed box or a shorthand name of a box in
-[Vagrant Cloud](https://vagrantcloud.com).
+[HashiCorp's Atlas](https://atlas.hashicorp.com).
 
 <hr>
 
@@ -28,7 +28,7 @@ of an installed box or a shorthand name of a box in
 the configured box on every `vagrant up`. If an update is found, Vagrant
 will tell the user. By default this is true. Updates will only be checked
 for boxes that properly support updates (boxes from
-[Vagrant Cloud](https://vagrantcloud.com)
+[HashiCorp's Atlas](https://atlas.hashicorp.com)
 or some other versioned box).
 
 <hr>
@@ -56,14 +56,32 @@ certificate is used to download the box.
 
 <hr>
 
+`config.vm.box_download_ca_cert` - Path to a CA cert bundle to use when
+downloading a box directly. By default, Vagrant will use the Mozilla CA cert
+bundle.
+
+<hr>
+
+`config.vm.box_download_ca_path` - Path to a directory containing
+CA certificates for downloading a box directly. By default, Vagrant will
+use the Mozilla CA cert bundle.
+
+<hr>
 `config.vm.box_download_insecure` - If true, then SSL certificates
 from the server will not be verified. By default, if the URL is an HTTPS
 URL, then SSL certs will be verified.
 
 <hr>
 
+`config.vm.box_download_location_trusted` - If true, then all HTTP redirects will be
+treated as trusted. That means credentials used for initial URL will be used for
+all subsequent redirects. By default, redirect locations are untrusted so credentials
+(if specified) used only for initial HTTP request.
+
+<hr>
+
 `config.vm.box_url` - The URL that the configured box can be found at.
-If `config.vm.box` is a shorthand to a box in [Vagrant Cloud](https://vagrantcloud.com)
+If `config.vm.box` is a shorthand to a box in [HashiCorp's Atlas](https://atlas.hashicorp.com)
 then this value doesn't need to be specified. Otherwise, it should
 point to the proper place where the box can be found if it isn't
 installed.
@@ -82,6 +100,12 @@ example: "file:///tmp/test.box".
 of constraints, separated by commas, such as: `>= 1.0, < 1.5`. When constraints
 are given, Vagrant will use the latest available box satisfying these
 constraints.
+
+<hr>
+
+`config.vm.communicator` - The communicator type to use to connect to the
+guest box. By default this is `"ssh"`, but should be changed to `"winrm"` for
+Windows guests.
 
 <hr>
 

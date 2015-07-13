@@ -3,8 +3,8 @@ require "vagrant"
 module VagrantPlugins
   module GuestRedHat
     class Plugin < Vagrant.plugin("2")
-      name "RedHat guest"
-      description "RedHat guest support."
+      name "Red Hat Enterprise Linux guest"
+      description "Red Hat Enterprise Linux guest support."
 
       guest("redhat", "linux") do
         require File.expand_path("../guest", __FILE__)
@@ -32,6 +32,11 @@ module VagrantPlugins
       end
 
       guest_capability("redhat", "nfs_client_install") do
+        require_relative "cap/nfs_client"
+        Cap::NFSClient
+      end
+
+      guest_capability("redhat", "nfs_client_installed") do
         require_relative "cap/nfs_client"
         Cap::NFSClient
       end

@@ -9,7 +9,7 @@ The primary function of the Vagrantfile is to describe the type
 of machine required for a project, and how to configure and
 provision these machines. Vagrantfiles are called Vagrantfiles because
 the actual literal filename for the file is `Vagrantfile` (casing doesn't
-matter).
+matter unless your file system is running in a strict case sensitive mode).
 
 Vagrant is meant to run with one Vagrantfile per project, and the Vagrantfile
 is supposed to be committed to version control. This allows other developers

@@ -5,17 +5,28 @@
 
 Vagrant.configure("2") do |config|
   config.vm.box = "hashicorp/precise64"
+  config.vm.hostname = "vagrant"
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  ["virtualbox", "vmware_fusion", "vmware_workstation"].each do |provider|
+  ["vmware_fusion", "vmware_workstation", "virtualbox"].each do |provider|
     config.vm.provider provider do |v, override|
       v.memory = "1024"
     end
   end
 
   config.vm.provision "shell", inline: $shell
+
+  config.push.define "www", strategy: "local-exec" do |push|
+    push.script = "scripts/website_push_www.sh"
+  end
+
+  config.push.define "docs", strategy: "local-exec" do |push|
+    push.script = "scripts/website_push_docs.sh"
+  end
 end
 
 $shell = <<-CONTENTS
+export DEBIAN_FRONTEND=noninteractive
 MARKER_FILE="/usr/local/etc/vagrant_provision_marker"
 
 # Only provision once
@@ -29,8 +40,11 @@ apt-get update
 # Install basic dependencies
 apt-get install -y build-essential bsdtar curl
 
+# Import the mpapis public key to verify downloaded releases
+su -l -c 'curl -sSL https://rvm.io/mpapis.asc | gpg -q --import -' vagrant
+
 # Install RVM
-su -l -c 'curl -L https://get.rvm.io | bash -s stable' vagrant
+su -l -c 'curl -sL https://get.rvm.io | bash -s stable' vagrant
 
 # Add the vagrant user to the RVM group
 #usermod -a -G rvm vagrant

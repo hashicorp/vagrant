@@ -70,6 +70,10 @@ module Vagrant
       # Get the provider configuration from the final loaded configuration
       provider_config = config.vm.get_provider_config(provider)
 
+      # Create machine data directory if it doesn't exist
+      # XXX: Permissions error here.
+      FileUtils.mkdir_p(data_path)
+
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
       return Machine.new(name, provider, provider_cls, provider_config,
@@ -114,24 +118,30 @@ module Vagrant
           name: name, provider: provider
       end
 
-      provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
-      if !provider_plugin
-        raise Errors::ProviderNotFound,
-          machine: name, provider: provider
-      end
+      provider_plugin  = nil
+      provider_cls     = nil
+      provider_options = {}
+      box_formats      = nil
+      if provider != nil
+        provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
+        if !provider_plugin
+          raise Errors::ProviderNotFound,
+            machine: name, provider: provider
+        end
 
-      provider_cls     = provider_plugin[0]
-      provider_options = provider_plugin[1]
-      box_formats      = provider_options[:box_format] || provider
+        provider_cls     = provider_plugin[0]
+        provider_options = provider_plugin[1]
+        box_formats      = provider_options[:box_format] || provider
 
-      # Test if the provider is usable or not
-      begin
-        provider_cls.usable?(true)
-      rescue Errors::VagrantError => e
-        raise Errors::ProviderNotUsable,
-          machine: name.to_s,
-          provider: provider.to_s,
-          message: e.to_s
+        # Test if the provider is usable or not
+        begin
+          provider_cls.usable?(true)
+        rescue Errors::VagrantError => e
+          raise Errors::ProviderNotUsable,
+            machine: name.to_s,
+            provider: provider.to_s,
+            message: e.to_s
+        end
       end
 
       # Add the sub-machine configuration to the loader and keys
@@ -153,7 +163,7 @@ module Vagrant
         local_keys = keys.dup
 
         # Load the box Vagrantfile, if there is one
-        if config.vm.box
+        if config.vm.box && boxes
           box = boxes.find(config.vm.box, box_formats, config.vm.box_version)
           if box
             box_vagrantfile = find_vagrantfile(box.directory)

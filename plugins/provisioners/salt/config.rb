@@ -12,15 +12,20 @@ module VagrantPlugins
       attr_accessor :master_config
       attr_accessor :master_key
       attr_accessor :master_pub
+      attr_accessor :grains_config
       attr_accessor :run_highstate
       attr_accessor :run_overstate
+      attr_accessor :orchestrations
       attr_accessor :always_install
       attr_accessor :bootstrap_script
       attr_accessor :verbose
       attr_accessor :seed_master
+      attr_accessor :config_dir
       attr_reader   :pillar_data
       attr_accessor :colorize
       attr_accessor :log_level
+      attr_accessor :masterless
+      attr_accessor :minion_id
 
       ## bootstrap options
       attr_accessor :temp_config_dir
@@ -30,6 +35,7 @@ module VagrantPlugins
       attr_accessor :install_syndic
       attr_accessor :no_minion
       attr_accessor :bootstrap_options
+      attr_accessor :version
 
       def initialize
         @minion_config = UNSET_VALUE
@@ -38,6 +44,7 @@ module VagrantPlugins
         @master_config = UNSET_VALUE
         @master_key = UNSET_VALUE
         @master_pub = UNSET_VALUE
+        @grains_config = UNSET_VALUE
         @run_highstate = UNSET_VALUE
         @run_overstate = UNSET_VALUE
         @always_install = UNSET_VALUE
@@ -54,6 +61,10 @@ module VagrantPlugins
         @install_syndic = UNSET_VALUE
         @no_minion = UNSET_VALUE
         @bootstrap_options = UNSET_VALUE
+        @config_dir = UNSET_VALUE
+        @masterless = UNSET_VALUE
+        @minion_id = UNSET_VALUE
+        @version = UNSET_VALUE
       end
 
       def finalize!
@@ -63,6 +74,7 @@ module VagrantPlugins
         @master_config      = nil if @master_config == UNSET_VALUE
         @master_key         = nil if @master_key == UNSET_VALUE
         @master_pub         = nil if @master_pub == UNSET_VALUE
+        @grains_config      = nil if @grains_config == UNSET_VALUE
         @run_highstate      = nil if @run_highstate == UNSET_VALUE
         @run_overstate      = nil if @run_overstate == UNSET_VALUE
         @always_install     = nil if @always_install == UNSET_VALUE
@@ -79,7 +91,10 @@ module VagrantPlugins
         @install_syndic     = nil if @install_syndic == UNSET_VALUE
         @no_minion          = nil if @no_minion == UNSET_VALUE
         @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
-
+        @config_dir         = nil if @config_dir == UNSET_VALUE
+        @masterless         = false if @masterless == UNSET_VALUE
+        @minion_id          = nil if @minion_id == UNSET_VALUE
+        @version            = nil if @version == UNSET_VALUE
       end
 
       def pillar(data)
@@ -87,19 +102,30 @@ module VagrantPlugins
         @pillar_data = Vagrant::Util::DeepMerge.deep_merge(@pillar_data, data)
       end
 
+      def default_config_dir(machine)
+        guest_type = machine.config.vm.guest || :linux
+
+        # FIXME: there should be a way to do that a bit smarter
+        if guest_type == :windows
+          return "C:\\salt"
+        else
+          return "/etc/salt"
+        end
+      end
+
       def validate(machine)
         errors = _detected_errors
         if @minion_config
           expanded = Pathname.new(@minion_config).expand_path(machine.env.root_path)
           if !expanded.file?
-            errors << I18n.t("vagrant.provisioners.salt.minion_config_nonexist")
+            errors << I18n.t("vagrant.provisioners.salt.minion_config_nonexist", missing_config_file: expanded)
           end
         end
 
         if @master_config
           expanded = Pathname.new(@master_config).expand_path(machine.env.root_path)
           if !expanded.file?
-            errors << I18n.t("vagrant.provisioners.salt.master_config_nonexist")
+            errors << I18n.t("vagrant.provisioners.salt.master_config_nonexist",  missing_config_file: expanded)
           end
         end
 
@@ -115,14 +141,23 @@ module VagrantPlugins
           end
         end
 
+        if @grains_config
+          expanded = Pathname.new(@grains_config).expand_path(machine.env.root_path)
+          if !expanded.file?
+            errors << I18n.t("vagrant.provisioners.salt.grains_config_nonexist")
+          end
+        end
+
         if @install_master && !@no_minion && !@seed_master && @run_highstate
           errors << I18n.t("vagrant.provisioners.salt.must_accept_keys")
         end
 
+        if @config_dir.nil?
+          @config_dir = default_config_dir(machine)
+        end
+
         return {"salt provisioner" => errors}
       end
-
-
     end
   end
 end

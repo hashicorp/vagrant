@@ -25,6 +25,15 @@ module Vagrant
           # Order the plugins by priority. Higher is tried before lower.
           ordered = ordered.sort { |a, b| b[0] <=> a[0] }
 
+          allowed_types = machine.config.vm.allowed_synced_folder_types
+          if allowed_types
+            ordered = allowed_types.map do |type|
+              ordered.find do |_, key, impl|
+                key == type
+              end
+            end.compact
+          end
+
           # Find the proper implementation
           ordered.each do |_, key, impl|
             return key if impl.new.usable?(machine)
@@ -93,11 +102,12 @@ module Vagrant
 
           config = opts[:config]
           config ||= machine.config.vm
+          config_folders = config.synced_folders
           folders = {}
 
           # Determine all the synced folders as well as the implementation
           # they're going to use.
-          config.synced_folders.each do |id, data|
+          config_folders.each do |id, data|
             # Ignore disabled synced folders
             next if data[:disabled]
 
@@ -112,10 +122,12 @@ module Vagrant
                 raise "Internal error. Report this as a bug. Invalid: #{data[:type]}"
               end
 
-              if !impl_class[0].new.usable?(machine, true)
-                # Verify that explicitly defined shared folder types are
-                # actually usable.
-                raise Errors::SyncedFolderUnusable, type: data[:type].to_s
+              if !opts[:disable_usable_check]
+                if !impl_class[0].new.usable?(machine, true)
+                  # Verify that explicitly defined shared folder types are
+                  # actually usable.
+                  raise Errors::SyncedFolderUnusable, type: data[:type].to_s
+                end
               end
             end
 
@@ -126,7 +138,7 @@ module Vagrant
 
           # If we have folders with the "default" key, then determine the
           # most appropriate implementation for this.
-          if folders.has_key?("") && !folders[""].empty?
+          if folders.key?("") && !folders[""].empty?
             default_impl = default_synced_folder_type(machine, plugins)
             if !default_impl
               types = plugins.to_hash.keys.map { |t| t.to_s }.sort.join(", ")

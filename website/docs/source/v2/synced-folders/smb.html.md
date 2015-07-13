@@ -25,7 +25,7 @@ alternative to some other mechanisms such as VirtualBox shared folders.
 ## Prerequisites
 
 To use the SMB synced folder type, the machine running Vagrant must be
-a Windows machine. In addition to this, the command prompt executing Vagrant
+a Windows machine with PowerShell version 3 or later installed. In addition to this, the command prompt executing Vagrant
 must have administrative privileges. Vagrant requires these privileges in
 order to create new network folder shares.
 
@@ -49,8 +49,8 @@ The SMB synced folder type has a variety of options it accepts:
 * `smb_username` (string) - The username used for authentication to mount
   the SMB mount. This is the username to access the mount, _not_ the username
   of the account where the folder is being mounted to. This is usually your
-  Windows username. If this isn't specified, Vagrant will prompt you for
-  it.
+  Windows username. If you sign into a domain, specify it as `user@domain`.
+  If this option isn't specified, Vagrant will prompt you for it.
 
 ## Example
 
@@ -60,6 +60,17 @@ The following is an example of using SMB to sync a folder:
 Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", type: "smb"
 end
+</pre>
+
+## Preventing Idle Disconnects
+
+On Windows, if a file isn't accessed for some period of time, it may
+disconnect from the guest and prevent the guest from accessing the SMB-mounted
+share. To prevent this, the following command can be used in a superuser
+shell. Note that you should research if this is the right option for you.
+
+<pre class="prettyprint">
+net config server /autodisconnect:-1
 </pre>
 
 ## Limitations

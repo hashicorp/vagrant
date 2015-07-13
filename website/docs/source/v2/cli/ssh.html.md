@@ -17,8 +17,18 @@ any arbitrary commands to do things such as reverse tunneling down into the
 ## Options
 
 * `-c COMMAND` or `--command COMMAND` - This executes a single SSH command, prints
-  out the stdout and stderr, and exits. stdin will not be functional on this
-  executed command.
+  out the stdout and stderr, and exits.
 
 * `-p` or `--plain` - This does an SSH without authentication, leaving
   authentication up to the user.
+
+## Background Execution
+
+If the command you specify runs in the background (such as appending a `&` to
+a shell command), it will be terminated almost immediately. This is because
+when Vagrant executes the command, it executes it within the context of a
+shell, and when the shell exits, all of the child processes also exit.
+
+To avoid this, you'll need to detach the process from the shell. Please
+Google to learn how to do this for your shell. One method of doing this is
+the `nohup` command.
