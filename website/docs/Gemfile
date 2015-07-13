@@ -10,6 +10,7 @@ gem "redcarpet", "~> 2.2.2"
 gem "rb-inotify", "~> 0.9", require: false
 gem "therubyracer", "~> 0.12.0"
 gem "thin", "~> 1.5.0"
+gem "rack-protection", "~> 1.5"
 
 group :development do
   gem "highline", "~> 1.6.15"
