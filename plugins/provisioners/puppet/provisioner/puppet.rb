@@ -121,6 +121,19 @@ module VagrantPlugins
             @machine.communicate.upload(local_hiera_path, @hiera_config_path)
           end
 
+          # Build up the structured custom facts if we have any
+          # With structured facts on, we assume the config.facter is yaml.
+          if config.structured_facts && !config.facter.empty?
+            @facter_config_path = "/etc/facter/facts.d/vagrant_facts.yaml"
+            if windows?
+              @facter_config_path = "/ProgramData/PuppetLabs/facter/facts.d/vagrant_facts.yaml"
+            end
+            t = Tempfile.new("vagrant_facts.yaml")
+	          t.write(config.facter)
+            t.close()
+            @machine.communicate.upload(t.path, @facter_config_path)
+	        end
+
           run_puppet_apply
         end
 
@@ -200,9 +213,9 @@ module VagrantPlugins
           options << @manifest_file
           options = options.join(" ")
 
-          # Build up the custom facts if we have any
+          # Build up the (non-structured) custom facts if we have any
           facter = ""
-          if !config.facter.empty?
+          if !config.structured_facts && !config.facter.empty?
             facts = []
             config.facter.each do |key, value|
               facts << "FACTER_#{key}='#{value}'"
