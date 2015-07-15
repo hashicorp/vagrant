@@ -107,7 +107,7 @@ module VagrantPlugins
           interfaces.each do |interface|
             retryable(on: Vagrant::Errors::VagrantError, tries: 3, sleep: 2) do
               machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-#{interface}")
-              machine.communicate.sudo("which nmcli >/dev/null 2>&1 && nmcli c reload #{interface}")
+              machine.communicate.sudo("! which nmcli >/dev/null 2>&1 || nmcli c reload #{interface}")
               machine.communicate.sudo("/sbin/ifdown #{interface}", error_check: true)
               machine.communicate.sudo("/sbin/ifup #{interface}")
             end

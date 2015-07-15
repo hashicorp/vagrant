@@ -52,8 +52,6 @@ module VagrantPlugins
         def merge(other)
           super.tap do |result|
             result.facter  = @facter.merge(other.facter)
-            result.environment_path  = @facter.merge(other.environment_path)
-            result.environment  = @facter.merge(other.environment)
           end
         end
 

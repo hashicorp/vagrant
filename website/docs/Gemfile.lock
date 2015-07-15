@@ -138,6 +138,7 @@ DEPENDENCIES
   middleman (~> 3.0.6)
   middleman-minify-html (~> 3.0.0)
   rack-contrib (~> 1.1.0)
+  rack-protection (~> 1.5)
   rb-inotify (~> 0.9)
   redcarpet (~> 2.2.2)
   therubyracer (~> 0.12.0)

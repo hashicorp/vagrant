@@ -497,9 +497,14 @@ module VagrantPlugins
         def share_folders(folders)
           folders.each do |folder|
             hostpath = folder[:hostpath]
+
+=begin
+            # Removed for GH-5933 until further research.
             if Vagrant::Util::Platform.windows?
               hostpath = Vagrant::Util::Platform.windows_unc_path(hostpath)
             end
+=end
+
             args = ["--name",
               folder[:name],
               "--hostpath",
