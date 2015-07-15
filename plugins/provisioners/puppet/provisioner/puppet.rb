@@ -216,7 +216,10 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
-          puppet_bin = File.join(@config.binary_path, "puppet")
+          puppet_bin = "puppet"
+          if(@config.binary_path)
+            puppet_bin = File.join(@config.binary_path, puppet_bin)
+          end
           command = "#{facter} #{puppet_bin} apply #{options}"
           if config.working_directory
             if windows?
