@@ -146,14 +146,16 @@ module VagrantPlugins
         end
 
         def verify_binary(binary)
+          # Determine the command to use to test whether Puppet is available.
+          # This is very platform dependent.
           test_cmd = "sh -c 'command -v #{binary}'"
           if windows?
+            test_cmd = "which #{binary}"
             if @config.binary_path
               test_cmd = "where \"#{@config.binary_path}:#{binary}\""
-            else
-              test_cmd = "which #{binary}"
             end
           end
+
           if !machine.communicate.test(test_cmd)
             @config.binary_path = "/opt/puppetlabs/bin/"
             @machine.communicate.sudo(
@@ -217,9 +219,10 @@ module VagrantPlugins
           end
 
           puppet_bin = "puppet"
-          if(@config.binary_path)
+          if @config.binary_path
             puppet_bin = File.join(@config.binary_path, puppet_bin)
           end
+
           command = "#{facter} #{puppet_bin} apply #{options}"
           if config.working_directory
             if windows?

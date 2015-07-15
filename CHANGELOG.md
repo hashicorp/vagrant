@@ -9,6 +9,7 @@ BUG FIXES:
   - hosts/linux: NFS can be configured without `$TMP` set on the host [GH-5954]
   - providers/virtulabox: remove UNC path conversion on Windows since it
       caused mounting regressions [GH-5933]
+  - provisioners/puppet: Windows Puppet 4 paths work correctly [GH-5967]
   - provisioners/salt: fix "dummy config" error on bootstrap [GH-5936]
 
 ## 1.7.3 (July 10, 2015)
