@@ -8,7 +8,8 @@ BUG FIXES:
   - guests/ubuntu: setting hostname fixed in 12.04 [GH-5937]
   - hosts/linux: NFS can be configured without `$TMP` set on the host [GH-5954]
   - hosts/linux: NFS will sudo copying back to `/etc/exports` [GH-5957]
-  - providers/virtulabox: remove UNC path conversion on Windows since it
+  - providers/docker: Add `pull` setting, default to false [GH-5932]
+  - providers/virtualbox: remove UNC path conversion on Windows since it
       caused mounting regressions [GH-5933]
   - provisioners/puppet: Windows Puppet 4 paths work correctly [GH-5967]
   - provisioners/puppet: Fix config merging errors [GH-5958]

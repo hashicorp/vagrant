@@ -60,6 +60,9 @@ General settings:
     across all containers on the host VM. By default Vagrant will generate
     some random name.
 
+  * `pull` (bool) - If true, the image will be pulled on every `up` and
+    `reload`. Defaults to false.
+
   * `ports` (array of strings) - Ports to expose from the container to the
     host. These should be in the format of `host:container`.
 

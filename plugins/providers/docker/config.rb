@@ -61,6 +61,12 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :name
 
+      # If true, the image will be pulled on every `up` and `reload`
+      # to ensure the latest image.
+      #
+      # @return [Bool]
+      attr_accessor :pull
+
       # True if the docker container is meant to stay in the "running"
       # state (is a long running process). By default this is true.
       #
@@ -140,6 +146,7 @@ module VagrantPlugins
         @image      = UNSET_VALUE
         @name       = UNSET_VALUE
         @links      = []
+        @pull       = UNSET_VALUE
         @ports      = UNSET_VALUE
         @privileged = UNSET_VALUE
         @remains_running = UNSET_VALUE
@@ -199,6 +206,7 @@ module VagrantPlugins
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
         @name       = nil if @name == UNSET_VALUE
+        @pull       = false if @pull == UNSET_VALUE
         @ports      = [] if @ports == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
         @remains_running = true if @remains_running == UNSET_VALUE
