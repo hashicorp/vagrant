@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - communicators/winrm: catch timeout errors [GH-5971]
   - guests/fedora: networks can be configured without nmcli [GH-5931]
   - guests/redhat: systemd detection should happen on guest [GH-5948]
   - guests/ubuntu: setting hostname fixed in 12.04 [GH-5937]
