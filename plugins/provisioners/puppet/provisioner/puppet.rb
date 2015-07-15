@@ -151,7 +151,7 @@ module VagrantPlugins
             if @config.binary_path
               test_cmd = "where \"#{@config.binary_path}:#{binary}\""
             else
-              test_cmd = "where #{binary}"
+              test_cmd = "which #{binary}"
             end
           end
           if !machine.communicate.test(test_cmd)
