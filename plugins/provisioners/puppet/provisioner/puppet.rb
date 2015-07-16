@@ -129,11 +129,14 @@ module VagrantPlugins
               @facter_config_path = "/ProgramData/PuppetLabs/facter/facts.d/vagrant_facts.yaml"
             end
             t = Tempfile.new("vagrant_facts.yaml")
-            t.write(config.facter)  
+            t.write(config.facter)
             t.close()
-            @machine.communicate.upload(t.path, @facter_config_path)
+            @machine.communicate.tap do |comm|
+              comm.upload(t.path, File.join(@config.temp_dir, "vagrant_facts.yaml"))
+              comm.sudo("cp #{config.temp_dir}/vagrant_facts.yaml #{@facter_config_path}")
+            end
            end
-	  
+
           run_puppet_apply
         end
 
