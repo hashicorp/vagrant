@@ -57,7 +57,7 @@ end
 <div class="alert alert-info">
 	<strong>Note:</strong> the generated master VMs are currently not removed
 	automatically by Vagrant. This has to be done manually. However, a master
-	VM can only be remove when there are no linked clones connected to it.
+	VM can only be removed when there are no linked clones connected to it.
 </div>
 
 ## VBoxManage Customizations
