@@ -1,4 +1,4 @@
-## 1.7.4 (unreleased)
+## 1.7.4 (July 17, 2015)
 
 BUG FIXES:
 
