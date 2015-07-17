@@ -104,7 +104,7 @@ module VagrantPlugins
           options = "%s %s" % [options, @config.bootstrap_options]
         end
 
-        if configure
+        if configure && !@machine.config.vm.communicator == :winrm
           options = "%s -F -c %s" % [options, config_dir]
         end
 
@@ -245,7 +245,19 @@ module VagrantPlugins
           bootstrap_path = get_bootstrap
           if @machine.config.vm.communicator == :winrm
             if @config.version
-              options = "-version %s" % @config.version            
+              options += " -version %s" % @config.version            
+            end
+            if @config.run_service
+              @machine.env.ui.info "Salt minion will be stopped after installing."
+              options += " -runservice %s" % @config.run_service            
+            end
+            if @config.minion_id
+              @machine.env.ui.info "Setting minion to @config.minion_id."
+              options += " -minion %s" % @config.minion_id            
+            end
+            if @config.master_id
+              @machine.env.ui.info "Setting master to @config.master_id."
+              options += " -master %s" % @config.master_id            
             end
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.ps1")
           else

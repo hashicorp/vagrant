@@ -37,6 +37,8 @@ module VagrantPlugins
       attr_accessor :no_minion
       attr_accessor :bootstrap_options
       attr_accessor :version
+      attr_accessor :run_service
+      attr_accessor :master_id
 
       def initialize
         @minion_config = UNSET_VALUE
@@ -67,6 +69,8 @@ module VagrantPlugins
         @masterless = UNSET_VALUE
         @minion_id = UNSET_VALUE
         @version = UNSET_VALUE
+        @run_service = UNSET_VALUE
+        @master_id = UNSET_VALUE
       end
 
       def finalize!
@@ -98,6 +102,8 @@ module VagrantPlugins
         @masterless         = false if @masterless == UNSET_VALUE
         @minion_id          = nil if @minion_id == UNSET_VALUE
         @version            = nil if @version == UNSET_VALUE
+        @run_service        = nil if @run_service == UNSET_VALUE
+        @master_id          = nil if @master_id == UNSET_VALUE
       end
 
       def pillar(data)
@@ -110,7 +116,7 @@ module VagrantPlugins
 
         # FIXME: there should be a way to do that a bit smarter
         if guest_type == :windows
-          return "C:\\salt"
+          return "C:\\salt\\conf"
         else
           return "/etc/salt"
         end
