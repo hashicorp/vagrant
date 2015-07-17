@@ -336,7 +336,7 @@ module VagrantPlugins
 
       def call_highstate
         if @config.minion_config
-          @machine.env.ui.info "Copying salt minion config to #{@config.config_dir}"
+          @machine.env.ui.info "Copying salt minion config to #{@config.config dir}"
           @machine.communicate.upload(expanded_path(@config.minion_config).to_s, @config.config_dir + "/minion")
         end
 
