@@ -113,7 +113,7 @@ module VagrantPlugins
 
         # FIXME: there should be a way to do that a bit smarter
         if guest_type == :windows
-          return "C:\\salt\\conf"
+          return "C:\\salt"
         else
           return "/etc/salt"
         end
