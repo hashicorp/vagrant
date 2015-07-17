@@ -339,12 +339,7 @@ module VagrantPlugins
           @machine.env.ui.info "Copying salt minion config to #{@config.config_dir}"
           @machine.communicate.upload(expanded_path(@config.minion_config).to_s, @config.config_dir + "/minion")
         end
-        
-        if @config.grains_config
-          @machine.env.ui.info "Copying salt grains config to #{@config.config_dir}"
-          @machine.communicate.upload(expanded_path(@config.grains_config).to_s, @config.config_dir + "/grains")
-        end
-        
+
         if @config.masterless
           call_masterless
         elsif @config.run_highstate
