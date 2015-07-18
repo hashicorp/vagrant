@@ -30,7 +30,8 @@ on a single minion, without a master:
 
     ## Use all the defaults:
     config.vm.provision :salt do |salt|
-
+    
+      salt.masterless = true
       salt.minion_config = "salt/minion"
       salt.run_highstate = true
 
