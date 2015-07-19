@@ -30,6 +30,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     expect(box_collection).to receive(:find).with(
       "foo", :virtualbox, "1.0").and_return(box)
+    expect(box_collection).to receive(:clean_up).with(box)
+      .and_return(true)
     expect(box).to receive(:destroy!).once
     expect(app).to receive(:call).with(env).once
 
@@ -50,6 +52,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     expect(box_collection).to receive(:find).with(
       "foo", :virtualbox, "1.0").and_return(box)
+    expect(box_collection).to receive(:clean_up).with(box)
+      .and_return(false)
     expect(box).to receive(:destroy!).once
     expect(app).to receive(:call).with(env).once
 
@@ -70,12 +74,30 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     expect(box_collection).to receive(:find).with(
       "foo", :virtualbox, "1.0").and_return(box)
+    expect(box_collection).to receive(:clean_up).with(box)
+      .and_return(false)
     expect(box).to receive(:destroy!).once
     expect(app).to receive(:call).with(env).once
 
     subject.call(env)
 
     expect(env[:box_removed]).to equal(box)
+  end
+
+  it "deletes the whole directory of the box if it's the last box on the system" do
+    box_collection.stub(
+      all: [
+        ["foo", "1.0", :virtualbox],
+      ])
+
+    env[:box_name] = "foo"
+
+    expect(box_collection).to receive(:find).with(
+      "foo", :virtualbox, "1.0").and_return(box)
+    expect(box_collection).to receive(:clean_up).with(box)
+      .and_return(true)
+
+    subject.call(env)
   end
 
   context "checking if a box is in use" do
@@ -110,6 +132,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
       expect(box_collection).to receive(:find).with(
         "foo", :virtualbox, "1.0").and_return(box)
       expect(box).to receive(:destroy!).once
+      expect(box_collection).to receive(:clean_up).with(box)
+        .and_return(true)
 
       subject.call(env)
     end
@@ -123,6 +147,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
       expect(box_collection).to receive(:find).with(
         "foo", :virtualbox, "1.0").and_return(box)
+      expect(box_collection).to receive(:clean_up).with(box)
+        .and_return(true)
       expect(box).to receive(:destroy!).once
 
       subject.call(env)
