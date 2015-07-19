@@ -36,7 +36,7 @@ module VagrantPlugins
         if !@config.no_minion
           if @machine.config.vm.communicator == :winrm
             desired_binaries.push('C:\\salt\\salt-minion.exe')
-            desired_binaries.push('C:\\salt\\salt-call.exe')
+            desired_binaries.push('C:\\salt\\salt-call.bat')
           else
             desired_binaries.push('salt-minion')
             desired_binaries.push('salt-call')
