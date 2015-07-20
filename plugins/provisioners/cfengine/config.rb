@@ -51,7 +51,7 @@ module VagrantPlugins
         end
 
         if @deb_repo_line == UNSET_VALUE
-          @deb_repo_line = "deb http://cfengine.com/pub/apt $(lsb_release -cs) main"
+          @deb_repo_line = "deb http://cfengine.com/pub/apt/packages stable main"
         end
 
         @extra_agent_args = nil if @extra_agent_args == UNSET_VALUE
