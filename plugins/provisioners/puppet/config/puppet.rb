@@ -33,7 +33,7 @@ module VagrantPlugins
           @module_path        = UNSET_VALUE
           @options            = []
           @facter             = {}
-          @structured_facts = UNSET_VALUE
+          @structured_facts   = UNSET_VALUE
           @synced_folder_type = UNSET_VALUE
           @temp_dir           = UNSET_VALUE
           @working_directory  = UNSET_VALUE
@@ -54,9 +54,6 @@ module VagrantPlugins
         def merge(other)
           super.tap do |result|
             result.facter  = @facter.merge(other.facter)
-            result.structured_facts  = @facter.merge(other.structured_facts)
-            result.environment_path  = @facter.merge(other.environment_path)
-            result.environment  = @facter.merge(other.environment)
           end
         end
 
@@ -146,7 +143,7 @@ module VagrantPlugins
               if !expanded_environment_file.file? && !expanded_environment_file.directory?
                 errors << I18n.t("vagrant.provisioners.puppet.environment_missing",
                                  environment: environment.to_s,
-                                 environment_path: expanded_path.to_s)
+                                 environmentpath: expanded_path.to_s)
               end
             end
           end
