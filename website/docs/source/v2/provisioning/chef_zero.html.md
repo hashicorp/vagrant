@@ -41,6 +41,9 @@ available below this section.
 * `environments_path` (string) - A path where environment definitions are
   located. By default, no environments folder is set.
 
+* `nodes_path` (string or array) - A list of paths where node objects (in JSON format) are stored. By default, no
+  nodes path is set.
+
 * `environment` (string) - The environment you want the Chef run to be
   a part of. This requires Chef 11.6.0 or later, and that `environments_path`
   is set.
