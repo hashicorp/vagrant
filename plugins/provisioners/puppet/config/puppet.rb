@@ -143,7 +143,7 @@ module VagrantPlugins
               if !expanded_environment_file.file? && !expanded_environment_file.directory?
                 errors << I18n.t("vagrant.provisioners.puppet.environment_missing",
                                  environment: environment.to_s,
-                                 environment_path: expanded_path.to_s)
+                                 environmentpath: expanded_path.to_s)
               end
             end
           end
