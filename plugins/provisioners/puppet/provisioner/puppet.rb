@@ -148,21 +148,39 @@ module VagrantPlugins
         def verify_binary(binary)
           # Determine the command to use to test whether Puppet is available.
           # This is very platform dependent.
-          test_cmd = "sh -c 'command -v #{binary}'"
+          puppet_bin = binary
+          if @config.binary_path
+            puppet_bin = File.join(@config.binary_path, puppet_bin)
+          end
+          test_cmd = "sh -c 'command -v #{puppet_bin}'"
           if windows?
-            test_cmd = "which #{binary}"
+            test_cmd = "which #{puppet_bin}"
             if @config.binary_path
-              test_cmd = "where \"#{@config.binary_path}:#{binary}\""
+              test_cmd = "where \"#{@config.binary_path}:#{puppet_bin}\""
             end
           end
 
-          if !machine.communicate.test(test_cmd)
-            @config.binary_path = "/opt/puppetlabs/bin/"
-            @machine.communicate.sudo(
-              "test -x /opt/puppetlabs/bin/#{binary}",
-              error_class: PuppetError,
-              error_key: :not_detected,
-              binary: binary)
+          test_result = machine.communicate.test(test_cmd)
+          if !test_result
+            # Just fail if we didnt find it at the user specified path.
+            if @config.binary_path
+              raise PuppetError, :not_detected
+            end
+            # Not found but no path was specified, lets try a few default paths
+            puppet_bin = File.join("/usr/local/bin/", binary)
+            if machine.communicate.test("sh -c 'command -v #{puppet_bin}'")
+              return "/usr/local/bin/"
+            end
+            binary = File.join("/opt/puppetlabs/bin", binary)
+            if machine.communicate.test("sh -c 'command -v #{puppet_bin}'")
+              return "/opt/puppetlabs/bin/"
+            end
+            raise PuppetError, :not_detected
+          else
+            # Grab path in form path/puppet, chop off the puppet
+            @machine.communicate.execute(test_cmd) do |type, data|
+              return data.chop.chomp("/#{binary}")
+            end
           end
         end
 
