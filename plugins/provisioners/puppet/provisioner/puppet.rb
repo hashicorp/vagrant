@@ -164,7 +164,7 @@ module VagrantPlugins
           if !test_result
             # Just fail if we didnt find it at the user specified path.
             if @config.binary_path
-              raise PuppetError, :not_detected
+              raise PuppetError.new(:not_detected, binary: puppet_bin)
             end
             # Not found but no path was specified, lets try a few default paths
             puppet_bin = File.join("/usr/local/bin/", binary)
@@ -175,7 +175,7 @@ module VagrantPlugins
             if machine.communicate.test("sh -c 'command -v #{puppet_bin}'")
               return "/opt/puppetlabs/bin/"
             end
-            raise PuppetError, :not_detected
+              raise PuppetError.new(:not_detected, binary: puppet_bin)
           else
             # Grab path in form path/puppet, chop off the puppet
             @machine.communicate.execute(test_cmd) do |type, data|
