@@ -109,12 +109,12 @@ module VagrantPlugins
           verify_shared_folders(check)
 
           # Verify Puppet is installed and run it
-	  
+
           puppet_bin = "puppet"
           if windows?
-	    puppet_bin = "puppet.bat"
+	          puppet_bin = "puppet.bat"
           end
-	  
+
           @config.binary_path = verify_binary(puppet_bin)
 
           # Upload Hiera configuration if we have it
@@ -176,7 +176,7 @@ module VagrantPlugins
             if machine.communicate.test("sh -c 'command -v #{puppet_bin}'")
               return "/usr/local/bin/"
             end
-            binary = File.join("/opt/puppetlabs/bin", binary)
+            puppet_bin = File.join("/opt/puppetlabs/bin", binary)
             if machine.communicate.test("sh -c 'command -v #{puppet_bin}'")
               return "/opt/puppetlabs/bin/"
             end
@@ -186,9 +186,9 @@ module VagrantPlugins
             @machine.communicate.execute(test_cmd) do |type, data|
               if windows?
                 return data.chomp("\\#{binary}")
-	      else
+	            else
                 return data.chop.chomp("/#{binary}")
-	      end
+	            end
             end
           end
         end
