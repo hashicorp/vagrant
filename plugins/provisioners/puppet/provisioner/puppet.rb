@@ -109,8 +109,13 @@ module VagrantPlugins
           verify_shared_folders(check)
 
           # Verify Puppet is installed and run it
+	  
           puppet_bin = "puppet"
-          verify_binary(puppet_bin)
+          if windows?
+	    puppet_bin = "puppet.bat"
+          end
+	  
+          @config.binary_path = verify_binary(puppet_bin)
 
           # Upload Hiera configuration if we have it
           @hiera_config_path = nil
@@ -154,9 +159,9 @@ module VagrantPlugins
           end
           test_cmd = "sh -c 'command -v #{puppet_bin}'"
           if windows?
-            test_cmd = "which #{puppet_bin}"
+            test_cmd = "which '#{binary}'"
             if @config.binary_path
-              test_cmd = "where \"#{@config.binary_path}:#{puppet_bin}\""
+              test_cmd = "where '#{@config.binary_path}:#{binary}'"
             end
           end
 
@@ -179,7 +184,11 @@ module VagrantPlugins
           else
             # Grab path in form path/puppet, chop off the puppet
             @machine.communicate.execute(test_cmd) do |type, data|
-              return data.chop.chomp("/#{binary}")
+              if windows?
+                return data.chomp("\\#{binary}")
+	      else
+                return data.chop.chomp("/#{binary}")
+	      end
             end
           end
         end
@@ -239,6 +248,10 @@ module VagrantPlugins
           puppet_bin = "puppet"
           if @config.binary_path
             puppet_bin = File.join(@config.binary_path, puppet_bin)
+	    if windows?
+	      # Temp remove binary_path support on windows since it breaks things if spaces are present.
+	      puppet_bin = "puppet.bat"
+	    end
           end
 
           command = "#{facter} #{puppet_bin} apply #{options}"
