@@ -20,7 +20,6 @@ module VagrantPlugins
       attr_accessor :bootstrap_script
       attr_accessor :verbose
       attr_accessor :seed_master
-      attr_accessor :config_dir
       attr_reader   :pillar_data
       attr_accessor :colorize
       attr_accessor :log_level
@@ -65,7 +64,6 @@ module VagrantPlugins
         @install_command = UNSET_VALUE
         @no_minion = UNSET_VALUE
         @bootstrap_options = UNSET_VALUE
-        @config_dir = UNSET_VALUE
         @masterless = UNSET_VALUE
         @minion_id = UNSET_VALUE
         @version = UNSET_VALUE
@@ -98,7 +96,6 @@ module VagrantPlugins
         @install_command    = nil if @install_command == UNSET_VALUE
         @no_minion          = nil if @no_minion == UNSET_VALUE
         @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
-        @config_dir         = nil if @config_dir == UNSET_VALUE
         @masterless         = false if @masterless == UNSET_VALUE
         @minion_id          = nil if @minion_id == UNSET_VALUE
         @version            = nil if @version == UNSET_VALUE
@@ -109,17 +106,6 @@ module VagrantPlugins
       def pillar(data)
         @pillar_data = {} if @pillar_data == UNSET_VALUE
         @pillar_data = Vagrant::Util::DeepMerge.deep_merge(@pillar_data, data)
-      end
-
-      def default_config_dir(machine)
-        guest_type = machine.config.vm.guest || :linux
-
-        # FIXME: there should be a way to do that a bit smarter
-        if guest_type == :windows
-          return "C:\\salt\\conf"
-        else
-          return "/etc/salt"
-        end
       end
 
       def validate(machine)
@@ -159,10 +145,6 @@ module VagrantPlugins
 
         if @install_master && !@no_minion && !@seed_master && @run_highstate
           errors << I18n.t("vagrant.provisioners.salt.must_accept_keys")
-        end
-
-        if @config_dir.nil?
-          @config_dir = default_config_dir(machine)
         end
 
         return {"salt provisioner" => errors}
