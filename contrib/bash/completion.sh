@@ -53,7 +53,7 @@ __vagrantinvestigate() {
 _vagrant() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    commands="box connect destroy docker-logs docker-run global-status halt help init list-commands login package plugin provision rdp reload resume rsync rsync-auto share ssh ssh-config status suspend up version"	
+    commands="box connect destroy docker-logs docker-run global-status halt help init list-commands login package plugin provision push rdp reload resume rsync rsync-auto share ssh ssh-config status suspend up version"	
 
     if [ $COMP_CWORD == 1 ]
     then
@@ -91,7 +91,7 @@ _vagrant() {
               return 0
             ;;
             "box")
-              box_commands="add help list remove repackage"
+              box_commands="add help list outdated remove repackage update"
               COMPREPLY=($(compgen -W "${box_commands}" -- ${cur}))
               return 0
             ;;
