@@ -22,6 +22,9 @@ machine will be brought up against. The value here should be the name
 of an installed box or a shorthand name of a box in
 [HashiCorp's Atlas](https://atlas.hashicorp.com).
 
+This option requires Vagrant 1.5 or higher. You can download the latest version
+of Vagrant from the [Vagrant installers page](https://www.vagrantup.com/downloads).
+
 <hr>
 
 `config.vm.box_check_update` - If true, Vagrant will check for updates to
