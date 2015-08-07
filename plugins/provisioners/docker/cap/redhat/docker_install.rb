@@ -9,8 +9,8 @@ module VagrantPlugins
             end
 
             machine.communicate.tap do |comm|
-              comm.sudo("yum -y update")
-              comm.sudo("yum -y remove docker-io*")
+              comm.sudo("yum -q -y update")
+              comm.sudo("yum -q -y remove docker-io*")
               comm.sudo("curl -sSL https://get.docker.com/ | sh")
             end
 
