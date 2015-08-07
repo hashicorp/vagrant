@@ -8,28 +8,32 @@ module VagrantPlugins
               machine.ui.warn(I18n.t("vagrant.docker_install_with_version_not_supported"))
             end
 
+            machine.communicate.tap do |comm|
+              comm.sudo("yum -y update")
+              comm.sudo("yum -y remove docker-io*")
+              comm.sudo("curl -sSL https://get.docker.com/ | sh")
+            end
+
             case machine.guest.capability("flavor")
+
             when :rhel_7
-              docker_install_rhel7(machine)
+              docker_enable_rhel7(machine)
             else
-              docker_install_default(machine)
+              docker_enable_default(machine)
             end
           end
 
-          def self.docker_install_rhel7(machine)
+          def self.docker_enable_rhel7(machine)
             machine.communicate.tap do |comm|
-              comm.sudo("yum -y install docker")
               comm.sudo("systemctl start docker.service")
               comm.sudo("systemctl enable docker.service")
             end
           end
 
-          def self.docker_install_default(machine)
+          def self.docker_enable_default(machine)
             machine.communicate.tap do |comm|
-              if ! comm.test("rpm -qa | grep epel-release")
-                comm.sudo("rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm")
-              end
-              comm.sudo("yum -y install docker-io")
+              comm.sudo("service docker start")
+              comm.sudo("chkconfig docker on")
             end
           end
         end
