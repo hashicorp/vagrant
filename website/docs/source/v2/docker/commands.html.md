@@ -28,3 +28,29 @@ $ vagrant docker-run app -- rake db:migrate
 </pre>
 
 The above would run `rake db:migrate` in the context of an `app` container.
+
+### docker-exec
+
+`vagrant docker-exec` can be used to run one-off commands against
+a Docker container that is currently running, or if the container
+is not running the container will be started and remain running
+after the command has completed.
+
+<pre class="prettyprint">
+$ vagrant docker-exec app -- rake db:migrate
+</pre>
+
+The above would run `rake db:migrate` in the context of an `app` container.
+
+### docker-shell
+
+`vagrant docker-shell` can be used open an interactive bash shell for a running
+container. If the container is not running, and new container will be started
+and will remain running after the shell has been terminated. This command is a 
+shortcut for `vagrant docker-exec -t app -- bash` An example is shown below:
+
+<pre class="prettyprint">
+$ vagrant docker-shell app
+</pre>
+
+The above would open an interactive bash shell to the `app` container.

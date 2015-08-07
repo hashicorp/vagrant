@@ -53,7 +53,7 @@ __vagrantinvestigate() {
 _vagrant() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    commands="box connect destroy docker-logs docker-run global-status halt help init list-commands login package plugin provision rdp reload resume rsync rsync-auto share ssh ssh-config status suspend up version"	
+    commands="box connect destroy docker-logs docker-run docker-exec docker-shell global-status halt help init list-commands login package plugin provision rdp reload resume rsync rsync-auto share ssh ssh-config status suspend up version"	
 
     if [ $COMP_CWORD == 1 ]
     then
