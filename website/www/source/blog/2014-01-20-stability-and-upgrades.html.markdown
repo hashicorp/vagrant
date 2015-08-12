@@ -56,7 +56,7 @@ verify that Vagrant is functioning as it should.
 ### Longer Deprecation Cycles
 
 Although we've made it clear that we may
-[break compatibility](http://docs.vagrantup.com/v2/installation/backwards-compatibility.html)
+[break compatibility](https://docs.vagrantup.com/v2/installation/backwards-compatibility.html)
 of Vagrantfiles for 1.x until 2.0 is final, we've only introduces a couple
 backwards incompatibilities. However, when we have introduced them, we've been
 pretty abrupt about removing the old features.

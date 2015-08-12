@@ -172,7 +172,7 @@ Supported Windows guest operating systems:
 - Windows Server 2012 R2
 
 Windows Server 2003 and Windows XP are _not_ supported, but if you're a die
-hard XP fan [this](http://stackoverflow.com/a/18593425/18475) may help you.
+hard XP fan [this](https://stackoverflow.com/a/18593425/18475) may help you.
 
 ### Base Windows Configuration
 

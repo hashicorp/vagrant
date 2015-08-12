@@ -3,7 +3,7 @@ module HashiCorp
     # This redirects legacy URLs to VagrantUp.com to the proper location.
     class LegacyRedirect
       LEGACY_PATHS = {
-        /^\/(v1|v2)/ => lambda { |env, _| "http://docs.vagrantup.com#{env["PATH_INFO"]}" }
+        /^\/(v1|v2)/ => lambda { |env, _| "https://docs.vagrantup.com#{env["PATH_INFO"]}" }
       }
 
       def initialize(app)
