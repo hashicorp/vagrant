@@ -104,7 +104,7 @@ module VagrantPlugins
           options = "%s %s" % [options, @config.bootstrap_options]
         end
 
-        if configure && !@machine.config.vm.communicator == :winrm
+        if configure && @machine.config.vm.communicator != :winrm
           options = "%s -F -c %s" % [options, config_dir]
         end
 
