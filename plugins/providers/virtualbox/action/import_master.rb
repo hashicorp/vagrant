@@ -13,7 +13,7 @@ module VagrantPlugins
         def call(env)
           master_id_file = env[:machine].box.directory.join("master_id")
           
-          env[:machine].env.lock(env[:machine].box.name, retry: true) do
+          env[:machine].env.lock(Digest::MD5.hexdigest(env[:machine].box.name), retry: true) do
             env[:master_id] = master_id_file.read.chomp if master_id_file.file?          
             if env[:master_id] && env[:machine].provider.driver.vm_exists?(env[:master_id])
               # Master VM already exists -> nothing to do - continue.
