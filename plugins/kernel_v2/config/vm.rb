@@ -688,7 +688,7 @@ module VagrantPlugins
               end
             end
 
-            if options[:ip] && options[:ip].end_with?(".1")
+            if options[:ip] && options[:ip].end_with?(".1") && options[:type].to_sym != :dhcp
               machine.ui.warn(I18n.t(
                 "vagrant.config.vm.network_ip_ends_in_one"))
             end
