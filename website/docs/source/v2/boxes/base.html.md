@@ -59,6 +59,14 @@ Provider-specific guides are linked below:
 
 * [VirtualBox Base Boxes](/v2/virtualbox/boxes.html)
 
+### Packer and Atlas
+
+We strongly recommend using [Packer](https://packer.io) to create reproducible
+builds for your base boxes, as well as automating the builds with
+[Atlas](https://atlas.hashicorp.com). Read more about
+[Creating Vagrant Boxes with Packer](https://atlas.hashicorp.com/help/packer/artifacts/creating-vagrant-boxes)
+in the Atlas documentation.
+
 ### Disk Space
 
 When creating a base box, make sure the user will have enough disk space
