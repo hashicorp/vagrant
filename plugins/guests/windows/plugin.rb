@@ -64,6 +64,11 @@ module VagrantPlugins
         Cap::MountSharedFolder
       end
 
+      guest_capability(:windows, :rsync_scrub_guestpath) do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
       guest_capability(:windows, :rsync_pre) do
         require_relative "cap/rsync"
         Cap::RSync
