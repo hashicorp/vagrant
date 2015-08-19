@@ -1656,7 +1656,7 @@ en:
             on these ports. The forwarded port to %{host_port} is already in use
             on the host machine.
 
-            To fix this, modify your current projects Vagrantfile to use another
+            To fix this, modify your current project's Vagrantfile to use another
             port. Example, where '1234' would be replaced by a unique host port:
 
               config.vm.network :forwarded_port, guest: %{guest_port}, host: 1234
