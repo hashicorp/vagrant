@@ -17,13 +17,16 @@ when launching Vagrant from the official installer, you can specify the
 `VAGRANT_DEBUG_LAUNCHER` environment variable to output debugging information
 about the launch process.
 
-## CHECKPOINT\_DISABLE
+## VAGRANT\_CHECKPOINT\_DISABLE
 
 Vagrant does occasional network calls to check whether the version of Vagrant
 that is running locally is up to date. We understand that software making remote
 calls over the internet for any reason can be undesirable. To surpress these
-calls, set the environment variable `CHECKPOINT_DISABLE` to any
+calls, set the environment variable `VAGRANT_CHECKPOINT_DISABLE` to any
 non-empty value.
+
+If you use other HashiCorp tools like Packer and would prefer to configure this
+setting only once, you can set `CHECKPOINT_DISABLE` instead.
 
 ## VAGRANT\_CWD
 
