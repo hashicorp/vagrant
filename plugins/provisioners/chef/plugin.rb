@@ -73,9 +73,19 @@ module VagrantPlugins
         Cap::Redhat::ChefInstall
       end
 
+      guest_capability(:pld, :chef_install) do
+        require_relative "cap/pld/chef_install"
+        Cap::PLD::ChefInstall
+      end
+
       guest_capability(:omnios, :chef_installed) do
         require_relative "cap/omnios/chef_installed"
         Cap::OmniOS::ChefInstalled
+      end
+
+      guest_capability(:pld, :chef_installed) do
+        require_relative "cap/pld/chef_installed"
+        Cap::PLD::ChefInstalled
       end
 
       guest_capability(:omnios, :chef_install) do
