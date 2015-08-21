@@ -12,8 +12,8 @@ $task_xml = @'
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <Principals>
     <Principal id="Author">
-      <UserId>{username}</UserId>
-      <LogonType>Password</LogonType>
+      <UserId>{user}</UserId>
+      <LogonType><%= options[:interactive] ? 'InteractiveTokenOrPassword' : 'Password' %></LogonType>
       <RunLevel>HighestAvailable</RunLevel>
     </Principal>
   </Principals>
@@ -55,7 +55,7 @@ $schedule.Connect()
 $task = $schedule.NewTask($null)
 $task.XmlText = $task_xml
 $folder = $schedule.GetFolder("\")
-$folder.RegisterTaskDefinition($task_name, $task, 6, $username, $password, 1, $null) | Out-Null
+$folder.RegisterTaskDefinition($task_name, $task, 6, $user, $password, <%= options[:interactive] ? 3 : 1 %>, $null) | Out-Null
 
 $registered_task = $folder.GetTask("\$task_name")
 $registered_task.Run($null) | Out-Null
@@ -71,7 +71,7 @@ function SlurpOutput($out_file, $cur_line) {
   if (Test-Path $out_file) {
     get-content $out_file | select -skip $cur_line | ForEach {
       $cur_line += 1
-      Write-Host "$_" 
+      Write-Host "$_"
     }
   }
   return $cur_line

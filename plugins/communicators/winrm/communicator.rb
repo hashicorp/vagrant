@@ -136,10 +136,11 @@ module VagrantPlugins
           error_key:   nil, # use the error_class message key
           good_exit:   0,
           shell:       :powershell,
+          interactive: false,
         }.merge(opts || {})
 
         opts[:good_exit] = Array(opts[:good_exit])
-        command = wrap_in_scheduled_task(command) if opts[:elevated]
+        command = wrap_in_scheduled_task(command, opts[:interactive]) if opts[:elevated]
         output = shell.send(opts[:shell], command, &block)
         execution_output(output, opts)
       end
@@ -195,7 +196,9 @@ module VagrantPlugins
       # @return The wrapper command to execute
       def wrap_in_scheduled_task(command)
         path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
-        script = Vagrant::Util::TemplateRenderer.render(path)
+        script = Vagrant::Util::TemplateRenderer.render(path, options: {
+          interactive: interactive,
+        })
         guest_script_path = "c:/tmp/vagrant-elevated-shell.ps1"
         file = Tempfile.new(["vagrant-elevated-shell", "ps1"])
         begin

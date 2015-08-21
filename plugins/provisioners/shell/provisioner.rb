@@ -137,7 +137,7 @@ module VagrantPlugins
             end
 
             # Execute it with sudo
-            comm.sudo(command, elevated: config.privileged) do |type, data|
+            comm.sudo(command, { elevated: config.privileged, interactive: config.elevated_interactive }) do |type, data|
               handle_comm(type, data)
             end
           end

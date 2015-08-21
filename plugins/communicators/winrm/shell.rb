@@ -23,6 +23,7 @@ module VagrantPlugins
         HTTPClient::KeepAliveDisconnected,
         WinRM::WinRMHTTPTransportError,
         WinRM::WinRMAuthorizationError,
+        WinRM::WinRMWSManFault,
         Errno::EACCES,
         Errno::EADDRINUSE,
         Errno::ECONNREFUSED,

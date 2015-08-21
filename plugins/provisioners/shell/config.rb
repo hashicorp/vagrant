@@ -12,29 +12,32 @@ module VagrantPlugins
       attr_accessor :keep_color
       attr_accessor :name
       attr_accessor :powershell_args
+      attr_accessor :elevated_interactive
 
       def initialize
-        @args        = UNSET_VALUE
-        @inline      = UNSET_VALUE
-        @path        = UNSET_VALUE
-        @upload_path = UNSET_VALUE
-        @privileged  = UNSET_VALUE
-        @binary      = UNSET_VALUE
-        @keep_color  = UNSET_VALUE
-        @name        = UNSET_VALUE
-        @powershell_args  = UNSET_VALUE
+        @args                  = UNSET_VALUE
+        @inline                = UNSET_VALUE
+        @path                  = UNSET_VALUE
+        @upload_path           = UNSET_VALUE
+        @privileged            = UNSET_VALUE
+        @binary                = UNSET_VALUE
+        @keep_color            = UNSET_VALUE
+        @name                  = UNSET_VALUE
+        @powershell_args       = UNSET_VALUE
+        @elevated_interactive  = UNSET_VALUE
       end
 
       def finalize!
-        @args        = nil if @args == UNSET_VALUE
-        @inline      = nil if @inline == UNSET_VALUE
-        @path        = nil if @path == UNSET_VALUE
-        @upload_path = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
-        @privileged  = true if @privileged == UNSET_VALUE
-        @binary      = false if @binary == UNSET_VALUE
-        @keep_color  = false if @keep_color == UNSET_VALUE
-        @name        = nil if @name == UNSET_VALUE
-        @powershell_args  = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
+        @args                 = nil if @args == UNSET_VALUE
+        @inline               = nil if @inline == UNSET_VALUE
+        @path                 = nil if @path == UNSET_VALUE
+        @upload_path          = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
+        @privileged           = true if @privileged == UNSET_VALUE
+        @binary               = false if @binary == UNSET_VALUE
+        @keep_color           = false if @keep_color == UNSET_VALUE
+        @name                 = nil if @name == UNSET_VALUE
+        @powershell_args      = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
+        @elevated_interactive = false if @elevated_interactive == UNSET_VALUE
 
         if @args && args_valid?
           @args = @args.is_a?(Array) ? @args.map { |a| a.to_s } : @args.to_s
@@ -76,6 +79,10 @@ module VagrantPlugins
 
         if !args_valid?
           errors << I18n.t("vagrant.provisioners.shell.args_bad_type")
+        end
+
+        if @elevated_interactive == true && @privileged == false
+          errors << I18n.t("vagrant.provisioners.shell.interactive_not_elevated")
         end
 
         { "shell provisioner" => errors }
