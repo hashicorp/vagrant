@@ -43,11 +43,11 @@ $ vagrant share
 
 Your URL will be different, so don't try the URL above. Instead, copy
 the URL that `vagrant share` outputted for you and visit that in a web
-browser. It should load the index page we setup in the previous pages.
+browser. It should load the Apache page we setup earlier.
 
-Now, modify your "index.html" file and refresh the URL. It will be updated!
-That URL is routing directly into your Vagrant environment, and works from
-any device in the world that is connected to the internet.
+If you modify the files in your shared folder and refresh the URL, you'll
+see it update! The URL is routing directly into your Vagrant environment,
+and works from any device in the world that is connected to the internet.
 
 To end the sharing session, hit `Ctrl+C` in your terminal. You can refresh
 the URL again to verify that your environment is no longer being shared.

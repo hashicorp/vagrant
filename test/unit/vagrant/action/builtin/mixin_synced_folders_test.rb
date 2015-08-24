@@ -28,18 +28,46 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
     end
   end
 
-  let(:vm_config) { double("machine_vm_config") }
+  let(:vm_config) { double("machine_vm_config", :allowed_synced_folder_types => nil) }
 
   describe "default_synced_folder_type" do
     it "returns the usable implementation" do
       plugins = {
         "bad" => [impl(false, "bad"), 0],
-        "nope" => [impl(true, "nope"), 1],
-        "good" => [impl(true, "good"), 5],
+        "good" => [impl(true, "good"), 1],
+        "best" => [impl(true, "best"), 5],
+      }
+
+      result = subject.default_synced_folder_type(machine, plugins)
+      expect(result).to eq("best")
+    end
+
+    it "filters based on allowed_synced_folder_types" do
+      expect(vm_config).to receive(:allowed_synced_folder_types).and_return(["bad", "good"])
+      plugins = {
+        "bad" => [impl(false, "bad"), 0],
+        "good" => [impl(true, "good"), 1],
+        "best" => [impl(true, "best"), 5],
       }
 
       result = subject.default_synced_folder_type(machine, plugins)
       expect(result).to eq("good")
+    end
+
+    it "reprioritizes based on allowed_synced_folder_types" do
+      plugins = {
+        "bad" => [impl(false, "bad"), 0],
+        "good" => [impl(true, "good"), 1],
+        "same" => [impl(true, "same"), 1],
+      }
+
+      expect(vm_config).to receive(:allowed_synced_folder_types).and_return(["good", "same"])
+      result = subject.default_synced_folder_type(machine, plugins)
+      expect(result).to eq("good")
+
+      expect(vm_config).to receive(:allowed_synced_folder_types).and_return(["same", "good"])
+      result = subject.default_synced_folder_type(machine, plugins)
+      expect(result).to eq("same")
     end
   end
 

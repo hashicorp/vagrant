@@ -39,7 +39,7 @@ READMORE
 <a id="docker"></a>
 ### Docker Provisioner
 
-Vagrant 1.4 introduces a [Docker provisioner](http://docs.vagrantup.com/v2/provisioning/docker.html)
+Vagrant 1.4 introduces a [Docker provisioner](https://docs.vagrantup.com/v2/provisioning/docker.html)
 to automatically install Docker, pull Docker containers, and configure
 certain containers to run on boot.
 
@@ -55,7 +55,7 @@ See the documentation for usage examples and a complete option reference.
 <a id="machine-readable"></a>
 ### Machine-Readable Output
 
-Vagrant now has [machine-readable output](http://docs.vagrantup.com/v2/cli/machine-readable.html) for a handful of commands. The machine-readable output makes it much
+Vagrant now has [machine-readable output](https://docs.vagrantup.com/v2/cli/machine-readable.html) for a handful of commands. The machine-readable output makes it much
 easier to script Vagrant usage.
 
 Note that not very many features of Vagrant output useful machine-readable
@@ -75,7 +75,7 @@ This helps avoid unexpected surprises with backwards incompatibilities
 or plugin incompatibilities with your Vagrantfiles. The version
 constraints that can be specified are very powerful and easy to use.
 
-See the [documentation for more information](http://docs.vagrantup.com/v2/vagrantfile/vagrant_version.html).
+See the [documentation for more information](https://docs.vagrantup.com/v2/vagrantfile/vagrant_version.html).
 
 <a id="synced-folder-plugins"></a>
 ### Synced Folder Plugins

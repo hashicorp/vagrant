@@ -30,6 +30,9 @@ General settings:
     `docker run` when the container is started. This can be used to set
     parameters that aren't exposed via the Vagrantfile.
 
+  * `dockerfile` (string) - Name of the Dockerfile in the build directory.
+    This defaults to "Dockerfile"
+
   * `env` (hash) - Environmental variables to expose into the container.
 
   * `expose` (array of integers) - Ports to expose from the container
@@ -56,6 +59,9 @@ General settings:
   * `name` (string) - Name of the container. Note that this has to be unique
     across all containers on the host VM. By default Vagrant will generate
     some random name.
+
+  * `pull` (bool) - If true, the image will be pulled on every `up` and
+    `reload`. Defaults to false.
 
   * `ports` (array of strings) - Ports to expose from the container to the
     host. These should be in the format of `host:container`.

@@ -53,7 +53,7 @@ __vagrantinvestigate() {
 _vagrant() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    commands="box connect destroy docker-logs docker-run global-status halt help init list-commands login package plugin provision rdp reload resume rsync rsync-auto share ssh ssh-config status suspend up version"	
+    commands="box connect destroy docker-logs docker-run global-status halt help init list-commands login package plugin provision push rdp reload resume rsync rsync-auto share ssh ssh-config status suspend up version"	
 
     if [ $COMP_CWORD == 1 ]
     then
@@ -70,8 +70,13 @@ _vagrant() {
               return 0
             ;;
             "up")
+              vagrant_state_file=$(__vagrantinvestigate) || return 1
+              if [[ -d $vagrant_state_file ]]
+              then
+                local vm_list=$(find $vagrant_state_file/machines -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+              fi
               local up_commands="--no-provision"
-              COMPREPLY=($(compgen -W "${up_commands}" -- ${cur}))
+              COMPREPLY=($(compgen -W "${up_commands} ${vm_list}" -- ${cur}))
               return 0
             ;;
             "ssh"|"provision"|"reload"|"halt"|"suspend"|"resume"|"ssh-config")
@@ -86,7 +91,7 @@ _vagrant() {
               return 0
             ;;
             "box")
-              box_commands="add help list remove repackage"
+              box_commands="add help list outdated remove repackage update"
               COMPREPLY=($(compgen -W "${box_commands}" -- ${cur}))
               return 0
             ;;
@@ -107,18 +112,32 @@ _vagrant() {
     if [ $COMP_CWORD == 3 ]
     then
       action="${COMP_WORDS[COMP_CWORD-2]}"
-      if [ $action == 'box' ]
-      then
-        case "$prev" in
+      case "$action" in
+        "up")
+          if [ "$prev" == "--no-provision" ]
+          then
+            if [[ -d $vagrant_state_file ]]
+            then
+              local vm_list=$(find $vagrant_state_file/machines -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+            fi
+            COMPREPLY=($(compgen -W "${vm_list}" -- ${cur}))
+            return 0
+          fi
+          ;;
+        "box")
+          case "$prev" in
             "remove"|"repackage")
               local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
               COMPREPLY=($(compgen -W "${box_list}" -- ${cur}))
               return 0
               ;;
             *)
-            ;;
-        esac
-      fi
+              ;;
+          esac
+          ;;
+        *)
+          ;;
+      esac
     fi
 
 }

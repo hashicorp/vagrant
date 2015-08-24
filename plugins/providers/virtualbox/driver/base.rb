@@ -403,6 +403,9 @@ module VagrantPlugins
           Vagrant::Util::Busy.busy(int_callback) do
             Vagrant::Util::Subprocess.execute(@vboxmanage_path, *command, &block)
           end
+        rescue Vagrant::Util::Subprocess::LaunchError => e
+          raise Vagrant::Errors::VBoxManageLaunchError,
+            message: e.to_s
         end
       end
     end

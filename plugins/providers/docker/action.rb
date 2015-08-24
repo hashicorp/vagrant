@@ -20,14 +20,13 @@ module VagrantPlugins
       # container, configuring metadata, and booting.
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
-          b.use ConfigValidate
-
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
               b2.use HandleBox
             end
           end
 
+          b.use ConfigValidate
           b.use HostMachine
 
           # Yeah, this is supposed to be here twice (once more above). This
@@ -118,8 +117,11 @@ module VagrantPlugins
 
             b2.use Call, IsBuild do |env2, b3|
               if env2[:result]
-                b3.use EnvSet, force_confirm_destroy: true
-                b3.use action_destroy.flatten
+                b3.use EnvSet, force_halt: true
+                b3.use action_halt
+                b3.use HostMachineSyncFoldersDisable
+                b3.use Destroy
+                b3.use ProvisionerCleanup
               end
             end
 
@@ -258,6 +260,7 @@ module VagrantPlugins
                   b3.use HandleForwardedPortCollisions
                   b3.use SyncedFolders
                   b3.use ForwardedPorts
+                  b3.use Pull
                   b3.use Create
                   b3.use WaitForRunning
                 else
@@ -282,6 +285,12 @@ module VagrantPlugins
         end
       end
 
+      def self.action_suspend
+        lambda do |env|
+          raise Errors::SuspendNotSupported
+        end
+      end
+
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :Build, action_root.join("build")
@@ -302,6 +311,7 @@ module VagrantPlugins
       autoload :IsBuild, action_root.join("is_build")
       autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
       autoload :Login, action_root.join("login")
+      autoload :Pull, action_root.join("pull")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")

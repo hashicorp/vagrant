@@ -9,9 +9,9 @@ describe VagrantPlugins::AtlasPush::Push do
   let(:bin) { VagrantPlugins::AtlasPush::Push::UPLOADER_BIN }
 
   let(:env) do
-    double("env",
-      root_path: File.expand_path("..", __FILE__)
-    )
+    iso_env = isolated_environment
+    iso_env.vagrantfile("")
+    iso_env.create_vagrant_env
   end
 
   let(:config) do
@@ -98,6 +98,29 @@ describe VagrantPlugins::AtlasPush::Push do
 
       config.token = "atlas_token"
       subject.execute("foo")
+    end
+
+    context "when metadata is available" do
+      let(:env) do
+        iso_env = isolated_environment
+        iso_env.vagrantfile <<-EOH
+          Vagrant.configure(2) do |config|
+            config.vm.box = "hashicorp/precise64"
+            config.vm.box_url = "https://atlas.hashicorp.com/hashicorp/precise64"
+          end
+        EOH
+        iso_env.create_vagrant_env
+      end
+
+      it "sends the metadata" do
+        expect(Vagrant::Util::SafeExec).to receive(:exec).
+          with("foo", "-vcs", "-metadata", "box=hashicorp/precise64",
+            "-metadata", "box_url=https://atlas.hashicorp.com/hashicorp/precise64",
+            "-token", "atlas_token", app, env.root_path.to_s)
+
+        config.token = "atlas_token"
+        subject.execute("foo")
+      end
     end
   end
 

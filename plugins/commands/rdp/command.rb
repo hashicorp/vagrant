@@ -70,8 +70,17 @@ module VagrantPlugins
           rdp_info[:username] = username
         end
 
+        if !rdp_info[:password]
+          password = ssh_info[:password]
+          if machine.config.vm.communicator == :winrm
+            password = machine.config.winrm.password
+          end
+          rdp_info[:password] = password
+        end
+
         rdp_info[:host] ||= ssh_info[:host]
         rdp_info[:port] ||= machine.config.rdp.port
+        rdp_info[:username] ||= machine.config.rdp.username
 
         if rdp_info[:host] == "127.0.0.1"
           # We need to find a forwarded port...

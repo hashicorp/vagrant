@@ -22,6 +22,9 @@ machine will be brought up against. The value here should be the name
 of an installed box or a shorthand name of a box in
 [HashiCorp's Atlas](https://atlas.hashicorp.com).
 
+This option requires Vagrant 1.5 or higher. You can download the latest version
+of Vagrant from the [Vagrant installers page](https://www.vagrantup.com/downloads).
+
 <hr>
 
 `config.vm.box_check_update` - If true, Vagrant will check for updates to
@@ -73,6 +76,13 @@ URL, then SSL certs will be verified.
 
 <hr>
 
+`config.vm.box_download_location_trusted` - If true, then all HTTP redirects will be
+treated as trusted. That means credentials used for initial URL will be used for
+all subsequent redirects. By default, redirect locations are untrusted so credentials
+(if specified) used only for initial HTTP request.
+
+<hr>
+
 `config.vm.box_url` - The URL that the configured box can be found at.
 If `config.vm.box` is a shorthand to a box in [HashiCorp's Atlas](https://atlas.hashicorp.com)
 then this value doesn't need to be specified. Otherwise, it should
@@ -97,7 +107,7 @@ constraints.
 <hr>
 
 `config.vm.communicator` - The communicator type to use to connect to the
-guest box. By default this is `:ssh`, but should be changed to `:winrm` for
+guest box. By default this is `"ssh"`, but should be changed to `"winrm"` for
 Windows guests.
 
 <hr>

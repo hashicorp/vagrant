@@ -1,52 +1,78 @@
 module VagrantPlugins
   module Chef
     class CommandBuilder
-      def initialize(config, client_type, is_windows=false, is_ui_colored=false)
-        @client_type   = client_type
-        @config        = config
-        @is_windows    = is_windows
-        @is_ui_colored = is_ui_colored
+      def self.command(type, config, options = {})
+        new(type, config, options).command
+      end
 
-        if client_type != :solo && client_type != :client
-          raise 'Invalid client_type, expected solo or client'
+      attr_reader :type
+      attr_reader :config
+      attr_reader :options
+
+      def initialize(type, config, options = {})
+        @type    = type
+        @config  = config
+        @options = options.dup
+
+        if type != :client && type != :solo
+          raise "Unknown type `#{type.inspect}'!"
         end
       end
 
-      def build_command
-        "#{command_env}#{chef_binary_path} #{chef_arguments}"
+      def command
+        if config.binary_env
+          "#{config.binary_env} #{binary_path} #{args}"
+        else
+          "#{binary_path} #{args}"
+        end
       end
 
       protected
 
-      def command_env
-        @config.binary_env ? "#{@config.binary_env} " : ""
-      end
+      def binary_path
+        binary_path = "chef-#{type}"
 
-      def chef_binary_path
-        binary_path = "chef-#{@client_type}"
-        if @config.binary_path
-          binary_path = guest_friendly_path(File.join(@config.binary_path, binary_path))
+        if config.binary_path
+          binary_path = File.join(config.binary_path, binary_path)
+          if windows?
+            binary_path = windows_friendly_path(binary_path)
+          end
         end
+
         binary_path
       end
 
-      def chef_arguments
-        chef_arguments = "-c #{provisioning_path("#{@client_type}.rb")}"
-        chef_arguments << " -j #{provisioning_path("dna.json")}"
-        chef_arguments << " #{@config.arguments}" if @config.arguments
-        chef_arguments << " --no-color" unless @is_ui_colored
-        chef_arguments.strip
+      def args
+        args =  ""
+        args << " --config #{provisioning_path("#{type}.rb")}"
+        args << " --json-attributes #{provisioning_path("dna.json")}"
+        args << " --local-mode" if options[:local_mode]
+        args << " --log_level #{config.log_level}" if config.log_level
+        args << " --force-formatter"
+        args << " --no-color" if !options[:colored]
+        args << " #{config.arguments.strip}" if config.arguments
+
+        args.strip
       end
 
       def provisioning_path(file)
-        guest_friendly_path(File.join(@config.provisioning_path, file))
+        if windows?
+          path = config.provisioning_path || "C:/vagrant-chef"
+          return windows_friendly_path(File.join(path, file))
+        else
+          path = config.provisioning_path || "/tmp/vagrant-chef"
+          return File.join(path, file)
+        end
       end
 
-      def guest_friendly_path(path)
-        return path unless @is_windows
-        path.gsub!("/", "\\")
+      def windows_friendly_path(path)
+        path = path.gsub("/", "\\")
         path = "c:#{path}" if path.start_with?("\\")
-        path
+        return path
+      end
+
+      def windows?
+        !!options[:windows]
       end
     end
   end

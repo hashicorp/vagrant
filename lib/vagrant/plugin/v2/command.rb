@@ -58,7 +58,7 @@ module Vagrant
 
           opts.parse!(argv)
           return argv
-        rescue OptionParser::InvalidOption
+        rescue OptionParser::InvalidOption, OptionParser::MissingArgument
           raise Errors::CLIInvalidOptions, help: opts.help.chomp
         end
 

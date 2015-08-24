@@ -1,7 +1,17 @@
+require "bundler"
+
 module Vagrant
   module Util
     class Env
-      #
+      def self.with_original_env
+        original_env = ENV.to_hash
+        ENV.replace(::Bundler::ORIGINAL_ENV) if defined?(::Bundler::ORIGINAL_ENV)
+        ENV.update(Vagrant.original_env)
+        yield
+      ensure
+        ENV.replace(original_env.to_hash)
+      end
+
       # Execute the given command, removing any Ruby-specific environment
       # variables. This is an "enhanced" version of `Bundler.with_clean_env`,
       # which only removes Bundler-specific values. We need to remove all
@@ -25,18 +35,16 @@ module Vagrant
       #
       # @param [Proc] block
       #   the block to execute with the cleaned environment
-      #
-      def self.with_clean_env(&block)
-        original = ENV.to_hash
-
-        ENV.delete('_ORIGINAL_GEM_PATH')
-        ENV.delete_if { |k,_| k.start_with?('BUNDLE_') }
-        ENV.delete_if { |k,_| k.start_with?('GEM_') }
-        ENV.delete_if { |k,_| k.start_with?('RUBY') }
-
-        yield
-      ensure
-        ENV.replace(original.to_hash)
+      def self.with_clean_env
+        with_original_env do
+          ENV["MANPATH"] = ENV["BUNDLE_ORIG_MANPATH"]
+          ENV.delete_if { |k,_| k[0,7] == "BUNDLE_" }
+          if ENV.has_key? "RUBYOPT"
+            ENV["RUBYOPT"] = ENV["RUBYOPT"].sub("-rbundler/setup", "")
+            ENV["RUBYOPT"] = ENV["RUBYOPT"].sub("-I#{File.expand_path('..', __FILE__)}", "")
+          end
+          yield
+        end
       end
     end
   end

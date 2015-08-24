@@ -106,4 +106,31 @@ describe Vagrant::Action::Builtin::HandleBox do
       subject.call(env)
     end
   end
+
+  context "with a box with a checksum set" do
+    before do
+      machine.stub(box: nil)
+
+      machine.config.vm.box = "foo"
+      machine.config.vm.box_url = "bar"
+      machine.config.vm.box_download_checksum_type = "sha256"
+      machine.config.vm.box_download_checksum = "1f42ac2decf0169c4af02b2d8c77143ce35f7ba87d5d844e19bf7cbb34fbe74e"
+    end
+
+    it "adds a box that doesn't exist and maps checksum options correctly" do
+      expect(action_runner).to receive(:run).with { |action, opts|
+        expect(opts[:box_name]).to eq(machine.config.vm.box)
+        expect(opts[:box_url]).to eq(machine.config.vm.box_url)
+        expect(opts[:box_provider]).to eq(:dummy)
+        expect(opts[:box_version]).to eq(machine.config.vm.box_version)
+        expect(opts[:box_checksum_type]).to eq(machine.config.vm.box_download_checksum_type)
+        expect(opts[:box_checksum]).to eq(machine.config.vm.box_download_checksum)
+        true
+      }
+
+      expect(app).to receive(:call).with(env)
+
+      subject.call(env)
+    end
+  end
 end

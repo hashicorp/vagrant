@@ -1,6 +1,6 @@
 # VagrantUp.com
 
-This is the repository for the [Vagrant website](http://www.vagrantup.com).
+This is the repository for the [Vagrant website](https://www.vagrantup.com).
 
 This is a [Middleman](http://middlemanapp.com) project, which builds a static
 site from these source files. The site is hosted on [Heroku](http://heroku.com)

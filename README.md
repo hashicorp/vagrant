@@ -55,7 +55,7 @@ Ruby 2.0 is needed.
 
 ### Dependencies and Unit Tests
 
-To hack on vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
+To hack on Vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
 be installed with a simple `gem install bundler`. Afterwards, do the following:
 
     bundle install

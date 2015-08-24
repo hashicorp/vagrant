@@ -32,6 +32,9 @@ If multiple names are specified, multiple plugins will be installed. If
 flags are given below, the flags will apply to _all_ plugins being installed
 by the current command invocation.
 
+If the plugin is already installed, this command will reinstall it with
+the latest version available.
+
 This command accepts optional command-line flags:
 
 * `--entry-point ENTRYPOINT` - By default, installed plugins are loaded

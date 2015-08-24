@@ -76,8 +76,10 @@ module Vagrant
 
           # Go through each folder and prepare the folders
           folders.each do |impl, impl_name, fs|
-            @logger.info("Invoking synced folder prepare for: #{impl_name}")
-            impl.prepare(env[:machine], fs, impl_opts(impl_name, env))
+            if !env[:synced_folders_disable]
+              @logger.info("Invoking synced folder prepare for: #{impl_name}")
+              impl.prepare(env[:machine], fs, impl_opts(impl_name, env))
+            end
           end
 
           # Continue, we need the VM to be booted.

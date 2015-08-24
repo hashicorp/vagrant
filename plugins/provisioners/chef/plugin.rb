@@ -58,6 +58,11 @@ module VagrantPlugins
         Cap::Linux::ChefInstalled
       end
 
+      guest_capability(:windows, :chef_installed) do
+        require_relative "cap/windows/chef_installed"
+        Cap::Windows::ChefInstalled
+      end
+
       guest_capability(:debian, :chef_install) do
         require_relative "cap/debian/chef_install"
         Cap::Debian::ChefInstall

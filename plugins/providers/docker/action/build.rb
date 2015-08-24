@@ -38,10 +38,22 @@ module VagrantPlugins
           # If we have no image or we're rebuilding, we rebuild
           if !image || env[:build_rebuild]
             # Build it
-            machine.ui.output(I18n.t("docker_provider.building"))
+            args = machine.provider_config.build_args.clone
+            if machine.provider_config.dockerfile
+              dockerfile      = machine.provider_config.dockerfile
+              dockerfile_path = File.join(build_dir, dockerfile)
+
+              args.push("--file=\"#{dockerfile_path}\"")
+              machine.ui.output(
+                I18n.t("docker_provider.building_named_dockerfile",
+                file: machine.provider_config.dockerfile))
+            else
+              machine.ui.output(I18n.t("docker_provider.building"))
+            end
+
             image = machine.provider.driver.build(
               build_dir,
-              extra_args: machine.provider_config.build_args) do |type, data|
+              extra_args: args) do |type, data|
               data = remove_ansi_escape_codes(data.chomp).chomp
               env[:ui].detail(data) if data != ""
             end

@@ -45,6 +45,17 @@ describe Vagrant::Plugin::V2::Command do
       expect { instance.parse_options(OptionParser.new) }.
         to raise_error(Vagrant::Errors::CLIInvalidOptions)
     end
+
+    it "raises an error if options without a value are given" do
+      opts = OptionParser.new do |o|
+        o.on("--provision-with x,y,z", Array, "Example") { |f| }
+      end
+
+
+      instance = klass.new(["--provision-with"], nil)
+      expect { instance.parse_options(opts) }.
+        to raise_error(Vagrant::Errors::CLIInvalidOptions)
+    end
   end
 
   describe "target VMs" do

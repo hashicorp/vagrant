@@ -424,6 +424,21 @@ describe Vagrant::Machine do
       third = new_instance
       expect(third.id).to be_nil
     end
+
+    it "should set the UID that created the machine" do
+      instance.id = "foo"
+
+      second = new_instance
+      expect(second.uid).to eq(Process.uid.to_s)
+    end
+
+    it "should delete the UID when the id is nil" do
+      instance.id = "foo"
+      instance.id = nil
+
+      second = new_instance
+      expect(second.uid).to be_nil
+    end
   end
 
   describe "#index_uuid" do
@@ -665,6 +680,17 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:private_key_path]).to eql(
           [instance.data_dir.join("private_key").to_s])
         expect(instance.ssh_info[:password]).to eql("")
+      end
+
+      it "should return the private key in the Vagrantfile if the data dir exists" do
+        provider_ssh_info[:private_key_path] = nil
+        instance.config.ssh.private_key_path = "/foo"
+
+        instance.data_dir.join("private_key").open("w+") do |f|
+          f.write("hey")
+        end
+
+        expect(instance.ssh_info[:private_key_path]).to eql(["/foo"])
       end
 
       context "with no data dir" do

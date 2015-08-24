@@ -63,6 +63,17 @@ the [reserved private address space](http://en.wikipedia.org/wiki/Private_networ
 and most routers actually block traffic from going to them from the
 outside world.
 
+For some operating systems, additional configuration options for the static
+IP address are available such as setting the default gateway or MTU.
+
+<div class="alert alert-block alert-warn">
+<p>
+<strong>Warning!</strong> Do not choose an IP that overlaps with any
+other IP space on your system. This can cause the network to not be
+reachable.
+</p>
+</div>
+
 ## Disable Auto-Configuration
 
 If you want to manually configure the network interface yourself, you
@@ -74,3 +85,7 @@ Vagrant.configure("2") do |config|
     auto_config: false
 end
 ```
+
+If you already started the Vagrant environment before setting `auto_config`,
+the files it initially placed there will stay there. You'll have to remove
+those files manually or destroy and recreate the machine.

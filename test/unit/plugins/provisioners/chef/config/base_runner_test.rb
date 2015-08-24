@@ -121,23 +121,23 @@ describe VagrantPlugins::Chef::Config::BaseRunner do
   end
 
   describe "#provisioning_path" do
-    it "defaults to a tmp_path" do
+    it "defaults to nil" do
       subject.finalize!
-      expect(subject.provisioning_path).to eq("/tmp/vagrant-chef")
+      expect(subject.provisioning_path).to be(nil)
     end
   end
 
   describe "#file_backup_path" do
-    it "defaults to /var/chef/backup" do
+    it "defaults to nil" do
       subject.finalize!
-      expect(subject.file_backup_path).to eq("/var/chef/backup")
+      expect(subject.file_backup_path).to be(nil)
     end
   end
 
   describe "#file_cache_path" do
-    it "defaults to /var/chef/cache" do
+    it "defaults to nil" do
       subject.finalize!
-      expect(subject.file_cache_path).to eq("/var/chef/cache")
+      expect(subject.file_cache_path).to be(nil)
     end
   end
 
@@ -145,6 +145,13 @@ describe VagrantPlugins::Chef::Config::BaseRunner do
     it "defaults to false" do
       subject.finalize!
       expect(subject.verbose_logging).to be(false)
+    end
+  end
+
+  describe "#enable_reporting" do
+    it "defaults to true" do
+      subject.finalize!
+      expect(subject.enable_reporting).to be(true)
     end
   end
 

@@ -604,10 +604,8 @@ module Vagrant
       @logger.info("Uncached load of machine.")
 
       # Determine the machine data directory and pass it to the machine.
-      # XXX: Permissions error here.
       machine_data_path = @local_data_path.join(
         "machines/#{name}/#{provider}")
-      FileUtils.mkdir_p(machine_data_path)
 
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.

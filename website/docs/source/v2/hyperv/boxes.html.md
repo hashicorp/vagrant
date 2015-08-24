@@ -91,3 +91,11 @@ $ tar cvzf ~/custom.box ./*
 A common mistake is to also package the parent folder by accident. Vagrant
 will not work in this case. To verify you've packaged it properly, add the
 box to Vagrant and try to bring up the machine.
+
+## Additional Help
+
+There is also some less structured help available from the experience of
+other users. These aren't official documentation but if you're running
+into trouble they may help you:
+
+  * [Ubuntu 14.04.2 without secure boot](https://github.com/mitchellh/vagrant/issues/5419#issuecomment-86235427)

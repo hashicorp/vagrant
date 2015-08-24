@@ -25,6 +25,11 @@ module VagrantPlugins
         require_relative "cap/network_scripts_dir"
         Cap::NetworkScriptsDir
       end
+
+      guest_capability("fedora", "flavor") do
+        require_relative "cap/flavor"
+        Cap::Flavor
+      end
     end
   end
 end

@@ -65,7 +65,9 @@ but "2.0" might introduce big changes that break your software. By following
 this convention, the best constraint is `~> 1.0` because you know it is safe
 no matter what version is in that range.
 
-Of course, you're free to use versions however you'd like!
+Please note that, while the semantic versioning specification allows for
+more than three points and pre-release or beta versions, Vagrant boxes must be
+of the format `X.Y.Z` where `X`, `Y`, and `Z` are all positive integers.
 
 ## Automatic Update Checking
 

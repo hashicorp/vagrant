@@ -1,11 +1,10 @@
 en:
   vagrant_winrm:
     errors:
-      auth_error: |-
+      authentication_failed: |-
         An authorization error occurred while connecting to WinRM.
 
         User: %{user}
-        Password: %{password}
         Endpoint: %{endpoint}
         Message: %{message}
       winrm_bad_exit_status: |-
@@ -29,6 +28,15 @@ en:
         Message: %{message}
       invalid_shell: |-
         %{shell} is not a supported type of Windows shell.
+      invalid_transport: |-
+        %{transport} is not a supported WinRM transport.
+      ssl_error: |-
+        An SSL error occurred while connecting to WinRM. This usually
+        occurs when you are using a self-signed certificate and have
+        not set the WinRM `ssl_peer_verification` config setting to false.
+
+        Message: %{message}
+
       winrm_not_ready: |-
         The box is not able to report an address for WinRM to connect to yet.
         WinRM cannot access this Vagrant environment. Please wait for the
@@ -39,3 +47,36 @@ en:
         From: %{from}
         To: %{to}
         Message: %{message}
+
+      connection_refused: |-
+        WinRM connection was refused! This usually happens if the VM failed to
+        boot properly. Some steps to try to fix this: First, try reloading your
+        VM with `vagrant reload`, since a simple restart sometimes fixes things.
+        If that doesn't work, destroy your VM and recreate it with a `vagrant destroy`
+        followed by a `vagrant up`. If that doesn't work, contact a Vagrant
+        maintainer (support channels listed on the website) for more assistance.
+      connection_reset: |-
+        WinRM connection was reset! This usually happens when the machine is
+        taking too long to reboot. First, try reloading your machine with
+        `vagrant reload`, since a simple restart sometimes fixes things.
+        If that doesn't work, destroy your machine and recreate it with
+        a `vagrant destroy` followed by a `vagrant up`. If that doesn't work,
+        contact support.
+      connection_timeout: |-
+        Vagrant timed out while attempting to connect via WinRM. This usually
+        means that the VM booted, but there are issues with the WinRM configuration
+        or network connectivity issues. Please try to `vagrant reload` or
+        `vagrant up` again.
+      disconnected: |-
+        The WinRM connection was unexpectedly closed by the remote end. This
+        usually indicates that WinRM within the guest machine was unable to
+        properly start up. Please boot the VM in GUI mode to check whether
+        it is booting properly.
+      no_route: |-
+        While attempting to connect with WinRM, a "no route to host" (EHOSTUNREACH)
+        error was received. Please verify your network settings are correct
+        and try again.
+      host_down: |-
+        While attempting to connect with WinRM, a "host is down" (EHOSTDOWN)
+        error was received. Please verify your WinRM settings are correct
+        and try again.

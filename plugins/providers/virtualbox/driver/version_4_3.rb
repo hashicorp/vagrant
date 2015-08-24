@@ -302,6 +302,8 @@ module VagrantPlugins
                 info[:network_name] = "HostInterfaceNetworking-#{network}"
               elsif ip = line[/^IP:\s+(.+?)$/, 1]
                 info[:ip] = ip
+              elsif netmask = line[/^NetworkMask:\s+(.+?)$/, 1]
+                info[:netmask] = netmask
               elsif lower = line[/^lowerIPAddress:\s+(.+?)$/, 1]
                 info[:lower] = lower
               elsif upper = line[/^upperIPAddress:\s+(.+?)$/, 1]
@@ -494,10 +496,11 @@ module VagrantPlugins
 
         def share_folders(folders)
           folders.each do |folder|
+            hostpath = folder[:hostpath]
             args = ["--name",
               folder[:name],
               "--hostpath",
-              folder[:hostpath]]
+              hostpath]
             args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Enable symlinks on the shared folder

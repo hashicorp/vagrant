@@ -14,8 +14,8 @@ module VagrantPlugins
       def initialize
         @halt_timeout = UNSET_VALUE
         @halt_check_interval = UNSET_VALUE
-        @suexec_cmd = 'sudo'
-        @device = "net"
+        @suexec_cmd = UNSET_VALUE
+        @device = UNSET_VALUE
       end
 
       def finalize!
@@ -25,6 +25,9 @@ module VagrantPlugins
         if @halt_check_interval != UNSET_VALUE
           puts "solaris11.halt_check_interval is deprecated and will be removed in Vagrant 1.7"
         end
+
+        @suexec_cmd = "sudo" if @suexec_cmd == UNSET_VALUE
+        @device     = "net" if @device == UNSET_VALUE
       end
     end
   end

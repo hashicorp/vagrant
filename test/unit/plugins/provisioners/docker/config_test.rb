@@ -59,11 +59,13 @@ describe VagrantPlugins::DockerProvisioner::Config do
         auto_assign_name: true,
         image: "foo",
         daemonize: false,
+        restart: "always",
       })
       expect(cs["bar"]).to eq({
         auto_assign_name: true,
         image: "bar",
         daemonize: true,
+        restart: "always",
       })
     end
 
@@ -102,6 +104,7 @@ describe VagrantPlugins::DockerProvisioner::Config do
           auto_assign_name: true,
           daemonize: true,
           image: "foo",
+          restart: "always",
         }
       })
     end
@@ -115,6 +118,7 @@ describe VagrantPlugins::DockerProvisioner::Config do
           auto_assign_name: false,
           daemonize: true,
           image: "foo",
+          restart: "always",
         }
       })
     end
@@ -128,6 +132,7 @@ describe VagrantPlugins::DockerProvisioner::Config do
           auto_assign_name: true,
           daemonize: false,
           image: "foo",
+          restart: "always",
         }
       })
     end

@@ -1,6 +1,4 @@
-$command = "<%= options[:command] %>" + '; exit $LASTEXITCODE'
-$user = '<%= options[:username] %>'
-$password = '<%= options[:password] %>'
+param([String]$username, [String]$password, [String]$encoded_command)
 
 $task_name = "WinRM_Elevated_Shell"
 $out_file = "$env:SystemRoot\Temp\WinRM_Elevated_Shell.log"
@@ -14,7 +12,7 @@ $task_xml = @'
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <Principals>
     <Principal id="Author">
-      <UserId>{user}</UserId>
+      <UserId>{username}</UserId>
       <LogonType>Password</LogonType>
       <RunLevel>HighestAvailable</RunLevel>
     </Principal>
@@ -27,7 +25,7 @@ $task_xml = @'
     <StartWhenAvailable>false</StartWhenAvailable>
     <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
     <IdleSettings>
-      <StopOnIdleEnd>true</StopOnIdleEnd>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
       <RestartOnIdle>false</RestartOnIdle>
     </IdleSettings>
     <AllowStartOnDemand>true</AllowStartOnDemand>
@@ -47,19 +45,17 @@ $task_xml = @'
 </Task>
 '@
 
-$bytes = [System.Text.Encoding]::Unicode.GetBytes($command)
-$encoded_command = [Convert]::ToBase64String($bytes)
 $arguments = "/c powershell.exe -EncodedCommand $encoded_command &gt; $out_file 2&gt;&amp;1"
 
 $task_xml = $task_xml.Replace("{arguments}", $arguments)
-$task_xml = $task_xml.Replace("{user}", $user)
+$task_xml = $task_xml.Replace("{username}", $username)
 
 $schedule = New-Object -ComObject "Schedule.Service"
 $schedule.Connect()
 $task = $schedule.NewTask($null)
 $task.XmlText = $task_xml
 $folder = $schedule.GetFolder("\")
-$folder.RegisterTaskDefinition($task_name, $task, 6, $user, $password, 1, $null) | Out-Null
+$folder.RegisterTaskDefinition($task_name, $task, 6, $username, $password, 1, $null) | Out-Null
 
 $registered_task = $folder.GetTask("\$task_name")
 $registered_task.Run($null) | Out-Null

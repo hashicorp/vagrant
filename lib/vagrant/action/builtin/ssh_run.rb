@@ -20,8 +20,9 @@ module Vagrant
         end
 
         def call(env)
-          # Grab the SSH info from the machine
-          info = env[:machine].ssh_info
+          # Grab the SSH info from the machine or the environment
+          info = env[:ssh_info]
+          info ||= env[:machine].ssh_info
 
           # If the result is nil, then the machine is telling us that it is
           # not yet ready for SSH, so we raise this exception.

@@ -25,7 +25,7 @@ module Vagrant
               # We have to do this since `readpartial` will actually block
               # until data is available, which can cause blocking forever
               # in some cases.
-              results = ::IO.select([io], nil, nil, 0.1)
+              results = ::IO.select([io], nil, nil, 1.0)
               break if !results || results[0].empty?
 
               # Read!

@@ -84,6 +84,13 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
   end
 
+  describe '#pull' do
+    it 'should pull images' do
+      subject.should_receive(:execute).with('docker', 'pull', 'foo')
+      subject.pull('foo')
+    end
+  end
+
   describe '#running?' do
     let(:result) { subject.running?(cid) }
 

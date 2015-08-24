@@ -82,9 +82,15 @@ describe VagrantPlugins::DockerProvider::Config do
       subject.finalize!
       assert_valid
     end
+  end
 
-    it "should be invalid with a directory that doesn't have a Dockerfile" do
-      subject.build_dir = temporary_dir.to_s
+  describe "#create_args" do
+    before do
+      valid_defaults
+    end
+
+    it "is invalid if it isn't an array" do
+      subject.create_args = "foo"
       subject.finalize!
       assert_invalid
     end

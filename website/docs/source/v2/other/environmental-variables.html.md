@@ -9,6 +9,22 @@ Vagrant has a set of environmental variables that can be used to
 configure and control it in a global way. This page lists those environmental
 variables.
 
+## VAGRANT\_DEBUG\_LAUNCHER
+
+For performance reasons, especially for Windows users, Vagrant uses a static
+binary to launch the actual Vagrant process. If you have _very_ early issues
+when launching Vagrant from the official installer, you can specify the
+`VAGRANT_DEBUG_LAUNCHER` environment variable to output debugging information
+about the launch process.
+
+## VAGRANT\_CHECKPOINT\_DISABLE
+
+Vagrant does occasional network calls to check whether the version of Vagrant
+that is running locally is up to date. We understand that software making remote
+calls over the internet for any reason can be undesirable. To surpress these
+calls, set the environment variable `VAGRANT_CHECKPOINT_DISABLE` to any
+non-empty value.
+
 ## VAGRANT\_CWD
 
 `VAGRANT_CWD` can be set to change the working directory of Vagrant. By
@@ -73,6 +89,19 @@ not load plugins.
 Note that any `vagrant plugin` commands automatically don't load any
 plugins, so if you do install any unstable plugins, you can always use
 the `vagrant plugin` commands without having to worry.
+
+## VAGRANT\_SKIP\_SUBPROCESS\_JAILBREAK
+
+As of Vagrant 1.7.3, Vagrant tries to intelligently detect if it is running in
+the installer or running via Bundler. Although not officially supported, Vagrant
+tries its best to work when executed via Bundler. When Vagrant detects that you
+have spawned a subprocess that lives outside of Vagrant's installer, Vagrant
+will do its best to reset the preserved environment dring the subprocess
+execution.
+
+If Vagrant detects it is running outside of the officially installer, the
+original environment will always be restored. You can disable this automatic
+jailbreak by setting the `VAGRANT_SKIP_SUBPROCES_JAILBREAK`.
 
 ## VAGRANT\_VAGRANTFILE
 

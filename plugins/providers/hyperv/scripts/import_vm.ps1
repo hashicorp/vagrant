@@ -90,6 +90,9 @@ Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
     "Default"   { $bootdevice = "IDE" }
 } #switch
 
+# Determine secure boot options
+$secure_boot_enabled = (Select-Xml -xml $vmconfig -XPath "//secure_boot_enabled").Node."#text"
+
 # Define a hash map of parameter values for New-VM
 
 $vm_params = @{
@@ -132,6 +135,16 @@ $vm | Set-VM @more_vm_params -Passthru
 
 # Add drives to the virtual machine
 $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'controller')]"
+
+# Only set EFI secure boot for Gen 2 machines, not gen 1
+if ($generation -ne 1) {
+	# Set EFI secure boot 
+	if ($secure_boot_enabled -eq "True") {
+		Set-VMFirmware -VM $vm -EnableSecureBoot On
+	}  else {
+		Set-VMFirmware -VM $vm -EnableSecureBoot Off
+	}
+}
 
 # A regular expression pattern to pull the number from controllers
 [regex]$rx="\d"

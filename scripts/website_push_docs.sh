@@ -10,7 +10,7 @@ cd $DIR
 
 # Add the git remote if it doesn't exist
 git remote | grep heroku-docs || {
-    git remote add heroku-docs git@heroku.com:vagrantup-docs.git
+    git remote add heroku-docs git@heroku.com:vagrantup-docs-2.git
 }
 
 # Push the subtree (force)

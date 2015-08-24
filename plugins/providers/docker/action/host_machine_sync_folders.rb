@@ -147,7 +147,6 @@ module VagrantPlugins
 
           if !env[:host_machine_sync_folders]
             @logger.info("Not syncing folders because container created.")
-            return
           end
 
           if !new_config.synced_folders.empty?

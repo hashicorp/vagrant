@@ -20,10 +20,14 @@ en:
       Adding box '%{name}' (v%{version}) for provider: %{providers}
     box_added: |-
       Successfully added box '%{name}' (v%{version}) for '%{provider}'!
+    box_adding_direct: |-
+      Box file was not detected as metadata. Adding it directly...
     box_downloading: |-
       Downloading: %{url}
     box_download_error: |-
       Error downloading: %{message}
+    box_unpacking: |-
+      Unpacking necessary files from: %{url}
     box_expanding_url: |-
       URL: %{url}
     box_loading_metadata: |-
@@ -120,8 +124,11 @@ en:
     docker_configure_autostart: |-
       Configuring Docker to autostart containers...
     docker_install_with_version_not_supported: |-
-      Vagrant is not capable of installing an specific version of Docker
+      Vagrant is not capable of installing a specific version of Docker
       onto the guest machine and the latest version will be installed.
+      This is a limitation of Vagrant knowing how to interact with this
+      operating system. This isn't a bug, but if you know how to fix this
+      please report it to Vagrant.
     docker_installing: |-
       Installing Docker (%{version}) onto machine...
     docker_pulling_images:
@@ -134,7 +141,9 @@ en:
       Building Docker images...
     docker_running: |-
       -- Container: %{name}
-    docker_starting_containers:
+    docker_restarting_container: |-
+      -- Detected changes to container '%{name}', restarting...
+    docker_starting_containers: |-
       Starting Docker containers...
     inserted_key: |-
       Key inserted! Disconnecting and reconnecting using new SSH key...
@@ -197,6 +206,12 @@ en:
       have specified `rsync_auto` to be false.
     rsync_auto_path: |-
       Watching: %{path}
+    rsync_auto_rsync_error: |-
+      There was an error while executing rsync. The error is shown below.
+      This may not be critical since rsync sometimes fails, but if this message
+      repeats, then please fix the issue:
+
+      %{message}
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communicate with it. Verify that this machine is properly running.
@@ -212,6 +227,7 @@ en:
       The provider ('%{provider}') for the machine '%{name}' is
       using a proxy machine. RSync will sync to this proxy
       instead of directly to the environment itself.
+    rsync_showing_output: "Showing rsync output..."
     rsync_ssh_password: |-
       The machine you're rsyncing folders to is configured to use
       password-based authentication. Vagrant can't script rsync to automatically
@@ -285,7 +301,7 @@ en:
         id_in_pre_import: |-
           The ':id' parameter is not available in "pre-import" customizations.
         intnet_on_bad_type: |-
-          VirtualBox internal networks can only be enabled on "private_networks"
+          VirtualBox internal networks can only be enabled on "private_network"
         invalid_event: |-
           %{event} is not a valid event for customization. Valid events
           are: %{valid_events}
@@ -405,6 +421,9 @@ en:
         GUI often has more helpful error messages than Vagrant can retrieve.
         For example, if you're using VirtualBox, run `vagrant up` while the
         VirtualBox GUI is open.
+
+        The primary issue for this error is that the provider you're using
+        is not properly configured. This is very rarely a Vagrant issue.
       boot_timeout: |-
         Timed out while waiting for the machine to boot. This means that
         Vagrant was unable to communicate with the guest machine within
@@ -1139,6 +1158,13 @@ en:
         permissions on the following file to 0600 and then try running this command again:
 
         %{key_path}
+
+        Note that this error occurs after Vagrant automatically tries to
+        do this for you. The likely cause of this error is a lack of filesystem
+        permissions or even filesystem functionality. For example, if your
+        Vagrant data is on a USB stick, a common case is that chmod is
+        not supported. The key will need to be moved to a filesystem that
+        supports chmod.
       ssh_key_type_not_supported: |-
         The private key you're attempting to use with this Vagrant box uses
         an unsupported encryption type. The SSH library Vagrant uses does not support
@@ -1197,7 +1223,8 @@ en:
         a syntax error.
 
         Path: %{path}
-        Message: %{message}
+        Line number: %{line}
+        Message: %{exception_class}: %{message}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:
@@ -1227,6 +1254,13 @@ en:
         Command: %{command}
 
         Stderr: %{stderr}
+      vboxmanage_launch_error: |-
+        There was an error running VBoxManage. This is usually a permissions
+        problem or installation problem with VirtualBox itself, and not Vagrant.
+        Please note the error message below (if any), resolve the issue, and
+        try Vagrant again.
+
+        %{message}
       vboxmanage_not_found_error: |-
         The "VBoxManage" command or one of its dependencies could not
         be found. Please verify VirtualBox is properly installed. You can verify
@@ -1294,6 +1328,14 @@ en:
         Vagrant uses the `VBoxManage` binary that ships with VirtualBox, and requires
         this to be available on the PATH. If VirtualBox is installed, please find the
         `VBoxManage` binary and add it to the PATH environmental variable.
+      virtualbox_user_mismatch: |-
+        The VirtualBox VM was created with a user that doesn't match the
+        current user running Vagrant. VirtualBox requires that the same user
+        be used to manage the VM that was created. Please re-run Vagrant with
+        that user. This is not a Vagrant issue.
+
+        The UID used to create the VM was: %{original_uid}
+        Your UID is: %{uid}
       virtualbox_version_empty: |-
         Vagrant detected that VirtualBox appears installed on your system,
         but calls to detect the version are returning empty. This is often
@@ -1614,7 +1656,7 @@ en:
             on these ports. The forwarded port to %{host_port} is already in use
             on the host machine.
 
-            To fix this, modify your current projects Vagrantfile to use another
+            To fix this, modify your current project's Vagrantfile to use another
             port. Example, where '1234' would be replaced by a unique host port:
 
               config.vm.network :forwarded_port, guest: %{guest_port}, host: 1234
@@ -1696,10 +1738,10 @@ en:
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
-            Machine not provisioning because `--no-provision` is specified.
+            Machine not provisioned because `--no-provision` is specified.
           disabled_by_sentinel: |-
             Machine already provisioned. Run `vagrant provision` or use the `--provision`
-            to force provisioning. Provisioners marked to run always will still run.
+            flag to force provisioning. Provisioners marked to run always will still run.
         resume:
           resuming: Resuming suspended VM...
           unpausing: |-
@@ -1749,7 +1791,7 @@ en:
           packaging: "Packaging additional file: %{file}"
           compressing: "Compressing package to: %{tar_path}"
           output_exists: |-
-            The specified file to save the package as already exists. Please
+            The specified file '%{file_name}' to save the package as already exists. Please
             remove this file or specify a different file name for outputting.
           output_is_directory: |-
             The specified output is a directory. Please specify a path including
@@ -1809,8 +1851,8 @@ en:
         running_apply: "Running chef-apply..."
         running_solo: "Running chef-solo..."
         running_solo_again: "Running chef-solo again (failed to converge)..."
-        running_zero: "Running chef-zero..."
-        running_zero_again: "Running chef-zero again (failed to converge)..."
+        running_zero: "Running chef-client (local-mode)..."
+        running_zero_again: "Running chef-client (local-mode) again (failed to converge)..."
         missing_shared_folders: |-
           Shared folders that Chef requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
@@ -1852,11 +1894,17 @@ en:
           installed on this guest. Puppet provisioning can not continue without
           Puppet properly installed.
         running_puppet: "Running Puppet with %{manifest}..."
+        running_puppet_env: "Running Puppet with environment %{environment}..."
         manifest_missing: |-
           The configured Puppet manifest is missing. Please specify a path to an
           existing manifest:
 
           %{manifest}
+        environment_missing: |-
+          The configured Puppet environment folder %{environment} was not found in the
+          specified environmentpath %{environmentpath}.
+          Please specify a path to an existing Puppet directory environment.
+        environment_path_missing: "The environment path specified for Puppet does not exist: %{path}"
         manifests_path_missing: "The manifests path specified for Puppet does not exist: %{path}"
         missing_shared_folders: |-
           Shared folders that Puppet requires are missing on the virtual machine.
@@ -1908,9 +1956,9 @@ en:
 
       salt:
         minion_config_nonexist: |-
-          The specified minion_config file could not be found.
+          The specified minion_config '%{missing_config_file}' file could not be found.
         master_config_nonexist: |-
-          The specified master_config file could not be found.
+          The specified master_config '%{missing_config_file}' file could not be found.
         grains_config_nonexist: |-
           The specified grains_config file could not be found.
         missing_key: |-
