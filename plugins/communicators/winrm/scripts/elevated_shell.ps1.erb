@@ -1,5 +1,13 @@
 param([String]$username, [String]$password, [String]$encoded_command)
 
+$schedule = $null
+Try {
+  $schedule = New-Object -ComObject "Schedule.Service"
+} Catch [System.Management.Automation.PSArgumentException] {
+  powershell.exe -EncodedCommand $encoded_command
+  exit $LASTEXITCODE
+}
+
 $task_name = "WinRM_Elevated_Shell"
 $out_file = "$env:SystemRoot\Temp\WinRM_Elevated_Shell.log"
 
@@ -50,7 +58,6 @@ $arguments = "/c powershell.exe -EncodedCommand $encoded_command &gt; $out_file 
 $task_xml = $task_xml.Replace("{arguments}", $arguments)
 $task_xml = $task_xml.Replace("{username}", $username)
 
-$schedule = New-Object -ComObject "Schedule.Service"
 $schedule.Connect()
 $task = $schedule.NewTask($null)
 $task.XmlText = $task_xml
