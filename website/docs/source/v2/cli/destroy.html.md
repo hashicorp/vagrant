@@ -27,6 +27,6 @@ confirmation can be skipped by passing in the `-f` or `--force` flag.
         will still be present on the hard drive. To return your computer to the
         state as it was before <code>vagrant up</code> command, you need to use
         <code>vagrant box remove</code>. For more information, read about the
-        [vagrant box remove](/v2/cli/box.html) command.
+        <a href="/v2/cli/box.html">vagrant box remove</a> command.
     </p>
 </div>
