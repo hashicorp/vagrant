@@ -26,6 +26,7 @@ module VagrantPlugins
 
           if virtual
             machine.communicate.sudo("ls /sys/class/net | egrep -v lo\\|docker") do |_, result|
+              next if result !~ /(^en\w\d)|(^sl\w\d)|(^wl\w\d)|(^ww\w\d)|(^em\w\d)|(^p\w\d)|(^eth\d)/
               interface_names = result.split("\n")
             end
 
@@ -34,12 +35,14 @@ module VagrantPlugins
             end
           else
             machine.communicate.sudo("/usr/sbin/biosdevname -d | grep Kernel | cut -f2 -d: | sed -e 's/ //;'") do |_, result|
+              next if result !~ /(^en\w\d)|(^sl\w\d)|(^wl\w\d)|(^ww\w\d)|(^em\w\d)|(^p\w\d)|(^eth\d)/
               interface_names = result.split("\n")
             end
 
             interface_name_pairs = Array.new
             interface_names.each do |interface_name|
               machine.communicate.sudo("/usr/sbin/biosdevname --policy=all_ethN -i #{interface_name}") do |_, result|
+                next if result !~ /(^en\w\d)|(^sl\w\d)|(^wl\w\d)|(^ww\w\d)|(^em\w\d)|(^p\w\d)|(^eth\d)/
                 interface_name_pairs.push([interface_name, result.gsub("\n", "")])
               end
             end
