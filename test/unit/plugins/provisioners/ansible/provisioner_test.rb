@@ -168,7 +168,7 @@ VF
         expect(config.inventory_path).to be_nil
         expect(File.exists?(generated_inventory_file)).to be_true
         inventory_content = File.read(generated_inventory_file)
-        expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_private_key_file=#{machine.ssh_info[:private_key_path][0]}\n")
+        expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
         expect(inventory_content).to include("# MISSING: '#{iso_env.machine_names[1]}' machine was probably removed without using Vagrant. This machine should be recreated.\n")
       }
     end
