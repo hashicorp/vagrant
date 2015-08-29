@@ -1,3 +1,14 @@
+## Next Release
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
+  - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
+    value in the generated inventory [GH-6209]
+
 ## 1.7.4 (July 17, 2015)
 
 BUG FIXES:
