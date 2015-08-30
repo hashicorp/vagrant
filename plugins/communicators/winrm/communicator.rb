@@ -210,7 +210,8 @@ module VagrantPlugins
 
         "powershell -executionpolicy bypass -file \"#{guest_script_path}\" " +
           "-username \"#{shell.username}\" -password \"#{shell.password}\" " +
-          "-encoded_command \"#{wrapped_encoded_command}\""
+          "-encoded_command \"#{wrapped_encoded_command}\" " +
+          "-execution_time_limit \"#{shell.execution_time_limit}\""
       end
 
       # Handles the raw WinRM shell result and converts it to a
