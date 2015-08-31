@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def update_etc_hostname
-          return super unless vivid?
+          return super unless systemd?
           sudo("hostnamectl set-hostname '#{short_hostname}'")
         end
 
@@ -15,7 +15,7 @@ module VagrantPlugins
           if hardy?
             # hostname.sh returns 1, so use `true` to get a 0 exitcode
             sudo("/etc/init.d/hostname.sh start; true")
-          elsif vivid?
+          elsif systemd?
             # Service runs via hostnamectl
           else
             sudo("service hostname start")
@@ -26,18 +26,24 @@ module VagrantPlugins
           os_version("hardy")
         end
 
-        def vivid?
-          os_version("vivid")
-        end
-
         def renew_dhcp
           sudo("ifdown -a; ifup -a; ifup -a --allow=hotplug")
         end
 
       private
 
+        def init_package
+          machine.communicate.execute('cat /proc/1/comm') do |type, data|
+            return data.chomp if type == :stdout
+          end
+        end
+
         def os_version(name)
           machine.communicate.test("[ `lsb_release -c -s` = #{name} ]")
+        end
+
+        def systemd?
+          init_package == 'systemd'
         end
       end
     end
