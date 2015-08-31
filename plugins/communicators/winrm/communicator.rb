@@ -38,6 +38,7 @@ module VagrantPlugins
           # Got it! Let the user know what we're connecting to.
           @machine.ui.detail("WinRM address: #{shell.host}:#{shell.port}")
           @machine.ui.detail("WinRM username: #{shell.username}")
+          @machine.ui.detail("WinRM execution_time_limit: #{shell.execution_time_limit}")
           @machine.ui.detail("WinRM transport: #{shell.config.transport}")
 
           last_message = nil
