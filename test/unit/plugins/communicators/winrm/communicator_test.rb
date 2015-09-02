@@ -5,10 +5,11 @@ require Vagrant.source_root.join("plugins/communicators/winrm/communicator")
 describe VagrantPlugins::CommunicatorWinRM::Communicator do
   include_context "unit"
 
-  let(:winrm) { double("winrm", timeout: 1) }
+  let(:winrm) { double("winrm", timeout: 1, host: nil, port: 5986, guest_port: 5986) }
   let(:config) { double("config", winrm: winrm) }
-  let(:machine) { double("machine", config: config) }
-
+  let(:provider) { double("provider") }
+  let(:ui) { double("ui") }
+  let(:machine) { double("machine", config: config, provider: provider, ui: ui) }
   let(:shell) { double("shell") }
 
   subject do
@@ -20,6 +21,37 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
   before do
     allow(shell).to receive(:username).and_return('vagrant')
     allow(shell).to receive(:password).and_return('password')
+  end
+
+  describe ".wait_for_ready" do
+    context "with no winrm_info capability and no static config (default scenario)" do
+      before do
+        # No default providers support this capability
+        allow(provider).to receive(:capability?).with(:winrm_info).and_return(false)
+
+        # Get us through the detail prints
+        allow(ui).to receive(:detail)
+        allow(shell).to receive(:host)
+        allow(shell).to receive(:port)
+        allow(shell).to receive(:username)
+        allow(shell).to receive(:config) { double("config", transport: nil)}
+      end
+
+      context "when ssh_info requires a multiple tries before it is ready" do
+        before do
+          allow(machine).to receive(:ssh_info).and_return(nil, {
+            host: '10.1.2.3',
+            port: '22',
+          })
+          # Makes ready? return true
+          allow(shell).to receive(:powershell).with("hostname").and_return({ exitcode: 0 })
+        end
+
+        it "retries ssh_info until ready" do
+          expect(subject.wait_for_ready(2)).to eq(true)
+        end
+      end
+    end
   end
 
   describe ".ready?" do

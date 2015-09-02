@@ -30,7 +30,12 @@ module VagrantPlugins
           # Wait for winrm_info to be ready
           winrm_info = nil
           while true
-            winrm_info = Helper.winrm_info(@machine)
+            winrm_info = nil
+            begin
+              winrm_info = Helper.winrm_info(@machine)
+            rescue Errors::WinRMNotReady
+              @logger.debug("WinRM not ready yet; retrying until boot_timeout is reached.")
+            end
             break if winrm_info
             sleep 0.5
           end
