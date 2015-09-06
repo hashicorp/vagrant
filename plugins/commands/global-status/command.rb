@@ -16,6 +16,9 @@ module VagrantPlugins
           o.on("--prune", "Prune invalid entries.") do |p|
             options[:prune] = true
           end
+          o.on("--json", "Output in JSON-format.") do |p|
+            options[:json] = true
+          end
         end
 
         # Parse the options
@@ -63,6 +66,18 @@ module VagrantPlugins
         prune.each do |entry|
           deletable = @env.machine_index.get(entry.id)
           @env.machine_index.delete(deletable) if deletable
+        end
+
+        if options[:json]
+          entries_as_hashes = entries.map do |entry|
+            columns.each_with_object({}) do |(header, method), hash|
+              hash[header] = entry.send(method).to_s
+            end
+          end
+          @env.ui.info(JSON.pretty_generate(entries_as_hashes))
+
+          # Success, exit status 0
+          return 0
         end
 
         total_width = 0
