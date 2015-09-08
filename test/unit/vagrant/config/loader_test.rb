@@ -38,6 +38,35 @@ describe Vagrant::Config::Loader do
 
   let(:instance) { described_class.new(versions, version_order) }
 
+  describe "#set" do
+    context "with an object that cannot be inspected" do
+
+      # This represents the euro symbol in UTF-16LE. pack("c*") returns an ASCII
+      # string and so we have to force the encoding
+      UTF_16LE_STRING_THAT_CANNOT_BE_DOWNCAST_TO_ASCII = [0x20, 0xAC].pack("c*").force_encoding("UTF-16LE")
+
+
+      let(:klass_with_bad_inspect_string) do
+        Class.new do
+          def inspect
+            UTF_16LE_STRING_THAT_CANNOT_BE_DOWNCAST_TO_ASCII
+          end
+        end
+      end
+
+      let(:test_source) {
+        Class.new do
+          def initialize(collaborator)
+            @foo = collaborator.new
+          end
+        end.new(klass_with_bad_inspect_string)
+      }
+      it "does not raise the ascii encoding exception" do
+        instance.set(:arbitrary, test_source)
+      end
+    end
+  end
+
   describe "basic loading" do
     it "should ignore non-existent load order keys" do
       instance.load([:foo])
