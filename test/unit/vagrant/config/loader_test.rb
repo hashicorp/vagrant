@@ -61,8 +61,11 @@ describe Vagrant::Config::Loader do
           end
         end.new(klass_with_bad_inspect_string)
       }
+
       it "does not raise the ascii encoding exception" do
-        instance.set(:arbitrary, test_source)
+        expect {
+          instance.set(:arbitrary, test_source)
+        }.to raise_error(ArgumentError, /Unknown configuration source/)
       end
     end
   end

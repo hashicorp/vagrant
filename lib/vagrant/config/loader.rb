@@ -41,10 +41,20 @@ module Vagrant
       # `set` multiple times with the same name will override any previously
       # set values. In this way, the last set data for a given name wins.
       def set(name, sources)
-        @logger.info("Set #{name.inspect} = #{sources.inspect}")
-
         # Sources should be an array
         sources = [sources] if !sources.kind_of?(Array)
+
+        reliably_inspected_sources = sources.reduce({}) { |accum, source|
+          begin
+            accum[source] = source.inspect
+          rescue Encoding::CompatibilityError
+            accum[source] = "<!Vagrant failed to call #inspect source with object id #{source.object_id} and class #{source.class} due to a string encoding error>"
+          end
+
+          accum
+        }
+
+        @logger.info("Set #{name.inspect} = #{reliably_inspected_sources.values}")
 
         # Gather the procs for every source, since that is what we care about.
         procs = []
@@ -53,8 +63,8 @@ module Vagrant
             # Load the procs for this source and cache them. This caching
             # avoids the issue where a file may have side effects when loading
             # and loading it multiple times causes unexpected behavior.
-            @logger.debug("Populating proc cache for #{source.inspect}")
-            @proc_cache[source] = procs_for_source(source)
+            @logger.debug("Populating proc cache for #{reliably_inspected_sources[source]}")
+            @proc_cache[source] = procs_for_source(source, reliably_inspected_sources)
           end
 
           # Add on to the array of procs we're going to use
@@ -164,7 +174,7 @@ module Vagrant
       # The `Proc` objects returned will expect a single argument for
       # the configuration object and are expected to mutate this
       # configuration object.
-      def procs_for_source(source)
+      def procs_for_source(source, reliably_inspected_sources)
         # Convert all pathnames to strings so we just have their path
         source = source.to_s if source.is_a?(Pathname)
 
@@ -180,7 +190,7 @@ module Vagrant
           # Strings are considered paths, so load them
           return procs_for_path(source)
         else
-          raise ArgumentError, "Unknown configuration source: #{source.inspect}"
+          raise ArgumentError, "Unknown configuration source: #{reliably_inspected_sources[source]}"
         end
       end
 
