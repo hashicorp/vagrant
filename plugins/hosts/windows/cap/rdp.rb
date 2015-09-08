@@ -11,7 +11,6 @@ module VagrantPlugins
           config = nil
           opts   = {
             "full address:s"           => "#{rdp_info[:host]}:#{rdp_info[:port]}",
-            "prompt for credentials:i" => "1",
             "username:s"               => rdp_info[:username],
           }
 
@@ -29,6 +28,10 @@ module VagrantPlugins
           if rdp_info[:extra_args]
             args = rdp_info[:extra_args] + args
           end
+
+          # Save password to local keystore
+          cmdkey_args = "/generic:TERMSRV/#{rdp_info[:host]}", "/user:#{rdp_info[:username]}", "/pass:#{rdp_info[:password]}"
+          Vagrant::Util::Subprocess.execute("cmdkey", *cmdkey_args)
 
           # Launch it
           Vagrant::Util::Subprocess.execute("mstsc", *args)
