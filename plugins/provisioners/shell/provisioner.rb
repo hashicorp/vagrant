@@ -182,7 +182,11 @@ module VagrantPlugins
         # Replace Windows line endings with Unix ones unless binary file
         # or we're running on Windows.
         if !config.binary && @machine.config.vm.communicator != :winrm
-          script.gsub!(/\r\n?$/, "\n")
+          begin
+            script.gsub!(/\r\n?$/, "\n")
+          rescue ArgumentError
+            script = script.force_encoding("ASCII-8BIT").gsub(/\r\n?$/, "\n")
+          end
         end
 
         # Otherwise we have an inline script, we need to Tempfile it,
