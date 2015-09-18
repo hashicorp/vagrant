@@ -24,6 +24,7 @@ module VagrantPlugins
       end
 
       config("auto_installer") do
+        require_relative "config"
         Config
       end
     end
