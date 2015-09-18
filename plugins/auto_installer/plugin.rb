@@ -3,7 +3,7 @@ require "vagrant"
 module VagrantPlugins
   module PluginAutoInstaller
     class Plugin < Vagrant.plugin("2")
-      name to_s "Plugin Auto-Installer"
+      name "Plugin Auto-Installer"
 
       description <<-DESC
       This (pseudo-plugin) code fragment is intended to be
