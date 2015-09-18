@@ -25,6 +25,7 @@ module VagrantPlugins
 
       config("auto_installer") do
         require_relative "config"
+        require_relative "manifest_checker"
         Config
       end
     end
