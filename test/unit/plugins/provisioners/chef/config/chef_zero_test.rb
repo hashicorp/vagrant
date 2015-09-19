@@ -42,6 +42,14 @@ describe VagrantPlugins::Chef::Config::ChefZero do
     end
   end
 
+  describe "#nodes_path" do
+    it "defaults to an empty array" do
+      subject.finalize!
+      expect(subject.nodes_path).to be_a(Array)
+      expect(subject.nodes_path).to be_empty
+    end
+  end
+
   describe "#roles_path" do
     it "defaults to an empty array" do
       subject.finalize!
