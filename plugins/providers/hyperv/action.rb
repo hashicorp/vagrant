@@ -117,6 +117,7 @@ module VagrantPlugins
 
               b2.use Provision
               b2.use NetSetVLan
+              b2.use NetSetMac
               b2.use StartInstance
               b2.use WaitForIPAddress
               b2.use WaitForCommunicator, [:running]
@@ -218,6 +219,7 @@ module VagrantPlugins
       autoload :SuspendVM, action_root.join("suspend_vm")
       autoload :WaitForIPAddress, action_root.join("wait_for_ip_address")
       autoload :NetSetVLan, action_root.join("net_set_vlan")
+      autoload :NetSetMac, action_root.join("net_set_mac")
       autoload :MessageWillNotDestroy, action_root.join("message_will_not_destroy")
     end
   end

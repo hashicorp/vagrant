@@ -10,6 +10,7 @@ module VagrantPlugins
       attr_accessor :cpus # Number of cpu's @return [Integer]
       attr_accessor :vmname # Name that will be shoen in Hyperv Manager @return [String]
       attr_accessor :vlan_id # VLAN ID for network interface for the virtual machine. @return [Integer]
+      attr_accessor :mac # MAC address for network interface for the virtual machine. @return [String]
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -18,6 +19,7 @@ module VagrantPlugins
         @cpus = UNSET_VALUE
         @vmname = UNSET_VALUE
         @vlan_id  = UNSET_VALUE
+        @mac  = UNSET_VALUE
       end
 
       def finalize!
@@ -29,6 +31,7 @@ module VagrantPlugins
         @cpus = nil if @cpus == UNSET_VALUE 
         @vmname = nil if @vmname == UNSET_VALUE
         @vlan_id = nil if @vlan_id == UNSET_VALUE
+        @mac = nil if @mac == UNSET_VALUE
       end
 
       def validate(machine)
