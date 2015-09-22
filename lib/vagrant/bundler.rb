@@ -61,7 +61,9 @@ module Vagrant
       end
 
       # Setup the Bundler configuration
-      @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
+      tempname = Tempfile.new("vagrant").path
+      File.unlink(tempname) rescue nil
+      @configfile = File.open(tempname + "1", "w+")
       @configfile.close
 
       # Build up the Gemfile for our Bundler context. We make sure to
