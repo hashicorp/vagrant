@@ -177,7 +177,9 @@ module Vagrant
     def build_gemfile(plugins)
       sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
 
-      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      tempname = Tempfile.new("vagrant").path
+      File.unlink(tempname) rescue nil
+      f = File.open(tempname + "2", "w+")
       f.tap do |gemfile|
         if !sources.include?("http://rubygems.org")
           gemfile.puts(%Q[source "https://rubygems.org"])
