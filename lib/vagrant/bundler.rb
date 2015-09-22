@@ -81,7 +81,7 @@ module Vagrant
     def deinit
       File.unlink(ENV["BUNDLE_APP_CONFIG"]) rescue nil
       File.unlink(ENV["BUNDLE_CONFIG"]) rescue nil
-      File.unlink(ENV["GEMFILE"]) rescue nil
+      File.unlink(ENV["BUNDLE_GEMFILE"]) rescue nil
     end
 
     # Installs the list of plugins.
