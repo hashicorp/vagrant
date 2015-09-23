@@ -212,10 +212,11 @@ module VagrantPlugins
           file.unlink
         end
 
-        # convert to double byte unicode string then base64 encode
-        # just like PowerShell -EncodedCommand expects
+        # Convert to double byte unicode string then base64 encode
+        # just like PowerShell -EncodedCommand expects.
+        # Suppress the progress stream from leaking to stderr.
         wrapped_encoded_command = Base64.strict_encode64(
-          "#{command}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
+          "$ProgressPreference='SilentlyContinue'; #{command}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
 
         "powershell -executionpolicy bypass -file \"#{guest_script_path}\" " +
           "-username \"#{shell.username}\" -password \"#{shell.password}\" " +

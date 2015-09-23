@@ -54,8 +54,10 @@ module VagrantPlugins
       end
 
       def powershell(command, &block)
-        # ensure an exit code
+        # Suppress the progress stream from leaking to stderr
+        command = "$ProgressPreference='SilentlyContinue';\r\n" + command
         command << "\r\n"
+        # Ensure an exit code
         command << "if ($?) { exit 0 } else { if($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 1 } }"
         execute_shell(command, :powershell, &block)
       end
