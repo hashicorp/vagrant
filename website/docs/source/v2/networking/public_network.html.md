@@ -51,6 +51,17 @@ When DHCP is used, the IP can be determined by using `vagrant ssh` to
 SSH into the machine and using the appropriate command line tool to find
 the IP, such as `ifconfig`.
 
+### Using the DHCP Assigned Default Route
+
+Some cases require the DHCP assigned default route to be untouched. In these cases one
+my specify the :use_dhcp_assigned_default_route option. As an example:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "public_network", use_dhcp_assigned_default_route: true
+end
+```
+
 ## Static IP
 
 Depending on your setup, you may wish to manually set the IP of your
