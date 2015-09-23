@@ -54,11 +54,12 @@ the IP, such as `ifconfig`.
 ### Using the DHCP Assigned Default Route
 
 Some cases require the DHCP assigned default route to be untouched. In these cases one
-my specify the :use_dhcp_assigned_default_route option. As an example:
+may specify the `use_dhcp_assigned_default_route` option. As an example:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.network "public_network", use_dhcp_assigned_default_route: true
+  config.vm.network "public_network",
+    use_dhcp_assigned_default_route: true
 end
 ```
 
