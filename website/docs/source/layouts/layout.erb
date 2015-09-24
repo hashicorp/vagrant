@@ -324,6 +324,8 @@
 							<li><a href="https://docs.vagrantup.com/">Documentation</a></li>
 							<li><a href="https://www.vagrantup.com/about">About</a></li>
 							<li><a href="https://www.vagrantup.com/support">Support</a></li>
+							<% github_link = 'https://github.com/mitchellh/vagrant/blob/master/' + current_page.source_file.match(/website.*/)[0] %>
+							<li class="li-under"><a href="<%= github_link %>">Edit this page</a></li>
 							<a href="https://www.vagrantup.com/downloads">
 								<li class="button inline-button">Download</li>
 							</a>
