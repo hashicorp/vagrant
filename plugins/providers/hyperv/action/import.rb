@@ -1,6 +1,7 @@
 require "fileutils"
 
 require "log4r"
+require "json"
 
 module VagrantPlugins
   module HyperV
@@ -18,11 +19,19 @@ module VagrantPlugins
           maxmemory = env[:machine].provider_config.maxmemory
           cpus = env[:machine].provider_config.cpus
           vmname = env[:machine].provider_config.vmname
+          disks_config = env[:machine].provider_config.disks_config
+          guest_integration_service = env[:machine].provider_config.guest_integration_service
+          auto_stop_action = env[:machine].provider_config.auto_stop_action
+          time_sync = env[:machine].provider_config.time_sync
 
           env[:ui].output("Configured Dynamical memory allocation, maxmemory is #{maxmemory}") if maxmemory
           env[:ui].output("Configured startup memory is #{memory}") if memory
           env[:ui].output("Configured cpus number is #{cpus}") if cpus
           env[:ui].output("Configured vmname is #{vmname}") if vmname
+          env[:ui].output("Configured disks config is #{disks_config}") if disks_config
+          env[:ui].output("Configured guest integration service is enabled") if guest_integration_service
+          env[:ui].output("Configured automatic stop action is #{auto_stop_action}") if auto_stop_action
+          env[:ui].output("Configured time synchronization is #{time_sync}") unless time_sync.nil?
 
           if !vm_dir.directory? || !hd_dir.directory?
             raise Errors::BoxInvalid
@@ -108,11 +117,20 @@ module VagrantPlugins
           options[:cpus] = cpus if cpus
           options[:vmname] = vmname if vmname 
 
+          options[:disks_config] = add_abs_path(disks_config, env[:machine].data_dir).to_json.to_s.gsub('"', '"""')  if disks_config
+          options[:guest_integration_service] = guest_integration_service if guest_integration_service
+          options[:auto_stop_action] = auto_stop_action if auto_stop_action
+          options[:time_sync] = time_sync unless time_sync.nil?
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)
           env[:ui].detail("Successfully imported a VM with name: #{server['name']}")
           env[:machine].id = server["id"]
           @app.call(env)
+        end
+
+        private
+        def add_abs_path(disks_config, data_dir)
+          disks_config.each {|controller| controller.each {|disk| disk['name'] = data_dir.join("#{disk['name']}.vhdx").to_s.gsub("/", "\\") if disk['name'] }}
         end
       end
     end

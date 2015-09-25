@@ -54,4 +54,36 @@ describe VagrantPlugins::HyperV::Config do
       expect(subject.cpus).to eq(2)
     end
   end
+  describe "#disks_config" do
+    it "can be set" do
+      dc = [[{ 'name' =>"d1", 'size' => "100"},
+             { 'name' =>"d2", 'size' => "50"}],
+            [{ 'path' =>"D:\\test.vhdx"}]]
+
+      subject.disks_config = dc
+      subject.finalize!
+      expect(subject.disks_config).to eq(dc)
+    end
+  end
+  describe "#guest_integration_service" do
+    it "can be set" do
+      subject.guest_integration_service = true
+      subject.finalize!
+      expect(subject.guest_integration_service).to eq(true)
+    end
+  end
+  describe "#time_sync" do
+    it "can be set" do
+      subject.time_sync = false
+      subject.finalize!
+      expect(subject.time_sync).to eq(false)
+    end
+  end
+  describe "#auto_stop_action" do
+    it "can be set" do
+      subject.auto_stop_action = "ShutDown"
+      subject.finalize!
+      expect(subject.auto_stop_action).to eq("ShutDown")
+    end
+  end
 end
