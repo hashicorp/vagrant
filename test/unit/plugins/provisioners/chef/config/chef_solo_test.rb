@@ -57,6 +57,14 @@ describe VagrantPlugins::Chef::Config::ChefSolo do
     end
   end
 
+  describe "#nodes_path" do
+    it "defaults to an empty array" do
+      subject.finalize!
+      expect(subject.nodes_path).to be_a(Array)
+      expect(subject.nodes_path).to be_empty
+    end
+  end
+
   describe "#synced_folder_type" do
     it "defaults to nil" do
       subject.finalize!
