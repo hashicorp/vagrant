@@ -249,14 +249,16 @@ module VagrantPlugins
             mac:         nil,
             nic_type:    nil,
             netmask:     "255.255.255.0",
-            type:        :static
+            type:        :static,
+            dhcp_ip:     "172.28.128.1"
           }.merge(options)
 
           # Make sure the type is a symbol
           options[:type] = options[:type].to_sym
 
           # Default IP is in the 20-bit private network block for DHCP based networks
-          options[:ip] = "172.28.128.1" if options[:type] == :dhcp && !options[:ip]
+          options[:ip] = options[:dhcp_ip] if options[:type] == :dhcp
+
 
           # Calculate our network address for the given IP/netmask
           netaddr  = network_address(options[:ip], options[:netmask])
