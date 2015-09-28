@@ -19,6 +19,7 @@ module VagrantPlugins
 
         attr_reader :environments_folders
         attr_reader :cookbook_folders
+        attr_reader :node_folders
         attr_reader :role_folders
         attr_reader :data_bags_folders
 
@@ -160,6 +161,7 @@ module VagrantPlugins
           {
             cookbooks_path: guest_paths(@cookbook_folders),
             recipe_url: @config.recipe_url,
+            nodes_path: guest_paths(@node_folders),
             roles_path: guest_paths(@role_folders),
             data_bags_path: guest_paths(@data_bags_folders).first,
             environments_path: guest_paths(@environments_folders).first

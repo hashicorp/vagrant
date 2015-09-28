@@ -17,6 +17,10 @@ module VagrantPlugins
         # @return [String]
         attr_accessor :environments_path
 
+        # The path where nodes are stored on disk.
+        # @return [String]
+        attr_accessor :nodes_path
+
         # A URL download a remote recipe from. Note: you should use chef-apply
         # instead.
         #
@@ -39,6 +43,7 @@ module VagrantPlugins
           @cookbooks_path      = UNSET_VALUE
           @data_bags_path      = UNSET_VALUE
           @environments_path   = UNSET_VALUE
+          @nodes_path          = UNSET_VALUE
           @recipe_url          = UNSET_VALUE
           @roles_path          = UNSET_VALUE
           @synced_folder_type  = UNSET_VALUE
@@ -86,6 +91,7 @@ module VagrantPlugins
           end
 
           @data_bags_path    = [] if @data_bags_path == UNSET_VALUE
+          @nodes_path        = [] if @nodes_path == UNSET_VALUE
           @roles_path        = [] if @roles_path == UNSET_VALUE
           @environments_path = [] if @environments_path == UNSET_VALUE
           @environments_path = [@environments_path].flatten
@@ -93,6 +99,7 @@ module VagrantPlugins
           # Make sure the path is an array.
           @cookbooks_path    = prepare_folders_config(@cookbooks_path)
           @data_bags_path    = prepare_folders_config(@data_bags_path)
+          @nodes_path        = prepare_folders_config(@nodes_path)
           @roles_path        = prepare_folders_config(@roles_path)
           @environments_path = prepare_folders_config(@environments_path)
         end
