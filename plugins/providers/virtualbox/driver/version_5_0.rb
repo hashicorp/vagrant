@@ -366,6 +366,10 @@ module VagrantPlugins
                 info[:ip] = $1.to_s
               elsif line =~ /^NetworkMask:\s+(.+?)$/
                 info[:netmask] = $1.to_s
+              elsif line =~ /^IPV6Address:\s+(.+?)$/
+                info[:ipv6] = $1.to_s
+              elsif line =~ /^IPV6NetworkMaskPrefixLength:\s+(.+?)$/
+                info[:ipv6_prefix] = $1.to_s
               elsif line =~ /^Status:\s+(.+?)$/
                 info[:status] = $1.to_s
               end
