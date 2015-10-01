@@ -48,10 +48,19 @@ module VagrantPlugins
           interface = execute("hostonlyif", "create")
           name = interface[/^Interface '(.+?)' was successfully created$/, 1]
 
-          # Configure it
-          execute("hostonlyif", "ipconfig", name,
-                  "--ip", options[:adapter_ip],
-                  "--netmask", options[:netmask])
+          # Get the IP so we can determine v4 vs v6
+          ip = IPAddr.new(options[:adapter_ip])
+
+          # Configure
+          if ip.ipv4?
+            execute("hostonlyif", "ipconfig", name,
+                    "--ip", options[:adapter_ip],
+                    "--netmask", options[:netmask])
+          elsif ip.ipv6?
+            execute("hostonlyif", "ipconfig", name,
+                    "--ipv6", options[:adapter_ip],
+                    "--netmasklengthv6", options[:netmask].to_s)
+          end
 
           # Return the details
           return {
@@ -320,6 +329,10 @@ module VagrantPlugins
                 info[:ip] = ip
               elsif netmask = line[/^NetworkMask:\s+(.+?)$/, 1]
                 info[:netmask] = netmask
+              elsif line =~ /^IPV6Address:\s+(.+?)$/
+                info[:ipv6] = $1.to_s.strip
+              elsif line =~ /^IPV6NetworkMaskPrefixLength:\s+(.+?)$/
+                info[:ipv6_prefix] = $1.to_s.strip
               elsif status = line[/^Status:\s+(.+?)$/, 1]
                 info[:status] = status
               end
@@ -427,6 +440,11 @@ module VagrantPlugins
           end
 
           results
+        end
+
+        def reconfig_host_only(interface)
+          execute("hostonlyif", "ipconfig", interface[:name],
+                  "--ipv6", interface[:ipv6])
         end
 
         def remove_dhcp_server(network_name)

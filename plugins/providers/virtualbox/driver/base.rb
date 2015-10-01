@@ -263,6 +263,14 @@ module VagrantPlugins
         def read_vms
         end
 
+        # Reconfigure the hostonly network given by interface (the result
+        # of read_host_only_networks). This is a sad function that only
+        # exists to work around VirtualBox bugs.
+        #
+        # @return nil
+        def reconfig_host_only(interface)
+        end
+
         # Removes the DHCP server identified by the provided network name.
         #
         # @param [String] network_name The the full network name associated

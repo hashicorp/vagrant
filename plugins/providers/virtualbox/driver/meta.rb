@@ -109,6 +109,7 @@ module VagrantPlugins
           :read_state,
           :read_used_ports,
           :read_vms,
+          :reconfig_host_only,
           :remove_dhcp_server,
           :resume,
           :set_mac_address,

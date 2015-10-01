@@ -1,10 +1,21 @@
+require "ipaddr"
+
 module Vagrant
   module Util
     module NetworkIP
       # Returns the network address of the given IP and subnet.
       #
+      # If the IP address is an IPv6 address, subnet should be a prefix
+      # length such as "64".
+      #
       # @return [String]
       def network_address(ip, subnet)
+        # If this is an IPv6 address, then just mask it
+        if subnet.to_s =~ /^\d+$/
+          ip = IPAddr.new(ip)
+          return ip.mask(subnet.to_i).to_s
+        end
+
         ip      = ip_parts(ip)
         netmask = ip_parts(subnet)
 
