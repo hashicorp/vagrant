@@ -488,6 +488,11 @@ module VagrantPlugins
           results
         end
 
+        def reconfig_host_only(interface)
+          execute("hostonlyif", "ipconfig", interface[:name],
+                  "--ipv6", interface[:ipv6])
+        end
+
         def remove_dhcp_server(network_name)
           execute("dhcpserver", "remove", "--netname", network_name)
         end

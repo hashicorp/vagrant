@@ -30,6 +30,7 @@ module VagrantPlugins
       autoload :MessageNotRunning, File.expand_path("../action/message_not_running", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
       autoload :Network, File.expand_path("../action/network", __FILE__)
+      autoload :NetworkFixIPv6, File.expand_path("../action/network_fix_ipv6", __FILE__)
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
       autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
@@ -63,6 +64,7 @@ module VagrantPlugins
           b.use PrepareNFSSettings
           b.use ClearNetworkInterfaces
           b.use Network
+          b.use NetworkFixIPv6
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults

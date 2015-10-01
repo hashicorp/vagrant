@@ -72,6 +72,11 @@ module VagrantPlugins
           }
         end
 
+        def reconfig_host_only(interface)
+          execute("hostonlyif", "ipconfig", interface[:name],
+                  "--ipv6", interface[:ipv6])
+        end
+
         def delete
           execute("unregistervm", @uuid, "--delete")
         end
