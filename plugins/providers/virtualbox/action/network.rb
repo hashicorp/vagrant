@@ -259,7 +259,7 @@ module VagrantPlugins
           options[:ip] = "172.28.128.1" if options[:type] == :dhcp && !options[:ip]
 
           ip = IPAddr.new(options[:ip])
-          if !ip.ipv6?
+          if ip.ipv4?
             options[:netmask] ||= "255.255.255.0"
 
             # Calculate our network address for the given IP/netmask
@@ -286,7 +286,7 @@ module VagrantPlugins
             adapter_ip    = ip_parts.dup
             adapter_ip[3] += 1
             options[:adapter_ip] ||= adapter_ip.join(".")
-          else
+          elsif ip.ipv6?
             # Default subnet prefix length
             options[:netmask] ||= 64
 
@@ -295,6 +295,8 @@ module VagrantPlugins
 
             # Append a 6 to the end of the type
             options[:type] = "#{options[:type]}6".to_sym
+          else
+            raise "BUG: Unknown IP type: #{ip.inspect}"
           end
 
           dhcp_options = {}

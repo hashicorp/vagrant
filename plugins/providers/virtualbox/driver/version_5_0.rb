@@ -60,6 +60,8 @@ module VagrantPlugins
             execute("hostonlyif", "ipconfig", name,
                     "--ipv6", options[:adapter_ip],
                     "--netmasklengthv6", options[:netmask].to_s)
+          else
+            raise "BUG: Unknown IP type: #{ip.inspect}"
           end
 
           # Return the details
