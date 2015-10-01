@@ -20,13 +20,10 @@ module VagrantPlugins
         # Ansible provisioner options
         #
 
-        # By default, connect with Vagrant SSH username
-        options = %W[--user=#{@ssh_info[:username]}]
-
         # Connect with native OpenSSH client
         # Other modes (e.g. paramiko) are not officially supported,
         # but can be enabled via raw_arguments option.
-        options << "--connection=ssh"
+        options = "--connection=ssh"
 
         # Increase the SSH connection timeout, as the Ansible default value (10 seconds)
         # is a bit demanding for some overloaded developer boxes. This is particularly
@@ -127,7 +124,7 @@ module VagrantPlugins
             m = @machine.env.machine(*am)
             m_ssh_info = m.ssh_info
             if !m_ssh_info.nil?
-              inventory += "#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]} ansible_ssh_private_key_file='#{m_ssh_info[:private_key_path][0]}'\n"
+              inventory += "#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]} ansible_ssh_user=#{m_ssh_info[:username]} ansible_ssh_private_key_file='#{m_ssh_info[:private_key_path][0]}'\n"
               inventory_machines[m.name] = m
             else
               @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")
