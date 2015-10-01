@@ -2,6 +2,9 @@
 
 FEATURES:
 
+  - **IPv6 Private Networks**: Private networking now supports IPv6. This
+    only works with VirtualBox and VMware at this point. [GH-6342]
+
 IMPROVEMENTS:
 
 BUG FIXES:
