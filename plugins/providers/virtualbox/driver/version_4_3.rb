@@ -60,7 +60,7 @@ module VagrantPlugins
           elsif ip.ipv6?
             execute("hostonlyif", "ipconfig", name,
                     "--ipv6", options[:adapter_ip],
-                    "--netmasklengthv6", options[:netmask])
+                    "--netmasklengthv6", options[:netmask].to_s)
           end
 
           # Return the details

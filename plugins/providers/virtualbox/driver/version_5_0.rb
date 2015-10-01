@@ -46,12 +46,21 @@ module VagrantPlugins
         def create_host_only_network(options)
           # Create the interface
           execute("hostonlyif", "create") =~ /^Interface '(.+?)' was successfully created$/
-            name = $1.to_s
+          name = $1.to_s
 
-          # Configure it
-          execute("hostonlyif", "ipconfig", name,
-                  "--ip", options[:adapter_ip],
-                  "--netmask", options[:netmask])
+          # Get the IP so we can determine v4 vs v6
+          ip = IPAddr.new(options[:adapter_ip])
+
+          # Configure
+          if ip.ipv4?
+            execute("hostonlyif", "ipconfig", name,
+                    "--ip", options[:adapter_ip],
+                    "--netmask", options[:netmask])
+          elsif ip.ipv6?
+            execute("hostonlyif", "ipconfig", name,
+                    "--ipv6", options[:adapter_ip],
+                    "--netmasklengthv6", options[:netmask].to_s)
+          end
 
           # Return the details
           return {
@@ -367,9 +376,9 @@ module VagrantPlugins
               elsif line =~ /^NetworkMask:\s+(.+?)$/
                 info[:netmask] = $1.to_s
               elsif line =~ /^IPV6Address:\s+(.+?)$/
-                info[:ipv6] = $1.to_s
+                info[:ipv6] = $1.to_s.strip
               elsif line =~ /^IPV6NetworkMaskPrefixLength:\s+(.+?)$/
-                info[:ipv6_prefix] = $1.to_s
+                info[:ipv6_prefix] = $1.to_s.strip
               elsif line =~ /^Status:\s+(.+?)$/
                 info[:status] = $1.to_s
               end
