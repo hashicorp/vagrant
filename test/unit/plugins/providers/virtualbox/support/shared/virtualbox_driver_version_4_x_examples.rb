@@ -159,6 +159,7 @@ shared_examples "a version 4.x virtualbox driver" do |options|
           name:    'vboxnet0',
           ip:      '172.28.128.1',
           netmask: '255.255.255.0',
+          ipv6_prefix: '0',
           status:  'Up',
         }])
       end
@@ -196,8 +197,8 @@ shared_examples "a version 4.x virtualbox driver" do |options|
 
       it "returns a list with one entry for each interface" do
         expect(subject.read_host_only_interfaces).to eq([
-          {name: 'vboxnet0', ip: '172.28.128.1', netmask: '255.255.255.0', status: 'Up'},
-          {name: 'vboxnet1', ip: '10.0.0.1', netmask: '255.255.255.0', status: 'Up'},
+          {name: 'vboxnet0', ip: '172.28.128.1', netmask: '255.255.255.0', ipv6_prefix: "0", status: 'Up'},
+          {name: 'vboxnet1', ip: '10.0.0.1', netmask: '255.255.255.0', ipv6_prefix: "0", status: 'Up'},
         ])
       end
     end
