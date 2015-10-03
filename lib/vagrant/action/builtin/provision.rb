@@ -102,12 +102,19 @@ module Vagrant
           type_map = provisioner_type_map(env)
           provisioner_instances(env).each do |p, options|
             type_name = type_map[p]
+
+            # Don't run if provision_types does not contain this provisioners type or name
             next if env[:provision_types] && \
               !env[:provision_types].include?(type_name) && \
               !env[:provision_types].include?(options[:name])
 
             # Don't run if sentinel is around and we're not always running
             next if !provision_enabled && options[:run] != :always
+
+            # Don't run if we are never running and not explicitly told to do so by name
+            next if options[:run] == :never && \
+              (env[:provision_types] == nil || \
+              !env[:provision_types].include?(options[:name]))
 
             name = type_name
             if options[:name]
