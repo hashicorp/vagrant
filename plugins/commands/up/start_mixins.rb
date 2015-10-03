@@ -22,6 +22,11 @@ module VagrantPlugins
           options[:provision_enabled] = true
           options[:provision_ignore_sentinel] = true
         end
+
+        parser.on("--skip-provision-with x,y,z", Array,
+             "Skip certain provisioners, by type.") do |list|
+          options[:skip_provision_types] = list.map { |type| type.to_sym }
+        end
       end
 
       # This validates the provisioner flags and raises an exception

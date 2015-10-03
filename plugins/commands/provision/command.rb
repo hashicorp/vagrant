@@ -12,11 +12,19 @@ module VagrantPlugins
         options[:provision_types] = nil
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant provision [vm-name] [--provision-with x,y,z]"
+          o.banner = "Usage: vagrant provision [vm-name] [options]"
+          o.separator ""
+          o.separator "Options:"
+          o.separator ""
 
           o.on("--provision-with x,y,z", Array,
-                    "Enable only certain provisioners, by type.") do |list|
+               "Enable only certain provisioners, by type.") do |list|
             options[:provision_types] = list.map { |type| type.to_sym }
+          end
+
+          o.on("--skip-provision-with x,y,z", Array,
+               "Skip certain provisioners, by type.") do |list|
+            options[:skip_provision_types] = list.map { |type| type.to_sym }
           end
         end
 
