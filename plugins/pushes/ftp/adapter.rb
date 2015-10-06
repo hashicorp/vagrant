@@ -120,7 +120,25 @@ module VagrantPlugins
       end
 
       def upload(local, remote)
+        parent = File.dirname(remote)
+        fullpath = Pathname.new(parent)
+        fullpath.descend do |path|
+          unless check_dir_exists? path.to_s  
+            @server.mkdir(path.to_s)
+          end  
+        end
+
         @server.upload!(local, remote, mkdir: true)
+      end
+
+      def check_dir_exists?(path)
+        begin
+          @server.opendir!(path) do |response|
+            return false unless response.ok?
+            @server.close(response[:handle])
+            return true
+          end
+        end
       end
     end
   end
