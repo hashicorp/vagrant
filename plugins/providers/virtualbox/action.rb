@@ -327,13 +327,14 @@ module VagrantPlugins
             if !env[:result]
               b2.use CheckAccessible
               b2.use Customize, "pre-import"
-              
-              if env[:machine].provider_config.use_linked_clone
+
+              if env[:machine].provider_config.linked_clone
                 b2.use ImportMaster
                 b2.use CreateClone
               else
                 b2.use Import
-              end 
+              end
+
               b2.use MatchMACAddress
             end
           end

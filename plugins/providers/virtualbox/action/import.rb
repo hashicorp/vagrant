@@ -12,10 +12,13 @@ module VagrantPlugins
 
           # Import the virtual machine
           ovf_file = env[:machine].box.directory.join("box.ovf").to_s
-          env[:machine].id = env[:machine].provider.driver.import(ovf_file) do |progress|
+          id = env[:machine].provider.driver.import(ovf_file) do |progress|
             env[:ui].clear_line
             env[:ui].report_progress(progress, 100, false)
           end
+
+          # Set the machine ID
+          env[:machine].id = id if !env[:skip_machine]
 
           # Clear the line one last time since the progress meter doesn't disappear
           # immediately.

@@ -1619,10 +1619,13 @@ en:
         clear_shared_folders:
           deleting: Cleaning previously set shared folders...
         clone:
-          importing: Importing box '%{name}' as master vm...
-          creating: Creating linked clone... 
+          setup_master: Preparing master VM for linked clones...
+          setup_master_detail: |-
+            This is a one time operation. Once the master VM is prepared,
+            it will be used as a base for linked clones, making the creation
+            of new VMs take milliseconds on a modern system.
+          creating: Creating linked clone...
           failure: Creation of the linked clone failed.
-                      
           create_master:
             failure: |-
               Failed to create lock-file for master VM creation for box %{box}.

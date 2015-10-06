@@ -529,7 +529,9 @@ module Vagrant
           begin
             File.delete(lock_path)
           rescue
-            @logger.debug("Failed to delete lock file #{lock_path} - some other thread might be trying to acquire it -> ignoring this error")
+            @logger.error(
+              "Failed to delete lock file #{lock_path} - some other thread " +
+              "might be trying to acquire it. ignoring this error")
           end
         end
       end

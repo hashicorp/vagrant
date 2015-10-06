@@ -1,5 +1,4 @@
 require "log4r"
-#require "lockfile"
 
 module VagrantPlugins
   module ProviderVirtualBox
@@ -12,14 +11,16 @@ module VagrantPlugins
 
         def call(env)
           @logger.info("Creating linked clone from master '#{env[:master_id]}'")
-        
+
           env[:ui].info I18n.t("vagrant.actions.vm.clone.creating", name: env[:machine].box.name)
-          env[:machine].id = env[:machine].provider.driver.clonevm(env[:master_id], env[:machine].box.name, "base") do |progress|
+          env[:machine].id = env[:machine].provider.driver.clonevm(
+            env[:master_id], env[:machine].box.name, "base") do |progress|
             env[:ui].clear_line
             env[:ui].report_progress(progress, 100, false)
           end
 
-          # Clear the line one last time since the progress meter doesn't disappear immediately.
+          # Clear the line one last time since the progress meter doesn't
+          # disappear immediately.
           env[:ui].clear_line
 
           # Flag as erroneous and return if clone failed

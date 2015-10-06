@@ -36,8 +36,8 @@ module VagrantPlugins
       # VM generated from the specified box.
       #
       # @return [Boolean]
-      attr_accessor :use_linked_clone
-      
+      attr_accessor :linked_clone
+
       # This should be set to the name of the machine in the VirtualBox
       # GUI.
       #
@@ -65,7 +65,7 @@ module VagrantPlugins
         @name             = UNSET_VALUE
         @network_adapters = {}
         @gui              = UNSET_VALUE
-        @use_linked_clone = UNSET_VALUE
+        @linked_clone = UNSET_VALUE
 
         # We require that network adapter 1 is a NAT device.
         network_adapter(1, :nat)
@@ -144,7 +144,7 @@ module VagrantPlugins
         @gui = false if @gui == UNSET_VALUE
 
         # Do not create linked clone by default
-        @use_linked_clone = false if @use_linked_clone == UNSET_VALUE
+        @linked_clone = false if @linked_clone == UNSET_VALUE
 
         # The default name is just nothing, and we default it
         @name = nil if @name == UNSET_VALUE
