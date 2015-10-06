@@ -49,10 +49,10 @@ module VagrantPlugins
           end
 
           env[:ui].info(I18n.t("vagrant.actions.vm.clone.setup_master"))
-          env[:ui].detail("\n"+I18n.t("vagrant.actions.vm.clone.setup_master_detail"))
+          env[:ui].detail(I18n.t("vagrant.actions.vm.clone.setup_master_detail"))
 
           # Import the virtual machine
-          import_env = env[:action_runner].run(Import, skip_machine: true)
+          import_env = env[:action_runner].run(Import, env.dup.merge(skip_machine: true))
           env[:master_id] = import_env[:machine_id]
 
           @logger.info(

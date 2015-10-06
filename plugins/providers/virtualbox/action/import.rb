@@ -18,6 +18,7 @@ module VagrantPlugins
           end
 
           # Set the machine ID
+          env[:machine_id] = id
           env[:machine].id = id if !env[:skip_machine]
 
           # Clear the line one last time since the progress meter doesn't disappear
@@ -29,14 +30,14 @@ module VagrantPlugins
           return if env[:interrupted]
 
           # Flag as erroneous and return if import failed
-          raise Vagrant::Errors::VMImportFailure if !env[:machine].id
+          raise Vagrant::Errors::VMImportFailure if !id
 
           # Import completed successfully. Continue the chain
           @app.call(env)
         end
 
         def recover(env)
-          if env[:machine].state.id != :not_created
+          if env[:machine] && env[:machine].state.id != :not_created
             return if env["vagrant.error"].is_a?(Vagrant::Errors::VagrantError)
 
             # If we're not supposed to destroy on error then just return
