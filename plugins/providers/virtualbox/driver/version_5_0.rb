@@ -34,6 +34,15 @@ module VagrantPlugins
           end
         end
 
+        def clonevm(master_id, box_name, snapshot_name)
+          @logger.debug("Creating linked clone from master vm with id #{master_id} from snapshot '#{snapshot_name}'")
+          
+          machine_name = "#{box_name}_#{snapshot_name}_clone_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
+          execute("clonevm", master_id, "--snapshot", snapshot_name, "--options", "link", "--register", "--name", machine_name)
+          
+          return get_machine_id machine_name
+        end
+          
         def create_dhcp_server(network, options)
           execute("dhcpserver", "add", "--ifname", network,
                   "--ip", options[:dhcp_ip],
@@ -73,6 +82,10 @@ module VagrantPlugins
           }
         end
 
+        def create_snapshot(machine_id, snapshot_name)
+          execute("snapshot", machine_id, "take", snapshot_name)
+        end
+        
         def delete
           execute("unregistervm", @uuid, "--delete")
         end
@@ -167,6 +180,13 @@ module VagrantPlugins
           execute("modifyvm", @uuid, *args) if !args.empty?
         end
 
+        def get_machine_id(machine_name)
+          output = execute("list", "vms", retryable: true)
+          match = /^"#{Regexp.escape(machine_name)}" \{(.+?)\}$/.match(output)
+          return match[1].to_s if match
+          nil
+        end
+        
         def halt
           execute("controlvm", @uuid, "poweroff")
         end
@@ -242,10 +262,7 @@ module VagrantPlugins
             end
           end
 
-          output = execute("list", "vms", retryable: true)
-          match = /^"#{Regexp.escape(specified_name)}" \{(.+?)\}$/.match(output)
-          return match[1].to_s if match
-          nil
+          return get_machine_id specified_name
         end
 
         def max_network_adapters

@@ -12,6 +12,7 @@ module VagrantPlugins
       autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
       autoload :ClearForwardedPorts, File.expand_path("../action/clear_forwarded_ports", __FILE__)
       autoload :ClearNetworkInterfaces, File.expand_path("../action/clear_network_interfaces", __FILE__)
+      autoload :CreateClone, File.expand_path("../action/create_clone", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :Customize, File.expand_path("../action/customize", __FILE__)
       autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
@@ -21,6 +22,7 @@ module VagrantPlugins
       autoload :ForcedHalt, File.expand_path("../action/forced_halt", __FILE__)
       autoload :ForwardPorts, File.expand_path("../action/forward_ports", __FILE__)
       autoload :Import, File.expand_path("../action/import", __FILE__)
+      autoload :ImportMaster, File.expand_path("../action/import_master", __FILE__)
       autoload :IsPaused, File.expand_path("../action/is_paused", __FILE__)
       autoload :IsRunning, File.expand_path("../action/is_running", __FILE__)
       autoload :IsSaved, File.expand_path("../action/is_saved", __FILE__)
@@ -325,7 +327,13 @@ module VagrantPlugins
             if !env[:result]
               b2.use CheckAccessible
               b2.use Customize, "pre-import"
-              b2.use Import
+              
+              if env[:machine].provider_config.use_linked_clone
+                b2.use ImportMaster
+                b2.use CreateClone
+              else
+                b2.use Import
+              end 
               b2.use MatchMACAddress
             end
           end
