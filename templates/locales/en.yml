@@ -1618,6 +1618,14 @@ en:
           deleting: Clearing any previously set network interfaces...
         clear_shared_folders:
           deleting: Cleaning previously set shared folders...
+        clone:
+          importing: Importing box '%{name}' as master vm...
+          creating: Creating linked clone... 
+          failure: Creation of the linked clone failed.
+                      
+          create_master:
+            failure: |-
+              Failed to create lock-file for master VM creation for box %{box}.
         customize:
           failure: |-
             A customization command failed:

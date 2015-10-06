@@ -784,6 +784,14 @@ module Vagrant
       error_key(:boot_timeout)
     end
 
+    class VMCloneFailure < VagrantError
+      error_key(:failure, "vagrant.actions.vm.clone")
+    end
+       
+    class VMCreateMasterFailure < VagrantError
+      error_key(:failure, "vagrant.actions.vm.clone.create_master")
+    end
+     
     class VMCustomizationFailed < VagrantError
       error_key(:failure, "vagrant.actions.vm.customize")
     end
