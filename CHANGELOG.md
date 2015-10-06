@@ -4,6 +4,8 @@ FEATURES:
 
   - **IPv6 Private Networks**: Private networking now supports IPv6. This
     only works with VirtualBox and VMware at this point. [GH-6342]
+  - **Linked Clones**: VirtualBox and VMware providers now support
+    linked clones for very fast (millisecond) imports on up. [GH-4484]
 
 IMPROVEMENTS:
 
