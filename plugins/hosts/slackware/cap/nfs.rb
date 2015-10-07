@@ -3,7 +3,7 @@ module VagrantPlugins
     module Cap
       class NFS
         def self.nfs_check_command(env)
-          "pidof nfsd >/dev/null"
+          "/sbin/pidof nfsd >/dev/null"
         end
 
         def self.nfs_start_command(env)
