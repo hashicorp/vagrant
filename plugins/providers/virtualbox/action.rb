@@ -43,6 +43,8 @@ module VagrantPlugins
       autoload :SetName, File.expand_path("../action/set_name", __FILE__)
       autoload :SetupPackageFiles, File.expand_path("../action/setup_package_files", __FILE__)
       autoload :SnapshotDelete, File.expand_path("../action/snapshot_delete", __FILE__)
+      autoload :SnapshotList, File.expand_path("../action/snapshot_list", __FILE__)
+      autoload :SnapshotRestore, File.expand_path("../action/snapshot_restore", __FILE__)
       autoload :SnapshotSave, File.expand_path("../action/snapshot_save", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
 
@@ -230,6 +232,19 @@ module VagrantPlugins
           b.use Call, Created do |env, b2|
             if env[:result]
               b2.use SnapshotDelete
+            else
+              b2.use MessageNotCreated
+            end
+          end
+        end
+      end
+
+      def self.action_snapshot_list
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env, b2|
+            if env[:result]
+              b2.use SnapshotList
             else
               b2.use MessageNotCreated
             end
