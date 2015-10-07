@@ -253,6 +253,25 @@ module VagrantPlugins
       end
 
       # This is the action that is primarily responsible for saving a snapshot
+      def self.action_snapshot_restore
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env, b2|
+            if !env[:result]
+              b2.use MessageNotCreated
+              next
+            end
+
+            b2.use CheckAccessible
+            b2.use EnvSet, force_halt: true
+            b2.use action_halt
+            b2.use SnapshotRestore
+            b2.use action_start
+          end
+        end
+      end
+
+      # This is the action that is primarily responsible for saving a snapshot
       def self.action_snapshot_save
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
