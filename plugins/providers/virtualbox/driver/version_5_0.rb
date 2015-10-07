@@ -86,6 +86,14 @@ module VagrantPlugins
           execute("snapshot", machine_id, "take", snapshot_name)
         end
 
+        def delete_snapshot(machine_id, snapshot_name)
+          execute("snapshot", machine_id, "delete", snapshot_name)
+        end
+
+        def restore_snapshot(machine_id, snapshot_name)
+          execute("snapshot", machine_id, "restore", snapshot_name)
+        end
+
         def delete
           execute("unregistervm", @uuid, "--delete")
         end

@@ -1765,6 +1765,17 @@ en:
         set_name:
           setting_name: |-
             Setting the name of the VM: %{name}
+        snapshot:
+          deleting: |-
+            Deleting the snapshot '%{name}'...
+          deleted: |-
+            Snapshot deleted!
+          saving: |-
+            Snapshotting the machine as '%{name}'...
+          saved: |-
+            Snapshot saved! You can restore the snapshot at any time by
+            using `vagrant snapshot restore`. You can delete it using
+            `vagrant snapshot delete`.
         suspend:
           suspending: Saving VM state and suspending execution...
 
