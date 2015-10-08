@@ -33,6 +33,16 @@ module VagrantPlugins
             require File.expand_path("../list", __FILE__)
             List
           end
+
+          @subcommands.register(:push) do
+            require File.expand_path("../push", __FILE__)
+            Push
+          end
+
+          @subcommands.register(:pop) do
+            require File.expand_path("../pop", __FILE__)
+            Pop
+          end
         end
 
         def execute

@@ -266,6 +266,13 @@ module VagrantPlugins
             b2.use EnvSet, force_halt: true
             b2.use action_halt
             b2.use SnapshotRestore
+
+            b2.use Call, IsEnvSet, :snapshot_delete do |env2, b3|
+              if env2[:result]
+                b3.use action_snapshot_delete
+              end
+            end
+
             b2.use action_start
           end
         end
