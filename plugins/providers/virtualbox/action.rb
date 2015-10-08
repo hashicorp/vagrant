@@ -12,7 +12,6 @@ module VagrantPlugins
       autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
       autoload :ClearForwardedPorts, File.expand_path("../action/clear_forwarded_ports", __FILE__)
       autoload :ClearNetworkInterfaces, File.expand_path("../action/clear_network_interfaces", __FILE__)
-      autoload :CreateClone, File.expand_path("../action/create_clone", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :Customize, File.expand_path("../action/customize", __FILE__)
       autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
@@ -35,6 +34,8 @@ module VagrantPlugins
       autoload :NetworkFixIPv6, File.expand_path("../action/network_fix_ipv6", __FILE__)
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
+      autoload :PrepareClone, File.expand_path("../action/prepare_clone", __FILE__)
+      autoload :PrepareCloneSnapshot, File.expand_path("../action/prepare_clone_snapshot", __FILE__)
       autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
       autoload :PrepareNFSValidIds, File.expand_path("../action/prepare_nfs_valid_ids", __FILE__)
       autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
@@ -384,16 +385,21 @@ module VagrantPlugins
               b2.use CheckAccessible
               b2.use Customize, "pre-import"
 
-              if env[:machine].provider_config.linked_clone
+              if env[:machine].config.vm.clone
+                # We are cloning from another Vagrant environment
+                b2.use PrepareClone
+              elsif env[:machine].provider_config.linked_clone
+                # We are cloning from the box
                 b2.use ImportMaster
-                b2.use CreateClone
-              else
-                b2.use Import
               end
 
+              b2.use PrepareCloneSnapshot
+              b2.use Import
+              b2.use DiscardState
               b2.use MatchMACAddress
             end
           end
+
           b.use action_start
         end
       end

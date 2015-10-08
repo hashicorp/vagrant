@@ -9,6 +9,7 @@ require 'log4r'
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
+require "vagrant/util/silence_warnings"
 require "vagrant/vagrantfile"
 require "vagrant/version"
 
@@ -411,6 +412,27 @@ module Vagrant
       @config_loader.set(:home, home_vagrantfile) if home_vagrantfile
       @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
       @config_loader
+    end
+
+    # Loads another environment for the given Vagrantfile, sharing as much
+    # useful state from this Environment as possible (such as UI and paths).
+    # Any initialization options can be overidden using the opts hash.
+    #
+    # @param [String] vagrantfile Path to a Vagrantfile
+    # @return [Environment]
+    def environment(vagrantfile, **opts)
+      path = File.expand_path(vagrantfile, root_path)
+      file = File.basename(path)
+      path = File.dirname(path)
+
+      Util::SilenceWarnings.silence! do
+        Environment.new({
+          cwd:       path,
+          home_path: home_path,
+          ui_class:  ui_class,
+          vagrantfile_name: file,
+        }.merge(opts))
+      end
     end
 
     # This defines a hook point where plugin action hooks that are registered

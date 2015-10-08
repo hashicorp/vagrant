@@ -650,6 +650,17 @@ en:
         available below.
 
         %{help}
+      clone_not_found: |-
+        The specified Vagrantfile to clone from was not found. Please verify
+        the `config.vm.clone` setting points to a valid Vagrantfile.
+      clone_machine_not_found: |-
+        The clone environment hasn't been created yet. To clone from
+        another Vagrantfile, it must already be created with `vagrant up`.
+        It doesn't need to be running.
+
+        Additionally, the created environment must be started with a provider
+        matching this provider. For example, if you're using VirtualBox,
+        the clone environment must also be using VirtualBox.
       command_unavailable: |-
         The executable '%{file}' Vagrant is trying to run was not
         found in the PATH variable. This is an error. Please verify
@@ -1404,6 +1415,7 @@ en:
         box_download_checksum_notblank: |-
           Checksum specified but must also specify "box_download_checksum_type"
         box_missing: "A box must be specified."
+        clone_and_box: "Only one of clone or box can be specified."
         hostname_invalid_characters: |-
           The hostname set for the VM should only contain letters, numbers,
           hyphens or dots. It cannot start with a hyphen or dot.
@@ -1635,7 +1647,7 @@ en:
             This is a one time operation. Once the master VM is prepared,
             it will be used as a base for linked clones, making the creation
             of new VMs take milliseconds on a modern system.
-          creating: Creating linked clone...
+          creating: Cloning VM...
           failure: Creation of the linked clone failed.
           create_master:
             failure: |-
