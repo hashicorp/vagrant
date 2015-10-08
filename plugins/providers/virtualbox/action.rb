@@ -391,11 +391,13 @@ module VagrantPlugins
                 b2.use PrepareClone
                 b2.use PrepareCloneSnapshot
                 b2.use CreateClone
+                b2.use DiscardState
               elsif env[:machine].provider_config.linked_clone
                 # We are cloning from the box
                 b2.use ImportMaster
                 b2.use PrepareCloneSnapshot
                 b2.use CreateClone
+                b2.use DiscardState
               else
                 # We are just doing a normal import from a box
                 b2.use Import
