@@ -116,10 +116,11 @@ module VagrantPlugins
         end
 
         def list_snapshots(machine_id)
-          result = []
           output = execute(
             "snapshot", machine_id, "list", "--machinereadable",
             retryable: true)
+
+          result = []
           output.split("\n").each do |line|
             if line =~ /^SnapshotName.*?="(.+?)"$/i
               result << $1.to_s
@@ -127,6 +128,9 @@ module VagrantPlugins
           end
 
           result.sort
+        rescue Vagrant::Errors::VBoxManageError => e
+          return [] if e.extra_data[:stdout].include?("does not have")
+          raise
         end
 
         def restore_snapshot(machine_id, snapshot_name)

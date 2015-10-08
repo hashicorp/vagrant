@@ -14,6 +14,11 @@ module VagrantPlugins
             env[:machine].ui.output(snapshot, prefix: false)
           end
 
+          if snapshots.empty?
+            env[:machine].ui.output(I18n.t("vagrant.actions.vm.snapshot.list_none"))
+            env[:machine].ui.detail(I18n.t("vagrant.actions.vm.snapshot.list_none_detail"))
+          end
+
           @app.call(env)
         end
       end

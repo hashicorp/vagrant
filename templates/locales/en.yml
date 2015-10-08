@@ -1770,6 +1770,13 @@ en:
             Deleting the snapshot '%{name}'...
           deleted: |-
             Snapshot deleted!
+          list_none: |-
+            No snapshots have been taken yet!
+          list_none_detail: |-
+            You can take a snapshot using `vagrant snapshot save`. Note that
+            not all providers support this yet. Once a snapshot is taken, you
+            can list them using this command, and use commands such as
+            `vagrant snapshot restore` to go back to a certain snapshot.
           restoring: |-
             Restoring the snapshot '%{name}'...
           saving: |-
