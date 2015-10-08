@@ -650,6 +650,17 @@ en:
         available below.
 
         %{help}
+      clone_not_found: |-
+        The specified Vagrantfile to clone from was not found. Please verify
+        the `config.vm.clone` setting points to a valid Vagrantfile.
+      clone_machine_not_found: |-
+        The clone environment hasn't been created yet. To clone from
+        another Vagrantfile, it must already be created with `vagrant up`.
+        It doesn't need to be running.
+
+        Additionally, the created environment must be started with a provider
+        matching this provider. For example, if you're using VirtualBox,
+        the clone environment must also be using VirtualBox.
       command_unavailable: |-
         The executable '%{file}' Vagrant is trying to run was not
         found in the PATH variable. This is an error. Please verify

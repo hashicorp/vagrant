@@ -288,6 +288,14 @@ module Vagrant
       error_key(:cli_invalid_options)
     end
 
+    class CloneNotFound < VagrantError
+      error_key(:clone_not_found)
+    end
+
+    class CloneMachineNotFound < VagrantError
+      error_key(:clone_machine_not_found)
+    end
+
     class CommandUnavailable < VagrantError
       error_key(:command_unavailable)
     end
@@ -787,11 +795,11 @@ module Vagrant
     class VMCloneFailure < VagrantError
       error_key(:failure, "vagrant.actions.vm.clone")
     end
-       
+
     class VMCreateMasterFailure < VagrantError
       error_key(:failure, "vagrant.actions.vm.clone.create_master")
     end
-     
+
     class VMCustomizationFailed < VagrantError
       error_key(:failure, "vagrant.actions.vm.customize")
     end
