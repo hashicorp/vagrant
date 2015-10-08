@@ -559,7 +559,7 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
-        if !box && !machine.provider_options[:box_optional]
+        if !box && !clone && !machine.provider_options[:box_optional]
           errors << I18n.t("vagrant.config.vm.box_missing")
         end
 
