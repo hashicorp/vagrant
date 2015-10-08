@@ -59,10 +59,16 @@ module VagrantPlugins
             "Imported box #{env[:machine].box.name} as master vm " +
             "with id #{env[:master_id]}")
 
-          @logger.info("Creating base snapshot for master VM.")
-          env[:machine].provider.driver.create_snapshot(env[:master_id], "base") do |progress|
-            env[:ui].clear_line
-            env[:ui].report_progress(progress, 100, false)
+          if !env[:machine].provider_config.linked_clone_snapshot
+            snapshots = env[:machine].provider.driver.list_snapshots(env[:master_id])
+            if !snapshots.include?("base")
+              @logger.info("Creating base snapshot for master VM.")
+              env[:machine].provider.driver.create_snapshot(
+                env[:master_id], "base") do |progress|
+                env[:ui].clear_line
+                env[:ui].report_progress(progress, 100, false)
+              end
+            end
           end
 
           @logger.debug("Writing id of master VM '#{env[:master_id]}' to #{master_id_file}")
