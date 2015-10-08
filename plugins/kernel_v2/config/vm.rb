@@ -29,7 +29,6 @@ module VagrantPlugins
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
       attr_accessor :box_download_location_trusted
-      attr_accessor :clone
       attr_accessor :communicator
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
@@ -37,6 +36,9 @@ module VagrantPlugins
       attr_accessor :post_up_message
       attr_accessor :usable_port_range
       attr_reader :provisioners
+
+      # This is an experimental feature that isn't public yet.
+      attr_accessor :clone
 
       def initialize
         @logger = Log4r::Logger.new("vagrant::config::vm")

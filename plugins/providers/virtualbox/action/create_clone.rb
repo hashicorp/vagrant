@@ -10,8 +10,6 @@ module VagrantPlugins
         end
 
         def call(env)
-          @logger.info("Creating linked clone from master '#{env[:master_id]}'")
-
           # Get the snapshot to base the linked clone on. This defaults
           # to "base" which is automatically setup with linked clones.
           snapshot = "base"

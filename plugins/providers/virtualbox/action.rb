@@ -394,6 +394,7 @@ module VagrantPlugins
               b2.use MatchMACAddress
             end
           end
+
           b.use action_start
         end
       end
