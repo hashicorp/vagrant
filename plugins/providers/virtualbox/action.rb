@@ -12,7 +12,6 @@ module VagrantPlugins
       autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
       autoload :ClearForwardedPorts, File.expand_path("../action/clear_forwarded_ports", __FILE__)
       autoload :ClearNetworkInterfaces, File.expand_path("../action/clear_network_interfaces", __FILE__)
-      autoload :Clone, File.expand_path("../action/clone", __FILE__)
       autoload :Created, File.expand_path("../action/created", __FILE__)
       autoload :Customize, File.expand_path("../action/customize", __FILE__)
       autoload :Destroy, File.expand_path("../action/destroy", __FILE__)
@@ -389,20 +388,14 @@ module VagrantPlugins
               if env[:machine].config.vm.clone
                 # We are cloning from another Vagrant environment
                 b2.use PrepareClone
-                b2.use PrepareCloneSnapshot
-                b2.use Clone
-                b2.use DiscardState
               elsif env[:machine].provider_config.linked_clone
                 # We are cloning from the box
                 b2.use ImportMaster
-                b2.use PrepareCloneSnapshot
-                b2.use Clone
-                b2.use DiscardState
-              else
-                # We are just doing a normal import from a box
-                b2.use Import
               end
 
+              b2.use PrepareCloneSnapshot
+              b2.use Import
+              b2.use DiscardState
               b2.use MatchMACAddress
             end
           end
