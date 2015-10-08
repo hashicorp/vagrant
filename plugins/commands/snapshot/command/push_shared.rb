@@ -24,40 +24,31 @@ module VagrantPlugins
 
           # Save the snapshot. This will raise an exception if it fails.
           machine.action(:snapshot_save, snapshot_name: snapshot_name)
-
-          # Success! Write the resulting stack out
-          modify_snapshot_stack(machine) do |stack|
-            stack << snapshot_name
-          end
         end
 
         def pop(machine)
-          modify_snapshot_stack(machine) do |stack|
-            name = stack.pop
-
-            # Restore the snapshot and tell the provider to delete it as well.
-            machine.action(
-              :snapshot_restore,
-              snapshot_name: name,
-              snapshot_delete: true)
+          # By reverse sorting, we should be able to find the first
+          # pushed snapshot.
+          name = nil
+          snapshots = machine.provider.capability(:snapshot_list)
+          snapshots.sort.reverse.each do |snapshot|
+            if snapshot =~ /^push_\d+_\d+$/
+              name = snapshot
+              break
+            end
           end
-        end
 
-        protected
-
-        def modify_snapshot_stack(machine)
-          # Get the stack
-          snapshot_stack = []
-          snapshot_file = machine.data_dir.join("snapshot_stack")
-          snapshot_stack = JSON.parse(snapshot_file.read) if snapshot_file.file?
-
-          # Yield it so it can be modified
-          yield snapshot_stack
-
-          # Write it out
-          snapshot_file.open("w+") do |f|
-            f.write(JSON.dump(snapshot_stack))
+          # If no snapshot was found, we never pushed
+          if !name
+            machine.ui.info(I18n.t("vagrant.commands.snapshot.no_push_snapshot"))
+            return
           end
+
+          # Restore the snapshot and tell the provider to delete it as well.
+          machine.action(
+            :snapshot_restore,
+            snapshot_name: name,
+            snapshot_delete: true)
         end
       end
     end

@@ -1501,13 +1501,17 @@ en:
           Post install message from the '%{name}' plugin:
 
           %{message}
-      snapshot: |-
+      snapshot:
         not_supported: |-
           This provider doesn't support snapshots.
 
           This may be intentional or this may be a bug. If this provider
           should support snapshots, then please report this as a bug to the
           maintainer of the provider.
+        no_push_snapshot: |-
+          No pushed snapshot found!
+
+          Use `vagrant snapshot push` to push a snapshot to restore to.
       status:
         aborted: |-
           The VM is in an aborted state. This means that it was abruptly
