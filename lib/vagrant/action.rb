@@ -24,6 +24,7 @@ module Vagrant
       autoload :IsState, "vagrant/action/builtin/is_state"
       autoload :Lock, "vagrant/action/builtin/lock"
       autoload :Message, "vagrant/action/builtin/message"
+      autoload :PrepareClone, "vagrant/action/builtin/prepare_clone"
       autoload :Provision, "vagrant/action/builtin/provision"
       autoload :ProvisionerCleanup, "vagrant/action/builtin/provisioner_cleanup"
       autoload :SetHostname, "vagrant/action/builtin/set_hostname"
