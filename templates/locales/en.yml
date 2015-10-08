@@ -1636,7 +1636,7 @@ en:
             This is a one time operation. Once the master VM is prepared,
             it will be used as a base for linked clones, making the creation
             of new VMs take milliseconds on a modern system.
-          creating: Creating linked clone...
+          creating: Cloning VM...
           failure: Creation of the linked clone failed.
           create_master:
             failure: |-

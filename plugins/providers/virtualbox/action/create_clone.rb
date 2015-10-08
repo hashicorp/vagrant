@@ -12,16 +12,18 @@ module VagrantPlugins
         def call(env)
           # Get the snapshot to base the linked clone on. This defaults
           # to "base" which is automatically setup with linked clones.
-          snapshot = "base"
-          if env[:machine].provider_config.linked_clone_snapshot
-            snapshot = env[:machine].provider_config.linked_clone_snapshot
+          snapshot = nil
+          if env[:machine].provider_config.linked_clone
+            snapshot = "base"
+            if env[:machine].provider_config.linked_clone_snapshot
+              snapshot = env[:machine].provider_config.linked_clone_snapshot
+            end
           end
 
           # Do the actual clone
-          env[:ui].info I18n.t(
-            "vagrant.actions.vm.clone.creating", name: env[:machine].box.name)
+          env[:ui].info I18n.t("vagrant.actions.vm.clone.creating")
           env[:machine].id = env[:machine].provider.driver.clonevm(
-            env[:master_id], env[:machine].box.name, snapshot) do |progress|
+            env[:master_id], snapshot) do |progress|
             env[:ui].clear_line
             env[:ui].report_progress(progress, 100, false)
           end
