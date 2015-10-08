@@ -65,6 +65,12 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.finalize!
       assert_valid
     end
+
+    it "is invalid if clone is set" do
+      subject.clone = "foo"
+      subject.finalize!
+      assert_invalid
+    end
   end
 
   context "#box_check_update" do
