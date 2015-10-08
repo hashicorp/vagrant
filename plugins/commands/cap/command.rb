@@ -14,6 +14,13 @@ module VagrantPlugins
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant cap [options] TYPE NAME [args]"
           o.separator ""
+          o.separator "This is an advanced command. If you don't know what this"
+          o.separator "does and you aren't explicitly trying to use it, you probably"
+          o.separator "don't want to use this."
+          o.separator ""
+          o.separator "This command checks or executes arbitrary capabilities that"
+          o.separator "Vagrant has for hosts, guests, and providers."
+          o.separator ""
           o.separator "Options:"
           o.separator ""
 
