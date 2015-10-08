@@ -35,6 +35,7 @@ module VagrantPlugins
       autoload :NetworkFixIPv6, File.expand_path("../action/network_fix_ipv6", __FILE__)
       autoload :Package, File.expand_path("../action/package", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
+      autoload :PrepareClone, File.expand_path("../action/prepare_clone", __FILE__)
       autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
       autoload :PrepareNFSValidIds, File.expand_path("../action/prepare_nfs_valid_ids", __FILE__)
       autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
@@ -384,10 +385,16 @@ module VagrantPlugins
               b2.use CheckAccessible
               b2.use Customize, "pre-import"
 
-              if env[:machine].provider_config.linked_clone
+              if env[:machine].config.vm.clone
+                # We are cloning from another Vagrant environment
+                b2.use PrepareClone
+                b2.use CreateClone
+              elsif env[:machine].provider_config.linked_clone
+                # We are cloning from the box
                 b2.use ImportMaster
                 b2.use CreateClone
               else
+                # We are just doing a normal import from a box
                 b2.use Import
               end
 
