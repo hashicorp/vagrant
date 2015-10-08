@@ -42,6 +42,9 @@ module VagrantPlugins
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
       autoload :SetName, File.expand_path("../action/set_name", __FILE__)
       autoload :SetupPackageFiles, File.expand_path("../action/setup_package_files", __FILE__)
+      autoload :SnapshotDelete, File.expand_path("../action/snapshot_delete", __FILE__)
+      autoload :SnapshotRestore, File.expand_path("../action/snapshot_restore", __FILE__)
+      autoload :SnapshotSave, File.expand_path("../action/snapshot_save", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
 
       # Include the built-in modules so that we can use them as top-level
@@ -215,6 +218,59 @@ module VagrantPlugins
               b2.use HandleForwardedPortCollisions
               b2.use Resume
               b2.use WaitForCommunicator, [:restoring, :running]
+            else
+              b2.use MessageNotCreated
+            end
+          end
+        end
+      end
+
+      def self.action_snapshot_delete
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env, b2|
+            if env[:result]
+              b2.use SnapshotDelete
+            else
+              b2.use MessageNotCreated
+            end
+          end
+        end
+      end
+
+      # This is the action that is primarily responsible for saving a snapshot
+      def self.action_snapshot_restore
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env, b2|
+            if !env[:result]
+              b2.use MessageNotCreated
+              next
+            end
+
+            b2.use CheckAccessible
+            b2.use EnvSet, force_halt: true
+            b2.use action_halt
+            b2.use SnapshotRestore
+
+            b2.use Call, IsEnvSet, :snapshot_delete do |env2, b3|
+              if env2[:result]
+                b3.use action_snapshot_delete
+              end
+            end
+
+            b2.use action_start
+          end
+        end
+      end
+
+      # This is the action that is primarily responsible for saving a snapshot
+      def self.action_snapshot_save
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use Call, Created do |env, b2|
+            if env[:result]
+              b2.use SnapshotSave
             else
               b2.use MessageNotCreated
             end

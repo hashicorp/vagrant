@@ -386,7 +386,8 @@ module VagrantPlugins
             if errored
               raise Vagrant::Errors::VBoxManageError,
                 command: command.inspect,
-                stderr:  r.stderr
+                stderr:  r.stderr,
+                stdout:  r.stdout
             end
           end
 

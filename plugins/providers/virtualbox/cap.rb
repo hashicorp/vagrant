@@ -22,6 +22,13 @@ module VagrantPlugins
       def self.nic_mac_addresses(machine)
         machine.provider.driver.read_mac_addresses
       end
+
+      # Returns a list of the snapshots that are taken on this machine.
+      #
+      # @return [Array<String>] Snapshot Name
+      def self.snapshot_list(machine)
+        machine.provider.driver.list_snapshots(machine.id)
+      end
     end
   end
 end

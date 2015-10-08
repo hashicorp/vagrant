@@ -20,6 +20,7 @@ module Vagrant
       autoload :HandleBox, "vagrant/action/builtin/handle_box"
       autoload :HandleBoxUrl, "vagrant/action/builtin/handle_box_url"
       autoload :HandleForwardedPortCollisions, "vagrant/action/builtin/handle_forwarded_port_collisions"
+      autoload :IsEnvSet, "vagrant/action/builtin/is_env_set"
       autoload :IsState, "vagrant/action/builtin/is_state"
       autoload :Lock, "vagrant/action/builtin/lock"
       autoload :Message, "vagrant/action/builtin/message"
