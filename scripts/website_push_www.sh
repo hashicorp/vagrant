@@ -16,7 +16,8 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 DIR="$( cd -P "$( dirname "$SOURCE" )/.." && pwd )"
 
 # Copy into tmpdir
-cp -R $DIR/website/www/ $DEPLOY/
+shopt -s dotglob
+cp -R $DIR/website/www/* $DEPLOY/
 
 # Change into that directory
 cd $DEPLOY
@@ -25,6 +26,7 @@ cd $DEPLOY
 touch .gitignore
 echo ".sass-cache" >> .gitignore
 echo "build" >> .gitignore
+echo "vendor" >> .gitignore
 
 # Add everything
 git init .
