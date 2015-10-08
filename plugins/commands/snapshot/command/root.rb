@@ -15,32 +15,32 @@ module VagrantPlugins
 
           @subcommands = Vagrant::Registry.new
           @subcommands.register(:save) do
-            require File.expand_path("../save", __FILE__)
+            require_relative "save"
             Save
           end
 
           @subcommands.register(:restore) do
-            require File.expand_path("../restore", __FILE__)
+            require_relative "restore"
             Restore
           end
 
           @subcommands.register(:delete) do
-            require File.expand_path("../delete", __FILE__)
+            require_relative "delete"
             Delete
           end
 
           @subcommands.register(:list) do
-            require File.expand_path("../list", __FILE__)
+            require_relative "list"
             List
           end
 
           @subcommands.register(:push) do
-            require File.expand_path("../push", __FILE__)
+            require_relative "push"
             Push
           end
 
           @subcommands.register(:pop) do
-            require File.expand_path("../pop", __FILE__)
+            require_relative "pop"
             Pop
           end
         end

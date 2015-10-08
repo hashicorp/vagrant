@@ -16,6 +16,7 @@ module VagrantPlugins
             end
           end
 
+          # Success, exit with 0
           0
         end
 

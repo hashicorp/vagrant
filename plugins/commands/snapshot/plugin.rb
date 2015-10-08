@@ -7,7 +7,7 @@ module VagrantPlugins
       description "The `snapshot` command gives you a way to manage snapshots."
 
       command("snapshot") do
-        require File.expand_path("../command/root", __FILE__)
+        require_relative "command/root"
         Command::Root
       end
     end
