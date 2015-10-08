@@ -1,9 +1,11 @@
 require "log4r"
 
+require "fileutils"
+
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
-      class CreateClone
+      class Clone
         def initialize(app, env)
           @app = app
           @logger = Log4r::Logger.new("vagrant::action::vm::clone")
@@ -24,6 +26,16 @@ module VagrantPlugins
 
           # Flag as erroneous and return if clone failed
           raise Vagrant::Errors::VMCloneFailure if !env[:machine].id
+
+          # Copy the SSH key from the clone machine if we can
+          if env[:clone_machine]
+            key_path = env[:clone_machine].data_dir.join("private_key")
+            if key_path.file?
+              FileUtils.cp(
+                key_path,
+                env[:machine].data_dir.join("private_key"))
+            end
+          end
 
           # Continue
           @app.call(env)

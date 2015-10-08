@@ -22,6 +22,7 @@ module VagrantPlugins
 
           # Set the ID of the master so we know what to clone from
           env[:clone_id] = clone_machine.id
+          env[:clone_machine] = clone_machine
 
           # Continue
           @app.call(env)
