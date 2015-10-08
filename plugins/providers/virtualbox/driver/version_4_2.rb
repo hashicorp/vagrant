@@ -608,6 +608,85 @@ module VagrantPlugins
           execute("showvminfo", uuid)
           return true
         end
+
+        def create_snapshot(machine_id, snapshot_name)
+          execute("snapshot", machine_id, "take", snapshot_name)
+        end
+
+        def delete_snapshot(machine_id, snapshot_name)
+          # Start with 0%
+          last = 0
+          total = ""
+          yield 0 if block_given?
+
+          # Snapshot and report the % progress
+          execute("snapshot", machine_id, "delete", snapshot_name) do |type, data|
+            if type == :stderr
+              # Append the data so we can see the full view
+              total << data.gsub("\r", "")
+
+              # Break up the lines. We can't get the progress until we see an "OK"
+              lines = total.split("\n")
+
+              # The progress of the import will be in the last line. Do a greedy
+              # regular expression to find what we're looking for.
+              match = /.+(\d{2})%/.match(lines.last)
+              if match
+                current = match[1].to_i
+                if current > last
+                  last = current
+                  yield current if block_given?
+                end
+              end
+            end
+          end
+        end
+
+        def list_snapshots(machine_id)
+          output = execute(
+            "snapshot", machine_id, "list", "--machinereadable",
+            retryable: true)
+
+          result = []
+          output.split("\n").each do |line|
+            if line =~ /^SnapshotName.*?="(.+?)"$/i
+              result << $1.to_s
+            end
+          end
+
+          result.sort
+        rescue Vagrant::Errors::VBoxManageError => e
+          return [] if e.extra_data[:stdout].include?("does not have")
+          raise
+        end
+
+        def restore_snapshot(machine_id, snapshot_name)
+          # Start with 0%
+          last = 0
+          total = ""
+          yield 0 if block_given?
+
+          execute("snapshot", machine_id, "restore", snapshot_name) do |type, data|
+            if type == :stderr
+              # Append the data so we can see the full view
+              total << data.gsub("\r", "")
+
+              # Break up the lines. We can't get the progress until we see an "OK"
+              lines = total.split("\n")
+
+              # The progress of the import will be in the last line. Do a greedy
+              # regular expression to find what we're looking for.
+              match = /.+(\d{2})%/.match(lines.last)
+              if match
+                current = match[1].to_i
+                if current > last
+                  last = current
+                  yield current if block_given?
+                end
+              end
+            end
+          end
+        end
       end
     end
   end
