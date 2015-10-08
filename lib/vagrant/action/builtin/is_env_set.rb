@@ -8,7 +8,6 @@ module Vagrant
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::is_env_set")
           @key    = key
-          @invert = !!opts[:invert]
         end
 
         def call(env)
