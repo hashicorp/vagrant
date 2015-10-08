@@ -54,13 +54,10 @@ on this machine. Not supported on Windows guest machines.
 * `install_syndic`   (boolean) - Install the salt-syndic, default
 `false`. Not supported on Windows guest machines.
 
-* `install_type`  (stable | git | daily | testing | custom) - Whether to install from a
+* `install_type`  (stable | git | daily | testing) - Whether to install from a
 distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
 
-* `install_args` (develop) - When performing a git install,
-you can specify a branch, tag, or any treeish. If using the `custom` install type,
-you can also specify a different repository to install from.
-Not supported on Windows guest machines.
+* `install_args` (develop) - When performing a git install, you can specify a branch, tag, or any treeish. Not supported on Windows.
 
 * `always_install`   (boolean) - Installs salt binaries even
  if they are already detected, default `false`
