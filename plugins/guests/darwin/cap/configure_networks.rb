@@ -12,7 +12,7 @@ module VagrantPlugins
 
         def self.configure_networks(machine, networks)
           if !machine.provider.capability?(:nic_mac_addresses)
-            raise Errors::CantReadMACAddresses,
+            raise Vagrant::Errors::CantReadMACAddresses,
                   provider: machine.provider_name.to_s
           end
 
