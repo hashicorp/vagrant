@@ -90,7 +90,7 @@ a custom salt minion config file.
 * `minion_pub`  (salt/key/minion.pub) - Path to your minion
 public key
 
-* `grains_config`  (string) - Path to a custom salt grains file.
+* `grains_config`  (string) - Path to a custom salt grains file. On Windows, the minion needs `ipc_mode: tcp` set otherwise it will [fail to communicate](https://github.com/saltstack/salt/issues/22796) with the master.
 
 * `masterless`  (boolean) - Calls state.highstate in local mode. Uses `minion_id` and `pillar_data` when provided.
 
