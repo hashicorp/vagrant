@@ -17,7 +17,10 @@ module VagrantPlugins
           virtual = false
           interface_names = Array.new
           interface_names_by_slot = Array.new
-          machine.communicate.sudo("/usr/sbin/biosdevname; echo $?") do |_, result|
+          machine.communicate.sudo("/usr/sbin/biosdevname &>/dev/null; echo $?") do |_, result|
+            # The above command returns:
+            #   - '4' if /usr/sbin/biosdevname detects it is running in a virtual machine
+            #   - '127' if /usr/sbin/biosdevname doesn't exist
             virtual = true if ['4', '127'].include? result.chomp
           end
 
