@@ -136,7 +136,7 @@ end
 
 If you're running a Batch of PowerShell script for Windows, make sure
 that the external path has the proper extension (".bat" or ".ps1"), because
-Windows uses this to determine what kind fo file it is to execute. If you
+Windows uses this to determine what kind of file it is to execute. If you
 exclude this extension, it likely won't work.
 
 To run a script already available on the guest you can use an inline script to
