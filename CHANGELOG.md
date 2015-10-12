@@ -24,6 +24,7 @@ BUG FIXES:
   - communicators/ssh: use the same SSH args for `vagrant ssh` with and without
     a command [GH-4986, GH-5928]
   - guests/fedora: networks can be configured without nmcli [GH-5931]
+  - guests/fedora: biosdevname can return 4 or 127 [GH-6139]
   - guests/redhat: systemd detection should happen on guest [GH-5948]
   - guests/ubuntu: setting hostname fixed in 12.04 [GH-5937]
   - hosts/linux: NFS can be configured without `$TMP` set on the host [GH-5954]
