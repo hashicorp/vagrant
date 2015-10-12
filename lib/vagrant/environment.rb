@@ -9,6 +9,7 @@ require 'log4r'
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
+require "vagrant/util/silence_warnings"
 require "vagrant/vagrantfile"
 require "vagrant/version"
 
@@ -413,6 +414,27 @@ module Vagrant
       @config_loader
     end
 
+    # Loads another environment for the given Vagrantfile, sharing as much
+    # useful state from this Environment as possible (such as UI and paths).
+    # Any initialization options can be overidden using the opts hash.
+    #
+    # @param [String] vagrantfile Path to a Vagrantfile
+    # @return [Environment]
+    def environment(vagrantfile, **opts)
+      path = File.expand_path(vagrantfile, root_path)
+      file = File.basename(path)
+      path = File.dirname(path)
+
+      Util::SilenceWarnings.silence! do
+        Environment.new({
+          cwd:       path,
+          home_path: home_path,
+          ui_class:  ui_class,
+          vagrantfile_name: file,
+        }.merge(opts))
+      end
+    end
+
     # This defines a hook point where plugin action hooks that are registered
     # against the given name will be run in the context of this environment.
     #
@@ -526,7 +548,13 @@ module Vagrant
       if name != "dotlock"
         lock("dotlock", retry: true) do
           f.close
-          File.delete(lock_path)
+          begin
+            File.delete(lock_path)
+          rescue
+            @logger.error(
+              "Failed to delete lock file #{lock_path} - some other thread " +
+              "might be trying to acquire it. ignoring this error")
+          end
         end
       end
 
@@ -604,10 +632,8 @@ module Vagrant
       @logger.info("Uncached load of machine.")
 
       # Determine the machine data directory and pass it to the machine.
-      # XXX: Permissions error here.
       machine_data_path = @local_data_path.join(
         "machines/#{name}/#{provider}")
-      FileUtils.mkdir_p(machine_data_path)
 
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.

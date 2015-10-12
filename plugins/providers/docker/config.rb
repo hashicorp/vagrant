@@ -17,6 +17,12 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :build_dir
 
+      # An optional file name of a Dockerfile to be used when building
+      # the image. This requires Docker >1.5.0.
+      #
+      # @return [String]
+      attr_accessor :dockerfile
+
       # Additional arguments to pass to `docker run` when creating
       # the container for the first time. This is an array of args.
       #
@@ -54,6 +60,12 @@ module VagrantPlugins
       #
       # @return [String]
       attr_accessor :name
+
+      # If true, the image will be pulled on every `up` and `reload`
+      # to ensure the latest image.
+      #
+      # @return [Bool]
+      attr_accessor :pull
 
       # True if the docker container is meant to stay in the "running"
       # state (is a long running process). By default this is true.
@@ -125,6 +137,7 @@ module VagrantPlugins
         @build_dir  = UNSET_VALUE
         @cmd        = UNSET_VALUE
         @create_args = UNSET_VALUE
+        @dockerfile = UNSET_VALUE
         @env        = {}
         @expose     = []
         @force_host_vm = UNSET_VALUE
@@ -133,6 +146,7 @@ module VagrantPlugins
         @image      = UNSET_VALUE
         @name       = UNSET_VALUE
         @links      = []
+        @pull       = UNSET_VALUE
         @ports      = UNSET_VALUE
         @privileged = UNSET_VALUE
         @remains_running = UNSET_VALUE
@@ -186,11 +200,13 @@ module VagrantPlugins
         @build_dir  = nil if @build_dir == UNSET_VALUE
         @cmd        = [] if @cmd == UNSET_VALUE
         @create_args = [] if @create_args == UNSET_VALUE
+        @dockerfile = nil if @dockerfile == UNSET_VALUE
         @env       ||= {}
         @force_host_vm = false if @force_host_vm == UNSET_VALUE
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
         @name       = nil if @name == UNSET_VALUE
+        @pull       = false if @pull == UNSET_VALUE
         @ports      = [] if @ports == UNSET_VALUE
         @privileged = false if @privileged == UNSET_VALUE
         @remains_running = true if @remains_running == UNSET_VALUE
@@ -226,9 +242,13 @@ module VagrantPlugins
 
         if @build_dir
           build_dir_pn = Pathname.new(@build_dir)
-          if !build_dir_pn.directory? || !build_dir_pn.join("Dockerfile").file?
+          if !build_dir_pn.directory?
             errors << I18n.t("docker_provider.errors.config.build_dir_invalid")
           end
+        end
+
+        if !@create_args.is_a?(Array)
+          errors << I18n.t("docker_provider.errors.config.create_args_array")
         end
 
         @links.each do |link|

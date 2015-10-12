@@ -38,7 +38,7 @@ there are more detailed examples of using these options.
   the host. This can be any port.
 
 * `guest_ip` (string) - The guest IP to bind the forwarded port to. If
-  this is not set, the port will go to the every interface. By default,
+  this is not set, the port will go to every IP interface. By default,
   this is empty.
 
 * `host` (int) - The port on the host that you want to use to access the

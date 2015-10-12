@@ -9,6 +9,7 @@ module VagrantPlugins
         run_bootstrap_script
         call_overstate
         call_highstate
+        call_orchestrate
       end
 
       # Return a list of accepted keys
@@ -75,7 +76,7 @@ module VagrantPlugins
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config
+        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config or @config.version
       end
 
       def need_install
@@ -103,7 +104,7 @@ module VagrantPlugins
           options = "%s %s" % [options, @config.bootstrap_options]
         end
 
-        if configure
+        if configure && @machine.config.vm.communicator != :winrm
           options = "%s -F -c %s" % [options, config_dir]
         end
 
@@ -140,6 +141,13 @@ module VagrantPlugins
 
         if @config.install_args
           options = "%s %s" % [options, @config.install_args]
+        end
+
+        if @config.install_command
+          # If this is defined, we will ignore both install_type and
+          # install_args and use this instead. Every necessary command option
+          # will need to be specified by the user.
+          options = @config.install_command
         end
 
         if @config.verbose
@@ -236,6 +244,21 @@ module VagrantPlugins
 
           bootstrap_path = get_bootstrap
           if @machine.config.vm.communicator == :winrm
+            if @config.version
+              options += " -version %s" % @config.version            
+            end
+            if @config.run_service
+              @machine.env.ui.info "Salt minion will be stopped after installing."
+              options += " -runservice %s" % @config.run_service            
+            end
+            if @config.minion_id
+              @machine.env.ui.info "Setting minion to @config.minion_id."
+              options += " -minion %s" % @config.minion_id            
+            end
+            if @config.master_id
+              @machine.env.ui.info "Setting master to @config.master_id."
+              options += " -master %s" % @config.master_id            
+            end
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.ps1")
           else
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
@@ -247,7 +270,7 @@ module VagrantPlugins
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
           if @machine.config.vm.communicator == :winrm
-            bootstrap = @machine.communicate.sudo("powershell.exe -executionpolicy bypass -file %s" % [bootstrap_destination]) do |type, data|
+            bootstrap = @machine.communicate.sudo("powershell.exe -executionpolicy bypass -file %s %s" % [bootstrap_destination, options]) do |type, data|
               if data[0] == "\n"
                 # Remove any leading newline but not whitespace. If we wanted to
                 # remove newlines and whitespace we would have used data.lstrip
@@ -304,8 +327,29 @@ module VagrantPlugins
         end
       end
 
+      def call_masterless
+        @machine.env.ui.info "Calling state.highstate in local mode... (this may take a while)"
+        cmd = "salt-call state.highstate --local"
+        if @config.minion_id
+          cmd += " --id #{@config.minion_id}"
+        end
+        cmd += " -l debug#{get_pillar}"
+        @machine.communicate.sudo(cmd) do |type, data|
+          if @config.verbose
+            @machine.env.ui.info(data)
+          end
+        end
+      end
+
       def call_highstate
-        if @config.run_highstate
+        if @config.minion_config
+          @machine.env.ui.info "Copying salt minion config to #{@config.config_dir}"
+          @machine.communicate.upload(expanded_path(@config.minion_config).to_s, @config.config_dir + "/minion")
+        end
+
+        if @config.masterless
+          call_masterless
+        elsif @config.run_highstate
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
@@ -334,6 +378,34 @@ module VagrantPlugins
           end
         else
           @machine.env.ui.info "run_highstate set to false. Not running state.highstate."
+        end
+      end
+
+      def call_orchestrate
+        if !@config.orchestrations
+          @machine.env.ui.info "orchestrate is nil. Not running state.orchestrate."
+          return
+        end
+
+        if !@config.install_master
+          @machine.env.ui.info "orchestrate does not make sense on a minion. Not running state.orchestrate."
+          return
+        end
+
+        log_output = lambda do |type, data|
+          if @config.verbose
+            @machine.env.ui.info(data)
+          end
+        end
+
+        @machine.env.ui.info "Running the following orchestrations: #{@config.orchestrations}"
+        @machine.env.ui.info "Running saltutil.sync_all before orchestrating"
+        @machine.communicate.sudo("salt '*' saltutil.sync_all", &log_output)
+
+        @config.orchestrations.each do |orchestration|
+          cmd = "salt-run -l info state.orchestrate #{orchestration}"
+          @machine.env.ui.info "Calling #{cmd}... (this may take a while)"
+          @machine.communicate.sudo(cmd, &log_output)
         end
       end
     end

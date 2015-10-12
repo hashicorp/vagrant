@@ -70,6 +70,10 @@ module Vagrant
       # Get the provider configuration from the final loaded configuration
       provider_config = config.vm.get_provider_config(provider)
 
+      # Create machine data directory if it doesn't exist
+      # XXX: Permissions error here.
+      FileUtils.mkdir_p(data_path)
+
       # Create the machine and cache it for future calls. This will also
       # return the machine from this method.
       return Machine.new(name, provider, provider_cls, provider_config,

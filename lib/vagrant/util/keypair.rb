@@ -1,9 +1,13 @@
 require "base64"
 require "openssl"
 
+require "vagrant/util/retryable"
+
 module Vagrant
   module Util
     class Keypair
+      extend Retryable
+
       # Creates an SSH keypair and returns it.
       #
       # @param [String] password Password for the key, or nil for no password.
@@ -11,7 +15,13 @@ module Vagrant
       #   respectively. The final element is the OpenSSH encoded public
       #   key.
       def self.create(password=nil)
-        rsa_key     = OpenSSL::PKey::RSA.new(2048)
+        # This sometimes fails with RSAError. It is inconsistent and strangely
+        # sleeps seem to fix it. We just retry this a few times. See GH-5056
+        rsa_key = nil
+        retryable(on: OpenSSL::PKey::RSAError, sleep: 2, tries: 5) do
+          rsa_key = OpenSSL::PKey::RSA.new(2048)
+        end
+
         public_key  = rsa_key.public_key
         private_key = rsa_key.to_pem
 

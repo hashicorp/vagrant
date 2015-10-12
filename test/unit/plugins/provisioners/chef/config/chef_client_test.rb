@@ -17,9 +17,9 @@ describe VagrantPlugins::Chef::Config::ChefClient do
   end
 
   describe "#client_key_path" do
-    it "defaults to /etc/chef/client.pem" do
+    it "defaults to nil" do
       subject.finalize!
-      expect(subject.client_key_path).to eq("/etc/chef/client.pem")
+      expect(subject.client_key_path).to be(nil)
     end
   end
 

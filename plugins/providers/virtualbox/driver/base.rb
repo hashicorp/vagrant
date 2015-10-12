@@ -263,6 +263,14 @@ module VagrantPlugins
         def read_vms
         end
 
+        # Reconfigure the hostonly network given by interface (the result
+        # of read_host_only_networks). This is a sad function that only
+        # exists to work around VirtualBox bugs.
+        #
+        # @return nil
+        def reconfig_host_only(interface)
+        end
+
         # Removes the DHCP server identified by the provided network name.
         #
         # @param [String] network_name The the full network name associated
@@ -378,7 +386,8 @@ module VagrantPlugins
             if errored
               raise Vagrant::Errors::VBoxManageError,
                 command: command.inspect,
-                stderr:  r.stderr
+                stderr:  r.stderr,
+                stdout:  r.stdout
             end
           end
 
@@ -403,6 +412,9 @@ module VagrantPlugins
           Vagrant::Util::Busy.busy(int_callback) do
             Vagrant::Util::Subprocess.execute(@vboxmanage_path, *command, &block)
           end
+        rescue Vagrant::Util::Subprocess::LaunchError => e
+          raise Vagrant::Errors::VBoxManageLaunchError,
+            message: e.to_s
         end
       end
     end

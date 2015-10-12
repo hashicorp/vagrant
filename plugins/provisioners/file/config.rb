@@ -1,3 +1,5 @@
+require "pathname"
+
 require "vagrant"
 
 module VagrantPlugins
@@ -15,10 +17,10 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.file.no_dest_file")
         end
         if source
-          s = File.expand_path(source)
-          if ! File.exist?(s)
+          s = Pathname.new(source).expand_path(machine.env.root_path)
+          if !s.exist?
             errors << I18n.t("vagrant.provisioners.file.path_invalid",
-                              path: s)
+                              path: s.to_s)
           end
         end
 

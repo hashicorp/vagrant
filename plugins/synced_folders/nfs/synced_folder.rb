@@ -43,13 +43,15 @@ module VagrantPlugins
         raise Vagrant::Errors::NFSNoHostIP if !nfsopts[:nfs_host_ip]
         raise Vagrant::Errors::NFSNoGuestIP if !nfsopts[:nfs_machine_ip]
 
-        if machine.guest.capability?(:nfs_client_installed)
-          installed = machine.guest.capability(:nfs_client_installed)
-          if !installed
-            can_install = machine.guest.capability?(:nfs_client_install)
-            raise Vagrant::Errors::NFSClientNotInstalledInGuest if !can_install
-            machine.ui.info I18n.t("vagrant.actions.vm.nfs.installing")
-            machine.guest.capability(:nfs_client_install)
+        if machine.config.nfs.verify_installed
+          if machine.guest.capability?(:nfs_client_installed)
+            installed = machine.guest.capability(:nfs_client_installed)
+            if !installed
+              can_install = machine.guest.capability?(:nfs_client_install)
+              raise Vagrant::Errors::NFSClientNotInstalledInGuest if !can_install
+              machine.ui.info I18n.t("vagrant.actions.vm.nfs.installing")
+              machine.guest.capability(:nfs_client_install)
+            end
           end
         end
 

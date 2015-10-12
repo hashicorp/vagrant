@@ -40,22 +40,42 @@ describe Vagrant::UI::Basic do
       subject.output("foo", new_line: false)
     end
 
-    it "outputs to stdout" do
+    it "outputs to the assigned stdout" do
+      stdout = StringIO.new
+      subject.stdout = stdout
+
       expect(subject).to receive(:safe_puts).with { |message, **opts|
-        expect(opts[:io]).to be($stdout)
+        expect(opts[:io]).to be(stdout)
         true
       }
 
       subject.output("foo")
     end
 
-    it "outputs to stderr for errors" do
+    it "outputs to stdout by default" do
+      expect(subject.stdout).to be($stdout)
+    end
+
+    it "outputs to the assigned stderr for errors" do
+      stderr = StringIO.new
+      subject.stderr = stderr
+
       expect(subject).to receive(:safe_puts).with { |message, **opts|
-        expect(opts[:io]).to be($stderr)
+        expect(opts[:io]).to be(stderr)
         true
       }
 
       subject.error("foo")
+    end
+
+    it "outputs to stderr for errors by default" do
+      expect(subject.stderr).to be($stderr)
+    end
+  end
+
+  context "#color?" do
+    it "returns false" do
+      expect(subject.color?).to be(false)
     end
   end
 
@@ -80,6 +100,12 @@ end
 
 describe Vagrant::UI::Colored do
   include_context "unit"
+
+  describe "#color?" do
+    it "returns true" do
+      expect(subject.color?).to be(true)
+    end
+  end
 
   describe "#detail" do
     it "colors output nothing by default" do

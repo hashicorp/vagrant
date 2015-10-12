@@ -56,8 +56,8 @@ previously.
 $ vagrant connect --ssh itty-bitty-polar-8667
 Loading share 'itty-bitty-polar-8667'...
 The SSH key to connect to this share is encrypted. You will
-require the password entered when creating to share to
-decrypt it. Verify you access to this password before
+require the password entered when creating the share to
+decrypt it. Verify you have access to this password before
 continuing.
 
 Press enter to continue, or Ctrl-C to exit now.

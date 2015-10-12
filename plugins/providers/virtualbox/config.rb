@@ -32,6 +32,20 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :gui
 
+      # If set to `true`, then a linked clone is created from a master
+      # VM generated from the specified box.
+      #
+      # @return [Boolean]
+      attr_accessor :linked_clone
+
+      # The snapshot to base the linked clone from. If this isn't set
+      # a snapshot will be made with the name of "base" which will be used.
+      #
+      # If this is set, then the snapshot must already exist.
+      #
+      # @return [String]
+      attr_accessor :linked_clone_snapshot
+
       # This should be set to the name of the machine in the VirtualBox
       # GUI.
       #
@@ -59,6 +73,8 @@ module VagrantPlugins
         @name             = UNSET_VALUE
         @network_adapters = {}
         @gui              = UNSET_VALUE
+        @linked_clone = UNSET_VALUE
+        @linked_clone_snapshot = UNSET_VALUE
 
         # We require that network adapter 1 is a NAT device.
         network_adapter(1, :nat)
@@ -135,6 +151,10 @@ module VagrantPlugins
 
         # Default is to not show a GUI
         @gui = false if @gui == UNSET_VALUE
+
+        # Do not create linked clone by default
+        @linked_clone = false if @linked_clone == UNSET_VALUE
+        @linked_clone_snapshot = nil if @linked_clone_snapshot == UNSET_VALUE
 
         # The default name is just nothing, and we default it
         @name = nil if @name == UNSET_VALUE

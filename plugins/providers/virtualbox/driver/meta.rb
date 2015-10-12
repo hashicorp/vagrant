@@ -49,7 +49,8 @@ module VagrantPlugins
             "4.0" => Version_4_0,
             "4.1" => Version_4_1,
             "4.2" => Version_4_2,
-            "4.3" => Version_4_3
+            "4.3" => Version_4_3,
+            "5.0" => Version_5_0,
           }
 
           if @version.start_with?("4.2.14")
@@ -83,9 +84,12 @@ module VagrantPlugins
 
         def_delegators :@driver, :clear_forwarded_ports,
           :clear_shared_folders,
+          :clonevm,
           :create_dhcp_server,
           :create_host_only_network,
+          :create_snapshot,
           :delete,
+          :delete_snapshot,
           :delete_unused_host_only_networks,
           :discard_saved_state,
           :enable_adapters,
@@ -94,6 +98,7 @@ module VagrantPlugins
           :forward_ports,
           :halt,
           :import,
+          :list_snapshots,
           :read_forwarded_ports,
           :read_bridged_interfaces,
           :read_dhcp_servers,
@@ -108,7 +113,9 @@ module VagrantPlugins
           :read_state,
           :read_used_ports,
           :read_vms,
+          :reconfig_host_only,
           :remove_dhcp_server,
+          :restore_snapshot,
           :resume,
           :set_mac_address,
           :set_name,
@@ -152,7 +159,8 @@ module VagrantPlugins
               # This seems to happen on Windows for uncertain reasons.
               # Raise an error otherwise the error is that they have an
               # incompatible version of VirtualBox which isn't true.
-              raise Vagrant::Errors::VirtualBoxVersionEmpty
+              raise Vagrant::Errors::VirtualBoxVersionEmpty,
+                vboxmanage: @vboxmanage_path.to_s
             end
           end
 

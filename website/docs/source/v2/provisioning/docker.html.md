@@ -53,7 +53,8 @@ of these functions have examples in more detailed sections below.
 
 * `pull_images` - Pull the given images. This does not start these images.
 
-* `run` - Run a container and configure it to start on boot.
+* `run` - Run a container and configure it to start on boot. This can
+  only be specified once.
 
 ## Building Images
 
@@ -154,6 +155,9 @@ In addition to the name, the `run` method accepts a set of options, all optional
 
 * `daemonize` (boolean) - If true, the "-d" flag is given to `docker run` to
   daemonize the containers. By default this is true.
+
+* `restart` (string) - The restart policy for the container. Defaults to
+  "always"
 
 For example, here is how you would configure Docker to run a container
 with the Vagrant shared directory mounted inside of it:

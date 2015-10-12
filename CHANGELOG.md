@@ -1,20 +1,186 @@
-## 1.7.3 (unreleased)
+## Next Release
+
+FEATURES:
+
+  - **Linked Clones**: VirtualBox and VMware providers now support
+    linked clones for very fast (millisecond) imports on up. [GH-4484]
+  - **Snapshots**: The `vagrant snapshot` command can be used to checkpoint
+    and restore point-in-time snapshots.
+  - **IPv6 Private Networks**: Private networking now supports IPv6. This
+    only works with VirtualBox and VMware at this point. [GH-6342]
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
+  - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
+    value in the generated inventory [GH-6209]
+
+## 1.7.4 (July 17, 2015)
+
+BUG FIXES:
+
+  - communicators/winrm: catch timeout errors [GH-5971]
+  - communicators/ssh: use the same SSH args for `vagrant ssh` with and without
+    a command [GH-4986, GH-5928]
+  - guests/fedora: networks can be configured without nmcli [GH-5931]
+  - guests/fedora: biosdevname can return 4 or 127 [GH-6139]
+  - guests/redhat: systemd detection should happen on guest [GH-5948]
+  - guests/ubuntu: setting hostname fixed in 12.04 [GH-5937]
+  - hosts/linux: NFS can be configured without `$TMP` set on the host [GH-5954]
+  - hosts/linux: NFS will sudo copying back to `/etc/exports` [GH-5957]
+  - providers/docker: Add `pull` setting, default to false [GH-5932]
+  - providers/virtualbox: remove UNC path conversion on Windows since it
+      caused mounting regressions [GH-5933]
+  - provisioners/puppet: Windows Puppet 4 paths work correctly [GH-5967]
+  - provisioners/puppet: Fix config merging errors [GH-5958]
+  - provisioners/salt: fix "dummy config" error on bootstrap [GH-5936]
+
+## 1.7.3 (July 10, 2015)
+
+FEATURES:
+
+  - **New guest: `atomic`* - Project Atomic is supported as a guest
+  - providers/virtualbox: add support for 5.0 [GH-5647]
+
+IMPROVEMENTS:
+
+  - core: add password authentication to rdp_info hash [GH-4726]
+  - core: improve error message when packaging fails [GH-5399]
+  - core: improve message when adding a box from a file path [GH-5395]
+  - core: add support for network gateways [GH-5721]
+  - core: allow redirecting stdout and stderr in the UI [GH-5433]
+  - core: update version of winrm-fs to 0.2.0 [GH-5738]
+  - core: add option to enabled trusted http(s) redirects [GH-4422]
+  - core: capture additional information such as line numbers during
+    Vagrantfile loading [GH-4711, GH-5769]
+  - core: add .color? to UI objects to see if they support color [GH-5771]
+  - core: ignore hidden directories when searching for boxes [GH-5748, GH-5785]
+  - core: use `config.ssh.sudo_command` to customize the sudo command
+      format [GH-5573]
+  - core: add `Vagrant.original_env` for Vagrant and plugins to restore or
+      inspect the original environment when Vagrant is being run from the
+      installer [GH-5910]
+  - guests/darwin: support inserting generated key [GH-5204]
+  - guests/darwin: support mounting SMB shares [GH-5750]
+  - guests/fedora: support Fedora 21 [GH-5277]
+  - guests/fedora: add capabilities for nfs and flavor [GH-5770, GH-4847]
+  - guests/linux: specify user's domain as separate parameter [GH-3620, GH-5512]
+  - guests/redhat: support Scientific Linux 7 [GH-5303]
+  - guests/photon: initial support [GH-5612]
+  - guests/solaris,solaris11: support inserting generated key [GH-5182]
+      [GH-5290]
+  - providers/docker: images are pulled prior to starting [GH-5249]
+  - provisioners/ansible: store the first ssh private key in the auto-generated inventory [GH-5765]
+  - provisioners/chef: add capability for checking if Chef is installed on Windows [GH-5669]
+  - provisioners/docker: restart containers if arguments have changed [GH-3055, GH-5924]
+  - provisioners/puppet: add support for Puppet 4 and configuration options [GH-5601]
+  - provisioners/puppet: add support for `synced_folder_args` in apply [GH-5359]
+  - provisioners/salt: add configurable `config_dir` [GH-3138]
+  - provisioners/salt: add support for masterless configuration [GH-3235]
+  - provisioners/salt: provider path to missing file in errors [GH-5637]
+  - provisioners/salt: add ability to run salt orchestrations [GH-4371]
+  - provisioners/salt: update to 2015.5.2 [GH-4152, GH-5437]
+  - provisioners/salt: support specifying version to install [GH-5892]
+  - provisioners/shell: add :name attribute to shell provisioner [GH-5607]
+  - providers/docker: supports file downloads with the file provisioner [GH-5651]
+  - providers/docker: support named Dockerfile [GH-5480]
+  - providers/docker: don't remove image on reload so that build cache can
+      be used fully [GH-5905]
+  - providers/hyperv: select a Hyper-V switch based on a `network_name` [GH-5207]
+  - providers/hyperv: allow configuring VladID [GH-5539]
+  - providers/virtualbox: regexp supported for bridge configuration [GH-5320]
+  - providers/virtualbox: handle a list of bridged NICs [GH-5691]
+  - synced_folders/rsync: allow showing rsync output in debug mode [GH-4867]
+  - synced_folders/rsync: set `rsync__rsync_path` to specify the remote
+      command used to execute rsync [GH-3966]
 
 BUG FIXES:
 
   - core: push configurations are validated with global configs [GH-5130]
   - core: remove executable permissions on internal file [GH-5220]
   - core: check name and version in `has_plugin?` [GH-5218]
+  - core: do not create duplicates when defining two private network addresses [GH-5325]
+  - core: update ssh to check for Plink [GH-5604]
+  - core: do not report plugins as installed when plugins are disabled [GH-5698, GH-5430]
+  - core: Only take files when packaging a box to avoid duplicates [GH-5658, GH-5657]
+  - core: escape curl urls and authentication [GH-5677]
+  - core: fix crash if a value is missing for CLI arguments [GH-5550]
+  - core: retry SSH key generation for transient RSA errors [GH-5056]
+  - core: `ssh.private_key_path` will override the insecure key [GH-5632]
+  - core: restore the original environment when shelling out to subprocesses
+      outside of the installer [GH-5912]
   - core/cli: fix box checksum validation [GH-4665, GH-5221]
+  - core/windows: allow Windows UNC paths to allow more than 256
+      characters [GH-4815]
+  - command/rsync-auto: don't crash if rsync command fails [GH-4991]
+  - communicators/winrm: improve error handling significantly and improve
+      the error messages shown to be more human-friendly. [GH-4943]
+  - communicators/winrm: remove plaintext passwords from files after
+      provisioner is complete [GH-5818]
   - hosts/nfs: allow colons (`:`) in NFS IDs [GH-5222]
+  - guests/darwin: remove dots from LocalHostName [GH-5558]
+  - guests/debian: Halt works properly on Debian 8. [GH-5369]
+  - guests/fedora: recognize future fedora releases [GH-5730]
+  - guests/fedora: reload iface connection by NetworkManager [GH-5709]
+  - guests/fedora: do not use biosdevname if it is not installed [GH-5707]
+  - guests/freebsd: provide an argument to the backup file [GH-5516, GH-5517]
   - guests/funtoo: fix incorrect path in configure networks [GH-4812]
+  - guests/linux: fix edge case exception where no home directory
+      is available on guest [GH-5846]
+  - guests/linux: copy NFS exports to tmpdir to do edits to guarantee
+      permissions are available [GH-5773]
+  - guests/openbsd: output newline after inserted public key [GH-5881]
+  - guests/tinycore: fix change hostname functionality [GH-5623]
+  - guests/ubuntu: use `hostnamectl` to set hostname on Ubuntu Vivid [GH-5753]
+  - guests/windows: Create rsync folder prior to rsync-ing. [GH-5282]
+  - guests/windows: Changing hostname requires reboot again since
+      the non-reboot code path was crashing Windows server. [GH-5261]
+  - guests/windows: ignore virtual NICs [GH-5478]
+  - hosts/windows: More accurately get host IP address in VPNs. [GH-5349]
   - plugins/login: allow users to login with a token [GH-5145]
+  - providers/docker: Build image from `/var/lib/docker` for more disk
+      space on some systems. [GH-5302]
+  - providers/docker: Fix crash that could occur in some scenarios when
+      the host VM path changed.
+  - providers/docker: Fix crash that could occur on container destroy
+      with VirtualBox shared folders [GH-5143]
   - providers/hyperv: allow users to configure memory, cpu count, and vmname [GH-5183]
+  - providers/hyperv: import respects secure boot. [GH-5209]
+  - providers/hyperv: only set EFI secure boot for gen 2 machines [GH-5538]
   - providers/virtualbox: read netmask from dhcpservers [GH-5233]
+  - providers/virtualbox: Fix exception when VirtualBox version is empty. [GH-5308]
+  - providers/virtualbox: Fix exception when VBoxManage.exe can't be run
+      on Windows [GH-1483]
+  - providers/virtualbox: Error if another user is running after a VM is
+      created to avoid issue with VirtualBox "losing" the VM [GH-5895]
+  - providers/virtualbox: The "name" setting on private networks will
+      choose an existing hostonly network [GH-5389]
   - provisioners/ansible: fix SSH settings to support more than 5 ssh keys [GH-5017]
   - provisioners/ansible: increase ansible connection timeout to 30 seconds [GH-5018]
+  - provisioners/ansible: disable color if Vagrant is not colored [GH-5531, GH-5532]
+  - provisioners/ansible: only show ansible-playbook command when `verbose` option is enabled [GH-5803]
+  - provisioners/ansible: fix a race condition in the inventory file generation [GH-5551]
+  - provisioners/docker: use `service` to restart Docker instad of upstart [GH-5245, GH-5577]
+  - provisioners/docker: Only add docker user to group if exists. [GH-5315]
+  - provisioners/docker: Use https for repo [GH-5749]
+  - provisioners/docker: `apt-get update` before installing linux kernel
+      images to get the correct version [GH-5860]
+  - provisioners/chef: Fix shared folders missing error [GH-5199]
+  - provisioners/chef: Use `command -v` to check for binary instead of
+      `which` since that doesn't exist on some systems. [GH-5170]
+  - provisioners/chef-zero: support more chef-zero/local mode attributes [GH-5339]
+  - provisioners/chef: use windows-specific paths in Chef provisioners [GH-5913]
   - provisioners/docker: use docker.com instead of docker.io [GH-5216]
+  - provisioners/docker: use `--restart` instead of `-r` on daemon [GH-4477]
+  - provisioners/file: validation of source is relative to Vagrantfile [GH-5252]
   - pushes/atlas: send additional box metadata [GH-5283]
+  - pushes/local-exec: fix "text file busy" error for inline [GH-5695]
+  - pushes/ftp: improve check for remote directory existence [GH-5549]
+  - synced\_folders/rsync: add `IdentitiesOnly=yes` to the rsync command. [GH-5175]
+  - synced\_folders/smb: use correct `password` option [GH-5805]
+  - synced\_folders/smb: prever IPv4 over IPv6 address to mount [GH-5798]
+  - virtualbox/config: fix misleading error message for private_network [GH-5536, GH-5418]
 
 ## 1.7.2 (January 6, 2015)
 
@@ -108,7 +274,7 @@ IMPROVEMENTS:
 
   - core: `has_plugin?` function now takes a second argument which is a
       version constraint requirement. [GH-4650]
-  - core: ".vagrantplugins" file in the same file as your Vagrantfile
+  - core: ".vagrantplugins" file in the same folder as your Vagrantfile
       will be loaded for defining inline plugins. [GH-3775]
   - commands/plugin: Plugin list machine-readable output contains the plugin
       name as the target for versions and other info. [GH-4506]

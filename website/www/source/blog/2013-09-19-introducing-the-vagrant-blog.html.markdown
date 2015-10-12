@@ -20,7 +20,7 @@ It can be as general as how to use a certain feature of Vagrant, or as
 specific as how to use Vagrant to develop a certain application or in
 a certain language.
 
-Please subscribe [to the RSS feed](http://feeds.feedburner.com/vagrantup).
+Please subscribe [to the RSS feed](https://feeds.feedburner.com/vagrantup).
 We look forward to shipping blog posts shortly!
 
 READMORE

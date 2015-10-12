@@ -7,7 +7,13 @@ describe VagrantPlugins::FileUpload::Config do
 
   subject { described_class.new }
 
-  let(:machine) { double("machine") }
+  let(:env) do
+    iso_env = isolated_environment
+    iso_env.vagrantfile("")
+    iso_env.create_vagrant_env
+  end
+
+  let(:machine) { double("machine", env: env) }
 
   describe "#validate" do
     it "returns an error if destination is not specified" do
@@ -33,7 +39,7 @@ describe VagrantPlugins::FileUpload::Config do
     end
 
     it "returns an error if source file does not exist" do
-      non_existing_file = "this/does/not/exist"
+      non_existing_file = "/this/does/not/exist"
 
       subject.source = non_existing_file
       subject.destination = "/tmp/foo"
@@ -58,7 +64,10 @@ describe VagrantPlugins::FileUpload::Config do
     end
 
     it "passes with relative source path" do
-      existing_relative_path = __FILE__
+      path = env.root_path.join("foo")
+      path.open("w+") { |f| f.write("hello") }
+
+      existing_relative_path = "foo"
 
       subject.source = existing_relative_path
       subject.destination = "/tmp/foo"

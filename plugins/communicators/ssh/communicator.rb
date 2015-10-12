@@ -322,9 +322,15 @@ module VagrantPlugins
         # Default some options
         opts[:retries] = 5 if !opts.key?(:retries)
 
+        # Set some valid auth methods. We disable the auth methods that
+        # we're not using if we don't have the right auth info.
+        auth_methods = ["none", "hostbased"]
+        auth_methods << "publickey" if ssh_info[:private_key_path]
+        auth_methods << "password" if ssh_info[:password]
+
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
-          auth_methods:          ["none", "publickey", "hostbased", "password"],
+          auth_methods:          auth_methods,
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
           keys:                  ssh_info[:private_key_path],
@@ -434,6 +440,21 @@ module VagrantPlugins
         return yield connection if block_given?
       end
 
+      # The shell wrapper command used in shell_execute defined by
+      # the sudo and shell options.
+      def shell_cmd(opts)
+        sudo  = opts[:sudo]
+        shell = opts[:shell]
+
+        # Determine the shell to execute. Prefer the explicitly passed in shell
+        # over the default configured shell. If we are using `sudo` then we
+        # need to wrap the shell in a `sudo` call.
+        cmd = @machine.config.ssh.shell
+        cmd = shell if shell
+        cmd = @machine.config.ssh.sudo_command.gsub("%c", cmd) if sudo
+        cmd
+      end
+
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, **opts)
         opts = {
@@ -442,17 +463,9 @@ module VagrantPlugins
         }.merge(opts)
 
         sudo  = opts[:sudo]
-        shell = opts[:shell]
 
         @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
-
-        # Determine the shell to execute. Prefer the explicitly passed in shell
-        # over the default configured shell. If we are using `sudo` then we
-        # need to wrap the shell in a `sudo` call.
-        shell_cmd = @machine.config.ssh.shell
-        shell_cmd = shell if shell
-        shell_cmd = "sudo -E -H #{shell_cmd}" if sudo
 
         # These variables are used to scrub PTY output if we're in a PTY
         pty = false
@@ -472,7 +485,7 @@ module VagrantPlugins
             end
           end
 
-          ch.exec(shell_cmd) do |ch2, _|
+          ch.exec(shell_cmd(opts)) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
               # Filter out the clear screen command

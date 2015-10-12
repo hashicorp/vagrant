@@ -12,6 +12,12 @@ describe VagrantPlugins::AtlasPush::Config do
 
   let(:machine) { double("machine") }
 
+  around(:each) do |example|
+    with_temp_env("ATLAS_TOKEN" => nil) do
+      example.run
+    end
+  end
+
   before do
     subject.token = "foo"
   end
@@ -94,6 +100,17 @@ describe VagrantPlugins::AtlasPush::Config do
           subject.finalize!
           expect(errors).to be_empty
           expect(subject.token).to eq("token_from_vagrantfile")
+        end
+      end
+
+      context "when a token is in the environment" do
+        it "uses the token in the Vagrantfile" do
+          with_temp_env("ATLAS_TOKEN" => "foo") do
+            subject.finalize!
+          end
+
+          expect(errors).to be_empty
+          expect(subject.token).to eq("foo")
         end
       end
 

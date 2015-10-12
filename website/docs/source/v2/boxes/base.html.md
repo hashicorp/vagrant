@@ -59,6 +59,14 @@ Provider-specific guides are linked below:
 
 * [VirtualBox Base Boxes](/v2/virtualbox/boxes.html)
 
+### Packer and Atlas
+
+We strongly recommend using [Packer](https://packer.io) to create reproducible
+builds for your base boxes, as well as automating the builds with
+[Atlas](https://atlas.hashicorp.com). Read more about
+[Creating Vagrant Boxes with Packer](https://atlas.hashicorp.com/help/packer/artifacts/creating-vagrant-boxes)
+in the Atlas documentation.
+
 ### Disk Space
 
 When creating a base box, make sure the user will have enough disk space
@@ -172,7 +180,7 @@ Supported Windows guest operating systems:
 - Windows Server 2012 R2
 
 Windows Server 2003 and Windows XP are _not_ supported, but if you're a die
-hard XP fan [this](http://stackoverflow.com/a/18593425/18475) may help you.
+hard XP fan [this](https://stackoverflow.com/a/18593425/18475) may help you.
 
 ### Base Windows Configuration
 
@@ -180,6 +188,13 @@ hard XP fan [this](http://stackoverflow.com/a/18593425/18475) may help you.
   - Disable complex passwords
   - Disable "Shutdown Tracker"
   - Disable "Server Manager" starting at login (for non-Core)
+
+In addition to disabling UAC in the control panel, you also must disable
+UAC in the registry. This may vary from Windows version to Windows version,
+but Windows 8/8.1 use the command below. This will allow some things like
+automated Puppet installs to work within Vagrant Windows base boxes.
+
+    reg add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLUA /d 0 /t REG_DWORD /f /reg:64
 
 ### Base WinRM Configuration
 

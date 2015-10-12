@@ -159,6 +159,7 @@ shared_examples "a version 4.x virtualbox driver" do |options|
           name:    'vboxnet0',
           ip:      '172.28.128.1',
           netmask: '255.255.255.0',
+          ipv6_prefix: '0',
           status:  'Up',
         }])
       end
@@ -196,9 +197,38 @@ shared_examples "a version 4.x virtualbox driver" do |options|
 
       it "returns a list with one entry for each interface" do
         expect(subject.read_host_only_interfaces).to eq([
-          {name: 'vboxnet0', ip: '172.28.128.1', netmask: '255.255.255.0', status: 'Up'},
-          {name: 'vboxnet1', ip: '10.0.0.1', netmask: '255.255.255.0', status: 'Up'},
+          {name: 'vboxnet0', ip: '172.28.128.1', netmask: '255.255.255.0', ipv6_prefix: "0", status: 'Up'},
+          {name: 'vboxnet1', ip: '10.0.0.1', netmask: '255.255.255.0', ipv6_prefix: "0", status: 'Up'},
         ])
+      end
+    end
+
+    context "with an IPv6 host-only interface" do
+      let(:output) {
+        <<-OUTPUT.gsub(/^ */, '')
+          Name:            vboxnet1
+          GUID:            786f6276-656e-4174-8000-0a0027000001
+          DHCP:            Disabled
+          IPAddress:       192.168.57.1
+          NetworkMask:     255.255.255.0
+          IPV6Address:     fde4:8dba:82e1::
+          IPV6NetworkMaskPrefixLength: 64
+          HardwareAddress: 0a:00:27:00:00:01
+          MediumType:      Ethernet
+          Status:          Up
+          VBoxNetworkName: HostInterfaceNetworking-vboxnet1
+        OUTPUT
+      }
+
+      it "returns a list with one entry describing that interface" do
+        expect(subject.read_host_only_interfaces).to eq([{
+          name:    'vboxnet1',
+          ip:      '192.168.57.1',
+          netmask: '255.255.255.0',
+          ipv6: 'fde4:8dba:82e1::',
+          ipv6_prefix: '64',
+          status:  'Up',
+        }])
       end
     end
   end

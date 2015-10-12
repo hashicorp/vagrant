@@ -89,6 +89,10 @@ module VagrantPlugins
             vagrantfile_name: vf_file,
           )
 
+          # If there is no root path, then the Vagrantfile wasn't found
+          # and it is an error...
+          raise Errors::VagrantfileNotFound if !host_env.root_path
+
           host_env.machine(
             host_machine_name,
             host_env.default_provider(
@@ -149,8 +153,14 @@ module VagrantPlugins
       def state
         state_id = nil
         state_id = :not_created if !@machine.id
-        state_id = :host_state_unknown if !state_id && \
-          host_vm? && !host_vm.communicate.ready?
+
+        begin
+          state_id = :host_state_unknown if !state_id && \
+            host_vm? && !host_vm.communicate.ready?
+        rescue Errors::VagrantfileNotFound
+          state_id = :host_state_unknown
+        end
+
         state_id = :not_created if !state_id && \
           (!@machine.id || !driver.created?(@machine.id))
         state_id = driver.state(@machine.id) if @machine.id && !state_id

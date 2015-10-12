@@ -63,6 +63,46 @@ the [reserved private address space](http://en.wikipedia.org/wiki/Private_networ
 and most routers actually block traffic from going to them from the
 outside world.
 
+For some operating systems, additional configuration options for the static
+IP address are available such as setting the default gateway or MTU.
+
+<div class="alert alert-block alert-warn">
+<p>
+<strong>Warning!</strong> Do not choose an IP that overlaps with any
+other IP space on your system. This can cause the network to not be
+reachable.
+</p>
+</div>
+
+## IPv6
+
+You can specify a static IP via IPv6. DHCP for IPv6 is not supported.
+To use IPv6, just specify an IPv6 address as the IP:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "private_network", ip: "fde4:8dba:82e1::c4"
+end
+```
+
+This will assign that IP to the machine. The entire `/64` subnet will
+be reserved. Please make sure to use the reserved local addresses approved
+for IPv6.
+
+You can also modify the prefix length by changing the `netmask` option
+(defaults to 64):
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.network "private_network",
+    ip: "fde4:8dba:82e1::c4",
+    netmask: "96"
+end
+```
+
+IPv6 supports for private networks was added in Vagrant 1.7.5 and may
+not work with every provider.
+
 ## Disable Auto-Configuration
 
 If you want to manually configure the network interface yourself, you
@@ -74,3 +114,7 @@ Vagrant.configure("2") do |config|
     auto_config: false
 end
 ```
+
+If you already started the Vagrant environment before setting `auto_config`,
+the files it initially placed there will stay there. You'll have to remove
+those files manually or destroy and recreate the machine.

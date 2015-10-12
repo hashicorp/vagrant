@@ -72,6 +72,7 @@ module VagrantPlugins
           params[:image] ||= name
           params[:auto_assign_name] = true if !params.key?(:auto_assign_name)
           params[:daemonize] = true if !params.key?(:daemonize)
+          params[:restart] = "always" if !params.key?(:restart)
         end
       end
     end

@@ -11,4 +11,11 @@ describe VagrantPlugins::Kernel_V2::SSHConfig do
       expect(subject.default.username).to eq("vagrant")
     end
   end
+
+  describe "#sudo_command" do
+    it "defaults properly" do
+      subject.finalize!
+      expect(subject.sudo_command).to eq("sudo -E -H %c")
+    end
+  end
 end

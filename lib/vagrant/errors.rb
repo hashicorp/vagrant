@@ -288,6 +288,14 @@ module Vagrant
       error_key(:cli_invalid_options)
     end
 
+    class CloneNotFound < VagrantError
+      error_key(:clone_not_found)
+    end
+
+    class CloneMachineNotFound < VagrantError
+      error_key(:clone_machine_not_found)
+    end
+
     class CommandUnavailable < VagrantError
       error_key(:command_unavailable)
     end
@@ -314,6 +322,10 @@ module Vagrant
 
     class CorruptMachineIndex < VagrantError
       error_key(:corrupt_machine_index)
+    end
+
+    class DarwinMountFailed < VagrantError
+      error_key(:darwin_mount_failed)
     end
 
     class DarwinNFSMountFailed < VagrantError
@@ -716,6 +728,10 @@ module Vagrant
       error_key(:vboxmanage_error)
     end
 
+    class VBoxManageLaunchError < VagrantError
+      error_key(:vboxmanage_launch_error)
+    end
+
     class VBoxManageNotFoundError < VagrantError
       error_key(:vboxmanage_not_found_error)
     end
@@ -756,6 +772,10 @@ module Vagrant
       error_key(:virtualbox_name_exists)
     end
 
+    class VirtualBoxUserMismatch < VagrantError
+      error_key(:virtualbox_user_mismatch)
+    end
+
     class VirtualBoxVersionEmpty < VagrantError
       error_key(:virtualbox_version_empty)
     end
@@ -770,6 +790,14 @@ module Vagrant
 
     class VMBootTimeout < VagrantError
       error_key(:boot_timeout)
+    end
+
+    class VMCloneFailure < VagrantError
+      error_key(:failure, "vagrant.actions.vm.clone")
+    end
+
+    class VMCreateMasterFailure < VagrantError
+      error_key(:failure, "vagrant.actions.vm.clone.create_master")
     end
 
     class VMCustomizationFailed < VagrantError

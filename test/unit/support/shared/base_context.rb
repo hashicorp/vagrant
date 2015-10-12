@@ -12,6 +12,9 @@ shared_context "unit" do
     # Create a thing to store our temporary files so that they aren't
     # unlinked right away.
     @_temp_files = []
+
+    # Roughly simulate the embedded Bundler availability
+    $vagrant_bundler_runtime = Object.new
   end
 
   after(:each) do

@@ -65,7 +65,10 @@ module VagrantPlugins
 
             comm.upload(path.to_s, config.upload_path)
 
-            if config.path
+            if config.name
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "script: #{config.name}"))
+            elsif config.path
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: path.to_s))
             else
@@ -122,7 +125,10 @@ module VagrantPlugins
             command = "powershell #{shell_args.to_s} -file #{command}" if
               File.extname(exec_path).downcase == '.ps1'
 
-            if config.path
+            if config.name
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "script: #{config.name}"))
+            elsif config.path
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.runningas",
                                       local: config.path.to_s, remote: exec_path))
             else
@@ -176,7 +182,11 @@ module VagrantPlugins
         # Replace Windows line endings with Unix ones unless binary file
         # or we're running on Windows.
         if !config.binary && @machine.config.vm.communicator != :winrm
-          script.gsub!(/\r\n?$/, "\n")
+          begin
+            script.gsub!(/\r\n?$/, "\n")
+          rescue ArgumentError
+            script = script.force_encoding("ASCII-8BIT").gsub(/\r\n?$/, "\n")
+          end
         end
 
         # Otherwise we have an inline script, we need to Tempfile it,

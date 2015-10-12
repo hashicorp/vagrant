@@ -65,6 +65,7 @@ module VagrantPlugins
           "ssh -p #{ssh_info[:port]} " +
           proxy_command +
           "-o StrictHostKeyChecking=no " +
+          "-o IdentitiesOnly=true " +
           "-o UserKnownHostsFile=/dev/null",
           ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
         ].flatten.join(" ")
@@ -97,8 +98,12 @@ module VagrantPlugins
         args << "--no-group" unless args.include?("--group") || args.include?("-g")
 
         # Tell local rsync how to invoke remote rsync with sudo
-        if machine.guest.capability?(:rsync_command)
-          args << "--rsync-path"<< machine.guest.capability(:rsync_command)
+        rsync_path = opts[:rsync_path]
+        if !rsync_path && machine.guest.capability?(:rsync_command)
+          rsync_path = machine.guest.capability(:rsync_command)
+        end
+        if rsync_path
+          args << "--rsync-path"<< rsync_path
         end
 
         # Build up the actual command to execute
@@ -121,13 +126,25 @@ module VagrantPlugins
           machine.ui.info(I18n.t(
             "vagrant.rsync_folder_excludes", excludes: excludes.inspect))
         end
+        if opts.include?(:verbose)
+          machine.ui.info(I18n.t("vagrant.rsync_showing_output"));
+        end
 
         # If we have tasks to do before rsyncing, do those.
         if machine.guest.capability?(:rsync_pre)
           machine.guest.capability(:rsync_pre, opts)
         end
 
-        r = Vagrant::Util::Subprocess.execute(*(command + [command_opts]))
+        if opts.include?(:verbose)
+          command_opts[:notify] = [:stdout, :stderr]
+          r = Vagrant::Util::Subprocess.execute(*(command + [command_opts])) {
+            |io_name,data| data.each_line { |line|
+              machine.ui.info("rsync[#{io_name}] -> #{line}") }
+          }
+        else
+          r = Vagrant::Util::Subprocess.execute(*(command + [command_opts]))
+        end
+
         if r.exit_code != 0
           raise Vagrant::Errors::RSyncError,
             command: command.join(" "),

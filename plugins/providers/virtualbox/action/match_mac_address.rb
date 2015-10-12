@@ -7,6 +7,9 @@ module VagrantPlugins
         end
 
         def call(env)
+          # If we cloned, we don't need a base mac, it is already set!
+          return @app.call(env) if env[:machine].config.vm.clone
+
           raise Vagrant::Errors::VMBaseMacNotSpecified if !env[:machine].config.vm.base_mac
 
           # Create the proc which we want to use to modify the virtual machine

@@ -38,11 +38,11 @@ module Vagrant
     ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"]
   end
 
-  # This returns whether or not 3rd party plugins should be loaded.
+  # This returns whether or not 3rd party plugins should and can be loaded.
   #
   # @return [Boolean]
   def self.plugins_enabled?
-    !ENV["VAGRANT_NO_PLUGINS"]
+    !ENV["VAGRANT_NO_PLUGINS"] && $vagrant_bundler_runtime
   end
 
   # Whether or not super quiet mode is enabled. This is ill-advised.

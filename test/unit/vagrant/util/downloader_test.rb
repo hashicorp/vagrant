@@ -72,6 +72,27 @@ describe Vagrant::Util::Downloader do
         expect(subject.download!).to be_true
       end
     end
+
+    context "with an urlescaped username and password" do
+      it "downloads the file with unescaped credentials" do
+        original_source = source
+        source  = "http://fo%5Eo:b%40r@baz.com/box.box"
+        subject = described_class.new(source, destination)
+
+        i = curl_options.index(original_source)
+        curl_options[i] = "http://baz.com/box.box"
+
+        i = curl_options.index("--output")
+        curl_options.insert(i, "fo^o:b@r")
+        curl_options.insert(i, "-u")
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
+          with("curl", *curl_options).
+          and_return(subprocess_result)
+
+        expect(subject.download!).to be_true
+      end
+    end
   end
 
   describe "#head" do

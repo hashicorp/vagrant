@@ -22,7 +22,7 @@ public boxes are made as.
 
 `config.ssh.password` - This sets a password that Vagrant will use to
 authenticate the SSH user. Note that Vagrant recommends you use key-based
-authentiation rather than a password (see `private_key_path`) below. If
+authentication rather than a password (see `private_key_path`) below. If
 you use a password, Vagrant will automatically insert a keypair if
 `insert_key` is true.
 
@@ -68,8 +68,13 @@ is enabled. Defaults to false.
 <hr>
 
 `config.ssh.insert_key` - If `true`, Vagrant will automatically insert
-an insecure keypair to use for SSH. By default, this is true. This only
-has an effect if you don't already use private keys for authentication.
+an keypair to use for SSH, replacing the default Vagrant's insecure key
+inside the machine if detected. By default, this is true.
+
+This only has an effect if you don't already use private keys for
+authentication or if you are relying on the default insecure key.
+If you don't have to take care about security in your project and want to
+keep using the default insecure key, set this to `false`.
 
 <hr>
 
@@ -93,3 +98,9 @@ a way to not use a pty, that is recommended instead.
 Vagrant. By default this is `bash -l`. Note that this has no effect on
 the shell you get when you run `vagrant ssh`. This configuration option
 only affects the shell to use when executing commands internally in Vagrant.
+
+<hr>
+
+`config.ssh.sudo_command` - The command to use when executing a command
+with `sudo`. This defaults to `sudo -E -H %c`. The `%c` will be replaced by
+the command that is being executed.
