@@ -85,6 +85,19 @@ describe "VagrantPlugins::Shell::Config" do
         I18n.t("vagrant.provisioners.shell.args_bad_type")
       ])
     end
+
+    it "returns an error if elevated_interactive is true but privileged is false" do
+      subject.path = file_that_exists
+      subject.elevated_interactive = true
+      subject.privileged = false
+      subject.finalize!
+
+      result = subject.validate(machine)
+
+      expect(result["shell provisioner"]).to eq([
+        I18n.t("vagrant.provisioners.shell.interactive_not_elevated")
+      ])
+    end
   end
 
   describe 'finalize!' do

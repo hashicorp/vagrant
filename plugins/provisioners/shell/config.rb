@@ -81,7 +81,7 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.shell.args_bad_type")
         end
 
-        if @elevated_interactive == true && @privileged == false
+        if elevated_interactive && !privileged
           errors << I18n.t("vagrant.provisioners.shell.interactive_not_elevated")
         end
 
