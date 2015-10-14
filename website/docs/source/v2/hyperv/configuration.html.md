@@ -19,6 +19,8 @@ you may set. A complete reference is shown below:
   	Defaults is taken from box image XML.
   * `vlan_id` (integer) - Number of Vlan ID for your guest network interface
     Defaults is not defined, vlan configuration will be untouched if not set.
+  * `mac` (string) - MAC address for your guest network interface
+    Default is not defined, MAC address will be dynamically assigned by Hyper-V if not set.
   * `ip_address_timeout` (integer) - The time in seconds to wait for the
     virtual machine to report an IP address. This defaults to 120 seconds.
     This may have to be increased if your VM takes longer to boot.
