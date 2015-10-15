@@ -194,7 +194,7 @@ module VagrantPlugins
       # in place.
       #
       # @return The wrapper command to execute
-      def wrap_in_scheduled_task(command)
+      def wrap_in_scheduled_task(command, interactive)
         path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
         script = Vagrant::Util::TemplateRenderer.render(path, options: {
           interactive: interactive,
