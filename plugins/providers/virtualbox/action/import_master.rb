@@ -12,6 +12,11 @@ module VagrantPlugins
         end
 
         def call(env)
+          # If we don't have a box, nothing to do
+          if !env[:machine].box
+            return @app.call(env)
+          end
+
           # Do the import while locked so that nobody else imports
           # a master at the same time. This is a no-op if we already
           # have a master that exists.
