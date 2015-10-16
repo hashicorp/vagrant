@@ -212,7 +212,7 @@ module VagrantPlugins
 
             # If we're on Windows, we need to use the PowerShell style
             if windows?
-              facts.map! { |v| "`$env:#{v};" }
+              facts.map! { |v| "$env:#{v};" }
             end
 
             facter = "#{facts.join(" ")} "
