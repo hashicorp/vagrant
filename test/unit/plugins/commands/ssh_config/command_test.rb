@@ -24,7 +24,8 @@ describe VagrantPlugins::CommandSSHConfig::Command do
     username:         "testuser",
     private_key_path: [],
     forward_agent:    false,
-    forward_x11:      false
+    forward_x11:      false,
+    log_level:        "FATAL"
   }}
 
   subject { described_class.new(argv, iso_env) }
@@ -80,6 +81,19 @@ Host #{machine.name}
       subject.execute
 
       expect(output).to include("ForwardX11 yes")
+    end
+
+    it "sets log level to whatever it is configured to" do
+      allow(machine).to receive(:ssh_info) { ssh_info.merge(log_level: "QUIET") }
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
+      subject.execute
+
+      expect(output).to include("LogLevel QUIET")
     end
 
     it "handles multiple private key paths" do

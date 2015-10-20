@@ -13,7 +13,7 @@ Host <%= host_key %>
 <% end -%>
 <% end -%>
   IdentitiesOnly yes
-  LogLevel FATAL
+  LogLevel <%= log_level %>
 <% if forward_agent -%>
   ForwardAgent yes
 <% end -%>

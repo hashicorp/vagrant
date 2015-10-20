@@ -9,6 +9,7 @@ module VagrantPlugins
       attr_accessor :forward_x11
       attr_accessor :guest_port
       attr_accessor :keep_alive
+      attr_accessor :log_level
       attr_accessor :shell
       attr_accessor :proxy_command
       attr_accessor :ssh_command
@@ -24,6 +25,7 @@ module VagrantPlugins
         @forward_x11   = UNSET_VALUE
         @guest_port    = UNSET_VALUE
         @keep_alive    = UNSET_VALUE
+        @log_level     = UNSET_VALUE
         @proxy_command = UNSET_VALUE
         @ssh_command   = UNSET_VALUE
         @pty           = UNSET_VALUE
@@ -47,6 +49,7 @@ module VagrantPlugins
         @forward_x11   = false if @forward_x11 == UNSET_VALUE
         @guest_port = 22 if @guest_port == UNSET_VALUE
         @keep_alive = true if @keep_alive == UNSET_VALUE
+        @log_level = "FATAL" if @log_level == UNSET_VALUE
         @proxy_command = nil if @proxy_command == UNSET_VALUE
         @ssh_command = nil if @ssh_command == UNSET_VALUE
         @pty        = false if @pty == UNSET_VALUE
