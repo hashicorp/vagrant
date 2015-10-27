@@ -215,6 +215,24 @@ describe Vagrant::UI::MachineReadable do
     end
   end
 
+  [:detail, :warn, :error, :info, :output, :success].each do |method|
+    describe "##{method}" do
+      it "outputs UI type to the machine-readable output" do
+        expect(subject).to receive(:safe_puts).with { |message|
+          parts = message.split(",")
+          expect(parts.length).to eq(5)
+          expect(parts[1]).to eq("")
+          expect(parts[2]).to eq("ui")
+          expect(parts[3]).to eq(method.to_s)
+          expect(parts[4]).to eq("foo")
+          true
+        }
+
+        subject.send(method, "foo")
+      end
+    end
+  end
+
   describe "#machine" do
     it "is formatted properly" do
       expect(subject).to receive(:safe_puts).with { |message|
