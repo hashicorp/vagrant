@@ -21,7 +21,7 @@ between Windows, Mac OS X, and Linux.
 For the quick-start, we'll bring up a development machine on
 [VirtualBox](http://www.virtualbox.org) because it is free and works
 on all major platforms. Vagrant can, however, work with almost any
-system such as OpenStack, VMware, Docker, etc.
+system such as [OpenStack] (https://www.openstack.org/), [VMware] (http://www.vmware.com/), [Docker] (https://docs.docker.com/), etc.
 
 First, make sure your development machine has
 [VirtualBox](http://www.virtualbox.org)
