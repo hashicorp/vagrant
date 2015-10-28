@@ -214,7 +214,7 @@ module VagrantPlugins
           "#{command}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
 
         "powershell -executionpolicy bypass -file \"#{guest_script_path}\" " +
-          "-username \"#{shell.username}\" -password \"#{shell.password}\" " +
+          "-username \'#{shell.username}\' -password \'#{shell.password}\' " +
           "-encoded_command \"#{wrapped_encoded_command}\""
       end
 
