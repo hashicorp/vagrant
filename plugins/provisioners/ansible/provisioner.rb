@@ -20,19 +20,26 @@ module VagrantPlugins
         # Ansible provisioner options
         #
 
-        # By default, connect with Vagrant SSH username
-        options = %W[--user=#{@ssh_info[:username]}]
-
         # Connect with native OpenSSH client
         # Other modes (e.g. paramiko) are not officially supported,
         # but can be enabled via raw_arguments option.
-        options << "--connection=ssh"
+        options = %W[--connection=ssh]
 
         # Increase the SSH connection timeout, as the Ansible default value (10 seconds)
         # is a bit demanding for some overloaded developer boxes. This is particularly
         # helpful when additional virtual networks are configured, as their availability
         # is not controlled during vagrant boot process.
         options << "--timeout=30"
+
+        if !config.force_remote_user
+          # Pass the vagrant ssh username as Ansible default remote user, because
+          # the ansible_ssh_user parameter won't be added to the auto-generated inventory.
+          options << "--user=#{@ssh_info[:username]}"
+        elsif config.inventory_path
+          # Using an extra variable is the only way to ensure that the Ansible remote user
+          # is overridden (as the ansible inventory is not under vagrant control)
+          options << "--extra-vars=ansible_ssh_user='#{@ssh_info[:username]}'"
+        end
 
         # By default we limit by the current machine, but
         # this can be overridden by the `limit` option.
@@ -127,7 +134,11 @@ module VagrantPlugins
             m = @machine.env.machine(*am)
             m_ssh_info = m.ssh_info
             if !m_ssh_info.nil?
-              inventory += "#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]} ansible_ssh_private_key_file='#{m_ssh_info[:private_key_path][0]}'\n"
+              forced_ssh_user = ""
+              if config.force_remote_user
+                forced_ssh_user = "ansible_ssh_user='#{m_ssh_info[:username]}' "
+              end
+              inventory += "#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]} #{forced_ssh_user}ansible_ssh_private_key_file='#{m_ssh_info[:private_key_path][0]}'\n"
               inventory_machines[m.name] = m
             else
               @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")

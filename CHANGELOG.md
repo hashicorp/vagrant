@@ -9,7 +9,21 @@ FEATURES:
   - **IPv6 Private Networks**: Private networking now supports IPv6. This
     only works with VirtualBox and VMware at this point. [GH-6342]
 
+BREAKING CHANGES:
+
+  - the `ansible` provisioner now can override the effective ansible remote user
+    (i.e. `ansible_ssh_user` setting) to always correspond to the vagrant ssh
+    username. This change is enabled by default, but we expect this to affect
+    only a tiny number of people as it corresponds to the common usage.
+    If you however use different remote usernames in your Ansible plays, tasks,
+    or custom inventories, you can simply set the option `force_remote_user` to
+    false to make Vagrant behave the same as before.
+
+
 IMPROVEMENTS:
+
+  - provisioners/ansible: add new `force_remote_user` option to control whether
+    `ansible_ssh_user` parameter should be applied or not [GH-6348]
 
 BUG FIXES:
 
