@@ -12,10 +12,12 @@ module VagrantPlugins
         end
 
         def refresh_hostname_service
+          os = os_version
+
           if hardy?
             # hostname.sh returns 1, so use `true` to get a 0 exitcode
             sudo("/etc/init.d/hostname.sh start; true")
-          elsif vivid?
+          elsif !os.nil? and os >= 15.0
             # Service runs via hostnamectl
           else
             sudo("service hostname start")
@@ -23,11 +25,11 @@ module VagrantPlugins
         end
 
         def hardy?
-          os_version("hardy")
+          os_version() == 8.04
         end
 
         def vivid?
-          os_version("vivid")
+          os_version() == 15.04
         end
 
         def renew_dhcp
@@ -36,8 +38,12 @@ module VagrantPlugins
 
       private
 
-        def os_version(name)
-          machine.communicate.test("[ `lsb_release -c -s` = #{name} ]")
+        def os_version
+          cmd = "lsb_release -r -s"
+          result = nil
+          machine.communicate.execute(cmd) do |type, data|
+            result = data.strip.to_f if type == :stdout
+          end
         end
       end
     end
