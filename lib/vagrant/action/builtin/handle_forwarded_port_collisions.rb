@@ -156,8 +156,6 @@ module Vagrant
                                    new_port:   repaired_port.to_s))
             end
           end
-
-          @app.call(env)
         end
 
         def lease_check(port)
