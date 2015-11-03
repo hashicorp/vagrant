@@ -408,8 +408,8 @@ module Vagrant
       error_key(:linux_nfs_mount_failed)
     end
 
-    class LinuxRDesktopNotFound < VagrantError
-      error_key(:linux_rdesktop_not_found)
+    class LinuxRDPClientNotFound < VagrantError
+      error_key(:linux_rdp_client_not_found)
     end
 
     class LocalDataDirectoryNotAccessible < VagrantError

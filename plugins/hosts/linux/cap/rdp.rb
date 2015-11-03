@@ -13,7 +13,7 @@ module VagrantPlugins
             elsif Vagrant::Util::Which.which("rdesktop")
               "rdesktop"
             else
-              raise Vagrant::Errors::LinuxRDesktopNotFound
+              raise Vagrant::Errors::LinuxRDPClientNotFound
             end
 
           args = []
