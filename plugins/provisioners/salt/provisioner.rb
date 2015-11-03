@@ -329,11 +329,10 @@ module VagrantPlugins
 
       def call_masterless
         @machine.env.ui.info "Calling state.highstate in local mode... (this may take a while)"
-        cmd = "salt-call state.highstate --local"
+        cmd = "salt-call state.highstate --local#{get_loglevel}#{get_colorize}#{get_pillar}"
         if @config.minion_id
           cmd += " --id #{@config.minion_id}"
         end
-        cmd += " -l debug#{get_pillar}"
         @machine.communicate.sudo(cmd) do |type, data|
           if @config.verbose
             @machine.env.ui.info(data)
