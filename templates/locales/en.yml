@@ -1001,6 +1001,11 @@ en:
         A file or directory you're attempting to include with your packaged
         box has symlinks in it. Vagrant cannot include symlinks in the
         resulting package. Please remove the symlinks and try again.
+      provider_cant_install: |-
+        The provider '%{provider}' doesn't support automatic installation.
+        This is a limitation of this provider. Please report this as a feature
+        request to the provider in question. To install this provider, you'll
+        have to do so manually.
       provider_not_found: |-
         The provider '%{provider}' could not be found, but was requested to
         back the machine '%{machine}'. Please use a provider that exists.
