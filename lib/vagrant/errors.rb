@@ -524,6 +524,10 @@ module Vagrant
       error_key(:provider_cant_install)
     end
 
+    class ProviderInstallFailed < VagrantError
+      error_key(:provider_install_failed)
+    end
+
     class ProviderNotFound < VagrantError
       error_key(:provider_not_found)
     end

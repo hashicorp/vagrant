@@ -53,12 +53,13 @@ module VagrantPlugins
 
         # Check if we're requesting installation
         if options[:install]
-          if !machine.provider.capability?(:install)
+          key = "provider_install_#{machine.provider_name}".to_sym
+          if !@env.host.capability?(key)
             raise Vagrant::Errors::ProviderCantInstall,
               provider: machine.provider_name.to_s
           end
 
-          machine.provider.capability(:install)
+          @env.host.capability(key)
           return
         end
 

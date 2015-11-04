@@ -280,6 +280,7 @@ en:
       CHANGELOG below:
 
         https://github.com/mitchellh/vagrant/blob/v%{version}/CHANGELOG.md
+
     cfengine_config:
       classes_array: |-
         The 'classes' configuration must be an array.
@@ -1006,6 +1007,14 @@ en:
         This is a limitation of this provider. Please report this as a feature
         request to the provider in question. To install this provider, you'll
         have to do so manually.
+      provider_install_failed: |-
+        Installation of the provider '%{provider}' failed! The stdout
+        and stderr are shown below. Please read the error output, resolve it,
+        and try again. If problem persists, please install the provider
+        manually.
+
+        Stdout: %{stdout}
+        Stderr: %{stderr}
       provider_not_found: |-
         The provider '%{provider}' could not be found, but was requested to
         back the machine '%{machine}'. Please use a provider that exists.
@@ -1867,6 +1876,21 @@ en:
           Preparing to edit /etc/exports. Administrator privileges will be required...
         nfs_prune: |-
           Pruning invalid NFS exports. Administrator privileges will be required...
+      darwin:
+        virtualbox_install_download: |-
+          Downloading VirtualBox %{version}...
+        virtualbox_install_detail: |-
+          This may not be the latest version of VirtualBox, but it is a version
+          that is known to work well. Over time, we'll update the version that
+          is installed.
+        virtualbox_install_install: |-
+          Installing VirtualBox. This will take a few minutes...
+        virtualbox_install_install_detail: |-
+          You may be asked for your administrator password during this time.
+          If you're uncomfortable entering your password here, please install
+          VirtualBox manually.
+        virtualbox_install_success: |-
+          VirtualBox has successfully been installed!
       linux:
         nfs_export: |-
           Preparing to edit /etc/exports. Administrator privileges will be required...

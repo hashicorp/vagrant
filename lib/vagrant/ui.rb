@@ -319,6 +319,7 @@ module Vagrant
 
         target = @prefix
         target = opts[:target] if opts.key?(:target)
+        target = "#{target}:" if target != ""
 
         # Get the lines. The first default is because if the message
         # is an empty string, then we want to still use the empty string.
@@ -327,7 +328,7 @@ module Vagrant
 
         # Otherwise, make sure to prefix every line properly
         lines.map do |line|
-          "#{prefix}#{target}: #{line}"
+          "#{prefix}#{target} #{line}"
         end.join("\n")
       end
     end
