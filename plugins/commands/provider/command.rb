@@ -46,7 +46,7 @@ module VagrantPlugins
 
         # Check if we're just doing a usability check
         if options[:usable]
-          puts machine.provider_name.to_s
+          @env.ui.output(machine.provider_name.to_s)
           return 0 if machine.provider.class.usable?(false)
           return 1
         end
@@ -59,7 +59,11 @@ module VagrantPlugins
           end
 
           machine.provider.capability(:install)
+          return
         end
+
+        # No subtask, just output the provider name
+        @env.ui.output(machine.provider_name.to_s)
 
         # Success, exit status 0
         0
