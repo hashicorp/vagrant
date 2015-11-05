@@ -1899,6 +1899,22 @@ en:
       arch:
         nfs_export:
           prepare: "Preparing to edit /etc/exports. Administrator privileges will be required..."
+      windows:
+        virtualbox_install_download: |-
+          Downloading VirtualBox %{version}...
+        virtualbox_install_detail: |-
+          This may not be the latest version of VirtualBox, but it is a version
+          that is known to work well. Over time, we'll update the version that
+          is installed.
+        virtualbox_install_install: |-
+          Installing VirtualBox. This will take a few minutes...
+        virtualbox_install_install_detail: |-
+          A couple pop-ups will occur during this installation process to
+          ask for admin privileges as well as to install Oracle drivers.
+          Please say yes to both. If you're uncomfortable with this, please
+          install VirtualBox manually.
+        virtualbox_install_success: |-
+          VirtualBox has successfully been installed!
 
     provisioners:
       chef:
