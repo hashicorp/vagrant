@@ -20,6 +20,10 @@ on a day-to-day basis.
   unexpected error occurs. This will only happen on the first `vagrant up`.
   By default this is set.
 
+* `--[no-]install-provider` - If the requested provider is not installed,
+  Vagrant will attempt to automatically install it if it can. By default this
+  is enabled.
+
 * `--[no-]parallel` - Bring multiple machines up in parallel if the provider
   supports it. Please consult the provider documentation to see if this feature
   is supported.

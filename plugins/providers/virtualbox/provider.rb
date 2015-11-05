@@ -5,6 +5,15 @@ module VagrantPlugins
     class Provider < Vagrant.plugin("2", :provider)
       attr_reader :driver
 
+      def self.installed?
+        Driver::Meta.new
+        true
+      rescue Vagrant::Errors::VirtualBoxInvalidVersion
+        return false
+      rescue Vagrant::Errors::VirtualBoxNotDetected
+        return false
+      end
+
       def self.usable?(raise_error=false)
         # Instantiate the driver, which will determine the VirtualBox
         # version and all that, which checks for VirtualBox being present

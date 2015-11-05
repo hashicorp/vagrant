@@ -154,6 +154,13 @@ en:
       Inserting generated public key within guest...
     inserting_remove_key: |-
       Removing insecure key from the guest if it's present...
+    installing_provider: |-
+      Provider '%{provider}' not found. We'll automatically install it now...
+    installing_provider_detail: |-
+      The installation process will start below. Human interaction may be
+      required at some points. If you're uncomfortable with automatically
+      installing this provider, you can safely Ctrl-C this process and install
+      it manually.
     list_commands: |-
       Below is a listing of all available Vagrant commands and a brief
       description of what they do.
