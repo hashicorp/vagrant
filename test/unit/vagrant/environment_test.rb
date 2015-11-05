@@ -25,6 +25,48 @@ describe Vagrant::Environment do
   let(:instance)  { env.create_vagrant_env }
   subject { instance }
 
+  describe "#can_install_provider?" do
+    let(:plugin_hosts) { {} }
+    let(:plugin_host_caps) { {} }
+
+    before do
+      m = Vagrant.plugin("2").manager
+      m.stub(hosts: plugin_hosts)
+      m.stub(host_capabilities: plugin_host_caps)
+
+      # Detect the host
+      env.vagrantfile <<-VF
+      Vagrant.configure("2") do |config|
+        config.vagrant.host = nil
+      end
+      VF
+
+      # Setup the foo host by default
+      plugin_hosts[:foo] = [detect_class(true), nil]
+    end
+
+    it "should return whether it can install or not" do
+      plugin_host_caps[:foo] = { provider_install_foo: Class }
+
+      expect(subject.can_install_provider?(:foo)).to be_true
+      expect(subject.can_install_provider?(:bar)).to be_false
+    end
+  end
+
+  describe "#install_provider" do
+    let(:host) { double(:host) }
+
+    before do
+      allow(subject).to receive(:host).and_return(host)
+    end
+
+    it "should install the correct provider" do
+      expect(host).to receive(:capability).with(:provider_install_foo)
+
+      subject.install_provider(:foo)
+    end
+  end
+
   describe "#home_path" do
     it "is set to the home path given" do
       Dir.mktmpdir do |dir|

@@ -383,6 +383,26 @@ module Vagrant
       raise Errors::NoDefaultProvider
     end
 
+    # Returns whether or not we know how to install the provider with
+    # the given name.
+    #
+    # @return [Boolean]
+    def can_install_provider?(name)
+      host.capability?(provider_install_key(name))
+    end
+
+    # Installs the provider with the given name.
+    #
+    # This will raise an exception if we don't know how to install the
+    # provider with the given name. You should guard this call with
+    # `can_install_provider?` for added safety.
+    #
+    # An exception will be raised if there are any failures installing
+    # the provider.
+    def install_provider(name)
+      host.capability(provider_install_key(name))
+    end
+
     # Returns the collection of boxes for the environment.
     #
     # @return [BoxCollection]
@@ -881,6 +901,12 @@ module Vagrant
       end
 
       nil
+    end
+
+    # Returns the key used for the host capability for provider installs
+    # of the given name.
+    def provider_install_key(name)
+      "provider_install_#{name}".to_sym
     end
 
     # This upgrades a home directory that was in the v1.1 format to the
