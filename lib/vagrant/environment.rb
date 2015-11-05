@@ -309,6 +309,7 @@ module Vagrant
     def default_provider(**opts)
       opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
       opts[:force_default] = true if !opts.key?(:force_default)
+      opts[:check_usable] = true if !opts.key?(:check_usable)
 
       default = ENV["VAGRANT_DEFAULT_PROVIDER"]
       default = nil if default == ""
@@ -376,6 +377,7 @@ module Vagrant
 
       # Find the matching implementation
       ordered.each do |_, key, impl, _|
+        return key if !opts[:check_usable]
         return key if impl.usable?(false)
       end
 
