@@ -19,6 +19,7 @@ describe VagrantPlugins::Ansible::Config::Host do
     supported_options = %w( ask_sudo_pass
                             ask_vault_pass
                             extra_vars
+                            force_remote_user
                             groups
                             host_key_checking
                             inventory_path
@@ -42,6 +43,7 @@ describe VagrantPlugins::Ansible::Config::Host do
 
     expect(subject.playbook).to be_nil
     expect(subject.extra_vars).to be_nil
+    expect(subject.force_remote_user).to be_true
     expect(subject.ask_sudo_pass).to be_false
     expect(subject.ask_vault_pass).to be_false
     expect(subject.vault_password_file).to be_nil
@@ -58,6 +60,9 @@ describe VagrantPlugins::Ansible::Config::Host do
     expect(subject.raw_ssh_args).to be_nil
   end
 
+  describe "force_remote_user option" do
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :force_remote_user, true
+  end
   describe "host_key_checking option" do
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :host_key_checking, false
   end

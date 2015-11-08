@@ -59,6 +59,14 @@ This section lists the specific options for the Ansible (remote) provisioner. In
 
   The default value is `false`.
 
+- `force_remote_user` (boolean) - require Vagrant to set the `ansible_ssh_user` setting in the generated inventory, or as an extra variable when a static inventory is used. All the Ansible `remote_user` parameters will then be overridden by the value of `config.ssh.username` of the [Vagrant SSH Settings](/v2/vagrantfile/ssh_settings.html).
+
+  If this option is set to `false` Vagrant will set the Vagrant SSH username as a default Ansible remote user, but `remote_user` parameters of your Ansible plays or tasks will still be taken into account and thus override the Vagrant configuration.
+
+  The default value is `true`.
+
+  **Note:** This option was introduced in Vagrant 1.8.0. Previous Vagrant versions behave like if this option was set to `false`.
+
 - `host_key_checking` (boolean) - require Ansible to [enable SSH host key checking](http://docs.ansible.com/intro_getting_started.html#host-key-checking).
 
   The default value is `false`.
@@ -112,31 +120,6 @@ end
 **Caveats:**
 
 If you apply this parallel provisioning pattern with a static Ansible inventory, you'll have to organize the things so that [all the relevant private keys are provided to the `ansible-playbook` command](https://github.com/mitchellh/vagrant/pull/5765#issuecomment-120247738). The same kind of considerations applies if you are using multiple private keys for a same machine (see [`config.ssh.private_key_path` SSH setting](/v2/vagrantfile/ssh_settings.html)).
-
-### Troubleshooting SSH Connection Errors
-
-It is good to know that the following Ansible settings always override the `config.ssh.username` option defined in [Vagrant SSH Settings](/v2/vagrantfile/ssh_settings.html):
-
-* `ansible_ssh_user` variable
-* `remote_user` (or `user`) play attribute
-* `remote_user` task attribute
-
-Be aware that copying snippets from the Ansible documentation might lead to this problem, as `root` is used as the remote user in many [examples](http://docs.ansible.com/playbooks_intro.html#hosts-and-users).
-
-Example of an SSH error (with `vvv` log level), where an undefined remote user `xyz` has replaced `vagrant`:
-
-```
-TASK: [my_role | do something] *****************
-<127.0.0.1> ESTABLISH CONNECTION FOR USER: xyz
-<127.0.0.1> EXEC ['ssh', '-tt', '-vvv', '-o', 'ControlMaster=auto',...
-fatal: [ansible-devbox] => SSH encountered an unknown error. We recommend you re-run the command using -vvvv, which will enable SSH debugging output to help diagnose the issue.
-```
-
-In a situation like the above, to override the `remote_user` specified in a play you can use the following line in your Vagrantfile `vm.provision` block:
-
-```
-ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
-```
 
 ### Force Paramiko Connection Mode
 
