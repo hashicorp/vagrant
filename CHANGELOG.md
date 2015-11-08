@@ -8,6 +8,8 @@ FEATURES:
     and restore point-in-time snapshots.
   - **IPv6 Private Networks**: Private networking now supports IPv6. This
     only works with VirtualBox and VMware at this point. [GH-6342]
+  - New provisioner: `ansible_local` to execute Ansible from the guest
+    machine. [GH-2103]
 
 BREAKING CHANGES:
 
@@ -15,21 +17,23 @@ BREAKING CHANGES:
     (i.e. `ansible_ssh_user` setting) to always correspond to the vagrant ssh
     username. This change is enabled by default, but we expect this to affect
     only a tiny number of people as it corresponds to the common usage.
-    If you however use different remote usernames in your Ansible plays, tasks,
+    If you however use multiple remote usernames in your Ansible plays, tasks,
     or custom inventories, you can simply set the option `force_remote_user` to
     false to make Vagrant behave the same as before.
-
 
 IMPROVEMENTS:
 
   - provisioners/ansible: add new `force_remote_user` option to control whether
     `ansible_ssh_user` parameter should be applied or not [GH-6348]
+  - provisioners/ansible: show a warning when running from a Windows Host [GH-5292]
 
 BUG FIXES:
 
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
   - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
     value in the generated inventory [GH-6209]
+  - provisioners/ansible: don't show the `ansible-playbook` command when verbose
+    option is an empty string
 
 ## 1.7.4 (July 17, 2015)
 
