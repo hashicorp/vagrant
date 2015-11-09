@@ -11,6 +11,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - core: allow removal of all box versions with `--all` flag [GH-3462]
+
 BUG FIXES:
 
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
