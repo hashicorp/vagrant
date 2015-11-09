@@ -23,6 +23,11 @@ module VagrantPlugins
             options[:plugin_sources] << plugin_source
           end
 
+          o.on("--force-plugin-source",
+               "Only use the RubyGems repository source specified by --plugin-source") do |force_plugin_source|
+            options[:force_plugin_source] = true
+          end
+
           o.on("--plugin-version PLUGIN_VERSION", String,
                "Install a specific version of the plugin") do |plugin_version|
             options[:plugin_version] = plugin_version

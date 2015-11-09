@@ -14,10 +14,11 @@ module VagrantPlugins
         end
 
         def call(env)
-          entrypoint  = env[:plugin_entry_point]
-          plugin_name = env[:plugin_name]
-          sources     = env[:plugin_sources]
-          version     = env[:plugin_version]
+          entrypoint   = env[:plugin_entry_point]
+          plugin_name  = env[:plugin_name]
+          sources      = env[:plugin_sources]
+          force_source = env[:force_plugin_source]
+          version      = env[:plugin_version]
 
           # If we're on Windows and the user data path has a space in it,
           # then things won't work because of a Ruby bug.
@@ -39,6 +40,7 @@ module VagrantPlugins
             version: version,
             require: entrypoint,
             sources: sources,
+            force_source: force_source, 
             verbose: !!env[:plugin_verbose],
           )
 
