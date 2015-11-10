@@ -108,14 +108,6 @@ module Vagrant
       error_key(:active_machine_with_different_provider)
     end
 
-    class AnsibleFailed < VagrantError
-      error_key(:ansible_failed)
-    end
-
-    class AnsiblePlaybookAppNotFound < VagrantError
-      error_key(:ansible_playbook_app_not_found)
-    end
-
     class BatchMultiError < VagrantError
       error_key(:batch_multi_error)
     end
