@@ -27,10 +27,19 @@
   .navbar-toggle{
     height: @header-height;
     margin: 0;
-    border-radius: 0;
-    .icon-bar{
-      border: 1px solid @black;
-      border-radius: 0;
+    position: relative;
+    float: right;
+    padding: 9px 10px;
+    background-color: transparent;
+    background-image: none;
+    border: none;
+
+    .bar{
+      display: block;
+      width: 22px;
+      height: 2px;
+      margin-top: 4px;
+      background-color: @black;
     }
   }
 
