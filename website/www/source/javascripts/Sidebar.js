@@ -11,9 +11,9 @@
 
     constructor: function(){
       this.$body = $('body');
-      this.$overlay = $('.sidebar-overlay');
-      this.$sidebar = $('#sidebar');
-      this.$sidebarHeader = $('#sidebar .sidebar-header');
+      this.$overlay = $('.mobile-nav-overlay');
+      this.$sidebar = $('#mobile-nav');
+      this.$sidebarHeader = $('#mobile-nav .mobile-nav-header');
       this.$toggleButton = $('.navbar-toggle');
       this.sidebarImg = this.$sidebarHeader.css('background-image');
 
@@ -25,7 +25,7 @@
 
       _this.$toggleButton.on('click', function() {
         _this.$sidebar.toggleClass('open');
-        if ((_this.$sidebar.hasClass('sidebar-fixed-left') || _this.$sidebar.hasClass('sidebar-fixed-right')) && _this.$sidebar.hasClass('open')) {
+        if ((_this.$sidebar.hasClass('mobile-nav-fixed-left') || _this.$sidebar.hasClass('mobile-nav-fixed-right')) && _this.$sidebar.hasClass('open')) {
           _this.$overlay.addClass('active');
           _this.$body.css('overflow', 'hidden');
         } else {
