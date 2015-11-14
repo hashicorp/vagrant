@@ -2,8 +2,8 @@
 $(document).ready(function(){
     $(document).scroll(function() {
         var top = $(document).scrollTop();
-        if (top > 0) $('nav').addClass("drop-shadow");
-        if (top === 0) $('nav').removeClass("drop-shadow");
+        if (top > 0) $('#header').addClass("drop-shadow");
+        if (top === 0) $('header').removeClass("drop-shadow");
     });
 });
 

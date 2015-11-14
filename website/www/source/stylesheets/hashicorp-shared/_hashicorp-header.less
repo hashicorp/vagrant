@@ -2,11 +2,6 @@
 // Hashicorp nav
 // --------------------------------------------------
 
-#header{
-  position: relative;
-  margin-bottom: 0;
-}
-
 .navigation {
   color: black;
   text-rendering: optimizeLegibility;
@@ -115,7 +110,6 @@
     vertical-align:top;
     padding: 0;
     line-height: @header-height;
-    padding-left: @project-logo-width + @project-logo-pad-left;
     background-position: 0 center;
     .transition(all 300ms ease-in);
 
@@ -145,7 +139,9 @@
   font-family: @header-font-family;
   font-weight: 600;
   font-size: 0;
+  letter-spacing: 0;
   text-decoration: none;
+  text-transform: none;
 
   &.white{
     color: white;
@@ -166,8 +162,13 @@
     text-decoration: none;
   }
 
+  &:hover{
+    .transition(all 300ms ease-in);
+  }
+
   .svg-wrap{
     font-size: 13px;
+    .transition(all 300ms ease-in);
   }
 
   svg{
