@@ -11,13 +11,15 @@
 
 // Mixins
 .project-a-style{
-  font-weight: 300;
-  opacity: .75;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
   color: @project-link-color;
+  .anti-alias();
 
   &:hover{
-    color: $white;
-    opacity: 1;
+    color: @black;
   }
 }
 

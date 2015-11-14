@@ -2,6 +2,23 @@
 // Hashicorp nav
 // --------------------------------------------------
 
+.nav{
+  float: left;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li{
+    display: block;
+    float: left;
+
+    a{
+      position: relative;
+      display: block;
+    }
+  }
+}
+
 .navigation {
   color: black;
   text-rendering: optimizeLegibility;
@@ -332,5 +349,12 @@
         line-height: @header-mobile-height;
       }
     }
+  }
+}
+
+
+@media (min-width: 768px){
+  .navbar-toggle {
+    display: none;
   }
 }
