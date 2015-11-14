@@ -47,6 +47,8 @@
 			 </ul>
 			 </nav>
 
+       <%= partial "layouts/mobile_nav" %>
+
 			 <%= yield %>
 
 			 <!-- footer -->
@@ -88,10 +90,15 @@
 			 <!-- close .wrapper -->
 		 </div>
 
+     <%= javascript_include_tag "lib/Base" %>
+     <%= javascript_include_tag "Sidebar" %>
+
 		 <!-- load scripts -->
 		 <!-- load full-width image into any div with class="big-background -->
 		 <script>
-			 $(".big-background").backstretch("assets/photos/full_width.jpg");
+			$(".big-background").backstretch("assets/photos/full_width.jpg");
+
+  	  new Sidebar();
 		 </script>
 
 		 <!-- Google analytics -->
@@ -129,4 +136,3 @@
 		 </script>
 	 </body>
  </html>
-
