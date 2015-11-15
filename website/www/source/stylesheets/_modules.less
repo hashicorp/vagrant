@@ -1,72 +1,72 @@
 .Modules {
-    &.blog-archives {
-        span.meta.date {
-            font-size: 12px;
-        }
+  &.blog-archives {
+    span.meta.date {
+      font-size: 12px;
     }
+  }
 
-    &.blog-landing, &.blog-post {
-        article {
-            letter-spacing: normal;
-            margin-bottom: 30px;
+  &.blog-landing, &.blog-post {
+    article {
+      letter-spacing: normal;
+      margin-bottom: 30px;
 
-            .meta {
-                font-size: 16px;
-            }
+      .meta {
+        font-size: 16px;
+      }
+      
+      img {
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
 
-            img {
-                margin-top: 15px;
-                margin-bottom: 15px;
-            }
+      h2 {
+        font-size: 45px;
+        font-weight: bold;
+        margin-top: 2px;
+        text-transform: none;
+      }
 
-            h2 {
-                font-size: 45px;
-                font-weight: bold;
-                margin-top: 2px;
-                text-transform: none;
-            }
-
-            h3 {
-                color: #476576;
-                font-size: 32px;
-                font-weight: bold;
-                border-bottom: 1px solid #476576;
-                padding-bottom: 15px;
-                margin-bottom: 20px;
-                margin-top: 20px;
-            }
-
-            li a {
-                color: @docs-blue;
-                text-decoration: none;
-                border-bottom: 1px solid @docs-blue;
-
-                &:hover {
-                    color: darken(@blue, 10%);
-                    border-bottom: 1px solid darken(@blue, 10%);
-                }
-            }
-        }
-    }
-
-    &.blog-sidebar {
+      h3 {
         color: #476576;
-        font-size: 18px;
-        line-height: 26px;
-    }
+        font-size: 32px;
+        font-weight: bold;
+        border-bottom: 1px solid #476576;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+        margin-top: 20px;
+      }
 
-    &.sponsors {
-        margin-top: 50px;
+      li a {
+        color: @docs-blue;
+        text-decoration: none;
+        border-bottom: 1px solid @docs-blue;
 
-        ul {
-            list-style-type: none;
-
-            li {
-                float: left;
-                text-align: center;
-                width: 50%;
-                height: 250px;
-            }
+        &:hover {
+          color: darken(@blue, 10%);
+          border-bottom: 1px solid darken(@blue, 10%);
         }
+      }
     }
+  }
+
+  &.blog-sidebar {
+    color: #476576;
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  &.sponsors {
+    margin-top: 50px;
+
+    ul {
+      list-style-type: none;
+
+      li {
+        float: left;
+        text-align: center;
+        width: 50%;
+        height: 250px;
+      }
+    }
+  }
 }
