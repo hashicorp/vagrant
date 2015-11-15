@@ -128,7 +128,11 @@
     height: auto;
 
     .navbar-toggle{
-      padding-top: 0;
+      padding-top: 2px;
+    }
+
+    .by-hashicorp{
+      margin-top: 2px;
     }
 
     .navbar-brand {
@@ -142,12 +146,16 @@
 }
 
 
-// @media (max-width: 320px) {
-//   #header {
-//     .navbar-brand {
-//       .logo{
-//         font-size: 0 !important; //hide terraform text
-//       }
-//     }
-//   }
-// }
+@media (max-width: 320px) {
+  #header {
+    .by-hashicorp{
+      margin-left: -2px;
+    }
+
+    .navbar-brand {
+      .logo{
+        width: 40px;
+      }
+    }
+  }
+}
