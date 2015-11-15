@@ -23,79 +23,71 @@ footer {
 
         &:hover {
           color: @purple;
-          } //li a:hover
-          } // li a
-          } //li
+        }
+      }
+    }
+  }
 
-          } //ul
-
-
-          ul.logos {
-            margin: (@baseline * 2) 0;
+  ul.logos {
+    margin: (@baseline * 2) 0;
 
 
-            li {
-              display: inline-block;
-            }
+    li {
+      display: inline-block;
+    }
 
-            span {
-              color: @dark-gray-text;
-              .museo-sans-light;
-              text-transform: uppercase;
-              font-size: 40px;
-              margin: 0 10px;
-            }
+    span {
+      color: @dark-gray-text;
+      .museo-sans-light;
+      text-transform: uppercase;
+      font-size: 40px;
+      margin: 0 10px;
+    }
 
-            .vagrant-logo-monochrome,
-            .hashi-logo-monochrome {
+    .vagrant-logo-monochrome,
+    .hashi-logo-monochrome {
 
-              &:hover {
-                -khtml-opacity: .85;
-                -moz-opacity: .85;
-                opacity: .85;
-                filter: alpha(opacity=85);
-                .animate-opacity;
-              }
-            }
+      &:hover {
+        -khtml-opacity: .85;
+        -moz-opacity: .85;
+        opacity: .85;
+        filter: alpha(opacity=85);
+        .animate-opacity;
+      }
+    }
 
-            .vagrant-logo-monochrome {
-              height: 80px;
-              width: 80px;
-              background: url(/images/footer_vagrant_logo.png) no-repeat center center;
-              margin-bottom: -25px;
+    .vagrant-logo-monochrome {
+      height: 80px;
+      width: 80px;
+      background: url(/images/footer_vagrant_logo.png) no-repeat center center;
+      margin-bottom: -25px;
 
-            }
+    }
 
-            .hashi-logo-monochrome {
-              height: 80px;
-              width: 80px;
-              background: url(/images/footer_hashi_logo.png) no-repeat center center;
-              margin-bottom: -25px;
-            }
+    .hashi-logo-monochrome {
+      height: 80px;
+      width: 80px;
+      background: url(/images/footer_hashi_logo.png) no-repeat center center;
+      margin-bottom: -25px;
+    }
 
-          }
+  }
 
+  a.contact-link {
+    color: @dark-gray-text;
+    line-height: @base-line-height * 2;
+    font-size: 30px;
 
-          a.contact-link {
-            color: @dark-gray-text;
-            line-height: @base-line-height * 2;
-            font-size: 30px;
+    &:hover {
+      color: @white;
+    }
 
-            &:hover {
-              color: @white;
-            }
+    &:visited {
+      color: inherit;
+    }
 
-            &:visited {
-              color: inherit;
-            }
-
-            &:active {
-              color: @blue;
-            }
-            } //contact link
-
-
-
-
-
-            } //footer
+    &:active {
+      color: @blue;
+    }
+  }
+}

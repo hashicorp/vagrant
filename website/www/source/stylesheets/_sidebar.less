@@ -44,94 +44,94 @@
 
   }
 
-  .sidebar-nav { //style all sidebar-navs
+  .sidebar-nav {
     //position:fixed;
   }
 
-  ul { //general sidebar list styles
+  ul {
 
-    li { //general sidebar list item styles
+    li {
       font-size: 20px;
       .museo-sans-light;
 
       a {
         display: block;
-        } //li a
+      }
 
-        &:hover {
+      &:hover {
+      }
+    }
+
+    ul.sub {
+      border-top: none;
+      list-style-type: none;
+      margin:0 0 5px 0;
+
+      li {
+        padding: 5px 0 5px 20px;
+        font-size: 15px;
+        border: none;
+        border-bottom: none !important;
+      }
+    }
+
+  }
+
+
+  .inner & {
+    .padded;
+    position:fixed;
+
+    li.current a {
+      color: @purple;
+    }
+
+    ul {
+
+
+      li {
+        color: @dark-blue-text;
+        padding: 20px 0;
+        border-top: 1px solid fade(@white, 40%);
+
+        &:last-child {
+          border-bottom: 1px solid fade(@white, 40%);
         }
-        } //li
 
-        ul.sub { //subnav list styles
+        &.current {
+
+        }
+      }
+    }
+  }
+
+  .docs & {
+
+    li.current a {
+      color: @blue;
+    }
+
+    ul {
+      margin-top: 60px;
+
+      li {
+        text-transform: capitalize;
+        color: @white;
+        padding: 12px 0;
+        border-top: 1px solid fade(@white, 20%);
+
+        &:first-child {
           border-top: none;
-          list-style-type: none;
-          margin:0 0 5px 0;
+        }
 
-          li {
-            padding: 5px 0 5px 20px;
-            font-size: 15px;
-            border: none;
-            border-bottom: none !important;
-            } //ul.sub li
-            } //ul.sub
+        &:last-child {
+          border-bottom: 1px solid fade(@white, 20%);
+        }
 
-            } //ul
+        &.current {
 
-
-            .inner & { //styles for the inner-page sidebar
-              .padded;
-              position:fixed;
-
-              li.current a {
-                color: @purple;
-              }
-
-              ul { //style inner list
-
-
-                li { //style inner list item
-                  color: @dark-blue-text;
-                  padding: 20px 0;
-                  border-top: 1px solid fade(@white, 40%);
-
-                  &:last-child {
-                    border-bottom: 1px solid fade(@white, 40%);
-                  }
-
-                  &.current { //style the current selected list item
-
-                    } //current
-                    } //li
-                    } //ul
-                    } //.inner .sidebar
-
-                    .docs & { //styles for the documentation sidebar
-
-                      li.current a {
-                        color: @blue;
-                      }
-
-                      ul { //style documentation list
-                        margin-top: 60px;
-
-                        li { //style documentation list items
-                          text-transform: capitalize;
-                          color: @white;
-                          padding: 12px 0;
-                          border-top: 1px solid fade(@white, 20%);
-
-                          &:first-child {
-                            border-top: none;
-                          }
-
-                          &:last-child {
-                            border-bottom: 1px solid fade(@white, 20%);
-                          }
-
-                          &.current { //style the current selected list item
-
-                            } //current
-                            } //li
-                            } //ul
-                            } //.documentation .sidebar
-                            } //sidebar
+        }
+      }
+    }
+  }
+}
