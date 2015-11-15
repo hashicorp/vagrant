@@ -4,20 +4,46 @@
 // - Make sidebar edits here
 // --------------------------------------------------
 
-.sidebar {
-  .sidebar-nav {
+#mobile-nav {
+  .mobile-nav-nav {
+    width: 100%;
+    text-align: center;
     // Links
     //----------------
-    li {
-      a {
-        color: $purple;
+    //
+    li{
+      float: none;
 
-        svg{
-          path{
-            fill: $purple;
+      &.pill{
+        background-color: #48b4fb;
+        border-radius: 25px;
+        padding: 5px 2px;
+        line-height: 26px;
+        margin: 10px 10px 10px 10px;
+
+        &:focus,
+        &:hover{
+          a{
+            background-color: transparent;
           }
         }
+
+        a{
+          color: @white;
+          line-height: 24px;
+        }
+      }
+
+      a{
+        .anti-alias();
+        font-size: 13px;
       }
     }
   }
+}
+
+@media (max-width: 768px) {
+  #header {
+      position: relative;
+    }
 }
