@@ -1,5 +1,6 @@
 param([String]$username, [String]$password, [String]$encoded_command)
 
+$ProgressPreference = "SilentlyContinue"
 $task_name = "WinRM_Elevated_Shell"
 $out_file = "$env:SystemRoot\Temp\WinRM_Elevated_Shell.log"
 
