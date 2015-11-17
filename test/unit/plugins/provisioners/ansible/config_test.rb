@@ -20,6 +20,9 @@ describe VagrantPlugins::Ansible::Config::Host do
                             ask_vault_pass
                             extra_vars
                             force_remote_user
+                            galaxy_command
+                            galaxy_role_file
+                            galaxy_roles_path
                             groups
                             host_key_checking
                             inventory_path
@@ -176,6 +179,16 @@ describe VagrantPlugins::Ansible::Config::Host do
       expect(result["ansible remote provisioner"]).to eql([
         I18n.t("vagrant.provisioners.ansible.errors.vault_password_file_invalid",
                path: non_existing_file, system: "host")
+      ])
+    end
+
+    it "returns an error if galaxy_role_file is specified, but does not exist" do
+      subject.galaxy_role_file = non_existing_file
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result["ansible remote provisioner"]).to eql([
+        I18n.t("vagrant.provisioners.ansible.errors.galaxy_role_file_invalid",
                path: non_existing_file, system: "host")
       ])
     end

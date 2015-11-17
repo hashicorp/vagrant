@@ -208,7 +208,7 @@ VF
         config.finalize!
         Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
 
-        expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsiblePlaybookAppFailed)
+        expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
       end
     end
 
@@ -580,6 +580,33 @@ VF
           expect(cmd_opts[:env]).to_not include("ANSIBLE_FORCE_COLOR")
           expect(cmd_opts[:env]['ANSIBLE_NOCOLOR']).to eql("true")
         }
+      end
+    end
+
+    describe "with galaxy support" do
+
+      before do
+        config.galaxy_role_file = existing_file
+      end
+
+      it "raises an error when ansible-galaxy command fails", skip_before: true, skip_after: true do
+        config.finalize!
+        Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
+
+        expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
+      end
+
+      it "execute ansible-galaxy and ansible-playbook" do
+        # TODO: to be improved, but I'm currenty facing some issues, maybe only present in RSpec 2.14...
+        expect(Vagrant::Util::Subprocess).to receive(:execute).twice
+      end
+
+      describe "with verbose option enabled" do
+        before do
+          config.verbose = true
+        end
+
+        xit "shows the ansible-galaxy command in use"
       end
     end
 

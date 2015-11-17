@@ -14,8 +14,7 @@ module VagrantPlugins
 
         def provision
           check_and_install_ansible
-          prepare_common_command_arguments
-          prepare_common_environment_variables
+          execute_ansible_galaxy_on_guest if config.galaxy_role_file
           execute_ansible_playbook_on_guest
         end
 
@@ -51,9 +50,9 @@ module VagrantPlugins
             @machine.guest.capability(:ansible_install)
           end
 
-          # Check for the existence of ansible-playbook binary on the guest,
+          # Check that ansible binaries are well installed on the guest,
           @machine.communicate.execute(
-            "ansible-playbook --help",
+            "ansible-galaxy --help && ansible-playbook --help",
             :error_class => Ansible::Errors::AnsibleNotFoundOnGuest,
             :error_key => :ansible_not_found_on_guest)
 
@@ -65,15 +64,27 @@ module VagrantPlugins
           end
         end
 
+        def execute_ansible_galaxy_on_guest
+          command_values = {
+            :ROLE_FILE => get_galaxy_role_file(config.provisioning_path),
+            :ROLES_PATH => get_galaxy_roles_path(config.provisioning_path)
+          }
+          remote_command = config.galaxy_command % command_values
+
+          ui_running_ansible_command "galaxy", remote_command
+
+          result = execute_on_guest(remote_command)
+          raise Ansible::Errors::AnsibleGalaxyAppFailed if result != 0
+        end
+
         def execute_ansible_playbook_on_guest
+          prepare_common_command_arguments
+          prepare_common_environment_variables
+
           command = (%w(ansible-playbook) << @command_arguments << config.playbook).flatten
           remote_command = "cd #{config.provisioning_path} && #{Helpers::stringify_ansible_playbook_command(@environment_variables, command)}"
 
-          # TODO: generic HOOK ???    
-          # Show the ansible command in use
-          if verbosity_is_enabled?
-            @machine.env.ui.detail(remote_command)
-          end
+          ui_running_ansible_command "playbook", remote_command
 
           result = execute_on_guest(remote_command)
           raise Ansible::Errors::AnsiblePlaybookAppFailed if result != 0

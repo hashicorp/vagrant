@@ -2072,6 +2072,8 @@ en:
             for more information.
           extra_vars_invalid: |-
             `extra_vars` must be a hash or a path to an existing file. Received: %{value} (as %{type})
+          galaxy_role_file_invalid: |-
+            `galaxy_role_file` does not exist on the %{system}: %{path}
           inventory_path_invalid: |-
             `inventory_path` does not exist on the %{system}: %{path}
           no_playbook: |-
@@ -2081,6 +2083,7 @@ en:
           vault_password_file_invalid: |-
             `vault_password_file` does not exist on the %{system}: %{path}
         installing: "Installing Ansible..."
+        running_galaxy: "Running ansible-galaxy..."
         running_playbook: "Running ansible-playbook..."
         windows_not_supported_for_control_machine: |-
           Windows is not officially supported for the Ansible Control Machine.

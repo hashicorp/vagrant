@@ -19,8 +19,7 @@ module VagrantPlugins
           @ssh_info = @machine.ssh_info
 
           warn_for_unsupported_platform
-          prepare_command_arguments
-          prepare_environment_variables
+          execute_ansible_galaxy_from_host if config.galaxy_role_file
           execute_ansible_playbook_from_host
         end
 
@@ -72,33 +71,57 @@ module VagrantPlugins
           @environment_variables["ANSIBLE_SSH_ARGS"] = ansible_ssh_args unless ansible_ssh_args.empty?
         end
 
-        def execute_ansible_playbook_from_host
-          # Assemble the full ansible-playbook command
-          command = (%w(ansible-playbook) << @command_arguments << config.playbook).flatten
-
-          # TODO: generic HOOK ???    
-          # Show the ansible command in use
-          if verbosity_is_enabled?
-            @machine.env.ui.detail(Helpers::stringify_ansible_playbook_command(@environment_variables, command))
+        def execute_command_from_host(command)
+          begin
+            result = Vagrant::Util::Subprocess.execute(*command) do |type, data|
+              if type == :stdout || type == :stderr
+                @machine.env.ui.detail(data, new_line: false, prefix: false)
+              end
+            end
+            raise Ansible::Errors::AnsibleCommandFailed if result.exit_code != 0
+          rescue Vagrant::Errors::CommandUnavailable
+            raise Ansible::Errors::AnsibleNotFoundOnHost
           end
+        end
 
-          # Write stdout and stderr data, since it's the regular Ansible output
+        def execute_ansible_galaxy_from_host
+          command_values = {
+              :ROLE_FILE => get_galaxy_role_file(machine.env.root_path),
+              :ROLES_PATH => get_galaxy_roles_path(machine.env.root_path)
+            }
+          arg_separator = '__VAGRANT_ARG_SEPARATOR__'
+          command_template = config.galaxy_command.gsub(' ', arg_separator)
+          str_command = command_template % command_values
+
+          ui_running_ansible_command "galaxy", str_command.gsub(arg_separator, ' ')
+
+          command = str_command.split(arg_separator)
           command << {
-            env: @environment_variables,
+            # Write stdout and stderr data, since it's the regular Ansible output
             notify: [:stdout, :stderr],
             workdir: @machine.env.root_path.to_s
           }
 
-          begin
-            result = Vagrant::Util::Subprocess.execute(*command) do |type, data|
-              if type == :stdout || type == :stderr
-                @machine.env.ui.info(data, new_line: false, prefix: false)
-              end
-            end
-            raise Ansible::Errors::AnsiblePlaybookAppFailed if result.exit_code != 0
-          rescue Vagrant::Errors::CommandUnavailable
-            raise Ansible::Errors::AnsibleNotFoundOnHost
-          end
+          execute_command_from_host command
+        end
+
+        def execute_ansible_playbook_from_host
+          prepare_command_arguments
+          prepare_environment_variables
+
+          # Assemble the full ansible-playbook command
+          command = (%w(ansible-playbook) << @command_arguments << config.playbook).flatten
+
+          ui_running_ansible_command "playbook", Helpers::stringify_ansible_playbook_command(@environment_variables, command)
+
+          command << {
+            env: @environment_variables,
+            # Write stdout and stderr data, since it's the regular Ansible output
+            notify: [:stdout, :stderr],
+            workdir: @machine.env.root_path.to_s
+          }
+
+          execute_command_from_host command
         end
 
         def ship_generated_inventory(inventory_content)

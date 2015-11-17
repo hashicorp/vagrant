@@ -7,7 +7,7 @@ module VagrantPlugins
         error_namespace("vagrant.provisioners.ansible.errors")
       end
 
-      class AnsiblePlaybookAppFailed < AnsibleError
+      class AnsibleCommandFailed < AnsibleError
         error_key(:ansible_command_failed)
       end
 

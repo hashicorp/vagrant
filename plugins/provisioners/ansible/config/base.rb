@@ -4,6 +4,9 @@ module VagrantPlugins
       class Base < Vagrant.plugin("2", :config)
 
         attr_accessor :extra_vars
+        attr_accessor :galaxy_role_file
+        attr_accessor :galaxy_roles_path
+        attr_accessor :galaxy_command
         attr_accessor :groups
         attr_accessor :inventory_path
         attr_accessor :limit
@@ -19,6 +22,9 @@ module VagrantPlugins
 
         def initialize
           @extra_vars          = UNSET_VALUE
+          @galaxy_role_file    = UNSET_VALUE
+          @galaxy_roles_path   = UNSET_VALUE
+          @galaxy_command      = UNSET_VALUE
           @groups              = UNSET_VALUE
           @inventory_path      = UNSET_VALUE
           @limit               = UNSET_VALUE
@@ -35,6 +41,9 @@ module VagrantPlugins
 
         def finalize!
           @extra_vars          = nil   if @extra_vars           == UNSET_VALUE
+          @galaxy_role_file    = nil   if @galaxy_role_file     == UNSET_VALUE
+          @galaxy_roles_path   = nil   if @galaxy_roles_path    == UNSET_VALUE
+          @galaxy_command      = "ansible-galaxy install --role-file=%{ROLE_FILE} --roles-path=%{ROLES_PATH} --force" if @galaxy_command == UNSET_VALUE
           @groups              = {}    if @groups               == UNSET_VALUE
           @inventory_path      = nil   if @inventory_path       == UNSET_VALUE
           @limit               = nil   if @limit                == UNSET_VALUE
@@ -66,6 +75,10 @@ module VagrantPlugins
 
           if inventory_path
             check_path_exists(machine, inventory_path, "vagrant.provisioners.ansible.errors.inventory_path_invalid")
+          end
+
+          if galaxy_role_file
+            check_path_is_a_file(machine, galaxy_role_file, "vagrant.provisioners.ansible.errors.galaxy_role_file_invalid")
           end
 
           if vault_password_file

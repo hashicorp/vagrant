@@ -51,6 +51,30 @@ Some of these options are for advanced usage only and should not be used unless 
 
   By default, this option is disabled and Vagrant generates an inventory based on the `Vagrantfile` information.
 
+- `galaxy_command` (template string) - The command pattern used to install Galaxy roles when `galaxy_role_file` is set.
+
+  The following placeholders can be used in this command pattern:
+    - `%{ROLE_FILE}` is replaced by the absolute path to the `galaxy_role_file` option
+    - `%{ROLES_PATH}` is
+      * replaced by the absolute path to the `galaxy_roles_path` option when such option is defined
+      * replaced by the absolute path to a `roles` subdirectory sitting in the parent directory of the configured `playbook` file otherwise.
+
+  By default, this option is set to
+
+  ```
+  ansible-galaxy install --role-file=%{ROLE_FILE} --roles-path=%{ROLES_PATH} --force
+  ```
+
+- `galaxy_role_file` (string) - The path to the Ansible Galaxy role file.
+
+  By default, this option is set to `nil` and Galaxy support is then disabled.
+
+  Note: if an absolute path is given, the `ansible_local` provisioner will assume that it corresponds to the exact location on the guest system.
+
+- `galaxy_roles_path` (string) - The path to the directory where Ansible Galaxy roles must be installed
+
+  By default, this option is set to `nil`, which means that the Galaxy roles will be installed in a `roles` subdirectory located in the parent directory of the `playbook` file.
+
 - `limit` (string or array of strings) - Set of machines or groups from the inventory file to further control which hosts [are affected](http://docs.ansible.com/glossary.html#limit-groups).
 
   The default value is set to the machine name (taken from `Vagrantfile`) to ensure that `vagrant provision` command only affect the expected machine.
