@@ -94,7 +94,7 @@ describe VagrantPlugins::Ansible::Config::Host do
 
       result = subject.validate(machine)
       expect(result["ansible remote provisioner"]).to eql([
-        I18n.t("vagrant.provisioners.ansible.no_playbook")
+        I18n.t("vagrant.provisioners.ansible.errors.no_playbook")
       ])
     end
 
@@ -104,7 +104,7 @@ describe VagrantPlugins::Ansible::Config::Host do
 
       result = subject.validate(machine)
       expect(result["ansible remote provisioner"]).to eql([
-        I18n.t("vagrant.provisioners.ansible.playbook_path_invalid",
+        I18n.t("vagrant.provisioners.ansible.errors.playbook_path_invalid",
                path: non_existing_file, system: "host")
       ])
     end
@@ -131,7 +131,7 @@ describe VagrantPlugins::Ansible::Config::Host do
 
       result = subject.validate(machine)
       expect(result["ansible remote provisioner"]).to eql([
-        I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
+        I18n.t("vagrant.provisioners.ansible.errors.extra_vars_invalid",
                type:  subject.extra_vars.class.to_s,
                value: subject.extra_vars.to_s)
       ])
@@ -143,7 +143,7 @@ describe VagrantPlugins::Ansible::Config::Host do
 
       result = subject.validate(machine)
       expect(result["ansible remote provisioner"]).to eql([
-        I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
+        I18n.t("vagrant.provisioners.ansible.errors.extra_vars_invalid",
                type:  subject.extra_vars.class.to_s,
                value: subject.extra_vars.to_s)
       ])
@@ -163,7 +163,7 @@ describe VagrantPlugins::Ansible::Config::Host do
 
       result = subject.validate(machine)
       expect(result["ansible remote provisioner"]).to eql([
-        I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
+        I18n.t("vagrant.provisioners.ansible.errors.inventory_path_invalid",
                path: non_existing_file, system: "host")
       ])
     end
@@ -174,7 +174,8 @@ describe VagrantPlugins::Ansible::Config::Host do
 
       result = subject.validate(machine)
       expect(result["ansible remote provisioner"]).to eql([
-        I18n.t("vagrant.provisioners.ansible.vault_password_file_invalid",
+        I18n.t("vagrant.provisioners.ansible.errors.vault_password_file_invalid",
+               path: non_existing_file, system: "host")
                path: non_existing_file, system: "host")
       ])
     end
@@ -187,14 +188,14 @@ describe VagrantPlugins::Ansible::Config::Host do
 
       result = subject.validate(machine)
       expect(result["ansible remote provisioner"]).to include(
-        I18n.t("vagrant.provisioners.ansible.playbook_path_invalid",
+        I18n.t("vagrant.provisioners.ansible.errors.playbook_path_invalid",
                path: non_existing_file, system: "host"))
       expect(result["ansible remote provisioner"]).to include(
-        I18n.t("vagrant.provisioners.ansible.extra_vars_invalid",
+        I18n.t("vagrant.provisioners.ansible.errors.extra_vars_invalid",
                type:  subject.extra_vars.class.to_s,
                value: subject.extra_vars.to_s))
       expect(result["ansible remote provisioner"]).to include(
-        I18n.t("vagrant.provisioners.ansible.inventory_path_invalid",
+        I18n.t("vagrant.provisioners.ansible.errors.inventory_path_invalid",
                path: non_existing_file, system: "host"))
     end
 

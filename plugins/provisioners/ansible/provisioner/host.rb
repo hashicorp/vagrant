@@ -97,7 +97,7 @@ module VagrantPlugins
             end
             raise Ansible::Errors::AnsiblePlaybookAppFailed if result.exit_code != 0
           rescue Vagrant::Errors::CommandUnavailable
-            raise Ansible::Errors::AnsiblePlaybookAppNotFoundOnHost
+            raise Ansible::Errors::AnsibleNotFoundOnHost
           end
         end
 

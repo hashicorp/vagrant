@@ -57,26 +57,22 @@ module VagrantPlugins
 
           # Validate that a playbook path was provided
           if !playbook
-            @errors << I18n.t("vagrant.provisioners.ansible.no_playbook")
+            @errors << I18n.t("vagrant.provisioners.ansible.errors.no_playbook")
           end
 
-          # Validate the existence of the playbook
           if playbook
-            check_path_is_a_file(machine, playbook, "vagrant.provisioners.ansible.playbook_path_invalid")
+            check_path_is_a_file(machine, playbook, "vagrant.provisioners.ansible.errors.playbook_path_invalid")
           end
 
-          # Validate the existence of the inventory_path, if specified
           if inventory_path
-            check_path_exists(machine, inventory_path, "vagrant.provisioners.ansible.inventory_path_invalid")
+            check_path_exists(machine, inventory_path, "vagrant.provisioners.ansible.errors.inventory_path_invalid")
           end
 
-          # Validate the existence of the vault_password_file, if specified
           if vault_password_file
-            check_path_is_a_file(machine, vault_password_file, "vagrant.provisioners.ansible.vault_password_file_invalid")
+            check_path_is_a_file(machine, vault_password_file, "vagrant.provisioners.ansible.errors.vault_password_file_invalid")
           end
 
-          # Validate that extra_vars is either a hash, or a path to an
-          # existing file
+          # Validate that extra_vars is either a hash, or a path to an existing file
           if extra_vars
             extra_vars_is_valid = extra_vars.kind_of?(Hash) || extra_vars.kind_of?(String)
             if extra_vars.kind_of?(String)
@@ -92,7 +88,7 @@ module VagrantPlugins
 
             if !extra_vars_is_valid
               @errors << I18n.t(
-                "vagrant.provisioners.ansible.extra_vars_invalid",
+                "vagrant.provisioners.ansible.errors.extra_vars_invalid",
                 type:  extra_vars.class.to_s,
                 value: extra_vars.to_s)
             end

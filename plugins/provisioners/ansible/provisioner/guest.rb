@@ -47,15 +47,15 @@ module VagrantPlugins
           if config.install &&
              (config.version.to_s.to_sym == :latest ||
               !@machine.guest.capability(:ansible_installed, config.version))
-            @machine.ui.detail(I18n.t("vagrant.provisioners.ansible.installing"))
+            @machine.ui.info(I18n.t("vagrant.provisioners.ansible.installing"))
             @machine.guest.capability(:ansible_install)
           end
 
           # Check for the existence of ansible-playbook binary on the guest,
           @machine.communicate.execute(
             "ansible-playbook --help",
-            :error_class => Ansible::Errors::AnsibleError,
-            :error_key => :ansible_playbook_app_not_found_on_guest)
+            :error_class => Ansible::Errors::AnsibleNotFoundOnGuest,
+            :error_key => :ansible_not_found_on_guest)
 
           # Check if requested ansible version is available
           if (!config.version.empty? &&
