@@ -678,7 +678,20 @@ VF
     # Special cases related to the Vagrant Host operating system in use
     #
 
-    context "with a Solaris-like host" do
+    context "on a Windows host" do
+      before do
+        Vagrant::Util::Platform.stub(windows?: true)
+        machine.ui.stub(:warn)
+      end
+
+      it "warns that Windows is not officially supported for the Ansible control machine" do
+        expect(machine.env.ui).to receive(:warn).with { |warning|
+          expect(warning).to eq(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine"))
+        }
+      end
+    end
+
+    context "on a Solaris-like host" do
       before do
         Vagrant::Util::Platform.stub(solaris?: true)
       end
