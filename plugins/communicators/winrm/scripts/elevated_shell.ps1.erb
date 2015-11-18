@@ -1,4 +1,4 @@
-param([String]$username, [String]$password, [String]$encoded_command)
+param([String]$username, [String]$password, [String]$encoded_command, [String]$execution_time_limit)
 
 # Try to get the Schedule.Service object. If it fails, we are probably
 # on an older version of Windows. On old versions, we can just execute
@@ -44,7 +44,7 @@ $task_xml = @'
     <Hidden>false</Hidden>
     <RunOnlyIfIdle>false</RunOnlyIfIdle>
     <WakeToRun>false</WakeToRun>
-    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <ExecutionTimeLimit>{execution_time_limit}</ExecutionTimeLimit>
     <Priority>4</Priority>
   </Settings>
   <Actions Context="Author">
@@ -60,6 +60,7 @@ $arguments = "/c powershell.exe -EncodedCommand $encoded_command &gt; $out_file 
 
 $task_xml = $task_xml.Replace("{arguments}", $arguments)
 $task_xml = $task_xml.Replace("{username}", $username)
+$task_xml = $task_xml.Replace("{execution_time_limit}", $execution_time_limit)
 
 $schedule.Connect()
 $task = $schedule.NewTask($null)

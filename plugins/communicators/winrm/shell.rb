@@ -38,6 +38,7 @@ module VagrantPlugins
       attr_reader :port
       attr_reader :username
       attr_reader :password
+      attr_reader :execution_time_limit
       attr_reader :config
 
       def initialize(host, port, config)
@@ -48,6 +49,7 @@ module VagrantPlugins
         @port                  = port
         @username              = config.username
         @password              = config.password
+        @execution_time_limit  = config.execution_time_limit
         @config                = config
       end
 

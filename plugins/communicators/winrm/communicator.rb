@@ -43,6 +43,7 @@ module VagrantPlugins
           # Got it! Let the user know what we're connecting to.
           @machine.ui.detail("WinRM address: #{shell.host}:#{shell.port}")
           @machine.ui.detail("WinRM username: #{shell.username}")
+          @machine.ui.detail("WinRM execution_time_limit: #{shell.execution_time_limit}")
           @machine.ui.detail("WinRM transport: #{shell.config.transport}")
 
           last_message = nil
@@ -218,7 +219,8 @@ module VagrantPlugins
 
         "powershell -executionpolicy bypass -file \"#{guest_script_path}\" " +
           "-username \"#{shell.username}\" -password \"#{shell.password}\" " +
-          "-encoded_command \"#{wrapped_encoded_command}\""
+          "-encoded_command \"#{wrapped_encoded_command}\" " +
+          "-execution_time_limit \"#{shell.execution_time_limit}\""
       end
 
       # Handles the raw WinRM shell result and converts it to a
