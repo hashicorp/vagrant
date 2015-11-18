@@ -43,6 +43,10 @@ BUG FIXES:
   - core: only append `access_token` when it does not exist in the URL
     [GH-6395, GH-6534]
 
+PLUGIN AUTHOR CHANGES:
+
+  - installer: Upgrade to Ruby 2.2.3
+
 ## 1.7.4 (July 17, 2015)
 
 BUG FIXES:
