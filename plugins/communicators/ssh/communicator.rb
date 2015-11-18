@@ -420,7 +420,7 @@ module VagrantPlugins
         rescue Errno::EHOSTDOWN
           # This is raised if we get an ICMP DestinationUnknown error.
           raise Vagrant::Errors::SSHHostDown
-        rescue Errno::EHOSTUNREACH
+        rescue Errno::EHOSTUNREACH, Errno::ENETUNREACH
           # This is raised if we can't work out how to route traffic.
           raise Vagrant::Errors::SSHNoRoute
         rescue Net::SSH::Exception => e
