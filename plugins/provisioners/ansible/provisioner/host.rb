@@ -147,25 +147,46 @@ module VagrantPlugins
           @machine.env.active_machines.each do |am|
             begin
               m = @machine.env.machine(*am)
+
+              # Call only once the SSH and WinRM info computation
+              # Note that machines configured with WinRM communicator, also have a "partial" ssh_info.
               m_ssh_info = m.ssh_info
-              if !m_ssh_info.nil?
-                forced_ssh_user = ""
-                if config.force_remote_user
-                  forced_ssh_user = "ansible_ssh_user='#{m_ssh_info[:username]}' "
-                end
-                machines += "#{m.name} ansible_ssh_host=#{m_ssh_info[:host]} ansible_ssh_port=#{m_ssh_info[:port]} #{forced_ssh_user}ansible_ssh_private_key_file='#{m_ssh_info[:private_key_path][0]}'\n"
+              if m.config.vm.communicator == :winrm
+                m_winrm_net_info = CommunicatorWinRM::Helper.winrm_info(m) # can raise a WinRMNotReady exception...
+                machines += get_inventory_winrm_machine(m, m_winrm_net_info)
+                @inventory_machines[m.name] = m
+              elsif !m_ssh_info.nil?
+                machines += get_inventory_ssh_machine(m, m_ssh_info)
                 @inventory_machines[m.name] = m
               else
                 @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")
                 # Let a note about this missing machine
                 machines += "# MISSING: '#{m.name}' machine was probably removed without using Vagrant. This machine should be recreated.\n"
               end
-            rescue Vagrant::Errors::MachineNotFound => e
+            rescue Vagrant::Errors::MachineNotFound, CommunicatorWinRM::Errors::WinRMNotReady => e
               @logger.info("Auto-generated inventory: Skip machine '#{am[0]} (#{am[1]})', which is not configured for this Vagrant environment.")
             end
           end
 
           return machines
+        end
+
+        def get_inventory_ssh_machine(machine, ssh_info)
+          forced_remote_user = ""
+          if config.force_remote_user
+            forced_remote_user = "ansible_ssh_user='#{ssh_info[:username]}' "
+          end
+
+          "#{machine.name} ansible_ssh_host=#{ssh_info[:host]} ansible_ssh_port=#{ssh_info[:port]} #{forced_remote_user}ansible_ssh_private_key_file='#{ssh_info[:private_key_path][0]}'\n"
+        end
+
+        def get_inventory_winrm_machine(machine, winrm_net_info)
+          forced_remote_user = ""
+          if config.force_remote_user
+            forced_remote_user = "ansible_ssh_user='#{machine.config.winrm.username}' "
+          end
+
+          "#{machine.name} ansible_connection=winrm ansible_ssh_host=#{winrm_net_info[:host]} ansible_ssh_port=#{winrm_net_info[:port]} #{forced_remote_user}ansible_ssh_pass='#{machine.config.winrm.password}'\n"
         end
 
         def ansible_ssh_args
