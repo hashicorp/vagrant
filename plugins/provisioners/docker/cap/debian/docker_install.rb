@@ -11,7 +11,9 @@ module VagrantPlugins
               comm.sudo("apt-get update -y")
               # TODO: Perform check on the host machine if aufs is installed and using LXC
               if machine.provider_name != :lxc
-                comm.sudo("lsmod | grep aufs || modprobe aufs || apt-get install -y linux-image-extra-`uname -r`")
+                # Attempt to install linux-image-extra for this kernel, if it exists
+                 package_name = "linux-image-extra-`uname -r`"
+                 comm.sudo("lsmod | grep aufs || modprobe aufs || apt-cache show #{package_name} && apt-get install -y #{package_name} || true")
               end
               comm.sudo("apt-get install -y --force-yes -q curl")
               comm.sudo("curl -sSL https://get.docker.com/gpg | apt-key add -")
