@@ -2037,6 +2037,7 @@ en:
         running: "Running: %{script}"
         runningas: "Running: %{local} as %{remote}"
         upload_path_not_set: "`upload_path` must be set for the shell provisioner."
+        interactive_not_elevated: "To be interactive, it must also be privileged."
 
       ansible:
         errors:
