@@ -6,8 +6,9 @@ sudo apt-get -y update
 sudo apt-get -y install curl
 sudo su -l -c 'gpg --keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3' vagrant
 sudo su -l -c 'curl -L https://get.rvm.io | bash -s stable --auto-dotfiles' vagrant
-sudo su -l -c 'rvm install 2.0.0' vagrant
-sudo su -l -c 'rvm --default use 2.0.0' vagrant
+sudo su -l -c 'rvm install 2.2.2' vagrant
+sudo su -l -c 'rvm --default use 2.2.2' vagrant
+sudo su -l -c 'gem install bundler' vagrant
 sudo su -l -c 'cd /vagrant && bundle install --jobs 2' vagrant
 SCRIPT
 
