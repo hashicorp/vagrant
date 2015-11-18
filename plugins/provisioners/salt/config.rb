@@ -4,6 +4,10 @@ require "vagrant/util/deep_merge"
 module VagrantPlugins
   module Salt
     class Config < Vagrant.plugin("2", :config)
+      ## @deprecated
+      def config_dir=(value)
+        puts "salt config_dir is deprecated and will be removed in Vagrant 1.9"
+      end
 
       ## salty-vagrant options
       attr_accessor :minion_config

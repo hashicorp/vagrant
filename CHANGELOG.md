@@ -15,13 +15,15 @@ FEATURES:
 
 BREAKING CHANGES:
 
-  - the `ansible` provisioner now can override the effective ansible remote user
+  - The `ansible` provisioner now can override the effective ansible remote user
     (i.e. `ansible_ssh_user` setting) to always correspond to the vagrant ssh
     username. This change is enabled by default, but we expect this to affect
     only a tiny number of people as it corresponds to the common usage.
     If you however use multiple remote usernames in your Ansible plays, tasks,
     or custom inventories, you can simply set the option `force_remote_user` to
     false to make Vagrant behave the same as before.
+  - provisioners/salt: the "config_dir" option has been removed. It has no
+      effect in Vagrant 1.8. [GH-6073]
 
 IMPROVEMENTS:
 
