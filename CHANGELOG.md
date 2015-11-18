@@ -44,6 +44,7 @@ BUG FIXES:
     option is an empty string
   - provisioners/puppet: apply provisioner uses correct default manifests
       with environments. [GH-5987]
+  - provisioners/salt: call correct executables on Windows [GH-5999]
   - core: only append `access_token` when it does not exist in the URL
     [GH-6395, GH-6534]
 
