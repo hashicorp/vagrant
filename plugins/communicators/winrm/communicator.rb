@@ -218,10 +218,10 @@ module VagrantPlugins
         wrapped_encoded_command = Base64.strict_encode64(
           "$ProgressPreference='SilentlyContinue'; #{command}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
 
-        "powershell -executionpolicy bypass -file \"#{guest_script_path}\" " +
-          "-username \"#{shell.username}\" -password \"#{shell.password}\" " +
-          "-encoded_command \"#{wrapped_encoded_command}\" " +
-          "-execution_time_limit \"#{shell.execution_time_limit}\""
+        "powershell -executionpolicy bypass -file '#{guest_script_path}' " +
+          "-username '#{shell.username}' -password '#{shell.password}' " +
+          "-encoded_command '#{wrapped_encoded_command}' " +
+          "-execution_time_limit '#{shell.execution_time_limit}'"
       end
 
       # Handles the raw WinRM shell result and converts it to a
