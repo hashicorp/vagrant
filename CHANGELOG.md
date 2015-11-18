@@ -28,6 +28,7 @@ BREAKING CHANGES:
 IMPROVEMENTS:
 
   - core: allow removal of all box versions with `--all` flag [GH-3462]
+  - core: prune entries from global status on non-existent cwd [GH-6535]
   - command/plugin: Add `--plugin-clean-sources` flag to reset plugin install
       sources, primarily for corp firewalls. [GH-4738]
   - communicators/winrm: Configurable execution time limit [GH-6213]
