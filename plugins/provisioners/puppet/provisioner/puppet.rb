@@ -113,8 +113,13 @@ module VagrantPlugins
           verify_shared_folders(check)
 
           # Verify Puppet is installed and run it
+
           puppet_bin = "puppet"
-          verify_binary(puppet_bin)
+          if windows?
+	          puppet_bin = "puppet.bat"
+          end
+
+          @config.binary_path = verify_binary(puppet_bin)
 
           # Upload Hiera configuration if we have it
           @hiera_config_path = nil
@@ -152,21 +157,43 @@ module VagrantPlugins
         def verify_binary(binary)
           # Determine the command to use to test whether Puppet is available.
           # This is very platform dependent.
-          test_cmd = "sh -c 'command -v #{binary}'"
+          puppet_bin = binary
+          if @config.binary_path
+            puppet_bin = File.join(@config.binary_path, puppet_bin)
+          end
+          test_cmd = "sh -c 'command -v #{puppet_bin}'"
           if windows?
-            test_cmd = "which #{binary}"
+            test_cmd = "which '#{binary}'"
             if @config.binary_path
-              test_cmd = "where \"#{@config.binary_path}:#{binary}\""
+              test_cmd = "where '#{@config.binary_path}:#{binary}'"
             end
           end
 
-          if !machine.communicate.test(test_cmd)
-            @config.binary_path = "/opt/puppetlabs/bin/"
-            @machine.communicate.sudo(
-              "test -x /opt/puppetlabs/bin/#{binary}",
-              error_class: PuppetError,
-              error_key: :not_detected,
-              binary: binary)
+          test_result = machine.communicate.test(test_cmd)
+          if !test_result
+            # Just fail if we didnt find it at the user specified path.
+            if @config.binary_path
+              raise PuppetError.new(:not_detected, binary: puppet_bin)
+            end
+            # Not found but no path was specified, lets try a few default paths
+            puppet_bin = File.join("/usr/local/bin/", binary)
+            if machine.communicate.test("sh -c 'command -v #{puppet_bin}'")
+              return "/usr/local/bin/"
+            end
+            puppet_bin = File.join("/opt/puppetlabs/bin", binary)
+            if machine.communicate.test("sh -c 'command -v #{puppet_bin}'")
+              return "/opt/puppetlabs/bin/"
+            end
+              raise PuppetError.new(:not_detected, binary: puppet_bin)
+          else
+            # Grab path in form path/puppet, chop off the puppet
+            @machine.communicate.execute(test_cmd) do |type, data|
+              if windows?
+                return data.chomp("\\#{binary}")
+	            else
+                return data.chop.chomp("/#{binary}")
+	            end
+            end
           end
         end
 
@@ -225,6 +252,10 @@ module VagrantPlugins
           puppet_bin = "puppet"
           if @config.binary_path
             puppet_bin = File.join(@config.binary_path, puppet_bin)
+	    if windows?
+	      # Temp remove binary_path support on windows since it breaks things if spaces are present.
+	      puppet_bin = "puppet.bat"
+	    end
           end
 
           command = "#{facter} #{puppet_bin} apply #{options}"
