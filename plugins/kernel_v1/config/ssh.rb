@@ -14,6 +14,7 @@ module VagrantPlugins
       attr_accessor :forward_agent
       attr_accessor :forward_x11
       attr_accessor :shell
+      attr_accessor :log_level
 
       def initialize
         @username         = UNSET_VALUE
@@ -27,6 +28,7 @@ module VagrantPlugins
         @forward_agent    = UNSET_VALUE
         @forward_x11      = UNSET_VALUE
         @shell            = UNSET_VALUE
+        @log_level        = UNSET_VALUE
       end
 
       def upgrade(new)
@@ -38,6 +40,7 @@ module VagrantPlugins
         new.ssh.forward_agent    = @forward_agent if @forward_agent != UNSET_VALUE
         new.ssh.forward_x11      = @forward_x11 if @forward_x11 != UNSET_VALUE
         new.ssh.shell            = @shell if @shell != UNSET_VALUE
+        new.ssh.log_level        = @log_level if @log_level != UNSET_VALUE
       end
     end
   end

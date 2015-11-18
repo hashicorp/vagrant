@@ -41,7 +41,8 @@ module VagrantPlugins
             forward_agent: ssh_info[:forward_agent],
             forward_x11:   ssh_info[:forward_x11],
             proxy_command: ssh_info[:proxy_command],
-            ssh_command: ssh_info[:ssh_command]
+            ssh_command: ssh_info[:ssh_command],
+            log_level: ssh_info[:log_level]
           }
 
           # Render the template and output directly to STDOUT

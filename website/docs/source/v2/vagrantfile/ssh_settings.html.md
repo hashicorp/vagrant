@@ -67,6 +67,13 @@ is enabled. Defaults to false.
 
 <hr>
 
+`config.ssh.log_level` - Sets the verbosity level of SSH logging messages.
+Possible values are QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBUG2,
+and DEBUG3. The same values found in `ssh_config`'s man page. Defaults to
+FATAL.
+
+<hr>
+
 `config.ssh.insert_key` - If `true`, Vagrant will automatically insert
 a keypair to use for SSH, replacing Vagrant's default insecure key
 inside the machine if detected. By default, this is true.

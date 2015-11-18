@@ -445,6 +445,8 @@ module Vagrant
       # Add in provided proxy command config
       info[:proxy_command] = @config.ssh.proxy_command if @config.ssh.proxy_command
 
+      info[:log_level] = @config.ssh.log_level if @config.ssh.log_level
+
       # Set the private key path. If a specific private key is given in
       # the Vagrantfile we set that. Otherwise, we use the default (insecure)
       # private key, but only if the provider didn't give us one.

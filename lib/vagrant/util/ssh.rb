@@ -102,7 +102,7 @@ module Vagrant
         options[:username] = ssh_info[:username]
         options[:private_key_path] = ssh_info[:private_key_path]
 
-        log_level = ssh_info[:log_level] || "FATAL"
+        log_level = ssh_info[:log_level]
 
         # Command line options
         command_options = [

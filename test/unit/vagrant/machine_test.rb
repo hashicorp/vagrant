@@ -584,6 +584,13 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:forward_x11]).to eq(false)
       end
 
+      it "should set the configured log level" do
+        provider_ssh_info[:log_level] = "FATAL"
+        instance.config.ssh.log_level = "QUIET"
+
+        expect(instance.ssh_info[:log_level]).to eq("QUIET")
+      end
+
       it "should return the provider private key if given" do
         provider_ssh_info[:private_key_path] = "/foo"
 
