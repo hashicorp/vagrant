@@ -13,7 +13,7 @@ module VagrantPlugins
         options = {}
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant ps [-- extra ps args]"
+          o.banner = "Usage: vagrant powershell [-- extra powershell args]"
 
           o.separator ""
           o.separator "Options:"
