@@ -35,8 +35,8 @@ module VagrantPlugins
         desired_binaries = []
         if !@config.no_minion
           if @machine.config.vm.communicator == :winrm
-            desired_binaries.push('C:\\salt\\salt-minion.exe')
-            desired_binaries.push('C:\\salt\\salt-call.exe')
+            desired_binaries.push('C:\\salt\\salt-minion.bat')
+            desired_binaries.push('C:\\salt\\salt-call.bat')
           else
             desired_binaries.push('salt-minion')
             desired_binaries.push('salt-call')
@@ -361,8 +361,8 @@ module VagrantPlugins
           else
             if @machine.config.vm.communicator == :winrm
               opts = { elevated: true }
-              @machine.communicate.execute("C:\\salt\\salt-call.exe saltutil.sync_all", opts)
-              @machine.communicate.execute("C:\\salt\\salt-call.exe state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
+              @machine.communicate.execute("C:\\salt\\salt-call.bat saltutil.sync_all", opts)
+              @machine.communicate.execute("C:\\salt\\salt-call.bat state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data.rstrip)
                 end
