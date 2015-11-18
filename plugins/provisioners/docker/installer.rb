@@ -15,10 +15,10 @@ module VagrantPlugins
           return
         end
 
-        if !@machine.guest.capability(:docker_installed)
-          @machine.ui.detail(I18n.t("vagrant.docker_installing", version: @version.to_s))
-          @machine.guest.capability(:docker_install, @version)
+        @machine.ui.detail(I18n.t("vagrant.docker_installing", version: @version.to_s))
+        @machine.guest.capability(:docker_install, @version)
 
+        if !@machine.guest.capability(:docker_installed)
           if !@machine.guest.capability(:docker_installed)
             raise DockerError, :install_failed
           end
