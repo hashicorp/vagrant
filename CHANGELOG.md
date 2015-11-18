@@ -46,6 +46,7 @@ BUG FIXES:
   - communicator/winrm: execute scheduled tasks immediately on Windows XP
       since elevation isn't required [GH-6195]
   - communicator/winrm: Hide progress bars from PowerShell v5 [GH-6309]
+  - guests/darwin: advanced networking works with more NICs [GH-6386]
   - guests/debian: graceful shutdown works properly with newer releases [GH-5986]
   - guests/fedora: Preserve `localhost` entry when changing hostname [GH-6203]
   - guests/fedora: Use dnf if it is available [GH-6301]
