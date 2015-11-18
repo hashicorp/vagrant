@@ -60,7 +60,7 @@ module Vagrant
       end
 
       # Setup the Bundler configuration
-      @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
+      @configfile = File.open(Tempfile.new("vagrant").path, "w+")
       @configfile.close
 
       # Build up the Gemfile for our Bundler context. We make sure to
@@ -81,7 +81,8 @@ module Vagrant
     def deinit
       File.unlink(ENV["BUNDLE_APP_CONFIG"]) rescue nil
       File.unlink(ENV["BUNDLE_CONFIG"]) rescue nil
-      File.unlink(ENV["GEMFILE"]) rescue nil
+      File.unlink(ENV["BUNDLE_GEMFILE"]) rescue nil
+      File.unlink("#{ENV['BUNDLE_GEMFILE']}.lock") rescue nil
     end
 
     # Installs the list of plugins.
@@ -176,7 +177,7 @@ module Vagrant
     def build_gemfile(plugins)
       sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
 
-      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      f = File.open(Tempfile.new("vagrant").path, "w+")
       f.tap do |gemfile|
         sources.each do |source|
           next if source == ""
