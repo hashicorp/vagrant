@@ -12,7 +12,7 @@ module VagrantPlugins
       attr_accessor :keep_color
       attr_accessor :name
       attr_accessor :powershell_args
-      attr_accessor :elevated_interactive
+      attr_accessor :powershell_elevated_interactive
 
       def initialize
         @args                  = UNSET_VALUE
@@ -24,7 +24,7 @@ module VagrantPlugins
         @keep_color            = UNSET_VALUE
         @name                  = UNSET_VALUE
         @powershell_args       = UNSET_VALUE
-        @elevated_interactive  = UNSET_VALUE
+        @powershell_elevated_interactive  = UNSET_VALUE
       end
 
       def finalize!
@@ -37,7 +37,7 @@ module VagrantPlugins
         @keep_color           = false if @keep_color == UNSET_VALUE
         @name                 = nil if @name == UNSET_VALUE
         @powershell_args      = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
-        @elevated_interactive = false if @elevated_interactive == UNSET_VALUE
+        @powershell_elevated_interactive = false if @powershell_elevated_interactive == UNSET_VALUE
 
         if @args && args_valid?
           @args = @args.is_a?(Array) ? @args.map { |a| a.to_s } : @args.to_s
@@ -81,7 +81,7 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.shell.args_bad_type")
         end
 
-        if elevated_interactive && !privileged
+        if powershell_elevated_interactive && !privileged
           errors << I18n.t("vagrant.provisioners.shell.interactive_not_elevated")
         end
 

@@ -66,7 +66,7 @@ The remainder of the available options are optional:
 * `powershell_args` (string) - Extra arguments to pass to `PowerShell`
   if you're provisioning with PowerShell on Windows.
 
-* `elevated_interactive` (boolean) - Run an elevated script in interactive mode
+* `powershell_elevated_interactive` (boolean) - Run an elevated script in interactive mode
   on Windows. By default this is "false". Must also be `privileged`. Be sure to
   enable auto-login for Windows as the user must be logged in for interactive
   mode to work.

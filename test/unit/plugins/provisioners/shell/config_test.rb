@@ -88,7 +88,7 @@ describe "VagrantPlugins::Shell::Config" do
 
     it "returns an error if elevated_interactive is true but privileged is false" do
       subject.path = file_that_exists
-      subject.elevated_interactive = true
+      subject.powershell_elevated_interactive = true
       subject.privileged = false
       subject.finalize!
 
