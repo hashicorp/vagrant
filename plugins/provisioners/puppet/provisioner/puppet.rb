@@ -154,7 +154,7 @@ module VagrantPlugins
           # This is very platform dependent.
           test_cmd = "sh -c 'command -v #{binary}'"
           if windows?
-            test_cmd = "which #{binary}"
+            test_cmd = "where #{binary}"
             if @config.binary_path
               test_cmd = "where \"#{@config.binary_path}:#{binary}\""
             end
