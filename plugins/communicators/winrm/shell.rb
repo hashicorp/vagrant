@@ -9,7 +9,7 @@ Vagrant::Util::SilenceWarnings.silence! do
   require "winrm"
 end
 
-require "winrm-fs/file_manager"
+require "winrm-fs"
 
 module VagrantPlugins
   module CommunicatorWinRM

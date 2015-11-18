@@ -25,6 +25,11 @@ module VagrantPlugins
         require_relative "cap/rdp"
         Cap::RDP
       end
+
+      host_capability("windows", "ps_client") do
+        require_relative "cap/ps"
+        Cap::PS
+      end
     end
   end
 end
