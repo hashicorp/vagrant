@@ -22,9 +22,9 @@ module VagrantPlugins
             puts
           end
 
-          o.on("--plugin-clean-sources", String,
-            "Remove all plugin sources defined so far (including defaults)") do
-            options[:plugin_sources] = []
+          o.on("--plugin-clean-sources",
+            "Remove all plugin sources defined so far (including defaults)") do |clean|
+            options[:plugin_sources] = [] if clean
           end
 
           o.on("--plugin-source PLUGIN_SOURCE", String,
