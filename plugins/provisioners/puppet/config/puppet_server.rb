@@ -2,6 +2,10 @@ module VagrantPlugins
   module Puppet
     module Config
       class PuppetServer < Vagrant.plugin("2", :config)
+        # The path to Puppet's bin/ directory.
+        # @return [String]
+        attr_accessor :binary_path
+
         attr_accessor :client_cert_path
         attr_accessor :client_private_key_path
         attr_accessor :facter
@@ -12,6 +16,7 @@ module VagrantPlugins
         def initialize
           super
 
+          @binary_path             = UNSET_VALUE
           @client_cert_path        = UNSET_VALUE
           @client_private_key_path = UNSET_VALUE
           @facter                  = {}
@@ -29,6 +34,7 @@ module VagrantPlugins
         def finalize!
           super
 
+          @binary_path      = nil if @binary_path == UNSET_VALUE
           @client_cert_path = nil if @client_cert_path == UNSET_VALUE
           @client_private_key_path = nil if @client_private_key_path == UNSET_VALUE
           @puppet_node   = nil if @puppet_node == UNSET_VALUE
