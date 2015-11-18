@@ -1721,7 +1721,7 @@ en:
             Fixed port collision for %{guest_port} => %{host_port}. Now on port %{new_port}.
           forwarding: Forwarding ports...
           forwarding_entry: |-
-            %{guest_port} => %{host_port} (adapter %{adapter})
+            %{guest_port} (guest) => %{host_port} (host) (adapter %{adapter})
           non_nat: |-
             VirtualBox adapter #%{adapter} not configured as "NAT". Skipping port
             forwards on this adapter.
