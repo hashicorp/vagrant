@@ -26,13 +26,22 @@ module VagrantPlugins
 
       # This validates the provisioner flags and raises an exception
       # if there are invalid ones.
-      def validate_provisioner_flags!(options)
-        (options[:provision_types] || []).each do |type|
-            klass = Vagrant.plugin("2").manager.provisioners[type]
-            if !klass
-              raise Vagrant::Errors::ProvisionerFlagInvalid,
-                name: type.to_s
-            end
+      def validate_provisioner_flags!(options, argv)
+        provisioner_instance_names = []
+        with_target_vms(argv) do |machine|
+          provisioner_instance_names << machine.config.vm.provisioners.map(&:name)
+        end
+
+        provisioner_instance_names.flatten!.uniq!
+
+        if (provisioner_instance_names & options[:provision_types]).empty?
+          (options[:provision_types] || []).each do |type|
+              klass = Vagrant.plugin("2").manager.provisioners[type]
+              if !klass
+                raise Vagrant::Errors::ProvisionerFlagInvalid,
+                  name: type.to_s
+              end
+          end
         end
       end
     end
