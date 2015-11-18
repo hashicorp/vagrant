@@ -54,6 +54,7 @@ BUG FIXES:
     option is an empty string
   - provisioners/puppet: apply provisioner uses correct default manifests
       with environments. [GH-5987]
+  - provisioners/puppet: find Puppet binary properly on Windows [GH-6259]
   - provisioners/salt: call correct executables on Windows [GH-5999]
   - synced\_folders/rsync: on Windows, replace all paths with Cygwin
       paths since all rsync implementations require this [GH-6160]
