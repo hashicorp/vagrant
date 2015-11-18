@@ -5,13 +5,13 @@ module VagrantPlugins
     autoload :Errors, File.expand_path("../errors", __FILE__)
 
     class Plugin < Vagrant.plugin("2")
-      name "ps command"
+      name "powershell command"
       description <<-DESC
-      The ps command opens a remote PowerShell session to the
+      The powershell command opens a remote PowerShell session to the
       machine if it supports powershell remoting.
       DESC
 
-      command("ps") do
+      command("powershell") do
         require_relative "command"
         init!
         Command

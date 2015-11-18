@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - **New Command: `vagrant powershell`**: For machines that support it,
+    this will open a PowerShell prompt.
   - **Linked Clones**: VirtualBox and VMware providers now support
     linked clones for very fast (millisecond) imports on up. [GH-4484]
   - **Snapshots**: The `vagrant snapshot` command can be used to checkpoint
