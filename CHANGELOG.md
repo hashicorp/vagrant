@@ -41,6 +41,9 @@ BUG FIXES:
 
   - core: DHCP network configurations don't warn on IP addresses ending
       in ".1" [GH-6150]
+  - core: only append `access_token` when it does not exist in the URL
+    [GH-6395, GH-6534]
+  - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
   - communicator/winrm: execute scheduled tasks immediately on Windows XP
@@ -63,10 +66,9 @@ BUG FIXES:
   - provisioners/puppet: find Puppet binary properly on Windows [GH-6259]
   - provisioners/puppet-server: works with Puppet Collection 1 [GH-6389]
   - provisioners/salt: call correct executables on Windows [GH-5999]
+  - provisioners/salt: log level and colorize works for masterless [GH-6474]
   - synced\_folders/rsync: on Windows, replace all paths with Cygwin
       paths since all rsync implementations require this [GH-6160]
-  - core: only append `access_token` when it does not exist in the URL
-    [GH-6395, GH-6534]
 
 PLUGIN AUTHOR CHANGES:
 
