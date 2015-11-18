@@ -36,7 +36,6 @@ module VagrantPlugins
       attr_accessor :install_args
       attr_accessor :install_master
       attr_accessor :install_syndic
-      attr_accessor :install_command
       attr_accessor :no_minion
       attr_accessor :bootstrap_options
       attr_accessor :version
@@ -65,7 +64,6 @@ module VagrantPlugins
         @install_args = UNSET_VALUE
         @install_master = UNSET_VALUE
         @install_syndic = UNSET_VALUE
-        @install_command = UNSET_VALUE
         @no_minion = UNSET_VALUE
         @bootstrap_options = UNSET_VALUE
         @masterless = UNSET_VALUE
@@ -97,7 +95,6 @@ module VagrantPlugins
         @install_args       = nil if @install_args == UNSET_VALUE
         @install_master     = nil if @install_master == UNSET_VALUE
         @install_syndic     = nil if @install_syndic == UNSET_VALUE
-        @install_command    = nil if @install_command == UNSET_VALUE
         @no_minion          = nil if @no_minion == UNSET_VALUE
         @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
         @masterless         = false if @masterless == UNSET_VALUE
