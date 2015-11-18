@@ -26,6 +26,8 @@ BREAKING CHANGES:
 IMPROVEMENTS:
 
   - core: allow removal of all box versions with `--all` flag [GH-3462]
+  - command/plugin: Add `--plugin-clean-sources` flag to reset plugin install
+      sources, primarily for corp firewalls. [GH-4738]
   - provisioners/ansible: add new `force_remote_user` option to control whether
     `ansible_ssh_user` parameter should be applied or not [GH-6348]
   - provisioners/ansible: show a warning when running from a Windows Host [GH-5292]
