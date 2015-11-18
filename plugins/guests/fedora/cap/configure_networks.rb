@@ -109,13 +109,23 @@ module VagrantPlugins
           # SSH never dies.
           interfaces.each do |interface|
             retryable(on: Vagrant::Errors::VagrantError, tries: 3, sleep: 2) do
-              machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-#{interface}")
-              machine.communicate.sudo("! which nmcli >/dev/null 2>&1 || nmcli c reload #{interface}")
-              machine.communicate.sudo("/sbin/ifdown #{interface}", error_check: true)
-              machine.communicate.sudo("/sbin/ifup #{interface}")
-            end
+              machine.communicate.sudo(<<-SCRIPT, error_check: true)
+cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-#{interface}
 
-            machine.communicate.sudo("rm -f /tmp/vagrant-network-entry_#{interface}")
+if command -v nmcli &>/dev/null; then
+  if command -v systemctl &>/dev/null && systemctl -q is-enabled NetworkManager &>/dev/null; then
+    nmcli c reload #{interface}
+  elif command -v service &>/dev/null && service NetworkManager status &>/dev/null; then
+    nmcli c reload #{interface}
+  fi
+fi
+
+/sbin/ifdown #{interface}
+/sbin/ifup #{interface}
+
+rm -f /tmp/vagrant-network-entry_#{interface}
+SCRIPT
+            end
           end
         end
       end
