@@ -823,10 +823,11 @@ en:
         that the NFS client software is properly installed, and consult any resources
         specific to the linux distro you're using for more information on how to
         do this.
-      linux_rdesktop_not_found: |-
-        The `rdesktop` application was not found. Vagrant requires this
-        in order to connect via RDP to the Vagrant environment. Please ensure
-        this application is installed and available on the path and try again.
+      linux_rdp_client_not_found: |-
+        An appropriate RDP client was not found. Vagrant requires either
+        `xfreerdp` or `rdesktop` in order to connect via RDP to the Vagrant
+        environment. Please ensure one of these applications is installed and
+        available on the path and try again.
       machine_action_locked: |-
         An action '%{action}' was attempted on the machine '%{name}',
         but another process is already executing an action on the machine.
