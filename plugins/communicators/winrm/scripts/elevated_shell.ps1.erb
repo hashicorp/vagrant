@@ -1,5 +1,8 @@
 param([String]$username, [String]$password, [String]$encoded_command)
 
+# Try to get the Schedule.Service object. If it fails, we are probably
+# on an older version of Windows. On old versions, we can just execute
+# directly since priv. escalation isn't a thing.
 $schedule = $null
 Try {
   $schedule = New-Object -ComObject "Schedule.Service"

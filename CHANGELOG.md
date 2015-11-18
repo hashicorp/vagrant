@@ -42,6 +42,8 @@ BUG FIXES:
       in ".1" [GH-6150]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
+  - communicator/winrm: execute scheduled tasks immediately on Windows XP
+      since elevation isn't required [GH-6195]
   - guests/debian: graceful shutdown works properly with newer releases [GH-5986]
   - guests/suse: DHCP network interfaces properly configured [GH-6502]
   - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
