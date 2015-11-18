@@ -32,6 +32,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
   - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
     value in the generated inventory [GH-6209]
