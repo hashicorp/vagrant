@@ -24,6 +24,11 @@ module VagrantPlugins
         Cap::Debian::DockerStartService
       end
 
+      guest_capability("fedora", "docker_install") do
+        require_relative "cap/fedora/docker_install"
+        Cap::Fedora::DockerInstall
+      end
+
       guest_capability("redhat", "docker_install") do
         require_relative "cap/redhat/docker_install"
         Cap::Redhat::DockerInstall
