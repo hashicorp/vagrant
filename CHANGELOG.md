@@ -45,6 +45,7 @@ BUG FIXES:
   - communicator/winrm: execute scheduled tasks immediately on Windows XP
       since elevation isn't required [GH-6195]
   - guests/debian: graceful shutdown works properly with newer releases [GH-5986]
+  - guests/fedora: Preserve `localhost` entry when changing hostname [GH-6203]
   - guests/suse: DHCP network interfaces properly configured [GH-6502]
   - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
     value in the generated inventory [GH-6209]
