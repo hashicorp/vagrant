@@ -36,6 +36,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: DHCP network configurations don't warn on IP addresses ending
+      in ".1" [GH-6150]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
   - guests/debian: graceful shutdown works properly with newer releases [GH-5986]
