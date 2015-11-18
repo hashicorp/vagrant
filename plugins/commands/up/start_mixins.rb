@@ -29,6 +29,10 @@ module VagrantPlugins
       # This validates the provisioner flags and raises an exception
       # if there are invalid ones.
       def validate_provisioner_flags!(options, argv)
+        if options[:provision_types].nil?
+          return
+        end
+
         provisioner_names = Set.new
         with_target_vms(argv) do |machine|
           machine.config.vm.provisioners.map(&:name).each do |name|
