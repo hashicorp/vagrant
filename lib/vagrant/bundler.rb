@@ -178,11 +178,6 @@ module Vagrant
 
       f = File.open(Tempfile.new("vagrant").path + "2", "w+")
       f.tap do |gemfile|
-        if !sources.include?("http://rubygems.org")
-          gemfile.puts(%Q[source "https://rubygems.org"])
-        end
-
-        gemfile.puts(%Q[source "http://gems.hashicorp.com"])
         sources.each do |source|
           next if source == ""
           gemfile.puts(%Q[source "#{source}"])
