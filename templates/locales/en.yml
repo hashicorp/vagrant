@@ -603,6 +603,14 @@ en:
         issues. The error from Bundler is:
 
         %{message}
+      cant_read_mac_addresses: |-
+        The provider you are using  ('%{provider}') doesn't support the
+        "nic_mac_addresses" provider capability which is required
+        for advanced networking to work with this guest OS. Please inform
+        the author of the provider to add this feature.
+
+        Until then, you must remove any networking configurations other
+        than forwarded ports from your Vagrantfile for Vagrant to continue.
       capability_host_explicit_not_detected: |-
         The explicit capability host specified of '%{value}' could not be
         found.

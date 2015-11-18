@@ -240,6 +240,10 @@ module Vagrant
       error_key(:bundler_error)
     end
 
+    class CantReadMACAddresses < VagrantError
+      error_key(:cant_read_mac_addresses)
+    end
+
     class CapabilityHostExplicitNotDetected < VagrantError
       error_key(:capability_host_explicit_not_detected)
     end
