@@ -50,6 +50,7 @@ BUG FIXES:
   - guests/fedora: Preserve `localhost` entry when changing hostname [GH-6203]
   - guests/fedora: Use dnf if it is available [GH-6301]
   - guests/suse: DHCP network interfaces properly configured [GH-6502]
+  - hosts/slackware: Better detection of NFS [GH-6367]
   - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
     value in the generated inventory [GH-6209]
   - provisioners/ansible: don't show the `ansible-playbook` command when verbose
