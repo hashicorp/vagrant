@@ -68,12 +68,12 @@ is enabled. Defaults to false.
 <hr>
 
 `config.ssh.insert_key` - If `true`, Vagrant will automatically insert
-an keypair to use for SSH, replacing the default Vagrant's insecure key
+a keypair to use for SSH, replacing Vagrant's default insecure key
 inside the machine if detected. By default, this is true.
 
 This only has an effect if you don't already use private keys for
 authentication or if you are relying on the default insecure key.
-If you don't have to take care about security in your project and want to
+If you don't have to care about security in your project and want to
 keep using the default insecure key, set this to `false`.
 
 <hr>
