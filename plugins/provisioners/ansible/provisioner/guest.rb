@@ -46,7 +46,7 @@ module VagrantPlugins
           if config.install &&
              (config.version.to_s.to_sym == :latest ||
               !@machine.guest.capability(:ansible_installed, config.version))
-            @machine.ui.info(I18n.t("vagrant.provisioners.ansible.installing"))
+            @machine.ui.detail I18n.t("vagrant.provisioners.ansible.installing")
             @machine.guest.capability(:ansible_install)
           end
 

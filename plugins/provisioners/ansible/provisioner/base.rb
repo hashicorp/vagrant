@@ -148,7 +148,7 @@ module VagrantPlugins
           @machine.ui.detail I18n.t("vagrant.provisioners.ansible.running_#{name}")
           if verbosity_is_enabled?
             # Show the ansible command in use
-            @machine.env.ui.detail(command)
+            @machine.env.ui.detail command
           end
         end
 
