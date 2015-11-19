@@ -49,31 +49,6 @@ module VagrantPlugins
           @synced_folder_type  = UNSET_VALUE
         end
 
-        # @deprecated This is deprecated in Chef and will be removed in Chef 12.
-        def recipe_url=(value)
-          puts "DEPRECATION: The 'recipe_url' setting for the Chef Solo"
-          puts "provisioner is deprecated. This value will be removed in"
-          puts "Chef 12. It is recommended you use the Chef Apply provisioner"
-          puts "instead. The 'recipe_url' setting will be removed in the next"
-          puts "version of Vagrant."
-
-          if value
-            @recipe_url = value
-          end
-        end
-
-        def nfs=(value)
-          puts "DEPRECATION: The 'nfs' setting for the Chef Solo provisioner is"
-          puts "deprecated. Please use the 'synced_folder_type' setting instead."
-          puts "The 'nfs' setting will be removed in the next version of Vagrant."
-
-          if value
-            @synced_folder_type = "nfs"
-          else
-            @synced_folder_type = nil
-          end
-        end
-
         #------------------------------------------------------------
         # Internal methods
         #------------------------------------------------------------
