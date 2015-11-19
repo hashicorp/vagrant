@@ -42,8 +42,12 @@ describe Vagrant::Action::Builtin::BoxAdd do
     tf = Tempfile.new("vagrant")
     tf.close
 
-    port   = 21212
-    server = FakeFtp::Server.new(port, port+1)
+    port = nil
+    server = nil
+    with_random_port do |port1, port2|
+      port = port1
+      server = FakeFtp::Server.new(port1, port2)
+    end
     server.add_file(path.basename, path.read)
     server.start
     yield port

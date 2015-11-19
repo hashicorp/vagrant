@@ -116,4 +116,18 @@ shared_context "unit" do
       ENV[key] = value
     end
   end
+
+  # This helper provides a randomly available port(s) for each argument to the
+  # block.
+  def with_random_port(&block)
+    ports = []
+
+    block.arity.times do
+      server = TCPServer.new('127.0.0.1', 0)
+      ports << server.addr[1]
+      server.close
+    end
+
+    block.call(*ports)
+  end
 end
