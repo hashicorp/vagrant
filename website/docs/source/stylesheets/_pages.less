@@ -2,11 +2,7 @@
 .page { //style all pages
 
     .page-background { //page background color
-        width: 100%;
-        height: 100%;
-        top: 0;
-        position: fixed;
-        z-index: -5; //keep it in the back
+        .fixed-bg;
     } //.background
 
     .page-contents {
@@ -181,7 +177,9 @@
 
     /* inner	 */
     &.inner { //style inner pages
-        .inner-bg-large; //sidebar background
+        .sidebar-background { //sidebar background
+            .inner-bg-large;
+        }
 
         .page-background { //change inner background color!
             background-color: @gray-background; //page background
@@ -205,10 +203,12 @@
 
     /* docs */
     &.docs { //style all docs
-        .docs-bg-large; //sidebar background
-
         .page-background { //change the sidebar background color!
             background: @white; //page background
+        }
+
+        .sidebar-background { //sidebar background
+            .docs-bg-large;
         }
 
         .page-contents {
