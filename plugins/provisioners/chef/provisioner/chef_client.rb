@@ -145,7 +145,20 @@ module VagrantPlugins
           command =  "knife #{deletable} delete #{node_name}"
           command << " --config '#{guest_client_rb_path}'"
           command << " --yes"
-          @machine.communicate.sudo(command, error_check: true)
+
+          output = []
+          result = @machine.communicate.sudo(command, error_check: false) do |_, data|
+            output << data
+          end
+
+          if result != 0
+            @machine.ui.error("There were errors removing the #{deletable} from the Chef Server:")
+            @machine.ui.error("")
+            @machine.ui.error(output.join("\n"))
+            @machine.ui.error("")
+            @machine.ui.error("Vagrant will continue destroying the virtual machine, but you may need")
+            @machine.ui.error("to manually delete the #{deletable} from the Chef Server!")
+          end
         end
       end
     end

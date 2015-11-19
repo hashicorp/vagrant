@@ -42,9 +42,10 @@ module VagrantPlugins
 
           @logger.info("Checking for Chef installation...")
           installer = Installer.new(@machine,
-            force:      config.install == :force,
-            version:    config.version,
-            prerelease: config.prerelease,
+            product: config.product,
+            channel: config.channel,
+            version: config.version,
+            force: config.install == :force,
             download_path:  config.installer_download_path
           )
           installer.ensure_installed
