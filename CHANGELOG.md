@@ -35,6 +35,8 @@ IMPROVEMENTS:
       sources, primarily for corp firewalls. [GH-4738]
   - command/up: provisioners are run on suspend resume [GH-5815]
   - communicators/winrm: Configurable execution time limit [GH-6213]
+  - providers/virtualbox: cache version lookup, which caused significant
+      slowdown on some Windows hosts [GH-6552]
   - provisioners/chef: perform cleanup tasks on the guest instead of the host
   - provisioners/shell: Support interactive mode for elevated PowerShell
       scripts [GH-6185]
