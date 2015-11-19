@@ -252,22 +252,6 @@ describe VagrantPlugins::HerokuPush::Push do
 
     let(:branch) { subject.git_branch("/path") }
 
-    context "when the branch is prefixed with a star" do
-      let(:stdout) { "*bacon" }
-
-      it "returns the correct name" do
-        expect(branch).to eq("bacon")
-      end
-    end
-
-    context "when the branch is prefixed with a star space" do
-      let(:stdout) { "* bacon" }
-
-      it "returns the correct name" do
-        expect(branch).to eq("bacon")
-      end
-    end
-
     context "when the branch is not prefixed" do
       let(:stdout) { "bacon" }
 
