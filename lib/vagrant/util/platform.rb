@@ -45,10 +45,13 @@ module Vagrant
           #   detect-if-running-with-administrator-privileges-under-windows-xp
           begin
             Win32::Registry::HKEY_USERS.open("S-1-5-19") {}
-            return true
           rescue Win32::Registry::Error
             return false
           end
+
+          # If we made it this far then we try a fallback approach
+          # since the above doesn't seem to be bullet proof. See GH-5616
+          (`reg query HKU\\S-1-5-19 2>&1` =~ /ERROR/).nil?
         end
 
         # This takes any path and converts it from a Windows path to a
