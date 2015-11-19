@@ -250,14 +250,13 @@ module VagrantPlugins
             mac:         nil,
             nic_type:    nil,
             type:        :static,
-            dhcp_ip:     "172.28.128.1",
           }.merge(options)
 
           # Make sure the type is a symbol
           options[:type] = options[:type].to_sym
 
           # Default IP is in the 20-bit private network block for DHCP based networks
-          options[:ip] ||= options[:dhcp_ip] if options[:type] == :dhcp
+          options[:ip] = "172.28.128.1" if options[:type] == :dhcp && !options[:ip]
 
           ip = IPAddr.new(options[:ip])
           if ip.ipv4?
