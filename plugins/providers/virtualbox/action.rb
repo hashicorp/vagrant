@@ -95,13 +95,14 @@ module VagrantPlugins
 
             b2.use Call, DestroyConfirm do |env2, b3|
               if env2[:result]
+                b3.use ConfigValidate
+                b3.use ProvisionerCleanup, :before
                 b3.use CheckAccessible
                 b3.use EnvSet, force_halt: true
                 b3.use action_halt
                 b3.use Destroy
                 b3.use CleanMachineFolder
                 b3.use DestroyUnusedNetworkInterfaces
-                b3.use ProvisionerCleanup
                 b3.use PrepareNFSValidIds
                 b3.use SyncedFolderCleanup
               else
