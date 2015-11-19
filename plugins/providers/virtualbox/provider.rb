@@ -68,12 +68,20 @@ module VagrantPlugins
         # If the VM is not running that we can't possibly SSH into it
         return nil if state.id != :running
 
+        # If the insecure key was automatically replaced with a newly generated key pair,
+        # use this key to connect to the machine
+        private_key_path = nil
+        if @machine.data_dir.join("private_key").file?
+          private_key_path = @machine.data_dir.join("private_key")
+        end
+
         # Return what we know. The host is always "127.0.0.1" because
         # VirtualBox VMs are always local. The port we try to discover
         # by reading the forwarded ports.
         return {
           host: "127.0.0.1",
-          port: @driver.ssh_port(@machine.config.ssh.guest_port)
+          port: @driver.ssh_port(@machine.config.ssh.guest_port),
+          private_key_path: private_key_path
         }
       end
 
