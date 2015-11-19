@@ -13,6 +13,8 @@ module Vagrant
   # boxes.
   class BoxCollection
     TEMP_PREFIX = "vagrant-box-add-temp-"
+    VAGRANT_SLASH = "-VAGRANTSLASH-"
+    VAGRANT_COLON = "-VAGRANTCOLON-"
 
     # The directory where the boxes in this collection are stored.
     #
@@ -346,6 +348,19 @@ module Vagrant
       end
     end
 
+    # Removes the whole directory of a given box if there are no
+    # other versions nor providers of the box exist.
+    def clean_up(box)
+      return false if exists?(box.name)
+
+      box_directory = box.name
+        .gsub('/', VAGRANT_SLASH)
+        .gsub(':', VAGRANT_COLON)
+
+      path = File.join(directory, box_directory)
+      FileUtils.rm_r(path)
+    end
+
     protected
 
     # Returns the directory name for the box of the given name.
@@ -354,16 +369,16 @@ module Vagrant
     # @return [String]
     def dir_name(name)
       name = name.dup
-      name.gsub!(":", "-VAGRANTCOLON-") if Util::Platform.windows?
-      name.gsub!("/", "-VAGRANTSLASH-")
+      name.gsub!(":", VAGRANT_COLON) if Util::Platform.windows?
+      name.gsub!("/", VAGRANT_SLASH)
       name
     end
 
     # Returns the directory name for the box cleaned up
     def undir_name(name)
       name = name.dup
-      name.gsub!("-VAGRANTCOLON-", ":")
-      name.gsub!("-VAGRANTSLASH-", "/")
+      name.gsub!(VAGRANT_COLON, ":")
+      name.gsub!(VAGRANT_SLASH, "/")
       name
     end
 
@@ -439,6 +454,11 @@ module Vagrant
       yield dir
     ensure
       dir.rmtree if dir.exist?
+    end
+
+    # Checks if a box with a given name exists.
+    def exists?(box_name)
+      all.any? { |box| box.first.eql?(box_name) }
     end
   end
 end
