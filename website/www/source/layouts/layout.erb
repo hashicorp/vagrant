@@ -60,8 +60,11 @@
 							 <li><a href="/about.html">About</a></li>
 							 <li><a href="/support.html">Support</a></li>
 							 <% if current_page.url != "/" %>
-							 	<% github_link = 'https://github.com/mitchellh/vagrant/blob/master/' + current_page.source_file.match(/website.*/)[0] %>
-							 	<li class="li-under"><a href="<%= github_link %>">Edit this page</a></li>
+								<% relative_path = current_page.path.match(/.*\//).to_s
+								file = current_page.source_file.split("/").last
+								github_link = "https://github.com/mitchellh/vagrant/blob/master/website/www/source/#{relative_path}#{file}"
+								%>
+								<li class="li-under"><a href="<%= github_link %>">Edit this page</a></li>
 							 <% end %>
 							 <a href="/downloads.html">
 								 <li class="button inline-button">Download</li>

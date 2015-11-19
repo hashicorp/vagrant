@@ -324,7 +324,10 @@
 							<li><a href="https://docs.vagrantup.com/">Documentation</a></li>
 							<li><a href="https://www.vagrantup.com/about">About</a></li>
 							<li><a href="https://www.vagrantup.com/support">Support</a></li>
-							<% github_link = 'https://github.com/mitchellh/vagrant/blob/master/' + current_page.source_file.match(/website.*/)[0] %>
+							<% relative_path = current_page.path.match(/.*\//).to_s
+							file = current_page.source_file.split("/").last
+							github_link = "https://github.com/mitchellh/vagrant/blob/master/website/docs/source/#{relative_path}#{file}"
+							%>
 							<li class="li-under"><a href="<%= github_link %>">Edit this page</a></li>
 							<a href="https://www.vagrantup.com/downloads">
 								<li class="button inline-button">Download</li>
