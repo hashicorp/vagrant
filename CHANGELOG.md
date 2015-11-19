@@ -50,6 +50,7 @@ BUG FIXES:
   - core: use the correct private key when packaging a box [GH-6406]
   - core: fix crash when using invalid box checksum type [GH-6327]
   - core: don't check for metadata if the download URL is not HTTP [GH-6540]
+  - core: don't make custom dotfile path if there is no Vagrantfile [GH-6542]
   - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/ssh: fix potential crash case with PTY [GH-6225]
