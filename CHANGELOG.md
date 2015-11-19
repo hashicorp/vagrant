@@ -64,6 +64,7 @@ BUG FIXES:
     value in the generated inventory [GH-6209]
   - provisioners/ansible: don't show the `ansible-playbook` command when verbose
     option is an empty string
+  - provisioners/chef: fix `nodes_path` for Chef Zero [GH-6025, GH-6049]
   - provisioners/puppet: apply provisioner uses correct default manifests
       with environments. [GH-5987]
   - provisioners/puppet: remove broken backticks [GH-6404]
