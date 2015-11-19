@@ -26,6 +26,14 @@ will not be kept in sync. Continuing with the example above, if you make
 further changes to your local ~/.gitconfig, they will not be immediately
 reflected in the copy you uploaded to the guest machine.
 
+The file uploads by the file provisioner are done as the
+_SSH or PowerShell user_. This is important since these users generally
+don't have elevated privileges on their own. If you want to upload files to
+locations that require elevated privileges, we recommend uploading them
+to temporary locations and then using the
+[shell provisioner](/v2/provisioning/shell.html)
+to move them into place.
+
 ## Options
 
 The file provisioner takes only two options, both of which are required:
@@ -37,4 +45,3 @@ The file provisioner takes only two options, both of which are required:
   the source will be uploaded to. The file/folder is uploaded as the SSH user
   over SCP, so this location must be writable to that user. The SSH user can be
   determined by running `vagrant ssh-config`, and defaults to "vagrant".
-
