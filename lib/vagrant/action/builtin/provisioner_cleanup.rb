@@ -13,8 +13,9 @@ module Vagrant
         def initialize(app, env, place=nil)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::provision_cleanup")
-          @place ||= :after
-          @place = @place.to_sym
+
+          place ||= :after
+          @place = place.to_sym
         end
 
         def call(env)
