@@ -63,12 +63,6 @@ module VagrantPlugins
             errors << I18n.t("vagrant.config.chef.validation_key_path")
           end
 
-          if delete_client || delete_node
-            if !Vagrant::Util::Which.which("knife")
-              errors << I18n.t("vagrant.chef_config_knife_not_found")
-            end
-          end
-
           { "chef client provisioner" => errors }
         end
       end
