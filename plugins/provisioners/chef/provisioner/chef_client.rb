@@ -31,8 +31,13 @@ module VagrantPlugins
         end
 
         def cleanup
-          delete_from_chef_server('node') if @config.delete_node
-          delete_from_chef_server('client') if @config.delete_client
+          if @config.delete_node
+            delete_from_chef_server("node")
+          end
+
+          if @config.delete_client
+            delete_from_chef_server("client")
+          end
         end
 
         def create_client_key_folder
