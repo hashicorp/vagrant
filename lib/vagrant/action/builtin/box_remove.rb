@@ -111,6 +111,7 @@ module Vagrant
                                 provider: box.provider,
                                 version: box.version))
             box.destroy!
+            env[:box_collection].clean_up(box)
 
             # Passes on the removed box to the rest of the middleware chain
             env[:box_removed] = box
