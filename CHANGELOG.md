@@ -40,6 +40,9 @@ IMPROVEMENTS:
   - provisioners/chef: perform cleanup tasks on the guest instead of the host
   - provisioners/chef: automatically generate a node_name if one was not given
     [GH-6555]
+  - provisioners/chef: install Chef automatically on Windows [GH-6557]
+  - provisioners/chef: allow the user to specify the Chef product (such as
+    the Chef Development Kit) [GH-6557]
   - provisioners/shell: Support interactive mode for elevated PowerShell
       scripts [GH-6185]
   - provisioners/ansible: add new `force_remote_user` option to control whether
