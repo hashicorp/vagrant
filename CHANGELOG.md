@@ -48,6 +48,7 @@ BUG FIXES:
   - core: only append `access_token` when it does not exist in the URL
     [GH-6395, GH-6534]
   - core: use the correct private key when packaging a box [GH-6406]
+  - core: fix crash when using invalid box checksum type [GH-6327]
   - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/ssh: fix potential crash case with PTY [GH-6225]

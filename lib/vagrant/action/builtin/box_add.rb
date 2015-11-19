@@ -507,7 +507,7 @@ module Vagrant
             Digest::SHA2
           else
             raise Errors::BoxChecksumInvalidType,
-              type: env[:box_checksum_type].to_s
+              type: checksum_type.to_s
           end
 
           @logger.info("Validating checksum with #{checksum_klass}")
