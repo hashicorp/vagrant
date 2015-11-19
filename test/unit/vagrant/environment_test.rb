@@ -905,8 +905,13 @@ VF
     end
 
     it "is expanded relative to the cwd" do
-      instance = described_class.new(local_data_path: "foo")
-      expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
+      Dir.mktmpdir do |temp_dir|
+        Dir.chdir(temp_dir) do
+          instance = described_class.new(local_data_path: "foo")
+          expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
+          expect(File.exist?(instance.local_data_path)).to be_false
+        end
+      end
     end
 
     it "is set to the given value" do
@@ -933,7 +938,7 @@ VF
         end
 
         expect { instance }.to_not raise_error
-        expect(Pathname.new(local_data_path)).to be_directory
+        expect(Pathname.new(local_data_path)).to_not be_exist
       end
 
       it "should upgrade all active VMs" do
