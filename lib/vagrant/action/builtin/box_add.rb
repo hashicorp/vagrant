@@ -491,6 +491,9 @@ module Vagrant
             end
           end
 
+          # If this isn't HTTP, then don't do the HEAD request
+          return false if !uri.scheme.downcase.start_with?("http")
+
           output = d.head
           match  = output.scan(/^Content-Type: (.+?)$/i).last
           return false if !match
