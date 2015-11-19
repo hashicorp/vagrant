@@ -1984,6 +1984,12 @@ en:
         upload_path_empty: |-
           The Chef Apply provisioner requires that the `config.chef.upload_path`
           be set to a non-nil, non-empty value.
+        missing_node_name: |-
+          The Chef Client provisioner cannot delete the %{deletable} from
+          the Chef server because Vagrant does not know the `node_name'! You
+          need to manually delete the %{deletable} from the Chef server. You
+          can specify the `node_name' in the Chef configuration to prevent this
+          in the future.
         deleting_from_server: "Deleting %{deletable} \"%{name}\" from Chef server..."
 
       file:
