@@ -86,10 +86,11 @@ module VagrantPlugins
           end
 
           # Emit an upstart event if we can
-          if machine.communicate.test("test -x /sbin/initctl && test 'upstart' = $(basename $(sudo readlink /proc/1/exe))")
-            machine.communicate.sudo(
-              "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{expanded_guest_path}")
-          end
+          machine.communicate.sudo <<-SCRIPT
+if command -v /sbin/init &>/dev/null && /sbin/init --version | grep upstart &>/dev/null; then
+  /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
+fi
+SCRIPT
         end
       end
     end
