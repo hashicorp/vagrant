@@ -34,6 +34,7 @@ IMPROVEMENTS:
       sources, primarily for corp firewalls. [GH-4738]
   - command/up: provisioners are run on suspend resume [GH-5815]
   - communicators/winrm: Configurable execution time limit [GH-6213]
+  - provisioners/chef: perform cleanup tasks on the guest instead of the host
   - provisioners/shell: Support interactive mode for elevated PowerShell
       scripts [GH-6185]
   - provisioners/ansible: add new `force_remote_user` option to control whether
