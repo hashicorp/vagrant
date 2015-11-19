@@ -25,6 +25,8 @@ module VagrantPlugins
 
         protected
 
+        VAGRANT_ARG_SEPARATOR = 'VAGRANT_ARG_SEP'
+
         def warn_for_unsupported_platform
           if Vagrant::Util::Platform.windows?
             @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine"))
@@ -86,16 +88,15 @@ module VagrantPlugins
 
         def execute_ansible_galaxy_from_host
           command_values = {
-              :ROLE_FILE => get_galaxy_role_file(machine.env.root_path),
-              :ROLES_PATH => get_galaxy_roles_path(machine.env.root_path)
+              :role_file => get_galaxy_role_file(machine.env.root_path),
+              :roles_path => get_galaxy_roles_path(machine.env.root_path)
             }
-          arg_separator = '__VAGRANT_ARG_SEPARATOR__'
-          command_template = config.galaxy_command.gsub(' ', arg_separator)
+          command_template = config.galaxy_command.gsub(' ', VAGRANT_ARG_SEPARATOR)
           str_command = command_template % command_values
 
-          ui_running_ansible_command "galaxy", str_command.gsub(arg_separator, ' ')
+          ui_running_ansible_command "galaxy", str_command.gsub(VAGRANT_ARG_SEPARATOR, ' ')
 
-          command = str_command.split(arg_separator)
+          command = str_command.split(VAGRANT_ARG_SEPARATOR)
           command << {
             # Write stdout and stderr data, since it's the regular Ansible output
             notify: [:stdout, :stderr],

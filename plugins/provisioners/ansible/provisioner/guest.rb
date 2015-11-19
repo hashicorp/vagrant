@@ -66,8 +66,8 @@ module VagrantPlugins
 
         def execute_ansible_galaxy_on_guest
           command_values = {
-            :ROLE_FILE => get_galaxy_role_file(config.provisioning_path),
-            :ROLES_PATH => get_galaxy_roles_path(config.provisioning_path)
+            :role_file => get_galaxy_role_file(config.provisioning_path),
+            :roles_path => get_galaxy_roles_path(config.provisioning_path)
           }
           remote_command = config.galaxy_command % command_values
 

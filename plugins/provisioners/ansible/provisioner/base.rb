@@ -133,12 +133,12 @@ module VagrantPlugins
         end
 
         def get_galaxy_role_file(basedir)
-          Pathname.new(config.galaxy_role_file).expand_path(basedir)
+          File.expand_path(config.galaxy_role_file, basedir)
         end
 
         def get_galaxy_roles_path(basedir)
           if config.galaxy_roles_path
-            Pathname.new(config.galaxy_roles_path).expand_path(basedir)
+            File.expand_path(config.galaxy_roles_path, basedir)
           else
             File.join(Pathname.new(config.playbook).expand_path(basedir).parent, 'roles')
           end

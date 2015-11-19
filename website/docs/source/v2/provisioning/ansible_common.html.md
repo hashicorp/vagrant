@@ -53,17 +53,15 @@ Some of these options are for advanced usage only and should not be used unless 
 
 - `galaxy_command` (template string) - The command pattern used to install Galaxy roles when `galaxy_role_file` is set.
 
-  The following placeholders can be used in this command pattern:
-    - `%{ROLE_FILE}` is replaced by the absolute path to the `galaxy_role_file` option
-    - `%{ROLES_PATH}` is
-      * replaced by the absolute path to the `galaxy_roles_path` option when such option is defined
-      * replaced by the absolute path to a `roles` subdirectory sitting in the parent directory of the configured `playbook` file otherwise.
+  The following (optional) placeholders can be used in this command pattern:
+    - `%{role_file}` is replaced by the absolute path to the `galaxy_role_file` option
+    - `%{roles_path}` is
+      - replaced by the absolute path to the `galaxy_roles_path` option when such option is defined, or
+      - replaced by the absolute path to a `roles` subdirectory sitting in the `playbook` parent directory.
 
   By default, this option is set to
 
-  ```
-  ansible-galaxy install --role-file=%{ROLE_FILE} --roles-path=%{ROLES_PATH} --force
-  ```
+  `ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force`
 
 - `galaxy_role_file` (string) - The path to the Ansible Galaxy role file.
 

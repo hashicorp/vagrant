@@ -3,6 +3,8 @@ module VagrantPlugins
     module Config
       class Base < Vagrant.plugin("2", :config)
 
+        GALAXY_COMMAND_DEFAULT = "ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force"
+
         attr_accessor :extra_vars
         attr_accessor :galaxy_role_file
         attr_accessor :galaxy_roles_path
@@ -40,22 +42,22 @@ module VagrantPlugins
         end
 
         def finalize!
-          @extra_vars          = nil   if @extra_vars           == UNSET_VALUE
-          @galaxy_role_file    = nil   if @galaxy_role_file     == UNSET_VALUE
-          @galaxy_roles_path   = nil   if @galaxy_roles_path    == UNSET_VALUE
-          @galaxy_command      = "ansible-galaxy install --role-file=%{ROLE_FILE} --roles-path=%{ROLES_PATH} --force" if @galaxy_command == UNSET_VALUE
-          @groups              = {}    if @groups               == UNSET_VALUE
-          @inventory_path      = nil   if @inventory_path       == UNSET_VALUE
-          @limit               = nil   if @limit                == UNSET_VALUE
-          @playbook            = nil   if @playbook             == UNSET_VALUE
-          @raw_arguments       = nil   if @raw_arguments        == UNSET_VALUE
-          @skip_tags           = nil   if @skip_tags            == UNSET_VALUE
-          @start_at_task       = nil   if @start_at_task        == UNSET_VALUE
-          @sudo                = false if @sudo                 != true
-          @sudo_user           = nil   if @sudo_user            == UNSET_VALUE
-          @tags                = nil   if @tags                 == UNSET_VALUE
-          @vault_password_file = nil   if @vault_password_file  == UNSET_VALUE
-          @verbose             = false if @verbose              == UNSET_VALUE
+          @extra_vars          = nil                    if @extra_vars          == UNSET_VALUE
+          @galaxy_role_file    = nil                    if @galaxy_role_file    == UNSET_VALUE
+          @galaxy_roles_path   = nil                    if @galaxy_roles_path   == UNSET_VALUE
+          @galaxy_command      = GALAXY_COMMAND_DEFAULT if @galaxy_command      == UNSET_VALUE
+          @groups              = {}                     if @groups              == UNSET_VALUE
+          @inventory_path      = nil                    if @inventory_path      == UNSET_VALUE
+          @limit               = nil                    if @limit               == UNSET_VALUE
+          @playbook            = nil                    if @playbook            == UNSET_VALUE
+          @raw_arguments       = nil                    if @raw_arguments       == UNSET_VALUE
+          @skip_tags           = nil                    if @skip_tags           == UNSET_VALUE
+          @start_at_task       = nil                    if @start_at_task       == UNSET_VALUE
+          @sudo                = false                  if @sudo                != true
+          @sudo_user           = nil                    if @sudo_user           == UNSET_VALUE
+          @tags                = nil                    if @tags                == UNSET_VALUE
+          @vault_password_file = nil                    if @vault_password_file == UNSET_VALUE
+          @verbose             = false                  if @verbose             == UNSET_VALUE
         end
 
         # Just like the normal configuration "validate" method except that
