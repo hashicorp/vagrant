@@ -88,7 +88,7 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
     it "wraps command in elevated shell script when elevated is true" do
       expect(shell).to receive(:upload).with(kind_of(String), "c:/tmp/vagrant-elevated-shell.ps1")
       expect(shell).to receive(:powershell) do |cmd|
-        expect(cmd).to eq("powershell -executionpolicy bypass -file \"c:/tmp/vagrant-elevated-shell.ps1\" " +
+        expect(cmd).to eq("powershell -executionpolicy bypass -file 'c:/tmp/vagrant-elevated-shell.ps1' " +
           "-username 'vagrant' -password 'password' -encoded_command 'JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIABkAGkAcgA7ACAAZQB4AGkAdAAgACQATABBAFMAVABFAFgASQBUAEMATwBEAEUA' -execution_time_limit 'PT2H'")
       end.and_return({ exitcode: 0 })
       expect(subject.execute("dir", { elevated: true })).to eq(0)
@@ -97,8 +97,8 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
     it "wraps command in elevated and interactive shell script when elevated and interactive are true" do
       expect(shell).to receive(:upload).with(kind_of(String), "c:/tmp/vagrant-elevated-shell.ps1")
       expect(shell).to receive(:powershell) do |cmd|
-        expect(cmd).to eq("powershell -executionpolicy bypass -file \"c:/tmp/vagrant-elevated-shell.ps1\" " +
-          "-username \"vagrant\" -password \"password\" -encoded_command \"ZABpAHIAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFAA==\"")
+        expect(cmd).to eq("powershell -executionpolicy bypass -file 'c:/tmp/vagrant-elevated-shell.ps1' " +
+          "-username 'vagrant' -password 'password' -encoded_command 'ZABpAHIAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFAA=='")
       end.and_return({ exitcode: 0 })
       expect(subject.execute("dir", { elevated: true, interactive: true })).to eq(0)
     end
