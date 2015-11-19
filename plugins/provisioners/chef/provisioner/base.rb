@@ -19,6 +19,22 @@ module VagrantPlugins
           super
 
           @logger = Log4r::Logger.new("vagrant::provisioners::chef")
+
+          if @config.node_name.to_s.empty?
+            cache = @machine.data_dir.join("chef_node_name")
+
+            if !cache.exist?
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.generating_node_name")
+              cache.open("w+") do |f|
+                f.write("vagrant-#{SecureRandom.hex(4)}")
+              end
+            end
+
+            if cache.file?
+              @logger.info("Loading cached node_name...")
+              @config.node_name = cache.read.strip
+            end
+          end
         end
 
         def install_chef
@@ -123,7 +139,7 @@ module VagrantPlugins
         end
 
         def setup_json
-          @machine.env.ui.info I18n.t("vagrant.provisioners.chef.json")
+          @machine.ui.info I18n.t("vagrant.provisioners.chef.json")
 
           # Get the JSON that we're going to expose to Chef
           json = @config.json
@@ -154,7 +170,7 @@ module VagrantPlugins
           remote_file = guest_encrypted_data_bag_secret_key_path
           return if !remote_file
 
-          @machine.env.ui.info I18n.t(
+          @machine.ui.info I18n.t(
             "vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
 
           @machine.communicate.tap do |comm|

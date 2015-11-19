@@ -1931,6 +1931,8 @@ en:
           "The cookbook path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
+        generating_node_name: |-
+          Auto-generating node name for Chef...
         install_failed: |-
           Vagrant could not detect Chef on the guest! Even after Vagrant
           attempted to install Chef, it could still not find Chef on the system.
