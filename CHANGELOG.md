@@ -65,8 +65,10 @@ BUG FIXES:
   - provisioners/ansible: don't show the `ansible-playbook` command when verbose
     option is an empty string
   - provisioners/chef: fix `nodes_path` for Chef Zero [GH-6025, GH-6049]
+  - provisioners/chef: do not error when the `node_name` is unset
+    [GH-6005, GH-6064, GH-6541]
   - provisioners/puppet: apply provisioner uses correct default manifests
-      with environments. [GH-5987]
+    with environments. [GH-5987]
   - provisioners/puppet: remove broken backticks [GH-6404]
   - provisioners/puppet: find Puppet binary properly on Windows [GH-6259]
   - provisioners/puppet-server: works with Puppet Collection 1 [GH-6389]
