@@ -74,7 +74,7 @@ module VagrantPlugins
           ui_running_ansible_command "galaxy", remote_command
 
           result = execute_on_guest(remote_command)
-          raise Ansible::Errors::AnsibleGalaxyAppFailed if result != 0
+          raise Ansible::Errors::AnsibleCommandFailed if result != 0
         end
 
         def execute_ansible_playbook_on_guest
@@ -87,7 +87,7 @@ module VagrantPlugins
           ui_running_ansible_command "playbook", remote_command
 
           result = execute_on_guest(remote_command)
-          raise Ansible::Errors::AnsiblePlaybookAppFailed if result != 0
+          raise Ansible::Errors::AnsibleCommandFailed if result != 0
         end
 
         def execute_on_guest(command)
