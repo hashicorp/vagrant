@@ -1,4 +1,5 @@
 require "forwardable"
+require "thread"
 
 require "log4r"
 
@@ -20,6 +21,7 @@ module VagrantPlugins
         # We cache the read VirtualBox version here once we have one,
         # since during the execution of Vagrant, it likely doesn't change.
         @@version = nil
+        @@version_lock = Mutex.new
 
         # The UUID of the virtual machine we represent
         attr_reader :uuid
@@ -36,16 +38,18 @@ module VagrantPlugins
           @logger = Log4r::Logger.new("vagrant::provider::virtualbox::meta")
           @uuid = uuid
 
-          if !@@version
-            # Read and assign the version of VirtualBox we know which
-            # specific driver to instantiate.
-            begin
-              @@version = read_version
-            rescue Vagrant::Errors::CommandUnavailable,
-              Vagrant::Errors::CommandUnavailableWindows
-              # This means that VirtualBox was not found, so we raise this
-              # error here.
-              raise Vagrant::Errors::VirtualBoxNotDetected
+          @@version_lock.synchronize do
+            if !@@version
+              # Read and assign the version of VirtualBox we know which
+              # specific driver to instantiate.
+              begin
+                @@version = read_version
+              rescue Vagrant::Errors::CommandUnavailable,
+                Vagrant::Errors::CommandUnavailableWindows
+                # This means that VirtualBox was not found, so we raise this
+                # error here.
+                raise Vagrant::Errors::VirtualBoxNotDetected
+              end
             end
           end
 
