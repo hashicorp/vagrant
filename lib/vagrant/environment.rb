@@ -832,7 +832,7 @@ module Vagrant
 
     # This creates the local data directory and show an error if it
     # couldn't properly be created.
-    def setup_local_data_path
+    def setup_local_data_path(force=false)
       if @local_data_path.nil?
         @logger.warn("No local data path is set. Local data cannot be stored.")
         return
@@ -846,6 +846,9 @@ module Vagrant
       if @local_data_path.file?
         upgrade_v1_dotfile(@local_data_path)
       end
+
+      # If we don't have a root path, we don't setup anything
+      return if !force && root_path.nil?
 
       begin
         @logger.debug("Creating: #{@local_data_path}")
@@ -965,7 +968,7 @@ module Vagrant
 
       # Now, we create the actual local data directory. This should succeed
       # this time since we renamed the old conflicting V1.
-      setup_local_data_path
+      setup_local_data_path(true)
 
       if json_data["active"]
         @logger.debug("Upgrading to V2 style for each active VM")
