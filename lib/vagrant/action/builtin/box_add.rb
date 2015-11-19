@@ -491,6 +491,12 @@ module Vagrant
             end
           end
 
+          # If this isn't HTTP, then don't do the HEAD request
+          if !uri.scheme.downcase.start_with?("http")
+            @logger.info("not checking metadata since box URI isn't HTTP")
+            return false
+          end
+
           output = d.head
           match  = output.scan(/^Content-Type: (.+?)$/i).last
           return false if !match
