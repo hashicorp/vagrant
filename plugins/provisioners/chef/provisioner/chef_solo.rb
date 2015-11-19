@@ -19,6 +19,7 @@ module VagrantPlugins
 
         attr_reader :environments_folders
         attr_reader :cookbook_folders
+        attr_reader :node_folders
         attr_reader :role_folders
         attr_reader :data_bags_folders
 
@@ -30,6 +31,7 @@ module VagrantPlugins
 
         def configure(root_config)
           @cookbook_folders  = expanded_folders(@config.cookbooks_path, "cookbooks")
+          @node_folders      = expanded_folders(@config.nodes_path, "nodes")
           @role_folders      = expanded_folders(@config.roles_path, "roles")
           @data_bags_folders = expanded_folders(@config.data_bags_path, "data_bags")
           @environments_folders = expanded_folders(@config.environments_path, "environments")
@@ -39,6 +41,7 @@ module VagrantPlugins
           share_folders(root_config, "csr", @role_folders, existing)
           share_folders(root_config, "csdb", @data_bags_folders, existing)
           share_folders(root_config, "cse", @environments_folders, existing)
+          share_folders(root_config, "csn", @node_folders, existing)
         end
 
         def provision
@@ -158,6 +161,7 @@ module VagrantPlugins
           {
             cookbooks_path: guest_paths(@cookbook_folders),
             recipe_url: @config.recipe_url,
+            nodes_path: guest_paths(@node_folders).first,
             roles_path: guest_paths(@role_folders),
             data_bags_path: guest_paths(@data_bags_folders).first,
             environments_path: guest_paths(@environments_folders).first

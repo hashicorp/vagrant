@@ -46,6 +46,9 @@ available below this section.
   a part of. This requires Chef 11.6.0 or later, and that `environments_path`
   is set.
 
+* `nodes_path` (string) - A path where node objects (in JSON format) are
+  stored. By default, no nodes path is set.
+
 * `recipe_url` (string) - URL to an archive of cookbooks that Chef will download
   and use.
 
