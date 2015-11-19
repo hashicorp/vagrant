@@ -50,6 +50,7 @@ BUG FIXES:
   - core: use the correct private key when packaging a box [GH-6406]
   - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
+  - communicator/ssh: fix potential crash case with PTY [GH-6225]
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
   - communicator/winrm: execute scheduled tasks immediately on Windows XP
       since elevation isn't required [GH-6195]

@@ -611,6 +611,7 @@ module VagrantPlugins
           end
 
           data = pty_stdout[/.*#{PTY_DELIM_START}(.*?)#{PTY_DELIM_END}/m, 1]
+          data ||= ""
           @logger.debug("PTY stdout parsed: #{data}")
           yield :stdout, data if block_given?
         end
