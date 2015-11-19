@@ -32,6 +32,7 @@ IMPROVEMENTS:
   - core: networking: allow specifying a DHCP IP [GH-6325]
   - command/plugin: Add `--plugin-clean-sources` flag to reset plugin install
       sources, primarily for corp firewalls. [GH-4738]
+  - command/up: provisioners are run on suspend resume [GH-5815]
   - communicators/winrm: Configurable execution time limit [GH-6213]
   - provisioners/shell: Support interactive mode for elevated PowerShell
       scripts [GH-6185]
