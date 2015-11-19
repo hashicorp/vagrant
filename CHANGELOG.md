@@ -38,6 +38,8 @@ IMPROVEMENTS:
   - providers/virtualbox: cache version lookup, which caused significant
       slowdown on some Windows hosts [GH-6552]
   - provisioners/chef: perform cleanup tasks on the guest instead of the host
+  - provisioners/chef: automatically generate a node_name if one was not given
+    [GH-6555]
   - provisioners/shell: Support interactive mode for elevated PowerShell
       scripts [GH-6185]
   - provisioners/ansible: add new `force_remote_user` option to control whether
