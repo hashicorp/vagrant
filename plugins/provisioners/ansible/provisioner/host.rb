@@ -88,9 +88,9 @@ module VagrantPlugins
 
         def execute_ansible_galaxy_from_host
           command_values = {
-              :role_file => get_galaxy_role_file(machine.env.root_path),
-              :roles_path => get_galaxy_roles_path(machine.env.root_path)
-            }
+            :role_file => get_galaxy_role_file(machine.env.root_path),
+            :roles_path => get_galaxy_roles_path(machine.env.root_path)
+          }
           command_template = config.galaxy_command.gsub(' ', VAGRANT_ARG_SEPARATOR)
           str_command = command_template % command_values
 
