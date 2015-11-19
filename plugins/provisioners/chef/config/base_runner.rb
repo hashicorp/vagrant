@@ -61,12 +61,6 @@ module VagrantPlugins
           @run_list = []
         end
 
-        def encrypted_data_bag_secret=(value)
-          puts "DEPRECATION: Chef encrypted_data_bag_secret has no effect anymore."
-          puts "Remove this from your Vagrantfile since it'll be removed in the next"
-          puts "Vagrant version."
-        end
-
         def finalize!
           super
 
