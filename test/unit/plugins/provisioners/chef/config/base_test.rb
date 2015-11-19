@@ -23,6 +23,13 @@ describe VagrantPlugins::Chef::Config::Base do
     end
   end
 
+  describe "#product" do
+    it "defaults to \"chef\"" do
+      subject.finalize!
+      expect(subject.product).to eq("chef")
+    end
+  end
+
   describe "#install" do
     it "defaults to true" do
       subject.finalize!
@@ -49,10 +56,18 @@ describe VagrantPlugins::Chef::Config::Base do
     end
   end
 
-  describe "#prerelease" do
-    it "defaults to true" do
+  describe "#channel" do
+    it "defaults to \"current\"" do
       subject.finalize!
-      expect(subject.prerelease).to be(false)
+      expect(subject.channel).to eq("current")
+    end
+  end
+
+  describe "#prerelease" do
+    it "should not exist in Vagrant 1.9" do
+      if Vagrant::VERSION >= "1.9"
+        raise "This option should be removed!"
+      end
     end
   end
 

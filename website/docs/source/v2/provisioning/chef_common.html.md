@@ -30,13 +30,18 @@ their purpose.
 - `installer_download_path` (string) - The path where the Chef installer will be
   downloaded to. This option is only honored if the `install` attribute is
   `true` or `"force"`. The default value is to use the path provided by Chef's
-  Omnibus installer, which varies between releases.
+  Omnibus installer, which varies between releases. This value has no effect on
+  Windows because Chef's omnibus installer lacks the option on Windows.
 
 - `log_level` (string) - The Chef log level. See the Chef docs for acceptable
   values.
 
-- `prerelease` (boolean) - Install a prerelease version of Chef. The default
-  value is false.
+- `product` (string) - The name of the Chef product to install. The default
+  value is "chef", which corresponds to the Chef Client. You can also specify
+  "chefdk", which will install the Chef Development Kit.
+
+- `channel` (string) - The release channel from which to pull the Chef Client
+  or the Chef Development Kit. The default value is `"current"`.
 
 - `version` (string) - The version of Chef to install on the guest. If Chef is
   already installed on the system, the installed version is compared with the
