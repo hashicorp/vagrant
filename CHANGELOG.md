@@ -87,6 +87,8 @@ BUG FIXES:
     [GH-6005, GH-6064, GH-6541]
   - provisioners/chef: only force the formatter on Chef 11 or higher
     [GH-6278, GH-6556]
+  - provisioners/chef: require `nodes_path` to be set for Chef Zero
+    [GH-6110, GH-6559]
   - provisioners/puppet: apply provisioner uses correct default manifests
     with environments. [GH-5987]
   - provisioners/puppet: remove broken backticks [GH-6404]
