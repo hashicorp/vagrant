@@ -1402,7 +1402,10 @@ en:
       common:
         bad_field: "The following settings shouldn't exist: %{fields}"
       chef:
-        cookbooks_path_empty: "Must specify a cookbooks path for chef solo."
+        cookbooks_path_empty: |-
+          Missing required value for `chef.cookbooks_path'.
+        nodes_path_empty: |-
+          Missing required value for `chef.nodes_path'.
         environment_path_missing: |-
           Environment path not found: %{path}
         environment_path_required: |-

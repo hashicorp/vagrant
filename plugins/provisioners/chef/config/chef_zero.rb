@@ -73,6 +73,10 @@ module VagrantPlugins
             errors << I18n.t("vagrant.config.chef.cookbooks_path_empty")
           end
 
+          if [nodes_path].flatten.compact.empty?
+            errors << I18n.t("vagrant.config.chef.nodes_path_empty")
+          end
+
           if environment && environments_path.empty?
             errors << I18n.t("vagrant.config.chef.environment_path_required")
           end
