@@ -71,10 +71,7 @@ module VagrantPlugins
           }
           remote_command = config.galaxy_command % command_values
 
-          ui_running_ansible_command "galaxy", remote_command
-
-          result = execute_on_guest(remote_command)
-          raise Ansible::Errors::AnsibleCommandFailed if result != 0
+          execute_ansible_command_on_guest "galaxy", remote_command
         end
 
         def execute_ansible_playbook_on_guest
@@ -84,9 +81,13 @@ module VagrantPlugins
           command = (%w(ansible-playbook) << @command_arguments << config.playbook).flatten
           remote_command = "cd #{config.provisioning_path} && #{Helpers::stringify_ansible_playbook_command(@environment_variables, command)}"
 
-          ui_running_ansible_command "playbook", remote_command
+          execute_ansible_command_on_guest "playbook", remote_command
+        end
 
-          result = execute_on_guest(remote_command)
+        def execute_ansible_command_on_guest(name, command)
+          ui_running_ansible_command name, command
+
+          result = execute_on_guest(command)
           raise Ansible::Errors::AnsibleCommandFailed if result != 0
         end
 
