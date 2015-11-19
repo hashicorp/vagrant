@@ -70,6 +70,15 @@ describe Vagrant::Machine do
       expect(subject.id).to be_nil
     end
 
+    describe "as a base" do
+      let(:base) { true}
+
+      it "should not insert key" do
+        subject = new_instance
+        expect(subject.config.ssh.insert_key).to be_false
+      end
+    end
+
     describe "communicator loading" do
       it "doesn't eager load SSH" do
         config.vm.communicator = :ssh

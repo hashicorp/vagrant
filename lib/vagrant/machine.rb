@@ -116,6 +116,9 @@ module Vagrant
       # XXX: This is temporary. This will be removed very soon.
       if base
         @id = name
+
+        # For base setups, we don't want to insert the key
+        @config.ssh.insert_key = false
       else
         reload
       end
