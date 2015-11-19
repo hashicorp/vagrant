@@ -44,6 +44,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Ctrl-C weirdness fixed where it would exit parent process
+      before Vagrant finished cleaning up [GH-6085]
   - core: DHCP network configurations don't warn on IP addresses ending
       in ".1" [GH-6150]
   - core: only append `access_token` when it does not exist in the URL
