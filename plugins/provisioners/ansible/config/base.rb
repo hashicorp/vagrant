@@ -3,7 +3,7 @@ module VagrantPlugins
     module Config
       class Base < Vagrant.plugin("2", :config)
 
-        GALAXY_COMMAND_DEFAULT = "ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force"
+        GALAXY_COMMAND_DEFAULT = "ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force".freeze
 
         attr_accessor :extra_vars
         attr_accessor :galaxy_role_file
