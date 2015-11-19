@@ -12,9 +12,9 @@ module Vagrant
   # for accessing/finding individual boxes, adding new boxes, or deleting
   # boxes.
   class BoxCollection
-    TEMP_PREFIX = "vagrant-box-add-temp-"
-    VAGRANT_SLASH = "-VAGRANTSLASH-"
-    VAGRANT_COLON = "-VAGRANTCOLON-"
+    TEMP_PREFIX = "vagrant-box-add-temp-".freeze
+    VAGRANT_SLASH = "-VAGRANTSLASH-".freeze
+    VAGRANT_COLON = "-VAGRANTCOLON-".freeze
 
     # The directory where the boxes in this collection are stored.
     #
@@ -348,17 +348,12 @@ module Vagrant
       end
     end
 
-    # Removes the whole directory of a given box if there are no
-    # other versions nor providers of the box exist.
-    def clean_up(box)
-      return false if exists?(box.name)
-
-      box_directory = box.name
-        .gsub('/', VAGRANT_SLASH)
-        .gsub(':', VAGRANT_COLON)
-
-      path = File.join(directory, box_directory)
-      FileUtils.rm_r(path)
+    # Cleans the directory for a box by removing the folders that are
+    # empty.
+    def clean(name)
+      return false if exists?(name)
+      path = File.join(directory, dir_name(name))
+      FileUtils.rm_rf(path)
     end
 
     protected

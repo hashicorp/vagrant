@@ -44,6 +44,65 @@ describe Vagrant::BoxCollection do
     end
   end
 
+  describe "#clean" do
+    it "removes the directory if no other versions of the box exists" do
+      # Create a few boxes, immediately destroy them
+      environment.box3("foo", "1.0", :virtualbox)
+      environment.box3("foo", "1.0", :vmware)
+
+      # Delete them all
+      subject.all.each do |parts|
+        subject.find(parts[0], parts[2], ">= 0").destroy!
+      end
+
+      # Cleanup
+      subject.clean("foo")
+
+      # Make sure the whole directory is empty
+      expect(environment.boxes_dir.children).to be_empty
+    end
+
+    it "doesn't remove the directory if a provider exists" do
+      # Create a few boxes, immediately destroy them
+      environment.box3("foo", "1.0", :virtualbox)
+      environment.box3("foo", "1.0", :vmware)
+
+      # Delete them all
+      subject.find("foo", :virtualbox, ">= 0").destroy!
+
+      # Cleanup
+      subject.clean("foo")
+
+      # Make sure the whole directory is not empty
+      expect(environment.boxes_dir.children).to_not be_empty
+
+      # Make sure the results still exist
+      results = subject.all
+      expect(results.length).to eq(1)
+      expect(results.include?(["foo", "1.0", :vmware])).to be
+    end
+
+    it "doesn't remove the directory if a version exists" do
+      # Create a few boxes, immediately destroy them
+      environment.box3("foo", "1.0", :virtualbox)
+      environment.box3("foo", "1.2", :virtualbox)
+
+      # Delete them all
+      subject.find("foo", :virtualbox, ">= 1.1").destroy!
+
+      # Cleanup
+      subject.clean("foo")
+
+      # Make sure the whole directory is not empty
+      expect(environment.boxes_dir.children).to_not be_empty
+
+      # Make sure the results still exist
+      results = subject.all
+      expect(results.length).to eq(1)
+      expect(results.include?(["foo", "1.0", :virtualbox])).to be
+    end
+  end
+
   describe "#find" do
     it "returns nil if the box does not exist" do
       expect(subject.find("foo", :i_dont_exist, ">= 0")).to be_nil
