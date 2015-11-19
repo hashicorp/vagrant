@@ -80,6 +80,7 @@ module VagrantPlugins
 
           @logger.info("Using VirtualBox driver: #{driver_klass}")
           @driver = driver_klass.new(@uuid)
+          @version = @@version
 
           if @uuid
             # Verify the VM exists, and if it doesn't, then don't worry
