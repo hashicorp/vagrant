@@ -45,6 +45,7 @@ BUG FIXES:
       in ".1" [GH-6150]
   - core: only append `access_token` when it does not exist in the URL
     [GH-6395, GH-6534]
+  - core: use the correct private key when packaging a box [GH-6406]
   - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
