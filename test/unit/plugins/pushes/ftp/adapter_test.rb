@@ -39,7 +39,10 @@ describe VagrantPlugins::FTPPush::FTPAdapter do
   include_context "unit"
 
   before(:all) do
-    @server = FakeFtp::Server.new(21212, 21213)
+    @server = nil
+    with_random_port do |port1, port2|
+      @server = FakeFtp::Server.new(port1, port2)
+    end
     @server.start
   end
 
