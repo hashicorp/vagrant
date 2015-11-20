@@ -40,12 +40,6 @@ module VagrantPlugins
         Command::Exec
       end
 
-      command("docker-shell", primary: false) do
-        require_relative "command/shell"
-        init!
-        Command::Exec
-      end
-
       communicator(:docker_hostvm) do
         require_relative "communicator"
         init!
