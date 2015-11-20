@@ -33,6 +33,7 @@ IMPROVEMENTS:
   - core: run provisioner cleanup tasks before powering off the VM [GH-6553]
   - command/plugin: Add `--plugin-clean-sources` flag to reset plugin install
       sources, primarily for corp firewalls. [GH-4738]
+  - command/rsync-auto: SSH connection is cached for faster sync times [GH-6399]
   - command/up: provisioners are run on suspend resume [GH-5815]
   - communicators/ssh: allow specifying host environment variables to forward
     to guests [GH-4132, GH-6562]
