@@ -328,28 +328,17 @@ module VagrantPlugins
         auth_methods << "publickey" if ssh_info[:private_key_path]
         auth_methods << "password" if ssh_info[:password]
 
-        # Build the environment
-        env_revert = {}
-        send_env_array = nil
-        if ssh_info[:forward_agent]
-          send_env_array = ssh_info[:forward_env].values()
-          ssh_info[:forward_env].each do |host_var, guest_var|
-            env_revert[guest_var] = ENV[guest_var]
-            ENV[guest_var] = ENV[host_var]
-          end
-        end
-
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
           auth_methods:          auth_methods,
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
+          forward_env:           ssh_info[:forward_env],
           keys:                  ssh_info[:private_key_path],
           keys_only:             true,
           paranoid:              false,
           password:              ssh_info[:password],
           port:                  ssh_info[:port],
-          send_env:              send_env_array,
           timeout:               15,
           user_known_hosts_file: [],
           verbose:               :debug,
@@ -442,11 +431,6 @@ module VagrantPlugins
           # This is raised if a private key type that Net-SSH doesn't support
           # is used. Show a nicer error.
           raise Vagrant::Errors::SSHKeyTypeNotSupported
-        ensure
-          # TODO: will this leak?
-          env_revert.each do |guest_var, guest_value|
-            ENV[guest_var] = guest_value
-          end
         end
 
         @connection          = connection

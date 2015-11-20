@@ -139,7 +139,7 @@ module Vagrant
         end
 
         if ssh_info[:forward_env]
-          command_options += ["-o", "SendEnv=" + ssh_info[:forward_env].keys().join(" ")]
+          command_options += ["-o", "SendEnv=#{ssh_info[:forward_env].join(" ")}"]
         end
 
         # Configurables -- extra_args should always be last due to the way the
@@ -179,8 +179,8 @@ module Vagrant
 
         # Forward configured environment variables.
         if ssh_info[:forward_env]
-          ssh_info[:forward_env].each do |host_var, guest_var|
-            process.environment[guest_var] = ENV[guest_var]
+          ssh_info[:forward_env].each do |key|
+            process.environment[key] = ENV[key]
           end
         end
 

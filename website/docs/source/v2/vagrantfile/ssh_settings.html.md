@@ -67,8 +67,13 @@ is enabled. Defaults to false.
 
 <hr>
 
-`config.ssh.forward_env` - A hash of host environment variable names to guest
-environment variable names.
+`config.ssh.forward_env` - An array of host environment variables to forward to
+the guest. If you are familiar with OpenSSH, this corresponds to the `SendEnv`
+paramter.
+
+```ruby
+config.ssh.forward_env = ["CUSTOM_VAR"]
+```
 
 <hr>
 
