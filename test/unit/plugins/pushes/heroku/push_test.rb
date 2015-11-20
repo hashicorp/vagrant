@@ -1,5 +1,7 @@
 require_relative "../../../base"
 
+require "vagrant/util/platform"
+
 require Vagrant.source_root.join("plugins/pushes/heroku/push")
 
 describe VagrantPlugins::HerokuPush::Push do
@@ -24,9 +26,12 @@ describe VagrantPlugins::HerokuPush::Push do
 
   describe "#push" do
     let(:branch) { "master" }
-
-    let(:root_path) { "/handy/dandy" }
     let(:dir) { "#{root_path}/#{config.dir}" }
+
+    let(:root_path) do
+      next "/handy/dandy" if !Vagrant::Util::Platform.windows?
+      "C:/handy/dandy" 
+    end
 
     before do
       allow(subject).to receive(:git_branch)

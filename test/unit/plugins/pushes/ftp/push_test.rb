@@ -41,8 +41,7 @@ describe VagrantPlugins::FTPPush::Push do
       end
       @server.start
 
-      @dir = Dir.mktmpdir
-
+      @dir = temporary_dir
       FileUtils.touch("#{@dir}/.hidden.rb")
       FileUtils.touch("#{@dir}/application.rb")
       FileUtils.touch("#{@dir}/config.rb")
@@ -52,7 +51,6 @@ describe VagrantPlugins::FTPPush::Push do
     end
 
     after(:all) do
-      FileUtils.rm_rf(@dir)
       @server.stop
     end
 

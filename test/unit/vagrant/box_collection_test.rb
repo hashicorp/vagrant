@@ -3,7 +3,7 @@ require File.expand_path("../../base", __FILE__)
 require "pathname"
 require 'tempfile'
 
-describe Vagrant::BoxCollection do
+describe Vagrant::BoxCollection, :skip_windows do
   include_context "unit"
 
   let(:box_class)   { Vagrant::Box }
