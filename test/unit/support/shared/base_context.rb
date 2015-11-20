@@ -1,6 +1,8 @@
 require "tempfile"
 require "tmpdir"
 
+require "vagrant/util/platform"
+
 require "unit/support/isolated_environment"
 
 shared_context "unit" do
@@ -83,7 +85,9 @@ shared_context "unit" do
     @_temp_files << d
 
     # Return the pathname
-    return Pathname.new(d)
+    result = Pathname.new(Vagrant::Util::Platform.fs_real_path(d))
+    yield result if block_given?
+    return result
   end
 
   # Stub the given environment in ENV, without actually touching ENV. Keys and
