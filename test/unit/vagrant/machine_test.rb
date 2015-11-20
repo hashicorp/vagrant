@@ -3,6 +3,8 @@ require "tmpdir"
 
 require File.expand_path("../../base", __FILE__)
 
+require "vagrant/util/platform"
+
 describe Vagrant::Machine do
   include_context "unit"
 
@@ -692,14 +694,17 @@ describe Vagrant::Machine do
       end
 
       it "should return the private key in the Vagrantfile if the data dir exists" do
+        path = "/foo"
+        path = "C:/foo" if Vagrant::Util::Platform.windows?
+
         provider_ssh_info[:private_key_path] = nil
-        instance.config.ssh.private_key_path = "/foo"
+        instance.config.ssh.private_key_path = path
 
         instance.data_dir.join("private_key").open("w+") do |f|
           f.write("hey")
         end
 
-        expect(instance.ssh_info[:private_key_path]).to eql(["/foo"])
+        expect(instance.ssh_info[:private_key_path]).to eql([path])
       end
 
       context "with no data dir" do
