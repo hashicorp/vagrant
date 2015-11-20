@@ -104,6 +104,8 @@ BUG FIXES:
   - provisioners/puppet-server: works with Puppet Collection 1 [GH-6389]
   - provisioners/salt: call correct executables on Windows [GH-5999]
   - provisioners/salt: log level and colorize works for masterless [GH-6474]
+  - push/local-exec: use subprocess on windows when fork does not exist
+    [GH-5307, GH-6563]
   - push/heroku: use current branch [GH-6554]
   - synced\_folders/rsync: on Windows, replace all paths with Cygwin
       paths since all rsync implementations require this [GH-6160]
