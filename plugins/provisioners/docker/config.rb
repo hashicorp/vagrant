@@ -4,11 +4,18 @@ module VagrantPlugins
   module DockerProvisioner
     class Config < Vagrant.plugin("2", :config)
       attr_reader :images
-      attr_accessor :version
+
+      def version=(value)
+          STDOUT.puts <<-EOH
+[DEPRECATED] The configuration `docker.version' has been deprecated. Docker no
+longer allows you to specify the version of Docker you want installed and will
+automatically choose the best version for your guest. Please remove this option
+from your Vagrantfile.
+EOH
+      end
 
       def initialize
-        @images         = Set.new
-        @version        = UNSET_VALUE
+        @images = Set.new
 
         @__build_images   = []
         @__containers     = Hash.new { |h, k| h[k] = {} }
@@ -65,9 +72,6 @@ module VagrantPlugins
       end
 
       def finalize!
-        @version = "latest" if @version == UNSET_VALUE
-        @version = @version.to_sym
-
         @__containers.each do |name, params|
           params[:image] ||= name
           params[:auto_assign_name] = true if !params.key?(:auto_assign_name)
