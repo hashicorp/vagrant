@@ -104,7 +104,9 @@ module VagrantPlugins
             end
 
             # If we have specified a folder name to append then append it
-            remote_path += "/#{appended_folder}" if appended_folder
+            if type == :host
+              remote_path += "/#{appended_folder}" if appended_folder
+            end
 
             # Append the result
             results << [type, local_path, remote_path]
