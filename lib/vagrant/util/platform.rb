@@ -117,6 +117,14 @@ module Vagrant
           path = Pathname.new(File.expand_path(path))
 
           if path.exist? && !fs_case_sensitive?
+            # If the path contains a Windows short path, then we attempt to
+            # expand. The require below is embedded here since it requires
+            # windows to work.
+            if windows? && path.to_s =~ /~\d(\/|\\)/
+              require_relative "windows_path"
+              path = Pathname.new(WindowsPath.longname(path.to_s))
+            end
+
             # Build up all the parts of the path
             original = []
             while !path.root?
