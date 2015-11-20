@@ -67,6 +67,16 @@ is enabled. Defaults to false.
 
 <hr>
 
+`config.ssh.forward_env` - An array of host environment variables to forward to
+the guest. If you are familiar with OpenSSH, this corresponds to the `SendEnv`
+paramter.
+
+```ruby
+config.ssh.forward_env = ["CUSTOM_VAR"]
+```
+
+<hr>
+
 `config.ssh.insert_key` - If `true`, Vagrant will automatically insert
 a keypair to use for SSH, replacing Vagrant's default insecure key
 inside the machine if detected. By default, this is true.

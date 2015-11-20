@@ -442,6 +442,7 @@ module Vagrant
       # We also set some fields that are purely controlled by Varant
       info[:forward_agent] = @config.ssh.forward_agent
       info[:forward_x11]   = @config.ssh.forward_x11
+      info[:forward_env]   = @config.ssh.forward_env
 
       info[:ssh_command] = @config.ssh.ssh_command if @config.ssh.ssh_command
 
