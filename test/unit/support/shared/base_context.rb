@@ -80,6 +80,7 @@ shared_context "unit" do
     # Create a temporary directory and append it to the instance
     # variabe so that it isn't garbage collected and deleted
     d = Dir.mktmpdir("vagrant")
+    @_temp_files ||= []
     @_temp_files << d
 
     # Return the pathname
