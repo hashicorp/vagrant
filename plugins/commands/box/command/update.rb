@@ -1,11 +1,16 @@
 require 'optparse'
 
+require_relative 'download_mixins'
+
 module VagrantPlugins
   module CommandBox
     module Command
       class Update < Vagrant.plugin("2", :command)
+        include DownloadMixins
+
         def execute
           options = {}
+          download_options = {}
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box update [options]"
@@ -27,21 +32,23 @@ module VagrantPlugins
             o.on("--provider PROVIDER", String, "Update box with specific provider") do |p|
               options[:provider] = p.to_sym
             end
+
+            build_download_options(o, download_options)
           end
 
           argv = parse_options(opts)
           return if !argv
 
           if options[:box]
-            update_specific(options[:box], options[:provider])
+            update_specific(options[:box], options[:provider], download_options)
           else
-            update_vms(argv, options[:provider])
+            update_vms(argv, options[:provider], download_options)
           end
 
           0
         end
 
-        def update_specific(name, provider)
+        def update_specific(name, provider, download_options)
           boxes = {}
           @env.boxes.all.each do |n, v, p|
             boxes[n] ||= {}
@@ -74,11 +81,11 @@ module VagrantPlugins
 
           to_update.each do |n, p, v|
             box = @env.boxes.find(n, p, v)
-            box_update(box, "> #{v}", @env.ui)
+            box_update(box, "> #{v}", @env.ui, download_options)
           end
         end
 
-        def update_vms(argv, provider)
+        def update_vms(argv, provider, download_options)
           with_target_vms(argv, provider: provider) do |machine|
             if !machine.config.vm.box
               machine.ui.output(I18n.t(
@@ -95,17 +102,25 @@ module VagrantPlugins
 
             box = machine.box
             version = machine.config.vm.box_version
-            box_update(box, version, machine.ui)
+            # Get download options from machine configuration if not specified
+            # on the command line.
+            download_options[:ca_cert] ||= machine.config.vm.box_download_ca_cert
+            download_options[:ca_path] ||= machine.config.vm.box_download_ca_path
+            download_options[:client_cert] ||= machine.config.vm.box_download_client_cert
+            if download_options[:insecure].nil?
+              download_options[:insecure] = machine.config.vm.box_download_insecure
+            end
+            box_update(box, version, machine.ui, download_options)
           end
         end
 
-        def box_update(box, version, ui)
+        def box_update(box, version, ui, download_options)
           ui.output(I18n.t("vagrant.box_update_checking", name: box.name))
           ui.detail("Latest installed version: #{box.version}")
           ui.detail("Version constraints: #{version}")
           ui.detail("Provider: #{box.provider}")
 
-          update = box.has_update?(version)
+          update = box.has_update?(version, download_options: download_options)
           if !update
             ui.success(I18n.t(
               "vagrant.box_up_to_date_single",
@@ -124,6 +139,10 @@ module VagrantPlugins
             box_provider: update[2].name,
             box_version: update[1].version,
             ui: ui,
+            box_client_cert: download_options[:client_cert],
+            box_download_ca_cert: download_options[:ca_cert],
+            box_download_ca_path: download_options[:ca_path],
+            box_download_insecure: download_options[:insecure]
           })
         end
       end
