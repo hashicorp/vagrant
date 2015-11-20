@@ -85,6 +85,8 @@ BUG FIXES:
   - guests/debian: graceful shutdown works properly with newer releases [GH-5986]
   - guests/fedora: Preserve `localhost` entry when changing hostname [GH-6203]
   - guests/fedora: Use dnf if it is available [GH-6301]
+  - guests/linux: when replacing a public SSH key, use POSIX-compliant
+      sed flags [GH-6565]
   - guests/suse: DHCP network interfaces properly configured [GH-6502]
   - hosts/slackware: Better detection of NFS [GH-6367]
   - providers/hyper-v: support generation 2 VMs [GH-6372]
