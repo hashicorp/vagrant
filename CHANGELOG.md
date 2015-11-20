@@ -34,6 +34,8 @@ IMPROVEMENTS:
   - command/plugin: Add `--plugin-clean-sources` flag to reset plugin install
       sources, primarily for corp firewalls. [GH-4738]
   - command/up: provisioners are run on suspend resume [GH-5815]
+  - communicators/ssh: allow specifying host environment variables to forward
+    to guests [GH-4132, GH-6562]
   - communicators/winrm: Configurable execution time limit [GH-6213]
   - providers/virtualbox: cache version lookup, which caused significant
       slowdown on some Windows hosts [GH-6552]
