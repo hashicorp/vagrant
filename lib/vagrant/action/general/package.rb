@@ -30,7 +30,7 @@ module Vagrant
         def call(env)
           @env = env
           file_name = File.basename(@env["package.output"].to_s)
-          
+
           raise Errors::PackageOutputDirectory if File.directory?(tar_path)
           raise Errors::PackageOutputExists, file_name:file_name if File.exist?(tar_path)
           raise Errors::PackageRequiresDirectory if !env["package.directory"] ||
@@ -113,6 +113,21 @@ module Vagrant
 
           # If we don't have a generated private key, we do nothing
           path = @env[:machine].data_dir.join("private_key")
+          if !path.file?
+            # If we have a private key that was copied into this box,
+            # then we copy that. This is a bit of a heuristic and can be a
+            # security risk if the key is named the correct thing, but
+            # we'll take that risk for dev environments.
+            (@env[:machine].config.ssh.private_key_path || []).each do |p|
+              # If we have the correctly named key, copy it
+              if File.basename(p) == "vagrant_private_key"
+                path = Pathname.new(p)
+                break
+              end
+            end
+          end
+
+          # If we still have no matching key, do nothing
           return if !path.file?
 
           # Copy it into our box directory
