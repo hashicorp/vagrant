@@ -71,6 +71,8 @@ BUG FIXES:
   - commands/box: the update command supports CA settings [GH-4473]
   - commands/box: removing all versions and providers of a box will properly
       clean all directories in `~/.vagrant.d/boxes` [GH-3570]
+  - commands/package: when re-packaging a packaged box, preserve the
+      generated SSH key [GH-5780]
   - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/ssh: fix potential crash case with PTY [GH-6225]
