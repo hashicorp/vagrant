@@ -2,6 +2,7 @@ require "pathname"
 require "tempfile"
 
 require "vagrant/util/downloader"
+require "vagrant/util/powershell"
 require "vagrant/util/subprocess"
 
 module VagrantPlugins
@@ -35,7 +36,7 @@ module VagrantPlugins
           ui.detail(I18n.t(
             "vagrant.hosts.windows.virtualbox_install_install_detail"))
           script = File.expand_path("../../scripts/install_virtualbox.ps1", __FILE__)
-          result = Vagrant::Util::Powershell.execute(script, tf.path)
+          result = Vagrant::Util::PowerShell.execute(script, tf.path)
           if result.exit_code != 0
             raise Vagrant::Errors::ProviderInstallFailed,
               provider: "virtualbox",
