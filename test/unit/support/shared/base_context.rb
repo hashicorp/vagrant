@@ -60,18 +60,16 @@ shared_context "unit" do
   #
   # @return [Pathname]
   def temporary_file(contents=nil)
-    f = Tempfile.new("vagrant-unit")
+    dir = temporary_dir
+    f = dir.join("tempfile")
 
-    if contents
+    contents ||= ""
+    f.open("w") do |f|
       f.write(contents)
       f.flush
     end
 
-    # Store the tempfile in an instance variable so that it is not
-    # garbage collected, so that the tempfile is not unlinked.
-    @_temp_files << f
-
-    return Pathname.new(f.path)
+    return Pathname.new(Vagrant::Util::Platform.fs_real_path(f.to_s))
   end
 
   # This creates a temporary directory and returns a {Pathname}
