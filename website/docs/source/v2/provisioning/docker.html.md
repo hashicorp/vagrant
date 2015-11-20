@@ -42,9 +42,6 @@ for you (if it isn't already installed).
   can also use the `pull_images` function. See the example below this
   section for more information.
 
-* `version` (string) - The version of Docker to install. This defaults to
-  "latest" and will install the latest version of Docker.
-
 In addition to the options that can be set, various functions are available
 and can be called to configure other aspects of the Docker provisioner. Most
 of these functions have examples in more detailed sections below.

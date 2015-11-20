@@ -3,11 +3,7 @@ module VagrantPlugins
     module Cap
       module Redhat
         module DockerInstall
-          def self.docker_install(machine, version)
-            if version != :latest
-              machine.ui.warn(I18n.t("vagrant.docker_install_with_version_not_supported"))
-            end
-
+          def self.docker_install(machine)
             machine.communicate.tap do |comm|
               comm.sudo("yum -q -y update")
               comm.sudo("yum -q -y remove docker-io*")
@@ -15,7 +11,6 @@ module VagrantPlugins
             end
 
             case machine.guest.capability("flavor")
-
             when :rhel_7
               docker_enable_rhel7(machine)
             else

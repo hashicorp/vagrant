@@ -1,9 +1,8 @@
 module VagrantPlugins
   module DockerProvisioner
     class Installer
-      def initialize(machine, version)
+      def initialize(machine)
         @machine = machine
-        @version = version
       end
 
       # This handles verifying the Docker installation, installing it if it was
@@ -15,8 +14,8 @@ module VagrantPlugins
           return
         end
 
-        @machine.ui.detail(I18n.t("vagrant.docker_installing", version: @version.to_s))
-        @machine.guest.capability(:docker_install, @version)
+        @machine.ui.detail(I18n.t("vagrant.docker_installing"))
+        @machine.guest.capability(:docker_install)
 
         if !@machine.guest.capability(:docker_installed)
           if !@machine.guest.capability(:docker_installed)

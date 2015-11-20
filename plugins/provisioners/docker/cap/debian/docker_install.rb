@@ -3,7 +3,7 @@ module VagrantPlugins
     module Cap
       module Debian
         module DockerInstall
-          def self.docker_install(machine, version)
+          def self.docker_install(machine)
             machine.communicate.tap do |comm|
               comm.sudo("apt-get update -qq -y")
               comm.sudo("apt-get install -qq -y --force-yes curl")

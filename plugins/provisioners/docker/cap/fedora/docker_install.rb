@@ -3,11 +3,7 @@ module VagrantPlugins
     module Cap
       module Fedora
         module DockerInstall
-          def self.docker_install(machine, version)
-            if version != :latest
-              machine.ui.warn(I18n.t("vagrant.docker_install_with_version_not_supported"))
-            end
-
+          def self.docker_install(machine)
             machine.communicate.tap do |comm|
               if dnf?(machine)
                 comm.sudo("dnf -y install docker")
