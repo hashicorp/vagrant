@@ -333,7 +333,7 @@ module VagrantPlugins
           auth_methods:          auth_methods,
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
-          forward_env:           ssh_info[:forward_env],
+          send_env:              ssh_info[:forward_env],
           keys:                  ssh_info[:private_key_path],
           keys_only:             true,
           paranoid:              false,
