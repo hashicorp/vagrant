@@ -66,9 +66,17 @@ module VagrantPlugins
           proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' "
         end
 
+        # Create the path for the control sockets. We used to do this
+        # in the machine data dir but this can result in paths that are
+        # too long for unix domain sockets.
+        controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+
         rsh = [
           "ssh -p #{ssh_info[:port]} " +
           proxy_command +
+          "-o ControlMaster=auto " +
+          "-o ControlPath=#{controlpath} " +
+          "-o ControlPersist=10m " +
           "-o StrictHostKeyChecking=no " +
           "-o IdentitiesOnly=true " +
           "-o UserKnownHostsFile=/dev/null",
