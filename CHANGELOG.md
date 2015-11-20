@@ -69,6 +69,8 @@ BUG FIXES:
   - core: more robust check for admin privs on Windows [GH-5616]
   - core: properly detect when HTTP server doesn't support byte ranges and
       retry from scratch [GH-4479]
+  - core: line numbers show properly in Vagrantfile syntax errors
+      on Windows [GH-6445]
   - commands/box: the update command supports CA settings [GH-4473]
   - commands/box: removing all versions and providers of a box will properly
       clean all directories in `~/.vagrant.d/boxes` [GH-3570]
