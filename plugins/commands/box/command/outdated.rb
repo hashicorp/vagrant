@@ -66,7 +66,7 @@ module VagrantPlugins
             md = nil
             begin
               md = box.load_metadata(download_options)
-            rescue Vagrant::Errors::DownloaderError => e
+            rescue Vagrant::Errors::BoxMetadataDownloadError => e
               @env.ui.error(I18n.t(
                 "vagrant.box_outdated_metadata_error",
                 name: box.name,

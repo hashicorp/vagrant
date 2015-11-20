@@ -71,6 +71,7 @@ BUG FIXES:
   - commands/box: the update command supports CA settings [GH-4473]
   - commands/box: removing all versions and providers of a box will properly
       clean all directories in `~/.vagrant.d/boxes` [GH-3570]
+  - commands/box: outdated global won't halt on metadata download failure [GH-6453]
   - commands/package: when re-packaging a packaged box, preserve the
       generated SSH key [GH-5780]
   - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
