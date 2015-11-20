@@ -63,6 +63,8 @@ BUG FIXES:
   - core: don't check for metadata if the download URL is not HTTP [GH-6540]
   - core: don't make custom dotfile path if there is no Vagrantfile [GH-6542]
   - core: more robust check for admin privs on Windows [GH-5616]
+  - core: properly detect when HTTP server doesn't support byte ranges and
+      retry from scratch [GH-4479]
   - commands/box: removing all versions and providers of a box will properly
       clean all directories in `~/.vagrant.d/boxes` [GH-3570]
   - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
