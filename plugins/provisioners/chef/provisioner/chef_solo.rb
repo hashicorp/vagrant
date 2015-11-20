@@ -165,7 +165,7 @@ module VagrantPlugins
             recipe_url: @config.recipe_url,
             nodes_path: guest_paths(@node_folders),
             roles_path: guest_paths(@role_folders),
-            data_bags_path: guest_paths(@data_bags_folders).first,
+            data_bags_path: guest_paths(@data_bags_folders),
             environments_path: guest_paths(@environments_folders).first
           }
         end
