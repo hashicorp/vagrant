@@ -6,7 +6,7 @@ module VagrantPlugins
           def self.docker_install(machine)
             machine.communicate.tap do |comm|
               comm.sudo("yum -q -y update")
-              comm.sudo("yum -q -y remove docker-io*")
+              comm.sudo("yum -q -y remove docker-io* || true")
               comm.sudo("curl -sSL https://get.docker.com/ | sh")
             end
 
