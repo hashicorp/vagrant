@@ -42,6 +42,9 @@ module Vagrant
           yield
         end
       end
+
+      # Configure Bundler to retry
+      ::Bundler.settings[:retry] = 3
     end
 
     # Initializes Bundler and the various gem paths so that we can begin

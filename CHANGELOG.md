@@ -74,6 +74,8 @@ BUG FIXES:
   - commands/box: outdated global won't halt on metadata download failure [GH-6453]
   - commands/package: when re-packaging a packaged box, preserve the
       generated SSH key [GH-5780]
+  - commands/plugin: retry plugin install automatically a few times to
+      avoid network issues [GH-6097]
   - commands/rdp: prefer `xfreerdp` if it is available on Linux [GH-6475]
   - commands/up: the `--provision-with` flag works with provisioner names [GH-5981]
   - communicator/ssh: fix potential crash case with PTY [GH-6225]
