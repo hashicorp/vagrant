@@ -35,8 +35,9 @@ available below this section.
   are stored. By default this is "cookbooks", expecting a cookbooks folder
   relative to the Vagrantfile location.
 
-* `data_bags_path` (string) - A path where data bags are stored. By default, no
-  data bag path is set.
+* `data_bags_path` (string or array) - A path where data bags are stored. By
+  default, no data bag path is set. Chef 12 or higher is required to use the
+  array option. Chef 11 and lower only accept a string value.
 
 * `environments_path` (string) - A path where environment definitions are
   located. By default, no environments folder is set.
