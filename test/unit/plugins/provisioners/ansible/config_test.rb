@@ -1,6 +1,8 @@
 require_relative "../../../base"
 require_relative "../support/shared/config"
 
+require "vagrant/util/platform"
+
 require Vagrant.source_root.join("plugins/provisioners/ansible/config/host")
 
 describe VagrantPlugins::Ansible::Config::Host do
@@ -10,7 +12,10 @@ describe VagrantPlugins::Ansible::Config::Host do
 
   let(:machine) { double("machine", env: Vagrant::Environment.new) }
   let(:existing_file) { File.expand_path(__FILE__) }
-  let(:non_existing_file) { "/this/does/not/exist" }
+  let(:non_existing_file) do
+    next "/this/does/not/exist" if !Vagrant::Util::Platform.windows?
+    "C:/foo/nope/nope"
+  end
 
   it "supports a list of options" do
     config_options = subject.public_methods(false).find_all { |i| i.to_s.end_with?('=') }
