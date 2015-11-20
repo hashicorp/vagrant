@@ -10,7 +10,7 @@ require File.expand_path("../../../../base", __FILE__)
 
 require "vagrant/util/file_checksum"
 
-describe Vagrant::Action::Builtin::BoxAdd do
+describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
   include_context "unit"
 
   let(:app) { lambda { |env| } }
