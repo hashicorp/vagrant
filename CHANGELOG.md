@@ -49,6 +49,7 @@ IMPROVEMENTS:
   - provisioners/chef: allow data_bags_path to be an array [GH-5988, GH-6561]
   - provisioners/shell: Support interactive mode for elevated PowerShell
       scripts [GH-6185]
+  - provisioners/ansible+ansible_local: add support for ansible-galaxy [GH-2718]
   - provisioners/ansible: add new `force_remote_user` option to control whether
     `ansible_ssh_user` parameter should be applied or not [GH-6348]
   - provisioners/ansible: show a warning when running from a Windows Host [GH-5292]
