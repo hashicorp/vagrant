@@ -107,6 +107,7 @@ shared_context "unit" do
     # can replace them back in later.
     old_env = {}
     environment.each do |key, value|
+      key          = key.to_s
       old_env[key] = ENV[key]
       ENV[key]     = value
     end

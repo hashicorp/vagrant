@@ -10,10 +10,17 @@ module Vagrant
     class Platform
       class << self
         def cygwin?
+          # Installer detects Cygwin
           return true if ENV["VAGRANT_DETECTED_OS"] &&
             ENV["VAGRANT_DETECTED_OS"].downcase.include?("cygwin")
 
-          platform.include?("cygwin")
+          # Ruby running in Cygwin
+          return true if platform.include?("cygwin")
+
+          # Heuristic. If the path contains Cygwin, we just assume we're
+          # in Cygwin. It is generally a safe bet.
+          path = ENV["PATH"] || ""
+          return path.include?("cygwin")
         end
 
         [:darwin, :bsd, :freebsd, :linux, :solaris].each do |type|
