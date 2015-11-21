@@ -132,6 +132,26 @@ module VagrantPlugins
           end
         end
 
+        def get_galaxy_role_file(basedir)
+          File.expand_path(config.galaxy_role_file, basedir)
+        end
+
+        def get_galaxy_roles_path(basedir)
+          if config.galaxy_roles_path
+            File.expand_path(config.galaxy_roles_path, basedir)
+          else
+            File.join(Pathname.new(config.playbook).expand_path(basedir).parent, 'roles')
+          end
+        end
+
+        def ui_running_ansible_command(name, command)
+          @machine.ui.detail I18n.t("vagrant.provisioners.ansible.running_#{name}")
+          if verbosity_is_enabled?
+            # Show the ansible command in use
+            @machine.env.ui.detail command
+          end
+        end
+
         def verbosity_is_enabled?
           config.verbose && !config.verbose.to_s.empty?
         end

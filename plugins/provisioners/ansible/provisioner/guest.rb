@@ -14,8 +14,7 @@ module VagrantPlugins
 
         def provision
           check_and_install_ansible
-          prepare_common_command_arguments
-          prepare_common_environment_variables
+          execute_ansible_galaxy_on_guest if config.galaxy_role_file
           execute_ansible_playbook_on_guest
         end
 
@@ -47,15 +46,15 @@ module VagrantPlugins
           if config.install &&
              (config.version.to_s.to_sym == :latest ||
               !@machine.guest.capability(:ansible_installed, config.version))
-            @machine.ui.detail(I18n.t("vagrant.provisioners.ansible.installing"))
+            @machine.ui.detail I18n.t("vagrant.provisioners.ansible.installing")
             @machine.guest.capability(:ansible_install)
           end
 
-          # Check for the existence of ansible-playbook binary on the guest,
+          # Check that ansible binaries are well installed on the guest,
           @machine.communicate.execute(
-            "ansible-playbook --help",
-            :error_class => Ansible::Errors::AnsibleError,
-            :error_key => :ansible_playbook_app_not_found_on_guest)
+            "ansible-galaxy --help && ansible-playbook --help",
+            :error_class => Ansible::Errors::AnsibleNotFoundOnGuest,
+            :error_key => :ansible_not_found_on_guest)
 
           # Check if requested ansible version is available
           if (!config.version.empty? &&
@@ -65,18 +64,31 @@ module VagrantPlugins
           end
         end
 
+        def execute_ansible_galaxy_on_guest
+          command_values = {
+            :role_file => get_galaxy_role_file(config.provisioning_path),
+            :roles_path => get_galaxy_roles_path(config.provisioning_path)
+          }
+          remote_command = config.galaxy_command % command_values
+
+          execute_ansible_command_on_guest "galaxy", remote_command
+        end
+
         def execute_ansible_playbook_on_guest
+          prepare_common_command_arguments
+          prepare_common_environment_variables
+
           command = (%w(ansible-playbook) << @command_arguments << config.playbook).flatten
           remote_command = "cd #{config.provisioning_path} && #{Helpers::stringify_ansible_playbook_command(@environment_variables, command)}"
 
-          # TODO: generic HOOK ???    
-          # Show the ansible command in use
-          if verbosity_is_enabled?
-            @machine.env.ui.detail(remote_command)
-          end
+          execute_ansible_command_on_guest "playbook", remote_command
+        end
 
-          result = execute_on_guest(remote_command)
-          raise Ansible::Errors::AnsiblePlaybookAppFailed if result != 0
+        def execute_ansible_command_on_guest(name, command)
+          ui_running_ansible_command name, command
+
+          result = execute_on_guest(command)
+          raise Ansible::Errors::AnsibleCommandFailed if result != 0
         end
 
         def execute_on_guest(command)

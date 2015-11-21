@@ -2054,52 +2054,61 @@ en:
         interactive_not_elevated: "To be interactive, it must also be privileged."
 
       ansible:
+        cannot_detect: |-
+          Vagrant does not support detecting whether Ansible is installed
+          for the guest OS running in the machine. Vagrant will assume it is
+          installed and attempt to continue.
+
+          If you'd like this provisioner to be improved, please
+          take a look at the Vagrant source code linked below and try
+          to contribute back support. Thank you!
+
+          https://github.com/mitchellh/vagrant
         errors:
-          ansible_playbook_app_failed: |-
+          ansible_command_failed: |-
             Ansible failed to complete successfully. Any error output should be
             visible above. Please fix these errors and try again.
-          ansible_playbook_app_not_found_on_guest: |-
-            The "ansible-playbook" program could not be found! Please verify
+          ansible_not_found_on_guest: |-
+            The Ansible software could not be found! Please verify
             that Ansible is correctly installed on your guest system.
 
             If you haven't installed Ansible yet, please install Ansible
             on your Vagrant basebox, or enable the automated setup with the
             `install` option of this provisioner. Please check
-            http://docs.vagrantup.com/v2/provisioning/ansible_local.html
+            https://docs.vagrantup.com/v2/provisioning/ansible_local.html
             for more information.
-          ansible_version_not_found_on_guest: |-
-            The requested Ansible version (%{required_version}) was not found on the guest.
-            Please check the ansible installation on your guest system,
-            or adapt the `version` option of this provisioner in your Vagrantfile.
-            See http://docs.vagrantup.com/v2/provisioning/ansible_local.html
-            for more information.
-          ansible_playbook_app_not_found_on_host: |-
-            The "ansible-playbook" program could not be found! Please verify
+          ansible_not_found_on_host: |-
+            The Ansible software could not be found! Please verify
             that Ansible is correctly installed on your host system.
 
             If you haven't installed Ansible yet, please install Ansible
             on your host system. Vagrant can't do this for you in a safe and
             automated way.
-            Please check http://docs.ansible.com for more information.
-        extra_vars_invalid: |-
-          `extra_vars` for the Ansible provisioner must be a hash or a path to an existing file. Received: %{value} (as %{type})
-        inventory_path_invalid: |-
-          `inventory_path` for the Ansible provisioner does not exist on the %{system}: %{path}
-        no_playbook: |-
-          `playbook` must be set for the Ansible provisioner.
-        playbook_path_invalid: |-
-          `playbook` for the Ansible provisioner does not exist on the %{system}: %{path}
-        vault_password_file_invalid: |-
-          `vault_password_file` for the Ansible provisioner does not exist on the %{system}: %{path}
-        cannot_detect: |-
-          Vagrant does not support detecting whether Ansible is installed
-          for the guest OS running in the machine. Vagrant will assume it is
-          installed and attempt to continue.
-        installing: |-
-          Installing Ansible...
+            Please check https://docs.ansible.com for more information.
+          ansible_version_not_found_on_guest: |-
+            The requested Ansible version (%{required_version}) was not found on the guest.
+            Please check the ansible installation on your guest system,
+            or adapt the `version` option of this provisioner in your Vagrantfile.
+            See https://docs.vagrantup.com/v2/provisioning/ansible_local.html
+            for more information.
+          extra_vars_invalid: |-
+            `extra_vars` must be a hash or a path to an existing file. Received: %{value} (as %{type})
+          galaxy_role_file_invalid: |-
+            `galaxy_role_file` does not exist on the %{system}: %{path}
+          inventory_path_invalid: |-
+            `inventory_path` does not exist on the %{system}: %{path}
+          no_playbook: |-
+            `playbook` file path must be set.
+          playbook_path_invalid: |-
+            `playbook` does not exist on the %{system}: %{path}
+          vault_password_file_invalid: |-
+            `vault_password_file` does not exist on the %{system}: %{path}
+        installing: "Installing Ansible..."
+        running_galaxy: "Running ansible-galaxy..."
+        running_playbook: "Running ansible-playbook..."
         windows_not_supported_for_control_machine: |-
           Windows is not officially supported for the Ansible Control Machine.
-          Please check http://docs.ansible.com/intro_installation.html#control-machine-requirements
+          Please check https://docs.ansible.com/intro_installation.html#control-machine-requirements
 
       docker:
         not_running: "Docker is not running on the guest VM."

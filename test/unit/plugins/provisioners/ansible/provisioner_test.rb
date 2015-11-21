@@ -208,7 +208,7 @@ VF
         config.finalize!
         Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
 
-        expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsiblePlaybookAppFailed)
+        expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
       end
     end
 
@@ -583,6 +583,33 @@ VF
       end
     end
 
+    describe "with galaxy support" do
+
+      before do
+        config.galaxy_role_file = existing_file
+      end
+
+      it "raises an error when ansible-galaxy command fails", skip_before: true, skip_after: true do
+        config.finalize!
+        Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
+
+        expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
+      end
+
+      it "execute ansible-galaxy and ansible-playbook" do
+        # TODO: to be improved, but I'm currenty facing some issues, maybe only present in RSpec 2.14...
+        expect(Vagrant::Util::Subprocess).to receive(:execute).twice
+      end
+
+      describe "with verbose option enabled" do
+        before do
+          config.verbose = true
+        end
+
+        xit "shows the ansible-galaxy command in use"
+      end
+    end
+
     # The Vagrant Ansible provisioner does not validate the coherency of
     # argument combinations, and let ansible-playbook complain.
     describe "with a maximum of options" do
@@ -678,7 +705,20 @@ VF
     # Special cases related to the Vagrant Host operating system in use
     #
 
-    context "with a Solaris-like host" do
+    context "on a Windows host" do
+      before do
+        Vagrant::Util::Platform.stub(windows?: true)
+        machine.ui.stub(:warn)
+      end
+
+      it "warns that Windows is not officially supported for the Ansible control machine" do
+        expect(machine.env.ui).to receive(:warn).with { |warning|
+          expect(warning).to eq(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine"))
+        }
+      end
+    end
+
+    context "on a Solaris-like host" do
       before do
         Vagrant::Util::Platform.stub(solaris?: true)
       end

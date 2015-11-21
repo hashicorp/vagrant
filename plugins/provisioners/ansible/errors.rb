@@ -7,16 +7,16 @@ module VagrantPlugins
         error_namespace("vagrant.provisioners.ansible.errors")
       end
 
-      class AnsiblePlaybookAppFailed < AnsibleError
-        error_key(:ansible_playbook_app_failed)
+      class AnsibleCommandFailed < AnsibleError
+        error_key(:ansible_command_failed)
       end
 
-      class AnsiblePlaybookAppNotFoundOnHost < AnsibleError
-        error_key(:ansible_playbook_app_not_found_on_host)
+      class AnsibleNotFoundOnHost < AnsibleError
+        error_key(:ansible_not_found_on_host)
       end
 
-      class AnsiblePlaybookAppNotFoundOnGuest < AnsibleError
-        error_key(:ansible_playbook_app_not_found_on_guest)
+      class AnsibleNotFoundOnGuest < AnsibleError
+        error_key(:ansible_not_found_on_guest)
       end
 
       class AnsibleVersionNotFoundOnGuest < AnsibleError
