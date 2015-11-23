@@ -43,14 +43,6 @@ The IP address can be determined by using `vagrant ssh` to SSH into the
 machine and using the appropriate command line tool to find the IP,
 such as `ifconfig`.
 
-You can also specify the DHCP IP:
-
-```ruby
-Vagrant.configure("2") do |config|
-  config.vm.network "private_network", type: "dhcp", dhcp_ip: "192.168.0.100"
-end
-```
-
 ## Static IP
 
 You can also specify a static IP address for the machine. This lets you
