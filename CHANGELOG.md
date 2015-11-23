@@ -103,6 +103,7 @@ BUG FIXES:
   - guests/suse: DHCP network interfaces properly configured [GH-6502]
   - hosts/slackware: Better detection of NFS [GH-6367]
   - providers/hyper-v: support generation 2 VMs [GH-6372]
+  - providers/hyper-v: support VMs with more than one NIC [GH-4346]
   - providers/virtualbox: ignore "Unknown" status bridge interfaces [GH-6061]
   - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
     value in the generated inventory [GH-6209]
