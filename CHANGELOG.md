@@ -90,6 +90,8 @@ BUG FIXES:
   - communicator/winrm: respect `boot_timeout` setting [GH-6229]
   - communicator/winrm: execute scheduled tasks immediately on Windows XP
       since elevation isn't required [GH-6195]
+  - communicator/winrm: Decouple default port forwarding rules for "winrm" and
+      "winrm-ssl" [GH-6581]
   - communicator/winrm: Hide progress bars from PowerShell v5 [GH-6309]
   - guests/arch: enable network device after setting it up [GH-5737]
   - guests/darwin: advanced networking works with more NICs [GH-6386]
