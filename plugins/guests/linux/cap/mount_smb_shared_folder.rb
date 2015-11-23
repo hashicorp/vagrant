@@ -24,17 +24,14 @@ module VagrantPlugins
             mount_gid = "`getent group #{options[:group]} | cut -d: -f3`"
             mount_gid_old = "`id -g #{options[:group]}`"
           end
-
-          smb_password = Shellwords.shellescape(options[:smb_password])
-
+          
           # If a domain is provided in the username, separate it
           username, domain = (options[:smb_username] || '').split('@', 2)
+          smb_password = options[:smb_password]
 
           options[:mount_options] ||= []
           options[:mount_options] << "sec=ntlm"
-          options[:mount_options] << "username=#{username}"
-          options[:mount_options] << "password=#{smb_password}"
-          options[:mount_options] << "domain=#{domain}" if domain
+          options[:mount_options] << "credentials=/etc/smb_creds_#{name}"
 
           # First mount command uses getent to get the group
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
@@ -48,6 +45,16 @@ module VagrantPlugins
 
           # Create the guest path if it doesn't exist
           machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
+
+          # Write the credentials file
+          machine.communicate.sudo(<<-SCRIPT)
+cat <<EOF >/etc/smb_creds_#{name}
+username=#{username}
+password=#{smb_password}
+#{domain ? "domain=#{domain}" : ""}
+EOF
+chmod 0600 /etc/smb_creds_#{name}
+SCRIPT
 
           # Attempt to mount the folder. We retry here a few times because
           # it can fail early on.

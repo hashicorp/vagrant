@@ -92,6 +92,11 @@ module VagrantPlugins
             guest: machine.guest.name.to_s
         end
 
+        # Setup if we have it
+        if machine.guest.capability?(:smb_install)
+          machine.guest.capability(:smb_install)
+        end
+
         # Detect the host IP for this guest if one wasn't specified
         # for every folder.
         host_ip = nil

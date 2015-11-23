@@ -127,6 +127,8 @@ BUG FIXES:
   - push/heroku: use current branch [GH-6554]
   - synced\_folders/rsync: on Windows, replace all paths with Cygwin
       paths since all rsync implementations require this [GH-6160]
+  - synced\_folders/smb: use credentials files to allow for more characters
+      in password [GH-4230]
 
 PLUGIN AUTHOR CHANGES:
 

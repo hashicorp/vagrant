@@ -160,6 +160,8 @@ en:
       description of what they do.
 
       %{list}
+    guest_deb_installing_smb: |-
+      Installing SMB "mount.cifs"...
     global_status_footer: |-
       The above shows information about all known Vagrant environments
       on this machine. This data is cached and may not be completely
