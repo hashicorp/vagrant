@@ -1,5 +1,6 @@
 require 'tempfile'
 
+require "vagrant/util/presence"
 require "vagrant/util/template_renderer"
 
 require_relative "../installer"
@@ -11,6 +12,8 @@ module VagrantPlugins
       # chef-solo and chef-client provisioning are stored. This is **not an actual
       # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
       class Base < Vagrant.plugin("2", :provisioner)
+        include Vagrant::Util::Presence
+
         class ChefError < Vagrant::Errors::VagrantError
           error_namespace("vagrant.provisioners.chef")
         end
@@ -20,7 +23,7 @@ module VagrantPlugins
 
           @logger = Log4r::Logger.new("vagrant::provisioners::chef")
 
-          if @config.node_name.to_s.empty?
+          if !present?(@config.node_name)
             cache = @machine.data_dir.join("chef_node_name")
 
             if !cache.exist?

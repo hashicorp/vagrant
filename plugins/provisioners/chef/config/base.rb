@@ -1,7 +1,11 @@
+require "vagrant/util/presence"
+
 module VagrantPlugins
   module Chef
     module Config
       class Base < Vagrant.plugin("2", :config)
+        include Vagrant::Util::Presence
+
         # The path to Chef's bin/ directory.
         # @return [String]
         attr_accessor :binary_path
@@ -114,17 +118,11 @@ EOH
         def validate_base(machine)
           errors = _detected_errors
 
-          if missing?(log_level)
+          if !present?(log_level)
             errors << I18n.t("vagrant.provisioners.chef.log_level_empty")
           end
 
           errors
-        end
-
-        # Determine if the given string is "missing" (blank)
-        # @return [true, false]
-        def missing?(obj)
-          obj.to_s.strip.empty?
         end
       end
     end

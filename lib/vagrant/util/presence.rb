@@ -14,7 +14,11 @@ module Vagrant
         case obj
         when String
           !obj.strip.empty?
-        when Array, Hash
+        when Symbol
+          !obj.to_s.strip.empty?
+        when Array
+          !obj.compact.empty?
+        when Hash
           !obj.empty?
         when TrueClass, FalseClass
           obj
