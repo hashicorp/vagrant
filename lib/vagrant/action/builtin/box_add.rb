@@ -381,7 +381,8 @@ module Vagrant
             @logger.info("URL is a file or protocol not found and assuming file.")
             file_path = File.expand_path(url)
             file_path = Util::Platform.cygwin_windows_path(file_path)
-            url = "file:#{file_path}"
+            file_path = file_path.gsub("\\", "/")
+            url = "file://#{file_path}"
           end
 
           # If the temporary path exists, verify it is not too old. If its
