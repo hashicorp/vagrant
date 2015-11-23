@@ -7,6 +7,7 @@ require "bundler"
 
 require_relative "shared_helpers"
 require_relative "version"
+require_relative "util/safe_env"
 
 module Vagrant
   # This class manages Vagrant's interaction with Bundler. Vagrant uses
@@ -71,12 +72,15 @@ module Vagrant
       # we add all our plugin dependencies.
       @gemfile = build_gemfile(plugins)
 
-      # Set the environmental variables for Bundler
-      ENV["BUNDLE_APP_CONFIG"] = @appconfigpath
-      ENV["BUNDLE_CONFIG"]  = @configfile.path
-      ENV["BUNDLE_GEMFILE"] = @gemfile.path
-      ENV["GEM_PATH"] =
-        "#{bundle_path}#{::File::PATH_SEPARATOR}#{@gem_path}"
+      SafeEnv.change_env do |env|
+        # Set the environmental variables for Bundler
+        env["BUNDLE_APP_CONFIG"] = @appconfigpath
+        env["BUNDLE_CONFIG"]     = @configfile.path
+        env["BUNDLE_GEMFILE"]    = @gemfile.path
+        env["GEM_PATH"] =
+          "#{bundle_path}#{::File::PATH_SEPARATOR}#{@gem_path}"
+      end
+
       Gem.clear_paths
     end
 

@@ -730,6 +730,13 @@ en:
       downloader_interrupted: |-
         The download was interrupted by an external signal. It did not
         complete.
+      env_inval: |-
+        Vagrant received an "EINVAL" error while attempting to set some
+        environment variables. This is usually caused by the total size of your
+        environment variables being too large. Vagrant sets a handful of
+        environment variables to function and requires this to work. Please
+        delete some environment variables prior to executing Vagrant to
+        fix this.
       environment_locked: |-
         Vagrant attempted to acquire a lock named '%{name}', but this
         lock is being held by another instance of Vagrant already. Please

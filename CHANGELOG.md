@@ -72,6 +72,7 @@ BUG FIXES:
       retry from scratch [GH-4479]
   - core: line numbers show properly in Vagrantfile syntax errors
       on Windows [GH-6445]
+  - core: catch errors setting env vars on Windows [GH-6017]
   - commands/box: add command with `~` paths on Windows works [GH-5747]
   - commands/box: the update command supports CA settings [GH-4473]
   - commands/box: removing all versions and providers of a box will properly

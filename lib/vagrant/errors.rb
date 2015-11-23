@@ -344,6 +344,10 @@ module Vagrant
       error_key(:downloader_interrupted)
     end
 
+    class EnvInval < VagrantError
+      error_key(:env_inval)
+    end
+
     class EnvironmentNonExistentCWD < VagrantError
       error_key(:environment_non_existent_cwd)
     end
