@@ -416,7 +416,8 @@ module VagrantPlugins
               host_ip: "127.0.0.1",
               id: "winrm",
               auto_correct: true
-
+          end
+          if !@__networks["forwarded_port-winrm-ssl"]
             network :forwarded_port,
               guest: 5986,
               host: 55986,

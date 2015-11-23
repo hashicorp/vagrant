@@ -204,25 +204,25 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     it "allows overriding WinRM" do
       subject.communicator = :winrm
       subject.network "forwarded_port",
-        guest: 22, host: 14100, id: "winrm"
+        guest: 5985, host: 14100, id: "winrm"
       subject.finalize!
 
       winrm_network = find_network 'winrm'
-      expect(winrm_network[:guest]).to eq(22)
+      expect(winrm_network[:guest]).to eq(5985)
       expect(winrm_network[:host]).to eq(14100)
       expect(winrm_network[:id]).to eq("winrm")
     end
 
     it "allows overriding WinRM SSL" do
-      subject.communicator = :winrmssl
+      subject.communicator = :winrm
       subject.network "forwarded_port",
-        guest: 22, host: 14100, id: "winrmssl"
+        guest: 5986, host: 14100, id: "winrm-ssl"
       subject.finalize!
 
-      winrmssl_network = find_network 'winrmssl'
-      expect(winrmssl_network[:guest]).to eq(22)
+      winrmssl_network = find_network 'winrm-ssl'
+      expect(winrmssl_network[:guest]).to eq(5986)
       expect(winrmssl_network[:host]).to eq(14100)
-      expect(winrmssl_network[:id]).to eq("winrmssl")
+      expect(winrmssl_network[:id]).to eq("winrm-ssl")
     end
 
     it "turns all forwarded port ports to ints" do
