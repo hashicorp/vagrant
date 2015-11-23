@@ -40,6 +40,8 @@ IMPROVEMENTS:
   - communicators/winrm: Configurable execution time limit [GH-6213]
   - providers/virtualbox: cache version lookup, which caused significant
       slowdown on some Windows hosts [GH-6552]
+  - providers/virtualbox: add `public_address` capability for virtualbox
+    [GH-6583, GH-5978]
   - provisioners/chef: perform cleanup tasks on the guest instead of the host
   - provisioners/chef: automatically generate a node_name if one was not given
     [GH-6555]
