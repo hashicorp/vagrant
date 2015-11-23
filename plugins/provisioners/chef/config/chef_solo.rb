@@ -1,9 +1,13 @@
+require "vagrant/util/presence"
+
 require_relative "base_runner"
 
 module VagrantPlugins
   module Chef
     module Config
       class ChefSolo < BaseRunner
+        include Vagrant::Util::Presence
+
         # The path on disk where Chef cookbooks are stored.
         # Default is "cookbooks".
         # @return [String]
@@ -82,11 +86,11 @@ module VagrantPlugins
         def validate(machine)
           errors = validate_base(machine)
 
-          if [cookbooks_path].flatten.compact.empty?
+          if !present?(Array(cookbooks_path))
             errors << I18n.t("vagrant.config.chef.cookbooks_path_empty")
           end
 
-          if environment && environments_path.empty?
+          if environment && !present?(environments_path)
             errors << I18n.t("vagrant.config.chef.environment_path_required")
           end
 

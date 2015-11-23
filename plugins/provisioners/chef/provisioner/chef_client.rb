@@ -1,6 +1,7 @@
 require 'pathname'
 
 require 'vagrant'
+require 'vagrant/util/presence'
 require 'vagrant/util/subprocess'
 
 require_relative "base"
@@ -11,6 +12,8 @@ module VagrantPlugins
       # This class implements provisioning via chef-client, allowing provisioning
       # with a chef server.
       class ChefClient < Base
+        include Vagrant::Util::Presence
+
         def configure(root_config)
           raise ChefError, :server_validation_key_required if @config.validation_key_path.nil?
           raise ChefError, :server_validation_key_doesnt_exist if !File.file?(validation_key_path)
@@ -132,7 +135,7 @@ module VagrantPlugins
         def delete_from_chef_server(deletable)
           node_name = @config.node_name || @machine.config.vm.hostname
 
-          if node_name.to_s.empty?
+          if !present?(node_name)
             @machine.ui.warn(I18n.t("vagrant.provisioners.chef.missing_node_name",
               deletable: deletable,
             ))

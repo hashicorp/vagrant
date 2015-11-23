@@ -1,9 +1,13 @@
+require "vagrant/util/presence"
+
 require_relative "base"
 
 module VagrantPlugins
   module Chef
     module Config
       class ChefApply < Base
+        include Vagrant::Util::Presence
+
         # The raw recipe text (as a string) to execute via chef-apply.
         # @return [String]
         attr_accessor :recipe
@@ -30,11 +34,11 @@ module VagrantPlugins
         def validate(machine)
           errors = validate_base(machine)
 
-          if missing?(recipe)
+          if !present?(recipe)
             errors << I18n.t("vagrant.provisioners.chef.recipe_empty")
           end
 
-          if missing?(upload_path)
+          if !present?(upload_path)
             errors << I18n.t("vagrant.provisioners.chef.upload_path_empty")
           end
 

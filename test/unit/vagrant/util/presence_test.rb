@@ -26,6 +26,10 @@ describe Vagrant::Util::Presence do
       expect(subject.presence([])).to be(false)
     end
 
+    it "returns false for an array with nil values" do
+      expect(subject.presence([nil, nil])).to be(false)
+    end
+
     it "returns false for an empty hash" do
       expect(subject.presence({})).to be(false)
     end
