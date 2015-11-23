@@ -13,6 +13,7 @@ module VagrantPlugins
               comm.execute(<<SCRIPT)
 sed -e '/^.*#{contents}.*$/d' ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.new
 mv ~/.ssh/authorized_keys.new ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
 SCRIPT
             end
           end
