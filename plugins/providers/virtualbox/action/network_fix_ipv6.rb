@@ -41,21 +41,22 @@ module VagrantPlugins
           # If we have no IPv6, forget it
           return if !has_v6
 
-          # We do, so fix them if we must
-          env[:machine].provider.driver.read_host_only_interfaces.each do |interface|
-            # Ignore interfaces without an IPv6 address
-            next if interface[:ipv6] == ""
-
-            # Make the test IP. This is just the highest value IP
-            ip = IPAddr.new(interface[:ipv6])
-            ip |= IPAddr.new(":#{":FFFF" * (interface[:ipv6_prefix].to_i / 16)}")
-
+          ifaces = env[:machine].provider.driver.read_network_interfaces
+          ifaces.select! { |id, iface| iface[:type] == :hostonly }
+          iface_names = ifaces.values.map { |iface| iface[:hostonly] }
+          networks = env[:machine].provider.driver.read_host_only_interfaces
+          networks.select! { |network| iface_names.include?(network[:name]) }
+          networks.each do |network|
+            next if network[:ipv6] == ""
+            next if network[:status] != 'Up'
+            ip = IPAddr.new(network[:ipv6]) |
+              ('1' * (128 - network[:ipv6_prefix].to_i)).to_i(2)
             @logger.info("testing IPv6: #{ip}")
             begin
               UDPSocket.new(Socket::AF_INET6).connect(ip.to_s, 80)
             rescue Errno::EHOSTUNREACH
               @logger.info("IPv6 host unreachable. Fixing: #{ip}")
-              env[:machine].provider.driver.reconfig_host_only(interface)
+              env[:machine].provider.driver.reconfig_host_only(network)
             end
           end
         end
