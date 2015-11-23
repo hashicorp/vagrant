@@ -412,7 +412,7 @@ VF
           config.force_remote_user = false
         end
 
-        it "doesn't set ansiber user in inventory and use '--user' argument with the vagrant ssh username" do
+        it "doesn't set the ansible remote user in inventory and use '--user' argument with the vagrant ssh username" do
           expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
             inventory_content = File.read(generated_inventory_file)
 
