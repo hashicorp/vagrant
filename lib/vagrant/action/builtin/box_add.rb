@@ -382,6 +382,7 @@ module Vagrant
             file_path = File.expand_path(url)
             file_path = Util::Platform.cygwin_windows_path(file_path)
             file_path = file_path.gsub("\\", "/")
+            file_path = "/#{file_path}" if !file_path.start_with?("/")
             url = "file://#{file_path}"
           end
 
