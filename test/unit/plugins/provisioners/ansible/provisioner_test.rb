@@ -406,6 +406,21 @@ VF
           expect(inventory_content).to include("machine1 ansible_connection=winrm ansible_ssh_host=127.0.0.1 ansible_ssh_port=55986 ansible_ssh_user='winner' ansible_ssh_pass='winword'\n")
         }
       end
+
+      describe "with force_remote_user option disabled" do
+        before do
+          config.force_remote_user = false
+        end
+
+        it "doesn't set ansiber user in inventory and use '--user' arguemnt with the vagrant ssh username" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+            inventory_content = File.read(generated_inventory_file)
+
+            expect(inventory_content).to include("machine1 ansible_connection=winrm ansible_ssh_host=127.0.0.1 ansible_ssh_port=55986 ansible_ssh_pass='winword'\n")
+            expect(args).to include("--user=testuser")
+          }
+        end
+      end
     end
 
     describe "with inventory_path option" do
