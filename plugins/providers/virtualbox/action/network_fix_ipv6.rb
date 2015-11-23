@@ -27,7 +27,8 @@ module VagrantPlugins
           env[:machine].config.vm.networks.each do |type, options|
             next if type != :private_network
             options = scoped_hash_override(options, :virtualbox)
-            next if options[:ip] == ""
+            next if options[:ip].to_s.strip == ""
+
             if IPAddr.new(options[:ip]).ipv6?
               has_v6 = true
               break
