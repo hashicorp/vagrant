@@ -1,8 +1,12 @@
+require "vagrant/util/presence"
+
 require "optparse"
 
 module VagrantPlugins
   module CommandPort
     class Command < Vagrant.plugin("2", :command)
+      include Vagrant::Util::Presence
+
       def self.synopsis
         "displays information about guest port mappings"
       end
@@ -14,6 +18,9 @@ module VagrantPlugins
           o.separator "Options:"
           o.separator ""
 
+          o.on("--guest", "Output the host port that maps to the given guest port") do
+          end
+
           o.on("--machine-readable", "Display machine-readable output")
         end
 
@@ -21,19 +28,9 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
-        @logger.debug("Port command: #{argv.inspect}")
         with_target_vms(argv, single_target: true) do |vm|
           vm.action_raw(:config_validate,
             Vagrant::Action::Builtin::ConfigValidate)
-
-          if vm.state.id != :running
-            @env.ui.error "not running - make this a better error or use the middleware"
-            return 1
-          end
-
-          # This only works for vbox? should it be everywhere?
-          # vm.action_raw(:check_running,
-          #   Vagrant::Action::Builtin::CheckRunning)
 
           if !vm.provider.capability?(:forwarded_ports)
             @env.ui.error(I18n.t("port_command.missing_capability",
@@ -44,7 +41,7 @@ module VagrantPlugins
 
           ports = vm.provider.capability(:forwarded_ports)
 
-          if ports.empty?
+          if !present?(ports)
             @env.ui.info(I18n.t("port_command.empty_ports"))
             return 0
           end
@@ -57,7 +54,7 @@ module VagrantPlugins
           end
         end
 
-        0
+        return 0
       end
     end
   end
