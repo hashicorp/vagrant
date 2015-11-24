@@ -135,15 +135,3 @@ describe VagrantPlugins::CommandPort::Command do
     end
   end
 end
-
-
-
-
-
-
-
-
-
-
-
-
