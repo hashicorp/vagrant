@@ -36,27 +36,21 @@ module VagrantPlugins
           #   Vagrant::Action::Builtin::CheckRunning)
 
           if !vm.provider.capability?(:forwarded_ports)
-            @env.ui.error <<-EOH.strip
-The #{vm.provider_name} provider does not support listing forwarded ports. This
-is most likely a limitation of the provider and not a bug in Vagrant. If you
-believe this is a bug in Vagrant, please search existing issues before opening
-a new one.
-EOH
+            @env.ui.error(I18n.t("port_command.missing_capability",
+              provider: vm.provider_name,
+            ))
             return 1
           end
 
           ports = vm.provider.capability(:forwarded_ports)
 
           if ports.empty?
-            @env.ui.info("The machine has no configured forwarded ports")
+            @env.ui.info(I18n.t("port_command.empty_ports"))
             return 0
           end
 
-          @env.ui.info <<-EOH
-The forwarded ports for the machine are listed below. Please note that these
-values may differ from values configured in the Vagrantfile if the provider
-supports automatic port collision detection and resolution.
-EOH
+          @env.ui.info(I18n.t("port_command.details"))
+          @env.ui.info("")
           ports.each do |guest, host|
             @env.ui.info("#{guest.to_s.rjust(6)} (guest) => #{host} (host)")
             @env.ui.machine("forwarded_port", guest, host, target: vm.name.to_s)

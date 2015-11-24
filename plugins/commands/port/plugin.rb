@@ -9,8 +9,18 @@ module VagrantPlugins
       DESC
 
       command("port") do
-        require File.expand_path("../command", __FILE__)
+        require_relative "command"
+        self.init!
         Command
+      end
+
+      protected
+
+      def self.init!
+        return if defined?(@_init)
+        I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
+        I18n.reload!
+        @_init = true
       end
     end
   end

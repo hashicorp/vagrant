@@ -22,6 +22,11 @@ describe VagrantPlugins::CommandPort::Command do
 
   let(:machine) { env.machine(env.machine_names[0], :dummy) }
 
+  before(:all) do
+    I18n.load_path << Vagrant.source_root.join("plugins/commands/port/locales/en.yml")
+    I18n.reload!
+  end
+
   subject { described_class.new(argv, env) }
 
   before do
@@ -51,7 +56,7 @@ describe VagrantPlugins::CommandPort::Command do
     it "ensures the vm is running" do
       allow(state).to receive(:id).and_return(:stopped)
       expect(env.ui).to receive(:error).with { |message, _|
-        expect(message).to include("make this a better error")
+        expect(message).to include("does not support listing forwarded ports")
       }
 
       expect(subject.execute).to eq(1)
@@ -72,7 +77,7 @@ describe VagrantPlugins::CommandPort::Command do
         .and_return([])
 
       expect(env.ui).to receive(:info).with { |message, _|
-        expect(message).to include("has no configured forwarded ports")
+        expect(message).to include("there are no forwarded ports")
       }
 
       expect(subject.execute).to eq(0)
