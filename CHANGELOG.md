@@ -83,6 +83,8 @@ BUG FIXES:
   - commands/box: removing all versions and providers of a box will properly
       clean all directories in `~/.vagrant.d/boxes` [GH-3570]
   - commands/box: outdated global won't halt on metadata download failure [GH-6453]
+  - commands/login: respect environment variables in `vagrant login` command
+    [GH-6590, GH-6422]
   - commands/package: when re-packaging a packaged box, preserve the
       generated SSH key [GH-5780]
   - commands/plugin: retry plugin install automatically a few times to
