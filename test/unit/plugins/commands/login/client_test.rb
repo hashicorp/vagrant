@@ -67,7 +67,10 @@ describe VagrantPlugins::LoginCommand::Client do
         "token" => "baz",
       }
 
-      headers = { "Content-Type" => "application/json" }
+      headers = {
+        "Accept" => "application/json",
+        "Content-Type" => "application/json",
+      }
 
       stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
         with(body: JSON.dump(request), headers: headers).
