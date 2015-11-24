@@ -2054,6 +2054,8 @@ en:
         invalid_encoding: |-
           Invalid encoding '%{actual}' for script at '%{path}'.
           Must be '%{default}' or UTF-8.
+        env_must_be_a_hash: |-
+          The shell provisioner's `env' option must be a hash.
         no_path_or_inline: "One of `path` or `inline` must be set."
         path_and_inline_set: "Only one of `path` or `inline` may be set."
         path_invalid: "`path` for shell provisioner does not exist on the host system: %{path}"

@@ -39,6 +39,10 @@ The remainder of the available options are optional:
   etc. as needed. You may also pass the arguments in using an array. In this
   case, Vagrant will handle quoting for you.
 
+* `env` (hash) - List of key-value pairs to pass in as environment variables to
+  the script. Vagrant will handle quoting for environment variable values, but
+  the keys remain untouched.
+
 * `binary` (boolean) - Vagrant automatically replaces Windows line endings with
   Unix line endings. If this is true, then Vagrant will not do this. By default
   this is "false". If the shell provisioner is communicating over WinRM, this
