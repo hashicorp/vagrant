@@ -16,9 +16,7 @@ describe VagrantPlugins::CommandPort::Command do
     iso_env.create_vagrant_env
   end
 
-  let(:argv)   { [] }
-  let(:pushes) { {} }
-  let(:state)  { double(:state, id: :running) }
+  let(:state) { double(:state, id: :running) }
 
   let(:machine) { env.machine(env.machine_names[0], :dummy) }
 
@@ -27,7 +25,7 @@ describe VagrantPlugins::CommandPort::Command do
     I18n.reload!
   end
 
-  subject { described_class.new(argv, env) }
+  subject { described_class.new([], env) }
 
   before do
     allow(machine).to receive(:state).and_return(state)
@@ -46,7 +44,7 @@ describe VagrantPlugins::CommandPort::Command do
         end
       EOH
 
-      subject = described_class.new(argv, iso_env.create_vagrant_env)
+      subject = described_class.new([], iso_env.create_vagrant_env)
 
       expect { subject.execute }.to raise_error(Vagrant::Errors::ConfigInvalid) { |err|
         expect(err.message).to include("The following settings shouldn't exist: bad")
@@ -96,8 +94,56 @@ describe VagrantPlugins::CommandPort::Command do
       expect(subject.execute).to eq(0)
 
       expect(output).to include("forwarded ports for the machine")
-      expect(output).to include("2222 (guest) => 22 (host)")
-      expect(output).to include("1111 (guest) => 11 (host)")
+      expect(output).to include("22 (guest) => 2222 (host)")
+      expect(output).to include("11 (guest) => 1111 (host)")
+    end
+
+    it "prints the matching host port when --guest is given" do
+      argv = ["--guest", "22"]
+      subject = described_class.new(argv, env)
+
+      allow(machine.provider).to receive(:capability?).and_return(true)
+      allow(machine.provider).to receive(:capability).with(:forwarded_ports)
+        .and_return([[2222,22]])
+
+      output = ""
+      allow(env.ui).to receive(:info) do |data|
+        output << data
+      end
+
+      expect(subject.execute).to eq(0)
+
+      expect(output).to eq("2222")
+    end
+
+    it "returns an error with no port is mapped to the --guest option" do
+      argv = ["--guest", "80"]
+      subject = described_class.new(argv, env)
+
+      allow(machine.provider).to receive(:capability?).and_return(true)
+      allow(machine.provider).to receive(:capability).with(:forwarded_ports)
+        .and_return([[2222,22]])
+
+      output = ""
+      allow(env.ui).to receive(:error) do |data|
+        output << data
+      end
+
+      expect(subject.execute).to_not eq(0)
+
+      expect(output).to include("not currently mapping port 80")
     end
   end
 end
+
+
+
+
+
+
+
+
+
+
+
+

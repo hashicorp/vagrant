@@ -14,3 +14,7 @@ en:
       most likely a limitation of the provider and not a bug in Vagrant. If you
       believe this is a bug in Vagrant, please search existing issues before
       opening a new one.
+    no_matching_port: |-
+      The guest is not currently mapping port %{port} to the host machine. Is
+      the port configured in the Vagrantfile? You may need to run `vagrant reload`
+      if changes were made to the port configuration in the Vagrantfile.
