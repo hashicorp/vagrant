@@ -1,6 +1,6 @@
-module VagrantPlugins
-  module ProviderVirtualBox
-    module Action
+module Vagrant
+  module Action
+    module Builtin
       # This middleware checks that the VM is running, and raises an exception
       # if it is not, notifying the user that the VM must be running.
       class CheckRunning

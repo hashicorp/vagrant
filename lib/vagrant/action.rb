@@ -12,6 +12,7 @@ module Vagrant
       autoload :BoxCheckOutdated, "vagrant/action/builtin/box_check_outdated"
       autoload :BoxRemove, "vagrant/action/builtin/box_remove"
       autoload :Call,    "vagrant/action/builtin/call"
+      autoload :CheckRunning, "vagrant/action/builtin/check_running"
       autoload :Confirm, "vagrant/action/builtin/confirm"
       autoload :ConfigValidate, "vagrant/action/builtin/config_validate"
       autoload :DestroyConfirm, "vagrant/action/builtin/destroy_confirm"

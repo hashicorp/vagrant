@@ -7,7 +7,6 @@ module VagrantPlugins
       autoload :CheckAccessible, File.expand_path("../action/check_accessible", __FILE__)
       autoload :CheckCreated, File.expand_path("../action/check_created", __FILE__)
       autoload :CheckGuestAdditions, File.expand_path("../action/check_guest_additions", __FILE__)
-      autoload :CheckRunning, File.expand_path("../action/check_running", __FILE__)
       autoload :CheckVirtualbox, File.expand_path("../action/check_virtualbox", __FILE__)
       autoload :CleanMachineFolder, File.expand_path("../action/clean_machine_folder", __FILE__)
       autoload :ClearForwardedPorts, File.expand_path("../action/clear_forwarded_ports", __FILE__)
