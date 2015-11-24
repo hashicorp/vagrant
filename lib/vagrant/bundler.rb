@@ -72,7 +72,7 @@ module Vagrant
       # we add all our plugin dependencies.
       @gemfile = build_gemfile(plugins)
 
-      SafeEnv.change_env do |env|
+      Util::SafeEnv.change_env do |env|
         # Set the environmental variables for Bundler
         env["BUNDLE_APP_CONFIG"] = @appconfigpath
         env["BUNDLE_CONFIG"]     = @configfile.path
