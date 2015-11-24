@@ -98,6 +98,17 @@ describe "VagrantPlugins::Shell::Config" do
         I18n.t("vagrant.provisioners.shell.interactive_not_elevated")
       ])
     end
+
+    it "returns an error if the environment is not a hash" do
+      subject.env = "foo"
+      subject.finalize!
+
+      result = subject.validate(machine)
+
+      expect(result["shell provisioner"]).to include(
+        I18n.t("vagrant.provisioners.shell.env_must_be_a_hash")
+      )
+    end
   end
 
   describe 'finalize!' do

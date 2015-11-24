@@ -5,6 +5,7 @@ module VagrantPlugins
     class Config < Vagrant.plugin("2", :config)
       attr_accessor :inline
       attr_accessor :path
+      attr_accessor :env
       attr_accessor :upload_path
       attr_accessor :args
       attr_accessor :privileged
@@ -18,6 +19,7 @@ module VagrantPlugins
         @args                  = UNSET_VALUE
         @inline                = UNSET_VALUE
         @path                  = UNSET_VALUE
+        @env                   = UNSET_VALUE
         @upload_path           = UNSET_VALUE
         @privileged            = UNSET_VALUE
         @binary                = UNSET_VALUE
@@ -31,6 +33,7 @@ module VagrantPlugins
         @args                 = nil if @args == UNSET_VALUE
         @inline               = nil if @inline == UNSET_VALUE
         @path                 = nil if @path == UNSET_VALUE
+        @env                  = {}  if @env == UNSET_VALUE
         @upload_path          = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
         @privileged           = true if @privileged == UNSET_VALUE
         @binary               = false if @binary == UNSET_VALUE
@@ -70,6 +73,10 @@ module VagrantPlugins
                 path: expanded_path.to_s)
             end
           end
+        end
+
+        if !env.is_a?(Hash)
+          errors << I18n.t("vagrant.provisioners.shell.env_must_be_a_hash")
         end
 
         # There needs to be a path to upload the script to
