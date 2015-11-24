@@ -15,14 +15,16 @@ describe VagrantPlugins::ProviderVirtualBox::Cap do
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :dummy).tap do |m|
       m.provider.stub(driver: driver)
+      m.stub(state: state)
     end
   end
 
   let(:driver) { double("driver") }
+  let(:state)  { double("state", id: :running) }
 
   describe "#forwarded_ports" do
     it "returns all the forwarded ports" do
-      expect(driver).to receive(:read_forwarded_ports).and_return([
+      allow(driver).to receive(:read_forwarded_ports).and_return([
         [nil, nil, 123, 456],
         [nil, nil, 245, 245],
       ])
@@ -31,6 +33,11 @@ describe VagrantPlugins::ProviderVirtualBox::Cap do
         123 => 456,
         245 => 245,
       })
+    end
+
+    it "returns nil when the machine is not running" do
+      allow(machine).to receive(:state).and_return(double(:state, id: :stopped))
+      expect(described_class.forwarded_ports(machine)).to be(nil)
     end
   end
 end
