@@ -7,7 +7,6 @@ module VagrantPlugins
         "displays information about guest port mappings"
       end
 
-      # @todo support multiple strategies if requested by the community
       def execute
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant port [options] [name]"
