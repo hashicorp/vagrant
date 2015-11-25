@@ -59,7 +59,8 @@ module VagrantPlugins
         id = "$(cat #{config[:cidfile]})"
 
         if container_exists?(id)
-          if container_args_changed?(config)
+
+          if container_args_changed?(config) or container_img_changed?(config)
             @machine.ui.info(I18n.t("vagrant.docker_restarting_container",
               name: config[:name],
             ))
@@ -92,6 +93,19 @@ module VagrantPlugins
 
       def container_running?(id)
         lookup_container(id)
+      end
+
+      def container_img_changed?(config)
+        # Returns true if there is a container running with the given :name,
+        # and the container is not using the latest :image.
+
+        # Here, "docker inspect <container>" returns the id of the image
+        # that the container is using. We check that the latest image that
+        # has been built with that name (:image)  matches the one that the
+        # container is running.
+        cmd = ("docker inspect --format='{{.Image}}' #{config[:name]} |" +
+               " grep $(docker images -q #{config[:image]})")
+        return !@machine.communicate.test(cmd)
       end
 
       def container_args_changed?(config)
