@@ -9,6 +9,8 @@ module VagrantPlugins
       #
       # @return [Hash<Integer, Integer>] Host => Guest port mappings.
       def self.forwarded_ports(machine)
+        return nil if machine.state.id != :running
+
         {}.tap do |result|
           machine.provider.driver.read_forwarded_ports.each do |_, _, h, g|
             result[h] = g
