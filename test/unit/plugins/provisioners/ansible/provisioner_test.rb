@@ -129,7 +129,7 @@ VF
       }
     end
 
-    it "enables '#{expected_transport_mode}' transport mode" do
+    it "enables '#{expected_transport_mode}' as default transport mode" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
         index = args.rindex("--connection=#{expected_transport_mode}")
         expect(index).to be > 0
@@ -370,6 +370,56 @@ VF
           expect(args).not_to include("--extra-vars=ansible_ssh_user='#{machine.ssh_info[:username]}'")
           expect(args).to include("--user=#{machine.ssh_info[:username]}")
         }
+      end
+    end
+
+    context "with winrm communicator" do
+
+      let(:iso_winrm_env) do
+        env = isolated_environment
+        env.vagrantfile <<-VF
+Vagrant.configure("2") do |config|
+  config.winrm.username = 'winner'
+  config.winrm.password = 'winword'
+  config.winrm.transport = :ssl
+
+  config.vm.define :machine1 do |machine|
+    machine.vm.box = "winbox"
+    machine.vm.communicator = :winrm
+  end
+end
+VF
+        env.create_vagrant_env
+      end
+
+      let(:machine) { iso_winrm_env.machine(iso_winrm_env.machine_names[0], :dummy) }
+
+      it_should_set_arguments_and_environment_variables
+
+      it "generates an inventory with winrm connection settings" do
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(config.inventory_path).to be_nil
+          expect(File.exists?(generated_inventory_file)).to be_true
+          inventory_content = File.read(generated_inventory_file)
+
+          expect(inventory_content).to include("machine1 ansible_connection=winrm ansible_ssh_host=127.0.0.1 ansible_ssh_port=55986 ansible_ssh_user='winner' ansible_ssh_pass='winword'\n")
+        }
+      end
+
+      describe "with force_remote_user option disabled" do
+        before do
+          config.force_remote_user = false
+        end
+
+        it "doesn't set the ansible remote user in inventory and use '--user' argument with the vagrant ssh username" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+            inventory_content = File.read(generated_inventory_file)
+
+            expect(inventory_content).to include("machine1 ansible_connection=winrm ansible_ssh_host=127.0.0.1 ansible_ssh_port=55986 ansible_ssh_pass='winword'\n")
+            expect(args).to include("--user=testuser")
+          }
+        end
       end
     end
 
