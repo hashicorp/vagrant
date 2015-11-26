@@ -21,6 +21,11 @@ module VagrantPlugins
         Cap::ConfigureNetworks
       end
 
+      guest_capability("redhat", "halt") do
+        require_relative "cap/halt"
+        Cap::Halt
+      end
+
       guest_capability("redhat", "flavor") do
         require_relative "cap/flavor"
         Cap::Flavor
