@@ -12,8 +12,11 @@ destroys all resources that were created during the machine creation process.
 After running this command, your computer should be left at a clean state,
 as if you never created the guest machine in the first place.
 
-This command usually asks for confirmation before destroying. This
-confirmation can be skipped by passing in the `-f` or `--force` flag.
+For linux-based guests, Vagrant uses the `shutdown` command to gracefully
+terminate the machine. Due to the varying nature of operating systems, the
+`shutdown` command may exist at many different locations in the guest's `$PATH`.
+It is the guest machine's responsibility to properly populate the `$PATH` with
+directory containing the `shutdown` command.
 
 ## Options
 
