@@ -19,7 +19,7 @@ module VagrantPlugins
         end
 
         parser.on("--provision-with x,y,z", Array,
-                "Enable only certain provisioners, by type.") do |list|
+                "Enable only certain provisioners, by type or by name.") do |list|
           options[:provision_types] = list.map { |type| type.to_sym }
           options[:provision_enabled] = true
           options[:provision_ignore_sentinel] = true
