@@ -10,5 +10,7 @@ for each item will be kept below.
 * `emacs` - Contains a file for enabling Ruby syntax highlighting for `Vagrantfile`s in `emacs`.
 * `st` - Contains a `.sublime-settings` file for enabling Ruby syntax highlighting
   for `Vagrantfile`s in Sublime Text.
+* `sudoers` - Contains the pieces of `/etc/sudoers` configuration to avoid password entry when
+  starting machines.
 * `vim` - Contains a `.vim` file for enabling Ruby syntax highlighting
   for `Vagrantfile`s in `vim`.
