@@ -2,6 +2,7 @@ require "pathname"
 require "tempfile"
 
 require "vagrant/util/downloader"
+require "vagrant/util/file_checksum"
 require "vagrant/util/powershell"
 require "vagrant/util/subprocess"
 
@@ -13,6 +14,7 @@ module VagrantPlugins
         # known-good version to download.
         URL = "http://download.virtualbox.org/virtualbox/5.0.10/VirtualBox-5.0.10-104061-Win.exe".freeze
         VERSION = "5.0.10".freeze
+        SHA256SUM = "3e5ed8fe4ada6eef8dfb4fe6fd79fcab4b242acf799f7d3ab4a17b43838b1e04".freeze
 
         def self.provider_install_virtualbox(env)
           tf = Tempfile.new("vagrant")
@@ -29,6 +31,15 @@ module VagrantPlugins
             "vagrant.hosts.windows.virtualbox_install_detail"))
           dl = Vagrant::Util::Downloader.new(URL, tf.path, ui: ui)
           dl.download!
+
+          # Validate that the file checksum matches
+          actual = Vagrant::Util::FileChecksum.new(tf.path, Digest::SHA2).checksum
+          if actual != SHA256SUM
+            raise Vagrant::Errors::ProviderChecksumMismatch,
+              provider: "virtualbox",
+              actual: actual,
+              expected: SHA256SUM
+          end
 
           # Launch it
           ui.output(I18n.t(

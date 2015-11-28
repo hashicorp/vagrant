@@ -1015,6 +1015,13 @@ en:
         This is a limitation of this provider. Please report this as a feature
         request to the provider in question. To install this provider, you'll
         have to do so manually.
+      provider_checksum_mismatch: |-
+        The checksum of the downloaded provider '%{provider}' did not match the
+        expected value. If the problem persists, please install the provider
+        manually.
+
+        Expected: %{expected}
+        Received: %{actual}
       provider_install_failed: |-
         Installation of the provider '%{provider}' failed! The stdout
         and stderr are shown below. Please read the error output, resolve it,
