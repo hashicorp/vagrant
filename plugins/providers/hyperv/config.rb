@@ -10,6 +10,7 @@ module VagrantPlugins
       attr_accessor :cpus # Number of cpu's @return [Integer]
       attr_accessor :vmname # Name that will be shoen in Hyperv Manager @return [String]
       attr_accessor :vlan_id # VLAN ID for network interface for the virtual machine. @return [Integer]
+      attr_accessor :mac # MAC address for network interface for the virtual machine. @return [String]
       attr_accessor :disks_config #config of disks and controllers
       attr_accessor :guest_integration_service #enable guest integration service
       attr_accessor :auto_stop_action #action on automatic stop of VM. Values: ShutDown, TurnOff, Save
@@ -22,6 +23,8 @@ module VagrantPlugins
         @cpus = UNSET_VALUE
         @vmname = UNSET_VALUE
         @vlan_id  = UNSET_VALUE
+        @mac  = UNSET_VALUE
+
         @disks_config = UNSET_VALUE
         @guest_integration_service = UNSET_VALUE
         @auto_stop_action = UNSET_VALUE
@@ -37,6 +40,7 @@ module VagrantPlugins
         @cpus = nil if @cpus == UNSET_VALUE 
         @vmname = nil if @vmname == UNSET_VALUE
         @vlan_id = nil if @vlan_id == UNSET_VALUE
+        @mac = nil if @mac == UNSET_VALUE
         @disks_config = nil if @disks_config == UNSET_VALUE
         @guest_integration_service = nil if @guest_integration_service == UNSET_VALUE
         @auto_stop_action = nil if @auto_stop_action == UNSET_VALUE

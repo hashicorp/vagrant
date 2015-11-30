@@ -93,9 +93,19 @@ describe VagrantPlugins::LocalExecPush::Push do
   end
 
   describe "#execute!" do
-    it "safe execs" do
+    it "uses exec on unix" do
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(false)
       expect(Vagrant::Util::SafeExec).to receive(:exec)
       expect { subject.execute! }.to_not raise_error
+    end
+
+    it "uses subprocess on windows" do
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+      result = double("result", exit_code: 0)
+      expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(result)
+      expect { subject.execute! }.to raise_error { |e|
+        expect(e).to be_a(SystemExit)
+      }
     end
   end
 end

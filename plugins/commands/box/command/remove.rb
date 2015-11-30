@@ -27,6 +27,10 @@ module VagrantPlugins
                  "The specific version of the box to remove") do |v|
               options[:version] = v
             end
+
+            o.on("--all", "Remove all available versions of the box") do |a|
+              options[:all] = a
+            end
           end
 
           # Parse the options
@@ -50,6 +54,7 @@ module VagrantPlugins
             box_provider: options[:provider],
             box_version:  options[:version],
             force_confirm_box_remove: options[:force],
+            box_remove_all_versions: options[:all],
           })
 
           # Success, exit status 0

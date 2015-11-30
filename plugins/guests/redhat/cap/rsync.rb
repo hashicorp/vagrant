@@ -4,7 +4,11 @@ module VagrantPlugins
       class RSync
         def self.rsync_install(machine)
           machine.communicate.tap do |comm|
-            comm.sudo("yum -y install rsync")
+            if VagrantPlugins::GuestRedHat::Plugin.dnf?(machine)
+              comm.sudo("dnf -y install rsync")
+            else
+              comm.sudo("yum -y install rsync")
+            end
           end
         end
       end

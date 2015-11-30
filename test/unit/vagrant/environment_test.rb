@@ -25,17 +25,59 @@ describe Vagrant::Environment do
   let(:instance)  { env.create_vagrant_env }
   subject { instance }
 
+  describe "#can_install_provider?" do
+    let(:plugin_hosts) { {} }
+    let(:plugin_host_caps) { {} }
+
+    before do
+      m = Vagrant.plugin("2").manager
+      m.stub(hosts: plugin_hosts)
+      m.stub(host_capabilities: plugin_host_caps)
+
+      # Detect the host
+      env.vagrantfile <<-VF
+      Vagrant.configure("2") do |config|
+        config.vagrant.host = nil
+      end
+      VF
+
+      # Setup the foo host by default
+      plugin_hosts[:foo] = [detect_class(true), nil]
+    end
+
+    it "should return whether it can install or not" do
+      plugin_host_caps[:foo] = { provider_install_foo: Class }
+
+      expect(subject.can_install_provider?(:foo)).to be_true
+      expect(subject.can_install_provider?(:bar)).to be_false
+    end
+  end
+
+  describe "#install_provider" do
+    let(:host) { double(:host) }
+
+    before do
+      allow(subject).to receive(:host).and_return(host)
+    end
+
+    it "should install the correct provider" do
+      expect(host).to receive(:capability).with(:provider_install_foo)
+
+      subject.install_provider(:foo)
+    end
+  end
+
   describe "#home_path" do
     it "is set to the home path given" do
-      Dir.mktmpdir do |dir|
+      temporary_dir do |dir|
         instance = described_class.new(home_path: dir)
         expect(instance.home_path).to eq(Pathname.new(dir))
       end
     end
 
     it "is set to the environmental variable VAGRANT_HOME" do
-      Dir.mktmpdir do |dir|
-        instance = with_temp_env("VAGRANT_HOME" => dir) do
+      temporary_dir do |dir|
+        instance = with_temp_env("VAGRANT_HOME" => dir.to_s) do
           described_class.new
         end
 
@@ -863,8 +905,13 @@ VF
     end
 
     it "is expanded relative to the cwd" do
-      instance = described_class.new(local_data_path: "foo")
-      expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
+      Dir.mktmpdir do |temp_dir|
+        Dir.chdir(temp_dir) do
+          instance = described_class.new(local_data_path: "foo")
+          expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
+          expect(File.exist?(instance.local_data_path)).to be_false
+        end
+      end
     end
 
     it "is set to the given value" do
@@ -891,7 +938,7 @@ VF
         end
 
         expect { instance }.to_not raise_error
-        expect(Pathname.new(local_data_path)).to be_directory
+        expect(Pathname.new(local_data_path)).to_not be_exist
       end
 
       it "should upgrade all active VMs" do

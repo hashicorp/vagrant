@@ -31,6 +31,7 @@ on a single minion, without a master:
     ## Use all the defaults:
     config.vm.provision :salt do |salt|
 
+      salt.masterless = true
       salt.minion_config = "salt/minion"
       salt.run_highstate = true
 
@@ -56,16 +57,8 @@ on this machine. Not supported on Windows guest machines.
 
 * `install_type`  (stable | git | daily | testing) - Whether to install from a
 distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
-Not supported on Windows guest machines.
 
-* `install_args` (develop) - When performing a git install,
-you can specify a branch, tag, or any treeish. If using the `custom` install type,
-you can also specify a different repository to install from.
-Not supported on Windows guest machines.
-
-* `install_command` (string) - Allow specifying an arbitrary string of arguments
-to the bootstrap script. This will completely ignore `install_type` and `install_args`
-to allow more flexibility with the bootstrap process.
+* `install_args` (develop) - When performing a git install, you can specify a branch, tag, or any treeish. Not supported on Windows.
 
 * `always_install`   (boolean) - Installs salt binaries even
  if they are already detected, default `false`
@@ -90,7 +83,7 @@ a custom salt minion config file.
 * `minion_pub`  (salt/key/minion.pub) - Path to your minion
 public key
 
-* `grains_config`  (string) - Path to a custom salt grains file.
+* `grains_config`  (string) - Path to a custom salt grains file. On Windows, the minion needs `ipc_mode: tcp` set otherwise it will [fail to communicate](https://github.com/saltstack/salt/issues/22796) with the master.
 
 * `masterless`  (boolean) - Calls state.highstate in local mode. Uses `minion_id` and `pillar_data` when provided.
 
@@ -121,9 +114,9 @@ Either of the following may be used to actually execute runners
 during provisioning.
 
 * `run_overstate` - (boolean) Executes `state.over` on
-vagrant up. Can be applied to the master only. This is superceded by orchestrate. Not supported on Windows guest machines.
+vagrant up. Can be applied to the master only. This is superseded by orchestrate. Not supported on Windows guest machines.
 * `orchestrations` - (boolean) Executes `state.orchestrate` on
-vagrant up. Can be applied to the master only. This is supercedes by run_overstate. Not supported on Windows guest machines.
+vagrant up. Can be applied to the master only. This is superseded by run_overstate. Not supported on Windows guest machines.
 
 ## Output Control
 

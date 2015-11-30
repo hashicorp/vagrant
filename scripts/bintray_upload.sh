@@ -22,9 +22,13 @@ if [ -z $BINTRAY_API_KEY ]; then
     exit 1
 fi
 
-# Calculate the checksums
-pushd ./dist
-shasum -a256 * > ./${VERSION}_SHA256SUMS
+# Make the checksums
+pushd ./pkg/dist
+shasum -a256 * > ./vagrant_${VERSION}_SHA256SUMS
+if [ -z $NOSIGN ]; then
+  echo "==> Signing..."
+  gpg --default-key 348FFC4C --detach-sig ./vagrant_${VERSION}_SHA256SUMS
+fi
 popd
 
 # Upload

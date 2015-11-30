@@ -159,4 +159,4 @@ of the NAT device without colons.
 
 When bringing up a VirtualBox backed machine, Vagrant
 [imports](http://www.virtualbox.org/manual/ch08.html#vboxmanage-import)
-the first "ovf" file found in the box contents.
+the "box.ovf" file found in the box contents.

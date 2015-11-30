@@ -5,6 +5,7 @@ module VagrantPlugins
     class Config < Vagrant.plugin("2", :config)
       attr_accessor :inline
       attr_accessor :path
+      attr_accessor :env
       attr_accessor :upload_path
       attr_accessor :args
       attr_accessor :privileged
@@ -12,29 +13,34 @@ module VagrantPlugins
       attr_accessor :keep_color
       attr_accessor :name
       attr_accessor :powershell_args
+      attr_accessor :powershell_elevated_interactive
 
       def initialize
-        @args        = UNSET_VALUE
-        @inline      = UNSET_VALUE
-        @path        = UNSET_VALUE
-        @upload_path = UNSET_VALUE
-        @privileged  = UNSET_VALUE
-        @binary      = UNSET_VALUE
-        @keep_color  = UNSET_VALUE
-        @name        = UNSET_VALUE
-        @powershell_args  = UNSET_VALUE
+        @args                  = UNSET_VALUE
+        @inline                = UNSET_VALUE
+        @path                  = UNSET_VALUE
+        @env                   = UNSET_VALUE
+        @upload_path           = UNSET_VALUE
+        @privileged            = UNSET_VALUE
+        @binary                = UNSET_VALUE
+        @keep_color            = UNSET_VALUE
+        @name                  = UNSET_VALUE
+        @powershell_args       = UNSET_VALUE
+        @powershell_elevated_interactive  = UNSET_VALUE
       end
 
       def finalize!
-        @args        = nil if @args == UNSET_VALUE
-        @inline      = nil if @inline == UNSET_VALUE
-        @path        = nil if @path == UNSET_VALUE
-        @upload_path = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
-        @privileged  = true if @privileged == UNSET_VALUE
-        @binary      = false if @binary == UNSET_VALUE
-        @keep_color  = false if @keep_color == UNSET_VALUE
-        @name        = nil if @name == UNSET_VALUE
-        @powershell_args  = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
+        @args                 = nil if @args == UNSET_VALUE
+        @inline               = nil if @inline == UNSET_VALUE
+        @path                 = nil if @path == UNSET_VALUE
+        @env                  = {}  if @env == UNSET_VALUE
+        @upload_path          = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
+        @privileged           = true if @privileged == UNSET_VALUE
+        @binary               = false if @binary == UNSET_VALUE
+        @keep_color           = false if @keep_color == UNSET_VALUE
+        @name                 = nil if @name == UNSET_VALUE
+        @powershell_args      = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
+        @powershell_elevated_interactive = false if @powershell_elevated_interactive == UNSET_VALUE
 
         if @args && args_valid?
           @args = @args.is_a?(Array) ? @args.map { |a| a.to_s } : @args.to_s
@@ -69,6 +75,10 @@ module VagrantPlugins
           end
         end
 
+        if !env.is_a?(Hash)
+          errors << I18n.t("vagrant.provisioners.shell.env_must_be_a_hash")
+        end
+
         # There needs to be a path to upload the script to
         if !upload_path
           errors << I18n.t("vagrant.provisioners.shell.upload_path_not_set")
@@ -76,6 +86,10 @@ module VagrantPlugins
 
         if !args_valid?
           errors << I18n.t("vagrant.provisioners.shell.args_bad_type")
+        end
+
+        if powershell_elevated_interactive && !privileged
+          errors << I18n.t("vagrant.provisioners.shell.interactive_not_elevated")
         end
 
         { "shell provisioner" => errors }

@@ -205,7 +205,10 @@ describe VagrantPlugins::Chef::Config::BaseRunner do
 
    describe "#validate_base" do
     context "when #custom_config_path does not exist" do
-      let(:path) { "/path/to/file" }
+      let(:path) do
+        next "/path/to/file" if !Vagrant::Util::Platform.windows?
+        "C:/path/to/file"
+      end
 
       before do
         allow(File).to receive(:file?)

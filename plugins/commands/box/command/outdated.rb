@@ -1,11 +1,16 @@
 require 'optparse'
 
+require_relative 'download_mixins'
+
 module VagrantPlugins
   module CommandBox
     module Command
       class Outdated < Vagrant.plugin("2", :command)
+        include DownloadMixins
+
         def execute
           options = {}
+          download_options = {}
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box outdated [options]"
@@ -20,6 +25,8 @@ module VagrantPlugins
             o.on("--global", "Check all boxes installed") do |g|
               options[:global] = g
             end
+
+            build_download_options(o, download_options)
           end
 
           argv = parse_options(opts)
@@ -27,7 +34,7 @@ module VagrantPlugins
 
           # If we're checking the boxes globally, then do that.
           if options[:global]
-            outdated_global
+            outdated_global(download_options)
             return 0
           end
 
@@ -37,11 +44,11 @@ module VagrantPlugins
               box_outdated_refresh: true,
               box_outdated_success_ui: true,
               machine: machine,
-            })
+            }.merge(download_options))
           end
         end
 
-        def outdated_global
+        def outdated_global(download_options)
           boxes = {}
           @env.boxes.all.reverse.each do |name, version, provider|
             next if boxes[name]
@@ -58,8 +65,8 @@ module VagrantPlugins
 
             md = nil
             begin
-              md = box.load_metadata
-            rescue Vagrant::Errors::DownloaderError => e
+              md = box.load_metadata(download_options)
+            rescue Vagrant::Errors::BoxMetadataDownloadError => e
               @env.ui.error(I18n.t(
                 "vagrant.box_outdated_metadata_error",
                 name: box.name,

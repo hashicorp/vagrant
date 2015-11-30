@@ -12,6 +12,10 @@ describe Vagrant::Plugin::V2::Provider do
     expect(described_class).to be_usable
   end
 
+  it "should be installed by default" do
+    expect(described_class).to be_installed
+  end
+
   it "should return nil by default for actions" do
     expect(instance.action(:whatever)).to be_nil
   end

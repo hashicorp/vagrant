@@ -30,6 +30,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     expect(box_collection).to receive(:find).with(
       "foo", :virtualbox, "1.0").and_return(box)
+    expect(box_collection).to receive(:clean).with(box.name)
+      .and_return(true)
     expect(box).to receive(:destroy!).once
     expect(app).to receive(:call).with(env).once
 
@@ -50,6 +52,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     expect(box_collection).to receive(:find).with(
       "foo", :virtualbox, "1.0").and_return(box)
+    expect(box_collection).to receive(:clean).with(box.name)
+      .and_return(false)
     expect(box).to receive(:destroy!).once
     expect(app).to receive(:call).with(env).once
 
@@ -70,6 +74,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
     expect(box_collection).to receive(:find).with(
       "foo", :virtualbox, "1.0").and_return(box)
+    expect(box_collection).to receive(:clean).with(box.name)
+      .and_return(false)
     expect(box).to receive(:destroy!).once
     expect(app).to receive(:call).with(env).once
 
@@ -110,6 +116,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
       expect(box_collection).to receive(:find).with(
         "foo", :virtualbox, "1.0").and_return(box)
       expect(box).to receive(:destroy!).once
+      expect(box_collection).to receive(:clean).with(box.name)
+        .and_return(true)
 
       subject.call(env)
     end
@@ -123,6 +131,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
       expect(box_collection).to receive(:find).with(
         "foo", :virtualbox, "1.0").and_return(box)
+      expect(box_collection).to receive(:clean).with(box.name)
+        .and_return(true)
       expect(box).to receive(:destroy!).once
 
       subject.call(env)

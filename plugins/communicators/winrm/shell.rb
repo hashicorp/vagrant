@@ -9,7 +9,7 @@ Vagrant::Util::SilenceWarnings.silence! do
   require "winrm"
 end
 
-require "winrm-fs/file_manager"
+require "winrm-fs"
 
 module VagrantPlugins
   module CommunicatorWinRM
@@ -23,6 +23,7 @@ module VagrantPlugins
         HTTPClient::KeepAliveDisconnected,
         WinRM::WinRMHTTPTransportError,
         WinRM::WinRMAuthorizationError,
+        WinRM::WinRMWSManFault,
         Errno::EACCES,
         Errno::EADDRINUSE,
         Errno::ECONNREFUSED,
@@ -37,6 +38,7 @@ module VagrantPlugins
       attr_reader :port
       attr_reader :username
       attr_reader :password
+      attr_reader :execution_time_limit
       attr_reader :config
 
       def initialize(host, port, config)
@@ -47,12 +49,15 @@ module VagrantPlugins
         @port                  = port
         @username              = config.username
         @password              = config.password
+        @execution_time_limit  = config.execution_time_limit
         @config                = config
       end
 
       def powershell(command, &block)
-        # ensure an exit code
+        # Suppress the progress stream from leaking to stderr
+        command = "$ProgressPreference='SilentlyContinue';\r\n" + command
         command << "\r\n"
+        # Ensure an exit code
         command << "if ($?) { exit 0 } else { if($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 1 } }"
         execute_shell(command, :powershell, &block)
       end

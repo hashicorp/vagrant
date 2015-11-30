@@ -9,6 +9,8 @@ module VagrantPlugins
       #
       # @return [Hash<Integer, Integer>] Host => Guest port mappings.
       def self.forwarded_ports(machine)
+        return nil if machine.state.id != :running
+
         {}.tap do |result|
           machine.provider.driver.read_forwarded_ports.each do |_, _, h, g|
             result[h] = g
@@ -21,6 +23,13 @@ module VagrantPlugins
       # @return [Hash<String, String>] Adapter => MAC address
       def self.nic_mac_addresses(machine)
         machine.provider.driver.read_mac_addresses
+      end
+
+      # Returns a list of the snapshots that are taken on this machine.
+      #
+      # @return [Array<String>] Snapshot Name
+      def self.snapshot_list(machine)
+        machine.provider.driver.list_snapshots(machine.id)
       end
     end
   end

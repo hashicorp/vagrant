@@ -1,5 +1,17 @@
-param([String]$username, [String]$password, [String]$encoded_command)
+param([String]$username, [String]$password, [String]$encoded_command, [String]$execution_time_limit)
 
+# Try to get the Schedule.Service object. If it fails, we are probably
+# on an older version of Windows. On old versions, we can just execute
+# directly since priv. escalation isn't a thing.
+$schedule = $null
+Try {
+  $schedule = New-Object -ComObject "Schedule.Service"
+} Catch [System.Management.Automation.PSArgumentException] {
+  powershell.exe -EncodedCommand $encoded_command
+  exit $LASTEXITCODE
+}
+
+$ProgressPreference = "SilentlyContinue"
 $task_name = "WinRM_Elevated_Shell"
 $out_file = "$env:SystemRoot\Temp\WinRM_Elevated_Shell.log"
 
@@ -13,7 +25,7 @@ $task_xml = @'
   <Principals>
     <Principal id="Author">
       <UserId>{username}</UserId>
-      <LogonType>Password</LogonType>
+      <LogonType><%= options[:interactive] ? 'InteractiveTokenOrPassword' : 'Password' %></LogonType>
       <RunLevel>HighestAvailable</RunLevel>
     </Principal>
   </Principals>
@@ -33,7 +45,7 @@ $task_xml = @'
     <Hidden>false</Hidden>
     <RunOnlyIfIdle>false</RunOnlyIfIdle>
     <WakeToRun>false</WakeToRun>
-    <ExecutionTimeLimit>PT2H</ExecutionTimeLimit>
+    <ExecutionTimeLimit>{execution_time_limit}</ExecutionTimeLimit>
     <Priority>4</Priority>
   </Settings>
   <Actions Context="Author">
@@ -49,13 +61,13 @@ $arguments = "/c powershell.exe -EncodedCommand $encoded_command &gt; $out_file 
 
 $task_xml = $task_xml.Replace("{arguments}", $arguments)
 $task_xml = $task_xml.Replace("{username}", $username)
+$task_xml = $task_xml.Replace("{execution_time_limit}", $execution_time_limit)
 
-$schedule = New-Object -ComObject "Schedule.Service"
 $schedule.Connect()
 $task = $schedule.NewTask($null)
 $task.XmlText = $task_xml
 $folder = $schedule.GetFolder("\")
-$folder.RegisterTaskDefinition($task_name, $task, 6, $username, $password, 1, $null) | Out-Null
+$folder.RegisterTaskDefinition($task_name, $task, 6, $username, $password, <%= options[:interactive] ? 3 : 1 %>, $null) | Out-Null
 
 $registered_task = $folder.GetTask("\$task_name")
 $registered_task.Run($null) | Out-Null
@@ -71,7 +83,7 @@ function SlurpOutput($out_file, $cur_line) {
   if (Test-Path $out_file) {
     get-content $out_file | select -skip $cur_line | ForEach {
       $cur_line += 1
-      Write-Host "$_" 
+      Write-Host "$_"
     }
   }
   return $cur_line

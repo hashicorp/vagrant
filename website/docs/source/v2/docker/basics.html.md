@@ -65,6 +65,9 @@ and networking options into Docker volumes and forwarded ports.
 You don't have to use the Docker-specific configurations to do this.
 This helps keep your Vagrantfile similar to how it has always looked.
 
+The Docker provider does not support specifying options for `owner` or `group`
+on folders synced with a docker container.
+
 Private and public networks are not currently supported.
 
 ## Host VM

@@ -78,7 +78,7 @@ module Vagrant
           @machines.delete(entry.id)
           unlocked_save
 
-          # Release acccess on this machine
+          # Release access on this machine
           unlocked_release(entry.id)
         end
       end

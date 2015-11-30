@@ -7,6 +7,7 @@ module VagrantPlugins
     class SSHConfig < SSHConnectConfig
       attr_accessor :forward_agent
       attr_accessor :forward_x11
+      attr_accessor :forward_env
       attr_accessor :guest_port
       attr_accessor :keep_alive
       attr_accessor :shell
@@ -22,6 +23,7 @@ module VagrantPlugins
 
         @forward_agent = UNSET_VALUE
         @forward_x11   = UNSET_VALUE
+        @forward_env   = UNSET_VALUE
         @guest_port    = UNSET_VALUE
         @keep_alive    = UNSET_VALUE
         @proxy_command = UNSET_VALUE
@@ -45,6 +47,7 @@ module VagrantPlugins
 
         @forward_agent = false if @forward_agent == UNSET_VALUE
         @forward_x11   = false if @forward_x11 == UNSET_VALUE
+        @forward_env   = false if @forward_env == UNSET_VALUE
         @guest_port = 22 if @guest_port == UNSET_VALUE
         @keep_alive = true if @keep_alive == UNSET_VALUE
         @proxy_command = nil if @proxy_command == UNSET_VALUE

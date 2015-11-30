@@ -4,6 +4,7 @@ require 'vagrant/util/busy'
 require 'vagrant/util/platform'
 require 'vagrant/util/retryable'
 require 'vagrant/util/subprocess'
+require 'vagrant/util/which'
 
 module VagrantPlugins
   module ProviderVirtualBox
@@ -22,16 +23,16 @@ module VagrantPlugins
           # This flag is used to keep track of interrupted state (SIGINT)
           @interrupted = false
 
-          # Set the path to VBoxManage
-          @vboxmanage_path = "VBoxManage"
-
           if Vagrant::Util::Platform.windows? || Vagrant::Util::Platform.cygwin?
-            @logger.debug("Windows. Trying VBOX_INSTALL_PATH for VBoxManage")
+            @logger.debug("Windows, checking for VBoxManage on PATH first")
+            @vboxmanage_path = Vagrant::Util::Which.which("VBoxManage")
 
             # On Windows, we use the VBOX_INSTALL_PATH environmental
             # variable to find VBoxManage.
-            if ENV.key?("VBOX_INSTALL_PATH") ||
-              ENV.key?("VBOX_MSI_INSTALL_PATH")
+            if !@vboxmanage_path && (ENV.key?("VBOX_INSTALL_PATH") ||
+              ENV.key?("VBOX_MSI_INSTALL_PATH"))
+              @logger.debug("Windows. Trying VBOX_INSTALL_PATH for VBoxManage")
+
               # Get the path.
               path = ENV["VBOX_INSTALL_PATH"] || ENV["VBOX_MSI_INSTALL_PATH"]
               @logger.debug("VBOX_INSTALL_PATH value: #{path}")
@@ -51,8 +52,24 @@ module VagrantPlugins
                 end
               end
             end
+
+            # If we still don't have one, try to find it using common locations
+            drive = ENV["SYSTEMDRIVE"] || "C:"
+            [
+              "#{drive}/Program Files/Oracle/VirtualBox",
+              "#{drive}/Program Files (x86)/Oracle/VirtualBox",
+              "#{ENV["PROGRAMFILES"]}/Oracle/VirtualBox"
+            ].each do |maybe|
+              path = File.join(maybe, "VBoxManage.exe")
+              if File.file?(path)
+                @vboxmanage_path = path
+                break
+              end
+            end
           end
 
+          # Fall back to hoping for the PATH to work out
+          @vboxmanage_path ||= "VBoxManage"
           @logger.info("VBoxManage path: #{@vboxmanage_path}")
         end
 
@@ -263,6 +280,14 @@ module VagrantPlugins
         def read_vms
         end
 
+        # Reconfigure the hostonly network given by interface (the result
+        # of read_host_only_networks). This is a sad function that only
+        # exists to work around VirtualBox bugs.
+        #
+        # @return nil
+        def reconfig_host_only(interface)
+        end
+
         # Removes the DHCP server identified by the provided network name.
         #
         # @param [String] network_name The the full network name associated
@@ -378,7 +403,8 @@ module VagrantPlugins
             if errored
               raise Vagrant::Errors::VBoxManageError,
                 command: command.inspect,
-                stderr:  r.stderr
+                stderr:  r.stderr,
+                stdout:  r.stdout
             end
           end
 

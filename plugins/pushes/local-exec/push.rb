@@ -39,7 +39,32 @@ module VagrantPlugins
 
       # Execute the script, raising an exception if it fails.
       def execute!(*cmd)
+        if Vagrant::Util::Platform.windows?
+          execute_subprocess!(*cmd)
+        else
+          execute_exec!(*cmd)
+        end
+      end
+
+      private
+
+      # Run the command as exec (unix).
+      def execute_exec!(*cmd)
         Vagrant::Util::SafeExec.exec(cmd[0], *cmd[1..-1])
+      end
+
+      # Run the command as a subprocess (windows).
+      def execute_subprocess!(*cmd)
+        cmd = cmd.dup << { notify: [:stdout, :stderr] }
+        result = Vagrant::Util::Subprocess.execute(*cmd) do |type, data|
+          if type == :stdout
+            @env.ui.info(data, new_line: false)
+          elsif type == :stderr
+            @env.ui.warn(data, new_line: false)
+          end
+        end
+
+        Kernel.exit(result.exit_code)
       end
     end
   end

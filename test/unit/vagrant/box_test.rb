@@ -6,7 +6,7 @@ require "tempfile"
 
 require "vagrant/box_metadata"
 
-describe Vagrant::Box do
+describe Vagrant::Box, :skip_windows do
   include_context "unit"
 
   let(:environment)   { isolated_environment }

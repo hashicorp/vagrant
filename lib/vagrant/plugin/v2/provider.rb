@@ -24,6 +24,21 @@ module Vagrant
           true
         end
 
+        # This is called early, before a machine is instantiated, to check
+        # if this provider is installed. This should return true or false.
+        #
+        # If the provider is not installed and Vagrant determines it is
+        # able to install this provider, then it will do so. Installation
+        # is done by calling Environment.install_provider.
+        #
+        # If Environment.can_install_provider? returns false, then an error
+        # will be shown to the user.
+        def self.installed?
+          # By default return true for backwards compat so all providers
+          # continue to work.
+          true
+        end
+
         # Initialize the provider to represent the given machine.
         #
         # @param [Vagrant::Machine] machine The machine that this provider

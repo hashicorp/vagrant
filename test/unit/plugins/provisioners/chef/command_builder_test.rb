@@ -8,6 +8,8 @@ describe VagrantPlugins::Chef::CommandBuilder do
   let(:chef_config) { double("chef_config") }
 
   before(:each) do
+    allow(chef_config).to receive(:install).and_return(true)
+    allow(chef_config).to receive(:version).and_return("12.0.0")
     allow(chef_config).to receive(:provisioning_path).and_return("/tmp/vagrant-chef-1")
     allow(chef_config).to receive(:arguments).and_return(nil)
     allow(chef_config).to receive(:binary_env).and_return(nil)
@@ -71,6 +73,23 @@ describe VagrantPlugins::Chef::CommandBuilder do
         expect(subject.command).to include(
           " --no-color")
       end
+
+      it "includes --force-formatter if Chef > 10" do
+        expect(subject.command).to include(
+          " --force-formatter")
+      end
+
+      it "does not include --force-formatter if Chef < 11" do
+        allow(chef_config).to receive(:version).and_return("10.0")
+        expect(subject.command).to_not include(
+          " --force-formatter")
+      end
+
+      it "does not include --force-formatter if we did not install Chef" do
+        allow(chef_config).to receive(:install).and_return(false)
+        expect(subject.command).to_not include(
+          " --force-formatter")
+      end
     end
 
     describe "linux" do
@@ -112,6 +131,18 @@ describe VagrantPlugins::Chef::CommandBuilder do
       it "includes environment variables if specified" do
         allow(chef_config).to receive(:binary_env).and_return("ENVVAR=VAL")
         expect(subject.command).to match(/^ENVVAR=VAL /)
+      end
+
+      it "does not include --force-formatter if Chef < 11" do
+        allow(chef_config).to receive(:version).and_return("10.0")
+        expect(subject.command).to_not include(
+          " --force-formatter")
+      end
+
+      it "does not include --force-formatter if we did not install Chef" do
+        allow(chef_config).to receive(:install).and_return(false)
+        expect(subject.command).to_not include(
+          " --force-formatter")
       end
     end
   end

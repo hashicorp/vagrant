@@ -23,6 +23,14 @@ describe VagrantPlugins::HyperV::Config do
     end
   end
 
+  describe "#mac" do
+    it "can be set" do
+      subject.mac = "001122334455"
+      subject.finalize!
+      expect(subject.mac).to eq("001122334455")
+    end
+  end
+  
   describe "#vmname" do
     it "can be set" do
       subject.vmname = "test"

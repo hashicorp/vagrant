@@ -138,6 +138,10 @@ module Vagrant
           command_options += ["-o", "ProxyCommand=#{ssh_info[:proxy_command]}"]
         end
 
+        if ssh_info[:forward_env]
+          command_options += ["-o", "SendEnv=#{ssh_info[:forward_env].join(" ")}"]
+        end
+
         # Configurables -- extra_args should always be last due to the way the
         # ssh args parser works. e.g. if the user wants to use the -t option,
         # any shell command(s) she'd like to run on the remote server would
@@ -172,6 +176,14 @@ module Vagrant
         LOGGER.info("Executing SSH in subprocess: #{ssh} #{command_options.inspect}")
         process = ChildProcess.build(ssh, *command_options)
         process.io.inherit!
+
+        # Forward configured environment variables.
+        if ssh_info[:forward_env]
+          ssh_info[:forward_env].each do |key|
+            process.environment[key] = ENV[key]
+          end
+        end
+
         process.start
         process.wait
         return process.exit_code

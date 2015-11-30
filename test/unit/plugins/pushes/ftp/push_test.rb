@@ -9,7 +9,7 @@ describe VagrantPlugins::FTPPush::Push do
   let(:env) { isolated_environment }
   let(:config) do
     double("config",
-      host:        "127.0.0.1:51234",
+      host:        "127.0.0.1:#{@port}",
       username:    "sethvargo",
       password:    "bacon",
       passive:     false,
@@ -34,11 +34,14 @@ describe VagrantPlugins::FTPPush::Push do
 
   describe "#push" do
     before(:all) do
-      @server = FakeFtp::Server.new(51234, 21213)
+      @server = nil
+      with_random_port do |port1, port2|
+        @port = port1
+        @server = FakeFtp::Server.new(port1, port2)
+      end
       @server.start
 
-      @dir = Dir.mktmpdir
-
+      @dir = temporary_dir
       FileUtils.touch("#{@dir}/.hidden.rb")
       FileUtils.touch("#{@dir}/application.rb")
       FileUtils.touch("#{@dir}/config.rb")
@@ -48,7 +51,6 @@ describe VagrantPlugins::FTPPush::Push do
     end
 
     after(:all) do
-      FileUtils.rm_rf(@dir)
       @server.stop
     end
 
