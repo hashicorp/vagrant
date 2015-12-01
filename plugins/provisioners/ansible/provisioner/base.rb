@@ -88,21 +88,27 @@ module VagrantPlugins
         # Write out groups information.
         # All defined groups will be included, but only supported
         # machines and defined child groups will be included.
-        # Group variables are intentionally skipped.
         def generate_inventory_groups
           groups_of_groups = {}
           defined_groups = []
+          group_vars = {}
           inventory_groups = ""
 
           config.groups.each_pair do |gname, gmembers|
-            # Require that gmembers be an array
-            # (easier to be tolerant and avoid error management of few value)
-            gmembers = [gmembers] if !gmembers.is_a?(Array)
+            if gmembers.is_a?(String)
+              gmembers = gmembers.split(/\s+/)
+            elsif gmembers.is_a?(Hash)
+              gmembers = gmembers.each.collect{ |k, v| "#{k}=#{v}" }
+            elsif !gmembers.is_a?(Array)
+              gmembers = []
+            end
 
             if gname.end_with?(":children")
               groups_of_groups[gname] = gmembers
               defined_groups << gname.sub(/:children$/, '')
-            elsif !gname.include?(':vars')
+            elsif gname.end_with?(":vars")
+              group_vars[gname] = gmembers
+            else
               defined_groups << gname
               inventory_groups += "\n[#{gname}]\n"
               gmembers.each do |gm|
@@ -116,6 +122,12 @@ module VagrantPlugins
             inventory_groups += "\n[#{gname}]\n"
             gmembers.each do |gm|
               inventory_groups += "#{gm}\n" if defined_groups.include?(gm)
+            end
+          end
+
+          group_vars.each_pair do |gname, gmembers|
+            if defined_groups.include?(gname.sub(/:vars$/, ""))
+              inventory_groups += "\n[#{gname}]\n" + gmembers.join("\n") + "\n"
             end
           end
 
