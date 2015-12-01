@@ -128,6 +128,8 @@ module VagrantPlugins
               else
                 machines += "#{machine_name}\n"
               end
+              host_vars = get_inventory_host_vars_string(machine_name)
+              machines.sub!(/\n$/, " #{host_vars}\n") if host_vars
             end
           end
 
