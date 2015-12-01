@@ -245,14 +245,10 @@ VF
           "group3" => ["unknown", "#{machine.name}"],
           "bar" => ["#{machine.name}", "group3"],
           "bar:children" => ["group1", "group2", "group3", "group4"],
-          "bar:vars" => ["myvar=foo"],
         }
 
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           inventory_content = File.read(generated_inventory_file)
-
-          # Group variables are intentionally not supported in generated inventory
-          expect(inventory_content).not_to match(/^\[.*:vars\]$/)
 
           # Accept String instead of Array for group that contains a single item
           expect(inventory_content).to include("[group1]\n#{machine.name}\n")
@@ -270,6 +266,30 @@ VF
           # A group of groups only includes declared groups
           expect(inventory_content).not_to match(/^group4$/)
           expect(inventory_content).to include("[bar:children]\ngroup1\ngroup2\ngroup3\n")
+        }
+      end
+
+      it "adds group vars to the generated inventory" do
+        config.groups = {
+          "group1" => [machine.name],
+          "group2" => [machine.name],
+          "group3" => [machine.name],
+          "group1:vars" => {"hashvar1" => "hashvalue1", "hashvar2" => "hashvalue2"},
+          "group2:vars" => ["arrayvar1=arrayvalue1", "arrayvar2=arrayvalue2"],
+          "group3:vars" => "stringvar1=stringvalue1 stringvar2=stringvalue2",
+        }
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          inventory_content = File.read(generated_inventory_file)
+
+          # Hash syntax
+          expect(inventory_content).to include("[group1:vars]\nhashvar1=hashvalue1\nhashvar2=hashvalue2\n")
+
+          # Array syntax
+          expect(inventory_content).to include("[group2:vars]\narrayvar1=arrayvalue1\narrayvar2=arrayvalue2\n")
+
+          # Single string syntax
+          expect(inventory_content).to include("[group3:vars]\nstringvar1=stringvalue1\nstringvar2=stringvalue2\n")
         }
       end
     end
