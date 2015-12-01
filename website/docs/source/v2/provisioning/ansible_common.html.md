@@ -31,6 +31,23 @@ Some of these options are for advanced usage only and should not be used unless 
     ```
   These variables take the highest precedence over any other variables.
 
+- `host_vars` (hash) - Set of inventory host variables to be included in the [auto-generated inventory file](http://docs.ansible.com/ansible/intro_inventory.html#host-variables).
+
+  Example:
+
+    ```ruby
+    ansible.host_vars = {
+      "host1" => {"http_port" => 80,
+                  "maxRequestsPerChild" => 808},
+      "host2" => {"http_port" => 303,
+                  "maxRequestsPerChild" => 909}
+    }
+    ```
+
+  Notes:
+
+    - This option has no effect when the `inventory_path` option is defined.
+
 - `groups` (hash) - Set of inventory groups to be included in the [auto-generated inventory file](/v2/provisioning/ansible_intro.html).
 
   Example:
@@ -39,6 +56,15 @@ Some of these options are for advanced usage only and should not be used unless 
     ansible.groups = {
       "web" => ["vm1", "vm2"],
       "db"  => ["vm3"]
+    }
+    ```
+  Example with [group variables](http://docs.ansible.com/ansible/intro_inventory.html#group-variables):
+
+    ```ruby
+    ansible.groups = {
+      "atlanta" => ["host1", "host2"],
+      "atlanta:vars" => {"ntp_server" => "ntp.atlanta.example.com",
+                         "proxy" => "proxy.atlanta.example.com"}
     }
     ```
 

@@ -151,12 +151,15 @@ module VagrantPlugins
               # Call only once the SSH and WinRM info computation
               # Note that machines configured with WinRM communicator, also have a "partial" ssh_info.
               m_ssh_info = m.ssh_info
+              host_vars = get_inventory_host_vars_string(m.name)
               if m.config.vm.communicator == :winrm
                 m_winrm_net_info = CommunicatorWinRM::Helper.winrm_info(m) # can raise a WinRMNotReady exception...
                 machines += get_inventory_winrm_machine(m, m_winrm_net_info)
+                machines.sub!(/\n$/, " #{host_vars}\n") if host_vars
                 @inventory_machines[m.name] = m
               elsif !m_ssh_info.nil?
                 machines += get_inventory_ssh_machine(m, m_ssh_info)
+                machines.sub!(/\n$/, " #{host_vars}\n") if host_vars
                 @inventory_machines[m.name] = m
               else
                 @logger.error("Auto-generated inventory: Impossible to get SSH information for machine '#{m.name} (#{m.provider_name})'. This machine should be recreated.")

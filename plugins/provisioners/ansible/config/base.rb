@@ -9,6 +9,7 @@ module VagrantPlugins
         attr_accessor :galaxy_role_file
         attr_accessor :galaxy_roles_path
         attr_accessor :galaxy_command
+        attr_accessor :host_vars
         attr_accessor :groups
         attr_accessor :inventory_path
         attr_accessor :limit
@@ -27,6 +28,7 @@ module VagrantPlugins
           @galaxy_role_file    = UNSET_VALUE
           @galaxy_roles_path   = UNSET_VALUE
           @galaxy_command      = UNSET_VALUE
+          @host_vars           = UNSET_VALUE
           @groups              = UNSET_VALUE
           @inventory_path      = UNSET_VALUE
           @limit               = UNSET_VALUE
@@ -46,6 +48,7 @@ module VagrantPlugins
           @galaxy_role_file    = nil                    if @galaxy_role_file    == UNSET_VALUE
           @galaxy_roles_path   = nil                    if @galaxy_roles_path   == UNSET_VALUE
           @galaxy_command      = GALAXY_COMMAND_DEFAULT if @galaxy_command      == UNSET_VALUE
+          @host_vars           = {}                     if @host_vars           == UNSET_VALUE
           @groups              = {}                     if @groups              == UNSET_VALUE
           @inventory_path      = nil                    if @inventory_path      == UNSET_VALUE
           @limit               = nil                    if @limit               == UNSET_VALUE

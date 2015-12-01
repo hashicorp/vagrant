@@ -30,6 +30,7 @@ describe VagrantPlugins::Ansible::Config::Host do
                             galaxy_roles_path
                             groups
                             host_key_checking
+                            host_vars
                             inventory_path
                             limit
                             playbook
@@ -62,6 +63,7 @@ describe VagrantPlugins::Ansible::Config::Host do
     expect(subject.tags).to be_nil
     expect(subject.skip_tags).to be_nil
     expect(subject.start_at_task).to be_nil
+    expect(subject.host_vars).to eq({})
     expect(subject.groups).to eq({})
     expect(subject.host_key_checking).to be_false
     expect(subject.raw_arguments).to be_nil
