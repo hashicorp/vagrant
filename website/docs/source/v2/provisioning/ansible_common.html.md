@@ -41,6 +41,15 @@ Some of these options are for advanced usage only and should not be used unless 
       "db"  => ["vm3"]
     }
     ```
+  Example with [group variables](http://docs.ansible.com/ansible/intro_inventory.html#group-variables):
+
+    ```ruby
+    ansible.groups = {
+      "atlanta" => ["host1", "host2"],
+      "atlanta:vars" => {"ntp_server" => "ntp.atlanta.example.com",
+                         "proxy" => "proxy.atlanta.example.com"}
+    }
+    ```
 
   Notes:
 

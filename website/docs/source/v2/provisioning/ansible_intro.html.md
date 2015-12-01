@@ -109,7 +109,7 @@ Note that the generated inventory file is uploaded to the guest VM in a subdirec
 
 **How to generate Inventory Groups:**
 
-The [`groups`](/v2/provisioning/ansible_common.html) option can be used to pass a hash of group names and group members to be included in the generated inventory file.
+The [`groups`](/v2/provisioning/ansible_common.html) option can be used to pass a hash of group names and group members to be included in the generated inventory file. It is also possible to specify [group variables](http://docs.ansible.com/ansible/intro_inventory.html#group-variables).
 
 With this configuration example:
 
@@ -126,7 +126,9 @@ Vagrant.configure(2) do |config|
     ansible.groups = {
       "group1" => ["machine1"],
       "group2" => ["machine2"],
-      "all_groups:children" => ["group1", "group2"]
+      "all_groups:children" => ["group1", "group2"],
+      "group1:vars" => {"variable1" => 9,
+                        "variable2" => "example"}
     }
   end
 end
@@ -149,22 +151,25 @@ machine2
 [all_groups:children]
 group1
 group2
+
+[group1:vars]
+variable1=9
+variable2=example
 ```
 
 **Notes:**
 
   - Prior to Vagrant 1.7.3, the `ansible_ssh_private_key_file` variable was not set in generated inventory, but passed as command line argument to `ansible-playbook` command.
-  - The generation of group variables blocks (e.g. `[group1:vars]`) are intentionally not supported, as it is [not recommended to store group variables in the main inventory file](http://docs.ansible.com/intro_inventory.html#splitting-out-host-and-group-specific-data). A good practice is to store these group (or host) variables in `YAML` files stored in `group_vars/` or `host_vars/` directories in the playbook (or inventory) directory.
+  - The generation of group variables blocks (e.g. `[group1:vars]`) is only possible since Vagrant ???. Note however that setting variables directly in the inventory is not the [preferred practice in Ansible](http://docs.ansible.com/intro_inventory.html#splitting-out-host-and-group-specific-data). If possible, group (or host) variables should be set in `YAML` files stored in the `group_vars/` or `host_vars/` directories in the playbook (or inventory) directory instead.
   - Unmanaged machines and undefined groups are not added to the inventory, to avoid useless Ansible errors (e.g. *unreachable host* or *undefined child group*)
 
-For example, `machine3`, `group3` and `group1:vars` in the example below would not be added to the generated inventory file:
+For example, `machine3` and `group3` in the example below would not be added to the generated inventory file:
 
 ```
 ansible.groups = {
   "group1" => ["machine1"],
   "group2" => ["machine2", "machine3"],
-  "all_groups:children" => ["group1", "group2", "group3"],
-  "group1:vars" => { "variable1" => 9, "variable2" => "example" }
+  "all_groups:children" => ["group1", "group2", "group3"]
 }
 ```
 
