@@ -237,9 +237,29 @@ VF
     describe "with host_vars option" do
       it_should_create_and_use_generated_inventory
 
-      it "adds host variables to the generated inventory" do
+      it "adds host variables (given in Hash format) to the generated inventory" do
         config.host_vars = {
-          machine.name => {"http_port" => 80, "maxRequestsPerChild" => 808}
+          machine1: {"http_port" => 80, "maxRequestsPerChild" => 808}
+        }
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          inventory_content = File.read(generated_inventory_file)
+          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
+        }
+      end
+
+      it "adds host variables (given in Array format) to the generated inventory" do
+        config.host_vars = {
+          machine1: ["http_port=80", "maxRequestsPerChild=808"]
+        }
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          inventory_content = File.read(generated_inventory_file)
+          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
+        }
+      end
+
+      it "adds host variables (given in String format) to the generated inventory " do
+        config.host_vars = {
+          :machine1 => "http_port=80 maxRequestsPerChild=808"
         }
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           inventory_content = File.read(generated_inventory_file)
