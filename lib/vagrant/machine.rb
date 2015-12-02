@@ -144,6 +144,10 @@ module Vagrant
       if state.id == MachineState::NOT_CREATED_ID
         self.id = nil
       end
+
+      # Output a bunch of information about this machine in
+      # machine-readable format in case someone is listening.
+      @ui.machine("metadata", "provider", provider_name)
     end
 
     # This calls an action on the provider. The provider may or may not
