@@ -109,7 +109,7 @@ Note that the generated inventory file is uploaded to the guest VM in a subdirec
 
 **Host variables:**
 
-Since Vagrant ???, the [`host_vars`](/v2/provisioning/ansible_common.html) option can be used to set [variables for individual hosts](http://docs.ansible.com/ansible/intro_inventory.html#host-variables) in the generated inventory file (see also the notes on group variables below).
+As of Vagrant 1.8.0, the [`host_vars`](/v2/provisioning/ansible_common.html) option can be used to set [variables for individual hosts](http://docs.ansible.com/ansible/intro_inventory.html#host-variables) in the generated inventory file (see also the notes on group variables below).
 
 ```
 Vagrant.configure(2) do |config|
@@ -138,7 +138,8 @@ host2 ansible_ssh_host=... http_port=303  maxRequestsPerChild=909
 
 **How to generate Inventory Groups:**
 
-The [`groups`](/v2/provisioning/ansible_common.html) option can be used to pass a hash of group names and group members to be included in the generated inventory file. It is also possible to specify [group variables](http://docs.ansible.com/ansible/intro_inventory.html#group-variables).
+The [`groups`](/v2/provisioning/ansible_common.html) option can be used to pass a hash of group names and group members to be included in the generated inventory file.
+As of Vagrant 1.8.0, it is also possible to specify [group variables](http://docs.ansible.com/ansible/intro_inventory.html#group-variables).
 
 With this configuration example:
 
@@ -189,7 +190,7 @@ variable2=example
 **Notes:**
 
   - Prior to Vagrant 1.7.3, the `ansible_ssh_private_key_file` variable was not set in generated inventory, but passed as command line argument to `ansible-playbook` command.
-  - The generation of group variables blocks (e.g. `[group1:vars]`) is only possible since Vagrant ???. Note however that setting variables directly in the inventory is not the [preferred practice in Ansible](http://docs.ansible.com/intro_inventory.html#splitting-out-host-and-group-specific-data). If possible, group (or host) variables should be set in `YAML` files stored in the `group_vars/` or `host_vars/` directories in the playbook (or inventory) directory instead.
+  - The generation of group variables blocks (e.g. `[group1:vars]`) is only possible since Vagrant 1.8.0. Note however that setting variables directly in the inventory is not the [preferred practice in Ansible](http://docs.ansible.com/intro_inventory.html#splitting-out-host-and-group-specific-data). If possible, group (or host) variables should be set in `YAML` files stored in the `group_vars/` or `host_vars/` directories in the playbook (or inventory) directory instead.
   - Unmanaged machines and undefined groups are not added to the inventory, to avoid useless Ansible errors (e.g. *unreachable host* or *undefined child group*)
 
 For example, `machine3` and `group3` in the example below would not be added to the generated inventory file:
