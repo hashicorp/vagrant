@@ -71,7 +71,12 @@ module VagrantPlugins
         end
 
         def get_inventory_host_vars_string(machine_name)
-          vars = config.host_vars[machine_name]
+          # In Ruby, Symbol and String values are different, but
+          # Vagrant has to unify them for better user experience.
+          vars = config.host_vars[machine_name.to_sym]
+          if !vars
+            vars = config.host_vars[machine_name.to_s]
+          end
           s = nil
           if vars.is_a?(Hash)
             s = vars.each.collect{ |k, v| "#{k}=#{v}" }.join(" ")
