@@ -55,6 +55,8 @@ IMPROVEMENTS:
       scripts [GH-6185]
   - provisioners/shell: add `env` option [GH-6588, GH-6516]
   - provisioners/ansible+ansible_local: add support for ansible-galaxy [GH-2718]
+  - provisioners/ansible+ansible_local: add support for group and host variables
+      in the generated inventory [GH-6619]
   - provisioners/ansible: add support for WinRM settings [GH-5086]
   - provisioners/ansible: add new `force_remote_user` option to control whether
     `ansible_ssh_user` parameter should be applied or not [GH-6348]
