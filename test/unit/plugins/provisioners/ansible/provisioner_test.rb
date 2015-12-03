@@ -287,7 +287,7 @@ VF
           "group1:children" => 'bar group3',
           "group2" => [iso_env.machine_names[1]],
           "group3" => ["unknown", "#{machine.name}"],
-          group4: [machine.name],
+          "group4" => ["machine[1:2]", "machine[a:f]"],
           "bar" => ["#{machine.name}", "group3"],
           "bar:children" => ["group1", "group2", "group3", "group5"],
         }
@@ -307,6 +307,10 @@ VF
 
           # Accept Symbol datatype for group names
           expect(inventory_content).to include("[group4]\n#{machine.name}\n\n")
+
+          # Accept host range patterns
+          expect(inventory_content).to match(/(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])/)
+          expect(inventory_content).to include("[group4]\nmachine[1:2]\nmachine[a:f]\n")
 
           # Don't mix group names and host names
           expect(inventory_content).to include("[bar]\n#{machine.name}\n\n")
@@ -338,7 +342,7 @@ VF
 
           # Single string syntax
           expect(inventory_content).to include("[group3:vars]\nstringvar1=stringvalue1\nstringvar2=stringvalue2\n")
-        }
+       }
       end
     end
 
