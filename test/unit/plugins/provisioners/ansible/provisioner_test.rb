@@ -287,6 +287,7 @@ VF
           "group1:children" => 'bar',
           "group2" => [iso_env.machine_names[1]],
           "group3" => ["unknown", "#{machine.name}"],
+          group4: [machine.name],
           "bar" => ["#{machine.name}", "group3"],
           "bar:children" => ["group1", "group2", "group3", "group4"],
         }
@@ -304,11 +305,13 @@ VF
           # Skip "unknown" machines
           expect(inventory_content).to include("[group3]\n#{machine.name}\n")
 
+          # Accept Symbol datatype for group names
+          expect(inventory_content).to include("[group4]\n#{machine.name}\n\n")
+
           # Don't mix group names and host names
           expect(inventory_content).to include("[bar]\n#{machine.name}\n")
 
           # A group of groups only includes declared groups
-          expect(inventory_content).not_to match(/^group4$/)
           expect(inventory_content).to include("[bar:children]\ngroup1\ngroup2\ngroup3\n")
         }
       end

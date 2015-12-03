@@ -113,6 +113,10 @@ module VagrantPlugins
           inventory_groups = ""
 
           config.groups.each_pair do |gname, gmembers|
+            if gname.is_a?(Symbol)
+              gname = gname.to_s
+            end
+
             if gmembers.is_a?(String)
               gmembers = gmembers.split(/\s+/)
             elsif gmembers.is_a?(Hash)
