@@ -114,7 +114,7 @@ module VagrantPlugins
 
           # Verify if host range patterns exist and warn
           if config.groups.any? do |gm|
-            gm.to_s[/(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])/]
+             gm.to_s[/(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])/]
           end
             @machine.ui.warn(I18n.t("vagrant.provisioners.ansible.ansible_host_pattern_detected"))
           end
