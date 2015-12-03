@@ -2065,6 +2065,12 @@ en:
         interactive_not_elevated: "To be interactive, it must also be privileged."
 
       ansible:
+        ansible_host_pattern_detected: |-
+          Vagrant has detected a host range pattern in the ansible.groups option.
+          Vagrant doesn't fully check the validity of these parameters!
+
+          Please check http://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups
+          for more information.
         cannot_detect: |-
           Vagrant does not support detecting whether Ansible is installed
           for the guest OS running in the machine. Vagrant will assume it is
