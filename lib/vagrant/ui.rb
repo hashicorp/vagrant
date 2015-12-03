@@ -280,8 +280,9 @@ module Vagrant
               opts[:bold] = #{method.inspect} != :detail && \
                 #{method.inspect} != :ask
             end
-
-            opts[:target] = @prefix
+            if !opts.key?(:target)
+              opts[:target] = @prefix
+            end
             @ui.#{method}(format_message(#{method.inspect}, message, **opts), *args, **opts)
           end
         CODE
