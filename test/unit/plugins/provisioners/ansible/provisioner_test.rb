@@ -283,36 +283,37 @@ VF
 
       it "adds group sections to the generated inventory" do
         config.groups = {
-          "group1" => "#{machine.name}",
-          "group1:children" => 'bar',
+          "group1" => "machine1",
+          "group1:children" => 'bar group3',
           "group2" => [iso_env.machine_names[1]],
           "group3" => ["unknown", "#{machine.name}"],
           group4: [machine.name],
           "bar" => ["#{machine.name}", "group3"],
-          "bar:children" => ["group1", "group2", "group3", "group4"],
+          "bar:children" => ["group1", "group2", "group3", "group5"],
         }
 
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           inventory_content = File.read(generated_inventory_file)
 
-          # Accept String instead of Array for group that contains a single item
-          expect(inventory_content).to include("[group1]\n#{machine.name}\n")
-          expect(inventory_content).to include("[group1:children]\nbar\n")
+          # Accept String instead of Array for group member list
+          expect(inventory_content).to include("[group1]\nmachine1\n\n")
+          expect(inventory_content).to include("[group1:children]\nbar\ngroup3\n\n")
 
           # Skip "lost" machines
           expect(inventory_content).to include("[group2]\n\n")
 
           # Skip "unknown" machines
-          expect(inventory_content).to include("[group3]\n#{machine.name}\n")
+          expect(inventory_content).to include("[group3]\n#{machine.name}\n\n")
 
           # Accept Symbol datatype for group names
           expect(inventory_content).to include("[group4]\n#{machine.name}\n\n")
 
           # Don't mix group names and host names
-          expect(inventory_content).to include("[bar]\n#{machine.name}\n")
+          expect(inventory_content).to include("[bar]\n#{machine.name}\n\n")
 
           # A group of groups only includes declared groups
-          expect(inventory_content).to include("[bar:children]\ngroup1\ngroup2\ngroup3\n")
+          expect(inventory_content).not_to include("group5")
+          expect(inventory_content).to match(Regexp.quote("[bar:children]\ngroup1\ngroup2\ngroup3\n") + "$")
         }
       end
 
