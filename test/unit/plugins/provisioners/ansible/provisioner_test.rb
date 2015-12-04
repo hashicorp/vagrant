@@ -288,6 +288,7 @@ VF
           "group2" => [iso_env.machine_names[1]],
           "group3" => ["unknown", "#{machine.name}"],
           "group4" => ["machine[1:2]", "machine[a:f]"],
+          "group6" => [machine.name],
           "bar" => ["#{machine.name}", "group3"],
           "bar:children" => ["group1", "group2", "group3", "group5"],
         }
@@ -306,7 +307,7 @@ VF
           expect(inventory_content).to include("[group3]\n#{machine.name}\n\n")
 
           # Accept Symbol datatype for group names
-          expect(inventory_content).to include("[group4]\n#{machine.name}\n\n")
+          expect(inventory_content).to include("[group6]\n#{machine.name}\n\n")
 
           # Accept host range patterns
           expect(inventory_content).to match(/(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])/)
