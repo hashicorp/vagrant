@@ -2066,7 +2066,7 @@ en:
 
       ansible:
         ansible_host_pattern_detected: |-
-          Vagrant has detected a host range pattern in the ansible.groups option.
+          Vagrant has detected a host range pattern in the groups option.
           Vagrant doesn't fully check the validity of these parameters!
 
           Please check http://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups

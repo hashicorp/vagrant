@@ -310,7 +310,6 @@ VF
           expect(inventory_content).to include("[group6]\n#{machine.name}\n\n")
 
           # Accept host range patterns
-          expect(inventory_content).to match(/(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])/)
           expect(inventory_content).to include("[group4]\nmachine[1:2]\nmachine[a:f]\n")
 
           # Don't mix group names and host names
@@ -343,7 +342,7 @@ VF
 
           # Single string syntax
           expect(inventory_content).to include("[group3:vars]\nstringvar1=stringvalue1\nstringvar2=stringvalue2\n")
-       }
+        }
       end
     end
 

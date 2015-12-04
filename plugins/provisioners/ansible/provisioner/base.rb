@@ -12,6 +12,8 @@ module VagrantPlugins
 
       class Base < Vagrant.plugin("2", :provisioner)
 
+        RANGE_PATTERN = %r{(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])}.freeze
+
         protected
 
         def initialize(machine, config)
@@ -113,9 +115,7 @@ module VagrantPlugins
           inventory_groups = ""
 
           # Verify if host range patterns exist and warn
-          if config.groups.any? do |gm|
-             gm.to_s[/(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])/]
-          end
+          if config.groups.any? { |gm| gm.to_s[RANGE_PATTERN] }
             @machine.ui.warn(I18n.t("vagrant.provisioners.ansible.ansible_host_pattern_detected"))
           end
 
@@ -141,10 +141,10 @@ module VagrantPlugins
               defined_groups << gname
               inventory_groups += "\n[#{gname}]\n"
               gmembers.each do |gm|
-              # TODO : Expand and validate host range patterns
-              # against @inventory_machines list before adding them
-              # otherwise abort with an error message
-                if gm[/(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])/]
+                # TODO : Expand and validate host range patterns
+                # against @inventory_machines list before adding them
+                # otherwise abort with an error message
+                if gm[RANGE_PATTERN]
                   inventory_groups += "#{gm}\n"
                 end
                 inventory_groups += "#{gm}\n" if @inventory_machines.include?(gm.to_sym)

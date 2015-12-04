@@ -156,8 +156,8 @@ Vagrant.configure(2) do |config|
     ansible.groups = {
       "group1" => ["machine1"],
       "group2" => ["machine2"],
-      "group3" => ["machine[01:50]"],
-      "group4" => ["machine-[a:d]"],
+      "group3" => ["machine[1:2]"],
+      "group4" => ["other_node-[a:d]"],
       "all_groups:children" => ["group1", "group2"],
       "group1:vars" => {"variable1" => 9,
                         "variable2" => "example"}
@@ -173,14 +173,6 @@ Vagrant would generate an inventory file that might look like:
 
 machine1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2200 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine1/virtualbox/private_key'
 machine2 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine2/virtualbox/private_key'
-machine01 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2223 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine01/virtualbox/private_key'
-machine02 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2224 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine02/virtualbox/private_key'
-machine03 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2225 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine03/virtualbox/private_key'
-machine04 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2226 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine04/virtualbox/private_key'
-machine-a ansible_ssh_host=127.0.0.1 ansible_ssh_port=2227 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine-a/virtualbox/private_key'
-machine-b ansible_ssh_host=127.0.0.1 ansible_ssh_port=2228 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine-b/virtualbox/private_key'
-machine-c ansible_ssh_host=127.0.0.1 ansible_ssh_port=2229 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine-c/virtualbox/private_key'
-machine-d ansible_ssh_host=127.0.0.1 ansible_ssh_port=2230 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/home/.../.vagrant/machines/machine-d/virtualbox/private_key'
 
 [group1]
 machine1
@@ -189,10 +181,10 @@ machine1
 machine2
 
 [group3]
-machine[01:50]
+machine[1:2]
 
 [group4]
-machine-[a:d]
+other_node-[a:d]
 
 [all_groups:children]
 group1
@@ -208,10 +200,9 @@ variable2=example
   - Prior to Vagrant 1.7.3, the `ansible_ssh_private_key_file` variable was not set in generated inventory, but passed as command line argument to `ansible-playbook` command.
   - The generation of group variables blocks (e.g. `[group1:vars]`) is only possible since Vagrant 1.8.0. Note however that setting variables directly in the inventory is not the [preferred practice in Ansible](http://docs.ansible.com/intro_inventory.html#splitting-out-host-and-group-specific-data). If possible, group (or host) variables should be set in `YAML` files stored in the `group_vars/` or `host_vars/` directories in the playbook (or inventory) directory instead.
   - Unmanaged machines and undefined groups are not added to the inventory, to avoid useless Ansible errors (e.g. *unreachable host* or *undefined child group*)
-  - [Host range patterns (numeric and alphabetic ranges)](http://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups) will not be validated by vagrant. Hosts will be added as group members to the inventory anyway, this might lead to errors in Ansible (e.q *unreachable host*).
+  - [Host range patterns (numeric and alphabetic ranges)](http://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups) will not be validated by Vagrant. Hosts will be added as group members to the inventory anyway, this might lead to errors in Ansible (e.g *unreachable host*).
 
-For example, `machine3`, `group3` and `group1:vars` in the example below would not be added to the generated inventory file,
-`machine-[a:d]` and `machine[01:50]` would be (even thought there are no hosts named machine50):
+For example, `machine3` and `group3` in the example below would not be added to the generated inventory file:
 
 ```
 ansible.groups = {
