@@ -1,5 +1,6 @@
 require "optparse"
 
+require "vagrant/util/powershell"
 require_relative "../../communicators/winrm/helper"
 
 module VagrantPlugins
