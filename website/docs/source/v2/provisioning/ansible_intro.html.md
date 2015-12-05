@@ -139,7 +139,8 @@ host2 ansible_ssh_host=... http_port=303 maxRequestsPerChild=909
 **How to generate Inventory Groups:**
 
 The [`groups`](/v2/provisioning/ansible_common.html) option can be used to pass a hash of group names and group members to be included in the generated inventory file.
-As of Vagrant 1.8.0, it is also possible to specify [group variables](http://docs.ansible.com/ansible/intro_inventory.html#group-variables).
+
+As of Vagrant 1.8.0, it is also possible to specify [group variables](http://docs.ansible.com/ansible/intro_inventory.html#group-variables), and group members as [host ranges (with numeric or alphabetic patterns)](http://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups).
 
 With this configuration example:
 
@@ -157,7 +158,7 @@ Vagrant.configure(2) do |config|
       "group1" => ["machine1"],
       "group2" => ["machine2"],
       "group3" => ["machine[1:2]"],
-      "group4" => ["other_node-[a:d]"],
+      "group4" => ["other_node-[a:d]"], # silly group definition
       "all_groups:children" => ["group1", "group2"],
       "group1:vars" => {"variable1" => 9,
                         "variable2" => "example"}
@@ -200,18 +201,17 @@ variable2=example
   - Prior to Vagrant 1.7.3, the `ansible_ssh_private_key_file` variable was not set in generated inventory, but passed as command line argument to `ansible-playbook` command.
   - The generation of group variables blocks (e.g. `[group1:vars]`) is only possible since Vagrant 1.8.0. Note however that setting variables directly in the inventory is not the [preferred practice in Ansible](http://docs.ansible.com/intro_inventory.html#splitting-out-host-and-group-specific-data). If possible, group (or host) variables should be set in `YAML` files stored in the `group_vars/` or `host_vars/` directories in the playbook (or inventory) directory instead.
   - Unmanaged machines and undefined groups are not added to the inventory, to avoid useless Ansible errors (e.g. *unreachable host* or *undefined child group*)
-  - [Host range patterns (numeric and alphabetic ranges)](http://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups) will not be validated by Vagrant. Hosts will be added as group members to the inventory anyway, this might lead to errors in Ansible (e.g *unreachable host*).
 
-For example, `machine3` and `group3` in the example below would not be added to the generated inventory file:
+  For example, `machine3` and `group3` in the example below would not be added to the generated inventory file:
 
-```
-ansible.groups = {
-  "group1" => ["machine1","machine[01:50]"],
-  "group2" => ["machine2", "machine3", "machine-[a:d]"],
-  "all_groups:children" => ["group1", "group2", "group3"],
-  "group1:vars" => { "variable1" => 9, "variable2" => "example" }
-}
-```
+  ```ruby
+  ansible.groups = {
+    "group1" => ["machine1"],
+    "group2" => ["machine2", "machine3"],
+    "all_groups:children" => ["group1", "group2", "group3"]
+  }
+  ```
+  - [Host range patterns (numeric and alphabetic ranges)](http://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups) will not be validated by Vagrant. As of Vagrant 1.8.0, host range patterns will be added as group members to the inventory anyway, this might lead to errors in Ansible (e.g *unreachable host*).
 
 ### Static Inventory
 
