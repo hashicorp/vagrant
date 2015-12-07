@@ -85,6 +85,8 @@ BUG FIXES:
   - core: catch errors setting env vars on Windows [GH-6017]
   - core: remove cached synced folders when they're removed from the
       Vagrantfile [GH-6567]
+  - core: use case-insensitive comparison for box checksum validations
+    [GH-6648, GH-6650]
   - commands/box: add command with `~` paths on Windows works [GH-5747]
   - commands/box: the update command supports CA settings [GH-4473]
   - commands/box: removing all versions and providers of a box will properly
