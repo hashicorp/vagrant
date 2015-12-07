@@ -6,8 +6,6 @@ module VagrantPlugins
         module RedHat
           module AnsibleInstall
 
-            # This should work on recent Fedora releases, and any other members of the
-            # RedHat family which supports YUM and http://fedoraproject.org/wiki/EPEL
             def self.ansible_install(machine)
 
               epel = machine.communicate.execute("#{yum_dnf(machine)} repolist epel | grep -q epel", :error_check => false)
