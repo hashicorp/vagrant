@@ -55,9 +55,14 @@ module VagrantPlugins
         Cap::Guest::Ubuntu::AnsibleInstall
       end
 
+      guest_capability(:fedora, :ansible_install) do
+        require_relative "cap/guest/fedora/ansible_install"
+        Cap::Guest::Fedora::AnsibleInstall
+      end
+
       guest_capability(:redhat, :ansible_install) do
-        require_relative "cap/guest/epel/ansible_install"
-        Cap::Guest::EPEL::AnsibleInstall
+        require_relative "cap/guest/redhat/ansible_install"
+        Cap::Guest::RedHat::AnsibleInstall
       end
 
       guest_capability(:suse, :ansible_install) do
