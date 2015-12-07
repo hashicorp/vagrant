@@ -1315,10 +1315,14 @@ en:
         This is an internal error that should be reported as a bug.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have a version of VirtualBox installed
-        that is not supported. Please install one of the supported versions
-        listed below to use Vagrant:
+        that is not supported by this version of Vagrant. Please install one of
+        the supported versions listed below to use Vagrant:
 
         %{supported_versions}
+
+        A Vagrant update may also be available that adds support for the version
+        you specified. Please check www.vagrantup.com/downloads.html to download
+        the latest version.
       virtualbox_kernel_module_not_loaded: |-
         VirtualBox is complaining that the kernel module is not loaded. Please
         run `VBoxManage --version` or open the VirtualBox GUI to see the error
