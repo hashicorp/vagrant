@@ -207,6 +207,28 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
         to raise_error(Vagrant::Errors::BoxChecksumMismatch)
     end
 
+    it "does not raise an error if the checksum has different case" do
+      box_path = iso_env.box2_file(:virtualbox)
+
+      box = double(
+        name: "foo",
+        version: "1.2.3",
+        provider: "virtualbox",
+      )
+
+      env[:box_name] = box.name
+      env[:box_url] = box_path.to_s
+      env[:box_checksum] = checksum(box_path)
+      env[:box_checksum_type] = "sha1"
+
+      # Convert to a different case
+      env[:box_checksum].upcase!
+
+      expect(box_collection).to receive(:add).and_return(box)
+
+      expect { subject.call(env) }.to_not raise_error
+    end
+
     it "raises an error if the box path doesn't exist" do
       box_path = iso_env.box2_file(:virtualbox)
 

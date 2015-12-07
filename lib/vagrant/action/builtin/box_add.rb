@@ -522,7 +522,7 @@ module Vagrant
           @logger.info("Expected checksum: #{checksum}")
 
           actual = FileChecksum.new(path, checksum_klass).checksum
-          if actual != checksum
+          if actual.casecmp(checksum) != 0
             raise Errors::BoxChecksumMismatch,
               actual: actual,
               expected: checksum
