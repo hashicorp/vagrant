@@ -17,6 +17,7 @@ module VagrantPlugins
             def self.dnf?(machine)
               machine.communicate.test("/usr/bin/which -s dnf")
             end
+
           end
         end
       end
