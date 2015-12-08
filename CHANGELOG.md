@@ -120,6 +120,8 @@ BUG FIXES:
   - providers/hyper-v: support generation 2 VMs [GH-6372]
   - providers/hyper-v: support VMs with more than one NIC [GH-4346]
   - providers/virtualbox: ignore "Unknown" status bridge interfaces [GH-6061]
+  - providers/virtualbox: only fix ipv6 interfaces that are in use
+      [GH-6586, GH-6552]
   - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
     value in the generated inventory [GH-6209]
   - provisioners/ansible: don't show the `ansible-playbook` command when verbose
