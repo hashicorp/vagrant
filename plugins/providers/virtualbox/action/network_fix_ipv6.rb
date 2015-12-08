@@ -43,12 +43,12 @@ module VagrantPlugins
           # If we have no IPv6, forget it
           return if !has_v6
 
-          networks(env).each do |network|
-            next if !present?(network[:ipv6])
-            next if network[:status] != "Up"
+          host_only_interfaces(env).each do |interface|
+            next if !present?(interface[:ipv6])
+            next if interface[:status] != "Up"
 
-            ip = IPAddr.new(network[:ipv6])
-            ip |= ("1" * (128 - network[:ipv6_prefix].to_i)).to_i(2)
+            ip = IPAddr.new(interface[:ipv6])
+            ip |= ("1" * (128 - interface[:ipv6_prefix].to_i)).to_i(2)
 
             @logger.info("testing IPv6: #{ip}")
 
@@ -56,7 +56,7 @@ module VagrantPlugins
               UDPSocket.new(Socket::AF_INET6).connect(ip.to_s, 80)
             rescue Errno::EHOSTUNREACH
               @logger.info("IPv6 host unreachable. Fixing: #{ip}")
-              env[:machine].provider.driver.reconfig_host_only(network)
+              env[:machine].provider.driver.reconfig_host_only(interface)
             end
           end
         end
@@ -68,12 +68,12 @@ module VagrantPlugins
             .map { |_, i| i[:hostonly] if i[:type] == :hostonly }.compact
         end
 
-        # The list of networks that are tied to a host-only adapter.
+        # The list of host_only_interfaces that are tied to a host-only adapter.
         # @return [Array]
-        def networks(env)
+        def host_only_interfaces(env)
           iface_names = self.host_only_interface_names(env)
           env[:machine].provider.driver.read_host_only_interfaces
-            .select { |network| iface_names.include?(network[:name]) }
+            .select { |interface| iface_names.include?(interface[:name]) }
         end
       end
     end
