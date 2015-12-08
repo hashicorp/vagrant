@@ -113,7 +113,7 @@ module VagrantPlugins
             comm.upload(temp_inventory.path, inventory_path)
           end
 
-          return inventory_path
+          return inventory_basedir
         end
 
         def generate_inventory_machines
