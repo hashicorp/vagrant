@@ -112,7 +112,7 @@ BUG FIXES:
   - guests/darwin: advanced networking works with more NICs [GH-6386]
   - guests/debian: graceful shutdown works properly with newer releases [GH-5986]
   - guests/fedora: Preserve `localhost` entry when changing hostname [GH-6203]
-  - guests/fedora: Use dnf if it is available [GH-6301]
+  - guests/fedora: Use dnf if it is available [GH-6288]
   - guests/linux: when replacing a public SSH key, use POSIX-compliant
       sed flags [GH-6565]
   - guests/suse: DHCP network interfaces properly configured [GH-6502]
