@@ -3,6 +3,7 @@ require "socket"
 
 require "log4r"
 
+require "vagrant/util/presence"
 require "vagrant/util/scoped_hash_override"
 
 module VagrantPlugins
@@ -12,6 +13,7 @@ module VagrantPlugins
       # a VM with an IPv6 host-only network will someties lose the
       # route to that machine.
       class NetworkFixIPv6
+        include Vagrant::Util::Presence
         include Vagrant::Util::ScopedHashOverride
 
         def initialize(app, env)
@@ -41,16 +43,15 @@ module VagrantPlugins
           # If we have no IPv6, forget it
           return if !has_v6
 
-          # We do, so fix them if we must
-          env[:machine].provider.driver.read_host_only_interfaces.each do |interface|
-            # Ignore interfaces without an IPv6 address
-            next if interface[:ipv6] == ""
+          host_only_interfaces(env).each do |interface|
+            next if !present?(interface[:ipv6])
+            next if interface[:status] != "Up"
 
-            # Make the test IP. This is just the highest value IP
             ip = IPAddr.new(interface[:ipv6])
-            ip |= IPAddr.new(":#{":FFFF" * (interface[:ipv6_prefix].to_i / 16)}")
+            ip |= ("1" * (128 - interface[:ipv6_prefix].to_i)).to_i(2)
 
             @logger.info("testing IPv6: #{ip}")
+
             begin
               UDPSocket.new(Socket::AF_INET6).connect(ip.to_s, 80)
             rescue Errno::EHOSTUNREACH
@@ -58,6 +59,21 @@ module VagrantPlugins
               env[:machine].provider.driver.reconfig_host_only(interface)
             end
           end
+        end
+
+        # The list of interface names for host-only adapters.
+        # @return [Array<String>]
+        def host_only_interface_names(env)
+          env[:machine].provider.driver.read_network_interfaces
+            .map { |_, i| i[:hostonly] if i[:type] == :hostonly }.compact
+        end
+
+        # The list of host_only_interfaces that are tied to a host-only adapter.
+        # @return [Array]
+        def host_only_interfaces(env)
+          iface_names = self.host_only_interface_names(env)
+          env[:machine].provider.driver.read_host_only_interfaces
+            .select { |interface| iface_names.include?(interface[:name]) }
         end
       end
     end
