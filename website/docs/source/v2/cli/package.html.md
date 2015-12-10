@@ -8,9 +8,10 @@ sidebar_current: "cli-package"
 **Command: `vagrant package`**
 
 This packages a currently running _VirtualBox_ environment into a
-re-usable [box](/v2/boxes.html). This command cannot be used with
-any other [provider](/v2/providers/index.html). A future version of Vagrant
-will address packaging boxes for other providers. Until then, they must
+re-usable [box](/v2/boxes.html). This command can only be used with
+other [providers](/v2/providers/index.html) based on the provider implementation
+and if the provider supports it. A future version of Vagrant will
+address packaging boxes for other providers. Until then, they must
 be made by hand.
 
 ## Options
