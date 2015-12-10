@@ -26,6 +26,13 @@ describe VagrantPlugins::LocalExecPush::Config do
     end
   end
 
+  describe "#args" do
+    it "defaults to nil" do
+      subject.finalize!
+      expect(subject.args).to be(nil)
+    end
+  end
+
   describe "#validate" do
     before do
       allow(machine).to receive(:env)
@@ -57,6 +64,42 @@ describe VagrantPlugins::LocalExecPush::Config do
         it "does not return an error" do
           expect(errors).to be_empty
         end
+
+        it "passes with string args" do
+          subject.args = "a string"
+          expect(errors).to be_empty
+        end
+
+        it "passes with fixnum args" do
+          subject.args = 1
+          expect(errors).to be_empty
+        end
+
+        it "passes with array args" do
+          subject.args = ["an", "array"]
+          expect(errors).to be_empty
+        end
+
+        it "returns an error if args is neither a string nor an array" do
+          neither_array_nor_string = Object.new
+
+          subject.args = neither_array_nor_string
+          expect(errors).to include(
+            I18n.t("local_exec_push.errors.args_bad_type")
+          )
+        end
+
+        it "handles scalar array args" do
+          subject.args = ["string", 1, 2]
+          expect(errors).to be_empty
+        end
+
+        it "returns an error if args is an array with non-scalar types" do
+          subject.args = [[1]]
+          expect(errors).to include(
+            I18n.t("local_exec_push.errors.args_bad_type")
+          )
+        end
       end
     end
 
@@ -68,6 +111,42 @@ describe VagrantPlugins::LocalExecPush::Config do
 
         it "does not return an error" do
           expect(errors).to be_empty
+        end
+
+        it "passes with string args" do
+          subject.args = "a string"
+          expect(errors).to be_empty
+        end
+
+        it "passes with fixnum args" do
+          subject.args = 1
+          expect(errors).to be_empty
+        end
+
+        it "passes with array args" do
+          subject.args = ["an", "array"]
+          expect(errors).to be_empty
+        end
+
+        it "returns an error if args is neither a string nor an array" do
+          neither_array_nor_string = Object.new
+
+          subject.args = neither_array_nor_string
+          expect(errors).to include(
+            I18n.t("local_exec_push.errors.args_bad_type")
+          )
+        end
+
+        it "handles scalar array args" do
+          subject.args = ["string", 1, 2]
+          expect(errors).to be_empty
+        end
+
+        it "returns an error if args is an array with non-scalar types" do
+          subject.args = [[1]]
+          expect(errors).to include(
+            I18n.t("local_exec_push.errors.args_bad_type")
+          )
         end
       end
 
