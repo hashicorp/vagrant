@@ -63,6 +63,7 @@ IMPROVEMENTS:
   - provisioners/ansible: add new `force_remote_user` option to control whether
     `ansible_ssh_user` parameter should be applied or not [GH-6348]
   - provisioners/ansible: show a warning when running from a Windows Host [GH-5292]
+  - pushes/local-exec: add support for specifying script args [GH-6661, GH-6660]
   - guests/slackware: add support for networking [GH-6514]
 
 BUG FIXES:
