@@ -290,8 +290,8 @@ module VagrantPlugins
             # Default subnet prefix length
             options[:netmask] ||= 64
 
-            # IPv6 we just mask the address and use that as the adapter
-            options[:adapter_ip] ||= ip.mask(options[:netmask].to_i).to_s
+            # Set adapter IP to <prefix>::1
+            options[:adapter_ip] ||= (ip.mask(options[:netmask].to_i) | 1).to_s
 
             # Append a 6 to the end of the type
             options[:type] = "#{options[:type]}6".to_sym
