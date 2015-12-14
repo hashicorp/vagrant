@@ -61,6 +61,25 @@ module Vagrant
           (`reg query HKU\\S-1-5-19 2>&1` =~ /ERROR/).nil?
         end
 
+        # Checks if the user running Vagrant on Windows is a member of the
+        # "Hyper-V Administrators" group.
+        #
+        # From: https://support.microsoft.com/en-us/kb/243330
+        # SID: S-1-5-32-578 
+        # Name: BUILTIN\Hyper-V Administrators
+        #
+        # @return [Boolean]
+        def windows_hyperv_admin?
+            begin
+              username = ENV["USERNAME"]
+              process = Subprocess.execute("net", "localgroup", "Hyper-V Administrators")
+              output = process.stdout.chomp 
+              return output.include?(username)
+            rescue Errors::CommandUnavailableWindows
+              return false
+            end
+        end
+
         # This takes any path and converts it from a Windows path to a
         # Cygwin or msys style path.
         #
