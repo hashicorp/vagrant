@@ -33,6 +33,8 @@ IMPROVEMENTS:
   - core: prune entries from global status on non-existent cwd [GH-6535]
   - core: networking: allow specifying a DHCP IP [GH-6325]
   - core: run provisioner cleanup tasks before powering off the VM [GH-6553]
+  - core: only run provisioner cleanup tasks if they're implemented [GH-6603]
+      This improves UX, but wasn't a bug before.
   - command/plugin: Add `--plugin-clean-sources` flag to reset plugin install
       sources, primarily for corp firewalls. [GH-4738]
   - command/rsync-auto: SSH connection is cached for faster sync times [GH-6399]
