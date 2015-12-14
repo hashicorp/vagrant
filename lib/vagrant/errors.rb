@@ -524,6 +524,10 @@ module Vagrant
       error_key(:provider_cant_install)
     end
 
+    class ProviderChecksumMismatch < VagrantError
+      error_key(:provider_checksum_mismatch)
+    end
+
     class ProviderInstallFailed < VagrantError
       error_key(:provider_install_failed)
     end
