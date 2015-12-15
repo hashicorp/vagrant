@@ -122,6 +122,8 @@ BUG FIXES:
   - hosts/slackware: Better detection of NFS [GH-6367]
   - providers/hyper-v: support generation 2 VMs [GH-6372]
   - providers/hyper-v: support VMs with more than one NIC [GH-4346]
+  - providers/hyper-v: check if user is in the Hyper-V admin group if 
+      they're not a Windows admin [GH-6662]
   - providers/virtualbox: ignore "Unknown" status bridge interfaces [GH-6061]
   - providers/virtualbox: only fix ipv6 interfaces that are in use
       [GH-6586, GH-6552]
