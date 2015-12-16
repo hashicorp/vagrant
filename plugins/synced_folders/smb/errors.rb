@@ -29,6 +29,10 @@ module VagrantPlugins
       class WindowsAdminRequired < SMBError
         error_key(:windows_admin_required)
       end
+
+      class SMBIdRequired < SMBError
+        error_key(:smb_id_required)
+      end
     end
   end
 end
