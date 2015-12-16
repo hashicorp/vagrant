@@ -129,8 +129,8 @@ BUG FIXES:
       [GH-6586, GH-6552]
   - provisioners/ansible: use quotes for the `ansible_ssh_private_key_file`
     value in the generated inventory [GH-6209]
-  - provisioners/ansible: use quotes for the IdentityFile OpenSSH command line
-    arguments [GH-6671]
+  - provisioners/ansible: use quotes when passing the private key files via
+      OpenSSH `-i` command line arguments [GH-6671]
   - provisioners/ansible: don't show the `ansible-playbook` command when verbose
     option is an empty string
   - provisioners/chef: fix `nodes_path` for Chef Zero [GH-6025, GH-6049]

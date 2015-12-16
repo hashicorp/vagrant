@@ -229,9 +229,7 @@ module VagrantPlugins
           # Multiple Private Keys
           unless !config.inventory_path && @ssh_info[:private_key_path].size == 1
             @ssh_info[:private_key_path].each do |key|
-              # The outer single quotes are required to protect the inner
-              # double quotes to be stripped by the ssh/shell execution.
-              ssh_options << "-o IdentityFile='\"#{key}\"'"
+              ssh_options << "-i '#{key}'"
             end
           end
 
