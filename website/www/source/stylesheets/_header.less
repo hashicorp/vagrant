@@ -44,11 +44,9 @@
 
       svg{
         path,
-        polygon{
+        polygon,
+        rect{
           fill: @project-link-color;
-        }
-        line{
-          stroke: @project-link-color;
         }
       }
 
@@ -56,11 +54,9 @@
         color: black;
         svg{
           path,
-          polygon{
+          polygon,
+          rect{
             fill: black;
-          }
-          line{
-            stroke: black;
           }
         }
       }
@@ -72,6 +68,7 @@
   }
 
   .buttons{
+    display: none;
     margin-top: 2px; //baseline everything
 
     .navigation-links{
@@ -113,11 +110,19 @@
   }
 }
 
-@media (max-width: 768px) {
-  .hidden-xs{
+@media (min-width: 768px) {
+  .navbar-toggle{
     display: none;
   }
 
+  #header{
+    .buttons{
+      display: block;
+    }
+  }
+}
+
+@media (max-width: 768px) {
   .navbar-header{
     margin-left: 15px;
   }

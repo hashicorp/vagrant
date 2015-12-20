@@ -158,7 +158,7 @@
   display: inline-block;
   vertical-align:top;
   height: @header-height;
-  margin-left: 3px;
+  margin-left: -3px;
   padding-top: 2px;
   color: black;
   line-height: @header-height;
@@ -174,11 +174,9 @@
     font-weight: 300;
     svg{
       path,
-      polygon{
+      polygon,
+      rect{
         fill: white;
-      }
-      line{
-        stroke: white;
       }
     }
   }
@@ -213,16 +211,9 @@
     }
 
     path,
-    polygon{
+    polygon,
+    rect{
       fill: black;
-      .transition(all 300ms ease-in);
-
-      &:hover{
-        .transition(all 300ms ease-in);
-      }
-    }
-    line{
-      stroke: black;
       .transition(all 300ms ease-in);
 
       &:hover{
