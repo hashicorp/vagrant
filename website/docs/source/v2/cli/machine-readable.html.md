@@ -123,6 +123,15 @@ with the machine-readable output.
 </tr>
 
 <tr>
+<td>ssh-config</td>
+<td>
+	The OpenSSH compatible SSH config for a machine. This is usually
+    the result of the "ssh-config" command.
+	<span class="label">targeted</span>
+</td>
+</tr>
+
+<tr>
 <td>state</td>
 <td>
 	The state ID of the target machine.

@@ -30,7 +30,7 @@ module VagrantPlugins
         return if !argv
 
         # Validate the provisioners
-        validate_provisioner_flags!(options)
+        validate_provisioner_flags!(options, argv)
 
         @logger.debug("'reload' each target VM...")
         machines = []

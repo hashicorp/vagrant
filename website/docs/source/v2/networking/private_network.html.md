@@ -118,3 +118,8 @@ end
 If you already started the Vagrant environment before setting `auto_config`,
 the files it initially placed there will stay there. You'll have to remove
 those files manually or destroy and recreate the machine.
+
+The files created by Vagrant depend on the OS. For example, for many
+Linux distros, this is `/etc/network/interfaces`. In general you should
+look in the normal location that network interfaces are configured for your
+distro.

@@ -2,6 +2,8 @@ require "pathname"
 require "tempfile"
 
 require "vagrant/util/downloader"
+require "vagrant/util/file_checksum"
+require "vagrant/util/powershell"
 require "vagrant/util/subprocess"
 
 module VagrantPlugins
@@ -10,8 +12,9 @@ module VagrantPlugins
       class ProviderInstallVirtualBox
         # The URL to download VirtualBox is hardcoded so we can have a
         # known-good version to download.
-        URL = "http://download.virtualbox.org/virtualbox/5.0.8/VirtualBox-5.0.8-103449-Win.exe".freeze
-        VERSION = "5.0.8".freeze
+        URL = "http://download.virtualbox.org/virtualbox/5.0.10/VirtualBox-5.0.10-104061-Win.exe".freeze
+        VERSION = "5.0.10".freeze
+        SHA256SUM = "3e5ed8fe4ada6eef8dfb4fe6fd79fcab4b242acf799f7d3ab4a17b43838b1e04".freeze
 
         def self.provider_install_virtualbox(env)
           tf = Tempfile.new("vagrant")
@@ -29,13 +32,22 @@ module VagrantPlugins
           dl = Vagrant::Util::Downloader.new(URL, tf.path, ui: ui)
           dl.download!
 
+          # Validate that the file checksum matches
+          actual = Vagrant::Util::FileChecksum.new(tf.path, Digest::SHA2).checksum
+          if actual != SHA256SUM
+            raise Vagrant::Errors::ProviderChecksumMismatch,
+              provider: "virtualbox",
+              actual: actual,
+              expected: SHA256SUM
+          end
+
           # Launch it
           ui.output(I18n.t(
             "vagrant.hosts.windows.virtualbox_install_install"))
           ui.detail(I18n.t(
             "vagrant.hosts.windows.virtualbox_install_install_detail"))
           script = File.expand_path("../../scripts/install_virtualbox.ps1", __FILE__)
-          result = Vagrant::Util::Powershell.execute(script, tf.path)
+          result = Vagrant::Util::PowerShell.execute(script, tf.path)
           if result.exit_code != 0
             raise Vagrant::Errors::ProviderInstallFailed,
               provider: "virtualbox",

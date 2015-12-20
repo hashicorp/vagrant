@@ -55,7 +55,7 @@ module VagrantPlugins
         return if !argv
 
         # Validate the provisioners
-        validate_provisioner_flags!(options)
+        validate_provisioner_flags!(options, argv)
 
         # Go over each VM and bring it up
         @logger.debug("'Up' each target VM...")

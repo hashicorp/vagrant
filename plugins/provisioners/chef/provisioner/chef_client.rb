@@ -1,6 +1,7 @@
 require 'pathname'
 
 require 'vagrant'
+require 'vagrant/util/presence'
 require 'vagrant/util/subprocess'
 
 require_relative "base"
@@ -11,6 +12,8 @@ module VagrantPlugins
       # This class implements provisioning via chef-client, allowing provisioning
       # with a chef server.
       class ChefClient < Base
+        include Vagrant::Util::Presence
+
         def configure(root_config)
           raise ChefError, :server_validation_key_required if @config.validation_key_path.nil?
           raise ChefError, :server_validation_key_doesnt_exist if !File.file?(validation_key_path)
@@ -31,8 +34,13 @@ module VagrantPlugins
         end
 
         def cleanup
-          delete_from_chef_server('client') if @config.delete_client
-          delete_from_chef_server('node') if @config.delete_node
+          if @config.delete_node
+            delete_from_chef_server("node")
+          end
+
+          if @config.delete_client
+            delete_from_chef_server("client")
+          end
         end
 
         def create_client_key_folder
@@ -116,28 +124,43 @@ module VagrantPlugins
           end
         end
 
+        def guest_client_rb_path
+          File.join(guest_provisioning_path, "client.rb")
+        end
+
         def guest_validation_key_path
           File.join(guest_provisioning_path, "validation.pem")
         end
 
         def delete_from_chef_server(deletable)
           node_name = @config.node_name || @machine.config.vm.hostname
-          @machine.ui.info(I18n.t(
-            "vagrant.provisioners.chef.deleting_from_server",
+
+          if !present?(node_name)
+            @machine.ui.warn(I18n.t("vagrant.provisioners.chef.missing_node_name",
+              deletable: deletable,
+            ))
+            return
+          end
+
+          @machine.ui.info(I18n.t("vagrant.provisioners.chef.deleting_from_server",
             deletable: deletable, name: node_name))
 
-          # Knife is not part of the current Vagrant bundle, so it needs to run
-          # in the context of the system.
-          Vagrant.global_lock do
-            command = ["knife", deletable, "delete", "--yes", node_name]
-            r = Vagrant::Util::Subprocess.execute(*command)
-            if r.exit_code != 0
-              @machine.ui.error(I18n.t(
-                "vagrant.chef_client_cleanup_failed",
-                deletable: deletable,
-                stdout: r.stdout,
-                stderr: r.stderr))
-            end
+          command =  "knife #{deletable} delete #{node_name}"
+          command << " --config '#{guest_client_rb_path}'"
+          command << " --yes"
+
+          output = []
+          result = @machine.communicate.sudo(command, error_check: false) do |_, data|
+            output << data
+          end
+
+          if result != 0
+            @machine.ui.error("There were errors removing the #{deletable} from the Chef Server:")
+            @machine.ui.error("")
+            @machine.ui.error(output.join("\n"))
+            @machine.ui.error("")
+            @machine.ui.error("Vagrant will continue destroying the virtual machine, but you may need")
+            @machine.ui.error("to manually delete the #{deletable} from the Chef Server!")
           end
         end
       end

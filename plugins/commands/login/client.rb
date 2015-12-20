@@ -1,4 +1,5 @@
 require "rest_client"
+require "vagrant/util/downloader"
 
 module VagrantPlugins
   module LoginCommand
@@ -45,8 +46,23 @@ module VagrantPlugins
         with_error_handling do
           url      = "#{Vagrant.server_url}/api/v1/authenticate"
           request  = { "user" => { "login" => user, "password" => pass } }
-          response = RestClient.post(
-            url, JSON.dump(request), content_type: :json)
+
+          proxy   = nil
+          proxy ||= ENV["HTTPS_PROXY"] || ENV["https_proxy"]
+          proxy ||= ENV["HTTP_PROXY"]  || ENV["http_proxy"]
+
+          response = RestClient::Request.execute(
+            method: :post,
+            url: url,
+            payload: JSON.dump(request),
+            proxy: proxy,
+            headers: {
+              accept: :json,
+              content_type: :json,
+              user_agent: Vagrant::Util::Downloader::USER_AGENT,
+            },
+          )
+
           data = JSON.load(response.to_s)
           data["token"]
         end

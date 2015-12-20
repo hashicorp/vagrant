@@ -104,8 +104,8 @@ module Vagrant
       end
 
       [:detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, *opts|
-          machine("ui", method.to_s, message)
+        define_method(method) do |message, *args, **opts|
+          machine("ui", method.to_s, message, *args, **opts)
         end
       end
 
@@ -123,9 +123,12 @@ module Vagrant
           data[i].gsub!("\r", "\\r")
         end
 
-        @lock.synchronize do
-          safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
-        end
+        # Avoid locks in a trap context introduced from Ruby 2.0
+        Thread.new do
+          @lock.synchronize do
+            safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
+          end
+        end.join
       end
     end
 
@@ -156,7 +159,7 @@ module Vagrant
         super(message)
 
         # We can't ask questions when the output isn't a TTY.
-        raise Errors::UIExpectsTTY if !@stdin.tty? && !Vagrant::Util::Platform.cygwin?
+        raise Errors::UIExpectsTTY if !@stdin.tty? && !Vagrant::Util::Platform.windows?
 
         # Setup the options so that the new line is suppressed
         opts ||= {}
@@ -276,6 +279,9 @@ module Vagrant
             if !@ui.opts.key?(:bold) && !opts.key?(:bold)
               opts[:bold] = #{method.inspect} != :detail && \
                 #{method.inspect} != :ask
+            end
+            if !opts.key?(:target)
+              opts[:target] = @prefix
             end
             @ui.#{method}(format_message(#{method.inspect}, message, **opts), *args, **opts)
           end

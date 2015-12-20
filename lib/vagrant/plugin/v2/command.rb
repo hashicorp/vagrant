@@ -133,8 +133,17 @@ module Vagrant
               # machine in that environment. We silence warnings here because
               # Vagrantfiles often have constants, so people would otherwise
               # constantly (heh) get "already initialized constant" warnings.
-              env = entry.vagrant_env(
-                @env.home_path, ui_class: @env.ui_class)
+              begin
+                env = entry.vagrant_env(
+                  @env.home_path, ui_class: @env.ui_class)
+              rescue Vagrant::Errors::EnvironmentNonExistentCWD
+                # This means that this environment working directory
+                # no longer exists, so delete this entry.
+                entry = @env.machine_index.get(name.to_s)
+                @env.machine_index.delete(entry) if entry
+                raise
+              end
+
               next env.machine(entry.name.to_sym, entry.provider.to_sym)
             end
 

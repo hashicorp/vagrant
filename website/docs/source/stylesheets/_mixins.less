@@ -63,6 +63,15 @@
   padding: @baseline 0;
 }
 
+.fixed-bg {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -5; //keep it in the back
+  will-change: transform;
+}
+
 .inner-bg-large {
   background-image: #c1b4d5; /* Old browsers */
   background-image: url(/images/sidebar_background_inner.png), -moz-linear-gradient(45deg,  #c1b4d5 0%, #98d3f8 100%); /* FF3.6+ */
@@ -74,7 +83,6 @@
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#c1b4d5', endColorstr='#98d3f8',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
   background-repeat: no-repeat;
   background-position: 0 0;
-  background-attachment:fixed;
 }
 
 .inner-bg-small {
@@ -99,7 +107,6 @@
   background-image: url(/images/sidebar_background_docs.png), linear-gradient(45deg,  #362d6c 0%,#0c5593 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#362d6c', endColorstr='#0c5593',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
   background-repeat: no-repeat;
-  background-attachment:fixed;
 }
 
 

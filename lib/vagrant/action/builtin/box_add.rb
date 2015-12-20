@@ -381,7 +381,9 @@ module Vagrant
             @logger.info("URL is a file or protocol not found and assuming file.")
             file_path = File.expand_path(url)
             file_path = Util::Platform.cygwin_windows_path(file_path)
-            url = "file:#{file_path}"
+            file_path = file_path.gsub("\\", "/")
+            file_path = "/#{file_path}" if !file_path.start_with?("/")
+            url = "file://#{file_path}"
           end
 
           # If the temporary path exists, verify it is not too old. If its
@@ -491,6 +493,12 @@ module Vagrant
             end
           end
 
+          # If this isn't HTTP, then don't do the HEAD request
+          if !uri.scheme.downcase.start_with?("http")
+            @logger.info("not checking metadata since box URI isn't HTTP")
+            return false
+          end
+
           output = d.head
           match  = output.scan(/^Content-Type: (.+?)$/i).last
           return false if !match
@@ -507,14 +515,14 @@ module Vagrant
             Digest::SHA2
           else
             raise Errors::BoxChecksumInvalidType,
-              type: env[:box_checksum_type].to_s
+              type: checksum_type.to_s
           end
 
           @logger.info("Validating checksum with #{checksum_klass}")
           @logger.info("Expected checksum: #{checksum}")
 
           actual = FileChecksum.new(path, checksum_klass).checksum
-          if actual != checksum
+          if actual.casecmp(checksum) != 0
             raise Errors::BoxChecksumMismatch,
               actual: actual,
               expected: checksum

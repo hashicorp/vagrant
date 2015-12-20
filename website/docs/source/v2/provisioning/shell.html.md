@@ -39,14 +39,19 @@ The remainder of the available options are optional:
   etc. as needed. You may also pass the arguments in using an array. In this
   case, Vagrant will handle quoting for you.
 
+* `env` (hash) - List of key-value pairs to pass in as environment variables to
+  the script. Vagrant will handle quoting for environment variable values, but
+  the keys remain untouched.
+
 * `binary` (boolean) - Vagrant automatically replaces Windows line endings with
   Unix line endings. If this is true, then Vagrant will not do this. By default
   this is "false". If the shell provisioner is communicating over WinRM, this
   defaults to "true".
 
 * `privileged` (boolean) - Specifies whether to execute the shell script
-  as a privileged user or not (`sudo`). By default this is "true". This has
-  no effect for Windows guests.
+  as a privileged user or not (`sudo`). By default this is "true". Windows
+  guests use a scheduled task to run as a true administrator without the
+  WinRM limitations.
 
 * `upload_path` (string) - Is the remote path where the shell script will
   be uploaded to. The script is uploaded as the SSH user over SCP, so this
@@ -64,6 +69,11 @@ The remainder of the available options are optional:
 
 * `powershell_args` (string) - Extra arguments to pass to `PowerShell`
   if you're provisioning with PowerShell on Windows.
+
+* `powershell_elevated_interactive` (boolean) - Run an elevated script in interactive mode
+  on Windows. By default this is "false". Must also be `privileged`. Be sure to
+  enable auto-login for Windows as the user must be logged in for interactive
+  mode to work.
 
 <a name="inline-scripts"></a>
 ## Inline Scripts

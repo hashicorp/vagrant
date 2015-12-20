@@ -115,8 +115,9 @@ module Vagrant
     # Loads the metadata URL and returns the latest metadata associated
     # with this box.
     #
+    # @param [Hash] download_options Options to pass to the downloader.
     # @return [BoxMetadata]
-    def load_metadata
+    def load_metadata(**download_options)
       tf = Tempfile.new("vagrant")
       tf.close
 
@@ -127,7 +128,7 @@ module Vagrant
         url = "file:#{url}"
       end
 
-      opts = { headers: ["Accept: application/json"] }
+      opts = { headers: ["Accept: application/json"] }.merge(download_options)
       Util::Downloader.new(url, tf.path, **opts).download!
       BoxMetadata.new(File.open(tf.path, "r"))
     rescue Errors::DownloaderError => e
@@ -148,7 +149,7 @@ module Vagrant
     #   satisfy. If nil, the version constrain defaults to being a
     #   larger version than this box.
     # @return [Array]
-    def has_update?(version=nil)
+    def has_update?(version=nil, download_options: {})
       if !@metadata_url
         raise Errors::BoxUpdateNoMetadata, name: @name
       end
@@ -156,7 +157,7 @@ module Vagrant
       version += ", " if version
       version ||= ""
       version += "> #{@version}"
-      md      = self.load_metadata
+      md      = self.load_metadata(download_options)
       newer   = md.version(version, provider: @provider)
       return nil if !newer
 

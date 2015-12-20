@@ -42,6 +42,10 @@ This command accepts optional command-line flags:
   Most of the time, this is correct. If the plugin you're installing has
   another entrypoint, this flag can be used to specify it.
 
+* `--plugin-clean-sources` - Clears all sources that have been defined so
+  far. This is an advanced feature. The use case is primarily for corporate
+  firewalls that prevent access to RubyGems.org.
+
 * `--plugin-source SOURCE` - Adds a source from which to fetch a plugin. Note
   that this doesn't only affect the single plugin being installed, by all future
   plugin as well. This is a limitation of the underlying plugin installer

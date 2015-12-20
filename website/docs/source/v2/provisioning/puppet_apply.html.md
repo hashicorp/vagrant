@@ -140,8 +140,9 @@ that the path is located in the "vm" at "/path/to/manifests".
 
 ## Environments
 
-If you are using Puppet 4 or higher, you can also specify the name of the
-Puppet environment and the path on the local disk to the environment files:
+If you are using Puppet 4 or higher, you can proivision using
+[Puppet Environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html) by specifying the name of the environment and the path on the
+local disk to the environment files:
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -151,6 +152,13 @@ Vagrant.configure("2") do |config|
   end
 end
 ```
+
+The default manifest is the environment's `manifests` directory.
+If the environment has an `environment.conf` the manifest path is parsed
+from there. Relative paths are assumed to be relative to the directory of
+the environment. If the manifest setting in `environment.conf` use
+the Puppet variables `$codedir` or `$environment` they are resoled to
+the parent directory of `environment_path` and `environment` respectively.
 
 ## Modules
 

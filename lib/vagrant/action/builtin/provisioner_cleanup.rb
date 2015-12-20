@@ -13,8 +13,9 @@ module Vagrant
         def initialize(app, env, place=nil)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::provision_cleanup")
-          @place ||= :after
-          @place = @place.to_sym
+
+          place ||= :after
+          @place = place.to_sym
         end
 
         def call(env)
@@ -31,10 +32,20 @@ module Vagrant
 
           # Ask the provisioners to modify the configuration if needed
           provisioner_instances(env).each do |p, _|
-            env[:ui].info(I18n.t(
-              "vagrant.provisioner_cleanup",
-              name: type_map[p].to_s))
-            p.cleanup
+            name = type_map[p].to_s
+
+            # Check if the subclass defined a cleanup method. The parent
+            # provisioning class defines a `cleanup` method, so we cannot use
+            # `respond_to?` here. Instead, we have to check if _this_ instance
+            # defines a cleanup task.
+            if p.public_methods(false).include?(:cleanup)
+              env[:ui].info(I18n.t("vagrant.provisioner_cleanup",
+                name: name,
+              ))
+              p.cleanup
+            else
+              @logger.debug("Skipping cleanup tasks for `#{name}' - not defined")
+            end
           end
         end
       end

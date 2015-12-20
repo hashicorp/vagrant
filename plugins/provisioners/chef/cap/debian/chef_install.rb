@@ -5,11 +5,11 @@ module VagrantPlugins
     module Cap
       module Debian
         module ChefInstall
-          def self.chef_install(machine, version, prerelease, download_path)
+          def self.chef_install(machine, project, version, channel, options = {})
             machine.communicate.sudo("apt-get update -y -qq")
             machine.communicate.sudo("apt-get install -y -qq curl")
 
-            command = Omnibus.build_command(version, prerelease, download_path)
+            command = Omnibus.sh_command(project, version, channel, options)
             machine.communicate.sudo(command)
           end
         end

@@ -34,6 +34,11 @@ module VagrantPlugins
         Cap
       end
 
+      provider_capability(:virtualbox, :public_address) do
+        require_relative "cap/public_address"
+        Cap::PublicAddress
+      end
+
       provider_capability(:virtualbox, :snapshot_list) do
         require_relative "cap"
         Cap

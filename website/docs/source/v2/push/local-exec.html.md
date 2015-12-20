@@ -27,6 +27,11 @@ options:
   execute. Vagrant will attempt to convert this script to an executable, but an
   exception will be raised if that fails.
 - `inline` - The inline script to execute (as a string).
+- `args` (string or array) - Optional arguments to pass to the shell script when executing it
+  as a single string. These arguments must be written as if they were typed
+  directly on the command line, so be sure to escape characters, quote,
+  etc. as needed. You may also pass the arguments in using an array. In this
+  case, Vagrant will handle quoting for you.
 
 Please note - only one of the `script` and `inline` options may be specified in
 a single push definition.
@@ -70,3 +75,7 @@ And then invoke the push with Vagrant:
 ```shell
 $ vagrant push
 ```
+
+### Script Arguments
+
+Refer to [Shell Provisioner](/v2/provisioning/shell.html).

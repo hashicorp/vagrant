@@ -43,6 +43,7 @@ module VagrantPlugins
           # Got it! Let the user know what we're connecting to.
           @machine.ui.detail("WinRM address: #{shell.host}:#{shell.port}")
           @machine.ui.detail("WinRM username: #{shell.username}")
+          @machine.ui.detail("WinRM execution_time_limit: #{shell.execution_time_limit}")
           @machine.ui.detail("WinRM transport: #{shell.config.transport}")
 
           last_message = nil
@@ -136,10 +137,11 @@ module VagrantPlugins
           error_key:   nil, # use the error_class message key
           good_exit:   0,
           shell:       :powershell,
+          interactive: false,
         }.merge(opts || {})
 
         opts[:good_exit] = Array(opts[:good_exit])
-        command = wrap_in_scheduled_task(command) if opts[:elevated]
+        command = wrap_in_scheduled_task(command, opts[:interactive]) if opts[:elevated]
         output = shell.send(opts[:shell], command, &block)
         execution_output(output, opts)
       end
@@ -193,9 +195,11 @@ module VagrantPlugins
       # in place.
       #
       # @return The wrapper command to execute
-      def wrap_in_scheduled_task(command)
+      def wrap_in_scheduled_task(command, interactive)
         path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
-        script = Vagrant::Util::TemplateRenderer.render(path)
+        script = Vagrant::Util::TemplateRenderer.render(path, options: {
+          interactive: interactive,
+        })
         guest_script_path = "c:/tmp/vagrant-elevated-shell.ps1"
         file = Tempfile.new(["vagrant-elevated-shell", "ps1"])
         begin
@@ -208,14 +212,16 @@ module VagrantPlugins
           file.unlink
         end
 
-        # convert to double byte unicode string then base64 encode
-        # just like PowerShell -EncodedCommand expects
+        # Convert to double byte unicode string then base64 encode
+        # just like PowerShell -EncodedCommand expects.
+        # Suppress the progress stream from leaking to stderr.
         wrapped_encoded_command = Base64.strict_encode64(
-          "#{command}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
+          "$ProgressPreference='SilentlyContinue'; #{command}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
 
-        "powershell -executionpolicy bypass -file \"#{guest_script_path}\" " +
-          "-username \"#{shell.username}\" -password \"#{shell.password}\" " +
-          "-encoded_command \"#{wrapped_encoded_command}\""
+        "powershell -executionpolicy bypass -file '#{guest_script_path}' " +
+          "-username '#{shell.username}' -password '#{shell.password}' " +
+          "-encoded_command '#{wrapped_encoded_command}' " +
+          "-execution_time_limit '#{shell.execution_time_limit}'"
       end
 
       # Handles the raw WinRM shell result and converts it to a

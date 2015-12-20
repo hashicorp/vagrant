@@ -69,15 +69,15 @@ describe Vagrant::Environment do
 
   describe "#home_path" do
     it "is set to the home path given" do
-      Dir.mktmpdir do |dir|
+      temporary_dir do |dir|
         instance = described_class.new(home_path: dir)
         expect(instance.home_path).to eq(Pathname.new(dir))
       end
     end
 
     it "is set to the environmental variable VAGRANT_HOME" do
-      Dir.mktmpdir do |dir|
-        instance = with_temp_env("VAGRANT_HOME" => dir) do
+      temporary_dir do |dir|
+        instance = with_temp_env("VAGRANT_HOME" => dir.to_s) do
           described_class.new
         end
 
@@ -905,8 +905,13 @@ VF
     end
 
     it "is expanded relative to the cwd" do
-      instance = described_class.new(local_data_path: "foo")
-      expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
+      Dir.mktmpdir do |temp_dir|
+        Dir.chdir(temp_dir) do
+          instance = described_class.new(local_data_path: "foo")
+          expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
+          expect(File.exist?(instance.local_data_path)).to be_false
+        end
+      end
     end
 
     it "is set to the given value" do
@@ -933,7 +938,7 @@ VF
         end
 
         expect { instance }.to_not raise_error
-        expect(Pathname.new(local_data_path)).to be_directory
+        expect(Pathname.new(local_data_path)).to_not be_exist
       end
 
       it "should upgrade all active VMs" do

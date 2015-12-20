@@ -81,14 +81,24 @@ if (!$switchname) {
     $switchname = (Select-Xml -xml $vmconfig -XPath "//AltSwitchName").node."#text"
 }
 
-# Determine boot device
-Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
-    "Floppy"    { $bootdevice = "floppy" }
-    "HardDrive" { $bootdevice = "IDE" }
-    "Optical"   { $bootdevice = "CD" }
-    "Network"   { $bootdevice = "LegacyNetworkAdapter" }
-    "Default"   { $bootdevice = "IDE" }
-} #switch
+if ($generation -eq 1) {
+    # Determine boot device
+    Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
+        "Floppy"    { $bootdevice = "Floppy" }
+        "HardDrive" { $bootdevice = "IDE" }
+        "Optical"   { $bootdevice = "CD" }
+        "Network"   { $bootdevice = "LegacyNetworkAdapter" }
+        "Default"   { $bootdevice = "IDE" }
+    } #switch
+} else {
+    # Determine boot device
+    Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
+        "HardDrive" { $bootdevice = "VHD" }
+        "Optical"   { $bootdevice = "CD" }
+        "Network"   { $bootdevice = "NetworkAdapter" }
+        "Default"   { $bootdevice = "VHD" }
+    } #switch
+}
 
 # Determine secure boot options
 $secure_boot_enabled = (Select-Xml -xml $vmconfig -XPath "//secure_boot_enabled").Node."#text"

@@ -19,7 +19,7 @@ module VagrantPlugins
         # wait and close the (S)FTP connection as well
         files = Hash[*all_files.flat_map do |file|
           relative_path = relative_path_for(file, config.dir)
-          destination = File.expand_path(File.join(config.destination, relative_path))
+          destination = File.join(config.destination, relative_path)
           file = File.expand_path(file, env.root_path)
           [file, destination]
         end]

@@ -96,41 +96,5 @@ describe VagrantPlugins::Chef::Config::ChefClient do
         expect(errors).to eq([I18n.t("vagrant.config.chef.validation_key_path")])
       end
     end
-
-    context "when #delete_client is given" do
-      before { subject.delete_client = true }
-
-      context "when knife does not exist" do
-        before do
-          allow(Vagrant::Util::Which)
-            .to receive(:which)
-            .with("knife")
-            .and_return(nil)
-        end
-
-        it "returns an error" do
-          subject.finalize!
-          expect(errors).to eq([I18n.t("vagrant.chef_config_knife_not_found")])
-        end
-      end
-    end
-
-    context "when #delete_node is given" do
-      before { subject.delete_node = true }
-
-      context "when knife does not exist" do
-        before do
-          allow(Vagrant::Util::Which)
-            .to receive(:which)
-            .with("knife")
-            .and_return(nil)
-        end
-
-        it "returns an error" do
-          subject.finalize!
-          expect(errors).to eq([I18n.t("vagrant.chef_config_knife_not_found")])
-        end
-      end
-    end
   end
 end

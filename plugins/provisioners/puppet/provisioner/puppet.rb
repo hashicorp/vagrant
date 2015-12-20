@@ -62,12 +62,16 @@ module VagrantPlugins
           # Parse out the environment manifest path since puppet apply doesnt do that for us.
           environment_conf = File.join(environments_guest_path, @config.environment, "environment.conf")
           if @machine.communicate.test("test -e #{environment_conf}", sudo: true)
-            conf = @machine.communicate.sudo("cat #{environment_conf}") do | type, data|
+            @machine.communicate.sudo("cat #{environment_conf}") do | type, data|
               if type == :stdout
                 data.each_line do |line|
                   if line =~ /^\s*manifest\s+=\s+([^\s]+)/
                     @manifest_file = $1
-                    @manifest_file.gsub! '$basemodulepath:', "#{environments_guest_path}/#{@config.environment}/"
+                    @manifest_file.gsub! "$codedir", File.dirname(environments_guest_path)
+                    @manifest_file.gsub! "$environment", @config.environment
+                    if !@manifest_file.start_with? "/"
+                      @manifest_file = File.join(environments_guest_path, @config.environment, @manifest_file)
+                    end
                     @logger.debug("Using manifest from environment.conf: #{@manifest_file}")
                   end
                 end
@@ -85,7 +89,7 @@ module VagrantPlugins
 
           # In environment mode we still need to specify a manifest file, if its not, use the one from env config if specified.
           if !@manifest_file
-            @manifest_file = "#{environments_guest_path}/#{@config.environment}/manifests/site.pp"
+            @manifest_file = "#{environments_guest_path}/#{@config.environment}/manifests"
             parse_environment_metadata
           end
           # Check that the shared folders are properly shared
@@ -150,7 +154,7 @@ module VagrantPlugins
           # This is very platform dependent.
           test_cmd = "sh -c 'command -v #{binary}'"
           if windows?
-            test_cmd = "which #{binary}"
+            test_cmd = "where #{binary}"
             if @config.binary_path
               test_cmd = "where \"#{@config.binary_path}:#{binary}\""
             end
@@ -212,7 +216,7 @@ module VagrantPlugins
 
             # If we're on Windows, we need to use the PowerShell style
             if windows?
-              facts.map! { |v| "`$env:#{v};" }
+              facts.map! { |v| "$env:#{v};" }
             end
 
             facter = "#{facts.join(" ")} "

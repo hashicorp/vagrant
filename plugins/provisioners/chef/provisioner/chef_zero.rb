@@ -44,6 +44,7 @@ module VagrantPlugins
             local_mode: true,
             enable_reporting: false,
             cookbooks_path: guest_paths(@cookbook_folders),
+            nodes_path: guest_paths(@node_folders),
             roles_path: guest_paths(@role_folders),
             data_bags_path: guest_paths(@data_bags_folders).first,
             environments_path: guest_paths(@environments_folders).first,

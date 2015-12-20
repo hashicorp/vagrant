@@ -148,7 +148,7 @@ module VagrantPlugins
         def bridged_adapter(config)
           # Find the bridged interfaces that are available
           bridgedifs = @env[:machine].provider.driver.read_bridged_interfaces
-          bridgedifs.delete_if { |interface| interface[:status] == "Down" }
+          bridgedifs.delete_if { |interface| interface[:status] == "Down" || interface[:status] == "Unknown" }
 
           # The name of the chosen bridge interface will be assigned to this
           # variable.
@@ -249,7 +249,7 @@ module VagrantPlugins
             auto_config: true,
             mac:         nil,
             nic_type:    nil,
-            type:        :static
+            type:        :static,
           }.merge(options)
 
           # Make sure the type is a symbol
@@ -290,8 +290,8 @@ module VagrantPlugins
             # Default subnet prefix length
             options[:netmask] ||= 64
 
-            # IPv6 we just mask the address and use that as the adapter
-            options[:adapter_ip] ||= ip.mask(options[:netmask].to_i).to_s
+            # Set adapter IP to <prefix>::1
+            options[:adapter_ip] ||= (ip.mask(options[:netmask].to_i) | 1).to_s
 
             # Append a 6 to the end of the type
             options[:type] = "#{options[:type]}6".to_sym

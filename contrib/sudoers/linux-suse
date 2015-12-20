@@ -1,0 +1,7 @@
+Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
+Cmnd_Alias VAGRANT_NFSD_CHECK = /sbin/service nfsserver status
+Cmnd_Alias VAGRANT_NFSD_START = /sbin/service nfsserver start
+Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
+Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -r -e * d -ibak /*/exports
+Cmnd_Alias VAGRANT_EXPORTS_REMOVE_2 = /usr/bin/cp /*/exports /etc/exports
+%vagrant ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD_CHECK, VAGRANT_NFSD_START, VAGRANT_NFSD_APPLY, VAGRANT_EXPORTS_REMOVE, VAGRANT_EXPORTS_REMOVE_2

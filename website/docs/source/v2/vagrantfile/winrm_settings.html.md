@@ -46,10 +46,16 @@ to use port 4567 to talk to the guest if there is no other option.
 
 <hr>
 
+`config.winrm.execution_time_limit` - The maximum duration that a WinRM
+task can execute for. This defaults to two hours. The format of this value
+must be in this [Microsoft-documented format](https://msdn.microsoft.com/en-us/library/aa382678.aspx).
+
+<hr>
+
 <strong>Warning:</strong> In order for Vagrant to communicate with a Windows
 guest, you must allow unencrypted WinRM connections on the guest machine
 itself. Some public boxes already have this configured, but if you are
-attempting to `vagrant up` a Windows box and the command hangs at 
+attempting to `vagrant up` a Windows box and the command hangs at
 `Waiting for WinRM to become available...`, then you will need to run the
 commands below on the guest machine itself, at the box setup stage,
 after provisioning, or through a start up script.

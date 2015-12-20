@@ -1,4 +1,5 @@
 require "forwardable"
+require "thread"
 
 require "log4r"
 
@@ -17,6 +18,11 @@ module VagrantPlugins
         # We use forwardable to do all our driver forwarding
         extend Forwardable
 
+        # We cache the read VirtualBox version here once we have one,
+        # since during the execution of Vagrant, it likely doesn't change.
+        @@version = nil
+        @@version_lock = Mutex.new
+
         # The UUID of the virtual machine we represent
         attr_reader :uuid
 
@@ -32,19 +38,23 @@ module VagrantPlugins
           @logger = Log4r::Logger.new("vagrant::provider::virtualbox::meta")
           @uuid = uuid
 
-          # Read and assign the version of VirtualBox we know which
-          # specific driver to instantiate.
-          begin
-            @version = read_version || ""
-          rescue Vagrant::Errors::CommandUnavailable,
-            Vagrant::Errors::CommandUnavailableWindows
-            # This means that VirtualBox was not found, so we raise this
-            # error here.
-            raise Vagrant::Errors::VirtualBoxNotDetected
+          @@version_lock.synchronize do
+            if !@@version
+              # Read and assign the version of VirtualBox we know which
+              # specific driver to instantiate.
+              begin
+                @@version = read_version
+              rescue Vagrant::Errors::CommandUnavailable,
+                Vagrant::Errors::CommandUnavailableWindows
+                # This means that VirtualBox was not found, so we raise this
+                # error here.
+                raise Vagrant::Errors::VirtualBoxNotDetected
+              end
+            end
           end
 
           # Instantiate the proper version driver for VirtualBox
-          @logger.debug("Finding driver for VirtualBox version: #{@version}")
+          @logger.debug("Finding driver for VirtualBox version: #{@@version}")
           driver_map   = {
             "4.0" => Version_4_0,
             "4.1" => Version_4_1,
@@ -53,14 +63,14 @@ module VagrantPlugins
             "5.0" => Version_5_0,
           }
 
-          if @version.start_with?("4.2.14")
+          if @@version.start_with?("4.2.14")
             # VirtualBox 4.2.14 just doesn't work with Vagrant, so show error
             raise Vagrant::Errors::VirtualBoxBrokenVersion040214
           end
 
           driver_klass = nil
           driver_map.each do |key, klass|
-            if @version.start_with?(key)
+            if @@version.start_with?(key)
               driver_klass = klass
               break
             end
@@ -74,6 +84,7 @@ module VagrantPlugins
 
           @logger.info("Using VirtualBox driver: #{driver_klass}")
           @driver = driver_klass.new(@uuid)
+          @version = @@version
 
           if @uuid
             # Verify the VM exists, and if it doesn't, then don't worry

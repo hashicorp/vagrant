@@ -1,8 +1,10 @@
+require "vagrant"
+
 module VagrantPlugins
-  module GuestDebian8
+  module GuestSlackware
     class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
-        machine.communicate.test("cat /etc/issue | grep 'Debian' | grep '8'")
+        machine.communicate.test("cat /etc/slackware-version")
       end
     end
   end

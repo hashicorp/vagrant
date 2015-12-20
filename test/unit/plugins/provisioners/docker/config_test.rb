@@ -139,15 +139,10 @@ describe VagrantPlugins::DockerProvisioner::Config do
   end
 
   describe "#version" do
-    it "defaults to latest" do
-      subject.finalize!
-      expect(subject.version).to eql(:latest)
-    end
-
-    it "converts to a symbol" do
-      subject.version = "v27"
-      subject.finalize!
-      expect(subject.version).to eql(:v27)
+    it "is removed in Vagrant 1.9" do
+      if Vagrant::VERSION >= "1.9"
+        raise "Remove deprecated option"
+      end
     end
   end
 end

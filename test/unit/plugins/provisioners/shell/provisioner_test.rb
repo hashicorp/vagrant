@@ -16,6 +16,7 @@ describe "Vagrant::Shell::Provisioner" do
       double(
         :config,
         :args        => "doesn't matter",
+        :env         => {},
         :upload_path => "arbitrary",
         :remote?     => false,
         :path        => nil,

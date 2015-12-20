@@ -108,14 +108,6 @@ module Vagrant
       error_key(:active_machine_with_different_provider)
     end
 
-    class AnsibleFailed < VagrantError
-      error_key(:ansible_failed)
-    end
-
-    class AnsiblePlaybookAppNotFound < VagrantError
-      error_key(:ansible_playbook_app_not_found)
-    end
-
     class BatchMultiError < VagrantError
       error_key(:batch_multi_error)
     end
@@ -248,6 +240,10 @@ module Vagrant
       error_key(:bundler_error)
     end
 
+    class CantReadMACAddresses < VagrantError
+      error_key(:cant_read_mac_addresses)
+    end
+
     class CapabilityHostExplicitNotDetected < VagrantError
       error_key(:capability_host_explicit_not_detected)
     end
@@ -348,6 +344,10 @@ module Vagrant
       error_key(:downloader_interrupted)
     end
 
+    class EnvInval < VagrantError
+      error_key(:env_inval)
+    end
+
     class EnvironmentNonExistentCWD < VagrantError
       error_key(:environment_non_existent_cwd)
     end
@@ -408,8 +408,8 @@ module Vagrant
       error_key(:linux_nfs_mount_failed)
     end
 
-    class LinuxRDesktopNotFound < VagrantError
-      error_key(:linux_rdesktop_not_found)
+    class LinuxRDPClientNotFound < VagrantError
+      error_key(:linux_rdp_client_not_found)
     end
 
     class LocalDataDirectoryNotAccessible < VagrantError
@@ -522,6 +522,10 @@ module Vagrant
 
     class ProviderCantInstall < VagrantError
       error_key(:provider_cant_install)
+    end
+
+    class ProviderChecksumMismatch < VagrantError
+      error_key(:provider_checksum_mismatch)
     end
 
     class ProviderInstallFailed < VagrantError

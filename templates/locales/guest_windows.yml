@@ -1,14 +1,6 @@
 en:
   vagrant_windows:
     errors:
-      cant_read_mac_addresses: |-
-        The provider being used to start Windows ('%{provider}')
-        doesn't support the "nic_mac_addresses" capability which is required
-        for advanced networking to work with Windows guests. Please inform
-        the author of the provider to add this feature.
-
-        Until then, you must remove any networking configurations other
-        than forwarded ports from your Vagrantfile for Vagrant to continue.
       network_winrm_required: |-
         Configuring networks on Windows requires the communicator to be
         set to WinRM. To do this, add the following to your Vagrantfile:

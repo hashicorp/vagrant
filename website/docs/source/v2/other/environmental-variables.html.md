@@ -17,6 +17,16 @@ when launching Vagrant from the official installer, you can specify the
 `VAGRANT_DEBUG_LAUNCHER` environment variable to output debugging information
 about the launch process.
 
+## VAGRANT\_DEFAULT\_PROVIDER
+
+This configures the default provider Vagrant will use.
+
+This normally doesn't need to be set since Vagrant is fairly intelligent
+about how to detect the default provider. By setting this, you will force
+Vagrant to use this provider for any _new_ Vagrant environments. Existing
+Vagrant environments will continue to use the provider they came `up` with.
+Once you `vagrant destroy` existing environments, this will take effect.
+
 ## VAGRANT\_CHECKPOINT\_DISABLE
 
 Vagrant does occasional network calls to check whether the version of Vagrant

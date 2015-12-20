@@ -3,53 +3,44 @@ require_relative "../../../base"
 require Vagrant.source_root.join("plugins/provisioners/chef/omnibus")
 
 describe VagrantPlugins::Chef::Omnibus do
-  let(:prefix) { "curl -sL #{described_class.const_get(:OMNITRUCK)}" }
+  describe "#sh_command" do
+    it "includes the project name" do
+      command = described_class.sh_command("chef", nil, "stable")
+      expect(command).to include %|-P "chef"|
+    end
 
-  let(:version) { :latest }
-  let(:prerelease) { false }
-  let(:download_path) { nil }
+    it "includes the channel" do
+      command = described_class.sh_command("chef", nil, "stable")
+      expect(command).to include %|-c "stable"|
+    end
 
-  let(:build_command) { described_class.build_command(version, prerelease, download_path) }
+    it "includes the version" do
+      command = described_class.sh_command("chef", "1.2.3", "stable")
+      expect(command).to include %|-v "1.2.3"|
+    end
 
-  context "when prerelease is given" do
-    let(:prerelease) { true }
-
-    it "returns the correct command" do
-      expect(build_command).to eq("#{prefix} | sudo bash -s -- -p")
+    it "includes the download path" do
+      command = described_class.sh_command("chef", "1.2.3", "stable",
+        download_path: "/some/path",
+      )
+      expect(command).to include %|-d "/some/path"|
     end
   end
 
-  context "when download_path is given" do
-    let(:download_path) { '/tmp/path/to/omnibuses' }
-
-    it "returns the correct command" do
-      expect(build_command).to eq("#{prefix} | sudo bash -s -- -d \"/tmp/path/to/omnibuses\"")
+  describe "#ps_command" do
+    it "includes the project name" do
+      command = described_class.ps_command("chef", nil, "stable")
+      expect(command).to include %|-project 'chef'|
     end
-  end
 
-  context "when version is :latest" do
-    let(:version) { :latest }
-
-    it "returns the correct command" do
-      expect(build_command).to eq("#{prefix} | sudo bash")
+    it "includes the channel" do
+      command = described_class.ps_command("chef", nil, "stable")
+      expect(command).to include %|-channel 'stable'|
     end
-  end
 
-  context "when version is a string" do
-    let(:version) { "1.2.3" }
-
-    it "returns the correct command" do
-      expect(build_command).to eq("#{prefix} | sudo bash -s -- -v \"1.2.3\"")
-    end
-  end
-
-  context "when prerelease and version and download_path are given" do
-    let(:version) { "1.2.3" }
-    let(:prerelease) { true }
-    let(:download_path) { "/some/path" }
-
-    it "returns the correct command" do
-      expect(build_command).to eq("#{prefix} | sudo bash -s -- -p -v \"1.2.3\" -d \"/some/path\"")
+    it "includes the version" do
+      command = described_class.ps_command("chef", "1.2.3", "stable")
+      expect(command).to include %|-version '1.2.3'|
     end
   end
 end
