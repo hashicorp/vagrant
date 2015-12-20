@@ -30,21 +30,33 @@
 		<!-- wrap everything -->
 		<div class="wrapper">
 
-			<!-- nav -->
+      <!-- nav -->
+      <div id="header" class="navigation docs">
+  			<div class="container-fluid">
+  			 <!-- vagrant logo -->
+         <div class="navbar-header">
+            <div class="navbar-brand">
+    			    <a class="logo" href="/">Vagrant Documentation</span></a>
+              <a class="by-hashicorp" href="https://hashicorp.com/"><span class="svg-wrap">by</span><%= partial "layouts/svg/svg-by-hashicorp" %><%= partial "layouts/svg/svg-hashicorp-logo" %>Hashicorp</a>
+            </div>
+            <button class="navbar-toggle" type="button">
+  						<span class="bar"></span>
+  						<span class="bar"></span>
+  						<span class="bar"></span>
+  					</button>
+          </div>
+          <div class="buttons">
+  					<nav class="navigation-links" role="navigation">
+              <ul class="main-links nav navbar-nav">
+                <li class="pill"><a href="https://www.amazon.com/gp/product/1449335837/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1449335837&linkCode=as2&tag=vagrant-20">Vagrant Book</a></li>
+                <li><a href="https://www.vagrantup.com/">Home</a></li>
+              </ul>
+  					</nav>
+  				</div>
+  			 </div>
+      </div>
 
-			<nav class="docs">
-			<!-- vagrant logo -->
-			<a class="vagrant-docs-logo" href="/">Vagrant Documentation</a>
-			<!-- nav -->
-			<ul class="pull-right unstyled">
-				<li class="pill">
-					<a href="https://www.amazon.com/gp/product/1449335837/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1449335837&linkCode=as2&tag=vagrant-20">
-						Vagrant Book
-					</a>
-				</li>
-				<li><a href="https://www.vagrantup.com/">Home</a></li>
-			</ul>
-			</nav>
+      <%= partial "layouts/mobile_nav" %>
 
 			<div class="page docs docs-home">
 				<div class="sidebar-background"></div>
@@ -364,10 +376,15 @@
 			<!-- close .wrapper -->
 		</div>
 
+    <%= javascript_include_tag "lib/Base" %>
+    <%= javascript_include_tag "Sidebar" %>
+
 		<!-- load scripts -->
 		<!-- load full-width image into any div with class="big-background -->
 		<script>
 			$(".big-background").backstretch("assets/photos/full_width.jpg");
+
+      new Sidebar();
 		</script>
 
 		<!-- Google analytics -->
