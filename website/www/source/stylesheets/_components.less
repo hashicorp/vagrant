@@ -15,14 +15,14 @@
 
   .search {
     //.debug;
-      background: @white;
+    background: @white;
     height: 60px;
 
     input,
     button,
     form {
       .kill-effects;
-        border: none;
+      border: none;
       height: 60px;
       font-size: 20px;
       .museo-sans-light-italic;
@@ -35,7 +35,7 @@
 
       &:focus {
 
-      } //focus
+      }
     }
 
     button {
@@ -44,8 +44,8 @@
     }
 
 
-  } //search
-} //search bar
+  }
+}
 
 //pagination
 .pagination {
@@ -75,71 +75,71 @@
 
 //downloads
 .downloads {
-    .description {
-        margin-bottom: 20px;
+  .description {
+    margin-bottom: 20px;
+  }
+
+  .download {
+    border-bottom: 1px solid #b2b2b2;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+
+    .details {
+      padding-left: 95px;
+
+      ul {
+        margin: 0;
+      }
+
+      li {
+        display: inline-block;
+
+        &:after {
+          content: " | ";
+        }
+
+        &:last-child:after {
+          content: "";
+        }
+      }
+
+      a {
+        font-size: 22px;
+        color: @docs-blue;
+        text-decoration: none;
+        border-bottom: 1px solid @docs-blue;
+        margin-left: 3px;
+
+        &:hover {
+          color: darken(@blue, 10%);
+          border-bottom: 1px solid darken(@blue, 10%);
+        }
+
+        &:active {
+        }
+      }
     }
 
-    .download {
-        border-bottom: 1px solid #b2b2b2;
-        padding-bottom: 15px;
-        margin-bottom: 15px;
-
-        .details {
-            padding-left: 95px;
-
-            ul {
-                margin: 0;
-            }
-
-            li {
-                display: inline-block;
-
-                &:after {
-                    content: " | ";
-                }
-
-                &:last-child:after {
-                    content: "";
-                }
-            }
-
-            a {
-                font-size: 22px;
-                color: @docs-blue;
-                text-decoration: none;
-                border-bottom: 1px solid @docs-blue;
-                margin-left: 3px;
-
-                &:hover {
-                    color: darken(@blue, 10%);
-                    border-bottom: 1px solid darken(@blue, 10%);
-                }
-
-                &:active {
-                }
-            }
-        }
-
-        .icon {
-            img {
-                width: 75px;
-            }
-        }
-
-        .os-name {
-            font-size: 40px;
-            margin-bottom: 3px;
-        }
+    .icon {
+      img {
+        width: 75px;
+      }
     }
 
-    .poweredby {
-        margin-top: 20px;
-        margin-bottom: 20px;
-
-        img {
-            display: block;
-            margin: 0 auto;
-            width: 122px;
-        }
+    .os-name {
+      font-size: 40px;
+      margin-bottom: 3px;
     }
+  }
+
+  .poweredby {
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    img {
+      display: block;
+      margin: 0 auto;
+      width: 122px;
+    }
+  }
 }

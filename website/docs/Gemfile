@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 ruby "2.2.2"
 
-gem "less", "~> 2.2.2"
+gem "less", "~> 2.6.0"
 gem "middleman", "~> 3.0.6"
 gem "middleman-minify-html", "~> 3.0.0"
 gem "rack-contrib", "~> 1.1.0"

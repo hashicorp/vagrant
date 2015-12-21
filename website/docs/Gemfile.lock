@@ -36,8 +36,8 @@ GEM
       rack (>= 1.0.0)
       url_mount (~> 0.2.1)
     i18n (0.6.1)
-    less (2.2.2)
-      commonjs (~> 0.2.6)
+    less (2.6.0)
+      commonjs (~> 0.2.7)
     libv8 (3.16.14.7)
     listen (0.7.3)
     maruku (0.6.1)
@@ -134,7 +134,7 @@ PLATFORMS
 
 DEPENDENCIES
   highline (~> 1.6.15)
-  less (~> 2.2.2)
+  less (~> 2.6.0)
   middleman (~> 3.0.6)
   middleman-minify-html (~> 3.0.0)
   rack-contrib (~> 1.1.0)
@@ -143,3 +143,6 @@ DEPENDENCIES
   redcarpet (~> 2.2.2)
   therubyracer (~> 0.12.0)
   thin (~> 1.5.0)
+
+BUNDLED WITH
+   1.10.6

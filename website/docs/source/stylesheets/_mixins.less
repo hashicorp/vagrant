@@ -72,6 +72,25 @@
   will-change: transform;
 }
 
+.transition(@transition) {
+  -webkit-transition: @transition;
+  -o-transition: @transition;
+  transition: @transition;
+}
+
+.translate3d (@x, @y: 0, @z: 0) {
+  -webkit-transform:       translate3d(@x, @y, @z);
+  -moz-transform: 	 translate3d(@x, @y, @z);
+  -ms-transform: 		 translate3d(@x, @y, @z);
+  -o-transform: 		 translate3d(@x, @y, @z);
+}
+
+.clearfix{
+  zoom:1;
+  &:before, &:after{ content:""; display:table; }
+  &:after{ clear: both; }
+}
+
 .inner-bg-large {
   background-image: #c1b4d5; /* Old browsers */
   background-image: url(/images/sidebar_background_inner.png), -moz-linear-gradient(45deg,  #c1b4d5 0%, #98d3f8 100%); /* FF3.6+ */
