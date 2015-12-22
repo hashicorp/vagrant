@@ -50,7 +50,7 @@ module VagrantPlugins
         args << " --log_level #{config.log_level}" if config.log_level
         args << " --no-color" if !options[:colored]
 
-        if config.install && (config.version == :latest || config.version >= "11.0")
+        if config.install && (config.version == :latest || config.version.to_s >= "11.0")
           args << " --force-formatter"
         end
 
