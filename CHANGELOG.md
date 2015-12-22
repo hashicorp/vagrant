@@ -1,3 +1,10 @@
+## 1.8.1.dev (Unreleased)
+
+BUG FIXES:
+
+  - provisioners/chef: convert chef version to a string before comparing for
+    the command builder [GH-6709, GH-6711]
+
 ## 1.8.0 (December 21, 2015)
 
 FEATURES:
@@ -2832,4 +2839,3 @@ compatibility.
 The changelog began with version 0.5.1 so any changes prior to that
 can be seen by checking the tagged releases and reading git commit
 messages.
-
