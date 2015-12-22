@@ -47,7 +47,8 @@ module VagrantPlugins
       # This is the provision method called if SSH is what is running
       # on the remote end, which assumes a POSIX-style host.
       def provision_ssh(args)
-        env = config.env.map { |k,v| "#{k}=#{quote_and_escape(v)}" }.join(" ")
+        env = config.env.map { |k,v| "#{k}=#{quote_and_escape(v.to_s)}" }
+        env = env.join(" ")
 
         command =  "chmod +x '#{config.upload_path}'"
         command << " &&"
@@ -113,7 +114,8 @@ module VagrantPlugins
             comm.upload(path.to_s, upload_path)
 
             # Build the environment
-            env = config.env.map { |k,v| "$env:#{k} = #{quote_and_escape(v)}" }.join("; ")
+            env = config.env.map { |k,v| "$env:#{k} = #{quote_and_escape(v.to_s)}" }
+            env = env.join("; ")
 
             # Calculate the path that we'll be executing
             exec_path = upload_path
