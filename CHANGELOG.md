@@ -4,6 +4,7 @@ BUG FIXES:
 
   - provisioners/chef: convert chef version to a string before comparing for
     the command builder [GH-6709, GH-6711]
+  - provisioners/shell: convert env var values to strings [GH-6714]
 
 ## 1.8.0 (December 21, 2015)
 
