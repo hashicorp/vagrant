@@ -50,7 +50,7 @@ the master VM.
 
 ```ruby
 config.vm.provider "virtualbox" do |v|
-  v.use_linked_clone = true
+  v.linked_clone = true
 end
 ```
 
