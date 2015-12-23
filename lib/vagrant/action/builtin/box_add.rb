@@ -521,7 +521,7 @@ module Vagrant
           @logger.info("Validating checksum with #{checksum_klass}")
           @logger.info("Expected checksum: #{checksum}")
 
-          actual = FileChecksum.new(path, checksum_klass).checksum
+          actual = Vagrant::Util::FileChecksum.new(path, checksum_klass).checksum
           if actual.casecmp(checksum) != 0
             raise Errors::BoxChecksumMismatch,
               actual: actual,

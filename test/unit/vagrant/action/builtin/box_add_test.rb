@@ -33,7 +33,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
 
   # Helper to quickly SHA1 checksum a path
   def checksum(path)
-    FileChecksum.new(path, Digest::SHA1).checksum
+    Vagrant::Util::FileChecksum.new(path, Digest::SHA1).checksum
   end
 
   def with_ftp_server(path, **opts)

@@ -4,7 +4,7 @@ require 'digest/sha1'
 
 require 'vagrant/util/file_checksum'
 
-describe FileChecksum do
+describe Vagrant::Util::FileChecksum do
   include_context "unit"
 
   let(:environment) { isolated_environment }
