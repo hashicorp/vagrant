@@ -30,7 +30,7 @@ On the other hand, [Ansible must obviously be installed](http://docs.ansible.com
 
 This page only documents the specific parts of the `ansible_local` provisioner. General Ansible concepts like Playbook or Inventory are shortly explained in the [introduction to Ansible and Vagrant](/v2/provisioning/ansible_intro.html).
 
-The Ansible Local provisioner requires that all the Ansible Playbook files are available on the guest machine, at the location referred by the `provisioning_path` option. Usually these files are initially present on the host machine (as part of your Vagrant projet), and it is quite easy to share them with a Vagrant [Synced Folder](/v2/synced-folders/index.html).
+The Ansible Local provisioner requires that all the Ansible Playbook files are available on the guest machine, at the location referred by the `provisioning_path` option. Usually these files are initially present on the host machine (as part of your Vagrant project), and it is quite easy to share them with a Vagrant [Synced Folder](/v2/synced-folders/index.html).
 
 ### Simplest Configuration
 
