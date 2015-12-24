@@ -82,7 +82,7 @@ module VagrantPlugins
           # parallelize this step because it is likely the same provider
           # anyways.
           if options[:install_provider]
-            install_providers(names)
+            install_providers(names, provider: options[:provider])
           end
 
           @env.batch(options[:parallel]) do |batch|
@@ -124,12 +124,32 @@ module VagrantPlugins
 
       protected
 
-      def install_providers(names)
+      def install_providers(names, provider: nil)
         # First create a set of all the providers we need to check for.
         # Most likely this will be a set of one.
         providers = Set.new
         names.each do |name|
-          providers.add(@env.default_provider(machine: name.to_sym, check_usable: false))
+          # Check if we have this machine in the index
+          entry    = @env.machine_index.get(name.to_s)
+
+          # Get the provider for this machine. This logic isn't completely
+          # straightforward. If we have a forced provider, we always use
+          # that no matter what. If we have an entry in the index (meaning
+          # the machine may be created), we use that provider no matter
+          # what since that will be used by the core. If we have none, then
+          # we ask the Vagrant env what the default provider would be and use
+          # that.
+          #
+          # Note that this logic is a bit redundant if we have "provider"
+          # set but I think its probably cleaner to put this logic in one
+          # place.
+          p = provider
+          p = entry.provider.to_sym if !p && entry
+          p = @env.default_provider(
+            machine: name.to_sym, check_usable: false) if !p
+
+          # Add it to the set
+          providers.add(p)
         end
 
         # Go through and determine if we can install the providers
