@@ -45,7 +45,9 @@ module Vagrant
       end
 
       # Configure Bundler to retry
-      ::Bundler.settings[:retry] = 3
+      Util::SafeEnv.change_env do |env|
+        env["BUNDLE_RETRY"] = "3"
+      end
     end
 
     # Initializes Bundler and the various gem paths so that we can begin
