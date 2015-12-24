@@ -84,3 +84,25 @@ never pruned or cleaned up. Once the folder share is defined, Vagrant never
 removes it. To clean up SMB synced folder shares, periodically run
 `net share` in a command prompt, find the shares you don't want, then
 run `net share NAME /delete` for each, where NAME is the name of the share.
+
+## Common Issues
+
+### "wrong fs type" Error
+
+If during mounting on Linux you're seeing an error message that includes
+the words "wrong fs type," this is because the SMB kernel extension needs to
+be updated in the OS.
+
+If updating the kernel extension is not an option, you can workaround the
+issue by specifying the following options on your synced folder:
+
+<pre class="prettyprint">
+mount_options: ["username=USERNAME","password=PASSWORD"]
+</pre>
+
+Replace "USERNAME" and "PASSWORD" with your SMB username and password.
+
+Vagrant 1.8 changed SMB mounting to use the more secure credential file
+mechanism. However, many operating systems ship with an outdated filesystem
+type for SMB out of the box which doesn't support this. The above workaround
+reverts Vagrant to the insecure before, but causes it work.
