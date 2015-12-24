@@ -24,7 +24,7 @@ module VagrantPlugins
             mount_gid = "`getent group #{options[:group]} | cut -d: -f3`"
             mount_gid_old = "`id -g #{options[:group]}`"
           end
-          
+
           # If a domain is provided in the username, separate it
           username, domain = (options[:smb_username] || '').split('@', 2)
           smb_password = options[:smb_password]
