@@ -6,6 +6,8 @@ BUG FIXES:
   - core: Fix exception on installing VirtualBox [GH-6713]
   - core: Do not convert standalone drive letters such as "D:" to
       UNC paths [GH-6598]
+  - core: Fix a crash in parsing the config in some cases with network
+      configurations [GH-6730]
   - commands/up: Smarter logic about what provider to install, avoiding
       situations where VirtualBox was installed over the correct provider [GH-6731]
   - guests/debian: Fix Docker install [GH-6722]
