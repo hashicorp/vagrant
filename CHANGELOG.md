@@ -1,4 +1,4 @@
-## 1.8.1.dev (Unreleased)
+## 1.8.1.dev (December 21, 2015)
 
 BUG FIXES:
 
