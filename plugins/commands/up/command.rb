@@ -129,7 +129,17 @@ module VagrantPlugins
         # Most likely this will be a set of one.
         providers = Set.new
         names.each do |name|
-          providers.add(@env.default_provider(machine: name.to_sym, check_usable: false))
+          # Check if we have this machine in the index
+          entry    = @env.machine_index.get(name.to_s)
+
+          # Get the provider for this machine
+          provider = nil
+          provider = entry.provider.to_sym if entry
+          provider = @env.default_provider(
+            machine: name.to_sym, check_usable: false) if !provider
+
+          # Add it to the set
+          providers.add(provider)
         end
 
         # Go through and determine if we can install the providers
