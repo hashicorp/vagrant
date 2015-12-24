@@ -54,6 +54,14 @@ config.vm.provider "virtualbox" do |v|
 end
 ```
 
+To have backward compatibility:
+
+```ruby
+config.vm.provider 'virtualbox' do |v|
+  v.linked_clone = true if Vagrant::VERSION =~ /^1.8/
+end
+```
+
 <div class="alert alert-info">
 	<strong>Note:</strong> the generated master VMs are currently not removed
 	automatically by Vagrant. This has to be done manually. However, a master
