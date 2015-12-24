@@ -65,7 +65,7 @@ module Vagrant
         # "Hyper-V Administrators" group.
         #
         # From: https://support.microsoft.com/en-us/kb/243330
-        # SID: S-1-5-32-578 
+        # SID: S-1-5-32-578
         # Name: BUILTIN\Hyper-V Administrators
         #
         # @return [Boolean]
@@ -73,7 +73,7 @@ module Vagrant
             begin
               username = ENV["USERNAME"]
               process = Subprocess.execute("net", "localgroup", "Hyper-V Administrators")
-              output = process.stdout.chomp 
+              output = process.stdout.chomp
               return output.include?(username)
             rescue Errors::CommandUnavailableWindows
               return false
@@ -185,6 +185,12 @@ module Vagrant
         # @param [String] path Path to convert to UNC for Windows
         # @return [String]
         def windows_unc_path(path)
+          path = path.gsub("/", "\\")
+
+          # If the path is just a drive letter, then return that as-is
+          return path if path =~ /^[a-zA-Z]:\\?$/
+
+          # Convert to UNC path
           "\\\\?\\" + path.gsub("/", "\\")
         end
 

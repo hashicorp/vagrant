@@ -4,6 +4,8 @@ BUG FIXES:
 
   - core: Don't create ".bundle" directory in pwd [GH-6717]
   - core: Fix exception on installing VirtualBox [GH-6713]
+  - core: Do not convert standalone drive letters such as "D:" to
+      UNC paths [GH-6598]
   - commands/up: Smarter logic about what provider to install, avoiding
       situations where VirtualBox was installed over the correct provider [GH-6731]
   - guests/debian: Fix Docker install [GH-6722]
