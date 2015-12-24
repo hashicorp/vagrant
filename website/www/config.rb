@@ -4,7 +4,7 @@ helpers MiddlemanHashiCorpHelpers
 page "/blog_feed.xml", layout: false
 
 # The version of Vagrant - update this to update the downloads page
-set :latest_version, '1.8.0'
+set :latest_version, '1.8.1'
 
 set :css_dir, 'stylesheets'
 set :js_dir, 'javascripts'
