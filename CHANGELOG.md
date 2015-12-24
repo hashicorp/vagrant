@@ -2,6 +2,7 @@
 
 BUG FIXES:
 
+  - guests/debian: Fix Docker install [GH-6722]
   - provisioners/chef: convert chef version to a string before comparing for
     the command builder [GH-6709, GH-6711]
   - provisioners/shell: convert env var values to strings [GH-6714]
