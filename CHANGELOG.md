@@ -4,6 +4,8 @@ BUG FIXES:
 
   - core: Don't create ".bundle" directory in pwd [GH-6717]
   - core: Fix exception on installing VirtualBox [GH-6713]
+  - commands/up: Smarter logic about what provider to install, avoiding
+      situations where VirtualBox was installed over the correct provider [GH-6731]
   - guests/debian: Fix Docker install [GH-6722]
   - provisioners/chef: convert chef version to a string before comparing for
     the command builder [GH-6709, GH-6711]
