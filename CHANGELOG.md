@@ -1,8 +1,11 @@
 ## Next Version (unreleased)
 
+BUG FIXES:
 
+  - provisioners/ansible_local: Fix error in `playbook` existence check when
+    running on a Windows host [GH-6740]
 
-## 1.8.1.dev (December 21, 2015)
+## 1.8.1 (December 21, 2015)
 
 BUG FIXES:
 
