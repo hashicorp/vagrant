@@ -188,7 +188,7 @@ module Vagrant
           path = path.gsub("/", "\\")
 
           # If the path is just a drive letter, then return that as-is
-          return path if path =~ /^[a-zA-Z]:\\?$/
+          return path + "\\" if path =~ /^[a-zA-Z]:\\?$/
 
           # Convert to UNC path
           "\\\\?\\" + path.gsub("/", "\\")
