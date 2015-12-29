@@ -152,7 +152,7 @@ Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -E -e /*/ d -ibak /etc/exports
 For Ubuntu Linux , sudoers should look like this:
 
 ```
-ֻCmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
+Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
 Cmnd_Alias VAGRANT_EXPORTS_COPY = /bin/cp /tmp/exports /etc/exports
 Cmnd_Alias VAGRANT_NFSD_CHECK = /etc/init.d/nfs-kernel-server status
 Cmnd_Alias VAGRANT_NFSD_START = /etc/init.d/nfs-kernel-server start
