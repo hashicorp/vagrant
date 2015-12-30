@@ -175,7 +175,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-You can also specify arguments an array if you don't want to worry about
+You can also specify arguments as an array if you don't want to worry about
 quoting:
 
 ```ruby
