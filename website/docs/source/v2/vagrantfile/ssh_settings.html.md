@@ -75,6 +75,13 @@ paramter.
 config.ssh.forward_env = ["CUSTOM_VAR"]
 ```
 
+Usually, host locale is passed to guest on ssh session. Example how to set locale for vagrant ssh session
+
+```ruby
+ENV['LC_ALL']="en_US.UTF-8"
+config.ssh.forward_env = ["LC_ALL"]
+```
+
 <hr>
 
 `config.ssh.insert_key` - If `true`, Vagrant will automatically insert
