@@ -2,8 +2,8 @@
 
 BUG FIXES:
 
-  - provisioners/ansible_local: Fix error in `playbook` existence check when
-    running on a Windows host [GH-6740]
+  - provisioners/ansible_local: Fix errors in absolute paths to playbook or
+      galaxy resources when running on a Windows host [GH-6740, GH-6757]
 
 ## 1.8.1 (December 21, 2015)
 
