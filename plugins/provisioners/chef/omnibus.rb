@@ -8,7 +8,7 @@ module VagrantPlugins
       OMNITRUCK = "https://omnitruck.chef.io".freeze
 
       def sh_command(project, version, channel, options = {})
-        command =  "curl -sL #{OMNITRUCK}/install.sh | sudo bash"
+        command =  "curl -sL #{OMNITRUCK}/install.sh | bash"
         command << " -s -- -P \"#{project}\" -c \"#{channel}\""
 
         if version != :latest
