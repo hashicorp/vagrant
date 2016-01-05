@@ -78,6 +78,8 @@ module Vagrant
       providers = Array(providers) if providers
       provider = nil
 
+      version = Gem::Version.new(version).to_s
+
       # A helper to check if a box exists. We store this in a variable
       # since we call it multiple times.
       check_box_exists = lambda do |box_formats|
