@@ -233,6 +233,19 @@ describe Vagrant::BoxCollection, :skip_windows do
       expect(subject.find("foo/bar", :virtualbox, "1.0")).to_not be_nil
     end
 
+    it "should add a box with a version with '-' in it" do
+      box_path = environment.box2_file(:virtualbox)
+
+      # Add the box
+      box = subject.add(box_path, "foo", "1.0.1-1")
+      expect(box).to be_kind_of(box_class)
+      expect(box.name).to eq("foo")
+      expect(box.provider).to eq(:virtualbox)
+
+      # Verify we can find it as well
+      expect(subject.find("foo", :virtualbox, "1.0.1-1")).to_not be_nil
+    end
+
     it "should add a box without specifying a provider" do
       box_path = environment.box2_file(:vmware)
 
