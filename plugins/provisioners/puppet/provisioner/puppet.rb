@@ -230,7 +230,7 @@ module VagrantPlugins
           command = "#{facter} #{puppet_bin} apply #{options}"
           if config.working_directory
             if windows?
-              command = "cd #{config.working_directory}; if (`$?) \{ #{command} \}"
+              command = "cd #{config.working_directory}; if ($?) \{ #{command} \}"
             else
               command = "cd #{config.working_directory} && #{command}"
             end
