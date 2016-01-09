@@ -198,6 +198,7 @@ module VagrantPlugins
       #   folder.
       # @param [Hash] options Additional options.
       def synced_folder(hostpath, guestpath, options=nil)
+        name = (options && options.delete(:name)) || guestpath
         if Vagrant::Util::Platform.windows?
           # On Windows, Ruby just uses normal '/' for path seps, so
           # just replace normal Windows style seps with Unix ones.
@@ -214,7 +215,7 @@ module VagrantPlugins
         # Make sure the type is a symbol
         options[:type] = options[:type].to_sym if options[:type]
 
-        @__synced_folders[options[:guestpath]] = options
+        @__synced_folders[name] = options
       end
 
       # Define a way to access the machine via a network. This exposes a
@@ -617,7 +618,7 @@ module VagrantPlugins
           # If the shared folder is disabled then don't worry about validating it
           next if options[:disabled]
 
-          guestpath = Pathname.new(options[:guestpath])
+          guestpath = Pathname.new(options[:guestpath]) if options[:guestpath]
           hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
           if guestpath.to_s != ""
