@@ -33,6 +33,9 @@ en:
     host_machine_starting: |-
       Vagrant will now create or start a local VM to act as the Docker
       host. You'll see the output of the `vagrant up` for this VM below.
+    host_machine_stopping: |-
+      Vagrant will now stop the local Docker host VM. You'll see the output
+      of `vagrant halt` for this VM below.
     host_machine_syncing_folders: |-
       Syncing folders to the host VM...
     logging_in: |-
@@ -162,6 +165,13 @@ en:
 
         If this does not fix it, please verify that the host VM provider
         is functional and properly configured.
+
+        Host VM ID: %{id}
+      host_vm_communicator_not_halted: |-
+        The Docker provider was not able to stop the host VM successfully, and
+        the host VM is still reporting that SSH is available. The ID of the host
+        VM is shown below for convenience. You can attempt to manually stop the
+        host VM by running `vagrant halt %{id}`.
 
         Host VM ID: %{id}
       package_not_supported: |-

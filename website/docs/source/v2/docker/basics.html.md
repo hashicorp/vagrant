@@ -109,7 +109,7 @@ Vagrant.configure("2") do |config|
 end
 </pre>
 
-The host VM will be spun up at the first `vagrant up` where the provider
-is Docker. To control this host VM, use the
-[global-status command](/v2/cli/global-status.html)
-along with global control.
+The host VM will be created and started at the first `vagrant up` where the
+provider is Docker. This machine will also be stopped when `vagrant halt` is
+run. For any other control of this machine, use the
+[global-status command](/v2/cli/global-status.html) along with global control.

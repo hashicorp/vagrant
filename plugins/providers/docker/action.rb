@@ -97,6 +97,7 @@ module VagrantPlugins
             end
 
             b2.use Stop
+            b2.use HostMachineStop
           end
         end
       end
@@ -305,6 +306,7 @@ module VagrantPlugins
       autoload :HostMachinePortChecker, action_root.join("host_machine_port_checker")
       autoload :HostMachinePortWarning, action_root.join("host_machine_port_warning")
       autoload :HostMachineRequired, action_root.join("host_machine_required")
+      autoload :HostMachineStop, action_root.join("host_machine_stop")
       autoload :HostMachineSyncFolders, action_root.join("host_machine_sync_folders")
       autoload :HostMachineSyncFoldersDisable, action_root.join("host_machine_sync_folders_disable")
       autoload :InitState, action_root.join("init_state")
