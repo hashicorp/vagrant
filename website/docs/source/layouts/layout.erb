@@ -30,23 +30,36 @@
 		<!-- wrap everything -->
 		<div class="wrapper">
 
-			<!-- nav -->
+      <!-- nav -->
+      <div id="header" class="navigation docs">
+  			<div class="container-fluid">
+  			 <!-- vagrant logo -->
+         <div class="navbar-header">
+            <div class="navbar-brand">
+    			    <a class="logo" href="/">Vagrant Documentation</span></a>
+              <a class="by-hashicorp" href="https://hashicorp.com/"><span class="svg-wrap">by</span><%= partial "layouts/svg/svg-by-hashicorp" %><%= partial "layouts/svg/svg-hashicorp-logo" %>Hashicorp</a>
+            </div>
+            <button class="navbar-toggle" type="button">
+  						<span class="bar"></span>
+  						<span class="bar"></span>
+  						<span class="bar"></span>
+  					</button>
+          </div>
+          <div class="buttons">
+  					<nav class="navigation-links" role="navigation">
+              <ul class="main-links nav navbar-nav">
+                <li class="pill"><a href="https://www.amazon.com/gp/product/1449335837/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1449335837&linkCode=as2&tag=vagrant-20">Vagrant Book</a></li>
+                <li><a href="https://www.vagrantup.com/">Home</a></li>
+              </ul>
+  					</nav>
+  				</div>
+  			 </div>
+      </div>
 
-			<nav class="docs">
-			<!-- vagrant logo -->
-			<a class="vagrant-docs-logo" href="/">Vagrant Documentation</a>
-			<!-- nav -->
-			<ul class="pull-right unstyled">
-				<li class="pill">
-					<a href="https://www.amazon.com/gp/product/1449335837/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1449335837&linkCode=as2&tag=vagrant-20">
-						Vagrant Book
-					</a>
-				</li>
-				<li><a href="https://www.vagrantup.com/">Home</a></li>
-			</ul>
-			</nav>
+      <%= partial "layouts/mobile_nav" %>
 
 			<div class="page docs docs-home">
+				<div class="sidebar-background"></div>
 				<div class="container">
 					<div class="row">
 
@@ -103,11 +116,14 @@
 									<li<%= sidebar_current("cli-login") %>><a href="/v2/cli/login.html">login</a></li>
 									<li<%= sidebar_current("cli-package") %>><a href="/v2/cli/package.html">package</a></li>
 									<li<%= sidebar_current("cli-plugin") %>><a href="/v2/cli/plugin.html">plugin</a></li>
+									<li<%= sidebar_current("cli-port") %>><a href="/v2/cli/port.html">port</a></li>
+									<li<%= sidebar_current("cli-powershell") %>><a href="/v2/cli/powershell.html">powershell</a></li>
 									<li<%= sidebar_current("cli-provision") %>><a href="/v2/cli/provision.html">provision</a></li>
 									<li<%= sidebar_current("cli-rdp") %>><a href="/v2/cli/rdp.html">rdp</a></li>
 									<li<%= sidebar_current("cli-reload") %>><a href="/v2/cli/reload.html">reload</a></li>
 									<li<%= sidebar_current("cli-resume") %>><a href="/v2/cli/resume.html">resume</a></li>
 									<li<%= sidebar_current("cli-share") %>><a href="/v2/cli/share.html">share</a></li>
+									<li<%= sidebar_current("cli-snapshot") %>><a href="/v2/cli/snapshot.html">snapshot</a></li>
 									<li<%= sidebar_current("cli-ssh") %>><a href="/v2/cli/ssh.html">ssh</a></li>
 									<li<%= sidebar_current("cli-ssh_config") %>><a href="/v2/cli/ssh_config.html">ssh-config</a></li>
 									<li<%= sidebar_current("cli-status") %>><a href="/v2/cli/status.html">status</a></li>
@@ -159,6 +175,7 @@
 									<li<%= sidebar_current("provisioning-file") %>><a href="/v2/provisioning/file.html">File</a></li>
 									<li<%= sidebar_current("provisioning-shell") %>><a href="/v2/provisioning/shell.html">Shell</a></li>
 									<li<%= sidebar_current("provisioning-ansible") %>><a href="/v2/provisioning/ansible.html">Ansible</a></li>
+									<li<%= sidebar_current("provisioning-ansible-local") %>><a href="/v2/provisioning/ansible_local.html">Ansible Local</a></li>
 									<li<%= sidebar_current("provisioning-cfengine") %>><a href="/v2/provisioning/cfengine.html">CFEngine</a></li>
 									<li<%= sidebar_current("provisioning-chefsolo") %>><a href="/v2/provisioning/chef_solo.html">Chef Solo</a></li>
 									<li<%= sidebar_current("provisioning-chefzero") %>><a href="/v2/provisioning/chef_zero.html">Chef Zero</a></li>
@@ -265,6 +282,7 @@
 								<ul class="sub unstyled">
 									<li<%= sidebar_current("plugins-usage") %>><a href="/v2/plugins/usage.html">Usage</a></li>
 									<li<%= sidebar_current("plugins-development-basics") %>><a href="/v2/plugins/development-basics.html">Plugin Development Basics</a></li>
+									<li<%= sidebar_current("plugins-action-hooks") %>><a href="/v2/plugins/action-hooks.html">Action Hooks</a></li>
 									<li<%= sidebar_current("plugins-commands") %>><a href="/v2/plugins/commands.html">Commands</a></li>
 									<li<%= sidebar_current("plugins-configuration") %>><a href="/v2/plugins/configuration.html">Configuration</a></li>
 									<li<%= sidebar_current("plugins-guests") %>><a href="/v2/plugins/guests.html">Guests</a></li>
@@ -273,7 +291,7 @@
 									<li<%= sidebar_current("plugins-hostcapabilities") %>><a href="/v2/plugins/host-capabilities.html">Host Capabilities</a></li>
 									<li<%= sidebar_current("plugins-providers") %>><a href="/v2/plugins/providers.html">Providers</a></li>
 									<li<%= sidebar_current("plugins-provisioners") %>><a href="/v2/plugins/provisioners.html">Provisioners</a></li>
-									<li<%= sidebar_current("plugins-packaging") %>><a href="/v2/plugins/packaging.html">Packaging & Distribution</a></li>
+									<li<%= sidebar_current("plugins-packaging") %>><a href="/v2/plugins/packaging.html">Packaging &amp; Distribution</a></li>
 								</ul>
 								<% end %>
 
@@ -320,6 +338,14 @@
 				<div class="row">
 					<div class="span12">
 
+            <% relative_path = current_page.path.match(/.*\//).to_s
+            file = current_page.source_file.split("/").last
+            github_link = "https://github.com/mitchellh/vagrant/blob/master/website/docs/source/#{relative_path}#{file}"
+            %>
+            <div class="edit-page-link">
+              <a href="<%= github_link %>">Edit this page</a>
+            </div>
+
 						<ul class="unstyled footer-nav">
 							<li><a href="https://docs.vagrantup.com/">Documentation</a></li>
 							<li><a href="https://www.vagrantup.com/about">About</a></li>
@@ -353,10 +379,15 @@
 			<!-- close .wrapper -->
 		</div>
 
+    <%= javascript_include_tag "lib/Base" %>
+    <%= javascript_include_tag "Sidebar" %>
+
 		<!-- load scripts -->
 		<!-- load full-width image into any div with class="big-background -->
 		<script>
 			$(".big-background").backstretch("assets/photos/full_width.jpg");
+
+      new Sidebar();
 		</script>
 
 		<!-- Google analytics -->

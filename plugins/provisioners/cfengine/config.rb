@@ -51,7 +51,7 @@ module VagrantPlugins
         end
 
         if @deb_repo_line == UNSET_VALUE
-          @deb_repo_line = "deb http://cfengine.com/pub/apt/packages stable main"
+          @deb_repo_line = "deb https://cfengine.com/pub/apt/packages stable main"
         end
 
         @extra_agent_args = nil if @extra_agent_args == UNSET_VALUE
@@ -71,7 +71,7 @@ module VagrantPlugins
         @policy_server_address = nil if @policy_server_address == UNSET_VALUE
 
         if @repo_gpg_key_url == UNSET_VALUE
-          @repo_gpg_key_url = "http://cfengine.com/pub/gpg.key"
+          @repo_gpg_key_url = "https://cfengine.com/pub/gpg.key"
         end
 
         @upload_path = "/tmp/vagrant-cfengine-file" if @upload_path == UNSET_VALUE
@@ -81,7 +81,7 @@ module VagrantPlugins
         end
 
         if @yum_repo_url == UNSET_VALUE
-          @yum_repo_url = "http://cfengine.com/pub/yum/$basearch"
+          @yum_repo_url = "https://cfengine.com/pub/yum/$basearch"
         end
 
         if @package_name == UNSET_VALUE

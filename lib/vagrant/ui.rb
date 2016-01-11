@@ -103,6 +103,12 @@ module Vagrant
         raise Errors::UIExpectsTTY
       end
 
+      [:detail, :warn, :error, :info, :output, :success].each do |method|
+        define_method(method) do |message, *args, **opts|
+          machine("ui", method.to_s, message, *args, **opts)
+        end
+      end
+
       def machine(type, *data)
         opts = {}
         opts = data.pop if data.last.kind_of?(Hash)
@@ -117,9 +123,12 @@ module Vagrant
           data[i].gsub!("\r", "\\r")
         end
 
-        @lock.synchronize do
-          safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
-        end
+        # Avoid locks in a trap context introduced from Ruby 2.0
+        Thread.new do
+          @lock.synchronize do
+            safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
+          end
+        end.join
       end
     end
 
@@ -150,7 +159,7 @@ module Vagrant
         super(message)
 
         # We can't ask questions when the output isn't a TTY.
-        raise Errors::UIExpectsTTY if !@stdin.tty? && !Vagrant::Util::Platform.cygwin?
+        raise Errors::UIExpectsTTY if !@stdin.tty? && !Vagrant::Util::Platform.windows?
 
         # Setup the options so that the new line is suppressed
         opts ||= {}
@@ -271,6 +280,9 @@ module Vagrant
               opts[:bold] = #{method.inspect} != :detail && \
                 #{method.inspect} != :ask
             end
+            if !opts.key?(:target)
+              opts[:target] = @prefix
+            end
             @ui.#{method}(format_message(#{method.inspect}, message, **opts), *args, **opts)
           end
         CODE
@@ -313,6 +325,7 @@ module Vagrant
 
         target = @prefix
         target = opts[:target] if opts.key?(:target)
+        target = "#{target}:" if target != ""
 
         # Get the lines. The first default is because if the message
         # is an empty string, then we want to still use the empty string.
@@ -321,7 +334,7 @@ module Vagrant
 
         # Otherwise, make sure to prefix every line properly
         lines.map do |line|
-          "#{prefix}#{target}: #{line}"
+          "#{prefix}#{target} #{line}"
         end.join("\n")
       end
     end

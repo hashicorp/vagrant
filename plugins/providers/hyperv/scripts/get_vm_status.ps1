@@ -12,7 +12,7 @@ try {
     $VM = Get-VM -Id $VmId -ErrorAction "Stop"
     $State = $VM.state
     $Status = $VM.status
-} catch [Microsoft.HyperV.PowerShell.VirtualizationOperationFailedException] {
+} catch [Microsoft.HyperV.PowerShell.VirtualizationException] {
     $State = "not_created"
     $Status = $State
 }

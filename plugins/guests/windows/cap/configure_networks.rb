@@ -53,7 +53,7 @@ module VagrantPlugins
 
         def self.create_vm_interface_map(machine, guest_network)
           if !machine.provider.capability?(:nic_mac_addresses)
-            raise Errors::CantReadMACAddresses,
+            raise Vagrant::Errors::CantReadMACAddresses,
               provider: machine.provider_name.to_s
           end
 

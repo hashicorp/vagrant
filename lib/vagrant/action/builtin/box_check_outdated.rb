@@ -37,13 +37,23 @@ module Vagrant
           end
 
           constraints = machine.config.vm.box_version
+          # Have download options specified in the environment override
+          # options specified for the machine.
+          download_options = {
+            ca_cert: env[:ca_cert] || machine.config.vm.box_download_ca_cert,
+            ca_path: env[:ca_path] || machine.config.vm.box_download_ca_path,
+            client_cert: env[:client_cert] ||
+                           machine.config.vm.box_download_client_cert,
+            insecure: !env[:insecure].nil? ?
+                        env[:insecure] : machine.config.vm.box_download_insecure
+          }
 
           env[:ui].output(I18n.t(
             "vagrant.box_outdated_checking_with_refresh",
             name: box.name))
           update = nil
           begin
-            update = box.has_update?(constraints)
+            update = box.has_update?(constraints, download_options: download_options)
           rescue Errors::BoxMetadataDownloadError => e
             env[:ui].warn(I18n.t(
               "vagrant.box_outdated_metadata_download_error",

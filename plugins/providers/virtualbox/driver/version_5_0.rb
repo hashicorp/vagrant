@@ -34,6 +34,17 @@ module VagrantPlugins
           end
         end
 
+        def clonevm(master_id, snapshot_name)
+          machine_name = "temp_clone_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
+          args = ["--register", "--name", machine_name]
+          if snapshot_name
+            args += ["--snapshot", snapshot_name, "--options", "link"]
+          end
+
+          execute("clonevm", master_id, *args)
+          return get_machine_id(machine_name)
+        end
+
         def create_dhcp_server(network, options)
           execute("dhcpserver", "add", "--ifname", network,
                   "--ip", options[:dhcp_ip],
@@ -46,12 +57,23 @@ module VagrantPlugins
         def create_host_only_network(options)
           # Create the interface
           execute("hostonlyif", "create") =~ /^Interface '(.+?)' was successfully created$/
-            name = $1.to_s
+          name = $1.to_s
 
-          # Configure it
-          execute("hostonlyif", "ipconfig", name,
-                  "--ip", options[:adapter_ip],
-                  "--netmask", options[:netmask])
+          # Get the IP so we can determine v4 vs v6
+          ip = IPAddr.new(options[:adapter_ip])
+
+          # Configure
+          if ip.ipv4?
+            execute("hostonlyif", "ipconfig", name,
+                    "--ip", options[:adapter_ip],
+                    "--netmask", options[:netmask])
+          elsif ip.ipv6?
+            execute("hostonlyif", "ipconfig", name,
+                    "--ipv6", options[:adapter_ip],
+                    "--netmasklengthv6", options[:netmask].to_s)
+          else
+            raise "BUG: Unknown IP type: #{ip.inspect}"
+          end
 
           # Return the details
           return {
@@ -60,6 +82,85 @@ module VagrantPlugins
             netmask: options[:netmask],
             dhcp: nil
           }
+        end
+
+        def create_snapshot(machine_id, snapshot_name)
+          execute("snapshot", machine_id, "take", snapshot_name)
+        end
+
+        def delete_snapshot(machine_id, snapshot_name)
+          # Start with 0%
+          last = 0
+          total = ""
+          yield 0 if block_given?
+
+          # Snapshot and report the % progress
+          execute("snapshot", machine_id, "delete", snapshot_name) do |type, data|
+            if type == :stderr
+              # Append the data so we can see the full view
+              total << data.gsub("\r", "")
+
+              # Break up the lines. We can't get the progress until we see an "OK"
+              lines = total.split("\n")
+
+              # The progress of the import will be in the last line. Do a greedy
+              # regular expression to find what we're looking for.
+              match = /.+(\d{2})%/.match(lines.last)
+              if match
+                current = match[1].to_i
+                if current > last
+                  last = current
+                  yield current if block_given?
+                end
+              end
+            end
+          end
+        end
+
+        def list_snapshots(machine_id)
+          output = execute(
+            "snapshot", machine_id, "list", "--machinereadable",
+            retryable: true)
+
+          result = []
+          output.split("\n").each do |line|
+            if line =~ /^SnapshotName.*?="(.+?)"$/i
+              result << $1.to_s
+            end
+          end
+
+          result.sort
+        rescue Vagrant::Errors::VBoxManageError => e
+          return [] if e.extra_data[:stdout].include?("does not have")
+          raise
+        end
+
+        def restore_snapshot(machine_id, snapshot_name)
+          # Start with 0%
+          last = 0
+          total = ""
+          yield 0 if block_given?
+
+          execute("snapshot", machine_id, "restore", snapshot_name) do |type, data|
+            if type == :stderr
+              # Append the data so we can see the full view
+              total << data.gsub("\r", "")
+
+              # Break up the lines. We can't get the progress until we see an "OK"
+              lines = total.split("\n")
+
+              # The progress of the import will be in the last line. Do a greedy
+              # regular expression to find what we're looking for.
+              match = /.+(\d{2})%/.match(lines.last)
+              if match
+                current = match[1].to_i
+                if current > last
+                  last = current
+                  yield current if block_given?
+                end
+              end
+            end
+          end
         end
 
         def delete
@@ -156,6 +257,13 @@ module VagrantPlugins
           execute("modifyvm", @uuid, *args) if !args.empty?
         end
 
+        def get_machine_id(machine_name)
+          output = execute("list", "vms", retryable: true)
+          match = /^"#{Regexp.escape(machine_name)}" \{(.+?)\}$/.match(output)
+          return match[1].to_s if match
+          nil
+        end
+
         def halt
           execute("controlvm", @uuid, "poweroff")
         end
@@ -231,10 +339,7 @@ module VagrantPlugins
             end
           end
 
-          output = execute("list", "vms", retryable: true)
-          match = /^"#{Regexp.escape(specified_name)}" \{(.+?)\}$/.match(output)
-          return match[1].to_s if match
-          nil
+          return get_machine_id specified_name
         end
 
         def max_network_adapters
@@ -366,6 +471,10 @@ module VagrantPlugins
                 info[:ip] = $1.to_s
               elsif line =~ /^NetworkMask:\s+(.+?)$/
                 info[:netmask] = $1.to_s
+              elsif line =~ /^IPV6Address:\s+(.+?)$/
+                info[:ipv6] = $1.to_s.strip
+              elsif line =~ /^IPV6NetworkMaskPrefixLength:\s+(.+?)$/
+                info[:ipv6_prefix] = $1.to_s.strip
               elsif line =~ /^Status:\s+(.+?)$/
                 info[:status] = $1.to_s
               end
@@ -475,6 +584,11 @@ module VagrantPlugins
           results
         end
 
+        def reconfig_host_only(interface)
+          execute("hostonlyif", "ipconfig", interface[:name],
+                  "--ipv6", interface[:ipv6])
+        end
+
         def remove_dhcp_server(network_name)
           execute("dhcpserver", "remove", "--netname", network_name)
         end
@@ -497,14 +611,9 @@ module VagrantPlugins
         def share_folders(folders)
           folders.each do |folder|
             hostpath = folder[:hostpath]
-
-=begin
-            # Removed for GH-5933 until further research.
             if Vagrant::Util::Platform.windows?
               hostpath = Vagrant::Util::Platform.windows_unc_path(hostpath)
             end
-=end
-
             args = ["--name",
               folder[:name],
               "--hostpath",

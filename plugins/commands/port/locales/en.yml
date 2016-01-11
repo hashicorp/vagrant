@@ -1,0 +1,20 @@
+en:
+  port_command:
+    details: |-
+      The forwarded ports for the machine are listed below. Please note that
+      these values may differ from values configured in the Vagrantfile if the
+      provider supports automatic port collision detection and resolution.
+    empty_ports: |-
+      The provider reported there are no forwarded ports for this virtual
+      machine. This can be caused if there are no ports specified in the
+      Vagrantfile or if the virtual machine is not currently running. Please
+      check that the virtual machine is running and try again.
+    missing_capability: |-
+      The %{provider} provider does not support listing forwarded ports. This is
+      most likely a limitation of the provider and not a bug in Vagrant. If you
+      believe this is a bug in Vagrant, please search existing issues before
+      opening a new one.
+    no_matching_port: |-
+      The guest is not currently mapping port %{port} to the host machine. Is
+      the port configured in the Vagrantfile? You may need to run `vagrant reload`
+      if changes were made to the port configuration in the Vagrantfile.

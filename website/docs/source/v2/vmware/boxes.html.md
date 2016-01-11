@@ -62,8 +62,9 @@ in the box into a privately managed "vmwarevm" folder, and uses the first
 <div class="alert alert-info">
 	<h3>Linked Clones</h3>
 	<p>
-		A future version of the VMware provider will implement
-		linked cloning.
+		Vagrant 1.8 and higher support linked clones. Prior versions of Vagrant do
+		not support linked clones. For more information on linked clones, please see
+		the documentation.
 	</p>
 </div>
 

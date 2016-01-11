@@ -11,6 +11,11 @@ module VagrantPlugins
         Host
       end
 
+      host_capability("darwin", "provider_install_virtualbox") do
+        require_relative "cap/provider_install_virtualbox"
+        Cap::ProviderInstallVirtualBox
+      end
+
       host_capability("darwin", "rdp_client") do
         require_relative "cap/rdp"
         Cap::RDP

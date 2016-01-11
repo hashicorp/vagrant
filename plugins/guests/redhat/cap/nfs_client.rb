@@ -3,7 +3,11 @@ module VagrantPlugins
     module Cap
       class NFSClient
         def self.nfs_client_install(machine)
-          machine.communicate.sudo("yum -y install nfs-utils nfs-utils-lib")
+          if VagrantPlugins::GuestRedHat::Plugin.dnf?(machine)
+            machine.communicate.sudo("dnf -y install nfs-utils nfs-utils-lib")
+          else
+            machine.communicate.sudo("yum -y install nfs-utils nfs-utils-lib")
+          end
           restart_nfs(machine)
         end
 

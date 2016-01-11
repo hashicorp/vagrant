@@ -197,5 +197,32 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       expect(ids.length).to eq(2)
       expect(ids[0]).to eq(ids[1])
     end
+
+    context "with folders from the machine" do
+      it "removes outdated folders not present in config" do
+        expect(subject).to receive(:save_synced_folders).with(
+          machine, anything, merge: true, vagrantfile: true)
+
+        subject.call(env)
+      end
+    end
+
+    context "with custom folders" do
+      before do
+        new_config = double("config")
+        env[:synced_folders_config] = new_config
+
+        allow(subject).to receive(:synced_folders).
+          with(machine, config: new_config, cached: false).
+          and_return({})
+      end
+
+      it "doesn't remove outdated folders not present in config" do
+        expect(subject).to receive(:save_synced_folders).with(
+          machine, anything, merge: true)
+
+        subject.call(env)
+      end
+    end
   end
 end

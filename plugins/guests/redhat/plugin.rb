@@ -45,6 +45,10 @@ module VagrantPlugins
         require_relative "cap/rsync"
         Cap::RSync
       end
+
+      def self.dnf?(machine)
+        machine.communicate.test("/usr/bin/which -s dnf")
+      end
     end
   end
 end

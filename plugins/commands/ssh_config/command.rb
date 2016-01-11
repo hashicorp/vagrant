@@ -41,12 +41,15 @@ module VagrantPlugins
             forward_agent: ssh_info[:forward_agent],
             forward_x11:   ssh_info[:forward_x11],
             proxy_command: ssh_info[:proxy_command],
-            ssh_command: ssh_info[:ssh_command]
+            ssh_command:   ssh_info[:ssh_command],
+            forward_env:   ssh_info[:forward_env],
           }
 
           # Render the template and output directly to STDOUT
           template = "commands/ssh_config/config"
-          safe_puts(Vagrant::Util::TemplateRenderer.render(template, variables))
+          config   = Vagrant::Util::TemplateRenderer.render(template, variables)
+          machine.ui.machine("ssh-config", config)
+          safe_puts(config)
           safe_puts
         end
 

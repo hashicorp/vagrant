@@ -10,10 +10,17 @@ module Vagrant
     class Platform
       class << self
         def cygwin?
+          # Installer detects Cygwin
           return true if ENV["VAGRANT_DETECTED_OS"] &&
             ENV["VAGRANT_DETECTED_OS"].downcase.include?("cygwin")
 
-          platform.include?("cygwin")
+          # Ruby running in Cygwin
+          return true if platform.include?("cygwin")
+
+          # Heuristic. If the path contains Cygwin, we just assume we're
+          # in Cygwin. It is generally a safe bet.
+          path = ENV["PATH"] || ""
+          return path.include?("cygwin")
         end
 
         [:darwin, :bsd, :freebsd, :linux, :solaris].each do |type|
@@ -45,10 +52,32 @@ module Vagrant
           #   detect-if-running-with-administrator-privileges-under-windows-xp
           begin
             Win32::Registry::HKEY_USERS.open("S-1-5-19") {}
-            return true
           rescue Win32::Registry::Error
             return false
           end
+
+          # If we made it this far then we try a fallback approach
+          # since the above doesn't seem to be bullet proof. See GH-5616
+          (`reg query HKU\\S-1-5-19 2>&1` =~ /ERROR/).nil?
+        end
+
+        # Checks if the user running Vagrant on Windows is a member of the
+        # "Hyper-V Administrators" group.
+        #
+        # From: https://support.microsoft.com/en-us/kb/243330
+        # SID: S-1-5-32-578
+        # Name: BUILTIN\Hyper-V Administrators
+        #
+        # @return [Boolean]
+        def windows_hyperv_admin?
+            begin
+              username = ENV["USERNAME"]
+              process = Subprocess.execute("net", "localgroup", "Hyper-V Administrators")
+              output = process.stdout.chomp
+              return output.include?(username)
+            rescue Errors::CommandUnavailableWindows
+              return false
+            end
         end
 
         # This takes any path and converts it from a Windows path to a
@@ -114,6 +143,14 @@ module Vagrant
           path = Pathname.new(File.expand_path(path))
 
           if path.exist? && !fs_case_sensitive?
+            # If the path contains a Windows short path, then we attempt to
+            # expand. The require below is embedded here since it requires
+            # windows to work.
+            if windows? && path.to_s =~ /~\d(\/|\\)/
+              require_relative "windows_path"
+              path = Pathname.new(WindowsPath.longname(path.to_s))
+            end
+
             # Build up all the parts of the path
             original = []
             while !path.root?
@@ -148,6 +185,12 @@ module Vagrant
         # @param [String] path Path to convert to UNC for Windows
         # @return [String]
         def windows_unc_path(path)
+          path = path.gsub("/", "\\")
+
+          # If the path is just a drive letter, then return that as-is
+          return path if path =~ /^[a-zA-Z]:\\?$/
+
+          # Convert to UNC path
           "\\\\?\\" + path.gsub("/", "\\")
         end
 

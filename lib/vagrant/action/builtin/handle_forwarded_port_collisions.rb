@@ -128,7 +128,7 @@ module Vagrant
                   port_checker[repaired_port] ||
                   lease_check(repaired_port)
                 if in_use
-                  @logger.info("Reparied port also in use: #{repaired_port}. Trying another...")
+                  @logger.info("Repaired port also in use: #{repaired_port}. Trying another...")
                   next
                 end
 
@@ -156,8 +156,6 @@ module Vagrant
                                    new_port:   repaired_port.to_s))
             end
           end
-
-          @app.call(env)
         end
 
         def lease_check(port)

@@ -1,5 +1,6 @@
 require 'tempfile'
 
+require "vagrant/util/presence"
 require "vagrant/util/template_renderer"
 
 require_relative "../installer"
@@ -11,6 +12,8 @@ module VagrantPlugins
       # chef-solo and chef-client provisioning are stored. This is **not an actual
       # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
       class Base < Vagrant.plugin("2", :provisioner)
+        include Vagrant::Util::Presence
+
         class ChefError < Vagrant::Errors::VagrantError
           error_namespace("vagrant.provisioners.chef")
         end
@@ -19,6 +22,22 @@ module VagrantPlugins
           super
 
           @logger = Log4r::Logger.new("vagrant::provisioners::chef")
+
+          if !present?(@config.node_name)
+            cache = @machine.data_dir.join("chef_node_name")
+
+            if !cache.exist?
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.generating_node_name")
+              cache.open("w+") do |f|
+                f.write("vagrant-#{SecureRandom.hex(4)}")
+              end
+            end
+
+            if cache.file?
+              @logger.info("Loading cached node_name...")
+              @config.node_name = cache.read.strip
+            end
+          end
         end
 
         def install_chef
@@ -26,9 +45,10 @@ module VagrantPlugins
 
           @logger.info("Checking for Chef installation...")
           installer = Installer.new(@machine,
-            force:      config.install == :force,
-            version:    config.version,
-            prerelease: config.prerelease,
+            product: config.product,
+            channel: config.channel,
+            version: config.version,
+            force: config.install == :force,
             download_path:  config.installer_download_path
           )
           installer.ensure_installed
@@ -123,7 +143,7 @@ module VagrantPlugins
         end
 
         def setup_json
-          @machine.env.ui.info I18n.t("vagrant.provisioners.chef.json")
+          @machine.ui.info I18n.t("vagrant.provisioners.chef.json")
 
           # Get the JSON that we're going to expose to Chef
           json = @config.json
@@ -154,7 +174,7 @@ module VagrantPlugins
           remote_file = guest_encrypted_data_bag_secret_key_path
           return if !remote_file
 
-          @machine.env.ui.info I18n.t(
+          @machine.ui.info I18n.t(
             "vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
 
           @machine.communicate.tap do |comm|

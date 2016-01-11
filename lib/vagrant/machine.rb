@@ -116,6 +116,9 @@ module Vagrant
       # XXX: This is temporary. This will be removed very soon.
       if base
         @id = name
+
+        # For base setups, we don't want to insert the key
+        @config.ssh.insert_key = false
       else
         reload
       end
@@ -141,6 +144,10 @@ module Vagrant
       if state.id == MachineState::NOT_CREATED_ID
         self.id = nil
       end
+
+      # Output a bunch of information about this machine in
+      # machine-readable format in case someone is listening.
+      @ui.machine("metadata", "provider", provider_name)
     end
 
     # This calls an action on the provider. The provider may or may not
@@ -188,7 +195,10 @@ module Vagrant
         end
 
         # Call the action
-        action_raw(name, callable, extra_env)
+        ui.machine("action", name.to_s, "start")
+        action_result = action_raw(name, callable, extra_env)
+        ui.machine("action", name.to_s, "end")
+        action_result
       end
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
@@ -436,6 +446,7 @@ module Vagrant
       # We also set some fields that are purely controlled by Varant
       info[:forward_agent] = @config.ssh.forward_agent
       info[:forward_x11]   = @config.ssh.forward_x11
+      info[:forward_env]   = @config.ssh.forward_env
 
       info[:ssh_command] = @config.ssh.ssh_command if @config.ssh.ssh_command
 

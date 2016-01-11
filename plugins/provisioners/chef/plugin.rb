@@ -53,29 +53,14 @@ module VagrantPlugins
         Provisioner::ChefZero
       end
 
-      guest_capability(:linux, :chef_installed) do
-        require_relative "cap/linux/chef_installed"
-        Cap::Linux::ChefInstalled
-      end
-
-      guest_capability(:windows, :chef_installed) do
-        require_relative "cap/windows/chef_installed"
-        Cap::Windows::ChefInstalled
-      end
-
       guest_capability(:debian, :chef_install) do
         require_relative "cap/debian/chef_install"
         Cap::Debian::ChefInstall
       end
 
-      guest_capability(:redhat, :chef_install) do
-        require_relative "cap/redhat/chef_install"
-        Cap::Redhat::ChefInstall
-      end
-
-      guest_capability(:omnios, :chef_installed) do
-        require_relative "cap/omnios/chef_installed"
-        Cap::OmniOS::ChefInstalled
+      guest_capability(:linux, :chef_installed) do
+        require_relative "cap/linux/chef_installed"
+        Cap::Linux::ChefInstalled
       end
 
       guest_capability(:omnios, :chef_install) do
@@ -83,6 +68,25 @@ module VagrantPlugins
         Cap::OmniOS::ChefInstall
       end
 
+      guest_capability(:omnios, :chef_installed) do
+        require_relative "cap/omnios/chef_installed"
+        Cap::OmniOS::ChefInstalled
+      end
+
+      guest_capability(:redhat, :chef_install) do
+        require_relative "cap/redhat/chef_install"
+        Cap::Redhat::ChefInstall
+      end
+
+      guest_capability(:windows, :chef_install) do
+        require_relative "cap/windows/chef_install"
+        Cap::Windows::ChefInstall
+      end
+
+      guest_capability(:windows, :chef_installed) do
+        require_relative "cap/windows/chef_installed"
+        Cap::Windows::ChefInstalled
+      end
     end
   end
 end

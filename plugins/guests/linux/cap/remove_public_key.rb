@@ -10,8 +10,11 @@ module VagrantPlugins
 
           machine.communicate.tap do |comm|
             if comm.test("test -f ~/.ssh/authorized_keys")
-              comm.execute(
-                "sed -i '/^.*#{contents}.*$/d' ~/.ssh/authorized_keys")
+              comm.execute(<<SCRIPT)
+sed -e '/^.*#{contents}.*$/d' ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.new
+mv ~/.ssh/authorized_keys.new ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+SCRIPT
             end
           end
         end

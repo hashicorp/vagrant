@@ -48,8 +48,12 @@ module VagrantPlugins
         args << " --json-attributes #{provisioning_path("dna.json")}"
         args << " --local-mode" if options[:local_mode]
         args << " --log_level #{config.log_level}" if config.log_level
-        args << " --force-formatter"
         args << " --no-color" if !options[:colored]
+
+        if config.install && (config.version == :latest || config.version.to_s >= "11.0")
+          args << " --force-formatter"
+        end
+
         args << " #{config.arguments.strip}" if config.arguments
 
         args.strip

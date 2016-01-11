@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def self.nfs_check_command(env)
-          "pidof nfsd > /dev/null"
+          "/sbin/service nfsserver status"
         end
 
         def self.nfs_start_command(env)

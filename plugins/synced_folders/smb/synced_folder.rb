@@ -92,6 +92,11 @@ module VagrantPlugins
             guest: machine.guest.name.to_s
         end
 
+        # Setup if we have it
+        if machine.guest.capability?(:smb_install)
+          machine.guest.capability(:smb_install)
+        end
+
         # Detect the host IP for this guest if one wasn't specified
         # for every folder.
         host_ip = nil
@@ -150,7 +155,12 @@ module VagrantPlugins
             stderr: r.stderr
         end
 
-        JSON.parse(r.stdout)["ip_addresses"]
+        res = JSON.parse(r.stdout)["ip_addresses"]
+        if res.instance_of? String
+          [ res ]
+        else
+          res
+        end
       end
     end
   end

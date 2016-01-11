@@ -79,6 +79,8 @@ en:
         for this machine first.
       not_running: |-
         The container is not currently running.
+      preparing: |-
+        Preparing to start the container...
       provision_no_ssh: |-
         Provisioners will not be run since container doesn't support SSH.
       will_not_destroy: |-
@@ -101,6 +103,9 @@ en:
         create the environment. If a machine is not created, only the
         default provider will be shown. So if a provider is not listed,
         then the machine is not created for that environment.
+      preparing: |-
+        Vagrant is preparing to start this Docker container. Run `vagrant up`
+        to continue.
       running: |-
         The container is created and running. You can stop it using
         `vagrant halt`, see logs with `vagrant docker-logs`, and

@@ -84,5 +84,21 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
 
       expect(env[:box_urls]).to eq(expected)
     end
+
+    it "does not append multiple access_tokens" do
+      token = "foobarbaz"
+      VagrantPlugins::LoginCommand::Client.new(iso_env).store_token(token)
+
+      original = [
+        "#{server_url}/foo.box?access_token=existing",
+        "#{server_url}/bar.box?arg=true",
+      ]
+
+      env[:box_urls] = original.dup
+      subject.call(env)
+
+      expect(env[:box_urls][0]).to eq("#{server_url}/foo.box?access_token=existing")
+      expect(env[:box_urls][1]).to eq("#{server_url}/bar.box?arg=true&access_token=foobarbaz")
+    end
   end
 end

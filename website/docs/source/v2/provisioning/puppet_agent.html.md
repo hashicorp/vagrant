@@ -26,6 +26,8 @@ the set of modules and manifests from there.
 The `puppet_server` provisioner takes various options. None are strictly
 required. They are listed below:
 
+* `binary_path` (string) - Path on the guest to Puppet's `bin/` directory.
+
 * `client_cert_path` (string) - Path to the client certificate for the
   node on your disk. This defaults to nothing, in which case a client
   cert won't be uploaded.

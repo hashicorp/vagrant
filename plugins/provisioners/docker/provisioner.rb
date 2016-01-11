@@ -11,7 +11,7 @@ module VagrantPlugins
       def initialize(machine, config, installer = nil, client = nil)
         super(machine, config)
 
-        @installer = installer || Installer.new(@machine, config.version)
+        @installer = installer || Installer.new(@machine)
         @client    = client    || Client.new(@machine)
       end
 

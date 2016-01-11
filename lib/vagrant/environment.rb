@@ -9,6 +9,7 @@ require 'log4r'
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
+require "vagrant/util/silence_warnings"
 require "vagrant/vagrantfile"
 require "vagrant/version"
 
@@ -158,7 +159,7 @@ module Vagrant
       # Setup the local data directory. If a configuration path is given,
       # then it is expanded relative to the working directory. Otherwise,
       # we use the default which is expanded relative to the root path.
-      opts[:local_data_path] ||= ENV["VAGRANT_DOTFILE_PATH"]
+      opts[:local_data_path] ||= ENV["VAGRANT_DOTFILE_PATH"] if !opts[:child]
       opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA) if !root_path.nil?
       if opts[:local_data_path]
         @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
@@ -308,6 +309,7 @@ module Vagrant
     def default_provider(**opts)
       opts[:exclude]       = Set.new(opts[:exclude]) if opts[:exclude]
       opts[:force_default] = true if !opts.key?(:force_default)
+      opts[:check_usable] = true if !opts.key?(:check_usable)
 
       default = ENV["VAGRANT_DEFAULT_PROVIDER"]
       default = nil if default == ""
@@ -375,11 +377,32 @@ module Vagrant
 
       # Find the matching implementation
       ordered.each do |_, key, impl, _|
+        return key if !opts[:check_usable]
         return key if impl.usable?(false)
       end
 
       # No providers available is a critical error for Vagrant.
       raise Errors::NoDefaultProvider
+    end
+
+    # Returns whether or not we know how to install the provider with
+    # the given name.
+    #
+    # @return [Boolean]
+    def can_install_provider?(name)
+      host.capability?(provider_install_key(name))
+    end
+
+    # Installs the provider with the given name.
+    #
+    # This will raise an exception if we don't know how to install the
+    # provider with the given name. You should guard this call with
+    # `can_install_provider?` for added safety.
+    #
+    # An exception will be raised if there are any failures installing
+    # the provider.
+    def install_provider(name)
+      host.capability(provider_install_key(name))
     end
 
     # Returns the collection of boxes for the environment.
@@ -411,6 +434,28 @@ module Vagrant
       @config_loader.set(:home, home_vagrantfile) if home_vagrantfile
       @config_loader.set(:root, root_vagrantfile) if root_vagrantfile
       @config_loader
+    end
+
+    # Loads another environment for the given Vagrantfile, sharing as much
+    # useful state from this Environment as possible (such as UI and paths).
+    # Any initialization options can be overidden using the opts hash.
+    #
+    # @param [String] vagrantfile Path to a Vagrantfile
+    # @return [Environment]
+    def environment(vagrantfile, **opts)
+      path = File.expand_path(vagrantfile, root_path)
+      file = File.basename(path)
+      path = File.dirname(path)
+
+      Util::SilenceWarnings.silence! do
+        Environment.new({
+          child:     true,
+          cwd:       path,
+          home_path: home_path,
+          ui_class:  ui_class,
+          vagrantfile_name: file,
+        }.merge(opts))
+      end
     end
 
     # This defines a hook point where plugin action hooks that are registered
@@ -526,7 +571,13 @@ module Vagrant
       if name != "dotlock"
         lock("dotlock", retry: true) do
           f.close
-          File.delete(lock_path)
+          begin
+            File.delete(lock_path)
+          rescue
+            @logger.error(
+              "Failed to delete lock file #{lock_path} - some other thread " +
+              "might be trying to acquire it. ignoring this error")
+          end
         end
       end
 
@@ -781,7 +832,7 @@ module Vagrant
 
     # This creates the local data directory and show an error if it
     # couldn't properly be created.
-    def setup_local_data_path
+    def setup_local_data_path(force=false)
       if @local_data_path.nil?
         @logger.warn("No local data path is set. Local data cannot be stored.")
         return
@@ -795,6 +846,9 @@ module Vagrant
       if @local_data_path.file?
         upgrade_v1_dotfile(@local_data_path)
       end
+
+      # If we don't have a root path, we don't setup anything
+      return if !force && root_path.nil?
 
       begin
         @logger.debug("Creating: #{@local_data_path}")
@@ -854,6 +908,12 @@ module Vagrant
       nil
     end
 
+    # Returns the key used for the host capability for provider installs
+    # of the given name.
+    def provider_install_key(name)
+      "provider_install_#{name}".to_sym
+    end
+
     # This upgrades a home directory that was in the v1.1 format to the
     # v1.5 format. It will raise exceptions if anything fails.
     def upgrade_home_path_v1_1
@@ -908,7 +968,7 @@ module Vagrant
 
       # Now, we create the actual local data directory. This should succeed
       # this time since we renamed the old conflicting V1.
-      setup_local_data_path
+      setup_local_data_path(true)
 
       if json_data["active"]
         @logger.debug("Upgrading to V2 style for each active VM")

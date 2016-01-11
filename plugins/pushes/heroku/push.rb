@@ -69,7 +69,8 @@ module VagrantPlugins
         result = execute!("git",
           "--git-dir", git_dir(path),
           "--work-tree", path,
-          "branch",
+          "symbolic-ref",
+          "HEAD",
         )
 
         # Returns something like "* master"

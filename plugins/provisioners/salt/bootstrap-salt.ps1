@@ -51,7 +51,7 @@ If ([IntPtr]::Size -eq 4) {
 # Download minion setup file
 Write-Host "Downloading Salt minion installer Salt-Minion-$version-$arch-Setup.exe"
 $webclient = New-Object System.Net.WebClient
-$url = "https://docs.saltstack.com/downloads/Salt-Minion-$version-$arch-Setup.exe"
+$url = "https://repo.saltstack.com/windows/Salt-Minion-$version-$arch-Setup.exe"
 $file = "C:\tmp\salt.exe"
 $webclient.DownloadFile($url, $file)
 

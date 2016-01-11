@@ -30,6 +30,11 @@ module VagrantPlugins
         require_relative "cap/rsync"
         Cap::RSync
       end
+
+      guest_capability("debian", "smb_install") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
     end
   end
 end

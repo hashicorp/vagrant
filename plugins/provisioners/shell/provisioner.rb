@@ -47,7 +47,13 @@ module VagrantPlugins
       # This is the provision method called if SSH is what is running
       # on the remote end, which assumes a POSIX-style host.
       def provision_ssh(args)
-        command = "chmod +x #{config.upload_path} && #{config.upload_path}#{args}"
+        env = config.env.map { |k,v| "#{k}=#{quote_and_escape(v.to_s)}" }
+        env = env.join(" ")
+
+        command =  "chmod +x '#{config.upload_path}'"
+        command << " &&"
+        command << " #{env}" if !env.empty?
+        command << " #{config.upload_path}#{args}"
 
         with_script_file do |path|
           # Upload the script to the machine
@@ -107,6 +113,10 @@ module VagrantPlugins
             # Upload it
             comm.upload(path.to_s, upload_path)
 
+            # Build the environment
+            env = config.env.map { |k,v| "$env:#{k} = #{quote_and_escape(v.to_s)}" }
+            env = env.join("; ")
+
             # Calculate the path that we'll be executing
             exec_path = upload_path
             exec_path.gsub!('/', '\\')
@@ -125,6 +135,11 @@ module VagrantPlugins
             command = "powershell #{shell_args.to_s} -file #{command}" if
               File.extname(exec_path).downcase == '.ps1'
 
+            # Append the environment
+            if !env.empty?
+              command = "#{env}; #{command}"
+            end
+
             if config.name
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
                                       script: "script: #{config.name}"))
@@ -137,7 +152,7 @@ module VagrantPlugins
             end
 
             # Execute it with sudo
-            comm.sudo(command, elevated: config.privileged) do |type, data|
+            comm.sudo(command, { elevated: config.privileged, interactive: config.powershell_elevated_interactive }) do |type, data|
               handle_comm(type, data)
             end
           end

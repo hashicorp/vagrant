@@ -38,6 +38,7 @@ module VagrantPlugins
               end
 
               b2.use ConfigValidate
+              b2.use ProvisionerCleanup, :before
               b2.use StopInstance
               b2.use DeleteVM
             end

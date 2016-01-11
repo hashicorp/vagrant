@@ -221,7 +221,12 @@ module Vagrant
 
             line = "(unknown)"
             if e.backtrace && e.backtrace[0]
-              line = e.backtrace[0].split(":")[1]
+              e.backtrace[0].split(":").each do |part|
+                if part =~ /\d+/
+                  line = part.to_i
+                  break
+                end
+              end
             end
 
             # Report the generic exception

@@ -28,6 +28,11 @@ end
 
 This will allow accessing port 80 on the guest via port 8080 on the host.
 
+For most providers, forwarded ports by default bind to all interfaces. This
+means that other devices on your network can access the forwarded ports.
+If you want to restrict access, see the `guest_ip` and `host_ip` settings
+below.
+
 ## Options Reference
 
 This is a complete list of the options that are available for forwarded

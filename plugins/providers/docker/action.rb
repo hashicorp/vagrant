@@ -156,12 +156,12 @@ module VagrantPlugins
               b3.use Call, DestroyConfirm do |env3, b4|
                 if env3[:result]
                   b4.use ConfigValidate
+                  b4.use ProvisionerCleanup, :before
                   b4.use EnvSet, force_halt: true
                   b4.use action_halt
                   b4.use HostMachineSyncFoldersDisable
                   b4.use Destroy
                   b4.use DestroyBuildImage
-                  b4.use ProvisionerCleanup
                 else
                   b4.use Message,
                     I18n.t("docker_provider.messages.will_not_destroy")

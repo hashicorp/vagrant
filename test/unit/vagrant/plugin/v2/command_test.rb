@@ -263,6 +263,35 @@ describe Vagrant::Plugin::V2::Command do
       expect(results.length).to eq(1)
       expect(results[0].id).to eq(other_machine.id)
     end
+
+    it "should yield machines from another environment" do
+      iso_env       = isolated_environment
+      iso_env.vagrantfile("")
+      other_env     = iso_env.create_vagrant_env(
+        home_path: environment.home_path)
+      other_machine = other_env.machine(
+        other_env.machine_names[0], other_env.default_provider)
+
+      # Set an ID on it so that it is "created" in the index
+      other_machine.id = "foo"
+
+      # Grab the uuid so we know what it is
+      index_uuid = other_machine.index_uuid
+
+      # Remove the working directory
+      FileUtils.rm_rf(iso_env.workdir)
+
+      # Make sure we don't have a root path, to test
+      environment.stub(root_path: nil)
+
+      # Run the command
+      expect {
+          subject.with_target_vms(index_uuid) { |*args| }
+      }.to raise_error(Vagrant::Errors::EnvironmentNonExistentCWD)
+
+      # Verify that it no longer exists in the index
+      expect(other_env.machine_index.get(index_uuid)).to be_nil
+    end
   end
 
   describe "splitting the main and subcommand args" do

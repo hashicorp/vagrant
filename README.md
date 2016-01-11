@@ -1,6 +1,6 @@
 # Vagrant
 
-* Website: [http://www.vagrantup.com](http://www.vagrantup.com)
+* Website: [https://www.vagrantup.com/](https://www.vagrantup.com/)
 * Source: [https://github.com/mitchellh/vagrant](https://github.com/mitchellh/vagrant)
 * IRC: `#vagrant` on Freenode
 * Mailing list: [Google Groups](http://groups.google.com/group/vagrant-up)
@@ -19,12 +19,12 @@ between Windows, Mac OS X, and Linux.
 ## Quick Start
 
 For the quick-start, we'll bring up a development machine on
-[VirtualBox](http://www.virtualbox.org) because it is free and works
+[VirtualBox](https://www.virtualbox.org/) because it is free and works
 on all major platforms. Vagrant can, however, work with almost any
-system such as OpenStack, VMware, Docker, etc.
+system such as [OpenStack] (https://www.openstack.org/), [VMware] (http://www.vmware.com/), [Docker] (https://docs.docker.com/), etc.
 
 First, make sure your development machine has
-[VirtualBox](http://www.virtualbox.org)
+[VirtualBox](https://www.virtualbox.org/)
 installed. After this,
 [download and install the appropriate Vagrant package for your OS](http://www.vagrantup.com/downloads).
 
@@ -53,13 +53,11 @@ Ruby 2.0 is needed.
 
 ## Contributing to Vagrant
 
-### Dependencies and Unit Tests
+To install Vagrant from source, please [follow the guide in the Wiki](https://github.com/mitchellh/vagrant/wiki/Installing-Vagrant-from-Source).
 
-To hack on Vagrant, you'll need [bundler](http://github.com/carlhuda/bundler) which can
-be installed with a simple `gem install bundler`. Afterwards, do the following:
+You can run the test suite with:
 
-    bundle install
-    rake
+    bundle exec rake
 
 This will run the unit test suite, which should come back all green! Then you're good to go!
 

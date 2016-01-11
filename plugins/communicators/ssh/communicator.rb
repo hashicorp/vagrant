@@ -333,6 +333,7 @@ module VagrantPlugins
           auth_methods:          auth_methods,
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
+          send_env:              ssh_info[:forward_env],
           keys:                  ssh_info[:private_key_path],
           keys_only:             true,
           paranoid:              false,
@@ -420,7 +421,7 @@ module VagrantPlugins
         rescue Errno::EHOSTDOWN
           # This is raised if we get an ICMP DestinationUnknown error.
           raise Vagrant::Errors::SSHHostDown
-        rescue Errno::EHOSTUNREACH
+        rescue Errno::EHOSTUNREACH, Errno::ENETUNREACH
           # This is raised if we can't work out how to route traffic.
           raise Vagrant::Errors::SSHNoRoute
         rescue Net::SSH::Exception => e
@@ -611,6 +612,7 @@ module VagrantPlugins
           end
 
           data = pty_stdout[/.*#{PTY_DELIM_START}(.*?)#{PTY_DELIM_END}/m, 1]
+          data ||= ""
           @logger.debug("PTY stdout parsed: #{data}")
           yield :stdout, data if block_given?
         end

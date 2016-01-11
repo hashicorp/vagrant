@@ -5,10 +5,22 @@ require Vagrant.source_root.join("plugins/provisioners/chef/provisioner/base")
 describe VagrantPlugins::Chef::Provisioner::Base do
   include_context "unit"
 
-  let(:machine) { double("machine") }
+  let(:iso_env) do
+    # We have to create a Vagrantfile so there is a root path
+    env = isolated_environment
+    env.vagrantfile("")
+    env.create_vagrant_env
+  end
+
+  let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
   let(:config)  { double("config") }
 
   subject { described_class.new(machine, config) }
+
+  before do
+    allow(config).to receive(:node_name)
+    allow(config).to receive(:node_name=)
+  end
 
   describe "#encrypted_data_bag_secret_key_path" do
     let(:env) { double("env") }

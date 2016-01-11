@@ -16,6 +16,12 @@ describe VagrantPlugins::Salt::Config do
 
   let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
 
+  describe "#config_dir" do
+    it "is deprecated until Vagrant 1.9" do
+      raise "Remove the deprecation" if Vagrant::VERSION >= "1.9.0"
+    end
+  end
+
   describe "validate" do
     let(:error_key) { "salt provisioner" }
 

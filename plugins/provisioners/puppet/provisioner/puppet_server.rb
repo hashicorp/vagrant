@@ -17,8 +17,14 @@ module VagrantPlugins
         end
 
         def verify_binary(binary)
+          if @config.binary_path
+            test_cmd = "test -x #{@config.binary_path}/#{binary}"
+          else
+            test_cmd = "which #{binary}"
+          end
+
           @machine.communicate.sudo(
-            "which #{binary}",
+            test_cmd,
             error_class: PuppetServerError,
             error_key: :not_detected,
             binary: binary)
@@ -83,8 +89,13 @@ module VagrantPlugins
             facter = "#{facts.join(" ")} "
           end
 
+
+          puppet_bin = "puppet"
+          if @config.binary_path
+            puppet_bin = File.join(@config.binary_path, puppet_bin)
+          end
           options = options.join(" ")
-          command = "#{facter}puppet agent --onetime --no-daemonize #{options} " +
+          command = "#{facter} #{puppet_bin} agent --onetime --no-daemonize #{options} " +
             "--server #{config.puppet_server} --detailed-exitcodes || [ $? -eq 2 ]"
 
           @machine.ui.info I18n.t("vagrant.provisioners.puppet_server.running_puppetd")

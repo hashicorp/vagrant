@@ -1,13 +1,10 @@
-require File.expand_path("../helpers/download_helpers", __FILE__)
+require_relative "helpers/middleman_hashicorp_shim"
+helpers MiddlemanHashiCorpHelpers
 
 page "/blog_feed.xml", layout: false
-ignore "/download-archive-single.html"
 
-# Archived download pages
-$vagrant_versions.each do |version|
-  proxy "/download-archive/v#{version}.html", "/download-archive-single.html",
-    locals: { version: version }, ignore: true
-end
+# The version of Vagrant - update this to update the downloads page
+set :latest_version, '1.8.1'
 
 set :css_dir, 'stylesheets'
 set :js_dir, 'javascripts'

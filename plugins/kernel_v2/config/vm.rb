@@ -37,6 +37,9 @@ module VagrantPlugins
       attr_accessor :usable_port_range
       attr_reader :provisioners
 
+      # This is an experimental feature that isn't public yet.
+      attr_accessor :clone
+
       def initialize
         @logger = Log4r::Logger.new("vagrant::config::vm")
 
@@ -54,6 +57,7 @@ module VagrantPlugins
         @box_download_location_trusted = UNSET_VALUE
         @box_url                       = UNSET_VALUE
         @box_version                   = UNSET_VALUE
+        @clone                         = UNSET_VALUE
         @communicator                  = UNSET_VALUE
         @graceful_halt_timeout         = UNSET_VALUE
         @guest                         = UNSET_VALUE
@@ -367,6 +371,7 @@ module VagrantPlugins
         @box_download_location_trusted = false if @box_download_location_trusted == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
         @box_version = nil if @box_version == UNSET_VALUE
+        @clone = nil if @clone == UNSET_VALUE
         @communicator = nil if @communicator == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
         @guest = nil if @guest == UNSET_VALUE
@@ -411,7 +416,8 @@ module VagrantPlugins
               host_ip: "127.0.0.1",
               id: "winrm",
               auto_correct: true
-
+          end
+          if !@__networks["forwarded_port-winrm-ssl"]
             network :forwarded_port,
               guest: 5986,
               host: 55986,
@@ -554,8 +560,12 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
-        if !box && !machine.provider_options[:box_optional]
+        if !box && !clone && !machine.provider_options[:box_optional]
           errors << I18n.t("vagrant.config.vm.box_missing")
+        end
+
+        if box && clone
+          errors << I18n.t("vagrant.config.vm.clone_and_box")
         end
 
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters") if \
@@ -688,7 +698,7 @@ module VagrantPlugins
               end
             end
 
-            if options[:ip] && options[:ip].end_with?(".1")
+            if options[:ip] && options[:ip].end_with?(".1") && (options[:type] || "").to_sym != :dhcp
               machine.ui.warn(I18n.t(
                 "vagrant.config.vm.network_ip_ends_in_one"))
             end

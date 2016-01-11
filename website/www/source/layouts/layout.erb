@@ -20,7 +20,7 @@
 		<%= javascript_include_tag "vagrantup" %>
 
 		<!-- fonts -->
-		<link href='//fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+		<link href='//fonts.googleapis.com/css?family=Inconsolata|Open+Sans:300,600' rel='stylesheet' type='text/css'>
 		<script type="text/javascript" src="//use.typekit.net/xfs6zus.js"></script>
 		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 
@@ -32,23 +32,40 @@
 		 <!-- wrap everything -->
 		 <div class="wrapper">
 
-			 <!-- nav -->
-
-			 <nav>
-			 <!-- vagrant logo -->
-			 <a class="vagrant-logo" href="/">Vagrant</a>
-			 <!-- nav -->
-			 <ul class="pull-right unstyled">
-				 <li class="pill"><a href="/vmware">VMware Integration</a></li>
-				 <li><a href="/downloads.html">Downloads</a></li>
-				 <li><a href="https://docs.vagrantup.com/">Documentation</a></li>
-				 <li><a href="/blog.html">Blog</a></li>
-				 <li><a href="/about.html">About</a></li>
-			 </ul>
-			 </nav>
+			<!-- nav -->
+      <div id="header" class="navigation">
+  			<div class="container-fluid">
+  			 <!-- vagrant logo -->
+         <div class="navbar-header">
+            <div class="navbar-brand">
+    			    <a class="logo" href="/">Vagrant</a>
+              <a class="by-hashicorp" href="https://hashicorp.com/"><span class="svg-wrap">by</span><%= partial "layouts/svg/svg-by-hashicorp" %><%= partial "layouts/svg/svg-hashicorp-logo" %>Hashicorp</a>
+            </div>
+            <button class="navbar-toggle" type="button">
+  						<span class="bar"></span>
+  						<span class="bar"></span>
+  						<span class="bar"></span>
+  					</button>
+          </div>
+          <div class="buttons">
+  					<nav class="navigation-links" role="navigation">
+              <ul class="main-links nav navbar-nav">
+                <li class="pill"><a href="/vmware">VMware Integration</a></li>
+                <li><a href="/downloads.html">Downloads</a></li>
+                <li><a href="https://atlas.hashicorp.com/boxes/search">Boxes</a></li>
+                <li><a href="https://docs.vagrantup.com/">Docs</a></li>
+                <li><a href="/blog.html">Blog</a></li>
+                <li><a href="/about.html">About</a></li>
+              </ul>
+  					</nav>
+  				</div>
+  			 </div>
+      </div>
 
 			 <%= yield %>
 
+       <%= partial "layouts/mobile_nav" %>
+       
 			 <!-- footer -->
 			 <footer>
 			 <div class="container">
@@ -59,6 +76,13 @@
 							 <li><a href="https://docs.vagrantup.com/">Documentation</a></li>
 							 <li><a href="/about.html">About</a></li>
 							 <li><a href="/support.html">Support</a></li>
+							 <% if current_page.url != "/" %>
+								<% relative_path = current_page.path.match(/.*\//).to_s
+								file = current_page.source_file.split("/").last
+								github_link = "https://github.com/mitchellh/vagrant/blob/master/website/www/source/#{relative_path}#{file}"
+								%>
+								<li class="li-under"><a href="<%= github_link %>">Edit this page</a></li>
+							 <% end %>
 							 <a href="/downloads.html">
 								 <li class="button inline-button">Download</li>
 							 </a>
@@ -78,9 +102,11 @@
 				 </div> <!-- /row -->
 
 				 <div class="row">
-					 <h6 class="legal">
-						 Copyright &copy; <%= Time.now.year %> HashiCorp
-					 </h6>
+					<div class="span12">
+						<h6 class="legal">
+							 Copyright &copy; <%= Time.now.year %> HashiCorp
+						</h6>
+					 </div> <!-- /span -->
 				 </div> <!-- row -->
 			 </div> <!-- container -->
 			 </footer>
@@ -88,10 +114,15 @@
 			 <!-- close .wrapper -->
 		 </div>
 
+     <%= javascript_include_tag "lib/Base" %>
+     <%= javascript_include_tag "Sidebar" %>
+
 		 <!-- load scripts -->
 		 <!-- load full-width image into any div with class="big-background -->
 		 <script>
-			 $(".big-background").backstretch("assets/photos/full_width.jpg");
+			$(".big-background").backstretch("assets/photos/full_width.jpg");
+
+  	  new Sidebar();
 		 </script>
 
 		 <!-- Google analytics -->
@@ -129,4 +160,3 @@
 		 </script>
 	 </body>
  </html>
-

@@ -5,10 +5,11 @@ require Vagrant.source_root.join("plugins/communicators/winrm/communicator")
 describe VagrantPlugins::CommunicatorWinRM::Communicator do
   include_context "unit"
 
-  let(:winrm) { double("winrm", timeout: 1) }
+  let(:winrm) { double("winrm", timeout: 1, host: nil, port: 5986, guest_port: 5986) }
   let(:config) { double("config", winrm: winrm) }
-  let(:machine) { double("machine", config: config) }
-
+  let(:provider) { double("provider") }
+  let(:ui) { double("ui") }
+  let(:machine) { double("machine", config: config, provider: provider, ui: ui) }
   let(:shell) { double("shell") }
 
   subject do
@@ -20,6 +21,38 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
   before do
     allow(shell).to receive(:username).and_return('vagrant')
     allow(shell).to receive(:password).and_return('password')
+    allow(shell).to receive(:execution_time_limit).and_return('PT2H')
+  end
+
+  describe ".wait_for_ready" do
+    context "with no winrm_info capability and no static config (default scenario)" do
+      before do
+        # No default providers support this capability
+        allow(provider).to receive(:capability?).with(:winrm_info).and_return(false)
+
+        # Get us through the detail prints
+        allow(ui).to receive(:detail)
+        allow(shell).to receive(:host)
+        allow(shell).to receive(:port)
+        allow(shell).to receive(:username)
+        allow(shell).to receive(:config) { double("config", transport: nil)}
+      end
+
+      context "when ssh_info requires a multiple tries before it is ready" do
+        before do
+          allow(machine).to receive(:ssh_info).and_return(nil, {
+            host: '10.1.2.3',
+            port: '22',
+          })
+          # Makes ready? return true
+          allow(shell).to receive(:powershell).with("hostname").and_return({ exitcode: 0 })
+        end
+
+        it "retries ssh_info until ready" do
+          expect(subject.wait_for_ready(2)).to eq(true)
+        end
+      end
+    end
   end
 
   describe ".ready?" do
@@ -55,10 +88,19 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
     it "wraps command in elevated shell script when elevated is true" do
       expect(shell).to receive(:upload).with(kind_of(String), "c:/tmp/vagrant-elevated-shell.ps1")
       expect(shell).to receive(:powershell) do |cmd|
-        expect(cmd).to eq("powershell -executionpolicy bypass -file \"c:/tmp/vagrant-elevated-shell.ps1\" " +
-          "-username \"vagrant\" -password \"password\" -encoded_command \"ZABpAHIAOwAgAGUAeABpAHQAIAAkAEwAQQBTAFQARQBYAEkAVABDAE8ARABFAA==\"")
+        expect(cmd).to eq("powershell -executionpolicy bypass -file 'c:/tmp/vagrant-elevated-shell.ps1' " +
+          "-username 'vagrant' -password 'password' -encoded_command 'JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIABkAGkAcgA7ACAAZQB4AGkAdAAgACQATABBAFMAVABFAFgASQBUAEMATwBEAEUA' -execution_time_limit 'PT2H'")
       end.and_return({ exitcode: 0 })
       expect(subject.execute("dir", { elevated: true })).to eq(0)
+    end
+
+    it "wraps command in elevated and interactive shell script when elevated and interactive are true" do
+      expect(shell).to receive(:upload).with(kind_of(String), "c:/tmp/vagrant-elevated-shell.ps1")
+      expect(shell).to receive(:powershell) do |cmd|
+        expect(cmd).to eq("powershell -executionpolicy bypass -file 'c:/tmp/vagrant-elevated-shell.ps1' " +
+          "-username 'vagrant' -password 'password' -encoded_command 'JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIABkAGkAcgA7ACAAZQB4AGkAdAAgACQATABBAFMAVABFAFgASQBUAEMATwBEAEUA' -execution_time_limit 'PT2H'")
+      end.and_return({ exitcode: 0 })
+      expect(subject.execute("dir", { elevated: true, interactive: true })).to eq(0)
     end
 
     it "can use cmd shell" do

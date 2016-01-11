@@ -9,6 +9,7 @@ role_path <%= roles_path.size == 1 ? roles_path.first.inspect : roles_path.inspe
 <% end %>
 log_level <%= log_level.inspect %>
 verbose_logging <%= verbose_logging.inspect %>
+
 <% if !enable_reporting %>
 enable_reporting <%= enable_reporting.inspect %>
 <% end %>
@@ -16,7 +17,7 @@ enable_reporting <%= enable_reporting.inspect %>
 encrypted_data_bag_secret <%= encrypted_data_bag_secret.inspect %>
 
 <% if data_bags_path -%>
-data_bag_path <%= data_bags_path.inspect %>
+data_bag_path <%= data_bags_path.size == 1 ? data_bags_path.first.inspect : data_bags_path.inspect %>
 <% end %>
 
 <% if environments_path %>
@@ -31,8 +32,8 @@ environment "<%= environment %>"
 chef_zero.enabled true
 local_mode true
 <% end -%>
-<% if node_path -%>
-node_path <%= node_path.inspect %>
+<% if nodes_path -%>
+node_path <%= nodes_path.inspect %>
 <% end -%>
 
 <% if formatter %>

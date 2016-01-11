@@ -4,6 +4,8 @@ require "tmpdir"
 
 require "log4r"
 
+require "vagrant/util/platform"
+
 # This class manages an isolated environment for Vagrant to
 # run in. It creates a temporary directory to act as the
 # working directory as well as sets a custom home directory.
@@ -26,7 +28,7 @@ class IsolatedEnvironment
     @logger = Log4r::Logger.new("test::isolated_environment")
 
     # Create a temporary directory for our work
-    @tempdir = Dir.mktmpdir("vagrant")
+    @tempdir = Vagrant::Util::Platform.fs_real_path(Dir.mktmpdir("vagrant"))
     @logger.info("Initialize isolated environment: #{@tempdir}")
 
     # Setup the home and working directories

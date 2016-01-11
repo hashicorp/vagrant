@@ -15,6 +15,7 @@ describe VagrantPlugins::LocalExecPush::Push do
     double("config",
       script: nil,
       inline: nil,
+      args: "some args",
     )
   end
 
@@ -37,7 +38,7 @@ describe VagrantPlugins::LocalExecPush::Push do
 
       it "executes the inline script" do
         expect(subject).to receive(:execute_inline!)
-          .with(config.inline)
+          .with(config.inline, config.args)
         subject.push
       end
     end
@@ -47,7 +48,7 @@ describe VagrantPlugins::LocalExecPush::Push do
 
       it "executes the script" do
         expect(subject).to receive(:execute_script!)
-          .with(config.script)
+          .with(config.script, config.args)
         subject.push
       end
     end
@@ -58,12 +59,12 @@ describe VagrantPlugins::LocalExecPush::Push do
 
     it "writes the script to a tempfile" do
       expect(Tempfile).to receive(:new).and_call_original
-      subject.execute_inline!("echo")
+      subject.execute_inline!("echo", config.args)
     end
 
     it "executes the script" do
       expect(subject).to receive(:execute_script!)
-      subject.execute_inline!("echo")
+      subject.execute_inline!("echo", config.args)
     end
   end
 
@@ -76,26 +77,50 @@ describe VagrantPlugins::LocalExecPush::Push do
     it "expands the path relative to the machine root" do
       expect(subject).to receive(:execute!)
         .with(File.expand_path("foo.sh", env.root_path))
-      subject.execute_script!("./foo.sh")
+      subject.execute_script!("./foo.sh", nil)
     end
 
     it "makes the file executable" do
       expect(FileUtils).to receive(:chmod)
         .with("+x", File.expand_path("foo.sh", env.root_path))
-      subject.execute_script!("./foo.sh")
+      subject.execute_script!("./foo.sh", config.args)
     end
 
     it "calls execute!" do
       expect(subject).to receive(:execute!)
         .with(File.expand_path("foo.sh", env.root_path))
-      subject.execute_script!("./foo.sh")
+      subject.execute_script!("./foo.sh", nil)
+    end
+
+    context "when args is given" do
+      it "passes string args to execute!" do
+        expect(subject).to receive(:execute!)
+          .with(File.expand_path("foo.sh", env.root_path) + " " + config.args)
+        subject.execute_script!("./foo.sh", config.args)
+      end
+
+      it "passes array args as string to execute!" do
+        expect(subject).to receive(:execute!)
+          .with(File.expand_path("foo.sh", env.root_path) + " \"one\" \"two\" \"three\"")
+        subject.execute_script!("./foo.sh", ["one", "two", "three"])
+      end
     end
   end
 
   describe "#execute!" do
-    it "safe execs" do
+    it "uses exec on unix" do
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(false)
       expect(Vagrant::Util::SafeExec).to receive(:exec)
       expect { subject.execute! }.to_not raise_error
+    end
+
+    it "uses subprocess on windows" do
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+      result = double("result", exit_code: 0)
+      expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(result)
+      expect { subject.execute! }.to raise_error { |e|
+        expect(e).to be_a(SystemExit)
+      }
     end
   end
 end

@@ -1,32 +1,39 @@
 module VagrantPlugins
   module Chef
+    # Read more about the Omnibus installer here:
+    #
+    #   https://docs.chef.io/install_omnibus.html
+    #
     module Omnibus
-      OMNITRUCK = "https://www.chef.io/chef/install.sh".freeze
+      OMNITRUCK = "https://omnitruck.chef.io".freeze
 
-      # Read more about the Omnibus installer here:
-      # https://docs.getchef.com/install_omnibus.html
-      def build_command(version, prerelease = false, download_path = nil)
-        command = "curl -sL #{OMNITRUCK} | sudo bash"
-
-        if prerelease || version != :latest || download_path != nil
-          command << " -s --"
-        end
-
-        if prerelease
-          command << " -p"
-        end
+      def sh_command(project, version, channel, options = {})
+        command =  "curl -sL #{OMNITRUCK}/install.sh | sudo bash"
+        command << " -s -- -P \"#{project}\" -c \"#{channel}\""
 
         if version != :latest
           command << " -v \"#{version}\""
         end
 
-        if download_path
-          command << " -d \"#{download_path}\""
+        if options[:download_path]
+          command << " -d \"#{options[:download_path]}\""
         end
 
         command
       end
-      module_function :build_command
+      module_function :sh_command
+
+      def ps_command(project, version, channel, options = {})
+        command =  ". { iwr -useb #{OMNITRUCK}/install.ps1 } | iex; install"
+        command << " -project '#{project}' -channel '#{channel}'"
+
+        if version != :latest
+          command << " -version '#{version}'"
+        end
+
+        command
+      end
+      module_function :ps_command
     end
   end
 end
