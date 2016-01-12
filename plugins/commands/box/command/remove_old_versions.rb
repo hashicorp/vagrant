@@ -50,7 +50,7 @@ module VagrantPlugins
 
           # First find the newest version for every installed box
           boxes.each do |name, version, provider|
-            next if only_provider and only_provider != provider
+            next if only_provider and only_provider != provider.to_s
 
             # Nested to make sure it works for boxes with different providers
             if newest_boxes.has_key?(name)
