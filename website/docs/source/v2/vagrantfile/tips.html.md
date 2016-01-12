@@ -47,3 +47,20 @@ every node will actually provision with the same text.
 
 This is an easy mistake to make, and Vagrant can't really protect against it,
 so the best we can do is mention it here.
+
+## Overwrite host locale in ssh session
+
+Usually, host locale environment variables are passed to guest. It may cause 
+failures when guest software do not support host locale
+
+Possible solution is override locale in Vagrant file:
+
+<pre class="prettyprint">
+Vagrant.configure(2) do |config|
+  config.vm.box = "ubuntu/vivid64"
+  ENV['LC_ALL']="en_US.UTF-8"
+end 
+</pre>
+
+The change is visible within Vagrantfile only.
+
