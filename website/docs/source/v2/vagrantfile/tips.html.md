@@ -50,17 +50,16 @@ so the best we can do is mention it here.
 
 ## Overwrite host locale in ssh session
 
-Usually, host locale environment variables are passed to guest. It may cause 
-failures when guest software do not support host locale
-
-Possible solution is override locale in Vagrant file:
+Usually, host locale environment variables are passed to guest. It may cause
+failures if the guest software do not support host locale. One possible solution
+is override locale in the `Vagrantfile`:
 
 <pre class="prettyprint">
+ENV["LC_ALL"] = "en_US.UTF-8"
+
 Vagrant.configure(2) do |config|
-  config.vm.box = "ubuntu/vivid64"
-  ENV['LC_ALL']="en_US.UTF-8"
-end 
+  # ...
+end
 </pre>
 
-The change is visible within Vagrantfile only.
-
+The change is only visible within the `Vagrantfile`.
