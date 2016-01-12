@@ -34,6 +34,11 @@ module VagrantPlugins
             Remove
           end
 
+          @subcommands.register(:"remove-old-versions") do
+            require File.expand_path("../remove_old_versions", __FILE__)
+            RemoveOldVersions
+          end
+
           @subcommands.register(:repackage) do
             require File.expand_path("../repackage", __FILE__)
             Repackage
