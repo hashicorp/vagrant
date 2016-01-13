@@ -52,7 +52,7 @@ module VagrantPlugins
 
           # Check that ansible binaries are well installed on the guest,
           @machine.communicate.execute(
-            "ansible-galaxy --help && ansible-playbook --help",
+            "ansible-galaxy info --help && ansible-playbook --help",
             :error_class => Ansible::Errors::AnsibleNotFoundOnGuest,
             :error_key => :ansible_not_found_on_guest)
 

@@ -41,7 +41,11 @@ their purpose.
   "chefdk", which will install the Chef Development Kit.
 
 - `channel` (string) - The release channel from which to pull the Chef Client
-  or the Chef Development Kit. The default value is `"current"`.
+  or the Chef Development Kit. The default value is `"current"` which will pull
+  ChefDK and the latest released version of Chef. For older versions, you may
+  need to change the channel to "stable". Because Chef Software floats the
+  versions that are contained in the channel, they may change and Vagrant is
+  unable to detect this.
 
 - `version` (string) - The version of Chef to install on the guest. If Chef is
   already installed on the system, the installed version is compared with the
