@@ -37,10 +37,7 @@ module VagrantPlugins
         protected
 
         def check_path(machine, path, test_args, error_message_key = nil)
-          remote_path = File.expand_path(path, @provisioning_path)
-
-          # Remove drive letter if running on a Windows host
-          remote_path = remote_path.gsub(/^[a-zA-Z]:/, "")
+          remote_path = Helpers::expand_path_in_unix_style(path, @provisioning_path)
 
           if machine.communicate.ready? && !machine.communicate.test("test #{test_args} #{remote_path}")
             if error_message_key
