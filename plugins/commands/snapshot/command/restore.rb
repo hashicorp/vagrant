@@ -1,15 +1,23 @@
 require 'optparse'
 
+require 'vagrant'
+
+require Vagrant.source_root.join("plugins/commands/up/start_mixins")
+
 module VagrantPlugins
   module CommandSnapshot
     module Command
       class Restore < Vagrant.plugin("2", :command)
+
+        include VagrantPlugins::CommandUp::StartMixins
+
         def execute
           options = {}
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant snapshot restore [options] [vm-name] <name>"
             o.separator ""
+            build_start_options(o, options)
             o.separator "Restore a snapshot taken previously with snapshot save."
           end
 
@@ -21,9 +29,14 @@ module VagrantPlugins
               help: opts.help.chomp
           end
 
+          # Validate the provisioners
+          validate_provisioner_flags!(options, argv)
+
           name = argv.pop
+          options[:snapshot_name] = name
+
           with_target_vms(argv) do |vm|
-            vm.action(:snapshot_restore, snapshot_name: name)
+            vm.action(:snapshot_restore, options)
           end
 
           # Success, exit status 0

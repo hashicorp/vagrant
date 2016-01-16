@@ -45,16 +45,9 @@ module VagrantPlugins
             return
           end
 
-          snapshot_delete = true
-          if opts.key?(:no_delete)
-              snapshot_delete = false
-          end
-
           # Restore the snapshot and tell the provider to delete it, if required
-          machine.action(
-            :snapshot_restore,
-            snapshot_name: name,
-            snapshot_delete: snapshot_delete)
+          opts[:snapshot_name] = name
+          machine.action(:snapshot_restore, opts)
         end
       end
     end
