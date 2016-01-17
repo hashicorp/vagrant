@@ -6,6 +6,10 @@ BUG FIXES:
       galaxy resources when running on a Windows host [GH-6740, GH-6757]
   - provisioners/ansible_local: Change the way to verify `ansible-galaxy`
       presence, to avoid a non-zero status code with Ansible 2.0 [GH-6793]
+  - provisioners/ansible_local: The configuration sanity checks now only warn
+      on missing files or directories, so that the requested vagrant command is
+      always executed (e.g. `vagrant destroy` is not aborted when the configured
+      playbook is not present on the guest) [GH-6763]
 
 ## 1.8.1 (December 21, 2015)
 

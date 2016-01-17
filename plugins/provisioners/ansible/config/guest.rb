@@ -41,12 +41,14 @@ module VagrantPlugins
 
           if machine.communicate.ready? && !machine.communicate.test("test #{test_args} #{remote_path}")
             if error_message_key
-              @errors << I18n.t(error_message_key, path: remote_path, system: "guest")
+              # only show warnings, as raising an error would abort the request
+              # vagrant action (e.g. prevent `destroy` to be executed)
+              machine.ui.warn(I18n.t(error_message_key, path: remote_path, system: "guest"))
             end
             return false
           end
           # when the machine is not ready for SSH communication,
-          # the check is "optimistically" by passed.
+          # the check is "optimistically" bypassed.
           true
         end
 
