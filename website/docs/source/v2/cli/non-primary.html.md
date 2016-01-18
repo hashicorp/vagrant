@@ -23,5 +23,6 @@ more about it.
 
 * [docker-logs](/v2/docker/commands.html)
 * [docker-run](/v2/docker/commands.html)
+* [docker-exec](/v2/docker/commands.html)
 * [rsync](/v2/cli/rsync.html)
 * [rsync-auto](/v2/cli/rsync-auto.html)

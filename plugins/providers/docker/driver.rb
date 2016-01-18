@@ -155,6 +155,17 @@ module VagrantPlugins
         end
       end
 
+      def exec(params, **opts, &block)
+        cmd      = Array(params.fetch(:cmd))
+        exec_cmd = %w(docker exec)
+        exec_cmd << "-it" if params[:pty]
+        exec_cmd << params[:id]
+        exec_cmd += params[:extra_args] if params[:extra_args]
+        exec_cmd << cmd
+
+        execute(*exec_cmd.flatten, **opts, &block).chomp.lines.last
+      end
+
       def execute(*cmd, **opts, &block)
         @executor.execute(*cmd, **opts, &block)
       end

@@ -28,3 +28,16 @@ $ vagrant docker-run app -- rake db:migrate
 </pre>
 
 The above would run `rake db:migrate` in the context of an `app` container.
+
+### docker-exec
+
+`vagrant docker-exec` can be used to run one-off commands against
+a Docker container that is currently running, or if the container
+is not running the container will be started and remain running
+after the command has completed.
+
+<pre class="prettyprint">
+$ vagrant docker-exec app -- rake db:migrate
+</pre>
+
+The above would run `rake db:migrate` in the context of an `app` container.

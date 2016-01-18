@@ -16,6 +16,15 @@ module VagrantPlugins
         end
       end
 
+      # This action runs a single command on a running container. If the container
+      # is not already container, and new container will be started and will remain
+      # running after the command has executed
+      def self.action_exec_command
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use action_up
+        end
+      end
+
       # This action brings the "machine" up from nothing, including creating the
       # container, configuring metadata, and booting.
       def self.action_up
@@ -214,9 +223,80 @@ module VagrantPlugins
         end
       end
 
+      def self.action_exec_start
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use Call, IsState, :running do |env, b2|
+            b2.use Call, HasSSH do |env2, b3|
+              if env2[:result]
+                b3.use Provision
+              end
+            end
+
+            b2.use Call, IsState, :not_created do |env2, b3|
+              if env2[:result]
+                # First time making this thing, set to the "preparing" state
+                b3.use InitState
+              else
+                b3.use EnvSet, host_machine_sync_folders: false
+              end
+            end
+
+            b2.use HostMachineBuildDir
+            b2.use HostMachineSyncFolders
+            b2.use PrepareNFSValidIds
+            b2.use SyncedFolderCleanup
+            b2.use PrepareNFSSettings
+            b2.use Login
+            b2.use Build
+              
+            # If the container is NOT created yet, then do some setup steps
+            # necessary for creating it.
+            b2.use Call, IsState, :preparing do |env2, b3|
+              if env2[:result]
+                b3.use EnvSet, port_collision_repair: true
+                b3.use HostMachinePortWarning
+                b3.use HostMachinePortChecker
+                b3.use HandleForwardedPortCollisions
+                b3.use SyncedFolders
+                b3.use ForwardedPorts
+
+                # unset machine_action so we can start the container
+                b3.use EnvSet, machine_action: nil
+                b3.use Create
+                b3.use WaitForRunning
+                
+                # set machine_action and create again to run our action
+                b3.use EnvSet, machine_action: :exec_command
+                b3.use Create
+                b3.use WaitForRunning
+              else
+                b3.use CompareSyncedFolders
+                b3.use HandleBox
+                
+                b3.use Call, IsState, :running do |env3, b4|
+                  if !env3[:result]
+                    b4.use Start
+                  end
+                end
+
+                b3.use WaitForRunning
+                b3.use Create
+              end
+            end
+          end
+        end
+      end
+
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
+
+            # If we're executing a command on the container we need to start a little differently
+            if env[:machine_action] == :exec_command
+              b2.use action_exec_start
+              next
+            end
+
             # If the container is running and we're not doing a run, we're done
             next if env[:result] && env[:machine_action] != :run_command
 

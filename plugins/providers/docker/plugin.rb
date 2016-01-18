@@ -34,6 +34,12 @@ module VagrantPlugins
         Command::Run
       end
 
+      command("docker-exec", primary: false) do
+        require_relative "command/exec"
+        init!
+        Command::Exec
+      end
+
       communicator(:docker_hostvm) do
         require_relative "communicator"
         init!
