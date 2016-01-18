@@ -44,25 +44,25 @@
 
   }
 
-  .sidebar-nav { //style all sidebar-navs
+  .sidebar-nav {
     //position:fixed;
   }
 
-  ul { //general sidebar list styles
+  ul {
 
-    li { //general sidebar list item styles
+    li {
       font-size: 20px;
       .museo-sans-light;
 
       a {
         display: block;
-      } //li a
+      }
 
       &:hover {
       }
-    } //li
+    }
 
-    ul.sub { //subnav list styles
+    ul.sub {
       border-top: none;
       list-style-type: none;
       margin:0 0 5px 0;
@@ -72,13 +72,13 @@
         font-size: 15px;
         border: none;
         border-bottom: none !important;
-      } //ul.sub li
-    } //ul.sub
+      }
+    }
 
-  } //ul
+  }
 
 
-  .inner & { //styles for the inner-page sidebar
+  .inner & {
     .padded;
     position:fixed;
 
@@ -86,10 +86,10 @@
       color: @purple;
     }
 
-    ul { //style inner list
+    ul {
 
 
-      li { //style inner list item
+      li {
         color: @dark-blue-text;
         padding: 20px 0;
         border-top: 1px solid fade(@white, 40%);
@@ -98,23 +98,23 @@
           border-bottom: 1px solid fade(@white, 40%);
         }
 
-        &.current { //style the current selected list item
+        &.current {
 
-        } //current
-      } //li
-    } //ul
-  } //.inner .sidebar
+        }
+      }
+    }
+  }
 
-  .docs & { //styles for the documentation sidebar
+  .docs & {
 
     li.current a {
       color: @blue;
     }
 
-    ul { //style documentation list
+    ul {
       margin-top: 60px;
 
-      li { //style documentation list items
+      li {
         text-transform: capitalize;
         color: @white;
         padding: 12px 0;
@@ -128,10 +128,10 @@
           border-bottom: 1px solid fade(@white, 20%);
         }
 
-        &.current { //style the current selected list item
+        &.current {
 
-        } //current
-      } //li
-    } //ul
-  } //.documentation .sidebar
-} //sidebar
+        }
+      }
+    }
+  }
+}

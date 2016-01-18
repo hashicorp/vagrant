@@ -32,7 +32,7 @@ module VagrantPlugins
           dl.download!
 
           # Validate that the file checksum matches
-          actual = Vagrant::Util::FileChecksum.new(tf.path, Digest::SHA2).checksum
+          actual = FileChecksum.new(tf.path, Digest::SHA2).checksum
           if actual != SHA256SUM
             raise Vagrant::Errors::ProviderChecksumMismatch,
               provider: "virtualbox",

@@ -43,9 +43,6 @@ module Vagrant
           yield
         end
       end
-
-      # Configure Bundler to retry
-      ::Bundler.settings[:retry] = 3
     end
 
     # Initializes Bundler and the various gem paths so that we can begin
@@ -77,6 +74,7 @@ module Vagrant
         env["BUNDLE_APP_CONFIG"] = @appconfigpath
         env["BUNDLE_CONFIG"]     = @configfile.path
         env["BUNDLE_GEMFILE"]    = @gemfile.path
+        env["BUNDLE_RETRY"]      = "3"
         env["GEM_PATH"] =
           "#{bundle_path}#{::File::PATH_SEPARATOR}#{@gem_path}"
       end

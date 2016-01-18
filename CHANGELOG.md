@@ -1,4 +1,34 @@
-## Next Release
+## Next Version (unreleased)
+
+BUG FIXES:
+
+  - provisioners/ansible_local: Fix errors in absolute paths to playbook or
+      galaxy resources when running on a Windows host [GH-6740, GH-6757]
+  - provisioners/ansible_local: Change the way to verify `ansible-galaxy`
+      presence, to avoid a non-zero status code with Ansible 2.0 [GH-6793]
+  - provisioners/ansible_local: The configuration sanity checks now only warn
+      on missing files or directories, so that the requested vagrant command is
+      always executed (e.g. `vagrant destroy` is not aborted when the configured
+      playbook is not present on the guest) [GH-6763]
+
+## 1.8.1 (December 21, 2015)
+
+BUG FIXES:
+
+  - core: Don't create ".bundle" directory in pwd [GH-6717]
+  - core: Fix exception on installing VirtualBox [GH-6713]
+  - core: Do not convert standalone drive letters such as "D:" to
+      UNC paths [GH-6598]
+  - core: Fix a crash in parsing the config in some cases with network
+      configurations [GH-6730]
+  - commands/up: Smarter logic about what provider to install, avoiding
+      situations where VirtualBox was installed over the correct provider [GH-6731]
+  - guests/debian: Fix Docker install [GH-6722]
+  - provisioners/chef: convert chef version to a string before comparing for
+    the command builder [GH-6709, GH-6711]
+  - provisioners/shell: convert env var values to strings [GH-6714]
+
+## 1.8.0 (December 21, 2015)
 
 FEATURES:
 
@@ -122,7 +152,7 @@ BUG FIXES:
   - hosts/slackware: Better detection of NFS [GH-6367]
   - providers/hyper-v: support generation 2 VMs [GH-6372]
   - providers/hyper-v: support VMs with more than one NIC [GH-4346]
-  - providers/hyper-v: check if user is in the Hyper-V admin group if 
+  - providers/hyper-v: check if user is in the Hyper-V admin group if
       they're not a Windows admin [GH-6662]
   - providers/virtualbox: ignore "Unknown" status bridge interfaces [GH-6061]
   - providers/virtualbox: only fix ipv6 interfaces that are in use
@@ -2832,4 +2862,3 @@ compatibility.
 The changelog began with version 0.5.1 so any changes prior to that
 can be seen by checking the tagged releases and reading git commit
 messages.
-

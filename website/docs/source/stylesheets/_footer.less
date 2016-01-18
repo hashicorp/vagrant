@@ -2,6 +2,7 @@
 
 footer {
 padding: 80px 0;
+margin-top: 20px;
 background: @black url(/images/footer_background.png) center center;
 text-align: center;
 color: @white;
@@ -94,8 +95,23 @@ position: relative; //z-index needs position!
 			}
 		} //contact link
 
-
-
-
-
 } //footer
+
+.edit-page-link{
+  position: absolute;
+  top: -120px;
+  right: 15px;
+  z-index: 9999;
+
+  a{
+    text-transform: uppercase;
+    color: @black;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px){
+  .edit-page-link{
+    top: -90px;
+  }
+}

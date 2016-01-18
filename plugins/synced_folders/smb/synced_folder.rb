@@ -155,7 +155,12 @@ module VagrantPlugins
             stderr: r.stderr
         end
 
-        JSON.parse(r.stdout)["ip_addresses"]
+        res = JSON.parse(r.stdout)["ip_addresses"]
+        if res.instance_of? String
+          [ res ]
+        else
+          res
+        end
       end
     end
   end

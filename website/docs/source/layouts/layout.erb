@@ -30,21 +30,33 @@
 		<!-- wrap everything -->
 		<div class="wrapper">
 
-			<!-- nav -->
+      <!-- nav -->
+      <div id="header" class="navigation docs">
+  			<div class="container-fluid">
+  			 <!-- vagrant logo -->
+         <div class="navbar-header">
+            <div class="navbar-brand">
+    			    <a class="logo" href="/">Vagrant Documentation</span></a>
+              <a class="by-hashicorp" href="https://hashicorp.com/"><span class="svg-wrap">by</span><%= partial "layouts/svg/svg-by-hashicorp" %><%= partial "layouts/svg/svg-hashicorp-logo" %>Hashicorp</a>
+            </div>
+            <button class="navbar-toggle" type="button">
+  						<span class="bar"></span>
+  						<span class="bar"></span>
+  						<span class="bar"></span>
+  					</button>
+          </div>
+          <div class="buttons">
+  					<nav class="navigation-links" role="navigation">
+              <ul class="main-links nav navbar-nav">
+                <li class="pill"><a href="https://www.amazon.com/gp/product/1449335837/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1449335837&linkCode=as2&tag=vagrant-20">Vagrant Book</a></li>
+                <li><a href="https://www.vagrantup.com/">Home</a></li>
+              </ul>
+  					</nav>
+  				</div>
+  			 </div>
+      </div>
 
-			<nav class="docs">
-			<!-- vagrant logo -->
-			<a class="vagrant-docs-logo" href="/">Vagrant Documentation</a>
-			<!-- nav -->
-			<ul class="pull-right unstyled">
-				<li class="pill">
-					<a href="https://www.amazon.com/gp/product/1449335837/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1449335837&linkCode=as2&tag=vagrant-20">
-						Vagrant Book
-					</a>
-				</li>
-				<li><a href="https://www.vagrantup.com/">Home</a></li>
-			</ul>
-			</nav>
+      <%= partial "layouts/mobile_nav" %>
 
 			<div class="page docs docs-home">
 				<div class="sidebar-background"></div>
@@ -326,15 +338,18 @@
 				<div class="row">
 					<div class="span12">
 
+            <% relative_path = current_page.path.match(/.*\//).to_s
+            file = current_page.source_file.split("/").last
+            github_link = "https://github.com/mitchellh/vagrant/blob/master/website/docs/source/#{relative_path}#{file}"
+            %>
+            <div class="edit-page-link">
+              <a href="<%= github_link %>">Edit this page</a>
+            </div>
+
 						<ul class="unstyled footer-nav">
 							<li><a href="https://docs.vagrantup.com/">Documentation</a></li>
 							<li><a href="https://www.vagrantup.com/about">About</a></li>
 							<li><a href="https://www.vagrantup.com/support">Support</a></li>
-							<% relative_path = current_page.path.match(/.*\//).to_s
-							file = current_page.source_file.split("/").last
-							github_link = "https://github.com/mitchellh/vagrant/blob/master/website/docs/source/#{relative_path}#{file}"
-							%>
-							<li class="li-under"><a href="<%= github_link %>">Edit this page</a></li>
 							<a href="https://www.vagrantup.com/downloads">
 								<li class="button inline-button">Download</li>
 							</a>
@@ -364,10 +379,15 @@
 			<!-- close .wrapper -->
 		</div>
 
+    <%= javascript_include_tag "lib/Base" %>
+    <%= javascript_include_tag "Sidebar" %>
+
 		<!-- load scripts -->
 		<!-- load full-width image into any div with class="big-background -->
 		<script>
 			$(".big-background").backstretch("assets/photos/full_width.jpg");
+
+      new Sidebar();
 		</script>
 
 		<!-- Google analytics -->

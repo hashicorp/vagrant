@@ -53,13 +53,11 @@ Ruby 2.0 is needed.
 
 ## Contributing to Vagrant
 
-### Dependencies and Unit Tests
+To install Vagrant from source, please [follow the guide in the Wiki](https://github.com/mitchellh/vagrant/wiki/Installing-Vagrant-from-Source).
 
-To hack on Vagrant, you'll need [bundler](https://github.com/bundler/bundler) which can
-be installed with a simple `gem install bundler`. Afterwards, do the following:
+You can run the test suite with:
 
-    bundle install
-    rake
+    bundle exec rake
 
 This will run the unit test suite, which should come back all green! Then you're good to go!
 

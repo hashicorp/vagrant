@@ -138,6 +138,8 @@ Below, we have a couple example sudoers entries. Note that you may
 have to modify them _slightly_ on certain hosts because the way Vagrant
 modifies `/etc/exports` changes a bit from OS to OS.
 
+For \*nix users, make sure to edit your `/etc/sudoers` file with `visudo`. It protects you against syntax errors which could leave you without the ability to gain elevated privileges.
+
 All of the snippets below require Vagrant version 1.7.3 or higher.
 
 For OS X, sudoers should have this entry:
@@ -152,7 +154,7 @@ Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -E -e /*/ d -ibak /etc/exports
 For Ubuntu Linux , sudoers should look like this:
 
 ```
-ֻCmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
+Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
 Cmnd_Alias VAGRANT_EXPORTS_COPY = /bin/cp /tmp/exports /etc/exports
 Cmnd_Alias VAGRANT_NFSD_CHECK = /etc/init.d/nfs-kernel-server status
 Cmnd_Alias VAGRANT_NFSD_START = /etc/init.d/nfs-kernel-server start

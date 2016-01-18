@@ -1,0 +1,43 @@
+//
+// Sidebar
+// - Project Specific
+// - Make sidebar edits here
+// --------------------------------------------------
+
+#mobile-nav {
+  .mobile-nav-nav {
+    width: 100%;
+    text-align: center;
+    // Links
+    //----------------
+    //
+    li{
+      float: none;
+
+      &.pill{
+        background-color: #48b4fb;
+        border-radius: 25px;
+        padding: 5px 2px;
+        line-height: 26px;
+        margin: 10px 10px 10px 10px;
+
+        &:focus,
+        &:hover{
+          a{
+            background-color: transparent;
+          }
+        }
+
+        a{
+          color: @white;
+          line-height: 24px;
+        }
+      }
+
+      a{
+        .anti-alias();
+        font-size: 13px;
+      }
+    }
+  }
+}

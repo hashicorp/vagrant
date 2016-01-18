@@ -16,12 +16,6 @@ if [ -z $VERSION ]; then
     exit 1
 fi
 
-# Make sure we have a bintray API key
-if [ -z $BINTRAY_API_KEY ]; then
-    echo "Please set your bintray API key in the BINTRAY_API_KEY env var."
-    exit 1
-fi
-
 # Make the checksums
 pushd ./pkg/dist
 shasum -a256 * > ./vagrant_${VERSION}_SHA256SUMS
@@ -30,14 +24,3 @@ if [ -z $NOSIGN ]; then
   gpg --default-key 348FFC4C --detach-sig ./vagrant_${VERSION}_SHA256SUMS
 fi
 popd
-
-# Upload
-for ARCHIVE in ./dist/*; do
-    ARCHIVE_NAME=$(basename ${ARCHIVE})
-
-    echo Uploading: $ARCHIVE_NAME
-    curl \
-        -T ${ARCHIVE} \
-        -umitchellh:${BINTRAY_API_KEY} \
-        "https://api.bintray.com/content/mitchellh/vagrant/vagrant/${VERSION}/${ARCHIVE_NAME}"
-done
