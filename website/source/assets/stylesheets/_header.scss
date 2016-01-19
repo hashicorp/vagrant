@@ -1,0 +1,67 @@
+//
+// Header
+// - Project Specific
+// - edits should be made here
+// --------------------------------------------------
+
+#header {
+  background: $white;
+  -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1) !important;
+  -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1) !important;
+
+  .navbar-brand {
+    .logo {
+      width: $project-logo-width;
+      padding: 0;
+      line-height: $header-height;
+      background-position: 0 center;
+      font-size: 0;
+      text-transform: uppercase;
+      @include img-retina("logo-header.png", "logo-header@2x.png", $project-logo-width, $project-logo-height);
+      background-position: 0 center;
+
+      &:hover{
+        opacity: .4;
+      }
+    }
+
+    .by-hashicorp {
+      color: $gray;
+
+      &:hover {
+        svg {
+          .svg-bg-line {
+            opacity: .4;
+          }
+        }
+      }
+    }
+  }
+
+  .buttons{
+    margin-top: 2px; //baseline everything
+  }
+}
+
+@media (max-width: 414px) {
+  #header {
+    .navbar-brand {
+      .logo{
+        width: $project-logo-width * .75;
+        @include img-retina("logo-header.png", "logo-header@2x.png", $project-logo-width * .75, $project-logo-height * .75);
+      }
+    }
+  }
+}
+
+
+@media (max-width: 320px) {
+  #header {
+    .navbar-brand {
+      .logo{
+
+      }
+    }
+  }
+}

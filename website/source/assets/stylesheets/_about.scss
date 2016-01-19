@@ -1,0 +1,67 @@
+body.layout-about,
+body.layout-vmware {
+  background: $vagrant-blue image-url("sidebar_background_inner.png") top left no-repeat;
+
+  >.container {
+    #main-content {
+      background-color: $white;
+      min-height: 800px;
+      padding: 0 40px 40px 40px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -9999px;
+        right: 0;
+        border-left: none;
+        box-shadow: 9999px 0 0 $white;
+      }
+
+      > div {
+        position: relative;
+        z-index: 10;
+      }
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  body.layout-about {
+    >.container{
+      padding-left: 0;
+      padding-right: 0;
+
+      #main-content {
+        min-height: 0;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  body.layout-about {
+    .equal-height {
+      display: inherit;
+    }
+  }
+}
+
+body.page-community {
+  .people {
+    margin-top: 30px;
+
+    .person {
+      margin-bottom: 40px;
+
+      h3 {
+        text-transform: none;
+      }
+
+      .bio {
+        padding-left: 150px;
+      }
+    }
+  }
+}

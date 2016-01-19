@@ -1,0 +1,22 @@
+<% wrap_layout :inner do %>
+	<% content_for :sidebar do %>
+		<div class="docs-sidebar hidden-print affix-top" role="complementary">
+			<ul class="nav docs-sidenav">
+        <li<%= sidebar_current("about-main") %>>
+          <a href="/about.html">About</a>
+        </li>
+				<li<%= sidebar_current("about-community") %>>
+          <a href="/community.html">Community</a>
+        </li>
+      	<li<%= sidebar_current("about-support") %>>
+          <a href="/support.html">Support</a>
+        </li>
+      	<li<%= sidebar_current("about-sponsors") %>>
+          <a href="/sponsors.html">Sponsors</a>
+        </li>
+			</ul>
+		</div>
+	<% end %>
+
+	<%= yield %>
+<% end %>

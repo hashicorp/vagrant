@@ -9,8 +9,8 @@
 acceptance_config.yml
 boxes/*
 /.vagrant
-/website/docs/.vagrant
-/website/www/.vagrant
+/website/.vagrant
+/website/build
 /vagrant-spec.config.rb
 
 # Bundler/Rubygems
@@ -21,6 +21,7 @@ tags
 /Gemfile.lock
 test/tmp/
 vendor/
+/exec
 
 # Documentation
 _site/*
@@ -43,14 +44,3 @@ doc/
 .ruby-gemset
 .ruby-version
 .rvmrc
-
-# Website: docs
-website/docs/.sass-cache
-website/docs/build
-website/docs/Rakefile
-
-# Website: www
-website/www/.sass-cache
-website/www/build
-website/www/Rakefile
-exec/

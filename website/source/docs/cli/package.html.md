@@ -1,0 +1,45 @@
+---
+layout: "docs"
+page_title: "vagrant package - Command-Line Interface"
+sidebar_current: "cli-package"
+description: |-
+  The "vagrant package" command is used to package a currently-running
+  VirtualBox vagrant environment into a reusable Vagrant box.
+---
+
+# Package
+
+**Command: `vagrant package`**
+
+This packages a currently running _VirtualBox_ environment into a
+re-usable [box](/docs/boxes.html). This command can only be used with
+other [providers](/docs/providers/) based on the provider implementation
+and if the provider supports it. A future version of Vagrant will
+address packaging boxes for other providers. Until then, they must
+be made by hand.
+
+## Options
+
+* `--base NAME` - Instead of packaging a VirtualBox machine that Vagrant
+  manages, this will package a VirtualBox machine that VirtualBox manages.
+  `NAME` should be the name or UUID of the machine from the VirtualBox GUI.
+
+* `--output NAME` - The resulting package will be saved as `NAME`. By default,
+  it will be saved as `package.box`.
+
+* `--include x,y,z` - Additional files will be packaged with the box. These
+  can be used by a packaged Vagrantfile (documented below) to perform additional
+  tasks.
+
+* `--vagrantfile FILE` - Packages a Vagrantfile with the box, that is loaded
+  as part of the [Vagrantfile load order](/docs/vagrantfile/#load-order)
+  when the resulting box is used.
+
+<div class="alert alert-info">
+	<strong>A common misconception</strong> is that the <code>--vagrantfile</code>
+	option will package a Vagrantfile that is used when <code>vagrant init</code>
+	is used with this box. This is not the case. Instead, a Vagrantfile
+	is loaded and read as part of the Vagrant load process when the box is
+	used. For more information, read about the
+	<a href="/docs/vagrantfile/#load-order">Vagrantfile load order</a>.
+</div>
