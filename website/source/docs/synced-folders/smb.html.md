@@ -3,8 +3,8 @@ layout: "docs"
 page_title: "SMB - Synced Folders"
 sidebar_current: "syncedfolder-smb"
 description: |-
-	Vagrant can use SMB as a mechanism to create a bi-directional synced folder
-	between the host machine and the Vagrant machine.
+  Vagrant can use SMB as a mechanism to create a bi-directional synced folder
+  between the host machine and the Vagrant machine.
 ---
 
 # SMB
@@ -19,9 +19,9 @@ SMB is built-in to Windows machines and provides a higher performance
 alternative to some other mechanisms such as VirtualBox shared folders.
 
 <div class="alert alert-info">
-	<strong>Windows only!</strong> SMB is currently only supported
-	when the host machine is Windows. The guest machine can be Windows
-	or Linux.
+  <strong>Windows only!</strong> SMB is currently only supported
+  when the host machine is Windows. The guest machine can be Windows
+  or Linux.
 </div>
 
 ## Prerequisites

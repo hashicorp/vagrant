@@ -3,10 +3,10 @@ layout: "docs"
 page_title: "Packaging and Distribution - Plugin Development"
 sidebar_current: "plugins-packaging"
 description: |-
-	This page documents how to organize the file structure of your plugin
-	and distribute it so that it is installable using standard installation
-	methods. Prior to reading this, you should be familiar with the plugin
-	development basics.
+  This page documents how to organize the file structure of your plugin
+  and distribute it so that it is installable using standard installation
+  methods. Prior to reading this, you should be familiar with the plugin
+  development basics.
 ---
 
 # Plugin Development: Packaging & Distribution
@@ -18,9 +18,9 @@ Prior to reading this, you should be familiar
 with the [plugin development basics](/docs/plugins/development-basics.html).
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 ## Example Plugin
@@ -48,11 +48,11 @@ dependencies and change any metadata. View the [vagrant-aws.gemspec](https://git
 for a good example.
 
 <div class="alert alert-warning">
-	<p>
-		<strong>Do not depend on Vagrant</strong> for your gem. Vagrant
-		is no longer distributed as a gem, and you can assume that it will
-		always be available when your plugin is installed.
-	</p>
+  <p>
+    <strong>Do not depend on Vagrant</strong> for your gem. Vagrant
+    is no longer distributed as a gem, and you can assume that it will
+    always be available when your plugin is installed.
+  </p>
 </div>
 
 Once the directory structure for a RubyGem is setup, you will want

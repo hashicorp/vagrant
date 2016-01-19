@@ -19,8 +19,8 @@ you may set. A complete reference is shown below:
   * `memory` (integer) - Number of MegaBytes allocated to VM at startup.
     Defaults is taken from box image XML.
   * `maxmemory` (integer) - Number of MegaBytes maximal allowed to allocate for VM
-  	This parameter is switch on Dynamic Allocation of memory.
-  	Defaults is taken from box image XML.
+    This parameter is switch on Dynamic Allocation of memory.
+    Defaults is taken from box image XML.
   * `vlan_id` (integer) - Number of Vlan ID for your guest network interface
     Defaults is not defined, vlan configuration will be untouched if not set.
   * `mac` (string) - MAC address for your guest network interface

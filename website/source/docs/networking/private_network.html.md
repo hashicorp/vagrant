@@ -3,9 +3,9 @@ layout: "docs"
 page_title: "Private Networks - Networking"
 sidebar_current: "networking-private"
 description: |-
-	Vagrant private networks allow you to access your guest machine by some
-	address that is not publicly accessible from the global internet. In general,
-	this means your machine gets an address in the private address space.
+  Vagrant private networks allow you to access your guest machine by some
+  address that is not publicly accessible from the global internet. In general,
+  this means your machine gets an address in the private address space.
 ---
 
 # Private Networks
@@ -21,13 +21,13 @@ restriction that they're backed by the same [provider](/docs/providers/))
 can communicate with each other on private networks.
 
 <div class="alert alert-info">
-	<strong>Guest operating system support.</strong> Private networks
-	generally require configuring the network adapters on the guest
-	machine. This process varies from OS to OS. Vagrant ships with
-	knowledge of how to configure networks on a variety of guest
-	operating systems, but it is possible if you are using a particularly
-	old or new operating system that private networks will not properly
-	configure.
+  <strong>Guest operating system support.</strong> Private networks
+  generally require configuring the network adapters on the guest
+  machine. This process varies from OS to OS. Vagrant ships with
+  knowledge of how to configure networks on a variety of guest
+  operating systems, but it is possible if you are using a particularly
+  old or new operating system that private networks will not properly
+  configure.
 </div>
 
 ## DHCP
@@ -70,9 +70,9 @@ For some operating systems, additional configuration options for the static
 IP address are available such as setting the default gateway or MTU.
 
 <div class="alert alert-warning">
-	<strong>Warning!</strong> Do not choose an IP that overlaps with any
-	other IP space on your system. This can cause the network to not be
-	reachable.
+  <strong>Warning!</strong> Do not choose an IP that overlaps with any
+  other IP space on your system. This can cause the network to not be
+  reachable.
 </div>
 
 ## IPv6

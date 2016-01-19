@@ -1,22 +1,22 @@
 <% wrap_layout :inner do %>
-	<% content_for :sidebar do %>
-		<div class="docs-sidebar hidden-print affix-top" role="complementary">
-			<ul class="nav docs-sidenav">
+  <% content_for :sidebar do %>
+    <div class="docs-sidebar hidden-print affix-top" role="complementary">
+      <ul class="nav docs-sidenav">
         <li<%= sidebar_current("vmware-reseller") %>>
           <a href="/vmware/reseller.html">Reselling</a>
         </li>
-				<li<%= sidebar_current("vmware-eula") %>>
+        <li<%= sidebar_current("vmware-eula") %>>
           <a href="/vmware/eula.html">EULA</a>
         </li>
-      	<li<%= sidebar_current("vmware-privacy-policy") %>>
+        <li<%= sidebar_current("vmware-privacy-policy") %>>
           <a href="/vmware/privacy-policy.html">Privacy Policy</a>
         </li>
-      	<li<%= sidebar_current("vmware-tos") %>>
+        <li<%= sidebar_current("vmware-tos") %>>
           <a href="/vmware/terms-of-service.html">Terms of Service</a>
         </li>
-			</ul>
-		</div>
-	<% end %>
+      </ul>
+    </div>
+  <% end %>
 
-	<%= yield %>
+  <%= yield %>
 <% end %>

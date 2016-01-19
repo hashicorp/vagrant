@@ -90,72 +90,72 @@ with the machine-readable output.
 <tr>
 <td>box-name</td>
 <td>
-	Name of a box installed into Vagrant.
+  Name of a box installed into Vagrant.
 </td>
 </tr>
 
 <tr>
 <td>box-provider</td>
 <td>
-	Provider for an installed box.
+  Provider for an installed box.
 </td>
 </tr>
 
 <tr>
 <td>cli-command</td>
 <td>
-	A subcommand of <code>vagrant</code> that is available.
+  A subcommand of <code>vagrant</code> that is available.
 </td>
 </tr>
 
 <tr>
 <td>error-exit</td>
 <td>
-	An error occurred that caused Vagrant to exit. This contains that
-	error. Contains two data elements: type of error, error message.
+  An error occurred that caused Vagrant to exit. This contains that
+  error. Contains two data elements: type of error, error message.
 </td>
 </tr>
 
 <tr>
 <td>provider-name</td>
 <td>
-	The provider name of the target machine.
-	<span class="label">targeted</span>
+  The provider name of the target machine.
+  <span class="label">targeted</span>
 </td>
 </tr>
 
 <tr>
 <td>ssh-config</td>
 <td>
-	The OpenSSH compatible SSH config for a machine. This is usually
+  The OpenSSH compatible SSH config for a machine. This is usually
     the result of the "ssh-config" command.
-	<span class="label">targeted</span>
+  <span class="label">targeted</span>
 </td>
 </tr>
 
 <tr>
 <td>state</td>
 <td>
-	The state ID of the target machine.
-	<span class="label">targeted</span>
+  The state ID of the target machine.
+  <span class="label">targeted</span>
 </td>
 </tr>
 
 <tr>
 <td>state-human-long</td>
 <td>
-	Human-readable description of the state of the machine. This is the
-	long version, and may be a paragraph or longer.
-	<span class="label">targeted</span>
+  Human-readable description of the state of the machine. This is the
+  long version, and may be a paragraph or longer.
+  <span class="label">targeted</span>
 </td>
 </tr>
 
 <tr>
 <td>state-human-short</td>
 <td>
-	Human-readable description of the state of the machine. This is the
-	short version, limited to at most a sentence.
-	<span class="label">targeted</span>
+  Human-readable description of the state of the machine. This is the
+  short version, limited to at most a sentence.
+  <span class="label">targeted</span>
 </td>
 </tr>
 

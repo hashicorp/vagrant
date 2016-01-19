@@ -3,9 +3,9 @@ layout: "docs"
 page_title: "Command Plugins - Plugin Development"
 sidebar_current: "plugins-commands"
 description: |-
-	This page documents how to add new commands to Vagrant, invokable
-	via "vagrant YOUR-COMMAND". Prior to reading this, you should be familiar
-	with the plugin development basics.
+  This page documents how to add new commands to Vagrant, invokable
+  via "vagrant YOUR-COMMAND". Prior to reading this, you should be familiar
+  with the plugin development basics.
 ---
 
 # Plugin Development: Commands
@@ -15,9 +15,9 @@ via `vagrant YOUR-COMMAND`. Prior to reading this, you should be familiar
 with the [plugin development basics](/docs/plugins/development-basics.html).
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 ## Definition Component

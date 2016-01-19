@@ -3,9 +3,9 @@ layout: "docs"
 page_title: "Chef Client - Provisioning"
 sidebar_current: "provisioning-chefclient"
 description: |-
-	The Vagrant Chef Client provisioner allows you to provision the guest using
-	Chef, specifically by connecting to an existing Chef Server and registering
-	the Vagrant machine as a node within your infrastructure.
+  The Vagrant Chef Client provisioner allows you to provision the guest using
+  Chef, specifically by connecting to an existing Chef Server and registering
+  the Vagrant machine as a node within your infrastructure.
 ---
 
 # Chef Client Provisioner
@@ -22,9 +22,9 @@ to start with the [Chef Solo](/docs/provisioning/chef_solo.html)
 provisioner.
 
 <div class="alert alert-warning">
-	<strong>Warning:</strong> If you are not familiar with Chef and Vagrant already,
-	I recommend starting with the <a href="/docs/provisioning/shell.html">shell
-	provisioner</a>.
+  <strong>Warning:</strong> If you are not familiar with Chef and Vagrant already,
+  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
+  provisioner</a>.
 </div>
 
 ## Authenticating

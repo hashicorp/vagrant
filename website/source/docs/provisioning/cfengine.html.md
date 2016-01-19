@@ -3,10 +3,10 @@ layout: "docs"
 page_title: "CFEngine Provisioner"
 sidebar_current: "provisioning-cfengine"
 description: |-
-	The Vagrant CFEngine provisioner allows you to provision the guest using
-	CFEngine. It can set up both CFEngine policy servers and clients. You can
-	configure both the policy server and the clients in a single multi-machine
-	Vagrantfile.
+  The Vagrant CFEngine provisioner allows you to provision the guest using
+  CFEngine. It can set up both CFEngine policy servers and clients. You can
+  configure both the policy server and the clients in a single multi-machine
+  Vagrantfile.
 ---
 
 # CFEngine Provisioner
@@ -20,9 +20,9 @@ and the clients in a single
 [multi-machine `Vagrantfile`](/docs/multi-machine/).
 
 <div class="alert alert-warning">
-	<strong>Warning:</strong> If you are not familiar with CFEngine and Vagrant already,
-	I recommend starting with the <a href="/docs/provisioning/shell.html">shell
-	provisioner</a>. However, if you are comfortable with Vagrant
+  <strong>Warning:</strong> If you are not familiar with CFEngine and Vagrant already,
+  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
+  provisioner</a>. However, if you are comfortable with Vagrant
     already, Vagrant is the best way to learn CFEngine.
 </div>
 

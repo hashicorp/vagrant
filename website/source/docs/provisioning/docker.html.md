@@ -3,8 +3,8 @@ layout: "docs"
 page_title: "Docker - Provisioning"
 sidebar_current: "provisioning-docker"
 description: |-
-	The Vagrant Docker provisioner can automatically install Docker, pull Docker
-	containers, and configure certain containers to run on boot.
+  The Vagrant Docker provisioner can automatically install Docker, pull Docker
+  containers, and configure certain containers to run on boot.
 ---
 
 # Docker Provisioner
@@ -29,10 +29,10 @@ your application runtime. You can use the Puppet provisioner along
 with the Docker provisioner.
 
 <div class="alert alert-info">
-	<strong>Note:</strong> This documentation is for the Docker
+  <strong>Note:</strong> This documentation is for the Docker
       <em>provisioner</em>. If you are looking for the Docker
-	<em>provider</em>, visit the
-	<a href="/docs/docker/">Docker provider documentation</a>.
+  <em>provider</em>, visit the
+  <a href="/docs/docker/">Docker provider documentation</a>.
 </div>
 
 ## Options

@@ -3,7 +3,7 @@ layout: "docs"
 page_title: "Host Capabilities - Plugin Development"
 sidebar_current: "plugins-hostcapabilities"
 description: |-
-	This page documents how to add new capabilities for hosts to Vagrant, allowing Vagrant to perform new actions on specific host operating systems. Prior to reading this, you should be familiar with the plugin development basics.
+  This page documents how to add new capabilities for hosts to Vagrant, allowing Vagrant to perform new actions on specific host operating systems. Prior to reading this, you should be familiar with the plugin development basics.
 ---
 
 # Plugin Development: Host Capabilities
@@ -15,9 +15,9 @@ Prior to reading this, you should be familiar
 with the [plugin development basics](/docs/plugins/development-basics.html).
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 Host capabilities augment [hosts](/docs/plugins/hosts.html) by attaching

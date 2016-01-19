@@ -3,10 +3,10 @@ layout: "docs"
 page_title: "Custom Providers - Plugin Development"
 sidebar_current: "plugins-providers"
 description: |-
-	This page documents how to add support for new providers to Vagrant, allowing
-	Vagrant to run and manage machines powered by a system other than VirtualBox.
-	Prior to reading this, you should be familiar with the plugin development
-	basics.
+  This page documents how to add support for new providers to Vagrant, allowing
+  Vagrant to run and manage machines powered by a system other than VirtualBox.
+  Prior to reading this, you should be familiar with the plugin development
+  basics.
 ---
 
 # Plugin Development: Providers
@@ -21,9 +21,9 @@ Prior to developing a provider you should also be familiar with how
 a user standpoint.
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 ## Example Provider: AWS
@@ -204,12 +204,12 @@ via the `provider_config` attribute. So within actions or your provider class,
 you can access the config via `machine.provider_config`.
 
 <div class="alert alert-info">
-	<strong>Best practice:</strong> Your provider should <em>not require</em>
-	provider-specific configuration to function, if possible. Vagrant
-	practices a strong <a href="https://en.wikipedia.org/wiki/Convention_over_configuration">convention over configuration</a>
-	philosophy. When a user installs your provider, they should ideally
-	be able to <code>vagrant up --provider=your_provider</code> and
-	have it just work.
+  <strong>Best practice:</strong> Your provider should <em>not require</em>
+  provider-specific configuration to function, if possible. Vagrant
+  practices a strong <a href="https://en.wikipedia.org/wiki/Convention_over_configuration">convention over configuration</a>
+  philosophy. When a user installs your provider, they should ideally
+  be able to <code>vagrant up --provider=your_provider</code> and
+  have it just work.
 </div>
 
 ## Parallelization

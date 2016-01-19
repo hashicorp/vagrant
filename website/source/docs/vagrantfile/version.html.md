@@ -3,9 +3,9 @@ layout: "docs"
 page_title: "Configuration Version - Vagrantfile"
 sidebar_current: "vagrantfile-version"
 description: |-
-	Configuration versions are the mechanism by which Vagrant 1.1+ is able to
-	remain backwards compatible with Vagrant 1.0.x Vagrantfiles, while introducing
-	dramatically new features and configuration options.
+  Configuration versions are the mechanism by which Vagrant 1.1+ is able to
+  remain backwards compatible with Vagrant 1.0.x Vagrantfiles, while introducing
+  dramatically new features and configuration options.
 ---
 
 # Configuration Version
@@ -57,8 +57,8 @@ end
 ```
 
 <div class="alert alert-info">
-	<strong>What is <code>Vagrant::Config.run</code>?</strong>
-	You may see this in Vagrantfiles. This was actually how Vagrant 1.0.x
-	did configuration. In Vagrant 1.1+, this is synonymous with
-	<code>Vagrant.configure("1")</code>.
+  <strong>What is <code>Vagrant::Config.run</code>?</strong>
+  You may see this in Vagrantfiles. This was actually how Vagrant 1.0.x
+  did configuration. In Vagrant 1.1+, this is synonymous with
+  <code>Vagrant.configure("1")</code>.
 </div>

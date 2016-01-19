@@ -3,9 +3,9 @@ layout: "docs"
 page_title: "Networking"
 sidebar_current: "networking"
 description: |-
-	In order to access the Vagrant environment created, Vagrant exposes
-	some high-level networking options for things such as forwarded ports,
-	connecting to a public network, or creating a private network.
+  In order to access the Vagrant environment created, Vagrant exposes
+  some high-level networking options for things such as forwarded ports,
+  connecting to a public network, or creating a private network.
 ---
 
 # Networking
@@ -34,9 +34,9 @@ to do this, so please read the documentation for your specific provider
 to see what options are available.
 
 <div class="alert alert-info">
-	<strong>For beginners:</strong> It is strongly recommended you use
-	only the high-level networking options until you are comfortable
-	with the Vagrant workflow and have things working at a basic level.
-	Provider-specific network configuration can very quickly lock you out
-	of your guest machine if improperly done.
+  <strong>For beginners:</strong> It is strongly recommended you use
+  only the high-level networking options until you are comfortable
+  with the Vagrant workflow and have things working at a basic level.
+  Provider-specific network configuration can very quickly lock you out
+  of your guest machine if improperly done.
 </div>

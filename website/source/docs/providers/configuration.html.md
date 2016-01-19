@@ -83,9 +83,9 @@ In the above case, Vagrant will use the "precise64" box by default, but
 will use "precise64_fusion" if the VMware Fusion provider is used.
 
 <div class="alert alert-info">
-	<strong>The Vagrant Way:</strong> The proper "Vagrant way" is to
-	avoid any provider-specific overrides if possible by making boxes
-	for multiple providers that are as identical as possible, since box
-	names can map to multiple providers. However, this is not always possible,
-	and in those cases, overrides are available.
+  <strong>The Vagrant Way:</strong> The proper "Vagrant way" is to
+  avoid any provider-specific overrides if possible by making boxes
+  for multiple providers that are as identical as possible, since box
+  names can map to multiple providers. However, this is not always possible,
+  and in those cases, overrides are available.
 </div>

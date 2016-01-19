@@ -3,10 +3,10 @@ layout: "docs"
 page_title: "Custom Hosts - Plugin Development"
 sidebar_current: "plugins-hosts"
 description: |-
-	This page documents how to add new host OS detection to Vagrant, allowing
-	Vagrant to properly execute host-specific operations on new operating systems.
-	Prior to reading this, you should be familiar with the plugin development
-	basics.
+  This page documents how to add new host OS detection to Vagrant, allowing
+  Vagrant to properly execute host-specific operations on new operating systems.
+  Prior to reading this, you should be familiar with the plugin development
+  basics.
 ---
 
 # Plugin Development: Hosts
@@ -17,9 +17,9 @@ Prior to reading this, you should be familiar
 with the [plugin development basics](/docs/plugins/development-basics.html).
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 Vagrant has some features that require host OS-specific actions, such as

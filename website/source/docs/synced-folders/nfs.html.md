@@ -3,11 +3,11 @@ layout: "docs"
 page_title: "NFS - Synced Folders"
 sidebar_current: "syncedfolder-nfs"
 description: |-
-	In some cases the default shared folder implementations such as VirtualBox
-	shared folders have high performance penalties. If you are seeing less than
-	ideal performance with synced folders, NFS can offer a solution. Vagrant has
-	built-in support to orchestrate the configuration of the NFS server on the host
-	and guest for you.
+  In some cases the default shared folder implementations such as VirtualBox
+  shared folders have high performance penalties. If you are seeing less than
+  ideal performance with synced folders, NFS can offer a solution. Vagrant has
+  built-in support to orchestrate the configuration of the NFS server on the host
+  and guest for you.
 ---
 
 # NFS
@@ -19,9 +19,9 @@ can offer a solution. Vagrant has built-in support to orchestrate the
 configuration of the NFS server on the host and guest for you.
 
 <div class="alert alert-info">
-	<strong>Windows users:</strong> NFS folders do not work on Windows
-	hosts. Vagrant will ignore your request for NFS synced folders on
-	Windows.
+  <strong>Windows users:</strong> NFS folders do not work on Windows
+  hosts. Vagrant will ignore your request for NFS synced folders on
+  Windows.
 </div>
 
 ## Prerequisites

@@ -3,8 +3,8 @@ layout: "docs"
 page_title: "Chef Solo - Provisioning"
 sidebar_current: "provisioning-chefsolo"
 description: |-
-	The Vagrant Chef Solo provisioner allows you to provision the guest using
-	Chef, specifically with chef-solo.
+  The Vagrant Chef Solo provisioner allows you to provision the guest using
+  Chef, specifically with chef-solo.
 ---
 
 # Chef Solo Provisioner
@@ -22,10 +22,10 @@ Chef cookbooks, since Chef is a complete system that is beyond the scope
 of a single page of documentation.
 
 <div class="alert alert-warning">
-	<strong>Warning:</strong> If you are not familiar with Chef and Vagrant already,
-	I recommend starting with the <a href="/docs/provisioning/shell.html">shell
-	provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
-	is the best way to learn Chef.
+  <strong>Warning:</strong> If you are not familiar with Chef and Vagrant already,
+  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
+  provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
+  is the best way to learn Chef.
 </div>
 
 ## Options

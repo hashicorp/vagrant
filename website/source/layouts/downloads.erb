@@ -1,16 +1,16 @@
 <% wrap_layout :inner do %>
-	<% content_for :sidebar do %>
-		<div class="docs-sidebar hidden-print affix-top" role="complementary">
-			<ul class="nav docs-sidenav">
+  <% content_for :sidebar do %>
+    <div class="docs-sidebar hidden-print affix-top" role="complementary">
+      <ul class="nav docs-sidenav">
         <li<%= sidebar_current("downloads") %>>
           <a href="/downloads.html">Downloads</a>
         </li>
-      	<li>
+        <li>
           <a href="https://releases.hashicorp.com/vagrant/">Archives</a>
         </li>
-			</ul>
-		</div>
-	<% end %>
+      </ul>
+    </div>
+  <% end %>
 
-	<%= yield %>
+  <%= yield %>
 <% end %>

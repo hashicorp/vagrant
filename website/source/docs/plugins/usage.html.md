@@ -3,8 +3,8 @@ layout: "docs"
 page_title: "Plugin Usage - Plugins"
 sidebar_current: "plugins-usage"
 description: |-
-	Installing a Vagrant plugin is easy, and should not take more than a few
-	seconds.
+  Installing a Vagrant plugin is easy, and should not take more than a few
+  seconds.
 ---
 
 # Plugin Usage
@@ -16,8 +16,8 @@ more information on how to use it, but there is one common method for
 installation and plugin activation.
 
 <div class="alert alert-warning">
-	<strong>Warning!</strong> 3rd party plugins can introduce instabilities
-	into Vagrant due to the nature of them being written by non-core users.
+  <strong>Warning!</strong> 3rd party plugins can introduce instabilities
+  into Vagrant due to the nature of them being written by non-core users.
 </div>
 
 ## Installation

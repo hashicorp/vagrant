@@ -3,8 +3,8 @@ layout: "docs"
 page_title: "Creating a Base Box - VirtualBox Provider"
 sidebar_current: "providers-virtualbox-boxes"
 description: |-
-	As with every Vagrant provider, the Vagrant VirtualBox provider has a custom
-	box format that affects how base boxes are made.
+  As with every Vagrant provider, the Vagrant VirtualBox provider has a custom
+  box format that affects how base boxes are made.
 ---
 
 # Creating a Base Box
@@ -24,11 +24,11 @@ Additionally, it is helpful to understand the
 [basics of the box file format](/docs/boxes/format.html).
 
 <div class="alert alert-warning">
-	<strong>Advanced topic!</strong> This is a reasonably advanced topic that
-	a beginning user of Vagrant does not need to understand. If you are
-	just getting started with Vagrant, skip this and use an available
-	box. If you are an experienced user of Vagrant and want to create
-	your own custom boxes, this is for you.
+  <strong>Advanced topic!</strong> This is a reasonably advanced topic that
+  a beginning user of Vagrant does not need to understand. If you are
+  just getting started with Vagrant, skip this and use an available
+  box. If you are an experienced user of Vagrant and want to create
+  your own custom boxes, this is for you.
 </div>
 
 ## Virtual Machine

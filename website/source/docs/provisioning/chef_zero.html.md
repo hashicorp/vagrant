@@ -3,8 +3,8 @@ layout: "docs"
 page_title: "Chef Zero - Provisioning"
 sidebar_current: "provisioning-chefzero"
 description: |-
-The Vagrant Chef Zero provisioner allows you to provision the guest using
-Chef, specifically with chef-zero.
+  The Vagrant Chef Zero provisioner allows you to provision the guest using
+  Chef, specifically with chef-zero.
 ---
 
 # Chef Zero Provisioner

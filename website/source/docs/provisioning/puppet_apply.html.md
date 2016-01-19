@@ -3,8 +3,8 @@ layout: "docs"
 page_title: "Puppet Apply - Provisioning"
 sidebar_current: "provisioning-puppetapply"
 description: |-
-	The Vagrant Puppet provisioner allows you to provision the guest using
-	Puppet, specifically by calling "puppet apply", without a Puppet Master.
+  The Vagrant Puppet provisioner allows you to provision the guest using
+  Puppet, specifically by calling "puppet apply", without a Puppet Master.
 ---
 
 # Puppet Apply Provisioner
@@ -16,10 +16,10 @@ The Vagrant Puppet provisioner allows you to provision the guest using
 calling `puppet apply`, without a Puppet Master.
 
 <div class="alert alert-warning">
-	<strong>Warning:</strong> If you are not familiar with Puppet and Vagrant already,
-	I recommend starting with the <a href="/docs/provisioning/shell.html">shell
-	provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
-	is the best way to learn Puppet.
+  <strong>Warning:</strong> If you are not familiar with Puppet and Vagrant already,
+  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
+  provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
+  is the best way to learn Puppet.
 </div>
 
 ## Options

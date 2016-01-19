@@ -3,8 +3,8 @@ layout: "docs"
 page_title: "Box Format - VMware Provider"
 sidebar_current: "providers-vmware-boxes"
 description: |-
-	As with every Vagrant provider, the Vagrant VMware providers have a custom box
-	format.
+  As with every Vagrant provider, the Vagrant VMware providers have a custom box
+  format.
 ---
 
 # Boxes
@@ -18,11 +18,11 @@ of Vagrant will provide additional mechanisms for automatically creating such
 images.
 
 <div class="alert alert-info">
-	<strong>Note:</strong> This is a reasonably advanced topic that
-	a beginning user of Vagrant does not need to understand. If you are
-	just getting started with Vagrant, skip this and use an available
-	box. If you are an experienced user of Vagrant and want to create
-	your own custom boxes, this is for you.
+  <strong>Note:</strong> This is a reasonably advanced topic that
+  a beginning user of Vagrant does not need to understand. If you are
+  just getting started with Vagrant, skip this and use an available
+  box. If you are an experienced user of Vagrant and want to create
+  your own custom boxes, this is for you.
 </div>
 
 Prior to reading this page, please understand the
@@ -62,9 +62,9 @@ in the box into a privately managed "vmwarevm" folder, and uses the first
 "vmx" file found to control the machine.
 
 <div class="alert alert-info">
-	<strong>Vagrant 1.8 and higher support linked clones</strong>. Prior versions
-	of Vagrant do not support linked clones. For more information on
-	linked clones, please see the documentation.
+  <strong>Vagrant 1.8 and higher support linked clones</strong>. Prior versions
+  of Vagrant do not support linked clones. For more information on
+  linked clones, please see the documentation.
 </div>
 
 ## Installed Software

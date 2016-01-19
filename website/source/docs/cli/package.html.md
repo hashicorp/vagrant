@@ -36,10 +36,10 @@ be made by hand.
   when the resulting box is used.
 
 <div class="alert alert-info">
-	<strong>A common misconception</strong> is that the <code>--vagrantfile</code>
-	option will package a Vagrantfile that is used when <code>vagrant init</code>
-	is used with this box. This is not the case. Instead, a Vagrantfile
-	is loaded and read as part of the Vagrant load process when the box is
-	used. For more information, read about the
-	<a href="/docs/vagrantfile/#load-order">Vagrantfile load order</a>.
+  <strong>A common misconception</strong> is that the <code>--vagrantfile</code>
+  option will package a Vagrantfile that is used when <code>vagrant init</code>
+  is used with this box. This is not the case. Instead, a Vagrantfile
+  is loaded and read as part of the Vagrant load process when the box is
+  used. For more information, read about the
+  <a href="/docs/vagrantfile/#load-order">Vagrantfile load order</a>.
 </div>

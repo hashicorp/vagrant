@@ -3,9 +3,9 @@ layout: "docs"
 page_title: "Puppet Agent - Provisioning"
 sidebar_current: "provisioning-puppetagent"
 description: |-
-	The Vagrant Puppet agent provisioner allows you to provision the guest using
-	Puppet, specifically by calling "puppet agent", connecting to a Puppet master,
-	and retrieving the set of modules and manifests from there.
+  The Vagrant Puppet agent provisioner allows you to provision the guest using
+  Puppet, specifically by calling "puppet agent", connecting to a Puppet master,
+  and retrieving the set of modules and manifests from there.
 ---
 
 # Puppet Agent Provisioner
@@ -18,10 +18,10 @@ calling `puppet agent`, connecting to a Puppet master, and retrieving
 the set of modules and manifests from there.
 
 <div class="alert alert-warning">
-	<strong>Warning:</strong> If you are not familiar with Puppet and Vagrant already,
-	I recommend starting with the <a href="/docs/provisioning/shell.html">shell
-	provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
-	is the best way to learn Puppet.
+  <strong>Warning:</strong> If you are not familiar with Puppet and Vagrant already,
+  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
+  provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
+  is the best way to learn Puppet.
 </div>
 
 ## Options

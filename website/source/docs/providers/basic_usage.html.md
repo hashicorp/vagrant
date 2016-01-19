@@ -57,11 +57,11 @@ see what provider is backing a running machine, so commands such as
 `destroy`, `suspend`, etc. do not need to be told what provider to use.
 
 <div class="alert alert-info">
-	Vagrant currently restricts you to bringing up one provider per machine.
-	If you have a multi-machine environment, you can bring up one machine
-	backed by VirtualBox and another backed by VMware Fusion, for example, but you
-	cannot back the <em>same machine</em> with both VirtualBox and
-	VMware Fusion. This is a limitation that will be removed in a future
+  Vagrant currently restricts you to bringing up one provider per machine.
+  If you have a multi-machine environment, you can bring up one machine
+  backed by VirtualBox and another backed by VMware Fusion, for example, but you
+  cannot back the <em>same machine</em> with both VirtualBox and
+  VMware Fusion. This is a limitation that will be removed in a future
   version of Vagrant.
 </div>
 

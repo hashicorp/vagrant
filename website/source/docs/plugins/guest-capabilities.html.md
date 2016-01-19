@@ -3,10 +3,10 @@ layout: "docs"
 page_title: "Guest Capabilities - Plugin Development"
 sidebar_current: "plugins-guestcapabilities"
 description: |-
-	This page documents how to add new capabilities for guests to Vagrant,
-	allowing Vagrant to perform new actions on specific guest operating systems.
-	Prior to reading this, you should be familiar with the plugin development
-	basics.
+  This page documents how to add new capabilities for guests to Vagrant,
+  allowing Vagrant to perform new actions on specific guest operating systems.
+  Prior to reading this, you should be familiar with the plugin development
+  basics.
 ---
 
 # Plugin Development: Guest Capabilities
@@ -18,9 +18,9 @@ Prior to reading this, you should be familiar
 with the [plugin development basics](/docs/plugins/development-basics.html).
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 Guest capabilities augment [guests](/docs/plugins/guests.html) by attaching

@@ -3,10 +3,10 @@ layout: "docs"
 page_title: "Public Networks - Networking"
 sidebar_current: "networking-public"
 description: |-
-	Vagrant public networks are less private than private networks, and the exact
-	meaning actually varies from provider to provider, hence the ambiguous
-	definition. The idea is that while private networks should never allow the
-	general public access to your machine, public networks can.
+  Vagrant public networks are less private than private networks, and the exact
+  meaning actually varies from provider to provider, hence the ambiguous
+  definition. The idea is that while private networks should never allow the
+  general public access to your machine, public networks can.
 ---
 
 # Public Networks
@@ -20,22 +20,22 @@ hence the ambiguous definition. The idea is that while
 general public access to your machine, public networks can.
 
 <div class="alert alert-info">
-	<strong>Confused?</strong> We kind of are, too. It is likely that
-	public networks will be replaced by <code>:bridged</code> in a
-	future release, since that is in general what should be done with
-	public networks, and providers that do not support bridging generally
-	do not have any other features that map to public networks either.
+  <strong>Confused?</strong> We kind of are, too. It is likely that
+  public networks will be replaced by <code>:bridged</code> in a
+  future release, since that is in general what should be done with
+  public networks, and providers that do not support bridging generally
+  do not have any other features that map to public networks either.
 </div>
 
 <div class="alert alert-warning">
-	<strong>Warning!</strong> Vagrant boxes are insecure by default
-	and by design, featuring public passwords, insecure keypairs
-	for SSH access, and potentially allow root access over SSH.  With
-	these known credentials, your box is easily accessible by anyone on
-	your network.  Before configuring Vagrant to use a public network,
-	consider <em>all</em> potential security implications
-	and review the <a href="/docs/boxes/base.html">default box
-	configuration</a> to identify potential security risks.
+  <strong>Warning!</strong> Vagrant boxes are insecure by default
+  and by design, featuring public passwords, insecure keypairs
+  for SSH access, and potentially allow root access over SSH.  With
+  these known credentials, your box is easily accessible by anyone on
+  your network.  Before configuring Vagrant to use a public network,
+  consider <em>all</em> potential security implications
+  and review the <a href="/docs/boxes/base.html">default box
+  configuration</a> to identify potential security risks.
 </div>
 
 ## DHCP

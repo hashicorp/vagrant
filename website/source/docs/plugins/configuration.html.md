@@ -3,9 +3,9 @@ layout: "docs"
 page_title: "Custom Configuration - Plugin Development"
 sidebar_current: "plugins-configuration"
 description: |-
-	This page documents how to add new configuration options to Vagrant,
-	settable with "config.YOURKEY" in Vagrantfiles. Prior to reading this,
-	you should be familiar with the plugin development basics.
+  This page documents how to add new configuration options to Vagrant,
+  settable with "config.YOURKEY" in Vagrantfiles. Prior to reading this,
+  you should be familiar with the plugin development basics.
 ---
 
 # Plugin Development: Configuration
@@ -16,9 +16,9 @@ you should be familiar with the
 [plugin development basics](/docs/plugins/development-basics.html).
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 ## Definition Component

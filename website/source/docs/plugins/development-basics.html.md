@@ -3,10 +3,10 @@ layout: "docs"
 page_title: "Plugin Development Basics - Plugins"
 sidebar_current: "plugins-development-basics"
 description: |-
-	Plugins are a great way to augment or change the behavior and functionality
-	of Vagrant. Since plugins introduce additional external dependencies for
-	users, they should be used as a last resort when attempting to
-	do something with Vagrant.
+  Plugins are a great way to augment or change the behavior and functionality
+  of Vagrant. Since plugins introduce additional external dependencies for
+  users, they should be used as a last resort when attempting to
+  do something with Vagrant.
 ---
 
 # Plugin Development Basics
@@ -21,9 +21,9 @@ into Vagrant, plugins are the best way, since they are safe against future
 upgrades and use a stable API.
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 Plugins are written using [Ruby](http://www.ruby-lang.org/en/) and are packaged

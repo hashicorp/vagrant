@@ -3,9 +3,9 @@ layout: "docs"
 page_title: "Custom Guests - Plugin Development"
 sidebar_current: "plugins-guests"
 description: |-
-	This page documents how to add new guest OS detection to Vagrant, allowing
-	Vagrant to properly configure new operating systems. Prior to reading this,
-	you should be familiar with the plugin development basics.
+  This page documents how to add new guest OS detection to Vagrant, allowing
+  Vagrant to properly configure new operating systems. Prior to reading this,
+  you should be familiar with the plugin development basics.
 ---
 
 # Plugin Development: Guests
@@ -16,9 +16,9 @@ Prior to reading this, you should be familiar
 with the [plugin development basics](/docs/plugins/development-basics.html).
 
 <div class="alert alert-warning">
-	<strong>Warning: Advanced Topic!</strong> Developing plugins is an
-	advanced topic that only experienced Vagrant users who are reasonably
-	comfortable with Ruby should approach.
+  <strong>Warning: Advanced Topic!</strong> Developing plugins is an
+  advanced topic that only experienced Vagrant users who are reasonably
+  comfortable with Ruby should approach.
 </div>
 
 Vagrant has many features that requires doing guest OS-specific

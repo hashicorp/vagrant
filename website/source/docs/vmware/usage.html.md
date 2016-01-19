@@ -44,8 +44,8 @@ This will download and bring up a new VMware Fusion/Workstation virtual machine
 in Vagrant.
 
 <div class="alert alert-info">
-	<strong>Note:</strong> At some point in the future, the providers
-	will probably be merged into a single `vagrant-vmware` plugin. For now,
-	the Workstation and Fusion codebases are different enough that they
-	are separate plugins.
+  <strong>Note:</strong> At some point in the future, the providers
+  will probably be merged into a single `vagrant-vmware` plugin. For now,
+  the Workstation and Fusion codebases are different enough that they
+  are separate plugins.
 </div>

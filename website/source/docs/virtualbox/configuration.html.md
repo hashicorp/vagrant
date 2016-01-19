@@ -71,9 +71,9 @@ If you do not want backward compatbility and want to force users to
 support linked cloning, you can use `Vagrant.require_version` with 1.8.
 
 <div class="alert alert-info">
-	<strong>Note:</strong> the generated master VMs are currently not removed
-	automatically by Vagrant. This has to be done manually. However, a master
-	VM can only be removed when there are no linked clones connected to it.
+  <strong>Note:</strong> the generated master VMs are currently not removed
+  automatically by Vagrant. This has to be done manually. However, a master
+  VM can only be removed when there are no linked clones connected to it.
 </div>
 
 ## VBoxManage Customizations
