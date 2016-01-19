@@ -1,0 +1,137 @@
+.page-home {
+  h1 {
+    text-align: center;
+  }
+
+  .hero {
+    @include padded;
+    background: $gray-background image-url("vagrant_header_background.png") no-repeat center -80px;
+    text-align: center;
+    border-bottom: 1px solid #c6e0f0;
+
+    .hero-content {
+      top: 50%;
+
+      hgroup {
+        margin: ($baseline * 4) 0 20px 0;
+        text-shadow: 0 1px 10px rgba(255, 255, 255, 0.4);
+
+        h1 {
+          @include museo-sans-light;
+          color: $purple-text;
+          font-size: 60px;
+          font-weight: 700;
+          line-height: 60px;
+          margin-bottom: ($baseline * 4);
+        }
+
+        h2 {
+          @include museo-sans-light;
+          color: $blue-text;
+          font-size: 30px;
+          font-weight: 100;
+          letter-spacing: 1.6px;
+          line-height: 40px;
+          text-transform: none;
+        }
+      }
+
+      #button-download {
+        margin-right: 10px;
+      }
+
+      #button-get-started {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .why-vagrant {
+    @include padded;
+    background: $light-blue-background image-url("steps_background.png") center -120px;
+
+    h1 {
+      color: $blue-text;
+      text-transform: uppercase;
+      text-align: center;
+      font-size: 40px;
+      line-height: 40px;
+    }
+
+    hgroup {
+      margin: ($baseline * 3) 0;
+      width: 530px;
+
+      h3 {
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 40px;
+        margin-bottom: $baseline;
+        color: $purple-text;
+        @include museo-sans-light;
+      }
+
+      h4 {
+        font-size: 20px;
+        line-height: $baseline * 1.5;
+        @include museo-sans-light;
+      }
+    }
+  }
+
+  .get-started {
+    @include padded;
+    @include get-started-bg;
+
+    h1 {
+      color: $white;
+    }
+
+    pre {
+      font-size: 20px;
+      padding: 40px 40px 10px 40px;
+      margin: 40px auto;
+      background: rgba($black, 0.6);
+    }
+  }
+
+  .customers {
+    @include padded;
+    background-color: $black;
+    border-bottom: 1px solid #333;
+
+    h1 {
+      color: $dark-gray-text;
+      @include museo-sans-light;
+    }
+
+    .customer-logos {
+      margin-top: $baseline * 3;
+
+      img {
+        width:100%;
+        height: auto;
+        -khtml-opacity: .5;
+        -moz-opacity: .5;
+        opacity: .5;
+        filter: alpha(opacity=50);
+      }
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .page-home {
+    .hero {
+      .hero-content {
+        #button-download {
+          margin-right: 0;
+        }
+
+        #button-get-started {
+          margin-left: 0;
+        }
+      }
+    }
+  }
+}

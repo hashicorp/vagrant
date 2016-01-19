@@ -1,0 +1,31 @@
+/* page */
+.page {
+  .page-contents {
+    h1, h2 {
+      color: $blue-text;
+      text-transform: uppercase;
+      text-align: left;
+      @include museo-sans-light;
+    }
+
+    h1 {
+      font-size: 40px;
+      line-height: 45px;
+      margin: ($baseline * 2) 0 $baseline;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    h2 {
+      font-size: 30px;
+      line-height: 40px;
+      margin: ($baseline * 2) 0 $baseline;
+
+      &:first-child {
+        margin-top: $baseline * .5;
+      }
+    }
+  }
+}

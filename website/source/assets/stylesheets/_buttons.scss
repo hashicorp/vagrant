@@ -1,0 +1,98 @@
+.no-hover-underline {
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.button {
+  color: $white;
+  text-align: center;
+  background-color: $primary-button-color;
+  display: block;
+  padding: 15px 0;
+  margin-top: 20px !important;
+  text-decoration: none;
+  text-transform: uppercase;
+  font-size: 25px;
+  letter-spacing: 5px;
+
+  @include museo-sans-light;
+  @include rounded;
+  @include hover;
+
+  &.inline-button {
+    background-color: $vagrant-blue;
+    padding: 5px 20px;
+    color: $white !important;
+    font-size: 15px;
+    letter-spacing: 1px;
+    @include rounded;
+
+    a,
+    a:hover,
+    a:focus, {
+      color: $white;
+      text-decoration: none;
+    }
+
+    &.next-button,
+    &.prev-button {
+      max-width: 33%;
+      white-space: nowrap;
+    }
+
+    &.next-button {
+      float: right;
+
+      &:before {
+        content: "Next:";
+        display: inline-block;
+        padding-right: 3px;
+      }
+
+      &:after {
+        content: "\00BB";
+        display: inline-block;
+        padding-left: 3px;
+      }
+    }
+
+    &.prev-button {
+      float: left;
+      &:before {
+        content: "\00AB\0020Previous: ";
+        display: inline-block;
+        padding-right: 3px;
+      }
+    }
+  }
+
+  &.white-button {
+    background: fade($white, 20%);
+
+    &:hover {
+      background: fade($white, 30%);
+    }
+  }
+
+  &.secondary-button {
+    background: $light-gray;
+
+    &:hover {
+      background: $purple;
+    }
+  }
+
+  &.with-carat span {
+    margin-right: -10px;
+  }
+
+  &:hover {
+    background-color: $purple;
+    @include animate-background-color;
+  }
+
+  &.disabled {
+    background-color: $light-gray-background;
+  }
+}

@@ -1,0 +1,48 @@
+// Global values
+// --------------------------------------------------
+
+$header-height: 92px;
+$btn-border-radius: 4px;
+$el-border-radius: 6px;
+$baseline: 20px;
+
+//grayscale
+$black: #000;
+$white: #fff;
+$gray-background: #f7f6f1;
+$dark-gray-text: #7f7f7f;
+$light-gray-background: #f0f0f0;
+$light-gray: #ccc;
+$light-gray-text: #eeeeee;
+$dark-gray-background: #333;
+$medium-gray-text: #666;
+
+//vagrant colors
+$blue-text: #2490cc;
+$dark-blue-text: #476576;
+$light-blue-background: #dbf1ff;
+$vagrant-blue: #0094bf;
+$light-sidebar-background: #a1ccf0;
+$docs-blue: #22407f;
+$blue-background: #1e71a1;
+$purple-text: #270836;
+$purple: #735f9f;
+
+//misc colors
+$blue: #48b4fb;
+$green: #43d193;
+$code-highlight-text: #73c5dd;
+$current-color: inherit;
+$button-color: $vagrant-blue;
+$primary-button-color: #48b4fb;
+
+// Typography
+// -------------------------
+$font-family-museo-sans: "Museo Sans", "Helvetica Neue", helvetica, arial, sans-serif;
+$font-weight-museo-sans-xl: 100;
+$font-weight-museo-sans-reg: 300;
+$font-weight-museo-sans-sb: 500;
+$font-weight-museo-sans-xb: 700;
+$font-weight-museo-sans: $font-weight-museo-sans-reg;
+
+$font-family-monospace: "Courier New", monospace;

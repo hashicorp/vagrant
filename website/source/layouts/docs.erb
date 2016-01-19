@@ -1,0 +1,238 @@
+<% wrap_layout :inner do %>
+	<% content_for :sidebar do %>
+		<div class="docs-sidebar hidden-print affix-top" role="complementary">
+			<ul class="nav docs-sidenav">
+				<li<%= sidebar_current("overview") %>>
+					<a href="/docs/">Overview</a>
+				</li>
+
+				<li<%= sidebar_current("why") %>>
+					<a href="/docs/why-vagrant/">Why Vagrant?</a>
+				</li>
+
+				<li<%= sidebar_current("installation") %>>
+					<a href="/docs/installation/">Installation</a>
+					<ul class="nav">
+						<li<%= sidebar_current("installation-backwards-compatibility") %>><a href="/docs/installation/backwards-compatibility.html">Backwards Compatibility</a></li>
+						<li<%= sidebar_current("installation-upgrading") %>><a href="/docs/installation/upgrading.html">Upgrading</a></li>
+						<li<%= sidebar_current("installation-1-0-upgrading") %>><a href="/docs/installation/upgrading-from-1-0.html">Upgrading from 1.0.x</a></li>
+						<li<%= sidebar_current("installation-uninstallation") %>><a href="/docs/installation/uninstallation.html">Uninstallation</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("gettingstarted") %>>
+					<a href="/docs/getting-started/">Getting Started</a>
+					<ul class="nav">
+						<li<%= sidebar_current("gettingstarted-projectsetup") %>><a href="/docs/getting-started/project_setup.html">Project Setup</a></li>
+						<li<%= sidebar_current("gettingstarted-boxes") %>><a href="/docs/getting-started/boxes.html">Boxes</a></li>
+						<li<%= sidebar_current("gettingstarted-up") %>><a href="/docs/getting-started/up.html">Up and SSH</a></li>
+						<li<%= sidebar_current("gettingstarted-syncedfolders") %>><a href="/docs/getting-started/synced_folders.html">Synced Folders</a></li>
+						<li<%= sidebar_current("gettingstarted-provisioning") %>><a href="/docs/getting-started/provisioning.html">Provisioning</a></li>
+						<li<%= sidebar_current("gettingstarted-networking") %>><a href="/docs/getting-started/networking.html">Networking</a></li>
+						<li<%= sidebar_current("gettingstarted-share") %>><a href="/docs/getting-started/share.html">Share</a></li>
+						<li<%= sidebar_current("gettingstarted-teardown") %>><a href="/docs/getting-started/teardown.html">Teardown</a></li>
+						<li<%= sidebar_current("gettingstarted-rebuild") %>><a href="/docs/getting-started/rebuild.html">Rebuild</a></li>
+						<li<%= sidebar_current("gettingstarted-providers") %>><a href="/docs/getting-started/providers.html">Providers</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("cli") %>>
+					<a href="/docs/cli/">Command-Line Interface</a>
+					<ul class="nav">
+						<li<%= sidebar_current("cli-box") %>><a href="/docs/cli/box.html">box</a></li>
+						<li<%= sidebar_current("cli-connect") %>><a href="/docs/cli/connect.html">connect</a></li>
+						<li<%= sidebar_current("cli-destroy") %>><a href="/docs/cli/destroy.html">destroy</a></li>
+						<li<%= sidebar_current("cli-globalstatus") %>><a href="/docs/cli/global-status.html">global-status</a></li>
+						<li<%= sidebar_current("cli-halt") %>><a href="/docs/cli/halt.html">halt</a></li>
+						<li<%= sidebar_current("cli-init") %>><a href="/docs/cli/init.html">init</a></li>
+						<li<%= sidebar_current("cli-login") %>><a href="/docs/cli/login.html">login</a></li>
+						<li<%= sidebar_current("cli-package") %>><a href="/docs/cli/package.html">package</a></li>
+						<li<%= sidebar_current("cli-plugin") %>><a href="/docs/cli/plugin.html">plugin</a></li>
+						<li<%= sidebar_current("cli-port") %>><a href="/docs/cli/port.html">port</a></li>
+						<li<%= sidebar_current("cli-powershell") %>><a href="/docs/cli/powershell.html">powershell</a></li>
+						<li<%= sidebar_current("cli-provision") %>><a href="/docs/cli/provision.html">provision</a></li>
+						<li<%= sidebar_current("cli-rdp") %>><a href="/docs/cli/rdp.html">rdp</a></li>
+						<li<%= sidebar_current("cli-reload") %>><a href="/docs/cli/reload.html">reload</a></li>
+						<li<%= sidebar_current("cli-resume") %>><a href="/docs/cli/resume.html">resume</a></li>
+						<li<%= sidebar_current("cli-share") %>><a href="/docs/cli/share.html">share</a></li>
+						<li<%= sidebar_current("cli-snapshot") %>><a href="/docs/cli/snapshot.html">snapshot</a></li>
+						<li<%= sidebar_current("cli-ssh") %>><a href="/docs/cli/ssh.html">ssh</a></li>
+						<li<%= sidebar_current("cli-ssh_config") %>><a href="/docs/cli/ssh_config.html">ssh-config</a></li>
+						<li<%= sidebar_current("cli-status") %>><a href="/docs/cli/status.html">status</a></li>
+						<li<%= sidebar_current("cli-suspend") %>><a href="/docs/cli/suspend.html">suspend</a></li>
+						<li<%= sidebar_current("cli-up") %>><a href="/docs/cli/up.html">up</a></li>
+						<li<%= sidebar_current("cli-version") %>><a href="/docs/cli/version.html">version</a></li>
+						<li<%= sidebar_current("cli-nonprimary") %>><a href="/docs/cli/non-primary.html">More Commands</a></li>
+						<li<%= sidebar_current("cli-machinereadable") %>><a href="/docs/cli/machine-readable.html">Machine Readable Output</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("share") %>>
+					<a href="/docs/share/">Vagrant Share</a>
+					<ul class="nav">
+						<li<%= sidebar_current("share-http") %>><a href="/docs/share/http.html">HTTP Sharing</a></li>
+						<li<%= sidebar_current("share-ssh") %>><a href="/docs/share/ssh.html">SSH Sharing</a></li>
+						<li<%= sidebar_current("share-connect") %>><a href="/docs/share/connect.html">Connect</a></li>
+						<li<%= sidebar_current("share-security") %>><a href="/docs/share/security.html">Security</a></li>
+						<li<%= sidebar_current("share-provider") %>><a href="/docs/share/provider.html">Custom Provider</a></li>
+					</ul>
+				</li>
+
+				<li <%= sidebar_current("vagrantfile") %>>
+					<a href="/docs/vagrantfile/">Vagrantfile</a>
+					<ul class="nav">
+						<li<%= sidebar_current("vagrantfile-version") %>><a href="/docs/vagrantfile/version.html">Configuration Version</a></li>
+						<li<%= sidebar_current("vagrantfile-minversion") %>><a href="/docs/vagrantfile/vagrant_version.html">Minimum Vagrant Version</a></li>
+						<li<%= sidebar_current("vagrantfile-tips") %>><a href="/docs/vagrantfile/tips.html">Tips & Tricks</a></li>
+						<li<%= sidebar_current("vagrantfile-machine") %>><a href="/docs/vagrantfile/machine_settings.html" class="nocap">config.vm</a></li>
+						<li<%= sidebar_current("vagrantfile-ssh") %>><a href="/docs/vagrantfile/ssh_settings.html" class="nocap">config.ssh</a></li>
+						<li<%= sidebar_current("vagrantfile-winrm") %>><a href="/docs/vagrantfile/winrm_settings.html" class="nocap">config.winrm</a></li>
+						<li<%= sidebar_current("vagrantfile-vagrant") %>><a href="/docs/vagrantfile/vagrant_settings.html" class="nocap">config.vagrant</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("boxes") %>>
+					<a href="/docs/boxes.html">Boxes</a>
+					<ul class="nav">
+						<li<%= sidebar_current("boxes-versioning") %>><a href="/docs/boxes/versioning.html">Box Versioning</a></li>
+						<li<%= sidebar_current("boxes-base") %>><a href="/docs/boxes/base.html">Creating a Base Box</a></li>
+						<li<%= sidebar_current("boxes-format") %>><a href="/docs/boxes/format.html">Box File Format</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("provisioning") %>>
+					<a href="/docs/provisioning/">Provisioning</a>
+					<ul class="nav">
+						<li<%= sidebar_current("provisioning-basic") %>><a href="/docs/provisioning/basic_usage.html">Basic Usage</a></li>
+						<li<%= sidebar_current("provisioning-file") %>><a href="/docs/provisioning/file.html">File</a></li>
+						<li<%= sidebar_current("provisioning-shell") %>><a href="/docs/provisioning/shell.html">Shell</a></li>
+						<li<%= sidebar_current("provisioning-ansible") %>><a href="/docs/provisioning/ansible.html">Ansible</a></li>
+						<li<%= sidebar_current("provisioning-ansible-local") %>><a href="/docs/provisioning/ansible_local.html">Ansible Local</a></li>
+						<li<%= sidebar_current("provisioning-cfengine") %>><a href="/docs/provisioning/cfengine.html">CFEngine</a></li>
+						<li<%= sidebar_current("provisioning-chefsolo") %>><a href="/docs/provisioning/chef_solo.html">Chef Solo</a></li>
+						<li<%= sidebar_current("provisioning-chefzero") %>><a href="/docs/provisioning/chef_zero.html">Chef Zero</a></li>
+						<li<%= sidebar_current("provisioning-chefclient") %>><a href="/docs/provisioning/chef_client.html">Chef Client</a></li>
+						<li<%= sidebar_current("provisioning-chefapply") %>><a href="/docs/provisioning/chef_apply.html">Chef Apply</a></li>
+						<li<%= sidebar_current("provisioning-docker") %>><a href="/docs/provisioning/docker.html">Docker</a></li>
+						<li<%= sidebar_current("provisioning-puppetapply") %>><a href="/docs/provisioning/puppet_apply.html">Puppet Apply</a></li>
+						<li<%= sidebar_current("provisioning-puppetagent") %>><a href="/docs/provisioning/puppet_agent.html">Puppet Agent</a></li>
+						<li<%= sidebar_current("provisioning-salt") %>><a href="/docs/provisioning/salt.html">Salt</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("networking") %>>
+					<a href="/docs/networking/">Networking</a>
+					<ul class="nav">
+						<li<%= sidebar_current("networking-basic") %>><a href="/docs/networking/basic_usage.html">Basic Usage</a></li>
+						<li<%= sidebar_current("networking-fp") %>><a href="/docs/networking/forwarded_ports.html">Forwarded Ports</a></li>
+						<li<%= sidebar_current("networking-private") %>><a href="/docs/networking/private_network.html">Private Network</a></li>
+						<li<%= sidebar_current("networking-public") %>><a href="/docs/networking/public_network.html">Public Network</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("syncedfolder") %>>
+					<a href="/docs/synced-folders/">Synced Folders</a>
+					<ul class="nav">
+						<li<%= sidebar_current("syncedfolder-basic") %>><a href="/docs/synced-folders/basic_usage.html">Basic Usage</a></li>
+						<li<%= sidebar_current("syncedfolder-nfs") %>><a href="/docs/synced-folders/nfs.html">NFS</a></li>
+						<li<%= sidebar_current("syncedfolder-rsync") %>><a href="/docs/synced-folders/rsync.html">RSync</a></li>
+						<li<%= sidebar_current("syncedfolder-smb") %>><a href="/docs/synced-folders/smb.html">SMB</a></li>
+						<li<%= sidebar_current("syncedfolder-virtualbox") %>><a href="/docs/synced-folders/virtualbox.html">VirtualBox</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("multimachine") %>>
+					<a href="/docs/multi-machine/">Multi-Machine</a>
+				</li>
+
+				<li<%= sidebar_current("providers") %>>
+					<a href="/docs/providers/">Providers</a>
+					<ul class="nav">
+						<li<%= sidebar_current("providers-installation") %>><a href="/docs/providers/installation.html">Installation</a></li>
+						<li<%= sidebar_current("providers-basic-usage") %>><a href="/docs/providers/basic_usage.html">Basic Usage</a></li>
+						<li<%= sidebar_current("providers-configuration") %>><a href="/docs/providers/configuration.html">Configuration</a></li>
+						<li<%= sidebar_current("providers-default") %>><a href="/docs/providers/default.html">Default Provider</a></li>
+						<li<%= sidebar_current("providers-virtualbox") %>>
+							<a href="/docs/virtualbox/">VirtualBox</a>
+							<ul class="subnav">
+								<li<%= sidebar_current("providers-virtualbox-usage") %>><a href="/docs/virtualbox/usage.html">Usage</a></li>
+								<li<%= sidebar_current("providers-virtualbox-boxes") %>><a href="/docs/virtualbox/boxes.html">Creating a Base Box</a></li>
+								<li<%= sidebar_current("providers-virtualbox-configuration") %>><a href="/docs/virtualbox/configuration.html">Configuration</a></li>
+								<li<%= sidebar_current("providers-virtualbox-networking") %>><a href="/docs/virtualbox/networking.html">Networking</a></li>
+								<li<%= sidebar_current("providers-virtualbox-issues") %>><a href="/docs/virtualbox/common-issues.html">Common Issues</a></li>
+							</ul>
+						</li>
+						<li<%= sidebar_current("providers-vmware") %>>
+							<a href="/docs/vmware/">VMware</a>
+							<ul class="subnav">
+								<li<%= sidebar_current("providers-vmware-installation") %>><a href="/docs/vmware/installation.html">Installation</a></li>
+								<li<%= sidebar_current("providers-vmware-usage") %>><a href="/docs/vmware/usage.html">Usage</a></li>
+								<li<%= sidebar_current("providers-vmware-boxes") %>><a href="/docs/vmware/boxes.html">Boxes</a></li>
+								<li<%= sidebar_current("providers-vmware-configuration") %>><a href="/docs/vmware/configuration.html">Configuration</a></li>
+								<li<%= sidebar_current("providers-vmware-known-issues") %>><a href="/docs/vmware/known-issues.html">Known Issues</a></li>
+								<li<%= sidebar_current("providers-vmware-kernel-upgrade") %>><a href="/docs/vmware/kernel-upgrade.html">Kernel Upgrade</a></li>
+							</ul>
+						</li>
+						<li<%= sidebar_current("providers-docker") %>>
+							<a href="/docs/docker/">Docker</a>
+							<ul class="subnav">
+								<li<%= sidebar_current("providers-docker-basics") %>><a href="/docs/docker/basics.html">Basic Usage</a></li>
+								<li<%= sidebar_current("providers-docker-commands") %>><a href="/docs/docker/commands.html">Commands</a></li>
+								<li<%= sidebar_current("providers-docker-boxes") %>><a href="/docs/docker/boxes.html">Boxes</a></li>
+								<li<%= sidebar_current("providers-docker-configuration") %>><a href="/docs/docker/configuration.html">Configuration</a></li>
+							</ul>
+						</li>
+						<li<%= sidebar_current("providers-hyperv") %>>
+							<a href="/docs/hyperv/">Hyper-V</a>
+							<ul class="subnav">
+								<li<%= sidebar_current("providers-hyperv-usage") %>><a href="/docs/hyperv/usage.html">Usage</a></li>
+								<li<%= sidebar_current("providers-hyperv-boxes") %>><a href="/docs/hyperv/boxes.html">Creating a Base Box</a></li>
+								<li<%= sidebar_current("providers-hyperv-configuration") %>><a href="/docs/hyperv/configuration.html">Configuration</a></li>
+								<li<%= sidebar_current("providers-hyperv-limitations") %>><a href="/docs/hyperv/limitations.html">Limitations</a></li>
+							</ul>
+						</li>
+						<li<%= sidebar_current("providers-custom") %>><a href="/docs/providers/custom.html">Custom Provider</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("plugins") %>>
+					<a href="/docs/plugins/">Plugins</a>
+					<ul class="nav">
+						<li<%= sidebar_current("plugins-usage") %>><a href="/docs/plugins/usage.html">Usage</a></li>
+						<li<%= sidebar_current("plugins-development-basics") %>><a href="/docs/plugins/development-basics.html">Plugin Development Basics</a></li>
+						<li<%= sidebar_current("plugins-action-hooks") %>><a href="/docs/plugins/action-hooks.html">Action Hooks</a></li>
+						<li<%= sidebar_current("plugins-commands") %>><a href="/docs/plugins/commands.html">Commands</a></li>
+						<li<%= sidebar_current("plugins-configuration") %>><a href="/docs/plugins/configuration.html">Configuration</a></li>
+						<li<%= sidebar_current("plugins-guests") %>><a href="/docs/plugins/guests.html">Guests</a></li>
+						<li<%= sidebar_current("plugins-guestcapabilities") %>><a href="/docs/plugins/guest-capabilities.html">Guest Capabilities</a></li>
+						<li<%= sidebar_current("plugins-hosts") %>><a href="/docs/plugins/hosts.html">Hosts</a></li>
+						<li<%= sidebar_current("plugins-hostcapabilities") %>><a href="/docs/plugins/host-capabilities.html">Host Capabilities</a></li>
+						<li<%= sidebar_current("plugins-providers") %>><a href="/docs/plugins/providers.html">Providers</a></li>
+						<li<%= sidebar_current("plugins-provisioners") %>><a href="/docs/plugins/provisioners.html">Provisioners</a></li>
+						<li<%= sidebar_current("plugins-packaging") %>><a href="/docs/plugins/packaging.html">Packaging &amp; Distribution</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("push") %>>
+					<a href="/docs/push/">Push</a>
+					<ul class="nav">
+						<li<%= sidebar_current("push-atlas") %>><a href="/docs/push/atlas.html">Atlas</a></li>
+						<li<%= sidebar_current("push-ftp") %>><a href="/docs/push/ftp.html">FTP / SFTP</a></li>
+						<li<%= sidebar_current("push-heroku") %>><a href="/docs/push/heroku.html">Heroku</a></li>
+						<li<%= sidebar_current("push-local-exec") %>><a href="/docs/push/local-exec.html">Local Exec</a></li>
+					</ul>
+				</li>
+
+				<li<%= sidebar_current("other") %>>
+					<a href="/docs/other/">Other</a>
+					<ul class="nav">
+						<li<%= sidebar_current("other-debugging") %>><a href="/docs/other/debugging.html">Debugging</a></li>
+						<li<%= sidebar_current("other-envvars") %>><a href="/docs/other/environmental-variables.html">Environmental Variables</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	<% end %>
+
+	<%= yield %>
+<% end %>
