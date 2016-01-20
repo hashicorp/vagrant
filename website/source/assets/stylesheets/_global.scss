@@ -7,16 +7,6 @@ text-rendering: optimizeLegibility;
 -webkit-font-smoothing: antialiased;
 }*/
 
-html {
-  height: 100%;
-  overflow: hidden;
-}
-
-body {
-  height: 100%;
-  overflow: auto;
-}
-
 body {
   font-size: 18px;
   color: $black;

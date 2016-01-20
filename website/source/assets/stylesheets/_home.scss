@@ -19,7 +19,7 @@
         h1 {
           @include museo-sans-light;
           color: $purple-text;
-          font-size: 60px;
+          font-size: 55px;
           font-weight: 700;
           line-height: 60px;
           margin-bottom: ($baseline * 4);
@@ -28,7 +28,7 @@
         h2 {
           @include museo-sans-light;
           color: $blue-text;
-          font-size: 30px;
+          font-size: 28px;
           font-weight: 100;
           letter-spacing: 1.6px;
           line-height: 40px;
@@ -55,12 +55,12 @@
       text-transform: uppercase;
       text-align: center;
       font-size: 40px;
-      line-height: 40px;
+      line-height: 50px;
     }
 
     hgroup {
       margin: ($baseline * 3) 0;
-      width: 530px;
+      // width: 530px;
 
       h3 {
         text-align: center;

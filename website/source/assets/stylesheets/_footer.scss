@@ -62,7 +62,12 @@
 
       li {
         display: block;
+        height: 40px;
         float: none;
+
+        a {
+          padding: 0;
+        }
       }
 
       &.external-links {

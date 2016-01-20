@@ -28,7 +28,8 @@ body.layout-vmware {
 }
 
 @media (max-width: 992px) {
-  body.layout-about {
+  body.layout-about,
+  body.layout-vmware {
     >.container{
       padding-left: 0;
       padding-right: 0;
@@ -41,7 +42,8 @@ body.layout-vmware {
 }
 
 @media (max-width: 768px) {
-  body.layout-about {
+  body.layout-about,
+  body.layout-vmware {
     .equal-height {
       display: inherit;
     }
