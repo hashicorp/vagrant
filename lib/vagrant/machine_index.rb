@@ -129,6 +129,7 @@ module Vagrant
 
           # Lock this machine
           lock_file = lock_machine(uuid)
+          release(entry)
           if !lock_file
             raise Errors::MachineLocked,
               name: entry.name,
@@ -172,7 +173,7 @@ module Vagrant
     # Creates/updates an entry object and returns the resulting entry.
     #
     # If the entry was new (no UUID), then the UUID will be set on the
-    # resulting entry and can be used. Additionally, the a lock will
+    # resulting entry and can be used. Additionally, the lock will
     # be created for the resulting entry, so you must {#release} it
     # if you want others to be able to access it.
     #
