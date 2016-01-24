@@ -170,6 +170,7 @@ module VagrantPlugins
 
         client = ::WinRM::WinRMWebService.new(endpoint, @config.transport.to_sym, endpoint_options)
         client.set_timeout(@config.timeout)
+        client.logger = @logger
         client
       end
 
