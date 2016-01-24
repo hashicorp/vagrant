@@ -14,6 +14,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       c.password = 'password'
       c.max_tries = 3
       c.retry_delay = 0
+      c.basic_auth_only = false
       c.finalize!
     end
   }
@@ -69,7 +70,19 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       end
     end
 
+    context "when transport is :negotiate" do
+      it "should create winrm endpoint address using http" do
+        expect(subject.send(:endpoint)).to eq("http://localhost:5985/wsman")
+      end
+    end
+
     context "when transport is :plaintext" do
+      let(:config)  {
+        VagrantPlugins::CommunicatorWinRM::Config.new.tap do |c|
+          c.transport = :plaintext
+          c.finalize!
+        end
+      }
       it "should create winrm endpoint address using http" do
         expect(subject.send(:endpoint)).to eq("http://localhost:5985/wsman")
       end
@@ -80,7 +93,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     it "should create endpoint options" do
       expect(subject.send(:endpoint_options)).to eq(
         { user: "username", pass: "password", host: "localhost", port: 5985,
-          basic_auth_only: true, no_ssl_peer_verification: false })
+          basic_auth_only: false, no_ssl_peer_verification: false })
     end
   end
 

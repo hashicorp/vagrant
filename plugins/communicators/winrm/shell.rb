@@ -181,7 +181,7 @@ module VagrantPlugins
         case @config.transport.to_sym
         when :ssl
           "https://#{@host}:#{@port}/wsman"
-        when :plaintext
+        when :plaintext, :negotiate
           "http://#{@host}:#{@port}/wsman"
         else
           raise Errors::WinRMInvalidTransport, transport: @config.transport
@@ -193,7 +193,7 @@ module VagrantPlugins
           pass: @password,
           host: @host,
           port: @port,
-          basic_auth_only: true,
+          basic_auth_only: @config.basic_auth_only,
           no_ssl_peer_verification: !@config.ssl_peer_verification }
       end
     end #WinShell class
