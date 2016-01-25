@@ -1,5 +1,9 @@
 ## Next Version (unreleased)
 
+IMPROVEMENTS:
+
+  - provisioners/chef: Add the ability to install on SUSE [GH-6806]
+
 BUG FIXES:
 
   - provisioners/ansible_local: Fix errors in absolute paths to playbook or
