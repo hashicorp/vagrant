@@ -271,13 +271,13 @@ en:
       You're running an up-to-date version of Vagrant!
     version_no_checkpoint: |-
       Vagrant was unable to check for the latest version of Vagrant.
-      Please check manually at http://www.vagrantup.com
+      Please check manually at http:s//www.vagrantup.com
     version_upgrade_howto: |-
       To upgrade to the latest version, visit the downloads page and
       download and install the latest version of Vagrant from the URL
       below:
 
-        http://www.vagrantup.com/downloads.html
+        https://www.vagrantup.com/downloads.html
 
       If you're curious what changed in the latest release, view the
       CHANGELOG below:
@@ -500,7 +500,7 @@ en:
         notify the box creator that the box is corrupt. Documentation for
         box file format can be found at the URL below:
 
-        http://docs.vagrantup.com/v2/boxes/format.html
+        https://www.vagrantup.com/docs/boxes/format.html
       box_metadata_malformed: |-
         The metadata for the box was malformed. The exact error
         is shown below. Please contact the maintainer of the box so

@@ -90,7 +90,7 @@ versions at the time of purchase. When new versions of VMware products are
 released, significant changes to the plugin code are often required to support
 this new version. For this reason, you may need to upgrade your current license
 to work with the new version of the VMware product. Customers can check their
-license upgrade eligibility by visiting the [License Upgrade Center](http://license.hashicorp.com/upgrade/vmware2015)
+license upgrade eligibility by visiting the [License Upgrade Center](https://license.hashicorp.com/upgrade/vmware2015)
 and entering the email address with which they made the original purchase.
 
 Your existing license will continue to work with all previous versions of the

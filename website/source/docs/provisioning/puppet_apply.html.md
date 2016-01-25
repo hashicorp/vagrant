@@ -181,7 +181,7 @@ root if a relative path is given.
 
 ## Custom Facts
 
-Custom facts to be exposed by [Facter](http://puppetlabs.com/puppet/related-projects/facter/)
+Custom facts to be exposed by [Facter](https://puppetlabs.com/facter)
 can be specified as well:
 
 ```ruby

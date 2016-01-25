@@ -5,7 +5,7 @@ module VagrantPlugins
         def build_install_opts(o, options)
           options[:plugin_sources] = [
             "https://rubygems.org",
-            "http://gems.hashicorp.com",
+            "https://gems.hashicorp.com",
           ]
 
           o.on("--entry-point NAME", String,
