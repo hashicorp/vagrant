@@ -78,6 +78,11 @@ module VagrantPlugins
         Cap::Redhat::ChefInstall
       end
 
+      guest_capability(:suse, :chef_install) do
+        require_relative "cap/suse/chef_install"
+        Cap::Suse::ChefInstall
+      end
+
       guest_capability(:windows, :chef_install) do
         require_relative "cap/windows/chef_install"
         Cap::Windows::ChefInstall
