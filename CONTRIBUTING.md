@@ -37,5 +37,5 @@ The following guidelines for contribution should be followed if you want to subm
 
 # Additional Resources
 
-* [General GitHub documentation](http://help.github.com/)
-* [GitHub pull request documentation](http://help.github.com/send-pull-requests/)
+* [General GitHub documentation](https://help.github.com/)
+* [GitHub pull request documentation](https://help.github.com/send-pull-requests/)

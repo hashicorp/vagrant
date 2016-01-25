@@ -2,9 +2,9 @@
 
 This is the repository for the [Vagrant website](https://www.vagrantup.com).
 
-This is a [Middleman](http://middlemanapp.com) project, which builds a static
-site from these source files. The site is hosted on [Heroku](http://heroku.com)
-and then fronted by [Fastly](https://www.fastly.com).
+This is a [Middleman](https://middlemanapp.com) project, which builds a static
+site from these source files. The site is hosted fronted by
+[Fastly](https://www.fastly.com).
 
 ## Contributions Welcome!
 

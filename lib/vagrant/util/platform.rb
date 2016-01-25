@@ -48,7 +48,7 @@ module Vagrant
           # Verify that we have administrative privileges. The odd method of
           # detecting this is based on this StackOverflow question:
           #
-          # http://stackoverflow.com/questions/560366/
+          # https://stackoverflow.com/questions/560366/
           #   detect-if-running-with-administrator-privileges-under-windows-xp
           begin
             Win32::Registry::HKEY_USERS.open("S-1-5-19") {}

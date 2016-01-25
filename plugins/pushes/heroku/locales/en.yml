@@ -12,7 +12,7 @@ en:
         The Git binary '%{bin}' could not be found. Please ensure you
         have downloaded and installed the latest version of Git:
 
-            http://git-scm.com/downloads
+            https://git-scm.com/downloads
       missing_attribute: |-
         Missing required attribute '%{attribute}'. The Vagrant Heroku Push
         plugin requires you set this attribute. Please set this attribute in
