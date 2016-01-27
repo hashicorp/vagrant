@@ -46,5 +46,5 @@ command.
 ## Next Steps
 
 You have successfully created and interacting with your first Vagrant
-environement! Read on to learn more about
+environment! Read on to learn more about
 [synced folders](/docs/getting-started/synced_folders.html).
