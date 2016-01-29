@@ -11,7 +11,7 @@ description: |-
 
 **Provisioner name: `"docker"`**
 
-The Vagrant Dockerocker provisioner can automatically install
+The Vagrant Docker provisioner can automatically install
 [Docker](https://www.docker.io), pull Docker containers, and configure certain
 containers to run on boot.
 
