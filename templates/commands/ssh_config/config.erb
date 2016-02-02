@@ -6,7 +6,11 @@ Host <%= host_key %>
   StrictHostKeyChecking no
   PasswordAuthentication no
 <% private_key_path.each do |path| %>
-  IdentityFile <%= path.inspect %>
+<% if path.include?(" ") -%>
+  IdentityFile "<%= path %>"
+<% else -%>
+  IdentityFile <%= path %>
+<% end -%>
 <% end -%>
   IdentitiesOnly yes
   LogLevel FATAL
