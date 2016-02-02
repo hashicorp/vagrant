@@ -8,6 +8,8 @@ BUG FIXES:
 
   - core: Revert a change made to the output of the identify file [GH-6962,
       GH-6929, GH-6589]
+  - docs & core: Be consistent about the "2" in the Vagrantfile version
+      [GH-6961, GH-6963]
   - provisioners/ansible_local: Fix errors in absolute paths to playbook or
       galaxy resources when running on a Windows host [GH-6740, GH-6757]
   - provisioners/ansible_local: Change the way to verify `ansible-galaxy`
