@@ -170,7 +170,6 @@ module VagrantPlugins
 
         client = ::WinRM::WinRMWebService.new(endpoint, @config.transport.to_sym, endpoint_options)
         client.set_timeout(@config.timeout)
-        client.toggle_nori_type_casting(:off) #we don't want coersion of types
         client
       end
 

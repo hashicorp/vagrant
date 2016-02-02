@@ -92,7 +92,7 @@ module VagrantPlugins
         @logger.debug("querying network adapters")
 
         # Get all NICs that have a MAC address
-        # http://msdn.microsoft.com/en-us/library/windows/desktop/aa394216(v=vs.85).aspx
+        # https://msdn.microsoft.com/en-us/library/windows/desktop/aa394216(v=vs.85).aspx
         adapters = @communicator.execute(WQL_NET_ADAPTERS_V2, { shell: :wql } )[:win32_network_adapter]
         @logger.debug("#{adapters.inspect}")
         return adapters

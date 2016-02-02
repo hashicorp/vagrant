@@ -1,0 +1,13 @@
+<% wrap_layout :layout do %>
+<div class="container equal-height">
+  <div id="sidebar" class="col-sm-4">
+    <%= yield_content :sidebar %>
+  </div>
+
+  <div id="main-content" class="col-sm-8" role="main">
+    <div class="bs-docs-section">
+      <%= yield %>
+    </div>
+  </div>
+</div>
+<% end %>
