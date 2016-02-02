@@ -34,7 +34,7 @@ sed -i.bak 's/answer AUTO_KMODS_ENABLED_ANSWER no/answer AUTO_KMODS_ENABLED_ANSW
 sed -i 's/answer AUTO_KMODS_ENABLED no/answer AUTO_KMODS_ENABLED yes/g' /etc/vmware-tools/locations
 SCRIPT
 
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   # ...
 
   config.vm.provision "shell", inline: $fix_vmware_tools_script

@@ -23,7 +23,7 @@ To get started, create a new `Vagrantfile` that points to a VMware box:
 
 ```ruby
 # vagrant init hashicorp/precise64
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   config.vm.box = "hashicorp/precise64"
 end
 ```

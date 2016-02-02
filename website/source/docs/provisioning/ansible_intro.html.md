@@ -48,7 +48,7 @@ You can of course target other operating systems that do not have YUM by changin
 The `playbook` option is strictly required by both Ansible provisioners ([`ansible`](/docs/provisioning/ansible.html) and [`ansible_local`](/docs/provisioning/ansible_local.html)), as illustrated in this basic Vagrantfile` configuration:
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
 
   # Use :ansible or :ansible_local to
   # select the provisioner of your choice
@@ -75,7 +75,7 @@ Since an Ansible playbook can include many files, you may also collect the relat
 In such an arrangement, the `ansible.playbook` path should be adjusted accordingly:
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "provisioning/playbook.yml"
   end
@@ -116,7 +116,7 @@ Note that the generated inventory file is uploaded to the guest VM in a subdirec
 As of Vagrant 1.8.0, the [`host_vars`](/docs/provisioning/ansible_common.html) option can be used to set [variables for individual hosts](https://docs.ansible.com/ansible/intro_inventory.html#host-variables) in the generated inventory file (see also the notes on group variables below).
 
 ```
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   config.vm.define "host1"
   config.vm.define "host2"
   config.vm.provision "ansible" do |ansible|
@@ -149,7 +149,7 @@ As of Vagrant 1.8.0, it is also possible to specify [group variables](https://do
 With this configuration example:
 
 ```
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/trusty64"
 

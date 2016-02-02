@@ -19,7 +19,7 @@ If you run `vagrant init` today, the Vagrantfile will be in roughly the
 following format:
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   # ...
 end
 ```

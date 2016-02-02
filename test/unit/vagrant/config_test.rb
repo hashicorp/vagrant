@@ -40,7 +40,7 @@ describe Vagrant::Config do
         receiver.one
       end
 
-      Vagrant.configure(2) do
+      Vagrant.configure("2") do
         receiver.two
       end
     end
