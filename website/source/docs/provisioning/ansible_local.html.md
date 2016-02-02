@@ -39,7 +39,7 @@ The Ansible Local provisioner requires that all the Ansible Playbook files are a
 To run Ansible from your Vagrant guest, the basic `Vagrantfile` configuration looks like:
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   # Run Ansible from the Vagrant VM
   config.vm.provision "ansible_local" do |ansible|
     ansible.playbook = "playbook.yml"
@@ -96,7 +96,7 @@ This section lists the specific options for the Ansible Local provisioner. In ad
 With the following configuration pattern, you can install and execute Ansible only on a single guest machine (the `"controller"`) to provision all your machines.
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/trusty64"
 

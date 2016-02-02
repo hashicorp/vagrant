@@ -37,7 +37,7 @@ This page only documents the specific parts of the `ansible` (remote) provisione
 To run Ansible against your Vagrant guest, the basic `Vagrantfile` configuration looks like:
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
 
   #
   # Run Ansible from the Vagrant Host
