@@ -42,6 +42,8 @@ BUG FIXES:
       on missing files or directories, so that the requested vagrant command is
       always executed (e.g. `vagrant destroy` is not aborted when the configured
       playbook is not present on the guest) [GH-6763]
+  - provisioners/chef: Do not use double sudo when installing
+      [GGH-6805, GH-6804]
   - provisioners/puppet: Use `where.exe` to locate puppet binary
       [GH-6912, GH-6876]
 
