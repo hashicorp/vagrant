@@ -8,6 +8,15 @@ module VagrantPlugins
     module Cap
       class RDP
         def self.rdp_client(env, rdp_info)
+          config_path = self.generate_config_file(rdp_info)
+          Vagrant::Util::Subprocess.execute("open", config_path.to_s)
+        end
+
+        protected
+
+        # Generates an RDP connection file and returns the resulting path.
+        # @return [String]
+        def self.generate_config_file(rdp_info)
           opts   = {
             "drivestoredirect:s"       => "*",
             "full address:s"           => "#{rdp_info[:host]}:#{rdp_info[:port]}",
@@ -22,10 +31,15 @@ module VagrantPlugins
             opts.each do |k, v|
               f.puts("#{k}:#{v}")
             end
+
+            if rdp_info[:extra_args]
+              rdp_info[:extra_args].each do |arg|
+                f.puts("#{arg}")
+              end
+            end
           end
 
-          # Launch it
-          Vagrant::Util::Subprocess.execute("open", config_path.to_s)
+          return config_path
         end
       end
     end
