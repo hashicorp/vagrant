@@ -18,6 +18,8 @@ BUG FIXES:
       on missing files or directories, so that the requested vagrant command is
       always executed (e.g. `vagrant destroy` is not aborted when the configured
       playbook is not present on the guest) [GH-6763]
+  - provisioners/puppet: use `where.exe` to locate puppet binary
+      [GH-6912, GH-6876]
 
 ## 1.8.1 (December 21, 2015)
 
