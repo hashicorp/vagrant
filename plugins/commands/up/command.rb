@@ -128,9 +128,9 @@ module VagrantPlugins
         # First create a set of all the providers we need to check for.
         # Most likely this will be a set of one.
         providers = Set.new
-        names.each do |name|
+        with_target_vms(names) do |machine|
           # Check if we have this machine in the index
-          entry    = @env.machine_index.get(name.to_s)
+          entry    = @env.machine_index.get(machine.name.to_s)
 
           # Get the provider for this machine. This logic isn't completely
           # straightforward. If we have a forced provider, we always use
@@ -146,7 +146,7 @@ module VagrantPlugins
           p = provider
           p = entry.provider.to_sym if !p && entry
           p = @env.default_provider(
-            machine: name.to_sym, check_usable: false) if !p
+            machine: machine.name.to_sym, check_usable: false) if !p
 
           # Add it to the set
           providers.add(p)
