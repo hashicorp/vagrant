@@ -50,7 +50,7 @@ module VagrantPlugins
           proxy   = nil
           proxy ||= ENV["HTTPS_PROXY"] || ENV["https_proxy"]
           proxy ||= ENV["HTTP_PROXY"]  || ENV["http_proxy"]
-	  RestClient.proxy = proxy
+          RestClient.proxy = proxy
 
           response = RestClient::Request.execute(
             method: :post,
