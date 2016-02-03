@@ -194,6 +194,19 @@ describe Vagrant::BoxCollection, :skip_windows do
       expect(result.version).to eq("1.0")
     end
 
+    it "handles prerelease versions" do
+      # Create the "box"
+      environment.box3("foo", "0.1.0-alpha.1", :virtualbox)
+      environment.box3("foo", "0.1.0-alpha.2", :virtualbox)
+
+      # Actual test
+      result = subject.find("foo", :virtualbox, ">= 0")
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(box_class)
+      expect(result.name).to eq("foo")
+      expect(result.version).to eq("0.1.0-alpha.2")
+    end
+
     it "returns nil if a box's constraints can't be satisfied" do
       # Create the "box"
       environment.box3("foo", "0.1", :virtualbox)

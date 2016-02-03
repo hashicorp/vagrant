@@ -276,17 +276,16 @@ module Vagrant
           next if versiondir.basename.to_s.start_with?(".")
 
           version = versiondir.basename.to_s
-          Gem::Version.new(version)
         end.compact
 
         # Traverse through versions with the latest version first
         versions.sort.reverse.each do |v|
-          if !requirements.all? { |r| r.satisfied_by?(v) }
+          if !requirements.all? { |r| r.satisfied_by?(Gem::Version.new(v)) }
             # Unsatisfied version requirements
             next
           end
 
-          versiondir = box_directory.join(v.to_s)
+          versiondir = box_directory.join(v)
           providers.each do |provider|
             provider_dir = versiondir.join(provider.to_s)
             next if !provider_dir.directory?
@@ -303,7 +302,7 @@ module Vagrant
             end
 
             return Box.new(
-              name, provider, v.to_s, provider_dir,
+              name, provider, v, provider_dir,
               metadata_url: metadata_url,
             )
           end
