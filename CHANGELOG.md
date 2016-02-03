@@ -17,6 +17,7 @@ BUG FIXES:
   - core: Fix login command behind a proxy [GH-6898, GH-6899]
   - core: Fix support for regular expressions on multi-machine `up`
       [GH-6908, GH-6909]
+  - core: Allow boxes to use pre-release versions [GH-6892, GH-6893]
   - docs & core: Be consistent about the "2" in the Vagrantfile version
       [GH-6961, GH-6963]
   - guests/freebad: Use `pkg` to install rsync [GH-6760]
