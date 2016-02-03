@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
   - communicators/winrm: Upgrade to latest WinRM gems [GH-6922]
   - provisioners/chef: Add the ability to install on SUSE [GH-6806]
+  - guests/freebsd: Add quotes around hostname [GH-6867]
 
 BUG FIXES:
 
