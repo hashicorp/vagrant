@@ -35,6 +35,7 @@ BUG FIXES:
   - docs & core: Be consistent about the "2" in the Vagrantfile version
       [GH-6961, GH-6963]
   - guests/freebad: Use `pkg` to install rsync [GH-6760]
+  - guests/coreos: Detect all interface names [GH-6608, GH-6610]
   - provisioners/ansible_local: Fix errors in absolute paths to playbook or
       galaxy resources when running on a Windows host [GH-6740, GH-6757]
   - provisioners/ansible_local: Change the way to verify `ansible-galaxy`
