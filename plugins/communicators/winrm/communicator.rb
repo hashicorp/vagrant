@@ -142,6 +142,7 @@ module VagrantPlugins
 
         opts[:good_exit] = Array(opts[:good_exit])
         command = wrap_in_scheduled_task(command, opts[:interactive]) if opts[:elevated]
+        @logger.debug("#{opts[:shell]} executing:\n#{command}")
         output = shell.send(opts[:shell], command, &block)
         execution_output(output, opts)
       end

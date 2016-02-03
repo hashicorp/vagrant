@@ -1,5 +1,9 @@
 ## Next Version (unreleased)
 
+BREAKING CHANGES:
+
+  - The `winrm` communicator now shares the same upload behavior as the `ssh` cummunicator. This change should have no impact to most vagrant operations but may break behavior when uploading directories to an existing destination target. The `file` provisioner should be the only builtin provisioner affected by this change. When uploading a directory and the destination directory exists on the endpoint, the source base directory will be created below the destination directory on the endpoint and the source directory contents will be unzipped to that location. Prior to this release, the contents of the source directory would be unzipped to an existing destination directory without creating the source base directory. This new behavior is more consistent with SCP and other well known shell copy commands.
+
 IMPROVEMENTS:
 
   - provisioners/chef: Add the ability to install on SUSE [GH-6806]
