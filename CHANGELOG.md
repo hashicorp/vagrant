@@ -15,6 +15,8 @@ BUG FIXES:
   - core: Revert a change made to the output of the identify file [GH-6962,
       GH-6929, GH-6589]
   - core: Fix login command behind a proxy [GH-6898, GH-6899]
+  - core: Fix support for regular expressions on multi-machine `up`
+      [GH-6908, GH-6909]
   - docs & core: Be consistent about the "2" in the Vagrantfile version
       [GH-6961, GH-6963]
   - guests/freebad: Use `pkg` to install rsync [GH-6760]
