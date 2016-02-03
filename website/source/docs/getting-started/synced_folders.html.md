@@ -19,11 +19,11 @@ will automatically sync your files to and from the guest machine.
 By default, Vagrant shares your project directory (remember, that is the
 one with the Vagrantfile) to the `/vagrant` directory in your guest machine.
 
-If you are not running hashicorp/precise64, or if you are running a box without _VirtualBox guest additions_ installed by default, you first need to install the vagrant-vbguest plugin:
-
-```
-$ vagrant plugin install vagrant-vbguest
-```
+If your terminal displays an error about incompatible guest additions (or no
+guest additions), you may need to update your box or choose a different box such
+as `hashicorp/precise64`. Some users have also had success with the
+[vagrant-vbguest](https://github.com/dotless-de/vagrant-vbguest) plugin, but it
+is not officially supported by the Vagrant core team.
 
 Run `vagrant up` again and SSH into your machine to see:
 
