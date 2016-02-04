@@ -1,7 +1,7 @@
 require "vagrant/util/retryable"
 
 module VagrantPlugins
-  module GuestLinux
+  module GuestTinyCore
     module Cap
       class MountNFS
         extend Vagrant::Util::Retryable
