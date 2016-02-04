@@ -21,6 +21,7 @@ IMPROVEMENTS:
   - hosts/darwin: Add `extra_args` support for RDP [GH-5523, GH-6602]
   - hosts/windows: Use SafeExec to capture history in Powershell [GH-6749]
   - guests/freebsd: Add quotes around hostname [GH-6867]
+  - guests/tincore: Add support for shared folders [GH-6977, GH-6968]
   - guests/trisquel: Add initial support [GH-6842, GH-6843]
 
 BUG FIXES:
