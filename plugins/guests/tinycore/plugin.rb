@@ -30,6 +30,11 @@ module VagrantPlugins
         require_relative "cap/rsync"
         Cap::RSync
       end
+
+      guest_capability("linux", "mount_nfs_folder") do
+        require_relative "cap/mount_nfs"
+        Cap::MountNFS
+      end
     end
   end
 end
