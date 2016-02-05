@@ -27,7 +27,7 @@ directory containing the `shutdown` command.
 * `-f` or `--force` - Do not ask for confirmation before destroying.
 
 <div class="alert alert-info">
-  The `destroy command` does not remove a box that may have been installed on
+  The `destroy` command does not remove a box that may have been installed on
   your computer during `vagrant up`. Thus, even if you run `vagrant destroy`,
   the box installed in the system will still be present on the hard drive. To
   return your computer to the state as it was before `vagrant up` command, you
