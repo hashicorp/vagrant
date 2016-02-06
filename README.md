@@ -11,9 +11,8 @@
 Nowadays web development gets more complex than ever and the same is with the development environment. 
 We have to work in group of people, big teams, departments connected over the world. 
 Everyone is a member of a project. Everyone need to be able to run and work on the projects. 
-I spent countless hours, to build development environments. With everyone in a team working on their own machine, 
-with their own development tools on their own operating systems, it´s almost impossible to keep a consistent configuration across all the machines. 
-Specially if you have to work with freelancers or consulting companies. 
+Developers are spending countless hours, to build development environments. With everyone in a team working on their own machine, 
+with their own development tools on their own operating systems, it´s almost impossible to keep a consistent configuration across all the machines. Specially if you have to work with freelancers or consulting companies. 
 
 ## What is Vagrant? 
 Vagrant is an impressive development tool, which lets you manage and support the virtualization of your development environment. 
