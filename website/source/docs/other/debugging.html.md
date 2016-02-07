@@ -58,8 +58,9 @@ option. For example:
 $ vagrant up --debug
 ```
 
-Redirect the log output using `&>` to capture both stdout and stderr:
+If you are saving the output to a file, you may need to redirect stderr and
+stdout using `&>`:
 
 ```
-$ vagrant up --provision --debug &> vagrant.log
+$ vagrant up --debug &> vagrant.log
 ```
