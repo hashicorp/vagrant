@@ -13,6 +13,11 @@ BREAKING CHANGES:
   source directory would be unzipped to an existing destination directory
   without creating the source base directory. This new behavior is more
   consistent with SCP and other well known shell copy commands.
+  - The Chef provisioner's `channel` default value has changed from "current" to
+    "stable". The "current" channel includes nightly releases and should be
+    opt-in only. Note that users wishing to download the Chef Development Kit
+    will need to opt into the "current" channel until Chef Software promotes
+    into the "stable" channel.
 
 IMPROVEMENTS:
 
@@ -47,6 +52,8 @@ BUG FIXES:
       playbook is not present on the guest) [GH-6763]
   - provisioners/chef: Do not use double sudo when installing
       [GGH-6805, GH-6804]
+  - provisioners/chef: Change the default channel to "stable" (previously it
+      was "current") [GH-7001, GH-6979]
   - provisioners/puppet: Use `where.exe` to locate puppet binary
       [GH-6912, GH-6876]
 
