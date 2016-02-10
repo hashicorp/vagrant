@@ -142,7 +142,7 @@ that the path is located in the "vm" at "/path/to/manifests".
 
 ## Environments
 
-If you are using Puppet 4 or higher, you can proivision using
+If you are using Puppet 4 or higher, you can provision using
 [Puppet Environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html) by specifying the name of the environment and the path on the
 local disk to the environment files:
 
