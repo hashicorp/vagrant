@@ -7,14 +7,23 @@
 
 Vagrant is a tool for building and distributing development environments.
 
+
+
+
+## What to Use Vagrant For
+
+Vagrant provides the framework and configuration format to create and manage complete portable development environments. These development environments can live on your computer or in the cloud, and are portable between Windows, Mac OS X, and Linux. 
+
 Development environments managed by Vagrant can run on local virtualized
 platforms such as VirtualBox or VMware, in the cloud via AWS or OpenStack,
 or in containers such as with Docker or raw LXC.
 
-Vagrant provides the framework and configuration format to create and
-manage complete portable development environments. These development
-environments can live on your computer or in the cloud, and are portable
-between Windows, Mac OS X, and Linux.
+
+## When to Use Vagrant
+
+Vagrant can be used any time you want to guarantee that development environments are identical. A single developer can use Vagrant to ensure the development environment does not break upon a local operating system upgrade. Multi-team developers can use Vagrant to minimize time wasted tracking down minor differences in development environments. Deployment teams can use vagrant to ensure all workflow environments are identical, from development to testing to production. These are just a few examples of when to use Vagrant. 
+
+
 
 ## Quick Start
 
