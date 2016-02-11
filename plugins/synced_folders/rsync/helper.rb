@@ -69,14 +69,16 @@ module VagrantPlugins
         # Create the path for the control sockets. We used to do this
         # in the machine data dir but this can result in paths that are
         # too long for unix domain sockets.
-        controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+        control_options = ""
+        unless Vagrant::Util::Platform.windows?
+          controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+          control_options = "-o ControlMaster=auto -o ControlPath=#{controlpath} -o ControlPersist=10m"
+        end
 
         rsh = [
           "ssh -p #{ssh_info[:port]} " +
           proxy_command +
-          "-o ControlMaster=auto " +
-          "-o ControlPath=#{controlpath} " +
-          "-o ControlPersist=10m " +
+          control_options +
           "-o StrictHostKeyChecking=no " +
           "-o IdentitiesOnly=true " +
           "-o UserKnownHostsFile=/dev/null",
