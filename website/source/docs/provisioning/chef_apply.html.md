@@ -95,10 +95,10 @@ end
 
 ## Roles
 
-The Vagrant Chef Apply provisioner does not support roles. Please use the a
+The Vagrant Chef Apply provisioner does not support roles. Please use a
 different Vagrant Chef provisioner if you need support for roles.
 
 ## Data Bags
 
-The Vagrant Chef Apply provisioner does not support data_bags. Please use the a
+The Vagrant Chef Apply provisioner does not support data_bags. Please use a
 different Vagrant Chef provisioner if you need support for data_bags.
