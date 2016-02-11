@@ -68,14 +68,18 @@ module VagrantPlugins
         # Create the path for the control sockets. We used to do this
         # in the machine data dir but this can result in paths that are
         # too long for unix domain sockets.
-        controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+        control_options = ""
+        unless Vagrant::Util::Platform.windows?
+          controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+          control_options = "-o ControlMaster=auto -o ControlPath=#{controlpath} -o ControlPersist=10m"
+        end
 
         # rsh cmd option
         rsh = [
           "ssh", "-p", "#{ssh_info[:port]}",
-          "-o", "ControlMaster=auto",
-          "-o", "ControlPath=#{controlpath}",
-          "-o", "ControlPersist=10m"]
+          proxy_command,
+          control_options,
+        ]
 
         # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the
         # IdentitiesOnly option. Also, we don't enable it if keys_only is false
@@ -94,10 +98,6 @@ module VagrantPlugins
         # If specified, attach the private key paths.
         if ssh_info[:private_key_path]
           ssh_info[:private_key_path].map { |p| "-i '#{p}'" }
-        end
-
-        if ssh_info[:proxy_command]
-          rsh += ["-o", "ProxyCommand=#{ssh_info[:proxy_command]}"]
         end
 
         # Exclude some files by default, and any that might be configured
