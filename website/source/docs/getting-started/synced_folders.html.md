@@ -19,6 +19,9 @@ will automatically sync your files to and from the guest machine.
 By default, Vagrant shares your project directory (remember, that is the
 one with the Vagrantfile) to the `/vagrant` directory in your guest machine.
 
+Note that when you `vagrant ssh` into your machine, you're in `/home/vagrant`.
+`/home/vagrant` is a different directory from the synced `/vagrant` directory.
+
 If your terminal displays an error about incompatible guest additions (or no
 guest additions), you may need to update your box or choose a different box such
 as `hashicorp/precise64`. Some users have also had success with the
