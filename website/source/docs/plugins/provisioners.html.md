@@ -50,7 +50,7 @@ The provisioner class should subclass and implement
 Vagrant return the proper parent class for provisioners.
 
 This class and the methods that need to be implemented are
-[very well documented](https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/plugin/docs/provisioner.rb).
+[very well documented](https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/plugin/v2/provisioner.rb).
 The documentation on the class in the comments should be enough
 to understand what needs to be done.
 
