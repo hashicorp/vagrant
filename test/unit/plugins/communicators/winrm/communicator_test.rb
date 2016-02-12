@@ -66,9 +66,9 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
       expect(subject.ready?).to be_false
     end
 
-    it "raises an error if hostname command fails with an unknown error" do
+    it "returns false if hostname command fails" do
       expect(shell).to receive(:powershell).with("hostname").and_raise(Vagrant::Errors::VagrantError)
-      expect { subject.ready? }.to raise_error(Vagrant::Errors::VagrantError)
+      expect(subject.ready?).to be_false
     end
 
     it "raises timeout error when hostname command takes longer then winrm timeout" do
