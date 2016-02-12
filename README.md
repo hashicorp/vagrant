@@ -5,7 +5,6 @@
 * IRC: `#vagrant` on Freenode
 * Mailing list: [Google Groups](https://groups.google.com/group/vagrant-up)
 
-
 ## Why Vagrant? 
  
 Nowadays web development gets more complex than ever and the same is with the development environment. 
