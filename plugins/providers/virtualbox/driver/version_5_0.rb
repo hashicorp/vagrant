@@ -366,8 +366,10 @@ module VagrantPlugins
               end
 
             # Parse out the forwarded port information
-            if line =~ /^Forwarding.+?="(.+?),.+?,.*?,(.+?),.*?,(.+?)"$/
-              result = [current_nic, $1.to_s, $2.to_i, $3.to_i]
+            # Forwarding(1)="172.22.8.201tcp32977,tcp,172.22.8.201,32977,,3777"
+            # Forwarding(2)="tcp32978,tcp,,32978,,3777"
+            if line =~ /^Forwarding.+?="(.+?),.+?,(.*?),(.+?),.*?,(.+?)"$/
+              result = [current_nic, $1.to_s, $3.to_i, $4.to_i, $2]
               @logger.debug("  - #{result.inspect}")
               results << result
             end
@@ -556,7 +558,7 @@ module VagrantPlugins
         end
 
         def read_used_ports
-          ports = []
+          used_ports = Hash.new{|hash, key| hash[key] = Set.new}
           execute("list", "vms", retryable: true).split("\n").each do |line|
             if line =~ /^".+?" \{(.+?)\}$/
               uuid = $1.to_s
@@ -564,13 +566,14 @@ module VagrantPlugins
               # Ignore our own used ports
               next if uuid == @uuid
 
-              read_forwarded_ports(uuid, true).each do |_, _, hostport, _|
-                ports << hostport
+              read_forwarded_ports(uuid, true).each do |_, _, hostport, _, hostip|
+                hostip = '*' if hostip.nil? || hostip.empty?
+                used_ports[hostport].add?(hostip)
               end
             end
           end
 
-          ports
+          used_ports
         end
 
         def read_vms

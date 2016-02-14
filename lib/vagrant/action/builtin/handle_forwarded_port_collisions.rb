@@ -62,7 +62,7 @@ module Vagrant
           @logger.info("Detecting any forwarded port collisions...")
 
           # Get the extra ports we consider in use
-          extra_in_use = env[:port_collision_extra_in_use] || []
+          extra_in_use = env[:port_collision_extra_in_use] || {}
 
           # Get the remap
           remap = env[:port_collision_remap] || {}
@@ -81,7 +81,7 @@ module Vagrant
 
           # Determine a list of usable ports for repair
           usable_ports = Set.new(env[:machine].config.vm.usable_port_range)
-          usable_ports.subtract(extra_in_use)
+          usable_ports.subtract(extra_in_use.keys)
 
           # Pass one, remove all defined host ports from usable ports
           with_forwarded_ports(env) do |options|
@@ -92,6 +92,7 @@ module Vagrant
           with_forwarded_ports(env) do |options|
             guest_port = options[:guest]
             host_port  = options[:host]
+            host_ip    = options[:host_ip]
 
             if options[:protocol] && options[:protocol] != "tcp"
               @logger.debug("Skipping #{host_port} because UDP protocol.")
@@ -105,9 +106,9 @@ module Vagrant
             end
 
             # If the port is open (listening for TCP connections)
-            in_use = extra_in_use.include?(host_port) ||
-              port_checker[host_port] ||
-              lease_check(host_port)
+            in_use = is_forwarded_already(extra_in_use, host_port, host_ip) ||
+              port_checker[host_ip, host_port] ||
+              lease_check(host_ip, host_port)
             if in_use
               if !repair || !options[:auto_correct]
                 raise Errors::ForwardPortCollision,
@@ -124,9 +125,9 @@ module Vagrant
                 usable_ports.delete(repaired_port)
 
                 # If the port is in use, then we can't use this either...
-                in_use = extra_in_use.include?(repaired_port) ||
-                  port_checker[repaired_port] ||
-                  lease_check(repaired_port)
+                in_use = is_forwarded_already(extra_in_use, repaired_port, host_ip) ||
+                  port_checker[host_ip, repaired_port] ||
+                  lease_check(host_ip, repaired_port)
                 if in_use
                   @logger.info("Repaired port also in use: #{repaired_port}. Trying another...")
                   next
@@ -158,12 +159,18 @@ module Vagrant
           end
         end
 
-        def lease_check(port)
+        def lease_check(host_ip=nil, host_port)
           # Check if this port is "leased". We use a leasing system of
           # about 60 seconds to avoid any forwarded port collisions in
           # a highly parallelized environment.
           leasedir = @machine.env.data_dir.join("fp-leases")
           leasedir.mkpath
+
+          if host_ip.nil?
+            lease_file_name = host_port.to_s
+          else
+            lease_file_name = "#{host_ip.gsub('.','_')}_#{host_port.to_s}"
+          end
 
           invalid = false
           oldest  = Time.now.to_i - 60
@@ -173,7 +180,7 @@ module Vagrant
               child.delete
             end
 
-            if child.basename.to_s == port.to_s
+            if child.basename.to_s == lease_file_name
               invalid = true
             end
           end
@@ -182,13 +189,13 @@ module Vagrant
           return true if invalid
 
           # Otherwise, create the lease
-          leasedir.join(port.to_s).open("w+") do |f|
+          leasedir.join(lease_file_name).open("w+") do |f|
             f.binmode
             f.write(Time.now.to_i.to_s + "\n")
           end
 
           # Add to the leased array so we unlease it right away
-          @leased << port.to_s
+          @leased << lease_file_name
 
           # Things look good to us!
           false
@@ -203,8 +210,32 @@ module Vagrant
           end
         end
 
-        def port_check(port)
-          is_port_open?("127.0.0.1", port)
+        # This functions checks to see if the current instance's hostport and
+        # hostip for forwarding is in use by the virtual machines created
+        # previously.
+        def is_forwarded_already(extra_in_use, hostport, hostip)
+          hostip = '*' if hostip.nil? || hostip.empty?
+          # ret. false if none of the VMs we spun up had this port forwarded.
+          return false if not extra_in_use.has_key?(hostport)
+
+          # ret. true if the user has requested to bind on all interfaces but
+          # we already have a rule in one the VMs we spun up.
+          if hostip == '*'
+            if extra_in_use.fetch(hostport).size != 0
+              return true
+            else
+              return false
+            end
+          end
+
+          return extra_in_use.fetch(hostport).include?(hostip)
+        end
+
+        def port_check(host_ip, host_port)
+          # If the user hasn't specified a host_ip, his/her intention is taken to be
+          # to listen on all interfaces.
+          return is_port_open?("0.0.0.0", host_port) if host_ip.nil?
+          return is_port_open?(host_ip, host_port)
         end
 
         def with_forwarded_ports(env)

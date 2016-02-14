@@ -244,9 +244,11 @@ module VagrantPlugins
           default_id = nil
 
           if type == :forwarded_port
-            # For forwarded ports, set the default ID to the
-            # host port so that host ports overwrite each other.
-            default_id = "#{options[:protocol]}#{options[:host]}"
+            # For forwarded ports, set the default ID to be the
+            # concat of host_ip, proto and host_port. This would ensure Vagrant
+            # caters for port forwarding in an IP aliased environment where
+            # different host IP addresses are to be listened on the same port.
+            default_id = "#{options[:host_ip]}#{options[:protocol]}#{options[:host]}"
           end
 
           options[:id] = default_id || SecureRandom.uuid
@@ -676,7 +678,7 @@ module VagrantPlugins
             end
 
             if options[:host]
-              key = "#{options[:protocol]}#{options[:host]}"
+              key = "#{options[:host_ip]}#{options[:protocol]}#{options[:host]}"
               if fp_used.include?(key)
                 errors << I18n.t("vagrant.config.vm.network_fp_host_not_unique",
                                 host: options[:host].to_s,
