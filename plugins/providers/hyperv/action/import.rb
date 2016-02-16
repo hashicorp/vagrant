@@ -19,7 +19,7 @@ module VagrantPlugins
           cpus = env[:machine].provider_config.cpus
           vmname = env[:machine].provider_config.vmname
 
-          env[:ui].output("Configured Dynamical memory allocation, maxmemory is #{maxmemory}") if maxmemory
+          env[:ui].output("Configured Dynamic memory allocation, maxmemory is #{maxmemory}") if maxmemory
           env[:ui].output("Configured startup memory is #{memory}") if memory
           env[:ui].output("Configured cpus number is #{cpus}") if cpus
           env[:ui].output("Configured vmname is #{vmname}") if vmname
