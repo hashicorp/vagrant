@@ -36,8 +36,6 @@ module Vagrant
       end
 
       def execute
-        process=nil
-        Vagrant::Util::Env.with_original_env do
         # Get the timeout, if we have one
         timeout = @options[:timeout]
 
@@ -64,8 +62,7 @@ module Vagrant
 
         # Build the ChildProcess
         @logger.info("Starting process: #{@command.inspect}")
-        process = nil
-          process = ChildProcess.build(*@command)
+        process = ChildProcess.build(*@command)
 
         # Create the pipes so we can read the output in real time as
         # we execute the command.
@@ -227,7 +224,6 @@ module Vagrant
 
         # Return an exit status container
         return Result.new(process.exit_code, io_data[:stdout], io_data[:stderr])
-        end
       ensure
         if process && process.alive?
           # Make sure no matter what happens, the process exits

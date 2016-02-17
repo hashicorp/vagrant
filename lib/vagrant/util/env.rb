@@ -9,7 +9,7 @@ module Vagrant
         if Vagrant.original_env.any?
           ENV.replace(proxy_env)
         elsif defined?(::Bundler::ORIGINAL_ENV)
-          #ENV.replace(::Bundler::ORIGINAL_ENV)
+          ENV.replace(::Bundler::ORIGINAL_ENV)
         end
         yield
       ensure
