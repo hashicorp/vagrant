@@ -12,6 +12,15 @@ This is the operating system that you run locally.
 ### Guest operating system
 This is the operating system you run in the virtual machine.
 
+### Vagrantfile
+```ruby
+# Copy-paste your Vagrantfile here
+```
+
+Please note, if you are using Homestead or a different Vagrantfile format, we
+may be unable to assist with your issue. Try to reproduce the issue using a
+vanilla Vagrantfile first.
+
 ### Debug output
 Provide a link to a GitHub Gist containing the complete debug output:
 https://www.vagrantup.com/docs/other/debugging.html. Do NOT paste the debug
