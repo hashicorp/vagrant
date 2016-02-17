@@ -7,7 +7,6 @@ module Vagrant
         original_env = ENV.to_hash
         proxy_env = Vagrant.original_env
         if Vagrant.original_env.any?
-          puts 'heloooooooooooooooo'
           ENV.replace(proxy_env)
         elsif defined?(::Bundler::ORIGINAL_ENV)
           #ENV.replace(::Bundler::ORIGINAL_ENV)

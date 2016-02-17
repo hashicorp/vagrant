@@ -37,9 +37,7 @@ module Vagrant
 
       def execute
         process=nil
-        puts "before #{ENV['VAGRANT_OLD_ENV_XAUTHORITY']}"
         Vagrant::Util::Env.with_original_env do
-        puts "after #{ENV['VAGRANT_OLD_ENV_XAUTHORITY']}"
         # Get the timeout, if we have one
         timeout = @options[:timeout]
 
@@ -67,7 +65,6 @@ module Vagrant
         # Build the ChildProcess
         @logger.info("Starting process: #{@command.inspect}")
         process = nil
-          puts "HOHOHOHOO #{ENV['VAGRANT_OLD_ENV_UPSTART_INSTANCE']}"
           process = ChildProcess.build(*@command)
 
         # Create the pipes so we can read the output in real time as
@@ -126,8 +123,6 @@ module Vagrant
         begin
           SafeChdir.safe_chdir(workdir) do
             Vagrant::Util::Env.with_original_env do
-              puts "HIHIHIHIHI #{ENV['VAGRANT_OLD_ENV_UPSTART_INSTANCE']}"
-              puts "HIHIHIHIHI #{process.environment['VAGRANT_OLD_ENV_UPSTART_INSTANCE']}"
               process.start
             end
           end
@@ -315,7 +310,6 @@ module Vagrant
           env["RUBYOPT"] = ENV["RUBYOPT"].sub("-rbundler/setup", "")
         end
 
-        puts "ISNI #{env['VAGRANT_OLD_ENV_UPSTART_INSTANCE']}"
         nil
       end
     end
