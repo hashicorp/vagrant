@@ -649,7 +649,7 @@ BUG FIXES:
   - commands/package: base package won't crash with exception [GH-4017]
   - commands/rsync-auto: Destroyed machines won't raise exceptions. [GH-4031]
   - commands/ssh: Extra args are passed through to Docker container. [GH-4378]
-  - communicators/ssh: Nicer error if remote unexpectedly disconects. [GH-4038]
+  - communicators/ssh: Nicer error if remote unexpectedly disconnects. [GH-4038]
   - communicators/ssh: Clean error when max sessions is hit. [GH-4044]
   - communicators/ssh: Fix many issues around PTY-enabled output parsing.
       [GH-4408]
@@ -1358,7 +1358,7 @@ IMPROVEMENTS:
     certs from a custom CA. [GH-2337]
   - commands/box/add: Can now specify a client cert when downloading a
     box. [GH-1889]
-  - commands/init: Add `--output` option for specifing output path, or
+  - commands/init: Add `--output` option for specifying output path, or
     "-" for stdin. [GH-1364]
   - commands/provision: Add `--no-parallel` option to disable provider
     parallelization if the provider supports it. [GH-2404]
