@@ -14,3 +14,15 @@ description: |-
 
 This resumes a Vagrant managed machine that was previously suspended,
 perhaps with the [suspend command](/docs/cli/suspend.html).
+
+The configured provisioners will not run again, by default. You can force
+the provisioners to re-run by specifying the `--provision` flag.
+
+# Options
+
+* `--provision` - Force the provisioners to run.
+
+* `--provision-with x,y,z` - This will only run the given provisioners. For
+  example, if you have a `:shell` and `:chef_solo` provisioner and run
+  `vagrant provision --provision-with shell`, only the shell provisioner will
+  be run.
