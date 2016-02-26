@@ -5,8 +5,8 @@ module VagrantPlugins
         module ChefInstalled
           # Check if Chef is installed at the given version.
           # @return [true, false]
-          def self.chef_installed(machine, version)
-            knife = "/opt/chef/bin/knife"
+          def self.chef_installed(machine, product, version)
+            knife = "/opt/#{product}/bin/knife"
             command = "test -x #{knife}"
 
             if version != :latest
