@@ -1,0 +1,96 @@
+//
+// Global Site
+// --------------------------------------------------
+
+/*html{
+text-rendering: optimizeLegibility;
+-webkit-font-smoothing: antialiased;
+}*/
+
+body {
+  font-size: 18px;
+  color: $black;
+  font-weight: 300;
+}
+
+h1 {
+  font-size: 42px;
+  line-height: 42px;
+  font-family: $font-family-museo-sans;
+  font-weight: $font-weight-museo-sans-sb;
+  margin-bottom: 24px;
+}
+
+h2 {
+  text-transform: uppercase;
+  font-family: $font-family-museo-sans;
+  font-weight: $font-weight-museo-sans-sb;
+  margin-top: 70px;
+}
+
+h1 + h2 {
+  margin-top: 10px;
+}
+
+h3 {
+  font-size: 28px;
+  line-height: 28px;
+  font-family: $font-family-museo-sans;
+  font-weight: $font-weight-museo-sans-sb;
+}
+
+.highlight{
+  margin-bottom: 18px;
+}
+
+pre {
+  background-color: $black;
+  color: $white;
+  font-size: 14px;
+  font-weight: normal;
+  font-family: $font-family-monospace;
+  border: none;
+  padding: 20px;
+  margin-bottom: 0;
+}
+
+*:focus {
+  outline: none;
+}
+
+//fixed grid below 992 to prevent smaller responsive sizes
+@media (max-width: 992px) {
+  .container{
+    max-width: 970px;
+  }
+}
+
+//all below styles are overriding corrections for below (min-width: 992px)
+//below (min-width: 992px) these styles change
+.navbar-nav {
+  margin: 0;
+}
+
+.navbar-right {
+  float: right !important;
+}
+
+.navbar-nav > li {
+  float: left;
+}
+
+.navbar-nav > li > a {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+.center {
+  text-align: center;
+}
+
+.edit-this-page{
+  padding-top: 48px;
+  a{
+    text-transform: uppercase;
+  }
+}

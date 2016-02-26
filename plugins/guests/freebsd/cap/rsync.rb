@@ -8,10 +8,7 @@ module VagrantPlugins
             version = result.split('.')[0].to_i if type == :stdout
           end
 
-          pkg_cmd = "pkg_add -r"
-          if version && version >= 10
-            pkg_cmd = "pkg install -y"
-          end
+          pkg_cmd = "pkg install -y"
 
           machine.communicate.sudo("#{pkg_cmd} rsync")
         end

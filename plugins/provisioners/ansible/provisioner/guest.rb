@@ -52,7 +52,7 @@ module VagrantPlugins
 
           # Check that ansible binaries are well installed on the guest,
           @machine.communicate.execute(
-            "ansible-galaxy --help && ansible-playbook --help",
+            "ansible-galaxy info --help && ansible-playbook --help",
             :error_class => Ansible::Errors::AnsibleNotFoundOnGuest,
             :error_key => :ansible_not_found_on_guest)
 
@@ -113,7 +113,7 @@ module VagrantPlugins
             comm.upload(temp_inventory.path, inventory_path)
           end
 
-          return inventory_path
+          return inventory_basedir
         end
 
         def generate_inventory_machines
@@ -128,6 +128,8 @@ module VagrantPlugins
               else
                 machines += "#{machine_name}\n"
               end
+              host_vars = get_inventory_host_vars_string(machine_name)
+              machines.sub!(/\n$/, " #{host_vars}\n") if host_vars
             end
           end
 

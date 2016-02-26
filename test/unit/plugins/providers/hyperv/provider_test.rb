@@ -15,6 +15,7 @@ describe VagrantPlugins::HyperV::Provider do
     machine.stub(id: "foo")
     platform.stub(windows?: true)
     platform.stub(windows_admin?: true)
+    platform.stub(windows_hyperv_admin?: true)
     powershell.stub(available?: true)
   end
 
@@ -26,9 +27,16 @@ describe VagrantPlugins::HyperV::Provider do
       expect(subject).to_not be_usable
     end
 
-    it "returns false if not an admin" do
+    it "returns false if neither an admin nor a hyper-v admin" do
       platform.stub(windows_admin?: false)
+      platform.stub(windows_hyperv_admin?: false)
       expect(subject).to_not be_usable
+    end
+
+    it "returns true if not an admin but is a hyper-v admin" do
+      platform.stub(windows_admin?: false)
+      platform.stub(windows_hyperv_admin?: true)
+      expect(subject).to be_usable
     end
 
     it "returns false if powershell is not available" do
@@ -43,8 +51,17 @@ describe VagrantPlugins::HyperV::Provider do
         to raise_error(VagrantPlugins::HyperV::Errors::WindowsRequired)
     end
 
-    it "raises an exception if not an admin" do
+    it "raises an exception if neither an admin nor a hyper-v admin" do
       platform.stub(windows_admin?: false)
+      platform.stub(windows_hyperv_admin?: false)
+
+      expect { subject.usable?(true) }.
+        to raise_error(VagrantPlugins::HyperV::Errors::AdminRequired)
+    end
+
+    it "raises an exception if neither an admin nor a hyper-v admin" do
+      platform.stub(windows_admin?: false)
+      platform.stub(windows_hyperv_admin?: false)
 
       expect { subject.usable?(true) }.
         to raise_error(VagrantPlugins::HyperV::Errors::AdminRequired)

@@ -313,7 +313,7 @@ describe Vagrant::UI::Prefixed do
 
   describe "#ask" do
     it "does not request bolding" do
-      expect(ui).to receive(:ask).with("    #{prefix}: foo", bold: false)
+      expect(ui).to receive(:ask).with("    #{prefix}: foo", bold: false, target: prefix)
       subject.ask("foo")
     end
   end
@@ -325,12 +325,13 @@ describe Vagrant::UI::Prefixed do
     end
 
     it "prefixes every line" do
-      expect(ui).to receive(:detail).with("    #{prefix}: foo\n    #{prefix}: bar", bold: false)
+      expect(ui).to receive(:detail).with(
+        "    #{prefix}: foo\n    #{prefix}: bar", bold: false, target: prefix)
       subject.detail("foo\nbar")
     end
 
     it "doesn't prefix if requested" do
-      expect(ui).to receive(:detail).with("foo", prefix: false, bold: false)
+      expect(ui).to receive(:detail).with("foo", prefix: false, bold: false, target: prefix)
       subject.detail("foo", prefix: false)
     end
   end
@@ -371,18 +372,18 @@ describe Vagrant::UI::Prefixed do
     end
 
     it "doesn't prefix if requestsed" do
-      expect(ui).to receive(:output).with("foo", prefix: false, bold: true)
+      expect(ui).to receive(:output).with("foo", prefix: false, bold: true, target: prefix)
       subject.output("foo", prefix: false)
     end
 
     it "requests bolding" do
-      expect(ui).to receive(:output).with("==> #{prefix}: foo", bold: true)
+      expect(ui).to receive(:output).with("==> #{prefix}: foo", bold: true, target: prefix)
       subject.output("foo")
     end
 
     it "does not request bolding if class-level disabled" do
       ui.opts[:bold] = false
-      expect(ui).to receive(:output).with("==> #{prefix}: foo", {})
+      expect(ui).to receive(:output).with("==> #{prefix}: foo", target: prefix)
       subject.output("foo")
     end
 

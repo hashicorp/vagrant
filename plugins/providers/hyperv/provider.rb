@@ -16,8 +16,9 @@ module VagrantPlugins
           raise Errors::WindowsRequired
         end
 
-        if !Vagrant::Util::Platform.windows_admin?
-          raise Errors::AdminRequired
+        if !Vagrant::Util::Platform.windows_admin? and
+           !Vagrant::Util::Platform.windows_hyperv_admin?
+            raise Errors::AdminRequired
         end
 
         if !Vagrant::Util::PowerShell.available?

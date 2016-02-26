@@ -271,13 +271,13 @@ en:
       You're running an up-to-date version of Vagrant!
     version_no_checkpoint: |-
       Vagrant was unable to check for the latest version of Vagrant.
-      Please check manually at http://www.vagrantup.com
+      Please check manually at https://www.vagrantup.com
     version_upgrade_howto: |-
       To upgrade to the latest version, visit the downloads page and
       download and install the latest version of Vagrant from the URL
       below:
 
-        http://www.vagrantup.com/downloads.html
+        https://www.vagrantup.com/downloads.html
 
       If you're curious what changed in the latest release, view the
       CHANGELOG below:
@@ -388,7 +388,7 @@ en:
         The box you're attempting to add has no available version that
         matches the constraints you requested. Please double-check your
         settings. Also verify that if you specified version constraints,
-        that the provider you wish to use is available for these constriants.
+        that the provider you wish to use is available for these constraints.
 
         Box: %{name}
         Address: %{url}
@@ -500,7 +500,7 @@ en:
         notify the box creator that the box is corrupt. Documentation for
         box file format can be found at the URL below:
 
-        http://docs.vagrantup.com/v2/boxes/format.html
+        https://www.vagrantup.com/docs/boxes/format.html
       box_metadata_malformed: |-
         The metadata for the box was malformed. The exact error
         is shown below. Please contact the maintainer of the box so
@@ -1015,6 +1015,13 @@ en:
         This is a limitation of this provider. Please report this as a feature
         request to the provider in question. To install this provider, you'll
         have to do so manually.
+      provider_checksum_mismatch: |-
+        The checksum of the downloaded provider '%{provider}' did not match the
+        expected value. If the problem persists, please install the provider
+        manually.
+
+        Expected: %{expected}
+        Received: %{actual}
       provider_install_failed: |-
         Installation of the provider '%{provider}' failed! The stdout
         and stderr are shown below. Please read the error output, resolve it,
@@ -1315,10 +1322,14 @@ en:
         This is an internal error that should be reported as a bug.
       virtualbox_invalid_version: |-
         Vagrant has detected that you have a version of VirtualBox installed
-        that is not supported. Please install one of the supported versions
-        listed below to use Vagrant:
+        that is not supported by this version of Vagrant. Please install one of
+        the supported versions listed below to use Vagrant:
 
         %{supported_versions}
+
+        A Vagrant update may also be available that adds support for the version
+        you specified. Please check www.vagrantup.com/downloads.html to download
+        the latest version.
       virtualbox_kernel_module_not_loaded: |-
         VirtualBox is complaining that the kernel module is not loaded. Please
         run `VBoxManage --version` or open the VirtualBox GUI to see the error
@@ -2065,6 +2076,12 @@ en:
         interactive_not_elevated: "To be interactive, it must also be privileged."
 
       ansible:
+        ansible_host_pattern_detected: |-
+          Vagrant has detected a host range pattern in the `groups` option.
+          Vagrant doesn't fully check the validity of these parameters!
+
+          Please check https://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups
+          for more information.
         cannot_detect: |-
           Vagrant does not support detecting whether Ansible is installed
           for the guest OS running in the machine. Vagrant will assume it is

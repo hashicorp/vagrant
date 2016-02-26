@@ -234,42 +234,114 @@ VF
       end
     end
 
+    describe "with host_vars option" do
+      it_should_create_and_use_generated_inventory
+
+      it "adds host variables (given in Hash format) to the generated inventory" do
+        config.host_vars = {
+          machine1: {"http_port" => 80, "maxRequestsPerChild" => 808}
+        }
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          inventory_content = File.read(generated_inventory_file)
+          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
+        }
+      end
+
+      it "adds host variables (given in Array format) to the generated inventory" do
+        config.host_vars = {
+          machine1: ["http_port=80", "maxRequestsPerChild=808"]
+        }
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          inventory_content = File.read(generated_inventory_file)
+          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
+        }
+      end
+
+      it "adds host variables (given in String format) to the generated inventory " do
+        config.host_vars = {
+          :machine1 => "http_port=80 maxRequestsPerChild=808"
+        }
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          inventory_content = File.read(generated_inventory_file)
+          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
+        }
+      end
+
+      it "retrieves the host variables by machine name, also in String format" do
+        config.host_vars = {
+          "machine1" => "http_port=80 maxRequestsPerChild=808"
+        }
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          inventory_content = File.read(generated_inventory_file)
+          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
+        }
+      end
+    end
+
     describe "with groups option" do
       it_should_create_and_use_generated_inventory
 
       it "adds group sections to the generated inventory" do
         config.groups = {
-          "group1" => "#{machine.name}",
-          "group1:children" => 'bar',
+          "group1" => "machine1",
+          "group1:children" => 'bar group3',
           "group2" => [iso_env.machine_names[1]],
           "group3" => ["unknown", "#{machine.name}"],
+          "group4" => ["machine[1:2]", "machine[a:f]"],
+          "group6" => [machine.name],
           "bar" => ["#{machine.name}", "group3"],
-          "bar:children" => ["group1", "group2", "group3", "group4"],
-          "bar:vars" => ["myvar=foo"],
+          "bar:children" => ["group1", "group2", "group3", "group5"],
         }
 
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           inventory_content = File.read(generated_inventory_file)
 
-          # Group variables are intentionally not supported in generated inventory
-          expect(inventory_content).not_to match(/^\[.*:vars\]$/)
-
-          # Accept String instead of Array for group that contains a single item
-          expect(inventory_content).to include("[group1]\n#{machine.name}\n")
-          expect(inventory_content).to include("[group1:children]\nbar\n")
+          # Accept String instead of Array for group member list
+          expect(inventory_content).to include("[group1]\nmachine1\n\n")
+          expect(inventory_content).to include("[group1:children]\nbar\ngroup3\n\n")
 
           # Skip "lost" machines
           expect(inventory_content).to include("[group2]\n\n")
 
           # Skip "unknown" machines
-          expect(inventory_content).to include("[group3]\n#{machine.name}\n")
+          expect(inventory_content).to include("[group3]\n#{machine.name}\n\n")
+
+          # Accept Symbol datatype for group names
+          expect(inventory_content).to include("[group6]\n#{machine.name}\n\n")
+
+          # Accept host range patterns
+          expect(inventory_content).to include("[group4]\nmachine[1:2]\nmachine[a:f]\n")
 
           # Don't mix group names and host names
-          expect(inventory_content).to include("[bar]\n#{machine.name}\n")
+          expect(inventory_content).to include("[bar]\n#{machine.name}\n\n")
 
           # A group of groups only includes declared groups
-          expect(inventory_content).not_to match(/^group4$/)
-          expect(inventory_content).to include("[bar:children]\ngroup1\ngroup2\ngroup3\n")
+          expect(inventory_content).not_to include("group5")
+          expect(inventory_content).to match(Regexp.quote("[bar:children]\ngroup1\ngroup2\ngroup3\n") + "$")
+        }
+      end
+
+      it "adds group vars to the generated inventory" do
+        config.groups = {
+          "group1" => [machine.name],
+          "group2" => [machine.name],
+          "group3" => [machine.name],
+          "group1:vars" => {"hashvar1" => "hashvalue1", "hashvar2" => "hashvalue2"},
+          "group2:vars" => ["arrayvar1=arrayvalue1", "arrayvar2=arrayvalue2"],
+          "group3:vars" => "stringvar1=stringvalue1 stringvar2=stringvalue2",
+        }
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          inventory_content = File.read(generated_inventory_file)
+
+          # Hash syntax
+          expect(inventory_content).to include("[group1:vars]\nhashvar1=hashvalue1\nhashvar2=hashvalue2\n")
+
+          # Array syntax
+          expect(inventory_content).to include("[group2:vars]\narrayvar1=arrayvalue1\narrayvar2=arrayvalue2\n")
+
+          # Single string syntax
+          expect(inventory_content).to include("[group3:vars]\nstringvar1=stringvalue1\nstringvar2=stringvalue2\n")
         }
       end
     end
@@ -532,8 +604,8 @@ VF
       it "passes additional Identity Files via ANSIBLE_SSH_ARGS" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           cmd_opts = args.last
-          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/an/other/identity")
-          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/yet/an/other/key")
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-i '/an/other/identity'")
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-i '/yet/an/other/key'")
         }
       end
     end
@@ -714,7 +786,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit='machine*:&vagrant:!that_one' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task='an awesome task' --why-not --su-user=foot --ask-su-pass --limit='all' --private-key=./myself.key playbook.yml")
+          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -i '/my/key1' -i '/my/key2' -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit='machine*:&vagrant:!that_one' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task='an awesome task' --why-not --su-user=foot --ask-su-pass --limit='all' --private-key=./myself.key playbook.yml")
         }
       end
     end

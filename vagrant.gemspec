@@ -7,7 +7,8 @@ Gem::Specification.new do |s|
   s.platform      = Gem::Platform::RUBY
   s.authors       = ["Mitchell Hashimoto", "John Bender"]
   s.email         = ["mitchell.hashimoto@gmail.com", "john.m.bender@gmail.com"]
-  s.homepage      = "http://vagrantup.com"
+  s.homepage      = "https://www.vagrantup.com"
+  s.license       = 'MIT'
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
@@ -28,11 +29,11 @@ Gem::Specification.new do |s|
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rest-client", ">= 1.6.0", "< 2.0"
   s.add_dependency "wdm", "~> 0.1.0"
-  s.add_dependency "winrm", "~> 1.3"
-  s.add_dependency "winrm-fs", "~> 0.2.2"
+  s.add_dependency "winrm", "~> 1.6"
+  s.add_dependency "winrm-fs", "~> 0.3.0"
 
   # We lock this down to avoid compilation issues.
-  s.add_dependency "nokogiri", "= 1.6.3.1"
+  s.add_dependency "nokogiri", "= 1.6.7.1"
 
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", "~> 2.14.0"

@@ -48,7 +48,7 @@ module Vagrant
           # Verify that we have administrative privileges. The odd method of
           # detecting this is based on this StackOverflow question:
           #
-          # http://stackoverflow.com/questions/560366/
+          # https://stackoverflow.com/questions/560366/
           #   detect-if-running-with-administrator-privileges-under-windows-xp
           begin
             Win32::Registry::HKEY_USERS.open("S-1-5-19") {}
@@ -59,6 +59,25 @@ module Vagrant
           # If we made it this far then we try a fallback approach
           # since the above doesn't seem to be bullet proof. See GH-5616
           (`reg query HKU\\S-1-5-19 2>&1` =~ /ERROR/).nil?
+        end
+
+        # Checks if the user running Vagrant on Windows is a member of the
+        # "Hyper-V Administrators" group.
+        #
+        # From: https://support.microsoft.com/en-us/kb/243330
+        # SID: S-1-5-32-578
+        # Name: BUILTIN\Hyper-V Administrators
+        #
+        # @return [Boolean]
+        def windows_hyperv_admin?
+            begin
+              username = ENV["USERNAME"]
+              process = Subprocess.execute("net", "localgroup", "Hyper-V Administrators")
+              output = process.stdout.chomp
+              return output.include?(username)
+            rescue Errors::CommandUnavailableWindows
+              return false
+            end
         end
 
         # This takes any path and converts it from a Windows path to a
@@ -166,6 +185,12 @@ module Vagrant
         # @param [String] path Path to convert to UNC for Windows
         # @return [String]
         def windows_unc_path(path)
+          path = path.gsub("/", "\\")
+
+          # If the path is just a drive letter, then return that as-is
+          return path if path =~ /^[a-zA-Z]:\\?$/
+
+          # Convert to UNC path
           "\\\\?\\" + path.gsub("/", "\\")
         end
 

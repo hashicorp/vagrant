@@ -12,6 +12,7 @@ module VagrantPlugins
       attr_accessor :transport
       attr_accessor :ssl_peer_verification
       attr_accessor :execution_time_limit
+      attr_accessor :basic_auth_only
 
       def initialize
         @username               = UNSET_VALUE
@@ -25,12 +26,13 @@ module VagrantPlugins
         @transport              = UNSET_VALUE
         @ssl_peer_verification  = UNSET_VALUE
         @execution_time_limit   = UNSET_VALUE
+        @basic_auth_only        = UNSET_VALUE
       end
 
       def finalize!
         @username = "vagrant"   if @username == UNSET_VALUE
         @password = "vagrant"   if @password == UNSET_VALUE
-        @transport = :plaintext if @transport == UNSET_VALUE
+        @transport = :negotiate if @transport == UNSET_VALUE
         @host = nil           if @host == UNSET_VALUE
         is_ssl = @transport == :ssl
         @port = (is_ssl ? 5986 : 5985)       if @port == UNSET_VALUE
@@ -40,6 +42,7 @@ module VagrantPlugins
         @timeout = 1800        if @timeout == UNSET_VALUE
         @ssl_peer_verification = true if @ssl_peer_verification == UNSET_VALUE
         @execution_time_limit = "PT2H"   if @execution_time_limit == UNSET_VALUE
+        @basic_auth_only = false    if @basic_auth_only == UNSET_VALUE
       end
 
       def validate(machine)
@@ -55,6 +58,9 @@ module VagrantPlugins
         errors << "winrm.execution_time_limit cannot be nil."     if @execution_time_limit.nil?
         unless @ssl_peer_verification == true || @ssl_peer_verification == false
           errors << "winrm.ssl_peer_verification must be a boolean."
+        end
+        unless @basic_auth_only == true || @basic_auth_only == false
+          errors << "winrm.basic_auth_only must be a boolean."
         end
 
         { "WinRM" => errors }

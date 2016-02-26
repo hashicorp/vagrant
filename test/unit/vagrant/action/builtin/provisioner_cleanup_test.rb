@@ -55,4 +55,30 @@ describe Vagrant::Action::Builtin::ProvisionerCleanup do
       instance.call(env)
     end
   end
+
+  it "only runs cleanup tasks if the subclass defines it" do
+    parent = Class.new do
+      class_variable_set(:@@cleanup, false)
+
+      def self.called?
+        class_variable_get(:@@cleanup)
+      end
+
+      def cleanup
+        self.class.class_variable_set(:@@cleanup)
+      end
+    end
+
+    child = Class.new(parent)
+
+    allow_any_instance_of(described_class).to receive(:provisioner_type_map)
+      .and_return(child => :test_provisioner)
+    allow_any_instance_of(described_class).to receive(:provisioner_instances)
+      .and_return([child])
+
+    expect(parent.called?).to be(false)
+    instance = described_class.new(app, env)
+    instance.call(env)
+    expect(parent.called?).to be(false)
+  end
 end

@@ -24,7 +24,7 @@ module VagrantPlugins
           auto_stop_action = env[:machine].provider_config.auto_stop_action
           time_sync = env[:machine].provider_config.time_sync
 
-          env[:ui].output("Configured Dynamical memory allocation, maxmemory is #{maxmemory}") if maxmemory
+          env[:ui].output("Configured Dynamic memory allocation, maxmemory is #{maxmemory}") if maxmemory
           env[:ui].output("Configured startup memory is #{memory}") if memory
           env[:ui].output("Configured cpus number is #{cpus}") if cpus
           env[:ui].output("Configured vmname is #{vmname}") if vmname
@@ -47,10 +47,12 @@ module VagrantPlugins
 
           image_path = nil
           image_ext = nil
+          image_filename = nil
           hd_dir.each_child do |f|
             if %w{.vhd .vhdx}.include?(f.extname.downcase)
               image_path = f
               image_ext = f.extname.downcase
+              image_filename = File.basename(f,image_ext)
               break
             end
           end
@@ -101,7 +103,7 @@ module VagrantPlugins
 
           env[:ui].detail("Cloning virtual hard drive...")
           source_path = image_path.to_s
-          dest_path   = env[:machine].data_dir.join("disk#{image_ext}").to_s
+          dest_path   = env[:machine].data_dir.join("#{image_filename}#{image_ext}").to_s
           FileUtils.cp(source_path, dest_path)
           image_path = dest_path
 
@@ -112,10 +114,10 @@ module VagrantPlugins
             image_path:      image_path.to_s.gsub("/", "\\")
           }
           options[:switchname] = switch if switch
-          options[:memory] = memory if memory 
+          options[:memory] = memory if memory
           options[:maxmemory] = maxmemory if maxmemory
           options[:cpus] = cpus if cpus
-          options[:vmname] = vmname if vmname 
+          options[:vmname] = vmname if vmname
 
           options[:disks_config] = add_abs_path(disks_config, env[:machine].data_dir).to_json.to_s.gsub('"', '"""')  if disks_config
           options[:guest_integration_service] = guest_integration_service if guest_integration_service

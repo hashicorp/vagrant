@@ -104,8 +104,8 @@ module Vagrant
       end
 
       [:detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, *opts|
-          machine("ui", method.to_s, message)
+        define_method(method) do |message, *args, **opts|
+          machine("ui", method.to_s, message, *args, **opts)
         end
       end
 
@@ -212,7 +212,7 @@ module Vagrant
       end
 
       def clear_line
-        # See: http://en.wikipedia.org/wiki/ANSI_escape_code
+        # See: https://en.wikipedia.org/wiki/ANSI_escape_code
         reset = "\r\033[K"
 
         info(reset, new_line: false)
@@ -280,6 +280,9 @@ module Vagrant
               opts[:bold] = #{method.inspect} != :detail && \
                 #{method.inspect} != :ask
             end
+            if !opts.key?(:target)
+              opts[:target] = @prefix
+            end
             @ui.#{method}(format_message(#{method.inspect}, message, **opts), *args, **opts)
           end
         CODE
@@ -324,16 +327,10 @@ module Vagrant
         target = opts[:target] if opts.key?(:target)
         target = "#{target}:" if target != ""
 
-
-
         # Get the lines. The first default is because if the message
         # is an empty string, then we want to still use the empty string.
         lines = [message]
         lines = message.split("\n") if message != ""
-
-        if @ui.is_a?(Vagrant::UI::MachineReadable)
-          return machine(type, message, { :target => target })
-        end
 
         # Otherwise, make sure to prefix every line properly
         lines.map do |line|

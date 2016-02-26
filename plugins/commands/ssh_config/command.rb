@@ -47,7 +47,9 @@ module VagrantPlugins
 
           # Render the template and output directly to STDOUT
           template = "commands/ssh_config/config"
-          safe_puts(Vagrant::Util::TemplateRenderer.render(template, variables))
+          config   = Vagrant::Util::TemplateRenderer.render(template, variables)
+          machine.ui.machine("ssh-config", config)
+          safe_puts(config)
           safe_puts
         end
 

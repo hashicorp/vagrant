@@ -1,7 +1,7 @@
 require "pathname"
 require "tmpdir"
 
-require "vagrant/util/subprocess"
+require "vagrant/util/safe_exec"
 
 module VagrantPlugins
   module HostWindows
@@ -34,7 +34,7 @@ module VagrantPlugins
           end
 
           # Launch it
-          Vagrant::Util::Subprocess.execute("powershell", *args)
+          Vagrant::Util::SafeExec.exec("powershell", *args)
         end
       end
     end

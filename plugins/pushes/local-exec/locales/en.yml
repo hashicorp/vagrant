@@ -20,3 +20,4 @@ en:
             config.push.define "local-exec" do |push|
               push.%{attribute} = "..."
             end
+      args_bad_type: "Local-exec push `args` must be a string or array."

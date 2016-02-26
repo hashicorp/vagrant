@@ -92,8 +92,8 @@ Host #{machine.name}
 
       subject.execute
 
-      expect(output).to include('IdentityFile "foo"')
-      expect(output).to include('IdentityFile "bar"')
+      expect(output).to include("IdentityFile foo")
+      expect(output).to include("IdentityFile bar")
     end
 
     it "puts quotes around an identityfile path if it has a space" do
@@ -106,18 +106,6 @@ Host #{machine.name}
       subject.execute
 
       expect(output).to include('IdentityFile "with a space"')
-    end
-
-    it "escapes special characters" do
-      allow(machine).to receive(:ssh_info) { ssh_info.merge(private_key_path: ['/private/tmp/test of "vagrant" plugin/']) }
-      output = ""
-      allow(subject).to receive(:safe_puts) do |data|
-        output += data if data
-      end
-
-      subject.execute
-
-      expect(output).to include('"/private/tmp/test of \"vagrant\" plugin/"')
     end
   end
 end
