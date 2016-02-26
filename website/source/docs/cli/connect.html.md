@@ -11,7 +11,7 @@ description: |-
 
 **Command: `vagrant connect NAME`**
 
-The connect command compliments the
+The connect command complements the
 [share command](/docs/cli/share.html) by enabling access to shared
 environments. You can learn about all the details of Vagrant Share in the
 [Vagrant Share section](/docs/share/).
