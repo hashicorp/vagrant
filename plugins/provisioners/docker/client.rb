@@ -128,7 +128,7 @@ module VagrantPlugins
           # recent versions use the full container ID
           # See https://github.com/dotcloud/docker/pull/2140 for more information
           return comm.test("#{docker_ps} | grep -wFq #{id}") ||
-            comm.test("#{docker_ps} -notrunc | grep -wFq #{id}")
+            comm.test("#{docker_ps} --no-trunc | grep -wFq #{id}")
         end
       end
 
