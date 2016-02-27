@@ -54,6 +54,7 @@ BUG FIXES:
       [GGH-6805, GH-6804]
   - provisioners/chef: Change the default channel to "stable" (previously it
       was "current") [GH-7001, GH-6979]
+  - provisioners/docker: Fix -no-trunc command option [GH-7085]
   - provisioners/puppet: Use `where.exe` to locate puppet binary
       [GH-6912, GH-6876]
 
