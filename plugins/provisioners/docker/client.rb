@@ -126,9 +126,8 @@ module VagrantPlugins
         @machine.communicate.tap do |comm|
           # Docker < 0.7.0 stores container IDs using its short version while
           # recent versions use the full container ID
-          # See https://github.com/dotcloud/docker/pull/2140 for more information
-          return comm.test("#{docker_ps} | grep -wFq #{id}") ||
-            comm.test("#{docker_ps} --no-trunc | grep -wFq #{id}")
+          # using full container ID from now on.
+          return comm.test("#{docker_ps} --no-trunc | grep -wFq #{id}")
         end
       end
 
