@@ -59,6 +59,7 @@ BUG FIXES:
       [GH-7074, GH-7086]
   - provisioners/puppet: Use `where.exe` to locate puppet binary
       [GH-6912, GH-6876]
+  - synced_folders/smb: Do not interpolate configuration file [GH-6906]
 
 ## 1.8.1 (December 21, 2015)
 
