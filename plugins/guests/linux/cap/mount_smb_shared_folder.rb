@@ -48,7 +48,7 @@ module VagrantPlugins
 
           # Write the credentials file
           machine.communicate.sudo(<<-SCRIPT)
-cat <<EOF >/etc/smb_creds_#{name}
+cat <<"EOF" >/etc/smb_creds_#{name}
 username=#{username}
 password=#{smb_password}
 #{domain ? "domain=#{domain}" : ""}
