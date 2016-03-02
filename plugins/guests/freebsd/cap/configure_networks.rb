@@ -39,11 +39,8 @@ module VagrantPlugins
             machine.communicate.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'", {shell: "sh"})
             machine.communicate.sudo("rm -f /tmp/vagrant-network-entry", {shell: "sh"})
 
-            if network[:type].to_sym == :static
-              machine.communicate.sudo("ifconfig #{ifname} inet #{network[:ip]} netmask #{network[:netmask]}", {shell: "sh"})
-            elsif network[:type].to_sym == :dhcp
-              machine.communicate.sudo("dhclient #{ifname}", {shell: "sh"})
-            end
+            # Restart interface so it loads configuration stored in /etc/rc.conf
+            machine.communicate.sudo("service netif restart #{ifname}", {shell: "sh"})
           end
         end
       end
