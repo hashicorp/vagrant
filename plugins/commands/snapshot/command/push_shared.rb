@@ -12,7 +12,7 @@ module VagrantPlugins
             end
 
             vm.env.lock("machine-snapshot-stack") do
-              m.call(vm,opts)
+              m.call(vm, opts)
             end
           end
 
@@ -20,14 +20,14 @@ module VagrantPlugins
           0
         end
 
-        def push(machine,opts={})
+        def push(machine, opts={})
           snapshot_name = "push_#{Time.now.to_i}_#{rand(10000)}"
 
           # Save the snapshot. This will raise an exception if it fails.
           machine.action(:snapshot_save, snapshot_name: snapshot_name)
         end
 
-        def pop(machine,opts={})
+        def pop(machine, opts={})
           # By reverse sorting, we should be able to find the first
           # pushed snapshot.
           name = nil
