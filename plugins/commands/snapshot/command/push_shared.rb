@@ -4,7 +4,7 @@ module VagrantPlugins
   module CommandSnapshot
     module Command
       module PushShared
-        def shared_exec(argv, m)
+        def shared_exec(argv, m, opts={})
           with_target_vms(argv) do |vm|
             if !vm.id
               vm.ui.info("Not created. Cannot push snapshot state.")
@@ -12,7 +12,7 @@ module VagrantPlugins
             end
 
             vm.env.lock("machine-snapshot-stack") do
-              m.call(vm)
+              m.call(vm, opts)
             end
           end
 
@@ -20,14 +20,14 @@ module VagrantPlugins
           0
         end
 
-        def push(machine)
+        def push(machine, opts={})
           snapshot_name = "push_#{Time.now.to_i}_#{rand(10000)}"
 
           # Save the snapshot. This will raise an exception if it fails.
           machine.action(:snapshot_save, snapshot_name: snapshot_name)
         end
 
-        def pop(machine)
+        def pop(machine, opts={})
           # By reverse sorting, we should be able to find the first
           # pushed snapshot.
           name = nil
@@ -45,11 +45,9 @@ module VagrantPlugins
             return
           end
 
-          # Restore the snapshot and tell the provider to delete it as well.
-          machine.action(
-            :snapshot_restore,
-            snapshot_name: name,
-            snapshot_delete: true)
+          # Restore the snapshot and tell the provider to delete it, if required
+          opts[:snapshot_name] = name
+          machine.action(:snapshot_restore, opts)
         end
       end
     end
