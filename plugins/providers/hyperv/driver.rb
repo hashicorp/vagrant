@@ -84,7 +84,24 @@ module VagrantPlugins
        def net_set_mac(mac_addr)
           execute("set_network_mac.ps1", { VmId: vm_id, Mac: mac_addr })
        end
-       
+
+       def create_snapshot(snapshot_name)
+          execute("create_snapshot.ps1", { VmId: vm_id, SnapName: (snapshot_name) } )
+       end
+
+       def restore_snapshot(snapshot_name)
+          execute("restore_snapshot.ps1", { VmId: vm_id,  SnapName: (snapshot_name) } )
+       end
+
+       def list_snapshots()
+          snaps = execute("list_snapshots.ps1", { VmID: vm_id } )
+          snaps.map { |s| s['Name'] }
+       end
+
+       def delete_snapshot(snapshot_name)
+          execute("delete_snapshot.ps1", {VmID: vm_id, SnapName: snapshot_name})
+       end
+
       protected
 
       def execute_powershell(path, options, &block)
