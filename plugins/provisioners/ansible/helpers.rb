@@ -15,8 +15,8 @@ module VagrantPlugins
 
         shell_arg = []
         command.each do |arg|
-          if arg =~ /(--start-at-task|--limit)=(.+)/
-            shell_arg << "#{$1}='#{$2}'"
+          if arg =~ /(--start-at-task|--limit|--extra-vars)=(.+)/
+            shell_arg << "%s='%s'" % [$1, $2.gsub("'", %q(\\\'))]
           else
             shell_arg << arg
           end
