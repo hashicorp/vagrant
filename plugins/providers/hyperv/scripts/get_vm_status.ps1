@@ -7,12 +7,18 @@ Param(
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-# Get the VM with the given name
+
+if($PSVersionTable.PSVersion.Major -le 4) {
+  $ExceptionType = [Microsoft.HyperV.PowerShell.VirtualizationOperationFailedException]
+} else {
+  $ExceptionType = [Microsoft.HyperV.PowerShell.VirtualizationException]
+}
+
 try {
     $VM = Get-VM -Id $VmId -ErrorAction "Stop"
     $State = $VM.state
     $Status = $VM.status
-} catch [Microsoft.HyperV.PowerShell.VirtualizationException] {
+} catch $ExceptionType {
     $State = "not_created"
     $Status = $State
 }
