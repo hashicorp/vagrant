@@ -25,7 +25,7 @@ module VagrantPlugins
           end
 
           if virtual
-            machine.communicate.sudo("ls -Sv /sys/class/net | egrep -v lo\\|docker") do |_, result|
+            machine.communicate.sudo("ls -v /sys/class/net | egrep -v lo\\|docker") do |_, result|
               interface_names = result.split("\n")
             end
 
