@@ -48,6 +48,14 @@ restore the pushed state.
 This command is the inverse of `vagrant snapshot push`: it will restore
 the pushed state.
 
+## Options
+
+* `--[no-]provision` - Force the provisioners to run (or prevent them
+    from doing so).
+
+* `--no-delete` - Prevents deletion of the snapshot after restoring
+    (so that you can restore to the same point again later).
+
 # Snapshot Save
 
 **Command: `vagrant snapshot save NAME`**
@@ -60,6 +68,9 @@ This command saves a new named snapshot. If this command is used, the
 **Command: `vagrant snapshot restore NAME`**
 
 This command restores the named snapshot.
+
+* `--[no-]provision` - Force the provisioners to run (or prevent them
+    from doing so).
 
 # Snapshot List
 
