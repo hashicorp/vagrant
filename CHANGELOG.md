@@ -44,6 +44,8 @@ BUG FIXES:
   - guests/freebsd: Use `pkg` to install rsync [GH-6760]
   - guests/freebsd: Use `netif` to configure networks [GH-5852, GH-7093]
   - guests/coreos: Detect all interface names [GH-6608, GH-6610]
+  - providers/hyperv: Only specify Hyper-V if the parameter is support
+      [GH-7101, GH-7098]
   - provisioners/ansible_local: Fix errors in absolute paths to playbook or
       galaxy resources when running on a Windows host [GH-6740, GH-6757]
   - provisioners/ansible_local: Change the way to verify `ansible-galaxy`
