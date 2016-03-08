@@ -27,7 +27,7 @@ module VagrantPlugins
 
             machine.communicate.upload(temp.path, "/tmp/vagrant_network")
             machine.communicate.sudo("mv /tmp/vagrant_network /etc/netctl/#{network[:device]}")
-            machine.communicate.sudo("ip link set #{network[:device]} down && netctl start #{network[:device]} && netctl enable #{network[:device]}")
+            machine.communicate.sudo("ip link set #{network[:device]} down && netctl restart #{network[:device]} && netctl enable #{network[:device]}")
           end
         end
       end
