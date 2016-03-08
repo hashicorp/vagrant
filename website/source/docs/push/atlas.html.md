@@ -65,4 +65,4 @@ And then push the application to Atlas:
 $ vagrant push
 ```
 
-[Atlas]: https://atlas.hashicorp.com/  "HashiCorp's Atlas Service"
+[Atlas]: /docs/other/atlas.html "HashiCorp's Atlas Service"

@@ -12,5 +12,6 @@ description: |-
 This section covers other information that does not quite fit under the
 other categories.
 
+- [Atlas](/docs/other/atlas.html)
 - [Debugging](/docs/other/debugging.html)
 - [Environment Variables](/docs/other/environmental-variables.html)
