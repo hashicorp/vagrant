@@ -14,7 +14,7 @@ but also provides features for the community. It hosts
 a <a href="https://atlas.hashicorp.com/boxes/search">public registry of Vagrant boxes</a>
 as well as powers the Vagrant share features.
 
-Vagrant Enteprise is provided via Atlas and allows
+Vagrant Enterprise is provided via Atlas and allows
 for private boxes to be hosted and distributed to
 your team.
 
