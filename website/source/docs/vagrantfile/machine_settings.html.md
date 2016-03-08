@@ -24,7 +24,7 @@ for the machine to boot and be accessible. By default this is 300 seconds.
 `config.vm.box` - This configures what [box](/docs/boxes.html) the
 machine will be brought up against. The value here should be the name
 of an installed box or a shorthand name of a box in
-[HashiCorp's Atlas](https://atlas.hashicorp.com).
+[HashiCorp's Atlas](/docs/other/atlas.html).
 
 This option requires Vagrant 1.5 or higher. You can download the latest version
 of Vagrant from the [Vagrant installers page](/downloads.html).
@@ -35,7 +35,7 @@ of Vagrant from the [Vagrant installers page](/downloads.html).
 the configured box on every `vagrant up`. If an update is found, Vagrant
 will tell the user. By default this is true. Updates will only be checked
 for boxes that properly support updates (boxes from
-[HashiCorp's Atlas](https://atlas.hashicorp.com)
+[HashiCorp's Atlas](/docs/other/atlas.html)
 or some other versioned box).
 
 <hr>
@@ -88,7 +88,7 @@ all subsequent redirects. By default, redirect locations are untrusted so creden
 <hr>
 
 `config.vm.box_url` - The URL that the configured box can be found at.
-If `config.vm.box` is a shorthand to a box in [HashiCorp's Atlas](https://atlas.hashicorp.com)
+If `config.vm.box` is a shorthand to a box in [HashiCorp's Atlas](/docs/other/atlas.html)
 then this value does not need to be specified. Otherwise, it should
 point to the proper place where the box can be found if it is not
 installed.

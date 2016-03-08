@@ -12,7 +12,7 @@ description: |-
 **Command: `vagrant login`**
 
 The login command is used to authenticate with the
-[HashiCorp's Atlas](https://atlas.hashicorp.com) server. Logging is only
+[HashiCorp's Atlas](/docs/other/atlas.html) server. Logging is only
 necessary if you are accessing protected boxes or using
 [Vagrant Share](/docs/share/).
 

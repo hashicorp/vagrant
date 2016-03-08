@@ -67,7 +67,7 @@ Provider-specific guides are linked below:
 
 We strongly recommend using [Packer](https://www.packer.io) to create reproducible
 builds for your base boxes, as well as automating the builds with
-[Atlas](https://atlas.hashicorp.com). Read more about
+[Atlas](/docs/other/atlas.html). Read more about
 [Creating Vagrant Boxes with Packer](https://atlas.hashicorp.com/help/packer/artifacts/creating-vagrant-boxes)
 in the Atlas documentation.
 
@@ -262,7 +262,7 @@ provider-specific guides are linked to towards the top of this page.
 You can distribute the box file however you would like. However, if you want
 to support versioning, putting multiple providers at a single URL, pushing
 updates, analytics, and more, we recommend you add the box to
-[HashiCorp's Atlas](https://atlas.hashicorp.com).
+[HashiCorp's Atlas](/docs/other/atlas.html).
 
 You can upload both public and private boxes to this service.
 

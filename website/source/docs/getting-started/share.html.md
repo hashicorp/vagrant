@@ -26,7 +26,7 @@ connected to the Internet.
 ## Login to HashiCorp's Atlas
 
 Before being able to share your Vagrant environment, you will need an account on
-[HashiCorp's Atlas](https://atlas.hashicorp.com). Do not worry, it is free.
+[HashiCorp's Atlas](/docs/other/atlas.html). Do not worry, it is free.
 
 Once you have an account, log in using `vagrant login`:
 
