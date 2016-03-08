@@ -48,7 +48,7 @@ The remainder of the available options are optional:
   the keys remain untouched.
 
 * `binary` (boolean) - Vagrant automatically replaces Windows line endings with
-  Unix line endings. If this is true, then Vagrant will not do this. By default
+  Unix line endings. If this is false, then Vagrant will not do this. By default
   this is "false". If the shell provisioner is communicating over WinRM, this
   defaults to "true".
 
