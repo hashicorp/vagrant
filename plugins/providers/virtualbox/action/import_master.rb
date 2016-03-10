@@ -51,6 +51,8 @@ module VagrantPlugins
               "Master VM for '#{env[:machine].box.name}' already exists " +
               " (id=#{env[:clone_id]}) - skipping import step.")
             return
+          else
+            env.delete(:clone_id)
           end
 
           env[:ui].info(I18n.t("vagrant.actions.vm.clone.setup_master"))
