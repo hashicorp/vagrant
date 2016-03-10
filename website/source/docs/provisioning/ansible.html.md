@@ -81,6 +81,34 @@ This section lists the specific options for the Ansible (remote) provisioner. In
 
 ## Tips and Tricks
 
+### Ad-hoc commands
+
+The first time you use the Ansible provisioner, Vagrant writes out an inventory file with all the required connection parameters including username and ssh key info. You can use it from your [ad-hoc commands](http://docs.ansible.com/ansible/intro_adhoc.html) with the `-i` flag:
+
+```sh
+ansible all -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory \
+        -m setup
+```
+
+To simplify your commands, create an `ansible.cfg` in the same directory as your `Vagrantfile` with the following contents:
+
+```ini
+[defaults]
+inventory = .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory
+```
+
+Then you can run your ad-hoc command without the `-i` flag:
+
+```sh
+ansible all -m setup
+```
+
+You could also use the `ANSIBLE_INVENTORY` environment variable:
+
+```sh
+export ANSIBLE_INVENTORY=.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory
+```
+
 ### Ansible Parallel Execution
 
 Vagrant is designed to provision [multi-machine environments](/docs/multi-machine) in sequence, but the following configuration pattern can be used to take advantage of Ansible parallelism:
