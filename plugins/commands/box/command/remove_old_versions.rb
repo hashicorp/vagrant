@@ -7,6 +7,7 @@ module VagrantPlugins
         def execute
           options = {}
           options[:force] = false
+          options[:dry_run] = false
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant box remove-old-versions [options]"
@@ -16,6 +17,14 @@ module VagrantPlugins
 
             o.on("-p PROVIDER", "--provider PROVIDER", String, "The specific provider type for the boxes to destroy.") do |p|
               options[:provider] = p
+            end
+
+            o.on("-n", "--dry-run", "Only print the boxes that would be removed.") do |f|
+              options[:dry_run] = f
+            end
+
+            o.on("--name NAME", String, "The specific box name to destroy.") do |name|
+              options[:name] = name
             end
 
             o.on("-f", "--force", "Destroy without confirmation even when box is in use.") do |f|
@@ -32,7 +41,7 @@ module VagrantPlugins
             return @env.ui.warn(I18n.t("vagrant.commands.box.no_installed_boxes"), prefix: false)
           end
 
-          delete_oldest_boxes(boxes, options[:provider], options[:force])
+          delete_oldest_boxes(boxes, options[:provider], options[:force], options[:name], options[:dry_run])
 
           # Success, exit status 0
           0
@@ -40,7 +49,7 @@ module VagrantPlugins
 
         private
 
-        def delete_oldest_boxes(boxes, only_provider, force_confirm_box_remove)
+        def delete_oldest_boxes(boxes, only_provider, skip_confirm, only_name, dry_run)
           # Find the longest box name
           longest_box = boxes.max_by { |x| x[0].length }
           longest_box_length = longest_box[0].length
@@ -51,6 +60,7 @@ module VagrantPlugins
           # First find the newest version for every installed box
           boxes.each do |name, version, provider|
             next if only_provider and only_provider != provider.to_s
+            next if only_name and only_name != name
 
             # Nested to make sure it works for boxes with different providers
             if newest_boxes.has_key?(name)
@@ -94,14 +104,17 @@ module VagrantPlugins
               removed_any_box = true
 
               # Use the remove box action
-              @env.action_runner.run(Vagrant::Action.action_box_remove, {
-                  box_name:     name,
-                  box_provider: provider,
-                  box_version:  version,
-                  force_confirm_box_remove: force_confirm_box_remove,
-                  box_remove_all_versions: false,
-              })
-
+              if dry_run
+                @env.ui.info("Would remove #{name} #{provider} #{version}")
+              else
+                @env.action_runner.run(Vagrant::Action.action_box_remove, {
+                    box_name: name,
+                    box_provider: provider,
+                    box_version: version,
+                    force_confirm_box_remove: skip_confirm,
+                    box_remove_all_versions: false,
+                })
+              end
             end
           end
 
