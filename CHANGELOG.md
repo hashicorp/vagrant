@@ -29,6 +29,7 @@ IMPROVEMENTS:
   - guests/tinycore: Add support for shared folders [GH-6977, GH-6968]
   - guests/trisquel: Add initial support [GH-6842, GH-6843]
   - core: Add `--no-delete` and provisioning flags to snapshot restore/pop [GH-6879]
+  - providers/virtualbox: Add linked clone support for Virtualbox 1.4 [GH-7050]
 
 BUG FIXES:
 
