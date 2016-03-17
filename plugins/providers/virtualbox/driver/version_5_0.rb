@@ -131,7 +131,8 @@ module VagrantPlugins
 
           result.sort
         rescue Vagrant::Errors::VBoxManageError => e
-          return [] if e.extra_data[:stdout].include?("does not have")
+          d = e.extra_data
+          return [] if d[:stderr].include?("does not have") || d[:stdout].include?("does not have")
           raise
         end
 
