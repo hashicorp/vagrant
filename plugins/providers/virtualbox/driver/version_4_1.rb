@@ -34,6 +34,17 @@ module VagrantPlugins
           end
         end
 
+        def clonevm(master_id, snapshot_name)
+          machine_name = "temp_clone_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
+          args = ["--register", "--name", machine_name]
+          if snapshot_name
+            args += ["--snapshot", snapshot_name, "--options", "link"]
+          end
+
+          execute("clonevm", master_id, *args)
+          return get_machine_id(machine_name)
+        end
+
         def create_dhcp_server(network, options)
           execute("dhcpserver", "add", "--ifname", network,
                   "--ip", options[:dhcp_ip],
@@ -69,6 +80,85 @@ module VagrantPlugins
             netmask: options[:netmask],
             dhcp: nil
           }
+        end
+
+        def create_snapshot(machine_id, snapshot_name)
+          execute("snapshot", machine_id, "take", snapshot_name)
+        end
+
+        def delete_snapshot(machine_id, snapshot_name)
+          # Start with 0%
+          last = 0
+          total = ""
+          yield 0 if block_given?
+
+          # Snapshot and report the % progress
+          execute("snapshot", machine_id, "delete", snapshot_name) do |type, data|
+            if type == :stderr
+              # Append the data so we can see the full view
+              total << data.gsub("\r", "")
+
+              # Break up the lines. We can't get the progress until we see an "OK"
+              lines = total.split("\n")
+
+              # The progress of the import will be in the last line. Do a greedy
+              # regular expression to find what we're looking for.
+              match = /.+(\d{2})%/.match(lines.last)
+              if match
+                current = match[1].to_i
+                if current > last
+                  last = current
+                  yield current if block_given?
+                end
+              end
+            end
+          end
+        end
+
+        def list_snapshots(machine_id)
+          output = execute(
+            "snapshot", machine_id, "list", "--machinereadable",
+            retryable: true)
+
+          result = []
+          output.split("\n").each do |line|
+            if line =~ /^SnapshotName.*?="(.+?)"$/i
+              result << $1.to_s
+            end
+          end
+
+          result.sort
+        rescue Vagrant::Errors::VBoxManageError => e
+          return [] if e.extra_data[:stderr].include?("does not have")
+          raise
+        end
+
+        def restore_snapshot(machine_id, snapshot_name)
+          # Start with 0%
+          last = 0
+          total = ""
+          yield 0 if block_given?
+
+          execute("snapshot", machine_id, "restore", snapshot_name) do |type, data|
+            if type == :stderr
+              # Append the data so we can see the full view
+              total << data.gsub("\r", "")
+
+              # Break up the lines. We can't get the progress until we see an "OK"
+              lines = total.split("\n")
+
+              # The progress of the import will be in the last line. Do a greedy
+              # regular expression to find what we're looking for.
+              match = /.+(\d{2})%/.match(lines.last)
+              if match
+                current = match[1].to_i
+                if current > last
+                  last = current
+                  yield current if block_given?
+                end
+              end
+            end
+          end
         end
 
         def delete
@@ -165,6 +255,13 @@ module VagrantPlugins
           end
 
           execute("modifyvm", @uuid, *args) if !args.empty?
+        end
+
+        def get_machine_id(machine_name)
+          output = execute("list", "vms", retryable: true)
+          match = /^"#{Regexp.escape(machine_name)}" \{(.+?)\}$/.match(output)
+          return match[1].to_s if match
+          nil
         end
 
         def halt
@@ -524,9 +621,9 @@ module VagrantPlugins
                 "--name", name,
                 "--transient")
 
-            execute(
-              "setextradata", @uuid,
-              "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
+              execute(
+                "setextradata", @uuid,
+                "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
             rescue Vagrant::Errors::VBoxManageError => e
               if e.extra_data[:stderr].include?("VBOX_E_FILE_ERROR")
                 # The folder doesn't exist. ignore.
