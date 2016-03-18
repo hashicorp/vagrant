@@ -106,7 +106,7 @@ module VagrantPlugins
       def initialize(*)
         require "net/sftp"
         super
-        @dirs = []
+        @dirs = {}
       end
 
       def default_port
@@ -125,16 +125,18 @@ module VagrantPlugins
 
         fullpath = Pathname.new(dir)
         fullpath.descend do |path|
-          if !@dirs.include?(path.to_s)
-            @dirs.push(path.to_s) # Cache visited directories in a list to avoid duplicate requests
+          if @dirs[path.to_s].nil?
             begin
               @server.mkdir!(path.to_s)
+
+              # Cache visited directories in a list to avoid duplicate requests
+              @dirs[path.to_s] = true
             rescue Net::SFTP::StatusException => e
               # Directory exists, skip...
             end
           end
         end
-        
+
         @server.upload!(local, remote)
       end
     end
