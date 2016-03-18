@@ -67,6 +67,7 @@ BUG FIXES:
       [GH-7074, GH-7086]
   - provisioners/puppet: Use `where.exe` to locate puppet binary
       [GH-6912, GH-6876]
+  - pushes/ftp: Create parent directories when uploading [GH-7154, GH-6316]
   - synced_folders/smb: Do not interpolate configuration file [GH-6906]
 
 ## 1.8.1 (December 21, 2015)
