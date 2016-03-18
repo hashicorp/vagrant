@@ -24,18 +24,27 @@ module VagrantPlugins
           @logger = Log4r::Logger.new("vagrant::provisioners::chef")
 
           if !present?(@config.node_name)
-            cache = @machine.data_dir.join("chef_node_name")
-
-            if !cache.exist?
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.generating_node_name")
-              cache.open("w+") do |f|
-                f.write("vagrant-#{SecureRandom.hex(4)}")
+            # First attempt to get the node name from the hostname, and if that
+            # is not present, generate/retrieve a random hostname.
+            hostname = @machine.config.vm.hostname
+            if present?(hostname)
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.using_hostname_node_name",
+                hostname: hostname,
+              )
+              @config.node_name = hostname
+            else
+              cache = @machine.data_dir.join("chef_node_name")
+              if !cache.exist?
+                @machine.ui.info I18n.t("vagrant.provisioners.chef.generating_node_name")
+                cache.open("w+") do |f|
+                  f.write("vagrant-#{SecureRandom.hex(4)}")
+                end
               end
-            end
 
-            if cache.file?
-              @logger.info("Loading cached node_name...")
-              @config.node_name = cache.read.strip
+              if cache.file?
+                @logger.info("Loading cached node_name...")
+                @config.node_name = cache.read.strip
+              end
             end
           end
         end
