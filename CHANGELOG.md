@@ -60,6 +60,8 @@ BUG FIXES:
       [GGH-6805, GH-6804]
   - provisioners/chef: Change the default channel to "stable" (previously it
       was "current") [GH-7001, GH-6979]
+  - provisioners/chef: Default node_name to hostname if present
+      [GH-7063, GH-7153]
   - provisioners/docker: Fix -no-trunc command option [GH-7085]
   - provisioners/docker: Allow provisioning when container name is specified
       [GH-7074, GH-7086]
