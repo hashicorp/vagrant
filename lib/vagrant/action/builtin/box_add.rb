@@ -253,7 +253,7 @@ module Vagrant
           end
 
           provider_url = metadata_provider.url
-          if url != authenticated_url
+          if provider_url != authenticated_url
             # Authenticate the provider URL since we're using auth
             hook_env    = env[:hook].call(:authenticate_box_url, box_urls: [provider_url])
             authed_urls = hook_env[:box_urls]
@@ -261,7 +261,7 @@ module Vagrant
               raise "Bad box authentication hook, did not generate proper results."
             end
             provider_url = authed_urls[0]
-          end
+        end
 
           box_add(
             [[provider_url, metadata_provider.url]],
