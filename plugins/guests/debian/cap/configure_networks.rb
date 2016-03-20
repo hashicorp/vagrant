@@ -42,7 +42,10 @@ module VagrantPlugins
             # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
             # SSH never dies.
             interfaces.each do |interface|
-              comm.sudo("/sbin/ifdown eth#{interface} 2> /dev/null")
+              # Ubuntu 16.04+ returns an error when downing an interface that
+              # does not exist. The `|| true` preserves the behavior that older
+              # Ubuntu versions exhibit and Vagrant expects (GH-7155)
+              comm.sudo("/sbin/ifdown eth#{interface} 2> /dev/null || true")
               comm.sudo("/sbin/ip addr flush dev eth#{interface} 2> /dev/null")
             end
 
