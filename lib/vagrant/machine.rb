@@ -109,6 +109,7 @@ module Vagrant
       @provider_options = provider_options
       @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
       @ui_mutex        = Mutex.new
+      @state_mutex     = Mutex.new
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -505,11 +506,17 @@ module Vagrant
       # master index.
       uuid = index_uuid
       if uuid
-        entry = @env.machine_index.get(uuid)
-        if entry
-          entry.state = result.short_description
-          @env.machine_index.set(entry)
-          @env.machine_index.release(entry)
+        # active_machines provides access to query this info on each machine
+        # from a different thread, ensure multiple machines do not access
+        # the locked entry simultaneously as this triggers a locked machine
+        # exception.
+        @state_mutex.synchronize do
+          entry = @env.machine_index.get(uuid)
+          if entry
+            entry.state = result.short_description
+            @env.machine_index.set(entry)
+            @env.machine_index.release(entry)
+          end
         end
       end
 
