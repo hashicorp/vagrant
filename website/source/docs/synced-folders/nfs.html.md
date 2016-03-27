@@ -141,7 +141,7 @@ possible to avoid entering your password.
 
 Below, we have a couple example sudoers entries. Note that you may
 have to modify them _slightly_ on certain hosts because the way Vagrant
-modifies `/etc/exports` changes a bit from OS to OS.
+modifies `/etc/exports` changes a bit from OS to OS. If the system commands used below are located in non-standard paths, change them as appropriate.
 
 For \*nix users, make sure to edit your `/etc/sudoers` file with `visudo`. It protects you against syntax errors which could leave you without the ability to gain elevated privileges.
 
