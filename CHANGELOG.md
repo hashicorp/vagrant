@@ -43,6 +43,8 @@ BUG FIXES:
   - docs & core: Be consistent about the "2" in the Vagrantfile version
       [GH-6961, GH-6963]
   - guests/arch: Restart network after configuration [GH-7120, GH-7119]
+  - guests/debian: Do not return an error if ifdown fails [GH-7159,
+      GH-7155, GH-6871]
   - guests/freebsd: Use `pkg` to install rsync [GH-6760]
   - guests/freebsd: Use `netif` to configure networks [GH-5852, GH-7093]
   - guests/coreos: Detect all interface names [GH-6608, GH-6610]
