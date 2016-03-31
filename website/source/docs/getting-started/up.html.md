@@ -33,7 +33,12 @@ delete all those files. Shared folders will be covered in the next section.
 
 Take a moment to think what just happened: With just one line of configuration
 and one command in your terminal, we brought up a fully functional, SSH accessible
-virtual machine. Cool.
+virtual machine. Cool. The SSH session can be terminated with `CTRL+D`.
+
+```
+vagrant@precise64:~$ logout
+Connection to 127.0.0.1 closed.
+```
 
 When you are done fiddling around with the machine, run `vagrant destroy`
 back on your host machine, and Vagrant will terminate the use of any resources
