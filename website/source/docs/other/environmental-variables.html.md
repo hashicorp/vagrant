@@ -119,7 +119,7 @@ execution.
 
 If Vagrant detects it is running outside of the officially installer, the
 original environment will always be restored. You can disable this automatic
-jailbreak by setting the `VAGRANT_SKIP_SUBPROCES_JAILBREAK`.
+jailbreak by setting `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`.
 
 ## `VAGRANT_VAGRANTFILE`
 
