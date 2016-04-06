@@ -173,3 +173,36 @@ so be sure to turn it into the proper Hash object to return later.
 The return value is a Ruby Hash object, where the key is a section name,
 and the value is a list of error messages. These will be displayed by
 Vagrant. The hash must not contain any values if there are no errors.
+
+## Accessing
+
+After all the configuration options are merged and finalized, you will likely
+want to access the finalized value in your plugin. The initializer function
+varies with each type of plugin, but *most* plugins expose an initializer like
+this:
+
+```ruby
+def initialize(machine, config)
+  @machine = machine
+  @config  = config
+end
+```
+
+When authoring a plugin, simply call `super` in your initialize function to
+setup these instance variables:
+
+```ruby
+def initialize(*)
+  super
+
+  @config.is_now_available
+  # ...existing code
+end
+
+def my_helper
+  @config.is_here_too
+end
+```
+
+For examples, take a look at Vagrant's own internal plugins in the `plugins`
+folder in Vagrant's source on GitHub.
