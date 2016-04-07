@@ -12,9 +12,9 @@ description: |-
 The Vagrant Hyper-V provider has some provider-specific configuration options
 you may set. A complete reference is shown below:
 
-  * `vmname` (string) - Name of virtual mashine as shown in Hyper-V manager.
+  * `vmname` (string) - Name of virtual machine as shown in Hyper-V manager.
     Defaults is taken from box image XML.
-  * `cpus` (integer) - Number of virtual CPU given to mashine.
+  * `cpus` (integer) - Number of virtual CPU given to machine.
     Defaults is taken from box image XML.
   * `memory` (integer) - Number of MegaBytes allocated to VM at startup.
     Defaults is taken from box image XML.
