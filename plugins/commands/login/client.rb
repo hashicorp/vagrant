@@ -1,9 +1,12 @@
 require "rest_client"
 require "vagrant/util/downloader"
+require "vagrant/util/presence"
 
 module VagrantPlugins
   module LoginCommand
     class Client
+      include Vagrant::Util::Presence
+
       # Initializes a login client with the given Vagrant::Environment.
       #
       # @param [Vagrant::Environment] env
@@ -88,7 +91,21 @@ module VagrantPlugins
       #
       # @return [String]
       def token
-        if ENV["ATLAS_TOKEN"] && !ENV["ATLAS_TOKEN"].empty?
+        if present?(ENV["ATLAS_TOKEN"]) && token_path.exist?
+          @env.ui.warn <<-EOH.strip
+Vagrant detected both the ATLAS_TOKEN environment variable and a Vagrant login
+token are present on this system. The ATLAS_TOKEN environment variable takes
+precedence over the locally stored token. To remove this error, either unset
+the ATLAS_TOKEN environment variable or remove the login token stored on disk:
+
+    ~/.vagrant.d/data/vagrant_login_token
+
+In general, the ATLAS_TOKEN is more preferred because it is respected by all
+HashiCorp products.
+EOH
+        end
+
+        if present?(ENV["ATLAS_TOKEN"])
           @logger.debug("Using authentication token from environment variable")
           return ENV["ATLAS_TOKEN"]
         end
