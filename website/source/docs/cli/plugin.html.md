@@ -32,6 +32,14 @@ repositories, usually [RubyGems](https://rubygems.org). This command will
 also update a plugin if it is already installed, but you can also use
 `vagrant plugin update` for that.
 
+```shell
+# Installing a plugin from a known gem source
+$ vagrant plugin install my-plugin
+
+# Installing a plugin from a local file source
+$ vagrant plugin install /path/to/my-plugin.gem
+```
+
 If multiple names are specified, multiple plugins will be installed. If
 flags are given below, the flags will apply to _all_ plugins being installed
 by the current command invocation.
