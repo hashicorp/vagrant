@@ -3,24 +3,26 @@
 BREAKING CHANGES:
 
   - The `winrm` communicator now shares the same upload behavior as the `ssh`
-  communicator. This change should have no impact to most vagrant operations but
-  may break behavior when uploading directories to an existing destination
-  target. The `file` provisioner should be the only builtin provisioner affected
-  by this change. When uploading a directory and the destination directory
-  exists on the endpoint, the source base directory will be created below the
-  destination directory on the endpoint and the source directory contents will
-  be unzipped to that location. Prior to this release, the contents of the
-  source directory would be unzipped to an existing destination directory
-  without creating the source base directory. This new behavior is more
-  consistent with SCP and other well known shell copy commands.
+      communicator. This change should have no impact to most vagrant operations
+      but may break behavior when uploading directories to an existing
+      destination target. The `file` provisioner should be the only builtin
+      provisioner affected by this change. When uploading a directory and the
+      destination directory exists on the endpoint, the source base directory
+      will be created below the destination directory on the endpoint and the
+      source directory contents will be unzipped to that location. Prior to this
+      release, the contents of the source directory would be unzipped to an
+      existing destination directory without creating the source base directory.
+      This new behavior is more consistent with SCP and other well known shell copy commands.
   - The Chef provisioner's `channel` default value has changed from "current" to
-    "stable". The "current" channel includes nightly releases and should be
-    opt-in only. Note that users wishing to download the Chef Development Kit
-    will need to opt into the "current" channel until Chef Software promotes
-    into the "stable" channel.
+      "stable". The "current" channel includes nightly releases and should be
+      opt-in only. Note that users wishing to download the Chef Development Kit
+      will need to opt into the "current" channel until Chef Software promotes
+      into the "stable" channel.
 
 IMPROVEMENTS:
 
+  - commands/login: Print a warning with both the environment variable and
+      local login token are present [GH-7206, GH-7219]
   - communicators/winrm: Upgrade to latest WinRM gems [GH-6922]
   - provisioners/chef: Add the ability to install on SUSE [GH-6806]
   - hosts/darwin: Add `extra_args` support for RDP [GH-5523, GH-6602]
