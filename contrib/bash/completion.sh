@@ -53,7 +53,7 @@ __vagrantinvestigate() {
 _vagrant() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    commands="box connect destroy docker-logs docker-run global-status halt help init list-commands login package plugin provision push rdp reload resume rsync rsync-auto share ssh ssh-config status suspend up version"	
+    commands="box connect destroy docker-logs docker-run global-status halt help init list-commands login package plugin provision push rdp reload resume rsync rsync-auto share snapshot ssh ssh-config status suspend up version"	
 
     if [ $COMP_CWORD == 1 ]
     then
@@ -102,6 +102,11 @@ _vagrant() {
             ;;
             "help")
               COMPREPLY=($(compgen -W "${commands}" -- ${cur}))
+              return 0
+            ;;
+            "snapshot")
+              snapshot_commands="delete list pop push restore save"
+              COMPREPLY=($(compgen -W "${snapshot_commands}" -- ${cur}))
               return 0
             ;;
             *)
