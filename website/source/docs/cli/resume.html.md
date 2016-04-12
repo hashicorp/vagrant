@@ -10,7 +10,7 @@ description: |-
 
 # Resume
 
-**Command: `vagrant resume`**
+**Command: `vagrant resume [name|id]`**
 
 This resumes a Vagrant managed machine that was previously suspended,
 perhaps with the [suspend command](/docs/cli/suspend.html).

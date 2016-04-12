@@ -9,7 +9,7 @@ description: |-
 
 # Provision
 
-**Command: `vagrant provision`**
+**Command: `vagrant provision [vm-name]`**
 
 Runs any configured [provisioners](/docs/provisioning/)
 against the running Vagrant managed machine.
