@@ -9,7 +9,7 @@ description: |-
 
 # Reload
 
-**Command: `vagrant reload`**
+**Command: `vagrant reload [name|id]`**
 
 The equivalent of running a [halt](/docs/cli/halt.html) followed by an
 [up](/docs/cli/up.html).

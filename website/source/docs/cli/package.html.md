@@ -9,7 +9,7 @@ description: |-
 
 # Package
 
-**Command: `vagrant package`**
+**Command: `vagrant package [name|id]`**
 
 This packages a currently running _VirtualBox_ environment into a
 re-usable [box](/docs/boxes.html). This command can only be used with

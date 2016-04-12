@@ -9,7 +9,7 @@ description: |-
 
 # SSH
 
-**Command: `vagrant ssh`**
+**Command: `vagrant ssh [name|id] [-- extra_ssh_args]`**
 
 This will SSH into a running Vagrant machine and give you access to a shell.
 

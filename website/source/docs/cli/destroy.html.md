@@ -9,7 +9,7 @@ description: |-
 
 # Destroy
 
-**Command: `vagrant destroy`**
+**Command: `vagrant destroy [name|id]`**
 
 This command stops the running machine Vagrant is managing and
 destroys all resources that were created during the machine creation process.
