@@ -28,3 +28,4 @@ you may set. A complete reference is shown below:
   * `ip_address_timeout` (integer) - The time in seconds to wait for the
     virtual machine to report an IP address. This defaults to 120 seconds.
     This may have to be increased if your VM takes longer to boot.
+  * `differencing_disk` (boolean) - Switch to use differencing disk intead of cloning whole VHD.
