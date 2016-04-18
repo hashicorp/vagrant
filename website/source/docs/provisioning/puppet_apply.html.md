@@ -72,7 +72,7 @@ available below this section.
   directory when Puppet is executed. This is usually only set because relative
   paths are used in the Hiera configuration.
 
-~> If only `environment` and `environments_path` are specified, it will parse
+~> If only `environment` and `environment_path` are specified, it will parse
 and use the manifest specified in the `environment.conf` file. If
 `manifests_path` and `manifest_file` is specified along with the environment
 options, the manifest from the environment will be overridden by the specified `manifest_file`. If `manifests_path` and `manifest_file` are specified without
