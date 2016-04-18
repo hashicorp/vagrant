@@ -16,6 +16,17 @@ module VagrantPlugins
             comm.sudo("sed -e '/^#VAGRANT-BEGIN/,$ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces.pre")
             comm.sudo("sed -ne '/^#VAGRANT-END/,$ p' /etc/network/interfaces | tac | sed -e '/^#VAGRANT-END/,$ d' | tac > /tmp/vagrant-network-interfaces.post")
 
+            kernel_ifnames = []
+            comm.sudo("/usr/bin/find /sys/class/net -type l -print | sort") do |type, data|
+              if type == :stdout then
+                data.split("\n").each do |line|
+                  if (line =~ /^\/sys\/class\/net\/(enp[0-9]+s[0-9]+|eth[0-9]+)$/) then
+                    kernel_ifnames << $1
+                  end
+                end
+              end
+            end
+
             # Accumulate the configurations to add to the interfaces file as
             # well as what interfaces we're actually configuring since we use that
             # later.
@@ -24,7 +35,7 @@ module VagrantPlugins
             networks.each do |network|
               interfaces.add(network[:interface])
               entry = TemplateRenderer.render("guests/debian/network_#{network[:type]}",
-                                              options: network)
+                                              options: network, kernel_ifnames: kernel_ifnames)
 
               entries << entry
             end
@@ -45,8 +56,8 @@ module VagrantPlugins
               # Ubuntu 16.04+ returns an error when downing an interface that
               # does not exist. The `|| true` preserves the behavior that older
               # Ubuntu versions exhibit and Vagrant expects (GH-7155)
-              comm.sudo("/sbin/ifdown eth#{interface} 2> /dev/null || true")
-              comm.sudo("/sbin/ip addr flush dev eth#{interface} 2> /dev/null")
+              comm.sudo("/sbin/ifdown #{kernel_ifnames[interface]} 2> /dev/null || true")
+              comm.sudo("/sbin/ip addr flush dev #{kernel_ifnames[interface]} 2> /dev/null")
             end
 
             comm.sudo('cat /tmp/vagrant-network-interfaces.pre /tmp/vagrant-network-entry /tmp/vagrant-network-interfaces.post > /etc/network/interfaces')
@@ -54,7 +65,7 @@ module VagrantPlugins
 
             # Bring back up each network interface, reconfigured
             interfaces.each do |interface|
-              comm.sudo("/sbin/ifup eth#{interface}")
+              comm.sudo("/sbin/ifup #{kernel_ifnames[interface]}")
             end
           end
         end
