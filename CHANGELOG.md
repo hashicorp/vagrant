@@ -55,6 +55,12 @@ BUG FIXES:
   - guests/coreos: Detect all interface names [GH-6608, GH-6610]
   - providers/hyperv: Only specify Hyper-V if the parameter is support
       [GH-7101, GH-7098]
+  - provisioners/ansible(both provisioners): add basic config validators/converters
+      on `raw_arguments` and `raw_ssh_args` options [GH-7103]
+  - provisioners/ansible_local: Don't quote the Ansible arguments defined in the
+      `raw_arguments` option [GH-7103]
+  - provisioners/ansible_local: Format json `extra_vars` with double quotes
+      [GH-6726, GH-7103]
   - provisioners/ansible_local: Fix errors in absolute paths to playbook or
       galaxy resources when running on a Windows host [GH-6740, GH-6757]
   - provisioners/ansible_local: Change the way to verify `ansible-galaxy`
