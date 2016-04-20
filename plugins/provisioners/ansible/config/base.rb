@@ -113,8 +113,16 @@ module VagrantPlugins
           end
 
           if raw_arguments
-            @raw_arguments = Helpers::as_array(raw_arguments)
+            if raw_arguments.kind_of?(String)
+              @raw_arguments = [raw_arguments]
+            elsif !raw_arguments.kind_of?(Array)
+              @errors << I18n.t(
+                "vagrant.provisioners.ansible.errors.raw_arguments_invalid",
+                type:  raw_arguments.class.to_s,
+                value: raw_arguments.to_s)
+            end
           end
+
         end
       end
     end

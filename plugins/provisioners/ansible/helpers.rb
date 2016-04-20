@@ -12,10 +12,6 @@ module VagrantPlugins
       def self.as_list_argument(v)
         v.kind_of?(Array) ? v.join(',') : v
       end
-
-      def self.as_array(v)
-        v.kind_of?(Array) ? v : [v]
-      end
    end
   end
 end

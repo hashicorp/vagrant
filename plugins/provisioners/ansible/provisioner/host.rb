@@ -243,7 +243,7 @@ module VagrantPlugins
           ssh_options << "-o ForwardAgent=yes" if @ssh_info[:forward_agent]
 
           # Unchecked SSH Parameters
-          ssh_options.concat(Helpers::as_array(config.raw_ssh_args)) if config.raw_ssh_args
+          ssh_options.concat(config.raw_ssh_args) if config.raw_ssh_args
 
           # Re-enable ControlPersist Ansible defaults,
           # which are lost when ANSIBLE_SSH_ARGS is defined.
