@@ -24,6 +24,8 @@ IMPROVEMENTS:
   - commands/login: Print a warning with both the environment variable and
       local login token are present [GH-7206, GH-7219]
   - communicators/winrm: Upgrade to latest WinRM gems [GH-6922]
+  - provisioners/ansible(both provisioners): add basic config validators/converters
+      on `raw_arguments` and `raw_ssh_args` options [GH-7103]
   - provisioners/chef: Add the ability to install on SUSE [GH-6806]
   - hosts/darwin: Add `extra_args` support for RDP [GH-5523, GH-6602]
   - hosts/windows: Use SafeExec to capture history in Powershell [GH-6749]
@@ -55,8 +57,6 @@ BUG FIXES:
   - guests/coreos: Detect all interface names [GH-6608, GH-6610]
   - providers/hyperv: Only specify Hyper-V if the parameter is support
       [GH-7101, GH-7098]
-  - provisioners/ansible(both provisioners): add basic config validators/converters
-      on `raw_arguments` and `raw_ssh_args` options [GH-7103]
   - provisioners/ansible_local: Don't quote the Ansible arguments defined in the
       `raw_arguments` option [GH-7103]
   - provisioners/ansible_local: Format json `extra_vars` with double quotes
