@@ -112,6 +112,9 @@ module VagrantPlugins
             end
           end
 
+          if raw_arguments
+            @raw_arguments = Helpers::as_array(raw_arguments)
+          end
         end
       end
     end

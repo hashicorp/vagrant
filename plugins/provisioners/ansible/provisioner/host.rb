@@ -94,14 +94,14 @@ module VagrantPlugins
           command_template = config.galaxy_command.gsub(' ', VAGRANT_ARG_SEPARATOR)
           str_command = command_template % command_values
 
-          ui_running_ansible_command "galaxy", str_command.gsub(VAGRANT_ARG_SEPARATOR, ' ')
-
           command = str_command.split(VAGRANT_ARG_SEPARATOR)
           command << {
             # Write stdout and stderr data, since it's the regular Ansible output
             notify: [:stdout, :stderr],
             workdir: @machine.env.root_path.to_s
           }
+
+          ui_running_ansible_command "galaxy", str_command.gsub(VAGRANT_ARG_SEPARATOR, ' ')
 
           execute_command_from_host command
         end
@@ -111,9 +111,13 @@ module VagrantPlugins
           prepare_environment_variables
 
           # Assemble the full ansible-playbook command
-          command = (%w(ansible-playbook) << @command_arguments << config.playbook).flatten
+          command = %w(ansible-playbook) << @command_arguments
 
-          ui_running_ansible_command "playbook", Helpers::stringify_ansible_playbook_command(@environment_variables, command)
+          # Add the raw arguments at the end, to give them the highest precedence
+          command << config.raw_arguments if config.raw_arguments
+
+          command << config.playbook
+          command = command.flatten
 
           command << {
             env: @environment_variables,
@@ -121,6 +125,8 @@ module VagrantPlugins
             notify: [:stdout, :stderr],
             workdir: @machine.env.root_path.to_s
           }
+
+          ui_running_ansible_command "playbook", ansible_playbook_command_for_shell_execution
 
           execute_command_from_host command
         end

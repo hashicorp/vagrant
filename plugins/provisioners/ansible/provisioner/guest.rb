@@ -78,8 +78,7 @@ module VagrantPlugins
           prepare_common_command_arguments
           prepare_common_environment_variables
 
-          command = (%w(ansible-playbook) << @command_arguments << config.playbook).flatten
-          remote_command = "cd #{config.provisioning_path} && #{Helpers::stringify_ansible_playbook_command(@environment_variables, command)}"
+          remote_command = "cd #{config.provisioning_path} && #{ansible_playbook_command_for_shell_execution}"
 
           execute_ansible_command_on_guest "playbook", remote_command
         end
