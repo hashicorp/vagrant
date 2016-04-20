@@ -2123,6 +2123,10 @@ en:
             for more information.
           extra_vars_invalid: |-
             `extra_vars` must be a hash or a path to an existing file. Received: %{value} (as %{type})
+          raw_arguments_invalid: |-
+            `raw_arguments` must be an array of strings. Received: %{value} (as %{type})
+          raw_ssh_args_invalid: |-
+            `raw_ssh_args` must be an array of strings. Received: %{value} (as %{type})
           galaxy_role_file_invalid: |-
             `galaxy_role_file` does not exist on the %{system}: %{path}
           inventory_path_invalid: |-

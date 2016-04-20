@@ -25,6 +25,39 @@ module VagrantPlugins
           @inventory_path = nil
         end
 
+        def ansible_playbook_command_for_shell_execution
+          shell_command = []
+          @environment_variables.each_pair do |k, v|
+            if k == 'ANSIBLE_SSH_ARGS'
+              shell_command << "#{k}='#{v}'"
+            else
+              shell_command << "#{k}=#{v}"
+            end
+          end
+
+          shell_command << "ansible-playbook"
+
+          shell_args = []
+          @command_arguments.each do |arg|
+            if arg =~ /(--start-at-task|--limit)=(.+)/
+              shell_args << %Q(#{$1}="#{$2}")
+            elsif arg =~ /(--extra-vars)=(.+)/
+              shell_args << %Q(%s="%s") % [$1, $2.gsub('\\', '\\\\\\').gsub('"', %Q(\\"))]
+            else
+              shell_args << arg
+            end
+          end
+
+          shell_command << shell_args
+
+          # Add the raw arguments at the end, to give them the highest precedence
+          shell_command << config.raw_arguments if config.raw_arguments
+
+          shell_command << config.playbook
+
+          shell_command.flatten.join(' ')
+        end
+
         def prepare_common_command_arguments
           # By default we limit by the current machine,
           # but this can be overridden by the `limit` option.
@@ -43,10 +76,6 @@ module VagrantPlugins
           @command_arguments << "--tags=#{Helpers::as_list_argument(config.tags)}" if config.tags
           @command_arguments << "--skip-tags=#{Helpers::as_list_argument(config.skip_tags)}" if config.skip_tags
           @command_arguments << "--start-at-task=#{config.start_at_task}" if config.start_at_task
-
-          # Finally, add the raw configuration options, which has the highest precedence
-          # and can therefore potentially override any other options of this provisioner.
-          @command_arguments.concat(Helpers::as_array(config.raw_arguments)) if config.raw_arguments
         end
 
         def prepare_common_environment_variables

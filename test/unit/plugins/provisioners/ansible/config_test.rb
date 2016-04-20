@@ -200,6 +200,46 @@ describe VagrantPlugins::Ansible::Config::Host do
       ])
     end
 
+    it "returns an error if the raw_arguments is of the wrong data type" do
+      subject.raw_arguments = { arg1: 1, arg2: "foo" }
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result["ansible remote provisioner"]).to eql([
+        I18n.t("vagrant.provisioners.ansible.errors.raw_arguments_invalid",
+               type:  subject.raw_arguments.class.to_s,
+               value: subject.raw_arguments.to_s)
+      ])
+    end
+
+    it "converts a raw_arguments option defined as a String into an Array" do
+      subject.raw_arguments = "--foo=bar"
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(subject.raw_arguments).to eql(%w(--foo=bar))
+    end
+
+    it "returns an error if the raw_ssh_args is of the wrong data type" do
+      subject.raw_ssh_args = { arg1: 1, arg2: "foo" }
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result["ansible remote provisioner"]).to eql([
+        I18n.t("vagrant.provisioners.ansible.errors.raw_ssh_args_invalid",
+               type:  subject.raw_ssh_args.class.to_s,
+               value: subject.raw_ssh_args.to_s)
+      ])
+    end
+
+    it "converts a raw_ssh_args option defined as a String into an Array" do
+      subject.raw_arguments = "-o ControlMaster=no"
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(subject.raw_arguments).to eql(["-o ControlMaster=no"])
+    end
+
     it "it collects and returns all detected errors" do
       subject.playbook = non_existing_file
       subject.inventory_path = non_existing_file

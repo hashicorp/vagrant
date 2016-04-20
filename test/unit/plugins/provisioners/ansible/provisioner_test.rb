@@ -639,7 +639,7 @@ VF
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
             expect(machine.env.ui).to receive(:detail).with { |full_command|
-              expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
+              expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
             }
           end
         end
@@ -654,7 +654,7 @@ VF
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
             expect(machine.env.ui).to receive(:detail).with { |full_command|
-              expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
+              expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
             }
           end
         end
@@ -670,7 +670,7 @@ VF
 
         it "shows the ansible-playbook command and set verbosity to '-v' level" do
           expect(machine.env.ui).to receive(:detail).with { |full_command|
-            expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit='machine1' --inventory-file=#{generated_inventory_dir} -v playbook.yml")
+            expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -v playbook.yml")
           }
         end
       end
@@ -732,6 +732,24 @@ VF
       end
     end
 
+    context "with extra_vars option defined" do
+      describe "with a hash value" do
+        before do
+          config.extra_vars = { var1: %Q(string with 'apostrophes', \\, " and =), var2: { x: 42 } }
+        end
+
+        it_should_set_optional_arguments({ "extra_vars" => "--extra-vars={\"var1\":\"string with 'apostrophes', \\\\, \\\" and =\",\"var2\":{\"x\":42}}" })
+      end
+
+      describe "with a string value referring to file path (with the '@' prefix)" do
+        before do
+          config.extra_vars = "@#{existing_file}"
+        end
+
+        it_should_set_optional_arguments({ "extra_vars" => "--extra-vars=@#{File.expand_path(__FILE__)}" })
+      end
+    end
+
     # The Vagrant Ansible provisioner does not validate the coherency of
     # argument combinations, and let ansible-playbook complain.
     describe "with a maximum of options" do
@@ -741,7 +759,7 @@ VF
         ssh_info[:private_key_path] = ['/my/key1', '/my/key2']
 
         # command line arguments
-        config.extra_vars = "@#{existing_file}"
+        config.extra_vars = { var1: %Q(string with 'apostrophes', \\, " and =), var2: { x: 42 } }
         config.sudo = true
         config.sudo_user = 'deployer'
         config.verbose = "vvv"
@@ -751,17 +769,17 @@ VF
         config.tags = %w(db www)
         config.skip_tags = %w(foo bar)
         config.limit = 'machine*:&vagrant:!that_one'
-        config.start_at_task = 'an awesome task'
-        config.raw_arguments = ["--why-not", "--su-user=foot", "--ask-su-pass", "--limit=all", "--private-key=./myself.key"]
+        config.start_at_task = "joe's awesome task"
+        config.raw_arguments = ["--why-not", "--su-user=foot", "--ask-su-pass", "--limit=all", "--private-key=./myself.key", "--extra-vars='{\"var3\":\"foo\"}'"]
 
         # environment variables
         config.host_key_checking = true
         config.raw_ssh_args = ['-o ControlMaster=no']
       end
 
-      it_should_set_arguments_and_environment_variables 20, 4, true
+      it_should_set_arguments_and_environment_variables 21, 4, true
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
-      it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars=@#{File.expand_path(__FILE__)}",
+      it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars={\"var1\":\"string with 'apostrophes', \\\\, \\\" and =\",\"var2\":{\"x\":42}}",
                                           "sudo"                => "--sudo",
                                           "sudo_user"           => "--sudo-user=deployer",
                                           "verbose"             => "-vvv",
@@ -771,7 +789,7 @@ VF
                                           "tags"                => "--tags=db,www",
                                           "skip_tags"           => "--skip-tags=foo,bar",
                                           "limit"               => "--limit=machine*:&vagrant:!that_one",
-                                          "start_at_task"       => "--start-at-task=an awesome task",
+                                          "start_at_task"       => "--start-at-task=joe's awesome task",
                                         })
 
       it "also includes given raw arguments" do
@@ -786,7 +804,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -i '/my/key1' -i '/my/key2' -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit='machine*:&vagrant:!that_one' --inventory-file=#{generated_inventory_dir} --extra-vars=@#{File.expand_path(__FILE__)} --sudo --sudo-user=deployer -vvv --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task='an awesome task' --why-not --su-user=foot --ask-su-pass --limit='all' --private-key=./myself.key playbook.yml")
+          expect(full_command).to eq(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -i '/my/key1' -i '/my/key2' -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
         }
       end
     end

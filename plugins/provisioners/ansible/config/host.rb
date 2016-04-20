@@ -34,6 +34,17 @@ module VagrantPlugins
         def validate(machine)
           super
 
+          if raw_ssh_args
+            if raw_ssh_args.kind_of?(String)
+              @raw_ssh_args = [raw_ssh_args]
+            elsif !raw_ssh_args.kind_of?(Array)
+              @errors << I18n.t(
+                "vagrant.provisioners.ansible.errors.raw_ssh_args_invalid",
+                type:  raw_ssh_args.class.to_s,
+                value: raw_ssh_args.to_s)
+            end
+          end
+
           { "ansible remote provisioner" => @errors }
         end
 
