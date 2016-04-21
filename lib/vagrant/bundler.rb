@@ -265,7 +265,7 @@ module Vagrant
 
       # Reset the all specs override that Bundler does
       old_all = Gem::Specification._all
-      Gem::Specification.all = nil
+      Gem::Specification.reset
 
       # /etc/gemrc and so on.
       old_config = nil
