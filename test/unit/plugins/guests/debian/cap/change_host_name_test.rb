@@ -21,6 +21,11 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
   describe ".change_host_name" do
     it_behaves_like "a debian-like host name change"
 
+    it "does nothing when the provided hostname is not different" do
+      described_class.change_host_name(machine, 'oldhostname.olddomain.tld')
+      expect(communicator.received_commands).to eq(['hostname -f'])
+    end
+
     it "refreshes the hostname service with the hostname command" do
       communicator.expect_command(%q(hostname -F /etc/hostname))
       described_class.change_host_name(machine, 'newhostname.newdomain.tld')
