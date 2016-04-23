@@ -6,6 +6,23 @@ module VagrantPlugins
           super
         end
 
+        def initialize(machine, new_hostname)
+          super
+          @logger = Log4r::Logger.new("vagrant::plugins::guest")
+        end
+
+        def get_current_hostname
+          return super unless systemd?
+
+          hostname = ""
+          sudo "hostnamectl --static status" do |type, data|
+            hostname = data.chomp if type == :stdout && hostname.empty?
+          end
+          @logger.debug("ubuntu get_current_hostname got hostname=#{hostname} by hostnamectl.")
+
+          hostname
+        end
+
         def update_etc_hostname
           return super unless systemd?
           sudo("hostnamectl set-hostname '#{short_hostname}'")
