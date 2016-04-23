@@ -24,7 +24,9 @@ IMPROVEMENTS:
   - commands/login: Print a warning with both the environment variable and
       local login token are present [GH-7206, GH-7219]
   - communicators/winrm: Upgrade to latest WinRM gems [GH-6922]
-  - provisioners/ansible(both provisioners): add basic config validators/converters
+  - provisioners/ansible_local: Use `provisioning_path` as working directory
+      for `ansible-galaxy` execution
+  - provisioners/ansible(both provisioners): Add basic config validators/converters
       on `raw_arguments` and `raw_ssh_args` options [GH-7103]
   - provisioners/chef: Add the ability to install on SUSE [GH-6806]
   - hosts/darwin: Add `extra_args` support for RDP [GH-5523, GH-6602]

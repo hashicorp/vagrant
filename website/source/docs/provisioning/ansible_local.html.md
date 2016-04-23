@@ -71,7 +71,7 @@ This section lists the specific options for the Ansible Local provisioner. In ad
 
   **Attention:** There is no guarantee that this automated installation will replace a custom Ansible setup, that might be already present on the Vagrant box.
 
-- `provisioning_path` (string) - An absolute path on the guest machine where the Ansible files are stored. The `ansible-playbook` command is executed from this directory.
+- `provisioning_path` (string) - An absolute path on the guest machine where the Ansible files are stored. The `ansible-galaxy` and `ansible-playbook` commands are executed from this directory. This is the location to place an [ansible.cfg](http://docs.ansible.com/ansible/intro_configuration.html) file, in case you need it.
 
   The default value is `/vagrant`.
 

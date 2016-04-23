@@ -69,6 +69,7 @@ module VagrantPlugins
             :role_file => get_galaxy_role_file(config.provisioning_path),
             :roles_path => get_galaxy_roles_path(config.provisioning_path)
           }
+
           remote_command = config.galaxy_command % command_values
 
           execute_ansible_command_on_guest "galaxy", remote_command
@@ -78,15 +79,15 @@ module VagrantPlugins
           prepare_common_command_arguments
           prepare_common_environment_variables
 
-          remote_command = "cd #{config.provisioning_path} && #{ansible_playbook_command_for_shell_execution}"
-
-          execute_ansible_command_on_guest "playbook", remote_command
+          execute_ansible_command_on_guest "playbook", ansible_playbook_command_for_shell_execution
         end
 
         def execute_ansible_command_on_guest(name, command)
-          ui_running_ansible_command name, command
+          remote_command = "cd #{config.provisioning_path} && #{command}"
 
-          result = execute_on_guest(command)
+          ui_running_ansible_command name, remote_command
+
+          result = execute_on_guest(remote_command)
           raise Ansible::Errors::AnsibleCommandFailed if result != 0
         end
 
