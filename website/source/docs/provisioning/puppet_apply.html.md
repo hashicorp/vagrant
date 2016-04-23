@@ -52,6 +52,9 @@ available below this section.
 * `environment_path` (string) - Path to the directory that contains environment
   files on the host disk.
 
+* `environment_variables` (hash) - A hash of data to be set as environment
+  variables before the puppet apply run.
+
 * `options` (array of strings) - Additionally options to pass to the
   Puppet executable when running Puppet.
 
