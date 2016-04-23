@@ -13,6 +13,7 @@ module VagrantPlugins
         attr_accessor :manifests_path
         attr_accessor :environment
         attr_accessor :environment_path
+        attr_accessor :environment_variables
         attr_accessor :module_path
         attr_accessor :options
         attr_accessor :synced_folder_type
@@ -23,18 +24,19 @@ module VagrantPlugins
         def initialize
           super
 
-          @binary_path        = UNSET_VALUE
-          @hiera_config_path  = UNSET_VALUE
-          @manifest_file      = UNSET_VALUE
-          @manifests_path     = UNSET_VALUE
-          @environment        = UNSET_VALUE
-          @environment_path   = UNSET_VALUE
-          @module_path        = UNSET_VALUE
-          @options            = []
-          @facter             = {}
-          @synced_folder_type = UNSET_VALUE
-          @temp_dir           = UNSET_VALUE
-          @working_directory  = UNSET_VALUE
+          @binary_path           = UNSET_VALUE
+          @hiera_config_path     = UNSET_VALUE
+          @manifest_file         = UNSET_VALUE
+          @manifests_path        = UNSET_VALUE
+          @environment           = UNSET_VALUE
+          @environment_path      = UNSET_VALUE
+          @environment_variables = UNSET_VALUE
+          @module_path           = UNSET_VALUE
+          @options               = []
+          @facter                = {}
+          @synced_folder_type    = UNSET_VALUE
+          @temp_dir              = UNSET_VALUE
+          @working_directory     = UNSET_VALUE
         end
 
         def nfs=(value)
@@ -84,6 +86,9 @@ module VagrantPlugins
             end
             if @manifest_file == UNSET_VALUE
               @manifest_file = nil
+            end
+            if @environment_variables == UNSET_VALUE
+              @environment_variables = nil
             end
           end
 
