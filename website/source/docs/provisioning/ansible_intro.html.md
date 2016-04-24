@@ -248,10 +248,11 @@ Certain settings in Ansible are (only) adjustable via a [configuration file](htt
 When shipping an Ansible configuration file it is good to know that:
 
  - it is possible to reference an Ansible configuration file via `ANSIBLE_CONFIG` environment variable, if you want to be flexible about the location of this file.
- - `ansible-playbook` **never** looks for `ansible.cfg` in the directory that contains the main playbook file.
- - As of Ansible 1.5, the lookup order is the following:
+ - as of Ansible 1.5, the lookup order is the following:
 
    - `ANSIBLE_CONFIG` an environment variable
-   - `ansible.cfg` in the runtime current directory
+   - `ansible.cfg` in the runtime working directory
    - `.ansible.cfg` in the user home directory
    - `/etc/ansible/ansible.cfg`
+
+ - `ansible-playbook` doesn't look for a configuration file relative to the playbook file location (e.g. in the same directory)
