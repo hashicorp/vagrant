@@ -4,7 +4,7 @@ module VagrantPlugins
       class NFS
         def self.nfs_check_command(env)
           if systemd?
-            return "/usr/sbin/systemctl status nfs-server.service"
+            return "/usr/sbin/systemctl status --no-pager nfs-server.service"
           else
             return "/etc/rc.d/nfs-server status"
           end
