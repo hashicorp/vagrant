@@ -67,20 +67,9 @@ your plugin works with another plugin.
 
 With this structure in place, your workflow should be like any other
 Ruby project, with one exception.  Because Vagrant uses the internal
-APIs of Bundler, the version of Bundler used for Vagrant development
-is pinned to a specific range defined in the
-[vagrant.gemspec](https://github.com/mitchellh/vagrant/blob/master/vagrant.gemspec)
-file.  If the upper bound version is `1.10.6`, then install the 
-required version of Bundler and Vagrant dependencies with the
-following commands:
-
-```
-gem install bundler --version '1.10.6' && \
-bundle _1.10.6_ install
-```
-
-*Be sure to check [vagrant.gemspec](https://github.com/mitchellh/vagrant/blob/master/vagrant.gemspec)
-and use the upper bound version of Bundler*
+APIs of Bundler, see [Installing Vagrant from Source](https://github.com/mitchellh/vagrant/wiki/Installing-Vagrant-from-Source)
+for tips for using the correct version of Bundler to install
+dependencies.
 
 When you want to manually test your plugin, use
 `bundle exec vagrant` in order to run Vagrant with your plugin
