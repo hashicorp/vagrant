@@ -425,7 +425,9 @@ module VagrantPlugins
               id: "winrm-ssl",
               auto_correct: true
           end
-        elsif !@__networks["forwarded_port-ssh"]
+        end
+        # forward SSH ports regardless of communicator
+        if !@__networks["forwarded_port-ssh"]
           network :forwarded_port,
             guest: 22,
             host: 2222,
