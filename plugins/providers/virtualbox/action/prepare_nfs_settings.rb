@@ -36,8 +36,19 @@ module VagrantPlugins
         #
         # The ! indicates that this method modifies its argument.
         def add_ips_to_env!(env)
-          adapter, host_ip = find_host_only_adapter
-          machine_ip       = read_static_machine_ips || read_dynamic_machine_ip(adapter)
+          adapter, host_ip   = find_host_only_adapter
+          machine_ip         = read_static_machine_ips
+          dynamic_machine_ip = read_dynamic_machine_ip(adapter)
+
+          if machine_ip.nil?
+            # If there were no static IPs, attempt to use the dynamic IP
+            # instead.
+            machine_ip = dynamic_machine_ip
+          else
+            # If we did get some static machine IPs, add the dynamic IPs to
+            # that list too.
+            machine_ip.push(dynamic_machine_ip) unless dynamic_machine_ip.nil?
+          end
 
           raise Vagrant::Errors::NFSNoHostonlyNetwork if !host_ip || !machine_ip
 
