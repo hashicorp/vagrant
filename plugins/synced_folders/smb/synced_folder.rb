@@ -17,39 +17,23 @@ module VagrantPlugins
       end
 
       def usable?(machine, raise_error=false)
-        if !Vagrant::Util::Platform.windows?
-          raise Errors::WindowsHostRequired if raise_error
+        if !machine.env.host.capability?(:smb_installed)
+          raise Errors::HostCapabilityRequired if raise_error
           return false
+        else 
+          return true
         end
-
-        if !Vagrant::Util::Platform.windows_admin?
-          raise Errors::WindowsAdminRequired if raise_error
-          return false
-        end
-
-        psv = Vagrant::Util::PowerShell.version.to_i
-        if psv < 3
-          if raise_error
-            raise Errors::PowershellVersion,
-              version: psv.to_s
-          end
-          return false
-        end
-
-        true
       end
 
       def prepare(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
 
-        script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
-
         # If we need auth information, then ask the user.
         have_auth = false
         folders.each do |id, data|
+          @creds[:username] ||= data[:smb_username]
+          @creds[:password] ||= data[:smb_password]
           if data[:smb_username] && data[:smb_password]
-            @creds[:username] = data[:smb_username]
-            @creds[:password] = data[:smb_password]
             have_auth = true
             break
           end
@@ -57,29 +41,11 @@ module VagrantPlugins
 
         if !have_auth
           machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          @creds[:username] = machine.ui.ask("Username: ")
-          @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+          @creds[:username] ||= machine.ui.ask("Username: ")
+          @creds[:password] ||= machine.ui.ask("Password (will be hidden): ", echo: false)
         end
 
-        folders.each do |id, data|
-          hostpath = data[:hostpath]
-
-          data[:smb_id] ||= Digest::MD5.hexdigest(
-            "#{machine.id}-#{id.gsub("/", "-")}")
-
-          args = []
-          args << "-path" << "\"#{hostpath.gsub("/", "\\")}\""
-          args << "-share_name" << data[:smb_id]
-          #args << "-host_share_username" << @creds[:username]
-
-          r = Vagrant::Util::PowerShell.execute(script_path, *args)
-          if r.exit_code != 0
-            raise Errors::DefineShareFailed,
-              host: hostpath.to_s,
-              stderr: r.stderr,
-              stdout: r.stdout
-          end
-        end
+        machine.env.host.capability(:smb_share, folders, machine.id)
       end
 
       def enable(machine, folders, nfsopts)
@@ -104,12 +70,16 @@ module VagrantPlugins
         end
 
         if need_host_ip
-          candidate_ips = load_host_ips
-          @logger.debug("Potential host IPs: #{candidate_ips.inspect}")
-          host_ip = machine.guest.capability(
-            :choose_addressable_ip_addr, candidate_ips)
-          if !host_ip
-            raise Errors::NoHostIPAddr
+          if nfsopts[:smb_host_ip]
+            host_ip = nfsopts[:smb_host_ip]
+          else
+            candidate_ips = load_host_ips
+            @logger.debug("Potential host IPs: #{candidate_ips.inspect}")
+            host_ip = machine.guest.capability(
+              :choose_addressable_ip_addr, candidate_ips)
+            if !host_ip
+              raise Errors::NoHostIPAddr
+            end
           end
         end
 
@@ -136,7 +106,26 @@ module VagrantPlugins
       end
 
       def cleanup(machine, opts)
-
+        ids = opts[:smb_valid_ids]
+        @logger.info("SMB cleanup. Removing dead shares. Valid IDs: #{ids.inspect}")
+        ids.collect!{|id| Digest::MD5.hexdigest(id)}
+        @logger.debug("Hashed IDs: #{ids.inspect}")
+        script_list_path =  "/usr/bin/net usershare list"
+        script_delete_path =  "/usr/bin/net usershare delete"
+        IO.popen("#{script_list_path}") {|out|
+          share_list = out.read
+          @logger.debug("Shares found: #{share_list}")
+          share_list.each_line{|s|
+            @logger.debug("Looking for matches for #{s}")
+            id_to_check = s[/.*-/]
+            id_to_check = id_to_check.chomp("-") if id_to_check
+            @logger.debug("Checking for hashed machine id: #{id_to_check}")
+            if id_to_check && !ids.include?(id_to_check)
+              @logger.info("Deleting share: #{s}")
+              IO.popen("#{script_delete_path} #{s}") {|out| @logger.debug(out.read)}
+            end
+          }
+        }
       end
 
       protected

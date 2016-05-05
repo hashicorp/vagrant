@@ -47,6 +47,16 @@ module VagrantPlugins
         require_relative "cap/nfs"
         Cap::NFS
       end
+      
+      host_capability("linux", "smb_installed") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+      
+      host_capability("linux", "smb_share") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
     end
   end
 end

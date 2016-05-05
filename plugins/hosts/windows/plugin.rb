@@ -20,6 +20,16 @@ module VagrantPlugins
         require_relative "cap/rdp"
         Cap::RDP
       end
+      
+      host_capability("windows", "smb_installed") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+      
+      host_capability("windows", "smb_share") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
     end
   end
 end
