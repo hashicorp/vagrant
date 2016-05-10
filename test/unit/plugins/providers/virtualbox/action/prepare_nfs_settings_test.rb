@@ -116,5 +116,14 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
       expect(env[:nfs_host_ip]).to    eq("1.2.3.4")
       expect(env[:nfs_machine_ip]).to eq(["11.12.13.14"])
     end
+
+    it "allows statically configured guest IPs to co-exist with dynamic host only IPs for NFS" do
+      env[:machine].config.vm.network :private_network, ip: "11.12.13.14"
+
+      subject.call(env)
+
+      expect(env[:nfs_host_ip]).to    eq("1.2.3.4")
+      expect(env[:nfs_machine_ip]).to eq(["11.12.13.14", "2.3.4.5"])
+    end
   end
 end
