@@ -16,7 +16,7 @@ module VagrantPlugins
               main_interface = data.chomp if type == :stdout
             end
             available_interfaces = []
-            comm.execute("ls /sys/class/net | grep -v -E '^(lo$|docker|lxc)'") do |type, data|
+            comm.execute("ls /sys/class/net | grep -v -E '^(lo$|docker|lx[cd])'") do |type, data|
               available_interfaces = data.chomp.split("\n") if type == :stdout
             end
             available_interfaces.delete(main_interface)
