@@ -1733,7 +1733,11 @@ en:
 
             Sometimes, Vagrant will attempt to auto-correct this for you. In this
             case, Vagrant was unable to. This is usually because the guest machine
-            is in a state which doesn't allow modifying port forwarding.
+            is in a state which doesn't allow modifying port forwarding. You could
+            try 'vagrant reload' (equivalent of running a halt followed by an up) 
+            so vagrant can attempt to auto-correct this upon booting. Be warned 
+            that any unsaved work might be lost.
+            
           fixed_collision: |-
             Fixed port collision for %{guest_port} => %{host_port}. Now on port %{new_port}.
           forwarding: Forwarding ports...
