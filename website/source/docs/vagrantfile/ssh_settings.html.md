@@ -74,7 +74,7 @@ is enabled. Defaults to false.
 
 `config.ssh.forward_env` - An array of host environment variables to forward to
 the guest. If you are familiar with OpenSSH, this corresponds to the `SendEnv`
-paramter.
+parameter.
 
 ```ruby
 config.ssh.forward_env = ["CUSTOM_VAR"]
