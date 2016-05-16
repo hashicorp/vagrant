@@ -33,7 +33,10 @@ module VagrantPlugins
 
         def get_current_hostname
           hostname = ""
-          sudo "hostname -f" do |type, data|
+          execute "hostname -f", error_check: false do |type, data|
+            hostname = data.chomp if type == :stdout && hostname.empty?
+          end
+          execute "hostname" do |type, data|
             hostname = data.chomp if type == :stdout && hostname.empty?
           end
 
