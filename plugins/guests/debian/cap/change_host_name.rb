@@ -82,8 +82,12 @@ module VagrantPlugins
           new_hostname.split('.').first
         end
 
-        def sudo(cmd, &block)
-          machine.communicate.sudo(cmd, &block)
+        def execute(cmd, opts=nil, &block)
+          machine.communicate.execute(cmd, opts, &block)
+        end
+
+        def sudo(cmd, opts=nil, &block)
+          machine.communicate.sudo(cmd, opts, &block)
         end
 
         def test(cmd)
