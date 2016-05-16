@@ -27,6 +27,11 @@ module VagrantPlugins
         Cap::PublicAddress
       end
 
+      provider_capability("hyperv", "snapshot_list") do
+        require_relative "cap/snapshot_list"
+        Cap::SnapshotList
+      end
+
       protected
 
       def self.init!

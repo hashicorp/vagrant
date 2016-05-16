@@ -207,6 +207,58 @@ module VagrantPlugins
         end
       end
 
+      def self.action_snapshot_delete
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              next
+            end
+
+            b2.use SnapshotDelete
+
+          end
+        end
+      end
+
+      def self.action_snapshot_restore
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              next
+            end
+
+            b2.use action_halt
+            b2.use SnapshotRestore
+
+            b2.use Call, IsEnvSet, :snapshot_delete do |env2, b3|
+              if env2[:result]
+                b3.use action_snapshot_delete
+              end
+            end
+
+            b2.use action_start
+
+          end
+        end
+      end
+
+      def self.action_snapshot_save
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ConfigValidate
+          b.use Call, IsState, :not_created do |env, b2|
+            if env[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              next
+            end
+            b2.use SnapshotSave
+          end
+        end
+      end
+
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :CheckEnabled, action_root.join("check_enabled")
@@ -222,6 +274,9 @@ module VagrantPlugins
       autoload :NetSetVLan, action_root.join("net_set_vlan")
       autoload :NetSetMac, action_root.join("net_set_mac")
       autoload :MessageWillNotDestroy, action_root.join("message_will_not_destroy")
+      autoload :SnapshotDelete, action_root.join("snapshot_delete")
+      autoload :SnapshotRestore, action_root.join("snapshot_restore")
+      autoload :SnapshotSave, action_root.join("snapshot_save")
     end
   end
 end
