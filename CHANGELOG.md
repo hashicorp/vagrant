@@ -37,6 +37,7 @@ IMPROVEMENTS:
   - core: Add `--no-delete` and provisioning flags to snapshot restore/pop [GH-6879]
   - providers/virtualbox: Add linked clone support for Virtualbox 1.4 [GH-7050]
   - providers/hyperv: Add support for differencing disk [GH-7090]
+  - providers/hyperv: Add support for snapshots [GH-7110]
 
 BUG FIXES:
 
