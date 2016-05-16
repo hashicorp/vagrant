@@ -40,7 +40,7 @@ module VagrantPlugins
             hostname = data.chomp if type == :stdout && hostname.empty?
           end
 
-          hostname
+          /localhost(\..*)?/.match(hostname) ? '' : hostname
         end
 
         def update_etc_hostname
