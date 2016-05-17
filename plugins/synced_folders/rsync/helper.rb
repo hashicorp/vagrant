@@ -124,7 +124,7 @@ module VagrantPlugins
           "rsync",
           args,
           "-e", rsh,
-          excludes.map { |e| ["--exclude", e] },
+          excludes.map { |e| ["--exclude=" + e] },
           hostpath,
           "#{username}@#{host}:#{guestpath}",
         ].flatten
