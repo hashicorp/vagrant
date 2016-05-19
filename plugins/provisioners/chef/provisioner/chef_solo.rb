@@ -182,7 +182,7 @@ module VagrantPlugins
           command = CommandBuilder.command(:solo, @config,
             windows: windows?,
             colored: @machine.env.ui.color?,
-            legacy_mode: @config.legacy_mode
+            legacy_mode: @config.legacy_mode,
           )
 
           @config.attempts.times do |attempt|
