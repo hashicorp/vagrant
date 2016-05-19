@@ -47,6 +47,7 @@ module VagrantPlugins
         args << " --config #{provisioning_path("#{type}.rb")}"
         args << " --json-attributes #{provisioning_path("dna.json")}"
         args << " --local-mode" if options[:local_mode]
+        args << " --legacy-mode" if options[:legacy_mode]
         args << " --log_level #{config.log_level}" if config.log_level
         args << " --no-color" if !options[:colored]
 
