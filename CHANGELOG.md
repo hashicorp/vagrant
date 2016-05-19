@@ -29,6 +29,7 @@ IMPROVEMENTS:
   - provisioners/ansible(both provisioners): Add basic config validators/converters
       on `raw_arguments` and `raw_ssh_args` options [GH-7103]
   - provisioners/chef: Add the ability to install on SUSE [GH-6806]
+  - provisioners/chef: Support legacy solo mode [GH-7327]
   - hosts/darwin: Add `extra_args` support for RDP [GH-5523, GH-6602]
   - hosts/windows: Use SafeExec to capture history in Powershell [GH-6749]
   - guests/freebsd: Add quotes around hostname [GH-6867]
