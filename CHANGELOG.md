@@ -39,6 +39,7 @@ IMPROVEMENTS:
   - providers/virtualbox: Add linked clone support for Virtualbox 1.4 [GH-7050]
   - providers/hyperv: Add support for differencing disk [GH-7090]
   - providers/hyperv: Add support for snapshots [GH-7110]
+  - providers/hyperv: Reinstate compatibility with PS 4 [GH-7108]
 
 BUG FIXES:
 
