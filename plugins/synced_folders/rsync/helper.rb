@@ -41,8 +41,8 @@ module VagrantPlugins
         hostpath  = Vagrant::Util::Platform.fs_real_path(hostpath).to_s
 
         # if the guest has a guest path scrubber capability, use it
-        if machine.guest.capability?(:rsync_scrub_guestpath)
-          guestpath = machine.guest.capability(:rsync_scrub_guestpath, opts)
+        if capability?(machine, :rsync_scrub_guestpath)
+          guestpath = capability(machine, :rsync_scrub_guestpath, opts)
         end
 
         if Vagrant::Util::Platform.windows?
