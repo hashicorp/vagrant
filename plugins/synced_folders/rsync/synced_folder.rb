@@ -45,7 +45,7 @@ module VagrantPlugins
         end
 
         folders.each do |id, folder_opts|
-          RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
+          RsyncHelper.new(machine, ssh_info, folder_opts).rsync_single
         end
       end
     end

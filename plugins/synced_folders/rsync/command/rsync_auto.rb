@@ -27,6 +27,7 @@ module VagrantPlugins
 
         def execute
           @logger = Log4r::Logger.new("vagrant::commands::rsync-auto")
+          @rsync_helpers = {}
 
           options = {}
           opts = OptionParser.new do |o|
@@ -76,7 +77,7 @@ module VagrantPlugins
             if ssh_info
               machine.ui.info(I18n.t("vagrant.rsync_auto_initial"))
               folders.each do |id, folder_opts|
-                RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
+                rsync_helper(machine, id, folder_opts).rsync_single
               end
             end
 
@@ -186,7 +187,7 @@ module VagrantPlugins
               ssh_info = opts[:machine].ssh_info
               begin
                 start = Time.now
-                RsyncHelper.rsync_single(opts[:machine], ssh_info, opts[:opts])
+                rsync_helper(opts[:machine], opts[:id], opts[:opts]).rsync_single
                 finish = Time.now
                 @logger.info("Time spent in rsync: #{finish-start} (in seconds)")
               rescue Vagrant::Errors::MachineGuestNotReady
@@ -201,6 +202,36 @@ module VagrantPlugins
               end
             end
           end
+        end
+
+        def rsync_helper(machine, folder_id, folder_opts)
+          machine_helpers = rsync_helpers_for_machine(machine)
+
+          rsync_helpers_for_id(machine, folder_id, folder_opts, machine_helpers)
+        end
+
+        def rsync_helpers_for_machine(machine)
+          @rsync_helpers[machine.id] ||= {}
+        end
+
+        def rsync_helpers_for_id(machine, folder_id, folder_opts, machine_helpers)
+          unless machine_helpers.key?(folder_id)
+            rsync_helper = nil
+            ssh_info = machine.ssh_info
+
+            if ssh_info
+              folder_opts = folder_opts.merge(
+                skip_rsync_pre_after_first_sync: true,
+                skip_rsync_post_after_first_sync: true
+              )
+
+              rsync_helper = RsyncHelper.new(machine, ssh_info, folder_opts)
+            end
+
+            machine_helpers[folder_id] = rsync_helper
+          end
+
+          machine_helpers[folder_id]
         end
       end
     end
