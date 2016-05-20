@@ -32,8 +32,6 @@ module VagrantPlugins
       end
 
       def self.rsync_single(machine, ssh_info, opts)
-        p "wkpo rsync_single 1"
-        
         # Folder info
         guestpath = opts[:guestpath]
         hostpath  = opts[:hostpath]
@@ -59,8 +57,6 @@ module VagrantPlugins
         # Folder options
         opts[:owner] ||= ssh_info[:username]
         opts[:group] ||= ssh_info[:username]
-
-        p "wkpo rsync_single 12"
 
         # Connection information
         username = ssh_info[:username]
@@ -93,8 +89,6 @@ module VagrantPlugins
         excludes += Array(opts[:exclude]).map(&:to_s) if opts[:exclude]
         excludes.uniq!
 
-        p "wkpo rsync_single 13"
-
         # Get the command-line arguments
         args = nil
         args = Array(opts[:args]).dup if opts[:args]
@@ -110,8 +104,6 @@ module VagrantPlugins
           args << "--no-perms" if args.include?("--archive") || args.include?("-a")
         end
 
-        p "wkpo rsync_single 14"
-
         # Disable rsync's owner/group preservation (implied by --archive) unless
         # specifically requested, since we adjust owner/group to match shared
         # folder setting ourselves.
@@ -120,24 +112,13 @@ module VagrantPlugins
 
         # Tell local rsync how to invoke remote rsync with sudo
         rsync_path = opts[:rsync_path]
-        p "wkpo rsync_single 15"
-        
-        # require 'pry'
-        # binding.pry
-        #
-        p "wkpo rsync_single 151"
-        
-        
+                
         if !rsync_path && capability?(machine, :rsync_command)
-          p "wkpo rsync_single 16"
           rsync_path = capability(machine, :rsync_command)
         end
         if rsync_path
-          p "wkpo rsync_single 17"
           args << "--rsync-path"<< rsync_path
         end
-
-        p "wkpo rsync_single 2"
 
         # Build up the actual command to execute
         command = [
@@ -163,14 +144,10 @@ module VagrantPlugins
           machine.ui.info(I18n.t("vagrant.rsync_showing_output"));
         end
 
-        p "wkpo rsync_single 3"
-
         # If we have tasks to do before rsyncing, do those.
         if capability?(machine, :rsync_pre)
           capability(machine, :rsync_pre, opts)
         end
-
-        p "wkpo rsync command!! #{command + [command_opts]}"
 
         if opts.include?(:verbose)
           command_opts[:notify] = [:stdout, :stderr]
