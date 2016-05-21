@@ -50,6 +50,6 @@ command.
 
 ## Next Steps
 
-You have successfully created and interacting with your first Vagrant
+You have successfully created and interacted with your first Vagrant
 environment! Read on to learn more about
 [synced folders](/docs/getting-started/synced_folders.html).
