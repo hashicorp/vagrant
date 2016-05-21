@@ -79,6 +79,10 @@ This section lists the specific options for the Ansible Local provisioner. In ad
 
   The default value is `/tmp/vagrant-ansible`
 
+- `validate_guest` (boolean) - require Vagrant to verify the existence of some Ansible configuration files on the guest system (e.g. the playbook file). These checks are skipped when the machine is not ready for network communication.
+
+  The default value is `false` because this mechanism can crash with some machine provider implementations (e.g. [vagrant-aws](https://github.com/mitchellh/vagrant/issues/6984) or [vagrant-lxc](https://github.com/fgrehm/vagrant-lxc/issues/398)).
+
 - `version` (string) - The expected Ansible version.
 
   This option is disabled by default.

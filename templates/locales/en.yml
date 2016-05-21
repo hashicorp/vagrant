@@ -2147,6 +2147,15 @@ en:
         windows_not_supported_for_control_machine: |-
           Windows is not officially supported for the Ansible Control Machine.
           Please check https://docs.ansible.com/intro_installation.html#control-machine-requirements
+        warnings:
+          validate_guest_is_enabled: |-
+            Vagrant will try to detect the presence of some Ansible
+            configuration files on the guest system, but this action
+            is not supported by some providers (e.g. 'aws' and 'lxc').
+            If you encounter an application crash with errors like
+            'stack level too deep (SystemStackError)', setting the
+            `validate_guest` option to `false` will prevent this
+            problem from happening.
 
       docker:
         not_running: "Docker is not running on the guest VM."
