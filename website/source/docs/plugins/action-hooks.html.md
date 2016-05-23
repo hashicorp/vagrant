@@ -92,7 +92,7 @@ that this list is not exhaustive and additional hooks can be added via plugins.
 - `machine_action_sync_folders` - called after synced folders have been set up.
 
 
-- `machine_action_up` - caled after the machine has entered the up state.
+- `machine_action_up` - called after the machine has entered the up state.
 
 
 ## Private API
