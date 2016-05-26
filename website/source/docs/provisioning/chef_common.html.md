@@ -59,11 +59,11 @@ understand their purpose.
   requested version. If they match, no action is taken. If they do not match,
   the value specified in this attribute will be installed in favor of the
   existing version (a message will be displayed).
-
+  
   You can also specify "latest" (default), which will install the latest
   version of Chef on the system. In this case, Chef will use whatever
   version is on the system. To force the newest version of Chef to be
-  installed on every provision, set the {#install} option to "force".
+  installed on every provision, set the [`install`](#install) option to "force".
 
 
 ## Runner Chef Provisioners
