@@ -51,6 +51,7 @@ IMPROVEMENTS:
   - providers/hyperv: Add support for differencing disk [GH-7090]
   - providers/hyperv: Add support for snapshots [GH-7110]
   - providers/hyperv: Reinstate compatibility with PS 4 [GH-7108]
+  - synced_folders/nfs: Read static and dynamic IPs [GH-7290, GH-7289]
 
 BUG FIXES:
 
