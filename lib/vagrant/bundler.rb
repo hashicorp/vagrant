@@ -2,6 +2,7 @@ require "monitor"
 require "pathname"
 require "set"
 require "tempfile"
+require "fileutils"
 
 require "bundler"
 
@@ -61,7 +62,9 @@ module Vagrant
       end
 
       # Setup the Bundler configuration
-      @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
+      tempname = Tempfile.new("vagrant").path
+      File.unlink(tempname) rescue nil
+      @configfile = File.open(tempname + "1", "w+")
       @configfile.close
 
       # Build up the Gemfile for our Bundler context. We make sure to
@@ -84,9 +87,10 @@ module Vagrant
 
     # Removes any temporary files created by init
     def deinit
-      File.unlink(ENV["BUNDLE_APP_CONFIG"]) rescue nil
+      FileUtils.rm_rf(ENV["BUNDLE_APP_CONFIG"]) rescue nil
       File.unlink(ENV["BUNDLE_CONFIG"]) rescue nil
-      File.unlink(ENV["GEMFILE"]) rescue nil
+      File.unlink(ENV["BUNDLE_GEMFILE"]) rescue nil
+      File.unlink(ENV["BUNDLE_GEMFILE"]+".lock") rescue nil
     end
 
     # Installs the list of plugins.
@@ -181,7 +185,9 @@ module Vagrant
     def build_gemfile(plugins)
       sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
 
-      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      tempname = Tempfile.new("vagrant").path
+      File.unlink(tempname) rescue nil
+      f = File.open(tempname + "2", "w+")
       f.tap do |gemfile|
         sources.each do |source|
           next if source == ""
