@@ -47,7 +47,10 @@ IMPROVEMENTS:
   - guests/freebsd: Add quotes around hostname [GH-6867]
   - guests/tinycore: Add support for shared folders [GH-6977, GH-6968]
   - guests/trisquel: Add initial support [GH-6842, GH-6843]
-  - core: Add `--no-delete` and provisioning flags to snapshot restore/pop [GH-6879]
+  - guests/windows: Add support for automatic login (no password prompting)
+      [GH-5670]
+  - core: Add `--no-delete` and provisioning flags to snapshot restore/pop
+      [GH-6879]
   - providers/virtualbox: Add linked clone support for Virtualbox 1.4 [GH-7050]
   - providers/hyperv: Add support for differencing disk [GH-7090]
   - providers/hyperv: Add support for snapshots [GH-7110]
