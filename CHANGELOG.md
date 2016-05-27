@@ -54,6 +54,7 @@ BUG FIXES:
   - core: Allow boxes to use pre-release versions [GH-6892, GH-6893]
   - core: Rescue `Errno:ENOTCONN` waiting for port to be open [GH-7182, GH-7184]
   - core: Properly authenticate metadata box URLs [GH-6776, GH-7158]
+  - core: Do not run provisioners if already run on resume [GH-7059, GH-6787]
   - docs & core: Be consistent about the "2" in the Vagrantfile version
       [GH-6961, GH-6963]
   - guests/arch: Restart network after configuration [GH-7120, GH-7119]
