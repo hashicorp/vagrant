@@ -43,7 +43,7 @@ variables are respected. HTTPS is also supported.
 
 If an error occurs during the download or the download is interrupted with
 a Ctrl-C, then Vagrant will attempt to resume the download the next time it
-is requested. Vagrant will only attempt to resume a download for six hours
+is requested. Vagrant will only attempt to resume a download for 24 hours
 after the initial download.
 
 ## Options
