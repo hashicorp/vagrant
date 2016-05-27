@@ -20,25 +20,63 @@ module Vagrant
       class Package
         include Util
 
+        # Perform sanity validations that the provided output filepath is sane.
+        # In particular, this function validates:
+        #
+        #   - The output path is a regular file (not a directory or symlink)
+        #   - No file currently exists at the given path
+        #   - A directory of package files was actually provided (internal)
+        #
+        # @param [String] output path to the output file
+        # @param [String] directory path to a directory containing the files
+        def self.validate!(output, directory)
+          filename = File.basename(output.to_s)
+          output   = fullpath(output)
+
+          if File.directory?(output)
+            raise Vagrant::Errors::PackageOutputDirectory
+          end
+
+          if File.exist?(output)
+            raise Vagrant::Errors::PackageOutputExists, filename: filename
+          end
+
+          if !Vagrant::Util::Presence.present?(directory) || !File.directory?(directory)
+            raise Vagrant::Errors::PackageRequiresDirectory
+          end
+        end
+
+        # Calculate the full path of the given path, relative to the current
+        # working directory (where the command was run).
+        #
+        # @param [String] output the relative path
+        def self.fullpath(output)
+          File.expand_path(output, Dir.pwd)
+        end
+
+        # The path to the final output file.
+        # @return [String]
+        attr_reader :fullpath
+
         def initialize(app, env)
           @app = app
 
           env["package.files"]  ||= {}
           env["package.output"] ||= "package.box"
+
+          @fullpath = self.class.fullpath(env["package.output"])
         end
 
         def call(env)
           @env = env
-          file_name = File.basename(@env["package.output"].to_s)
 
-          raise Errors::PackageOutputDirectory if File.directory?(tar_path)
-          raise Errors::PackageOutputExists, file_name:file_name if File.exist?(tar_path)
-          raise Errors::PackageRequiresDirectory if !env["package.directory"] ||
-            !File.directory?(env["package.directory"])
+          self.class.validate!(env["package.output"], env["package.directory"])
+
+          raise Errors::PackageOutputDirectory if File.directory?(fullpath)
 
           @app.call(env)
 
-          @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", tar_path: tar_path)
+          @env[:ui].info I18n.t("vagrant.actions.general.package.compressing", fullpath: fullpath)
           copy_include_files
           setup_private_key
           compress
@@ -54,7 +92,7 @@ module Vagrant
           end
 
           # Cleanup any packaged files if the packaging failed at some point.
-          File.delete(tar_path) if File.exist?(tar_path)
+          File.delete(fullpath) if File.exist?(fullpath)
         end
 
         # This method copies the include files (passed in via command line)
@@ -88,7 +126,7 @@ module Vagrant
         def compress
           # Get the output path. We have to do this up here so that the
           # pwd returns the proper thing.
-          output_path = tar_path.to_s
+          output_path = fullpath.to_s
 
           # Switch into that directory and package everything up
           Util::SafeChdir.safe_chdir(@env["package.directory"]) do
@@ -146,11 +184,6 @@ module Vagrant
             f.puts %Q[  config.ssh.private_key_path = File.expand_path("../vagrant_private_key", __FILE__)]
             f.puts %Q[end]
           end
-        end
-
-        # Path to the final box output file
-        def tar_path
-          File.expand_path(@env["package.output"], FileUtils.pwd)
         end
       end
     end

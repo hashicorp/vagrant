@@ -33,6 +33,8 @@ module VagrantPlugins
       autoload :Network, File.expand_path("../action/network", __FILE__)
       autoload :NetworkFixIPv6, File.expand_path("../action/network_fix_ipv6", __FILE__)
       autoload :Package, File.expand_path("../action/package", __FILE__)
+      autoload :PackageSetupFiles, File.expand_path("../action/package_setup_files", __FILE__)
+      autoload :PackageSetupFolders, File.expand_path("../action/package_setup_folders", __FILE__)
       autoload :PackageVagrantfile, File.expand_path("../action/package_vagrantfile", __FILE__)
       autoload :PrepareCloneSnapshot, File.expand_path("../action/prepare_clone_snapshot", __FILE__)
       autoload :PrepareNFSSettings, File.expand_path("../action/prepare_nfs_settings", __FILE__)
@@ -41,11 +43,13 @@ module VagrantPlugins
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
       autoload :SetName, File.expand_path("../action/set_name", __FILE__)
-      autoload :SetupPackageFiles, File.expand_path("../action/setup_package_files", __FILE__)
       autoload :SnapshotDelete, File.expand_path("../action/snapshot_delete", __FILE__)
       autoload :SnapshotRestore, File.expand_path("../action/snapshot_restore", __FILE__)
       autoload :SnapshotSave, File.expand_path("../action/snapshot_save", __FILE__)
       autoload :Suspend, File.expand_path("../action/suspend", __FILE__)
+
+      # @deprecated use {PackageSetupFiles} instead
+      autoload :SetupPackageFiles, File.expand_path("../action/setup_package_files", __FILE__)
 
       # Include the built-in modules so that we can use them as top-level
       # things.
@@ -150,7 +154,8 @@ module VagrantPlugins
               next
             end
 
-            b2.use SetupPackageFiles
+            b2.use PackageSetupFolders
+            b2.use PackageSetupFiles
             b2.use CheckAccessible
             b2.use action_halt
             b2.use ClearForwardedPorts
