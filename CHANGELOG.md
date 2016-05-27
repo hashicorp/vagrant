@@ -32,6 +32,7 @@ IMPROVEMENTS:
   - core/downloader: increase box resume download limit to 24h
       [GH-7352, GH-7272]
   - core/package: run validations prior to packaging [GH-7353, GH-7351]
+  - core/action: make `start` ("vagrant up") run provisioners [GH-4467, GH-4421]
   - commands/login: Print a warning with both the environment variable and
       local login token are present [GH-7206, GH-7219]
   - communicators/winrm: Upgrade to latest WinRM gems [GH-6922]
