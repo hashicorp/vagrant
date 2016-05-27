@@ -1734,10 +1734,10 @@ en:
             Sometimes, Vagrant will attempt to auto-correct this for you. In this
             case, Vagrant was unable to. This is usually because the guest machine
             is in a state which doesn't allow modifying port forwarding. You could
-            try 'vagrant reload' (equivalent of running a halt followed by an up) 
-            so vagrant can attempt to auto-correct this upon booting. Be warned 
+            try 'vagrant reload' (equivalent of running a halt followed by an up)
+            so vagrant can attempt to auto-correct this upon booting. Be warned
             that any unsaved work might be lost.
-            
+
           fixed_collision: |-
             Fixed port collision for %{guest_port} => %{host_port}. Now on port %{new_port}.
           forwarding: Forwarding ports...
@@ -1883,16 +1883,17 @@ en:
       general:
         package:
           packaging: "Packaging additional file: %{file}"
-          compressing: "Compressing package to: %{tar_path}"
+          compressing: "Compressing package to: %{fullpath}"
           output_exists: |-
-            The specified file '%{file_name}' to save the package as already exists. Please
+            The specified file '%{filename}' to save the package as already exists. Please
             remove this file or specify a different file name for outputting.
           output_is_directory: |-
             The specified output is a directory. Please specify a path including
             a filename.
           requires_directory: |-
             A directory was not specified to package. This should never happen
-            and is a result of an internal inconsistency.
+            and is a result of an internal inconsistency. Please report a bug
+            on the Vagrant bug tracker.
           include_file_missing: |-
             Package include file doesn't exist: %{file}
 
