@@ -18,6 +18,10 @@ module Vagrant
         # to NOT be metadata.
         METADATA_SIZE_LIMIT = 20971520
 
+        # This is the amount of time to "resume" downloads if a partial box
+        # file already exists.
+        RESUME_DELAY = 24 * 60 * 60
+
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::box_add")
@@ -393,7 +397,7 @@ module Vagrant
             if env[:box_clean]
               @logger.info("Cleaning existing temp box file.")
               delete = true
-            elsif temp_path.mtime.to_i < (Time.now.to_i - 6 * 60 * 60)
+            elsif temp_path.mtime.to_i < (Time.now.to_i - RESUME_DELAY)
               @logger.info("Existing temp file is too old. Removing.")
               delete = true
             end
