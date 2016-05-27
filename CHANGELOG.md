@@ -19,6 +19,14 @@ BREAKING CHANGES:
       will need to opt into the "current" channel until Chef Software promotes
       into the "stable" channel.
 
+FEATURES:
+
+  - provider/docker: Allow non-linux users to opt-out of the host VM to run
+      Docker containers by setting `config.force_host_vm = false` in the
+      Vagrantfile. This is especially useful for customers who wish to use
+      the beta builds for Mac and Windows, dlite, or a custom provider.
+      [GH-7277, GH-7298, 8c11b53]
+
 IMPROVEMENTS:
 
   - core/downloader: increase box resume download limit to 24h
