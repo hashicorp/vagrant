@@ -115,6 +115,8 @@ BUG FIXES:
       UNC paths [GH-6598]
   - core: Fix a crash in parsing the config in some cases with network
       configurations [GH-6730]
+  - core: Clean up temporarily files created by bundler
+    [GH-7354, GH-6301, GH-3469, GH-6231]
   - commands/up: Smarter logic about what provider to install, avoiding
       situations where VirtualBox was installed over the correct provider [GH-6731]
   - guests/debian: Fix Docker install [GH-6722]
