@@ -2,6 +2,7 @@ require "monitor"
 require "pathname"
 require "set"
 require "tempfile"
+require "fileutils"
 
 require "bundler"
 
@@ -61,7 +62,7 @@ module Vagrant
       end
 
       # Setup the Bundler configuration
-      @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
+      @configfile = tempfile("vagrant-configfile")
       @configfile.close
 
       # Build up the Gemfile for our Bundler context. We make sure to
@@ -84,9 +85,13 @@ module Vagrant
 
     # Removes any temporary files created by init
     def deinit
-      File.unlink(ENV["BUNDLE_APP_CONFIG"]) rescue nil
-      File.unlink(ENV["BUNDLE_CONFIG"]) rescue nil
-      File.unlink(ENV["GEMFILE"]) rescue nil
+      # If we weren't enabled, then we don't do anything.
+      return if !@enabled
+
+      FileUtils.rm_rf(ENV["BUNDLE_APP_CONFIG"]) rescue nil
+      FileUtils.rm_f(ENV["BUNDLE_CONFIG"]) rescue nil
+      FileUtils.rm_f(ENV["BUNDLE_GEMFILE"]) rescue nil
+      FileUtils.rm_f(ENV["BUNDLE_GEMFILE"]+".lock") rescue nil
     end
 
     # Installs the list of plugins.
@@ -181,7 +186,7 @@ module Vagrant
     def build_gemfile(plugins)
       sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
 
-      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      f = tempfile("vagrant-gemfile")
       f.tap do |gemfile|
         sources.each do |source|
           next if source == ""
@@ -203,7 +208,6 @@ module Vagrant
           gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}])
         end
         gemfile.puts("end")
-
         gemfile.close
       end
     end
@@ -250,11 +254,14 @@ module Vagrant
     def with_isolated_gem
       raise Errors::BundlerDisabled if !@enabled
 
+      tmp_gemfile = tempfile("vagrant-gemfile")
+      tmp_gemfile.close
+
       # Remove bundler settings so that Bundler isn't loaded when building
       # native extensions because it causes all sorts of problems.
       old_rubyopt = ENV["RUBYOPT"]
       old_gemfile = ENV["BUNDLE_GEMFILE"]
-      ENV["BUNDLE_GEMFILE"] = Tempfile.new("vagrant-gemfile").path
+      ENV["BUNDLE_GEMFILE"] = tmp_gemfile.path
       ENV["RUBYOPT"] = (ENV["RUBYOPT"] || "").gsub(/-rbundler\/setup\s*/, "")
 
       # Set the GEM_HOME so gems are installed only to our local gem dir
@@ -284,6 +291,8 @@ module Vagrant
         return yield
       end
     ensure
+      tmp_gemfile.unlink rescue nil
+
       ENV["BUNDLE_GEMFILE"] = old_gemfile
       ENV["GEM_HOME"] = @gem_home
       ENV["RUBYOPT"]  = old_rubyopt
@@ -291,6 +300,17 @@ module Vagrant
       Gem.configuration = old_config
       Gem.paths = ENV
       Gem::Specification.all = old_all
+    end
+
+    # This method returns a proper "tempfile" on disk. Ruby's Tempfile class
+    # would work really great for this, except GC can come along and  remove
+    # the file before we are done with it. This is because we "close" the file,
+    # but we might be shelling out to a subprocess.
+    #
+    # @return [File]
+    def tempfile(name)
+      path = Dir::Tmpname.create(name) {}
+      return File.open(path, "w+")
     end
 
     # This is pretty hacky but it is a custom implementation of

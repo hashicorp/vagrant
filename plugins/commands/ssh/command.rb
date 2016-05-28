@@ -55,6 +55,7 @@ module VagrantPlugins
             exit_status = env[:ssh_run_exit_status] || 0
             return exit_status
           else
+            Vagrant::Bundler.instance.deinit
             @logger.debug("Invoking `ssh` action on machine")
             vm.action(:ssh, ssh_opts: ssh_opts)
 
