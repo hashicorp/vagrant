@@ -85,6 +85,8 @@ BUG FIXES:
   - providers/hyperv: Only specify Hyper-V if the parameter is support
       [GH-7101, GH-7098]
   - providers/virtualbox: Set maximum network adapters to 36 [GH-7293, GH-7286]
+  - providers/virtualbox: Do not fail when master VM from linked clone is
+      missing [GH-7126, GH-6742]
   - provisioners/ansible_local: Don't quote the Ansible arguments defined in the
       `raw_arguments` option [GH-7103]
   - provisioners/ansible_local: Format json `extra_vars` with double quotes
