@@ -9,7 +9,7 @@ require "vagrant/machine_index"
 describe Vagrant::MachineIndex do
   include_context "unit"
 
-  let(:data_dir) { Dir.mktmpdir }
+  let(:data_dir) { temporary_dir }
   let(:entry_klass) { Vagrant::MachineIndex::Entry }
 
   let(:new_entry) do

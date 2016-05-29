@@ -245,7 +245,7 @@ describe Vagrant::Box, :skip_windows do
     end
 
     after do
-      metadata_url.unlink if metadata_url.file?
+      metadata_url.unlink
     end
 
     it "loads the url and returns the data" do

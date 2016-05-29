@@ -43,7 +43,7 @@ describe Vagrant::Machine do
   let(:instance) { new_instance }
 
   after do
-    FileUtils.rm_rf(data_dir)
+    FileUtils.rm_rf(data_dir) if data_dir
   end
 
   subject { instance }

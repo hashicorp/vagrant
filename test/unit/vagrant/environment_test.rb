@@ -933,7 +933,7 @@ VF
       let(:instance) { described_class.new(local_data_path: local_data_path) }
 
       after do
-        File.unlink(v1_dotfile_tempfile) if File.file?(v1_dotfile_template)
+        File.unlink(v1_dotfile) if File.file?(v1_dotfile)
       end
 
       it "should be fine if dotfile is empty" do
