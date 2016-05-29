@@ -12,7 +12,7 @@ module VagrantPlugins
         options[:force] = false
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant halt [options] [name]"
+          o.banner = "Usage: vagrant halt [options] [name|id]"
           o.separator ""
           o.separator "Options:"
           o.separator ""

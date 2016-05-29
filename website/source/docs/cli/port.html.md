@@ -9,7 +9,7 @@ description: |-
 
 # Port
 
-**Command: `vagrant port`**
+**Command: `vagrant port [name|id]`**
 
 The port command displays the full list of guest ports mapped to the host
 machine ports:

@@ -9,7 +9,7 @@ description: |-
 
 # Halt
 
-**Command: `vagrant halt`**
+**Command: `vagrant halt [name|id]`**
 
 This command shuts down the running machine Vagrant is managing.
 

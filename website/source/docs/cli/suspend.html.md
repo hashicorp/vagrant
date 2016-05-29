@@ -9,7 +9,7 @@ description: |-
 
 # Suspend
 
-**Command: `vagrant suspend`**
+**Command: `vagrant suspend [name|id]`**
 
 This suspends the guest machine Vagrant is managing, rather than fully
 [shutting it down](/docs/cli/halt.html) or [destroying it](/docs/cli/destroy.html).

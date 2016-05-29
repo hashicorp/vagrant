@@ -22,7 +22,7 @@ module VagrantPlugins
         options[:provision_ignore_sentinel] = false
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant up [options] [name]"
+          o.banner = "Usage: vagrant up [options] [name|id]"
           o.separator ""
           o.separator "Options:"
           o.separator ""
