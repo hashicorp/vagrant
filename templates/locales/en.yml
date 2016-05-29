@@ -1364,7 +1364,7 @@ en:
         There is no available slots on the VirtualBox VM for the configured
         high-level network interfaces. "private_network" and "public_network"
         network configurations consume a single network adapter slot on the
-        VirtualBox VM. VirtualBox limits the number of slots to 8, and it
+        VirtualBox VM. VirtualBox limits the number of slots to 36, and it
         appears that every slot is in use. Please lower the number of used
         network adapters.
       virtualbox_not_detected: |-

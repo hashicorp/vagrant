@@ -178,7 +178,7 @@ module VagrantPlugins
 
         # Returns the maximum number of network adapters.
         def max_network_adapters
-          8
+          36
         end
 
         # Returns a list of forwarded ports for a VM.
