@@ -62,6 +62,16 @@ the machine, but replace it with perhaps a more secure key later.
 
 <hr>
 
+`config.ssh.keys_only` - Only use Vagrant-provided SSH private keys (do not use
+any keys stored in ssh-agent). The default value is `true`.`
+
+<hr>
+
+`config.ssh.paranoid` - Perform strict host-key verification. The default value
+is `true`.
+
+<hr>
+
 `config.ssh.forward_agent` - If `true`, agent forwarding over SSH
 connections is enabled. Defaults to false.
 
