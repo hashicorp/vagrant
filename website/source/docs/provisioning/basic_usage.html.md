@@ -206,4 +206,12 @@ end
 ```
 
 If you want to preserve the original ordering, you can specify
-the `preserve_order: true` flag.
+the `preserve_order: true` flag:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "do-this", type: "shell", preserve_order: true, inline: "echo FIRST!"
+  config.vm.provision "then-this", type: "shell", preserve_order: true, inline: "echo SECOND!"
+end
+```
+
