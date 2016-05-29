@@ -9,6 +9,7 @@ module Vagrant
     autoload :SafeExec,                  'vagrant/util/safe_exec'
     autoload :StackedProcRunner,         'vagrant/util/stacked_proc_runner'
     autoload :TemplateRenderer,          'vagrant/util/template_renderer'
+    autoload :Tempfile,                  'vagrant/util/tempfile'
     autoload :Subprocess,                'vagrant/util/subprocess'
   end
 end
