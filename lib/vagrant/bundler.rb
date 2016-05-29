@@ -56,7 +56,7 @@ module Vagrant
 
       # Setup the "local" Bundler configuration. We need to set BUNDLE_PATH
       # because the existence of this actually suppresses `sudo`.
-      @appconfigpath = Dir.mktmpdir
+      @appconfigpath = Dir.mktmpdir("vagrant-bundle-app-config")
       File.open(File.join(@appconfigpath, "config"), "w+") do |f|
         f.write("BUNDLE_PATH: \"#{bundle_path}\"")
       end

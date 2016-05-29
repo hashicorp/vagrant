@@ -5,11 +5,7 @@ require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Plugin::StateFile do
   let(:path) do
-    f = Tempfile.new("vagrant")
-    p = f.path
-    f.close
-    f.unlink
-    Pathname.new(p)
+    Pathname.new(Dir::Tmpname.create("vagrant-test-statefile") {})
   end
 
   after do

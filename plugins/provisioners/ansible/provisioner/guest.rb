@@ -1,11 +1,11 @@
-require 'tempfile'
-
 require_relative "base"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module Ansible
     module Provisioner
       class Guest < Base
+        include Vagrant::Util
 
         def initialize(machine, config)
           super
@@ -103,14 +103,14 @@ module VagrantPlugins
           inventory_basedir = File.join(config.tmp_path, "inventory")
           inventory_path = File.join(inventory_basedir, "vagrant_ansible_local_inventory")
 
-          temp_inventory = Tempfile.new("vagrant_ansible_local_inventory_#{@machine.name}")
-          temp_inventory.write(inventory_content)
-          temp_inventory.close
-
           create_and_chown_remote_folder(inventory_basedir)
-          @machine.communicate.tap do |comm|
-            comm.sudo("rm -f #{inventory_path}", error_check: false)
-            comm.upload(temp_inventory.path, inventory_path)
+          @machine.communicate.sudo("rm -f #{inventory_path}", error_check: false)
+
+          Tempfile.create("ansible-local-inventory-#{@machine.name}") do |f|
+            f.write(inventory_content)
+            f.fsync
+            f.close
+            @machine.communicate.upload(f.path, inventory_path)
           end
 
           return inventory_basedir

@@ -1,7 +1,7 @@
-require 'set'
-require 'tempfile'
+require "set"
 
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestDebian
@@ -29,14 +29,14 @@ module VagrantPlugins
               entries << entry
             end
 
-            # Perform the careful dance necessary to reconfigure
-            # the network interfaces
-            temp = Tempfile.new("vagrant")
-            temp.binmode
-            temp.write(entries.join("\n"))
-            temp.close
-
-            comm.upload(temp.path, "/tmp/vagrant-network-entry")
+            # Perform the careful dance necessary to reconfigure the network
+            # interfaces.
+            Tempfile.create("debian-configure-networks") do |f|
+              f.write(entries.join("\n"))
+              f.fsync
+              f.close
+              comm.upload(f.path, "/tmp/vagrant-network-entry")
+            end
 
             # Bring down all the interfaces we're reconfiguring. By bringing down
             # each specifically, we avoid reconfiguring eth0 (the NAT interface) so

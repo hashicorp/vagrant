@@ -1,7 +1,7 @@
-require 'tempfile'
-require 'ipaddr'
+require "ipaddr"
 
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestNixos
@@ -65,13 +65,15 @@ module VagrantPlugins
 
         # Upload a file.
         def self.upload(machine, content, remote_path)
-          local_temp = Tempfile.new("vagrant-upload")
-          local_temp.binmode
-          local_temp.write(content)
-          local_temp.close
           remote_temp = mktemp(machine)
-          machine.communicate.upload(local_temp.path, "#{remote_temp}")
-          local_temp.delete
+
+          Tempfile.create("nixos-configure-networks") do |f|
+            f.write(content)
+            f.fsync
+            f.close
+            machine.communicate.upload(f.path, "#{remote_temp}")
+          end
+
           machine.communicate.sudo("mv #{remote_temp} #{remote_path}")
         end
 

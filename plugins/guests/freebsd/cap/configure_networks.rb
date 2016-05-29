@@ -1,6 +1,5 @@
-require "tempfile"
-
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestFreeBSD
@@ -29,13 +28,13 @@ module VagrantPlugins
             entry  = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
                                             options: network, ifname: ifname)
 
-            # Write the entry to a temporary location
-            temp = Tempfile.new("vagrant")
-            temp.binmode
-            temp.write(entry)
-            temp.close
+            Tempfile.create("freebsd-configure-networks") do |f|
+              f.write(entry)
+              f.fsync
+              f.close
+              machine.communicate.upload(f.path, "/tmp/vagrant-network-entry")
+            end
 
-            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry")
             machine.communicate.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'", {shell: "sh"})
             machine.communicate.sudo("rm -f /tmp/vagrant-network-entry", {shell: "sh"})
 

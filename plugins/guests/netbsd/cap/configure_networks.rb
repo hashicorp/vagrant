@@ -1,6 +1,5 @@
-require "tempfile"
-
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestNetBSD
@@ -20,13 +19,13 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/netbsd/network_#{network[:type]}",
                                             options: network)
 
-            temp = Tempfile.new("vagrant")
-            temp.binmode
-            temp.write(entry)
-            temp.close
+            Tempfile.create("netbsd-configure-networks") do |f|
+              f.write(entry)
+              f.fsync
+              f.close
+              machine.communicate.upload(f.path, "/tmp/vagrant-network-entry")
+            end
 
-            # upload it and append it to the new rc.conf file
-            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry")
             machine.communicate.sudo("cat /tmp/vagrant-network-entry >> #{newrcconf}")
             machine.communicate.sudo("rm -f /tmp/vagrant-network-entry")
 
@@ -45,7 +44,6 @@ module VagrantPlugins
 
           # install new rc.conf
           machine.communicate.sudo("install -c -o 0 -g 0 -m 644 #{newrcconf} /etc/rc.conf")
-
         end
       end
     end

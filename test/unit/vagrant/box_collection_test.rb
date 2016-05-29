@@ -39,8 +39,13 @@ describe Vagrant::BoxCollection, :skip_windows do
     end
 
     it 'does not raise an exception when a file appears in the boxes dir' do
-      Tempfile.new('a_file', environment.boxes_dir)
-      expect { subject.all }.to_not raise_error
+      t = Tempfile.new('a_file', environment.boxes_dir)
+      t.close
+      begin
+        expect { subject.all }.to_not raise_error
+      ensure
+        t.unlink
+      end
     end
   end
 

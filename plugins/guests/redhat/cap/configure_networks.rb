@@ -1,8 +1,8 @@
 require "set"
-require "tempfile"
 
-require "vagrant/util/retryable"
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/retryable"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestRedHat
@@ -55,12 +55,12 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
                                             options: network)
 
-            temp = Tempfile.new("vagrant")
-            temp.binmode
-            temp.write(entry)
-            temp.close
-
-            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry_#{network[:interface]}")
+            Tempfile.create("red-hat-configure-networks") do |f|
+              f.write(entry)
+              f.fsync
+              f.close
+              machine.communicate.upload(f.path, "/tmp/vagrant-network-entry_#{network[:interface]}")
+            end
           end
 
           # Bring down all the interfaces we're reconfiguring. By bringing down

@@ -1,6 +1,5 @@
-require "tempfile"
-
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestCoreOS
@@ -54,11 +53,11 @@ module VagrantPlugins
               })
             end
 
-            Tempfile.open("vagrant") do |temp|
-              temp.binmode
-              temp.write(entry)
-              temp.close
-              comm.upload(temp.path, "/tmp/etcd-cluster.service")
+            Tempfile.create("coreos-configure-networks") do |f|
+              f.write(entry)
+              f.fsync
+              f.close
+              comm.upload(f.path, "/tmp/etcd-cluster.service")
             end
 
             comm.sudo("mv /tmp/etcd-cluster.service /media/state/units/")

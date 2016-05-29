@@ -1,10 +1,14 @@
-require File.expand_path("../../../../../base", __FILE__)
-require File.expand_path("../../../support/shared/debian_like_host_name_examples", __FILE__)
+require_relative "../../../../base"
+require_relative "../../support/shared/debian_like_host_name_examples"
 
 describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
   let(:described_class) do
-    VagrantPlugins::GuestDebian::Plugin.components.guest_capabilities[:debian].get(:change_host_name)
+    VagrantPlugins::GuestDebian::Plugin
+      .components
+      .guest_capabilities[:debian]
+      .get(:change_host_name)
   end
+
   let(:machine) { double("machine") }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
   let(:old_hostname) { 'oldhostname.olddomain.tld' }

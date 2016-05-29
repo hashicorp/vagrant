@@ -1,6 +1,5 @@
-require "tempfile"
-
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestOpenBSD
@@ -13,10 +12,12 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/openbsd/network_#{network[:type]}",
                                             options: network)
 
-            temp = Tempfile.new("vagrant")
-            temp.binmode
-            temp.write(entry)
-            temp.close
+            Tempfile.create("openbsd-configure-networks") do |f|
+              f.write(entry)
+              f.fsync
+              f.close
+              machine.communicate.upload(f.path, "/tmp/vagrant-network-entry")
+            end
 
             # Determine the interface prefix...
             command = "ifconfig -a | grep -o ^[0-9a-z]*"
@@ -31,7 +32,6 @@ module VagrantPlugins
               end
             end
 
-            machine.communicate.upload(temp.path, "/tmp/vagrant-network-entry")
             machine.communicate.sudo("mv /tmp/vagrant-network-entry /etc/hostname.#{ifname}")
 
             # remove old configurations

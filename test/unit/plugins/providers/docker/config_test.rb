@@ -10,11 +10,15 @@ describe VagrantPlugins::DockerProvider::Config do
   let(:machine) { double("machine") }
 
   let(:build_dir) do
-    temporary_dir.tap do |dir|
-      dir.join("Dockerfile").open("w") do |f|
+    Dir.mktmpdir("vagrant-test-docker-provider-build-dir").tap do |dir|
+      File.open(File.join(dir, "Dockerfile"), "wb+") do |f|
         f.write("Hello")
       end
     end
+  end
+
+  after do
+    FileUtils.rm_rf(build_dir)
   end
 
   def assert_invalid

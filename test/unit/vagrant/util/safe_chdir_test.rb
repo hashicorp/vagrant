@@ -5,10 +5,17 @@ require File.expand_path("../../../base", __FILE__)
 require 'vagrant/util/safe_chdir'
 
 describe Vagrant::Util::SafeChdir do
+  let(:temp_dir) { Dir.mktmpdir("vagrant-test-util-safe-chdir") }
+  let(:temp_dir2) { Dir.mktmpdir("vagrant-test-util-safe-chdir-2") }
+
+  after do
+    FileUtils.rm_rf(temp_dir)
+    FileUtils.rm_rf(temp_dir2)
+  end
+
   it "should change directories" do
     expected = nil
     result   = nil
-    temp_dir = Dir.mktmpdir
 
     Dir.chdir(temp_dir) do
       expected = Dir.pwd
@@ -24,15 +31,14 @@ describe Vagrant::Util::SafeChdir do
   it "should allow recursive chdir" do
     expected  = nil
     result    = nil
-    temp_path = Dir.mktmpdir
 
-    Dir.chdir(temp_path) do
+    Dir.chdir(temp_dir) do
       expected = Dir.pwd
     end
 
     expect do
-      described_class.safe_chdir(Dir.mktmpdir) do
-        described_class.safe_chdir(temp_path) do
+      described_class.safe_chdir(temp_dir2) do
+        described_class.safe_chdir(temp_dir) do
           result = Dir.pwd
         end
       end

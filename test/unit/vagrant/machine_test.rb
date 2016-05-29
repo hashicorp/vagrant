@@ -28,7 +28,7 @@ describe Vagrant::Machine do
   end
 
   let(:config)   { env.vagrantfile.config }
-  let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
+  let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant-machine-data-dir")) }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path
@@ -41,6 +41,10 @@ describe Vagrant::Machine do
   let(:test_env) { isolated_environment }
 
   let(:instance) { new_instance }
+
+  after do
+    FileUtils.rm_rf(data_dir) if data_dir
+  end
 
   subject { instance }
 

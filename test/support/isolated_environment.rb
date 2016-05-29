@@ -28,7 +28,7 @@ class IsolatedEnvironment
     @logger = Log4r::Logger.new("test::isolated_environment")
 
     # Create a temporary directory for our work
-    @tempdir = Vagrant::Util::Platform.fs_real_path(Dir.mktmpdir("vagrant"))
+    @tempdir = Vagrant::Util::Platform.fs_real_path(Dir.mktmpdir("vagrant-iso-env"))
     @logger.info("Initialize isolated environment: #{@tempdir}")
 
     # Setup the home and working directories

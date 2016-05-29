@@ -4,8 +4,7 @@ describe Vagrant::Action::Builtin::Lock do
   let(:app) { lambda { |env| } }
   let(:env) { {} }
   let(:lock_path) do
-    @__lock_path = Tempfile.new("vagrant-test-lock")
-    @__lock_path.path.to_s
+    Dir::Tmpname.create("vagrant-test-lock") {}
   end
 
   let(:options) do
@@ -13,6 +12,10 @@ describe Vagrant::Action::Builtin::Lock do
       exception: Class.new(StandardError),
       path:      lock_path
     }
+  end
+
+  after do
+    File.unlink(lock_path) if File.file?(lock_path)
   end
 
   it "should require a path" do
