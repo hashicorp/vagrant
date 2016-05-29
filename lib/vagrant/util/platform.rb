@@ -125,7 +125,7 @@ module Vagrant
         # directory runs a different filesystem than the root directory.
         # However, this works in many cases.
         def fs_case_sensitive?
-          Dir.mktmpdir("vagrant") do |tmp_dir|
+          Dir.mktmpdir("vagrant-fs-case-sensitive") do |tmp_dir|
             tmp_file = File.join(tmp_dir, "FILE")
             File.open(tmp_file, "w") do |f|
               f.write("foo")

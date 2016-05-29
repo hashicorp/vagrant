@@ -56,7 +56,7 @@ module Vagrant
 
       # Setup the "local" Bundler configuration. We need to set BUNDLE_PATH
       # because the existence of this actually suppresses `sudo`.
-      @appconfigpath = Dir.mktmpdir
+      @appconfigpath = Dir.mktmpdir("vagrant-bundle-app-config")
       File.open(File.join(@appconfigpath, "config"), "w+") do |f|
         f.write("BUNDLE_PATH: \"#{bundle_path}\"")
       end
@@ -254,14 +254,13 @@ module Vagrant
     def with_isolated_gem
       raise Errors::BundlerDisabled if !@enabled
 
-      tmp_gemfile = tempfile("vagrant-gemfile")
-      tmp_gemfile.close
+      tmp_gemfile = Dir::Tmpname.create("vagrant-gemfile") {}
 
       # Remove bundler settings so that Bundler isn't loaded when building
       # native extensions because it causes all sorts of problems.
       old_rubyopt = ENV["RUBYOPT"]
       old_gemfile = ENV["BUNDLE_GEMFILE"]
-      ENV["BUNDLE_GEMFILE"] = tmp_gemfile.path
+      ENV["BUNDLE_GEMFILE"] = tmp_gemfile
       ENV["RUBYOPT"] = (ENV["RUBYOPT"] || "").gsub(/-rbundler\/setup\s*/, "")
 
       # Set the GEM_HOME so gems are installed only to our local gem dir
@@ -291,7 +290,7 @@ module Vagrant
         return yield
       end
     ensure
-      tmp_gemfile.unlink rescue nil
+      File.unlink(tmp_gemfile) if File.file?(tmp_gemfile)
 
       ENV["BUNDLE_GEMFILE"] = old_gemfile
       ENV["GEM_HOME"] = @gem_home

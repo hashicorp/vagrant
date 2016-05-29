@@ -14,7 +14,7 @@ module VagrantPlugins
 
         def call(env)
           env["package.output"] ||= "package.box"
-          env["package.directory"] ||= Dir.mktmpdir("package-", env[:tmp_path])
+          env["package.directory"] ||= Dir.mktmpdir("vagrant-package-", env[:tmp_path])
 
           # Match up a couple environmental variables so that the other parts of
           # Vagrant will do the right thing.
