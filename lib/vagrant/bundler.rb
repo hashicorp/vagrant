@@ -254,13 +254,14 @@ module Vagrant
     def with_isolated_gem
       raise Errors::BundlerDisabled if !@enabled
 
-      tmp_gemfile = Dir::Tmpname.create("vagrant-gemfile") {}
+      tmp_gemfile = tempfile("vagrant-gemfile")
+      tmp_gemfile.close
 
       # Remove bundler settings so that Bundler isn't loaded when building
       # native extensions because it causes all sorts of problems.
       old_rubyopt = ENV["RUBYOPT"]
       old_gemfile = ENV["BUNDLE_GEMFILE"]
-      ENV["BUNDLE_GEMFILE"] = tmp_gemfile
+      ENV["BUNDLE_GEMFILE"] = tmp_gemfile.path
       ENV["RUBYOPT"] = (ENV["RUBYOPT"] || "").gsub(/-rbundler\/setup\s*/, "")
 
       # Set the GEM_HOME so gems are installed only to our local gem dir
@@ -290,7 +291,7 @@ module Vagrant
         return yield
       end
     ensure
-      File.unlink(tmp_gemfile) if File.file?(tmp_gemfile)
+      tmp_gemfile.unlink rescue nil
 
       ENV["BUNDLE_GEMFILE"] = old_gemfile
       ENV["GEM_HOME"] = @gem_home
