@@ -109,7 +109,7 @@ describe VagrantPlugins::FTPPush::Push do
 
   describe "#all_files" do
     before(:all) do
-      @dir = Dir.mktmpdir
+      @dir = Dir.mktmpdir("vagrant-ftp-push-push-all-files")
 
       FileUtils.touch("#{@dir}/.hidden.rb")
       FileUtils.touch("#{@dir}/application.rb")
@@ -151,9 +151,9 @@ describe VagrantPlugins::FTPPush::Push do
     end
   end
 
-  describe "includes_files" do
+  describe "#includes_files" do
     before(:all) do
-      @dir = Dir.mktmpdir
+      @dir = Dir.mktmpdir("vagrant-ftp-push-includes-files")
 
       FileUtils.touch("#{@dir}/.hidden.rb")
       FileUtils.touch("#{@dir}/application.rb")

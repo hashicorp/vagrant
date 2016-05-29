@@ -35,7 +35,9 @@ describe VagrantPlugins::CommandBox::Command::Update do
     context "updating specific box" do
       let(:argv) { ["--box", "foo"] }
 
-      let(:metadata_url) { Pathname.new(Dir.mktmpdir).join("metadata.json") }
+      let(:scratch) { Dir.mktmpdir("vagrant-test-command-box-update-execute") }
+
+      let(:metadata_url) { Pathname.new(scratch).join("metadata.json") }
 
       before do
         metadata_url.open("w") do |f|
@@ -44,6 +46,10 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
         test_iso_env.box3(
           "foo", "1.0", :virtualbox, metadata_url: metadata_url.to_s)
+      end
+
+      after do
+        FileUtils.rm_rf(scratch)
       end
 
       it "doesn't update if they're up to date" do

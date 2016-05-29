@@ -227,7 +227,7 @@ describe Vagrant::Box, :skip_windows do
 
   context "#load_metadata" do
     let(:metadata_url) do
-      Tempfile.new("vagrant").tap do |f|
+      Tempfile.new("vagrant-test-box-test").tap do |f|
         f.write(<<-RAW)
         {
           "name": "foo",
@@ -242,6 +242,10 @@ describe Vagrant::Box, :skip_windows do
       described_class.new(
         name, provider, version, directory,
         metadata_url: metadata_url.path)
+    end
+
+    after do
+      metadata_url.unlink if metadata_url.file?
     end
 
     it "loads the url and returns the data" do

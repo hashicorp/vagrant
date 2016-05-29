@@ -11,11 +11,7 @@ describe Vagrant::Plugin::Manager do
   include_context "unit"
 
   let(:path) do
-    f = Tempfile.new("vagrant")
-    p = f.path
-    f.close
-    f.unlink
-    Pathname.new(p)
+    Pathname.new(Dir::Tmpname.create("vagrant-test-plugin-manager") {})
   end
 
   let(:bundler) { double("bundler") }

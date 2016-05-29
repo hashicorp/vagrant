@@ -9,7 +9,7 @@ require "vagrant/machine_index"
 describe Vagrant::MachineIndex do
   include_context "unit"
 
-  let(:data_dir) { temporary_dir }
+  let(:data_dir) { Dir.mktmpdir }
   let(:entry_klass) { Vagrant::MachineIndex::Entry }
 
   let(:new_entry) do
@@ -20,6 +20,10 @@ describe Vagrant::MachineIndex do
   end
 
   subject { described_class.new(data_dir) }
+
+  after do
+    FileUtils.rm_rf(data_dir)
+  end
 
   it "raises an exception if the data file is corrupt" do
     data_dir.join("index").open("w") do |f|

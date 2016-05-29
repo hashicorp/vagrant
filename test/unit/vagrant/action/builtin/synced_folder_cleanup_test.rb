@@ -53,10 +53,14 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
       plugins[:nfs] = [impl(true, "nfs"), 5]
 
       env[:machine] = Object.new
-      env[:root_path] = Pathname.new(Dir.mktmpdir)
+      env[:root_path] = Pathname.new(Dir.mktmpdir("vagrant-test-synced-folder-cleanup-call"))
 
       subject.stub(plugins: plugins)
       subject.stub(synced_folders: synced_folders)
+    end
+
+    after do
+      FileUtils.rm_rf(env[:root_path])
     end
 
     it "should invoke cleanup" do
