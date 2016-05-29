@@ -434,6 +434,8 @@ module Vagrant
       info[:host] ||= @config.ssh.default.host
       info[:port] ||= @config.ssh.default.port
       info[:private_key_path] ||= @config.ssh.default.private_key_path
+      info[:keys_only] ||= @config.ssh.default.keys_only
+      info[:paranoid] ||= @config.ssh.default.paranoid
       info[:username] ||= @config.ssh.default.username
 
       # We set overrides if they are set. These take precedence over
