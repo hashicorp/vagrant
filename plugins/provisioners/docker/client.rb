@@ -59,9 +59,14 @@ module VagrantPlugins
         id = "$(cat #{config[:cidfile]})"
 
         if container_exists?(id)
-
-          if container_args_changed?(config) or container_img_changed?(config)
-            @machine.ui.info(I18n.t("vagrant.docker_restarting_container",
+          if container_args_changed?(config)
+            @machine.ui.info(I18n.t("vagrant.docker_restarting_container_args",
+              name: config[:name],
+            ))
+            stop_container(id)
+            create_container(config)
+          elsif container_image_changed?(config)
+            @machine.ui.info(I18n.t("vagrant.docker_restarting_container_image",
               name: config[:name],
             ))
             stop_container(id)
@@ -95,7 +100,7 @@ module VagrantPlugins
         lookup_container(id)
       end
 
-      def container_img_changed?(config)
+      def container_image_changed?(config)
         # Returns true if there is a container running with the given :name,
         # and the container is not using the latest :image.
 
