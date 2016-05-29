@@ -8,6 +8,7 @@ module VagrantPlugins
         attr_accessor :provisioning_path
         attr_accessor :tmp_path
         attr_accessor :install
+        attr_accessor :validate_guest
         attr_accessor :version
 
         def initialize
@@ -16,6 +17,7 @@ module VagrantPlugins
           @install           = UNSET_VALUE
           @provisioning_path = UNSET_VALUE
           @tmp_path          = UNSET_VALUE
+          @validate_guest    = UNSET_VALUE
           @version           = UNSET_VALUE
         end
 
@@ -25,10 +27,15 @@ module VagrantPlugins
           @install           = true                   if @install           == UNSET_VALUE
           @provisioning_path = "/vagrant"             if provisioning_path  == UNSET_VALUE
           @tmp_path          = "/tmp/vagrant-ansible" if tmp_path           == UNSET_VALUE
+          @validate_guest    = false                  if @validate_guest    == UNSET_VALUE
           @version           = ""                     if @version           == UNSET_VALUE
         end
 
         def validate(machine)
+          if validate_guest
+            machine.ui.warn I18n.t("vagrant.provisioners.ansible.warnings.validate_guest_is_enabled")
+          end
+
           super
 
           { "ansible local provisioner" => @errors }
@@ -39,7 +46,7 @@ module VagrantPlugins
         def check_path(machine, path, test_args, error_message_key = nil)
           remote_path = Helpers::expand_path_in_unix_style(path, @provisioning_path)
 
-          if machine.communicate.ready? && !machine.communicate.test("test #{test_args} #{remote_path}")
+          if validate_guest && machine.communicate.ready? && !machine.communicate.test("test #{test_args} #{remote_path}")
             if error_message_key
               # only show warnings, as raising an error would abort the request
               # vagrant action (e.g. prevent `destroy` to be executed)
@@ -47,7 +54,9 @@ module VagrantPlugins
             end
             return false
           end
-          # when the machine is not ready for SSH communication,
+
+          # When the machine is not ready for SSH communication,
+          # or that 'validate_guest' otion is set to false,
           # the check is "optimistically" bypassed.
           true
         end
