@@ -11,7 +11,7 @@ module VagrantPlugins
         options = {}
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant ssh [options] [name] [-- extra ssh args]"
+          o.banner = "Usage: vagrant ssh [options] [name|id] [-- extra ssh args]"
           o.separator ""
           o.separator "Options:"
           o.separator ""

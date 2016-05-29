@@ -9,7 +9,7 @@ module VagrantPlugins
 
       def execute
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant suspend [name]"
+          o.banner = "Usage: vagrant suspend [name|id]"
         end
 
         # Parse the options
