@@ -118,8 +118,7 @@ module Vagrant
     # @param [Hash] download_options Options to pass to the downloader.
     # @return [BoxMetadata]
     def load_metadata(**download_options)
-      tf = Tempfile.new("vagrant")
-      tf.close
+      path = Dir::Tmpname.create("vagrant-load-metadata") {}
 
       url = @metadata_url
       if File.file?(url) || url !~ /^[a-z0-9]+:.*$/i
@@ -129,13 +128,13 @@ module Vagrant
       end
 
       opts = { headers: ["Accept: application/json"] }.merge(download_options)
-      Util::Downloader.new(url, tf.path, **opts).download!
-      BoxMetadata.new(File.open(tf.path, "r"))
+      Util::Downloader.new(url, path, **opts).download!
+      BoxMetadata.new(File.open(path, "r"))
     rescue Errors::DownloaderError => e
       raise Errors::BoxMetadataDownloadError,
         message: e.extra_data[:message]
     ensure
-      tf.unlink if tf
+      File.unlink(path) if File.file?(path)
     end
 
     # Checks if the box has an update and returns the metadata, version,
