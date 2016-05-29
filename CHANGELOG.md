@@ -77,6 +77,8 @@ BUG FIXES:
   - core: Implement better tracking of tempfiles and tmpdirs to identify file
       leaks [GH-7355]
   - core: Allow SSH forwarding on Windows [GH-7287, GH-7202]
+  - core: Allow customizing `keys_only` SSH option [GH-7360, GH-4275]
+  - core: Allow customizing `paranoid` SSH option [GH-7360, GH-4275]
   - docs & core: Be consistent about the "2" in the Vagrantfile version
       [GH-6961, GH-6963]
   - guests/arch: Restart network after configuration [GH-7120, GH-7119]
