@@ -81,6 +81,7 @@ BUG FIXES:
   - guests/coreos: Detect all interface names [GH-6608, GH-6610]
   - providers/hyperv: Only specify Hyper-V if the parameter is support
       [GH-7101, GH-7098]
+  - providers/virtualbox: Set maximum network adapters to 36 [GH-7293, GH-7286]
   - provisioners/ansible_local: Don't quote the Ansible arguments defined in the
       `raw_arguments` option [GH-7103]
   - provisioners/ansible_local: Format json `extra_vars` with double quotes
