@@ -1,7 +1,7 @@
 require "digest/md5"
-require "tempfile"
 
 require_relative "base"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module Chef
@@ -54,17 +54,15 @@ module VagrantPlugins
         # Write the raw recipe contents to a tempfile and upload that to the
         # machine.
         def upload_recipe
-          # Write the raw recipe contents to a tempfile
-          file = Tempfile.new(["vagrant-chef-apply", ".rb"])
-          file.write(config.recipe)
-          file.rewind
+          # Write the raw recipe contents to a tempfile and upload
+          Tempfile.create(["chef-apply", ".rb"]) do |f|
+            f.write(config.recipe)
+            f.fsync
+            f.close
 
-          # Upload the tempfile to the guest
-          @machine.communicate.upload(file.path, target_recipe_path)
-        ensure
-          # Delete our template
-          file.close
-          file.unlink
+            # Upload the tempfile to the guest
+            @machine.communicate.upload(f.path, target_recipe_path)
+          end
         end
       end
     end

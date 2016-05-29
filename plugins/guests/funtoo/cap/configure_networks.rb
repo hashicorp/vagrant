@@ -1,6 +1,5 @@
-require "tempfile"
-
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestFuntoo
@@ -23,12 +22,15 @@ module VagrantPlugins
                 ifFile = "netif.eth#{network[:interface]}"
                 entry = TemplateRenderer.render("guests/funtoo/network_#{network[:type]}",
                                                  options: network)
+
                 # Upload the entry to a temporary location
-                temp = Tempfile.new("vagrant")
-                temp.binmode
-                temp.write(entry)
-                temp.close
-                comm.upload(temp.path, "/tmp/vagrant-#{ifFile}")
+                Tempfile.create("funtoo-configure-networks") do |f|
+                  f.write(entry)
+                  f.fsync
+                  f.close
+                  comm.upload(f.path, "/tmp/vagrant-#{ifFile}")
+                end
+
                 comm.sudo("cp /tmp/vagrant-#{ifFile} /etc/conf.d/#{ifFile}")
                 comm.sudo("chmod 0644 /etc/conf.d/#{ifFile}")
                 comm.sudo("ln -fs /etc/init.d/netif.tmpl /etc/init.d/#{ifFile}")

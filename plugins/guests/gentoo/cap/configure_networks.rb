@@ -1,6 +1,5 @@
-require "tempfile"
-
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestGentoo
@@ -21,12 +20,12 @@ module VagrantPlugins
                                               options: network)
 
               # Upload the entry to a temporary location
-              temp = Tempfile.new("vagrant")
-              temp.binmode
-              temp.write(entry)
-              temp.close
-
-              comm.upload(temp.path, "/tmp/vagrant-network-entry")
+              Tempfile.create("gentoo-configure-networks") do |f|
+                f.write(entry)
+                f.fsync
+                f.close
+                comm.upload(f.path, "/tmp/vagrant-network-entry")
+              end
 
               # Configure the interface
               comm.sudo("ln -fs /etc/init.d/net.lo /etc/init.d/net.eth#{network[:interface]}")

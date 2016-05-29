@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-require "tempfile"
-
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestSlackware
@@ -20,15 +19,16 @@ module VagrantPlugins
 
             entry = TemplateRenderer.render("guests/slackware/network_#{network[:type]}", options: network)
 
-            temp = Tempfile.new("vagrant")
-            temp.binmode
-            temp.write(entry)
-            temp.close
+            Tempfile.create("slackware-configure-networks") do |f|
+              f.write(entry)
+              f.fsync
+              f.close
+              machine.communicate.upload(f.path, "/tmp/vagrant_network")
+            end
 
-            machine.communicate.upload(temp.path, "/tmp/vagrant_network")
             machine.communicate.sudo("mv /tmp/vagrant_network /etc/rc.d/rc.inet1.conf")
             machine.communicate.sudo("/etc/rc.d/rc.inet1")
-          end 
+          end
         end
       end
     end
