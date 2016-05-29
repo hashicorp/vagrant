@@ -125,6 +125,14 @@ describe VagrantPlugins::AtlasPush::Push do
   end
 
   describe "#uploader_path" do
+    let(:scratch) do
+      Pathname.new(Dir.mktmpdir("vagrant-test-atlas-push-upload-path"))
+    end
+
+    after do
+      FileUtils.rm_rf(scratch)
+    end
+
     it "should return the configured path if set" do
       config.uploader_path = "foo"
       expect(subject.uploader_path).to eq("foo")
@@ -141,12 +149,10 @@ describe VagrantPlugins::AtlasPush::Push do
     end
 
     it "should look up the uploader in the embedded dir if installer" do
-      dir = temporary_dir
-
       allow(Vagrant).to receive(:in_installer?).and_return(true)
-      allow(Vagrant).to receive(:installer_embedded_dir).and_return(dir.to_s)
+      allow(Vagrant).to receive(:installer_embedded_dir).and_return(scratch.to_s)
 
-      bin_path = dir.join("bin", bin)
+      bin_path = scratch.join("bin", bin)
       bin_path.dirname.mkpath
       bin_path.open("w+") { |f| f.write("hi") }
 
@@ -154,10 +160,8 @@ describe VagrantPlugins::AtlasPush::Push do
     end
 
     it "should look up the uploader in the PATH if not in the installer" do
-      dir = temporary_dir
-
       allow(Vagrant).to receive(:in_installer?).and_return(true)
-      allow(Vagrant).to receive(:installer_embedded_dir).and_return(dir.to_s)
+      allow(Vagrant).to receive(:installer_embedded_dir).and_return(scratch.to_s)
 
       expect(Vagrant::Util::Which).to receive(:which).
         with(described_class.const_get(:UPLOADER_BIN)).
