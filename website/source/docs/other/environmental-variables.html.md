@@ -118,6 +118,11 @@ Note that any `vagrant plugin` commands automatically do not load any
 plugins, so if you do install any unstable plugins, you can always use
 the `vagrant plugin` commands without having to worry.
 
+## `VAGRANT_NO_PARALLEL`
+
+If this is set, Vagrant will not perform any parallel operations (such as
+parallel box provisioning). All operations will be performed in serial.
+
 ## `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`
 
 As of Vagrant 1.7.3, Vagrant tries to intelligently detect if it is running in
