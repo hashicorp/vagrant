@@ -97,6 +97,16 @@ The equivalent behavior can be achieved by using the `--no-color` flag
 on a command-by-command basis. This environmental variable is useful
 for setting this flag globally.
 
+## `VAGRANT_FORCE_COLOR`
+
+If this is set to any value, then Vagrant will force colored output, even
+if it detected that there is no TTY or the current environment does not
+support it.
+
+The equivalent behavior can be achieved by using the `--color` flag on a
+command-by-command basis. This environmental variable is useful for setting
+this flag globally.
+
 ## `VAGRANT_NO_PLUGINS`
 
 If this is set to any value, then Vagrant will not load any 3rd party
