@@ -139,7 +139,7 @@ begin
   end
 
   # Also allow users to force colors.
-  if argv.include?("--color")
+  if argv.include?("--color") || ENV["VAGRANT_FORCE_COLOR"]
     argv.delete("--color")
     opts[:ui_class] = Vagrant::UI::Colored
   end
