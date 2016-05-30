@@ -22,6 +22,10 @@ module VagrantPlugins
           o.separator "Options:"
           o.separator ""
 
+          o.on("--box-version VERSION", "Version of the box to add") do |f|
+            options[:box_version] = f
+          end
+
           o.on("-f", "--force", "Overwrite existing Vagrantfile") do |f|
             options[:force] = f
           end
@@ -54,8 +58,10 @@ module VagrantPlugins
 
         template_path = ::Vagrant.source_root.join(template)
         contents = Vagrant::Util::TemplateRenderer.render(template_path,
-                                                          box_name: argv[0] || "base",
-                                                          box_url: argv[1])
+          box_name: argv[0] || "base",
+          box_url: argv[1],
+          box_version: options[:box_version],
+        )
 
         if save_path
           # Write out the contents
