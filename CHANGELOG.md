@@ -57,10 +57,12 @@ IMPROVEMENTS:
       [GH-5670]
   - core: Add `--no-delete` and provisioning flags to snapshot restore/pop
       [GH-6879]
-  - providers/virtualbox: Add linked clone support for Virtualbox 1.4 [GH-7050]
+  - providers/docker: Allow TCP and UDP ports on the same number [GH-7365,
+      GH-5527]
   - providers/hyperv: Add support for differencing disk [GH-7090]
   - providers/hyperv: Add support for snapshots [GH-7110]
   - providers/hyperv: Reinstate compatibility with PS 4 [GH-7108]
+  - providers/virtualbox: Add linked clone support for Virtualbox 1.4 [GH-7050]
   - synced_folders/nfs: Read static and dynamic IPs [GH-7290, GH-7289]
 
 BUG FIXES:
