@@ -35,6 +35,7 @@ IMPROVEMENTS:
   - core/action: make `start` ("vagrant up") run provisioners [GH-4467, GH-4421]
   - commands/all: Make it clear that machine IDs can be specified
       [GH-7356, GH-7228]
+  - commands/init: Add support for specifying the box version [GH-7363, GH-5004]
   - commands/login: Print a warning with both the environment variable and
       local login token are present [GH-7206, GH-7219]
   - communicators/winrm: Upgrade to latest WinRM gems [GH-6922]
