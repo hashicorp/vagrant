@@ -29,13 +29,6 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
   provisioner_label  = "ansible #{ansible_setup} provisioner"
   provisioner_system = ansible_setup == "local" ? "guest" : "host"
 
-  it "passes if the playbook option refers to an existing file" do
-    subject.finalize!
-
-    result = subject.validate(machine)
-    expect(result[provisioner_label]).to eql([])
-  end
-
   it "returns an error if the playbook option is undefined" do
     subject.playbook = nil
     subject.finalize!
@@ -46,35 +39,12 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
     ])
   end
 
-  it "passes if the extra_vars option refers to an existing file" do
-    subject.extra_vars = existing_file
-    subject.finalize!
-
-    result = subject.validate(machine)
-    expect(result[provisioner_label]).to eql([])
-  end
-
   it "passes if the extra_vars option is a hash" do
     subject.extra_vars = { var1: 1, var2: "foo" }
     subject.finalize!
 
     result = subject.validate(machine)
     expect(result[provisioner_label]).to eql([])
-  end
-
-  # FIXME:
-  # The guest-based config should actually NOT return this error,
-  # but only display a warning (similarly to GH-6764 and 4e451c6)
-  it "returns an error if the extra_vars option refers to a file that does not exist" do
-    subject.extra_vars = non_existing_file
-    subject.finalize!
-
-    result = subject.validate(machine)
-    expect(result[provisioner_label]).to eql([
-      I18n.t("vagrant.provisioners.ansible.errors.extra_vars_invalid",
-             type:  subject.extra_vars.class.to_s,
-             value: subject.extra_vars.to_s)
-    ])
   end
 
   it "returns an error if the extra_vars option is of wrong data type" do
@@ -89,12 +59,12 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
     ])
   end
 
-  it "passes if inventory_path refers to an existing location" do
-    subject.inventory_path = existing_file
+  it "converts a raw_arguments option defined as a String into an Array" do
+    subject.raw_arguments = "--foo=bar"
     subject.finalize!
 
     result = subject.validate(machine)
-    expect(result[provisioner_label]).to eql([])
+    expect(subject.raw_arguments).to eql(%w(--foo=bar))
   end
 
   it "returns an error if the raw_arguments is of the wrong data type" do
@@ -109,12 +79,25 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
     ])
   end
 
-  it "converts a raw_arguments option defined as a String into an Array" do
-    subject.raw_arguments = "--foo=bar"
+  it "it collects and returns all detected errors" do
+    subject.playbook = nil
+    subject.extra_vars = ["var1", 3, "var2", 5]
+    subject.raw_arguments = { arg1: 1, arg2: "foo" }
     subject.finalize!
 
     result = subject.validate(machine)
-    expect(subject.raw_arguments).to eql(%w(--foo=bar))
+
+    expect(result[provisioner_label].size).to eql(3)
+    expect(result[provisioner_label]).to include(
+      I18n.t("vagrant.provisioners.ansible.errors.no_playbook"))
+    expect(result[provisioner_label]).to include(
+      I18n.t("vagrant.provisioners.ansible.errors.extra_vars_invalid",
+             type:  subject.extra_vars.class.to_s,
+             value: subject.extra_vars.to_s))
+    expect(result[provisioner_label]).to include(
+      I18n.t("vagrant.provisioners.ansible.errors.raw_arguments_invalid",
+             type:  subject.raw_arguments.class.to_s,
+             value: subject.raw_arguments.to_s))
   end
 
   describe "sudo option" do

@@ -14,6 +14,7 @@ module VagrantPlugins
         end
 
         def provision
+          check_files_existence
           check_and_install_ansible
           execute_ansible_galaxy_on_guest if config.galaxy_role_file
           execute_ansible_playbook_on_guest
@@ -143,6 +144,31 @@ module VagrantPlugins
             comm.sudo("mkdir -p #{path}")
             comm.sudo("chown -h #{@machine.ssh_info[:username]} #{path}")
           end
+        end
+
+        def check_path(path, test_args, option_name)
+          # Checks for the existence of given file (or directory) on the guest system,
+          # and error if it doesn't exist.
+
+          remote_path = Helpers::expand_path_in_unix_style(path, config.provisioning_path)
+          command = "test #{test_args} #{remote_path}"
+
+          @machine.communicate.execute(
+            command,
+            error_class: Ansible::Errors::AnsibleError,
+            error_key: :config_file_not_found,
+            config_option: option_name,
+            path: remote_path,
+            system: "guest"
+          )
+        end
+
+        def check_path_is_a_file(path, error_message_key)
+          check_path(path, "-f", error_message_key)
+        end
+
+        def check_path_exists(path, error_message_key)
+          check_path(path, "-e", error_message_key)
         end
 
       end

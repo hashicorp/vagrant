@@ -74,34 +74,15 @@ module VagrantPlugins
             @errors << I18n.t("vagrant.provisioners.ansible.errors.no_playbook")
           end
 
-          if playbook
-            check_path_is_a_file(machine, playbook, "vagrant.provisioners.ansible.errors.playbook_path_invalid")
-          end
-
-          if inventory_path
-            check_path_exists(machine, inventory_path, "vagrant.provisioners.ansible.errors.inventory_path_invalid")
-          end
-
-          if galaxy_role_file
-            check_path_is_a_file(machine, galaxy_role_file, "vagrant.provisioners.ansible.errors.galaxy_role_file_invalid")
-          end
-
-          if vault_password_file
-            check_path_is_a_file(machine, vault_password_file, "vagrant.provisioners.ansible.errors.vault_password_file_invalid")
-          end
-
-          # Validate that extra_vars is either a hash, or a path to an existing file
+          # Validate that extra_vars is either a Hash or a String (for a file path)
           if extra_vars
             extra_vars_is_valid = extra_vars.kind_of?(Hash) || extra_vars.kind_of?(String)
             if extra_vars.kind_of?(String)
-              # Accept the usage of '@' prefix in Vagrantfile (e.g. '@vars.yml'
-              # and 'vars.yml' are both supported)
+              # Accept the usage of '@' prefix in Vagrantfile
+              # (e.g. '@vars.yml' and 'vars.yml' are both supported)
               match_data = /^@?(.+)$/.match(extra_vars)
               extra_vars_path = match_data[1].to_s
-              extra_vars_is_valid = check_path_is_a_file(machine, extra_vars_path)
-              if extra_vars_is_valid
-                @extra_vars = '@' + extra_vars_path
-              end
+              @extra_vars = '@' + extra_vars_path
             end
 
             if !extra_vars_is_valid

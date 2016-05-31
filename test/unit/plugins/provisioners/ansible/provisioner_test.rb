@@ -59,6 +59,8 @@ VF
     stubbed_ui.stub(detail: "")
     machine.env.stub(ui: stubbed_ui)
 
+    subject.stub(:check_path)
+
     config.playbook = 'playbook.yml'
   end
 
@@ -201,6 +203,43 @@ VF
       unless example.metadata[:skip_after]
         subject.provision
       end
+    end
+
+    describe 'checking existence of Ansible configuration files' do
+
+      describe 'when the playbook file does not exist' do
+        it "raises an error", skip_before: true, skip_after: true do
+
+          subject.stub(:check_path).and_raise(VagrantPlugins::Ansible::Errors::AnsibleError,
+            _key: :config_file_not_found,
+            config_option: "playbook",
+            path: "/home/wip/test/invalid_path.yml",
+            system: "host")
+
+          config.playbook = "/home/wip/test/invalid_path.yml"
+          config.finalize!
+
+          expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleError,
+            "`playbook` does not exist on the host: /home/wip/test/invalid_path.yml")
+        end
+      end
+
+      describe 'when the inventory path does not exist' do
+        it "raises an error"
+      end
+
+      describe 'when the extra_vars file does not exist' do
+        it "raises an error"
+      end
+
+      describe 'when the galaxy_role_file does not exist' do
+        it "raises an error"
+      end
+
+      describe 'when the vault_password_file does not exist' do
+        it "raises an error"
+      end
+
     end
 
     describe 'when ansible-playbook fails' do

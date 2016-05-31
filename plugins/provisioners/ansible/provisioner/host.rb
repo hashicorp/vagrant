@@ -18,6 +18,7 @@ module VagrantPlugins
           # At this stage, the SSH access is guaranteed to be ready
           @ssh_info = @machine.ssh_info
 
+          check_files_existence
           warn_for_unsupported_platform
           execute_ansible_galaxy_from_host if config.galaxy_role_file
           execute_ansible_playbook_from_host
@@ -255,6 +256,28 @@ module VagrantPlugins
           end
 
           ssh_options.join(' ')
+        end
+
+        def check_path(path, path_test_method, option_name)
+          # Checks for the existence of given file (or directory) on the host system,
+          # and error if it doesn't exist.
+
+          expanded_path = Pathname.new(path).expand_path(@machine.env.root_path)
+          if !expanded_path.public_send(path_test_method)
+            raise Ansible::Errors::AnsibleError,
+                  _key: :config_file_not_found,
+                  config_option: option_name,
+                  path: expanded_path,
+                  system: "host"
+          end
+        end
+
+        def check_path_is_a_file(path, option_name)
+          check_path(path, "file?", option_name)
+        end
+
+        def check_path_exists(path, option_name)
+          check_path(path, "exist?", option_name)
         end
 
       end

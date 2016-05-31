@@ -14,7 +14,6 @@ describe VagrantPlugins::Ansible::Config::Guest do
 
   let(:communicator) { double("communicator") }
   let(:existing_file) { "this/path/is/a/stub" }
-  let(:non_existing_file) { "this/path/does/not/exist" }
 
   it "supports a list of options" do
     supported_options = %w( extra_vars
@@ -57,107 +56,10 @@ describe VagrantPlugins::Ansible::Config::Guest do
 
   describe "#validate" do
     before do
-      machine.stub(communicate: communicator)
+      subject.playbook = existing_file
     end
 
-    context "when the machine is not ready to communicate" do
-      before do
-        allow(communicator).to receive(:ready?).and_return(false)
-      end
-
-      it "cannot check the existence of remote file" do
-        subject.playbook = non_existing_file
-        subject.finalize!
-
-        result = subject.validate(machine)
-        expect(result["ansible local provisioner"]).to eql([])
-        # FIXME: commented out because this `communicator.ready?` stub is not working as expected
-        # expect(communicator).to receive(:ready?).ordered
-        # Note that communicator mock will fail if it receives an unexpected message,
-        # which is part of this spec.
-      end
-    end
-
-    context "when the machine is ready to communicate" do
-      before do
-        allow(communicator).to receive(:ready?).and_return(true)
-        allow(communicator).to receive(:test).and_return(false)
-
-        allow(communicator).to receive(:test) do |arg1|
-          arg1.include?("#{existing_file}")
-        end
-
-        stubbed_ui = Vagrant::UI::Colored.new
-        machine.stub(ui: stubbed_ui)
-        allow(machine.ui).to receive(:warn)
-
-        subject.playbook = existing_file
-      end
-
-      it_behaves_like "an Ansible provisioner", "/vagrant", "local"
-
-      it "only shows a warning if the playbook file does not exist" do
-        subject.playbook = non_existing_file
-        subject.finalize!
-
-        result = subject.validate(machine)
-        expect(result["ansible remote provisioner"]).to be_nil
-
-        # FIXME
-        # expect(machine).to receive(:ui).with { |warning_text|
-        #     expect(warning_text).to eq("`playbook` does not exist on the guest: /vagrant/this/path/does/not/exist")
-        #   }
-      end
-
-      it "only shows a warning if inventory_path is specified, but does not exist" do
-        subject.inventory_path = non_existing_file
-        subject.finalize!
-
-        result = subject.validate(machine)
-        expect(result["ansible remote provisioner"]).to be_nil
-
-        # FIXME
-        # expect(machine.ui).to receive(:warn).with { |warning_text|
-        #      expect(warning_text).to eq("`inventory_path` does not exist on the guest: this/path/does/not/exist")
-        #    }
-      end
-
-      it "only shows a warning if vault_password_file is specified, but does not exist" do
-        subject.vault_password_file = non_existing_file
-        subject.finalize!
-
-        result = subject.validate(machine)
-        expect(result["ansible remote provisioner"]).to be_nil
-
-        # FIXME
-        # expect(machine.ui).to receive(:warn).with { |warning_text|
-        #      expect(warning_text).to eq("`inventory_path` does not exist on the guest: this/path/does/not/exist")
-        #    }
-      end
-
-      it "it doesn't consider missing files on the remote system as errors" do
-        subject.playbook = non_existing_file
-        subject.inventory_path = non_existing_file
-        subject.extra_vars = non_existing_file
-        subject.finalize!
-
-        result = subject.validate(machine)
-        expect(result["ansible local provisioner"]).to include(
-          I18n.t("vagrant.provisioners.ansible.errors.extra_vars_invalid",
-                 type:  subject.extra_vars.class.to_s,
-                 value: subject.extra_vars.to_s))
-
-        expect(result["ansible local provisioner"]).to_not include(
-          I18n.t("vagrant.provisioners.ansible.errors.playbook_path_invalid",
-                 path: File.join("/vagrant", non_existing_file), system: "guest"))
-
-        expect(result["ansible local provisioner"]).to_not include(
-          I18n.t("vagrant.provisioners.ansible.errors.inventory_path_invalid",
-                 path: File.join("/vagrant", non_existing_file), system: "guest"))
-      end
-
-    end
-
+    it_behaves_like "an Ansible provisioner", "/vagrant", "local"
   end
 
 end
