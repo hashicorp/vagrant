@@ -271,7 +271,6 @@ module Vagrant
       Gem.paths = ENV
 
       # Reset the all specs override that Bundler does
-      old_all = Gem::Specification._all
       Gem::Specification.reset
 
       # /etc/gemrc and so on.
@@ -299,7 +298,6 @@ module Vagrant
 
       Gem.configuration = old_config
       Gem.paths = ENV
-      Gem::Specification.all = old_all
     end
 
     # This method returns a proper "tempfile" on disk. Ruby's Tempfile class
