@@ -7,7 +7,7 @@ module VagrantPlugins
       description "Darwin guest support."
 
       guest("darwin")  do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 
