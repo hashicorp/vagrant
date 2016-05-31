@@ -1,11 +1,10 @@
-require "timeout"
-
 require "log4r"
+require "tempfile"
+require "timeout"
 
 require_relative "helper"
 require_relative "shell"
 require_relative "command_filter"
-require_relative "../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module CommunicatorWinRM
@@ -205,7 +204,8 @@ module VagrantPlugins
           interactive: interactive,
         })
         guest_script_path = "c:/tmp/vagrant-elevated-shell.ps1"
-        Tempfile.create(["vagrant-elevated-shell", "ps1"]) do |f|
+        Tempfile.open(["vagrant-elevated-shell", "ps1"]) do |f|
+          f.binmode
           f.write(script)
           f.fsync
           f.close

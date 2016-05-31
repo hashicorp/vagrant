@@ -1,5 +1,6 @@
+require "tempfile"
+
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestOpenBSD
@@ -12,7 +13,8 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/openbsd/network_#{network[:type]}",
                                             options: network)
 
-            Tempfile.create("openbsd-configure-networks") do |f|
+            Tempfile.open("openbsd-configure-networks") do |f|
+              f.binmode
               f.write(entry)
               f.fsync
               f.close
