@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 require "tempfile"
 
 require_relative "../../../../lib/vagrant/util/template_renderer"
@@ -10,32 +9,45 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
-          tempfiles  = []
+          comm = machine.communicate
+
+          commands   = []
           interfaces = []
 
-          machine.communicate.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, result|
-            interfaces = result.split("\n")
+          # The result will be something like:
+          #   eth0\nenp0s8\nenp0s9
+          comm.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|
+            interfaces = stdout.split("\n")
           end
 
           networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
 
             entry = TemplateRenderer.render("guests/arch/network_#{network[:type]}",
-              options: network)
+              options: network,
+            )
 
-            remote_path = "/tmp/vagrant-network-#{Time.now.to_i}-#{i}"
+            remote_path = "/tmp/vagrant-network-#{network[:device]}-#{Time.now.to_i}-#{i}"
 
             Tempfile.open("vagrant-arch-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync
               f.close
-              machine.communicate.upload(f.path, remote_path)
+              comm.upload(f.path, remote_path)
             end
 
-            machine.communicate.sudo("mv #{remote_path} /etc/netctl/#{network[:device]}")
-            machine.communicate.sudo("ip link set #{network[:device]} down && netctl restart #{network[:device]} && netctl enable #{network[:device]}")
+            commands << <<-EOH.gsub(/^ {14}/, '')
+              # Configure #{network[:device]}
+              mv '#{remote_path}' '/etc/netctl/#{network[:device]}'
+              ip link set '#{network[:device]}' down
+              netctl restart '#{network[:device]}'
+              netctl enable '#{network[:device]}'
+            EOH
           end
+
+          # Run all the network modification commands in one communicator call.
+          comm.sudo(commands.join("\n"))
         end
       end
     end
