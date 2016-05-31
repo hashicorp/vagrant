@@ -22,6 +22,12 @@ module VagrantPlugins
         Provider
       end
 
+      command("docker-exec", primary: false) do
+        require_relative "command/exec"
+        init!
+        Command::Exec
+      end
+
       command("docker-logs", primary: false) do
         require_relative "command/logs"
         init!
