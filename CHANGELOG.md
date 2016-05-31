@@ -82,6 +82,8 @@ BUG FIXES:
   - core: Allow SSH forwarding on Windows [GH-7287, GH-7202]
   - core: Allow customizing `keys_only` SSH option [GH-7360, GH-4275]
   - core: Allow customizing `paranoid` SSH option [GH-7360, GH-4275]
+  - command/init: Remove unnecessary `sudo` from generated Vagrantfile
+      [GH-7369, GH-7295]
   - docs & core: Be consistent about the "2" in the Vagrantfile version
       [GH-6961, GH-6963]
   - guests/arch: Restart network after configuration [GH-7120, GH-7119]
