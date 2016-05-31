@@ -10,6 +10,11 @@ describe Vagrant::Util::Platform do
   describe "#cygwin?" do
     before do
       allow(subject).to receive(:platform).and_return("test")
+      described_class.reset!
+    end
+
+    after do
+      described_class.reset!
     end
 
     around do |example|
