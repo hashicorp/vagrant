@@ -1,8 +1,8 @@
 require "set"
+require "tempfile"
 
 require_relative "../../../../lib/vagrant/util/retryable"
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestFedora
@@ -96,7 +96,8 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/fedora/network_#{network[:type]}",
                                             options: network)
 
-            Tempfile.create("fedora-configure-networks") do |f|
+            Tempfile.open("fedora-configure-networks") do |f|
+              f.binmode
               f.write(entry)
               f.fsync
               f.close

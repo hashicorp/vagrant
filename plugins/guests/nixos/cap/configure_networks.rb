@@ -1,7 +1,7 @@
 require "ipaddr"
+require "tempfile"
 
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestNixos
@@ -67,7 +67,8 @@ module VagrantPlugins
         def self.upload(machine, content, remote_path)
           remote_temp = mktemp(machine)
 
-          Tempfile.create("nixos-configure-networks") do |f|
+          Tempfile.open("nixos-configure-networks") do |f|
+            f.binmode
             f.write(content)
             f.fsync
             f.close

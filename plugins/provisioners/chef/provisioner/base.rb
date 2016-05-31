@@ -1,6 +1,7 @@
+require "tempfile"
+
 require_relative "../../../../lib/vagrant/util/presence"
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 require_relative "../installer"
 
@@ -141,7 +142,8 @@ module VagrantPlugins
           # Create a temporary file to store the data so we can upload it.
           remote_file = File.join(guest_provisioning_path, filename)
           @machine.communicate.sudo(remove_command(remote_file), error_check: false)
-          Tempfile.create("chef-provisioner-config") do |f|
+          Tempfile.open("chef-provisioner-config") do |f|
+            f.binmode
             f.write(config_file)
             f.fsync
             f.close
@@ -161,7 +163,8 @@ module VagrantPlugins
           # Create a temporary file to store the data so we can upload it.
           remote_file = File.join(guest_provisioning_path, "dna.json")
           @machine.communicate.sudo(remove_command(remote_file), error_check: false)
-          Tempfile.create("chef-provisioner-config") do |f|
+          Tempfile.open("chef-provisioner-config") do |f|
+            f.binmode
             f.write(json)
             f.fsync
             f.close

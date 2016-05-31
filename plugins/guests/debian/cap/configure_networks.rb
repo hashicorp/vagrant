@@ -1,7 +1,7 @@
 require "set"
+require "tempfile"
 
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestDebian
@@ -31,7 +31,8 @@ module VagrantPlugins
 
             # Perform the careful dance necessary to reconfigure the network
             # interfaces.
-            Tempfile.create("debian-configure-networks") do |f|
+            Tempfile.open("debian-configure-networks") do |f|
+              f.binmode
               f.write(entries.join("\n"))
               f.fsync
               f.close

@@ -1,5 +1,6 @@
+require "tempfile"
+
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestGentoo
@@ -20,7 +21,8 @@ module VagrantPlugins
                                               options: network)
 
               # Upload the entry to a temporary location
-              Tempfile.create("gentoo-configure-networks") do |f|
+              Tempfile.open("gentoo-configure-networks") do |f|
+                f.binmode
                 f.write(entry)
                 f.fsync
                 f.close

@@ -1,8 +1,8 @@
 require "set"
+require "tempfile"
 
 require_relative "../../../../lib/vagrant/util/retryable"
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestRedHat
@@ -55,7 +55,8 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
                                             options: network)
 
-            Tempfile.create("red-hat-configure-networks") do |f|
+            Tempfile.open("red-hat-configure-networks") do |f|
+              f.binmode
               f.write(entry)
               f.fsync
               f.close

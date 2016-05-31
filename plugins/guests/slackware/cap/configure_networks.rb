@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+require "tempfile"
+
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestSlackware
@@ -19,7 +20,8 @@ module VagrantPlugins
 
             entry = TemplateRenderer.render("guests/slackware/network_#{network[:type]}", options: network)
 
-            Tempfile.create("slackware-configure-networks") do |f|
+            Tempfile.open("slackware-configure-networks") do |f|
+              f.binmode
               f.write(entry)
               f.fsync
               f.close

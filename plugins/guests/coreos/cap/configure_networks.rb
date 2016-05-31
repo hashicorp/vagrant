@@ -1,5 +1,6 @@
+require "tempfile"
+
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestCoreOS
@@ -53,7 +54,8 @@ module VagrantPlugins
               })
             end
 
-            Tempfile.create("coreos-configure-networks") do |f|
+            Tempfile.open("coreos-configure-networks") do |f|
+              f.binmode
               f.write(entry)
               f.fsync
               f.close

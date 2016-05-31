@@ -1,5 +1,6 @@
+require "tempfile"
+
 require_relative "base"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module Ansible
@@ -106,7 +107,8 @@ module VagrantPlugins
           create_and_chown_remote_folder(inventory_basedir)
           @machine.communicate.sudo("rm -f #{inventory_path}", error_check: false)
 
-          Tempfile.create("ansible-local-inventory-#{@machine.name}") do |f|
+          Tempfile.open("ansible-local-inventory-#{@machine.name}") do |f|
+            f.binmode
             f.write(inventory_content)
             f.fsync
             f.close

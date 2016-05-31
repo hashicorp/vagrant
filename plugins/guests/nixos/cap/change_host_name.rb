@@ -1,5 +1,6 @@
+require "tempfile"
+
 require_relative "../../../../lib/vagrant/util/template_renderer"
-require_relative "../../../../lib/vagrant/util/tempfile"
 
 module VagrantPlugins
   module GuestNixos
@@ -17,7 +18,8 @@ module VagrantPlugins
         def self.upload(machine, content, remote_path)
           remote_temp = mktemp(machine)
 
-          Tempfile.create("nixos-change-host-name") do |f|
+          Tempfile.open("nixos-change-host-name") do |f|
+            f.binmode
             f.write(content)
             f.fsync
             f.close
