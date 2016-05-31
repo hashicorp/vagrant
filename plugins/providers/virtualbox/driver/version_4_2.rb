@@ -594,9 +594,9 @@ module VagrantPlugins
             result = raw("showvminfo", uuid)
             return true if result.exit_code == 0
 
-            # GH-2479: Sometimes this happens. In this case, retry. If
-            # we don't see this text, the VM really probably doesn't exist.
-            return false if !result.stderr.include?("CO_E_SERVER_EXEC_FAILURE")
+            # If vboxmanage returned VBOX_E_OBJECT_NOT_FOUND,
+            # then the vm truly does not exist. Any other error might be transient
+            return false if result.stderr.include?("VBOX_E_OBJECT_NOT_FOUND")
 
             # Sleep a bit though to give VirtualBox time to fix itself
             sleep 2
