@@ -18,7 +18,7 @@ module VagrantPlugins
         def self.upload(machine, content, remote_path)
           remote_temp = mktemp(machine)
 
-          Tempfile.open("nixos-change-host-name") do |f|
+          Tempfile.open("vagrant-nixos-change-host-name") do |f|
             f.binmode
             f.write(content)
             f.fsync

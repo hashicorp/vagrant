@@ -21,7 +21,7 @@ module VagrantPlugins
                                               options: network)
 
               # Upload the entry to a temporary location
-              Tempfile.open("gentoo-configure-networks") do |f|
+              Tempfile.open("vagrant-gentoo-configure-networks") do |f|
                 f.binmode
                 f.write(entry)
                 f.fsync

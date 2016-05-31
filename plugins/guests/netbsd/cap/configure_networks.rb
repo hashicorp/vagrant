@@ -20,7 +20,7 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/netbsd/network_#{network[:type]}",
                                             options: network)
 
-            Tempfile.open("netbsd-configure-networks") do |f|
+            Tempfile.open("vagrant-netbsd-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync

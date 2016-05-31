@@ -67,7 +67,7 @@ module VagrantPlugins
         def self.upload(machine, content, remote_path)
           remote_temp = mktemp(machine)
 
-          Tempfile.open("nixos-configure-networks") do |f|
+          Tempfile.open("vagrant-nixos-configure-networks") do |f|
             f.binmode
             f.write(content)
             f.fsync

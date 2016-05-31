@@ -25,7 +25,7 @@ module VagrantPlugins
 
             remote_path = "/tmp/vagrant-network-#{Time.now.to_i}-#{i}"
 
-            Tempfile.open("arch-configure-networks") do |f|
+            Tempfile.open("vagrant-arch-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync

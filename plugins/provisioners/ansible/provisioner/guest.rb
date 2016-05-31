@@ -107,7 +107,7 @@ module VagrantPlugins
           create_and_chown_remote_folder(inventory_basedir)
           @machine.communicate.sudo("rm -f #{inventory_path}", error_check: false)
 
-          Tempfile.open("ansible-local-inventory-#{@machine.name}") do |f|
+          Tempfile.open("vagrant-ansible-local-inventory-#{@machine.name}") do |f|
             f.binmode
             f.write(inventory_content)
             f.fsync

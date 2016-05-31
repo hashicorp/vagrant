@@ -31,7 +31,7 @@ module VagrantPlugins
 
             # Perform the careful dance necessary to reconfigure the network
             # interfaces.
-            Tempfile.open("debian-configure-networks") do |f|
+            Tempfile.open("vagrant-debian-configure-networks") do |f|
               f.binmode
               f.write(entries.join("\n"))
               f.fsync

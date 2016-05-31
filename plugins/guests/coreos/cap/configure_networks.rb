@@ -54,7 +54,7 @@ module VagrantPlugins
               })
             end
 
-            Tempfile.open("coreos-configure-networks") do |f|
+            Tempfile.open("vagrant-coreos-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync

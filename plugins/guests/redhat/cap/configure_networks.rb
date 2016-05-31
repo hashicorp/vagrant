@@ -55,7 +55,7 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
                                             options: network)
 
-            Tempfile.open("red-hat-configure-networks") do |f|
+            Tempfile.open("vagrant-red-hat-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync

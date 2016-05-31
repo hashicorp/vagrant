@@ -29,7 +29,7 @@ module VagrantPlugins
             entry  = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
                                             options: network, ifname: ifname)
 
-            Tempfile.open("freebsd-configure-networks") do |f|
+            Tempfile.open("vagrant-freebsd-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync

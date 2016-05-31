@@ -25,7 +25,7 @@ module VagrantPlugins
                                                  options: network)
 
                 # Upload the entry to a temporary location
-                Tempfile.open("funtoo-configure-networks") do |f|
+                Tempfile.open("vagrant-funtoo-configure-networks") do |f|
                   f.binmode
                   f.write(entry)
                   f.fsync

@@ -39,7 +39,7 @@ describe Vagrant::BoxCollection, :skip_windows do
     end
 
     it 'does not raise an exception when a file appears in the boxes dir' do
-      Tempfile.open('a_file', environment.boxes_dir) do
+      Tempfile.open('vagrant-a_file', environment.boxes_dir) do
         expect { subject.all }.to_not raise_error
       end
     end
@@ -344,7 +344,7 @@ describe Vagrant::BoxCollection, :skip_windows do
       CHECKSUM_OFFSET = 148
       CHECKSUM_LENGTH = 8
 
-      Tempfile.open(['vagrant_testing', '.tar']) do |f|
+      Tempfile.open(['vagrant-testing', '.tar']) do |f|
         f.binmode
 
         # Corrupt the tar by writing over the checksum field

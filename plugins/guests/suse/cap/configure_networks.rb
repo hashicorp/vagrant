@@ -33,7 +33,7 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/suse/network_#{network[:type]}",
                                             options: network)
 
-            Tempfile.open("suse-configure-networks") do |f|
+            Tempfile.open("vagrant-suse-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync

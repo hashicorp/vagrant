@@ -55,7 +55,7 @@ module VagrantPlugins
         # machine.
         def upload_recipe
           # Write the raw recipe contents to a tempfile and upload
-          Tempfile.open(["chef-apply", ".rb"]) do |f|
+          Tempfile.open(["vagrant-chef-apply", ".rb"]) do |f|
             f.binmode
             f.write(config.recipe)
             f.fsync

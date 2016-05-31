@@ -96,7 +96,7 @@ module VagrantPlugins
             entry = TemplateRenderer.render("guests/fedora/network_#{network[:type]}",
                                             options: network)
 
-            Tempfile.open("fedora-configure-networks") do |f|
+            Tempfile.open("vagrant-fedora-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync

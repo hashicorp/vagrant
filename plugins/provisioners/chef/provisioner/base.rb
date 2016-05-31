@@ -142,7 +142,7 @@ module VagrantPlugins
           # Create a temporary file to store the data so we can upload it.
           remote_file = File.join(guest_provisioning_path, filename)
           @machine.communicate.sudo(remove_command(remote_file), error_check: false)
-          Tempfile.open("chef-provisioner-config") do |f|
+          Tempfile.open("vagrant-chef-provisioner-config") do |f|
             f.binmode
             f.write(config_file)
             f.fsync
@@ -163,7 +163,7 @@ module VagrantPlugins
           # Create a temporary file to store the data so we can upload it.
           remote_file = File.join(guest_provisioning_path, "dna.json")
           @machine.communicate.sudo(remove_command(remote_file), error_check: false)
-          Tempfile.open("chef-provisioner-config") do |f|
+          Tempfile.open("vagrant-chef-provisioner-config") do |f|
             f.binmode
             f.write(json)
             f.fsync

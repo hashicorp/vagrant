@@ -20,7 +20,7 @@ module VagrantPlugins
 
             entry = TemplateRenderer.render("guests/slackware/network_#{network[:type]}", options: network)
 
-            Tempfile.open("slackware-configure-networks") do |f|
+            Tempfile.open("vagrant-slackware-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync
