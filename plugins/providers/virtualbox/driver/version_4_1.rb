@@ -176,11 +176,18 @@ module VagrantPlugins
 
           execute("list", "vms").split("\n").each do |line|
             if vm = line[/^".+?"\s+\{(.+?)\}$/, 1]
-              info = execute("showvminfo", vm, "--machinereadable", retryable: true)
-              info.split("\n").each do |line|
-                if adapter = line[/^hostonlyadapter\d+="(.+?)"$/, 1]
-                  networks.delete(adapter)
+              begin
+                info = execute("showvminfo", vm, "--machinereadable", retryable: true)
+                info.split("\n").each do |line|
+                  if adapter = line[/^hostonlyadapter\d+="(.+?)"$/, 1]
+                    networks.delete(adapter)
+                  end
                 end
+              rescue Vagrant::Errors::VBoxManageError => e
+                raise if !e.extra_data[:stderr].include?("VBOX_E_OBJECT_NOT_FOUND")
+
+                # VirtualBox could not find the vm. It may have been deleted
+                # by another process after we called 'vboxmanage list vms'? Ignore this error.
               end
             end
           end
