@@ -63,6 +63,9 @@ module VagrantPlugins
         opts[:owner] ||= ssh_info[:username]
         opts[:group] ||= ssh_info[:username]
 
+        # set log level
+        log_level = ssh_info[:log_level] || "FATAL"
+
         # Connection information
         # make it better match lib/vagrant/util/ssh.rb command_options style and logic
         username = ssh_info[:username]
