@@ -166,7 +166,7 @@ module VagrantPlugins
           execute("controlvm", @uuid, "poweroff")
         end
 
-        def import(ovf)
+        def import(ovf, use_vdi)
           ovf = Vagrant::Util::Platform.cygwin_windows_path(ovf)
 
           output = ""
