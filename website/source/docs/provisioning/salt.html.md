@@ -121,7 +121,7 @@ during provisioning.
 vagrant up. Can be applied to the master only. This is superseded by
 orchestrate. Not supported on Windows guest machines.
 
-* `orchestrations` - (array of straings) Executes `state.orchestrate` on
+* `orchestrations` - (array of strings) Executes `state.orchestrate` on
 vagrant up. Can be applied to the master only. This is superseded by
 run_overstate. Not supported on Windows guest machines.
 
