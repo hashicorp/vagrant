@@ -10,6 +10,7 @@ module VagrantPlugins
           options = {}
           options[:detach] = false
           options[:pty] = false
+          options[:interactive] = false
           options[:prefix] = true
 
           opts = OptionParser.new do |o|
@@ -20,6 +21,10 @@ module VagrantPlugins
 
             o.on("--[no-]detach", "Run in the background") do |d|
               options[:detach] = d
+            end
+
+            o.on("-i", "--[no-]interactive", "Keep STDIN open even if not attached") do |i|
+              options[:interactive] = i
             end
 
             o.on("-t", "--[no-]tty", "Allocate a pty") do |t|
@@ -58,15 +63,17 @@ module VagrantPlugins
               @env.ui.info("#{machine.id} is not running.")
               next
             end
-            exec_command(machine, options, command)
+            exec_command(machine, command, options)
           end
 
           return 0
         end
 
-        def exec_command(machine, options, command)
+        def exec_command(machine, command, options)
           exec_cmd = %w(docker exec)
-          exec_cmd << "-it" if options[:pty]
+          exec_cmd << "-i" if options[:interactive]
+          exec_cmd << "-t" if options[:pty]
+          exec_cmd << "-u" << options[:user] if options[:user]
           exec_cmd << machine.id
           exec_cmd += options[:extra_args] if options[:extra_args]
           exec_cmd += command

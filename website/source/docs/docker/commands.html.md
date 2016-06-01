@@ -43,13 +43,13 @@ This Vagrantfile will start the official Docker Consul image. However, the
 associated Vagrant command to `docker-exec` into this instance is:
 
 ```sh
-$ vagrant docker-exec -t -- /bin/sh
+$ vagrant docker-exec -it -- /bin/sh
 ```
 
 In particular, the command is actually:
 
 ```sh
-$ vagrant docker-exec default -t -- /bin/sh
+$ vagrant docker-exec default -it -- /bin/sh
 ```
 
 Because "default" is the default name of the first defined VM. In a
@@ -76,13 +76,13 @@ The following command is invalid:
 
 ```sh
 # Not valid
-$ vagrant docker-exec -t nginx -- /bin/sh
+$ vagrant docker-exec -it nginx -- /bin/sh
 ```
 
 This is because the "name" of the VM is "web", so the command is actually:
 
 ```sh
-$ vagrant docker-exec -t web -- /bin/sh
+$ vagrant docker-exec -it web -- /bin/sh
 ```
 
 For this reason, it is recommended that you name the VM the same as the
@@ -90,7 +90,7 @@ container. In the above example, it is unambiguous that the command to enter
 the Consul container is:
 
 ```sh
-$ vagrant docker-exec -t consul -- /bin/sh
+$ vagrant docker-exec -it consul -- /bin/sh
 ```
 
 ### docker-logs
