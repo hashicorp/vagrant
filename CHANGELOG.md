@@ -26,6 +26,9 @@ FEATURES:
       Vagrantfile. This is especially useful for customers who wish to use
       the beta builds for Mac and Windows, dlite, or a custom provider.
       [GH-7277, GH-7298, 8c11b53]
+  - provider/docker: New command: `docker-exec` allows attaching to an
+      already-running container.
+      [GH-7377, GH-6566, GH-5193, GH-4904, GH-4057, GH-4179, GH-4903]
 
 IMPROVEMENTS:
 
