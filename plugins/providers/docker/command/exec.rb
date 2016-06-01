@@ -31,6 +31,10 @@ module VagrantPlugins
               options[:pty] = t
             end
 
+            o.on("-u", "--user USER", "User or UID") do |u|
+              options[:user] = u
+            end
+
             o.on("--[no-]prefix", "Prefix output with machine names") do |p|
               options[:prefix] = p
             end
