@@ -79,6 +79,10 @@ from the server will not be verified. By default, if the URL is an HTTPS
 URL, then SSL certs will be verified.
 
 <hr>
+`config.vm.box_download_proxy` - The HTTP proxy to use. If not specified,
+the environment variables `http_proxy` or `https_proxy` would be used instead.
+
+<hr>
 
 `config.vm.box_download_location_trusted` - If true, then all HTTP redirects will be
 treated as trusted. That means credentials used for initial URL will be used for

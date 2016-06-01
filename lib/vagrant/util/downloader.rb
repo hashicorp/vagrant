@@ -52,6 +52,7 @@ module Vagrant
         @ui          = options[:ui]
         @client_cert = options[:client_cert]
         @location_trusted = options[:location_trusted]
+        @proxy       = options[:proxy]
       end
 
       # This executes the actual download, downloading the source file
@@ -231,6 +232,7 @@ module Vagrant
         options << "--cert" << @client_cert if @client_cert
         options << "-u" << @auth if @auth
         options << "--location-trusted" if @location_trusted
+        options += ["--proxy", @proxy] if @proxy
 
         if @headers
           Array(@headers).each do |header|

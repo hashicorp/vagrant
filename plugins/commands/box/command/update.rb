@@ -110,6 +110,9 @@ module VagrantPlugins
             if download_options[:insecure].nil?
               download_options[:insecure] = machine.config.vm.box_download_insecure
             end
+            if download_options[:proxy].nil?
+                download_options[:proxy] = machine.config.vm.box_download_proxy
+            end
             box_update(box, version, machine.ui, download_options)
           end
         end
@@ -142,7 +145,8 @@ module VagrantPlugins
             box_client_cert: download_options[:client_cert],
             box_download_ca_cert: download_options[:ca_cert],
             box_download_ca_path: download_options[:ca_path],
-            box_download_insecure: download_options[:insecure]
+            box_download_insecure: download_options[:insecure],
+            box_download_proxy: download_options[:proxy]
           })
         end
       end

@@ -119,7 +119,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
       expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
           {download_options:
-            {ca_cert: nil, ca_path: nil, client_cert: nil, insecure: false}}).
+            {ca_cert: nil, ca_path: nil, client_cert: nil, insecure: false, proxy: nil}}).
         and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
 
       expect(app).to receive(:call).with(env).once
@@ -194,7 +194,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       it "uses download options from machine" do
         expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
           {download_options:
-            {ca_cert: "foo", ca_path: "bar", client_cert: "baz", insecure: true}})
+            {ca_cert: "foo", ca_path: "bar", client_cert: "baz", insecure: true, proxy: nil}})
 
         expect(app).to receive(:call).with(env).once
 
@@ -204,7 +204,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       it "overrides download options from machine with options from env" do
         expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
           {download_options:
-            {ca_cert: "oof", ca_path: "rab", client_cert: "zab", insecure: false}})
+            {ca_cert: "oof", ca_path: "rab", client_cert: "zab", insecure: false, proxy: nil}})
 
         env[:ca_cert] = "oof"
         env[:ca_path] = "rab"
