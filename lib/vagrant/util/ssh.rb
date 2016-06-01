@@ -109,19 +109,25 @@ module Vagrant
           "-p", options[:port].to_s,
           "-o", "Compression=yes",
           "-o", "DSAAuthentication=yes",
-          "-o", "LogLevel=#{log_level}",
-          "-o", "StrictHostKeyChecking=no",
-          "-o", "UserKnownHostsFile=/dev/null"]
+          "-o", "LogLevel=#{log_level}"]
 
         # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the
-        # IdentitiesOnly option. Also, we don't enable it in plain mode so
-        # that SSH properly searches our identities and tries to do it itself.
-        if !Platform.solaris? && !plain_mode
+        # IdentitiesOnly option. Also, we don't enable it in plain mode or if
+        # if keys_only is false so that SSH and Net::SSH properly search our identities
+        # and tries to do it itself.
+        if !Platform.solaris? && !plain_mode && ssh_info[:keys_only]
           command_options += ["-o", "IdentitiesOnly=yes"]
         end
 
-        # If we're not in plain mode, attach the private key path.
-        if !plain_mode
+        # no strict hostkey checking unless paranoid
+        if ! ssh_info[:paranoid]
+          command_options += [
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null"]
+        end
+
+        # If we're not in plain mode or if keys_only is true, attach the private key paths.
+        if !plain_mode && ssh_info[:keys_only]
           options[:private_key_path].each do |path|
             command_options += ["-i", path.to_s]
           end

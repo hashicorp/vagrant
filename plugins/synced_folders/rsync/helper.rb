@@ -59,29 +59,48 @@ module VagrantPlugins
         opts[:group] ||= ssh_info[:username]
 
         # Connection information
+        # make it better match lib/vagrant/util/ssh.rb command_options style and logic
         username = ssh_info[:username]
         host     = ssh_info[:host]
-        proxy_command = ""
-        if ssh_info[:proxy_command]
-          proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' "
-        end
+
+        log_level = ssh_info[:log_level] || "FATAL"
 
         # Create the path for the control sockets. We used to do this
         # in the machine data dir but this can result in paths that are
         # too long for unix domain sockets.
         controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
 
+        # rsh cmd option
         rsh = [
-          "ssh -p #{ssh_info[:port]} " +
-          proxy_command +
-          "-o ControlMaster=auto " +
-          "-o ControlPath=#{controlpath} " +
-          "-o ControlPersist=10m " +
-          "-o StrictHostKeyChecking=no " +
-          "-o IdentitiesOnly=true " +
-          "-o UserKnownHostsFile=/dev/null",
-          ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
-        ].flatten.join(" ")
+          "ssh", "-p", "#{ssh_info[:port]}",
+          "-o", "ControlMaster=auto",
+          "-o", "ControlPath=#{controlpath}",
+          "-o", "ControlPersist=10m"]
+
+        # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the
+        # IdentitiesOnly option. Also, we don't enable it if keys_only is false
+        # so that SSH properly searches our identities and tries to do it itself.
+        if !Vagrant::Util::Platform.solaris? && ssh_info[:keys_only]
+          rsh += ["-o", "IdentitiesOnly=yes"]
+        end
+
+        # no strict hostkey checking unless paranoid
+        if ! ssh_info[:paranoid]
+          rsh += [
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null"]
+        end
+
+        # If keys_only is true, attach the private key paths.
+        if ssh_info[:keys_only]
+          ssh_info[:private_key_path].each do |path|
+            rsh += ["-i", path.to_s]
+          end
+        end
+
+        if ssh_info[:proxy_command]
+          rsh += ["-o", "ProxyCommand=#{ssh_info[:proxy_command]}"]
+        end
 
         # Exclude some files by default, and any that might be configured
         # by the user.
@@ -123,7 +142,7 @@ module VagrantPlugins
         command = [
           "rsync",
           args,
-          "-e", rsh,
+          "-e", rsh.flatten.join(" "),
           excludes.map { |e| ["--exclude", e] },
           hostpath,
           "#{username}@#{host}:#{guestpath}",
