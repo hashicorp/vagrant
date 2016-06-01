@@ -13,6 +13,10 @@ module VagrantPlugins
         error_key(:execute_error)
       end
 
+      class ExecCommandRequired < DockerError
+        error_key(:exec_command_required)
+      end
+
       class HostVMCommunicatorNotReady < DockerError
         error_key(:host_vm_communicator_not_ready)
       end
