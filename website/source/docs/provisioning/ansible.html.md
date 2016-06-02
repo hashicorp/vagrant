@@ -123,7 +123,7 @@ If you apply this parallel provisioning pattern with a static Ansible inventory,
 
 The Ansible provisioner is implemented with native OpenSSH support in mind, and there is no official support for [paramiko](https://github.com/paramiko/paramiko/) (A native Python SSHv2 protocol library).
 
-If you really need to use this connection mode, it is though possible to enable paramiko as illustrated in the following configuration examples:
+If you really need to use this connection mode though, it is possible to enable paramiko as illustrated in the following configuration examples:
 
 With auto-generated inventory:
 
