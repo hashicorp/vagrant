@@ -90,6 +90,8 @@ module VagrantPlugins
         def read_static_machine_ips
           ips = []
           @machine.config.vm.networks.each do |type, options|
+            options = scoped_hash_override(options, :virtualbox)
+
             if type == :private_network && options[:type] != :dhcp && options[:ip].is_a?(String)
               ips << options[:ip]
             end
