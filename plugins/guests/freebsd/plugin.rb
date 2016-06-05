@@ -7,7 +7,7 @@ module VagrantPlugins
       description "FreeBSD guest support."
 
       guest("freebsd")  do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 
