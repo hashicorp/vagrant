@@ -2,92 +2,45 @@ module VagrantPlugins
   module GuestDebian
     module Cap
       class ChangeHostName
+        # For more information, please see:
+        #
+        #   https://wiki.debian.org/HowTo/ChangeHostname
+        #
         def self.change_host_name(machine, name)
-          new(machine, name).change!
-        end
+          comm = machine.communicate
 
-        attr_reader :machine, :new_hostname
+          if !comm.test("hostname -f | grep -w '#{name}'")
+            basename = name.split(".", 2)[0]
+            comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              # Set the hostname
+              echo '#{name}' > /etc/hostname
+              hostname -F /etc/hostname
 
-        def initialize(machine, new_hostname)
-          @machine = machine
-          @new_hostname = new_hostname
-        end
+              # Remove comments and blank lines from /etc/hosts
+              sed -i'' -e 's/#.*$//' -e '/^$/d' /etc/hosts
 
-        def change!
-          return unless should_change?
+              # Prepend ourselves to /etc/hosts
+              grep -w '#{name}' /etc/hosts || {
+                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
+              }
 
-          update_etc_hostname
-          update_etc_hosts
-          refresh_hostname_service
-          update_mailname
-          renew_dhcp
-        end
+              # Update mailname
+              echo '#{name}' > /etc/mailname
 
-        def should_change?
-          new_hostname != current_hostname
-        end
+              # Restart networking and force new DHCP
+              if [ test -f /etc/init.d/hostname.sh ]; then
+                invoke-rc.d hostname.sh start
+              fi
 
-        def current_hostname
-          @current_hostname ||= get_current_hostname
-        end
+              if [ test -f /etc/init.d/networking ]; then
+                invoke-rc.d networking force-reload
+              fi
 
-        def get_current_hostname
-          hostname = ""
-          sudo "hostname -f" do |type, data|
-            hostname = data.chomp if type == :stdout && hostname.empty?
+              if [ test -f /etc/init.d/network-manager ]; then
+                invoke-rc.d network-manager force-reload
+              fi
+            EOH
           end
-
-          hostname
-        end
-
-        def update_etc_hostname
-          sudo("echo '#{short_hostname}' > /etc/hostname")
-        end
-
-        # /etc/hosts should resemble:
-        # 127.0.0.1   localhost
-        # 127.0.1.1   host.fqdn.com host.fqdn host
-        def update_etc_hosts
-          if test("grep '#{current_hostname}' /etc/hosts")
-            # Current hostname entry is in /etc/hosts
-            ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
-            search     = "^(#{ip_address})\\s+#{Regexp.escape(current_hostname)}(\\s.*)?$"
-            replace    = "\\1 #{fqdn} #{short_hostname}"
-            expression = ['s', search, replace, 'g'].join('@')
-
-            sudo("sed -ri '#{expression}' /etc/hosts")
-          else
-            # Current hostname entry isn't in /etc/hosts, just append it
-            sudo("echo '127.0.1.1 #{fqdn} #{short_hostname}' >>/etc/hosts")
-          end
-        end
-
-        def refresh_hostname_service
-          sudo("hostname -F /etc/hostname")
-        end
-
-        def update_mailname
-          sudo("hostname --fqdn > /etc/mailname")
-        end
-
-        def renew_dhcp
-          sudo("ifdown -a; ifup -a; ifup eth0")
-        end
-
-        def fqdn
-          new_hostname
-        end
-
-        def short_hostname
-          new_hostname.split('.').first
-        end
-
-        def sudo(cmd, &block)
-          machine.communicate.sudo(cmd, &block)
-        end
-
-        def test(cmd)
-          machine.communicate.test(cmd)
         end
       end
     end

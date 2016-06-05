@@ -9,14 +9,14 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
   end
 
   let(:machine) { double("machine") }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:communicate).and_return(comm)
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
   describe ".configure_networks" do
@@ -38,13 +38,14 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
     end
 
     it "creates and starts the networks" do
-      communicator.expect_command("/sbin/ifdown eth0 2> /dev/null || true")
-      communicator.expect_command("/sbin/ip addr flush dev eth0 2> /dev/null")
-      communicator.expect_command("/sbin/ifdown eth1 2> /dev/null || true")
-      communicator.expect_command("/sbin/ip addr flush dev eth1 2> /dev/null")
-      communicator.expect_command("/sbin/ifup eth0")
-      communicator.expect_command("/sbin/ifup eth1")
       described_class.configure_networks(machine, [network_0, network_1])
+
+      expect(comm.received_commands[0]).to match("/sbin/ifdown 'eth0' 2> /dev/null || true")
+      expect(comm.received_commands[0]).to match("/sbin/ip addr flush dev 'eth0' 2> /dev/null")
+      expect(comm.received_commands[0]).to match("/sbin/ifdown 'eth1' 2> /dev/null || true")
+      expect(comm.received_commands[0]).to match("/sbin/ip addr flush dev 'eth1' 2> /dev/null")
+      expect(comm.received_commands[0]).to match("/sbin/ifup 'eth0'")
+      expect(comm.received_commands[0]).to match("/sbin/ifup 'eth1'")
     end
   end
 end
