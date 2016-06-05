@@ -1,40 +1,51 @@
-# encoding: UTF-8
 # Copyright (c) 2015 VMware, Inc. All Rights Reserved.
 
-require File.expand_path("../../../../../base", __FILE__)
+require_relative "../../../../base"
 
-describe "VagrantPlugins::GuestPhoton::Cap::ConfigureNetworks" do
-  let(:described_class) do
-    VagrantPlugins::GuestPhoton::Plugin.components.guest_capabilities[:photon].get(:configure_networks)
+describe "VagrantPlugins::GuestPhoton::Cap:ConfigureNetworks" do
+  let(:caps) do
+    VagrantPlugins::GuestPhoton::Plugin
+      .components
+      .guest_capabilities[:photon]
   end
+
   let(:machine) { double("machine") }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:communicate).and_return(comm)
+    comm.stub_command("ifconfig | grep 'eth' | cut -f1 -d' '",
+      stdout: "eth1\neth2")
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
-  it 'should configure networks' do
-    networks = [
-      { :type => :static, :ip => '192.168.10.10', :netmask => '255.255.255.0', :interface => 1, :name => 'eth0' },
-      { :type => :dhcp, :interface => 2, :name => 'eth1' },
-      { :type => :static, :ip => '10.168.10.10', :netmask => '255.255.0.0', :interface => 3, :name => 'docker0' }
-    ]
-    communicator.should_receive(:sudo).with("ifconfig | grep 'eth' | cut -f1 -d' '")
-    communicator.should_receive(:sudo).with('ifconfig  192.168.10.10 netmask 255.255.255.0')
-    communicator.should_receive(:sudo).with('ifconfig   netmask ')
-    communicator.should_receive(:sudo).with('ifconfig  10.168.10.10 netmask 255.255.0.0')
+  describe ".configure_networks" do
+    let(:cap) { caps.get(:configure_networks) }
 
-    allow_message_expectations_on_nil
-    machine.should_receive(:env).at_least(5).times
-    machine.env.should_receive(:active_machines).at_least(:twice)
-    machine.env.active_machines.should_receive(:first)
-    machine.env.should_receive(:machine)
+    let(:network_1) do
+      {
+        interface: 0,
+        type: "dhcp",
+      }
+    end
 
-    described_class.configure_networks(machine, networks)
+    let(:network_2) do
+      {
+        interface: 1,
+        type: "static",
+        ip: "33.33.33.10",
+        netmask: "255.255.0.0",
+        gateway: "33.33.0.1",
+      }
+    end
+
+    it "creates and starts the networks" do
+      cap.configure_networks(machine, [network_1, network_2])
+      expect(comm.received_commands[1]).to match(/ifconfig eth1/)
+      expect(comm.received_commands[1]).to match(/ifconfig eth2 33.33.33.10 netmast 255.255.0.0/)
+    end
   end
 end
