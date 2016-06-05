@@ -3,17 +3,20 @@ module VagrantPlugins
     module Cap
       class MountNFSFolder
         def self.mount_nfs_folder(machine, ip, folders)
-          folders.each do |name, opts|
+          comm = machine.communicate
+
+          commands = []
+
+          folders.each do |_, opts|
             if opts[:nfs_version]
-              nfs_version_mount_option="-o nfsv#{opts[:nfs_version]}"
+              mount_opts = "-o nfsv#{opts[:nfs_version]}"
             end
 
-            machine.communicate.sudo("mkdir -p #{opts[:guestpath]}", {shell: "sh"})
-
-            machine.communicate.sudo(
-              "mount -t nfs #{nfs_version_mount_option} " +
-              "'#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'", {shell: "sh"})
+            commands << "mkdir -p '#{opts[:guestpath]}'"
+            commands << "mount -t nfs #{mount_opts} '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'"
           end
+
+          comm.sudo(commands.join("\n"), { shell: "sh" })
         end
       end
     end
