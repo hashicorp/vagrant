@@ -1,70 +1,42 @@
-require File.expand_path("../../../../../base", __FILE__)
-require File.expand_path("../../../support/shared/redhat_like_host_name_examples", __FILE__)
+require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
-  let(:described_class) do
-    VagrantPlugins::GuestRedHat::Plugin.components.guest_capabilities[:redhat].get(:change_host_name)
+  let(:caps) do
+    VagrantPlugins::GuestRedHat::Plugin
+      .components
+      .guest_capabilities[:redhat]
   end
+
   let(:machine) { double("machine") }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:guest) { double("guest") }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(guest).to receive(:capability).and_return(nil)
-    allow(machine).to receive(:communicate).and_return(communicator)
-    allow(machine).to receive(:guest).and_return(guest)
-    communicator.stub_command('hostname -f', stdout: old_hostname)
-    communicator.expect_command('hostname -f')
+    allow(machine).to receive(:communicate).and_return(comm)
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
-  context 'when oldhostname is qualified' do
-    let(:old_hostname) { 'oldhostname.olddomain.tld' }
-    let(:similar_hostname) {'oldhostname'}
+  describe ".change_host_name" do
+    let(:cap) { caps.get(:change_host_name) }
 
-    it_behaves_like 'a full redhat-like host name change'
+    let(:name) { "banana-rama.example.com" }
 
-    include_examples 'inserting hostname in /etc/hosts'
-    include_examples 'swapping simple hostname in /etc/hosts'
-    include_examples 'swapping qualified hostname in /etc/hosts'
-  end
+    it "sets the hostname" do
+      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 1)
 
-  context 'when oldhostname is simple' do
-    let(:old_hostname) { 'oldhostname' }
-    let(:similar_hostname) {'oldhostname.olddomain.tld'}
-
-    it_behaves_like 'a full redhat-like host name change'
-
-    include_examples 'inserting hostname in /etc/hosts'
-    include_examples 'swapping simple hostname in /etc/hosts'
-
-    context 'and is only able to be determined by hostname (without -f)' do
-      before do
-        communicator.stub_command('hostname -f',nil)
-        communicator.stub_command('hostname', stdout: old_hostname)
-        communicator.expect_command('hostname')
-      end
-
-      it_behaves_like 'a full redhat-like host name change'
-
-      include_examples 'inserting hostname in /etc/hosts'
-      include_examples 'swapping simple hostname in /etc/hosts'
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands[1]).to match(/\/etc\/sysconfig\/network/)
+      expect(comm.received_commands[1]).to match(/\/etc\/sysconfig\/network-scripts\/ifcfg/)
+      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname '#{name}'/)
+      expect(comm.received_commands[1]).to match(/service network restart/)
     end
-  end
 
-  context 'when the short version of hostname is localhost' do
-    let(:old_hostname) { 'localhost.olddomain.tld' }
-
-    it_behaves_like 'a partial redhat-like host name change'
-
-    include_examples 'inserting hostname in /etc/hosts'
-
-    it "does more even when the provided hostname is not different" do
-      described_class.change_host_name(machine, old_hostname)
-      expect(communicator.received_commands.to_set).not_to eq(communicator.expected_commands.keys.to_set)
+    it "does not change the hostname if already set" do
+      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 0)
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands.size).to eq(1)
     end
   end
 end
