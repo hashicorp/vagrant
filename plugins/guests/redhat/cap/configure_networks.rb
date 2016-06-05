@@ -1,4 +1,3 @@
-require "set"
 require "tempfile"
 
 require_relative "../../../../lib/vagrant/util/retryable"
@@ -12,7 +11,7 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
-          case machine.guest.capability("flavor")
+          case machine.guest.capability(:flavor)
           when :rhel_7
             configure_networks_rhel7(machine, networks)
           else
@@ -21,66 +20,60 @@ module VagrantPlugins
         end
 
         def self.configure_networks_rhel7(machine, networks)
-          # This is kind of jank but the configure networks is the same
-          # as Fedora at this point.
-          require File.expand_path("../../../fedora/cap/configure_networks", __FILE__)
-          ::VagrantPlugins::GuestFedora::Cap::ConfigureNetworks.
-            configure_networks(machine, networks)
+          # This is kind of jank but the configure networks is the same as
+          # Fedora at this point.
+          require_relative "../../fedora/cap/configure_networks"
+          ::VagrantPlugins::GuestFedora::Cap::ConfigureNetworks
+            .configure_networks(machine, networks)
         end
 
         def self.configure_networks_default(machine, networks)
-          network_scripts_dir = machine.guest.capability("network_scripts_dir")
+          comm = machine.communicate
 
-          # Accumulate the configurations to add to the interfaces file as
-          # well as what interfaces we're actually configuring since we use that
-          # later.
-          interfaces = Set.new
-          networks.each do |network|
-            interfaces.add(network[:interface])
+          network_scripts_dir = machine.guest.capability(:network_scripts_dir)
 
-            # Down the interface before munging the config file. This might fail
-            # if the interface is not actually set up yet so ignore errors.
-            machine.communicate.sudo(
-              "/sbin/ifdown eth#{network[:interface]} 2> /dev/null", error_check: false)
+          interfaces = []
+          commands   = []
 
-            # Remove any previous vagrant configuration in this network interface's
-            # configuration files.
-            machine.communicate.sudo("touch #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
-            machine.communicate.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' #{network_scripts_dir}/ifcfg-eth#{network[:interface]} > /tmp/vagrant-ifcfg-eth#{network[:interface]}")
-            machine.communicate.sudo("cat /tmp/vagrant-ifcfg-eth#{network[:interface]} > #{network_scripts_dir}/ifcfg-eth#{network[:interface]}")
-            machine.communicate.sudo("rm -f /tmp/vagrant-ifcfg-eth#{network[:interface]}")
+          comm.sudo("ifconfig -a | grep -o ^[0-9a-z]* | grep -v '^lo'") do |_, stdout|
+            interfaces = stdout.split("\n")
+          end
 
-            # Render and upload the network entry file to a deterministic
-            # temporary location.
+          networks.each.with_index do |network, i|
+            network[:device] = interfaces[network[:interface]]
+
+            # Render a new configuration
             entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
-                                            options: network)
+              options: network,
+            )
 
-            Tempfile.open("vagrant-red-hat-configure-networks") do |f|
+            # Upload the new configuration
+            remote_path = "/tmp/vagrant-network-entry-#{network[:device]}-#{Time.now.to_i}-#{i}"
+            Tempfile.open("vagrant-redhat-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync
               f.close
-              machine.communicate.upload(f.path, "/tmp/vagrant-network-entry_#{network[:interface]}")
-            end
-          end
-
-          # Bring down all the interfaces we're reconfiguring. By bringing down
-          # each specifically, we avoid reconfiguring eth0 (the NAT interface) so
-          # SSH never dies.
-          interfaces.each do |interface|
-            retryable(on: Vagrant::Errors::VagrantError, tries: 3, sleep: 2) do
-              # The interface should already be down so this probably
-              # won't do anything, so we run it with error_check false.
-              machine.communicate.sudo(
-                "/sbin/ifdown eth#{interface} 2> /dev/null", error_check: false)
-
-              # Add the new interface and bring it up
-              machine.communicate.sudo("cat /tmp/vagrant-network-entry_#{interface} >> #{network_scripts_dir}/ifcfg-eth#{interface}")
-              machine.communicate.sudo("ARPCHECK=no /sbin/ifup eth#{interface} 2> /dev/null")
+              machine.communicate.upload(f.path, remote_path)
             end
 
-            machine.communicate.sudo("rm -f /tmp/vagrant-network-entry_#{interface}")
+            # Add the new interface and bring it back up
+            final_path = "#{network_scripts_dir}/ifcfg-#{network[:device]}"
+            commands << <<-EOH.gsub(/^ {14}/, '')
+              # Down the interface before munging the config file. This might
+              # fail if the interface is not actually set up yet so ignore
+              # errors.
+              /sbin/ifdown '#{network[:device]}' || true
+
+              # Move new config into place
+              mv '#{remote_path}' '#{final_path}'
+
+              # Bring the interface up
+              ARPCHECK=no /sbin/ifup '#{network[:device]}'
+            EOH
           end
+
+          comm.sudo(commands.join("\n"))
         end
       end
     end
