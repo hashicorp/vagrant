@@ -7,7 +7,7 @@ module VagrantPlugins
       description "Slackware guest support."
 
       guest("slackware", "linux") do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 
