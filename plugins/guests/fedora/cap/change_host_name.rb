@@ -3,71 +3,25 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          new(machine, name).change!
-        end
+          comm = machine.communicate
 
-        attr_reader :machine, :new_hostname
+          if !comm.test("hostname | grep -w '#{name}'")
+            basename = name.split(".", 2)[0]
+            comm.sudo <<-EOH
+echo '#{name}' > /etc/hostname
+hostname -F /etc/hostname
+hostnamectl set-hostname --static '#{name}'
+hostnamectl set-hostname --transient '#{name}'
 
-        def initialize(machine, new_hostname)
-          @machine = machine
-          @new_hostname = new_hostname
-        end
+# Remove comments and blank lines from /etc/hosts
+sed -i'' -e 's/#.*$//' -e '/^$/d' /etc/hosts
 
-        def change!
-          return unless should_change?
-
-          update_etc_hostname
-          update_etc_hosts
-          refresh_hostname_service
-        end
-
-        def should_change?
-          new_hostname != current_hostname
-        end
-
-        def current_hostname
-          @current_hostname ||= get_current_hostname
-        end
-
-        def get_current_hostname
-          hostname = ""
-          sudo "hostname -f" do |type, data|
-            hostname = data.chomp if type == :stdout && hostname.empty?
+# Prepend ourselves to /etc/hosts
+grep -w '#{name}' /etc/hosts || {
+  sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
+}
+EOH
           end
-
-          hostname
-        end
-
-        def update_etc_hostname
-          sudo("echo '#{short_hostname}' > /etc/hostname")
-        end
-
-        # /etc/hosts should resemble:
-        # 127.0.0.1   localhost
-        # 127.0.1.1   host.fqdn.com host.fqdn host
-        def update_etc_hosts
-          ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
-          search     = "^(#{ip_address})\\s+#{Regexp.escape(current_hostname)}(\\s.*)?$"
-          replace    = "\\1 #{fqdn} #{short_hostname} \\3"
-          expression = ['s', search, replace, 'g'].join('@')
-
-          sudo("sed -ri '#{expression}' /etc/hosts")
-        end
-
-        def refresh_hostname_service
-          sudo("hostname -F /etc/hostname")
-        end
-
-        def fqdn
-          new_hostname
-        end
-
-        def short_hostname
-          new_hostname.split('.').first
-        end
-
-        def sudo(cmd, &block)
-          machine.communicate.sudo(cmd, &block)
         end
       end
     end

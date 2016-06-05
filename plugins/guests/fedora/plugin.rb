@@ -7,7 +7,7 @@ module VagrantPlugins
       description "Fedora guest support."
 
       guest("fedora", "redhat") do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 
