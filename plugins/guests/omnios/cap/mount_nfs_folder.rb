@@ -3,11 +3,17 @@ module VagrantPlugins
     module Cap
       class MountNFSFolder
         def self.mount_nfs_folder(machine, ip, folders)
-          su_cmd = machine.config.solaris.suexec_cmd
-          folders.each do |name, opts|
-            machine.communicate.execute("#{su_cmd} mkdir -p #{opts[:guestpath]}")
-            machine.communicate.execute("#{su_cmd} /sbin/mount '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'")
+          comm   = machine.communicate
+          commands = []
+
+          folders.each do |_, opts|
+            commands << <<-EOH.gsub(/^ {14}/, '')
+              mkdir -p '#{opts[:guestpath]}'
+              /sbin/mount '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'
+            EOH
           end
+
+          comm.sudo(commands.join("\n"))
         end
       end
     end
