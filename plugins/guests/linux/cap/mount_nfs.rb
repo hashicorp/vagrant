@@ -7,13 +7,17 @@ module VagrantPlugins
         extend Vagrant::Util::Retryable
 
         def self.mount_nfs_folder(machine, ip, folders)
+          comm = machine.communicate
+
+          commands = []
+
           folders.each do |name, opts|
             # Expand the guest path so we can handle things like "~/vagrant"
             expanded_guest_path = machine.guest.capability(
               :shell_expand_guest_path, opts[:guestpath])
 
             # Do the actual creating and mounting
-            machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
+            commands << "mkdir -p '#{expanded_guest_path}'"
 
             # Mount
             hostpath = opts[:hostpath].dup
@@ -26,18 +30,18 @@ module VagrantPlugins
               mount_opts = opts[:mount_options].dup
             end
 
-            mount_command = "mount -o '#{mount_opts.join(",")}' #{ip}:'#{hostpath}' #{expanded_guest_path}"
-            retryable(on: Vagrant::Errors::LinuxNFSMountFailed, tries: 8, sleep: 3) do
-              machine.communicate.sudo(mount_command,
-                                       error_class: Vagrant::Errors::LinuxNFSMountFailed)
-            end
+            commands << "mount -o #{mount_opts.join(",")} '#{ip}:#{hostpath}' '#{expanded_guest_path}'"
 
-            # Emit an upstart event if we can
-            machine.communicate.sudo <<-SCRIPT
-if command -v /sbin/init &>/dev/null && /sbin/init --version | grep upstart &>/dev/null; then
-  /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
-fi
-SCRIPT
+            # Emit a mount event
+            commands << <<-EOH.gsub(/^ {14}/, '')
+              if command -v /sbin/init &>/dev/null && /sbin/init --version | grep upstart &>/dev/null; then
+                /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
+              fi
+            EOH
+          end
+
+          retryable(on: Vagrant::Errors::LinuxNFSMountFailed, tries: 8, sleep: 3) do
+            comm.sudo(commands.join("\n"), error_class: Vagrant::Errors::LinuxNFSMountFailed)
           end
         end
       end
