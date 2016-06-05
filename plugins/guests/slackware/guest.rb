@@ -1,5 +1,3 @@
-require "vagrant"
-
 module VagrantPlugins
   module GuestSlackware
     class Guest < Vagrant.plugin("2", :guest)
