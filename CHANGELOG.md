@@ -105,6 +105,8 @@ BUG FIXES:
   - providers/virtualbox: Set maximum network adapters to 36 [GH-7293, GH-7286]
   - providers/virtualbox: Do not fail when master VM from linked clone is
       missing [GH-7126, GH-6742]
+  - providers/virtualbox: Use scoped overrides in preparring NFS
+      [GH-7387, GH-7386]
   - provisioners/ansible_local: Don't quote the Ansible arguments defined in the
       `raw_arguments` option [GH-7103]
   - provisioners/ansible_local: Format json `extra_vars` with double quotes
