@@ -56,6 +56,14 @@ module VagrantPlugins
             expression = ['s', search, replace, 'g'].join('@')
 
             sudo("sed -ri '#{expression}' /etc/hosts")
+          elsif test("grep '#{short_hostname}' /etc/hosts")
+            # New hostname entry is in /etc/hosts
+            ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
+            search     = "^(#{ip_address})\\s+#{Regexp.escape(short_hostname)}(\\s.*)?$"
+            replace    = "\\1 #{fqdn} #{short_hostname}"
+            expression = ['s', search, replace, 'g'].join('@')
+
+            sudo("sed -ri '#{expression}' /etc/hosts")
           else
             # Current hostname entry isn't in /etc/hosts, just append it
             sudo("echo '127.0.1.1 #{fqdn} #{short_hostname}' >>/etc/hosts")
