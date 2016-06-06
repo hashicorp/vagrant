@@ -9,16 +9,16 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
   end
 
   let(:machine) { double("machine") }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(machine).to receive(:communicate).and_return(communicator)
-    communicator.stub_command("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'",
+    allow(machine).to receive(:communicate).and_return(comm)
+    comm.stub_command("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'",
       stdout: "eth1\neth2")
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
   describe ".configure_networks" do
@@ -40,9 +40,16 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
     end
 
     it "creates and starts the networks" do
-      communicator.expect_command("ip link set eth1 down && netctl restart eth1 && netctl enable eth1")
-      communicator.expect_command("ip link set eth2 down && netctl restart eth2 && netctl enable eth2")
       described_class.configure_networks(machine, [network_1, network_2])
+      expect(comm.received_commands[1]).to match(/mv (.+) '\/etc\/netctl\/eth1'/)
+      expect(comm.received_commands[1]).to match(/ip link set 'eth1' down/)
+      expect(comm.received_commands[1]).to match(/netctl restart 'eth1'/)
+      expect(comm.received_commands[1]).to match(/netctl enable 'eth1'/)
+
+      expect(comm.received_commands[1]).to match(/mv (.+) '\/etc\/netctl\/eth2'/)
+      expect(comm.received_commands[1]).to match(/ip link set 'eth2' down/)
+      expect(comm.received_commands[1]).to match(/netctl restart 'eth2'/)
+      expect(comm.received_commands[1]).to match(/netctl enable 'eth2'/)
     end
   end
 end

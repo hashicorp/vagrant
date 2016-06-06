@@ -7,7 +7,7 @@ module VagrantPlugins
       description "CoreOS guest support."
 
       guest("coreos", "linux") do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 

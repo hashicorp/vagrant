@@ -1,34 +1,42 @@
-require File.expand_path("../../../../../base", __FILE__)
-require File.expand_path("../../../support/shared/debian_like_host_name_examples", __FILE__)
+require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestUbuntu::Cap::ChangeHostName" do
-  let(:described_class) do
-    VagrantPlugins::GuestUbuntu::Plugin.components.guest_capabilities[:ubuntu].get(:change_host_name)
+  let(:caps) do
+    VagrantPlugins::GuestUbuntu::Plugin
+      .components
+      .guest_capabilities[:ubuntu]
   end
+
   let(:machine) { double("machine") }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:old_hostname) {'oldhostname.olddomain.tld' }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(machine).to receive(:communicate).and_return(communicator)
-    communicator.stub_command('hostname -f', stdout: old_hostname)
+    allow(machine).to receive(:communicate).and_return(comm)
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
   describe ".change_host_name" do
-    it_behaves_like "a debian-like host name change"
+    let(:cap) { caps.get(:change_host_name) }
 
-    it "refreshes the hostname service with upstart" do
-      communicator.expect_command(%q(service hostname start))
-      described_class.change_host_name(machine, 'newhostname.newdomain.tld')
+    let(:name) { 'banana-rama.example.com' }
+
+    it "sets the hostname if not set" do
+      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 1)
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands[1]).to match(/hostname -F \/etc\/hostname/)
+      expect(comm.received_commands[1]).to match(/\/etc\/init.d\/hostname.sh start/)
+      expect(comm.received_commands[1]).to match(/\/etc\/init.d\/hostname start/)
+      expect(comm.received_commands[1]).to match(/\/etc\/init.d\/networking force-reload/)
+      expect(comm.received_commands[1]).to match(/\/etc\/init.d\/network-manager force-reload/)
     end
 
-    it "renews dhcp on the system with the new hostname (with hotplug allowed)" do
-      communicator.expect_command(%q(ifdown -a; ifup -a; ifup -a --allow=hotplug))
-      described_class.change_host_name(machine, 'newhostname.newdomain.tld')
+    it "does not set the hostname if unset" do
+      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 0)
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands.size).to eq(1)
     end
   end
 end

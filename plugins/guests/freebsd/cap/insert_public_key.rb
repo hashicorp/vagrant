@@ -1,19 +1,32 @@
-require "vagrant/util/shell_quote"
+require "tempfile"
 
 module VagrantPlugins
   module GuestFreeBSD
     module Cap
       class InsertPublicKey
         def self.insert_public_key(machine, contents)
-          contents = Vagrant::Util::ShellQuote.escape(contents, "'")
-          contents = contents.gsub("\n", "\\n")
+          comm = machine.communicate
+          contents = contents.chomp
 
-          machine.communicate.tap do |comm|
-            comm.execute("mkdir -p ~/.ssh", shell: "sh")
-            comm.execute("chmod 0700 ~/.ssh", shell: "sh")
-            comm.execute("printf '#{contents}' >> ~/.ssh/authorized_keys", shell: "sh")
-            comm.execute("chmod 0600 ~/.ssh/authorized_keys", shell: "sh")
+          remote_path = "/tmp/vagrant-authorized-keys-#{Time.now.to_i}"
+          Tempfile.open("vagrant-freebsd-insert-public-key") do |f|
+            f.binmode
+            f.write(contents)
+            f.fsync
+            f.close
+            comm.upload(f.path, remote_path)
           end
+
+          command = <<-EOH.gsub(/^ {12}/, '')
+            mkdir -p ~/.ssh
+            chmod 0700 ~/.ssh
+            cat '#{remote_path}' >> ~/.ssh/authorized_keys
+            chmod 0600 ~/.ssh/authorized_keys
+
+            # Remove the temporary file
+            rm -f '#{remote_path}'
+          EOH
+          comm.execute(command, { shell: "sh" })
         end
       end
     end

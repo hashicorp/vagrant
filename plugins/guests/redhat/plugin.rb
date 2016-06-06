@@ -7,7 +7,7 @@ module VagrantPlugins
       description "Red Hat Enterprise Linux guest support."
 
       guest("redhat", "linux") do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 
@@ -36,18 +36,9 @@ module VagrantPlugins
         Cap::NFSClient
       end
 
-      guest_capability("redhat", "nfs_client_installed") do
-        require_relative "cap/nfs_client"
-        Cap::NFSClient
-      end
-
       guest_capability("redhat", "rsync_install") do
         require_relative "cap/rsync"
         Cap::RSync
-      end
-
-      def self.dnf?(machine)
-        machine.communicate.test("/usr/bin/which -s dnf")
       end
     end
   end

@@ -7,9 +7,7 @@ module VagrantPlugins
         end
 
         def self.rsync_install(machine)
-          machine.communicate.tap do |comm|
-            comm.sudo("zypper -n install rsync")
-          end
+          machine.communicate.sudo("zypper -n install rsync")
         end
       end
     end

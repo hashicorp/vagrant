@@ -9,40 +9,57 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
+          options = { shell: "sh" }
+          comm = machine.communicate
+
+          commands   = []
+          interfaces = []
+
           # Remove any previous network additions to the configuration file.
-          machine.communicate.sudo("sed -i '' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf", {shell: "sh"})
+          commands << "sed -i'' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf"
 
-          networks.each do |network|
-            # Determine the interface prefix...
-            command = "ifconfig -a | grep -o ^[0-9a-z]*"
-            result = ""
-            ifname = ""
-            machine.communicate.execute(command) do |type, data|
-              result << data if type == :stdout
-              if result.split(/\n/).any?{|i| i.match(/vtnet*/)}
-                ifname = "vtnet#{network[:interface]}"
-              else
-                ifname = "em#{network[:interface]}"
-              end
-            end
+          comm.sudo("ifconfig -a | grep -o ^[0-9a-z]* | grep -v '^lo'", options) do |_, stdout|
+            interfaces = stdout.split("\n")
+          end
 
-            entry  = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
-                                            options: network, ifname: ifname)
+          networks.each.with_index do |network, i|
+            network[:device] = interfaces[network[:interface]]
+
+            entry = TemplateRenderer.render("guests/freebsd/network_#{network[:type]}",
+              options: network,
+            )
+
+            remote_path = "/tmp/vagrant-network-#{network[:device]}-#{Time.now.to_i}-#{i}"
 
             Tempfile.open("vagrant-freebsd-configure-networks") do |f|
               f.binmode
               f.write(entry)
               f.fsync
               f.close
-              machine.communicate.upload(f.path, "/tmp/vagrant-network-entry")
+              comm.upload(f.path, remote_path)
             end
 
-            machine.communicate.sudo("su -m root -c 'cat /tmp/vagrant-network-entry >> /etc/rc.conf'", {shell: "sh"})
-            machine.communicate.sudo("rm -f /tmp/vagrant-network-entry", {shell: "sh"})
+            commands << <<-EOH.gsub(/^ {14}/, '')
+              cat '#{remote_path}' >> /etc/rc.conf
+              rm -f '#{remote_path}'
+            EOH
 
-            # Restart interface so it loads configuration stored in /etc/rc.conf
-            machine.communicate.sudo("service netif restart #{ifname}", {shell: "sh"})
+            # If the network is DHCP, then we have to start the dhclient, unless
+            # it is already running. See GH-5852 for more information
+            if network[:type].to_sym == :dhcp
+              file = "/var/run/dhclient.#{network[:device]}.pid"
+              commands << <<-EOH.gsub(/^ {16}/, '')
+                if ! test -f '#{file}' || ! kill -0 $(cat '#{file}'); then
+                  dhclient '#{network[:device]}'
+                fi
+              EOH
+            end
+
+            # For some reason, this returns status 1... every time
+            commands << "/etc/rc.d/netif restart '#{network[:device]}' || true"
           end
+
+          comm.sudo(commands.join("\n"), options)
         end
       end
     end

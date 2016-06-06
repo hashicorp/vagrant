@@ -1,5 +1,3 @@
-require "vagrant"
-
 module VagrantPlugins
   module GuestUbuntu
     class Guest < Vagrant.plugin("2", :guest)

@@ -3,12 +3,11 @@ module VagrantPlugins
     module Cap
       class NFSClient
         def self.nfs_client_install(machine)
-          machine.communicate.tap do |comm|
-            comm.sudo("zypper -n install nfs-client")
-
-            comm.sudo("/sbin/service rpcbind restart")
-            comm.sudo("/sbin/service nfs restart")
-          end
+          machine.communicate.sudo <<-EOH.gsub(/^ {12}/, '')
+            zypper -n install nfs-client
+            /sbin/service rpcbind restart
+            /sbin/service nfs restart
+          EOH
         end
       end
     end

@@ -7,7 +7,7 @@ module VagrantPlugins
       description "Linux guest support."
 
       guest("linux")  do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 

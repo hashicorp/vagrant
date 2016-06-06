@@ -3,9 +3,12 @@ module VagrantPlugins
     module Cap
       class RSync
         def self.rsync_install(machine)
-          machine.communicate.tap do |comm|
-            comm.sudo("apt-get -y update")
-            comm.sudo("apt-get -y install rsync")
+          comm = machine.communicate
+          if !comm.test("command -v rsync")
+            comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              apt-get -yqq update
+              apt-get -yqq install rsync
+            EOH
           end
         end
       end

@@ -1,4 +1,4 @@
-require 'vagrant'
+require "vagrant"
 
 module VagrantPlugins
   module GuestAtomic
@@ -7,7 +7,7 @@ module VagrantPlugins
       description "Atomic Host guest support."
 
       guest("atomic", "fedora") do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 

@@ -7,7 +7,7 @@ module VagrantPlugins
       description "SUSE guest support."
 
       guest("suse", "linux") do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 

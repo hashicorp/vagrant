@@ -7,7 +7,7 @@ describe "templates/guests/suse/network_static" do
 
   it "renders the template" do
     result = Vagrant::Util::TemplateRenderer.render(template, options: {
-      interface: "en0",
+      device:    "eth1",
       ip:        "1.1.1.1",
       netmask:   "255.255.0.0",
     })
@@ -17,7 +17,7 @@ describe "templates/guests/suse/network_static" do
       BOOTPROTO='static'
       IPADDR='1.1.1.1'
       NETMASK='255.255.0.0'
-      DEVICE='ethen0'
+      DEVICE='eth1'
       PEERDNS='no'
       STARTMODE='auto'
       USERCONTROL='no'
@@ -27,7 +27,7 @@ describe "templates/guests/suse/network_static" do
 
   it "includes the gateway" do
     result = Vagrant::Util::TemplateRenderer.render(template, options: {
-      interface:  "en0",
+      device:     "eth1",
       ip:         "1.1.1.1",
       gateway:    "1.2.3.4",
       netmask:    "255.255.0.0",
@@ -38,7 +38,7 @@ describe "templates/guests/suse/network_static" do
       BOOTPROTO='static'
       IPADDR='1.1.1.1'
       NETMASK='255.255.0.0'
-      DEVICE='ethen0'
+      DEVICE='eth1'
       GATEWAY='1.2.3.4'
       PEERDNS='no'
       STARTMODE='auto'

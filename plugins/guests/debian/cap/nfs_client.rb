@@ -3,10 +3,11 @@ module VagrantPlugins
     module Cap
       class NFSClient
         def self.nfs_client_install(machine)
-          machine.communicate.tap do |comm|
-            comm.sudo("apt-get -y update")
-            comm.sudo("apt-get -y install nfs-common portmap")
-          end
+          comm = machine.communicate
+          comm.sudo <<-EOH.gsub(/^ {12}/, '')
+            apt-get -yqq update
+            apt-get -yqq install nfs-common portmap
+          EOH
         end
       end
     end

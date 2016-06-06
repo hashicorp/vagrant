@@ -7,7 +7,7 @@ module VagrantPlugins
       description "Arch guest support."
 
       guest("arch", "linux") do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 

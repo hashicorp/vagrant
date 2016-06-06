@@ -1,3 +1,4 @@
 #VAGRANT-BEGIN
-ifconfig_<%= ifname %>="DHCP"
+ifconfig_<%= options[:device] %>="DHCP"
+synchronous_dhclient="YES"
 #VAGRANT-END

@@ -7,7 +7,7 @@ module VagrantPlugins
       description "OmniOS guest support."
 
       guest("omnios", "solaris")  do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
 
@@ -19,6 +19,11 @@ module VagrantPlugins
       guest_capability("omnios", "mount_nfs_folder") do
         require_relative "cap/mount_nfs_folder"
         Cap::MountNFSFolder
+      end
+
+      guest_capability("omnios", "rsync_install") do
+        require_relative "cap/rsync"
+        Cap::RSync
       end
     end
   end

@@ -5,10 +5,9 @@ module VagrantPlugins
         def self.flavor(machine)
           # Read the version file
           output = ""
-          machine.communicate.sudo("cat /etc/redhat-release") do |type, data|
-            output += data if type == :stdout
+          machine.communicate.sudo("cat /etc/redhat-release") do |_, data|
+            output = data
           end
-          output.chomp!
 
           # Detect various flavors we care about
           if output =~ /(CentOS|Red Hat Enterprise|Scientific) Linux( .+)? release 7/i
