@@ -53,6 +53,7 @@ IMPROVEMENTS:
       [GH-7358, GH-6620]
   - hosts/darwin: Add `extra_args` support for RDP [GH-5523, GH-6602]
   - hosts/windows: Use SafeExec to capture history in Powershell [GH-6749]
+  - guests/amazon: Add detection [GH-7395, GH-7254]
   - guests/freebsd: Add quotes around hostname [GH-6867]
   - guests/fedora: Add support for ipv6 static networks [GH-7275, GH-7276]
   - guests/tinycore: Add support for shared folders [GH-6977, GH-6968]
