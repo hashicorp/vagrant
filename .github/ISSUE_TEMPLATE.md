@@ -23,8 +23,9 @@ vanilla Vagrantfile first.
 
 ### Debug output
 Provide a link to a GitHub Gist containing the complete debug output:
-https://www.vagrantup.com/docs/other/debugging.html. Do NOT paste the debug
-output in the issue, just paste the link to the Gist.
+https://www.vagrantup.com/docs/other/debugging.html. The debug output should
+be very long. Do NOT paste the debug output in the issue, just paste the
+link to the Gist.
 
 ### Expected behavior
 What should have happened?
