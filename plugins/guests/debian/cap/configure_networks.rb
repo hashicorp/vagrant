@@ -11,14 +11,16 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           comm = machine.communicate
 
-          interfaces = {}
+          commands   = []
           entries    = []
+          interfaces = []
 
-          # Accumulate the configurations to add to the interfaces file as
-          # well as what interfaces we're actually configuring since we use that
-          # later.
+          comm.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|
+            interfaces = stdout.split("\n")
+          end
+
           networks.each do |network|
-            interfaces[network[:interface]] = true
+            network[:device] = interfaces[network[:interface]]
 
             entry = TemplateRenderer.render("guests/debian/network_#{network[:type]}",
               options: network,
@@ -34,17 +36,12 @@ module VagrantPlugins
             comm.upload(f.path, "/tmp/vagrant-network-entry")
           end
 
-          commands = []
-
-          # Bring down all the interfaces we're reconfiguring. By bringing down
-          # each specifically, we avoid reconfiguring eth0 (the NAT interface)
-          # so SSH never dies.
-          interfaces.each do |interface, _|
+          networks.each do |network|
             # Ubuntu 16.04+ returns an error when downing an interface that
             # does not exist. The `|| true` preserves the behavior that older
             # Ubuntu versions exhibit and Vagrant expects (GH-7155)
-            commands << "/sbin/ifdown 'eth#{interface}' 2> /dev/null || true"
-            commands << "/sbin/ip addr flush dev 'eth#{interface}' 2> /dev/null"
+            commands << "/sbin/ifdown '#{network[:device]}' || true"
+            commands << "/sbin/ip addr flush dev '#{network[:device]}'"
           end
 
           # Reconfigure /etc/network/interfaces.
@@ -65,8 +62,8 @@ module VagrantPlugins
           EOH
 
           # Bring back up each network interface, reconfigured.
-          interfaces.each do |interface, _|
-            commands << "/sbin/ifup 'eth#{interface}'"
+          networks.each do |network|
+            commands << "/sbin/ifup '#{network[:device]}'"
           end
 
           # Run all the commands in one session to prevent partial configuration
