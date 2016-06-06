@@ -174,7 +174,7 @@ belongs to the vagrant group):
 
 ```
 Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
-Cmnd_Alias VAGRANT_NFSD_CHECK = /usr/bin/systemctl status nfs-server.service
+Cmnd_Alias VAGRANT_NFSD_CHECK = /usr/bin/systemctl status --no-pager nfs-server.service
 Cmnd_Alias VAGRANT_NFSD_START = /usr/bin/systemctl start nfs-server.service
 Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
 Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /bin/sed -r -e * d -ibak /tmp/exports
