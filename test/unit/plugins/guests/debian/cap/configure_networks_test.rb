@@ -1,11 +1,10 @@
 require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
-  let(:described_class) do
+  let(:caps) do
     VagrantPlugins::GuestDebian::Plugin
       .components
       .guest_capabilities[:debian]
-      .get(:configure_networks)
   end
 
   let(:machine) { double("machine") }
@@ -13,6 +12,8 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
+    comm.stub_command("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'",
+      stdout: "eth1\neth2")
   end
 
   after do
@@ -20,6 +21,8 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
   end
 
   describe ".configure_networks" do
+    let(:cap) { caps.get(:configure_networks) }
+
     let(:network_0) do
       {
         interface: 0,
@@ -38,14 +41,14 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
     end
 
     it "creates and starts the networks" do
-      described_class.configure_networks(machine, [network_0, network_1])
+      cap.configure_networks(machine, [network_0, network_1])
 
-      expect(comm.received_commands[0]).to match("/sbin/ifdown 'eth0' 2> /dev/null || true")
-      expect(comm.received_commands[0]).to match("/sbin/ip addr flush dev 'eth0' 2> /dev/null")
-      expect(comm.received_commands[0]).to match("/sbin/ifdown 'eth1' 2> /dev/null || true")
-      expect(comm.received_commands[0]).to match("/sbin/ip addr flush dev 'eth1' 2> /dev/null")
-      expect(comm.received_commands[0]).to match("/sbin/ifup 'eth0'")
-      expect(comm.received_commands[0]).to match("/sbin/ifup 'eth1'")
+      expect(comm.received_commands[1]).to match("/sbin/ifdown 'eth1' || true")
+      expect(comm.received_commands[1]).to match("/sbin/ip addr flush dev 'eth1'")
+      expect(comm.received_commands[1]).to match("/sbin/ifdown 'eth2' || true")
+      expect(comm.received_commands[1]).to match("/sbin/ip addr flush dev 'eth2'")
+      expect(comm.received_commands[1]).to match("/sbin/ifup 'eth1'")
+      expect(comm.received_commands[1]).to match("/sbin/ifup 'eth2'")
     end
   end
 end

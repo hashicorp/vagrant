@@ -1,38 +1,41 @@
 require_relative "../../../../base"
-require_relative "../../support/shared/debian_like_host_name_examples"
 
 describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
-  let(:described_class) do
+  let(:caps) do
     VagrantPlugins::GuestDebian::Plugin
       .components
       .guest_capabilities[:debian]
-      .get(:change_host_name)
   end
 
   let(:machine) { double("machine") }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:old_hostname) { 'oldhostname.olddomain.tld' }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(machine).to receive(:communicate).and_return(communicator)
-    communicator.stub_command('hostname -f', stdout: old_hostname)
+    allow(machine).to receive(:communicate).and_return(comm)
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
   describe ".change_host_name" do
-    it_behaves_like "a debian-like host name change"
+    let(:cap) { caps.get(:change_host_name) }
 
-    it "refreshes the hostname service with the hostname command" do
-      communicator.expect_command(%q(hostname -F /etc/hostname))
-      described_class.change_host_name(machine, 'newhostname.newdomain.tld')
+    let(:name) { 'banana-rama.example.com' }
+
+    it "sets the hostname if not set" do
+      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 1)
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands[1]).to match(/hostname -F \/etc\/hostname/)
+      expect(comm.received_commands[1]).to match(/invoke-rc.d hostname.sh start/)
+      expect(comm.received_commands[1]).to match(/invoke-rc.d networking force-reload/)
+      expect(comm.received_commands[1]).to match(/invoke-rc.d network-manager force-reload/)
     end
 
-    it "renews dhcp on the system with the new hostname" do
-      communicator.expect_command(%q(ifdown -a; ifup -a; ifup eth0))
-      described_class.change_host_name(machine, 'newhostname.newdomain.tld')
+    it "does not set the hostname if unset" do
+      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 0)
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands.size).to eq(1)
     end
   end
 end
