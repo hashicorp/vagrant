@@ -33,11 +33,14 @@ module VagrantPlugins
 
         def get_current_hostname
           hostname = ""
-          sudo "hostname -f" do |type, data|
+          execute "hostname -f", error_check: false do |type, data|
+            hostname = data.chomp if type == :stdout && hostname.empty?
+          end
+          execute "hostname" do |type, data|
             hostname = data.chomp if type == :stdout && hostname.empty?
           end
 
-          hostname
+          /localhost(\..*)?/.match(hostname) ? '' : hostname
         end
 
         def update_etc_hostname
@@ -82,8 +85,12 @@ module VagrantPlugins
           new_hostname.split('.').first
         end
 
-        def sudo(cmd, &block)
-          machine.communicate.sudo(cmd, &block)
+        def execute(cmd, opts=nil, &block)
+          machine.communicate.execute(cmd, opts, &block)
+        end
+
+        def sudo(cmd, opts=nil, &block)
+          machine.communicate.sudo(cmd, opts, &block)
         end
 
         def test(cmd)
