@@ -76,10 +76,20 @@ run.
 
 You may specify an explicit version of a box by specifying `config.vm.box_version`
 for example:
+
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.box = "debian/wheezy64"
-  config.vm.box_version = "7.8.3"
+  config.vm.box = "hashicorp/precise64"
+  config.vm.box_version = "1.1.0"
+end
+```
+
+You may also specify the URL to a box directly using `config.vm.box_url`:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/precise64"
+  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
 end
 ```
 
