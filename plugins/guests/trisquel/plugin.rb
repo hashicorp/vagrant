@@ -7,7 +7,7 @@ module VagrantPlugins
       description "Trisquel guest support."
 
       guest("trisquel", "ubuntu") do
-        require File.expand_path("../guest", __FILE__)
+        require_relative "guest"
         Guest
       end
     end
