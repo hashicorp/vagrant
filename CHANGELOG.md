@@ -51,6 +51,7 @@ IMPROVEMENTS:
   - provisioners/chef: Support legacy solo mode [GH-7327]
   - provisioners/docker: Restart container if newer image is available
       [GH-7358, GH-6620]
+  - hosts/linux: Do not use a pager with systemctl commands [GH-7270]
   - hosts/darwin: Add `extra_args` support for RDP [GH-5523, GH-6602]
   - hosts/windows: Use SafeExec to capture history in Powershell [GH-6749]
   - guests/amazon: Add detection [GH-7395, GH-7254]
