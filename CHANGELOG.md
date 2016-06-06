@@ -91,6 +91,8 @@ BUG FIXES:
       [GH-7369, GH-7295]
   - docs & core: Be consistent about the "2" in the Vagrantfile version
       [GH-6961, GH-6963]
+  - guests/all: Refactor guest capabilities to run in a single command -
+      **please see GH-7393 for the complete list of changes!**
   - guests/arch: Restart network after configuration [GH-7120, GH-7119]
   - guests/debian: Do not return an error if ifdown fails [GH-7159,
       GH-7155, GH-6871]
