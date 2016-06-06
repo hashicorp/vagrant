@@ -9,11 +9,6 @@ shared_examples "a debian-like host name change" do
     described_class.change_host_name(machine, 'newhostname.newdomain.tld')
   end
 
-  it "does nothing when the provided hostname is not different" do
-    described_class.change_host_name(machine, 'oldhostname.olddomain.tld')
-    expect(communicator.received_commands).to eq(['hostname -f'])
-  end
-
   describe "flipping out the old hostname in /etc/hosts" do
     let(:sed_command) do
       # Here we run the change_host_name through and extract the recorded sed
