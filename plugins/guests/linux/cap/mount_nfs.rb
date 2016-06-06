@@ -34,7 +34,7 @@ module VagrantPlugins
 
             # Emit an upstart event if we can
             machine.communicate.sudo <<-SCRIPT
-if command -v /sbin/init &>/dev/null && /sbin/init --version | grep upstart &>/dev/null; then
+if command -v /sbin/init &>/dev/null && /sbin/init --version | grep -q upstart; then
   /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
 fi
 SCRIPT
