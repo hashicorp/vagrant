@@ -18,6 +18,9 @@ BREAKING CHANGES:
       opt-in only. Note that users wishing to download the Chef Development Kit
       will need to opt into the "current" channel until Chef Software promotes
       into the "stable" channel.
+  - The Arch Linux host capability for NFS removed support for rc.d in favor or
+      systemd which has been present since 2012. Please see GH-7181 for more
+      information.
 
 FEATURES:
 
@@ -51,6 +54,7 @@ IMPROVEMENTS:
   - provisioners/chef: Support legacy solo mode [GH-7327]
   - provisioners/docker: Restart container if newer image is available
       [GH-7358, GH-6620]
+  - hosts/arch: Remove sysvinit and assume systemd [GH-7181]
   - hosts/linux: Do not use a pager with systemctl commands [GH-7270]
   - hosts/darwin: Add `extra_args` support for RDP [GH-5523, GH-6602]
   - hosts/windows: Use SafeExec to capture history in Powershell [GH-6749]
