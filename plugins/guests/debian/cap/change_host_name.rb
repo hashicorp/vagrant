@@ -48,7 +48,9 @@ module VagrantPlugins
         # 127.0.0.1   localhost
         # 127.0.1.1   host.fqdn.com host.fqdn host
         def update_etc_hosts
-          if test("grep '#{current_hostname}' /etc/hosts")
+          # We don't want to modify a localhost entry
+          if current_hostname != 'localhost' &&
+            test("grep '#{current_hostname}' /etc/hosts")
             # Current hostname entry is in /etc/hosts
             ip_address = '([0-9]{1,3}\.){3}[0-9]{1,3}'
             search     = "^(#{ip_address})\\s+#{Regexp.escape(current_hostname)}(\\s.*)?$"
