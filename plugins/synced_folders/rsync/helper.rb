@@ -160,7 +160,7 @@ module VagrantPlugins
 
         if r.exit_code != 0
           raise Vagrant::Errors::RSyncError,
-            command: command.join(" "),
+            command: command.map { |s| s.include?(' ') && s[0] != "'" && ('"' + s + '"') || s }.join(" "),
             guestpath: guestpath,
             hostpath: hostpath,
             stderr: r.stderr
