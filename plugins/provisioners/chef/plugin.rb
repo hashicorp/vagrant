@@ -53,6 +53,13 @@ module VagrantPlugins
         Provisioner::ChefZero
       end
 
+      guest_capability(:amazon, :chef_install) do
+        # Amazon Linux is a franken-RHEL
+        # The RedHat omnibus works though
+        require_relative "cap/redhat/chef_install"
+        Cap::Redhat::ChefInstall
+      end
+
       guest_capability(:debian, :chef_install) do
         require_relative "cap/debian/chef_install"
         Cap::Debian::ChefInstall
