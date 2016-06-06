@@ -129,6 +129,8 @@ BUG FIXES:
       [GH-7074, GH-7086]
   - provisioners/puppet: Use `where.exe` to locate puppet binary
       [GH-6912, GH-6876]
+  - provisioners/salt: Move masterless config to apply to all platforms
+      [GH-7207, Gh-6924, GH-6915]
   - pushes/ftp: Create parent directories when uploading [GH-7154, GH-6316]
   - synced_folders/smb: Do not interpolate configuration file [GH-6906]
 
