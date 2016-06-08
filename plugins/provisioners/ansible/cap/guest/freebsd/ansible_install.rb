@@ -11,7 +11,7 @@ module VagrantPlugins
               if install_mode == :pip
                 raise Ansible::Errors::AnsiblePipInstallIsNotSupported
               else
-                machine.communicate.sudo("yes | pkg install ansible")
+                machine.communicate.sudo "yes | pkg install ansible"
               end
             end
 

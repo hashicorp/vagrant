@@ -11,8 +11,8 @@ module VagrantPlugins
               if install_mode == :pip
                 raise Ansible::Errors::AnsiblePipInstallIsNotSupported
               else
-                machine.communicate.sudo("pacman -Syy --noconfirm")
-                machine.communicate.sudo("pacman -S --noconfirm ansible")
+                machine.communicate.sudo "pacman -Syy --noconfirm"
+                machine.communicate.sudo "pacman -S --noconfirm ansible"
               end
             end
 

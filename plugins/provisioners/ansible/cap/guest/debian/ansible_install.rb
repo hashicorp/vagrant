@@ -31,9 +31,9 @@ if [ x$CODENAME == 'xwheezy' ]; then
 fi
 INLINE_CRIPT
 
-              machine.communicate.sudo(install_backports_if_wheezy_release)
-              machine.communicate.sudo("apt-get update -y -qq")
-              machine.communicate.sudo("apt-get install -y -qq ansible")
+              machine.communicate.sudo install_backports_if_wheezy_release
+              machine.communicate.sudo "apt-get update -y -qq"
+              machine.communicate.sudo "apt-get install -y -qq ansible"
             end
 
             def self.pip_setup(machine)

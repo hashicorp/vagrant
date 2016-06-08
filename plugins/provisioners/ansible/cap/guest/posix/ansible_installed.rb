@@ -14,7 +14,7 @@ module VagrantPlugins
                 command << "&& ansible --version | grep 'ansible #{version}'"
               end
 
-              machine.communicate.test(command, sudo: false)
+              machine.communicate.test command, sudo: false
             end
 
           end
