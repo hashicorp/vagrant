@@ -55,8 +55,9 @@ module VagrantPlugins
           # Check that ansible binaries are well installed on the guest,
           @machine.communicate.execute(
             "ansible-galaxy info --help && ansible-playbook --help",
-            :error_class => Ansible::Errors::AnsibleNotFoundOnGuest,
-            :error_key => :ansible_not_found_on_guest)
+            error_class: Ansible::Errors::AnsibleNotFoundOnGuest,
+            error_key: :ansible_not_found_on_guest
+          )
 
           # Check if requested ansible version is available
           if (!config.version.empty? &&
@@ -68,8 +69,8 @@ module VagrantPlugins
 
         def execute_ansible_galaxy_on_guest
           command_values = {
-            :role_file => get_galaxy_role_file(config.provisioning_path),
-            :roles_path => get_galaxy_roles_path(config.provisioning_path)
+            role_file: get_galaxy_role_file(config.provisioning_path),
+            roles_path: get_galaxy_roles_path(config.provisioning_path)
           }
 
           remote_command = config.galaxy_command % command_values
@@ -94,9 +95,9 @@ module VagrantPlugins
         end
 
         def execute_on_guest(command)
-          @machine.communicate.execute(command, :error_check => false) do |type, data|
+          @machine.communicate.execute(command, error_check: false) do |type, data|
             if [:stderr, :stdout].include?(type)
-              @machine.env.ui.info(data, :new_line => false, :prefix => false)
+              @machine.env.ui.info(data, new_line: false, prefix: false)
             end
           end
         end
