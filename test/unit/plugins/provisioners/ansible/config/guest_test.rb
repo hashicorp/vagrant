@@ -23,6 +23,7 @@ describe VagrantPlugins::Ansible::Config::Guest do
                             groups
                             host_vars
                             install
+                            install_mode
                             inventory_path
                             limit
                             playbook
@@ -48,6 +49,7 @@ describe VagrantPlugins::Ansible::Config::Guest do
       subject.finalize!
 
       expect(subject.install).to be_true
+      expect(subject.install_mode).to eql(:default)
       expect(subject.provisioning_path).to eql("/vagrant")
       expect(subject.tmp_path).to eql("/tmp/vagrant-ansible")
       expect(subject.version).to be_empty
@@ -60,6 +62,22 @@ describe VagrantPlugins::Ansible::Config::Guest do
     end
 
     it_behaves_like "an Ansible provisioner", "/vagrant", "local"
+
+    it "falls back to :default install_mode for any invalid setting" do
+      subject.install_mode = "from_source"
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(subject.install_mode).to eql(:default)
+    end
+
+    it "supports :pip install_mode" do
+      subject.install_mode = "pip"
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(subject.install_mode).to eql(:pip)
+    end
   end
 
 end

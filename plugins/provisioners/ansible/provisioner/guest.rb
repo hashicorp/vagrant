@@ -49,7 +49,7 @@ module VagrantPlugins
              (config.version.to_s.to_sym == :latest ||
               !@machine.guest.capability(:ansible_installed, config.version))
             @machine.ui.detail I18n.t("vagrant.provisioners.ansible.installing")
-            @machine.guest.capability(:ansible_install)
+            @machine.guest.capability(:ansible_install, config.install_mode, config.version)
           end
 
           # Check that ansible binaries are well installed on the guest,

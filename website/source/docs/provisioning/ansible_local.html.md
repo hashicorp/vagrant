@@ -71,6 +71,16 @@ This section lists the specific options for the Ansible Local provisioner. In ad
 
   **Attention:** There is no guarantee that this automated installation will replace a custom Ansible setup, that might be already present on the Vagrant box.
 
+- `install_mode` (`:default` or `:pip`) - Select the way to automatically install Ansible on the guest system.
+
+  - `:default`: Ansible is installed from the operating system package manager. This mode doesn't support `version` selection. For many platforms (e.g Debian, FreeBSD, OpenSUSE) the official package repository is used, except for the following Linux distributions:
+      - On Ubuntu-like systems, the latest Ansible release is installed from the `ppa:ansible/ansible` repository.
+      - On RedHat-like systems, the latest Ansible release is installed from the [EPEL](http://fedoraproject.org/wiki/EPEL) repository.
+
+  - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). The `:pip` mode can install a specific version of Ansible if such information is specified with the `version` option described below.
+
+    The default value is `:default`, and any invalid value for this option will silently fall back to the default value.
+
 - `provisioning_path` (string) - An absolute path on the guest machine where the Ansible files are stored. The `ansible-galaxy` and `ansible-playbook` commands are executed from this directory. This is the location to place an [ansible.cfg](http://docs.ansible.com/ansible/intro_configuration.html) file, in case you need it.
 
   The default value is `/vagrant`.

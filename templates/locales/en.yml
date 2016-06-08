@@ -2122,6 +2122,15 @@ en:
             on your host system. Vagrant can't do this for you in a safe and
             automated way.
             Please check https://docs.ansible.com for more information.
+          cannot_support_pip_install: |-
+            Unfortunately Vagrant does not support yet installing Ansible
+            from pip for the guest OS running in the machine.
+
+            If you'd like this provisioner to be improved, please
+            take a look at the Vagrant source code linked below and try
+            to contribute back support. Thank you!
+
+            https://github.com/mitchellh/vagrant
           ansible_version_not_found_on_guest: |-
             The requested Ansible version (%{required_version}) was not found on the guest.
             Please check the ansible installation on your guest system,
@@ -2139,6 +2148,7 @@ en:
           raw_ssh_args_invalid: |-
             `raw_ssh_args` must be an array of strings. Received: %{value} (as %{type})
         installing: "Installing Ansible..."
+        installing_pip: "Installing pip... (for Ansible installation)"
         running_galaxy: "Running ansible-galaxy..."
         running_playbook: "Running ansible-playbook..."
         windows_not_supported_for_control_machine: |-
