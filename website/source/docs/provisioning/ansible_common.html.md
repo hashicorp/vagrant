@@ -19,9 +19,9 @@ Some of these options are for advanced usage only and should not be used unless 
 
 - `extra_vars` (string or hash) - Pass additional variables (with highest priority) to the playbook.
 
-  This parameter can be a path to a JSON or YAML file, or a hash.
+    This parameter can be a path to a JSON or YAML file, or a hash.
 
-  Example:
+    Example:
 
     ```ruby
     ansible.extra_vars = {
@@ -32,11 +32,11 @@ Some of these options are for advanced usage only and should not be used unless 
       }
     }
     ```
-  These variables take the highest precedence over any other variables.
+    These variables take the highest precedence over any other variables.
 
 - `host_vars` (hash) - Set of inventory host variables to be included in the [auto-generated inventory file](https://docs.ansible.com/ansible/intro_inventory.html#host-variables).
 
-  Example:
+    Example:
 
     ```ruby
     ansible.host_vars = {
@@ -47,13 +47,11 @@ Some of these options are for advanced usage only and should not be used unless 
     }
     ```
 
-  Notes:
-
-    - This option has no effect when the `inventory_path` option is defined.
+    Note: This option has no effect when the `inventory_path` option is defined.
 
 - `groups` (hash) - Set of inventory groups to be included in the [auto-generated inventory file](/docs/provisioning/ansible_intro.html).
 
-  Example:
+    Example:
 
     ```ruby
     ansible.groups = {
@@ -61,7 +59,7 @@ Some of these options are for advanced usage only and should not be used unless 
       "db"  => ["vm3"]
     }
     ```
-  Example with [group variables](https://docs.ansible.com/ansible/intro_inventory.html#group-variables):
+    Example with [group variables](https://docs.ansible.com/ansible/intro_inventory.html#group-variables):
 
     ```ruby
     ansible.groups = {
@@ -71,48 +69,48 @@ Some of these options are for advanced usage only and should not be used unless 
     }
     ```
 
-  Notes:
+    Notes:
 
     - Alphanumeric patterns are not supported (e.g. `db-[a:f]`, `vm[01:10]`).
     - This option has no effect when the `inventory_path` option is defined.
 
 - `inventory_path` (string) - The path to an Ansible inventory resource (e.g. a [static inventory file](https://docs.ansible.com/intro_inventory.html), a [dynamic inventory script](https://docs.ansible.com/intro_dynamic_inventory.html) or even [multiple inventories stored in the same directory](https://docs.ansible.com/intro_dynamic_inventory.html#using-multiple-inventory-sources)).
 
-  By default, this option is disabled and Vagrant generates an inventory based on the `Vagrantfile` information.
+    By default, this option is disabled and Vagrant generates an inventory based on the `Vagrantfile` information.
 
 - `galaxy_command` (template string) - The command pattern used to install Galaxy roles when `galaxy_role_file` is set.
 
-  The following (optional) placeholders can be used in this command pattern:
+    The following (optional) placeholders can be used in this command pattern:
     - `%{role_file}` is replaced by the absolute path to the `galaxy_role_file` option
     - `%{roles_path}` is
       - replaced by the absolute path to the `galaxy_roles_path` option when such option is defined, or
       - replaced by the absolute path to a `roles` subdirectory sitting in the `playbook` parent directory.
 
-  By default, this option is set to
+    By default, this option is set to
 
-  `ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force`
+    `ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force`
 
 - `galaxy_role_file` (string) - The path to the Ansible Galaxy role file.
 
-  By default, this option is set to `nil` and Galaxy support is then disabled.
+    By default, this option is set to `nil` and Galaxy support is then disabled.
 
-  Note: if an absolute path is given, the `ansible_local` provisioner will assume that it corresponds to the exact location on the guest system.
+    Note: if an absolute path is given, the `ansible_local` provisioner will assume that it corresponds to the exact location on the guest system.
 
 - `galaxy_roles_path` (string) - The path to the directory where Ansible Galaxy roles must be installed
 
-  By default, this option is set to `nil`, which means that the Galaxy roles will be installed in a `roles` subdirectory located in the parent directory of the `playbook` file.
+    By default, this option is set to `nil`, which means that the Galaxy roles will be installed in a `roles` subdirectory located in the parent directory of the `playbook` file.
 
 - `limit` (string or array of strings) - Set of machines or groups from the inventory file to further control which hosts [are affected](https://docs.ansible.com/glossary.html#limit-groups).
 
-  The default value is set to the machine name (taken from `Vagrantfile`) to ensure that `vagrant provision` command only affect the expected machine.
+    The default value is set to the machine name (taken from `Vagrantfile`) to ensure that `vagrant provision` command only affect the expected machine.
 
-  Setting `limit = "all"` can be used to make Ansible connect to all machines from the inventory file.
+    Setting `limit = "all"` can be used to make Ansible connect to all machines from the inventory file.
 
 - `raw_arguments` (array of strings) - a list of additional `ansible-playbook` arguments.
 
-  It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. As of Vagrant 1.7, `raw_arguments` has the highest priority and its values can potentially override or break other Vagrant settings.
+    It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. As of Vagrant 1.7, `raw_arguments` has the highest priority and its values can potentially override or break other Vagrant settings.
 
-  Example: `['--check', '-M /my/modules']`).
+    Example: `['--check', '-M /my/modules']`).
 
 - `skip_tags` (string or array of strings) - Only plays, roles and tasks that [*do not match* these values will be executed](https://docs.ansible.com/playbooks_tags.html).
 
@@ -120,7 +118,7 @@ Some of these options are for advanced usage only and should not be used unless 
 
 - `sudo` (boolean) - Cause Ansible to perform all the playbook tasks [using sudo](https://docs.ansible.com/glossary.html#sudo).
 
-  The default value is `false`.
+    The default value is `false`.
 
 - `sudo_user` (string) - set the default username who should be used by the sudo command.
 
@@ -128,10 +126,10 @@ Some of these options are for advanced usage only and should not be used unless 
 
 - `verbose` (boolean or string) - Set Ansible's verbosity to obtain detailed logging
 
-  Default value is `false` (minimal verbosity).
+    Default value is `false` (minimal verbosity).
 
-  Examples: `true` (equivalent to `v`), `-vvv` (equivalent to `vvv`), `vvvv`.
+    Examples: `true` (equivalent to `v`), `-vvv` (equivalent to `vvv`), `vvvv`.
 
-  Note that when the `verbose` option is enabled, the `ansible-playbook` command used by Vagrant will be displayed.
+    Note that when the `verbose` option is enabled, the `ansible-playbook` command used by Vagrant will be displayed.
 
 - `vault_password_file` (string) - The path of a file containing the password used by [Ansible Vault](https://docs.ansible.com/playbooks_vault.html#vault).
