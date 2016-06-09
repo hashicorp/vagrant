@@ -3,6 +3,7 @@ require "pathname"
 
 require 'vagrant/util/safe_chdir'
 require 'vagrant/util/subprocess'
+require 'vagrant/util/presence'
 
 module Vagrant
   module Action
