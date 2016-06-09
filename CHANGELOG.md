@@ -114,6 +114,9 @@ BUG FIXES:
       missing [GH-7126, GH-6742]
   - providers/virtualbox: Use scoped overrides in preparring NFS
       [GH-7387, GH-7386]
+  - provisioners/ansible: Fix a race condition in the concurrent generations of
+      the ansible inventory file, while running `vagrant up --parallel`
+      [GH-6526, GH-7190]
   - provisioners/ansible_local: Don't quote the Ansible arguments defined in the
       `raw_arguments` option [GH-7103]
   - provisioners/ansible_local: Format json `extra_vars` with double quotes
