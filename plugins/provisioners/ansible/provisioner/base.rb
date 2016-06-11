@@ -37,7 +37,7 @@ module VagrantPlugins
         def ansible_playbook_command_for_shell_execution
           shell_command = []
           @environment_variables.each_pair do |k, v|
-            if k == 'ANSIBLE_SSH_ARGS'
+            if k =~ /ANSIBLE_SSH_ARGS|ANSIBLE_ROLES_PATH/
               shell_command << "#{k}='#{v}'"
             else
               shell_command << "#{k}=#{v}"
@@ -98,6 +98,10 @@ module VagrantPlugins
           # Setting ANSIBLE_NOCOLOR is "unnecessary" at the moment, but this could change in the future
           # (e.g. local provisioner [GH-2103], possible change in vagrant/ansible integration, etc.)
           @environment_variables["ANSIBLE_NOCOLOR"] = "true" if !@machine.env.ui.color?
+
+          # Use ANSIBLE_ROLES_PATH to tell ansible-playbook where to look for roles
+          # (there is no equivalent command line argument in ansible-playbook)
+          @environment_variables["ANSIBLE_ROLES_PATH"] = get_galaxy_roles_path if config.galaxy_roles_path
         end
 
         # Auto-generate "safe" inventory file based on Vagrantfile,
@@ -221,11 +225,12 @@ module VagrantPlugins
           end
         end
 
-        def get_galaxy_role_file(base_dir)
-          Helpers::expand_path_in_unix_style(config.galaxy_role_file, base_dir)
+        def get_galaxy_role_file
+          Helpers::expand_path_in_unix_style(config.galaxy_role_file, get_provisioning_working_directory)
         end
 
-        def get_galaxy_roles_path(base_dir)
+        def get_galaxy_roles_path
+          base_dir = get_provisioning_working_directory
           if config.galaxy_roles_path
             Helpers::expand_path_in_unix_style(config.galaxy_roles_path, base_dir)
           else

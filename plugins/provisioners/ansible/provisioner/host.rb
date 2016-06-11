@@ -89,8 +89,8 @@ module VagrantPlugins
 
         def execute_ansible_galaxy_from_host
           command_values = {
-            role_file: get_galaxy_role_file(machine.env.root_path),
-            roles_path: get_galaxy_roles_path(machine.env.root_path)
+            role_file: get_galaxy_role_file,
+            roles_path: get_galaxy_roles_path
           }
           command_template = config.galaxy_command.gsub(' ', VAGRANT_ARG_SEPARATOR)
           str_command = command_template % command_values
@@ -102,6 +102,7 @@ module VagrantPlugins
             workdir: @machine.env.root_path.to_s
           }
 
+          # FIXME: role_file and roles_path arguments should be quoted in the console output
           ui_running_ansible_command "galaxy", str_command.gsub(VAGRANT_ARG_SEPARATOR, ' ')
 
           execute_command_from_host command
@@ -186,6 +187,10 @@ module VagrantPlugins
           end
 
           return machines
+        end
+
+        def get_provisioning_working_directory
+          machine.env.root_path
         end
 
         def get_inventory_ssh_machine(machine, ssh_info)
