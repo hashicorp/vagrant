@@ -2,8 +2,13 @@
 
 BUG FIXES:
 
-  - Use 8 network interfaces [GH-7417, GH-7419]
-  - Fix bundler plugin issue and version constraint [GH-7418, GH-7415]
+  - core: Fix bundler plugin issue and version constraint [GH-7418, GH-7415]
+  - providers/virtualbox: Use 8 network interfaces (due to Windows limitation)
+      [GH-7417, GH-7419]
+  - provisioners/ansible(both): Honor "galaxy_roles_path" option when running
+      ansible-playbook [GH-7269, GH-7420]
+  - provisioners/ansible_local: Add quotes around "ansible-galaxy" arguments
+      [GH-7420]
 
 ## 1.8.3 (June 10, 2016)
 
