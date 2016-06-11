@@ -1,6 +1,9 @@
 ## Next Version (unreleased)
 
+BUG FIXES:
 
+  - Use 8 network interfaces [GH-7417, GH-7419]
+  - Fix bundler plugin issue and version constraint [GH-7418, GH-7415]
 
 ## 1.8.3 (June 10, 2016)
 
