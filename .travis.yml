@@ -4,6 +4,9 @@ sudo: false
 
 cache: bundler
 
+before_install:
+  - gem install bundler -v '1.12.5'
+
 addons:
   apt:
     packages:
