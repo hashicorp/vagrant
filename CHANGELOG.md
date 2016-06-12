@@ -10,6 +10,10 @@ BUG FIXES:
   - provisioners/ansible_local: Add quotes around "ansible-galaxy" arguments
       [GH-7420]
 
+IMPROVEMENTS:
+
+  - guests/redhat: Add CloudLinux detection [GH-7428, GH-7427]
+
 ## 1.8.3 (June 10, 2016)
 
 BREAKING CHANGES:
