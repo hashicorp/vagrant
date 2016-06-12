@@ -59,8 +59,11 @@ This page will document some general guidelines for creating base boxes,
 however, and will link to provider-specific guides for creating base
 boxes.
 
-Provider-specific guides are linked below:
+Provider-specific guides for creating base boxes are linked below:
 
+* [Docker Base Boxes](/docs/docker/boxes.html)
+* [Hyper-V Base Boxes](/docs/hyperv/boxes.html)
+* [VMware Base Boxes](/docs/vmware/boxes.html)
 * [VirtualBox Base Boxes](/docs/virtualbox/boxes.html)
 
 ### Packer and Atlas
