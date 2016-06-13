@@ -1,4 +1,4 @@
-## Next Version (unreleased)
+## 1.8.4 (June 13, 2016)
 
 BUG FIXES:
 
