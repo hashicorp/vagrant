@@ -91,8 +91,8 @@ module VagrantPlugins
             "-o", "UserKnownHostsFile=/dev/null"]
         end
 
-        # If keys_only is true, attach the private key paths.
-        if ssh_info[:keys_only]
+        # If specified, attach the private key paths.
+        if ssh_info[:private_key_path]
           ssh_info[:private_key_path].map { |p| "-i '#{p}'" }
         end
 
