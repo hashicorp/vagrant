@@ -126,8 +126,8 @@ module Vagrant
             "-o", "UserKnownHostsFile=/dev/null"]
         end
 
-        # If we're not in plain mode or if keys_only is true, attach the private key paths.
-        if !plain_mode && ssh_info[:keys_only]
+        # If we're not in plain mode and :private_key_path is set attach the private key path(s).
+        if !plain_mode && options[:private_key_path]
           options[:private_key_path].each do |path|
             command_options += ["-i", path.to_s]
           end

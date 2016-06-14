@@ -45,7 +45,7 @@ module VagrantPlugins
             ssh_command:   ssh_info[:ssh_command],
             forward_env:   ssh_info[:forward_env],
           }
-          if ssh_info[:keys_only]
+          if ssh_info[:private_key_path]
             variables['private_key_path'] = ssh_info[:private_key_path]
           end
           if ssh_info[:log_level]

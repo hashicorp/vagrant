@@ -93,9 +93,7 @@ module VagrantPlugins
 
         # If keys_only is true, attach the private key paths.
         if ssh_info[:keys_only]
-          ssh_info[:private_key_path].each do |path|
-            rsh += ["-i", path.to_s]
-          end
+          ssh_info[:private_key_path].map { |p| "-i '#{p}'" }
         end
 
         if ssh_info[:proxy_command]
