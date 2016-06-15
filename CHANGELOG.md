@@ -2,6 +2,8 @@
 
 BUG FIXES:
 
+  - core: bump listen gem and Ruby version to improve rsync performance
+    [GH-7453, GH-7441]
 
 ## 1.8.4 (June 13, 2016)
 
