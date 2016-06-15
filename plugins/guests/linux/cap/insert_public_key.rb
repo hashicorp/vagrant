@@ -19,6 +19,7 @@ module VagrantPlugins
             mkdir -p ~/.ssh
             chmod 0700 ~/.ssh
             cat '#{remote_path}' >> ~/.ssh/authorized_keys
+            echo "\n" >> ~/.ssh/authorized_keys
             chmod 0600 ~/.ssh/authorized_keys
 
             # Remove the temporary file
