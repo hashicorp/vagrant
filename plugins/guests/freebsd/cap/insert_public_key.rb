@@ -6,7 +6,7 @@ module VagrantPlugins
       class InsertPublicKey
         def self.insert_public_key(machine, contents)
           comm = machine.communicate
-          contents = contents.chomp
+          contents = contents.strip << "\n"
 
           remote_path = "/tmp/vagrant-authorized-keys-#{Time.now.to_i}"
           Tempfile.open("vagrant-freebsd-insert-public-key") do |f|
