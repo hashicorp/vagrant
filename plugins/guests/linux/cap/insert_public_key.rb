@@ -4,7 +4,7 @@ module VagrantPlugins
       class InsertPublicKey
         def self.insert_public_key(machine, contents)
           comm = machine.communicate
-          contents = contents.chomp
+          contents = contents.chomp+"\n"
 
           remote_path = "/tmp/vagrant-authorized-keys-#{Time.now.to_i}"
           Tempfile.open("vagrant-linux-insert-public-key") do |f|
@@ -19,7 +19,6 @@ module VagrantPlugins
             mkdir -p ~/.ssh
             chmod 0700 ~/.ssh
             cat '#{remote_path}' >> ~/.ssh/authorized_keys
-            echo "\n" >> ~/.ssh/authorized_keys
             chmod 0600 ~/.ssh/authorized_keys
 
             # Remove the temporary file
