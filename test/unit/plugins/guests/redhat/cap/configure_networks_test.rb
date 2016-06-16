@@ -12,7 +12,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
-    comm.stub_command("ifconfig -a | grep -o ^[0-9a-z]* | grep -v '^lo'",
+    comm.stub_command("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'",
       stdout: "eth1\neth2")
   end
 
