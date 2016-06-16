@@ -82,7 +82,7 @@ module Vagrant
             begin
               username = ENV["USERNAME"]
               process = Subprocess.execute("net", "localgroup", "Hyper-V Administrators")
-              return process.include?(username)
+              return process.stdout.include?(username)
             rescue Errors::CommandUnavailableWindows
               return false
             end
