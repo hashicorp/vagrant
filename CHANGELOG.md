@@ -3,7 +3,9 @@
 BUG FIXES:
 
   - core: bump listen gem and Ruby version to improve rsync performance
-    [GH-7453, GH-7441]
+      [GH-7453, GH-7441]
+  - guests/centos: Use `ip` instead of `ifconfig` to detect network interfaces
+      [GH-7460]
 
 ## 1.8.4 (June 13, 2016)
 
