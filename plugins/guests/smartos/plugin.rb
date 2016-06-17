@@ -6,52 +6,52 @@ module VagrantPlugins
       name "SmartOS guest."
       description "SmartOS guest support."
 
-      config("smartos") do
-        require File.expand_path("../config", __FILE__)
+      config(:smartos) do
+        require_relative "config"
         Config
       end
 
-      guest("smartos")  do
-        require File.expand_path("../guest", __FILE__)
+      guest(:smartos)  do
+        require_relative "guest"
         Guest
       end
 
-      guest_capability("smartos", "change_host_name") do
+      guest_capability(:smartos, :change_host_name) do
         require_relative "cap/change_host_name"
         Cap::ChangeHostName
       end
 
-      guest_capability("smartos", "configure_networks") do
+      guest_capability(:smartos, :configure_networks) do
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
       end
 
-      guest_capability("smartos", "halt") do
+      guest_capability(:smartos, :halt) do
         require_relative "cap/halt"
         Cap::Halt
       end
 
-      guest_capability("smartos", "mount_nfs_folder") do
+      guest_capability(:smartos, :mount_nfs_folder) do
         require_relative "cap/mount_nfs"
         Cap::MountNFS
       end
 
-      guest_capability("smartos", "rsync_installed") do
+      guest_capability(:smartos, :rsync_installed) do
         require_relative "cap/rsync"
         Cap::RSync
       end
 
-      guest_capability("smartos", "rsync_command") do
+      guest_capability(:smartos, :rsync_command) do
         require_relative "cap/rsync"
         Cap::RSync
       end
 
-      guest_capability("smartos", "rsync_post") do
+      guest_capability(:smartos, :rsync_post) do
         require_relative "cap/rsync"
         Cap::RSync
       end
 
-      guest_capability("smartos", "rsync_pre") do
+      guest_capability(:smartos, :rsync_pre) do
         require_relative "cap/rsync"
         Cap::RSync
       end

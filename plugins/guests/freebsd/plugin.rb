@@ -6,67 +6,67 @@ module VagrantPlugins
       name "FreeBSD guest"
       description "FreeBSD guest support."
 
-      guest("freebsd")  do
+      guest(:freebsd) do
         require_relative "guest"
         Guest
       end
 
-      guest_capability("freebsd", "change_host_name") do
+      guest_capability(:freebsd, :change_host_name) do
         require_relative "cap/change_host_name"
         Cap::ChangeHostName
       end
 
-      guest_capability("freebsd", "configure_networks") do
+      guest_capability(:freebsd, :configure_networks) do
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
       end
 
-      guest_capability("freebsd", "halt") do
+      guest_capability(:freebsd, :halt) do
         require_relative "cap/halt"
         Cap::Halt
       end
 
-      guest_capability("freebsd", "insert_public_key") do
+      guest_capability(:freebsd, :insert_public_key) do
         require_relative "cap/insert_public_key"
         Cap::InsertPublicKey
       end
 
-      guest_capability("freebsd", "mount_nfs_folder") do
+      guest_capability(:freebsd, :mount_nfs_folder) do
         require_relative "cap/mount_nfs_folder"
         Cap::MountNFSFolder
       end
 
-      guest_capability("freebsd", "remove_public_key") do
+      guest_capability(:freebsd, :remove_public_key) do
         require_relative "cap/remove_public_key"
         Cap::RemovePublicKey
       end
 
-      guest_capability("freebsd", "rsync_install") do
+      guest_capability(:freebsd, :rsync_install) do
         require_relative "cap/rsync"
         Cap::RSync
       end
 
-      guest_capability("freebsd", "rsync_installed") do
+      guest_capability(:freebsd, :rsync_installed) do
         require_relative "cap/rsync"
         Cap::RSync
       end
 
-      guest_capability("freebsd", "rsync_command") do
+      guest_capability(:freebsd, :rsync_command) do
         require_relative "cap/rsync"
         Cap::RSync
       end
 
-      guest_capability("freebsd", "rsync_post") do
+      guest_capability(:freebsd, :rsync_post) do
         require_relative "cap/rsync"
         Cap::RSync
       end
 
-      guest_capability("freebsd", "rsync_pre") do
+      guest_capability(:freebsd, :rsync_pre) do
         require_relative "cap/rsync"
         Cap::RSync
       end
 
-      guest_capability("freebsd", "shell_expand_guest_path") do
+      guest_capability(:freebsd, :shell_expand_guest_path) do
         require_relative "cap/shell_expand_guest_path"
         Cap::ShellExpandGuestPath
       end
