@@ -26,12 +26,12 @@ module VagrantPlugins
         end
 
         def check_files_existence
-          check_path_is_a_file config.playbook, :playbook
+          check_path_is_a_file(config.playbook, :playbook)
 
-          check_path_exists config.inventory_path, :inventory_path if config.inventory_path
-          check_path_is_a_file config.extra_vars[1..-1], :extra_vars if has_an_extra_vars_file_argument
-          check_path_is_a_file config.galaxy_role_file, :galaxy_role_file if config.galaxy_role_file
-          check_path_is_a_file config.vault_password_file, :vault_password if config.vault_password_file
+          check_path_exists(config.inventory_path, :inventory_path) if config.inventory_path
+          check_path_is_a_file(config.extra_vars[1..-1], :extra_vars) if has_an_extra_vars_file_argument
+          check_path_is_a_file(config.galaxy_role_file, :galaxy_role_file) if config.galaxy_role_file
+          check_path_is_a_file(config.vault_password_file, :vault_password_file) if config.vault_password_file
         end
 
         def ansible_playbook_command_for_shell_execution
