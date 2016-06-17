@@ -1,11 +1,10 @@
 require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestFreeBSD::Cap::MountNFSFolder" do
-  let(:described_class) do
+  let(:caps) do
     VagrantPlugins::GuestFreeBSD::Plugin
       .components
       .guest_capabilities[:freebsd]
-      .get(:mount_nfs_folder)
   end
 
   let(:machine) { double("machine") }
@@ -20,7 +19,18 @@ describe "VagrantPlugins::GuestFreeBSD::Cap::MountNFSFolder" do
   end
 
   describe ".mount_nfs_folder" do
+    let(:cap) { caps.get(:mount_nfs_folder) }
+
     let(:ip) { "1.2.3.4" }
+
+    let(:hostpath) { "/host" }
+    let(:guestpath) { "/guest" }
+
+    before do
+      allow(machine).to receive(:guest).and_return(
+        double("capability", capability: guestpath)
+      )
+    end
 
     it "mounts the folder" do
       folders = {
@@ -30,10 +40,10 @@ describe "VagrantPlugins::GuestFreeBSD::Cap::MountNFSFolder" do
           hostpath: "/host",
         }
       }
-      described_class.mount_nfs_folder(machine, ip, folders)
+      cap.mount_nfs_folder(machine, ip, folders)
 
-      expect(comm.received_commands[0]).to match(/mkdir -p '\/guest'/)
-      expect(comm.received_commands[0]).to match(/'1.2.3.4:\/host' '\/guest'/)
+      expect(comm.received_commands[0]).to match(/mkdir -p '#{guestpath}'/)
+      expect(comm.received_commands[0]).to match(/'1.2.3.4:#{hostpath}' '#{guestpath}'/)
     end
 
     it "mounts with options" do
@@ -43,11 +53,23 @@ describe "VagrantPlugins::GuestFreeBSD::Cap::MountNFSFolder" do
           guestpath: "/guest",
           hostpath: "/host",
           nfs_version: 2,
+          nfs_udp: true,
         }
       }
-      described_class.mount_nfs_folder(machine, ip, folders)
+      cap.mount_nfs_folder(machine, ip, folders)
 
-      expect(comm.received_commands[0]).to match(/mount -t nfs -o nfsv2/)
+      expect(comm.received_commands[0]).to match(/mount -t nfs -o nfsv2,udp/)
+    end
+
+    it "emits an event" do
+      folders = {
+        "/vagrant-nfs" => {
+          type: :nfs,
+          guestpath: "/guest",
+          hostpath: "/host",
+        }
+      }
+      cap.mount_nfs_folder(machine, ip, folders)
     end
   end
 end
