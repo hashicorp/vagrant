@@ -41,6 +41,7 @@ doc/
 
 # Ruby Managers
 .rbenv
+.rbenv-gemsets
 .ruby-gemset
 .ruby-version
 .rvmrc
