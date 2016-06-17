@@ -6,27 +6,27 @@ module VagrantPlugins
       name "ESXi guest."
       description "ESXi guest support."
 
-      guest("esxi")  do
-        require File.expand_path("../guest", __FILE__)
+      guest(:esxi)  do
+        require_relative "guest"
         Guest
       end
 
-      guest_capability("esxi", "change_host_name") do
+      guest_capability(:esxi, :change_host_name) do
         require_relative "cap/change_host_name"
         Cap::ChangeHostName
       end
 
-      guest_capability("esxi", "configure_networks") do
+      guest_capability(:esxi, :configure_networks) do
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
       end
 
-      guest_capability("esxi", "mount_nfs_folder") do
+      guest_capability(:esxi, :mount_nfs_folder) do
         require_relative "cap/mount_nfs_folder"
         Cap::MountNFSFolder
       end
 
-      guest_capability("esxi", "halt") do
+      guest_capability(:esxi, :halt) do
         require_relative "cap/halt"
         Cap::Halt
       end
