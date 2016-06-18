@@ -9,18 +9,24 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 
 
 if($PSVersionTable.PSVersion.Major -le 4) {
-  $ExceptionType = [Microsoft.HyperV.PowerShell.VirtualizationOperationFailedException]
+  $ExceptionType = "Microsoft.HyperV.PowerShell.VirtualizationOperationFailedException"
 } else {
-  $ExceptionType = [Microsoft.HyperV.PowerShell.VirtualizationException]
+  $ExceptionType = "Microsoft.HyperV.PowerShell.VirtualizationException"
 }
 
 try {
     $VM = Get-VM -Id $VmId -ErrorAction "Stop"
     $State = $VM.state
     $Status = $VM.status
-} catch $ExceptionType {
-    $State = "not_created"
-    $Status = $State
+} catch [System.Exception] {
+    $type = [String]$_.Exception.GetType()
+    if ($type -eq $ExceptionType ) {
+      $State = "not_created"
+      $Status = $State
+    } else {
+      Write-Hosts "Uncaught stuff: $($_.Exception.Gettype())"
+      throw $_.Exception
+    }
 }
 
 $resultHash = @{
