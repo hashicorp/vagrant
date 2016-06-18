@@ -1,11 +1,10 @@
 require_relative "../../../../base"
 
-describe "VagrantPlugins::GuestFreeBSD::Cap::InsertPublicKey" do
-  let(:described_class) do
-    VagrantPlugins::GuestFreeBSD::Plugin
+describe "VagrantPlugins::GuestBSD::Cap::InsertPublicKey" do
+  let(:caps) do
+    VagrantPlugins::GuestBSD::Plugin
       .components
-      .guest_capabilities[:freebsd]
-      .get(:insert_public_key)
+      .guest_capabilities[:bsd]
   end
 
   let(:machine) { double("machine") }
@@ -20,8 +19,10 @@ describe "VagrantPlugins::GuestFreeBSD::Cap::InsertPublicKey" do
   end
 
   describe ".insert_public_key" do
+    let(:cap) { caps.get(:insert_public_key) }
+
     it "inserts the public key" do
-      described_class.insert_public_key(machine, "ssh-rsa ...")
+      cap.insert_public_key(machine, "ssh-rsa ...")
       expect(comm.received_commands[0]).to match(/mkdir -p ~\/.ssh/)
       expect(comm.received_commands[0]).to match(/chmod 0700 ~\/.ssh/)
       expect(comm.received_commands[0]).to match(/cat '\/tmp\/vagrant-(.+)' >> ~\/.ssh\/authorized_keys/)

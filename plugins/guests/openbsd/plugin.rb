@@ -6,7 +6,7 @@ module VagrantPlugins
       name "OpenBSD guest"
       description "OpenBSD guest support."
 
-      guest(:openbsd) do
+      guest(:openbsd, :bsd) do
         require_relative "guest"
         Guest
       end
@@ -24,11 +24,6 @@ module VagrantPlugins
       guest_capability(:openbsd, :halt) do
         require_relative "cap/halt"
         Cap::Halt
-      end
-
-      guest_capability(:openbsd, :insert_public_key) do
-        require_relative "cap/insert_public_key"
-        Cap::InsertPublicKey
       end
 
       guest_capability(:openbsd, :mount_nfs_folder) do

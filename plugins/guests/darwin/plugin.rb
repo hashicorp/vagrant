@@ -6,7 +6,7 @@ module VagrantPlugins
       name "Darwin guest"
       description "Darwin guest support."
 
-      guest(:darwin)  do
+      guest(:darwin, :bsd)  do
         require_relative "guest"
         Guest
       end
@@ -29,11 +29,6 @@ module VagrantPlugins
       guest_capability(:darwin, :halt) do
         require_relative "cap/halt"
         Cap::Halt
-      end
-
-      guest_capability(:darwin, :insert_public_key) do
-        require_relative "cap/insert_public_key"
-        Cap::InsertPublicKey
       end
 
       guest_capability(:darwin, :mount_nfs_folder) do
