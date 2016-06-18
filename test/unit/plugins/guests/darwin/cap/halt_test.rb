@@ -1,11 +1,10 @@
 require_relative "../../../../base"
 
-describe "VagrantPlugins::GuestFreeBSD::Cap::Halt" do
-  let(:described_class) do
-    VagrantPlugins::GuestFreeBSD::Plugin
+describe "VagrantPlugins::GuestDarwin::Cap::Halt" do
+  let(:caps) do
+    VagrantPlugins::GuestDarwin::Plugin
       .components
-      .guest_capabilities[:freebsd]
-      .get(:halt)
+      .guest_capabilities[:darwin]
   end
 
   let(:machine) { double("machine") }
@@ -20,15 +19,17 @@ describe "VagrantPlugins::GuestFreeBSD::Cap::Halt" do
   end
 
   describe ".halt" do
+    let(:cap) { caps.get(:halt) }
+
     it "runs the shutdown command" do
-      comm.expect_command("shutdown -p now")
-      described_class.halt(machine)
+      comm.expect_command("/sbin/shutdown -h now")
+      cap.halt(machine)
     end
 
-    it "does not raise an IOError" do
-      comm.stub_command("shutdown -p now", raise: IOError)
+    it "ignores an IOError" do
+      comm.stub_command("/sbin/shutdown -h now", raise: IOError)
       expect {
-        described_class.halt(machine)
+        cap.halt(machine)
       }.to_not raise_error
     end
   end

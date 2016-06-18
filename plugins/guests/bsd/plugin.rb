@@ -11,6 +11,11 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability(:bsd, :halt) do
+        require_relative "cap/halt"
+        Cap::Halt
+      end
+
       guest_capability(:bsd, :insert_public_key) do
         require_relative "cap/public_key"
         Cap::PublicKey
