@@ -1,5 +1,15 @@
 ## Next Version (Unreleased)
 
+FEATURES:
+
+  - core: Provide a way to globally disable box update checks with the
+      environment variable `VAGRANT_BOX_UPDATE_CHECK_DISABLE`. Setting this
+      to any non-empty value will instruct Vagrant to not look for box updates
+      when running `vagrant up`. Setting this environment variable has no
+      effect on the `vagrant box` commands.
+
+IMPROVEMENTS:
+
 BUG FIXES:
 
   - core: Bump listen gem and Ruby version to improve rsync performance
