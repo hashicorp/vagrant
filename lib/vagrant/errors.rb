@@ -324,10 +324,6 @@ module Vagrant
       error_key(:darwin_mount_failed)
     end
 
-    class DarwinNFSMountFailed < VagrantError
-      error_key(:darwin_nfs_mount_failed)
-    end
-
     class DestroyRequiresForce < VagrantError
       error_key(:destroy_requires_force)
     end
@@ -404,10 +400,6 @@ module Vagrant
       error_key(:linux_mount_failed)
     end
 
-    class LinuxNFSMountFailed < VagrantError
-      error_key(:linux_nfs_mount_failed)
-    end
-
     class LinuxRDPClientNotFound < VagrantError
       error_key(:linux_rdp_client_not_found)
     end
@@ -462,6 +454,10 @@ module Vagrant
 
     class NFSCantReadExports < VagrantError
       error_key(:nfs_cant_read_exports)
+    end
+
+    class NFSMountFailed < VagrantError
+      error_key(:nfs_mount_failed)
     end
 
     class NFSNoGuestIP < VagrantError

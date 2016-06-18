@@ -822,12 +822,6 @@ en:
         The error output from the last command was:
 
         %{output}
-      linux_nfs_mount_failed: |-
-        Mounting NFS shared folders failed. This is most often caused by the NFS
-        client software not being installed on the guest machine. Please verify
-        that the NFS client software is properly installed, and consult any resources
-        specific to the linux distro you're using for more information on how to
-        do this.
       linux_rdp_client_not_found: |-
         An appropriate RDP client was not found. Vagrant requires either
         `xfreerdp` or `rdesktop` in order to connect via RDP to the Vagrant
@@ -885,6 +879,12 @@ en:
         Vagrant can't read your current NFS exports! The exports file should be
         readable by any user. This is usually caused by invalid permissions
         on your NFS exports file. Please fix them and try again.
+      nfs_mount_failed: |-
+        Mounting NFS shared folders failed. This is most often caused by the NFS
+        client software not being installed on the guest machine. Please verify
+        that the NFS client software is properly installed, and consult any resources
+        specific to the linux distro you're using for more information on how to
+        do this.
       nfs_no_guest_ip: |-
         No guest IP was given to the Vagrant core NFS helper. This is an
         internal error that should be reported as a bug.
