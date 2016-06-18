@@ -12,7 +12,7 @@ module VagrantPlugins
           options = { shell: "sh" }
           comm = machine.communicate
 
-          commands   = []
+          commands   = ["set -e"]
           interfaces = []
 
           # Remove any previous network additions to the configuration file.

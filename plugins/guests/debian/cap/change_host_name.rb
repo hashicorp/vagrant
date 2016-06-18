@@ -12,6 +12,8 @@ module VagrantPlugins
           if !comm.test("hostname -f | grep -w '#{name}'")
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              set -e
+
               # Set the hostname
               echo '#{name}' > /etc/hostname
               hostname -F /etc/hostname

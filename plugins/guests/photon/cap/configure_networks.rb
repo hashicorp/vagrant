@@ -7,7 +7,7 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           comm = machine.communicate
 
-          commands   = []
+          commands   = ["set -e"]
           interfaces = []
 
           comm.sudo("ifconfig | grep 'eth' | cut -f1 -d' '") do |_, result|

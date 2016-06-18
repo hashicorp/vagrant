@@ -42,7 +42,7 @@ module VagrantPlugins
             end
 
             # Build a list of commands
-            commands = []
+            commands = ["set -e"]
 
             # Stop default systemd
             commands << "systemctl stop etcd"

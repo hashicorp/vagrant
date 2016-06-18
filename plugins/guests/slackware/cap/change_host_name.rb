@@ -8,6 +8,8 @@ module VagrantPlugins
           if !comm.test("hostname -f | grep -w '#{name}'", sudo: false)
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              set -e
+
               # Set the hostname
               chmod o+w /etc/hostname
               echo '#{name}' > /etc/hostname

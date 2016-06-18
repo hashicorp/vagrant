@@ -4,6 +4,8 @@ module VagrantPlugins
       class NFSClient
         def self.nfs_client_install(machine)
           machine.communicate.sudo <<-EOH.gsub(/^ {12}/, '')
+            set -e
+
             if command -v dnf; then
               dnf -y install nfs-utils nfs-utils-lib portmap
             else

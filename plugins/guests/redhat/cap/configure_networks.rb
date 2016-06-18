@@ -33,7 +33,7 @@ module VagrantPlugins
           network_scripts_dir = machine.guest.capability(:network_scripts_dir)
 
           interfaces = []
-          commands   = []
+          commands   = ["set -e"]
 
           comm.sudo("/sbin/ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|
             interfaces = stdout.split("\n")
