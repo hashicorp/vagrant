@@ -15,6 +15,11 @@ module VagrantPlugins
         require_relative "cap/insert_public_key"
         Cap::InsertPublicKey
       end
+
+      guest_capability(:bsd, :mount_nfs_folder) do
+        require_relative "cap/nfs"
+        Cap::NFS
+      end
     end
   end
 end

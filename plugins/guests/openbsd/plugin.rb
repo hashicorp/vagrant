@@ -26,11 +26,6 @@ module VagrantPlugins
         Cap::Halt
       end
 
-      guest_capability(:openbsd, :mount_nfs_folder) do
-        require_relative "cap/mount_nfs_folder"
-        Cap::MountNFSFolder
-      end
-
       guest_capability(:openbsd, :remove_public_key) do
         require_relative "cap/remove_public_key"
         Cap::RemovePublicKey
