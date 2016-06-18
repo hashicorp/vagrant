@@ -408,6 +408,10 @@ module Vagrant
       error_key(:linux_nfs_mount_failed)
     end
 
+    class FreeBSDNFSMountFailed < VagrantError
+      error_key(:freebsd_nfs_mount_failed)
+    end
+
     class LinuxRDPClientNotFound < VagrantError
       error_key(:linux_rdp_client_not_found)
     end

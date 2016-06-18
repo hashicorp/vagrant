@@ -828,6 +828,13 @@ en:
         that the NFS client software is properly installed, and consult any resources
         specific to the linux distro you're using for more information on how to
         do this.
+      freebsd_nfs_mount_failed: |-
+        Mounting NFS shared folders failed. This is most often caused by the NFS
+        client software not being installed on the guest machine. Please verify
+        that the NFS client software is properly installed for more information
+        please check:
+
+        https://www.freebsd.org/cgi/man.cgi?query=mount_nfs
       linux_rdp_client_not_found: |-
         An appropriate RDP client was not found. Vagrant requires either
         `xfreerdp` or `rdesktop` in order to connect via RDP to the Vagrant
