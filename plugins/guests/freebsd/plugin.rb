@@ -21,11 +21,6 @@ module VagrantPlugins
         Cap::ConfigureNetworks
       end
 
-      guest_capability(:freebsd, :halt) do
-        require_relative "cap/halt"
-        Cap::Halt
-      end
-
       guest_capability(:freebsd, :rsync_install) do
         require_relative "cap/rsync"
         Cap::RSync

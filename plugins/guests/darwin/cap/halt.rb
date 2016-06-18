@@ -4,7 +4,9 @@ module VagrantPlugins
       class Halt
         def self.halt(machine)
           begin
-            machine.communicate.sudo("shutdown -h now")
+            # Darwin does not support the `-p` option like the rest of the
+            # BSD-based guests, so it needs its own cap.
+            machine.communicate.sudo("/sbin/shutdown -h now")
           rescue IOError
             # Do nothing because SSH connection closed and it probably
             # means the VM just shut down really fast.
