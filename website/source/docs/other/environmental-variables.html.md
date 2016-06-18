@@ -32,6 +32,16 @@ Vagrant to use this provider for any _new_ Vagrant environments. Existing
 Vagrant environments will continue to use the provider they came `up` with.
 Once you `vagrant destroy` existing environments, this will take effect.
 
+## `VAGRANT_BOX_UPDATE_CHECK_DISABLE`
+
+By default, Vagrant will query the metadata API server to see if a newer
+box version is available for download. This optional can be disabled on a
+per-Vagrantfile basis with `config.vm.box_check_update`, but it can also be
+disabled globally setting `VAGRANT_BOX_UPDATE_CHECK_DISABLE` to any non-empty
+value.
+
+This option will not affect global box functions like `vagrant box update`.
+
 ## `VAGRANT_CHECKPOINT_DISABLE`
 
 Vagrant does occasional network calls to check whether the version of Vagrant
