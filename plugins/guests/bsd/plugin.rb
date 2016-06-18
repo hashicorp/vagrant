@@ -12,13 +12,18 @@ module VagrantPlugins
       end
 
       guest_capability(:bsd, :insert_public_key) do
-        require_relative "cap/insert_public_key"
-        Cap::InsertPublicKey
+        require_relative "cap/public_key"
+        Cap::PublicKey
       end
 
       guest_capability(:bsd, :mount_nfs_folder) do
         require_relative "cap/nfs"
         Cap::NFS
+      end
+
+      guest_capability(:bsd, :remove_public_key) do
+        require_relative "cap/public_key"
+        Cap::PublicKey
       end
     end
   end

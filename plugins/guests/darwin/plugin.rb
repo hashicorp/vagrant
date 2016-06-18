@@ -41,11 +41,6 @@ module VagrantPlugins
         Cap::MountVmwareSharedFolder
       end
 
-      guest_capability(:darwin, :remove_public_key) do
-        require_relative "cap/remove_public_key"
-        Cap::RemovePublicKey
-      end
-
       guest_capability(:darwin, :rsync_installed) do
         require_relative "cap/rsync"
         Cap::RSync
