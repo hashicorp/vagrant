@@ -75,9 +75,17 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
   context "#box_check_update" do
     it "defaults to true" do
-      subject.finalize!
+      with_temp_env("VAGRANT_BOX_UPDATE_CHECK_DISABLE" => "") do
+        subject.finalize!
+        expect(subject.box_check_update).to be(true)
+      end
+    end
 
-      expect(subject.box_check_update).to be_true
+    it "is false if VAGRANT_BOX_UPDATE_CHECK_DISABLE is set" do
+      with_temp_env("VAGRANT_BOX_UPDATE_CHECK_DISABLE" => "1") do
+        subject.finalize!
+        expect(subject.box_check_update).to be(false)
+      end
     end
   end
 
