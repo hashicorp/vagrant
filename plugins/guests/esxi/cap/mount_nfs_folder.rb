@@ -13,9 +13,9 @@ module VagrantPlugins
                 comm.execute("localcli storage nfs remove -v #{volume}")
               end
               mount_command = "localcli storage nfs add -H #{ip} -s '#{opts[:hostpath]}' -v '#{volume}'"
-              retryable(on: Vagrant::Errors::LinuxNFSMountFailed, tries: 5, sleep: 2) do
+              retryable(on: Vagrant::Errors::NFSMountFailed, tries: 5, sleep: 2) do
                 comm.execute(mount_command,
-                             error_class: Vagrant::Errors::LinuxNFSMountFailed)
+                             error_class: Vagrant::Errors::NFSMountFailed)
               end
 
               # symlink vmfs volume to :guestpath

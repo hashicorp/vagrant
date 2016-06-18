@@ -31,11 +31,6 @@ module VagrantPlugins
         Cap::Halt
       end
 
-      guest_capability(:darwin, :mount_nfs_folder) do
-        require_relative "cap/mount_nfs_folder"
-        Cap::MountNFSFolder
-      end
-
       guest_capability(:darwin, :mount_smb_shared_folder) do
         require_relative "cap/mount_smb_shared_folder"
         Cap::MountSMBSharedFolder

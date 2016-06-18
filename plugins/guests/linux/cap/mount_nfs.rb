@@ -40,8 +40,8 @@ module VagrantPlugins
             EOH
           end
 
-          retryable(on: Vagrant::Errors::LinuxNFSMountFailed, tries: 8, sleep: 3) do
-            comm.sudo(commands.join("\n"), error_class: Vagrant::Errors::LinuxNFSMountFailed)
+          retryable(on: Vagrant::Errors::NFSMountFailed, tries: 8, sleep: 3) do
+            comm.sudo(commands.join("\n"), error_class: Vagrant::Errors::NFSMountFailed)
           end
         end
       end
