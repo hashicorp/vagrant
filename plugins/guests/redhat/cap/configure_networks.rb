@@ -35,7 +35,7 @@ module VagrantPlugins
           interfaces = []
           commands   = []
 
-          comm.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|
+          comm.sudo("/sbin/ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|
             interfaces = stdout.split("\n")
           end
 
