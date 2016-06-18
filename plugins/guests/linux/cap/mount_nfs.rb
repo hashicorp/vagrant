@@ -9,7 +9,7 @@ module VagrantPlugins
         def self.mount_nfs_folder(machine, ip, folders)
           comm = machine.communicate
 
-          commands = []
+          commands = ["set -e"]
 
           folders.each do |name, opts|
             # Expand the guest path so we can handle things like "~/vagrant"

@@ -8,6 +8,8 @@ module VagrantPlugins
           if !comm.test("hostname | grep -w '#{name}'", sudo: false)
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              set -e
+
               # Set hostname
               echo '#{name}' > /etc/nodename
               hostname '#{name}'

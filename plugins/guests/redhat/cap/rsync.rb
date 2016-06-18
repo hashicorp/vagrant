@@ -4,6 +4,8 @@ module VagrantPlugins
       class RSync
         def self.rsync_install(machine)
           machine.communicate.sudo <<-EOH.gsub(/^ {12}/, '')
+            set -e
+
             if command -v dnf; then
               dnf -y install rsync
             else

@@ -14,7 +14,7 @@ module VagrantPlugins
 
           network_scripts_dir = machine.guest.capability(:network_scripts_dir)
 
-          commands   = []
+          commands   = ["set -e"]
           interfaces = []
 
           comm.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|

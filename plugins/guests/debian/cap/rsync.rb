@@ -6,6 +6,7 @@ module VagrantPlugins
           comm = machine.communicate
           if !comm.test("command -v rsync")
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              set -e
               apt-get -yqq update
               apt-get -yqq install rsync
             EOH

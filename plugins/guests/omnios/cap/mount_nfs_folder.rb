@@ -4,7 +4,7 @@ module VagrantPlugins
       class MountNFSFolder
         def self.mount_nfs_folder(machine, ip, folders)
           comm   = machine.communicate
-          commands = []
+          commands = ["set -e"]
 
           folders.each do |_, opts|
             commands << <<-EOH.gsub(/^ {14}/, '')

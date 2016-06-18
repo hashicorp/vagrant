@@ -11,7 +11,7 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           comm = machine.communicate
 
-          commands   = []
+          commands   = ["set -e"]
           interfaces = []
 
           comm.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, result|

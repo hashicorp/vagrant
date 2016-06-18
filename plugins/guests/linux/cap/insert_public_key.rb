@@ -16,6 +16,8 @@ module VagrantPlugins
           end
 
           comm.execute <<-EOH.gsub(/^ {12}/, '')
+            set -e
+
             mkdir -p ~/.ssh
             chmod 0700 ~/.ssh
             cat '#{remote_path}' >> ~/.ssh/authorized_keys

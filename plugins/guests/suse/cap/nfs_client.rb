@@ -4,6 +4,7 @@ module VagrantPlugins
       class NFSClient
         def self.nfs_client_install(machine)
           machine.communicate.sudo <<-EOH.gsub(/^ {12}/, '')
+            set -e
             zypper -n install nfs-client
             /sbin/service rpcbind restart
             /sbin/service nfs restart

@@ -9,6 +9,8 @@ module VagrantPlugins
           if !comm.test("hostname -f | grep -w '#{name}' || hostname -s | grep -w '#{name}'", options)
             basename = name.split(".", 2)[0]
             command = <<-EOH.gsub(/^ {14}/, '')
+              set -e
+
               # Set the hostname
               hostname '#{name}'
               sed -i '' 's/^hostname=.*$/hostname=\"#{name}\"/' /etc/rc.conf
