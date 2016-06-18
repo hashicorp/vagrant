@@ -7,6 +7,8 @@ BUG FIXES:
   - core: Check process stdout when detecting if a hyperv admin
       [GH-7465, GH-7467]
   - core/guests: Create common BSD guest for shared logic
+  - guests/bsd: Consolidate core logic for mounting NFS folders
+      [GH-7480, GH-7474, GH-7466]
   - guests/centos: Use `ip` instead of `ifconfig` to detect network interfaces
       [GH-7460]
   - guests/debian: Ensure newline when inserting public key [GH-7456]
