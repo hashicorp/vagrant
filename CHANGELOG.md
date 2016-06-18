@@ -20,6 +20,7 @@ BUG FIXES:
   - guests/bsd: Consolidate core logic for mounting NFS folders
       [GH-7480, GH-7474, GH-7466]
   - guests/bsd: Consolidate core logic for public key management [GH-7481]
+  - guests/bsd: Consolidate core logic for halting [GH-7484]
   - guests/centos: Use `ip` instead of `ifconfig` to detect network interfaces
       [GH-7460]
   - guests/debian: Ensure newline when inserting public key [GH-7456]
