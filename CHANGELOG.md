@@ -5,7 +5,8 @@ BUG FIXES:
   - core: Bump listen gem and Ruby version to improve rsync performance
       [GH-7453, GH-7441]
   - core: Check process stdout when detecting if a hyperv admin
-      [GH-7465, GH--7467]
+      [GH-7465, GH-7467]
+  - core/guests: Create common BSD guest for shared logic
   - guests/centos: Use `ip` instead of `ifconfig` to detect network interfaces
       [GH-7460]
   - guests/debian: Ensure newline when inserting public key [GH-7456]
