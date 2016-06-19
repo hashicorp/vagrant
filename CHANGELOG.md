@@ -29,6 +29,7 @@ BUG FIXES:
   - guests/linux: Ensure NFS retries during mounting [GH-7492]
   - guests/redhat: Use `/sbin/ip` to list and configure networks for
       compatability with older versions of CentOS [GH-7482]
+  - providers/hyperv: Fix version check and catch statement [GH-7447, GH-7487]
 
 ## 1.8.4 (June 13, 2016)
 
