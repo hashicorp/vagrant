@@ -42,8 +42,8 @@ describe "VagrantPlugins::GuestLinux::Cap::MountNFS" do
       }
       cap.mount_nfs_folder(machine, ip, folders)
 
-      expect(comm.received_commands[0]).to match(/mkdir -p '#{guestpath}'/)
-      expect(comm.received_commands[0]).to match(/'1.2.3.4:#{hostpath}' '#{guestpath}'/)
+      expect(comm.received_commands[0]).to match(/mkdir -p #{guestpath}/)
+      expect(comm.received_commands[0]).to match(/1.2.3.4:#{hostpath} #{guestpath}/)
     end
 
     it "mounts with options" do
@@ -72,7 +72,20 @@ describe "VagrantPlugins::GuestLinux::Cap::MountNFS" do
       cap.mount_nfs_folder(machine, ip, folders)
 
       expect(comm.received_commands[0]).to include(
-        "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{guestpath}'")
+        "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guestpath}")
+    end
+
+    it "escapes host and guest paths" do
+      folders = {
+        "/vagrant-nfs" => {
+          guestpath: "/guest with spaces",
+          hostpath: "/host's",
+        }
+      }
+      cap.mount_nfs_folder(machine, ip, folders)
+
+      expect(comm.received_commands[0]).to match(/host\\\'s/)
+      expect(comm.received_commands[0]).to match(/guest\\\ with\\\ spaces/)
     end
   end
 end
