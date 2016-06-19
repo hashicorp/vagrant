@@ -10,6 +10,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - guests/darwin: Allow ipv6 static networks [GH-7491]
+
 BUG FIXES:
 
   - core: Bump listen gem and Ruby version to improve rsync performance
