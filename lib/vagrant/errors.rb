@@ -448,6 +448,10 @@ module Vagrant
       error_key(:not_found, "vagrant.actions.vm.host_only_network")
     end
 
+    class NetworkTypeNotSupported < VagrantError
+      error_key(:network_type_not_supported)
+    end
+
     class NFSBadExports < VagrantError
       error_key(:nfs_bad_exports)
     end
