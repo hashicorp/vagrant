@@ -26,6 +26,7 @@ BUG FIXES:
   - guests/centos: Use `ip` instead of `ifconfig` to detect network interfaces
       [GH-7460]
   - guests/debian: Ensure newline when inserting public key [GH-7456]
+  - guests/linux: Ensure NFS retries during mounting [GH-7492]
   - guests/redhat: Use `/sbin/ip` to list and configure networks for
       compatability with older versions of CentOS [GH-7482]
 
