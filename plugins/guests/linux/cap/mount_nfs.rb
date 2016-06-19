@@ -9,39 +9,42 @@ module VagrantPlugins
         def self.mount_nfs_folder(machine, ip, folders)
           comm = machine.communicate
 
-          commands = []
-
           folders.each do |name, opts|
-            # Expand the guest path so we can handle things like "~/vagrant"
-            expanded_guest_path = machine.guest.capability(
-              :shell_expand_guest_path, opts[:guestpath])
+            # Mount each folder separately so we can retry.
+            commands = ["set -e"]
 
-            # Do the actual creating and mounting
-            commands << "mkdir -p '#{expanded_guest_path}'"
+            # Shellescape the paths in case they do not have special characters.
+            guest_path = Shellwords.escape(opts[:guestpath])
+            host_path  = Shellwords.escape(opts[:hostpath])
 
-            # Mount
-            hostpath = opts[:hostpath].dup
-            hostpath.gsub!("'", "'\\\\''")
-
-            # Figure out any options
-            mount_opts = ["vers=#{opts[:nfs_version]}"]
+            # Build the list of mount options.
+            mount_opts =  []
+            mount_opts << "vers=#{opts[:nfs_version]}" if opts[:nfs_version]
             mount_opts << "udp" if opts[:nfs_udp]
             if opts[:mount_options]
-              mount_opts = opts[:mount_options].dup
+              mount_opts = mount_opts + opts[:mount_options].dup
             end
+            mount_opts = mount_opts.join(",")
 
-            commands << "mount -o #{mount_opts.join(",")} '#{ip}:#{hostpath}' '#{expanded_guest_path}'"
+            # Make the directory on the guest.
+            commands << "mkdir -p #{guest_path}"
+
+            # Perform the mount operation.
+            commands << "mount -o #{mount_opts} #{ip}:#{host_path} #{guest_path}"
 
             # Emit a mount event
             commands << <<-EOH.gsub(/^ {14}/, '')
               if command -v /sbin/init && /sbin/init --version | grep upstart; then
-                /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
+                /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guest_path}
               fi
             EOH
-          end
 
-          retryable(on: Vagrant::Errors::NFSMountFailed, tries: 8, sleep: 3) do
-            comm.sudo(commands.join("\n"), error_class: Vagrant::Errors::NFSMountFailed)
+            # Run the command, raising a specific error.
+            retryable(on: Vagrant::Errors::NFSMountFailed, tries: 3, sleep: 5) do
+              machine.communicate.sudo(commands.join("\n"),
+                error_class: Vagrant::Errors::NFSMountFailed,
+              )
+            end
           end
         end
       end
