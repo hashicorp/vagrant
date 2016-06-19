@@ -869,6 +869,8 @@ en:
         If the problem persists, please report a bug to the net-ssh project.
 
         %{message}
+      network_type_not_supported: |-
+        The %{type} network type is not supported for this box or guest.
       nfs_bad_exports: |-
         NFS is reporting that your exports file is invalid. Vagrant does
         this check before making any changes to the file. Please correct
