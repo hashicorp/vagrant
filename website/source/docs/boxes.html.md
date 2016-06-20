@@ -57,3 +57,25 @@ This is untrue. Namespaces on Atlas behave very similarly to namespaces on
 GitHub, for example. Just as GitHub's support team is unable to assist with
 issues in someone's repository, HashiCorp's support team is unable to assist
 with third-party published boxes.
+
+## Official Boxes
+
+HashiCorp (the makers of Vagrant) publish a basic Ubuntu 12.04 (32 and 64-bit) box that is available for minimal use cases. It is highly optimized, small in size, and includes support for Virtualbox and VMware. You can use it like this:
+
+```shell
+$ vagrant init hashicorp/precise64
+```
+
+or you can update your `Vagrantfile` as follows:
+
+```ruby
+Vagrant.configure("2") do
+  config.box = "hashicorp/precise64"
+end
+```
+
+For other users, we recommend the [Bento boxes](https://atlas.hashicorp.com/bento). The Bento boxes are [open source](https://github.com/chef/bento) and built for a number of providers including VMware, Virtualbox, and Parallels. There are a variety of operating systems and versions available.
+
+These are the only two officially-recommended box sets.
+
+~> **It is often a point of confusion**, but Canonical (the company that makes the Ubuntu operating system) publishes boxes under the "ubuntu" namespace on Atlas. These boxes only support Virtualbox and do not provide an ideal experience for most users. If you encounter issues with these boxes, please try the Bento boxes instead.
