@@ -1,4 +1,5 @@
 require "digest/sha1"
+require "fileutils"
 require "monitor"
 require "tmpdir"
 
@@ -447,7 +448,7 @@ module Vagrant
 
       yield dir
     ensure
-      dir.rmtree if dir.exist?
+      FileUtils.rm_rf(dir.to_s)
     end
 
     # Checks if a box with a given name exists.
