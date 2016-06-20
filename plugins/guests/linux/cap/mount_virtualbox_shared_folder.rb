@@ -6,7 +6,7 @@ module VagrantPlugins
           expanded_guest_path = machine.guest.capability(
             :shell_expand_guest_path, guestpath)
 
-          mount_commands = []
+          mount_commands = ['modprobe vboxsf']
 
           if options[:owner].is_a? Integer
             mount_uid = options[:owner]
