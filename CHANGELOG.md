@@ -18,6 +18,8 @@ BUG FIXES:
       [GH-7453, GH-7441]
   - core: Check process stdout when detecting if a hyperv admin
       [GH-7465, GH-7467]
+  - core: Ensure removal of temporary directory when box download fails
+      [GH-7496, GH-7499]
   - core/guests: Create common BSD guest for shared logic
   - guests/bsd: Consolidate core logic for mounting NFS folders
       [GH-7480, GH-7474, GH-7466]
