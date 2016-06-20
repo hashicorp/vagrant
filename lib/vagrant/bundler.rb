@@ -271,7 +271,11 @@ module Vagrant
       Gem.paths = ENV
 
       # Reset the all specs override that Bundler does
-      Gem::Specification.reset
+      old_all = Gem::Specification._all
+
+      # WARNING: Seriously don't touch this without reading the comment attached
+      # to the monkey-patch at the bottom of this file.
+      Gem::Specification.vagrant_reset!
 
       # /etc/gemrc and so on.
       old_config = nil
@@ -298,6 +302,7 @@ module Vagrant
 
       Gem.configuration = old_config
       Gem.paths = ENV
+      Gem::Specification.all = old_all
     end
 
     # This method returns a proper "tempfile" on disk. Ruby's Tempfile class
@@ -326,6 +331,36 @@ module Vagrant
         @hash           = {}
         @update_sources = true
         @verbose        = true
+      end
+    end
+
+    # This monkey patches Gem::Specification from RubyGems to add a new method,
+    # `vagrant_reset!`. For some background, Vagrant needs to set the value
+    # of these variables to nil to force new specs to be loaded. Previously,
+    # this was accomplished by setting Gem::Specification.specs = nil. However,
+    # newer versions of Rubygems try to map across that nil using a group_by
+    # clause, breaking things.
+    #
+    # This generally never affected Vagrant users who were using the official
+    # Vagrant installers because we lock to an older version of Rubygems that
+    # does not have this issue. The users of the official debian packages,
+    # however, experienced this issue because they float on Rubygems.
+    #
+    # In GH-7073, a number of Debian users reported this issue, but it was not
+    # reproducible in the official installer for reasons described above. Commit
+    # ba77d4b switched to using Gem::Specification.reset, but this actually
+    # broke the ability to install gems locally (GH-7493) because it resets
+    # the complete local cache, which is already built.
+    #
+    # The only solution that works with both new and old versions of Rubygems
+    # is to provide our own function for JUST resetting all the stubs. Both
+    # @@all and @@stubs must be set to a falsey value, so some of the
+    # originally-suggested solutions of using an empty array do not work. Only
+    # setting these values to nil (without clearing the cache), allows Vagrant
+    # to install and manage plugins.
+    class Gem::Specification < Gem::BasicSpecification
+      def self.vagrant_reset!
+        @@all = @@stubs = nil
       end
     end
 
