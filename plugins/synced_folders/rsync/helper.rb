@@ -66,20 +66,30 @@ module VagrantPlugins
           proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' "
         end
 
-        # Create the path for the control sockets. We used to do this
-        # in the machine data dir but this can result in paths that are
-        # too long for unix domain sockets.
-        controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
-
-        rsh = [
+        ssh_command = 
           "ssh -p #{ssh_info[:port]} " +
           proxy_command +
-          "-o ControlMaster=auto " +
-          "-o ControlPath=#{controlpath} " +
-          "-o ControlPersist=10m " +
           "-o StrictHostKeyChecking=no " +
           "-o IdentitiesOnly=true " +
-          "-o UserKnownHostsFile=/dev/null",
+          "-o UserKnownHostsFile=/dev/null"
+
+        # ControlMaster support is broken in cygwin, so skip
+        # the optimization if on Windows.
+        # See http://www.cygwin.com/ml/cygwin/2015-01/msg00123.html
+        unless Vagrant::Util::Platform.windows?
+          # Create the path for the control sockets. We used to do this
+          # in the machine data dir but this can result in paths that are
+          # too long for unix domain sockets.
+          controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+
+          ssh_command += " " +
+            "-o ControlMaster=auto " +
+            "-o ControlPath=#{controlpath} " +
+            "-o ControlPersist=10m"
+        end
+
+        rsh = [
+          ssh_command,
           ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
         ].flatten.join(" ")
 
