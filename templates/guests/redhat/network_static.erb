@@ -9,5 +9,8 @@ DEVICE=<%= options[:device] %>
 <% if options[:gateway] %>
 GATEWAY=<%= options[:gateway] %>
 <% end %>
+<% if options[:mac_address] %>
+HWADDR=<%= options[:mac_address] %>
+<% end %>
 PEERDNS=no
 #VAGRANT-END
