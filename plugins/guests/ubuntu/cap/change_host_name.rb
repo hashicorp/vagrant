@@ -9,11 +9,11 @@ module VagrantPlugins
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
-              echo '#{name}' > /etc/hostname
+              echo '#{basename}' > /etc/hostname
               hostname -F /etc/hostname
 
               if command -v hostnamectl; then
-                hostnamectl set-hostname '#{name}'
+                hostnamectl set-hostname '#{basename}'
               fi
 
               # Remove comments and blank lines from /etc/hosts
