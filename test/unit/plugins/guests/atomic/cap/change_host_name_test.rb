@@ -1,11 +1,10 @@
 require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestAtomic::Cap::ChangeHostName" do
-  let(:described_class) do
+  let(:caps) do
     VagrantPlugins::GuestAtomic::Plugin
       .components
       .guest_capabilities[:atomic]
-      .get(:change_host_name)
   end
 
   let(:machine) { double("machine") }
@@ -20,18 +19,20 @@ describe "VagrantPlugins::GuestAtomic::Cap::ChangeHostName" do
   end
 
   describe ".change_host_name" do
-    let(:hostname) { "banana-rama.example.com" }
+    let(:cap) { caps.get(:change_host_name) }
+
+    let(:name) { "banana-rama.example.com" }
 
     it "sets the hostname" do
-      comm.stub_command("hostname | grep -w '#{hostname}'", exit_code: 1)
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
 
-      described_class.change_host_name(machine, hostname)
-      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname '#{hostname}'/)
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname 'banana-rama'/)
     end
 
     it "does not change the hostname if already set" do
-      comm.stub_command("hostname | grep -w '#{hostname}'", exit_code: 0)
-      described_class.change_host_name(machine, hostname)
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+      cap.change_host_name(machine, name)
       expect(comm.received_commands.size).to eq(1)
     end
   end

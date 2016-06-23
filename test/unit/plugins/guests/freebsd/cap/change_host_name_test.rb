@@ -23,7 +23,7 @@ describe "VagrantPlugins::GuestFreeBSD::Cap::ChangeHostName" do
     let(:name) { "banana-rama.example.com" }
 
     it "sets the hostname and /etc/hosts" do
-      comm.stub_command("hostname -f | grep -w '#{name}' || hostname -s | grep -w '#{name}'", exit_code: 1)
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
       described_class.change_host_name(machine, name)
 
       expect(comm.received_commands[1]).to match(/hostname '#{name}'/)
@@ -32,7 +32,7 @@ describe "VagrantPlugins::GuestFreeBSD::Cap::ChangeHostName" do
     end
 
     it "does nothing if the hostname is already set" do
-      comm.stub_command("hostname -f | grep -w '#{name}' || hostname -s | grep -w '#{name}'", exit_code: 0)
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
       described_class.change_host_name(machine, name)
       expect(comm.received_commands.size).to eq(1)
     end
