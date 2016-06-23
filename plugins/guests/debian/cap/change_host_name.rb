@@ -9,7 +9,7 @@ module VagrantPlugins
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep '^#{name}$'")
+          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
