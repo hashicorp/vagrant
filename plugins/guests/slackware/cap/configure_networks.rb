@@ -12,11 +12,7 @@ module VagrantPlugins
           comm = machine.communicate
 
           commands   = []
-          interfaces = []
-
-          comm.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, result|
-            interfaces = result.split("\n")
-          end
+          interfaces = machine.guest.capability(:network_interfaces)
 
           # Remove any previous configuration
           commands << "sed -i'' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.d/rc.inet1.conf"

@@ -7,13 +7,12 @@ describe "VagrantPlugins::GuestSUSE::Cap::ConfigureNetworks" do
       .guest_capabilities[:suse]
   end
 
-  let(:machine) { double("machine") }
+  let(:guest) { double("guest") }
+  let(:machine) { double("machine", guest: guest) }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
-    comm.stub_command("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'",
-      stdout: "eth1\neth2")
   end
 
   after do
@@ -22,6 +21,13 @@ describe "VagrantPlugins::GuestSUSE::Cap::ConfigureNetworks" do
 
   describe ".configure_networks" do
     let(:cap) { caps.get(:configure_networks) }
+
+    before do
+      allow(guest).to receive(:capability).with(:network_scripts_dir)
+        .and_return("/scripts")
+      allow(guest).to receive(:capability).with(:network_interfaces)
+        .and_return(["eth1", "eth2"])
+    end
 
     let(:network_1) do
       {
@@ -40,21 +46,12 @@ describe "VagrantPlugins::GuestSUSE::Cap::ConfigureNetworks" do
       }
     end
 
-    let(:guest) { double("guest") }
-
-    before do
-      allow(machine).to receive(:guest).and_return(guest)
-      allow(guest).to receive(:capability)
-        .with(:network_scripts_dir)
-        .and_return("/scripts")
-    end
-
     it "creates and starts the networks" do
       cap.configure_networks(machine, [network_1, network_2])
-      expect(comm.received_commands[1]).to match(/\/sbin\/ifdown 'eth1'/)
-      expect(comm.received_commands[1]).to match(/\/sbin\/ifup 'eth1'/)
-      expect(comm.received_commands[1]).to match(/\/sbin\/ifdown 'eth2'/)
-      expect(comm.received_commands[1]).to match(/\/sbin\/ifup 'eth2'/)
+      expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth1'/)
+      expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth1'/)
+      expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth2'/)
+      expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth2'/)
     end
   end
 end
