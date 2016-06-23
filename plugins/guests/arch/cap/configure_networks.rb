@@ -12,13 +12,7 @@ module VagrantPlugins
           comm = machine.communicate
 
           commands   = []
-          interfaces = []
-
-          # The result will be something like:
-          #   eth0\nenp0s8\nenp0s9
-          comm.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|
-            interfaces = stdout.split("\n")
-          end
+          interfaces = machine.guest.capability(:network_interfaces)
 
           networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]

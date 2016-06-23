@@ -7,13 +7,12 @@ describe "VagrantPlugins::GuestSlackware::Cap::ConfigureNetworks" do
       .guest_capabilities[:slackware]
   end
 
-  let(:machine) { double("machine") }
+  let(:guest) { double("guest") }
+  let(:machine) { double("machine", guest: guest) }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
-    comm.stub_command("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'",
-      stdout: "eth1\neth2")
   end
 
   after do
@@ -22,6 +21,11 @@ describe "VagrantPlugins::GuestSlackware::Cap::ConfigureNetworks" do
 
   describe ".configure_networks" do
     let(:cap) { caps.get(:configure_networks) }
+
+    before do
+      allow(guest).to receive(:capability).with(:network_interfaces)
+        .and_return(["eth1", "eth2"])
+    end
 
     let(:network_1) do
       {
@@ -42,7 +46,7 @@ describe "VagrantPlugins::GuestSlackware::Cap::ConfigureNetworks" do
 
     it "creates and starts the networks" do
       cap.configure_networks(machine, [network_1, network_2])
-      expect(comm.received_commands[1]).to match(/\/etc\/rc.d\/rc.inet1/)
+      expect(comm.received_commands[0]).to match(/\/etc\/rc.d\/rc.inet1/)
     end
   end
 end

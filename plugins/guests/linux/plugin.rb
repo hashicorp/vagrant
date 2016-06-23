@@ -46,6 +46,11 @@ module VagrantPlugins
         Cap::MountVirtualBoxSharedFolder
       end
 
+      guest_capability(:linux, :network_interfaces) do
+        require_relative "cap/network_interfaces"
+        Cap::NetworkInterfaces
+      end
+
       guest_capability(:linux, :nfs_client_installed) do
         require_relative "cap/nfs_client"
         Cap::NFSClient

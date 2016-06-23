@@ -14,13 +14,9 @@ module VagrantPlugins
           comm = machine.communicate
 
           network_scripts_dir = machine.guest.capability(:network_scripts_dir)
+          interfaces = machine.guest.capability(:network_interface)
 
-          interfaces = []
           commands   = []
-
-          comm.sudo("/sbin/ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|
-            interfaces = stdout.split("\n")
-          end
 
           networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
