@@ -6,14 +6,9 @@ module VagrantPlugins
       name "Funtoo guest"
       description "Funtoo guest support."
 
-      guest(:funtoo, :linux) do
+      guest(:funtoo, :gentoo) do
         require_relative "guest"
         Guest
-      end
-
-      guest_capability(:funtoo, :change_host_name) do
-        require_relative "cap/change_host_name"
-        Cap::ChangeHostName
       end
 
       guest_capability(:funtoo, :configure_networks) do
