@@ -6,7 +6,7 @@ module VagrantPlugins
           options = { shell: "sh" }
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep -w '#{name}' || hostname -s | grep -w '#{name}'", options)
+          if !comm.test("hostname -f | grep '^#{name}$'", options)
             basename = name.split(".", 2)[0]
             command = <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
