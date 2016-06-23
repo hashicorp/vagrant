@@ -17,9 +17,10 @@ module VagrantPlugins
               # Set the hostname - use hostnamectl if available
               echo '#{name}' > /etc/hostname
               if command -v hostnamectl; then
-                hostnamectl set-hostname '#{name}'
+                hostnamectl set-hostname --static '#{name}'
+                hostnamectl set-hostname --transient '#{name}'
               else
-                hostname '#{name}'
+                hostname -F /etc/hostname
               fi
 
               # Remove comments and blank lines from /etc/hosts
