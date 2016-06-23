@@ -25,12 +25,12 @@ up-to-date requirement. This guide will not discuss how to install and manage Ru
 - Ensure you have installed a version of [Bundler](https://bundler.io) that is
     compatible with Vagrant.
 
-    The bundler constraint is a floating requirement in Vagrant. You will need to inspect the `vagrant.gemspec` to determine the version when you are compiling from source. For example, if the gemspec specifies version 1.2.3, you will need to install a version of Bundler that satisfies that constraint.
+    The bundler constraint is a floating requirement in Vagrant. You will need to inspect the `vagrant.gemspec` to determine the version when you are compiling from source. For example, if the gemspec specifies version 1.12.5, you will need to install a version of Bundler that satisfies that constraint.
 
     You can install a specific version of bundler with the following command:
 
     ```shell
-    gem install bundler -v '1.2.3'
+    gem install bundler -v '1.12.5'
     ```
 
 ## Clone Vagrant
@@ -47,10 +47,10 @@ Next, `cd` into that path. All commands will be run from this path:
 $ cd /path/to/your/vagrant/clone
 ```
 
-Run the `bundle` command with a required version* to install the requirements:
+Run the `bundle` command with the `vagrant.gemspec` bundler version to install the requirements:
 
 ```shell
-$ bundle _1.10.6_ install
+$ bundle _1.12.5_ install
 ```
 
 You can now run Vagrant by running `bundle exec vagrant` from inside that
