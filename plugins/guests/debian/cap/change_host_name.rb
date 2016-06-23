@@ -9,11 +9,11 @@ module VagrantPlugins
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep -w '#{name}'")
+          if !comm.test("hostname -f | grep '^#{name}$'")
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
-              echo '#{name}' > /etc/hostname
+              echo '#{basename}' > /etc/hostname
               hostname -F /etc/hostname
 
               # Remove comments and blank lines from /etc/hosts
