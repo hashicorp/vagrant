@@ -1,11 +1,10 @@
 require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
-  let(:described_class) do
+  let(:caps) do
     VagrantPlugins::GuestArch::Plugin
       .components
       .guest_capabilities[:arch]
-      .get(:configure_networks)
   end
 
   let(:machine) { double("machine") }
@@ -22,6 +21,8 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
   end
 
   describe ".configure_networks" do
+    let(:cap) { caps.get(:configure_networks) }
+
     let(:network_1) do
       {
         interface: 0,
@@ -40,7 +41,7 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
     end
 
     it "creates and starts the networks" do
-      described_class.configure_networks(machine, [network_1, network_2])
+      cap.configure_networks(machine, [network_1, network_2])
       expect(comm.received_commands[1]).to match(/mv (.+) '\/etc\/netctl\/eth1'/)
       expect(comm.received_commands[1]).to match(/ip link set 'eth1' down/)
       expect(comm.received_commands[1]).to match(/netctl restart 'eth1'/)

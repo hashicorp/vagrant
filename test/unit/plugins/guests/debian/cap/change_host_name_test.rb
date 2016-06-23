@@ -24,7 +24,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
     let(:name) { 'banana-rama.example.com' }
 
     it "sets the hostname if not set" do
-      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 1)
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
       cap.change_host_name(machine, name)
       expect(comm.received_commands[1]).to match(/hostname -F \/etc\/hostname/)
       expect(comm.received_commands[1]).to match(/invoke-rc.d hostname.sh start/)
@@ -33,7 +33,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
     end
 
     it "does not set the hostname if unset" do
-      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 0)
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
       cap.change_host_name(machine, name)
       expect(comm.received_commands.size).to eq(1)
     end
