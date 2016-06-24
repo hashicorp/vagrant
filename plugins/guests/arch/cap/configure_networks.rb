@@ -11,7 +11,7 @@ module VagrantPlugins
         def self.configure_networks(machine, networks)
           comm = machine.communicate
 
-          commands   = []
+          commands   = ["set -e"]
           interfaces = machine.guest.capability(:network_interfaces)
 
           networks.each.with_index do |network, i|
