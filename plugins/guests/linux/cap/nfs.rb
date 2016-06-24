@@ -3,8 +3,12 @@ require "vagrant/util/retryable"
 module VagrantPlugins
   module GuestLinux
     module Cap
-      class MountNFS
+      class NFS
         extend Vagrant::Util::Retryable
+
+        def self.nfs_client_installed(machine)
+          machine.communicate.test("test -x /sbin/mount.nfs")
+        end
 
         def self.mount_nfs_folder(machine, ip, folders)
           comm = machine.communicate
