@@ -101,8 +101,16 @@ module VagrantPlugins
         end
 
         # Mount them!
-        machine.guest.capability(
-          :mount_nfs_folder, nfsopts[:nfs_host_ip], mount_folders)
+        if machine.guest.capability?(:nfs_pre)
+          machine.guest.capability(:nfs_pre)
+        end
+
+        machine.guest.capability(:mount_nfs_folder,
+          nfsopts[:nfs_host_ip], mount_folders)
+
+        if machine.guest.capability?(:nfs_post)
+          machine.guest.capability(:nfs_post)
+        end
       end
 
       def cleanup(machine, opts)
