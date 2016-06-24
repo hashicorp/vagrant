@@ -8,6 +8,9 @@ module VagrantPlugins
           if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, "")
+              set -e
+
+              # Set hostname
               hostnamectl set-hostname '#{basename}'
 
               # Remove comments and blank lines from /etc/hosts
