@@ -32,8 +32,8 @@ module VagrantPlugins
       end
 
       guest_capability(:linux, :mount_nfs_folder) do
-        require_relative "cap/mount_nfs"
-        Cap::MountNFS
+        require_relative "cap/nfs"
+        Cap::NFS
       end
 
       guest_capability(:linux, :mount_smb_shared_folder) do
@@ -52,8 +52,8 @@ module VagrantPlugins
       end
 
       guest_capability(:linux, :nfs_client_installed) do
-        require_relative "cap/nfs_client"
-        Cap::NFSClient
+        require_relative "cap/nfs"
+        Cap::NFS
       end
 
       # For the Docker provider
