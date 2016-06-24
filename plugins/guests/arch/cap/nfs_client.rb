@@ -6,7 +6,7 @@ module VagrantPlugins
           comm = machine.communicate
           comm.sudo <<-EOH.gsub(/^ {12}/, '')
             pacman -Sy --noconfirm
-            pacman -S --noconfirm nfs-client
+            pacman -S --noconfirm nfs-utils
           EOH
         end
       end
