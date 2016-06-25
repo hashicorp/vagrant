@@ -1342,6 +1342,19 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_mount_failed: |-
+        Vagrant was unable to mount VirtualBox shared folders. This is usually
+        because the filesystem "vboxsf" is not available. This filesystem is
+        made available via the VirtualBox Guest Additions and kernel module.
+        Please verify that these guest additions are properly installed in the
+        guest. This is not a bug in Vagrant and is usually caused by a faulty
+        Vagrant box. For context, the command attemped was:
+
+        %{command}
+
+        The error output from the command was:
+
+        %{output}
       virtualbox_name_exists: |-
         The name of your virtual machine couldn't be set because VirtualBox
         is reporting another VM with that name already exists. Most of the
