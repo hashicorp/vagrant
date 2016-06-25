@@ -22,8 +22,8 @@ module VagrantPlugins
       end
 
       guest_capability(:debian, :nfs_client_install) do
-        require_relative "cap/nfs_client"
-        Cap::NFSClient
+        require_relative "cap/nfs"
+        Cap::NFS
       end
 
       guest_capability(:debian, :rsync_install) do
