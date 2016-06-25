@@ -784,6 +784,10 @@ module Vagrant
       error_key(:virtualbox_mount_failed)
     end
 
+    class VirtualBoxMountNotSupportedBSD < VagrantError
+      error_key(:virtualbox_mount_not_supported_bsd)
+    end
+
     class VirtualBoxNameExists < VagrantError
       error_key(:virtualbox_name_exists)
     end
