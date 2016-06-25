@@ -12,6 +12,8 @@ module VagrantPlugins
           if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              set -e
+
               # Set the hostname
               echo '#{basename}' > /etc/hostname
               hostname -F /etc/hostname
@@ -28,16 +30,16 @@ module VagrantPlugins
               echo '#{name}' > /etc/mailname
 
               # Restart networking and force new DHCP
-              if [ test -f /etc/init.d/hostname.sh ]; then
-                invoke-rc.d hostname.sh start
+              if test -f /etc/init.d/hostname.sh; then
+                invoke-rc.d hostname.sh start || true
               fi
 
-              if [ test -f /etc/init.d/networking ]; then
-                invoke-rc.d networking force-reload
+              if test -f /etc/init.d/networking; then
+                invoke-rc.d networking force-reload || true
               fi
 
-              if [ test -f /etc/init.d/network-manager ]; then
-                invoke-rc.d network-manager force-reload
+              if test -f /etc/init.d/network-manager; then
+                invoke-rc.d network-manager force-reload || true
               fi
             EOH
           end
