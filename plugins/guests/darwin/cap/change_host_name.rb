@@ -9,6 +9,9 @@ module VagrantPlugins
             basename = name.split(".", 2)[0]
 
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              set -e
+
+              # Set hostname
               scutil --set ComputerName '#{name}'
               scutil --set HostName '#{name}'
 
