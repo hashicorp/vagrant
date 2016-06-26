@@ -12,14 +12,10 @@ module VagrantPlugins
           comm = machine.communicate
 
           commands   = []
-          interfaces = []
+          interfaces = machine.guest.capability(:network_interfaces, "/bin/ip")
 
           # Remove any previous network additions to the configuration file.
           commands << "sed -i'' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/conf.d/net"
-
-          comm.sudo("ifconfig -a | grep -o ^[0-9a-z]* | grep -v '^lo'") do |_, stdout|
-            interfaces = stdout.split("\n")
-          end
 
           networks.each_with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
