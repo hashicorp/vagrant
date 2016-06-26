@@ -7,9 +7,9 @@ module VagrantPlugins
         #   eth0\nenp0s8\nenp0s9
         #
         # @return [Array<String>]
-        def self.network_interfaces(machine)
+        def self.network_interfaces(machine, path = "/sbin/ip")
           s = ""
-          machine.communicate.sudo("/sbin/ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |type, data|
+          machine.communicate.sudo("#{path} -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |type, data|
             s << data if type == :stdout
           end
           s.split("\n")
