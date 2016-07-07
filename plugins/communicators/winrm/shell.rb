@@ -94,6 +94,7 @@ module VagrantPlugins
           block.call(:stdout, out) if block_given? && out
           block.call(:stderr, err) if block_given? && err
         end
+	@executor.close
 
         @logger.debug("Output: #{output.inspect}")
 
@@ -173,7 +174,7 @@ module VagrantPlugins
       end
 
       def executor
-        @executor ||= session.create_executor
+        @executor = session.create_executor
       end
 
       def endpoint
