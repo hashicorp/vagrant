@@ -34,7 +34,7 @@ module Vagrant
             u = u.gsub("\\", "/")
             if Util::Platform.windows? && u =~ /^[a-z]:/i
               # On Windows, we need to be careful about drive letters
-              u = "file://#{URI.escape(u)}"
+              u = "file:///#{URI.escape(u)}"
             end
 
             if u =~ /^[a-z0-9]+:.*$/i && !u.start_with?("file://")
