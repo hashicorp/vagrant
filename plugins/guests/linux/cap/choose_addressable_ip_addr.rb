@@ -6,13 +6,12 @@ module VagrantPlugins
           comm = machine.communicate
 
           possible.each do |ip|
-            command = "ping -c1 -w1 -W1 #{ip}"
-            if comm.test(command)
+            if comm.test("ping -c1 -w1 -W1 #{ip}")
               return ip
             end
           end
 
-          nil
+          return nil
         end
       end
     end
