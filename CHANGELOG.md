@@ -11,6 +11,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - guests/darwin: Allow ipv6 static networks [GH-7491]
+  - providers/virtualbox: Add support for 5.1 [GH-7574]
 
 BUG FIXES:
 
