@@ -1,3 +1,5 @@
+require "shellwords"
+
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 
@@ -42,6 +44,9 @@ module VagrantPlugins
         if machine.guest.capability?(:rsync_scrub_guestpath)
           guestpath = machine.guest.capability(:rsync_scrub_guestpath, opts)
         end
+
+        # Shellescape
+        guestpath = Shellwords.escape(guestpath)
 
         if Vagrant::Util::Platform.windows?
           # rsync for Windows expects cygwin style paths, always.
