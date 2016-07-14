@@ -95,6 +95,29 @@ do {
   $cur_line = SlurpOutput $out_file $cur_line
 } while (!($registered_task.state -eq 3))
 
+function Test-FileLock {
+  param (
+    [Parameter(Mandatory=$true)]
+    [String]$Path
+  )
+  if (!(Test-Path $Path)) {
+    return $false
+  }
+  try {
+    (New-Object IO.FileInfo $Path).
+      Open([IO.FileMode]::Open, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None).
+      Close()
+    $false
+  } catch {
+    return $true
+  }
+}
+
+# the task is only really finished when $out_file is closed.
+while (Test-FileLock $out_file) {
+  Start-Sleep -m 100
+}
+
 $exit_code = $registered_task.LastTaskResult
 [System.Runtime.Interopservices.Marshal]::ReleaseComObject($schedule) | Out-Null
 
