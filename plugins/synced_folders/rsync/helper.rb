@@ -116,7 +116,7 @@ module VagrantPlugins
           rsync_path = machine.guest.capability(:rsync_command)
         end
         if rsync_path
-          args << "--rsync-path"<< rsync_path
+           args << "--rsync-path=\""<< rsync_path << "\""
         end
 
         # Build up the actual command to execute
