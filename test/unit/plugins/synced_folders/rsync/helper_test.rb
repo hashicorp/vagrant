@@ -159,9 +159,8 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         opts[:exclude] = "foo"
 
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-          index = args.find_index("foo")
-          expect(index).to be > 0
-          expect(args[index-1]).to eql("--exclude")
+          index = args.find_index("--exclude=foo")
+          expect(index).to be >= 0
         }
 
         subject.rsync_single(machine, ssh_info, opts)
@@ -171,13 +170,11 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         opts[:exclude] = ["foo", "bar"]
 
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-          index = args.find_index("foo")
-          expect(index).to be > 0
-          expect(args[index-1]).to eql("--exclude")
+          index = args.find_index("--exclude=foo")
+          expect(index).to be >= 0
 
-          index = args.find_index("bar")
-          expect(index).to be > 0
-          expect(args[index-1]).to eql("--exclude")
+          index = args.find_index("--exclude=bar")
+          expect(index).to be >= 0
         }
 
         subject.rsync_single(machine, ssh_info, opts)
