@@ -13,7 +13,7 @@ addons:
     - bsdtar
 
 rvm:
-  - 2.2.3
+  - 2.2.5
 
 branches:
   only:
