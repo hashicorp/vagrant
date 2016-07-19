@@ -1,4 +1,4 @@
-## Next Version (Unreleased)
+## 1.8.5 (July 18, 2016)
 
 FEATURES:
 
