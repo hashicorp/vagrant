@@ -38,7 +38,7 @@ module VagrantPlugins
           contents = contents.strip << "\n"
 
           remote_path = "/tmp/vagrant-remove-pubkey-#{Time.now.to_i}"
-          Tempfile.open("vagrant-bsd-remove-public-key") do |f|
+          Tempfile.open("vagrant-linux-remove-public-key") do |f|
             f.binmode
             f.write(contents)
             f.fsync
