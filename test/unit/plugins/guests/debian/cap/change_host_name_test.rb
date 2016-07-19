@@ -27,9 +27,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
       comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
       cap.change_host_name(machine, name)
       expect(comm.received_commands[1]).to match(/hostname -F \/etc\/hostname/)
-      expect(comm.received_commands[1]).to match(/invoke-rc.d hostname.sh start/)
-      expect(comm.received_commands[1]).to match(/invoke-rc.d networking force-reload/)
-      expect(comm.received_commands[1]).to match(/invoke-rc.d network-manager force-reload/)
+      expect(comm.received_commands[1]).to match(/hostname.sh start/)
     end
 
     it "does not set the hostname if unset" do

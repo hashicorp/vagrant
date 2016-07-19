@@ -20,19 +20,11 @@ describe "VagrantPlugins::GuestDebian::Cap:RSync" do
   end
 
   describe ".rsync_install" do
-    it "installs rsync when not installed" do
-      comm.stub_command("command -v rsync", exit_code: 1)
+    it "installs rsync" do
       described_class.rsync_install(machine)
 
-      expect(comm.received_commands[1]).to match(/apt-get -yqq update/)
-      expect(comm.received_commands[1]).to match(/apt-get -yqq install rsync/)
-    end
-
-    it "does not install rsync when installed" do
-      comm.stub_command("command -v rsync", exit_code: 0)
-      described_class.rsync_install(machine)
-
-      expect(comm.received_commands.join("")).to_not match(/update/)
+      expect(comm.received_commands[0]).to match(/apt-get -yqq update/)
+      expect(comm.received_commands[0]).to match(/apt-get -yqq install rsync/)
     end
   end
 end
