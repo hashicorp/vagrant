@@ -26,6 +26,11 @@ module VagrantPlugins
         Cap::NFS
       end
 
+      guest_capability(:bsd, :mount_virtualbox_shared_folder) do
+        require_relative "cap/virtualbox"
+        Cap::VirtualBox
+      end
+
       guest_capability(:bsd, :remove_public_key) do
         require_relative "cap/public_key"
         Cap::PublicKey

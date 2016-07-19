@@ -7,8 +7,9 @@ describe "templates/guests/arch/network_static" do
 
   it "renders the template" do
     result = Vagrant::Util::TemplateRenderer.render(template, options: {
-      device: "eth1",
-      ip:     "1.1.1.1",
+      device:  "eth1",
+      ip:      "1.1.1.1",
+      netmask: "24",
     })
     expect(result).to eq <<-EOH.gsub(/^ {6}/, "")
       Connection=ethernet
@@ -24,6 +25,7 @@ describe "templates/guests/arch/network_static" do
       device:  "eth1",
       ip:      "1.1.1.1",
       gateway: "1.2.3.4",
+      netmask: "24",
     })
     expect(result).to eq <<-EOH.gsub(/^ {6}/, "")
       Connection=ethernet

@@ -1,3 +1,5 @@
+require "shellwords"
+
 module VagrantPlugins
   module GuestFreeBSD
     module Cap
@@ -15,9 +17,8 @@ module VagrantPlugins
         end
 
         def self.rsync_pre(machine, opts)
-          machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p '#{opts[:guestpath]}'")
-          end
+          guest_path = Shellwords.escape(opts[:guestpath])
+          machine.communicate.sudo("mkdir -p #{guest_path}")
         end
 
         def self.rsync_post(machine, opts)
@@ -25,8 +26,10 @@ module VagrantPlugins
             return
           end
 
+          guest_path = Shellwords.escape(opts[:guestpath])
+
           machine.communicate.sudo(
-            "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
+            "find #{guest_path} '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
             "xargs -0 -r chown #{opts[:owner]}:#{opts[:group]}")
         end
       end

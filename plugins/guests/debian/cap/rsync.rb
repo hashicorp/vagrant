@@ -4,12 +4,11 @@ module VagrantPlugins
       class RSync
         def self.rsync_install(machine)
           comm = machine.communicate
-          if !comm.test("command -v rsync")
-            comm.sudo <<-EOH.gsub(/^ {14}/, '')
-              apt-get -yqq update
-              apt-get -yqq install rsync
-            EOH
-          end
+          comm.sudo <<-EOH.gsub(/^ {14}/, '')
+            set -e
+            apt-get -yqq update
+            apt-get -yqq install rsync
+          EOH
         end
       end
     end

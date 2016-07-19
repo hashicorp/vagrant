@@ -1342,6 +1342,38 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_mount_failed: |-
+        Vagrant was unable to mount VirtualBox shared folders. This is usually
+        because the filesystem "vboxsf" is not available. This filesystem is
+        made available via the VirtualBox Guest Additions and kernel module.
+        Please verify that these guest additions are properly installed in the
+        guest. This is not a bug in Vagrant and is usually caused by a faulty
+        Vagrant box. For context, the command attemped was:
+
+        %{command}
+
+        The error output from the command was:
+
+        %{output}
+      virtualbox_mount_not_supported_bsd: |-
+        Vagrant is not able to mount VirtualBox shared folders on BSD-based
+        guests. BSD-based guests do not support the VirtualBox filesystem at
+        this time.
+
+        To change the type of the default synced folder, specify the type as
+        rsync or nfs:
+
+            config.vm.synced_folder ".", "/vagrant", type: "nfs" # or "rsync"
+
+        Alternatively, if you do not need to mount the default synced folder,
+        you can also disable it entirely:
+
+            config.vm.synced_folder ".", "/vagrant", disabled: true
+
+        You can read more about Vagrant's synced folder types and the various
+        configuration options on the Vagrant website.
+
+        This is not a bug in Vagrant.
       virtualbox_name_exists: |-
         The name of your virtual machine couldn't be set because VirtualBox
         is reporting another VM with that name already exists. Most of the

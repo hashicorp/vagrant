@@ -14,7 +14,7 @@ module VagrantPlugins
           if version.nil?
             return :fedora
           else
-            return "fedora_#{version}".to_sym
+            return :"fedora_#{version}"
           end
         end
       end

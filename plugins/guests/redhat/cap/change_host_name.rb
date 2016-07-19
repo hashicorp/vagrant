@@ -5,7 +5,7 @@ module VagrantPlugins
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep -w '#{name}'", sudo: false)
+          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
             basename = name.split('.', 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Update sysconfig
@@ -17,9 +17,10 @@ module VagrantPlugins
               # Set the hostname - use hostnamectl if available
               echo '#{name}' > /etc/hostname
               if command -v hostnamectl; then
-                hostnamectl set-hostname '#{name}'
+                hostnamectl set-hostname --static '#{name}'
+                hostnamectl set-hostname --transient '#{name}'
               else
-                hostname '#{name}'
+                hostname -F /etc/hostname
               fi
 
               # Remove comments and blank lines from /etc/hosts

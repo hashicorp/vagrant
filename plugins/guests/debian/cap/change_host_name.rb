@@ -2,19 +2,22 @@ module VagrantPlugins
   module GuestDebian
     module Cap
       class ChangeHostName
-        # For more information, please see:
-        #
-        #   https://wiki.debian.org/HowTo/ChangeHostname
-        #
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep -w '#{name}'")
+          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              # Ensure exit on command error
+              set -e
+
               # Set the hostname
-              echo '#{name}' > /etc/hostname
+              echo '#{basename}' > /etc/hostname
               hostname -F /etc/hostname
+
+              if command -v hostnamectl; then
+                hostnamectl set-hostname '#{basename}'
+              fi
 
               # Remove comments and blank lines from /etc/hosts
               sed -i'' -e 's/#.*$//' -e '/^$/d' /etc/hosts
@@ -27,17 +30,13 @@ module VagrantPlugins
               # Update mailname
               echo '#{name}' > /etc/mailname
 
-              # Restart networking and force new DHCP
-              if [ test -f /etc/init.d/hostname.sh ]; then
-                invoke-rc.d hostname.sh start
+              # Restart hostname services
+              if test -f /etc/init.d/hostname; then
+                /etc/init.d/hostname start || true
               fi
 
-              if [ test -f /etc/init.d/networking ]; then
-                invoke-rc.d networking force-reload
-              fi
-
-              if [ test -f /etc/init.d/network-manager ]; then
-                invoke-rc.d network-manager force-reload
+              if test -f /etc/init.d/hostname.sh; then
+                /etc/init.d/hostname.sh start || true
               fi
             EOH
           end

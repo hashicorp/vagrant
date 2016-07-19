@@ -7,13 +7,12 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
       .guest_capabilities[:redhat]
   end
 
-  let(:machine) { double("machine") }
+  let(:guest) { double("guest") }
+  let(:machine) { double("machine", guest: guest) }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
-    comm.stub_command("/sbin/ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'",
-      stdout: "eth1\neth2")
   end
 
   after do
@@ -22,6 +21,16 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
 
   describe ".configure_networks" do
     let(:cap) { caps.get(:configure_networks) }
+
+    before do
+      allow(guest).to receive(:capability)
+        .with(:network_scripts_dir)
+        .and_return("/scripts")
+
+      allow(guest).to receive(:capability)
+        .with(:network_interfaces)
+        .and_return(["eth1", "eth2"])
+    end
 
     let(:network_1) do
       {
@@ -40,41 +49,16 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
       }
     end
 
-    let(:network_scripts_dir) { "/" }
-
-    let(:capability) { double("capability") }
-
-    before do
-      allow(machine).to receive(:guest).and_return(capability)
-      allow(capability).to receive(:capability)
-        .with(:network_scripts_dir)
-        .and_return(network_scripts_dir)
-    end
-
-    it "uses fedora for rhel7 configuration" do
-      require_relative "../../../../../../plugins/guests/fedora/cap/configure_networks"
-
-      allow(capability).to receive(:capability)
-        .with(:flavor)
-        .and_return(:rhel_7)
-      allow(VagrantPlugins::GuestFedora::Cap::ConfigureNetworks)
-        .to receive(:configure_networks)
-
-      expect(VagrantPlugins::GuestFedora::Cap::ConfigureNetworks)
-        .to receive(:configure_networks).once
-      cap.configure_networks(machine, [network_1, network_2])
-    end
-
     it "creates and starts the networks" do
-      allow(capability).to receive(:capability)
+      allow(guest).to receive(:capability)
         .with(:flavor)
         .and_return(:rhel)
 
       cap.configure_networks(machine, [network_1, network_2])
-      expect(comm.received_commands[1]).to match(/\/sbin\/ifdown 'eth1'/)
-      expect(comm.received_commands[1]).to match(/\/sbin\/ifup 'eth1'/)
-      expect(comm.received_commands[1]).to match(/\/sbin\/ifdown 'eth2'/)
-      expect(comm.received_commands[1]).to match(/\/sbin\/ifup 'eth2'/)
+      expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth1'/)
+      expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth1'/)
+      expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth2'/)
+      expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth2'/)
     end
   end
 end

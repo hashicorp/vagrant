@@ -3,10 +3,9 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          options = { shell: "sh" }
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep -w '#{name}' || hostname -s | grep -w '#{name}'", options)
+          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false, shell: "sh")
             basename = name.split(".", 2)[0]
             command = <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
@@ -23,7 +22,7 @@ module VagrantPlugins
                 mv /tmp/tmp-hosts /etc/hosts
               }
             EOH
-            comm.sudo(command, options)
+            comm.sudo(command, shell: "sh")
           end
         end
       end

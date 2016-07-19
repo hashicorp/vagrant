@@ -1,43 +1,20 @@
 require "tempfile"
 
-require_relative "../../../../lib/vagrant/util/retryable"
 require_relative "../../../../lib/vagrant/util/template_renderer"
 
 module VagrantPlugins
   module GuestRedHat
     module Cap
       class ConfigureNetworks
-        extend Vagrant::Util::Retryable
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
-          case machine.guest.capability(:flavor)
-          when :rhel_7
-            configure_networks_rhel7(machine, networks)
-          else
-            configure_networks_default(machine, networks)
-          end
-        end
-
-        def self.configure_networks_rhel7(machine, networks)
-          # This is kind of jank but the configure networks is the same as
-          # Fedora at this point.
-          require_relative "../../fedora/cap/configure_networks"
-          ::VagrantPlugins::GuestFedora::Cap::ConfigureNetworks
-            .configure_networks(machine, networks)
-        end
-
-        def self.configure_networks_default(machine, networks)
           comm = machine.communicate
 
           network_scripts_dir = machine.guest.capability(:network_scripts_dir)
 
-          interfaces = []
           commands   = []
-
-          comm.sudo("/sbin/ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, stdout|
-            interfaces = stdout.split("\n")
-          end
+          interfaces = machine.guest.capability(:network_interfaces)
 
           networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]

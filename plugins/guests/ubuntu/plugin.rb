@@ -10,11 +10,6 @@ module VagrantPlugins
         require_relative "guest"
         Guest
       end
-
-      guest_capability(:ubuntu, :change_host_name) do
-        require_relative "cap/change_host_name"
-        Cap::ChangeHostName
-      end
     end
   end
 end

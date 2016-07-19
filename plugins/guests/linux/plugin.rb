@@ -22,8 +22,8 @@ module VagrantPlugins
       end
 
       guest_capability(:linux, :insert_public_key) do
-        require_relative "cap/insert_public_key"
-        Cap::InsertPublicKey
+        require_relative "cap/public_key"
+        Cap::PublicKey
       end
 
       guest_capability(:linux, :shell_expand_guest_path) do
@@ -32,8 +32,8 @@ module VagrantPlugins
       end
 
       guest_capability(:linux, :mount_nfs_folder) do
-        require_relative "cap/mount_nfs"
-        Cap::MountNFS
+        require_relative "cap/nfs"
+        Cap::NFS
       end
 
       guest_capability(:linux, :mount_smb_shared_folder) do
@@ -46,9 +46,14 @@ module VagrantPlugins
         Cap::MountVirtualBoxSharedFolder
       end
 
+      guest_capability(:linux, :network_interfaces) do
+        require_relative "cap/network_interfaces"
+        Cap::NetworkInterfaces
+      end
+
       guest_capability(:linux, :nfs_client_installed) do
-        require_relative "cap/nfs_client"
-        Cap::NFSClient
+        require_relative "cap/nfs"
+        Cap::NFS
       end
 
       # For the Docker provider
@@ -63,8 +68,8 @@ module VagrantPlugins
       end
 
       guest_capability(:linux, :remove_public_key) do
-        require_relative "cap/remove_public_key"
-        Cap::RemovePublicKey
+        require_relative "cap/public_key"
+        Cap::PublicKey
       end
 
       guest_capability(:linux, :rsync_installed) do

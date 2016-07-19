@@ -5,10 +5,13 @@ module VagrantPlugins
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep -w '#{name}' || hostname -s | grep -w '#{name}'")
+          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
             basename = name.split(".", 2)[0]
 
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              set -e
+
+              # Set hostname
               scutil --set ComputerName '#{name}'
               scutil --set HostName '#{name}'
 
