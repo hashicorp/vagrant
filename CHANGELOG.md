@@ -32,6 +32,8 @@ BUG FIXES:
   - synced_folders/nfs: Ensure retries take place [GH-6360, GH-7605]
   - synced_folders/rsync: Shellescape rsync paths
       [GH-7580, GH-6690, GH-7579, GH-7605]
+  - synced_folders/rsync: Translate Windows paths
+      [GH-7012, GH-6702, GH-6568, GH-7046]
   - guests/bsd: Consolidate core logic for mounting NFS folders
       [GH-7480, GH-7474, GH-7466]
   - guests/bsd: Consolidate core logic for public key management [GH-7481]
