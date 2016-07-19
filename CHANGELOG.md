@@ -22,13 +22,15 @@ BUG FIXES:
   - core: Ensure removal of temporary directory when box download fails
       [GH-7496, GH-7499]
   - core: Fix regression for installing plugins from path [GH-7505, GH-7493]
+  - core: Skip checking conflicts on disabled ports [GH-7587]
   - core/guests: Create common BSD guest for shared logic
+  - core/guests: Ignore empty output from `/sbin/ip`
+      [GH-7539, GH-7537, GH-7533, GH-7605]
   - synced_folders/nfs: Shellescape rsync paths
       [GH-7540, GH-7605]
   - synced_folders/nfs: Ensure retries take place [GH-6360, GH-7605]
   - synced_folders/rsync: Shellescape rsync paths
       [GH-7580, GH-6690, GH-7579, GH-7605]
-  - guests/all: Ignore empty output from `/sbin/ip` [GH-7539, GH-7537, GH-7533, GH-7605]
   - guests/bsd: Consolidate core logic for mounting NFS folders
       [GH-7480, GH-7474, GH-7466]
   - guests/bsd: Consolidate core logic for public key management [GH-7481]
