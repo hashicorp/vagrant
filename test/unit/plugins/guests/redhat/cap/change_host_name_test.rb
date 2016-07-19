@@ -24,17 +24,18 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
     let(:name) { "banana-rama.example.com" }
 
     it "sets the hostname" do
-      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 1)
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
 
       cap.change_host_name(machine, name)
       expect(comm.received_commands[1]).to match(/\/etc\/sysconfig\/network/)
       expect(comm.received_commands[1]).to match(/\/etc\/sysconfig\/network-scripts\/ifcfg/)
-      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname '#{name}'/)
+      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname --static '#{name}'/)
+      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname --transient '#{name}'/)
       expect(comm.received_commands[1]).to match(/service network restart/)
     end
 
     it "does not change the hostname if already set" do
-      comm.stub_command("hostname -f | grep -w '#{name}'", exit_code: 0)
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
       cap.change_host_name(machine, name)
       expect(comm.received_commands.size).to eq(1)
     end

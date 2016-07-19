@@ -49,20 +49,6 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
       }
     end
 
-    it "uses fedora for rhel7 configuration" do
-      require_relative "../../../../../../plugins/guests/fedora/cap/configure_networks"
-
-      allow(guest).to receive(:capability)
-        .with(:flavor)
-        .and_return(:rhel_7)
-      allow(VagrantPlugins::GuestFedora::Cap::ConfigureNetworks)
-        .to receive(:configure_networks)
-
-      expect(VagrantPlugins::GuestFedora::Cap::ConfigureNetworks)
-        .to receive(:configure_networks).once
-      cap.configure_networks(machine, [network_1, network_2])
-    end
-
     it "creates and starts the networks" do
       allow(guest).to receive(:capability)
         .with(:flavor)
