@@ -94,9 +94,11 @@ module Vagrant
       # This saves the state back into the state file.
       def save!
         Tempfile.open(@path.basename.to_s, @path.dirname.to_s) do |f|
+          f.binmode
           f.write(JSON.dump(@data))
-          f.chmod(0644)
+          f.fsync
           f.close
+          f.chmod(0644)
           FileUtils.mv(f.path, @path)
         end
       end
