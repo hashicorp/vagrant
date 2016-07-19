@@ -24,10 +24,16 @@ targetted at Vagrant core members who have the ability to cut a release.
 1. Run `./scripts/sign.sh` with the version that is being created. This must be
     run from the Vagrant repo root. This will GPG sign and checksum the files.
 
-1. Run the following command to upload to the releases site:
+1. Run the following command to upload the binaries to the releases site:
 
     ```
-    $ hc-releases -upload pkg/dist -publish -purge
+    $ hc-releases upload pkg/dist
+    ```
+
+1. Publish the new index files to the releases site:
+
+    ```
+    $ hc-releases publish
     ```
 
 1. Update `website/config.rb` to point to the latest version, commit, and push.
