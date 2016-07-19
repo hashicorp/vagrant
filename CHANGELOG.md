@@ -39,11 +39,12 @@ BUG FIXES:
   - guests/centos: Use `ip` instead of `ifconfig` to detect network interfaces
       [GH-7460]
   - guests/debian: Ensure newline when inserting public key [GH-7456]
-  - guests/ubuntu: Use short hostname [GH-7488, GH-7605]
   - guests/linux: Ensure NFS retries during mounting [GH-7492]
   - guests/redhat: Use `/sbin/ip` to list and configure networks for
       compatability with older versions of CentOS [GH-7482]
   - guests/redhat: Ensure newline when inserting public key [GH-7598, GH-7605]
+  - guests/ubuntu: Use /etc/os-release to detech [GH-7524]
+  - guests/ubuntu: Use short hostname [GH-7488, GH-7605]
   - providers/hyperv: Fix version check and catch statement [GH-7447, GH-7487]
 
 ## 1.8.4 (June 13, 2016)
