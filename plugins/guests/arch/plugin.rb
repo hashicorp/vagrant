@@ -35,6 +35,16 @@ module VagrantPlugins
         require_relative "cap/nfs"
         Cap::NFS
       end
+
+      guest_capability(:arch, :rsync_install) do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+
+      guest_capability(:arch, :smb_install) do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
     end
   end
 end
