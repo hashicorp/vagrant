@@ -97,8 +97,8 @@ module Vagrant
           f.binmode
           f.write(JSON.dump(@data))
           f.fsync
-          f.close
           f.chmod(0644)
+          f.close
           FileUtils.mv(f.path, @path)
         end
       end
