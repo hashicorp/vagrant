@@ -1,4 +1,6 @@
 require "json"
+require "fileutils"
+require "tempfile"
 
 module Vagrant
   module Plugin
@@ -91,8 +93,11 @@ module Vagrant
 
       # This saves the state back into the state file.
       def save!
-        @path.open("w+") do |f|
+        Tempfile.open(@path.basename.to_s, @path.dirname.to_s) do |f|
           f.write(JSON.dump(@data))
+          f.chmod(0644)
+          f.close
+          FileUtils.mv(f.path, @path)
         end
       end
 
