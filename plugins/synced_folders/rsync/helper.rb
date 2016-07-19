@@ -77,7 +77,7 @@ module VagrantPlugins
         control_options = ""
         unless Vagrant::Util::Platform.windows?
           controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
-          control_options = "-o ControlMaster=auto -o ControlPath=#{controlpath} -o ControlPersist=10m"
+          control_options = "-o ControlMaster=auto -o ControlPath=#{controlpath} -o ControlPersist=10m "
         end
 
         rsh = [
