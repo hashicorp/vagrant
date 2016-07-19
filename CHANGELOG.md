@@ -23,6 +23,7 @@ BUG FIXES:
       [GH-7496, GH-7499]
   - core: Fix regression for installing plugins from path [GH-7505, GH-7493]
   - core: Skip checking conflicts on disabled ports [GH-7587]
+  - core: Idempotent write-out for state file [GH-7550]
   - core/guests: Create common BSD guest for shared logic
   - core/guests: Ignore empty output from `/sbin/ip`
       [GH-7539, GH-7537, GH-7533, GH-7605]
