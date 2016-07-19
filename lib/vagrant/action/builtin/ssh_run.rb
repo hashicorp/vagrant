@@ -30,7 +30,7 @@ module Vagrant
 
           info[:private_key_path] ||= []
 
-          if info[:private_key_path].empty?
+          if info[:keys_only] && info[:private_key_path].empty?
             raise Errors::SSHRunRequiresKeys
           end
 

@@ -37,13 +37,20 @@ module VagrantPlugins
             ssh_host: ssh_info[:host],
             ssh_port: ssh_info[:port],
             ssh_user: ssh_info[:username],
-            private_key_path: ssh_info[:private_key_path],
+            keys_only: ssh_info[:keys_only],
+            paranoid: ssh_info[:paranoid],
             forward_agent: ssh_info[:forward_agent],
             forward_x11:   ssh_info[:forward_x11],
             proxy_command: ssh_info[:proxy_command],
             ssh_command:   ssh_info[:ssh_command],
             forward_env:   ssh_info[:forward_env],
           }
+          if ssh_info[:private_key_path]
+            variables['private_key_path'] = ssh_info[:private_key_path]
+          end
+          if ssh_info[:log_level]
+            variables['log_level'] = ssh_info[:log_level]
+          end
 
           # Render the template and output directly to STDOUT
           template = "commands/ssh_config/config"
