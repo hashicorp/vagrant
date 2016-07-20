@@ -38,7 +38,7 @@ module VagrantPlugins
           contents = contents.strip << "\n"
 
           remote_path = "/tmp/vagrant-remove-pubkey-#{Time.now.to_i}"
-          Tempfile.open("vagrant-bsd-remove-public-key") do |f|
+          Tempfile.open("vagrant-linux-remove-public-key") do |f|
             f.binmode
             f.write(contents)
             f.fsync
@@ -54,6 +54,7 @@ module VagrantPlugins
             if test -f ~/.ssh/authorized_keys; then
               grep -v -x -f '#{remote_path}' ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.tmp
               mv ~/.ssh/authorized_keys.tmp ~/.ssh/authorized_keys
+              chmod 0600 ~/.ssh/authorized_keys
             fi
 
             rm -f '#{remote_path}'
