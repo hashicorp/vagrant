@@ -160,9 +160,13 @@ module Vagrant
       # it is expanded relative to the root path or to the working directory
       # depending on whether it starts with the "{}" placeholder. Otherwise,
       # we use the default which is expanded relative to the root path.
-      opts[:local_data_path] ||= ENV["VAGRANT_DOTFILE_PATH"] if !opts[:child]
-      if opts[:local_data_path] && opts[:local_data_path].match("^\{\}") && !root_path.nil?
-	opts[:local_data_path] = File.join(root_path, opts[:local_data_path].sub(/^\{\}/, ''))
+      if ENV.has_key?("VAGRANT_DOTFILE_PATH") && !opts[:child]
+        dotfile_path = ENV["VAGRANT_DOTFILE_PATH"]
+        if dotfile_path.match(/^\{\}/) && !root_path.nil?
+          opts[:local_data_path] = File.join(root_path, dotfile_path.sub(/^\{\}/, ''))
+        else
+          opts[:local_data_path] = dotfile_path
+        end
       end
       opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA) if !root_path.nil?
       if opts[:local_data_path]
