@@ -63,7 +63,11 @@ module VagrantPlugins
         opts[:owner] ||= ssh_info[:username]
         opts[:group] ||= ssh_info[:username]
 
+        # set log level
+        log_level = ssh_info[:log_level] || "FATAL"
+
         # Connection information
+        # make it better match lib/vagrant/util/ssh.rb command_options style and logic
         username = ssh_info[:username]
         host     = ssh_info[:host]
         proxy_command = ""
@@ -80,15 +84,31 @@ module VagrantPlugins
           control_options = "-o ControlMaster=auto -o ControlPath=#{controlpath} -o ControlPersist=10m "
         end
 
+        # rsh cmd option
         rsh = [
-          "ssh -p #{ssh_info[:port]} " +
-          proxy_command +
-          control_options +
-          "-o StrictHostKeyChecking=no " +
-          "-o IdentitiesOnly=true " +
-          "-o UserKnownHostsFile=/dev/null",
-          ssh_info[:private_key_path].map { |p| "-i '#{p}'" },
-        ].flatten.join(" ")
+          "ssh", "-p", "#{ssh_info[:port]}",
+          proxy_command,
+          control_options,
+        ]
+
+        # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the
+        # IdentitiesOnly option. Also, we don't enable it if keys_only is false
+        # so that SSH properly searches our identities and tries to do it itself.
+        if !Vagrant::Util::Platform.solaris? && ssh_info[:keys_only]
+          rsh += ["-o", "IdentitiesOnly=yes"]
+        end
+
+        # no strict hostkey checking unless paranoid
+        if ! ssh_info[:paranoid]
+          rsh += [
+            "-o", "StrictHostKeyChecking=no",
+            "-o", "UserKnownHostsFile=/dev/null"]
+        end
+
+        # If specified, attach the private key paths.
+        if ssh_info[:private_key_path]
+          ssh_info[:private_key_path].map { |p| "-i '#{p}'" }
+        end
 
         # Exclude some files by default, and any that might be configured
         # by the user.
@@ -130,7 +150,7 @@ module VagrantPlugins
         command = [
           "rsync",
           args,
-          "-e", rsh,
+          "-e", rsh.flatten.join(" "),
           excludes.map { |e| ["--exclude", e] },
           hostpath,
           "#{username}@#{host}:#{guestpath}",

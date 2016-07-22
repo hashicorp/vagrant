@@ -443,6 +443,8 @@ module Vagrant
       # provider-returned data.
       info[:host] = @config.ssh.host if @config.ssh.host
       info[:port] = @config.ssh.port if @config.ssh.port
+      info[:keys_only] = @config.ssh.keys_only
+      info[:paranoid] = @config.ssh.paranoid
       info[:username] = @config.ssh.username if @config.ssh.username
       info[:password] = @config.ssh.password if @config.ssh.password
 
@@ -462,7 +464,7 @@ module Vagrant
       if !info[:private_key_path] && !info[:password]
         if @config.ssh.private_key_path
           info[:private_key_path] = @config.ssh.private_key_path
-        else
+        elsif info[:keys_only]
           info[:private_key_path] = @env.default_private_key_path
         end
       end
