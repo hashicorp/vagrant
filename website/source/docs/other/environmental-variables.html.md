@@ -68,6 +68,8 @@ a scripting environment in order to set the directory that Vagrant sees.
 
 `VAGRANT_DOTFILE_PATH` can be set to change the directory where Vagrant stores VM-specific state, such as the VirtualBox VM UUID. By default, this is set to `.vagrant`. If you keep your Vagrantfile in a Dropbox folder in order to share the folder between your desktop and laptop (for example), Vagrant will overwrite the files in this directory with the details of the VM on the most recently-used host. To avoid this, you could set `VAGRANT_DOTFILE_PATH` to `.vagrant-laptop` and `.vagrant-desktop` on the respective machines. (Remember to update your `.gitignore`!)
 
+Non-absolute paths in this environmental variable are interpreted as relative to the current working directory unless prefixed with `{}` (example: `{}/.vagrant-laptop`), in which case they're interpreted as relative to the Vagrantfile.
+
 ## `VAGRANT_HOME`
 
 `VAGRANT_HOME` can be set to change the directory where Vagrant stores
