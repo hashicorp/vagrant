@@ -724,6 +724,23 @@ describe Vagrant::Machine do
           expect(instance.ssh_info[:password]).to eql("")
         end
       end
+
+      context "with custom ssh_info" do
+        it "keys_only should be default" do
+          expect(instance.ssh_info[:keys_only]).to be_true
+        end
+        it "paranoid should be default" do
+          expect(instance.ssh_info[:paranoid]).to be_false
+        end
+        it "keys_only should be overridden" do
+          instance.config.ssh.keys_only = false
+          expect(instance.ssh_info[:keys_only]).to be_false
+        end
+        it "paranoid should be overridden" do
+          instance.config.ssh.paranoid = true
+          expect(instance.ssh_info[:paranoid]).to be_true
+        end
+      end
     end
   end
 
