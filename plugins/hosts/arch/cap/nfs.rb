@@ -11,7 +11,7 @@ module VagrantPlugins
         end
 
         def self.nfs_installed(environment)
-          Kernel.system("grep -Fq nfsd /proc/filesystems")
+          Kernel.system("systemctl --no-pager --no-legend --plain list-unit-files --all --type=service | grep --fixed-strings --quiet nfs-server.service")
         end
       end
     end
