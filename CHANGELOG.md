@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - hosts/arch: Detect NFS server by service name on arch [GH-7630, GH-7629]
+  - guests/linux: Fix SSH key permissions [GH-7610, GH-7611]
 
 
 ## 1.8.5 (July 18, 2016)
