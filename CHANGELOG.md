@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - hosts/arch: Detect NFS server by service name on arch [GH-7630, GH-7629]
+
 
 ## 1.8.5 (July 18, 2016)
 
