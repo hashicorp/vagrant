@@ -8,6 +8,7 @@ BUG FIXES:
 
   - hosts/arch: Detect NFS server by service name on arch [GH-7630, GH-7629]
   - guests/linux: Fix SSH key permissions [GH-7610, GH-7611]
+  - guests/ubuntu: Fix detection on older guests [GH-7632, GH-7524, GH-7625]
 
 
 ## 1.8.5 (July 18, 2016)
