@@ -50,8 +50,8 @@ su -l -c 'curl -sL https://get.rvm.io | bash -s stable' vagrant
 #usermod -a -G rvm vagrant
 
 # Install some Rubies
-su -l -c 'rvm install 2.1.1' vagrant
-su -l -c 'rvm --default use 2.1.1' vagrant
+su -l -c 'rvm install 2.2.3' vagrant
+su -l -c 'rvm --default use 2.2.3' vagrant
 
 # Output the Ruby version (for sanity)
 su -l -c 'ruby --version' vagrant
