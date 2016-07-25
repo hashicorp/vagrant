@@ -59,6 +59,10 @@ su -l -c 'ruby --version' vagrant
 # Install Git
 apt-get install -y git
 
+# Prepare to run unit tests
+su -l vagrant -c 'gem install bundler -v 1.12.5'
+su -l vagrant -c 'cd /vagrant; bundle install'
+
 # Automatically move into the shared folder, but only add the command
 # if it's not already there.
 grep -q 'cd /vagrant' /home/vagrant/.bash_profile || echo 'cd /vagrant' >> /home/vagrant/.bash_profile
