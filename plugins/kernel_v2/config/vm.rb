@@ -5,6 +5,7 @@ require "set"
 require "vagrant"
 require "vagrant/config/v2/util"
 require "vagrant/util/platform"
+require "vagrant/util/presence"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
@@ -12,6 +13,8 @@ require File.expand_path("../vm_subvm", __FILE__)
 module VagrantPlugins
   module Kernel_V2
     class VMConfig < Vagrant.plugin("2", :config)
+      include Vagrant::Util::Presence
+
       DEFAULT_VM_NAME = :default
 
       attr_accessor :allowed_synced_folder_types
@@ -361,7 +364,11 @@ module VagrantPlugins
         @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box = nil if @box == UNSET_VALUE
-        @box_check_update = true if @box_check_update == UNSET_VALUE
+
+        if @box_check_update == UNSET_VALUE
+          @box_check_update = !present?(ENV["VAGRANT_BOX_UPDATE_CHECK_DISABLE"])
+        end
+
         @box_download_ca_cert = nil if @box_download_ca_cert == UNSET_VALUE
         @box_download_ca_path = nil if @box_download_ca_path == UNSET_VALUE
         @box_download_checksum = nil if @box_download_checksum == UNSET_VALUE
@@ -425,7 +432,9 @@ module VagrantPlugins
               id: "winrm-ssl",
               auto_correct: true
           end
-        elsif !@__networks["forwarded_port-ssh"]
+        end
+        # forward SSH ports regardless of communicator
+        if !@__networks["forwarded_port-ssh"]
           network :forwarded_port,
             guest: 22,
             host: 2222,

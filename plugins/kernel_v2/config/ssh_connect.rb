@@ -7,6 +7,8 @@ module VagrantPlugins
       attr_accessor :username
       attr_accessor :password
       attr_accessor :insert_key
+      attr_accessor :keys_only
+      attr_accessor :paranoid
 
       def initialize
         @host             = UNSET_VALUE
@@ -15,6 +17,8 @@ module VagrantPlugins
         @username         = UNSET_VALUE
         @password         = UNSET_VALUE
         @insert_key       = UNSET_VALUE
+        @keys_only        = UNSET_VALUE
+        @paranoid         = UNSET_VALUE
       end
 
       def finalize!
@@ -24,6 +28,8 @@ module VagrantPlugins
         @username         = nil if @username == UNSET_VALUE
         @password         = nil if @password == UNSET_VALUE
         @insert_key       = true if @insert_key == UNSET_VALUE
+        @keys_only        = true if @keys_only == UNSET_VALUE
+        @paranoid         = false if @paranoid == UNSET_VALUE
 
         if @private_key_path && !@private_key_path.is_a?(Array)
           @private_key_path = [@private_key_path]

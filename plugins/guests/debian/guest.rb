@@ -1,3 +1,5 @@
+require "vagrant"
+
 module VagrantPlugins
   module GuestDebian
     class Guest < Vagrant.plugin("2", :guest)

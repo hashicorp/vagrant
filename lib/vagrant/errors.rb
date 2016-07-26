@@ -324,10 +324,6 @@ module Vagrant
       error_key(:darwin_mount_failed)
     end
 
-    class DarwinNFSMountFailed < VagrantError
-      error_key(:darwin_nfs_mount_failed)
-    end
-
     class DestroyRequiresForce < VagrantError
       error_key(:destroy_requires_force)
     end
@@ -404,10 +400,6 @@ module Vagrant
       error_key(:linux_mount_failed)
     end
 
-    class LinuxNFSMountFailed < VagrantError
-      error_key(:linux_nfs_mount_failed)
-    end
-
     class LinuxRDPClientNotFound < VagrantError
       error_key(:linux_rdp_client_not_found)
     end
@@ -456,12 +448,20 @@ module Vagrant
       error_key(:not_found, "vagrant.actions.vm.host_only_network")
     end
 
+    class NetworkTypeNotSupported < VagrantError
+      error_key(:network_type_not_supported)
+    end
+
     class NFSBadExports < VagrantError
       error_key(:nfs_bad_exports)
     end
 
     class NFSCantReadExports < VagrantError
       error_key(:nfs_cant_read_exports)
+    end
+
+    class NFSMountFailed < VagrantError
+      error_key(:nfs_mount_failed)
     end
 
     class NFSNoGuestIP < VagrantError
@@ -778,6 +778,14 @@ module Vagrant
 
     class VirtualBoxNoName < VagrantError
       error_key(:virtualbox_no_name)
+    end
+
+    class VirtualBoxMountFailed < VagrantError
+      error_key(:virtualbox_mount_failed)
+    end
+
+    class VirtualBoxMountNotSupportedBSD < VagrantError
+      error_key(:virtualbox_mount_not_supported_bsd)
     end
 
     class VirtualBoxNameExists < VagrantError

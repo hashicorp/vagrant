@@ -7,11 +7,11 @@ describe "templates/guests/arch/network_dhcp" do
 
   it "renders the template" do
     result = Vagrant::Util::TemplateRenderer.render(template, options: {
-      device: "en0",
+      device: "eth1",
     })
     expect(result).to eq <<-EOH.gsub(/^ {6}/, "")
       Description='A basic dhcp ethernet connection'
-      Interface=en0
+      Interface=eth1
       Connection=ethernet
       IP=dhcp
     EOH

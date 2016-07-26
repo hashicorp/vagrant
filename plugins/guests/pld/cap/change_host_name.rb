@@ -3,15 +3,27 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          machine.communicate.tap do |comm|
-            # Only do this if the hostname is not already set
-            if !comm.test("sudo hostname | grep --line-regexp '#{name}'")
-              comm.sudo("sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network")
-              comm.sudo("hostname #{name}")
-              comm.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} #{name.split('.')[0]} @' /etc/hosts")
-              comm.sudo("sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{name}\"/' /etc/sysconfig/interfaces/ifcfg-*")
-              comm.sudo("service network restart")
-            end
+          comm = machine.communicate
+
+          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
+            basename = name.split(".", 2)[0]
+            comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              hostname '#{name}'
+              sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
+
+              sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{name}\"/' /etc/sysconfig/interfaces/ifcfg-*
+
+              # Remove comments and blank lines from /etc/hosts
+              sed -i'' -e 's/#.*$//' -e '/^$/d' /etc/hosts
+
+              # Prepend ourselves to /etc/hosts
+              grep -w '#{name}' /etc/hosts || {
+                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
+              }
+
+              # Restart networking
+              service network restart
+            EOH
           end
         end
       end

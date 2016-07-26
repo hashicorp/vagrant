@@ -33,6 +33,10 @@ module VagrantPlugins
         # @return [String]
         attr_accessor :recipe_url
 
+        # Enable chef-solo legacy mode rather than local mode.
+        # @return [true, false]
+        attr_accessor :legacy_mode
+
         # The path where roles are stored on disk.
         # @return [String]
         attr_accessor :roles_path
@@ -49,6 +53,7 @@ module VagrantPlugins
           @environments_path   = UNSET_VALUE
           @nodes_path          = UNSET_VALUE
           @recipe_url          = UNSET_VALUE
+          @legacy_mode         = UNSET_VALUE
           @roles_path          = UNSET_VALUE
           @synced_folder_type  = UNSET_VALUE
         end
@@ -62,6 +67,7 @@ module VagrantPlugins
 
           @recipe_url = nil if @recipe_url == UNSET_VALUE
           @synced_folder_type = nil if @synced_folder_type == UNSET_VALUE
+          @legacy_mode = false if @legacy_mode == UNSET_VALUE
 
           if @cookbooks_path == UNSET_VALUE
             @cookbooks_path = []

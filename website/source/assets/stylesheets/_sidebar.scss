@@ -1,0 +1,18 @@
+.sidebar {
+  .sidebar-nav {
+    li {
+      text-align: left;
+
+      a {
+        color: $vagrant-blue;
+        padding-left: 25px;
+
+        svg {
+          path {
+            fill: $vagrant-blue;
+          }
+        }
+      }
+    }
+  }
+}

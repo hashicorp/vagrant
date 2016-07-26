@@ -1,5 +1,3 @@
-require "vagrant"
-
 module VagrantPlugins
   module GuestPld
     class Guest < Vagrant.plugin("2", :guest)

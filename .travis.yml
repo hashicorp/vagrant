@@ -4,13 +4,16 @@ sudo: false
 
 cache: bundler
 
+before_install:
+  - gem install bundler -v '1.12.5'
+
 addons:
   apt:
     packages:
     - bsdtar
 
 rvm:
-  - 2.0.0
+  - 2.2.3
 
 branches:
   only:

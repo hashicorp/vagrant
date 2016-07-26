@@ -13,9 +13,9 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
     end
   end
 
-  let(:machine) do
-    data_dir = Pathname.new(Dir.mktmpdir)
+  let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant-test-mixin-synced-folders")) }
 
+  let(:machine) do
     double("machine").tap do |machine|
       allow(machine).to receive(:config).and_return(machine_config)
       allow(machine).to receive(:data_dir).and_return(data_dir)
@@ -29,6 +29,10 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
   end
 
   let(:vm_config) { double("machine_vm_config", :allowed_synced_folder_types => nil) }
+
+  after do
+    FileUtils.rm_rf(data_dir)
+  end
 
   describe "default_synced_folder_type" do
     it "returns the usable implementation" do

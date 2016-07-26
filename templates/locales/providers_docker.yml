@@ -153,6 +153,14 @@ en:
         Stderr: %{stderr}
 
         Stdout: %{stdout}
+      exec_command_required: |-
+        The "docker-exec" command requires a command to execute. This command
+        must be specified after a "--" in the command line. This is used to
+        separate machine name and options from the actual command to execute.
+        An example is show below:
+
+          $ vagrant docker-exec -t nginx -- bash
+
       host_vm_communicator_not_ready: |-
         The Docker provider was able to bring up the host VM successfully
         but the host VM is still reporting that SSH is unavailable. This

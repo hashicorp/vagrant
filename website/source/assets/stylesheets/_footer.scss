@@ -1,0 +1,86 @@
+#footer {
+  padding: 64px 0;
+  background-color: $black;
+
+  .hashicorp-project {
+    margin-top: 24px;
+  }
+
+  .pull-right {
+    padding-right: 15px;
+  }
+
+  ul {
+    li {
+      a {
+        font-weight: 600;
+        color: $white;
+      }
+    }
+  }
+}
+
+.edit-page-link {
+  font-size: 12px;
+  position: absolute;
+  top: -100px;
+  right: 20px;
+  z-index: 9999;
+
+  a {
+    text-transform: uppercase;
+    color: $gray;
+  }
+}
+
+@media (max-width: 768px) {
+  #footer{
+    text-align: center;
+
+    .footer-hashi {
+      float: none !important;
+      display: block;
+
+      .pull-right {
+        float: none !important;
+        padding-right: 0;
+      }
+    }
+
+    ul {
+      float: none;
+      display: inline-block;
+      margin-bottom: 36px;
+    }
+  }
+}
+
+@media (max-width: 414px) {
+  #footer {
+    ul {
+      display: block;
+
+      li {
+        display: block;
+        height: 40px;
+        float: none;
+
+        a {
+          padding: 0;
+        }
+      }
+
+      &.external-links {
+        li {
+          svg {
+            position: relative;
+            left: 0;
+            top: 2px;
+            margin-top: 0;
+            margin-right: 4px;
+          }
+        }
+      }
+    }
+  }
+}

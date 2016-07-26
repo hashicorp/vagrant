@@ -86,6 +86,8 @@ module VagrantPlugins
         end
 
         def update_vms(argv, provider, download_options)
+          machines = {}
+
           with_target_vms(argv, provider: provider) do |machine|
             if !machine.config.vm.box
               machine.ui.output(I18n.t(
@@ -100,6 +102,14 @@ module VagrantPlugins
               next
             end
 
+            name     = machine.box.name
+            provider = machine.box.provider
+            version  = machine.config.vm.box_version || machine.box.version
+
+            machines["#{name}_#{provider}_#{version}"] = machine
+          end
+
+          machines.each do |_, machine|
             box = machine.box
             version = machine.config.vm.box_version
             # Get download options from machine configuration if not specified

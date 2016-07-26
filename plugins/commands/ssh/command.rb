@@ -11,7 +11,7 @@ module VagrantPlugins
         options = {}
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant ssh [options] [name] [-- extra ssh args]"
+          o.banner = "Usage: vagrant ssh [options] [name|id] [-- extra ssh args]"
           o.separator ""
           o.separator "Options:"
           o.separator ""
@@ -55,6 +55,7 @@ module VagrantPlugins
             exit_status = env[:ssh_run_exit_status] || 0
             return exit_status
           else
+            Vagrant::Bundler.instance.deinit
             @logger.debug("Invoking `ssh` action on machine")
             vm.action(:ssh, ssh_opts: ssh_opts)
 

@@ -3,16 +3,16 @@ module VagrantPlugins
     module Cap
       module ChooseAddressableIPAddr
         def self.choose_addressable_ip_addr(machine, possible)
-          machine.communicate.tap do |comm|
-            possible.each do |ip|
-              command = "ping -c1 -t1 #{ip}"
-              if comm.test(command)
-                return ip
-              end
+          comm = machine.communicate
+
+          possible.each do |ip|
+            if comm.test("ping -c1 -t1 #{ip}")
+              return ip
             end
           end
 
-          nil
+          # If we got this far, there are no addressable IPs
+          return nil
         end
       end
     end

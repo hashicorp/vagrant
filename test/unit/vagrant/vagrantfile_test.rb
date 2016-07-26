@@ -58,7 +58,7 @@ describe Vagrant::Vagrantfile do
 
   describe "#machine" do
     let(:boxes) { Vagrant::BoxCollection.new(iso_env.boxes_dir) }
-    let(:data_path) { Pathname.new(Dir.mktmpdir) }
+    let(:data_path) { Pathname.new(Dir.mktmpdir("vagrant-machine-data-path")) }
     let(:env)   { iso_env.create_vagrant_env }
     let(:iso_env) { isolated_environment }
     let(:vagrantfile) { described_class.new(loader, keys) }
@@ -84,6 +84,10 @@ describe Vagrant::Vagrantfile do
         config.ssh.port = 123
       end
       VF
+    end
+
+    after do
+      FileUtils.rm_rf(data_path.to_s)
     end
 
     describe '#data_dir' do

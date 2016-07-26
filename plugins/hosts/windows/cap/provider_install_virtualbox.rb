@@ -17,8 +17,7 @@ module VagrantPlugins
         SHA256SUM = "3e5ed8fe4ada6eef8dfb4fe6fd79fcab4b242acf799f7d3ab4a17b43838b1e04".freeze
 
         def self.provider_install_virtualbox(env)
-          tf = Tempfile.new("vagrant")
-          tf.close
+          path = Dir::Tmpname.create("vagrant-provider-install-virtualbox") {}
 
           # Prefixed UI for prettiness
           ui = Vagrant::UI::Prefixed.new(env.ui, "")
@@ -29,11 +28,11 @@ module VagrantPlugins
             version: VERSION))
           ui.detail(I18n.t(
             "vagrant.hosts.windows.virtualbox_install_detail"))
-          dl = Vagrant::Util::Downloader.new(URL, tf.path, ui: ui)
+          dl = Vagrant::Util::Downloader.new(URL, path, ui: ui)
           dl.download!
 
           # Validate that the file checksum matches
-          actual = FileChecksum.new(tf.path, Digest::SHA2).checksum
+          actual = FileChecksum.new(path, Digest::SHA2).checksum
           if actual != SHA256SUM
             raise Vagrant::Errors::ProviderChecksumMismatch,
               provider: "virtualbox",
@@ -47,7 +46,7 @@ module VagrantPlugins
           ui.detail(I18n.t(
             "vagrant.hosts.windows.virtualbox_install_install_detail"))
           script = File.expand_path("../../scripts/install_virtualbox.ps1", __FILE__)
-          result = Vagrant::Util::PowerShell.execute(script, tf.path)
+          result = Vagrant::Util::PowerShell.execute(script, path)
           if result.exit_code != 0
             raise Vagrant::Errors::ProviderInstallFailed,
               provider: "virtualbox",

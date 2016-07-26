@@ -107,12 +107,16 @@ $secure_boot_enabled = (Select-Xml -xml $vmconfig -XPath "//secure_boot_enabled"
 
 $vm_params = @{
     Name = $vm_name
-    Generation = $generation
     NoVHD = $True
     MemoryStartupBytes = $MemoryStartupBytes
     SwitchName = $switchname
     BootDevice = $bootdevice
     ErrorAction = "Stop"
+}
+
+# Generation parameter was added in ps v4
+if((get-command New-VM).Parameters.Keys.Contains("generation")) {
+    $vm_params.Generation = $generation
 }
 
 # Create the VM using the values in the hash map

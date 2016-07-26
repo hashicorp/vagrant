@@ -118,7 +118,7 @@ module Vagrant
     # @param [Hash] download_options Options to pass to the downloader.
     # @return [BoxMetadata]
     def load_metadata(**download_options)
-      tf = Tempfile.new("vagrant")
+      tf = Tempfile.new("vagrant-load-metadata")
       tf.close
 
       url = @metadata_url

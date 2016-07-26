@@ -64,7 +64,7 @@ describe VagrantPlugins::FTPPush::FTPAdapter do
 
   describe "#upload" do
     before do
-      @dir = Dir.mktmpdir
+      @dir = Dir.mktmpdir("vagrant-ftp-push-adapter-upload")
       FileUtils.touch("#{@dir}/file")
     end
 

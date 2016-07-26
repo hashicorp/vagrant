@@ -1,19 +1,11 @@
+require "shellwords"
+
 module VagrantPlugins
   module GuestFreeBSD
     module Cap
       class RSync
         def self.rsync_install(machine)
-          version = nil
-          machine.communicate.execute("uname -r") do |type, result|
-            version = result.split('.')[0].to_i if type == :stdout
-          end
-
-          pkg_cmd = "pkg_add -r"
-          if version && version >= 10
-            pkg_cmd = "pkg install -y"
-          end
-
-          machine.communicate.sudo("#{pkg_cmd} rsync")
+          machine.communicate.sudo("pkg install -y rsync")
         end
 
         def self.rsync_installed(machine)
@@ -25,9 +17,8 @@ module VagrantPlugins
         end
 
         def self.rsync_pre(machine, opts)
-          machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p '#{opts[:guestpath]}'")
-          end
+          guest_path = Shellwords.escape(opts[:guestpath])
+          machine.communicate.sudo("mkdir -p #{guest_path}")
         end
 
         def self.rsync_post(machine, opts)
@@ -35,8 +26,10 @@ module VagrantPlugins
             return
           end
 
+          guest_path = Shellwords.escape(opts[:guestpath])
+
           machine.communicate.sudo(
-            "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
+            "find #{guest_path} '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
             "xargs -0 -r chown #{opts[:owner]}:#{opts[:group]}")
         end
       end

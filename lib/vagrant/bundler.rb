@@ -2,6 +2,7 @@ require "monitor"
 require "pathname"
 require "set"
 require "tempfile"
+require "fileutils"
 
 require "bundler"
 
@@ -55,13 +56,13 @@ module Vagrant
 
       # Setup the "local" Bundler configuration. We need to set BUNDLE_PATH
       # because the existence of this actually suppresses `sudo`.
-      @appconfigpath = Dir.mktmpdir
+      @appconfigpath = Dir.mktmpdir("vagrant-bundle-app-config")
       File.open(File.join(@appconfigpath, "config"), "w+") do |f|
         f.write("BUNDLE_PATH: \"#{bundle_path}\"")
       end
 
       # Setup the Bundler configuration
-      @configfile = File.open(Tempfile.new("vagrant").path + "1", "w+")
+      @configfile = tempfile("vagrant-configfile")
       @configfile.close
 
       # Build up the Gemfile for our Bundler context. We make sure to
@@ -84,9 +85,13 @@ module Vagrant
 
     # Removes any temporary files created by init
     def deinit
-      File.unlink(ENV["BUNDLE_APP_CONFIG"]) rescue nil
-      File.unlink(ENV["BUNDLE_CONFIG"]) rescue nil
-      File.unlink(ENV["GEMFILE"]) rescue nil
+      # If we weren't enabled, then we don't do anything.
+      return if !@enabled
+
+      FileUtils.rm_rf(ENV["BUNDLE_APP_CONFIG"]) rescue nil
+      FileUtils.rm_f(ENV["BUNDLE_CONFIG"]) rescue nil
+      FileUtils.rm_f(ENV["BUNDLE_GEMFILE"]) rescue nil
+      FileUtils.rm_f(ENV["BUNDLE_GEMFILE"]+".lock") rescue nil
     end
 
     # Installs the list of plugins.
@@ -181,7 +186,7 @@ module Vagrant
     def build_gemfile(plugins)
       sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
 
-      f = File.open(Tempfile.new("vagrant").path + "2", "w+")
+      f = tempfile("vagrant-gemfile")
       f.tap do |gemfile|
         sources.each do |source|
           next if source == ""
@@ -203,7 +208,6 @@ module Vagrant
           gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}])
         end
         gemfile.puts("end")
-
         gemfile.close
       end
     end
@@ -250,11 +254,14 @@ module Vagrant
     def with_isolated_gem
       raise Errors::BundlerDisabled if !@enabled
 
+      tmp_gemfile = tempfile("vagrant-gemfile")
+      tmp_gemfile.close
+
       # Remove bundler settings so that Bundler isn't loaded when building
       # native extensions because it causes all sorts of problems.
       old_rubyopt = ENV["RUBYOPT"]
       old_gemfile = ENV["BUNDLE_GEMFILE"]
-      ENV["BUNDLE_GEMFILE"] = Tempfile.new("vagrant-gemfile").path
+      ENV["BUNDLE_GEMFILE"] = tmp_gemfile.path
       ENV["RUBYOPT"] = (ENV["RUBYOPT"] || "").gsub(/-rbundler\/setup\s*/, "")
 
       # Set the GEM_HOME so gems are installed only to our local gem dir
@@ -265,7 +272,10 @@ module Vagrant
 
       # Reset the all specs override that Bundler does
       old_all = Gem::Specification._all
-      Gem::Specification.all = nil
+
+      # WARNING: Seriously don't touch this without reading the comment attached
+      # to the monkey-patch at the bottom of this file.
+      Gem::Specification.vagrant_reset!
 
       # /etc/gemrc and so on.
       old_config = nil
@@ -284,6 +294,8 @@ module Vagrant
         return yield
       end
     ensure
+      tmp_gemfile.unlink rescue nil
+
       ENV["BUNDLE_GEMFILE"] = old_gemfile
       ENV["GEM_HOME"] = @gem_home
       ENV["RUBYOPT"]  = old_rubyopt
@@ -291,6 +303,17 @@ module Vagrant
       Gem.configuration = old_config
       Gem.paths = ENV
       Gem::Specification.all = old_all
+    end
+
+    # This method returns a proper "tempfile" on disk. Ruby's Tempfile class
+    # would work really great for this, except GC can come along and  remove
+    # the file before we are done with it. This is because we "close" the file,
+    # but we might be shelling out to a subprocess.
+    #
+    # @return [File]
+    def tempfile(name)
+      path = Dir::Tmpname.create(name) {}
+      return File.open(path, "w+")
     end
 
     # This is pretty hacky but it is a custom implementation of
@@ -308,6 +331,36 @@ module Vagrant
         @hash           = {}
         @update_sources = true
         @verbose        = true
+      end
+    end
+
+    # This monkey patches Gem::Specification from RubyGems to add a new method,
+    # `vagrant_reset!`. For some background, Vagrant needs to set the value
+    # of these variables to nil to force new specs to be loaded. Previously,
+    # this was accomplished by setting Gem::Specification.specs = nil. However,
+    # newer versions of Rubygems try to map across that nil using a group_by
+    # clause, breaking things.
+    #
+    # This generally never affected Vagrant users who were using the official
+    # Vagrant installers because we lock to an older version of Rubygems that
+    # does not have this issue. The users of the official debian packages,
+    # however, experienced this issue because they float on Rubygems.
+    #
+    # In GH-7073, a number of Debian users reported this issue, but it was not
+    # reproducible in the official installer for reasons described above. Commit
+    # ba77d4b switched to using Gem::Specification.reset, but this actually
+    # broke the ability to install gems locally (GH-7493) because it resets
+    # the complete local cache, which is already built.
+    #
+    # The only solution that works with both new and old versions of Rubygems
+    # is to provide our own function for JUST resetting all the stubs. Both
+    # @@all and @@stubs must be set to a falsey value, so some of the
+    # originally-suggested solutions of using an empty array do not work. Only
+    # setting these values to nil (without clearing the cache), allows Vagrant
+    # to install and manage plugins.
+    class Gem::Specification < Gem::BasicSpecification
+      def self.vagrant_reset!
+        @@all = @@stubs = nil
       end
     end
 

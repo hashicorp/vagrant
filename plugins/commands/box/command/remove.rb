@@ -14,7 +14,7 @@ module VagrantPlugins
             o.separator "Options:"
             o.separator ""
 
-            o.on("-f", "--force", "Destroy without confirmation.") do |f|
+            o.on("-f", "--force", "Remove without confirmation.") do |f|
               options[:force] = f
             end
 

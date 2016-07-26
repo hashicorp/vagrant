@@ -1,4 +1,4 @@
-require File.expand_path("../../../../../base", __FILE__)
+require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestTinyCore::Cap::ChangeHostName" do
   let(:described_class) do

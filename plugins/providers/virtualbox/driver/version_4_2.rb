@@ -238,7 +238,7 @@ module VagrantPlugins
         end
 
         def max_network_adapters
-          36
+          8
         end
 
         def read_forwarded_ports(uuid=nil, active_only=false)
@@ -594,9 +594,9 @@ module VagrantPlugins
             result = raw("showvminfo", uuid)
             return true if result.exit_code == 0
 
-            # GH-2479: Sometimes this happens. In this case, retry. If
-            # we don't see this text, the VM really probably doesn't exist.
-            return false if !result.stderr.include?("CO_E_SERVER_EXEC_FAILURE")
+            # If vboxmanage returned VBOX_E_OBJECT_NOT_FOUND,
+            # then the vm truly does not exist. Any other error might be transient
+            return false if result.stderr.include?("VBOX_E_OBJECT_NOT_FOUND")
 
             # Sleep a bit though to give VirtualBox time to fix itself
             sleep 2
@@ -656,7 +656,8 @@ module VagrantPlugins
 
           result.sort
         rescue Vagrant::Errors::VBoxManageError => e
-          return [] if e.extra_data[:stdout].include?("does not have")
+          d = e.extra_data
+          return [] if d[:stderr].include?("does not have") || d[:stdout].include?("does not have")
           raise
         end
 

@@ -57,9 +57,9 @@ describe VagrantPlugins::Chef::Config::Base do
   end
 
   describe "#channel" do
-    it "defaults to \"current\"" do
+    it "defaults to \"stable\"" do
       subject.finalize!
-      expect(subject.channel).to eq("current")
+      expect(subject.channel).to eq("stable")
     end
   end
 

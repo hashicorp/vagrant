@@ -22,6 +22,35 @@ describe VagrantPlugins::Chef::Provisioner::Base do
     allow(config).to receive(:node_name=)
   end
 
+  describe "#node_name" do
+    let(:env) { double("env") }
+    let(:root_path) { "/my/root" }
+
+    before do
+      allow(machine).to receive(:env).and_return(env)
+      allow(env).to receive(:root_path).and_return(root_path)
+    end
+
+    it "defaults to node_name if given" do
+      config = OpenStruct.new(node_name: "name")
+      instance = described_class.new(machine, config)
+      expect(instance.config.node_name).to eq("name")
+    end
+
+    it "defaults to hostname if given" do
+      machine.config.vm.hostname = "by.hostname"
+      instance = described_class.new(machine, OpenStruct.new)
+      expect(instance.config.node_name).to eq("by.hostname")
+    end
+
+    it "generates a random name if no hostname or node_name is given" do
+      config = OpenStruct.new(node_name: nil)
+      machine.config.vm.hostname = nil
+      instance = described_class.new(machine, OpenStruct.new)
+      expect(instance.config.node_name).to match(/vagrant\-.+/)
+    end
+  end
+
   describe "#encrypted_data_bag_secret_key_path" do
     let(:env) { double("env") }
     let(:root_path) { "/my/root" }

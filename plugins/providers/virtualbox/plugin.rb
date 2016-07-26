@@ -56,6 +56,7 @@ module VagrantPlugins
       autoload :Version_4_2, File.expand_path("../driver/version_4_2", __FILE__)
       autoload :Version_4_3, File.expand_path("../driver/version_4_3", __FILE__)
       autoload :Version_5_0, File.expand_path("../driver/version_5_0", __FILE__)
+      autoload :Version_5_1, File.expand_path("../driver/version_5_1", __FILE__)
     end
 
     module Model

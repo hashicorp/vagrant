@@ -38,7 +38,7 @@ module VagrantPlugins
 
         # The channel from which to download Chef. Currently known values are
         # "current" and "stable", but more may be added in the future. The
-        # default is "current".
+        # default is "stable".
         # @return [String]
         attr_accessor :channel
 
@@ -68,10 +68,9 @@ module VagrantPlugins
         def prerelease=(value)
           STDOUT.puts <<-EOH
 [DEPRECATED] The configuration `chef.prerelease' has been deprecated. Please use
-`chef.channel' instead. The default value for channel is "current", which
-includes prelease versions of Chef Client and the Chef Development Kit. You can
-probably just remove the `prerelease' setting from your Vagrantfile and things
-will continue working as expected.
+`chef.channel' instead. The default value for channel is "stable", which
+includes the latest published versions of the Chef Client. You can choose to use
+prerelease versions by setting the channel to "current".
 EOH
         end
 
@@ -94,7 +93,7 @@ EOH
           @product     = "chef"    if @product == UNSET_VALUE
           @install     = true      if @install == UNSET_VALUE
           @log_level   = :info     if @log_level == UNSET_VALUE
-          @channel     = "current" if @channel == UNSET_VALUE
+          @channel     = "stable"  if @channel == UNSET_VALUE
           @version     = :latest   if @version == UNSET_VALUE
           @installer_download_path = nil  if @installer_download_path == UNSET_VALUE
 

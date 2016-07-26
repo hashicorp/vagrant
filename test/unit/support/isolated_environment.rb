@@ -132,8 +132,8 @@ module Unit
     # @return [Pathname] Path to the newly created box.
     def box1_file
       # Create a temporary directory to store our data we will tar up
-      td_source = Dir.mktmpdir
-      td_dest   = Dir.mktmpdir
+      td_source = Dir.mktmpdir("vagrant-box1-source")
+      td_dest   = Dir.mktmpdir("vagrant-box-1-dest")
 
       # Store the temporary directory so it is not deleted until
       # this instance is garbage collected.
@@ -177,8 +177,8 @@ module Unit
       }.merge(options[:metadata] || {})
 
       # Create a temporary directory to store our data we will tar up
-      td_source = Dir.mktmpdir
-      td_dest   = Dir.mktmpdir
+      td_source = Dir.mktmpdir("vagrant-box-2-source")
+      td_dest   = Dir.mktmpdir("vagrant-box-2-dest")
 
       # Store the temporary directory so it is not deleted until
       # this instance is garbage collected.

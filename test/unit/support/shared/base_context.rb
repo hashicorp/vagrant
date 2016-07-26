@@ -73,19 +73,27 @@ shared_context "unit" do
   end
 
   # This creates a temporary directory and returns a {Pathname}
-  # pointing to it.
+  # pointing to it. If a block is given, the pathname is yielded and the
+  # temporary directory is removed at the end of the block.
   #
   # @return [Pathname]
   def temporary_dir
     # Create a temporary directory and append it to the instance
     # variabe so that it isn't garbage collected and deleted
-    d = Dir.mktmpdir("vagrant")
+    d = Dir.mktmpdir("vagrant-temporary-dir")
     @_temp_files ||= []
     @_temp_files << d
 
     # Return the pathname
     result = Pathname.new(Vagrant::Util::Platform.fs_real_path(d))
-    yield result if block_given?
+    if block_given?
+      begin
+        yield result
+      ensure
+        FileUtils.rm_rf(result)
+      end
+    end
+
     return result
   end
 

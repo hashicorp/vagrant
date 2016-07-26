@@ -39,8 +39,9 @@ describe Vagrant::BoxCollection, :skip_windows do
     end
 
     it 'does not raise an exception when a file appears in the boxes dir' do
-      Tempfile.new('a_file', environment.boxes_dir)
-      expect { subject.all }.to_not raise_error
+      Tempfile.open('vagrant-a_file', environment.boxes_dir) do
+        expect { subject.all }.to_not raise_error
+      end
     end
   end
 
@@ -194,6 +195,19 @@ describe Vagrant::BoxCollection, :skip_windows do
       expect(result.version).to eq("1.0")
     end
 
+    it "handles prerelease versions" do
+      # Create the "box"
+      environment.box3("foo", "0.1.0-alpha.1", :virtualbox)
+      environment.box3("foo", "0.1.0-alpha.2", :virtualbox)
+
+      # Actual test
+      result = subject.find("foo", :virtualbox, ">= 0")
+      expect(result).to_not be_nil
+      expect(result).to be_kind_of(box_class)
+      expect(result.name).to eq("foo")
+      expect(result.version).to eq("0.1.0-alpha.2")
+    end
+
     it "returns nil if a box's constraints can't be satisfied" do
       # Create the "box"
       environment.box3("foo", "0.1", :virtualbox)
@@ -330,8 +344,9 @@ describe Vagrant::BoxCollection, :skip_windows do
       CHECKSUM_OFFSET = 148
       CHECKSUM_LENGTH = 8
 
-      f = Tempfile.new(['vagrant_testing', '.tar'])
-      begin
+      Tempfile.open(['vagrant-testing', '.tar']) do |f|
+        f.binmode
+
         # Corrupt the tar by writing over the checksum field
         f.seek(CHECKSUM_OFFSET)
         f.write("\0"*CHECKSUM_LENGTH)
@@ -339,9 +354,6 @@ describe Vagrant::BoxCollection, :skip_windows do
 
         expect { subject.add(f.path, "foo", "1.0") }.
           to raise_error(Vagrant::Errors::BoxUnpackageFailure)
-      ensure
-        f.close
-        f.unlink
       end
     end
   end

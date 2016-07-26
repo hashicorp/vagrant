@@ -25,6 +25,48 @@ module VagrantPlugins
           @inventory_path = nil
         end
 
+        def check_files_existence
+          check_path_is_a_file config.playbook, :playbook
+
+          check_path_exists config.inventory_path, :inventory_path if config.inventory_path
+          check_path_is_a_file config.extra_vars[1..-1], :extra_vars if has_an_extra_vars_file_argument
+          check_path_is_a_file config.galaxy_role_file, :galaxy_role_file if config.galaxy_role_file
+          check_path_is_a_file config.vault_password_file, :vault_password if config.vault_password_file
+        end
+
+        def ansible_playbook_command_for_shell_execution
+          shell_command = []
+          @environment_variables.each_pair do |k, v|
+            if k =~ /ANSIBLE_SSH_ARGS|ANSIBLE_ROLES_PATH/
+              shell_command << "#{k}='#{v}'"
+            else
+              shell_command << "#{k}=#{v}"
+            end
+          end
+
+          shell_command << "ansible-playbook"
+
+          shell_args = []
+          @command_arguments.each do |arg|
+            if arg =~ /(--start-at-task|--limit)=(.+)/
+              shell_args << %Q(#{$1}="#{$2}")
+            elsif arg =~ /(--extra-vars)=(.+)/
+              shell_args << %Q(%s="%s") % [$1, $2.gsub('\\', '\\\\\\').gsub('"', %Q(\\"))]
+            else
+              shell_args << arg
+            end
+          end
+
+          shell_command << shell_args
+
+          # Add the raw arguments at the end, to give them the highest precedence
+          shell_command << config.raw_arguments if config.raw_arguments
+
+          shell_command << config.playbook
+
+          shell_command.flatten.join(' ')
+        end
+
         def prepare_common_command_arguments
           # By default we limit by the current machine,
           # but this can be overridden by the `limit` option.
@@ -43,10 +85,6 @@ module VagrantPlugins
           @command_arguments << "--tags=#{Helpers::as_list_argument(config.tags)}" if config.tags
           @command_arguments << "--skip-tags=#{Helpers::as_list_argument(config.skip_tags)}" if config.skip_tags
           @command_arguments << "--start-at-task=#{config.start_at_task}" if config.start_at_task
-
-          # Finally, add the raw configuration options, which has the highest precedence
-          # and can therefore potentially override any other options of this provisioner.
-          @command_arguments.concat(Helpers::as_array(config.raw_arguments)) if config.raw_arguments
         end
 
         def prepare_common_environment_variables
@@ -60,6 +98,10 @@ module VagrantPlugins
           # Setting ANSIBLE_NOCOLOR is "unnecessary" at the moment, but this could change in the future
           # (e.g. local provisioner [GH-2103], possible change in vagrant/ansible integration, etc.)
           @environment_variables["ANSIBLE_NOCOLOR"] = "true" if !@machine.env.ui.color?
+
+          # Use ANSIBLE_ROLES_PATH to tell ansible-playbook where to look for roles
+          # (there is no equivalent command line argument in ansible-playbook)
+          @environment_variables["ANSIBLE_ROLES_PATH"] = get_galaxy_roles_path if config.galaxy_roles_path
         end
 
         # Auto-generate "safe" inventory file based on Vagrantfile,
@@ -169,8 +211,12 @@ module VagrantPlugins
           return inventory_groups
         end
 
+        def has_an_extra_vars_file_argument
+          config.extra_vars && config.extra_vars.kind_of?(String) && config.extra_vars =~ /^@.+$/
+        end
+
         def extra_vars_argument
-          if config.extra_vars.kind_of?(String) and config.extra_vars =~ /^@.+$/
+          if has_an_extra_vars_file_argument
             # A JSON or YAML file is referenced.
             config.extra_vars
           else
@@ -179,15 +225,17 @@ module VagrantPlugins
           end
         end
 
-        def get_galaxy_role_file(basedir)
-          File.expand_path(config.galaxy_role_file, basedir)
+        def get_galaxy_role_file
+          Helpers::expand_path_in_unix_style(config.galaxy_role_file, get_provisioning_working_directory)
         end
 
-        def get_galaxy_roles_path(basedir)
+        def get_galaxy_roles_path
+          base_dir = get_provisioning_working_directory
           if config.galaxy_roles_path
-            File.expand_path(config.galaxy_roles_path, basedir)
+            Helpers::expand_path_in_unix_style(config.galaxy_roles_path, base_dir)
           else
-            File.join(Pathname.new(config.playbook).expand_path(basedir).parent, 'roles')
+            playbook_path = Helpers::expand_path_in_unix_style(config.playbook, base_dir)
+            File.join(Pathname.new(playbook_path).parent, 'roles')
           end
         end
 

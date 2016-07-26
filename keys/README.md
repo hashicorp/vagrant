@@ -1,7 +1,7 @@
 # Insecure Keypair
 
 These keys are the "insecure" public/private keypair we offer to
-[base box creators](http://docs.vagrantup.com/v2/boxes/base.html) for use in their base boxes so that
+[base box creators](https://www.vagrantup.com/docs/boxes/base.html) for use in their base boxes so that
 vagrant installations can automatically SSH into the boxes.
 
 If you're working with a team or company or with a custom box and

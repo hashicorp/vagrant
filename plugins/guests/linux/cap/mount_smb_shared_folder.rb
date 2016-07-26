@@ -48,7 +48,7 @@ module VagrantPlugins
 
           # Write the credentials file
           machine.communicate.sudo(<<-SCRIPT)
-cat <<EOF >/etc/smb_creds_#{name}
+cat <<"EOF" >/etc/smb_creds_#{name}
 username=#{username}
 password=#{smb_password}
 #{domain ? "domain=#{domain}" : ""}
@@ -94,7 +94,7 @@ SCRIPT
 
           # Emit an upstart event if we can
           machine.communicate.sudo <<-SCRIPT
-if command -v /sbin/init &>/dev/null && /sbin/init --version | grep upstart &>/dev/null; then
+if command -v /sbin/init && /sbin/init --version | grep upstart; then
   /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
 fi
 SCRIPT

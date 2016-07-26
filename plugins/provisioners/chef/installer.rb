@@ -31,7 +31,7 @@ module VagrantPlugins
           version: @version.to_s))
         @machine.guest.capability(:chef_install, @product, @version, @channel, @options)
 
-        if !@machine.guest.capability(:chef_installed, @version)
+        if !@machine.guest.capability(:chef_installed, @product, @version)
           raise Provisioner::Base::ChefError, :install_failed
         end
       end
@@ -40,7 +40,7 @@ module VagrantPlugins
       # option is given or if the guest does not have Chef installed at the
       # proper version.
       def should_install_chef?
-        @force || !@machine.guest.capability(:chef_installed, @version)
+        @force || !@machine.guest.capability(:chef_installed, @product, @version)
       end
     end
   end

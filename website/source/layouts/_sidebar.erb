@@ -1,0 +1,24 @@
+<div class="sidebar-overlay"></div>
+
+<aside id="sidebar" class="sidebar sidebar-default sidebar-fixed-right" role="navigation">
+  <div class="sidebar-header header-cover">
+    <div class="sidebar-image">
+      <img src="<%= image_path('logo_vagrant.png') %>" height="30">
+    </div>
+  </div>
+
+  <ul class="main nav sidebar-nav">
+    <li class="first"><a href="/about.html">About</a></li>
+    <li><a href="/docs/">Docs</a></li>
+    <li><a href="/vmware/">VMware</a></li>
+    <li><a href="https://www.amazon.com/gp/product/1449335837/ref=as_li_qf_sp_asin_il_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=1449335837&linkCode=as2&tag=vagrant-20">Book</a></li>
+    <li><a href="https://atlas.hashicorp.com/boxes/search">Boxes</a></li>
+  </ul>
+
+  <div class="divider"></div>
+
+  <ul class="external nav sidebar-nav">
+    <li class="first"><a class="v-btn gray sml" href="/downloads.html"><%= partial "layouts/svg/svg-download" %>Download</a></li>
+    <li class=""><a class="v-btn gray sml" href="https://github.com/mitchellh/vagrant"><%= partial "layouts/svg/svg-github" %>GitHub</a></li>
+  </ul>
+</aside>

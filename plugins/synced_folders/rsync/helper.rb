@@ -1,3 +1,5 @@
+require "shellwords"
+
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 
@@ -43,6 +45,9 @@ module VagrantPlugins
           guestpath = machine.guest.capability(:rsync_scrub_guestpath, opts)
         end
 
+        # Shellescape
+        guestpath = Shellwords.escape(guestpath)
+
         if Vagrant::Util::Platform.windows?
           # rsync for Windows expects cygwin style paths, always.
           hostpath = Vagrant::Util::Platform.cygwin_path(hostpath)
@@ -69,14 +74,16 @@ module VagrantPlugins
         # Create the path for the control sockets. We used to do this
         # in the machine data dir but this can result in paths that are
         # too long for unix domain sockets.
-        controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+        control_options = ""
+        unless Vagrant::Util::Platform.windows?
+          controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+          control_options = "-o ControlMaster=auto -o ControlPath=#{controlpath} -o ControlPersist=10m "
+        end
 
         rsh = [
           "ssh -p #{ssh_info[:port]} " +
           proxy_command +
-          "-o ControlMaster=auto " +
-          "-o ControlPath=#{controlpath} " +
-          "-o ControlPersist=10m " +
+          control_options +
           "-o StrictHostKeyChecking=no " +
           "-o IdentitiesOnly=true " +
           "-o UserKnownHostsFile=/dev/null",
@@ -160,7 +167,7 @@ module VagrantPlugins
 
         if r.exit_code != 0
           raise Vagrant::Errors::RSyncError,
-            command: command.join(" "),
+            command: command.map(&:inspect).join(" "),
             guestpath: guestpath,
             hostpath: hostpath,
             stderr: r.stderr

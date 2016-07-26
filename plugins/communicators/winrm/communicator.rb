@@ -1,6 +1,6 @@
-require "timeout"
-
 require "log4r"
+require "tempfile"
+require "timeout"
 
 require_relative "helper"
 require_relative "shell"
@@ -10,6 +10,8 @@ module VagrantPlugins
   module CommunicatorWinRM
     # Provides communication channel for Vagrant commands via WinRM.
     class Communicator < Vagrant.plugin("2", :communicator)
+      include Vagrant::Util
+
       def self.match?(machine)
         # This is useless, and will likely be removed in the future (this
         # whole method).
@@ -142,6 +144,7 @@ module VagrantPlugins
 
         opts[:good_exit] = Array(opts[:good_exit])
         command = wrap_in_scheduled_task(command, opts[:interactive]) if opts[:elevated]
+        @logger.debug("#{opts[:shell]} executing:\n#{command}")
         output = shell.send(opts[:shell], command, &block)
         execution_output(output, opts)
       end
@@ -201,15 +204,12 @@ module VagrantPlugins
           interactive: interactive,
         })
         guest_script_path = "c:/tmp/vagrant-elevated-shell.ps1"
-        file = Tempfile.new(["vagrant-elevated-shell", "ps1"])
-        begin
-          file.write(script)
-          file.fsync
-          file.close
-          upload(file.path, guest_script_path)
-        ensure
-          file.close
-          file.unlink
+        Tempfile.open(["vagrant-elevated-shell", "ps1"]) do |f|
+          f.binmode
+          f.write(script)
+          f.fsync
+          f.close
+          upload(f.path, guest_script_path)
         end
 
         # Convert to double byte unicode string then base64 encode

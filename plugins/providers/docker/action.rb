@@ -217,9 +217,6 @@ module VagrantPlugins
       def self.action_start
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
-            # If the container is running and we're not doing a run, we're done
-            next if env[:result] && env[:machine_action] != :run_command
-
             if env[:machine_action] != :run_command
               b2.use Call, HasSSH do |env2, b3|
                 if env2[:result]
@@ -231,6 +228,9 @@ module VagrantPlugins
                 end
               end
             end
+
+            # If the container is running and we're doing a run, we're done
+            next if env[:result] && env[:machine_action] != :run_command
 
             b2.use Call, IsState, :not_created do |env2, b3|
               if env2[:result]

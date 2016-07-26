@@ -1,5 +1,5 @@
 #VAGRANT-BEGIN
-ifconfig_<%= ifname %>="inet <%= options[:ip] %> netmask <%= options[:netmask] %>"
+ifconfig_<%= options[:device] %>="inet <%= options[:ip] %> netmask <%= options[:netmask] %>"
 <% if options[:gateway] %>
 default_router="<%= options[:gateway] %>"
 <% end %>

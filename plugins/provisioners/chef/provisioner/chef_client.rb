@@ -133,7 +133,7 @@ module VagrantPlugins
         end
 
         def delete_from_chef_server(deletable)
-          node_name = @config.node_name || @machine.config.vm.hostname
+          node_name = @config.node_name
 
           if !present?(node_name)
             @machine.ui.warn(I18n.t("vagrant.provisioners.chef.missing_node_name",

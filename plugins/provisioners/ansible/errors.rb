@@ -19,6 +19,10 @@ module VagrantPlugins
         error_key(:ansible_not_found_on_guest)
       end
 
+      class AnsiblePipInstallIsNotSupported < AnsibleError
+        error_key(:cannot_support_pip_install)
+      end
+
       class AnsibleVersionNotFoundOnGuest < AnsibleError
         error_key(:ansible_version_not_found_on_guest)
       end

@@ -3,103 +3,38 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          new(machine, name).change!
-        end
+          comm = machine.communicate
 
-        attr_reader :machine, :new_hostname
+          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
+            basename = name.split('.', 2)[0]
+            comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              # Update sysconfig
+              sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
 
-        def initialize(machine, new_hostname)
-          @machine = machine
-          @new_hostname = new_hostname
-        end
+              # Update DNS
+              sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{basename}\"/' /etc/sysconfig/network-scripts/ifcfg-*
 
-        def change!
-          return unless should_change?
+              # Set the hostname - use hostnamectl if available
+              echo '#{name}' > /etc/hostname
+              if command -v hostnamectl; then
+                hostnamectl set-hostname --static '#{name}'
+                hostnamectl set-hostname --transient '#{name}'
+              else
+                hostname -F /etc/hostname
+              fi
 
-          case machine.guest.capability("flavor")
-          when :rhel_7
-            update_hostname_rhel7
-            update_etc_hosts
-          else
-            update_sysconfig
-            update_hostname
-            update_etc_hosts
-            update_dhcp_hostnames
-            restart_networking
+              # Remove comments and blank lines from /etc/hosts
+              sed -i'' -e 's/#.*$//' -e '/^$/d' /etc/hosts
+
+              # Prepend ourselves to /etc/hosts
+              grep -w '#{name}' /etc/hosts || {
+                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
+              }
+
+              # Restart network
+              service network restart
+            EOH
           end
-        end
-
-        def should_change?
-          new_hostname != current_hostname
-        end
-
-        def current_hostname
-          @current_hostname ||= get_current_hostname
-        end
-
-        def get_current_hostname
-          hostname = ''
-          block = lambda do |type, data|
-            if type == :stdout
-              hostname += data.chomp
-            end
-          end
-
-          execute 'hostname -f', error_check: false, &block
-          execute 'hostname',&block if hostname.empty?
-          /localhost(\..*)?/.match(hostname) ? '' : hostname
-        end
-
-        def update_sysconfig
-          sudo "sed -i 's/\\(HOSTNAME=\\).*/\\1#{fqdn}/' /etc/sysconfig/network"
-        end
-
-        def update_hostname
-          sudo "hostname #{fqdn}"
-        end
-
-        def update_hostname_rhel7
-          sudo "hostnamectl set-hostname #{fqdn}"
-        end
-
-        # /etc/hosts should resemble:
-        # 127.0.0.1   host.fqdn.com host localhost ...
-        def update_etc_hosts
-          s = '[[:space:]]'
-          current_fqdn  = Regexp.escape(current_hostname)
-          current_short = Regexp.escape(current_hostname.split('.').first.to_s)
-          currents      = "\\(#{current_fqdn}#{s}\\+\\|#{current_short}#{s}\\+\\)*" unless current_hostname.empty?
-          local_ip      = '127[.]0[.]0[.]1'
-          search        = "^\\(#{local_ip}#{s}\\+\\)#{currents}"
-          replace       = "\\1#{fqdn} "
-          replace       = "#{replace}#{short_hostname} " unless fqdn == short_hostname
-          expression    = ['s', search, replace,''].join('@')
-
-          sudo "sed -i '#{expression}' /etc/hosts"
-        end
-
-        def update_dhcp_hostnames
-          sudo "sed -i 's/\\(DHCP_HOSTNAME=\\).*/\\1\"#{short_hostname}\"/' /etc/sysconfig/network-scripts/ifcfg-*"
-        end
-
-        def restart_networking
-          sudo 'service network restart'
-        end
-
-        def fqdn
-          new_hostname
-        end
-
-        def short_hostname
-          new_hostname.split('.').first
-        end
-
-        def execute(cmd, opts=nil, &block)
-          machine.communicate.execute(cmd, opts, &block)
-        end
-
-        def sudo(cmd, opts=nil, &block)
-          machine.communicate.sudo(cmd, opts, &block)
         end
       end
     end
