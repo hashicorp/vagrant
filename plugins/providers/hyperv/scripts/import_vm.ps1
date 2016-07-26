@@ -8,7 +8,9 @@ Param(
     [string]$memory=$null,
     [string]$maxmemory=$null,   
     [string]$cpus=$null,
-    [string]$vmname=$null
+    [string]$vmname=$null,
+	[string]$auto_start_action=$null,
+	[string]$auto_stop_action=$null
 )
 
 # Include the following modules
@@ -142,6 +144,14 @@ If ($dynamicmemory) {
 
 if ($notes) {
     $more_vm_params.Add("Notes",$notes)
+}
+
+if ($auto_start_action) {
+	$more_vm_params.Add("AutomaticStartAction",$auto_start_action)
+}
+
+if ($auto_stop_action) {
+	$more_vm_params.Add("AutomaticStopAction",$auto_stop_action)
 }
 
 # Set the values on the VM

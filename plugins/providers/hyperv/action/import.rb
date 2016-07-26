@@ -19,12 +19,16 @@ module VagrantPlugins
           cpus = env[:machine].provider_config.cpus
           vmname = env[:machine].provider_config.vmname
           differencing_disk = env[:machine].provider_config.differencing_disk
+          auto_start_action = env[:machine].provider_config.auto_start_action
+		  auto_stop_action = env[:machine].provider_config.auto_stop_action
 
           env[:ui].output("Configured Dynamic memory allocation, maxmemory is #{maxmemory}") if maxmemory
           env[:ui].output("Configured startup memory is #{memory}") if memory
           env[:ui].output("Configured cpus number is #{cpus}") if cpus
           env[:ui].output("Configured vmname is #{vmname}") if vmname
           env[:ui].output("Configured differencing disk instead of cloning") if differencing_disk
+          env[:ui].output("Configured automatic start action is #{auto_start_action}") if auto_start_action
+		  env[:ui].output("Configured automatic stop action is #{auto_stop_action}") if auto_stop_action
 
           if !vm_dir.directory? || !hd_dir.directory?
             raise Errors::BoxInvalid
@@ -115,6 +119,8 @@ module VagrantPlugins
           options[:maxmemory] = maxmemory if maxmemory
           options[:cpus] = cpus if cpus
           options[:vmname] = vmname if vmname
+          options[:auto_start_action] = auto_start_action if auto_start_action
+		  options[:auto_stop_action] = auto_stop_action if auto_stop_action
 
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)
