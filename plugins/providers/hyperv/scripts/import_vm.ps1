@@ -8,7 +8,9 @@ Param(
     [string]$memory=$null,
     [string]$maxmemory=$null,   
     [string]$cpus=$null,
-    [string]$vmname=$null
+    [string]$vmname=$null,
+    [string]$auto_start_action=$null,
+    [string]$auto_stop_action=$null
 )
 
 # Include the following modules
@@ -144,6 +146,14 @@ if ($notes) {
     $more_vm_params.Add("Notes",$notes)
 }
 
+if ($auto_start_action) {
+    $more_vm_params.Add("AutomaticStartAction",$auto_start_action)
+}
+
+if ($auto_stop_action) {
+    $more_vm_params.Add("AutomaticStopAction",$auto_stop_action)
+}
+
 # Set the values on the VM
 $vm | Set-VM @more_vm_params -Passthru
 
@@ -152,12 +162,12 @@ $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'contro
 
 # Only set EFI secure boot for Gen 2 machines, not gen 1
 if ($generation -ne 1) {
-	# Set EFI secure boot 
-	if ($secure_boot_enabled -eq "True") {
-		Set-VMFirmware -VM $vm -EnableSecureBoot On
-	}  else {
-		Set-VMFirmware -VM $vm -EnableSecureBoot Off
-	}
+    # Set EFI secure boot 
+    if ($secure_boot_enabled -eq "True") {
+        Set-VMFirmware -VM $vm -EnableSecureBoot On
+    }  else {
+        Set-VMFirmware -VM $vm -EnableSecureBoot Off
+    }
 }
 
 # A regular expression pattern to pull the number from controllers
