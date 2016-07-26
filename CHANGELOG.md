@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - Implement auto_start and auto_stop actions for Hyper-V [GH-7647]
+
 BUG FIXES:
 
   - hosts/arch: Detect NFS server by service name on arch [GH-7630, GH-7629]
