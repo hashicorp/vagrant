@@ -40,12 +40,12 @@ module VagrantPlugins
             f.binmode
 
             opts.each do |k, v|
-              f.write("#{k}:#{v}")
+              f.write("#{k}:#{v}\r\n")
             end
 
             if rdp_info[:extra_args]
               rdp_info[:extra_args].each do |arg|
-                f.write("#{arg}")
+                f.write("#{arg}\r\n")
               end
             end
 
