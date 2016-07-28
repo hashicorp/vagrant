@@ -987,6 +987,16 @@ VF
           end
         end
       end
+
+      it "is set relative to the empty string when there is no valid work directory" do
+        Dir.mktmpdir("out-of-tree-directory") do |temp_dir|
+          with_temp_env("VAGRANT_DOTFILE_PATH" => ".vagrant-custom") do
+            instance = env.create_vagrant_env(cwd: temp_dir)
+            expect(instance.cwd.to_s).to eq(temp_dir)
+            expect(instance.local_data_path.to_s).to eq("")
+          end
+        end
+      end
     end
 
     describe "upgrading V1 dotfiles" do
