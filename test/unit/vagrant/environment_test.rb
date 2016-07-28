@@ -921,6 +921,74 @@ VF
       end
     end
 
+    context "with environmental variable VAGRANT_DOTFILE_PATH set to the empty string" do
+      it "is set to the default, from the work directory" do
+        with_temp_env("VAGRANT_DOTFILE_PATH" => "") do
+          instance = env.create_vagrant_env
+          expect(instance.cwd).to eq(env.workdir)
+          expect(instance.local_data_path.to_s).to eq(File.join(env.workdir, ".vagrant"))
+        end
+      end
+
+      it "is set to the default, from a sub-directory of the work directory" do
+        Dir.mktmpdir("sub-directory", env.workdir) do |temp_dir|
+          with_temp_env("VAGRANT_DOTFILE_PATH" => "") do
+            instance = env.create_vagrant_env(cwd: temp_dir)
+            expect(instance.cwd.to_s).to eq(temp_dir)
+            expect(instance.local_data_path.to_s).to eq(File.join(env.workdir, ".vagrant"))
+          end
+        end
+      end
+    end
+
+    context "with environmental variable VAGRANT_DOTFILE_PATH set to an absolute path" do
+      it "is set to VAGRANT_DOTFILE_PATH from the work directory" do
+        Dir.mktmpdir("sub-directory", env.workdir) do |temp_dir|
+          dotfile_path = File.join(temp_dir, ".vagrant-custom")
+
+          with_temp_env("VAGRANT_DOTFILE_PATH" => dotfile_path) do
+            instance = env.create_vagrant_env
+            expect(instance.cwd).to eq(env.workdir)
+            expect(instance.local_data_path.to_s).to eq(dotfile_path)
+          end
+        end
+      end
+
+      it "is set to VAGRANT_DOTFILE_PATH from a sub-directory of the work directory" do
+        Dir.mktmpdir("sub-directory", env.workdir) do |temp_dir|
+          dotfile_path = File.join(temp_dir, ".vagrant-custom")
+
+          with_temp_env("VAGRANT_DOTFILE_PATH" => dotfile_path) do
+            instance = env.create_vagrant_env(cwd: temp_dir)
+            expect(instance.cwd.to_s).to eq(temp_dir)
+            expect(instance.local_data_path.to_s).to eq(dotfile_path)
+          end
+        end
+      end
+    end
+
+    context "with environmental variable VAGRANT_DOTFILE_PATH set to a relative path" do
+      it "is set relative to the the work directory, from the work directory" do
+        Dir.mktmpdir("sub-directory", env.workdir) do |temp_dir|
+          with_temp_env("VAGRANT_DOTFILE_PATH" => ".vagrant-custom") do
+            instance = env.create_vagrant_env
+            expect(instance.cwd).to eq(env.workdir)
+            expect(instance.local_data_path.to_s).to eq(File.join(env.workdir, ".vagrant-custom"))
+          end
+        end
+      end
+
+      it "is set relative to the the work directory, from a sub-directory of the work directory" do
+        Dir.mktmpdir("sub-directory", env.workdir) do |temp_dir|
+          with_temp_env("VAGRANT_DOTFILE_PATH" => ".vagrant-custom") do
+            instance = env.create_vagrant_env(cwd: temp_dir)
+            expect(instance.cwd.to_s).to eq(temp_dir)
+            expect(instance.local_data_path.to_s).to eq(File.join(env.workdir, ".vagrant-custom"))
+          end
+        end
+      end
+    end
+
     describe "upgrading V1 dotfiles" do
       let(:v1_dotfile_tempfile) do
         Tempfile.new("vagrant-upgrade-dotfile").tap do |f|
