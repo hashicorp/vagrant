@@ -988,7 +988,7 @@ VF
         end
       end
 
-      it "is set relative to the empty string when there is no valid work directory" do
+      it "is set to the empty string when there is no valid work directory" do
         Dir.mktmpdir("out-of-tree-directory") do |temp_dir|
           with_temp_env("VAGRANT_DOTFILE_PATH" => ".vagrant-custom") do
             instance = env.create_vagrant_env(cwd: temp_dir)
