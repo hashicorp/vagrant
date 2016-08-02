@@ -22,12 +22,12 @@ describe "VagrantPlugins::GuestBSD::Cap::Halt" do
     let(:cap) { caps.get(:halt) }
 
     it "runs the shutdown command" do
-      comm.expect_command("/sbin/shutdown -p now")
+      comm.expect_command("/sbin/shutdown -p -h now")
       cap.halt(machine)
     end
 
     it "ignores an IOError" do
-      comm.stub_command("/sbin/shutdown -p now", raise: IOError)
+      comm.stub_command("/sbin/shutdown -p -h now", raise: IOError)
       expect {
         cap.halt(machine)
       }.to_not raise_error
