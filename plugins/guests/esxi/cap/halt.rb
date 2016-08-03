@@ -5,7 +5,7 @@ module VagrantPlugins
         def self.halt(machine)
           begin
             machine.communicate.execute("/bin/halt -d 0")
-          rescue IOError
+          rescue IOError, Vagrant::Errors::SSHDisconnected
             # Ignore, this probably means connection closed because it
             # shut down.
           end

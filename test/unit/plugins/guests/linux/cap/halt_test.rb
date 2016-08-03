@@ -32,5 +32,12 @@ describe "VagrantPlugins::GuestLinux::Cap::Halt" do
         cap.halt(machine)
       }.to_not raise_error
     end
+
+    it "does not raise a SSHDisconnected" do
+      comm.stub_command("shutdown -h now", raise: Vagrant::Errors::SSHDisconnected)
+      expect {
+        cap.halt(machine)
+      }.to_not raise_error
+    end
   end
 end

@@ -33,7 +33,7 @@ describe "VagrantPlugins::GuestOpenBSD::Cap::Halt" do
       }.to_not raise_error
     end
 
-    it "ignores an Vagrant::Errors::SSHDisconnected" do
+    it "ignores a Vagrant::Errors::SSHDisconnected" do
       comm.stub_command("/sbin/shutdown -p -h now", raise: Vagrant::Errors::SSHDisconnected)
       expect {
         cap.halt(machine)
