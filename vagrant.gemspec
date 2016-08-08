@@ -39,6 +39,12 @@ Gem::Specification.new do |s|
   # We lock this down to avoid compilation issues.
   s.add_dependency "nokogiri", "= 1.6.7.1"
 
+  # NOTE: The ruby_dep gem is an implicit dependency from the listen gem. Later versions
+  # of the ruby_dep gem impose an aggressive constraint on the required ruby version (>= 2.2.5).
+  # Explicit constraint is defined to provide required dependency to listen without imposing
+  # tighter restrictions on valid ruby versions
+  s.add_dependency "ruby_dep", "<= 1.3.1"
+
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", "~> 2.14.0"
   s.add_development_dependency "webmock", "~> 1.20"
