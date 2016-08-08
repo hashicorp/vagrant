@@ -18,6 +18,9 @@ describe VagrantPlugins::HostDarwin::Cap::RDP do
     expect(result).to match("full address:s:host:port")
     expect(result).to match("prompt for credentials:i:1")
     expect(result).to match("username:s:username")
+    result.lines.each do |line|
+      expect(line).to match(/\r\n$/)
+    end
   end
 
   it "includes extra RDP arguments" do
@@ -25,6 +28,9 @@ describe VagrantPlugins::HostDarwin::Cap::RDP do
     path = described_class.generate_config_file(rdp_info)
     result = File.read(path)
     expect(result).to match("screen mode id:i:0")
+    result.lines.each do |line|
+      expect(line).to match(/\r\n$/)
+    end
   end
 
   it "opens the RDP file" do
