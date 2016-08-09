@@ -6,49 +6,76 @@ module VagrantPlugins
   module GuestLinux
     module Cap
       class MountVirtualBoxSharedFolder
+        @@logger = Log4r::Logger.new("vagrant::guest::linux::mount_virtualbox_shared_folder")
+
         extend Vagrant::Util::Retryable
 
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)
           guest_path = Shellwords.escape(guestpath)
 
-          mount_commands = ["set -e"]
+          @@logger.debug("Mounting #{name} (#{options[:hostpath]} to #{guestpath})")
 
-          if options[:owner].is_a? Integer
+          if options[:owner].to_i.to_s == options[:owner].to_s
             mount_uid = options[:owner]
+            @@logger.debug("Owner user ID (provided): #{mount_uid}")
           else
-            mount_uid = "`id -u #{options[:owner]}`"
+            output = {stdout: '', stderr: ''}
+            uid_command = "id -u #{options[:owner]}"
+            machine.communicate.execute(uid_command,
+              error_class: Vagrant::Errors::VirtualBoxMountFailed,
+              error_key: :virtualbox_mount_failed,
+              command: uid_command,
+              output: output[:stderr]
+            ) { |type, data| output[type] << data if output[type] }
+            mount_uid = output[:stdout].chomp
+            @@logger.debug("Owner user ID (lookup): #{options[:owner]} -> #{mount_uid}")
           end
 
-          if options[:group].is_a? Integer
+          if options[:group].to_i.to_s == options[:group].to_s
             mount_gid = options[:group]
-            mount_gid_old = options[:group]
+            @@logger.debug("Owner group ID (provided): #{mount_gid}")
           else
-            mount_gid = "`getent group #{options[:group]} | cut -d: -f3`"
-            mount_gid_old = "`id -g #{options[:group]}`"
+            begin
+              output = {stdout: '', stderr: ''}
+              gid_command = "getent group #{options[:group]}"
+              machine.communicate.execute(gid_command,
+                error_class: Vagrant::Errors::VirtualBoxMountFailed,
+                error_key: :virtualbox_mount_failed,
+                command: gid_command,
+                output: output[:stderr]
+              ) { |type, data| output[type] << data if output[type] }
+              mount_gid = output[:stdout].split(':').at(2)
+              @@logger.debug("Owner group ID (lookup): #{options[:group]} -> #{mount_gid}")
+            rescue Vagrant::Errors::VirtualBoxMountFailed
+              if options[:owner] == options[:group]
+                @@logger.debug("Failed to locate group `#{options[:group]}`. Group name matches owner. Fetching effective group ID.")
+                output = {stdout: ''}
+                result = machine.communicate.execute("id -g #{options[:owner]}",
+                  error_check: false
+                ) { |type, data| output[type] << data if output[type] }
+                mount_gid = output[:stdout].chomp if result == 0
+                @@logger.debug("Owner group ID (effective): #{mount_gid}")
+              end
+              raise unless mount_gid
+            end
           end
 
-          # First mount command uses getent to get the group
-          mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
-          mount_options += ",#{options[:mount_options].join(",")}" if options[:mount_options]
-          mount_commands << "mount -t vboxsf #{mount_options} #{name} #{guest_path}"
-
-          # Second mount command uses the old style `id -g`
-          mount_options = "-o uid=#{mount_uid},gid=#{mount_gid_old}"
-          mount_options += ",#{options[:mount_options].join(",")}" if options[:mount_options]
-          mount_commands << "mount -t vboxsf #{mount_options} #{name} #{guest_path}"
+          mount_options = options.fetch(:mount_options, [])
+          mount_options += ["uid=#{mount_uid}", "gid=#{mount_gid}"]
+          mount_options = mount_options.join(',')
+          mount_command = "mount -t vboxsf -o #{mount_options} #{name} #{guest_path}"
 
           # Create the guest path if it doesn't exist
           machine.communicate.sudo("mkdir -p #{guest_path}")
 
           # Attempt to mount the folder. We retry here a few times because
           # it can fail early on.
-          command = mount_commands.join("\n")
           stderr = ""
           retryable(on: Vagrant::Errors::VirtualBoxMountFailed, tries: 3, sleep: 5) do
-            machine.communicate.sudo(command,
+            machine.communicate.sudo(mount_command,
               error_class: Vagrant::Errors::VirtualBoxMountFailed,
               error_key: :virtualbox_mount_failed,
-              command: command,
+              command: mount_command,
               output: stderr,
             ) { |type, data| stderr = data if type == :stderr }
           end
@@ -56,12 +83,8 @@ module VagrantPlugins
           # Chown the directory to the proper user. We skip this if the
           # mount options contained a readonly flag, because it won't work.
           if !options[:mount_options] || !options[:mount_options].include?("ro")
-            chown_commands = []
-            chown_commands << "chown #{mount_uid}:#{mount_gid} #{guest_path}"
-            chown_commands << "chown #{mount_uid}:#{mount_gid_old} #{guest_path}"
-
-            exit_status = machine.communicate.sudo(chown_commands[0], error_check: false)
-            machine.communicate.sudo(chown_commands[1]) if exit_status != 0
+            chown_command = "chown #{mount_uid}:#{mount_gid} #{guest_path}"
+            machine.communicate.sudo(chown_command)
           end
 
           # Emit an upstart event if we can
