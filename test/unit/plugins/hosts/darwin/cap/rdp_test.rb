@@ -13,18 +13,18 @@ describe VagrantPlugins::HostDarwin::Cap::RDP do
 
   it "includes the default options" do
     path = described_class.generate_config_file(rdp_info)
-    result = File.read(path)
-    expect(result).to match("drivestoredirect:s:*")
-    expect(result).to match("full address:s:host:port")
-    expect(result).to match("prompt for credentials:i:1")
-    expect(result).to match("username:s:username")
+    result = File.readlines(path).map(&:chomp)
+    expect(result).to include("drivestoredirect:s:*")
+    expect(result).to include("full address:s:host:port")
+    expect(result).to include("prompt for credentials:i:1")
+    expect(result).to include("username:s:username")
   end
 
   it "includes extra RDP arguments" do
     rdp_info.merge!(extra_args: ["screen mode id:i:0"])
     path = described_class.generate_config_file(rdp_info)
-    result = File.read(path)
-    expect(result).to match("screen mode id:i:0")
+    result = File.readlines(path).map(&:chomp)
+    expect(result).to include("screen mode id:i:0")
   end
 
   it "opens the RDP file" do
