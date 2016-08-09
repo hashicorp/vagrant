@@ -7,7 +7,7 @@ module VagrantPlugins
     # Contributed by Kenneth Vestergaard <kvs@binarysolutions.dk>
     class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
-        machine.communicate.test("uname -s | grep 'FreeBSD'", {shell: "sh"})
+        machine.communicate.test("uname -s | grep -E 'FreeBSD|DragonFly'", {shell: "sh"})
       end
     end
   end
