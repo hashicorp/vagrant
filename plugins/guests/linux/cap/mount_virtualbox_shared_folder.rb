@@ -11,7 +11,7 @@ module VagrantPlugins
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)
           guest_path = Shellwords.escape(guestpath)
 
-          mount_commands = ["set -e"]
+          mount_commands = []
 
           if options[:owner].is_a? Integer
             mount_uid = options[:owner]
@@ -42,7 +42,7 @@ module VagrantPlugins
 
           # Attempt to mount the folder. We retry here a few times because
           # it can fail early on.
-          command = mount_commands.join("\n")
+          command = mount_commands.join(' || ')
           stderr = ""
           retryable(on: Vagrant::Errors::VirtualBoxMountFailed, tries: 3, sleep: 5) do
             machine.communicate.sudo(command,
