@@ -334,7 +334,6 @@ module VagrantPlugins
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
           send_env:              ssh_info[:forward_env],
-          keys:                  ssh_info[:private_key_path],
           keys_only:             ssh_info[:keys_only],
           paranoid:              ssh_info[:paranoid],
           password:              ssh_info[:password],
@@ -375,6 +374,10 @@ module VagrantPlugins
                 connect_opts = common_connect_opts.dup
                 connect_opts[:logger] = ssh_logger
 
+                if ssh_info[:private_key_path]
+                  connect_opts[:keys] = ssh_info[:private_key_path]
+                end
+
                 if ssh_info[:proxy_command]
                   connect_opts[:proxy] = Net::SSH::Proxy::Command.new(ssh_info[:proxy_command])
                 end
@@ -385,6 +388,7 @@ module VagrantPlugins
                 @logger.info("  - Username: #{ssh_info[:username]}")
                 @logger.info("  - Password? #{!!ssh_info[:password]}")
                 @logger.info("  - Key Path: #{ssh_info[:private_key_path]}")
+                @logger.debug("  - connect_opts: #{connect_opts}")
 
                 Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
               ensure
