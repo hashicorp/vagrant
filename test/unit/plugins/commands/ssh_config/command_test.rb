@@ -22,6 +22,8 @@ describe VagrantPlugins::CommandSSHConfig::Command do
     host:             "testhost.vagrant.dev",
     port:             1234,
     username:         "testuser",
+    keys_only:        true,
+    paranoid:         false,
     private_key_path: [],
     forward_agent:    false,
     forward_x11:      false
@@ -106,6 +108,33 @@ Host #{machine.name}
       subject.execute
 
       expect(output).to include('IdentityFile "with a space"')
+    end
+
+    it "omits IdentitiesOnly when keys_only is false" do
+      allow(machine).to receive(:ssh_info) { ssh_info.merge(keys_only: false) }
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
+      subject.execute
+
+      expect(output).not_to include('IdentitiesOnly')
+    end
+
+    it "omits StrictHostKeyChecking and UserKnownHostsFile when paranoid is true" do
+      allow(machine).to receive(:ssh_info) { ssh_info.merge(paranoid: true) }
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
+      subject.execute
+
+      expect(output).not_to include('StrictHostKeyChecking ')
+      expect(output).not_to include('UserKnownHostsFile ')
     end
   end
 end
