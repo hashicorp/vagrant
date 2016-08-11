@@ -32,6 +32,8 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       ui: ui
     )
   end
+  # Subject instance to test
+  let(:communicator){ @communicator ||= described_class.new(machine) }
   # Underlying net-ssh connection mock
   let(:connection) { double("connection") }
   # Base net-ssh connection channel mock
@@ -43,24 +45,17 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   # Core shell command used when starting command connection
   let(:core_shell_cmd) { "bash -l" }
   # Marker used for flagging start of output
-  let(:command_garbage_marker) { subject.class.const_get(:CMD_GARBAGE_MARKER) }
+  let(:command_garbage_marker) { communicator.class.const_get(:CMD_GARBAGE_MARKER) }
   # Start marker output when PTY is enabled
-  let(:pty_delim_start) { subject.class.const_get(:PTY_DELIM_START) }
+  let(:pty_delim_start) { communicator.class.const_get(:PTY_DELIM_START) }
   # End marker output when PTY is enabled
-  let(:pty_delim_end) { subject.class.const_get(:PTY_DELIM_END) }
+  let(:pty_delim_end) { communicator.class.const_get(:PTY_DELIM_END) }
   # Command output returned on stdout
   let(:command_stdout_data) { '' }
   # Command output returned on stderr
   let(:command_stderr_data) { '' }
   # Mock for net-ssh scp
   let(:scp) { double("scp") }
-
-  # Return mocked net-ssh connection during setup
-  subject do
-    described_class.new(machine).tap do |comm|
-      allow(comm).to receive(:retryable).and_return(connection)
-    end
-  end
 
   # Setup for commands using the net-ssh connection. This can be reused where needed
   # by providing to `before`
@@ -81,6 +76,8 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       and_yield(command_channel, '').and_return channel
     expect(command_channel).to receive(:on_request).with('exit-status').
       and_yield(nil, exit_data)
+    # Return mocked net-ssh connection during setup
+    allow(communicator).to receive(:retryable).and_return(connection)
   end
 
   describe ".wait_for_ready" do
@@ -100,7 +97,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
 
         it "retries ssh_info until ready" do
           # retries are every 0.5 so buffer the timeout just a hair over
-          expect(subject.wait_for_ready(0.6)).to eq(true)
+          expect(communicator.wait_for_ready(0.6)).to eq(true)
         end
       end
     end
@@ -109,7 +106,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   describe ".ready?" do
     before(&connection_setup)
     it "returns true if shell test is successful" do
-      expect(subject.ready?).to be_true
+      expect(communicator.ready?).to be_true
     end
 
     context "with an invalid shell test" do
@@ -118,7 +115,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
 
       it "returns raises SSHInvalidShell error" do
-        expect{ subject.ready? }.to raise_error Vagrant::Errors::SSHInvalidShell
+        expect{ communicator.ready? }.to raise_error Vagrant::Errors::SSHInvalidShell
       end
     end
   end
@@ -127,13 +124,13 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
     before(&connection_setup)
     it "runs valid command and returns successful status code" do
       expect(command_channel).to receive(:send_data).with(/ls \/\n/)
-      expect(subject.execute("ls /")).to eq(0)
+      expect(communicator.execute("ls /")).to eq(0)
     end
 
     it "prepends UUID output to command for garbage removal" do
       expect(command_channel).to receive(:send_data).
         with("printf '#{command_garbage_marker}'\nls /\n")
-      expect(subject.execute("ls /")).to eq(0)
+      expect(communicator.execute("ls /")).to eq(0)
     end
 
     context "with command returning an error" do
@@ -141,12 +138,12 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
 
       it "raises error when exit-code is non-zero" do
         expect(command_channel).to receive(:send_data).with(/ls \/\n/)
-        expect{ subject.execute("ls /") }.to raise_error(Vagrant::Errors::VagrantError)
+        expect{ communicator.execute("ls /") }.to raise_error(Vagrant::Errors::VagrantError)
       end
 
       it "returns exit-code when exit-code is non-zero and error check is disabled" do
         expect(command_channel).to receive(:send_data).with(/ls \/\n/)
-        expect(subject.execute("ls /", error_check: false)).to eq(1)
+        expect(communicator.execute("ls /", error_check: false)).to eq(1)
       end
     end
 
@@ -158,7 +155,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       it "removes any garbage output prepended to command output" do
         stdout = ''
         expect(
-          subject.execute("ls /") do |type, data|
+          communicator.execute("ls /") do |type, data|
             stdout << data
           end
         ).to eq(0)
@@ -179,7 +176,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
 
       it "requests pty for connection" do
-        expect(subject.execute("ls")).to eq(0)
+        expect(communicator.execute("ls")).to eq(0)
       end
 
       context "with sudo enabled" do
@@ -190,7 +187,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         end
 
         it "wraps command in elevated shell when sudo is true" do
-          expect(subject.execute("ls", sudo: true)).to eq(0)
+          expect(communicator.execute("ls", sudo: true)).to eq(0)
         end
       end
     end
@@ -203,7 +200,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
 
       it "wraps command in elevated shell when sudo is true" do
-        expect(subject.execute("ls", sudo: true)).to eq(0)
+        expect(communicator.execute("ls", sudo: true)).to eq(0)
       end
     end
   end
@@ -212,7 +209,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
     before(&connection_setup)
     context "with exit code as zero" do
       it "returns true" do
-        expect(subject.test("ls")).to be_true
+        expect(communicator.test("ls")).to be_true
       end
     end
 
@@ -222,20 +219,20 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
 
       it "returns false" do
-        expect(subject.test("/bin/false")).to be_false
+        expect(communicator.test("/bin/false")).to be_false
       end
     end
   end
 
   describe ".upload" do
     before do
-      expect(subject).to receive(:scp_connect).and_yield(scp)
+      expect(communicator).to receive(:scp_connect).and_yield(scp)
     end
 
     it "uploads a directory if local path is a directory" do
       Dir.mktmpdir('vagrant-test') do |dir|
         expect(scp).to receive(:upload!).with(dir, '/destination', recursive: true)
-        subject.upload(dir, '/destination')
+        communicator.upload(dir, '/destination')
       end
     end
 
@@ -243,7 +240,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       file = Tempfile.new('vagrant-test')
       begin
         expect(scp).to receive(:upload!).with(instance_of(File), '/destination/file')
-        subject.upload(file.path, '/destination/file')
+        communicator.upload(file.path, '/destination/file')
       ensure
         file.delete
       end
@@ -254,7 +251,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       begin
         expect(scp).to receive(:upload!).with(instance_of(File), '/destination/file').
           and_raise("Permission denied")
-        expect{ subject.upload(file.path, '/destination/file') }.to(
+        expect{ communicator.upload(file.path, '/destination/file') }.to(
           raise_error(Vagrant::Errors::SCPPermissionDenied)
         )
       ensure
@@ -267,7 +264,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       begin
         expect(scp).to receive(:upload!).with(instance_of(File), '/destination/file').
           and_raise("Some other error")
-        expect{ subject.upload(file.path, '/destination/file') }.to raise_error(RuntimeError)
+        expect{ communicator.upload(file.path, '/destination/file') }.to raise_error(RuntimeError)
       ensure
         file.delete
       end
@@ -276,12 +273,240 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
 
   describe ".download" do
     before do
-      expect(subject).to receive(:scp_connect).and_yield(scp)
+      expect(communicator).to receive(:scp_connect).and_yield(scp)
     end
 
     it "calls scp to download file" do
       expect(scp).to receive(:download!).with('/path/from', '/path/to')
-      subject.download('/path/from', '/path/to')
+      communicator.download('/path/from', '/path/to')
+    end
+  end
+
+  describe ".connect" do
+
+    it "cannot be called directly" do
+      expect{ communicator.connect }.to raise_error(NoMethodError)
+    end
+
+    context "with default configuration" do
+
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: nil,
+          port: nil,
+          private_key_path: nil,
+          username: nil,
+          password: nil,
+          keys_only: true,
+          paranoid: false
+        )
+      end
+
+      it "has keys_only enabled" do
+        expect(Net::SSH).to receive(:start).with(
+          nil, nil, hash_including(
+            keys_only: true
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "has paranoid disabled" do
+        expect(Net::SSH).to receive(:start).with(
+          nil, nil, hash_including(
+            paranoid: false
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "does not include any private key paths" do
+        expect(Net::SSH).to receive(:start).with(
+          nil, nil, hash_excluding(
+            keys: anything
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "includes `none` and `hostbased` auth methods" do
+        expect(Net::SSH).to receive(:start).with(
+          nil, nil, hash_including(
+            auth_methods: ["none", "hostbased"]
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with keys_only disabled and paranoid enabled" do
+
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: nil,
+          port: nil,
+          private_key_path: nil,
+          username: nil,
+          password: nil,
+          keys_only: false,
+          paranoid: true
+        )
+      end
+
+      it "has keys_only enabled" do
+        expect(Net::SSH).to receive(:start).with(
+          nil, nil, hash_including(
+            keys_only: false
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "has paranoid disabled" do
+        expect(Net::SSH).to receive(:start).with(
+          nil, nil, hash_including(
+            paranoid: true
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with host and port configured" do
+
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          private_key_path: nil,
+          username: nil,
+          password: nil,
+          keys_only: true,
+          paranoid: false
+        )
+      end
+
+      it "specifies configured host" do
+        expect(Net::SSH).to receive(:start).with("127.0.0.1", anything, anything)
+        communicator.send(:connect)
+      end
+
+      it "has port defined" do
+        expect(Net::SSH).to receive(:start).with("127.0.0.1", anything, hash_including(port: 2222))
+        communicator.send(:connect)
+      end
+    end
+
+    context "with private_key_path configured" do
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          private_key_path: ['/priv/key/path'],
+          username: nil,
+          password: nil,
+          keys_only: true,
+          paranoid: false
+        )
+      end
+
+      it "includes private key paths" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            keys: ["/priv/key/path"]
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "includes `publickey` auth method" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            auth_methods: ["none", "hostbased", "publickey"]
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with username and password configured" do
+
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          private_key_path: nil,
+          username: 'vagrant',
+          password: 'vagrant',
+          keys_only: true,
+          paranoid: false
+        )
+      end
+
+      it "has username defined" do
+        expect(Net::SSH).to receive(:start).with(anything, 'vagrant', anything).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "has password defined" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            password: 'vagrant'
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "includes `password` auth method" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            auth_methods: ["none", "hostbased", "password"]
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with password and private_key_path configured" do
+
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          private_key_path: ['/priv/key/path'],
+          username: 'vagrant',
+          password: 'vagrant',
+          keys_only: true,
+          paranoid: false
+        )
+      end
+
+      it "has password defined" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            password: 'vagrant'
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "includes private key paths" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            keys: ["/priv/key/path"]
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+
+      it "includes `publickey` and `password` auth methods" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            auth_methods: ["none", "hostbased", "publickey", "password"]
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
     end
   end
 end
