@@ -218,7 +218,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:result) { Vagrant::Util::Subprocess::Result.new(0, "", "") }
 
     let(:ssh_info) {{
-      :private_key_path => [],
+      :private_key_path => ['/path/to/key'],
       :keys_only        => true,
       :paranoid         => false,
     }}
@@ -239,6 +239,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         expect(args[9]).to include('IdentitiesOnly')
         expect(args[9]).to include('StrictHostKeyChecking')
         expect(args[9]).to include('UserKnownHostsFile')
+        expect(args[9]).to include("-i '/path/to/key'")
       }
 
       subject.rsync_single(machine, ssh_info, opts)
