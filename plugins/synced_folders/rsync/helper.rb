@@ -108,7 +108,7 @@ module VagrantPlugins
 
         # If specified, attach the private key paths.
         if ssh_info[:private_key_path]
-          ssh_info[:private_key_path].map { |p| "-i '#{p}'" }
+          rsh += ssh_info[:private_key_path].map { |p| "-i '#{p}'" }
         end
 
         # Exclude some files by default, and any that might be configured
