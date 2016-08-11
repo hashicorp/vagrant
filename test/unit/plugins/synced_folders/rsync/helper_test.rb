@@ -56,7 +56,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:result) { Vagrant::Util::Subprocess::Result.new(0, "", "") }
 
     let(:ssh_info) {{
-      :private_key_path => [],
+      private_key_path: [],
     }}
     let(:opts)      {{
       hostpath: "/foo",
