@@ -87,6 +87,7 @@ module VagrantPlugins
         # rsh cmd option
         rsh = [
           "ssh", "-p", "#{ssh_info[:port]}",
+          "-o", "LogLevel=#{log_level}",
           proxy_command,
           control_options,
         ]
