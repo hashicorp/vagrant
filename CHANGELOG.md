@@ -13,6 +13,7 @@ BUG FIXES:
   - core: Fix windows path formatting [GH-6598]
   - core: Fixes for ssh-agent interactions [GH-7703, GH-7621, GH-7398]
   - core: Support VAGRANT_DOTFILE_PATH relative to the Vagrantfile [GH-7623]
+  - guests: Prevent ssh disconnect errors on halt command [GH-7675]
   - guests/bsd: Remove Darwin matching [GH-7701]
   - guests/linux: Fix SSH key permissions [GH-7610, GH-7611]
   - guests/linux: Always sort discovered network interfaces [GH-7705, GH-7668]
