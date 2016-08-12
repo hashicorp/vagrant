@@ -1,13 +1,14 @@
 require_relative "../../../../base"
 
-describe "VagrantPlugins::GuestDarwin::Cap::Halt" do
+describe "VagrantPlugins::GuestSolaris::Cap::Halt" do
   let(:caps) do
-    VagrantPlugins::GuestDarwin::Plugin
+    VagrantPlugins::GuestSolaris::Plugin
       .components
-      .guest_capabilities[:darwin]
+      .guest_capabilities[:solaris]
   end
 
-  let(:machine) { double("machine") }
+  let(:shutdown_command){ "sudo /usr/sbin/shutdown -y -i5 -g0" }
+  let(:machine) { double("machine", config: double("config", solaris: double("solaris", suexec_cmd: 'sudo'))) }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
@@ -22,19 +23,19 @@ describe "VagrantPlugins::GuestDarwin::Cap::Halt" do
     let(:cap) { caps.get(:halt) }
 
     it "runs the shutdown command" do
-      comm.expect_command("/sbin/shutdown -h now")
+      comm.expect_command(shutdown_command)
       cap.halt(machine)
     end
 
     it "ignores an IOError" do
-      comm.stub_command("/sbin/shutdown -h now", raise: IOError)
+      comm.stub_command(shutdown_command, raise: IOError)
       expect {
         cap.halt(machine)
       }.to_not raise_error
     end
 
     it "ignores a Vagrant::Errors::SSHDisconnected" do
-      comm.stub_command("/sbin/shutdown -h now", raise: Vagrant::Errors::SSHDisconnected)
+      comm.stub_command(shutdown_command, raise: Vagrant::Errors::SSHDisconnected)
       expect {
         cap.halt(machine)
       }.to_not raise_error
