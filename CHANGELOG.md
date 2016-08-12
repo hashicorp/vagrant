@@ -18,6 +18,7 @@ BUG FIXES:
   - hosts/darwin: Fix generated RDP configuration file [GH-7698]
   - core: Fix windows path formatting [GH-6598]
   - core: Fixes for ssh-agent interactions [GH-7703, GH-7621, GH-7398]
+  - guests/linux: Always sort discovered network interfaces [GH-7705, GH-7668]
 
 ## 1.8.5 (July 18, 2016)
 
