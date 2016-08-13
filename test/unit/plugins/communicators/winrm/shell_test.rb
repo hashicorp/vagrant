@@ -6,7 +6,7 @@ require Vagrant.source_root.join("plugins/communicators/winrm/config")
 describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   include_context "unit"
 
-  let(:session) { double("winrm_session", create_executor: executor) }
+  let(:session) { double("winrm_session") }
   let(:executor) { double("command_executor") }
   let(:port) { config.transport == :ssl ? 5986 : 5985 }
   let(:config)  {
@@ -21,6 +21,8 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       c.finalize!
     end
   }
+
+  before { allow(session).to receive(:create_executor).and_yield(executor) }
 
   subject do
     described_class.new('localhost', port, config).tap do |comm|
