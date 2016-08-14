@@ -62,13 +62,62 @@ module Vagrant
           raise Errors::CLIInvalidOptions, help: opts.help.chomp
         end
 
+        # Yields the name (as a symbol) of each target VM for the command.
+        #
+        # This method should be used when the targets of a command need to
+        # be resolved to names but the side-effects of actually getting
+        # (and possibly creating) Machine objects from those names is
+        # undesired. For example, when looking up the provider that should
+        # be used to create each machine, we can't yet instantiate each
+        # machine because that requires us to already know the provider.
+        #
+        # @param [String, Array<String>] names Names or regexes of VMs.
+        #   Nil if every VM.
+        def with_matching_names(names=nil)
+          # Require that names be an array
+          names ||= []
+          names = [names] if !names.is_a?(Array)
+
+          if names.length > 0
+            names.each do |name|
+              if pattern = name[/^\/(.+?)\/$/, 1]
+                @logger.debug("Finding machines that match regex: #{pattern}")
+
+                # This is a regular expression name, so we convert to a regular
+                # expression and allow that sort of matching.
+                regex = Regexp.new(pattern)
+
+                @env.machine_names.each do |machine_name|
+                  if machine_name =~ regex
+                    yield machine_name
+                  end
+                end
+
+                raise Errors::VMNoMatchError if machines.empty?
+              else
+                # String name, just look for a specific VM
+                @logger.debug("Finding machine that matches name: #{name}")
+                yield name.to_sym
+              end
+            end
+          else
+            # No name was given, so we return every VM in the order
+            # configured.
+            @logger.debug("Using all machines...")
+            @env.machine_names.each do |machine_name|
+              yield machine_name
+            end
+          end
+        end
+
         # Yields a VM for each target VM for the command.
         #
         # This is a convenience method for easily implementing methods that
         # take a target VM (in the case of multi-VM) or every VM if no
         # specific VM name is specified.
         #
-        # @param [String] name The name of the VM. Nil if every VM.
+        # @param [String, Array<String>] names Names or regexes of VMs.
+        #   Nil if every VM.
         # @param [Hash] options Additional tweakable settings.
         # @option options [Symbol] :provider The provider to back the
         #   machines with. All machines will be backed with this
@@ -179,36 +228,10 @@ module Vagrant
 
           # First determine the proper array of VMs.
           machines = []
-          if names.length > 0
-            names.each do |name|
-              if pattern = name[/^\/(.+?)\/$/, 1]
-                @logger.debug("Finding machines that match regex: #{pattern}")
-
-                # This is a regular expression name, so we convert to a regular
-                # expression and allow that sort of matching.
-                regex = Regexp.new(pattern)
-
-                @env.machine_names.each do |machine_name|
-                  if machine_name =~ regex
-                    machines << get_machine.call(machine_name)
-                  end
-                end
-
-                raise Errors::VMNoMatchError if machines.empty?
-              else
-                # String name, just look for a specific VM
-                @logger.debug("Finding machine that match name: #{name}")
-                machines << get_machine.call(name.to_sym)
-                raise Errors::VMNotFoundError, name: name if !machines[0]
-              end
-            end
-          else
-            # No name was given, so we return every VM in the order
-            # configured.
-            @logger.debug("Loading all machines...")
-            machines = @env.machine_names.map do |machine_name|
-              get_machine.call(machine_name)
-            end
+          with_matching_names(names) do |resolved_name|
+            machine = get_machine.call(resolved_name)
+            raise Errors::VMNotFoundError, name: resolved_name.to_s if !machine
+            machines << machine
           end
 
           # Make sure we're only working with one VM if single target
