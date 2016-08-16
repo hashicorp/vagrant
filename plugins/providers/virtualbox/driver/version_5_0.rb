@@ -610,9 +610,10 @@ module VagrantPlugins
         end
 
         def share_folders(folders)
+          guestOS = read_guest_property("/VirtualBox/GuestInfo/OS/Product")
           folders.each do |folder|
             hostpath = folder[:hostpath]
-            if Vagrant::Util::Platform.windows?
+            if Vagrant::Util::Platform.windows? && guestOS != "SunOS"
               hostpath = Vagrant::Util::Platform.windows_unc_path(hostpath)
             end
             args = ["--name",
