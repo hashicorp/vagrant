@@ -613,8 +613,15 @@ module VagrantPlugins
         end
 
         def share_folders(folders)
+          guestOS = read_guest_property("/VirtualBox/GuestInfo/OS/Product")
           folders.each do |folder|
-            hostpath = Vagrant::Util::Platform.windows_path(folder[:hostpath])
+            # NOTE: Guest additions on Solaris guests do not properly handle
+            # UNC style paths so prevent conversion (See GH-7264)
+            if guestOS == "SunOS"
+              hostpath = folder[:hostpath]
+            else
+              hostpath = Vagrant::Util::Platform.windows_path(folder[:hostpath])
+            end
             args = ["--name",
               folder[:name],
               "--hostpath",
