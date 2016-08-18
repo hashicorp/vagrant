@@ -10,7 +10,8 @@ Param(
     [string]$cpus=$null,
     [string]$vmname=$null,
     [string]$auto_start_action=$null,
-    [string]$auto_stop_action=$null
+    [string]$auto_stop_action=$null,
+    [bool]$enable_virtualization_extensions=$False
 )
 
 # Include the following modules
@@ -168,6 +169,11 @@ if ($generation -ne 1) {
     }  else {
         Set-VMFirmware -VM $vm -EnableSecureBoot Off
     }
+}
+
+# Enable nested virtualization if configured
+if ($enable_virtualization_extensions) {
+    Set-VMProcessor -VM $vm -ExposeVirtualizationExtensions $true
 }
 
 # A regular expression pattern to pull the number from controllers

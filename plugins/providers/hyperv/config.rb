@@ -26,6 +26,7 @@ module VagrantPlugins
         @differencing_disk = UNSET_VALUE
         @auto_start_action = UNSET_VALUE
         @auto_stop_action = UNSET_VALUE
+        @enable_virtualization_extensions = UNSET_VALUE
       end
 
       def finalize!
@@ -41,6 +42,7 @@ module VagrantPlugins
         @differencing_disk = false if @differencing_disk == UNSET_VALUE
         @auto_start_action = nil if @auto_start_action == UNSET_VALUE
         @auto_stop_action = nil if @auto_stop_action == UNSET_VALUE
+        @enable_virtualization_extensions = false if @enable_virtualization_extensions == UNSET_VALUE # TODO will this work?
       end
 
       def validate(machine)
