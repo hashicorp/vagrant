@@ -10,6 +10,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - commands/package: Provide machine data directory for base box package
+      [GH-5070, GH-7725]
   - core: Fix windows path formatting [GH-6598]
   - core: Fixes for ssh-agent interactions [GH-7703, GH-7621, GH-7398]
   - core: Support VAGRANT_DOTFILE_PATH relative to the Vagrantfile [GH-7623]
