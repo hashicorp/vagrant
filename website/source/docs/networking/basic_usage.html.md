@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-Every network type has an identifier such as `:forwarded_port` in the above
+Every network type has an identifier such as `"forwarded_port"` in the above
 example. Following this is a set of configuration arguments that can differ
 for each network type. In the case of forwarded ports, two numeric arguments
 are expected: the port on the guest followed by the port on the host that
