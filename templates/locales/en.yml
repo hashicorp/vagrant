@@ -1845,6 +1845,19 @@ en:
           exporting: Exporting NFS shared folders...
           installing: "Installing NFS client..."
           mounting: Mounting NFS shared folders...
+          v4_with_udp_warning: |-
+
+            WARNING: Invalid NFS settings detected!
+
+            Detected UDP enabled with NFSv4. NFSv4 does not support UDP.
+            If folder mount fails disable UDP using the following option:
+
+              nfs_udp: false
+
+            For more information see:
+            RFC5661: https://tools.ietf.org/html/rfc5661#section-2.9.1
+            RFC7530: https://tools.ietf.org/html/rfc7530#section-3.1
+
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
