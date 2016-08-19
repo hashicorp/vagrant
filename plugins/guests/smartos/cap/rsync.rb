@@ -1,7 +1,11 @@
+require_relative "../../../synced_folders/rsync/default_unix_cap"
+
 module VagrantPlugins
   module GuestSmartos
     module Cap
       class RSync
+        extend VagrantPlugins::SyncedFolderRSync::DefaultUnixCap
+
         def self.rsync_installed(machine)
           machine.communicate.test("which rsync")
         end
@@ -17,8 +21,11 @@ module VagrantPlugins
         end
 
         def self.rsync_post(machine, opts)
-          machine.communicate.execute("#{machine.config.smartos.suexec_cmd} find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
-              "#{machine.config.smartos.suexec_cmd} xargs -0 chown #{opts[:owner]}:#{opts[:group]}")
+          if opts.key?(:chown) && !opts[:chown]
+            return
+          end
+          suexec_cmd = machine.config.smartos.suexec_cmd
+          machine.communicate.execute("#{suexec_cmd} #{build_rsync_chown(opts)}")
         end
       end
     end
