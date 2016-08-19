@@ -11,7 +11,7 @@ Param(
     [string]$vmname=$null,
     [string]$auto_start_action=$null,
     [string]$auto_stop_action=$null,
-    [bool]$enable_virtualization_extensions=$False
+    [string]$enable_virtualization_extensions=$False
 )
 
 # Include the following modules

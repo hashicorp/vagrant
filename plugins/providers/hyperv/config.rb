@@ -14,6 +14,7 @@ module VagrantPlugins
       attr_accessor :differencing_disk # Create differencing disk instead of cloning whole VHD [Boolean]
       attr_accessor :auto_start_action #action on automatic start of VM. Values: Nothing, StartIfRunning, Start
       attr_accessor :auto_stop_action #action on automatic stop of VM. Values: ShutDown, TurnOff, Save
+      attr_accessor :enable_virtualization_extensions # Enable virtualization extensions (nested virtualization). Values: true, false
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
