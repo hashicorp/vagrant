@@ -17,6 +17,8 @@ BUG FIXES:
   - guests/bsd: Remove Darwin matching [GH-7701]
   - guests/linux: Fix SSH key permissions [GH-7610, GH-7611]
   - guests/linux: Always sort discovered network interfaces [GH-7705, GH-7668]
+  - guests/linux: Fixes for user and group ID lookups for virtualbox shared folders
+      [GH-7616, GH-7662, GH-7720]
   - guests/openbsd: Add custom halt capability [GH-7701]
   - guests/ubuntu: Fix detection on older guests [GH-7632, GH-7524, GH-7625]
   - hosts/arch: Detect NFS server by service name on arch [GH-7630, GH-7629]
