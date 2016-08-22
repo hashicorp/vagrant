@@ -30,10 +30,13 @@ module VagrantPlugins
               grep -w '#{name}' /etc/hosts || {
                 sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
               }
-
-              # Restart network
-              service network restart
             EOH
+            if machine.guest.capability("flavor") != :rhel_7
+              comm.sudo <<-EOH.gsub(/^ {14}/, '')
+                # Restart network
+                service network restart
+              EOH
+            end
           end
         end
       end
