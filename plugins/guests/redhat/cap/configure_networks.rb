@@ -50,6 +50,11 @@ module VagrantPlugins
             EOH
           end
 
+          commands << <<-EOH.gsub(/^ {14}/, '')
+            # Restart network
+            service network restart
+          EOH
+
           comm.sudo(commands.join("\n"))
         end
       end
