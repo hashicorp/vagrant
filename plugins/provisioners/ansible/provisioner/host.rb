@@ -234,6 +234,9 @@ module VagrantPlugins
             proxy_cmd += " exec nc %h %p 2>/dev/null"
 
             ssh_options << "-o ProxyCommand='#{ proxy_cmd }'"
+          elsif @machine.provider_name == :libvirt && @machine.provider_config.connect_via_ssh
+            proxy_cmd = @machine.ssh_info[:proxy_command]
+            ssh_options << "-o ProxyCommand='#{ proxy_cmd }'"
           end
 
           # Don't access user's known_hosts file, except when host_key_checking is enabled.
