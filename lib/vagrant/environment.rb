@@ -338,7 +338,7 @@ module Vagrant
       # a priority to each in the order they exist so that we try these first.
       config = {}
       root_config.vm.__providers.reverse.each_with_index do |key, idx|
-        config[key] = idx
+        config[key] = idx + 1
       end
 
       # Determine the max priority so that we can add the config priority
