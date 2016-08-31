@@ -89,6 +89,7 @@ module VagrantPlugins
             box_client_cert: options[:client_cert],
             box_download_insecure: options[:insecure],
             box_download_location_trusted: options[:location_trusted],
+            box_download_proxy: options[:proxy],
             ui: Vagrant::UI::Prefixed.new(@env.ui, "box"),
           })
 

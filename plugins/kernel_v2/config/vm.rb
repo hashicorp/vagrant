@@ -32,6 +32,7 @@ module VagrantPlugins
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
       attr_accessor :box_download_location_trusted
+      attr_accessor :box_download_proxy
       attr_accessor :communicator
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
@@ -58,6 +59,7 @@ module VagrantPlugins
         @box_download_client_cert      = UNSET_VALUE
         @box_download_insecure         = UNSET_VALUE
         @box_download_location_trusted = UNSET_VALUE
+        @box_download_proxy            = UNSET_VALUE
         @box_url                       = UNSET_VALUE
         @box_version                   = UNSET_VALUE
         @clone                         = UNSET_VALUE
@@ -376,6 +378,7 @@ module VagrantPlugins
         @box_download_client_cert = nil if @box_download_client_cert == UNSET_VALUE
         @box_download_insecure = false if @box_download_insecure == UNSET_VALUE
         @box_download_location_trusted = false if @box_download_location_trusted == UNSET_VALUE
+        @box_download_proxy = nil if @box_download_proxy == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
         @box_version = nil if @box_version == UNSET_VALUE
         @clone = nil if @clone == UNSET_VALUE

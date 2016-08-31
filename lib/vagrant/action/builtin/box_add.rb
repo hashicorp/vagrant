@@ -414,6 +414,7 @@ module Vagrant
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
           downloader_options[:location_trusted] = env[:box_download_location_trusted]
+          downloader_options[:proxy] = env[:box_download_proxy]
 
           Util::Downloader.new(url, temp_path, downloader_options)
         end

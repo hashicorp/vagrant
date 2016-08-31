@@ -101,6 +101,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
             expect(opts[:box_download_ca_cert]).to be_nil
             expect(opts[:box_client_cert]).to be_nil
             expect(opts[:box_download_insecure]).to be_nil
+            expect(opts[:box_download_proxy]).to be_nil
           end
 
           opts
@@ -254,7 +255,8 @@ describe VagrantPlugins::CommandBox::Command::Update do
           with(machine.config.vm.box_version,
                {download_options:
                  {ca_cert: nil, ca_path: nil, client_cert: nil,
-                  insecure: false}}).
+                  insecure: false,
+                  proxy: nil}}).
           and_return(nil)
 
         expect(action_runner).to receive(:run).never
@@ -292,7 +294,8 @@ describe VagrantPlugins::CommandBox::Command::Update do
             with(machine.config.vm.box_version,
                  {download_options:
                    {ca_cert: nil, ca_path: nil, client_cert: nil,
-                    insecure: false}}).
+                    insecure: false,
+                    proxy: nil}}).
             and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
 
           expect(action_runner).to receive(:run).with { |action, opts|
@@ -319,7 +322,8 @@ describe VagrantPlugins::CommandBox::Command::Update do
               with(machine.config.vm.box_version,
                    {download_options:
                      {ca_cert: "oof", ca_path: "rab", client_cert: "zab",
-                      insecure: false}}).
+                      insecure: false,
+                      proxy: nil}}).
               and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
 
             expect(action_runner).to receive(:run).with { |action, opts|
@@ -341,7 +345,8 @@ describe VagrantPlugins::CommandBox::Command::Update do
                 with(machine.config.vm.box_version,
                      {download_options:
                        {ca_cert: "foo", ca_path: "bar", client_cert: "baz",
-                        insecure: true}}).
+                        insecure: true,
+                        proxy: nil}}).
                 and_return([md, md.version("1.1"),
                             md.version("1.1").provider("virtualbox")])
 
