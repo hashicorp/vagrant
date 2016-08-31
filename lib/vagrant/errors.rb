@@ -608,11 +608,19 @@ module Vagrant
       error_key(:rsync_not_installed_in_guest)
     end
 
+    class SCPEmptySourceOrDestination < VagrantError
+      error_key(:scp_empty_source_or_destination)
+    end
+
     class SCPPermissionDenied < VagrantError
       error_key(:scp_permission_denied)
     end
 
     class SCPUnavailable < VagrantError
+      error_key(:scp_unavailable)
+    end
+
+    class SCPUnavailableWindows < VagrantError
       error_key(:scp_unavailable)
     end
 

@@ -28,6 +28,7 @@ module Vagrant
       autoload :Provision, "vagrant/action/builtin/provision"
       autoload :ProvisionerCleanup, "vagrant/action/builtin/provisioner_cleanup"
       autoload :SetHostname, "vagrant/action/builtin/set_hostname"
+      autoload :SCPExec, "vagrant/action/builtin/scp_exec"
       autoload :SSHExec, "vagrant/action/builtin/ssh_exec"
       autoload :SSHRun,  "vagrant/action/builtin/ssh_run"
       autoload :SyncedFolders, "vagrant/action/builtin/synced_folders"

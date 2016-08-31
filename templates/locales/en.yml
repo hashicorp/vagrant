@@ -1081,9 +1081,34 @@ en:
 
         Source: %{from}
         Dest: %{to}
+      scp_empty_source_or_destination: |-
+        Please specify both a source file and a destination to copy the file to. (ie: vagrant:~/test.txt ~/test2.txt)
       scp_unavailable: |-
         SSH server on the guest doesn't support SCP. Please install the necessary
         software to enable SCP on your guest operating system.
+      scp_unavailable_windows: |-
+        `scp` executable not found in any directories in the %PATH% variable. Is an
+        SCP client installed? Try installing Cygwin, MinGW or Git, all of which
+        contain an SCP client. Or use your favorite SCP client with the following
+        authentication information shown below:
+
+        Host: %{host}
+        Port: %{port}
+        Username: %{username}
+        Private key: %{key_path}
+      shared_folder_create_failed: |-
+        Failed to create the following shared folder on the host system. This is
+        usually because Vagrant does not have sufficient permissions to create
+        the folder.
+
+        %{path}
+
+        Please create the folder manually or specify another path to share.
+      shell_expand_failed: |-
+        Vagrant failed to determine the shell expansion of a guest path
+        (probably for one of your shared folders). This is an extremely rare
+        error case and most likely indicates an unusual configuration of the
+        guest system. Please report a bug with your Vagrantfile and debug log.
       shared_folder_create_failed: |-
         Failed to create the following shared folder on the host system. This is
         usually because Vagrant does not have sufficient permissions to create
