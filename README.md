@@ -49,7 +49,7 @@ and you're welcome to give it a shot. The following is an example showing how to
 
     rake install
 
-Ruby 2.0 is needed.
+Ruby 2.2 or higher is needed.
 
 ## Contributing to Vagrant
 
