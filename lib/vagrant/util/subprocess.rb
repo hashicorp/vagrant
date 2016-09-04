@@ -144,10 +144,11 @@ module Vagrant
         # Record the start time for timeout purposes
         start_time = Time.now.to_i
 
+        open_readers = [stdout, stderr]
+        open_writers = notify_stdin ? [process.io.stdin] : []
         @logger.debug("Selecting on IO")
         while true
-          writers = notify_stdin ? [process.io.stdin] : []
-          results = ::IO.select([stdout, stderr], writers, nil, 0.1)
+          results = ::IO.select(open_readers, open_writers, nil, 0.1)
           results ||= []
           readers = results[0]
           writers = results[1]
@@ -178,8 +179,14 @@ module Vagrant
           break if process.exited?
 
           # Check the writers to see if they're ready, and notify any listeners
-          if writers && !writers.empty?
-            yield :stdin, process.io.stdin if block_given?
+          if writers && !writers.empty? && block_given?
+            yield :stdin, process.io.stdin
+
+            # if the callback closed stdin, we should remove it, because
+            # IO.select() will throw if called with a closed io.
+            if process.io.stdin.closed?
+              open_writers = []
+            end
           end
         end
 
