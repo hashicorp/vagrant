@@ -45,18 +45,6 @@ argv.each_index do |i|
   end
 end
 
-# First, make sure that we're executing using the proper Bundler context
-# with our plugins. If we're not, then load that and reload Vagrant.
-if !ENV["VAGRANT_INTERNAL_BUNDLERIZED"]
-  require "rbconfig"
-  ruby_path = File.join(RbConfig::CONFIG["bindir"], RbConfig::CONFIG["ruby_install_name"])
-  Kernel.exec(
-    ruby_path,
-    File.expand_path("../../lib/vagrant/pre-rubygems.rb", __FILE__),
-    *ARGV)
-  raise "Fatal error: this line should never be reached"
-end
-
 # Set logging level to `debug`. This is done before loading 'vagrant', as it
 # sets up the logging system.
 if argv.include?("--debug")

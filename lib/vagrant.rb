@@ -77,7 +77,6 @@ Bundler.definition.specs_for([:plugins]).each do |spec|
   global_logger.info("  - #{spec.name} = #{spec.version}")
 end
 
-
 # We need these components always so instead of an autoload we
 # just require them explicitly here.
 require "vagrant/plugin"
@@ -253,6 +252,11 @@ if I18n.config.respond_to?(:enforce_available_locales=)
   # future but we need this to silence a deprecation warning from 0.6.9
   I18n.config.enforce_available_locales = true
 end
+
+# Setup the plugin manager and load any defined plugins
+require_relative "vagrant/plugin/manager"
+plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+Vagrant::Bundler.instance.init!(plugins)
 
 # A lambda that knows how to load plugins from a single directory.
 plugin_load_proc = lambda do |directory|

@@ -4,7 +4,8 @@ require "set"
 require "tempfile"
 require "fileutils"
 
-require "bundler"
+require "rubygems/package"
+require "rubygems/uninstaller"
 
 require_relative "shared_helpers"
 require_relative "version"
@@ -15,83 +16,97 @@ module Vagrant
   # Bundler as a way to properly resolve all dependencies of Vagrant and
   # all Vagrant-installed plugins.
   class Bundler
+
+    HASHICORP_GEMSTORE = 'https://gems.hashicorp.com'.freeze
+
     def self.instance
       @bundler ||= self.new
     end
 
+    attr_reader :plugin_gem_path
+
     def initialize
-      @enabled = true if ENV["VAGRANT_INSTALLER_ENV"] ||
-        ENV["VAGRANT_FORCE_BUNDLER"]
-      @enabled  = !::Bundler::SharedHelpers.in_bundle? if !@enabled
-      @monitor  = Monitor.new
-
-      @gem_home = ENV["GEM_HOME"]
-      @gem_path = ENV["GEM_PATH"]
-
-      # Set the Bundler UI to be a silent UI. We have to add the
-      # `silence` method to it because Bundler UI doesn't have it.
-      ::Bundler.ui =
-        if ::Bundler::UI.const_defined? :Silent
-          # bundler >= 1.6.0, we use our custom UI
-          BundlerUI.new
-        else
-          # bundler < 1.6.0
-          ::Bundler::UI.new
-        end
-      if !::Bundler.ui.respond_to?(:silence)
-        ui = ::Bundler.ui
-        def ui.silence(*args)
-          yield
-        end
-      end
+      @plugin_gem_path = Vagrant.user_data_path.join("gems", RUBY_VERSION).freeze
     end
 
     # Initializes Bundler and the various gem paths so that we can begin
     # loading gems. This must only be called once.
     def init!(plugins)
-      # If we're not enabled, then we don't do anything.
-      return if !@enabled
+      # Add HashiCorp RubyGems source
+      Gem.sources << HASHICORP_GEMSTORE
 
-      bundle_path = Vagrant.user_data_path.join("gems")
-
-      # Setup the "local" Bundler configuration. We need to set BUNDLE_PATH
-      # because the existence of this actually suppresses `sudo`.
-      @appconfigpath = Dir.mktmpdir("vagrant-bundle-app-config")
-      File.open(File.join(@appconfigpath, "config"), "w+") do |f|
-        f.write("BUNDLE_PATH: \"#{bundle_path}\"")
+      # Generate dependencies for all registered plugins
+      plugin_deps = plugins.map do |name, info|
+        Gem::Dependency.new(name, info['gem_version'].to_s.empty? ? '> 0' : info['gem_version'])
       end
 
-      # Setup the Bundler configuration
-      @configfile = tempfile("vagrant-configfile")
-      @configfile.close
+      # Load dependencies into a request set for resolution
+      request_set = Gem::RequestSet.new(*plugin_deps)
+      # Never allow dependencies to be remotely satisfied during init
+      request_set.remote = false
 
-      # Build up the Gemfile for our Bundler context. We make sure to
-      # lock Vagrant to our current Vagrant version. In addition to that,
-      # we add all our plugin dependencies.
-      @gemfile = build_gemfile(plugins)
+      # Sets that we can resolve our dependencies from
+      current_set = Gem::Resolver::CurrentSet.new
+      plugin_set = Gem::Resolver::VendorSet.new
 
-      Util::SafeEnv.change_env do |env|
-        # Set the environmental variables for Bundler
-        env["BUNDLE_APP_CONFIG"] = @appconfigpath
-        env["BUNDLE_CONFIG"]     = @configfile.path
-        env["BUNDLE_GEMFILE"]    = @gemfile.path
-        env["BUNDLE_RETRY"]      = "3"
-        env["GEM_PATH"] =
-          "#{bundle_path}#{::File::PATH_SEPARATOR}#{@gem_path}"
+      # Register all known plugin specifications to the plugin set
+      Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).each do |spec_path|
+        spec = Gem::Specification.load(spec_path)
+        desired_spec_path = File.join(spec.gem_dir, "#{spec.name}.gemspec")
+        # Vendor set requires the spec to be within the gem directory. Some gems will package their
+        # spec file, and that's not what we want to load.
+        if !File.exist?(desired_spec_path) || !FileUtils.cmp(spec.spec_file, desired_spec_path)
+          File.write(desired_spec_path, spec.to_ruby)
+        end
+        plugin_set.add_vendor_gem(spec.name, spec.gem_dir)
       end
 
-      Gem.clear_paths
+      # Compose set for resolution
+      composed_set = Gem::Resolver.compose_sets(current_set, plugin_set)
+
+      # Resolve the request set to ensure proper activation order
+      solution = request_set.resolve(composed_set)
+
+      # Activate the gems
+      begin
+        retried = false
+        solution.each do |activation_request|
+          unless activation_request.full_spec.activated?
+            activation_request.full_spec.activate
+            if(defined?(::Bundler))
+              ::Bundler.rubygems.mark_loaded activation_request.full_spec
+            end
+          end
+        end
+      rescue Gem::LoadError
+        # Depending on the version of Ruby, the ordering of the solution set
+        # will be either 0..n (molinillo) or n..0 (pre-molinillo). Instead of
+        # attempting to determine what's in use, or if it has some how changed
+        # again, just reverse order on failure and attempt again.
+        if retried
+          raise
+        else
+          retried = true
+          solution.reverse!
+          retry
+        end
+      end
+
+      full_vagrant_spec_list = Gem::Specification.find_all{true} +
+        solution.map(&:full_spec)
+
+      if(defined?(::Bundler))
+        ::Bundler.rubygems.replace_entrypoints(full_vagrant_spec_list)
+      end
+
+      Gem.post_reset do
+        Gem::Specification.all = full_vagrant_spec_list
+      end
     end
 
     # Removes any temporary files created by init
     def deinit
-      # If we weren't enabled, then we don't do anything.
-      return if !@enabled
-
-      FileUtils.rm_rf(ENV["BUNDLE_APP_CONFIG"]) rescue nil
-      FileUtils.rm_f(ENV["BUNDLE_CONFIG"]) rescue nil
-      FileUtils.rm_f(ENV["BUNDLE_GEMFILE"]) rescue nil
-      FileUtils.rm_f(ENV["BUNDLE_GEMFILE"]+".lock") rescue nil
+      # no-op
     end
 
     # Installs the list of plugins.
@@ -107,34 +122,19 @@ module Vagrant
     # @param [String] path Path to a local gem file.
     # @return [Gem::Specification]
     def install_local(path)
-      # We have to do this load here because this file can be loaded
-      # before RubyGems is actually loaded.
-      require "rubygems/dependency_installer"
-      begin
-        require "rubygems/format"
-      rescue LoadError
-        # rubygems 2.x
-      end
-
-      # If we're installing from a gem file, determine the name
-      # based on the spec in the file.
-      pkg = if defined?(Gem::Format)
-              # RubyGems 1.x
-              Gem::Format.from_file_by_path(path)
-            else
-              # RubyGems 2.x
-              Gem::Package.new(path)
-            end
-
-      # Install the gem manually. If the gem exists locally, then
-      # Bundler shouldn't attempt to get it remotely.
-      with_isolated_gem do
-        installer = Gem::DependencyInstaller.new(
-          document: [], prerelease: false)
-        installer.install(path, "= #{pkg.spec.version}")
-      end
-
-      pkg.spec
+      installer = Gem::Installer.at(path,
+        ignore_dependencies: true,
+        install_dir: plugin_gem_path.to_s
+      )
+      installer.install
+      new_spec = installer.spec
+      plugin_info = {
+        new_spec.name => {
+          'gem_version' => new_spec.version.to_s
+        }
+      }
+      internal_install(plugin_info, {})
+      new_spec
     end
 
     # Update updates the given plugins, or every plugin if none is given.
@@ -144,278 +144,114 @@ module Vagrant
     #   empty or nil, all plugins will be updated.
     def update(plugins, specific)
       specific ||= []
-      update = true
       update = { gems: specific } if !specific.empty?
       internal_install(plugins, update)
     end
 
     # Clean removes any unused gems.
     def clean(plugins)
-      gemfile    = build_gemfile(plugins)
-      lockfile   = "#{gemfile.path}.lock"
-      definition = ::Bundler::Definition.build(gemfile, lockfile, nil)
-      root       = File.dirname(gemfile.path)
+      # Generate dependencies for all registered plugins
+      plugin_deps = plugins.map do |name, info|
+        Gem::Dependency.new(name, info['gem_version'].to_s.empty? ? '> 0' : info['gem_version'])
+      end
 
-      with_isolated_gem do
-        runtime = ::Bundler::Runtime.new(root, definition)
-        runtime.clean
+      # Load dependencies into a request set for resolution
+      request_set = Gem::RequestSet.new(*plugin_deps)
+      # Never allow dependencies to be remotely satisfied during cleaning
+      request_set.remote = false
+
+      # Sets that we can resolve our dependencies from. Note that we only
+      # resolve from the current set as all required deps are activated during
+      # init.
+      current_set = Gem::Resolver::CurrentSet.new
+
+      # Collect all plugin specifications
+      plugin_specs = Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).map do |spec_path|
+        Gem::Specification.load(spec_path)
+      end
+
+      # Resolve the request set to ensure proper activation order
+      solution = request_set.resolve(current_set)
+      solution_specs = solution.map(&:full_spec)
+
+      # Find all specs installed to plugins directory that are not
+      # found within the solution set
+      plugin_specs.delete_if do |spec|
+        solution.include?(spec)
+      end
+
+      # Now delete all unused specs
+      plugin_specs.each do |spec|
+        Gem::Uninstaller.new(spec.name,
+          version: spec.version,
+          install_dir: plugin_gem_path,
+          ignore: true
+        ).uninstall_gem(spec)
+      end
+
+      solution.find_all do |spec|
+        plugins.keys.include?(spec.name)
       end
     end
 
     # During the duration of the yielded block, Bundler loud output
     # is enabled.
     def verbose
-      @monitor.synchronize do
-        begin
-          old_ui = ::Bundler.ui
-          require 'bundler/vendored_thor'
-          ::Bundler.ui = ::Bundler::UI::Shell.new
-          yield
-        ensure
-          ::Bundler.ui = old_ui
-        end
+      if block_given?
+        initial_state = @verbose
+        @verbose = true
+        yield
+        @verbose = initial_state
+      else
+        @verbose = true
       end
     end
 
     protected
 
-    # Builds a valid Gemfile for use with Bundler given the list of
-    # plugins.
-    #
-    # @return [Tempfile]
-    def build_gemfile(plugins)
-      sources = plugins.values.map { |p| p["sources"] }.flatten.compact.uniq
-
-      f = tempfile("vagrant-gemfile")
-      f.tap do |gemfile|
-        sources.each do |source|
-          next if source == ""
-          gemfile.puts(%Q[source "#{source}"])
-        end
-
-        gemfile.puts(%Q[gem "vagrant", "= #{VERSION}"])
-
-        gemfile.puts("group :plugins do")
-        plugins.each do |name, plugin|
-          version = plugin["gem_version"]
-          version = nil if version == ""
-
-          opts = {}
-          if plugin["require"] && plugin["require"] != ""
-            opts[:require] = plugin["require"]
-          end
-
-          gemfile.puts(%Q[gem "#{name}", #{version.inspect}, #{opts.inspect}])
-        end
-        gemfile.puts("end")
-        gemfile.close
-      end
-    end
-
-    # This installs a set of plugins and optionally updates those gems.
-    #
-    # @param [Hash] plugins
-    # @param [Hash, Boolean] update If true, updates all plugins, otherwise
-    #   can be a hash of options. See Bundler.definition.
-    # @return [Array<Gem::Specification>]
     def internal_install(plugins, update, **extra)
-      gemfile    = build_gemfile(plugins)
-      lockfile   = "#{gemfile.path}.lock"
-      definition = ::Bundler::Definition.build(gemfile, lockfile, update)
-      root       = File.dirname(gemfile.path)
-      opts       = {}
-      opts["local"] = true if extra[:local]
 
-      with_isolated_gem do
-        ::Bundler::Installer.install(root, definition, opts)
+      update = {} unless update.is_a?(Hash)
+
+      # Generate all required plugin deps
+      plugin_deps = plugins.map do |name, info|
+        if update == true || (update[:gems].respond_to?(:include?) && update[:gems].include?(name))
+          gem_version = '> 0'
+        else
+          gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
+        end
+        Gem::Dependency.new(name, gem_version)
       end
 
-      # TODO(mitchellh): clean gems here... for some reason when I put
-      # it in on install, we get a GemNotFound exception. Gotta investigate.
+      # Create the request set for the new plugins
+      request_set = Gem::RequestSet.new(*plugin_deps)
 
-      definition.specs
-    rescue ::Bundler::VersionConflict => e
-      raise Errors::PluginInstallVersionConflict,
-        conflicts: e.to_s.gsub("Bundler", "Vagrant")
-    rescue ::Bundler::BundlerError => e
-      if !::Bundler.ui.is_a?(BundlerUI)
-        raise
+      # Generate all existing deps within the "vagrant system"
+      existing_deps = Gem::Specification.find_all{true}.map do |item|
+        Gem::Dependency.new(item.name, item.version)
       end
 
-      # Add the warn/error level output from Bundler if we have any
-      message = "#{e.message}"
-      if ::Bundler.ui.output != ""
-        message += "\n\n#{::Bundler.ui.output}"
+      # Import constraints into the request set to prevent installing
+      # gems that are incompatible with the core system
+      request_set.import(existing_deps)
+
+      # Generate the required solution set for new plugins
+      solution = request_set.resolve(Gem::Resolver::InstallerSet.new(:both))
+
+      # If any items in the solution set are local but not activated, turn them on
+      solution.each do |activation_request|
+        if activation_request.installed? && !activation_request.full_spec.activated?
+          activation_request.full_spec.activate
+        end
       end
 
-      raise ::Bundler::BundlerError, message
+      # Install all remote gems into plugin path. Set the installer to ignore dependencies
+      # as we know the dependencies are satisfied and it will attempt to validate a gem's
+      # dependencies are satisified by gems in the install directory (which will likely not
+      # be true)
+      result = request_set.install_into(plugin_gem_path.to_s, true, ignore_dependencies: true)
+      result.map(&:full_spec)
     end
 
-    def with_isolated_gem
-      raise Errors::BundlerDisabled if !@enabled
-
-      tmp_gemfile = tempfile("vagrant-gemfile")
-      tmp_gemfile.close
-
-      # Remove bundler settings so that Bundler isn't loaded when building
-      # native extensions because it causes all sorts of problems.
-      old_rubyopt = ENV["RUBYOPT"]
-      old_gemfile = ENV["BUNDLE_GEMFILE"]
-      ENV["BUNDLE_GEMFILE"] = tmp_gemfile.path
-      ENV["RUBYOPT"] = (ENV["RUBYOPT"] || "").gsub(/-rbundler\/setup\s*/, "")
-
-      # Set the GEM_HOME so gems are installed only to our local gem dir
-      ENV["GEM_HOME"] = Vagrant.user_data_path.join("gems").to_s
-
-      # Clear paths so that it reads the new GEM_HOME setting
-      Gem.paths = ENV
-
-      # Reset the all specs override that Bundler does
-      old_all = Gem::Specification._all
-
-      # WARNING: Seriously don't touch this without reading the comment attached
-      # to the monkey-patch at the bottom of this file.
-      Gem::Specification.vagrant_reset!
-
-      # /etc/gemrc and so on.
-      old_config = nil
-      begin
-        old_config = Gem.configuration
-      rescue Psych::SyntaxError
-        # Just ignore this. This means that the ".gemrc" file has
-        # an invalid syntax and can't be loaded. We don't care, because
-        # when we set Gem.configuration to nil later, it'll force a reload
-        # if it is needed.
-      end
-      Gem.configuration = NilGemConfig.new
-
-      # Use a silent UI so that we have no output
-      Gem::DefaultUserInteraction.use_ui(Gem::SilentUI.new) do
-        return yield
-      end
-    ensure
-      tmp_gemfile.unlink rescue nil
-
-      ENV["BUNDLE_GEMFILE"] = old_gemfile
-      ENV["GEM_HOME"] = @gem_home
-      ENV["RUBYOPT"]  = old_rubyopt
-
-      Gem.configuration = old_config
-      Gem.paths = ENV
-      Gem::Specification.all = old_all
-    end
-
-    # This method returns a proper "tempfile" on disk. Ruby's Tempfile class
-    # would work really great for this, except GC can come along and  remove
-    # the file before we are done with it. This is because we "close" the file,
-    # but we might be shelling out to a subprocess.
-    #
-    # @return [File]
-    def tempfile(name)
-      path = Dir::Tmpname.create(name) {}
-      return File.open(path, "w+")
-    end
-
-    # This is pretty hacky but it is a custom implementation of
-    # Gem::ConfigFile so that we don't load any gemrc files.
-    class NilGemConfig < Gem::ConfigFile
-      def initialize
-        # We _can not_ `super` here because that can really mess up
-        # some other configuration state. We need to just set everything
-        # directly.
-
-        @api_keys       = {}
-        @args           = []
-        @backtrace      = false
-        @bulk_threshold = 1000
-        @hash           = {}
-        @update_sources = true
-        @verbose        = true
-      end
-    end
-
-    # This monkey patches Gem::Specification from RubyGems to add a new method,
-    # `vagrant_reset!`. For some background, Vagrant needs to set the value
-    # of these variables to nil to force new specs to be loaded. Previously,
-    # this was accomplished by setting Gem::Specification.specs = nil. However,
-    # newer versions of Rubygems try to map across that nil using a group_by
-    # clause, breaking things.
-    #
-    # This generally never affected Vagrant users who were using the official
-    # Vagrant installers because we lock to an older version of Rubygems that
-    # does not have this issue. The users of the official debian packages,
-    # however, experienced this issue because they float on Rubygems.
-    #
-    # In GH-7073, a number of Debian users reported this issue, but it was not
-    # reproducible in the official installer for reasons described above. Commit
-    # ba77d4b switched to using Gem::Specification.reset, but this actually
-    # broke the ability to install gems locally (GH-7493) because it resets
-    # the complete local cache, which is already built.
-    #
-    # The only solution that works with both new and old versions of Rubygems
-    # is to provide our own function for JUST resetting all the stubs. Both
-    # @@all and @@stubs must be set to a falsey value, so some of the
-    # originally-suggested solutions of using an empty array do not work. Only
-    # setting these values to nil (without clearing the cache), allows Vagrant
-    # to install and manage plugins.
-    class Gem::Specification < Gem::BasicSpecification
-      def self.vagrant_reset!
-        @@all = @@stubs = nil
-      end
-    end
-
-    if ::Bundler::UI.const_defined? :Silent
-      class BundlerUI < ::Bundler::UI::Silent
-        attr_reader :output
-
-        def initialize
-          @output = ""
-        end
-
-        def info(message, newline = nil)
-        end
-
-        def confirm(message, newline = nil)
-        end
-
-        def warn(message, newline = nil)
-          @output += message
-          @output += "\n" if newline
-        end
-
-        def error(message, newline = nil)
-          @output += message
-          @output += "\n" if newline
-        end
-
-        def debug(message, newline = nil)
-        end
-
-        def debug?
-          false
-        end
-
-        def quiet?
-          false
-        end
-
-        def ask(message)
-        end
-
-        def level=(name)
-        end
-
-        def level(name = nil)
-          "info"
-        end
-
-        def trace(message, newline = nil)
-        end
-
-        def silence
-          yield
-        end
-      end
-    end
   end
 end
