@@ -11,18 +11,18 @@ module VagrantPlugins
               # Ensure exit on command error
               set -e
 
-              SYS_CONFIG_DIR=$(finddir B_SYSTEM_SETTINGS_DIRECTORY)
+              export SYS_SETTINGS_DIR=$(finddir B_SYSTEM_SETTINGS_DIRECTORY)
 
               # Set the hostname
-              echo '#{basename}' > $SYS_CONFIG_DIR/network/hostname
+              echo '#{basename}' > $SYS_SETTINGS_DIR/network/hostname
               hostname '#{basename}'
 
               # Remove comments and blank lines from /etc/hosts
-              sed -i'' -e 's/#.*$//' -e '/^$/d' $SYS_CONFIG_DIR/network/hosts
+              sed -i'' -e 's/#.*$//' -e '/^$/d' $SYS_SETTINGS_DIR/network/hosts
 
-              # Prepend ourselves to /etc/hosts
-              grep -w '#{name}' /etc/hosts || {
-                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' $SYS_CONFIG_DIR/network/hosts
+              # Prepend ourselves to $SYS_SETTINGS_DIR/network/hosts
+              grep -w '#{name}' $SYS_SETTINGS_DIR/network/hosts || {
+                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' $SYS_SETTINGS_DIR/network/hosts
               }
             EOH
           end
