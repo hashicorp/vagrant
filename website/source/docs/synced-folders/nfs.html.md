@@ -182,7 +182,8 @@ Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /bin/sed -r -e * d -ibak /tmp/exports
 ```
 
 If you don't want to edit `/etc/sudoers` directly, you can create
-`/etc/sudoers.d/vagrant-syncedfolders` with the appropriate entries.
+`/etc/sudoers.d/vagrant-syncedfolders` with the appropriate entries,
+assuming `/etc/sudoers.d` has been enabled.
 
 ## Other Notes
 
