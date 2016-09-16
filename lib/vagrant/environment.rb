@@ -157,13 +157,19 @@ module Vagrant
       end
 
       # Setup the local data directory. If a configuration path is given,
-      # then it is expanded relative to the working directory. Otherwise,
-      # we use the default which is expanded relative to the root path.
-      opts[:local_data_path] ||= ENV["VAGRANT_DOTFILE_PATH"] if !opts[:child]
-      opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA) if !root_path.nil?
+      # it is expanded relative to the root path. Otherwise, we use the
+      # default (which is also expanded relative to the root path).
+      if !root_path.nil?
+        if !(ENV["VAGRANT_DOTFILE_PATH"] or "").empty? && !opts[:child]
+          opts[:local_data_path] ||= root_path.join(ENV["VAGRANT_DOTFILE_PATH"])
+        else
+          opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA)
+        end
+      end
       if opts[:local_data_path]
         @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
       end
+      @logger.debug("Effective local data path: #{@local_data_path}")
 
       # If we have a root path, load the ".vagrantplugins" file.
       if root_path

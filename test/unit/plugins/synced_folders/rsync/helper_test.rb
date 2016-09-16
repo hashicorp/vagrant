@@ -213,4 +213,59 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       end
     end
   end
+
+  describe "#rsync_single with custom ssh_info" do
+    let(:result) { Vagrant::Util::Subprocess::Result.new(0, "", "") }
+
+    let(:ssh_info) {{
+      :private_key_path => ['/path/to/key'],
+      :keys_only        => true,
+      :paranoid         => false,
+    }}
+    let(:opts)      {{
+      hostpath: "/foo",
+    }}
+    let(:ui)        { machine.ui }
+
+    before do
+      Vagrant::Util::Subprocess.stub(execute: result)
+
+      guest.stub(capability?: false)
+    end
+
+    it "includes IdentitiesOnly, StrictHostKeyChecking, and UserKnownHostsFile with defaults" do
+
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(args[9]).to include('IdentitiesOnly')
+        expect(args[9]).to include('StrictHostKeyChecking')
+        expect(args[9]).to include('UserKnownHostsFile')
+        expect(args[9]).to include("-i '/path/to/key'")
+      }
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "omits IdentitiesOnly with keys_only = false" do
+      ssh_info[:keys_only] = false
+
+      Vagrant::Util::Subprocess.should_receive(:execute) do |*args|
+        expect(args[9]).not_to include('IdentitiesOnly')
+        result
+      end
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "omits StrictHostKeyChecking and UserKnownHostsFile with paranoid = true" do
+      ssh_info[:keys_only] = false
+
+      Vagrant::Util::Subprocess.should_receive(:execute) do |*args|
+        expect(args[9]).not_to include('StrictHostKeyChecking ')
+        expect(args[9]).not_to include('UserKnownHostsFile ')
+        result
+      end
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+  end
 end

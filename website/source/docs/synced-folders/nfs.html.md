@@ -188,3 +188,29 @@ will refuse to export the filesystem. The error message given by NFS is
 often not clear. One error message seen is `<path> does not support NFS`.
 There is no workaround for this other than sharing a directory which is not
 encrypted.
+
+**Version 4:** UDP is generally not a valid transport protocol for NFSv4.
+Early implementations of NFS 4.0 still allowed UDP which allows the UDP
+transport protocol to be used in rare cases. RFC5661 explicitly states
+UDP alone should not be used for the transport protocol in NFS 4.1. Errors
+due to unsupported transport protocols for specific versions of NFS are
+not always clear. A common error message when attempting to use UDP with
+NFSv4:
+
+```
+mount.nfs: an incorrect mount option was specified
+```
+
+When using NFSv4, ensure the `nfs_udp` option is set to false. For example:
+
+```
+config.vm.synced_folder ".", "/vagrant",
+    :nfs => true,
+    :nfs_version => 4,
+    :nfs_udp => false
+```
+
+For more information about transport protocols and NFS version 4 see:
+
+* NFSv4.0 - [RFC7530](https://tools.ietf.org/html/rfc7530#section-3.1)
+* NFSv4.1 - [RFC5661](https://tools.ietf.org/html/rfc5661#section-2.9.1)

@@ -68,7 +68,7 @@ any keys stored in ssh-agent). The default value is `true`.`
 <hr>
 
 `config.ssh.paranoid` - Perform strict host-key verification. The default value
-is `true`.
+is `false`.
 
 <hr>
 

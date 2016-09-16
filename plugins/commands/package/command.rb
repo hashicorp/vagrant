@@ -56,14 +56,20 @@ module VagrantPlugins
         # better in the future. We just hardcode this to keep VirtualBox working
         # for now.
         provider = Vagrant.plugin("2").manager.providers[:virtualbox]
-        vm = Vagrant::Machine.new(
-          options[:base],
-          :virtualbox, provider[0], nil, provider[1],
-          @env.vagrantfile.config,
-          nil, nil,
-          @env, @env.vagrantfile, true)
-        @logger.debug("Packaging base VM: #{vm.name}")
-        package_vm(vm, options)
+        tmp_data_directory = File.join(@env.tmp_path, SecureRandom.uuid)
+        FileUtils.mkdir_p(tmp_data_directory)
+        begin
+          vm = Vagrant::Machine.new(
+            options[:base],
+            :virtualbox, provider[0], nil, provider[1],
+            @env.vagrantfile.config,
+            Pathname.new(tmp_data_directory), nil,
+            @env, @env.vagrantfile, true)
+          @logger.debug("Packaging base VM: #{vm.name}")
+          package_vm(vm, options)
+        ensure
+          FileUtils.rm_rf(tmp_data_directory)
+        end
       end
 
       def package_target(name, options)

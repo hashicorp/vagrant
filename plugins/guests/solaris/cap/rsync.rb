@@ -1,7 +1,11 @@
+require_relative "../../../synced_folders/rsync/default_unix_cap"
+
 module VagrantPlugins
   module GuestSolaris
     module Cap
       class RSync
+        extend VagrantPlugins::SyncedFolderRSync::DefaultUnixCap
+
         def self.rsync_installed(machine)
           machine.communicate.test("which rsync")
         end
@@ -17,10 +21,11 @@ module VagrantPlugins
         end
 
         def self.rsync_post(machine, opts)
+          if opts.key?(:chown) && !opts[:chown]
+            return
+          end
           suexec_cmd = machine.config.solaris.suexec_cmd
-          machine.communicate.execute(
-            "#{suexec_cmd} find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
-            "xargs -0 chown #{opts[:owner]}:#{opts[:group]}")
+          machine.communicate.execute("#{suexec_cmd} #{build_rsync_chown(opts)}")
         end
       end
     end

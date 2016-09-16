@@ -4,14 +4,30 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - Add detection for DragonFly BSD [GH-7701]
   - Implement auto_start and auto_stop actions for Hyper-V [GH-7647]
+  - communicators/ssh: Remove any content prepended to STDOUT [GH-7676, GH-7613]
 
 BUG FIXES:
 
-  - hosts/arch: Detect NFS server by service name on arch [GH-7630, GH-7629]
+  - commands/package: Provide machine data directory for base box package
+      [GH-5070, GH-7725]
+  - core: Fix windows path formatting [GH-6598]
+  - core: Fixes for ssh-agent interactions [GH-7703, GH-7621, GH-7398]
+  - core: Support VAGRANT_DOTFILE_PATH relative to the Vagrantfile [GH-7623]
+  - guests: Prevent ssh disconnect errors on halt command [GH-7675]
+  - guests/bsd: Remove Darwin matching [GH-7701]
   - guests/linux: Fix SSH key permissions [GH-7610, GH-7611]
+  - guests/linux: Always sort discovered network interfaces [GH-7705, GH-7668]
+  - guests/linux: Fixes for user and group ID lookups for virtualbox shared folders
+      [GH-7616, GH-7662, GH-7720]
+  - guests/openbsd: Add custom halt capability [GH-7701]
   - guests/ubuntu: Fix detection on older guests [GH-7632, GH-7524, GH-7625]
-
+  - hosts/arch: Detect NFS server by service name on arch [GH-7630, GH-7629]
+  - hosts/darwin: Fix generated RDP configuration file [GH-7698]
+  - synced_folders/nfs: Display warning when configured for NFSv4 and UDP [GH-7740]
+  - synced_folders/rsync: Properly ignore excluded files within synced directory
+      from `chown` command. [GH-5256, GH-7726]
 
 ## 1.8.5 (July 18, 2016)
 
