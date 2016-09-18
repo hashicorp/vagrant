@@ -866,6 +866,30 @@ VF
       end
     end
 
+    it "is the provider in the Vagrantfile that is usable even if only one specified (1)" do
+      subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider).to eq(:foo)
+      end
+    end
+
+    it "is the provider in the Vagrantfile that is usable even if only one specified (2)" do
+      subject.vagrantfile.config.vm.provider "bar"
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 5 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+        expect(subject.default_provider).to eq(:bar)
+      end
+    end
+
     it "is the highest usable provider outside the Vagrantfile" do
       subject.vagrantfile.config.vm.provider "foo"
       subject.vagrantfile.config.vm.finalize!
