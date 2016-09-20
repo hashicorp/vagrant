@@ -17,6 +17,10 @@ These options get passed to the `ansible-playbook` command that ships with Ansib
 
 Some of these options are for advanced usage only and should not be used unless you understand their purpose.
 
+- `config_file` (string) - The path to an [Ansible Configuration file](https://docs.ansible.com/intro_configuration.html).
+
+    By default, this option is not set, and Ansible will [search for a possible configuration file in some default locations](/docs/provisioning/ansible_intro.html#ANSIBLE_CONFIG).
+
 - `extra_vars` (string or hash) - Pass additional variables (with highest priority) to the playbook.
 
     This parameter can be a path to a JSON or YAML file, or a hash.
