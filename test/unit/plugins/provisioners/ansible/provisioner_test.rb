@@ -665,6 +665,19 @@ VF
       end
     end
 
+    describe "with an ssh proxy command configured" do
+      before do
+        ssh_info[:proxy_command] = "ssh -W %h:%p -q user@remote_libvirt_host"
+      end
+
+      it "sets '-o ProxyCommand' via ANSIBLE_SSH_ARGS" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ProxyCommand='ssh -W %h:%p -q user@remote_libvirt_host'")
+        }
+      end
+    end
+
     context "with verbose option defined" do
       %w(vv vvvv).each do |verbose_option|
 
