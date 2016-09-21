@@ -25,6 +25,7 @@ BUG FIXES:
   - guests/ubuntu: Fix detection on older guests [GH-7632, GH-7524, GH-7625]
   - hosts/arch: Detect NFS server by service name on arch [GH-7630, GH-7629]
   - hosts/darwin: Fix generated RDP configuration file [GH-7698]
+  - provisioners/ansible: Add support for `ssh.proxy_command` setting [GH-7752]
   - synced_folders/nfs: Display warning when configured for NFSv4 and UDP [GH-7740]
   - synced_folders/rsync: Properly ignore excluded files within synced directory
       from `chown` command. [GH-5256, GH-7726]
