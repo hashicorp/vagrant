@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm-fs", "~> 0.3.0"
 
   # We lock this down to avoid compilation issues.
-  s.add_dependency "nokogiri", "= 1.6.7.1"
+  s.add_dependency "nokogiri", "= 1.6.8"
 
   # NOTE: The ruby_dep gem is an implicit dependency from the listen gem. Later versions
   # of the ruby_dep gem impose an aggressive constraint on the required ruby version (>= 2.2.5).
