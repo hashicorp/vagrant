@@ -29,6 +29,7 @@ module VagrantPlugins
       attr_accessor :log_level
       attr_accessor :masterless
       attr_accessor :minion_id
+      attr_accessor :salt_call_args
 
       ## bootstrap options
       attr_accessor :temp_config_dir
@@ -68,6 +69,7 @@ module VagrantPlugins
         @bootstrap_options = UNSET_VALUE
         @masterless = UNSET_VALUE
         @minion_id = UNSET_VALUE
+	@salt_call_args = UNSET_VALUE
         @version = UNSET_VALUE
         @run_service = UNSET_VALUE
         @master_id = UNSET_VALUE
@@ -99,6 +101,7 @@ module VagrantPlugins
         @bootstrap_options  = nil if @bootstrap_options == UNSET_VALUE
         @masterless         = false if @masterless == UNSET_VALUE
         @minion_id          = nil if @minion_id == UNSET_VALUE
+        @salt_call_args     = nil if @salt_call_args == UNSET_VALUE
         @version            = nil if @version == UNSET_VALUE
         @run_service        = nil if @run_service == UNSET_VALUE
         @master_id          = nil if @master_id == UNSET_VALUE

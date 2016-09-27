@@ -106,11 +106,13 @@ pre-seeding it before use. Example: `{minion_name:/path/to/key.pub}`
 
 ## Execute States
 
-Either of the following may be used to actually execute states
-during provisioning.
+Used to actually execute states during provisioning.
 
 * `run_highstate` - (boolean) Executes `state.highstate` on
 vagrant up. Can be applied to any machine.
+
+* `salt_call_args`  (string) - Extra arguments to pass as-is to `salt-call` when executing states.
+Can be useful, for example, for `pillar_root` and `file_root`.
 
 ## Execute Runners
 
