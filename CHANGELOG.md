@@ -4,6 +4,12 @@ FEATURES:
 
 IMPROVEMENTS:
 
+BUG FIXES:
+
+## 1.8.6 (September 27, 2016)
+
+IMPROVEMENTS:
+
   - Add detection for DragonFly BSD [GH-7701]
   - Implement auto_start and auto_stop actions for Hyper-V [GH-7647]
   - communicators/ssh: Remove any content prepended to STDOUT [GH-7676, GH-7613]
