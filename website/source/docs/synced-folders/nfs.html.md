@@ -181,6 +181,10 @@ Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /bin/sed -r -e * d -ibak /tmp/exports
 %vagrant ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD_CHECK, VAGRANT_NFSD_START, VAGRANT_NFSD_APPLY, VAGRANT_EXPORTS_REMOVE
 ```
 
+If you don't want to edit `/etc/sudoers` directly, you can create
+`/etc/sudoers.d/vagrant-syncedfolders` with the appropriate entries,
+assuming `/etc/sudoers.d` has been enabled.
+
 ## Other Notes
 
 **Encrypted folders:** If you have an encrypted disk, then NFS very often
