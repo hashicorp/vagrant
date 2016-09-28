@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - util/subprocess: Allow closing STDIN [GH-7778]
+
 BUG FIXES:
 
 ## 1.8.6 (September 27, 2016)
