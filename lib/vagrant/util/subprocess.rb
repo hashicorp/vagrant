@@ -146,7 +146,7 @@ module Vagrant
 
         @logger.debug("Selecting on IO")
         while true
-          writers = notify_stdin ? [process.io.stdin] : []
+          writers = notify_stdin && !process.io.stdin.closed? ? [process.io.stdin] : []
           results = ::IO.select([stdout, stderr], writers, nil, 0.1)
           results ||= []
           readers = results[0]
