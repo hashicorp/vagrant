@@ -2,6 +2,11 @@ module VagrantPlugins
   module GuestLinux
     module Cap
       class NetworkInterfaces
+        # Valid ethernet device prefix values.
+        # eth - classic prefix
+        # en  - predictable interface names prefix
+        ETHERNET_PREFIX = ["eth", "en"]
+
         @@logger = Log4r::Logger.new("vagrant::guest::linux::network_interfaces")
 
         # Get network interfaces as a list. The result will be something like:
@@ -15,10 +20,16 @@ module VagrantPlugins
             s << data if type == :stdout
           end
           ifaces = s.split("\n")
+          eth_prefix = nil
           @@logger.debug("Unsorted list: #{ifaces.inspect}")
           # Break out integers from strings and sort the arrays to provide
           # a natural sort for the interface names
           ifaces = ifaces.map do |iface|
+            unless eth_prefix
+              eth_prefix = ETHERNET_PREFIX.detect do |prefix|
+                iface.start_with?(prefix)
+              end
+            end
             iface.scan(/(.+?)(\d+)/).flatten.map do |iface_part|
               if iface_part.to_i.to_s == iface_part
                 iface_part.to_i
@@ -28,6 +39,13 @@ module VagrantPlugins
             end
           end.sort.map(&:join)
           @@logger.debug("Sorted list: #{ifaces.inspect}")
+          # Extract ethernet devices and place at start of list
+          if eth_prefix
+            eth_start = ifaces.index{|iface| iface.start_with?(eth_prefix) }
+            eth_end = ifaces.rindex{|iface| iface.start_with?(eth_prefix) }
+            ifaces.unshift(*ifaces.slice!(eth_start, eth_end - 1))
+            @@logger.debug("Ethernet preferred sorted list: #{ifaces.inspect}")
+          end
           ifaces
         end
       end
