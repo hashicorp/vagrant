@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - guests/linux: Place ethernet devices at start of network devices list [GH-7848]
+  - guests/windows: Allow vagrant to start Windows Nano without provisioning [GH-7831]
   - util/safe_exec: Use subprocess for safe_exec on Windows [GH-7802]
   - util/subprocess: Allow closing STDIN [GH-7778]
 
