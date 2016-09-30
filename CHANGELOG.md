@@ -4,11 +4,13 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - util/safe_exec: Use subprocess for safe_exec on Windows [GH-7802]
   - util/subprocess: Allow closing STDIN [GH-7778]
 
 BUG FIXES:
 
-  - communicators/winrm: Prevent connection leakage (GH-7712)
+  - communicators/winrm: Prevent connection leakage [GH-7712]
+  - pushes/atlas: Fix atlas push on Windows platform [GH-6938, GH-7802]
 
 ## 1.8.6 (September 27, 2016)
 
