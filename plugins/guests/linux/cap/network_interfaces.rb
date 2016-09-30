@@ -5,7 +5,7 @@ module VagrantPlugins
         # Valid ethernet device prefix values.
         # eth - classic prefix
         # en  - predictable interface names prefix
-        ETHERNET_PREFIX = ["eth", "en"]
+        POSSIBLE_ETHERNET_PREFIXES = ["eth".freeze, "en".freeze].freeze
 
         @@logger = Log4r::Logger.new("vagrant::guest::linux::network_interfaces")
 
@@ -25,8 +25,8 @@ module VagrantPlugins
           # Break out integers from strings and sort the arrays to provide
           # a natural sort for the interface names
           ifaces = ifaces.map do |iface|
-            unless eth_prefix
-              eth_prefix = ETHERNET_PREFIX.detect do |prefix|
+            if eth_prefix.nil?
+              eth_prefix = POSSIBLE_ETHERNET_PREFIXES.detect do |prefix|
                 iface.start_with?(prefix)
               end
             end

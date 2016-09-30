@@ -56,6 +56,5 @@ describe "VagrantPlugins::GuestLinux::Cap::NetworkInterfaces" do
       result = cap.network_interfaces(machine)
       expect(result).to eq(["enp0s3", "enp0s5", "enp0s8", "bridge0", "docker0"])
     end
-
   end
 end
