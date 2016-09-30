@@ -44,5 +44,17 @@ describe "VagrantPlugins::GuestLinux::Cap::NetworkInterfaces" do
       result = cap.network_interfaces(machine)
       expect(result).to eq(["enp0s3", "enp0s5", "enp0s8", "enp0s10", "enp1s3"])
     end
+
+    it "sorts ethernet devices discovered with classic naming first in list" do
+      expect(comm).to receive(:sudo).and_yield(:stdout, "eth1\neth2\ndocker0\nbridge0\neth0")
+      result = cap.network_interfaces(machine)
+      expect(result).to eq(["eth0", "eth1", "eth2", "bridge0", "docker0"])
+    end
+
+    it "sorts ethernet devices discovered with predictable network interfaces naming first in list" do
+      expect(comm).to receive(:sudo).and_yield(:stdout, "enp0s8\ndocker0\nenp0s3\nbridge0\nenp0s5")
+      result = cap.network_interfaces(machine)
+      expect(result).to eq(["enp0s3", "enp0s5", "enp0s8", "bridge0", "docker0"])
+    end
   end
 end
