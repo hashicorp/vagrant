@@ -8,6 +8,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - communicators/winrm: Prevent connection leakage (GH-7712)
+
 ## 1.8.6 (September 27, 2016)
 
 IMPROVEMENTS:
