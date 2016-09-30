@@ -104,7 +104,7 @@ module VagrantPlugins
         @logger.info("Checking whether WinRM is ready...")
 
         result = Timeout.timeout(@machine.config.winrm.timeout) do
-          shell(true).powershell("hostname")
+          shell(true).cmd("hostname")
         end
 
         @logger.info("WinRM is ready!")

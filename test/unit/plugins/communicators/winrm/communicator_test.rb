@@ -45,7 +45,7 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
             port: '22',
           })
           # Makes ready? return true
-          allow(shell).to receive(:powershell).with("hostname").and_return({ exitcode: 0 })
+          allow(shell).to receive(:cmd).with("hostname").and_return({ exitcode: 0 })
         end
 
         it "retries ssh_info until ready" do
@@ -57,22 +57,22 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
 
   describe ".ready?" do
     it "returns true if hostname command executes without error" do
-      expect(shell).to receive(:powershell).with("hostname").and_return({ exitcode: 0 })
+      expect(shell).to receive(:cmd).with("hostname").and_return({ exitcode: 0 })
       expect(subject.ready?).to be_true
     end
 
     it "returns false if hostname command fails with a transient error" do
-      expect(shell).to receive(:powershell).with("hostname").and_raise(VagrantPlugins::CommunicatorWinRM::Errors::TransientError)
+      expect(shell).to receive(:cmd).with("hostname").and_raise(VagrantPlugins::CommunicatorWinRM::Errors::TransientError)
       expect(subject.ready?).to be_false
     end
 
     it "raises an error if hostname command fails with an unknown error" do
-      expect(shell).to receive(:powershell).with("hostname").and_raise(Vagrant::Errors::VagrantError)
+      expect(shell).to receive(:cmd).with("hostname").and_raise(Vagrant::Errors::VagrantError)
       expect { subject.ready? }.to raise_error(Vagrant::Errors::VagrantError)
     end
 
     it "raises timeout error when hostname command takes longer then winrm timeout" do
-      expect(shell).to receive(:powershell).with("hostname") do
+      expect(shell).to receive(:cmd).with("hostname") do
         sleep 2 # winrm.timeout = 1
       end
       expect { subject.ready? }.to raise_error(Timeout::Error)
