@@ -56,11 +56,15 @@ module VagrantPlugins
       def powershell(command, &block)
         # Ensure an exit code
         command += "\r\nif ($?) { exit 0 } else { if($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 1 } }"
-        execute_with_rescue(executor.method("run_powershell_script"), command, &block)
+        session.create_executor do |executor|
+          execute_with_rescue(executor.method("run_powershell_script"), command, &block)
+        end
       end
 
       def cmd(command, &block)
-        execute_with_rescue(executor.method("run_cmd"), command, &block)
+        session.create_executor do |executor|
+          execute_with_rescue(executor.method("run_cmd"), command, &block)
+        end
       end
 
       def wql(query, &block)
@@ -170,10 +174,6 @@ module VagrantPlugins
 
       def session
         @session ||= new_session
-      end
-
-      def executor
-        @executor ||= session.create_executor
       end
 
       def endpoint
