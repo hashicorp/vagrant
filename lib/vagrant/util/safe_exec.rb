@@ -23,6 +23,7 @@ module Vagrant
         begin
           if fork_instead
             if Vagrant::Util::Platform.windows?
+              @@logger.debug("Using subprocess because windows platform")
               args = args.dup << {notify: [:stdout, :stderr]}
               result = Vagrant::Util::Subprocess.execute(command, *args) do |type, data|
                 case type
