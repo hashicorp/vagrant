@@ -119,7 +119,7 @@ module VagrantPlugins
           # We have to normalize the paths to be Windows paths since
           # we're executing PowerShell.
           options = {
-            vm_config:  config_path.to_s.gsub("/", "\\"),
+            vm_config_file:  config_path.to_s.gsub("/", "\\"),
             vm_config_type:  config_type,
             image_path:      image_path.to_s.gsub("/", "\\")
           }

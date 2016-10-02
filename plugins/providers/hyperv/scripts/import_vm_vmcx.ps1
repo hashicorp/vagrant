@@ -1,6 +1,6 @@
 ﻿Param(
     [Parameter(Mandatory=$true)]
-    [string]$vm_config,
+    [string]$vm_config_file,
     [Parameter(Mandatory=$true)]
     [string]$image_path,
 
