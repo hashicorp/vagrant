@@ -1,6 +1,6 @@
 Param(
     [Parameter(Mandatory=$true)]
-    [string]$vm_xml_config,
+    [string]$vm_config,
     [Parameter(Mandatory=$true)]
     [string]$image_path,
 
@@ -17,7 +17,7 @@ Param(
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-[xml]$vmconfig = Get-Content -Path  $vm_xml_config
+[xml]$vmconfig = Get-Content -Path  $vm_config
 
 $generation = [int]($vmconfig.configuration.properties.subtype.'#text')+1
 

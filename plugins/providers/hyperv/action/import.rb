@@ -35,9 +35,17 @@ module VagrantPlugins
           end
 
           config_path = nil
+          config_type = nil
           vm_dir.each_child do |f|
-            if f.extname.downcase == ".xml"
+
+            if f.extname.downcase == '.xml'
               config_path = f
+              config_type = 'xml'
+              break
+            end
+            if f.extname.downcase == '.vmcx'
+              config_path = f
+              config_type = 'vmcx'
               break
             end
           end
@@ -111,7 +119,8 @@ module VagrantPlugins
           # We have to normalize the paths to be Windows paths since
           # we're executing PowerShell.
           options = {
-            vm_xml_config:  config_path.to_s.gsub("/", "\\"),
+            vm_config:  config_path.to_s.gsub("/", "\\"),
+            vm_config_type:  config_type,
             image_path:      image_path.to_s.gsub("/", "\\")
           }
           options[:switchname] = switch if switch

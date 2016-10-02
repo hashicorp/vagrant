@@ -74,7 +74,12 @@ module VagrantPlugins
        end
 
        def import(options)
-         execute('import_vm.ps1', options)
+         config_type = options.delete(:vm_config_type)
+         if config_type === "vmcx"
+           execute('import_vm_vmcx.ps1', options)
+         else
+           execute('import_vm_xml.ps1', options)
+         end
        end
 
        def net_set_vlan(vlan_id)
