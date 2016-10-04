@@ -129,7 +129,11 @@ module Vagrant
         # If we're not in plain mode and :private_key_path is set attach the private key path(s).
         if !plain_mode && options[:private_key_path]
           options[:private_key_path].each do |path|
-            command_options += ["-i", path.to_s]
+
+            # Use '-o' instead of '-i' because '-i' does not call
+            # percent_expand in misc.c, but '-o' does. when passing the path,
+            # replace '%' in the path with '%%' to escape the '%'
+            command_options += ["-o", "IdentityFile=%s" % [path.to_s.gsub('%', '%%')]]
           end
         end
 
