@@ -678,6 +678,20 @@ VF
       end
     end
 
+    describe "with an identity file containing `%`" do
+      before do
+        ssh_info[:private_key_path] = ['/foo%bar/key', '/bar%%buz/key']
+      end
+      
+      it "replaces `%` with `%%`" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o 'IdentityFile=/foo%%bar/key'")
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o 'IdentityFile=/bar%%%%buz/key'")
+        }
+      end
+    end
+
     describe "with ssh forwarding enabled" do
       before do
         ssh_info[:forward_agent] = true
