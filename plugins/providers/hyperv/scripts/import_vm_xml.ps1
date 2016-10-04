@@ -17,7 +17,7 @@ Param(
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-[xml]$vmconfig = Get-Content -Path  $vm_config
+[xml]$vmconfig = Get-Content -Path $vm_config_file
 
 $generation = [int]($vmconfig.configuration.properties.subtype.'#text')+1
 

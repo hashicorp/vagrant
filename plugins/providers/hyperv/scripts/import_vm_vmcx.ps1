@@ -18,7 +18,7 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 # load the config from the vmcx and make a copy for editing, use TMP path so we are sure there is no vhd at the destination
-$vmConfig = (Compare-VM -Copy -Path $vm_config -GenerateNewID -VhdDestinationPath $env:Temp)
+$vmConfig = (Compare-VM -Copy -Path $vm_config_file -GenerateNewID -VhdDestinationPath $env:Temp)
 
 $generation = $vmConfig.VM.Generation
 
