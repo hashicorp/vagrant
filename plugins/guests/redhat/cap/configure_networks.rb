@@ -43,12 +43,17 @@ module VagrantPlugins
               /sbin/ifdown '#{network[:device]}' || true
 
               # Move new config into place
-              mv '#{remote_path}' '#{final_path}'
+              mv -f '#{remote_path}' '#{final_path}'
 
               # Bring the interface up
               ARPCHECK=no /sbin/ifup '#{network[:device]}'
             EOH
           end
+
+          commands << <<-EOH.gsub(/^ {14}/, '')
+            # Restart network
+            service network restart
+          EOH
 
           comm.sudo(commands.join("\n"))
         end
