@@ -87,6 +87,7 @@ module VagrantPlugins
             b2.use Package
             b2.use Export
             b2.use PackageVagrantfile
+            b2.use PackageMetadataJson
           end
         end
       end
@@ -291,6 +292,7 @@ module VagrantPlugins
       autoload :PackageSetupFolders, action_root.join("package_setup_folders")
       autoload :PackageSetupFiles, action_root.join("package_setup_files")
       autoload :PackageVagrantfile, action_root.join("package_vagrantfile")
+      autoload :PackageMetadataJson, action_root.join("package_metadata_json")
       autoload :Export, action_root.join("export")
 
       autoload :CheckEnabled, action_root.join("check_enabled")
