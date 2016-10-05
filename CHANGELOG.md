@@ -13,6 +13,7 @@ BUG FIXES:
 
   - communicators/winrm: Prevent connection leakage [GH-7712]
   - guests/linux: Fix incorrectly configured private network [GH-7844, GH-7848]
+  - guests/redhat: Properly configure network and restart service [GH-7751]
   - pushes/atlas: Fix atlas push on Windows platform [GH-6938, GH-7802]
 
 ## 1.8.6 (September 27, 2016)
