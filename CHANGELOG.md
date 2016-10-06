@@ -15,6 +15,7 @@ BUG FIXES:
   - guests/linux: Fix incorrectly configured private network [GH-7844, GH-7848]
   - guests/linux: Only emit upstart event if initctl is available [GH-7813]
   - guests/redhat: Properly configure network and restart service [GH-7751]
+  - providers/docker: Remove --interactive flag when pty is true [GH-7688]
   - pushes/atlas: Fix atlas push on Windows platform [GH-6938, GH-7802]
 
 ## 1.8.6 (September 27, 2016)
