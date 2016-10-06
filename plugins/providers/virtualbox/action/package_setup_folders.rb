@@ -1,36 +1,16 @@
 require "fileutils"
 
-require_relative "../../../../lib/vagrant/action/general/package"
+require_relative "../../../../lib/vagrant/action/general/package_setup_folders"
 
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
-      class PackageSetupFolders
-        include Vagrant::Util::Presence
-
-        def initialize(app, env)
-          @app = app
-        end
-
+      class PackageSetupFolders < Vagrant::Action::General::PackageSetupFolders
+        # Doing this so that we can test that the parent is properly
+        # called in the unit tests.
+        alias_method :general_call, :call
         def call(env)
-          env["package.output"] ||= "package.box"
-          env["package.directory"] ||= Dir.mktmpdir("vagrant-package-", env[:tmp_path])
-
-          # Match up a couple environmental variables so that the other parts of
-          # Vagrant will do the right thing.
-          env["export.temp_dir"] = env["package.directory"]
-
-          Vagrant::Action::General::Package.validate!(
-            env["package.output"], env["package.directory"])
-
-          @app.call(env)
-        end
-
-        def recover(env)
-          dir = env["package.directory"]
-          if File.exist?(dir)
-            FileUtils.rm_rf(dir)
-          end
+          general_call(env)
         end
       end
     end
