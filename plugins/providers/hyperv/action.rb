@@ -69,12 +69,6 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckEnabled
           b.use Call, IsState, :not_created do |env1, b2|
-
-            @logger = Log4r::Logger.new("vagrant::action::builtin::is_state")
-            @logger.debug("Whats the state?")
-            @logger.debug(env1[:result].to_s)
-            @logger.debug(env1.to_s)
-
             if env1[:result]
               b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
               next
@@ -85,9 +79,9 @@ module VagrantPlugins
             b2.use action_halt
             b2.use SyncedFolderCleanup
             b2.use Package
-            b2.use Export
             b2.use PackageVagrantfile
             b2.use PackageMetadataJson
+            b2.use Export
           end
         end
       end
