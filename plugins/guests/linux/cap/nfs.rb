@@ -38,7 +38,7 @@ module VagrantPlugins
 
             # Emit a mount event
             commands << <<-EOH.gsub(/^ {14}/, '')
-              if command -v /sbin/init && /sbin/init --version | grep upstart; then
+              if test -x /sbin/initctl && command -v /sbin/init && /sbin/init --version | grep upstart; then
                 /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guest_path}
               fi
             EOH
