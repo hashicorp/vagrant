@@ -133,6 +133,14 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
       assert_valid
     end
+
+    ["1", 1, "1.0", 1.0].each do |valid|
+      it "is valid: #{valid}" do
+        subject.box_version = valid
+        subject.finalize!
+        assert_valid
+      end
+    end
   end
 
   describe "#communicator" do
