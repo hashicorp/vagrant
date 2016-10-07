@@ -45,7 +45,7 @@ describe "VagrantPlugins::GuestPhoton::Cap:ConfigureNetworks" do
     it "creates and starts the networks" do
       cap.configure_networks(machine, [network_1, network_2])
       expect(comm.received_commands[1]).to match(/ifconfig eth1/)
-      expect(comm.received_commands[1]).to match(/ifconfig eth2 33.33.33.10 netmast 255.255.0.0/)
+      expect(comm.received_commands[1]).to match(/ifconfig eth2 33.33.33.10 netmask 255.255.0.0/)
     end
   end
 end

@@ -18,7 +18,7 @@ module VagrantPlugins
             device = interfaces[network[:interface]]
             command =  "ifconfig #{device}"
             command << " #{network[:ip]}" if network[:ip]
-            command << " netmast #{network[:netmask]}" if network[:netmask]
+            command << " netmask #{network[:netmask]}" if network[:netmask]
             commands << command
           end
 
