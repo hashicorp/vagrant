@@ -37,18 +37,27 @@ module VagrantPlugins
           config_path = nil
           config_type = nil
           vm_dir.each_child do |f|
-
             if f.extname.downcase == '.xml'
               config_path = f
               config_type = 'xml'
               break
             end
-            if f.extname.downcase == '.vmcx'
-              config_path = f
-              config_type = 'vmcx'
-              break
+          end
+
+
+          # Only check for .vmcx if there is no XML found to not
+          # risk breaking older vagrant boxes that added an XML
+          # file manually
+          if config_type == nil
+            vm_dir.each_child do |f|
+              if f.extname.downcase == '.vmcx'
+                config_path = f
+                config_type = 'vmcx'
+                break
+              end
             end
           end
+
 
           image_path = nil
           image_ext = nil
