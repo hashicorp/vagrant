@@ -32,6 +32,10 @@ module VagrantPlugins
           ssh_info = machine.ssh_info
           raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
 
+          if options[:host] && options[:host].to_s != machine.name.to_s
+            next
+          end
+
           variables = {
             host_key: options[:host] || machine.name || "vagrant",
             ssh_host: ssh_info[:host],
