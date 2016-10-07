@@ -11,6 +11,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - communicators/ssh: Properly honor --host flag for ssh-config [GH-7728, GH-7877]
   - communicators/winrm: Prevent connection leakage [GH-7712]
   - guests/linux: Fix incorrectly configured private network [GH-7844, GH-7848]
   - guests/linux: Only emit upstart event if initctl is available [GH-7813]
