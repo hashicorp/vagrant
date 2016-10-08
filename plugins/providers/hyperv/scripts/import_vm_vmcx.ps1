@@ -2,7 +2,11 @@
     [Parameter(Mandatory=$true)]
     [string]$vm_config_file,
     [Parameter(Mandatory=$true)]
-    [string]$image_path,
+    [string]$source_path,
+    [Parameter(Mandatory=$true)]
+    [string]$dest_path,
+    [Parameter(Mandatory=$true)]
+    [string]$data_path,
 
     [string]$switchname=$null,
     [string]$memory=$null,
@@ -10,15 +14,19 @@
     [string]$cpus=$null,
     [string]$vmname=$null,
     [string]$auto_start_action=$null,
-    [string]$auto_stop_action=$null
+    [string]$auto_stop_action=$null,
+    [string]$differencing_disk=$null
 )
+
+"$($data_path)/Snapshots"
 
 # Include the following modules
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 # load the config from the vmcx and make a copy for editing, use TMP path so we are sure there is no vhd at the destination
-$vmConfig = (Compare-VM -Copy -Path $vm_config_file -GenerateNewID -VhdDestinationPath $env:Temp)
+$vmConfig = (Compare-VM -Copy -Path $vm_config_file -GenerateNewID -SnapshotFilePath "$($data_path)Snapshots" -VhdDestinationPath "$($data_path)Virtual Hard Disks" -VirtualMachinePath "$($data_path)Virtual Machines")
+
 
 $generation = $vmConfig.VM.Generation
 
@@ -32,7 +40,6 @@ if (!$vmname) {
 if (!$cpus) {
     # Get the processorcount of the VM
     $processors = (Get-VMProcessor -VM $vmConfig.VM).Count
-    
 }else {
     $processors = $cpus
 }
@@ -80,82 +87,64 @@ if (!$switchname) {
     $switchname = (Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
 }
 
-$vm_params = @{
-    Name = $vm_name
-    NoVHD = $True
-    MemoryStartupBytes = $MemoryStartupBytes
-    SwitchName = $switchname
-    ErrorAction = "Stop"
-}
 
-# Generation parameter was added in ps v4
-if((get-command New-VM).Parameters.Keys.Contains("generation")) {
-    $vm_params.Generation = $generation
-}
-
-# Create the VM using the values in the hash map
-$vm = New-VM @vm_params
-
-$notes = $vmConfig.VM.Notes
-
-# Set-VM parameters to configure new VM with old values
-
-$more_vm_params = @{
-    ProcessorCount = $processors
-    MemoryStartupBytes = $MemoryStartupBytes
-}
+Connect-VMNetworkAdapter -VMNetworkAdapter (Get-VMNetworkAdapter -VM $vmConfig.VM) -SwitchName $switchname
+Set-VM -VM $vmConfig.VM -NewVMName $vm_name -MemoryStartupBytes $MemoryStartupBytes
+Set-VM -VM $vmConfig.VM -MemoryMinimumBytes $MemoryMinimumBytes -MemoryMaximumBytes $MemoryMaximumBytes
+Set-VM -VM $vmConfig.VM -ErrorAction "Stop" -ProcessorCount $processors
 
 If ($dynamicmemory) {
-    $more_vm_params.Add("DynamicMemory",$True)
-    $more_vm_params.Add("MemoryMinimumBytes",$MemoryMinimumBytes)
-    $more_vm_params.Add("MemoryMaximumBytes", $MemoryMaximumBytes)
+    Set-VM -VM $vmConfig.VM -DynamicMemory
 } else {
-    $more_vm_params.Add("StaticMemory",$True)
+    Set-VM -VM $vmConfig.VM -StaticMemory    
 }
 
 if ($notes) {
-    $more_vm_params.Add("Notes",$notes)
+    Set-VM -VM $vmConfig.VM -Notes $notes
 }
 
 if ($auto_start_action) {
-    $more_vm_params.Add("AutomaticStartAction",$auto_start_action)
+    Set-VM -VM $vmConfig.VM -AutomaticStartAction $auto_start_action
 }
 
 if ($auto_stop_action) {
-    $more_vm_params.Add("AutomaticStopAction",$auto_stop_action)
+    Set-VM -VM $vmConfig.VM -AutomaticStartAction $auto_stop_action
 }
-
-# Set the values on the VM
-$vm | Set-VM @more_vm_params -Passthru
 
 # Only set EFI secure boot for Gen 2 machines, not gen 1
 if ($generation -ne 1) {
-    Set-VMFirmware -VM $vm -EnableSecureBoot (Get-VMFirmware -VM $vmConfig.VM).SecureBoot
+    Set-VMFirmware -VM $vmConfig.VM -EnableSecureBoot (Get-VMFirmware -VM $vmConfig.VM).SecureBoot
 }
 
-# Get all controller on the VM, first scsi, then IDE if it is a Gen 1 device
-$controllers = Get-VMScsiController -VM $vmConfig.VM
-if($generation -eq 1){
-    $controllers = @($controllers) + @(Get-VMIdeController -VM $vmConfig.VM)
+$report = Compare-VM -CompatibilityReport $vmConfig
+if($report.Incompatibilities.Length -gt 0){
+$report.Incompatibilities
+    Write-Error-Message ConvertTo-Json $report.Incompatibilities
 }
 
-foreach($controller in $controllers){
-    foreach($drive in $controller.Drives){
-        $addDriveParam = @{
-            ControllerNumber = $drive.ControllerNumber
-            Path = $image_path
-        }
-        if($drive.PoolName){
-            $addDriveParam.Add("ResourcePoolname",$drive.PoolName)
-        }
+# Differencing disk
+if($differencing_disk){
+    # Get all controller on the VM, first scsi, then IDE if it is a Gen 1 device
+    $controllers = Get-VMScsiController -VM $vmConfig.VM
+    if($generation -eq 1){
+        $controllers = @($controllers) + @(Get-VMIdeController -VM $vmConfig.VM)
+    }
 
-        # If the drive path is set, it is a harddisk, only support single harddisk
-        if ($drive.Path) {
-            $addDriveParam.add("ControllerType", $ControllerType)
-            $vm | Add-VMHardDiskDrive @AddDriveparam
+    foreach($controller in $controllers){
+        foreach($drive in $controller.Drives){            
+            if([System.IO.Path]::GetFileName($drive.Path) -eq [System.IO.Path]::GetFileName($source_path)){
+                # Remove the old disk and replace it with a differencing version
+                $path = $drive.Path
+                Remove-VMHardDiskDrive $drive
+                New-VHD -Path $dest_path -ParentPath $source_path -ErrorAction Stop
+                Add-VMHardDiskDrive -VM $vmConfig.VM -Path $dest_path
+            }
         }
     }
+    
 }
+ 
+Import-VM -CompatibilityReport $vmConfig
 
 $vm_id = (Get-VM $vm_name).id.guid
 $resultHash = @{

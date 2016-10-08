@@ -2,7 +2,7 @@ Param(
     [Parameter(Mandatory=$true)]
     [string]$vm_config_file,
     [Parameter(Mandatory=$true)]
-    [string]$image_path,
+    [string]$dest_path,
 
     [string]$switchname=$null,
     [string]$memory=$null,
@@ -190,7 +190,7 @@ foreach ($controller in $controllers) {
 
         $addDriveParam = @{
             ControllerNumber = $rx.Match($controller.node.name).value
-            Path = $image_path
+            Path = $dest_path
         }
 
         if ($drive.pool_id."#text") {
