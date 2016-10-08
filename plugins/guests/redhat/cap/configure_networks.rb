@@ -36,7 +36,7 @@ module VagrantPlugins
 
             # Add the new interface and bring it back up
             final_path = "#{network_scripts_dir}/ifcfg-#{network[:device]}"
-            commands << <<-EOH.gsub(/^ {14}/, '')
+            commands << <<-EOH.gsub(/^ */, '')
               # Down the interface before munging the config file. This might
               # fail if the interface is not actually set up yet so ignore
               # errors.
@@ -50,7 +50,7 @@ module VagrantPlugins
             EOH
           end
 
-          commands << <<-EOH.gsub(/^ {14}/, '')
+          commands << <<-EOH.gsub(/^ */, '')
             # Restart network
             service network restart
           EOH
