@@ -12,6 +12,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - communicators/winrm: Prevent connection leakage [GH-7712]
+  - core: Prevent duplicate provider priorities [GH-7756]
   - guests/linux: Fix incorrectly configured private network [GH-7844, GH-7848]
   - guests/linux: Only emit upstart event if initctl is available [GH-7813]
   - guests/photon: Fix networking setup [GH-7808, GH-7873]
