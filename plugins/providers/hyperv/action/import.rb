@@ -7,7 +7,7 @@ module VagrantPlugins
     module Action
       class Import
         def initialize(app, env)
-          @app    = app
+          @app = app
           @logger = Log4r::Logger.new("vagrant::hyperv::import")
         end
 
@@ -64,7 +64,7 @@ module VagrantPlugins
             if %w{.vhd .vhdx}.include?(f.extname.downcase)
               image_path = f
               image_ext = f.extname.downcase
-              image_filename = File.basename(f,image_ext)
+              image_filename = File.basename(f, image_ext)
               break
             end
           end
@@ -114,8 +114,8 @@ module VagrantPlugins
           end
 
           env[:ui].detail("Cloning virtual hard drive...")
-            source_path = image_path.to_s
-            dest_path   = env[:machine].data_dir.join("#{image_filename}#{image_ext}").to_s
+          source_path = image_path.to_s
+          dest_path = env[:machine].data_dir.join("#{image_filename}#{image_ext}").to_s
 
           # Still hard copy the disk of old XML configurations
           if config_type == 'xml'
@@ -130,11 +130,11 @@ module VagrantPlugins
           # We have to normalize the paths to be Windows paths since
           # we're executing PowerShell.
           options = {
-            vm_config_file:  config_path.to_s.gsub("/", "\\"),
-            vm_config_type:  config_type,
-            source_path:     source_path.to_s,
-            dest_path:       env[:machine].data_dir.join("Virtual Hard Disks").join("#{image_filename}#{image_ext}").to_s,
-            data_path:       env[:machine].data_dir.to_s.gsub("/", "\\")
+              vm_config_file: config_path.to_s.gsub("/", "\\"),
+              vm_config_type: config_type,
+              source_path:    source_path.to_s,
+              dest_path:      env[:machine].data_dir.join("Virtual Hard Disks").join("#{image_filename}#{image_ext}").to_s,
+              data_path:      env[:machine].data_dir.to_s.gsub("/", "\\")
           }
           options[:switchname] = switch if switch
           options[:memory] = memory if memory
