@@ -44,7 +44,7 @@ module VagrantPlugins
             end
           end
 
-          shell_command << "ansible-playbook"
+          shell_command << config.playbook_command
 
           shell_args = []
           @command_arguments.each do |arg|

@@ -27,6 +27,7 @@ describe VagrantPlugins::Ansible::Config::Guest do
                             inventory_path
                             limit
                             playbook
+                            playbook_command
                             provisioning_path
                             raw_arguments
                             skip_tags

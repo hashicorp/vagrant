@@ -113,7 +113,7 @@ module VagrantPlugins
           prepare_environment_variables
 
           # Assemble the full ansible-playbook command
-          command = %w(ansible-playbook) << @command_arguments
+          command = [config.playbook_command] << @command_arguments
 
           # Add the raw arguments at the end, to give them the highest precedence
           command << config.raw_arguments if config.raw_arguments
