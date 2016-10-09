@@ -43,7 +43,7 @@ module VagrantPlugins
           if eth_prefix
             eth_start = ifaces.index{|iface| iface.start_with?(eth_prefix) }
             eth_end = ifaces.rindex{|iface| iface.start_with?(eth_prefix) }
-            ifaces.unshift(*ifaces.slice!(eth_start, eth_end - 1))
+            ifaces.unshift(*ifaces.slice!(eth_start, eth_end - eth_start + 1))
             @@logger.debug("Ethernet preferred sorted list: #{ifaces.inspect}")
           end
           ifaces
