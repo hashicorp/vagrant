@@ -115,13 +115,14 @@ module VagrantPlugins
 
           env[:ui].detail("Cloning virtual hard drive...")
           source_path = image_path.to_s
-          dest_path = env[:machine].data_dir.join("#{image_filename}#{image_ext}").to_s
+          dest_path = env[:machine].data_dir.join("Virtual Hard Disks").join("#{image_filename}#{image_ext}").to_s
 
           # Still hard copy the disk of old XML configurations
           if config_type == 'xml'
             if differencing_disk
               env[:machine].provider.driver.execute("clone_vhd.ps1", {Source: source_path, Destination: dest_path})
             else
+              FileUtils.mkdir_p(env[:machine].data_dir.join("Virtual Hard Disks"))
               FileUtils.cp(source_path, dest_path)
             end
           end
@@ -133,7 +134,7 @@ module VagrantPlugins
               vm_config_file: config_path.to_s.gsub("/", "\\"),
               vm_config_type: config_type,
               source_path:    source_path.to_s,
-              dest_path:      env[:machine].data_dir.join("Virtual Hard Disks").join("#{image_filename}#{image_ext}").to_s,
+              dest_path:      dest_path,
               data_path:      env[:machine].data_dir.to_s.gsub("/", "\\")
           }
           options[:switchname] = switch if switch
