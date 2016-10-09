@@ -78,9 +78,9 @@ module VagrantPlugins
          if config_type === "vmcx"
            execute('import_vm_vmcx.ps1', options)
          else
-           option.delete(:data_path)
-           option.delete(:source_path)
-           option.delete(:differencing_disk)
+           options.delete(:data_path)
+           options.delete(:source_path)
+           options.delete(:differencing_disk)
            execute('import_vm_xml.ps1', options)
          end
        end
