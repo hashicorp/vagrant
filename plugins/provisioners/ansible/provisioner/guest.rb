@@ -52,9 +52,9 @@ module VagrantPlugins
             @machine.guest.capability(:ansible_install, config.install_mode, config.version)
           end
 
-          # Check that ansible binaries are well installed on the guest,
+          # Check that Ansible Playbook command is available on the guest
           @machine.communicate.execute(
-            'test -x "$(command -v ansible-galaxy)" && test -x "$(command -v ansible-playbook)"',
+            "test -x \"$(command -v #{config.playbook_command})\"",
             error_class: Ansible::Errors::AnsibleNotFoundOnGuest,
             error_key: :ansible_not_found_on_guest
           )
