@@ -273,6 +273,18 @@ VF
       end
     end
 
+    describe "with playbook_command option" do
+      before do
+        config.playbook_command = "custom-ansible-playbook"
+      end
+
+      it "uses custom playbook_command to run playbooks" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(args[0]).to eq("custom-ansible-playbook")
+        }
+      end
+    end
+
     describe "with host_vars option" do
       it_should_create_and_use_generated_inventory
 

@@ -78,6 +78,10 @@ Some of these options are for advanced usage only and should not be used unless 
 
     By default, this option is disabled and Vagrant generates an inventory based on the `Vagrantfile` information.
 
+- `playbook_command` (string) - The command used to run playbooks.
+
+   The default value is `ansible-playbook`
+
 - `galaxy_command` (template string) - The command pattern used to install Galaxy roles when `galaxy_role_file` is set.
 
     The following (optional) placeholders can be used in this command pattern:
