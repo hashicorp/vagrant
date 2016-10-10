@@ -26,6 +26,7 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
                             inventory_path
                             limit
                             playbook
+                            playbook_command
                             raw_arguments
                             raw_ssh_args
                             skip_tags

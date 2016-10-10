@@ -12,6 +12,7 @@ shared_examples_for 'options shared by both Ansible provisioners' do
     expect(subject.inventory_path).to be_nil
     expect(subject.limit).to be_nil
     expect(subject.playbook).to be_nil
+    expect(subject.playbook_command).to eql("ansible-playbook")
     expect(subject.raw_arguments).to be_nil
     expect(subject.skip_tags).to be_nil
     expect(subject.start_at_task).to be_nil
