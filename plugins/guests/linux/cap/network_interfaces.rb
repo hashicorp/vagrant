@@ -23,6 +23,9 @@ module VagrantPlugins
           @@logger.debug("Unsorted list: #{ifaces.inspect}")
           # Break out integers from strings and sort the arrays to provide
           # a natural sort for the interface names
+          # NOTE: Devices named with a hex value suffix will _not_ be sorted
+          #  as expected. This is generally seen with veth* devices, and proper ordering
+          #  is currently not required
           ifaces = ifaces.map do |iface|
             iface.scan(/(.+?)(\d+)/).flatten.map do |iface_part|
               if iface_part.to_i.to_s == iface_part
@@ -31,7 +34,22 @@ module VagrantPlugins
                 iface_part
               end
             end
-          end.sort.map(&:join)
+          end
+          ifaces = ifaces.sort do |lhs, rhs|
+            result = 0
+            slice_length = [rhs.size, lhs.size].min
+            slice_length.times do |idx|
+              if(lhs[idx].is_a?(rhs[idx].class))
+                result = lhs[idx] <=> rhs[idx]
+              elsif(lhs[idx].is_a?(String))
+                result = 1
+              else
+                result = -1
+              end
+              break if result != 0
+            end
+            result
+          end.map(&:join)
           @@logger.debug("Sorted list: #{ifaces.inspect}")
           # Extract ethernet devices and place at start of list
           resorted_ifaces = []
