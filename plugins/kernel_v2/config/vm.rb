@@ -581,7 +581,7 @@ module VagrantPlugins
           @hostname && @hostname !~ /^[a-z0-9][-.a-z0-9]*$/i
 
         if @box_version
-          @box_version.split(",").each do |v|
+          @box_version.to_s.split(",").each do |v|
             begin
               Gem::Requirement.new(v.strip)
             rescue Gem::Requirement::BadRequirementError
