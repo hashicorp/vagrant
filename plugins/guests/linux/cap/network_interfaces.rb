@@ -20,16 +20,13 @@ module VagrantPlugins
             s << data if type == :stdout
           end
           ifaces = s.split("\n")
-          eth_prefix = nil
           @@logger.debug("Unsorted list: #{ifaces.inspect}")
           # Break out integers from strings and sort the arrays to provide
           # a natural sort for the interface names
+          # NOTE: Devices named with a hex value suffix will _not_ be sorted
+          #  as expected. This is generally seen with veth* devices, and proper ordering
+          #  is currently not required
           ifaces = ifaces.map do |iface|
-            if eth_prefix.nil?
-              eth_prefix = POSSIBLE_ETHERNET_PREFIXES.detect do |prefix|
-                iface.start_with?(prefix)
-              end
-            end
             iface.scan(/(.+?)(\d+)/).flatten.map do |iface_part|
               if iface_part.to_i.to_s == iface_part
                 iface_part.to_i
@@ -37,15 +34,32 @@ module VagrantPlugins
                 iface_part
               end
             end
-          end.sort.map(&:join)
+          end
+          ifaces = ifaces.sort do |lhs, rhs|
+            result = 0
+            slice_length = [rhs.size, lhs.size].min
+            slice_length.times do |idx|
+              if(lhs[idx].is_a?(rhs[idx].class))
+                result = lhs[idx] <=> rhs[idx]
+              elsif(lhs[idx].is_a?(String))
+                result = 1
+              else
+                result = -1
+              end
+              break if result != 0
+            end
+            result
+          end.map(&:join)
           @@logger.debug("Sorted list: #{ifaces.inspect}")
           # Extract ethernet devices and place at start of list
-          if eth_prefix
-            eth_start = ifaces.index{|iface| iface.start_with?(eth_prefix) }
-            eth_end = ifaces.rindex{|iface| iface.start_with?(eth_prefix) }
-            ifaces.unshift(*ifaces.slice!(eth_start, eth_end - 1))
-            @@logger.debug("Ethernet preferred sorted list: #{ifaces.inspect}")
+          resorted_ifaces = []
+          resorted_ifaces += ifaces.find_all do |iface|
+            POSSIBLE_ETHERNET_PREFIXES.any?{|prefix| iface.start_with?(prefix)} &&
+              !iface.include?(':')
           end
+          resorted_ifaces += ifaces - resorted_ifaces
+          ifaces = resorted_ifaces
+          @@logger.debug("Ethernet preferred sorted list: #{ifaces.inspect}")
           ifaces
         end
       end
