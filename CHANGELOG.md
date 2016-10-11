@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - guests/linux: Place ethernet devices at start of network devices list [GH-7848]
+  - guests/linux: Provide more consistent guest detection [GH-7887, GH-7827]
   - guests/redhat: Include Virtuozzo Linux 7 within flavor identification [GH-7818]
   - guests/windows: Allow vagrant to start Windows Nano without provisioning [GH-7831]
   - provisioners/ansible_local: Change the Ansible binary detection mechanism [GH-7536]
