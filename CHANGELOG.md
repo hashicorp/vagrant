@@ -18,6 +18,7 @@ BUG FIXES:
   - communicators/winrm: Prevent connection leakage [GH-7712]
   - core: Prevent duplicate provider priorities [GH-7756]
   - core: Allow Numeric type for box version [GH-7874, GH-6960]
+  - core: Provide friendly error when user environment is too large [GH-7889, GH-7857]
   - guests/linux: Fix incorrectly configured private network [GH-7844, GH-7848]
   - guests/linux: Properly order network interfaces
       [GH-7866, GH-7876, GH-7858, GH-7876]
