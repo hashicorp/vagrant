@@ -73,7 +73,7 @@ rescue Errno::EINVAL
   # nothing has yet been setup (so no access to I18n). Note that vagrant has
   # failed early and copy information related to problem and possible solution.
   $stderr.puts "Vagrant failed to initialize at a very early stage:\n\n"
-  $stderr.puts "Vagrant received an "EINVAL" error while attempting to set some"
+  $stderr.puts "Vagrant received an \"EINVAL\" error while attempting to set some"
   $stderr.puts "environment variables. This is usually caused by the total size of your"
   $stderr.puts "environment variables being too large. Vagrant sets a handful of"
   $stderr.puts "environment variables to function and requires this to work. Please"
