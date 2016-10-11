@@ -25,7 +25,14 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 # load the config from the vmcx and make a copy for editing, use TMP path so we are sure there is no vhd at the destination
-$vmConfig = (Compare-VM -Copy -Path $vm_config_file -GenerateNewID -SnapshotFilePath "$($data_path)Snapshots" -VhdDestinationPath "$($data_path)Virtual Hard Disks" -VirtualMachinePath "$($data_path)Virtual Machines")
+$VmProperties = @{
+    Path = $vm_config_file 
+    SnapshotFilePath   = Join-Path $data_path 'Snapshots'
+    VhdDestinationPath = Join-Path $data_path 'Virtual Hard Disks'
+    VirtualMachinePath = Join-Path $data_path 'Virtual Machines'
+}
+
+$vmConfig = (Compare-VM -Copy -GenerateNewID @VmProperties)
 
 
 $generation = $vmConfig.VM.Generation
