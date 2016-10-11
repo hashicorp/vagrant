@@ -294,9 +294,13 @@ module Vagrant
           @logger.warn("Downloader exit code: #{result.exit_code}")
           parts    = result.stderr.split(/\n*curl:\s+\(\d+\)\s*/, 2)
           parts[1] ||= ""
-          raise Errors::DownloaderError,
-            code: result.exit_code,
-            message: parts[1].chomp
+          if parts[1].include? "416"
+            # All good actually. 416 means there is no mory bytes to download
+          else
+            raise Errors::DownloaderError,
+              code: result.exit_code,
+              message: parts[1].chomp
+          end
         end
 
         result
