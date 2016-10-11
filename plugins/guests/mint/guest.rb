@@ -1,9 +1,10 @@
+require_relative '../linux/guest'
+
 module VagrantPlugins
   module GuestMint
-    class Guest < Vagrant.plugin("2", :guest)
-      def detect?(machine)
-        machine.communicate.test("cat /etc/issue | grep 'Linux Mint'")
-      end
+    class Guest < VagrantPlugins::GuestLinux::Guest
+      # Name used for guest detection
+      GUEST_DETECTION_NAME = "Linux Mint".freeze
     end
   end
 end
