@@ -58,7 +58,7 @@ the pushed state.
 
 # Snapshot Save
 
-**Command: `vagrant snapshot save NAME`**
+**Command: `vagrant snapshot save [vm-name] NAME`**
 
 This command saves a new named snapshot. If this command is used, the
 `push` and `pop` subcommands cannot be safely used.
