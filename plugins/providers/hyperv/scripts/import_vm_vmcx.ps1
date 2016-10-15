@@ -97,11 +97,11 @@ if (!$switchname) {
 
 Connect-VMNetworkAdapter -VMNetworkAdapter (Get-VMNetworkAdapter -VM $vmConfig.VM) -SwitchName $switchname
 Set-VM -VM $vmConfig.VM -NewVMName $vm_name -MemoryStartupBytes $MemoryStartupBytes
-Set-VM -VM $vmConfig.VM -MemoryMinimumBytes $MemoryMinimumBytes -MemoryMaximumBytes $MemoryMaximumBytes
 Set-VM -VM $vmConfig.VM -ErrorAction "Stop" -ProcessorCount $processors
 
 If ($dynamicmemory) {
     Set-VM -VM $vmConfig.VM -DynamicMemory
+    Set-VM -VM $vmConfig.VM -MemoryMinimumBytes $MemoryMinimumBytes -MemoryMaximumBytes $MemoryMaximumBytes
 } else {
     Set-VM -VM $vmConfig.VM -StaticMemory    
 }
