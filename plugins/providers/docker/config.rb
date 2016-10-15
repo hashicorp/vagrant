@@ -14,10 +14,18 @@ module VagrantPlugins
       attr_accessor :build_args
 
       # The directory with a Dockerfile to build and use as the basis
-      # for this container. If this is set, "image" should not be set.
+      # for this container. If this is set, neither "image" nor "git_repo" 
+      # should be set.
       #
       # @return [String]
       attr_accessor :build_dir
+      
+      # The URL for a git repository with a Dockerfile to build and use
+      # as the basis for this container. If this is set, neither "image"
+      # nor "build_dir" should be set.
+      #
+      # @return [String]
+      attr_accessor :git_repo
 
       # An optional file name of a Dockerfile to be used when building
       # the image. This requires Docker >1.5.0.

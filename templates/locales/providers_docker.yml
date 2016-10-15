@@ -125,11 +125,13 @@ en:
         "docker" provider.
       config:
         both_build_and_image: |-
-          Only one of "build_dir" or "image" can be set
+          Only one of "build_dir", "git_repo" or "image" can be set
         build_dir_invalid: |-
           "build_dir" must exist and contain a Dockerfile
         build_dir_or_image: |-
-          One of "build_dir" or "image" must be set
+          One of "build_dir", "git_repo" or "image" must be set
+        git_repo_invalid: |-
+          "git_repo" must be a valid git URL
         create_args_array: |-
           "create_args" must be an array
         invalid_link: |-

@@ -12,6 +12,7 @@ IMPROVEMENTS:
   - provisioners/ansible(both): Add the `playbook_command` option [GH-7881]
   - util/safe_exec: Use subprocess for safe_exec on Windows [GH-7802]
   - util/subprocess: Allow closing STDIN [GH-7778]
+  - providers/docker: Support building containter images directly from git
 
 BUG FIXES:
 
