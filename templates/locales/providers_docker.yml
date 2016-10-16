@@ -128,6 +128,8 @@ en:
           Only one of "build_dir", "git_repo" or "image" can be set
         build_dir_invalid: |-
           "build_dir" must exist and contain a Dockerfile
+        git_repo_invalid: |-
+          "git_repo" must be a valid repository URL
         build_dir_or_image: |-
           One of "build_dir", "git_repo" or "image" must be set
         git_repo_invalid: |-
