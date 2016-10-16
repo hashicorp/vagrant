@@ -17,9 +17,11 @@ module VagrantPlugins
           machine   = env[:machine]
           build_dir = env[:build_dir]
           build_dir ||= machine.provider_config.build_dir
-
+          git_repo  = env[:git_repo]
+          git_repo  ||= machine.provider_config.git_repo
+          
           # If we're not building a container, then just skip this step
-          return @app.call(env) if !build_dir
+          return @app.call(env) if (!build_dir && !git_repo)
 
           # Try to read the image ID from the cache file if we've
           # already built it.
@@ -52,7 +54,7 @@ module VagrantPlugins
             end
 
             image = machine.provider.driver.build(
-              build_dir,
+              build_dir || git_repo,
               extra_args: args) do |type, data|
               data = remove_ansi_escape_codes(data.chomp).chomp
               env[:ui].detail(data) if data != ""
