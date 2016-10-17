@@ -11,9 +11,8 @@ description: |-
 
 The information below is applicable to both Vagrant Ansible provisioners:
 
- - [`ansible`](/docs/provisioning/ansible.html), where Ansible is executed on the **Vagrant host**
-
- - [`ansible_local`](/docs/provisioning/ansible_local.html), where Ansible is executed on the **Vagrant guest**
+  - [`ansible`](/docs/provisioning/ansible.html), where Ansible is executed on the **Vagrant host**
+  - [`ansible_local`](/docs/provisioning/ansible_local.html), where Ansible is executed on the **Vagrant guest**
 
 The list of common options for these two provisioners is documented in a [separate documentation page](/docs/provisioning/ansible_common.html).
 
@@ -237,9 +236,9 @@ config.vm.network :private_network, ip: "192.168.111.222"
 
 **Notes:**
 
- - The machine names in `Vagrantfile` and `ansible.inventory_path` files should correspond, unless you use `ansible.limit` option to reference the correct machines.
- - The SSH host addresses (and ports) must obviously be specified twice, in `Vagrantfile` and `ansible.inventory_path` files.
- - Sharing hostnames across Vagrant host and guests might be a good idea (e.g. with some Ansible configuration task, or with a plugin like [`vagrant-hostmanager`](https://github.com/smdahlen/vagrant-hostmanager)).
+  - The machine names in `Vagrantfile` and `ansible.inventory_path` files should correspond, unless you use `ansible.limit` option to reference the correct machines.
+  - The SSH host addresses (and ports) must obviously be specified twice, in `Vagrantfile` and `ansible.inventory_path` files.
+  - Sharing hostnames across Vagrant host and guests might be a good idea (e.g. with some Ansible configuration task, or with a plugin like [`vagrant-hostmanager`](https://github.com/smdahlen/vagrant-hostmanager)).
 
 ### The Ansible Configuration File
 
