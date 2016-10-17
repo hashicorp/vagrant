@@ -74,12 +74,6 @@ module VagrantPlugins
       end
 
       def finalize!
-        @minion_config      = nil if @minion_config == UNSET_VALUE
-        @minion_key         = nil if @minion_key == UNSET_VALUE
-        @minion_pub         = nil if @minion_pub == UNSET_VALUE
-        @master_config      = nil if @master_config == UNSET_VALUE
-        @master_key         = nil if @master_key == UNSET_VALUE
-        @master_pub         = nil if @master_pub == UNSET_VALUE
         @grains_config      = nil if @grains_config == UNSET_VALUE
         @run_highstate      = nil if @run_highstate == UNSET_VALUE
         @run_overstate      = nil if @run_overstate == UNSET_VALUE
@@ -102,6 +96,15 @@ module VagrantPlugins
         @version            = nil if @version == UNSET_VALUE
         @run_service        = nil if @run_service == UNSET_VALUE
         @master_id          = nil if @master_id == UNSET_VALUE
+
+        # NOTE: Optimistic defaults are set in the provisioner. UNSET_VALUEs
+        # are converted there to allow proper detection of unset values.
+        # @minion_config      = nil if @minion_config == UNSET_VALUE
+        # @minion_key         = nil if @minion_key == UNSET_VALUE
+        # @minion_pub         = nil if @minion_pub == UNSET_VALUE
+        # @master_config      = nil if @master_config == UNSET_VALUE
+        # @master_key         = nil if @master_key == UNSET_VALUE
+        # @master_pub         = nil if @master_pub == UNSET_VALUE
       end
 
       def pillar(data)
@@ -111,14 +114,14 @@ module VagrantPlugins
 
       def validate(machine)
         errors = _detected_errors
-        if @minion_config
+        if @minion_config && @minion_config != UNSET_VALUE
           expanded = Pathname.new(@minion_config).expand_path(machine.env.root_path)
           if !expanded.file?
             errors << I18n.t("vagrant.provisioners.salt.minion_config_nonexist", missing_config_file: expanded)
           end
         end
 
-        if @master_config
+        if @master_config && @master_config != UNSET_VALUE
           expanded = Pathname.new(@master_config).expand_path(machine.env.root_path)
           if !expanded.file?
             errors << I18n.t("vagrant.provisioners.salt.master_config_nonexist",  missing_config_file: expanded)
