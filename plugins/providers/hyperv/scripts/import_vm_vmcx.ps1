@@ -27,7 +27,7 @@ $VmProperties = @{
     Path = $vm_config_file 
     SnapshotFilePath   = Join-Path $data_path 'Snapshots'
     VhdDestinationPath = Join-Path $data_path 'Virtual Hard Disks'
-    VirtualMachinePath = Join-Path $data_path 'Virtual Machines'
+    VirtualMachinePath = $data_path
 }
 
 $vmConfig = (Compare-VM -Copy -GenerateNewID @VmProperties)
