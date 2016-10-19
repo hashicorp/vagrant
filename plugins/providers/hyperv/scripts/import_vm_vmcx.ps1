@@ -123,7 +123,7 @@ if ($generation -ne 1) {
 
 $report = Compare-VM -CompatibilityReport $vmConfig
 
-£ Stop if there is incomatibilities which would fail anyhow.
+# Stop if there is incompatibilities which would fail anyhow.
 if($report.Incompatibilities.Length -gt 0){
     Write-Error-Message $(ConvertTo-Json $($report.Incompatibilities | Select -ExpandProperty Message))
     exit 0
