@@ -18,8 +18,6 @@
     [string]$differencing_disk=$null
 )
 
-"$($data_path)/Snapshots"
-
 # Include the following modules
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
@@ -124,9 +122,11 @@ if ($generation -ne 1) {
 }
 
 $report = Compare-VM -CompatibilityReport $vmConfig
+
+£ Stop if there is incomatibilities which would fail anyhow.
 if($report.Incompatibilities.Length -gt 0){
-$report.Incompatibilities
-    Write-Error-Message ConvertTo-Json $report.Incompatibilities
+    Write-Error-Message $(ConvertTo-Json $($report.Incompatibilities | Select -ExpandProperty Message))
+    exit 0
 }
 
 # Differencing disk
@@ -150,7 +150,7 @@ if($differencing_disk){
     }
     
 }
- 
+
 Import-VM -CompatibilityReport $vmConfig
 
 $vm_id = (Get-VM $vm_name).id.guid
