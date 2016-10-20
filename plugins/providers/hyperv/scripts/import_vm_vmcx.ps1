@@ -22,7 +22,6 @@
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-# load the config from the vmcx and make a copy for editing, use TMP path so we are sure there is no vhd at the destination
 $VmProperties = @{
     Path = $vm_config_file 
     SnapshotFilePath   = Join-Path $data_path 'Snapshots'
@@ -31,7 +30,6 @@ $VmProperties = @{
 }
 
 $vmConfig = (Compare-VM -Copy -GenerateNewID @VmProperties)
-
 
 $generation = $vmConfig.VM.Generation
 
@@ -67,19 +65,16 @@ if (!$memory) {
     $configMemory = Get-VMMemory -VM $vmConfig.VM
     $dynamicmemory = $configMemory.DynamicMemoryEnabled
 
-    # Memory values need to be in bytes
     $MemoryMaximumBytes = ($configMemory.Maximum)
     $MemoryStartupBytes = ($configMemory.Startup)
     $MemoryMinimumBytes = ($configMemory.Minimum)
-}
-else {
+} else {
     if (!$maxmemory){
         $dynamicmemory = $False
         $MemoryMaximumBytes = ($memory -as [int]) * 1MB
         $MemoryStartupBytes = ($memory -as [int]) * 1MB
         $MemoryMinimumBytes = ($memory -as [int]) * 1MB
-    }
-    else {
+    } else {
         $dynamicmemory = $True
         $MemoryMaximumBytes = ($maxmemory -as [int]) * 1MB
         $MemoryStartupBytes = ($memory -as [int]) * 1MB
@@ -87,11 +82,9 @@ else {
     }
 }
 
-
 if (!$switchname) {
     $switchname = (Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
 }
-
 
 Connect-VMNetworkAdapter -VMNetworkAdapter (Get-VMNetworkAdapter -VM $vmConfig.VM) -SwitchName $switchname
 Set-VM -VM $vmConfig.VM -NewVMName $vm_name -MemoryStartupBytes $MemoryStartupBytes
@@ -123,13 +116,12 @@ if ($generation -ne 1) {
 
 $report = Compare-VM -CompatibilityReport $vmConfig
 
-# Stop if there is incompatibilities which would fail anyhow.
+# Stop if there are incompatibilities
 if($report.Incompatibilities.Length -gt 0){
     Write-Error-Message $(ConvertTo-Json $($report.Incompatibilities | Select -ExpandProperty Message))
     exit 0
 }
 
-# Differencing disk
 if($differencing_disk){
     # Get all controller on the VM, first scsi, then IDE if it is a Gen 1 device
     $controllers = Get-VMScsiController -VM $vmConfig.VM
@@ -148,7 +140,6 @@ if($differencing_disk){
             }
         }
     }
-    
 }
 
 Import-VM -CompatibilityReport $vmConfig
