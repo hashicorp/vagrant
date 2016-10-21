@@ -156,7 +156,7 @@ module VagrantPlugins
           # and error if it doesn't exist.
 
           remote_path = Helpers::expand_path_in_unix_style(path, config.provisioning_path)
-          command = "test #{test_args} #{remote_path}"
+          command = "test #{test_args} '#{remote_path}'"
 
           @machine.communicate.execute(
             command,
