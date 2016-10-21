@@ -55,7 +55,7 @@ end
 
 ## Options
 
-This section lists the specific options for the Ansible Local provisioner. In addition to the options listed below, this provisioner supports the [common options for both Ansible provisioners](/docs/provisioning/ansible_common.html).
+This section lists the _specific_ options for the Ansible Local provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/docs/provisioning/ansible_common.html).
 
 - `install` (boolean) - Try to automatically install Ansible on the guest system.
 

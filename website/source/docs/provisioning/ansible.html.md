@@ -51,7 +51,7 @@ end
 
 ##  Options
 
-This section lists the specific options for the Ansible (remote) provisioner. In addition to the options listed below, this provisioner supports the [common options for both Ansible provisioners](/docs/provisioning/ansible_common.html).
+This section lists the _specific_ options for the Ansible (remote) provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/docs/provisioning/ansible_common.html).
 
 - `ask_sudo_pass` (boolean) - require Ansible to [prompt for a sudo password](https://docs.ansible.com/intro_getting_started.html#remote-connection-information).
 

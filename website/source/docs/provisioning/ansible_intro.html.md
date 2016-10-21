@@ -112,7 +112,7 @@ Note that the generated inventory file is uploaded to the guest VM in a subdirec
 
 **Host variables:**
 
-As of Vagrant 1.8.0, the [`host_vars`](/docs/provisioning/ansible_common.html) option can be used to set [variables for individual hosts](https://docs.ansible.com/ansible/intro_inventory.html#host-variables) in the generated inventory file (see also the notes on group variables below).
+As of Vagrant 1.8.0, the [`host_vars`](/docs/provisioning/ansible_common.html#host_vars) option can be used to set [variables for individual hosts](https://docs.ansible.com/ansible/intro_inventory.html#host-variables) in the generated inventory file (see also the notes on group variables below).
 
 ```
 Vagrant.configure("2") do |config|
@@ -141,7 +141,7 @@ host2 ansible_ssh_host=... http_port=303 maxRequestsPerChild=909
 
 **How to generate Inventory Groups:**
 
-The [`groups`](/docs/provisioning/ansible_common.html) option can be used to pass a hash of group names and group members to be included in the generated inventory file.
+The [`groups`](/docs/provisioning/ansible_common.html#groups) option can be used to pass a hash of group names and group members to be included in the generated inventory file.
 
 As of Vagrant 1.8.0, it is also possible to specify [group variables](https://docs.ansible.com/ansible/intro_inventory.html#group-variables), and group members as [host ranges (with numeric or alphabetic patterns)](https://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups).
 
@@ -220,7 +220,7 @@ variable2=example
 
 The second option is for situations where you would like to have more control over the inventory management.
 
-With the `inventory_path` option, you can reference a specific inventory resource (e.g. a static inventory file, a [dynamic inventory script](https://docs.ansible.com/intro_dynamic_inventory.html) or even [multiple inventories stored in the same directory](https://docs.ansible.com/intro_dynamic_inventory.html#using-multiple-inventory-sources)). Vagrant will then use this inventory information instead of generating it.
+With the [`inventory_path`](/docs/provisioning/ansible_common.html#inventory_path) option, you can reference a specific inventory resource (e.g. a static inventory file, a [dynamic inventory script](https://docs.ansible.com/intro_dynamic_inventory.html) or even [multiple inventories stored in the same directory](https://docs.ansible.com/intro_dynamic_inventory.html#using-multiple-inventory-sources)). Vagrant will then use this inventory information instead of generating it.
 
 A very simple inventory file for use with Vagrant might look like:
 
