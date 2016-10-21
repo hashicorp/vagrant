@@ -114,7 +114,11 @@ Some of these options are for advanced usage only and should not be used unless 
 
     It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. As of Vagrant 1.7, `raw_arguments` has the highest priority and its values can potentially override or break other Vagrant settings.
 
-    Example: `['--check', '-M /my/modules']`).
+    Examples:
+    - `['--check', '-M', '/my/modules']`
+    - `["--connection=paramiko", "--forks=10"]`
+
+    **Caveat:** The `ansible` provisioner does not support whitespace characters in `raw_arguments` elements. Therefore **don't write** something like `["-c paramiko"]`, which will result with an invalid `" parmiko"` parameter value.
 
 - `skip_tags` (string or array of strings) - Only plays, roles and tasks that [*do not match* these values will be executed](https://docs.ansible.com/playbooks_tags.html).
 
