@@ -56,4 +56,13 @@ helpers do
 
     "Vagrant by HashiCorp"
   end
+
+  # Get the description for the page
+  #
+  # @param [Middleman::Page] page
+  #
+  # @return [String]
+  def description_for(page)
+    return escape_html(current_page.data.description || "")
+  end
 end
