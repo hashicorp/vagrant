@@ -12,10 +12,9 @@ module VagrantPlugins
 
         def self.configure_networks(machine, networks)
           comm = machine.communicate
+          commands = []
 
-          commands   = ["set -e"]
           interfaces = machine.guest.capability(:network_interfaces)
-
           networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
 
@@ -42,15 +41,15 @@ module VagrantPlugins
 
             commands << <<-EOH.gsub(/^ {14}/, '')
               # Configure #{network[:device]}
-              mv '#{remote_path}' '/etc/netctl/#{network[:device]}'
-              ip link set '#{network[:device]}' down
-              netctl restart '#{network[:device]}'
+              mv '#{remote_path}' '/etc/netctl/#{network[:device]}' &&
+              ip link set '#{network[:device]}' down &&
+              netctl restart '#{network[:device]}' &&
               netctl enable '#{network[:device]}'
             EOH
           end
 
           # Run all the network modification commands in one communicator call.
-          comm.sudo(commands.join("\n"))
+          comm.sudo(commands.join(" && \n"))
         end
       end
     end

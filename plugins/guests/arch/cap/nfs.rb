@@ -15,8 +15,7 @@ module VagrantPlugins
           #   https://bbs.archlinux.org/viewtopic.php?id=193410
           #
           comm.sudo <<-EOH.gsub(/^ {12}/, "")
-            set -e
-            systemctl enable rpcbind
+            systemctl enable rpcbind &&
             systemctl start rpcbind
           EOH
         end
@@ -24,8 +23,7 @@ module VagrantPlugins
         def self.nfs_client_install(machine)
           comm = machine.communicate
           comm.sudo <<-EOH.gsub(/^ {12}/, "")
-            set -e
-            pacman --noconfirm -Syy
+            pacman --noconfirm -Syy &&
             pacman --noconfirm -S nfs-utils ntp
           EOH
         end
