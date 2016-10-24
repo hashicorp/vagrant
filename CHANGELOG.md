@@ -27,6 +27,7 @@ BUG FIXES:
   - guests/redhat: Properly configure network and restart service [GH-7751]
   - providers/docker: Remove --interactive flag when pty is true [GH-7688]
   - provisioners/ansible_local: Use enquoted path for file/directory existence checks
+  - provisioners/salt: Synchronize configuration defaults with documentation [GH-7907, GH-6624]
   - pushes/atlas: Fix atlas push on Windows platform [GH-6938, GH-7802]
 
 ## 1.8.6 (September 27, 2016)
