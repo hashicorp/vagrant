@@ -26,6 +26,7 @@ BUG FIXES:
   - guests/linux: Only emit upstart event if initctl is available [GH-7813]
   - guests/photon: Fix networking setup [GH-7808, GH-7873]
   - guests/redhat: Properly configure network and restart service [GH-7751]
+  - guests/redhat: Prevent NetworkManager from managing devices on initial start [GH-7926]
   - providers/docker: Remove --interactive flag when pty is true [GH-7688]
   - provisioners/ansible_local: Use enquoted path for file/directory existence checks
   - provisioners/salt: Synchronize configuration defaults with documentation [GH-7907, GH-6624]
