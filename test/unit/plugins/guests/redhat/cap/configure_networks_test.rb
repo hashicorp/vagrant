@@ -56,9 +56,10 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
 
       cap.configure_networks(machine, [network_1, network_2])
       expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth1'/)
-      expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth1'/)
+      expect(comm.received_commands[0]).to match(/ifcfg-eth1/)
       expect(comm.received_commands[0]).to match(/\/sbin\/ifdown 'eth2'/)
-      expect(comm.received_commands[0]).to match(/\/sbin\/ifup 'eth2'/)
+      expect(comm.received_commands[0]).to match(/ifcfg-eth2/)
+      expect(comm.received_commands[0]).to match(/nmcli c reload/)
     end
   end
 end
