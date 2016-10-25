@@ -11,10 +11,8 @@ module VagrantPlugins
         def self.mount_nfs_folder(machine, ip, folders)
           comm = machine.communicate
 
+          # Mount each folder separately so we can retry.
           folders.each do |name, opts|
-            # Mount each folder separately so we can retry.
-            commands = ["set -e"]
-
             # Shellescape the paths in case they do not have special characters.
             guest_path = Shellwords.escape(opts[:guestpath])
             host_path  = Shellwords.escape(opts[:hostpath])
@@ -29,14 +27,14 @@ module VagrantPlugins
             mount_opts = mount_opts.join(",")
 
             # Make the directory on the guest.
-            commands << "mkdir -p #{guest_path}"
+            machine.communicate.sudo("mkdir -p #{guest_path}")
 
             # Perform the mount operation.
-            commands << "/sbin/mount -t nfs -o '#{mount_opts}' #{ip}:#{host_path} #{guest_path}"
+            command = "/sbin/mount -t nfs -o '#{mount_opts}' #{ip}:#{host_path} #{guest_path}"
 
             # Run the command, raising a specific error.
             retryable(on: Vagrant::Errors::NFSMountFailed, tries: 3, sleep: 5) do
-              machine.communicate.sudo(commands.join("\n"),
+              machine.communicate.sudo(command,
                 error_class: Vagrant::Errors::NFSMountFailed,
                 shell: "sh",
               )
