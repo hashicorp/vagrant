@@ -1065,6 +1065,15 @@ en:
         Guest path: %{guestpath}
         Command: %{command}
         Error: %{stderr}
+      rsync_guest_install_error: |-
+        Installation of rsync into the guest has failed! The stdout
+        and stderr are shown below. Please read the error output, resolve
+        it and try again. If the problem persists, please install rsync
+        manually within the guest.
+
+        Command: %{command}
+        Stdout: %{stdout}
+        Stderr: %{stderr}
       rsync_not_found: |-
         "rsync" could not be found on your PATH. Make sure that rsync
         is properly installed on your system and available on the PATH.
