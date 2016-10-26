@@ -25,6 +25,7 @@ BUG FIXES:
   - guests/linux: Properly order network interfaces
       [GH-7866, GH-7876, GH-7858, GH-7876]
   - guests/linux: Only emit upstart event if initctl is available [GH-7813]
+  - guests/netbsd: Fix rsync installation [GH-7922, GH-7901]
   - guests/photon: Fix networking setup [GH-7808, GH-7873]
   - guests/redhat: Properly configure network and restart service [GH-7751]
   - guests/redhat: Prevent NetworkManager from managing devices on initial start [GH-7926]
