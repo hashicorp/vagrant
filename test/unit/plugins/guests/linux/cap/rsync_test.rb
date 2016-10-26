@@ -70,15 +70,27 @@ describe "VagrantPlugins::GuestLinux::Cap::Rsync" do
     end
 
     context "with excludes provided" do
-      let(:excludes){ ["tmp", "state/*"] }
+      let(:excludes){ ["tmp", "state/*", "path/with a/space"] }
 
       it "ignores files that are excluded" do
-        comm.expect_command(
-          "find #{guest_directory} -path #{File.join(guest_directory, excludes.first)} -prune -o " \
-            "-path #{File.join(guest_directory, excludes.last)} -prune -o '!' -type l -a '(' ! -user " \
-            "#{owner} -or ! -group #{group} ')' -exec chown #{owner}:#{group} '{}' +"
-        )
+        # comm.expect_command(
+        #   "find #{guest_directory} -path #{Shellwords.escape(File.join(guest_directory, excludes.first))} -prune -o " \
+        #     "-path #{Shellwords.escape(File.join(guest_directory, excludes.last))} -prune -o '!' " \
+        #     "-path -type l -a '(' ! -user " \
+        #     "#{owner} -or ! -group #{group} ')' -exec chown #{owner}:#{group} '{}' +"
+        # )
         cap.rsync_post(machine, options)
+        excludes.each do |ex_path|
+          expect(comm.received_commands.first).to include("-path #{Shellwords.escape(File.join(guest_directory, ex_path))} -prune")
+        end
+      end
+
+      it "properly escapes excluded directories" do
+        cap.rsync_post(machine, options)
+        exclude_with_space = excludes.detect{|ex| ex.include?(' ')}
+        escaped_exclude_with_space = Shellwords.escape(exclude_with_space)
+        expect(comm.received_commands.first).not_to include(exclude_with_space)
+        expect(comm.received_commands.first).to include(escaped_exclude_with_space)
       end
     end
   end

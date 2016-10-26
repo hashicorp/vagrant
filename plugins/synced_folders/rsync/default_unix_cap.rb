@@ -32,7 +32,7 @@ module VagrantPlugins
           exclude_base = Pathname.new(opts[:guestpath])
           exclusions = Array(opts[:exclude]).map do |ex_path|
             ex_path = ex_path.slice(1, ex_path.size) if ex_path.start_with?(File::SEPARATOR)
-            "-path #{exclude_base.join(ex_path)} -prune"
+            "-path #{Shellwords.escape(exclude_base.join(ex_path))} -prune"
           end.join(" -o ") + " -o "
         end
         "find #{guest_path} #{exclusions}" \
