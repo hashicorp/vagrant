@@ -8,6 +8,7 @@ module VagrantPlugins
         attr_accessor :binary_path
 
         attr_accessor :facter
+        attr_accessor :structured_facts
         attr_accessor :hiera_config_path
         attr_accessor :manifest_file
         attr_accessor :manifests_path
@@ -32,6 +33,7 @@ module VagrantPlugins
           @module_path        = UNSET_VALUE
           @options            = []
           @facter             = {}
+          @structured_facts   = UNSET_VALUE
           @synced_folder_type = UNSET_VALUE
           @temp_dir           = UNSET_VALUE
           @working_directory  = UNSET_VALUE
