@@ -87,9 +87,10 @@ module VagrantPlugins
             if @manifest_file == UNSET_VALUE
               @manifest_file = nil
             end
-            if @environment_variables == UNSET_VALUE
-              @environment_variables = nil
-            end
+          end
+
+          if @environment_variables == UNSET_VALUE
+            @environment_variables = {}
           end
 
           @binary_path        = nil     if @binary_path == UNSET_VALUE
