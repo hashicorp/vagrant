@@ -11,6 +11,7 @@ IMPROVEMENTS:
   - guests/windows: Allow vagrant to start Windows Nano without provisioning [GH-7831]
   - provisioners/ansible_local: Change the Ansible binary detection mechanism [GH-7536]
   - provisioners/ansible(both): Add the `playbook_command` option [GH-7881]
+  - provisioners/puppet: Support custom environment variables [GH-7931, GH-7252, GH-2270]
   - util/safe_exec: Use subprocess for safe_exec on Windows [GH-7802]
   - util/subprocess: Allow closing STDIN [GH-7778]
 
