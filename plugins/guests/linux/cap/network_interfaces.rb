@@ -16,7 +16,7 @@ module VagrantPlugins
         # @return [Array<String>]
         def self.network_interfaces(machine, path = "/sbin/ip")
           s = ""
-          machine.communicate.sudo("#{path} -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |type, data|
+          machine.communicate.sudo("#{path} -o addr list scope link | awk '{print $2}' | sed 's/://'") do |type, data|
             s << data if type == :stdout
           end
           ifaces = s.split("\n")
