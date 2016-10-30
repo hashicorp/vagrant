@@ -6,6 +6,8 @@ module VagrantPlugins
   module HostLinux
     module Cap
       class NFS
+
+        NFS_EXPORTS_PATH = "/etc/exports".freeze
         extend Vagrant::Util::Retryable
 
         def self.nfs_apply_command(env)
@@ -36,7 +38,8 @@ module VagrantPlugins
           ui.info I18n.t("vagrant.hosts.linux.nfs_export")
           sleep 0.5
 
-          nfs_cleanup(id)
+          nfs_cleanup("#{Process.uid} #{id}")
+          output = "#{File.read(NFS_EXPORTS_PATH)}\n#{output}"
           nfs_write_exports(output)
 
           if nfs_running?(nfs_check_command)
@@ -54,7 +57,7 @@ module VagrantPlugins
         end
 
         def self.nfs_prune(environment, ui, valid_ids)
-          return if !File.exist?("/etc/exports")
+          return if !File.exist?(NFS_EXPORTS_PATH)
 
           logger = Log4r::Logger.new("vagrant::hosts::linux")
           logger.info("Pruning invalid NFS entries...")
@@ -62,13 +65,13 @@ module VagrantPlugins
           user = Process.uid
 
           # Create editor instance for removing invalid IDs
-          editor = Util::StringBlockEditor.new(File.read("/etc/exports"))
+          editor = Vagrant::Util::StringBlockEditor.new(File.read(NFS_EXPORTS_PATH))
 
           # Build composite IDs with UID information and discover invalid entries
           composite_ids = valid_ids.map do |v_id|
             "#{user} #{v_id}"
           end
-          remove_ids = editor.keys - composite_keys
+          remove_ids = editor.keys - composite_ids
 
           logger.debug("Known valid NFS export IDs: #{valid_ids}")
           logger.debug("Composite valid NFS export IDs with user: #{composite_ids}")
@@ -82,9 +85,9 @@ module VagrantPlugins
         protected
 
         def self.nfs_cleanup(remove_ids)
-          return if !File.exist?("/etc/exports")
+          return if !File.exist?(NFS_EXPORTS_PATH)
 
-          editor = Util::StringBlockEditor.new(File.read("/etc/exports"))
+          editor = Vagrant::Util::StringBlockEditor.new(File.read(NFS_EXPORTS_PATH))
           remove_ids = Array(remove_ids)
 
           # Remove all invalid ID entries
@@ -95,34 +98,37 @@ module VagrantPlugins
         end
 
         def self.nfs_write_exports(new_exports_content)
-          # Write contents out to temporary file
-          new_exports_file = Tempfile.create('vagrant')
-          new_exports_file.puts(new_exports_content)
-          new_exports_file.close
-          new_exports_path = new_exports_file.path
+          if(File.read(NFS_EXPORTS_PATH).strip != new_exports_content.strip)
+            begin
+              # Write contents out to temporary file
+              new_exports_file = Tempfile.create('vagrant')
+              new_exports_file.puts(new_exports_content)
+              new_exports_file.close
+              new_exports_path = new_exports_file.path
 
-          if !FileUtils.compare_file(new_exports_path, "/etc/exports")
-            # Only use "sudo" if we can't write to /etc/exports directly
-            sudo_command = ""
-            sudo_command = "sudo " if !File.writable?("/etc/exports")
+              # puts File.read(new_exports_path).inspect
+              # Only use "sudo" if we can't write to /etc/exports directly
+              sudo_command = ""
+              sudo_command = "sudo " if !File.writable?(NFS_EXPORTS_PATH)
 
-            # Ensure new file mode and uid/gid match existing file to replace
-            existing_stat = File.stat("/etc/exports")
-            new_stat = File.stat(new_exports_path)
-            if existing_stat.mode != new_stat.mode
-              File.chmod(existing_stat.mode, new_exports_path)
+              # Ensure new file mode and uid/gid match existing file to replace
+              existing_stat = File.stat(NFS_EXPORTS_PATH)
+              new_stat = File.stat(new_exports_path)
+              if existing_stat.mode != new_stat.mode
+                File.chmod(existing_stat.mode, new_exports_path)
+              end
+              # TODO: Error check
+              if existing_stat.uid != new_stat.uid || existing_stat.gid != new_stat.gid
+                system("#{sudo_command}chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}")
+              end
+
+              # Replace existing exports file
+              system("#{sudo_command}mv #{new_exports_path} #{NFS_EXPORTS_PATH}")
+            ensure
+              if File.exist?(new_exports_path)
+                File.unlink(new_exports_path)
+              end
             end
-            # TODO: Error check
-            if existing_stat.uid != new_stat.uid || existing_stat.gid != new_stat.gid
-              system("#{sudo_command}chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}")
-            end
-
-            # Replace existing exports file
-            system("#{sudo_command}mv #{new_exports_path} /etc/exports")
-          end
-        ensure
-          if File.exist?(new_exports_path)
-            File.unlink(new_exports_path)
           end
         end
 
