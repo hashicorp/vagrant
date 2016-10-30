@@ -31,19 +31,21 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
     VagrantPlugins::HostLinux::Cap::NFS.const_set(:NFS_EXPORTS_PATH, @original_exports_path)
     File.unlink(tmp_exports_path.to_s) if File.exist?(tmp_exports_path.to_s)
     @tmp_exports = nil
-    @env = nil
   end
 
   describe ".nfs_export" do
+
+    let(:cap){ caps.get(:nfs_export) }
+
     before do
       allow(env).to receive(:host).and_return(host)
       allow(host).to receive(:capability).with(:nfs_apply_command).and_return("/bin/true")
       allow(host).to receive(:capability).with(:nfs_check_command).and_return("/bin/true")
       allow(host).to receive(:capability).with(:nfs_start_command).and_return("/bin/true")
       allow(ui).to receive(:info)
+      allow(cap).to receive(:system).with("sudo /bin/true").and_return(true)
+      allow(cap).to receive(:system).with("/bin/true").and_return(true)
     end
-
-    let(:cap){ caps.get(:nfs_export) }
 
     it "should export new entries" do
       cap.nfs_export(env, ui, SecureRandom.uuid, ["127.0.0.1"], "tmp" => {:hostpath => "/tmp"})
@@ -106,7 +108,6 @@ EOH
       expect(exports_content).to include("/var")
       expect(exports_content).not_to include("/tmp")
     end
-
   end
 
   describe ".nfs_write_exports" do
@@ -137,7 +138,18 @@ EOH
       expect(original_stat.mode).to eq(updated_stat.mode)
     end
 
+    it "should raise exception when failing to move new exports file" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(
+        Vagrant::Util::Subprocess::Result.new(1, "Failed to move file", "")
+      )
+      expect{ described_class.nfs_write_exports("new content") }.to raise_error(Vagrant::Errors::NFSExportsFailed)
+    end
+
     it "should retain existing file owner and group IDs" do
+      pending("investigate using a simulated FS to test")
+    end
+
+    it "should raise custom exception when chown fails" do
       pending("investigate using a simulated FS to test")
     end
   end

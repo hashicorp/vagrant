@@ -39,7 +39,7 @@ module VagrantPlugins
           sleep 0.5
 
           nfs_cleanup("#{Process.uid} #{id}")
-          output = "#{File.read(NFS_EXPORTS_PATH)}\n#{output}"
+          output = "#{nfs_exports_content}\n#{output}"
           nfs_write_exports(output)
 
           if nfs_running?(nfs_check_command)
@@ -65,7 +65,7 @@ module VagrantPlugins
           user = Process.uid
 
           # Create editor instance for removing invalid IDs
-          editor = Vagrant::Util::StringBlockEditor.new(File.read(NFS_EXPORTS_PATH))
+          editor = Vagrant::Util::StringBlockEditor.new(nfs_exports_content)
 
           # Build composite IDs with UID information and discover invalid entries
           composite_ids = valid_ids.map do |v_id|
@@ -87,7 +87,7 @@ module VagrantPlugins
         def self.nfs_cleanup(remove_ids)
           return if !File.exist?(NFS_EXPORTS_PATH)
 
-          editor = Vagrant::Util::StringBlockEditor.new(File.read(NFS_EXPORTS_PATH))
+          editor = Vagrant::Util::StringBlockEditor.new(nfs_exports_content)
           remove_ids = Array(remove_ids)
 
           # Remove all invalid ID entries
@@ -98,7 +98,7 @@ module VagrantPlugins
         end
 
         def self.nfs_write_exports(new_exports_content)
-          if(File.read(NFS_EXPORTS_PATH).strip != new_exports_content.strip)
+          if(nfs_exports_content != new_exports_content.strip)
             begin
               # Write contents out to temporary file
               new_exports_file = Tempfile.create('vagrant')
@@ -106,7 +106,6 @@ module VagrantPlugins
               new_exports_file.close
               new_exports_path = new_exports_file.path
 
-              # puts File.read(new_exports_path).inspect
               # Only use "sudo" if we can't write to /etc/exports directly
               sudo_command = ""
               sudo_command = "sudo " if !File.writable?(NFS_EXPORTS_PATH)
@@ -117,18 +116,51 @@ module VagrantPlugins
               if existing_stat.mode != new_stat.mode
                 File.chmod(existing_stat.mode, new_exports_path)
               end
-              # TODO: Error check
               if existing_stat.uid != new_stat.uid || existing_stat.gid != new_stat.gid
-                system("#{sudo_command}chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}")
+                chown_cmd = "#{sudo_command}chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}"
+                result = Vagrant::Util::Subprocess.execute(*Shellwords.split(chown_cmd))
+                if result.exit_code != 0
+                  raise Vagrant::Errors::NFSExportsFailed,
+                    command: chown_cmd,
+                    stderr: result.stderr,
+                    stdout: result.stdout
+                end
               end
-
-              # Replace existing exports file
-              system("#{sudo_command}mv #{new_exports_path} #{NFS_EXPORTS_PATH}")
+              # Always force move the file to prevent overwrite prompting
+              mv_cmd = "#{sudo_command}mv -f #{new_exports_path} #{NFS_EXPORTS_PATH}"
+              result = Vagrant::Util::Subprocess.execute(*Shellwords.split(mv_cmd))
+              if result.exit_code != 0
+                raise Vagrant::Errors::NFSExportsFailed,
+                  command: mv_cmd,
+                  stderr: result.stderr,
+                  stdout: result.stdout
+              end
             ensure
               if File.exist?(new_exports_path)
                 File.unlink(new_exports_path)
               end
             end
+          end
+        end
+
+        def self.nfs_exports_content
+          if(File.exist?(NFS_EXPORTS_PATH))
+            if(File.readable?(NFS_EXPORTS_PATH))
+              File.read(NFS_EXPORTS_PATH)
+            else
+              cmd = "sudo cat #{NFS_EXPORTS_PATH}"
+              result = Vagrant::Util::Subprocess.execute(*Shellwords.split(cmd))
+              if result.exit_code != 0
+                raise Vagrant::Errors::NFSExportsFailed,
+                  command: cmd,
+                  stderr: result.stderr,
+                  stdout: result.stdout
+              else
+                result.stdout
+              end
+            end
+          else
+            ""
           end
         end
 

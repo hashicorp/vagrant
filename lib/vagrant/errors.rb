@@ -456,6 +456,10 @@ module Vagrant
       error_key(:nfs_bad_exports)
     end
 
+    class NFSExportsFailed < VagrantError
+      error_key(:nfs_exports_failed)
+    end
+
     class NFSCantReadExports < VagrantError
       error_key(:nfs_cant_read_exports)
     end
