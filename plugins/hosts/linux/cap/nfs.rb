@@ -93,17 +93,25 @@ module VagrantPlugins
         def self.nfs_cleanup(id)
           return if !File.exist?("/etc/exports")
 
-          user = Regexp.escape(Process.uid.to_s)
-          id   = Regexp.escape(id.to_s)
-
           # Only use "sudo" if we can't write to /etc/exports directly
           sudo_command = ""
           sudo_command = "sudo " if !File.writable?("/etc/exports")
 
-          # Use sed to just strip out the block of code which was inserted
-          # by Vagrant
-          tmp = ENV["TMPDIR"] || ENV["TMP"] || "/tmp"
-          system("cp /etc/exports '#{tmp}' && #{sudo_command}sed -r -e '\\\x01^# VAGRANT-BEGIN:( #{user})? #{id}\x01,\\\x01^# VAGRANT-END:( #{user})? #{id}\x01 d' -ibak '#{tmp}/exports' ; #{sudo_command}cp '#{tmp}/exports' /etc/exports")
+          # Strip out the block of code which was inserted by Vagrant
+          user = Regexp.escape(Process.uid.to_s)
+          id = Regexp.escape(id.to_s)
+          exports_in = File.read('/etc/exports')
+          exports_out = exports_in.gsub(%r{
+            ^\#\ VAGRANT-BEGIN:((?:\ #{user})?\ #{id})$
+            .*?
+            ^\#\ VAGRANT-END:\1$
+            \n?
+          }mx, '')
+          if exports_out != exports_in
+            open(%Q[|#{sudo_command}tee /etc/exports >/dev/null], 'w+') do |p|
+              p.write(exports_out)
+            end
+          end
         end
 
         def self.nfs_opts_setup(folders)
