@@ -276,7 +276,7 @@ module Vagrant
           next if !versiondir.directory?
           next if versiondir.basename.to_s.start_with?(".")
 
-          version = versiondir.basename.to_s
+          version = Gem::Version.new(versiondir.basename.to_s)
         end.compact
 
         # Traverse through versions with the latest version first
@@ -286,7 +286,7 @@ module Vagrant
             next
           end
 
-          versiondir = box_directory.join(v)
+          versiondir = box_directory.join(v.to_s)
           providers.each do |provider|
             provider_dir = versiondir.join(provider.to_s)
             next if !provider_dir.directory?
