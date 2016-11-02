@@ -256,7 +256,7 @@ end
 # Setup the plugin manager and load any defined plugins
 require_relative "vagrant/plugin/manager"
 plugins = Vagrant::Plugin::Manager.instance.installed_plugins
-Vagrant::Bundler.instance.init!(plugins)
+Vagrant::Bundler.instance.init!(plugins) unless ENV['VAGRANT_DISABLE_PLUGIN_INIT'] == "1"
 
 # A lambda that knows how to load plugins from a single directory.
 plugin_load_proc = lambda do |directory|
