@@ -1602,6 +1602,14 @@ en:
           Post install message from the '%{name}' plugin:
 
           %{message}
+        repairing: |-
+          Repairing currently installed plugins. This may take a few minutes...
+        repair_complete: |-
+          Installed plugins successfully repaired!
+        repair_failed: |-
+          Failed to automatically repair installed Vagrant plugins. Failure message:
+
+          %{message}
       snapshot:
         not_supported: |-
           This provider doesn't support snapshots.

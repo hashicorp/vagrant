@@ -29,6 +29,11 @@ module VagrantPlugins
             List
           end
 
+          @subcommands.register(:repair) do
+            require_relative "repair"
+            Repair
+          end
+
           @subcommands.register(:update) do
             require_relative "update"
             Update
