@@ -31,7 +31,7 @@ module Vagrant
 
     # Initializes Bundler and the various gem paths so that we can begin
     # loading gems. This must only be called once.
-    def init!(plugins)
+    def init!(plugins, repair=false)
       # Add HashiCorp RubyGems source
       Gem.sources << HASHICORP_GEMSTORE
 
@@ -48,24 +48,42 @@ module Vagrant
       # Sets that we can resolve our dependencies from
       current_set = Gem::Resolver::CurrentSet.new
       plugin_set = Gem::Resolver::VendorSet.new
-
-      # Register all known plugin specifications to the plugin set
-      Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).each do |spec_path|
-        spec = Gem::Specification.load(spec_path)
-        desired_spec_path = File.join(spec.gem_dir, "#{spec.name}.gemspec")
-        # Vendor set requires the spec to be within the gem directory. Some gems will package their
-        # spec file, and that's not what we want to load.
-        if !File.exist?(desired_spec_path) || !FileUtils.cmp(spec.spec_file, desired_spec_path)
-          File.write(desired_spec_path, spec.to_ruby)
+      repair_result = nil
+      begin
+        # Register all known plugin specifications to the plugin set
+        Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).each do |spec_path|
+          spec = Gem::Specification.load(spec_path)
+          desired_spec_path = File.join(spec.gem_dir, "#{spec.name}.gemspec")
+          # Vendor set requires the spec to be within the gem directory. Some gems will package their
+          # spec file, and that's not what we want to load.
+          if !File.exist?(desired_spec_path) || !FileUtils.cmp(spec.spec_file, desired_spec_path)
+            File.write(desired_spec_path, spec.to_ruby)
+          end
+          plugin_set.add_vendor_gem(spec.name, spec.gem_dir)
         end
-        plugin_set.add_vendor_gem(spec.name, spec.gem_dir)
+
+        # Compose set for resolution
+        composed_set = Gem::Resolver.compose_sets(current_set, plugin_set)
+
+        # Resolve the request set to ensure proper activation order
+        solution = request_set.resolve(composed_set)
+      rescue Gem::UnsatisfiableDependencyError => failure
+        if repair
+          raise failure if @init_retried
+          install(plugins)
+          @init_retried = true
+          retry
+        else
+          $stderr.puts "Vagrant failed to properly initialize due to an error while"
+          $stderr.puts "while attempting to load configured plugins. This can be caused"
+          $stderr.puts "by manually tampering with the 'plugins.json' file, or by a"
+          $stderr.puts "recent Vagrant upgrade. To fix this problem, please run:\n\n"
+          $stderr.puts "    vagrant plugin repair\n\n"
+          $stderr.puts "The error message is shown below:\n\n"
+          $stderr.puts failure.message
+          exit 1
+        end
       end
-
-      # Compose set for resolution
-      composed_set = Gem::Resolver.compose_sets(current_set, plugin_set)
-
-      # Resolve the request set to ensure proper activation order
-      solution = request_set.resolve(composed_set)
 
       # Activate the gems
       begin
