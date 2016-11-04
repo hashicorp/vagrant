@@ -1576,6 +1576,21 @@ en:
           the comments in the Vagrantfile as well as documentation on
           `vagrantup.com` for more information on using Vagrant.
       plugin:
+        expunge_confirm: |-
+
+          This command permanently deletes all currently installed user plugins. It
+          should only be used when a repair command is unable to properly fix the
+          system.
+
+          Continue?
+        expunge_request_reinstall: |-
+          Would you like Vagrant to attempt to reinstall current plugins?
+        expunge_complete: |-
+
+          All user installed plugins have been removed from this Vagrant environment!
+        expunge_reinstall: |-
+
+          Vagrant will now attempt to reinstall user plugins that were removed.
         installed_license: |-
           The license for '%{name}' was successfully installed!
         installing_license: |-

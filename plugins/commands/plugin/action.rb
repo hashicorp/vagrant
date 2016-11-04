@@ -6,6 +6,12 @@ module VagrantPlugins
   module CommandPlugin
     module Action
       # This middleware sequence will install a plugin.
+      def self.action_expunge
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use ExpungePlugins
+        end
+      end
+
       def self.action_install
         Vagrant::Action::Builder.new.tap do |b|
           b.use InstallGem
@@ -51,6 +57,7 @@ module VagrantPlugins
 
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
+      autoload :ExpungePlugins, action_root.join("expunge_plugins")
       autoload :InstallGem, action_root.join("install_gem")
       autoload :LicensePlugin, action_root.join("license_plugin")
       autoload :ListPlugins, action_root.join("list_plugins")
