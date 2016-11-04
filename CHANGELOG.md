@@ -31,7 +31,7 @@ BUG FIXES:
   - guests/redhat: Properly configure network and restart service [GH-7751]
   - guests/redhat: Prevent NetworkManager from managing devices on initial start [GH-7926]
   - hosts/linux: Fix race condition in writing /etc/exports file for NFS configuration
-      [GH-7947, GH-7938]
+      [GH-7947, GH-7938] - Thanks to Aron Griffis (@agriffis) for identifying this issue
   - plugins/rsync: Escape exclude paths [GH-7928, GH-7910]
   - providers/docker: Remove --interactive flag when pty is true [GH-7688]
   - provisioners/ansible_local: Use enquoted path for file/directory existence checks
