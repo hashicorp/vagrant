@@ -877,6 +877,14 @@ en:
         the issues below and execute "vagrant reload":
 
         %{output}
+      nfs_exports_failed: |-
+        Vagrant failed to install an updated NFS exports file. This may be
+        due to overly restrictive permissions on your NFS exports file. Please
+        validate them and try again.
+
+        command: %{command}
+        stdout: %{stdout}
+        stderr: %{stderr}
       nfs_cant_read_exports: |-
         Vagrant can't read your current NFS exports! The exports file should be
         readable by any user. This is usually caused by invalid permissions
