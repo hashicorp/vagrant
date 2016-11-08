@@ -44,54 +44,6 @@ if argv.include?("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
 
-# Setup our dependencies by initializing Bundler. If we're using plugins,
-# then also initialize the paths to the plugins.
-begin
-  require "bundler"
-rescue Errno::EINVAL
-  # Bundler can generate the EINVAL error during initial require, which means
-  # nothing has yet been setup (so no access to I18n). Note that vagrant has
-  # failed early and copy information related to problem and possible solution.
-  $stderr.puts "Vagrant failed to initialize at a very early stage:\n\n"
-  $stderr.puts "Vagrant received an \"EINVAL\" error while attempting to set some"
-  $stderr.puts "environment variables. This is usually caused by the total size of your"
-  $stderr.puts "environment variables being too large. Vagrant sets a handful of"
-  $stderr.puts "environment variables to function and requires this to work. Please"
-  $stderr.puts "delete some environment variables prior to executing Vagrant to"
-  $stderr.puts "fix this."
-  exit 255
-end
-
-if(defined?(Bundler))
-  begin
-    $vagrant_bundler_runtime = Bundler.setup(:default, :plugins)
-  rescue Bundler::GemNotFound
-    $stderr.puts "Bundler, the underlying system used to manage Vagrant plugins,"
-    $stderr.puts "is reporting that a plugin or its dependency can't be found."
-    $stderr.puts "This is usually caused by manual tampering with the 'plugins.json'"
-    $stderr.puts "file in the Vagrant home directory. To fix this error, please"
-    $stderr.puts "remove that file and reinstall all your plugins using `vagrant"
-    $stderr.puts "plugin install`."
-  rescue Bundler::VersionConflict => e
-    $stderr.puts "Vagrant experienced a version conflict with some installed plugins!"
-    $stderr.puts "This usually happens if you recently upgraded Vagrant. As part of the"
-    $stderr.puts "upgrade process, some existing plugins are no longer compatible with"
-    $stderr.puts "this version of Vagrant. The recommended way to fix this is to remove"
-    $stderr.puts "your existing plugins and reinstall them one-by-one. To remove all"
-    $stderr.puts "plugins:"
-    $stderr.puts ""
-    $stderr.puts "    rm -r ~/.vagrant.d/plugins.json ~/.vagrant.d/gems"
-    $stderr.puts ""
-    $stderr.puts "Note if you have an alternate VAGRANT_HOME environmental variable"
-    $stderr.puts "set, the folders above will be in that directory rather than your"
-    $stderr.puts "user's home directory."
-    $stderr.puts ""
-    $stderr.puts "The error message is shown below:\n\n"
-    $stderr.puts e.message
-    exit 1
-  end
-end
-
 # Stdout/stderr should not buffer output
 $stdout.sync = true
 $stderr.sync = true

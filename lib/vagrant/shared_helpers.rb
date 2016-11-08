@@ -38,6 +38,13 @@ module Vagrant
     ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"]
   end
 
+  # Should the plugin system be initialized
+  #
+  # @return [Boolean]
+  def self.plugins_init?
+    !ENV['VAGRANT_DISABLE_PLUGIN_INIT']
+  end
+
   # This returns whether or not 3rd party plugins should and can be loaded.
   #
   # @return [Boolean]

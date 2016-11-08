@@ -1,12 +1,5 @@
 require "vagrant/shared_helpers"
 
-if Vagrant.plugins_enabled? && !defined?(Bundler)
-  puts "It appears that Vagrant was not properly loaded. Specifically,"
-  puts "the bundler context Vagrant requires was not setup. Please execute"
-  puts "vagrant using only the `vagrant` executable."
-  abort
-end
-
 require 'rubygems'
 require 'log4r'
 
@@ -71,10 +64,6 @@ global_logger.info("Ruby version: #{RUBY_VERSION}")
 global_logger.info("RubyGems version: #{Gem::VERSION}")
 ENV.each do |k, v|
   global_logger.info("#{k}=#{v.inspect}") if k =~ /^VAGRANT_/
-end
-global_logger.info("Plugins:")
-Bundler.definition.specs_for([:plugins]).each do |spec|
-  global_logger.info("  - #{spec.name} = #{spec.version}")
 end
 
 # We need these components always so instead of an autoload we
@@ -256,7 +245,34 @@ end
 # Setup the plugin manager and load any defined plugins
 require_relative "vagrant/plugin/manager"
 plugins = Vagrant::Plugin::Manager.instance.installed_plugins
-Vagrant::Bundler.instance.init!(plugins) unless ENV['VAGRANT_DISABLE_PLUGIN_INIT'] == "1"
+
+global_logger.info("Plugins:")
+plugins.each do |plugin_name, plugin_info|
+  global_logger.info("  - #{plugin_name} = #{plugin_info[:version]}")
+end
+
+if Vagrant.plugins_init?
+  begin
+    Vagrant::Bundler.instance.init!(plugins)
+  rescue Gem::ConflictError, Gem::DependencyError => e
+    $stderr.puts "Vagrant experienced a version conflict with some installed plugins!"
+    $stderr.puts "This usually happens if you recently upgraded Vagrant. As part of the"
+    $stderr.puts "upgrade process, some existing plugins are no longer compatible with"
+    $stderr.puts "this version of Vagrant. The recommended way to fix this is to remove"
+    $stderr.puts "your existing plugins and reinstall them one-by-one. To remove all"
+    $stderr.puts "plugins:"
+    $stderr.puts ""
+    $stderr.puts "    vagrant expunge"
+    $stderr.puts ""
+    $stderr.puts "Note if you have an alternate VAGRANT_HOME environmental variable"
+    $stderr.puts "set, the folders above will be in that directory rather than your"
+    $stderr.puts "user's home directory."
+    $stderr.puts ""
+    $stderr.puts "The error message is shown below:\n\n"
+    $stderr.puts e.message
+    exit 1
+  end
+end
 
 # A lambda that knows how to load plugins from a single directory.
 plugin_load_proc = lambda do |directory|
