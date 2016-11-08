@@ -201,14 +201,25 @@ module VagrantPlugins
       #   folder.
       # @param [Hash] options Additional options.
       def synced_folder(hostpath, guestpath, options=nil)
-        name = (options && options.delete(:name)) || guestpath
         if Vagrant::Util::Platform.windows?
           # On Windows, Ruby just uses normal '/' for path seps, so
           # just replace normal Windows style seps with Unix ones.
           hostpath = hostpath.to_s.gsub("\\", "/")
         end
 
+        if guestpath.is_a?(Hash)
+          options = guestpath
+          guestpath = nil
+        end
+
         options ||= {}
+
+        if options.has_key?(:name)
+          synced_folder_name = options.delete(:name)
+        else
+          synced_folder_name = guestpath
+        end
+
         options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
         options[:hostpath]  = hostpath
         options[:disabled]  = false if !options.key?(:disabled)
@@ -218,7 +229,7 @@ module VagrantPlugins
         # Make sure the type is a symbol
         options[:type] = options[:type].to_sym if options[:type]
 
-        @__synced_folders[name] = options
+        @__synced_folders[synced_folder_name] = options
       end
 
       # Define a way to access the machine via a network. This exposes a

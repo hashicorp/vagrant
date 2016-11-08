@@ -534,6 +534,21 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.finalize!
       assert_valid
     end
+
+    it "allows providing custom name via options" do
+      subject.synced_folder(".", "/vagrant", name: "my-vagrant-folder")
+      sf = subject.synced_folders
+      expect(sf).to have_key("my-vagrant-folder")
+      expect(sf["my-vagrant-folder"][:guestpath]).to eq("/vagrant")
+      expect(sf["my-vagrant-folder"][:hostpath]).to eq(".")
+    end
+
+    it "allows providing custom name without guest path" do
+      subject.synced_folder(".", name: "my-vagrant-folder")
+      sf = subject.synced_folders
+      expect(sf).to have_key("my-vagrant-folder")
+      expect(sf["my-vagrant-folder"][:hostpath]).to eq(".")
+    end
   end
 
   describe "#usable_port_range" do
