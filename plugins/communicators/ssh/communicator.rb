@@ -540,7 +540,7 @@ module VagrantPlugins
             end
 
             # Set the terminal
-            ch2.send_data "export TERM=vt100\n"
+            ch2.send_data generate_environment_export("TERM", "vt100")
 
             # Set SSH_AUTH_SOCK if we are in sudo and forwarding agent.
             # This is to work around often misconfigured boxes where
@@ -563,7 +563,7 @@ module VagrantPlugins
                 @logger.warn("No SSH_AUTH_SOCK found despite forward_agent being set.")
               else
                 @logger.info("Setting SSH_AUTH_SOCK remotely: #{auth_socket}")
-                ch2.send_data "export SSH_AUTH_SOCK=#{auth_socket}\n"
+                ch2.send_data generate_environment_export("SSH_AUTH_SOCK", auth_socket)
               end
             end
 
@@ -572,9 +572,9 @@ module VagrantPlugins
             # without the cruft added from pty mode.
             if pty
               data = "stty raw -echo\n"
-              data += "export PS1=\n"
-              data += "export PS2=\n"
-              data += "export PROMPT_COMMAND=\n"
+              data += generate_environment_export("PS1", "")
+              data += generate_environment_export("PS2", "")
+              data += generate_environment_export("PROMPT_COMMAND", "")
               data += "printf #{PTY_DELIM_START}\n"
               data += "#{command}\n"
               data += "exitcode=$?\n"
@@ -669,6 +669,11 @@ module VagrantPlugins
         return false if !File.file?(path)
         source_path = Vagrant.source_root.join("keys", "vagrant")
         return File.read(path).chomp == source_path.read.chomp
+      end
+
+      def generate_environment_export(env_key, env_value)
+        template = @machine.config.ssh.export_command_template
+        template.sub("%ENV_KEY%", env_key).sub("%ENV_VALUE%", env_value) + "\n"
       end
     end
   end

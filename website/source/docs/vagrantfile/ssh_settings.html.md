@@ -126,6 +126,17 @@ only affects the shell to use when executing commands internally in Vagrant.
 
 <hr>
 
+`config.ssh.export_command_template` - The template used to generate
+exported environment variables in the active session. This can be useful
+when using a Bourne incompatible shell like C shell. The template supports
+two variables which are replaced with the desired environment variable key and
+environment variable value: `%ENV_KEY%` and `%ENV_VALUE%`. The default template
+is:
+
+```ruby
+config.ssh.export_command_template = 'export %ENV_KEY%="%ENV_VALUE%"'
+```
+
 `config.ssh.sudo_command` - The command to use when executing a command
 with `sudo`. This defaults to `sudo -E -H %c`. The `%c` will be replaced by
 the command that is being executed.

@@ -5,6 +5,8 @@ require Vagrant.source_root.join("plugins/communicators/ssh/communicator")
 describe VagrantPlugins::CommunicatorSSH::Communicator do
   include_context "unit"
 
+  let(:export_command_template){ 'export %ENV_KEY%="%ENV_VALUE%"' }
+
   # SSH configuration information mock
   let(:ssh) do
     double("ssh",
@@ -15,6 +17,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       pty: false,
       keep_alive: false,
       insert_key: false,
+      export_command_template: export_command_template,
       shell: 'bash -l'
     )
   end
@@ -506,6 +509,20 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           )
         ).and_return(true)
         communicator.send(:connect)
+      end
+    end
+  end
+
+  describe ".generate_environment_export" do
+    it "should generate bourne shell compatible export" do
+      communicator.send(:generate_environment_export, "TEST", "value").should eq("export TEST=\"value\"\n")
+    end
+
+    context "with custom template defined" do
+      let(:export_command_template){ "setenv %ENV_KEY% %ENV_VALUE%" }
+
+      it "should generate custom export based on template" do
+        communicator.send(:generate_environment_export, "TEST", "value").should eq("setenv TEST value\n")
       end
     end
   end
