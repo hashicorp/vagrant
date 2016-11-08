@@ -1591,6 +1591,9 @@ en:
         expunge_reinstall: |-
 
           Vagrant will now attempt to reinstall user plugins that were removed.
+        expunge_aborted: |-
+
+          Vagrant expunge has been declined. Skipping removal of plugins.
         installed_license: |-
           The license for '%{name}' was successfully installed!
         installing_license: |-

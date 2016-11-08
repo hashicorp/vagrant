@@ -1,4 +1,3 @@
-require 'pp'
 require "vagrant/plugin/manager"
 
 module VagrantPlugins
@@ -22,26 +21,29 @@ module VagrantPlugins
               I18n.t("vagrant.commands.plugin.expunge_confirm") +
                 " [Y/N]:"
             )
-            if result.to_s.downcase.strip == 'n'
-              exit 1
+            if result.to_s.downcase.strip != 'y'
+              abort_action = true
             end
           end
 
-          plugins = Vagrant::Plugin::Manager.instance.installed_plugins
-          plugins_json = File.join(env[:home_path], "plugins.json")
-          plugins_gems = env[:gems_path]
+          if !abort_action
+            plugins_json = File.join(env[:home_path], "plugins.json")
+            plugins_gems = env[:gems_path]
 
-          if File.exist?(plugins_json)
-            FileUtils.rm(plugins_json)
+            if File.exist?(plugins_json)
+              FileUtils.rm(plugins_json)
+            end
+
+            if File.directory?(plugins_gems)
+              FileUtils.rm_rf(plugins_gems)
+            end
+
+            env[:ui].info(I18n.t("vagrant.commands.plugin.expunge_complete"))
+
+            @app.call(env)
+          else
+            env[:ui].info(I18n.t("vagrant.commands.plugin.expunge_aborted"))
           end
-
-          if File.directory?(plugins_gems)
-            FileUtils.rm_rf(plugins_gems)
-          end
-
-          env[:ui].info(I18n.t("vagrant.commands.plugin.expunge_complete"))
-
-          @app.call(env)
         end
       end
     end
