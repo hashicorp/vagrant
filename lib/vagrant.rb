@@ -248,7 +248,7 @@ plugins = Vagrant::Plugin::Manager.instance.installed_plugins
 
 global_logger.info("Plugins:")
 plugins.each do |plugin_name, plugin_info|
-  global_logger.info("  - #{plugin_name} = #{plugin_info[:version]}")
+  global_logger.info("  - #{plugin_name} = #{plugin_info["installed_gem_version"]}")
 end
 
 if Vagrant.plugins_init?

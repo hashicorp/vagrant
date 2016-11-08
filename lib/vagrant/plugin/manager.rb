@@ -78,6 +78,7 @@ module Vagrant
           version: opts[:version],
           require: opts[:require],
           sources: opts[:sources],
+          installed_gem_version: result.version
         )
 
         result
