@@ -23,7 +23,7 @@ module VagrantPlugins
               options[:dry_run] = f
             end
 
-            o.on("--name NAME", String, "The specific box name to destroy.") do |name|
+            o.on("--name NAME", String, "The specific box name to check for outdated versions.") do |name|
               options[:name] = name
             end
 
