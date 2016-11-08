@@ -1,8 +1,8 @@
 require File.expand_path("../../../../../base", __FILE__)
 
-require Vagrant.source_root.join("plugins/commands/box/command/remove_old_versions")
+require Vagrant.source_root.join("plugins/commands/box/command/prune")
 
-describe VagrantPlugins::CommandBox::Command::RemoveOldVersions do
+describe VagrantPlugins::CommandBox::Command::Prune do
   include_context "unit"
   include_context "command plugin helpers"
 

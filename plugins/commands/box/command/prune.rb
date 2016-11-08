@@ -3,14 +3,14 @@ require 'optparse'
 module VagrantPlugins
   module CommandBox
     module Command
-      class RemoveOldVersions < Vagrant.plugin("2", :command)
+      class Prune < Vagrant.plugin("2", :command)
         def execute
           options = {}
           options[:force] = false
           options[:dry_run] = false
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant box remove-old-versions [options]"
+            o.banner = "Usage: vagrant box prune [options]"
             o.separator ""
             o.separator "Options:"
             o.separator ""
