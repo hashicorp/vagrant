@@ -5,8 +5,12 @@ module Vagrant
     class Env
       def self.with_original_env
         original_env = ENV.to_hash
-        ENV.replace(::Bundler::ORIGINAL_ENV) if defined?(::Bundler::ORIGINAL_ENV)
-        ENV.update(Vagrant.original_env)
+        proxy_env = Vagrant.original_env
+        if Vagrant.original_env.any?
+          ENV.replace(proxy_env)
+        elsif defined?(::Bundler::ORIGINAL_ENV)
+          ENV.replace(::Bundler::ORIGINAL_ENV)
+        end
         yield
       ensure
         ENV.replace(original_env.to_hash)

@@ -119,7 +119,9 @@ module Vagrant
         # Start the process
         begin
           SafeChdir.safe_chdir(workdir) do
-            process.start
+            Vagrant::Util::Env.with_original_env do
+              process.start
+            end
           end
         rescue ChildProcess::LaunchError => ex
           # Raise our own version of the error so that users of the class
@@ -296,9 +298,6 @@ module Vagrant
       # @return [nil]
       def jailbreak(env = {})
         return if ENV.key?("VAGRANT_SKIP_SUBPROCESS_JAILBREAK")
-
-        env.replace(::Bundler::ORIGINAL_ENV) if defined?(::Bundler::ORIGINAL_ENV)
-        env.merge!(Vagrant.original_env)
 
         # Bundler does this, so I guess we should as well, since I think it
         # other subprocesses that use Bundler will reload it
