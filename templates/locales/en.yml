@@ -1882,6 +1882,11 @@ en:
           disabled_by_sentinel: |-
             Machine already provisioned. Run `vagrant provision` or use the `--provision`
             flag to force provisioning. Provisioners marked to run always will still run.
+          auto_up_failure: |-
+            Unable to automatically transition machine from current state to `up` state.
+
+            Machine name: %{machine_name}
+            Machine state: %{machine_state}
         resume:
           resuming: Resuming suspended VM...
           unpausing: |-
