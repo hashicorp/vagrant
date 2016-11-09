@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - commands/box: Add `prune` subcommand for removing outdated boxes [GH-7978]
+
 IMPROVEMENTS:
 
 BUG FIXES:
