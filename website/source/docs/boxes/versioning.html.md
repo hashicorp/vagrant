@@ -100,6 +100,8 @@ user has to manually enter a command to do it.
 
 Vagrant does not automatically prune old versions because it does not know
 if they might be in use by other Vagrant environments. Because boxes can
-be large, you may want to actively prune them once in awhile using
+be large, you may want to actively prune them once in a while using
 `vagrant box remove`. You can see all the boxes that are installed
 using `vagrant box list`.
+
+Another option is to use `vagrant box prune` command to remove all installed boxes that are outdated and not currently in use.

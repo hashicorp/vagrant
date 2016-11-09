@@ -150,6 +150,24 @@ with the `--all` flag.
   name. This is only required if a box is backed by multiple providers.
   If there is only a single provider, Vagrant will default to removing it.
 
+
+# Box prune
+
+**Command: `vagrant box prune`**
+
+This command removes old versions of installed boxes. If the box in currently in use vagrant will ask you if you to confirm.
+
+## Options
+
+* `--provider PROVIDER` - The specific provider type for the boxes to destroy.
+
+* `--dry-run` - Only print the boxes that would be removed.
+
+* `--name NAME` - The specific box name to check for outdated versions.
+
+* `--force` - Destroy without confirmation even when box is in use.
+
+
 # Box Repackage
 
 **Command: `vagrant box repackage NAME PROVIDER VERSION`**
