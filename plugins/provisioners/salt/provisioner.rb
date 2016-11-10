@@ -6,7 +6,7 @@ module VagrantPlugins
 
       # Default path values to set within configuration only
       # if configuration value is unset and local path exists
-      OPTIMISTIC_PATH_DEFAULTS = Hash[[
+      OPTIMISTIC_PATH_DEFAULTS = Hash[*[
         "minion_config", "salt/minion",
         "minion_key", "salt/key/minion.key",
         "minion_pub", "salt/key/minion.pub",
