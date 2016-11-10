@@ -45,14 +45,14 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "masks GemNotFound with our error" do
-      expect(bundler).to receive(:install).and_raise(Bundler::GemNotFound)
+      expect(bundler).to receive(:install).and_raise(Gem::GemNotFoundException)
 
       expect { subject.install_plugin("foo") }.
         to raise_error(Vagrant::Errors::PluginGemNotFound)
     end
 
     it "masks bundler errors with our own error" do
-      expect(bundler).to receive(:install).and_raise(Bundler::InstallError)
+      expect(bundler).to receive(:install).and_raise(Gem::InstallError)
 
       expect { subject.install_plugin("foo") }.
         to raise_error(Vagrant::Errors::BundlerError)
@@ -140,7 +140,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "masks bundler errors with our own error" do
-      expect(bundler).to receive(:clean).and_raise(Bundler::InstallError)
+      expect(bundler).to receive(:clean).and_raise(Gem::InstallError)
 
       expect { subject.uninstall_plugin("foo") }.
         to raise_error(Vagrant::Errors::BundlerError)
@@ -182,7 +182,7 @@ describe Vagrant::Plugin::Manager do
 
   describe "#update_plugins" do
     it "masks bundler errors with our own error" do
-      expect(bundler).to receive(:update).and_raise(Bundler::InstallError)
+      expect(bundler).to receive(:update).and_raise(Gem::InstallError)
 
       expect { subject.update_plugins([]) }.
         to raise_error(Vagrant::Errors::BundlerError)

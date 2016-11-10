@@ -16,11 +16,6 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "vagrant"
 
-  # Do not update the Bundler constraint. Vagrant relies on internal Bundler
-  # APIs, so even point releases can introduce breaking changes. These changes
-  # are *untestable* until after a release is made because there is no way for
-  # Bundler to exec into itself. Please do not update the Bundler constraint.
-  s.add_dependency "bundler", "= 1.12.5"
   s.add_dependency "childprocess", "~> 0.5.0"
   s.add_dependency "erubis", "~> 2.7.0"
   s.add_dependency "i18n", ">= 0.6.0", "<= 0.8.0"

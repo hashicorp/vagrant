@@ -78,12 +78,13 @@ module Vagrant
           version: opts[:version],
           require: opts[:require],
           sources: opts[:sources],
+          installed_gem_version: result.version
         )
 
         result
-      rescue ::Bundler::GemNotFound
+      rescue Gem::GemNotFoundException
         raise Errors::PluginGemNotFound, name: name
-      rescue ::Bundler::BundlerError => e
+      rescue Gem::Exception => e
         raise Errors::BundlerError, message: e.to_s
       end
 
@@ -102,14 +103,14 @@ module Vagrant
 
         # Clean the environment, removing any old plugins
         Vagrant::Bundler.instance.clean(installed_plugins)
-      rescue ::Bundler::BundlerError => e
+      rescue Gem::Exception => e
         raise Errors::BundlerError, message: e.to_s
       end
 
       # Updates all or a specific set of plugins.
       def update_plugins(specific)
         Vagrant::Bundler.instance.update(installed_plugins, specific)
-      rescue ::Bundler::BundlerError => e
+      rescue Gem::Exception => e
         raise Errors::BundlerError, message: e.to_s
       end
 

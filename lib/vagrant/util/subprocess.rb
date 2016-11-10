@@ -297,7 +297,9 @@ module Vagrant
       def jailbreak(env = {})
         return if ENV.key?("VAGRANT_SKIP_SUBPROCESS_JAILBREAK")
 
-        env.replace(::Bundler::ORIGINAL_ENV) if defined?(::Bundler::ORIGINAL_ENV)
+        if defined?(::Bundler) && defined?(::Bundler::ORIGINAL_ENV)
+          env.replace(::Bundler::ORIGINAL_ENV)
+        end
         env.merge!(Vagrant.original_env)
 
         # Bundler does this, so I guess we should as well, since I think it
