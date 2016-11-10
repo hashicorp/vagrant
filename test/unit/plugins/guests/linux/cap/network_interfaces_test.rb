@@ -69,6 +69,12 @@ describe "VagrantPlugins::GuestLinux::Cap::NetworkInterfaces" do
       expect(result).to eq(["eth0", "eth1", "eth2", "bridge0", "docker0", "docker1", "eth0:0"])
     end
 
+    it "does not include ethernet devices aliases within prefix device listing with dot separators" do
+      expect(comm).to receive(:sudo).and_yield(:stdout, "eth1\neth2\ndocker0\nbridge0\neth0\ndocker1\neth0.1@eth0")
+      result = cap.network_interfaces(machine)
+      expect(result).to eq(["eth0", "eth1", "eth2", "bridge0", "docker0", "docker1", "eth0.1@eth0"])
+    end
+
     it "properly sorts non-consistent device name formats" do
       expect(comm).to receive(:sudo).and_yield(:stdout, "eth0\neth1\ndocker0\nveth437f7f9\nveth06b3e44\nveth8bb7081")
       result = cap.network_interfaces(machine)
