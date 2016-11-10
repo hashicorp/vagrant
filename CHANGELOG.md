@@ -3,6 +3,7 @@
 FEATURES:
 
   - commands/box: Add `prune` subcommand for removing outdated boxes [GH-7978]
+  - core: Remove Bundler integration for handling internal plugins [GH-7793]
 
 IMPROVEMENTS:
 
