@@ -13,6 +13,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - provisioner/salt: Fix Hash construction for constant [GH-7986, GH-7981]
+
 ## 1.8.7 (November 4, 2016)
 
 IMPROVEMENTS:
