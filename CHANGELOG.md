@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - communicator/ssh: Support custom environment variable export template
+      [GH-7976, GH-6747]
   - synced_folders: Support custom naming and disable auto-mount [GH-7980, GH-6836]
 
 BUG FIXES:
