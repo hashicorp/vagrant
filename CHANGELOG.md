@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - synced_folders: Support custom naming and disable auto-mount [GH-7980, GH-6836]
+
 BUG FIXES:
 
 ## 1.8.7 (November 4, 2016)
