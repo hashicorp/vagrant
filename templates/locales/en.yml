@@ -734,6 +734,13 @@ en:
       downloader_interrupted: |-
         The download was interrupted by an external signal. It did not
         complete.
+      downloader_checksum_error: |-
+        The calculated checksum of the requested file does not match the expected
+        checksum!
+
+        File source:         %{source}
+        Expected checksum:   %{expected_checksum}
+        Calculated checksum: %{actual_checksum}
       env_inval: |-
         Vagrant received an "EINVAL" error while attempting to set some
         environment variables. This is usually caused by the total size of your
