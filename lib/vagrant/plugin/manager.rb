@@ -126,8 +126,14 @@ module Vagrant
             system[k] = v.merge("system" => true)
           end
         end
+        plugin_list = system.merge(@user_file.installed_plugins)
 
-        system.merge(@user_file.installed_plugins)
+        # Sort plugins by name
+        Hash[
+          plugin_list.map{|plugin_name, plugin_info|
+            [plugin_name, plugin_info]
+          }.sort_by(&:first)
+        ]
       end
 
       # This returns the list of plugins that are installed as
