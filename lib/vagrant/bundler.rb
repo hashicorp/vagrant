@@ -140,19 +140,14 @@ module Vagrant
     # @param [String] path Path to a local gem file.
     # @return [Gem::Specification]
     def install_local(path)
-      installer = Gem::Installer.at(path,
-        ignore_dependencies: true,
-        install_dir: plugin_gem_path.to_s
-      )
-      installer.install
-      new_spec = installer.spec
+      plugin_source = Gem::Source::SpecificFile.new(path)
       plugin_info = {
-        new_spec.name => {
-          'gem_version' => new_spec.version.to_s
+        plugin_source.spec.name => {
+          'local_source' => plugin_source
         }
       }
       internal_install(plugin_info, {})
-      new_spec
+      plugin_source.spec
     end
 
     # Update updates the given plugins, or every plugin if none is given.
@@ -231,12 +226,17 @@ module Vagrant
 
       update = {} unless update.is_a?(Hash)
 
+      installer_set = Gem::Resolver::InstallerSet.new(:both)
+
       # Generate all required plugin deps
       plugin_deps = plugins.map do |name, info|
         if update == true || (update[:gems].respond_to?(:include?) && update[:gems].include?(name))
           gem_version = '> 0'
         else
           gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
+        end
+        if plugin_source = info.delete("local_source")
+          installer_set.add_local(plugin_source.spec.name, plugin_source.spec, plugin_source)
         end
         Gem::Dependency.new(name, gem_version)
       end
@@ -254,7 +254,7 @@ module Vagrant
       request_set.import(existing_deps)
 
       # Generate the required solution set for new plugins
-      solution = request_set.resolve(Gem::Resolver::InstallerSet.new(:both))
+      solution = request_set.resolve(installer_set)
 
       # If any items in the solution set are local but not activated, turn them on
       solution.each do |activation_request|
