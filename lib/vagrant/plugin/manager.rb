@@ -44,7 +44,7 @@ module Vagrant
         local = false
         if name =~ /\.gem$/
           # If this is a gem file, then we install that gem locally.
-          local_spec = Vagrant::Bundler.instance.install_local(name)
+          local_spec = Vagrant::Bundler.instance.install_local(name, opts)
           name       = local_spec.name
           opts[:version] = local_spec.version.to_s
         end

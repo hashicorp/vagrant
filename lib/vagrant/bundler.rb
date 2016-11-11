@@ -139,14 +139,15 @@ module Vagrant
     #
     # @param [String] path Path to a local gem file.
     # @return [Gem::Specification]
-    def install_local(path)
+    def install_local(path, opts={})
       plugin_source = Gem::Source::SpecificFile.new(path)
       plugin_info = {
         plugin_source.spec.name => {
-          'local_source' => plugin_source
+          "local_source" => plugin_source,
+          "sources" => opts.fetch(:sources, Gem.sources.map(&:to_s))
         }
       }
-      internal_install(plugin_info, {}, local_install: true)
+      internal_install(plugin_info, {})
       plugin_source.spec
     end
 
@@ -223,9 +224,8 @@ module Vagrant
     protected
 
     def internal_install(plugins, update, **extra)
-
-      # Only clear Gem sources if not performing local install
-      Gem.sources.clear if !extra[:local_install]
+      # Only allow defined Gem sources
+      Gem.sources.clear
 
       update = {} unless update.is_a?(Hash)
       installer_set = Gem::Resolver::InstallerSet.new(:both)
