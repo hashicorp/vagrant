@@ -146,7 +146,7 @@ module Vagrant
           'local_source' => plugin_source
         }
       }
-      internal_install(plugin_info, {})
+      internal_install(plugin_info, {}, local_install: true)
       plugin_source.spec
     end
 
@@ -224,8 +224,10 @@ module Vagrant
 
     def internal_install(plugins, update, **extra)
 
-      update = {} unless update.is_a?(Hash)
+      # Only clear Gem sources if not performing local install
+      Gem.sources.clear if !extra[:local_install]
 
+      update = {} unless update.is_a?(Hash)
       installer_set = Gem::Resolver::InstallerSet.new(:both)
 
       # Generate all required plugin deps
