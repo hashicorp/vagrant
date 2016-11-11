@@ -66,14 +66,10 @@ describe Vagrant::Plugin::Manager do
       local_spec.name = "bar"
       local_spec.version = version
 
-      expect(bundler).to receive(:install_local).with(name).
+      expect(bundler).to receive(:install_local).with(name, {}).
         ordered.and_return(local_spec)
 
-      expect(bundler).to receive(:install).once.with { |plugins, local|
-        expect(plugins).to have_key("bar")
-        expect(plugins["bar"]["gem_version"]).to eql("#{version}")
-        expect(local).to be_true
-      }.ordered.and_return([local_spec])
+      expect(bundler).not_to receive(:install)
 
       subject.install_plugin(name)
 
