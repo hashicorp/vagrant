@@ -308,7 +308,29 @@ end
 if Vagrant.plugins_enabled?
   begin
     global_logger.info("Loading plugins!")
-    $vagrant_bundler_runtime.require(:plugins)
+    plugins.each do |plugin_name, plugin_info|
+      if plugin_info["require"].to_s.empty?
+        begin
+          global_logger.debug("Loading plugin `#{plugin_name}` with default require: `#{plugin_name}`")
+          require plugin_name
+        rescue LoadError, Gem::LoadError => load_error
+          if plugin_name.include?("-")
+            begin
+              plugin_slash = plugin_name.gsub("-", "/")
+              global_logger.debug("Failed to load plugin `#{plugin_name}` with default require.")
+              global_logger.debug("Loading plugin `#{plugin_name}` with slash require: `#{plugin_slash}`")
+              require plugin_slash
+            rescue LoadError, Gem::LoadError
+              raise load_error
+            end
+          end
+        end
+      else
+        global_logger.debug("Loading plugin `#{plugin_name}` with custom require: `#{plugin_info["require"]}`")
+        require plugin_info["require"]
+      end
+      global_logger.debug("Successfully loaded plugin `#{plugin_name}`.")
+    end
   rescue Exception => e
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
   end
