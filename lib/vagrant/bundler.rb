@@ -238,6 +238,11 @@ module Vagrant
         if plugin_source = info.delete("local_source")
           installer_set.add_local(plugin_source.spec.name, plugin_source.spec, plugin_source)
         end
+        Array(info["sources"]).each do |source|
+          if !Gem.sources.include?(source)
+            Gem.sources << source
+          end
+        end
         Gem::Dependency.new(name, gem_version)
       end
 
