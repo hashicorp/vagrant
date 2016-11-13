@@ -16,7 +16,10 @@ describe VagrantPlugins::Ansible::Config::Guest do
   let(:existing_file) { "this/path/is/a/stub" }
 
   it "supports a list of options" do
-    supported_options = %w( config_file
+    supported_options = %w( become
+                            become_user
+                            compatibility_mode
+                            config_file
                             extra_vars
                             galaxy_command
                             galaxy_role_file

@@ -1,3 +1,4 @@
+require_relative "../constants"
 require_relative "../errors"
 require_relative "../helpers"
 
@@ -14,6 +15,27 @@ module VagrantPlugins
 
         RANGE_PATTERN = %r{(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])}.freeze
 
+        ANSIBLE_PARAMETER_NAMES = {
+          Ansible::COMPATIBILITY_MODE_V1_8 => {
+            ansible_host: "ansible_ssh_host",
+            ansible_password: "ansible_ssh_pass",
+            ansible_port: "ansible_ssh_port",
+            ansible_user: "ansible_ssh_user",
+            ask_become_pass: "ask-sudo-pass",
+            become: "sudo",
+            become_user: "sudo-user",
+          },
+          Ansible::COMPATIBILITY_MODE_V2_0 => {
+            ansible_host: "ansible_host",
+            ansible_password: "ansible_password",
+            ansible_port: "ansible_port",
+            ansible_user: "ansible_user",
+            ask_become_pass: "ask-become-pass",
+            become: "become",
+            become_user: "become-user",
+          }
+        }
+
         protected
 
         def initialize(machine, config)
@@ -23,6 +45,55 @@ module VagrantPlugins
           @environment_variables = {}
           @inventory_machines = {}
           @inventory_path = nil
+        end
+
+        def set_compatibility_mode
+          unless config.compatibility_mode
+            detect_compatibility_mode(gather_ansible_version)
+          end
+
+          unless Ansible::COMPATIBILITY_MODES.include?(config.compatibility_mode)
+            raise "Programming Error: compatibility_mode must correctly set at this stage!"
+          end
+
+          @lexicon = ANSIBLE_PARAMETER_NAMES[config.compatibility_mode]
+        end
+
+        def detect_compatibility_mode(ansible_version_stdoutput)
+          if config.compatibility_mode
+            raise "Programming Error: detect_compatibility_mode() shouldn't have been called."
+          end
+
+          begin
+            first_line = ansible_version_stdoutput.lines[0]
+            full_version = first_line.match(/ansible (\d)(\.\d+){1,}/)
+
+            if full_version
+              major_version, _ = full_version.captures
+
+              if major_version.to_i <= 1
+                config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V1_8
+              else
+                config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V2_0
+              end
+
+              @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
+                compatibility_mode: config.compatibility_mode,
+                ansible_version: full_version) +
+              "\n")
+            end
+          rescue
+            # Nothing to do here, the fallback to default compatibility_mode is done below
+          end
+
+          unless config.compatibility_mode
+            config.compatibility_mode = Ansible::DEFAULT_COMPATIBILITY_MODE
+
+            @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_not_detected",
+              compatibility_mode: config.compatibility_mode,
+              gathered_version: ansible_version_stdoutput) +
+            "\n")
+          end
         end
 
         def check_files_existence
@@ -97,8 +168,8 @@ module VagrantPlugins
 
           @command_arguments << "--inventory-file=#{inventory_path}"
           @command_arguments << "--extra-vars=#{extra_vars_argument}" if config.extra_vars
-          @command_arguments << "--sudo" if config.sudo
-          @command_arguments << "--sudo-user=#{config.sudo_user}" if config.sudo_user
+          @command_arguments << "--#{@lexicon[:become]}" if config.become
+          @command_arguments << "--#{@lexicon[:become_user]}=#{config.become_user}" if config.become_user
           @command_arguments << "#{verbosity_argument}" if verbosity_is_enabled?
           @command_arguments << "--vault-password-file=#{config.vault_password_file}" if config.vault_password_file
           @command_arguments << "--tags=#{Helpers::as_list_argument(config.tags)}" if config.tags

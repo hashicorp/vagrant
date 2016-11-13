@@ -14,8 +14,10 @@ module VagrantPlugins
         end
 
         def provision
-          check_files_existence
           check_and_install_ansible
+          check_files_existence
+          set_compatibility_mode
+
           execute_ansible_galaxy_on_guest if config.galaxy_role_file
           execute_ansible_playbook_on_guest
         end
@@ -65,6 +67,19 @@ module VagrantPlugins
               !@machine.guest.capability(:ansible_installed, config.version))
             raise Ansible::Errors::AnsibleVersionNotFoundOnGuest, required_version: config.version.to_s
           end
+        end
+
+        def gather_ansible_version
+          raw_output = nil
+          result = @machine.communicate.execute("ansible --version", error_check: false) do |type, output|
+            if type == :stdout && output.lines[0]
+              raw_output = output.lines[0]
+            end
+          end
+          if result != 0
+            raw_output = nil
+          end
+          raw_output
         end
 
         def get_provisioning_working_directory

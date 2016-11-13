@@ -3,6 +3,9 @@ shared_examples_for 'options shared by both Ansible provisioners' do
   it "assigns default values to unset common options" do
     subject.finalize!
 
+    expect(subject.become).to be(false)
+    expect(subject.become_user).to be_nil
+    expect(subject.compatibility_mode).to be_nil
     expect(subject.config_file).to be_nil
     expect(subject.extra_vars).to be_nil
     expect(subject.galaxy_command).to eql("ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force")
@@ -17,8 +20,8 @@ shared_examples_for 'options shared by both Ansible provisioners' do
     expect(subject.raw_arguments).to be_nil
     expect(subject.skip_tags).to be_nil
     expect(subject.start_at_task).to be_nil
-    expect(subject.sudo).to be(false)
-    expect(subject.sudo_user).to be_nil
+    expect(subject.sudo).to be(false)              # deprecated
+    expect(subject.sudo_user).to be_nil            # deprecated
     expect(subject.tags).to be_nil
     expect(subject.vault_password_file).to be_nil
     expect(subject.verbose).to be(false)
@@ -39,6 +42,30 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
     expect(result[provisioner_label]).to eql([
       I18n.t("vagrant.provisioners.ansible.errors.no_playbook")
     ])
+  end
+
+  describe "compatibility_mode option" do
+
+    %w(1.8 2.0).each do |minimal_version|
+      it "supports compatibility mode '#{minimal_version}'" do
+        subject.compatibility_mode = minimal_version
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(subject.compatibility_mode).to eql(minimal_version)
+      end
+    end
+
+    %w(invalid 1.9 2.3).each do |invalid_mode|
+      it "silently forces the compatibility mode detection for invalid mode '#{invalid_mode}'" do
+        subject.compatibility_mode = invalid_mode
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(subject.compatibility_mode).to be_nil
+      end
+    end
+
   end
 
   it "passes if the extra_vars option is a hash" do
@@ -102,7 +129,15 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
              value: subject.raw_arguments.to_s))
   end
 
+  describe "become option" do
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :become, false
+  end
+
   describe "sudo option" do
+    before do
+      # Filter the deprecation notice
+      allow($stdout).to receive(:puts)
+    end
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :sudo, false
   end
 

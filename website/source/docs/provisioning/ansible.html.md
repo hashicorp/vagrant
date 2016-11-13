@@ -53,9 +53,16 @@ end
 
 This section lists the _specific_ options for the Ansible (remote) provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/docs/provisioning/ansible_common.html).
 
-- `ask_sudo_pass` (boolean) - require Ansible to [prompt for a sudo password](https://docs.ansible.com/intro_getting_started.html#remote-connection-information).
+- `ask_become_pass` (boolean) - require Ansible to [prompt for a password](https://docs.ansible.com/intro_getting_started.html#remote-connection-information) when switching to another user with the [become/sudo mechanism](http://docs.ansible.com/ansible/become.html).
 
     The default value is `false`.
+
+- `ask_sudo_pass` (boolean) - Backwards compatible alias for the [ask_become_pass](#ask_become_pass) option.
+
+    <div class="alert alert-warning">
+      <strong>Deprecation:</strong>
+      The `ask_sudo_pass` option is deprecated and will be removed in a future release. Please use the [**`ask_become_pass`**](#ask_become_pass) option instead.
+    </div>
 
 - `ask_vault_pass` (boolean) - require Ansible to [prompt for a vault password](https://docs.ansible.com/playbooks_vault.html#vault).
 

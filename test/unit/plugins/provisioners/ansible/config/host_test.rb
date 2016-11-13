@@ -13,8 +13,12 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
   let(:existing_file) { File.expand_path(__FILE__) }
 
   it "supports a list of options" do
-    supported_options = %w( ask_sudo_pass
+    supported_options = %w( ask_become_pass
+                            ask_sudo_pass
                             ask_vault_pass
+                            become
+                            become_user
+                            compatibility_mode
                             config_file
                             extra_vars
                             force_remote_user
@@ -47,7 +51,8 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
     it "assigns default values to unset host-specific options" do
       subject.finalize!
 
-      expect(subject.ask_sudo_pass).to be(false)
+      expect(subject.ask_become_pass).to be(false)
+      expect(subject.ask_sudo_pass).to be(false)      # deprecated
       expect(subject.ask_vault_pass).to be(false)
       expect(subject.force_remote_user).to be(true)
       expect(subject.host_key_checking).to be(false)
@@ -61,7 +66,14 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
   describe "host_key_checking option" do
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :host_key_checking, false
   end
+  describe "ask_become_pass option" do
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_become_pass, false
+  end
   describe "ask_sudo_pass option" do
+    before do
+      # Filter the deprecation notice
+      allow($stdout).to receive(:puts)
+    end
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
   end
   describe "ask_vault_pass option" do

@@ -2387,6 +2387,20 @@ en:
         windows_not_supported_for_control_machine: |-
           Windows is not officially supported for the Ansible Control Machine.
           Please check https://docs.ansible.com/intro_installation.html#control-machine-requirements
+        compatibility_mode_not_detected: |-
+          Vagrant gathered an unknown Ansible version:
+
+          %{gathered_version}
+          and falls back on the compatibility mode '%{compatibility_mode}'.
+
+          Alternatively, the compatibility mode can be specified in your Vagrantfile:
+          https://www.vagrantup.com/docs/provisioning/ansible_common.html#compatibility_mode
+        compatibility_mode_warning: |-
+          Vagrant has automatically selected the compatibility mode '%{compatibility_mode}'
+          according to the Ansible version installed (%{ansible_version}).
+
+          Alternatively, the compatibility mode can be specified in your Vagrantfile:
+          https://www.vagrantup.com/docs/provisioning/ansible_common.html#compatibility_mode
 
       docker:
         wrong_provisioner: |-
