@@ -64,7 +64,7 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
   end
   describe "ask_vault_pass option" do
-    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_vault_pass, false
   end
 
   describe "#validate" do
