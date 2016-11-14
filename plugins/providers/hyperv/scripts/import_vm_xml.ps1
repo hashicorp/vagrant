@@ -1,8 +1,8 @@
 Param(
     [Parameter(Mandatory=$true)]
-    [string]$vm_xml_config,
+    [string]$vm_config_file,
     [Parameter(Mandatory=$true)]
-    [string]$image_path,
+    [string]$dest_path,
 
     [string]$switchname=$null,
     [string]$memory=$null,
@@ -17,7 +17,7 @@ Param(
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-[xml]$vmconfig = Get-Content -Path  $vm_xml_config
+[xml]$vmconfig = Get-Content -Path $vm_config_file
 
 $generation = [int]($vmconfig.configuration.properties.subtype.'#text')+1
 
@@ -190,7 +190,7 @@ foreach ($controller in $controllers) {
 
         $addDriveParam = @{
             ControllerNumber = $rx.Match($controller.node.name).value
-            Path = $image_path
+            Path = $dest_path
         }
 
         if ($drive.pool_id."#text") {
