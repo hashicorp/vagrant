@@ -331,6 +331,10 @@ if Vagrant.plugins_enabled?
       end
       global_logger.debug("Successfully loaded plugin `#{plugin_name}`.")
     end
+    if defined?(::Bundler)
+      global_logger.debug("Bundler detected in use. Loading `:plugins` group.")
+      ::Bundler.require(:plugins)
+    end
   rescue Exception => e
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
   end
