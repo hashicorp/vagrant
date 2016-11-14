@@ -55,7 +55,7 @@ module VagrantPlugins
           resorted_ifaces = []
           resorted_ifaces += ifaces.find_all do |iface|
             POSSIBLE_ETHERNET_PREFIXES.any?{|prefix| iface.start_with?(prefix)} &&
-              !iface.include?(':')
+              iface.match(/^[a-zA-Z0-9]+$/)
           end
           resorted_ifaces += ifaces - resorted_ifaces
           ifaces = resorted_ifaces
