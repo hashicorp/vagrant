@@ -27,6 +27,7 @@ module Vagrant
 
     def initialize
       @plugin_gem_path = Vagrant.user_data_path.join("gems", RUBY_VERSION).freeze
+      @logger = Log4r::Logger.new("vagrant::bundler")
     end
 
     # Initializes Bundler and the various gem paths so that we can begin
@@ -39,6 +40,8 @@ module Vagrant
       plugin_deps = plugins.map do |name, info|
         Gem::Dependency.new(name, info['gem_version'].to_s.empty? ? '> 0' : info['gem_version'])
       end
+
+      @logger.debug("Current generated plugin dependency list: #{plugin_deps}")
 
       # Load dependencies into a request set for resolution
       request_set = Gem::RequestSet.new(*plugin_deps)
@@ -65,15 +68,19 @@ module Vagrant
         # Compose set for resolution
         composed_set = Gem::Resolver.compose_sets(current_set, plugin_set)
 
+        @logger.debug("Composed local RubyGems set for plugin init resolution: #{composed_set}")
+
         # Resolve the request set to ensure proper activation order
         solution = request_set.resolve(composed_set)
       rescue Gem::UnsatisfiableDependencyError => failure
         if repair
           raise failure if @init_retried
+          @logger.debug("Resolution failed but attempting to repair. Failure: #{failure}")
           install(plugins)
           @init_retried = true
           retry
         else
+          @logger.debug("#{failure.class}: #{failure}")
           $stderr.puts "Vagrant failed to properly initialize due to an error while"
           $stderr.puts "while attempting to load configured plugins. This can be caused"
           $stderr.puts "by manually tampering with the 'plugins.json' file, or by a"
@@ -85,13 +92,17 @@ module Vagrant
         end
       end
 
+      @logger.debug("Initialization solution set: #{solution.map(&:full_name)}")
+
       # Activate the gems
       begin
         retried = false
         solution.each do |activation_request|
           unless activation_request.full_spec.activated?
+            @logger.debug("Activating gem #{activation_request.full_spec.full_name}")
             activation_request.full_spec.activate
             if(defined?(::Bundler))
+              @logger.debug("Marking gem #{activation_request.full_spec.full_name} loaded within Bundler.")
               ::Bundler.rubygems.mark_loaded activation_request.full_spec
             end
           end
@@ -114,6 +125,7 @@ module Vagrant
         solution.map(&:full_spec)
 
       if(defined?(::Bundler))
+        @logger.debug("Updating Bundler with full specification list")
         ::Bundler.rubygems.replace_entrypoints(full_vagrant_spec_list)
       end
 
@@ -139,20 +151,17 @@ module Vagrant
     #
     # @param [String] path Path to a local gem file.
     # @return [Gem::Specification]
-    def install_local(path)
-      installer = Gem::Installer.at(path,
-        ignore_dependencies: true,
-        install_dir: plugin_gem_path.to_s
-      )
-      installer.install
-      new_spec = installer.spec
+    def install_local(path, opts={})
+      plugin_source = Gem::Source::SpecificFile.new(path)
       plugin_info = {
-        new_spec.name => {
-          'gem_version' => new_spec.version.to_s
+        plugin_source.spec.name => {
+          "local_source" => plugin_source,
+          "sources" => opts.fetch(:sources, Gem.sources.map(&:to_s))
         }
       }
+      @logger.debug("Installing local plugin - #{plugin_info}")
       internal_install(plugin_info, {})
-      new_spec
+      plugin_source.spec
     end
 
     # Update updates the given plugins, or every plugin if none is given.
@@ -228,8 +237,11 @@ module Vagrant
     protected
 
     def internal_install(plugins, update, **extra)
+      # Only allow defined Gem sources
+      Gem.sources.clear
 
       update = {} unless update.is_a?(Hash)
+      installer_set = Gem::Resolver::InstallerSet.new(:both)
 
       # Generate all required plugin deps
       plugin_deps = plugins.map do |name, info|
@@ -238,8 +250,19 @@ module Vagrant
         else
           gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
         end
+        if plugin_source = info.delete("local_source")
+          installer_set.add_local(plugin_source.spec.name, plugin_source.spec, plugin_source)
+        end
+        Array(info["sources"]).each do |source|
+          if !Gem.sources.include?(source)
+            @logger.debug("Adding RubyGems source for plugin install: #{source}")
+            Gem.sources << source
+          end
+        end
         Gem::Dependency.new(name, gem_version)
       end
+
+      @logger.debug("Dependency list for installation: #{plugin_deps}")
 
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
@@ -254,11 +277,14 @@ module Vagrant
       request_set.import(existing_deps)
 
       # Generate the required solution set for new plugins
-      solution = request_set.resolve(Gem::Resolver::InstallerSet.new(:both))
+      solution = request_set.resolve(installer_set)
+
+      @logger.debug("Generated solution set: #{solution.map(&:full_name)}")
 
       # If any items in the solution set are local but not activated, turn them on
       solution.each do |activation_request|
         if activation_request.installed? && !activation_request.full_spec.activated?
+          @logger.debug("Activating gem specification: #{activation_request.full_spec.full_name}")
           activation_request.full_spec.activate
         end
       end

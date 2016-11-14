@@ -49,7 +49,7 @@ module Vagrant
   #
   # @return [Boolean]
   def self.plugins_enabled?
-    !ENV["VAGRANT_NO_PLUGINS"] && $vagrant_bundler_runtime
+    !ENV["VAGRANT_NO_PLUGINS"]
   end
 
   # Whether or not super quiet mode is enabled. This is ill-advised.

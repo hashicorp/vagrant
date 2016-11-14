@@ -44,10 +44,9 @@ module Vagrant
         local = false
         if name =~ /\.gem$/
           # If this is a gem file, then we install that gem locally.
-          local_spec = Vagrant::Bundler.instance.install_local(name)
+          local_spec = Vagrant::Bundler.instance.install_local(name, opts)
           name       = local_spec.name
           opts[:version] = local_spec.version.to_s
-          local      = true
         end
 
         plugins = installed_plugins
@@ -57,21 +56,24 @@ module Vagrant
           "sources"     => opts[:sources],
         }
 
-        result = nil
-        install_lambda = lambda do
-          Vagrant::Bundler.instance.install(plugins, local).each do |spec|
-            next if spec.name != name
-            next if result && result.version >= spec.version
-            result = spec
+        if local_spec.nil?
+          result = nil
+          install_lambda = lambda do
+            Vagrant::Bundler.instance.install(plugins, local).each do |spec|
+              next if spec.name != name
+              next if result && result.version >= spec.version
+              result = spec
+            end
           end
-        end
 
-        if opts[:verbose]
-          Vagrant::Bundler.instance.verbose(&install_lambda)
+          if opts[:verbose]
+            Vagrant::Bundler.instance.verbose(&install_lambda)
+          else
+            install_lambda.call
+          end
         else
-          install_lambda.call
+          result = local_spec
         end
-
         # Add the plugin to the state file
         @user_file.add_plugin(
           result.name,
@@ -124,8 +126,14 @@ module Vagrant
             system[k] = v.merge("system" => true)
           end
         end
+        plugin_list = system.merge(@user_file.installed_plugins)
 
-        system.merge(@user_file.installed_plugins)
+        # Sort plugins by name
+        Hash[
+          plugin_list.map{|plugin_name, plugin_info|
+            [plugin_name, plugin_info]
+          }.sort_by(&:first)
+        ]
       end
 
       # This returns the list of plugins that are installed as
