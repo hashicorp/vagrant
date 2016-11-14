@@ -60,13 +60,10 @@ describe "Vagrant::Shell::Provisioner" do
         )
       }
 
-      let(:file){ double("file") }
       let(:digest){ double("digest") }
       before do
         Vagrant::Util::Downloader.any_instance.should_receive(:execute_curl).and_return(true)
-        expect(File).to receive(:open).with(%r{/dev/null/.+}, "rb").and_yield(file).once
-        allow(File).to receive(:open).and_call_original
-        expect(file).to receive(:read).and_return(nil)
+        allow(digest).to receive(:file).and_return(digest)
         expect(Digest::SHA1).to receive(:new).and_return(digest)
         expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
       end
@@ -93,13 +90,10 @@ describe "Vagrant::Shell::Provisioner" do
         )
       }
 
-      let(:file){ double("file") }
       let(:digest){ double("digest") }
       before do
         Vagrant::Util::Downloader.any_instance.should_receive(:execute_curl).and_return(true)
-        expect(File).to receive(:open).with(%r{/dev/null/.+}, "rb").and_yield(file).once
-        allow(File).to receive(:open).and_call_original
-        expect(file).to receive(:read).and_return(nil)
+        allow(digest).to receive(:file).and_return(digest)
         expect(Digest::MD5).to receive(:new).and_return(digest)
         expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
       end

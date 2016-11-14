@@ -739,6 +739,7 @@ en:
         checksum!
 
         File source:         %{source}
+        Checsum type:        %{type}
         Expected checksum:   %{expected_checksum}
         Calculated checksum: %{actual_checksum}
       env_inval: |-

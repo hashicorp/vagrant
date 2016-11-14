@@ -98,12 +98,9 @@ describe Vagrant::Util::Downloader do
       let(:checksum_expected_value){ 'MD5_CHECKSUM_VALUE' }
       let(:checksum_invalid_value){ 'INVALID_VALUE' }
       let(:digest){ double("digest") }
-      let(:file){ double("file") }
 
       before do
-        allow(digest).to receive(:<<)
-        allow(File).to receive(:open).and_yield(file)
-        allow(file).to receive(:read).and_return(nil)
+        allow(digest).to receive(:file).and_return(digest)
       end
 
       [Digest::MD5, Digest::SHA1].each do |klass|

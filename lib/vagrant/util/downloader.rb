@@ -204,10 +204,13 @@ module Vagrant
         CHECKSUM_MAP.each do |type, klass|
           if checksums[type]
             result = checksum_file(klass, path)
+            @logger.debug("Validating checksum (#{type}) for #{source}. " \
+              "expected: #{checksums[type]} actual: #{result}")
             if checksums[type] != result
               raise Errors::DownloaderChecksumError.new(
                 source: source,
                 path: path,
+                type: type,
                 expected_checksum: checksums[type],
                 actual_checksum: result
               )
@@ -224,11 +227,7 @@ module Vagrant
       # @return [String] hexdigest result
       def checksum_file(digest_class, path)
         digester = digest_class.new
-        File.open(path.to_s, 'rb') do |file|
-          while(data = file.read(1024))
-            digester << data
-          end
-        end
+        digester.file(path)
         digester.hexdigest
       end
 
