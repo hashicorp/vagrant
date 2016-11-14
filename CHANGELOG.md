@@ -4,6 +4,7 @@ FEATURES:
 
   - commands/box: Add `prune` subcommand for removing outdated boxes [GH-7978]
   - core: Remove Bundler integration for handling internal plugins [GH-7793]
+  - provisioners/shell: Support MD5/SHA1 checksum validation of remote scripts [GH-7985, GH-6323]
 
 IMPROVEMENTS:
 
