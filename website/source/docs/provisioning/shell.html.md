@@ -79,6 +79,10 @@ The remainder of the available options are optional:
   enable auto-login for Windows as the user must be logged in for interactive
   mode to work.
 
+* `md5` (string) - MD5 checksum used to validate remotely downloaded shell files.
+
+* `sha1` (string) - SHA1 checksum used to validate remotely downloaded shell files.
+
 <a name="inline-scripts"></a>
 ## Inline Scripts
 

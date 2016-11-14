@@ -340,6 +340,10 @@ module Vagrant
       error_key(:downloader_interrupted)
     end
 
+    class DownloaderChecksumError < VagrantError
+      error_key(:downloader_checksum_error)
+    end
+
     class EnvInval < VagrantError
       error_key(:env_inval)
     end
