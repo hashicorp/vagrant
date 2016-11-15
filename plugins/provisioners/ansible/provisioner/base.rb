@@ -29,20 +29,39 @@ module VagrantPlugins
           check_path_is_a_file(config.playbook, :playbook)
 
           check_path_exists(config.inventory_path, :inventory_path) if config.inventory_path
+          check_path_is_a_file(config.config_file, :config_file) if config.config_file
           check_path_is_a_file(config.extra_vars[1..-1], :extra_vars) if has_an_extra_vars_file_argument
           check_path_is_a_file(config.galaxy_role_file, :galaxy_role_file) if config.galaxy_role_file
           check_path_is_a_file(config.vault_password_file, :vault_password_file) if config.vault_password_file
         end
 
-        def ansible_playbook_command_for_shell_execution
-          shell_command = []
+        def get_environment_variables_for_shell_execution
+          shell_env_vars = []
           @environment_variables.each_pair do |k, v|
-            if k =~ /ANSIBLE_SSH_ARGS|ANSIBLE_ROLES_PATH/
-              shell_command << "#{k}='#{v}'"
+            if k =~ /ANSIBLE_SSH_ARGS|ANSIBLE_ROLES_PATH|ANSIBLE_CONFIG/
+              shell_env_vars << "#{k}='#{v}'"
             else
-              shell_command << "#{k}=#{v}"
+              shell_env_vars << "#{k}=#{v}"
             end
           end
+          shell_env_vars
+        end
+
+        def ansible_galaxy_command_for_shell_execution
+          command_values = {
+            role_file: "'#{get_galaxy_role_file}'",
+            roles_path: "'#{get_galaxy_roles_path}'"
+          }
+
+          shell_command = get_environment_variables_for_shell_execution
+
+          shell_command << config.galaxy_command % command_values
+
+          shell_command.flatten.join(' ')
+        end
+
+        def ansible_playbook_command_for_shell_execution
+          shell_command = get_environment_variables_for_shell_execution
 
           shell_command << config.playbook_command
 
@@ -102,6 +121,12 @@ module VagrantPlugins
           # Use ANSIBLE_ROLES_PATH to tell ansible-playbook where to look for roles
           # (there is no equivalent command line argument in ansible-playbook)
           @environment_variables["ANSIBLE_ROLES_PATH"] = get_galaxy_roles_path if config.galaxy_roles_path
+
+          prepare_ansible_config_environment_variable
+        end
+
+        def prepare_ansible_config_environment_variable
+          @environment_variables["ANSIBLE_CONFIG"] = config.config_file if config.config_file
         end
 
         # Auto-generate "safe" inventory file based on Vagrantfile,

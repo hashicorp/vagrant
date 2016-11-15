@@ -59,8 +59,6 @@ VF
     stubbed_ui.stub(detail: "")
     machine.env.stub(ui: stubbed_ui)
 
-    subject.stub(:check_path)
-
     config.playbook = 'playbook.yml'
   end
 
@@ -195,7 +193,9 @@ VF
     before do
       unless example.metadata[:skip_before]
         config.finalize!
+
         Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(0, "", ""))
+        subject.stub(:check_path)
       end
     end
 
@@ -207,37 +207,37 @@ VF
 
     describe 'checking existence of Ansible configuration files' do
 
-      describe 'when the playbook file does not exist' do
-        it "raises an error", skip_before: true, skip_after: true do
+      STUBBED_INVALID_PATH = "/test/239nfmd/invalid_path".freeze
 
-          subject.stub(:check_path).and_raise(VagrantPlugins::Ansible::Errors::AnsibleError,
-            _key: :config_file_not_found,
-            config_option: "playbook",
-            path: "/home/wip/test/invalid_path.yml",
-            system: "host")
+      it 'raises an error when the `playbook` file does not exist', skip_before: true, skip_after: true do
+        subject.stub(:check_path).and_raise(VagrantPlugins::Ansible::Errors::AnsibleError,
+          _key: :config_file_not_found,
+          config_option: "playbook",
+          path: STUBBED_INVALID_PATH,
+          system: "host")
 
-          config.playbook = "/home/wip/test/invalid_path.yml"
-          config.finalize!
+        config.playbook = STUBBED_INVALID_PATH
+        config.finalize!
 
-          expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleError,
-            "`playbook` does not exist on the host: /home/wip/test/invalid_path.yml")
+        expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleError,
+          "`playbook` does not exist on the host: #{STUBBED_INVALID_PATH}")
+      end
+
+      %w(config_file extra_vars inventory_path galaxy_role_file vault_password_file).each do |option_name|
+        it "raises an error when the '#{option_name}' does not exist", skip_before: true, skip_after: true do
+            Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(0, "", ""))
+
+            config.playbook = existing_file
+            config.send(option_name + '=', STUBBED_INVALID_PATH)
+            if option_name == 'extra_vars'
+              # little trick to auto-append the '@' prefix, which is a duty of the config validator...
+              config.validate(machine)
+            end
+            config.finalize!
+
+            expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleError,
+              "`#{option_name}` does not exist on the host: #{STUBBED_INVALID_PATH}")
         end
-      end
-
-      describe 'when the inventory path does not exist' do
-        it "raises an error"
-      end
-
-      describe 'when the extra_vars file does not exist' do
-        it "raises an error"
-      end
-
-      describe 'when the galaxy_role_file does not exist' do
-        it "raises an error"
-      end
-
-      describe 'when the vault_password_file does not exist' do
-        it "raises an error"
       end
 
     end
@@ -245,6 +245,8 @@ VF
     describe 'when ansible-playbook fails' do
       it "raises an error", skip_before: true, skip_after: true do
         config.finalize!
+
+        subject.stub(:check_path)
         Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
 
         expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
@@ -582,6 +584,20 @@ VF
       end
     end
 
+    context "with config_file option defined" do
+      before do
+        config.config_file = existing_file
+      end
+
+      it "sets ANSIBLE_CONFIG environment variable" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]).to include("ANSIBLE_CONFIG")
+          expect(cmd_opts[:env]['ANSIBLE_CONFIG']).to eql(existing_file)
+        }
+      end
+    end
+
     describe "with ask_vault_pass option" do
       before do
         config.ask_vault_pass = true
@@ -777,6 +793,8 @@ VF
 
       it "raises an error when ansible-galaxy command fails", skip_before: true, skip_after: true do
         config.finalize!
+
+        subject.stub(:check_path)
         Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
 
         expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
@@ -852,11 +870,12 @@ VF
         config.raw_arguments = ["--why-not", "--su-user=foot", "--ask-su-pass", "--limit=all", "--private-key=./myself.key", "--extra-vars='{\"var3\":\"foo\"}'"]
 
         # environment variables
+        config.config_file = existing_file
         config.host_key_checking = true
         config.raw_ssh_args = ['-o ControlMaster=no']
       end
 
-      it_should_set_arguments_and_environment_variables 21, 5, true
+      it_should_set_arguments_and_environment_variables 21, 6, true
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
       it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars={\"var1\":\"string with 'apostrophes', \\\\, \\\" and =\",\"var2\":{\"x\":42}}",
                                           "sudo"                => "--sudo",
@@ -883,7 +902,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -i '/my/key1' -i '/my/key2' -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
+          expect(full_command).to eq(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -i '/my/key1' -i '/my/key2' -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
         }
       end
     end
