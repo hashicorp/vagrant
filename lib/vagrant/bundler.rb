@@ -92,11 +92,10 @@ module Vagrant
         end
       end
 
-      @logger.debug("Initialization solution set: #{solution.map(&:full_name)}")
-
       # Activate the gems
+      retried = false
       begin
-        retried = false
+        @logger.debug("Initialization solution set: #{solution.map(&:full_name)}")
         solution.each do |activation_request|
           unless activation_request.full_spec.activated?
             @logger.debug("Activating gem #{activation_request.full_spec.full_name}")
@@ -107,14 +106,16 @@ module Vagrant
             end
           end
         end
-      rescue Gem::LoadError
+      rescue Gem::LoadError => e
         # Depending on the version of Ruby, the ordering of the solution set
         # will be either 0..n (molinillo) or n..0 (pre-molinillo). Instead of
         # attempting to determine what's in use, or if it has some how changed
         # again, just reverse order on failure and attempt again.
         if retried
+          @logger.error("Failed to load solution set - #{e.class}: #{e}")
           raise
         else
+          @logger.debug("Failed to load solution set. Retrying with reverse order.")
           retried = true
           solution.reverse!
           retry

@@ -254,23 +254,9 @@ end
 if Vagrant.plugins_init?
   begin
     Vagrant::Bundler.instance.init!(plugins)
-  rescue Gem::ConflictError, Gem::DependencyError => e
-    $stderr.puts "Vagrant experienced a version conflict with some installed plugins!"
-    $stderr.puts "This usually happens if you recently upgraded Vagrant. As part of the"
-    $stderr.puts "upgrade process, some existing plugins are no longer compatible with"
-    $stderr.puts "this version of Vagrant. The recommended way to fix this is to remove"
-    $stderr.puts "your existing plugins and reinstall them one-by-one. To remove all"
-    $stderr.puts "plugins:"
-    $stderr.puts ""
-    $stderr.puts "    vagrant expunge"
-    $stderr.puts ""
-    $stderr.puts "Note if you have an alternate VAGRANT_HOME environmental variable"
-    $stderr.puts "set, the folders above will be in that directory rather than your"
-    $stderr.puts "user's home directory."
-    $stderr.puts ""
-    $stderr.puts "The error message is shown below:\n\n"
-    $stderr.puts e.message
-    exit 1
+  rescue Exception => e
+    global_logger.error("Plugin initialization error - #{e.class}: #{e}")
+    raise Vagrant::Errors::PluginInitError, message: e.to_s
   end
 end
 

@@ -982,6 +982,15 @@ en:
         by contacting a plugin author to see if they can address the conflict.
 
         %{conflicts}
+      plugin_init_error: |-
+        The plugins failed to initialize correctly. If Vagrant was recently
+        updated, this error may be due to incompatible versions of dependencies.
+        To fix this problem please remove and re-install all plugins. Vagrant can
+        attempt to do this automatically by running:
+
+          vagrant plugin expunge --reinstall
+
+        Error message given during initialization: %{message}
       plugin_load_error: |-
         The plugins failed to load properly. The error message given is
         shown below.
