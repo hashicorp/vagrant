@@ -12,6 +12,8 @@ IMPROVEMENTS:
 
   - communicator/ssh: Support custom environment variable export template
       [GH-7976, GH-6747]
+  - provisioners/ansible(both): Add `config_file` option to point the location of an
+      `ansible.cfg` file via ANSIBLE_CONFIG environment variable [GH-7195, GH-7918]
   - synced_folders: Support custom naming and disable auto-mount [GH-7980, GH-6836]
 
 BUG FIXES:
