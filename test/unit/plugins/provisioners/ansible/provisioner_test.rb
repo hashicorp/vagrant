@@ -655,8 +655,22 @@ VF
       it "passes additional Identity Files via ANSIBLE_SSH_ARGS" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           cmd_opts = args.last
-          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-i '/an/other/identity'")
-          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-i '/yet/an/other/key'")
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o 'IdentityFile=/an/other/identity'")
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o 'IdentityFile=/yet/an/other/key'")
+        }
+      end
+    end
+
+    describe "with an identity file containing `%`" do
+      before do
+        ssh_info[:private_key_path] = ['/foo%bar/key', '/bar%%buz/key']
+      end
+      
+      it "replaces `%` with `%%`" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o 'IdentityFile=/foo%%bar/key'")
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o 'IdentityFile=/bar%%%%buz/key'")
         }
       end
     end
@@ -883,7 +897,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail).with { |full_command|
-          expect(full_command).to eq(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -i '/my/key1' -i '/my/key2' -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
+          expect(full_command).to eq(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o 'IdentityFile=/my/key1' -o 'IdentityFile=/my/key2' -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{File.expand_path(__FILE__)} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
         }
       end
     end
