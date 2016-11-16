@@ -29,7 +29,7 @@ argv.each_index do |i|
       ENV['VAGRANT_NO_PLUGINS'] = "1"
     end
 
-    if arg == "plugin" && ["repair", "expunge"].include?(argv[i+1])
+    if arg == "plugin" && argv[i+1] != "list"
       ENV['VAGRANT_DISABLE_PLUGIN_INIT'] = "1"
     end
 
