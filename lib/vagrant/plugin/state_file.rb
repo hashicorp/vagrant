@@ -31,11 +31,12 @@ module Vagrant
       # @param [String] name The name of the plugin
       def add_plugin(name, **opts)
         @data["installed"][name] = {
-          "ruby_version"    => RUBY_VERSION,
-          "vagrant_version" => Vagrant::VERSION,
-          "gem_version"     => opts[:version] || "",
-          "require"         => opts[:require] || "",
-          "sources"         => opts[:sources] || [],
+          "ruby_version"          => RUBY_VERSION,
+          "vagrant_version"       => Vagrant::VERSION,
+          "gem_version"           => opts[:version] || "",
+          "require"               => opts[:require] || "",
+          "sources"               => opts[:sources] || [],
+          "installed_gem_version" => opts[:installed_gem_version]
         }
 
         save!
