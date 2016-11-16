@@ -588,6 +588,10 @@ module Vagrant
       error_key(:plugin_uninstall_system)
     end
 
+    class PluginInitError < VagrantError
+      error_key(:plugin_init_error)
+    end
+
     class PushesNotDefined < VagrantError
       error_key(:pushes_not_defined)
     end
