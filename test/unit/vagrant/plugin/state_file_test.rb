@@ -26,11 +26,12 @@ describe Vagrant::Plugin::StateFile do
       plugins = instance.installed_plugins
       expect(plugins.length).to eql(1)
       expect(plugins["foo"]).to eql({
-        "ruby_version"    => RUBY_VERSION,
-        "vagrant_version" => Vagrant::VERSION,
-        "gem_version"     => "",
-        "require"         => "",
-        "sources"         => [],
+        "ruby_version"          => RUBY_VERSION,
+        "vagrant_version"       => Vagrant::VERSION,
+        "gem_version"           => "",
+        "require"               => "",
+        "sources"               => [],
+        "installed_gem_version" => nil,
       })
     end
 
