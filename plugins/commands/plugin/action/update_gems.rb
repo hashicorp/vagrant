@@ -19,17 +19,15 @@ module VagrantPlugins
           end
 
           manager = Vagrant::Plugin::Manager.instance
-          installed_specs = manager.installed_specs
+          installed_plugins = manager.installed_plugins
           new_specs       = manager.update_plugins(names)
+          updated_plugins = manager.installed_plugins
 
           updated = {}
-          installed_specs.each do |ispec|
-            new_specs.each do |uspec|
-              next if uspec.name != ispec.name
-              next if ispec.version >= uspec.version
-              next if updated[uspec.name] && updated[uspec.name].version >= uspec.version
-
-              updated[uspec.name] = uspec
+          installed_plugins.each do |name, info|
+            update = updated_plugins[name]
+            if update && update["installed_gem_version"] != info["installed_gem_version"]
+              updated[name] = update["installed_gem_version"]
             end
           end
 
@@ -37,9 +35,9 @@ module VagrantPlugins
             env[:ui].success(I18n.t("vagrant.commands.plugin.up_to_date"))
           end
 
-          updated.values.each do |spec|
+          updated.each do |name, version|
             env[:ui].success(I18n.t("vagrant.commands.plugin.updated",
-                                    name: spec.name, version: spec.version.to_s))
+                                    name: name, version: version.to_s))
           end
 
           # Continue

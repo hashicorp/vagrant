@@ -48,28 +48,11 @@ module Vagrant
       # Never allow dependencies to be remotely satisfied during init
       request_set.remote = false
 
-      # Sets that we can resolve our dependencies from
-      current_set = Gem::Resolver::CurrentSet.new
-      plugin_set = Gem::Resolver::VendorSet.new
       repair_result = nil
       begin
-        # Register all known plugin specifications to the plugin set
-        Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).each do |spec_path|
-          spec = Gem::Specification.load(spec_path)
-          desired_spec_path = File.join(spec.gem_dir, "#{spec.name}.gemspec")
-          # Vendor set requires the spec to be within the gem directory. Some gems will package their
-          # spec file, and that's not what we want to load.
-          if !File.exist?(desired_spec_path) || !FileUtils.cmp(spec.spec_file, desired_spec_path)
-            File.write(desired_spec_path, spec.to_ruby)
-          end
-          plugin_set.add_vendor_gem(spec.name, spec.gem_dir)
-        end
-
         # Compose set for resolution
-        composed_set = Gem::Resolver.compose_sets(current_set, plugin_set)
-
+        composed_set = generate_vagrant_set
         @logger.debug("Composed local RubyGems set for plugin init resolution: #{composed_set}")
-
         # Resolve the request set to ensure proper activation order
         solution = request_set.resolve(composed_set)
       rescue Gem::UnsatisfiableDependencyError => failure
@@ -93,34 +76,7 @@ module Vagrant
       end
 
       # Activate the gems
-      retried = false
-      begin
-        @logger.debug("Initialization solution set: #{solution.map(&:full_name)}")
-        solution.each do |activation_request|
-          unless activation_request.full_spec.activated?
-            @logger.debug("Activating gem #{activation_request.full_spec.full_name}")
-            activation_request.full_spec.activate
-            if(defined?(::Bundler))
-              @logger.debug("Marking gem #{activation_request.full_spec.full_name} loaded within Bundler.")
-              ::Bundler.rubygems.mark_loaded activation_request.full_spec
-            end
-          end
-        end
-      rescue Gem::LoadError => e
-        # Depending on the version of Ruby, the ordering of the solution set
-        # will be either 0..n (molinillo) or n..0 (pre-molinillo). Instead of
-        # attempting to determine what's in use, or if it has some how changed
-        # again, just reverse order on failure and attempt again.
-        if retried
-          @logger.error("Failed to load solution set - #{e.class}: #{e}")
-          raise
-        else
-          @logger.debug("Failed to load solution set. Retrying with reverse order.")
-          retried = true
-          solution.reverse!
-          retry
-        end
-      end
+      activate_solution(solution)
 
       full_vagrant_spec_list = Gem::Specification.find_all{true} +
         solution.map(&:full_spec)
@@ -172,7 +128,7 @@ module Vagrant
     #   empty or nil, all plugins will be updated.
     def update(plugins, specific)
       specific ||= []
-      update = { gems: specific } if !specific.empty?
+      update = {gems: specific.empty? ? true : specific}
       internal_install(plugins, update)
     end
 
@@ -180,7 +136,10 @@ module Vagrant
     def clean(plugins)
       # Generate dependencies for all registered plugins
       plugin_deps = plugins.map do |name, info|
-        Gem::Dependency.new(name, info['gem_version'].to_s.empty? ? '> 0' : info['gem_version'])
+        gem_version = info['installed_gem_version']
+        gem_version = info['gem_version'] if gem_version.to_s.empty?
+        gem_version = "> 0" if gem_version.to_s.empty?
+        Gem::Dependency.new(name, gem_version)
       end
 
       # Load dependencies into a request set for resolution
@@ -191,7 +150,7 @@ module Vagrant
       # Sets that we can resolve our dependencies from. Note that we only
       # resolve from the current set as all required deps are activated during
       # init.
-      current_set = Gem::Resolver::CurrentSet.new
+      current_set = generate_vagrant_set
 
       # Collect all plugin specifications
       plugin_specs = Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).map do |spec_path|
@@ -201,15 +160,19 @@ module Vagrant
       # Resolve the request set to ensure proper activation order
       solution = request_set.resolve(current_set)
       solution_specs = solution.map(&:full_spec)
+      solution_full_names = solution_specs.map(&:full_name)
 
       # Find all specs installed to plugins directory that are not
       # found within the solution set
       plugin_specs.delete_if do |spec|
-        solution.include?(spec)
+        solution_full_names.include?(spec.full_name)
       end
+
+      @logger.debug("Specifications to be removed - #{plugin_specs.map(&:full_name)}")
 
       # Now delete all unused specs
       plugin_specs.each do |spec|
+        @logger.debug("Uninstalling gem - #{spec.full_name}")
         Gem::Uninstaller.new(spec.name,
           version: spec.version,
           install_dir: plugin_gem_path,
@@ -241,13 +204,15 @@ module Vagrant
       # Only allow defined Gem sources
       Gem.sources.clear
 
-      update = {} unless update.is_a?(Hash)
+      update = {} if !update.is_a?(Hash)
+      skips = []
       installer_set = Gem::Resolver::InstallerSet.new(:both)
 
       # Generate all required plugin deps
       plugin_deps = plugins.map do |name, info|
-        if update == true || (update[:gems].respond_to?(:include?) && update[:gems].include?(name))
+        if update[:gems] == true || (update[:gems].respond_to?(:include?) && update[:gems].include?(name))
           gem_version = '> 0'
+          skips << name
         else
           gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
         end
@@ -277,26 +242,136 @@ module Vagrant
       # gems that are incompatible with the core system
       request_set.import(existing_deps)
 
+      installer_set = Gem::Resolver.compose_sets(installer_set, generate_plugin_set(skips))
+
       # Generate the required solution set for new plugins
       solution = request_set.resolve(installer_set)
-
-      @logger.debug("Generated solution set: #{solution.map(&:full_name)}")
-
-      # If any items in the solution set are local but not activated, turn them on
-      solution.each do |activation_request|
-        if activation_request.installed? && !activation_request.full_spec.activated?
-          @logger.debug("Activating gem specification: #{activation_request.full_spec.full_name}")
-          activation_request.full_spec.activate
-        end
-      end
+      activate_solution(solution)
 
       # Install all remote gems into plugin path. Set the installer to ignore dependencies
       # as we know the dependencies are satisfied and it will attempt to validate a gem's
       # dependencies are satisified by gems in the install directory (which will likely not
       # be true)
       result = request_set.install_into(plugin_gem_path.to_s, true, ignore_dependencies: true)
-      result.map(&:full_spec)
+      result = result.map(&:full_spec)
+      result
     end
 
+    # Generate the composite resolver set totally all of vagrant (builtin + plugin set)
+    def generate_vagrant_set
+      Gem::Resolver.compose_sets(generate_builtin_set, generate_plugin_set)
+    end
+
+    # Generate the builtin resolver set
+    def generate_builtin_set
+      Gem::Resolver::CurrentSet.new
+    end
+
+    # Generate the plugin resolver set. Optionally provide specification names (short or
+    # full) that should be ignored
+    def generate_plugin_set(skip=[])
+      plugin_set = PluginSet.new
+      @logger.debug("Generating new plugin set instance. Skip gems - #{skip}")
+      Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).each do |spec_path|
+        spec = Gem::Specification.load(spec_path)
+        desired_spec_path = File.join(spec.gem_dir, "#{spec.name}.gemspec")
+        # Vendor set requires the spec to be within the gem directory. Some gems will package their
+        # spec file, and that's not what we want to load.
+        if !File.exist?(desired_spec_path) || !FileUtils.cmp(spec.spec_file, desired_spec_path)
+          File.write(desired_spec_path, spec.to_ruby)
+        end
+        next if skip.include?(spec.name) || skip.include?(spec.full_name)
+        plugin_set.add_vendor_gem(spec.name, spec.gem_dir)
+      end
+      plugin_set
+    end
+
+    # Activate a given solution
+    def activate_solution(solution)
+      retried = false
+      begin
+        @logger.debug("Activating solution set: #{solution.map(&:full_name)}")
+        solution.each do |activation_request|
+          unless activation_request.full_spec.activated?
+            @logger.debug("Activating gem #{activation_request.full_spec.full_name}")
+            activation_request.full_spec.activate
+            if(defined?(::Bundler))
+              @logger.debug("Marking gem #{activation_request.full_spec.full_name} loaded within Bundler.")
+              ::Bundler.rubygems.mark_loaded activation_request.full_spec
+            end
+          end
+        end
+      rescue Gem::LoadError => e
+        # Depending on the version of Ruby, the ordering of the solution set
+        # will be either 0..n (molinillo) or n..0 (pre-molinillo). Instead of
+        # attempting to determine what's in use, or if it has some how changed
+        # again, just reverse order on failure and attempt again.
+        if retried
+          @logger.error("Failed to load solution set - #{e.class}: #{e}")
+          raise
+        else
+          @logger.debug("Failed to load solution set. Retrying with reverse order.")
+          retried = true
+          solution.reverse!
+          retry
+        end
+      end
+    end
+
+    # This is a custom Gem::Resolver::Set for use with Vagrant plugins. It is
+    # a modified Gem::Resolver::VendorSet that supports multiple versions of
+    # a specific gem
+    class PluginSet < Gem::Resolver::VendorSet
+      ##
+      # Adds a specification to the set with the given +name+ which has been
+      # unpacked into the given +directory+.
+      def add_vendor_gem(name, directory)
+        gemspec = File.join(directory, "#{name}.gemspec")
+        spec = Gem::Specification.load(gemspec)
+        if !spec
+          raise Gem::GemNotFoundException,
+            "unable to find #{gemspec} for gem #{name}"
+        end
+
+        spec.full_gem_path = File.expand_path(directory)
+
+        @specs[spec.name] ||= []
+        @specs[spec.name] << spec
+        @directories[spec] = directory
+
+        spec
+      end
+
+      ##
+      # Returns an Array of VendorSpecification objects matching the
+      # DependencyRequest +req+.
+      def find_all(req)
+        @specs.values.flatten.select do |spec|
+          req.match?(spec)
+        end.map do |spec|
+          source = Gem::Source::Vendor.new(@directories[spec])
+          Gem::Resolver::VendorSpecification.new(self, spec, source)
+        end
+      end
+
+      ##
+      # Loads a spec with the given +name+. +version+, +platform+ and +source+ are
+      # ignored.
+      def load_spec (name, version, platform, source)
+        version = Gem::Version.new(version) if !version.is_a?(Gem::Version)
+        @specs.fetch(name, []).detect{|s| s.name == name && s.version = version}
+      end
+    end
+  end
+end
+
+# Patch for Ruby 2.2 and Bundler to behave properly when uninstalling plugins
+if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.3')
+  if defined?(::Bundler) && !::Bundler::SpecSet.instance_methods.include?(:delete)
+    class Gem::Specification
+      def self.remove_spec(spec)
+        Gem::Specification.reset
+      end
+    end
   end
 end

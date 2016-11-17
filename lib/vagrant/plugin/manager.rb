@@ -80,9 +80,13 @@ module Vagrant
           version: opts[:version],
           require: opts[:require],
           sources: opts[:sources],
-          installed_gem_version: result.version
+          installed_gem_version: result.version.to_s
         )
 
+        # After install clean plugin gems to remove any cruft. This is useful
+        # for removing outdated dependencies or other versions of an installed
+        # plugin if the plugin is upgraded/downgraded
+        Vagrant::Bundler.instance.clean(installed_plugins)
         result
       rescue Gem::GemNotFoundException
         raise Errors::PluginGemNotFound, name: name
@@ -111,7 +115,23 @@ module Vagrant
 
       # Updates all or a specific set of plugins.
       def update_plugins(specific)
-        Vagrant::Bundler.instance.update(installed_plugins, specific)
+        result = Vagrant::Bundler.instance.update(installed_plugins, specific)
+        installed_plugins.each do |name, info|
+          matching_spec = result.detect{|s| s.name == name}
+          info = Hash[
+            info.map do |key, value|
+              [key.to_sym, value]
+            end
+          ]
+          if matching_spec
+            @user_file.add_plugin(name, **info.merge(
+              version: "> 0",
+              installed_gem_version: matching_spec.version.to_s
+            ))
+          end
+        end
+        Vagrant::Bundler.instance.clean(installed_plugins)
+        result
       rescue Gem::Exception => e
         raise Errors::BundlerError, message: e.to_s
       end

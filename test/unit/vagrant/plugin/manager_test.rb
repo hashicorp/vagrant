@@ -34,6 +34,7 @@ describe Vagrant::Plugin::Manager do
         expect(plugins).to have_key("foo")
         expect(local).to be_false
       }.and_return(specs)
+      expect(bundler).to receive(:clean)
 
       result = subject.install_plugin("foo")
 
@@ -70,6 +71,7 @@ describe Vagrant::Plugin::Manager do
         ordered.and_return(local_spec)
 
       expect(bundler).not_to receive(:install)
+      expect(bundler).to receive(:clean)
 
       subject.install_plugin(name)
 
@@ -95,6 +97,7 @@ describe Vagrant::Plugin::Manager do
           expect(plugins["foo"]["gem_version"]).to eql(">= 0.1.0")
           expect(local).to be_false
         }.and_return(specs)
+        expect(bundler).to receive(:clean)
 
         subject.install_plugin("foo", version: ">= 0.1.0")
 
@@ -109,6 +112,7 @@ describe Vagrant::Plugin::Manager do
           expect(plugins["foo"]["gem_version"]).to eql("0.1.0")
           expect(local).to be_false
         }.and_return(specs)
+        expect(bundler).to receive(:clean)
 
         subject.install_plugin("foo", version: "0.1.0")
 

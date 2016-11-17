@@ -248,7 +248,15 @@ plugins = Vagrant::Plugin::Manager.instance.installed_plugins
 
 global_logger.info("Plugins:")
 plugins.each do |plugin_name, plugin_info|
-  global_logger.info("  - #{plugin_name} = #{plugin_info["installed_gem_version"]}")
+  installed_version = plugin_info["installed_gem_version"]
+  version_constraint = plugin_info["gem_version"]
+  installed_version = 'undefined' if installed_version.to_s.empty?
+  version_constraint = '> 0' if version_constraint.to_s.empty?
+  global_logger.info(
+    "  - #{plugin_name} = [installed: " \
+      "#{installed_version} constraint: " \
+      "#{version_constraint}]"
+  )
 end
 
 if Vagrant.plugins_init?
