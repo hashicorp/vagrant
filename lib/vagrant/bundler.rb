@@ -63,15 +63,7 @@ module Vagrant
           @init_retried = true
           retry
         else
-          @logger.debug("#{failure.class}: #{failure}")
-          $stderr.puts "Vagrant failed to properly initialize due to an error while"
-          $stderr.puts "while attempting to load configured plugins. This can be caused"
-          $stderr.puts "by manually tampering with the 'plugins.json' file, or by a"
-          $stderr.puts "recent Vagrant upgrade. To fix this problem, please run:\n\n"
-          $stderr.puts "    vagrant plugin repair\n\n"
-          $stderr.puts "The error message is shown below:\n\n"
-          $stderr.puts failure.message
-          exit 1
+          raise
         end
       end
 
@@ -89,6 +81,8 @@ module Vagrant
       Gem.post_reset do
         Gem::Specification.all = full_vagrant_spec_list
       end
+
+      Gem::Specification.reset
     end
 
     # Removes any temporary files created by init
