@@ -42,6 +42,7 @@ module VagrantPlugins
           if options[:reinstall]
             @env.ui.info(I18n.t("vagrant.commands.plugin.expunge_reinstall"))
             plugins.each do |plugin_name, plugin_info|
+              next if plugin_info["system"] # system plugins do not require re-install
               plugin_info = Hash[
                 plugin_info.map do |key, value|
                   [key.to_sym, value]
