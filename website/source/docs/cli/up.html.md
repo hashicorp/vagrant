@@ -35,7 +35,7 @@ on a day-to-day basis.
 * `--provider x` - Bring the machine up with the given
   [provider](/docs/providers/). By default this is "virtualbox".
 
-* `--provision` - Force the provisioners to run.
+* `--[no-]provision` - Force the provisioners to run.
 
 * `--provision-with x,y,z` - This will only run the given provisioners. For
   example, if you have a `:shell` and `:chef_solo` provisioner and run
