@@ -278,8 +278,10 @@ module Vagrant
       Gem::Specification.find_all{true}.each do |spec|
         list[spec.full_name] = spec
       end
-      directories += Gem::Specification.dirs.find_all do |path|
-        !path.start_with?(Gem.user_dir)
+      if(!defined?(::Bundler))
+        directories += Gem::Specification.dirs.find_all do |path|
+          !path.start_with?(Gem.user_dir)
+        end
       end
       Gem::Specification.each_spec(directories) do |spec|
         if !list[spec.full_name]
