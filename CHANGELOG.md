@@ -3,13 +3,14 @@
 FEATURES:
 
   - commands/box: Add `prune` subcommand for removing outdated boxes [GH-7978]
-  - core: Remove Bundler integration for handling internal plugins [GH-7793, GH-8000, GH-8011]
+  - core: Remove Bundler integration for handling internal plugins [GH-7793, GH-8000, GH-8011, GH-8031]
   - providers/hyperv: Add support for Hyper-V binary configuration format
       [GH-7854, GH-7706, GH-6102]
   - provisioners/shell: Support MD5/SHA1 checksum validation of remote scripts [GH-7985, GH-6323]
 
 IMPROVEMENTS:
 
+  - commands/plugin: Retain name sorted output when listing plugins [GH-8028]
   - communicator/ssh: Support custom environment variable export template
       [GH-7976, GH-6747]
   - provisioners/ansible(both): Add `config_file` option to point the location of an
