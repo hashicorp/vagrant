@@ -45,11 +45,7 @@ To learn how to build a fully functional development environment, follow the
 ## Installing the Gem from Git
 
 If you want the bleeding edge version of Vagrant, we try to keep master pretty stable
-and you're welcome to give it a shot. The following is an example showing how to do this:
-
-    rake install
-
-Ruby 2.2 is needed.
+and you're welcome to give it a shot. Please review the installation page [here](https://www.vagrantup.com/docs/installation/source.html).
 
 ## Contributing to Vagrant
 
