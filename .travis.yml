@@ -4,18 +4,14 @@ sudo: false
 
 cache: bundler
 
-before_install:
-  - gem uninstall bundler -aIxq --force
-  - gem uninstall -Ixq --force -i /home/travis/.rvm/gems/ruby-2.2.3@global bundler
-  - gem install bundler -v '1.12.5'
-
 addons:
   apt:
     packages:
     - bsdtar
 
 rvm:
-  - 2.2.3
+  - 2.2.5
+  - 2.3.3
 
 branches:
   only:

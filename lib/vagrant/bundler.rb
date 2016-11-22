@@ -52,7 +52,6 @@ module Vagrant
       begin
         # Compose set for resolution
         composed_set = generate_vagrant_set
-        @logger.debug("Composed local RubyGems set for plugin init resolution: #{composed_set}")
         # Resolve the request set to ensure proper activation order
         solution = request_set.resolve(composed_set)
       rescue Gem::UnsatisfiableDependencyError => failure
@@ -128,6 +127,7 @@ module Vagrant
 
     # Clean removes any unused gems.
     def clean(plugins)
+      @logger.debug("Cleaning Vagrant plugins of stale gems.")
       # Generate dependencies for all registered plugins
       plugin_deps = plugins.map do |name, info|
         gem_version = info['installed_gem_version']
@@ -135,6 +135,8 @@ module Vagrant
         gem_version = "> 0" if gem_version.to_s.empty?
         Gem::Dependency.new(name, gem_version)
       end
+
+      @logger.debug("Current plugin dependency list: #{plugin_deps}")
 
       # Load dependencies into a request set for resolution
       request_set = Gem::RequestSet.new(*plugin_deps)
@@ -150,6 +152,8 @@ module Vagrant
       plugin_specs = Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).map do |spec_path|
         Gem::Specification.load(spec_path)
       end
+
+      @logger.debug("Generating current plugin state solution set.")
 
       # Resolve the request set to ensure proper activation order
       solution = request_set.resolve(current_set)
@@ -228,19 +232,30 @@ module Vagrant
       request_set = Gem::RequestSet.new(*plugin_deps)
 
       # Generate all existing deps within the "vagrant system"
-      existing_deps = Gem::Specification.find_all{true}.map do |item|
+      existing_deps = vagrant_internal_specs.map do |item|
+        @logger.debug("Activating builtin specification: #{item.full_name}")
         Gem::Dependency.new(item.name, item.version)
       end
+
+      @logger.debug("Required constraints from builtin gems: #{existing_deps}")
 
       # Import constraints into the request set to prevent installing
       # gems that are incompatible with the core system
       request_set.import(existing_deps)
 
-      installer_set = Gem::Resolver.compose_sets(installer_set, generate_plugin_set(skips))
+      installer_set = Gem::Resolver.compose_sets(
+        installer_set,
+        generate_builtin_set,
+        generate_plugin_set(skips)
+      )
+
+      @logger.debug("Generating solution set for installation.")
 
       # Generate the required solution set for new plugins
       solution = request_set.resolve(installer_set)
       activate_solution(solution)
+
+      @logger.debug("Installing required gems.")
 
       # Install all remote gems into plugin path. Set the installer to ignore dependencies
       # as we know the dependencies are satisfied and it will attempt to validate a gem's
@@ -256,9 +271,32 @@ module Vagrant
       Gem::Resolver.compose_sets(generate_builtin_set, generate_plugin_set)
     end
 
+    # @return [Array<[Gem::Specification, String]>] spec and directory pairs
+    def vagrant_internal_specs
+      list = {}
+      directories = [Gem::Specification.default_specifications_dir]
+      Gem::Specification.find_all{true}.each do |spec|
+        list[spec.full_name] = spec
+      end
+      directories += Gem::Specification.dirs.find_all do |path|
+        !path.start_with?(Gem.user_dir)
+      end
+      Gem::Specification.each_spec(directories) do |spec|
+        if !list[spec.full_name]
+          list[spec.full_name] = spec
+        end
+      end
+      list.values
+    end
+
     # Generate the builtin resolver set
     def generate_builtin_set
-      Gem::Resolver::CurrentSet.new
+      builtin_set = BuiltinSet.new
+      @logger.debug("Generating new builtin set instance.")
+      vagrant_internal_specs.each do |spec|
+        builtin_set.add_builtin_spec(spec)
+      end
+      builtin_set
     end
 
     # Generate the plugin resolver set. Optionally provide specification names (short or
@@ -308,6 +346,30 @@ module Vagrant
           retried = true
           solution.reverse!
           retry
+        end
+      end
+    end
+
+    # This is a custom Gem::Resolver::Set for use with vagrant "system" gems. It
+    # allows the installed set of gems to be used for providing a solution while
+    # enforcing strict constraints. This ensures that plugins cannot "upgrade"
+    # gems that are builtin to vagrant itself.
+    class BuiltinSet < Gem::Resolver::Set
+      def initialize
+        super
+        @remote = false
+        @specs = []
+      end
+
+      def add_builtin_spec(spec)
+        @specs.push(spec).uniq!
+      end
+
+      def find_all(req)
+        @specs.select do |spec|
+          req.match?(spec)
+        end.map do |spec|
+          Gem::Resolver::InstalledSpecification.new(self, spec)
         end
       end
     end
