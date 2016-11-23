@@ -14,14 +14,22 @@ module VagrantPlugins
       class RepairPlugins
         def initialize(app, env)
           @app = app
+          @logger = Log4r::Logger.new("vagrant::plugins::plugincommand::repair")
         end
 
         def call(env)
           env[:ui].info(I18n.t("vagrant.commands.plugin.repairing"))
           plugins = Vagrant::Plugin::Manager.instance.installed_plugins
-          Vagrant::Bundler.instance.init!(plugins, :repair)
-          env[:ui].info(I18n.t("vagrant.commands.plugin.repair_complete"))
-
+          begin
+            Vagrant::Bundler.instance.init!(plugins, :repair)
+            env[:ui].info(I18n.t("vagrant.commands.plugin.repair_complete"))
+          rescue Exception => e
+            @logger.error("Failed to repair user installed plugins: #{e.class} - #{e}")
+            e.backtrace.each do |backtrace_line|
+              @logger.debug(backtrace_line)
+            end
+            env[:ui].error(I18n.t("vagrant.commands.plugin.repair_failed", message: e.message))
+          end
           # Continue
           @app.call(env)
         end
