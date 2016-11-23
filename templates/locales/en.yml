@@ -1647,7 +1647,13 @@ en:
         repair_complete: |-
           Installed plugins successfully repaired!
         repair_failed: |-
-          Failed to automatically repair installed Vagrant plugins. Failure message:
+          Failed to automatically repair installed Vagrant plugins. To fix this
+          problem remove all user installed plugins and reinstall. Vagrant can
+          do this for you automatically by running the following command:
+
+            vagrant plugin expunge --reinstall
+
+          Failure message received during repair:
 
           %{message}
       snapshot:
