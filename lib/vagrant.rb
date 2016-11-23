@@ -264,6 +264,9 @@ if Vagrant.plugins_init?
     Vagrant::Bundler.instance.init!(plugins)
   rescue Exception => e
     global_logger.error("Plugin initialization error - #{e.class}: #{e}")
+    e.backtrace.each do |backtrace_line|
+      global_logger.debug(backtrace_line)
+    end
     raise Vagrant::Errors::PluginInitError, message: e.to_s
   end
 end
@@ -330,6 +333,10 @@ if Vagrant.plugins_enabled?
       ::Bundler.require(:plugins)
     end
   rescue Exception => e
+    global_logger.error("Plugin loading error: #{e.class} - #{e}")
+    e.backtrace.each do |backtrace_line|
+      global_logger.debug(backtrace_line)
+    end
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
   end
 end
