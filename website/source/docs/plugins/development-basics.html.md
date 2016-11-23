@@ -65,12 +65,6 @@ load any gems listed in the "plugins" group. Note that this also
 allows you to add multiple plugins to Vagrant for development, if
 your plugin works with another plugin.
 
-With this structure in place, your workflow should be like any other
-Ruby project, with one exception.  Because Vagrant uses the internal
-APIs of Bundler, see [Installing Vagrant from Source](https://github.com/mitchellh/vagrant/wiki/Installing-Vagrant-from-Source)
-for tips on using the correct version of Bundler to install
-dependencies.
-
 When you want to manually test your plugin, use
 `bundle exec vagrant` in order to run Vagrant with your plugin
 loaded (as we specified in the Gemfile).
