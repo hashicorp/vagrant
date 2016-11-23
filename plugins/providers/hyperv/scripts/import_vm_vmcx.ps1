@@ -36,7 +36,7 @@ $generation = $vmConfig.VM.Generation
 if (!$vmname) {
     # Get the name of the vm
     $vm_name = $vmconfig.VM.VMName
-}else {
+} else {
     $vm_name = $vmname
 }
 
@@ -86,15 +86,18 @@ if (!$switchname) {
     $switchname = (Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
 }
 
-Connect-VMNetworkAdapter -VMNetworkAdapter (Get-VMNetworkAdapter -VM $vmConfig.VM) -SwitchName $switchname
-Set-VM -VM $vmConfig.VM -NewVMName $vm_name -MemoryStartupBytes $MemoryStartupBytes
-Set-VM -VM $vmConfig.VM -ErrorAction "Stop" -ProcessorCount $processors
+$vmNetworkAdapter = Get-VMNetworkAdapter -VM $vmConfig.VM
+Connect-VMNetworkAdapter -VMNetworkAdapter $vmNetworkAdapter -SwitchName $switchname
+Set-VM -VM $vmConfig.VM -NewVMName $vm_name
+Set-VM -VM $vmConfig.VM -ErrorAction "Stop"
+Set-VM -VM $vmConfig.VM -ProcessorCount $processors
 
-If ($dynamicmemory) {
+if ($dynamicmemory) {
     Set-VM -VM $vmConfig.VM -DynamicMemory
-    Set-VM -VM $vmConfig.VM -MemoryMinimumBytes $MemoryMinimumBytes -MemoryMaximumBytes $MemoryMaximumBytes
+    Set-VM -VM $vmConfig.VM -MemoryMinimumBytes $MemoryMinimumBytes -MemoryMaximumBytes $MemoryMaximumBytes -MemoryStartupBytes $MemoryStartupBytes
 } else {
-    Set-VM -VM $vmConfig.VM -StaticMemory    
+    Set-VM -VM $vmConfig.VM -StaticMemory
+    Set-VM -VM $vmConfig.VM -MemoryStartupBytes $MemoryStartupBytes
 }
 
 if ($notes) {
