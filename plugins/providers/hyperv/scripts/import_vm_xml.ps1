@@ -197,7 +197,7 @@ foreach ($controller in $controllers) {
             $addDriveParam.Add("Path", $tmppath)
         } else {
             $addDriveParam.Add("Path", $dest_path)
-		}
+        }
 
         if ($drive.pool_id."#text") {
             $ResourcePoolName = $drive.pool_id."#text"
