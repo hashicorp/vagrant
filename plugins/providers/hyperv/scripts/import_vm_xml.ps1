@@ -190,8 +190,14 @@ foreach ($controller in $controllers) {
 
         $addDriveParam = @{
             ControllerNumber = $rx.Match($controller.node.name).value
-            Path = $dest_path
+            ControllerLocation = $rx.Match($drive.name).value
         }
+        $tmppath = Join-Path $dest_path (Split-Path -leaf $drive.pathname."#text")
+        if(Test-Path $tmppath) {
+            $addDriveParam.Add("Path", $tmppath)
+        } else {
+            $addDriveParam.Add("Path", $dest_path)
+		}
 
         if ($drive.pool_id."#text") {
             $ResourcePoolName = $drive.pool_id."#text"
