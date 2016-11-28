@@ -114,19 +114,27 @@ module VagrantPlugins
           end
 
           env[:ui].detail("Cloning virtual hard drive...")
+          vhd_dir = env[:machine].data_dir.join("Virtual Hard Disks")
           source_path = image_path.to_s
-          dest_path = env[:machine].data_dir.join("Virtual Hard Disks").join("#{image_filename}#{image_ext}").to_s
+          dest_path = vhd_dir.join("#{image_filename}#{image_ext}").to_s
 
           # Still hard copy the disk of old XML configurations
           if config_type == 'xml'
-            if differencing_disk
-              env[:machine].provider.driver.execute("clone_vhd.ps1", {Source: source_path, Destination: dest_path})
-            else
-              FileUtils.mkdir_p(env[:machine].data_dir.join("Virtual Hard Disks"))
-              FileUtils.cp(source_path, dest_path)
+            FileUtils.mkdir_p(vhd_dir)
+            hd_dir.each_child do |f|
+              image_ext = f.extname.downcase
+              if %w{.vhd .vhdx}.include?(image_ext)
+                image_filename = File.basename(f, image_ext)
+                src_path = f.to_s
+                dst_path = vhd_dir.join("#{image_filename}#{image_ext}").to_s
+                if differencing_disk
+                  env[:machine].provider.driver.execute("clone_vhd.ps1", {Source: src_path, Destination: dst_path})
+                else
+                  FileUtils.cp(src_path, dst_path)
+                end
+              end
             end
           end
-          image_path = dest_path
 
           # We have to normalize the paths to be Windows paths since
           # we're executing PowerShell.
