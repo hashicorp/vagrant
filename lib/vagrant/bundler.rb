@@ -231,18 +231,6 @@ module Vagrant
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
 
-      # Generate all existing deps within the "vagrant system"
-      existing_deps = vagrant_internal_specs.map do |item|
-        @logger.debug("Activating builtin specification: #{item.full_name}")
-        Gem::Dependency.new(item.name, item.version)
-      end
-
-      @logger.debug("Required constraints from builtin gems: #{existing_deps}")
-
-      # Import constraints into the request set to prevent installing
-      # gems that are incompatible with the core system
-      request_set.import(existing_deps)
-
       installer_set = Gem::Resolver.compose_sets(
         installer_set,
         generate_builtin_set,
