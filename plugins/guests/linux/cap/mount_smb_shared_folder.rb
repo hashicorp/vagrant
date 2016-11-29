@@ -94,7 +94,7 @@ SCRIPT
 
           # Emit an upstart event if we can
           machine.communicate.sudo <<-SCRIPT
-if command -v /sbin/init && /sbin/init --version | grep upstart; then
+if command -v /sbin/init && /sbin/init 2>/dev/null --version | grep upstart; then
   /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
 fi
 SCRIPT

@@ -89,7 +89,7 @@ module VagrantPlugins
 
           # Emit an upstart event if we can
           machine.communicate.sudo <<-EOH.gsub(/^ {12}/, "")
-            if command -v /sbin/init && /sbin/init --version | grep upstart; then
+            if command -v /sbin/init && /sbin/init 2>/dev/null --version | grep upstart; then
               /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guest_path}
             fi
           EOH
