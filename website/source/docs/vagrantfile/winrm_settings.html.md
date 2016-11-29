@@ -51,6 +51,10 @@ to use port 4567 to talk to the guest if there is no other option.
 
 <hr>
 
+`config.winrm.ssl_peer_verification` - Whether to validate the SSL certificate. Set to `false` if you are using a self-signed certificate. The default is `:negotiate`.
+
+<hr>
+
 `config.winrm.transport` - The transport used for WinRM communication. Valid settings include: `:negotiate`, `ssl`, and `:plaintext`. The default is `:negotiate`.
 
 <hr>
