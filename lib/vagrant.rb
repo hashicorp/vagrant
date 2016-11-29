@@ -339,4 +339,6 @@ if Vagrant.plugins_enabled?
     end
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
   end
+else
+  global_logger.debug("Plugin loading is currently disabled.")
 end
