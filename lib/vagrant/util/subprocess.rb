@@ -35,7 +35,49 @@ module Vagrant
         @logger  = Log4r::Logger.new("vagrant::util::subprocess")
       end
 
-      def execute
+      def execute_jruby
+        # Create a dictionary to store all the output we see.
+        io_data = { :stdout => "", :stderr => "" }
+
+        @logger.info("Starting process: #{@command.inspect}")
+        x = IO.popen4( @command.join(" ") ) do |pid, stdin, stdout, stderr|
+          trap("INT") do
+            puts "caught SIGINT, shutting down"
+            `taskkill /F /T /PID #{pid}` if windows?
+          end
+          [
+           Thread.new(stdout) {|stdout_io|
+             @logger.debug("Selecting on IO")
+             stdout_io.each_line do |data|
+               @logger.debug("stdout: #{data}")
+               io_data[:stdout] += data
+               yield :stdout, data if block_given?
+             end
+           },
+
+           Thread.new(stderr) {|stderr_io|
+             @logger.debug("Selecting on IO")
+             stderr_io.each_line do |data|
+               @logger.debug("stderr: #{data}")
+               io_data[:stderr] += data
+               yield :stderr, data if block_given?
+             end
+           }
+          ].each( &:join )
+        end
+        
+        return Result.new($?, io_data[:stdout], io_data[:stderr])  
+      end
+
+      def execute        
+        if defined?(JRUBY_VERSION)
+          if block_given?
+            return execute_jruby(&Proc.new) 
+          else
+            return execute_jruby
+          end             
+        end
+
         # Get the timeout, if we have one
         timeout = @options[:timeout]
 
