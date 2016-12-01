@@ -27,5 +27,5 @@ the provisioners to re-run by specifying the `--provision` flag.
 
 * `--provision-with x,y,z` - This will only run the given provisioners. For
   example, if you have a `:shell` and `:chef_solo` provisioner and run
-  `vagrant provision --provision-with shell`, only the shell provisioner will
+  `vagrant reload --provision-with shell`, only the shell provisioner will
   be run.
