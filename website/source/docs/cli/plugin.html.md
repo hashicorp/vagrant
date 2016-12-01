@@ -142,10 +142,3 @@ the plugin using `vagrant plugin install`.
 If a name is specified, only that single plugin will be updated. If a
 name is specified of a plugin that is not installed, this command will not
 install it.
-
-# Plugin Repair
-
-**Command: `vagrant plugin update [<name>]`**
-
-This updates the plugins that are installed within Vagrant. If you specified
-version constraints when installing the plugin, this command will respect
