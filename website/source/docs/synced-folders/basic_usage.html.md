@@ -100,6 +100,19 @@ config.vm.synced_folder "src/", "/srv/website",
   owner: "root", group: "root"
 ```
 
+_NOTE: Owner and group IDs defined within `mount_options` will have precedence
+over the `owner` and `group` options._
+
+For example, given the following configuration:
+
+```ruby
+config.vm.synced_folder ".", "/vagrant", owner: "vagrant",
+  group: "vagrant", mount_options: ["uid=1234", "gid=1234"]
+```
+
+the mounted synced folder will be owned by the user with ID `1234` and the
+group with ID `1234`. The `owner` and `group` options will be ignored.
+
 ## Symbolic Links
 
 Support for symbolic links across synced folder implementations and

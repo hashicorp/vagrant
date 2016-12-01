@@ -71,7 +71,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountNFS" do
       }
       cap.mount_nfs_folder(machine, ip, folders)
 
-      expect(comm.received_commands[1]).to include(
+      expect(comm.received_commands[2]).to include(
         "/sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guestpath}")
     end
 
