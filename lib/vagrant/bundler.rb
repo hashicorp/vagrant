@@ -331,6 +331,20 @@ module Vagrant
         # again, just reverse order on failure and attempt again.
         if retried
           @logger.error("Failed to load solution set - #{e.class}: #{e}")
+          matcher = e.message.match(/Could not find '(?<gem_name>[^']+)'/)
+          if matcher && !matcher["gem_name"].empty?
+            desired_activation_request = solution.detect do |request|
+              request.name == matcher["gem_name"]
+            end
+            if desired_activation_request && !desired_activation_request.full_spec.activated?
+              activation_request = desired_activation_request
+              @logger.warn("Found misordered activation request for #{desired_activation_request.full_name}. Moving to solution HEAD.")
+              solution.delete(desired_activation_request)
+              solution.unshift(desired_activation_request)
+              retry
+            end
+          end
+
           raise
         else
           @logger.debug("Failed to load solution set. Retrying with reverse order.")
