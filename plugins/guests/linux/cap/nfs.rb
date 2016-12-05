@@ -35,7 +35,7 @@ module VagrantPlugins
               mount -o #{mount_opts} #{ip}:#{host_path} #{guest_path}
               result=$?
               if test $result -eq 0; then
-                if test -x /sbin/initctl && command -v /sbin/init && /sbin/init --version | grep upstart; then
+                if test -x /sbin/initctl && command -v /sbin/init && /sbin/init 2>/dev/null --version | grep upstart; then
                   /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guest_path}
                 fi
               else
