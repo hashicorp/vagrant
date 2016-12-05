@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - core: Disable Vagrantfile loading when running plugin commands [GH-8066]
+
 BUG FIXES:
 
   - core: Detect load failures within install solution sets and retry [GH-8068]
