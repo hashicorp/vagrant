@@ -6,6 +6,7 @@ require "fileutils"
 
 require "rubygems/package"
 require "rubygems/uninstaller"
+require "rubygems/name_tuple"
 
 require_relative "shared_helpers"
 require_relative "version"
