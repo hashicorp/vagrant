@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Detect load failures within install solution sets and retry [GH-8068]
+
 ## 1.9.0 (November 28, 2016)
 
 FEATURES:
