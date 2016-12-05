@@ -10,6 +10,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: Detect load failures within install solution sets and retry [GH-8068]
+  - guests/linux: Prevent stderr output on init version check for synced folders [GH-8051]
 
 ## 1.9.0 (November 28, 2016)
 
