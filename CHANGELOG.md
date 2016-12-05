@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - core: Disable Vagrantfile loading when running plugin commands [GH-8066]
+  - guests/redhat: Detect and restart NetworkManager service if in use [GH-8052, GH-7994]
 
 BUG FIXES:
 
