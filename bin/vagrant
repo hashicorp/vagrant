@@ -8,6 +8,11 @@ Signal.trap("INT") { abort }
 # Split arguments by "--" if its there, we'll recombine them later
 argv = ARGV.dup
 argv_extra = []
+
+# These will be the options that are passed to initialze the Vagrant
+# environment.
+opts = {}
+
 if idx = argv.index("--")
   argv_extra = argv.slice(idx+1, argv.length-2)
   argv = argv.slice(0, idx)
@@ -20,12 +25,15 @@ if argv.include?("-v") || argv.include?("--version")
   exit 0
 end
 
-# Disable plugin loading for commands where plugins are not required
+# Disable plugin loading for commands where plugins are not required. This will
+# also disable loading of the Vagrantfile if it available as the environment
+# is not required for these commands
 argv.each_index do |i|
   arg = argv[i]
 
   if !arg.start_with?("-")
     if ["plugin", "help"].include?(arg) || (arg == "box" && argv[i+1] == "list")
+      opts[:vagrantfile_name] = ""
       ENV['VAGRANT_NO_PLUGINS'] = "1"
     end
 
@@ -62,10 +70,6 @@ begin
   # Create a logger right away
   logger = Log4r::Logger.new("vagrant::bin::vagrant")
   logger.info("`vagrant` invoked: #{ARGV.inspect}")
-
-  # These will be the options that are passed to initialze the Vagrant
-  # environment.
-  opts = {}
 
   # Disable color in a few cases:
   #
