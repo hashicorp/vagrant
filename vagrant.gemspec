@@ -40,7 +40,9 @@ Gem::Specification.new do |s|
   # tighter restrictions on valid ruby versions
   s.add_dependency "ruby_dep", "<= 1.3.1"
 
-  s.add_development_dependency "rake"
+  # Constraint rake to properly handle deprecated method usage
+  # from within rspec
+  s.add_development_dependency "rake", "~> 11.3.0"
   s.add_development_dependency "rspec", "~> 2.14.0"
   s.add_development_dependency "webmock", "~> 1.20"
   s.add_development_dependency "fake_ftp", "~> 0.1"
