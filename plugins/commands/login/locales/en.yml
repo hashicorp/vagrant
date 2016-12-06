@@ -21,7 +21,7 @@ en:
       are never stored on disk locally.
 
       If you do not have an Atlas account, sign up at
-      https://atlas.hashicorp.com.
+      https://atlas.hashicorp.com/account/new.
     invalid_login: |-
       Invalid username or password. Please try again.
     invalid_token: |-
