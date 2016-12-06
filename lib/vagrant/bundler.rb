@@ -175,7 +175,10 @@ module Vagrant
         Gem::Uninstaller.new(spec.name,
           version: spec.version,
           install_dir: plugin_gem_path,
-          ignore: true
+          all: true,
+          executables: true,
+          force: true,
+          ignore: true,
         ).uninstall_gem(spec)
       end
 
