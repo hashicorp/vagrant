@@ -1,5 +1,4 @@
 require "vagrant"
-require_relative "cap/mount_shared_folder_base"
 
 module VagrantPlugins
   module GuestLinux

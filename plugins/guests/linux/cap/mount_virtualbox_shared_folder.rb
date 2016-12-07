@@ -1,12 +1,10 @@
-require "shellwords"
-require "vagrant/util/retryable"
+require_relative "../../../synced_folders/unix_mount_helpers"
 
 module VagrantPlugins
   module GuestLinux
     module Cap
-      class MountVirtualBoxSharedFolder < MountSharedFolderBase
-
-        extend Vagrant::Util::Retryable
+      class MountVirtualBoxSharedFolder
+        extend SyncedFolder::UnixMountHelpers
 
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)
           guest_path = Shellwords.escape(guestpath)

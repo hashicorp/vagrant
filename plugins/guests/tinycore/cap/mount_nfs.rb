@@ -1,10 +1,10 @@
-require "vagrant/util/retryable"
+require_relative "../../../synced_folders/unix_mount_helpers"
 
 module VagrantPlugins
   module GuestTinyCore
     module Cap
-      class MountNFS < GuestLinux::Cap::MountSharedFolderBase
-        extend Vagrant::Util::Retryable
+      class MountNFS
+        extend SyncedFolder::UnixMountHelpers
 
         def self.mount_nfs_folder(machine, ip, folders)
           folders.each do |name, opts|

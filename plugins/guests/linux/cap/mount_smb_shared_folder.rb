@@ -1,10 +1,12 @@
 require "shellwords"
-require "vagrant/util/retryable"
+require_relative "../../../synced_folders/unix_mount_helpers"
 
 module VagrantPlugins
   module GuestLinux
     module Cap
-      class MountSMBSharedFolder < MountSharedFolderBase
+      class MountSMBSharedFolder
+
+        extend SyncedFolder::UnixMountHelpers
 
         def self.mount_smb_shared_folder(machine, name, guestpath, options)
           expanded_guest_path = machine.guest.capability(
