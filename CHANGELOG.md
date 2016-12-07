@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - providers/hyperv: Support packaging of Hyper-V boxes [GH-7867]
+
 IMPROVEMENTS:
 
 BUG FIXES:
