@@ -3,7 +3,7 @@ require "vagrant/util/retryable"
 module VagrantPlugins
   module GuestTinyCore
     module Cap
-      class MountNFS
+      class MountNFS < GuestLinux::Cap::MountSharedFolderBase
         extend Vagrant::Util::Retryable
 
         def self.mount_nfs_folder(machine, ip, folders)
@@ -32,12 +32,7 @@ module VagrantPlugins
                                        error_class: Vagrant::Errors::NFSMountFailed)
             end
 
-            # Emit an upstart event if we can
-            machine.communicate.sudo <<-SCRIPT
-if command -v /sbin/init && /sbin/init --version | grep upstart; then
-  /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
-fi
-SCRIPT
+            emit_upstart_notification(machine, expanded_guest_path)
           end
         end
       end
