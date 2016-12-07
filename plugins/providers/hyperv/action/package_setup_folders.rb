@@ -3,7 +3,7 @@ require "fileutils"
 require_relative "../../../../lib/vagrant/action/general/package_setup_folders"
 
 module VagrantPlugins
-  module ProviderVirtualBox
+  module HyperV
     module Action
       class PackageSetupFolders < Vagrant::Action::General::PackageSetupFolders
         # Doing this so that we can test that the parent is properly

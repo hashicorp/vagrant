@@ -64,6 +64,28 @@ module VagrantPlugins
         end
       end
 
+      # This action packages the virtual machine into a single box file.
+      def self.action_package
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckEnabled
+          b.use Call, IsState, :not_created do |env1, b2|
+            if env1[:result]
+              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
+              next
+            end
+
+            b2.use PackageSetupFolders
+            b2.use PackageSetupFiles
+            b2.use action_halt
+            b2.use SyncedFolderCleanup
+            b2.use Package
+            b2.use PackageVagrantfile
+            b2.use PackageMetadataJson
+            b2.use Export
+          end
+        end
+      end
+
       def self.action_provision
         Vagrant::Action::Builder.new.tap do |b|
           b.use ConfigValidate
@@ -261,9 +283,16 @@ module VagrantPlugins
 
       # The autoload farm
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
+      autoload :PackageSetupFolders, action_root.join("package_setup_folders")
+      autoload :PackageSetupFiles, action_root.join("package_setup_files")
+      autoload :PackageVagrantfile, action_root.join("package_vagrantfile")
+      autoload :PackageMetadataJson, action_root.join("package_metadata_json")
+      autoload :Export, action_root.join("export")
+
       autoload :CheckEnabled, action_root.join("check_enabled")
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :Import, action_root.join("import")
+      autoload :Package, action_root.join("package")
       autoload :IsWindows, action_root.join("is_windows")
       autoload :ReadState, action_root.join("read_state")
       autoload :ResumeVM, action_root.join("resume_vm")

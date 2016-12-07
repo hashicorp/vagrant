@@ -53,9 +53,17 @@ module VagrantPlugins
          execute('delete_vm.ps1', { VmId: vm_id })
        end
 
+      def export(path)
+        execute('export_vm.ps1', {VmId: vm_id, Path: path})
+      end
+
        def read_guest_ip
          execute('get_network_config.ps1', { VmId: vm_id })
        end
+
+      def read_mac_address
+        execute('get_network_mac.ps1', { VmId: vm_id })
+      end
 
        def resume
          execute('resume_vm.ps1', { VmId: vm_id })
