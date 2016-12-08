@@ -16,7 +16,7 @@ module VagrantPlugins
           o.separator "Options:"
           o.separator ""
 
-          o.on("--base NAME", "Name of a VM in virtualbox to package as a base box") do |b|
+          o.on("--base NAME", "Name of a VM in VirtualBox to package as a base box (VirtualBox Only)") do |b|
             options[:base] = b
           end
 
