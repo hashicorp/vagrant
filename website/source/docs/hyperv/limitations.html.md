@@ -28,12 +28,6 @@ However, the IP address of the machine will be reported as part of
 the `vagrant up`, and you can use that IP address as if it were
 a host only network.
 
-## Packaging
-
-Vagrant does not implement the `vagrant package` command for Hyper-V
-yet, though this should be fairly straightforward to add in a Vagrant
-release in the near future.
-
 ## Snapshots
 
 Restoring snapshot VMs using `vagrant snapshot pop` or 
