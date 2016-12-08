@@ -24,7 +24,7 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
           /.+scripts\/mount_volume.ps1/, options: {
               mount_point: "guestpath",
               share_name: "name",
-              vm_provider_unc_path: "\\\\vboxsrv\\name",
+              vm_provider_unc_path: "\\\\vboxsvr\\name",
             })
         described_class.mount_virtualbox_shared_folder(machine, 'name', 'guestpath', {})
       end
@@ -34,7 +34,7 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
           kind_of(String), options: {
               mount_point: kind_of(String),
               share_name: "invalid-windows_sharename",
-              vm_provider_unc_path: "\\\\vboxsrv\\invalid-windows_sharename",
+              vm_provider_unc_path: "\\\\vboxsvr\\invalid-windows_sharename",
             })
         described_class.mount_virtualbox_shared_folder(machine, "/invalid-windows/sharename", "guestpath", {})
       end
