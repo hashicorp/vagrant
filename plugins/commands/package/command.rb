@@ -24,7 +24,7 @@ module VagrantPlugins
             options[:output] = output
           end
 
-          o.on("--include FILE...", Array, "Additional files to package with the box") do |i|
+          o.on("--include FILE,FILE..", Array, "Comma separated additional files to package with the box") do |i|
             options[:include] = i
           end
 
