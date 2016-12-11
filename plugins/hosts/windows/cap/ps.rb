@@ -28,13 +28,18 @@ module VagrantPlugins
           args << "Bypass"
           args << "-NoExit"
           args << "-EncodedCommand"
-          args << ::WinRM::PowershellScript.new(command).encoded
+          args << encoded(command)
           if ps_info[:extra_args]
             args << ps_info[:extra_args]
           end
 
           # Launch it
           Vagrant::Util::SafeExec.exec("powershell", *args)
+        end
+
+        def self.encoded(script)
+          encoded_script = script.encode('UTF-16LE', 'UTF-8')
+          Base64.strict_encode64(encoded_script)
         end
       end
     end

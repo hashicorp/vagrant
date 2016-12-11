@@ -6,8 +6,8 @@ require Vagrant.source_root.join("plugins/communicators/winrm/config")
 describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   include_context "unit"
 
-  let(:session) { double("winrm_session") }
-  let(:executor) { double("command_executor") }
+  let(:connection) { double("winrm_connection") }
+  let(:shell) { double("winrm_shell") }
   let(:port) { config.transport == :ssl ? 5986 : 5985 }
   let(:config)  {
     VagrantPlugins::CommunicatorWinRM::Config.new.tap do |c|
@@ -21,44 +21,82 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       c.finalize!
     end
   }
+  let(:output) { WinRM::Output.new.tap { |out| out.exitcode = 0 } }
 
-  before { allow(session).to receive(:create_executor).and_yield(executor) }
+  before { allow(connection).to receive(:shell).and_yield(shell) }
 
   subject do
     described_class.new('localhost', port, config).tap do |comm|
-      allow(comm).to receive(:new_session).and_return(session)
+      allow(comm).to receive(:new_connection).and_return(connection)
     end
   end
 
   describe ".powershell" do
     it "should call winrm powershell" do
-      expect(executor).to receive(:run_powershell_script).with(/^dir.+/).and_return({ exitcode: 0 })
-      expect(subject.powershell("dir")[:exitcode]).to eq(0)
+      expect(shell).to receive(:run).with("dir").and_return(output)
+      expect(subject.powershell("dir").exitcode).to eq(0)
     end
 
     it "should raise an execution error when an exception occurs" do
-      expect(executor).to receive(:run_powershell_script).with(/^dir.+/).and_raise(
+      expect(shell).to receive(:run).with("dir").and_raise(
         StandardError.new("Oh no! a 500 SOAP error!"))
       expect { subject.powershell("dir") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::ExecutionError)
     end
   end
 
-  describe ".cmd" do
+  describe ".elevated" do
+    it "should call winrm elevated" do
+      expect(shell).to receive(:run).with("dir").and_return(output)
+      expect(shell).to receive(:interactive_logon=).with(false)
+      expect(subject.elevated("dir").exitcode).to eq(0)
+    end
+
+    it "should set interactive_logon when interactive is true" do
+      expect(shell).to receive(:run).with("dir").and_return(output)
+      expect(shell).to receive(:interactive_logon=).with(true)
+      expect(subject.elevated("dir", { interactive: true }).exitcode).to eq(0)
+    end
+
+    it "should raise an execution error when an exception occurs" do
+      expect(shell).to receive(:run).with("dir").and_raise(
+        StandardError.new("Oh no! a 500 SOAP error!"))
+      expect { subject.powershell("dir") }.to raise_error(
+        VagrantPlugins::CommunicatorWinRM::Errors::ExecutionError)
+    end
+  end
+
+  describe ".cmd" do  
     it "should call winrm cmd" do
-      expect(executor).to receive(:run_cmd).with("dir").and_return({ exitcode: 0 })
-      expect(subject.cmd("dir")[:exitcode]).to eq(0)
+      expect(connection).to receive(:shell).with(:cmd, { })
+      expect(shell).to receive(:run).with("dir").and_return(output)
+      expect(subject.cmd("dir").exitcode).to eq(0)
+    end
+
+    context "when codepage is given" do
+      let(:config)  {
+        VagrantPlugins::CommunicatorWinRM::Config.new.tap do |c|
+          c.codepage = 800
+          c.finalize!
+        end
+      }
+
+      it "creates shell with the given codepage when set" do
+        expect(connection).to receive(:shell).with(:cmd, { codepage: 800 })
+        expect(shell).to receive(:run).with("dir").and_return(output)
+        expect(subject.cmd("dir").exitcode).to eq(0)
+      end
     end
   end
 
   describe ".wql" do
     it "should call winrm wql" do
-      expect(session).to receive(:run_wql).with("select * from Win32_OperatingSystem").and_return({ exitcode: 0 })
-      expect(subject.wql("select * from Win32_OperatingSystem")[:exitcode]).to eq(0)
+      expect(connection).to receive(:run_wql).with("select * from Win32_OperatingSystem")
+      subject.wql("select * from Win32_OperatingSystem")
     end
 
     it "should retry when a WinRMAuthorizationError is received" do
-      expect(session).to receive(:run_wql).with("select * from Win32_OperatingSystem").exactly(2).times.and_raise(
+      expect(connection).to receive(:run_wql).with("select * from Win32_OperatingSystem").exactly(2).times.and_raise(
         # Note: The initialize for WinRMAuthorizationError may require a status_code as
         # the second argument in a future WinRM release. Currently it doesn't track the
         # status code.
@@ -104,9 +142,10 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   describe ".endpoint_options" do
     it "should create endpoint options" do
       expect(subject.send(:endpoint_options)).to eq(
-        { user: "username", pass: "password", host: "localhost", port: 5985,
+        { endpoint: "http://localhost:5985/wsman", operation_timeout: 1800,
+          user: "username", password: "password", host: "localhost", port: 5985,
           basic_auth_only: false, no_ssl_peer_verification: false,
-          retry_delay: 1, retry_limit: 2 })
+          retry_delay: 1, retry_limit: 2, transport: :negotiate })
     end
   end
 
