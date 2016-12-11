@@ -119,6 +119,11 @@ a way to not use a pty, that is recommended instead.
 
 <hr>
 
+`config.ssh.keep_alive` If `true`, this setting SSH will send keep-alive packets
+every 5 seconds by default to keep connections alive.
+
+<hr>
+
 `config.ssh.shell` - The shell to use when executing SSH commands from
 Vagrant. By default this is `bash -l`. Note that this has no effect on
 the shell you get when you run `vagrant ssh`. This configuration option
