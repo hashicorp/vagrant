@@ -27,7 +27,7 @@ Today, there are two different components:
   box file and so on.
 
 * Box Catalog Metadata - This is a JSON document (typically exchanged
-  during interactions with [HashiCorp's Atlas](https://atlas.hashicorp.com))
+  during interactions with [HashiCorp's Atlas](/docs/other/atlas.html))
   that specifies the name of the box, a description, available
   versions, available providers, and URLs to the actual box files
   (next component) for each provider and version. If this catalog
@@ -82,7 +82,7 @@ providers from a single file, and more.
 
 <div class="alert alert-block alert-info">
   <strong>You do not need to manually make the metadata.</strong> If you
-  have an account with <a href="https://atlas.hashicorp.com">HashiCorp's Atlas</a>, you
+  have an account with <a href="/docs/other/atlas.html">HashiCorp's Atlas</a>, you
   can create boxes there, and HashiCorp's Atlas automatically creates
   the metadata for you. The format is still documented here.
 </div>

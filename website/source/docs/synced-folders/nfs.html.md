@@ -141,7 +141,8 @@ possible to avoid entering your password.
 
 Below, we have a couple example sudoers entries. Note that you may
 have to modify them _slightly_ on certain hosts because the way Vagrant
-modifies `/etc/exports` changes a bit from OS to OS.
+modifies `/etc/exports` changes a bit from OS to OS. If the commands below
+are located in non-standard paths, modify them as appropriate.
 
 For \*nix users, make sure to edit your `/etc/sudoers` file with `visudo`. It protects you against syntax errors which could leave you without the ability to gain elevated privileges.
 
@@ -173,12 +174,16 @@ belongs to the vagrant group):
 
 ```
 Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
-Cmnd_Alias VAGRANT_NFSD_CHECK = /usr/bin/systemctl status nfs-server.service
+Cmnd_Alias VAGRANT_NFSD_CHECK = /usr/bin/systemctl status --no-pager nfs-server.service
 Cmnd_Alias VAGRANT_NFSD_START = /usr/bin/systemctl start nfs-server.service
 Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
 Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /bin/sed -r -e * d -ibak /tmp/exports
 %vagrant ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD_CHECK, VAGRANT_NFSD_START, VAGRANT_NFSD_APPLY, VAGRANT_EXPORTS_REMOVE
 ```
+
+If you don't want to edit `/etc/sudoers` directly, you can create
+`/etc/sudoers.d/vagrant-syncedfolders` with the appropriate entries,
+assuming `/etc/sudoers.d` has been enabled.
 
 ## Other Notes
 
@@ -187,3 +192,29 @@ will refuse to export the filesystem. The error message given by NFS is
 often not clear. One error message seen is `<path> does not support NFS`.
 There is no workaround for this other than sharing a directory which is not
 encrypted.
+
+**Version 4:** UDP is generally not a valid transport protocol for NFSv4.
+Early implementations of NFS 4.0 still allowed UDP which allows the UDP
+transport protocol to be used in rare cases. RFC5661 explicitly states
+UDP alone should not be used for the transport protocol in NFS 4.1. Errors
+due to unsupported transport protocols for specific versions of NFS are
+not always clear. A common error message when attempting to use UDP with
+NFSv4:
+
+```
+mount.nfs: an incorrect mount option was specified
+```
+
+When using NFSv4, ensure the `nfs_udp` option is set to false. For example:
+
+```
+config.vm.synced_folder ".", "/vagrant",
+    :nfs => true,
+    :nfs_version => 4,
+    :nfs_udp => false
+```
+
+For more information about transport protocols and NFS version 4 see:
+
+* NFSv4.0 - [RFC7530](https://tools.ietf.org/html/rfc7530#section-3.1)
+* NFSv4.1 - [RFC5661](https://tools.ietf.org/html/rfc5661#section-2.9.1)

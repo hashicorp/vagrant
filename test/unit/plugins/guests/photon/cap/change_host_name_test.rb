@@ -1,34 +1,42 @@
-# encoding: UTF-8
 # Copyright (c) 2015 VMware, Inc. All Rights Reserved.
 
-require File.expand_path("../../../../../base", __FILE__)
+require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestPhoton::Cap::ChangeHostName" do
-  let(:described_class) do
-    VagrantPlugins::GuestPhoton::Plugin.components.guest_capabilities[:photon].get(:change_host_name)
+  let(:caps) do
+    VagrantPlugins::GuestPhoton::Plugin
+      .components
+      .guest_capabilities[:photon]
   end
+
   let(:machine) { double("machine") }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:communicate).and_return(comm)
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
-  it 'should change hostname when hostname is differ from current' do
-    hostname = 'vagrant-photon'
-    expect(communicator).to receive(:test).with("sudo hostname --fqdn | grep 'vagrant-photon'")
-    communicator.should_receive(:sudo).with("hostname #{hostname.split('.')[0]}")
-    described_class.change_host_name(machine, hostname)
-  end
+  describe ".change_host_name" do
+    let(:cap) { caps.get(:change_host_name) }
 
-  it 'should not change hostname when hostname equals current' do
-    hostname = 'vagrant-photon'
-    communicator.stub(:test).and_return(true)
-    communicator.should_not_receive(:sudo)
-    described_class.change_host_name(machine, hostname)
+    let(:name) { "banana-rama.example.com" }
+
+    it "sets the hostname" do
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
+
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands[1]).to match(/echo '#{name}' > \/etc\/hostname/)
+      expect(comm.received_commands[1]).to match(/hostname '#{name}'/)
+    end
+
+    it "does not change the hostname if already set" do
+      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+      cap.change_host_name(machine, name)
+      expect(comm.received_commands.size).to eq(1)
+    end
   end
 end

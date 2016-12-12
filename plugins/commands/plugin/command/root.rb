@@ -14,6 +14,11 @@ module VagrantPlugins
           @main_args, @sub_command, @sub_args = split_main_and_subcommand(argv)
 
           @subcommands = Vagrant::Registry.new
+          @subcommands.register(:expunge) do
+            require_relative "expunge"
+            Expunge
+          end
+
           @subcommands.register(:install) do
             require_relative "install"
             Install
@@ -27,6 +32,11 @@ module VagrantPlugins
           @subcommands.register(:list) do
             require_relative "list"
             List
+          end
+
+          @subcommands.register(:repair) do
+            require_relative "repair"
+            Repair
           end
 
           @subcommands.register(:update) do

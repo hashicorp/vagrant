@@ -11,9 +11,8 @@ description: |-
 
 The information below is applicable to both Vagrant Ansible provisioners:
 
- - [`ansible`](/docs/provisioning/ansible.html), where Ansible is executed on the **Vagrant host**
-
- - [`ansible_local`](/docs/provisioning/ansible_local.html), where Ansible is executed on the **Vagrant guest**
+  - [`ansible`](/docs/provisioning/ansible.html), where Ansible is executed on the **Vagrant host**
+  - [`ansible_local`](/docs/provisioning/ansible_local.html), where Ansible is executed on the **Vagrant guest**
 
 The list of common options for these two provisioners is documented in a [separate documentation page](/docs/provisioning/ansible_common.html).
 
@@ -48,7 +47,7 @@ You can of course target other operating systems that do not have YUM by changin
 The `playbook` option is strictly required by both Ansible provisioners ([`ansible`](/docs/provisioning/ansible.html) and [`ansible_local`](/docs/provisioning/ansible_local.html)), as illustrated in this basic Vagrantfile` configuration:
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
 
   # Use :ansible or :ansible_local to
   # select the provisioner of your choice
@@ -75,7 +74,7 @@ Since an Ansible playbook can include many files, you may also collect the relat
 In such an arrangement, the `ansible.playbook` path should be adjusted accordingly:
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "provisioning/playbook.yml"
   end
@@ -113,10 +112,10 @@ Note that the generated inventory file is uploaded to the guest VM in a subdirec
 
 **Host variables:**
 
-As of Vagrant 1.8.0, the [`host_vars`](/docs/provisioning/ansible_common.html) option can be used to set [variables for individual hosts](https://docs.ansible.com/ansible/intro_inventory.html#host-variables) in the generated inventory file (see also the notes on group variables below).
+As of Vagrant 1.8.0, the [`host_vars`](/docs/provisioning/ansible_common.html#host_vars) option can be used to set [variables for individual hosts](https://docs.ansible.com/ansible/intro_inventory.html#host-variables) in the generated inventory file (see also the notes on group variables below).
 
 ```
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   config.vm.define "host1"
   config.vm.define "host2"
   config.vm.provision "ansible" do |ansible|
@@ -142,14 +141,14 @@ host2 ansible_ssh_host=... http_port=303 maxRequestsPerChild=909
 
 **How to generate Inventory Groups:**
 
-The [`groups`](/docs/provisioning/ansible_common.html) option can be used to pass a hash of group names and group members to be included in the generated inventory file.
+The [`groups`](/docs/provisioning/ansible_common.html#groups) option can be used to pass a hash of group names and group members to be included in the generated inventory file.
 
 As of Vagrant 1.8.0, it is also possible to specify [group variables](https://docs.ansible.com/ansible/intro_inventory.html#group-variables), and group members as [host ranges (with numeric or alphabetic patterns)](https://docs.ansible.com/ansible/intro_inventory.html#hosts-and-groups).
 
 With this configuration example:
 
 ```
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/trusty64"
 
@@ -221,7 +220,7 @@ variable2=example
 
 The second option is for situations where you would like to have more control over the inventory management.
 
-With the `inventory_path` option, you can reference a specific inventory resource (e.g. a static inventory file, a [dynamic inventory script](https://docs.ansible.com/intro_dynamic_inventory.html) or even [multiple inventories stored in the same directory](https://docs.ansible.com/intro_dynamic_inventory.html#using-multiple-inventory-sources)). Vagrant will then use this inventory information instead of generating it.
+With the [`inventory_path`](/docs/provisioning/ansible_common.html#inventory_path) option, you can reference a specific inventory resource (e.g. a static inventory file, a [dynamic inventory script](https://docs.ansible.com/intro_dynamic_inventory.html) or even [multiple inventories stored in the same directory](https://docs.ansible.com/intro_dynamic_inventory.html#using-multiple-inventory-sources)). Vagrant will then use this inventory information instead of generating it.
 
 A very simple inventory file for use with Vagrant might look like:
 
@@ -237,9 +236,9 @@ config.vm.network :private_network, ip: "192.168.111.222"
 
 **Notes:**
 
- - The machine names in `Vagrantfile` and `ansible.inventory_path` files should correspond, unless you use `ansible.limit` option to reference the correct machines.
- - The SSH host addresses (and ports) must obviously be specified twice, in `Vagrantfile` and `ansible.inventory_path` files.
- - Sharing hostnames across Vagrant host and guests might be a good idea (e.g. with some Ansible configuration task, or with a plugin like [`vagrant-hostmanager`](https://github.com/smdahlen/vagrant-hostmanager)).
+  - The machine names in `Vagrantfile` and `ansible.inventory_path` files should correspond, unless you use `ansible.limit` option to reference the correct machines.
+  - The SSH host addresses (and ports) must obviously be specified twice, in `Vagrantfile` and `ansible.inventory_path` files.
+  - Sharing hostnames across Vagrant host and guests might be a good idea (e.g. with some Ansible configuration task, or with a plugin like [`vagrant-hostmanager`](https://github.com/smdahlen/vagrant-hostmanager)).
 
 ### The Ansible Configuration File
 
@@ -247,11 +246,11 @@ Certain settings in Ansible are (only) adjustable via a [configuration file](htt
 
 When shipping an Ansible configuration file it is good to know that:
 
- - it is possible to reference an Ansible configuration file via `ANSIBLE_CONFIG` environment variable, if you want to be flexible about the location of this file.
- - `ansible-playbook` **never** looks for `ansible.cfg` in the directory that contains the main playbook file.
- - As of Ansible 1.5, the lookup order is the following:
-
-   - `ANSIBLE_CONFIG` an environment variable
-   - `ansible.cfg` in the runtime current directory
-   - `.ansible.cfg` in the user home directory
-   - `/etc/ansible/ansible.cfg`
+  - as of Ansible 1.5, the lookup order is the following:
+    - any path set as `ANSIBLE_CONFIG` environment variable
+    - `ansible.cfg` in the runtime working directory
+    - `.ansible.cfg` in the user home directory
+    - `/etc/ansible/ansible.cfg`
+  - Ansible commands don't look for a configuration file relative to the playbook file location (e.g. in the same directory)
+  - an `ansible.cfg` file located in the same directory as your `Vagrantfile` will be used by default.
+  - it is also possible to reference any other location with the [config_file](/docs/provisioning/ansible_common.html#config_file) provisioner option. In this case, Vagrant will set the `ANSIBLE_CONFIG` environment variable accordingly.

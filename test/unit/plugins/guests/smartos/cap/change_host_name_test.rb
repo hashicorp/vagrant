@@ -1,4 +1,5 @@
-require File.expand_path("../../../../../base", __FILE__)
+require_relative "../../../../base"
+require_relative "../../../../../../plugins/guests/smartos/config"
 
 describe "VagrantPlugins::VagrantPlugins::Cap::ChangeHostName" do
   let(:plugin) { VagrantPlugins::GuestSmartos::Plugin.components.guest_capabilities[:smartos].get(:change_host_name) }
@@ -30,4 +31,3 @@ describe "VagrantPlugins::VagrantPlugins::Cap::ChangeHostName" do
     end
   end
 end
-

@@ -64,7 +64,7 @@ is override locale in the `Vagrantfile`:
 ```ruby
 ENV["LC_ALL"] = "en_US.UTF-8"
 
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   # ...
 end
 ```

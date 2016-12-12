@@ -177,7 +177,12 @@ module VagrantPlugins
           download_path.delete if download_path.file?
 
           begin
-            Vagrant::Util::Downloader.new(config.path, download_path).download!
+            Vagrant::Util::Downloader.new(
+              config.path,
+              download_path,
+              md5: config.md5,
+              sha1: config.sha1
+            ).download!
             ext    = File.extname(config.path)
             script = download_path.read
           ensure

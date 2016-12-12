@@ -2,14 +2,28 @@ Host <%= host_key %>
   HostName <%= ssh_host %>
   User <%= ssh_user %>
   Port <%= ssh_port %>
+<% if ! paranoid -%>
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
-  PasswordAuthentication no
-<% private_key_path.each do |path| %>
-  IdentityFile <%= path.inspect %>
 <% end -%>
+  PasswordAuthentication no
+<% if private_key_path -%>
+<% private_key_path.each do |path| %>
+<% if path.include?(" ") -%>
+  IdentityFile "<%= path %>"
+<% else -%>
+  IdentityFile <%= path %>
+<% end -%>
+<% end -%>
+<% end -%>
+<% if keys_only -%>
   IdentitiesOnly yes
+<% end -%>
+<% if log_level -%>
+  LogLevel <%= log_level %>
+<% else -%>
   LogLevel FATAL
+<% end -%>
 <% if forward_agent -%>
   ForwardAgent yes
 <% end -%>

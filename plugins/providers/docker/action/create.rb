@@ -135,7 +135,7 @@ module VagrantPlugins
               next
             end
 
-            mappings[options[:host]] = options
+            mappings["#{options[:host]}/#{options[:protocol]}"] = options
           end
 
           # Build the results

@@ -62,7 +62,7 @@ The provider class should subclass and implement
 return the proper parent class.
 
 This class and the methods that need to be implemented are
-[very well documented](https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/plugin/docs/provider.rb). The documentation done on the class in the comments should be
+[very well documented](https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/plugin/v2/provider.rb). The documentation done on the class in the comments should be
 enough to understand what needs to be done.
 
 Viewing the [AWS provider class](https://github.com/mitchellh/vagrant-aws/blob/master/lib/vagrant-aws/provider.rb) as well as the

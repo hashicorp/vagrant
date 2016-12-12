@@ -52,6 +52,9 @@ available below this section.
 * `environment_path` (string) - Path to the directory that contains environment
   files on the host disk.
 
+* `environment_variables` (hash) - A hash of string key/value pairs to be set as
+  environment variables before the puppet apply run.
+
 * `options` (array of strings) - Additionally options to pass to the
   Puppet executable when running Puppet.
 
@@ -72,7 +75,7 @@ available below this section.
   directory when Puppet is executed. This is usually only set because relative
   paths are used in the Hiera configuration.
 
-~> If only `environment` and `environments_path` are specified, it will parse
+~> If only `environment` and `environment_path` are specified, it will parse
 and use the manifest specified in the `environment.conf` file. If
 `manifests_path` and `manifest_file` is specified along with the environment
 options, the manifest from the environment will be overridden by the specified `manifest_file`. If `manifests_path` and `manifest_file` are specified without
@@ -142,7 +145,7 @@ that the path is located in the "vm" at "/path/to/manifests".
 
 ## Environments
 
-If you are using Puppet 4 or higher, you can proivision using
+If you are using Puppet 4 or higher, you can provision using
 [Puppet Environments](https://docs.puppetlabs.com/puppet/latest/reference/environments.html) by specifying the name of the environment and the path on the
 local disk to the environment files:
 

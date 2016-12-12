@@ -34,28 +34,18 @@ module VagrantPlugins
         def validate(machine)
           super
 
-          { "ansible remote provisioner" => @errors }
-        end
-
-        protected
-
-        def check_path(machine, path, path_test_method, error_message_key = nil)
-          expanded_path = Pathname.new(path).expand_path(machine.env.root_path)
-          if !expanded_path.public_send(path_test_method)
-            if error_message_key
-              @errors << I18n.t(error_message_key, path: expanded_path, system: "host")
+          if raw_ssh_args
+            if raw_ssh_args.kind_of?(String)
+              @raw_ssh_args = [raw_ssh_args]
+            elsif !raw_ssh_args.kind_of?(Array)
+              @errors << I18n.t(
+                "vagrant.provisioners.ansible.errors.raw_ssh_args_invalid",
+                type:  raw_ssh_args.class.to_s,
+                value: raw_ssh_args.to_s)
             end
-            return false
           end
-          true
-        end
 
-        def check_path_is_a_file(machine, path, error_message_key = nil)
-          check_path(machine, path, "file?", error_message_key)
-        end
-
-        def check_path_exists(machine, path, error_message_key = nil)
-          check_path(machine, path, "exist?", error_message_key)
+          { "ansible remote provisioner" => @errors }
         end
 
       end

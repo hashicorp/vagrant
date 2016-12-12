@@ -3,7 +3,20 @@ require 'json'
 module VagrantPlugins
   module Salt
     class Provisioner < Vagrant.plugin("2", :provisioner)
+
+      # Default path values to set within configuration only
+      # if configuration value is unset and local path exists
+      OPTIMISTIC_PATH_DEFAULTS = Hash[*[
+        "minion_config", "salt/minion",
+        "minion_key", "salt/key/minion.key",
+        "minion_pub", "salt/key/minion.pub",
+        "master_config", "salt/master",
+        "master_key", "salt/key/master.key",
+        "master_pub", "salt/key/master.pub"
+      ].map(&:freeze)].freeze
+
       def provision
+        set_default_configs
         upload_configs
         upload_keys
         run_bootstrap_script
@@ -238,19 +251,19 @@ module VagrantPlugins
           bootstrap_path = get_bootstrap
           if @machine.config.vm.communicator == :winrm
             if @config.version
-              options += " -version %s" % @config.version            
+              options += " -version %s" % @config.version
             end
             if @config.run_service
               @machine.env.ui.info "Salt minion will be stopped after installing."
-              options += " -runservice %s" % @config.run_service            
+              options += " -runservice %s" % @config.run_service
             end
             if @config.minion_id
               @machine.env.ui.info "Setting minion to @config.minion_id."
-              options += " -minion %s" % @config.minion_id            
+              options += " -minion %s" % @config.minion_id
             end
             if @config.master_id
               @machine.env.ui.info "Setting master to @config.master_id."
-              options += " -master %s" % @config.master_id            
+              options += " -master %s" % @config.master_id
             end
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.ps1")
           else
@@ -320,43 +333,38 @@ module VagrantPlugins
         end
       end
 
-      def call_masterless
-        @machine.env.ui.info "Calling state.highstate in local mode... (this may take a while)"
-        cmd = "salt-call state.highstate --local#{get_loglevel}#{get_colorize}#{get_pillar}"
-        if @config.minion_id
-          cmd += " --id #{@config.minion_id}"
-        end
-        @machine.communicate.sudo(cmd) do |type, data|
-          if @config.verbose
-            @machine.env.ui.info(data)
-          end
-        end
-      end
-
       def call_highstate
-        if @config.masterless
-          call_masterless
-        elsif @config.run_highstate
+        if @config.run_highstate
+          local=""
+          if @config.masterless
+            local=" --local"
+          end
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
-            @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
-              if @config.verbose
-                @machine.env.ui.info(data.rstrip)
-              end
+            unless @config.masterless?
+              @machine.communicate.sudo("salt '*' saltutil.sync_all")
             end
+            @machine.communicate.sudo("salt '*' state.highstate --verbose #{local}#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+            if @config.verbose
+                @machine.env.ui.info(data.rstrip)
+            end
+          end
           else
             if @machine.config.vm.communicator == :winrm
               opts = { elevated: true }
-              @machine.communicate.execute("C:\\salt\\salt-call.bat saltutil.sync_all", opts)
-              @machine.communicate.execute("C:\\salt\\salt-call.bat state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
+              unless @config.masterless?
+                @machine.communicate.execute("C:\\salt\\salt-call.bat saltutil.sync_all", opts)
+              end
+              @machine.communicate.execute("C:\\salt\\salt-call.bat state.highstate --retcode-passthrough #{local}#{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data.rstrip)
                 end
               end
             else
-              @machine.communicate.sudo("salt-call saltutil.sync_all")
-              @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough #{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+              unless @config.masterless?
+                @machine.communicate.sudo("salt-call saltutil.sync_all")
+              end
+              @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough #{local}#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data.rstrip)
                 end
@@ -393,6 +401,16 @@ module VagrantPlugins
           cmd = "salt-run -l info state.orchestrate #{orchestration}"
           @machine.env.ui.info "Calling #{cmd}... (this may take a while)"
           @machine.communicate.sudo(cmd, &log_output)
+        end
+      end
+
+      # Sets optimistic default values into config
+      def set_default_configs
+        OPTIMISTIC_PATH_DEFAULTS.each do |config_key, config_default|
+          if config.send(config_key) == Config::UNSET_VALUE
+            config_value = File.exist?(expanded_path(config_default)) ? config_default : nil
+            config.send("#{config_key}=", config_value)
+          end
         end
       end
     end

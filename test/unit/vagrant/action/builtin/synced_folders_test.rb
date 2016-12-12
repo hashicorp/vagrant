@@ -41,10 +41,14 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       plugins[:default] = [impl(true, "default"), 10]
       plugins[:nfs] = [impl(true, "nfs"), 5]
 
-      env[:root_path] = Pathname.new(Dir.mktmpdir)
+      env[:root_path] = Pathname.new(Dir.mktmpdir("vagrant-test-synced-folders-call"))
       subject.stub(plugins: plugins)
       subject.stub(synced_folders: synced_folders)
       allow(subject).to receive(:save_synced_folders)
+    end
+
+    after do
+      FileUtils.rm_rf(env[:root_path])
     end
 
     it "should create on the host if specified" do

@@ -74,6 +74,25 @@ the box above. This is how Vagrant knows what box to use. If the box was not
 added before, Vagrant will automatically download and add the box when it is
 run.
 
+You may specify an explicit version of a box by specifying `config.vm.box_version`
+for example:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/precise64"
+  config.vm.box_version = "1.1.0"
+end
+```
+
+You may also specify the URL to a box directly using `config.vm.box_url`:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/precise64"
+  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+end
+```
+
 In the next section, we will bring up the Vagrant environment and interact
 with it a little bit.
 

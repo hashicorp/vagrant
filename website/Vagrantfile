@@ -12,7 +12,7 @@ sudo su -l -c 'gem install bundler' vagrant
 sudo su -l -c 'cd /vagrant && bundle install --jobs 2' vagrant
 SCRIPT
 
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   config.vm.box = "hashicorp/precise64"
   config.vm.network "private_network", ip: "33.33.33.10"
   config.vm.provision "shell", inline: $script, privileged: false

@@ -35,12 +35,19 @@ module VagrantPlugins
             end
 
             network_type = network[:type].to_sym
-            if network_type == :static
-              command = "networksetup -setmanual \"#{service_name}\" #{network[:ip]} #{network[:netmask]}"
-            elsif network_type == :dhcp
+            case network_type.to_sym
+            when :static
+              command = "networksetup -setmanual \"#{service_name}\" #{network[:ip]} #{network[:netmask]} #{network[:router]}"
+            when :static6
+              command = "networksetup -setv6manual \"#{service_name}\" #{network[:ip]} #{network[:netmask]} #{network[:router]}"
+            when :dhcp
               command = "networksetup -setdhcp \"#{service_name}\""
+            when :dhcp6
+              # This is not actually possible yet in Vagrant, but when we do
+              # enable IPv6 across the board, Darwin will already have support.
+              command = "networksetup -setv6automatic \"#{service_name}\""
             else
-              raise "#{network_type} network type is not supported, try static or dhcp"
+              raise Vagrant::Errors::NetworkTypeNotSupported, type: network_type
             end
 
             machine.communicate.sudo(command)
@@ -65,7 +72,7 @@ module VagrantPlugins
           ints = ::IO.read(tmp_ints)
           ints.split(/\n\n/m).each do |i|
             if i.match(/Hardware/) && i.match(/Ethernet/)
-              # Ethernet, should be 2 lines, 
+              # Ethernet, should be 2 lines,
               # (3) Thunderbolt Ethernet
               # (Hardware Port: Thunderbolt Ethernet, Device: en1)
 

@@ -101,8 +101,16 @@ module VagrantPlugins
         end
 
         # Mount them!
-        machine.guest.capability(
-          :mount_nfs_folder, nfsopts[:nfs_host_ip], mount_folders)
+        if machine.guest.capability?(:nfs_pre)
+          machine.guest.capability(:nfs_pre)
+        end
+
+        machine.guest.capability(:mount_nfs_folder,
+          nfsopts[:nfs_host_ip], mount_folders)
+
+        if machine.guest.capability?(:nfs_post)
+          machine.guest.capability(:nfs_post)
+        end
       end
 
       def cleanup(machine, opts)
@@ -121,6 +129,11 @@ module VagrantPlugins
         opts[:map_gid] = prepare_permission(machine, :gid, opts)
         opts[:nfs_udp] = true if !opts.key?(:nfs_udp)
         opts[:nfs_version] ||= 3
+
+
+        if opts[:nfs_version].to_s.start_with?('4') && opts[:nfs_udp]
+          machine.ui.info I18n.t("vagrant.actions.vm.nfs.v4_with_udp_warning")
+        end
 
         # We use a CRC32 to generate a 32-bit checksum so that the
         # fsid is compatible with both old and new kernels.

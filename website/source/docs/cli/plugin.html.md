@@ -16,11 +16,36 @@ This is the command used to manage [plugins](/docs/plugins/).
 The main functionality of this command is exposed via another level
 of subcommands:
 
-* `install`
-* `license`
-* `list`
-* `uninstall`
-* `update`
+* [`expunge`](#plugin-expunge)
+* [`install`](#plugin-install)
+* [`license`](#plugin-license)
+* [`list`](#plugin-list)
+* [`repair`](#plugin-repair)
+* [`uninstall`](#plugin-uninstall)
+* [`update`](#plugin-update)
+
+# Plugin Expunge
+
+**Command: `vagrant plugin expunge`**
+
+This removes all user installed plugin information. All plugin gems, their
+dependencies, and the `plugins.json` file are removed. This command
+provides a simple mechanism to fully remove all user installed custom plugins.
+
+When upgrading Vagrant it may be required to reinstall plugins due to
+an internal incompatibility. The expunge command can help make that process
+easier by attempting to automatically reinstall currently configured
+plugins:
+
+```shell
+# Delete all plugins and reinstall
+$ vagrant plugin expunge --reinstall
+```
+
+This command accepts optional command-line flags:
+
+* `--force` - Do not prompt for confirmation prior to removal
+* `--reinstall` - Attempt to reinstall plugins after removal
 
 # Plugin Install
 
@@ -31,6 +56,14 @@ is not a path to a file, then the plugin is installed from remote
 repositories, usually [RubyGems](https://rubygems.org). This command will
 also update a plugin if it is already installed, but you can also use
 `vagrant plugin update` for that.
+
+```shell
+# Installing a plugin from a known gem source
+$ vagrant plugin install my-plugin
+
+# Installing a plugin from a local file source
+$ vagrant plugin install /path/to/my-plugin.gem
+```
 
 If multiple names are specified, multiple plugins will be installed. If
 flags are given below, the flags will apply to _all_ plugins being installed
@@ -77,6 +110,16 @@ This lists all installed plugins and their respective installed versions.
 If a version constraint was specified for a plugin when installing it, the
 constraint will be listed as well. Other plugin-specific information may
 be shown, too.
+
+# Plugin Repair
+
+Vagrant may fail to properly initialize user installed custom plugins. This can
+be caused my improper plugin installation/removal, or by manual manipluation of
+plugin related files like the `plugins.json` data file. Vagrant can attempt
+to automatically repair the problem.
+
+If automatic repair is not successful, refer to the [expunge](#plugin-expunge)
+command
 
 # Plugin Uninstall
 

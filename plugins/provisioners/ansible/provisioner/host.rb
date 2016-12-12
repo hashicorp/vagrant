@@ -18,7 +18,9 @@ module VagrantPlugins
           # At this stage, the SSH access is guaranteed to be ready
           @ssh_info = @machine.ssh_info
 
+          check_files_existence
           warn_for_unsupported_platform
+
           execute_ansible_galaxy_from_host if config.galaxy_role_file
           execute_ansible_playbook_from_host
         end
@@ -87,33 +89,40 @@ module VagrantPlugins
         end
 
         def execute_ansible_galaxy_from_host
+          prepare_ansible_config_environment_variable
+
           command_values = {
-            :role_file => get_galaxy_role_file(machine.env.root_path),
-            :roles_path => get_galaxy_roles_path(machine.env.root_path)
+            role_file: get_galaxy_role_file,
+            roles_path: get_galaxy_roles_path
           }
           command_template = config.galaxy_command.gsub(' ', VAGRANT_ARG_SEPARATOR)
           str_command = command_template % command_values
 
-          ui_running_ansible_command "galaxy", str_command.gsub(VAGRANT_ARG_SEPARATOR, ' ')
-
           command = str_command.split(VAGRANT_ARG_SEPARATOR)
           command << {
+            env: @environment_variables,
             # Write stdout and stderr data, since it's the regular Ansible output
             notify: [:stdout, :stderr],
             workdir: @machine.env.root_path.to_s
           }
 
+          ui_running_ansible_command "galaxy", ansible_galaxy_command_for_shell_execution
+
           execute_command_from_host command
         end
 
         def execute_ansible_playbook_from_host
-          prepare_command_arguments
           prepare_environment_variables
+          prepare_command_arguments
 
           # Assemble the full ansible-playbook command
-          command = (%w(ansible-playbook) << @command_arguments << config.playbook).flatten
+          command = [config.playbook_command] << @command_arguments
 
-          ui_running_ansible_command "playbook", Helpers::stringify_ansible_playbook_command(@environment_variables, command)
+          # Add the raw arguments at the end, to give them the highest precedence
+          command << config.raw_arguments if config.raw_arguments
+
+          command << config.playbook
+          command = command.flatten
 
           command << {
             env: @environment_variables,
@@ -121,6 +130,8 @@ module VagrantPlugins
             notify: [:stdout, :stderr],
             workdir: @machine.env.root_path.to_s
           }
+
+          ui_running_ansible_command "playbook", ansible_playbook_command_for_shell_execution
 
           execute_command_from_host command
         end
@@ -132,8 +143,15 @@ module VagrantPlugins
           inventory_file = Pathname.new(File.join(inventory_path, 'vagrant_ansible_inventory'))
           @@lock.synchronize do
             if !File.exists?(inventory_file) or inventory_content != File.read(inventory_file)
-              inventory_file.open('w') do |file|
-                file.write(inventory_content)
+              begin
+                # ansible dir inventory will ignore files starting with '.'
+                inventory_tmpfile = Tempfile.new('.vagrant_ansible_inventory', inventory_path)
+                inventory_tmpfile.write(inventory_content)
+                inventory_tmpfile.close
+                File.rename(inventory_tmpfile.path, inventory_file)
+              ensure
+                inventory_tmpfile.close
+                inventory_tmpfile.unlink
               end
             end
           end
@@ -172,6 +190,10 @@ module VagrantPlugins
           end
 
           return machines
+        end
+
+        def get_provisioning_working_directory
+          machine.env.root_path
         end
 
         def get_inventory_ssh_machine(machine, ssh_info)
@@ -215,6 +237,13 @@ module VagrantPlugins
             proxy_cmd += " exec nc %h %p 2>/dev/null"
 
             ssh_options << "-o ProxyCommand='#{ proxy_cmd }'"
+            # TODO ssh_options << "-o ProxyCommand=\"#{ proxy_cmd }\""
+          end
+
+          # Use an SSH ProxyCommand when corresponding Vagrant setting is defined
+          if @machine.ssh_info[:proxy_command]
+            proxy_cmd = @machine.ssh_info[:proxy_command]
+            ssh_options << "-o ProxyCommand='#{ proxy_cmd }'"
           end
 
           # Don't access user's known_hosts file, except when host_key_checking is enabled.
@@ -237,7 +266,7 @@ module VagrantPlugins
           ssh_options << "-o ForwardAgent=yes" if @ssh_info[:forward_agent]
 
           # Unchecked SSH Parameters
-          ssh_options.concat(Helpers::as_array(config.raw_ssh_args)) if config.raw_ssh_args
+          ssh_options.concat(config.raw_ssh_args) if config.raw_ssh_args
 
           # Re-enable ControlPersist Ansible defaults,
           # which are lost when ANSIBLE_SSH_ARGS is defined.
@@ -249,6 +278,28 @@ module VagrantPlugins
           end
 
           ssh_options.join(' ')
+        end
+
+        def check_path(path, path_test_method, option_name)
+          # Checks for the existence of given file (or directory) on the host system,
+          # and error if it doesn't exist.
+
+          expanded_path = Pathname.new(path).expand_path(@machine.env.root_path)
+          if !expanded_path.public_send(path_test_method)
+            raise Ansible::Errors::AnsibleError,
+                  _key: :config_file_not_found,
+                  config_option: option_name,
+                  path: expanded_path,
+                  system: "host"
+          end
+        end
+
+        def check_path_is_a_file(path, option_name)
+          check_path(path, "file?", option_name)
+        end
+
+        def check_path_exists(path, option_name)
+          check_path(path, "exist?", option_name)
         end
 
       end

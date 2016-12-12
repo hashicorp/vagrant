@@ -135,8 +135,10 @@ en:
       Building Docker images...
     docker_running: |-
       -- Container: %{name}
-    docker_restarting_container: |-
-      -- Detected changes to container '%{name}', restarting...
+    docker_restarting_container_args: |-
+      -- Detected changes to container '%{name}' args, restarting...
+    docker_restarting_container_image: |-
+      -- Detected newer image for container '%{name}', restarting...
     docker_starting_containers: |-
       Starting Docker containers...
     inserted_key: |-
@@ -732,6 +734,14 @@ en:
       downloader_interrupted: |-
         The download was interrupted by an external signal. It did not
         complete.
+      downloader_checksum_error: |-
+        The calculated checksum of the requested file does not match the expected
+        checksum!
+
+        File source:         %{source}
+        Checsum type:        %{type}
+        Expected checksum:   %{expected_checksum}
+        Calculated checksum: %{actual_checksum}
       env_inval: |-
         Vagrant received an "EINVAL" error while attempting to set some
         environment variables. This is usually caused by the total size of your
@@ -820,12 +830,6 @@ en:
         The error output from the last command was:
 
         %{output}
-      linux_nfs_mount_failed: |-
-        Mounting NFS shared folders failed. This is most often caused by the NFS
-        client software not being installed on the guest machine. Please verify
-        that the NFS client software is properly installed, and consult any resources
-        specific to the linux distro you're using for more information on how to
-        do this.
       linux_rdp_client_not_found: |-
         An appropriate RDP client was not found. Vagrant requires either
         `xfreerdp` or `rdesktop` in order to connect via RDP to the Vagrant
@@ -873,16 +877,32 @@ en:
         If the problem persists, please report a bug to the net-ssh project.
 
         %{message}
+      network_type_not_supported: |-
+        The %{type} network type is not supported for this box or guest.
       nfs_bad_exports: |-
         NFS is reporting that your exports file is invalid. Vagrant does
         this check before making any changes to the file. Please correct
         the issues below and execute "vagrant reload":
 
         %{output}
+      nfs_exports_failed: |-
+        Vagrant failed to install an updated NFS exports file. This may be
+        due to overly restrictive permissions on your NFS exports file. Please
+        validate them and try again.
+
+        command: %{command}
+        stdout: %{stdout}
+        stderr: %{stderr}
       nfs_cant_read_exports: |-
         Vagrant can't read your current NFS exports! The exports file should be
         readable by any user. This is usually caused by invalid permissions
         on your NFS exports file. Please fix them and try again.
+      nfs_mount_failed: |-
+        Mounting NFS shared folders failed. This is most often caused by the NFS
+        client software not being installed on the guest machine. Please verify
+        that the NFS client software is properly installed, and consult any resources
+        specific to the linux distro you're using for more information on how to
+        do this.
       nfs_no_guest_ip: |-
         No guest IP was given to the Vagrant core NFS helper. This is an
         internal error that should be reported as a bug.
@@ -962,6 +982,20 @@ en:
         by contacting a plugin author to see if they can address the conflict.
 
         %{conflicts}
+      plugin_init_error: |-
+        The plugins failed to initialize correctly. This may be due to manual
+        modifications made within the Vagrant home directory. Vagrant can
+        attempt to automatically correct this issue by running:
+
+          vagrant plugin repair
+
+        If Vagrant was recently updated, this error may be due to incompatible
+        versions of dependencies. To fix this problem please remove and re-install
+        all plugins. Vagrant can attempt to do this automatically by running:
+
+          vagrant plugin expunge --reinstall
+
+        Error message given during initialization: %{message}
       plugin_load_error: |-
         The plugins failed to load properly. The error message given is
         shown below.
@@ -1061,6 +1095,15 @@ en:
         Guest path: %{guestpath}
         Command: %{command}
         Error: %{stderr}
+      rsync_guest_install_error: |-
+        Installation of rsync into the guest has failed! The stdout
+        and stderr are shown below. Please read the error output, resolve
+        it and try again. If the problem persists, please install rsync
+        manually within the guest.
+
+        Command: %{command}
+        Stdout: %{stdout}
+        Stderr: %{stderr}
       rsync_not_found: |-
         "rsync" could not be found on your PATH. Make sure that rsync
         is properly installed on your system and available on the PATH.
@@ -1338,6 +1381,38 @@ en:
         VirtualBox is complaining that the installation is incomplete. Please
         run `VBoxManage --version` to see the error message which should contain
         instructions on how to fix this error.
+      virtualbox_mount_failed: |-
+        Vagrant was unable to mount VirtualBox shared folders. This is usually
+        because the filesystem "vboxsf" is not available. This filesystem is
+        made available via the VirtualBox Guest Additions and kernel module.
+        Please verify that these guest additions are properly installed in the
+        guest. This is not a bug in Vagrant and is usually caused by a faulty
+        Vagrant box. For context, the command attempted was:
+
+        %{command}
+
+        The error output from the command was:
+
+        %{output}
+      virtualbox_mount_not_supported_bsd: |-
+        Vagrant is not able to mount VirtualBox shared folders on BSD-based
+        guests. BSD-based guests do not support the VirtualBox filesystem at
+        this time.
+
+        To change the type of the default synced folder, specify the type as
+        rsync or nfs:
+
+            config.vm.synced_folder ".", "/vagrant", type: "nfs" # or "rsync"
+
+        Alternatively, if you do not need to mount the default synced folder,
+        you can also disable it entirely:
+
+            config.vm.synced_folder ".", "/vagrant", disabled: true
+
+        You can read more about Vagrant's synced folder types and the various
+        configuration options on the Vagrant website.
+
+        This is not a bug in Vagrant.
       virtualbox_name_exists: |-
         The name of your virtual machine couldn't be set because VirtualBox
         is reporting another VM with that name already exists. Most of the
@@ -1523,6 +1598,24 @@ en:
           the comments in the Vagrantfile as well as documentation on
           `vagrantup.com` for more information on using Vagrant.
       plugin:
+        expunge_confirm: |-
+
+          This command permanently deletes all currently installed user plugins. It
+          should only be used when a repair command is unable to properly fix the
+          system.
+
+          Continue?
+        expunge_request_reinstall: |-
+          Would you like Vagrant to attempt to reinstall current plugins?
+        expunge_complete: |-
+
+          All user installed plugins have been removed from this Vagrant environment!
+        expunge_reinstall: |-
+
+          Vagrant will now attempt to reinstall user plugins that were removed.
+        expunge_aborted: |-
+
+          Vagrant expunge has been declined. Skipping removal of plugins.
         installed_license: |-
           The license for '%{name}' was successfully installed!
         installing_license: |-
@@ -1547,6 +1640,20 @@ en:
           Updating plugins: %{names}. This may take a few minutes...
         post_install: |-
           Post install message from the '%{name}' plugin:
+
+          %{message}
+        repairing: |-
+          Repairing currently installed plugins. This may take a few minutes...
+        repair_complete: |-
+          Installed plugins successfully repaired!
+        repair_failed: |-
+          Failed to automatically repair installed Vagrant plugins. To fix this
+          problem remove all user installed plugins and reinstall. Vagrant can
+          do this for you automatically by running the following command:
+
+            vagrant plugin expunge --reinstall
+
+          Failure message received during repair:
 
           %{message}
       snapshot:
@@ -1733,7 +1840,11 @@ en:
 
             Sometimes, Vagrant will attempt to auto-correct this for you. In this
             case, Vagrant was unable to. This is usually because the guest machine
-            is in a state which doesn't allow modifying port forwarding.
+            is in a state which doesn't allow modifying port forwarding. You could
+            try 'vagrant reload' (equivalent of running a halt followed by an up)
+            so vagrant can attempt to auto-correct this upon booting. Be warned
+            that any unsaved work might be lost.
+
           fixed_collision: |-
             Fixed port collision for %{guest_port} => %{host_port}. Now on port %{new_port}.
           forwarding: Forwarding ports...
@@ -1805,6 +1916,19 @@ en:
           exporting: Exporting NFS shared folders...
           installing: "Installing NFS client..."
           mounting: Mounting NFS shared folders...
+          v4_with_udp_warning: |-
+
+            WARNING: Invalid NFS settings detected!
+
+            Detected UDP enabled with NFSv4. NFSv4 does not support UDP.
+            If folder mount fails disable UDP using the following option:
+
+              nfs_udp: false
+
+            For more information see:
+            RFC5661: https://tools.ietf.org/html/rfc5661#section-2.9.1
+            RFC7530: https://tools.ietf.org/html/rfc7530#section-3.1
+
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
@@ -1879,16 +2003,17 @@ en:
       general:
         package:
           packaging: "Packaging additional file: %{file}"
-          compressing: "Compressing package to: %{tar_path}"
+          compressing: "Compressing package to: %{fullpath}"
           output_exists: |-
-            The specified file '%{file_name}' to save the package as already exists. Please
+            The specified file '%{filename}' to save the package as already exists. Please
             remove this file or specify a different file name for outputting.
           output_is_directory: |-
             The specified output is a directory. Please specify a path including
             a filename.
           requires_directory: |-
             A directory was not specified to package. This should never happen
-            and is a result of an internal inconsistency.
+            and is a result of an internal inconsistency. Please report a bug
+            on the Vagrant bug tracker.
           include_file_missing: |-
             Package include file doesn't exist: %{file}
 
@@ -1950,6 +2075,8 @@ en:
         client_key_folder: "Creating folder to hold client key..."
         generating_node_name: |-
           Auto-generating node name for Chef...
+        using_hostname_node_name: |-
+          Using hostname "%{hostname}" as node name for Chef...
         install_failed: |-
           Vagrant could not detect Chef on the guest! Even after Vagrant
           attempted to install Chef, it could still not find Chef on the system.
@@ -2113,25 +2240,33 @@ en:
             on your host system. Vagrant can't do this for you in a safe and
             automated way.
             Please check https://docs.ansible.com for more information.
+          cannot_support_pip_install: |-
+            Unfortunately Vagrant does not support yet installing Ansible
+            from pip for the guest OS running in the machine.
+
+            If you'd like this provisioner to be improved, please
+            take a look at the Vagrant source code linked below and try
+            to contribute back support. Thank you!
+
+            https://github.com/mitchellh/vagrant
           ansible_version_not_found_on_guest: |-
             The requested Ansible version (%{required_version}) was not found on the guest.
             Please check the ansible installation on your guest system,
             or adapt the `version` option of this provisioner in your Vagrantfile.
             See https://docs.vagrantup.com/v2/provisioning/ansible_local.html
             for more information.
+          config_file_not_found: |-
+            `%{config_option}` does not exist on the %{system}: %{path}
           extra_vars_invalid: |-
             `extra_vars` must be a hash or a path to an existing file. Received: %{value} (as %{type})
-          galaxy_role_file_invalid: |-
-            `galaxy_role_file` does not exist on the %{system}: %{path}
-          inventory_path_invalid: |-
-            `inventory_path` does not exist on the %{system}: %{path}
           no_playbook: |-
             `playbook` file path must be set.
-          playbook_path_invalid: |-
-            `playbook` does not exist on the %{system}: %{path}
-          vault_password_file_invalid: |-
-            `vault_password_file` does not exist on the %{system}: %{path}
+          raw_arguments_invalid: |-
+            `raw_arguments` must be an array of strings. Received: %{value} (as %{type})
+          raw_ssh_args_invalid: |-
+            `raw_ssh_args` must be an array of strings. Received: %{value} (as %{type})
         installing: "Installing Ansible..."
+        installing_pip: "Installing pip... (for Ansible installation)"
         running_galaxy: "Running ansible-galaxy..."
         running_playbook: "Running ansible-playbook..."
         windows_not_supported_for_control_machine: |-

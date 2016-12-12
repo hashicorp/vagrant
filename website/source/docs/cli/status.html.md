@@ -9,7 +9,7 @@ description: |-
 
 # Status
 
-**Command: `vagrant status`**
+**Command: `vagrant status [name|id]`**
 
 This will tell you the state of the machines Vagrant is managing.
 

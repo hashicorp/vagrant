@@ -1,4 +1,4 @@
-require 'vagrant/util/template_renderer'
+require "vagrant"
 
 module VagrantPlugins
   module GuestDarwin

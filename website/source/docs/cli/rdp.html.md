@@ -23,8 +23,21 @@ these through. For example:
 
 ```
 $ vagrant rdp -- /span
-...
 ```
 
 The above command on Windows will execute `mstsc.exe /span config.rdp`,
 allowing your RDP to span multiple desktops.
+
+
+On Darwin hosts, such as Mac OS X, the additional arguments are added to the
+generated RDP configuration file. Since these files can contain multiple options
+with different spacing, you _must_ quote multiple arguments. For example:
+
+```
+$ vagrant rdp -- "screen mode id:i:0" "other config:s:value"
+```
+
+Note that as of the publishing of this guide, the Microsoft RDP Client for Mac
+does _not_ perform validation on the configuration file. This means if you
+specify an invalid configuration option or make a typographical error, the
+client will silently ignore the error and continue!

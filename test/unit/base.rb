@@ -27,6 +27,10 @@ require "unit/support/shared/virtualbox_context"
 $stdout.sync = true
 $stderr.sync = true
 
+# Create a temporary directory where test vagrant will run. The reason we save
+# this to a constant is so we can clean it up later.
+VAGRANT_TEST_CWD = Dir.mktmpdir("vagrant-test-cwd")
+
 # Configure RSpec
 RSpec.configure do |c|
   c.treat_symbols_as_metadata_keys_with_true_values = true
@@ -36,11 +40,15 @@ RSpec.configure do |c|
   else
     c.filter_run_excluding :windows
   end
+
+  c.after(:suite) do
+    FileUtils.rm_rf(VAGRANT_TEST_CWD)
+  end
 end
 
 # Configure VAGRANT_CWD so that the tests never find an actual
 # Vagrantfile anywhere, or at least this minimizes those chances.
-ENV["VAGRANT_CWD"] = Dir.mktmpdir("vagrant")
+ENV["VAGRANT_CWD"] = VAGRANT_TEST_CWD
 
 # Set the dummy provider to the default for tests
 ENV["VAGRANT_DEFAULT_PROVIDER"] = "dummy"

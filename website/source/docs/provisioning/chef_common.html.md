@@ -43,25 +43,27 @@ understand their purpose.
 
 - `product` (string) - The name of the Chef product to install. The default
   value is "chef", which corresponds to the Chef Client. You can also specify
-  "chefdk", which will install the Chef Development Kit.
+  "chefdk", which will install the Chef Development Kit. At the time of this
+  writing, the ChefDK is only available through the "current" channel, so you
+  will need to update that value as well.
 
 - `channel` (string) - The release channel from which to pull the Chef Client
-  or the Chef Development Kit. The default value is `"current"` which will pull
-  ChefDK and the latest released version of Chef. For older versions, you may
-  need to change the channel to "stable". Because Chef Software floats the
-  versions that are contained in the channel, they may change and Vagrant is
-  unable to detect this.
+  or the Chef Development Kit. The default value is `"stable"` which will pull
+  the latest stable version of the Chef Client. For newer versions, or if you
+  wish to install the Chef Development Kit, you may need to change the channel
+  to "current". Because Chef Software floats the versions that are contained in
+  the channel, they may change and Vagrant is unable to detect this.
 
 - `version` (string) - The version of Chef to install on the guest. If Chef is
   already installed on the system, the installed version is compared with the
   requested version. If they match, no action is taken. If they do not match,
   the value specified in this attribute will be installed in favor of the
   existing version (a message will be displayed).
-
+  
   You can also specify "latest" (default), which will install the latest
   version of Chef on the system. In this case, Chef will use whatever
   version is on the system. To force the newest version of Chef to be
-  installed on every provision, set the {#install} option to "force".
+  installed on every provision, set the [`install`](#install) option to "force".
 
 
 ## Runner Chef Provisioners

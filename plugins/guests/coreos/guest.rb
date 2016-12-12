@@ -1,3 +1,5 @@
+require "vagrant"
+
 module VagrantPlugins
   module GuestCoreOS
     class Guest < Vagrant.plugin("2", :guest)

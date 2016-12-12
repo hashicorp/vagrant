@@ -97,6 +97,5 @@ Business website and support:
 
 Our current registered business address is:
 
-    3120 23rd St
-    San Francisco, CA
-    94110 USA
+    115 Sansome Street #1125
+    San Francisco, CA 94104

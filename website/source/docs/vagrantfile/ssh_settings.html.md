@@ -62,6 +62,16 @@ the machine, but replace it with perhaps a more secure key later.
 
 <hr>
 
+`config.ssh.keys_only` - Only use Vagrant-provided SSH private keys (do not use
+any keys stored in ssh-agent). The default value is `true`.`
+
+<hr>
+
+`config.ssh.paranoid` - Perform strict host-key verification. The default value
+is `false`.
+
+<hr>
+
 `config.ssh.forward_agent` - If `true`, agent forwarding over SSH
 connections is enabled. Defaults to false.
 
@@ -74,7 +84,7 @@ is enabled. Defaults to false.
 
 `config.ssh.forward_env` - An array of host environment variables to forward to
 the guest. If you are familiar with OpenSSH, this corresponds to the `SendEnv`
-paramter.
+parameter.
 
 ```ruby
 config.ssh.forward_env = ["CUSTOM_VAR"]
@@ -115,6 +125,17 @@ the shell you get when you run `vagrant ssh`. This configuration option
 only affects the shell to use when executing commands internally in Vagrant.
 
 <hr>
+
+`config.ssh.export_command_template` - The template used to generate
+exported environment variables in the active session. This can be useful
+when using a Bourne incompatible shell like C shell. The template supports
+two variables which are replaced with the desired environment variable key and
+environment variable value: `%ENV_KEY%` and `%ENV_VALUE%`. The default template
+is:
+
+```ruby
+config.ssh.export_command_template = 'export %ENV_KEY%="%ENV_VALUE%"'
+```
 
 `config.ssh.sudo_command` - The command to use when executing a command
 with `sudo`. This defaults to `sudo -E -H %c`. The `%c` will be replaced by

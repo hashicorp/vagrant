@@ -93,6 +93,11 @@ module Vagrant
             guest_port = options[:guest]
             host_port  = options[:host]
 
+            if options[:disabled]
+              @logger.debug("Skipping disabled port #{host_port}.")
+              next
+            end
+
             if options[:protocol] && options[:protocol] != "tcp"
               @logger.debug("Skipping #{host_port} because UDP protocol.")
               next

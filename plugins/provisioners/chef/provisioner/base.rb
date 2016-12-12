@@ -1,7 +1,7 @@
-require 'tempfile'
+require "tempfile"
 
-require "vagrant/util/presence"
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/presence"
+require_relative "../../../../lib/vagrant/util/template_renderer"
 
 require_relative "../installer"
 
@@ -12,6 +12,7 @@ module VagrantPlugins
       # chef-solo and chef-client provisioning are stored. This is **not an actual
       # provisioner**. Instead, {ChefSolo} or {ChefServer} should be used.
       class Base < Vagrant.plugin("2", :provisioner)
+        include Vagrant::Util
         include Vagrant::Util::Presence
 
         class ChefError < Vagrant::Errors::VagrantError
@@ -24,18 +25,27 @@ module VagrantPlugins
           @logger = Log4r::Logger.new("vagrant::provisioners::chef")
 
           if !present?(@config.node_name)
-            cache = @machine.data_dir.join("chef_node_name")
-
-            if !cache.exist?
-              @machine.ui.info I18n.t("vagrant.provisioners.chef.generating_node_name")
-              cache.open("w+") do |f|
-                f.write("vagrant-#{SecureRandom.hex(4)}")
+            # First attempt to get the node name from the hostname, and if that
+            # is not present, generate/retrieve a random hostname.
+            hostname = @machine.config.vm.hostname
+            if present?(hostname)
+              @machine.ui.info I18n.t("vagrant.provisioners.chef.using_hostname_node_name",
+                hostname: hostname,
+              )
+              @config.node_name = hostname
+            else
+              cache = @machine.data_dir.join("chef_node_name")
+              if !cache.exist?
+                @machine.ui.info I18n.t("vagrant.provisioners.chef.generating_node_name")
+                cache.open("w+") do |f|
+                  f.write("vagrant-#{SecureRandom.hex(4)}")
+                end
               end
-            end
 
-            if cache.file?
-              @logger.info("Loading cached node_name...")
-              @config.node_name = cache.read.strip
+              if cache.file?
+                @logger.info("Loading cached node_name...")
+                @config.node_name = cache.read.strip
+              end
             end
           end
         end
@@ -109,7 +119,7 @@ module VagrantPlugins
             @machine.communicate.upload(expanded, remote_custom_config_path)
           end
 
-          config_file = Vagrant::Util::TemplateRenderer.render(template, {
+          config_file = TemplateRenderer.render(template, {
             custom_configuration: remote_custom_config_path,
             encrypted_data_bag_secret: guest_encrypted_data_bag_secret_key_path,
             environment:      @config.environment,
@@ -129,16 +139,15 @@ module VagrantPlugins
             formatter:        @config.formatter
           }.merge(template_vars))
 
-          # Create a temporary file to store the data so we
-          # can upload it
-          temp = Tempfile.new("vagrant")
-          temp.write(config_file)
-          temp.close
-
+          # Create a temporary file to store the data so we can upload it.
           remote_file = File.join(guest_provisioning_path, filename)
-          @machine.communicate.tap do |comm|
-            comm.sudo("rm -f #{remote_file}", error_check: false)
-            comm.upload(temp.path, remote_file)
+          @machine.communicate.sudo(remove_command(remote_file), error_check: false)
+          Tempfile.open("vagrant-chef-provisioner-config") do |f|
+            f.binmode
+            f.write(config_file)
+            f.fsync
+            f.close
+            @machine.communicate.upload(f.path, remote_file)
           end
         end
 
@@ -151,22 +160,15 @@ module VagrantPlugins
             !@config.run_list.empty?
           json = JSON.pretty_generate(json)
 
-          # Create a temporary file to store the data so we
-          # can upload it
-          temp = Tempfile.new("vagrant")
-          temp.write(json)
-          temp.close
-
+          # Create a temporary file to store the data so we can upload it.
           remote_file = File.join(guest_provisioning_path, "dna.json")
-          @machine.communicate.tap do |comm|
-            if windows?
-              command = "if (test-path '#{remote_file}') {rm '#{remote_file}' -force -recurse}"
-            else
-              command = "rm -f #{remote_file}"
-            end
-
-            comm.sudo(command, error_check: false)
-            comm.upload(temp.path, remote_file)
+          @machine.communicate.sudo(remove_command(remote_file), error_check: false)
+          Tempfile.open("vagrant-chef-provisioner-config") do |f|
+            f.binmode
+            f.write(json)
+            f.fsync
+            f.close
+            @machine.communicate.upload(f.path, remote_file)
           end
         end
 
@@ -177,29 +179,15 @@ module VagrantPlugins
           @machine.ui.info I18n.t(
             "vagrant.provisioners.chef.upload_encrypted_data_bag_secret_key")
 
-          @machine.communicate.tap do |comm|
-            if windows?
-              command = "if (test-path ""#{remote_file}"") {rm ""#{remote_file}"" -force -recurse}"
-            else
-              command = "rm -f #{remote_file}"
-            end
-
-            comm.sudo(command, error_check: false)
-            comm.upload(encrypted_data_bag_secret_key_path, remote_file)
-          end
+          @machine.communicate.sudo(remove_command(remote_file), error_check: false)
+          @machine.communicate.upload(encrypted_data_bag_secret_key_path, remote_file)
         end
 
         def delete_encrypted_data_bag_secret
           remote_file = guest_encrypted_data_bag_secret_key_path
-          if remote_file
-            if windows?
-              command = "if (test-path ""#{remote_file}"") {rm ""#{remote_file}"" -force -recurse}"
-            else
-              command = "rm -f #{remote_file}"
-            end
+          return if remote_file.nil?
 
-            @machine.communicate.sudo(command, error_check: false)
-          end
+          @machine.communicate.sudo(remove_command(remote_file), error_check: false)
         end
 
         def encrypted_data_bag_secret_key_path
@@ -246,6 +234,14 @@ module VagrantPlugins
             "C:/chef/cache"
           else
             "/var/chef/cache"
+          end
+        end
+
+        def remove_command(path)
+          if windows?
+            "if (test-path ""#{path}"") {rm ""#{path}"" -force -recurse}"
+          else
+            "rm -f #{path}"
           end
         end
 

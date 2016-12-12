@@ -5,11 +5,7 @@ require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Plugin::StateFile do
   let(:path) do
-    f = Tempfile.new("vagrant")
-    p = f.path
-    f.close
-    f.unlink
-    Pathname.new(p)
+    Pathname.new(Dir::Tmpname.create("vagrant-test-statefile") {})
   end
 
   after do
@@ -30,11 +26,12 @@ describe Vagrant::Plugin::StateFile do
       plugins = instance.installed_plugins
       expect(plugins.length).to eql(1)
       expect(plugins["foo"]).to eql({
-        "ruby_version"    => RUBY_VERSION,
-        "vagrant_version" => Vagrant::VERSION,
-        "gem_version"     => "",
-        "require"         => "",
-        "sources"         => [],
+        "ruby_version"          => RUBY_VERSION,
+        "vagrant_version"       => Vagrant::VERSION,
+        "gem_version"           => "",
+        "require"               => "",
+        "sources"               => [],
+        "installed_gem_version" => nil,
       })
     end
 

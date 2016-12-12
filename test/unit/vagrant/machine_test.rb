@@ -28,7 +28,7 @@ describe Vagrant::Machine do
   end
 
   let(:config)   { env.vagrantfile.config }
-  let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant")) }
+  let(:data_dir) { Pathname.new(Dir.mktmpdir("vagrant-machine-data-dir")) }
   let(:env)      do
     # We need to create a Vagrantfile so that this test environment
     # has a proper root path
@@ -41,6 +41,10 @@ describe Vagrant::Machine do
   let(:test_env) { isolated_environment }
 
   let(:instance) { new_instance }
+
+  after do
+    FileUtils.rm_rf(data_dir) if data_dir
+  end
 
   subject { instance }
 
@@ -718,6 +722,23 @@ describe Vagrant::Machine do
 
           expect(instance.ssh_info[:private_key_path]).to be_empty
           expect(instance.ssh_info[:password]).to eql("")
+        end
+      end
+
+      context "with custom ssh_info" do
+        it "keys_only should be default" do
+          expect(instance.ssh_info[:keys_only]).to be_true
+        end
+        it "paranoid should be default" do
+          expect(instance.ssh_info[:paranoid]).to be_false
+        end
+        it "keys_only should be overridden" do
+          instance.config.ssh.keys_only = false
+          expect(instance.ssh_info[:keys_only]).to be_false
+        end
+        it "paranoid should be overridden" do
+          instance.config.ssh.paranoid = true
+          expect(instance.ssh_info[:paranoid]).to be_true
         end
       end
     end

@@ -42,7 +42,7 @@ For more information on providers, read the full documentation on
 
 ## Next Steps
 
-That's it! You have successfully completed the getting start guide for Vagrant.
+That's it! You have successfully completed the getting started guide for Vagrant.
 Here are some interesting topics you might find relevant:
 
 - [Configuring VirtualBox settings](/docs/virtualbox/)

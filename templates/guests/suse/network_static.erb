@@ -3,10 +3,10 @@
 BOOTPROTO='static'
 IPADDR='<%= options[:ip] %>'
 NETMASK='<%= options[:netmask] %>'
-DEVICE='eth<%= options[:interface] %>'
-<% if options[:gateway] %>
+DEVICE='<%= options[:device] %>'
+<% if options[:gateway] -%>
 GATEWAY='<%= options[:gateway] %>'
-<% end %>
+<% end -%>
 PEERDNS='no'
 STARTMODE='auto'
 USERCONTROL='no'

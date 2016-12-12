@@ -24,9 +24,12 @@ installation and plugin activation.
 
 Plugins are installed using `vagrant plugin install`:
 
-```
-$ vagrant plugin install vagrant-example-plugin
-...
+```shell
+# Installing a plugin from a known gem source
+$ vagrant plugin install my-plugin
+
+# Installing a plugin from a local file source
+$ vagrant plugin install /path/to/my-plugin.gem
 ```
 
 Once a plugin is installed, it will automatically be loaded by Vagrant.
@@ -60,9 +63,8 @@ chooses to.
 Uninstalling a plugin is as easy as installing it. Just use the
 `vagrant plugin uninstall` command and the plugin will be removed. Example:
 
-```
-$ vagrant plugin uninstall vagrant-example-plugin
-...
+```shell
+$ vagrant plugin uninstall my-plugin
 ```
 
 ## Listing Plugins

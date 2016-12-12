@@ -1,12 +1,5 @@
 require "vagrant/shared_helpers"
 
-if Vagrant.plugins_enabled? && !defined?(Bundler)
-  puts "It appears that Vagrant was not properly loaded. Specifically,"
-  puts "the bundler context Vagrant requires was not setup. Please execute"
-  puts "vagrant using only the `vagrant` executable."
-  abort
-end
-
 require 'rubygems'
 require 'log4r'
 
@@ -72,11 +65,6 @@ global_logger.info("RubyGems version: #{Gem::VERSION}")
 ENV.each do |k, v|
   global_logger.info("#{k}=#{v.inspect}") if k =~ /^VAGRANT_/
 end
-global_logger.info("Plugins:")
-Bundler.definition.specs_for([:plugins]).each do |spec|
-  global_logger.info("  - #{spec.name} = #{spec.version}")
-end
-
 
 # We need these components always so instead of an autoload we
 # just require them explicitly here.
@@ -254,6 +242,35 @@ if I18n.config.respond_to?(:enforce_available_locales=)
   I18n.config.enforce_available_locales = true
 end
 
+# Setup the plugin manager and load any defined plugins
+require_relative "vagrant/plugin/manager"
+plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+
+global_logger.info("Plugins:")
+plugins.each do |plugin_name, plugin_info|
+  installed_version = plugin_info["installed_gem_version"]
+  version_constraint = plugin_info["gem_version"]
+  installed_version = 'undefined' if installed_version.to_s.empty?
+  version_constraint = '> 0' if version_constraint.to_s.empty?
+  global_logger.info(
+    "  - #{plugin_name} = [installed: " \
+      "#{installed_version} constraint: " \
+      "#{version_constraint}]"
+  )
+end
+
+if Vagrant.plugins_init?
+  begin
+    Vagrant::Bundler.instance.init!(plugins)
+  rescue Exception => e
+    global_logger.error("Plugin initialization error - #{e.class}: #{e}")
+    e.backtrace.each do |backtrace_line|
+      global_logger.debug(backtrace_line)
+    end
+    raise Vagrant::Errors::PluginInitError, message: e.to_s
+  end
+end
+
 # A lambda that knows how to load plugins from a single directory.
 plugin_load_proc = lambda do |directory|
   # We only care about directories
@@ -288,8 +305,40 @@ end
 if Vagrant.plugins_enabled?
   begin
     global_logger.info("Loading plugins!")
-    $vagrant_bundler_runtime.require(:plugins)
+    plugins.each do |plugin_name, plugin_info|
+      if plugin_info["require"].to_s.empty?
+        begin
+          global_logger.debug("Loading plugin `#{plugin_name}` with default require: `#{plugin_name}`")
+          require plugin_name
+        rescue LoadError, Gem::LoadError => load_error
+          if plugin_name.include?("-")
+            begin
+              plugin_slash = plugin_name.gsub("-", "/")
+              global_logger.debug("Failed to load plugin `#{plugin_name}` with default require.")
+              global_logger.debug("Loading plugin `#{plugin_name}` with slash require: `#{plugin_slash}`")
+              require plugin_slash
+            rescue LoadError, Gem::LoadError
+              raise load_error
+            end
+          end
+        end
+      else
+        global_logger.debug("Loading plugin `#{plugin_name}` with custom require: `#{plugin_info["require"]}`")
+        require plugin_info["require"]
+      end
+      global_logger.debug("Successfully loaded plugin `#{plugin_name}`.")
+    end
+    if defined?(::Bundler)
+      global_logger.debug("Bundler detected in use. Loading `:plugins` group.")
+      ::Bundler.require(:plugins)
+    end
   rescue Exception => e
+    global_logger.error("Plugin loading error: #{e.class} - #{e}")
+    e.backtrace.each do |backtrace_line|
+      global_logger.debug(backtrace_line)
+    end
     raise Vagrant::Errors::PluginLoadError, message: e.to_s
   end
+else
+  global_logger.debug("Plugin loading is currently disabled.")
 end

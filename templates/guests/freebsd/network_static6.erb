@@ -1,0 +1,6 @@
+#VAGRANT-BEGIN
+ifconfig_<%= options[:device] %>_ipv6="inet6 <%= options[:ip] %> prefixlen <%= options[:netmask] %>"
+<% if options[:gateway] %>
+ipv6_default_router="<%= options[:gateway] %>"
+<% end %>
+#VAGRANT-END

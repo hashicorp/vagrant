@@ -6,8 +6,8 @@ module VagrantPlugins
       name "Mint guest"
       description "Mint guest support."
 
-      guest("mint", "ubuntu") do
-        require File.expand_path("../guest", __FILE__)
+      guest(:mint, :ubuntu) do
+        require_relative "guest"
         Guest
       end
     end

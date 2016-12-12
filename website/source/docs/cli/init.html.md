@@ -9,7 +9,7 @@ description: |-
 
 # Init
 
-**Command: `vagrant init [box-name] [box-url]`**
+**Command: `vagrant init [name [url]]`**
 
 This initializes the current directory to be a Vagrant environment
 by creating an initial [Vagrantfile](/docs/vagrantfile/) if
@@ -23,6 +23,9 @@ setting in the created Vagrantfile.
 
 ## Options
 
+* `--box-version` - (Optional) The box version or box version constraint to add
+  to the `Vagrantfile`.
+
 * `--force` - If specified, this command will overwite any existing
   `Vagrantfile`.
 
@@ -32,3 +35,35 @@ setting in the created Vagrantfile.
 
 * `--output FILE` - This will output the Vagrantfile to the given file.
   If this is "-", the Vagrantfile will be sent to stdout.
+
+## Examples
+
+Create a base Vagrantfile:
+
+```sh
+$ vagrant init hashicorp/precise64
+```
+
+Create a minimal Vagrantfile (no comments or helpers):
+
+```sh
+$ vagrant init -m hashicorp/precise64
+```
+
+Create a new Vagrantfile, overwriting the one at the current path:
+
+```sh
+$ vagrant init -f hashicorp/precise64
+```
+
+Create a Vagrantfile with the specific box, from the specific box URL:
+
+```sh
+$ vagrant init my-company-box https://boxes.company.com/my-company.box
+```
+
+Create a Vagrantfile, locking the box to a version constraint:
+
+```sh
+$ vagrant init --box-version '> 0.1.5' hashcorp/precise64
+```

@@ -1,5 +1,7 @@
 require "pathname"
 
+require_relative "../../../lib/vagrant/util/platform"
+
 module VagrantPlugins
   module DockerProvider
     class Config < Vagrant.plugin("2", :config)
@@ -202,7 +204,6 @@ module VagrantPlugins
         @create_args = [] if @create_args == UNSET_VALUE
         @dockerfile = nil if @dockerfile == UNSET_VALUE
         @env       ||= {}
-        @force_host_vm = false if @force_host_vm == UNSET_VALUE
         @has_ssh    = false if @has_ssh == UNSET_VALUE
         @image      = nil if @image == UNSET_VALUE
         @name       = nil if @name == UNSET_VALUE
@@ -221,6 +222,13 @@ module VagrantPlugins
 
         if @host_vm_build_dir_options == UNSET_VALUE
           @host_vm_build_dir_options = nil
+        end
+
+        # On non-linux platforms (where there is no native docker), force the
+        # host VM. Other users can optionally disable this by setting the
+        # value explicitly to false in their Vagrantfile.
+        if @force_host_vm == UNSET_VALUE
+          @force_host_vm = !Vagrant::Util::Platform.linux?
         end
 
         # The machine name must be a symbol

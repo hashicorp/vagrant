@@ -1,4 +1,4 @@
-require File.expand_path("../../../../../base", __FILE__)
+require_relative "../../../../base"
 
 describe "VagrantPlugins::VagrantPlugins::Cap::ConfigureNetworks" do
   let(:plugin) { VagrantPlugins::GuestSmartos::Plugin.components.guest_capabilities[:smartos].get(:configure_networks) }

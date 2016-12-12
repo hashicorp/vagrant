@@ -1,4 +1,4 @@
-require File.expand_path("../../../../../base", __FILE__)
+require_relative "../../../../base"
 
 require Vagrant.source_root.join("plugins/guests/windows/cap/change_host_name")
 

@@ -1,4 +1,6 @@
 require "json"
+require "fileutils"
+require "tempfile"
 
 module Vagrant
   module Plugin
@@ -29,11 +31,12 @@ module Vagrant
       # @param [String] name The name of the plugin
       def add_plugin(name, **opts)
         @data["installed"][name] = {
-          "ruby_version"    => RUBY_VERSION,
-          "vagrant_version" => Vagrant::VERSION,
-          "gem_version"     => opts[:version] || "",
-          "require"         => opts[:require] || "",
-          "sources"         => opts[:sources] || [],
+          "ruby_version"          => RUBY_VERSION,
+          "vagrant_version"       => Vagrant::VERSION,
+          "gem_version"           => opts[:version] || "",
+          "require"               => opts[:require] || "",
+          "sources"               => opts[:sources] || [],
+          "installed_gem_version" => opts[:installed_gem_version]
         }
 
         save!
@@ -91,8 +94,13 @@ module Vagrant
 
       # This saves the state back into the state file.
       def save!
-        @path.open("w+") do |f|
+        Tempfile.open(@path.basename.to_s, @path.dirname.to_s) do |f|
+          f.binmode
           f.write(JSON.dump(@data))
+          f.fsync
+          f.chmod(0644)
+          f.close
+          FileUtils.mv(f.path, @path)
         end
       end
 

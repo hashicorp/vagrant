@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 require "tempfile"
 
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
 
 module VagrantPlugins
   module GuestSlackware
@@ -10,25 +9,38 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
-          interfaces = Array.new
-          machine.communicate.sudo("ip -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |_, result|
-            interfaces = result.split("\n")
-          end
+          comm = machine.communicate
 
-          networks.each do |network|
+          commands   = []
+          interfaces = machine.guest.capability(:network_interfaces)
+
+          # Remove any previous configuration
+          commands << "sed -i'' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.d/rc.inet1.conf"
+
+          networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
 
-            entry = TemplateRenderer.render("guests/slackware/network_#{network[:type]}", options: network)
+            entry = TemplateRenderer.render("guests/slackware/network_#{network[:type]}",
+              i: i+1,
+              options: network,
+            )
 
-            temp = Tempfile.new("vagrant")
-            temp.binmode
-            temp.write(entry)
-            temp.close
+            remote_path = "/tmp/vagrant-network-#{network[:device]}-#{Time.now}-#{i}"
+            Tempfile.open("vagrant-slackware-configure-networks") do |f|
+              f.binmode
+              f.write(entry)
+              f.fsync
+              f.close
+              comm.upload(f.path, remote_path)
+            end
 
-            machine.communicate.upload(temp.path, "/tmp/vagrant_network")
-            machine.communicate.sudo("mv /tmp/vagrant_network /etc/rc.d/rc.inet1.conf")
-            machine.communicate.sudo("/etc/rc.d/rc.inet1")
-          end 
+            commands << "cat '#{remote_path}' >> /etc/rc.d/rc.inet1.conf"
+          end
+
+          # Restart networking
+          commands << "/etc/rc.d/rc.inet1"
+
+          comm.sudo(commands.join("\n"))
         end
       end
     end

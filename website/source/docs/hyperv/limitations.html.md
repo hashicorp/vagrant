@@ -28,8 +28,10 @@ However, the IP address of the machine will be reported as part of
 the `vagrant up`, and you can use that IP address as if it were
 a host only network.
 
-## Packaging
+## Snapshots
 
-Vagrant does not implement the `vagrant package` command for Hyper-V
-yet, though this should be fairly straightforward to add in a Vagrant
-release in the near future.
+Restoring snapshot VMs using `vagrant snapshot pop` or 
+`vagrant snapshot restore` will sometimes raise errors when mounting
+SMB shared folders, however these mounts will still work inside the guest.
+
+

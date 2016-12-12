@@ -2,7 +2,7 @@ set :base_url, "https://www.vagrantup.com/"
 
 activate :hashicorp do |h|
   h.name = "vagrant"
-  h.version = "1.8.1"
+  h.version = "1.9.1"
   h.github_slug = "mitchellh/vagrant"
 end
 
@@ -55,5 +55,14 @@ helpers do
     end
 
     "Vagrant by HashiCorp"
+  end
+
+  # Get the description for the page
+  #
+  # @param [Middleman::Page] page
+  #
+  # @return [String]
+  def description_for(page)
+    return escape_html(current_page.data.description || "")
   end
 end

@@ -34,6 +34,11 @@ module VagrantPlugins
             Remove
           end
 
+          @subcommands.register(:prune) do
+            require_relative "prune"
+            Prune
+          end
+
           @subcommands.register(:repackage) do
             require File.expand_path("../repackage", __FILE__)
             Repackage

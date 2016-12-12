@@ -93,6 +93,104 @@ describe Vagrant::Util::Downloader do
         expect(subject.download!).to be_true
       end
     end
+
+    context "with checksum" do
+      let(:checksum_expected_value){ 'MD5_CHECKSUM_VALUE' }
+      let(:checksum_invalid_value){ 'INVALID_VALUE' }
+      let(:digest){ double("digest") }
+
+      before do
+        allow(digest).to receive(:file).and_return(digest)
+      end
+
+      [Digest::MD5, Digest::SHA1].each do |klass|
+        short_name = klass.to_s.split("::").last.downcase
+
+        context "using #{short_name} digest" do
+          subject { described_class.new(source, destination, short_name.to_sym => checksum_expected_value) }
+
+          context "that matches expected value" do
+            before do
+              expect(klass).to receive(:new).and_return(digest)
+              expect(digest).to receive(:hexdigest).and_return(checksum_expected_value)
+            end
+
+            it "should not raise an exception" do
+              expect(subject.download!).to be_true
+            end
+          end
+
+          context "that does not match expected value" do
+            before do
+              expect(klass).to receive(:new).and_return(digest)
+              expect(digest).to receive(:hexdigest).and_return(checksum_invalid_value)
+            end
+
+            it "should raise an exception" do
+              expect{ subject.download! }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
+            end
+          end
+        end
+      end
+
+      context "using both md5 and sha1 digests" do
+        context "that both match expected values" do
+          subject { described_class.new(source, destination, md5: checksum_expected_value, sha1: checksum_expected_value) }
+
+          before do
+            expect(Digest::MD5).to receive(:new).and_return(digest)
+            expect(Digest::SHA1).to receive(:new).and_return(digest)
+            expect(digest).to receive(:hexdigest).and_return(checksum_expected_value).exactly(2).times
+          end
+
+          it "should not raise an exception" do
+            expect(subject.download!).to be_true
+          end
+        end
+
+        context "that only sha1 matches expected value" do
+          subject { described_class.new(source, destination, md5: checksum_invalid_value, sha1: checksum_expected_value) }
+
+          before do
+            allow(Digest::MD5).to receive(:new).and_return(digest)
+            allow(Digest::SHA1).to receive(:new).and_return(digest)
+            expect(digest).to receive(:hexdigest).and_return(checksum_expected_value).at_least(:once)
+          end
+
+          it "should raise an exception" do
+            expect{ subject.download! }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
+          end
+        end
+
+        context "that only md5 matches expected value" do
+          subject { described_class.new(source, destination, md5: checksum_expected_value, sha1: checksum_invalid_value) }
+
+          before do
+            allow(Digest::MD5).to receive(:new).and_return(digest)
+            allow(Digest::SHA1).to receive(:new).and_return(digest)
+            expect(digest).to receive(:hexdigest).and_return(checksum_expected_value).at_least(:once)
+          end
+
+          it "should raise an exception" do
+            expect{ subject.download! }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
+          end
+        end
+
+        context "that none match expected value" do
+          subject { described_class.new(source, destination, md5: checksum_invalid_value, sha1: checksum_invalid_value) }
+
+          before do
+            allow(Digest::MD5).to receive(:new).and_return(digest)
+            allow(Digest::SHA1).to receive(:new).and_return(digest)
+            expect(digest).to receive(:hexdigest).and_return(checksum_expected_value).at_least(:once)
+          end
+
+          it "should raise an exception" do
+            expect{ subject.download! }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
+          end
+        end
+      end
+    end
   end
 
   describe "#head" do

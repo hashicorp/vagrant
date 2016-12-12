@@ -11,11 +11,7 @@ describe Vagrant::Plugin::Manager do
   include_context "unit"
 
   let(:path) do
-    f = Tempfile.new("vagrant")
-    p = f.path
-    f.close
-    f.unlink
-    Pathname.new(p)
+    Pathname.new(Dir::Tmpname.create("vagrant-test-plugin-manager") {})
   end
 
   let(:bundler) { double("bundler") }
@@ -38,6 +34,7 @@ describe Vagrant::Plugin::Manager do
         expect(plugins).to have_key("foo")
         expect(local).to be_false
       }.and_return(specs)
+      expect(bundler).to receive(:clean)
 
       result = subject.install_plugin("foo")
 
@@ -49,14 +46,14 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "masks GemNotFound with our error" do
-      expect(bundler).to receive(:install).and_raise(Bundler::GemNotFound)
+      expect(bundler).to receive(:install).and_raise(Gem::GemNotFoundException)
 
       expect { subject.install_plugin("foo") }.
         to raise_error(Vagrant::Errors::PluginGemNotFound)
     end
 
     it "masks bundler errors with our own error" do
-      expect(bundler).to receive(:install).and_raise(Bundler::InstallError)
+      expect(bundler).to receive(:install).and_raise(Gem::InstallError)
 
       expect { subject.install_plugin("foo") }.
         to raise_error(Vagrant::Errors::BundlerError)
@@ -70,14 +67,11 @@ describe Vagrant::Plugin::Manager do
       local_spec.name = "bar"
       local_spec.version = version
 
-      expect(bundler).to receive(:install_local).with(name).
+      expect(bundler).to receive(:install_local).with(name, {}).
         ordered.and_return(local_spec)
 
-      expect(bundler).to receive(:install).once.with { |plugins, local|
-        expect(plugins).to have_key("bar")
-        expect(plugins["bar"]["gem_version"]).to eql("#{version}")
-        expect(local).to be_true
-      }.ordered.and_return([local_spec])
+      expect(bundler).not_to receive(:install)
+      expect(bundler).to receive(:clean)
 
       subject.install_plugin(name)
 
@@ -103,6 +97,7 @@ describe Vagrant::Plugin::Manager do
           expect(plugins["foo"]["gem_version"]).to eql(">= 0.1.0")
           expect(local).to be_false
         }.and_return(specs)
+        expect(bundler).to receive(:clean)
 
         subject.install_plugin("foo", version: ">= 0.1.0")
 
@@ -117,6 +112,7 @@ describe Vagrant::Plugin::Manager do
           expect(plugins["foo"]["gem_version"]).to eql("0.1.0")
           expect(local).to be_false
         }.and_return(specs)
+        expect(bundler).to receive(:clean)
 
         subject.install_plugin("foo", version: "0.1.0")
 
@@ -144,7 +140,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "masks bundler errors with our own error" do
-      expect(bundler).to receive(:clean).and_raise(Bundler::InstallError)
+      expect(bundler).to receive(:clean).and_raise(Gem::InstallError)
 
       expect { subject.uninstall_plugin("foo") }.
         to raise_error(Vagrant::Errors::BundlerError)
@@ -186,7 +182,7 @@ describe Vagrant::Plugin::Manager do
 
   describe "#update_plugins" do
     it "masks bundler errors with our own error" do
-      expect(bundler).to receive(:update).and_raise(Bundler::InstallError)
+      expect(bundler).to receive(:update).and_raise(Gem::InstallError)
 
       expect { subject.update_plugins([]) }.
         to raise_error(Vagrant::Errors::BundlerError)

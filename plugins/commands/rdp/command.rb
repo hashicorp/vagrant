@@ -11,7 +11,7 @@ module VagrantPlugins
         options = {}
 
         opts = OptionParser.new do |o|
-          o.banner = "Usage: vagrant rdp [options] [name] [-- extra args]"
+          o.banner = "Usage: vagrant rdp [options] [name|id] [-- extra args]"
         end
 
         # Parse out the extra args to send to the RDP client, which

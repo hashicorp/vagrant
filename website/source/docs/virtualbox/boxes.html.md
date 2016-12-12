@@ -65,7 +65,7 @@ and the basic developer tools. On Ubuntu, you can easily install these like
 so:
 
 ```
-$ sudo apt-get install linux-headers-generic build-essential dkms
+$ sudo apt-get install linux-headers-$(uname -r) build-essential dkms
 ```
 
 #### To install via the GUI:

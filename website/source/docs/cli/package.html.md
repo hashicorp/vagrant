@@ -4,25 +4,24 @@ page_title: "vagrant package - Command-Line Interface"
 sidebar_current: "cli-package"
 description: |-
   The "vagrant package" command is used to package a currently-running
-  VirtualBox vagrant environment into a reusable Vagrant box.
+  VirtualBox or Hyper-V vagrant environment into a reusable Vagrant box.
 ---
 
 # Package
 
-**Command: `vagrant package`**
+**Command: `vagrant package [name|id]`**
 
-This packages a currently running _VirtualBox_ environment into a
+This packages a currently running _VirtualBox_ or _Hyper-V_ environment into a
 re-usable [box](/docs/boxes.html). This command can only be used with
 other [providers](/docs/providers/) based on the provider implementation
-and if the provider supports it. A future version of Vagrant will
-address packaging boxes for other providers. Until then, they must
-be made by hand.
+and if the provider supports it.
 
 ## Options
 
 * `--base NAME` - Instead of packaging a VirtualBox machine that Vagrant
   manages, this will package a VirtualBox machine that VirtualBox manages.
   `NAME` should be the name or UUID of the machine from the VirtualBox GUI.
+  Currently this option is only available for VirtualBox.
 
 * `--output NAME` - The resulting package will be saved as `NAME`. By default,
   it will be saved as `package.box`.

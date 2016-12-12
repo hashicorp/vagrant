@@ -32,6 +32,16 @@ Vagrant to use this provider for any _new_ Vagrant environments. Existing
 Vagrant environments will continue to use the provider they came `up` with.
 Once you `vagrant destroy` existing environments, this will take effect.
 
+## `VAGRANT_BOX_UPDATE_CHECK_DISABLE`
+
+By default, Vagrant will query the metadata API server to see if a newer
+box version is available for download. This optional can be disabled on a
+per-Vagrantfile basis with `config.vm.box_check_update`, but it can also be
+disabled globally setting `VAGRANT_BOX_UPDATE_CHECK_DISABLE` to any non-empty
+value.
+
+This option will not affect global box functions like `vagrant box update`.
+
 ## `VAGRANT_CHECKPOINT_DISABLE`
 
 Vagrant does occasional network calls to check whether the version of Vagrant
@@ -97,6 +107,16 @@ The equivalent behavior can be achieved by using the `--no-color` flag
 on a command-by-command basis. This environmental variable is useful
 for setting this flag globally.
 
+## `VAGRANT_FORCE_COLOR`
+
+If this is set to any value, then Vagrant will force colored output, even
+if it detected that there is no TTY or the current environment does not
+support it.
+
+The equivalent behavior can be achieved by using the `--color` flag on a
+command-by-command basis. This environmental variable is useful for setting
+this flag globally.
+
 ## `VAGRANT_NO_PLUGINS`
 
 If this is set to any value, then Vagrant will not load any 3rd party
@@ -107,6 +127,11 @@ not load plugins.
 Note that any `vagrant plugin` commands automatically do not load any
 plugins, so if you do install any unstable plugins, you can always use
 the `vagrant plugin` commands without having to worry.
+
+## `VAGRANT_NO_PARALLEL`
+
+If this is set, Vagrant will not perform any parallel operations (such as
+parallel box provisioning). All operations will be performed in serial.
 
 ## `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`
 
@@ -119,7 +144,7 @@ execution.
 
 If Vagrant detects it is running outside of the officially installer, the
 original environment will always be restored. You can disable this automatic
-jailbreak by setting the `VAGRANT_SKIP_SUBPROCES_JAILBREAK`.
+jailbreak by setting `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`.
 
 ## `VAGRANT_VAGRANTFILE`
 

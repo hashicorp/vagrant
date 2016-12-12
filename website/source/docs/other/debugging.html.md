@@ -57,3 +57,10 @@ option. For example:
 ```
 $ vagrant up --debug
 ```
+
+If you are saving the output to a file, you may need to redirect stderr and
+stdout using `&>`:
+
+```
+$ vagrant up --debug &> vagrant.log
+```

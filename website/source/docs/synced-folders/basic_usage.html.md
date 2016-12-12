@@ -64,6 +64,9 @@ in other pages available in the navigation for these docs.
   Vagrant will automatically choose the best synced folder option for your
   environment. Otherwise, you can specify a specific type such as "nfs".
 
+* `id` (string) - The name for the mount point of this synced folder in the
+  guest machine. This shows up when you run `mount` in the guest machine.
+
 ## Enabling
 
 Synced folders are automatically setup during `vagrant up` and

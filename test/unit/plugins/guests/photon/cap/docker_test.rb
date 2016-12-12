@@ -1,26 +1,31 @@
-# encoding: UTF-8
 # Copyright (c) 2015 VMware, Inc. All Rights Reserved.
 
-require File.expand_path("../../../../../base", __FILE__)
+require_relative "../../../../base"
 
-describe "VagrantPlugins::GuestPhoton::Cap::Docker" do
-  let(:described_class) do
-    VagrantPlugins::GuestPhoton::Plugin.components.guest_capabilities[:photon].get(:docker_daemon_running)
+describe "VagrantPlugins::GuestPhoton::Cap:Docker" do
+  let(:caps) do
+    VagrantPlugins::GuestPhoton::Plugin
+      .components
+      .guest_capabilities[:photon]
   end
+
   let(:machine) { double("machine") }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:old_hostname) { 'oldhostname.olddomain.tld' }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:communicate).and_return(comm)
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
-  it 'should check docker' do
-    expect(communicator).to receive(:test).with('test -S /run/docker.sock')
-    described_class.docker_daemon_running(machine)
+  describe ".docker_daemon_running" do
+    let(:cap) { caps.get(:docker_daemon_running) }
+
+    it "installs rsync" do
+      comm.expect_command("test -S /run/docker.sock")
+      cap.docker_daemon_running(machine)
+    end
   end
 end

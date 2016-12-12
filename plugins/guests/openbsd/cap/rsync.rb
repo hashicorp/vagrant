@@ -1,32 +1,27 @@
+require_relative "../../../synced_folders/rsync/default_unix_cap"
+
 module VagrantPlugins
   module GuestOpenBSD
     module Cap
       class RSync
+        extend VagrantPlugins::SyncedFolderRSync::DefaultUnixCap
+
         def self.rsync_install(machine)
-          machine.communicate.sudo(
-            'PKG_PATH="http://ftp.openbsd.org/pub/OpenBSD/' \
+          install_output = {:stderr => '', :stdout => ''}
+          command = 'PKG_PATH="http://ftp.openbsd.org/pub/OpenBSD/' \
             '`uname -r`/packages/`arch -s`/" ' \
-            'pkg_add -I rsync--')
-        end
-
-        def self.rsync_installed(machine)
-          machine.communicate.test("which rsync")
-        end
-
-        def self.rsync_command(machine)
-          "sudo rsync"
-        end
-
-        def self.rsync_pre(machine, opts)
-          machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p '#{opts[:guestpath]}'")
+            'pkg_add -I rsync--'
+          machine.communicate.sudo(command) do |type, data|
+            install_output[type] << data if install_output.key?(type)
           end
-        end
-
-        def self.rsync_post(machine, opts)
-          machine.communicate.sudo(
-            "find '#{opts[:guestpath]}' '(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -print0 | " +
-            "xargs -0 -r chown #{opts[:owner]}:#{opts[:group]}")
+          # pkg_add returns 0 even if package was not found, so
+          # validate package is actually installed
+          machine.communicate.sudo('pkg_info -cA | grep inst:rsync-[[:digit:]]',
+            error_class: Vagrant::Errors::RSyncNotInstalledInGuest,
+            command: command,
+            stderr: install_output[:stderr],
+            stdout: install_output[:stdout]
+          )
         end
       end
     end

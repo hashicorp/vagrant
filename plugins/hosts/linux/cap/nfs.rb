@@ -6,6 +6,8 @@ module VagrantPlugins
   module HostLinux
     module Cap
       class NFS
+
+        NFS_EXPORTS_PATH = "/etc/exports".freeze
         extend Vagrant::Util::Retryable
 
         def self.nfs_apply_command(env)
@@ -36,16 +38,9 @@ module VagrantPlugins
           ui.info I18n.t("vagrant.hosts.linux.nfs_export")
           sleep 0.5
 
-          nfs_cleanup(id)
-
-          # Only use "sudo" if we can't write to /etc/exports directly
-          sudo_command = ""
-          sudo_command = "sudo " if !File.writable?("/etc/exports")
-
-          output.split("\n").each do |line|
-            line = Vagrant::Util::ShellQuote.escape(line, "'")
-            system(%Q[echo '#{line}' | #{sudo_command}tee -a /etc/exports >/dev/null])
-          end
+          nfs_cleanup("#{Process.uid} #{id}")
+          output = "#{nfs_exports_content}\n#{output}"
+          nfs_write_exports(output)
 
           if nfs_running?(nfs_check_command)
             system("sudo #{nfs_apply_command}")
@@ -62,48 +57,111 @@ module VagrantPlugins
         end
 
         def self.nfs_prune(environment, ui, valid_ids)
-          return if !File.exist?("/etc/exports")
+          return if !File.exist?(NFS_EXPORTS_PATH)
 
           logger = Log4r::Logger.new("vagrant::hosts::linux")
           logger.info("Pruning invalid NFS entries...")
 
-          output = false
           user = Process.uid
 
-          File.read("/etc/exports").lines.each do |line|
-            if id = line[/^# VAGRANT-BEGIN:( #{user})? ([\.\/A-Za-z0-9\-_:]+?)$/, 2]
-              if valid_ids.include?(id)
-                logger.debug("Valid ID: #{id}")
-              else
-                if !output
-                  # We want to warn the user but we only want to output once
-                  ui.info I18n.t("vagrant.hosts.linux.nfs_prune")
-                  output = true
-                end
+          # Create editor instance for removing invalid IDs
+          editor = Vagrant::Util::StringBlockEditor.new(nfs_exports_content)
 
-                logger.info("Invalid ID, pruning: #{id}")
-                nfs_cleanup(id)
-              end
-            end
+          # Build composite IDs with UID information and discover invalid entries
+          composite_ids = valid_ids.map do |v_id|
+            "#{user} #{v_id}"
+          end
+          remove_ids = editor.keys - composite_ids
+
+          logger.debug("Known valid NFS export IDs: #{valid_ids}")
+          logger.debug("Composite valid NFS export IDs with user: #{composite_ids}")
+          logger.debug("NFS export IDs to be removed: #{remove_ids}")
+          if !remove_ids.empty?
+            ui.info I18n.t("vagrant.hosts.linux.nfs_prune")
+            nfs_cleanup(remove_ids)
           end
         end
 
         protected
 
-        def self.nfs_cleanup(id)
-          return if !File.exist?("/etc/exports")
+        def self.nfs_cleanup(remove_ids)
+          return if !File.exist?(NFS_EXPORTS_PATH)
 
-          user = Regexp.escape(Process.uid.to_s)
-          id   = Regexp.escape(id.to_s)
+          editor = Vagrant::Util::StringBlockEditor.new(nfs_exports_content)
+          remove_ids = Array(remove_ids)
 
-          # Only use "sudo" if we can't write to /etc/exports directly
-          sudo_command = ""
-          sudo_command = "sudo " if !File.writable?("/etc/exports")
+          # Remove all invalid ID entries
+          remove_ids.each do |r_id|
+            editor.delete(r_id)
+          end
+          nfs_write_exports(editor.value)
+        end
 
-          # Use sed to just strip out the block of code which was inserted
-          # by Vagrant
-          tmp = ENV["TMPDIR"] || ENV["TMP"] || "/tmp"
-          system("cp /etc/exports '#{tmp}' && #{sudo_command}sed -r -e '\\\x01^# VAGRANT-BEGIN:( #{user})? #{id}\x01,\\\x01^# VAGRANT-END:( #{user})? #{id}\x01 d' -ibak '#{tmp}/exports' ; #{sudo_command}cp '#{tmp}/exports' /etc/exports")
+        def self.nfs_write_exports(new_exports_content)
+          if(nfs_exports_content != new_exports_content.strip)
+            begin
+              # Write contents out to temporary file
+              new_exports_file = Tempfile.create('vagrant')
+              new_exports_file.puts(new_exports_content)
+              new_exports_file.close
+              new_exports_path = new_exports_file.path
+
+              # Only use "sudo" if we can't write to /etc/exports directly
+              sudo_command = ""
+              sudo_command = "sudo " if !File.writable?(NFS_EXPORTS_PATH)
+
+              # Ensure new file mode and uid/gid match existing file to replace
+              existing_stat = File.stat(NFS_EXPORTS_PATH)
+              new_stat = File.stat(new_exports_path)
+              if existing_stat.mode != new_stat.mode
+                File.chmod(existing_stat.mode, new_exports_path)
+              end
+              if existing_stat.uid != new_stat.uid || existing_stat.gid != new_stat.gid
+                chown_cmd = "#{sudo_command}chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}"
+                result = Vagrant::Util::Subprocess.execute(*Shellwords.split(chown_cmd))
+                if result.exit_code != 0
+                  raise Vagrant::Errors::NFSExportsFailed,
+                    command: chown_cmd,
+                    stderr: result.stderr,
+                    stdout: result.stdout
+                end
+              end
+              # Always force move the file to prevent overwrite prompting
+              mv_cmd = "#{sudo_command}mv -f #{new_exports_path} #{NFS_EXPORTS_PATH}"
+              result = Vagrant::Util::Subprocess.execute(*Shellwords.split(mv_cmd))
+              if result.exit_code != 0
+                raise Vagrant::Errors::NFSExportsFailed,
+                  command: mv_cmd,
+                  stderr: result.stderr,
+                  stdout: result.stdout
+              end
+            ensure
+              if File.exist?(new_exports_path)
+                File.unlink(new_exports_path)
+              end
+            end
+          end
+        end
+
+        def self.nfs_exports_content
+          if(File.exist?(NFS_EXPORTS_PATH))
+            if(File.readable?(NFS_EXPORTS_PATH))
+              File.read(NFS_EXPORTS_PATH)
+            else
+              cmd = "sudo cat #{NFS_EXPORTS_PATH}"
+              result = Vagrant::Util::Subprocess.execute(*Shellwords.split(cmd))
+              if result.exit_code != 0
+                raise Vagrant::Errors::NFSExportsFailed,
+                  command: cmd,
+                  stderr: result.stderr,
+                  stdout: result.stdout
+              else
+                result.stdout
+              end
+            end
+          else
+            ""
+          end
         end
 
         def self.nfs_opts_setup(folders)

@@ -53,9 +53,17 @@ module VagrantPlugins
          execute('delete_vm.ps1', { VmId: vm_id })
        end
 
+      def export(path)
+        execute('export_vm.ps1', {VmId: vm_id, Path: path})
+      end
+
        def read_guest_ip
          execute('get_network_config.ps1', { VmId: vm_id })
        end
+
+      def read_mac_address
+        execute('get_network_mac.ps1', { VmId: vm_id })
+      end
 
        def resume
          execute('resume_vm.ps1', { VmId: vm_id })
@@ -74,7 +82,15 @@ module VagrantPlugins
        end
 
        def import(options)
-         execute('import_vm.ps1', options)
+         config_type = options.delete(:vm_config_type)
+         if config_type === "vmcx"
+           execute('import_vm_vmcx.ps1', options)
+         else
+           options.delete(:data_path)
+           options.delete(:source_path)
+           options.delete(:differencing_disk)
+           execute('import_vm_xml.ps1', options)
+         end
        end
 
        def net_set_vlan(vlan_id)
@@ -84,7 +100,24 @@ module VagrantPlugins
        def net_set_mac(mac_addr)
           execute("set_network_mac.ps1", { VmId: vm_id, Mac: mac_addr })
        end
-       
+
+       def create_snapshot(snapshot_name)
+          execute("create_snapshot.ps1", { VmId: vm_id, SnapName: (snapshot_name) } )
+       end
+
+       def restore_snapshot(snapshot_name)
+          execute("restore_snapshot.ps1", { VmId: vm_id,  SnapName: (snapshot_name) } )
+       end
+
+       def list_snapshots()
+          snaps = execute("list_snapshots.ps1", { VmID: vm_id } )
+          snaps.map { |s| s['Name'] }
+       end
+
+       def delete_snapshot(snapshot_name)
+          execute("delete_snapshot.ps1", {VmID: vm_id, SnapName: snapshot_name})
+       end
+
       protected
 
       def execute_powershell(path, options, &block)

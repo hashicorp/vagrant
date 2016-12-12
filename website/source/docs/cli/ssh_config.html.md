@@ -9,7 +9,7 @@ description: |-
 
 # SSH Config
 
-**Command: `vagrant ssh-config`**
+**Command: `vagrant ssh-config [name|id]`**
 
 This will output valid configuration for an SSH config file to SSH
 into the running Vagrant machine from `ssh` directly (instead of

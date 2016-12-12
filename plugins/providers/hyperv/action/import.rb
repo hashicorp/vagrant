@@ -7,7 +7,7 @@ module VagrantPlugins
     module Action
       class Import
         def initialize(app, env)
-          @app    = app
+          @app = app
           @logger = Log4r::Logger.new("vagrant::hyperv::import")
         end
 
@@ -18,30 +18,53 @@ module VagrantPlugins
           maxmemory = env[:machine].provider_config.maxmemory
           cpus = env[:machine].provider_config.cpus
           vmname = env[:machine].provider_config.vmname
+          differencing_disk = env[:machine].provider_config.differencing_disk
+          auto_start_action = env[:machine].provider_config.auto_start_action
+          auto_stop_action = env[:machine].provider_config.auto_stop_action
 
-          env[:ui].output("Configured Dynamical memory allocation, maxmemory is #{maxmemory}") if maxmemory
+          env[:ui].output("Configured Dynamic memory allocation, maxmemory is #{maxmemory}") if maxmemory
           env[:ui].output("Configured startup memory is #{memory}") if memory
           env[:ui].output("Configured cpus number is #{cpus}") if cpus
           env[:ui].output("Configured vmname is #{vmname}") if vmname
+          env[:ui].output("Configured differencing disk instead of cloning") if differencing_disk
+          env[:ui].output("Configured automatic start action is #{auto_start_action}") if auto_start_action
+          env[:ui].output("Configured automatic stop action is #{auto_stop_action}") if auto_stop_action
 
           if !vm_dir.directory? || !hd_dir.directory?
             raise Errors::BoxInvalid
           end
 
           config_path = nil
+          config_type = nil
           vm_dir.each_child do |f|
-            if f.extname.downcase == ".xml"
+            if f.extname.downcase == '.xml'
               config_path = f
+              config_type = 'xml'
               break
+            end
+          end
+
+          # Only check for .vmcx if there is no XML found to not
+          # risk breaking older vagrant boxes that added an XML
+          # file manually
+          if config_type == nil
+            vm_dir.each_child do |f|
+              if f.extname.downcase == '.vmcx'
+                config_path = f
+                config_type = 'vmcx'
+                break
+              end
             end
           end
 
           image_path = nil
           image_ext = nil
+          image_filename = nil
           hd_dir.each_child do |f|
             if %w{.vhd .vhdx}.include?(f.extname.downcase)
               image_path = f
               image_ext = f.extname.downcase
+              image_filename = File.basename(f, image_ext)
               break
             end
           end
@@ -92,21 +115,36 @@ module VagrantPlugins
 
           env[:ui].detail("Cloning virtual hard drive...")
           source_path = image_path.to_s
-          dest_path   = env[:machine].data_dir.join("disk#{image_ext}").to_s
-          FileUtils.cp(source_path, dest_path)
+          dest_path = env[:machine].data_dir.join("Virtual Hard Disks").join("#{image_filename}#{image_ext}").to_s
+
+          # Still hard copy the disk of old XML configurations
+          if config_type == 'xml'
+            if differencing_disk
+              env[:machine].provider.driver.execute("clone_vhd.ps1", {Source: source_path, Destination: dest_path})
+            else
+              FileUtils.mkdir_p(env[:machine].data_dir.join("Virtual Hard Disks"))
+              FileUtils.cp(source_path, dest_path)
+            end
+          end
           image_path = dest_path
 
           # We have to normalize the paths to be Windows paths since
           # we're executing PowerShell.
           options = {
-            vm_xml_config:  config_path.to_s.gsub("/", "\\"),
-            image_path:      image_path.to_s.gsub("/", "\\")
+              vm_config_file: config_path.to_s.gsub("/", "\\"),
+              vm_config_type: config_type,
+              source_path:    source_path.to_s,
+              dest_path:      dest_path,
+              data_path:      env[:machine].data_dir.to_s.gsub("/", "\\")
           }
           options[:switchname] = switch if switch
-          options[:memory] = memory if memory 
+          options[:memory] = memory if memory
           options[:maxmemory] = maxmemory if maxmemory
           options[:cpus] = cpus if cpus
-          options[:vmname] = vmname if vmname 
+          options[:vmname] = vmname if vmname
+          options[:auto_start_action] = auto_start_action if auto_start_action
+          options[:auto_stop_action] = auto_stop_action if auto_stop_action
+          options[:differencing_disk] = differencing_disk if differencing_disk
 
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)

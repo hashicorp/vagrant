@@ -57,17 +57,9 @@ describe VagrantPlugins::Chef::Config::Base do
   end
 
   describe "#channel" do
-    it "defaults to \"current\"" do
+    it "defaults to \"stable\"" do
       subject.finalize!
-      expect(subject.channel).to eq("current")
-    end
-  end
-
-  describe "#prerelease" do
-    it "should not exist in Vagrant 1.9" do
-      if Vagrant::VERSION >= "1.9"
-        raise "This option should be removed!"
-      end
+      expect(subject.channel).to eq("stable")
     end
   end
 

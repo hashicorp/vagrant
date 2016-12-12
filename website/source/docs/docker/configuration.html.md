@@ -50,7 +50,11 @@ General settings:
 
   * `force_host_vm` (boolean) - If true, then a host VM will be spun up
     even if the computer running Vagrant supports Linux containers. This
-    is useful to enforce a consistent environment to run Docker.
+    is useful to enforce a consistent environment to run Docker. This value
+    defaults to "true" on Mac and Windows hosts and defaults to "false" on
+    Linux hosts. Mac/Windows users who choose to use a different Docker
+    provider or opt-in to the native Docker builds can explicitly set this
+    value to false to disable the behavior.
 
   * `has_ssh` (boolean) - If true, then Vagrant will support SSH with
     the container. This allows `vagrant ssh` to work, provisioners, etc.

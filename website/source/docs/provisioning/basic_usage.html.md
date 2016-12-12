@@ -48,7 +48,8 @@ end
 The benefit of the block-based syntax is that with more than a couple options
 it can greatly improve readability. Additionally, some provisioners, like
 the Chef provisioner, have special methods that can be called within that
-block to ease configuration that cannot be done with the key/value approach.
+block to ease configuration that cannot be done with the key/value approach,
+or you can use this syntax to pass arguments to a shell script.
 
 The attributes that can be set in a single-line are the attributes that
 are set with the `=` style, such as `inline = "echo hello"` above. If the
@@ -107,6 +108,11 @@ Vagrant.configure("2") do |config|
 end
 ```
 
+You can also set `run:` to `"never"` if you have an optional provisioner
+that you want to mention to the user in a "post up message" or that
+requires some other configuration before it is possible, then call this
+with `vagrant provision --provision-with bootstrap`.
+
 If you are using the block format, you must specify it outside
 of the block, as shown below:
 
@@ -150,7 +156,7 @@ The ordering of the provisioners will be to echo "foo", "baz", then
 ordering is _outside in_.
 
 With multiple provisioners, use the `--provision-with` setting along
-with names to get more fine grainted control over what is run and when.
+with names to get more fine grained control over what is run and when.
 
 ## Overriding Provisioner Settings
 
@@ -206,4 +212,17 @@ end
 ```
 
 If you want to preserve the original ordering, you can specify
-the `preserve_order: true` flag.
+the `preserve_order: true` flag:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "do-this",
+    type: "shell",
+    preserve_order: true,
+    inline: "echo FIRST!"
+  config.vm.provision "then-this",
+    type: "shell",
+    preserve_order: true,
+    inline: "echo SECOND!"
+end
+```

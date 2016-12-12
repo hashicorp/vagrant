@@ -19,8 +19,12 @@ module VagrantPlugins
   module CommunicatorSSH
     # This class provides communication with the VM via SSH.
     class Communicator < Vagrant.plugin("2", :communicator)
+      # Marker for start of PTY enabled command output
       PTY_DELIM_START = "bccbb768c119429488cfd109aacea6b5-pty"
+      # Marker for end of PTY enabled command output
       PTY_DELIM_END = "bccbb768c119429488cfd109aacea6b5-pty"
+      # Marker for start of regular command output
+      CMD_GARBAGE_MARKER = "41e57d38-b4f7-4e46-9c38-13873d338b86-vagrant-ssh"
 
       include Vagrant::Util::ANSIEscapeCodeRemover
       include Vagrant::Util::Retryable
@@ -334,9 +338,8 @@ module VagrantPlugins
           config:                false,
           forward_agent:         ssh_info[:forward_agent],
           send_env:              ssh_info[:forward_env],
-          keys:                  ssh_info[:private_key_path],
-          keys_only:             true,
-          paranoid:              false,
+          keys_only:             ssh_info[:keys_only],
+          paranoid:              ssh_info[:paranoid],
           password:              ssh_info[:password],
           port:                  ssh_info[:port],
           timeout:               15,
@@ -375,6 +378,10 @@ module VagrantPlugins
                 connect_opts = common_connect_opts.dup
                 connect_opts[:logger] = ssh_logger
 
+                if ssh_info[:private_key_path]
+                  connect_opts[:keys] = ssh_info[:private_key_path]
+                end
+
                 if ssh_info[:proxy_command]
                   connect_opts[:proxy] = Net::SSH::Proxy::Command.new(ssh_info[:proxy_command])
                 end
@@ -385,6 +392,7 @@ module VagrantPlugins
                 @logger.info("  - Username: #{ssh_info[:username]}")
                 @logger.info("  - Password? #{!!ssh_info[:password]}")
                 @logger.info("  - Key Path: #{ssh_info[:private_key_path]}")
+                @logger.debug("  - connect_opts: #{connect_opts}")
 
                 Net::SSH.start(ssh_info[:host], ssh_info[:username], connect_opts)
               ensure
@@ -486,16 +494,32 @@ module VagrantPlugins
             end
           end
 
+          marker_found = false
+          data_buffer = ''
+
           ch.exec(shell_cmd(opts)) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
               # Filter out the clear screen command
               data = remove_ansi_escape_codes(data)
-              @logger.debug("stdout: #{data}")
+
               if pty
                 pty_stdout << data
               else
-                yield :stdout, data if block_given?
+                if !marker_found
+                  data_buffer << data
+                  marker_index = data_buffer.index(CMD_GARBAGE_MARKER)
+                  if marker_index
+                    marker_found = true
+                    data_buffer.slice!(0, marker_index + CMD_GARBAGE_MARKER.size)
+                    data.replace data_buffer
+                    data_buffer = nil
+                  end
+                end
+
+                if block_given? && marker_found
+                  yield :stdout, data
+                end
               end
             end
 
@@ -512,11 +536,11 @@ module VagrantPlugins
 
               # Close the channel, since after the exit status we're
               # probably done. This fixes up issues with hanging.
-              channel.close
+              ch.close
             end
 
             # Set the terminal
-            ch2.send_data "export TERM=vt100\n"
+            ch2.send_data generate_environment_export("TERM", "vt100")
 
             # Set SSH_AUTH_SOCK if we are in sudo and forwarding agent.
             # This is to work around often misconfigured boxes where
@@ -539,7 +563,7 @@ module VagrantPlugins
                 @logger.warn("No SSH_AUTH_SOCK found despite forward_agent being set.")
               else
                 @logger.info("Setting SSH_AUTH_SOCK remotely: #{auth_socket}")
-                ch2.send_data "export SSH_AUTH_SOCK=#{auth_socket}\n"
+                ch2.send_data generate_environment_export("SSH_AUTH_SOCK", auth_socket)
               end
             end
 
@@ -548,9 +572,9 @@ module VagrantPlugins
             # without the cruft added from pty mode.
             if pty
               data = "stty raw -echo\n"
-              data += "export PS1=\n"
-              data += "export PS2=\n"
-              data += "export PROMPT_COMMAND=\n"
+              data += generate_environment_export("PS1", "")
+              data += generate_environment_export("PS2", "")
+              data += generate_environment_export("PROMPT_COMMAND", "")
               data += "printf #{PTY_DELIM_START}\n"
               data += "#{command}\n"
               data += "exitcode=$?\n"
@@ -559,7 +583,7 @@ module VagrantPlugins
               data = data.force_encoding('ASCII-8BIT')
               ch2.send_data data
             else
-              ch2.send_data "#{command}\n".force_encoding('ASCII-8BIT')
+              ch2.send_data "printf '#{CMD_GARBAGE_MARKER}'\n#{command}\n".force_encoding('ASCII-8BIT')
               # Remember to exit or this channel will hang open
               ch2.send_data "exit\n"
             end
@@ -645,6 +669,11 @@ module VagrantPlugins
         return false if !File.file?(path)
         source_path = Vagrant.source_root.join("keys", "vagrant")
         return File.read(path).chomp == source_path.read.chomp
+      end
+
+      def generate_environment_export(env_key, env_value)
+        template = @machine.config.ssh.export_command_template
+        template.sub("%ENV_KEY%", env_key).sub("%ENV_VALUE%", env_value) + "\n"
       end
     end
   end

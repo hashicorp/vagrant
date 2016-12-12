@@ -27,6 +27,7 @@ non-primary subcommands. They're executed just like any other subcommand:
 The list of non-primary commands is below. Click on any command to learn
 more about it.
 
+* [docker-exec](/docs/docker/commands.html)
 * [docker-logs](/docs/docker/commands.html)
 * [docker-run](/docs/docker/commands.html)
 * [rsync](/docs/cli/rsync.html)

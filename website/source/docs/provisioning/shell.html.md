@@ -48,7 +48,7 @@ The remainder of the available options are optional:
   the keys remain untouched.
 
 * `binary` (boolean) - Vagrant automatically replaces Windows line endings with
-  Unix line endings. If this is true, then Vagrant will not do this. By default
+  Unix line endings. If this is false, then Vagrant will not do this. By default
   this is "false". If the shell provisioner is communicating over WinRM, this
   defaults to "true".
 
@@ -78,6 +78,10 @@ The remainder of the available options are optional:
   on Windows. By default this is "false". Must also be `privileged`. Be sure to
   enable auto-login for Windows as the user must be logged in for interactive
   mode to work.
+
+* `md5` (string) - MD5 checksum used to validate remotely downloaded shell files.
+
+* `sha1` (string) - SHA1 checksum used to validate remotely downloaded shell files.
 
 <a name="inline-scripts"></a>
 ## Inline Scripts

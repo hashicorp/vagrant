@@ -154,9 +154,9 @@ module VagrantPlugins
           # This is very platform dependent.
           test_cmd = "sh -c 'command -v #{binary}'"
           if windows?
-            test_cmd = "where #{binary}"
+            test_cmd = "where.exe #{binary}"
             if @config.binary_path
-              test_cmd = "where \"#{@config.binary_path}:#{binary}\""
+              test_cmd = "where.exe \"#{@config.binary_path}:#{binary}\""
             end
           end
 
@@ -207,7 +207,7 @@ module VagrantPlugins
           options = options.join(" ")
 
           # Build up the custom facts if we have any
-          facter = ""
+          facter = nil
           if !config.facter.empty?
             facts = []
             config.facter.each do |key, value|
@@ -219,7 +219,7 @@ module VagrantPlugins
               facts.map! { |v| "$env:#{v};" }
             end
 
-            facter = "#{facts.join(" ")} "
+            facter = facts.join(" ")
           end
 
           puppet_bin = "puppet"
@@ -227,7 +227,28 @@ module VagrantPlugins
             puppet_bin = File.join(@config.binary_path, puppet_bin)
           end
 
-          command = "#{facter} #{puppet_bin} apply #{options}"
+          env_vars = nil
+          if !config.environment_variables.nil? && !config.environment_variables.empty?
+            env_vars = config.environment_variables.map do |env_key, env_value|
+              "#{env_key}=\"#{env_value}\""
+            end
+
+            if windows?
+              env_vars.map! do |env_var_string|
+                "$env:#{env_var_string}"
+              end
+            end
+
+            env_vars = env_vars.join(" ")
+          end
+
+          command = [
+            env_vars,
+            facter,
+            puppet_bin,
+            "apply",
+            options
+          ].compact.map(&:to_s).join(" ")
           if config.working_directory
             if windows?
               command = "cd #{config.working_directory}; if ($?) \{ #{command} \}"

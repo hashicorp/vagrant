@@ -8,12 +8,12 @@ module VagrantPlugins
       name "Windows guest."
       description "Windows guest support."
 
-      config("windows") do
+      config(:windows) do
         require_relative "config"
         Config
       end
 
-      guest("windows")  do
+      guest(:windows)  do
         require_relative "guest"
         init!
         Guest

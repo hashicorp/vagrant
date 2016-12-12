@@ -39,4 +39,4 @@ to the left. We also have a section where we go into detail about the
 security implications of this feature.
 
 Vagrant Share requires an account with
-[HashiCorp's Atlas](https://atlas.hashicorp.com) to be used.
+[HashiCorp's Atlas](/docs/other/atlas.html) to be used.

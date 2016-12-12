@@ -30,7 +30,7 @@ to update your own custom boxes with versions. That is covered in
 
 `vagrant box list` only shows _installed_ versions of boxes. If you want
 to see all available versions of a box, you will have to find the box
-on [HashiCorp's Atlas](https://atlas.hashicorp.com). An easy way to find a box
+on [HashiCorp's Atlas](/docs/other/atlas.html). An easy way to find a box
 is to use the url `https://atlas.hashicorp.com/$USER/$BOX`. For example, for
 the `hashicorp/precise64` box, you can find information about it at
 `https://atlas.hashicorp.com/hashicorp/precise64`.
@@ -100,6 +100,8 @@ user has to manually enter a command to do it.
 
 Vagrant does not automatically prune old versions because it does not know
 if they might be in use by other Vagrant environments. Because boxes can
-be large, you may want to actively prune them once in awhile using
+be large, you may want to actively prune them once in a while using
 `vagrant box remove`. You can see all the boxes that are installed
 using `vagrant box list`.
+
+Another option is to use `vagrant box prune` command to remove all installed boxes that are outdated and not currently in use.

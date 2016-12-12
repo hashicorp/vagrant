@@ -3,12 +3,22 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          machine.communicate.tap do |comm|
-            # Only do this if the hostname is not already set
-            if !comm.test("sudo hostname | grep '#{name}'")
-              comm.sudo("hostnamectl set-hostname #{name}")
-              comm.sudo("sed -i 's@^\\(127[.]0[.]0[.]1[[:space:]]\\+\\)@\\1#{name} @' /etc/hosts")
-            end
+          comm = machine.communicate
+
+          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
+            basename = name.split(".", 2)[0]
+            comm.sudo <<-EOH.gsub(/^ {14}/, "")
+              # Remove comments and blank lines from /etc/hosts
+              sed -i'' -e 's/#.*$//' -e '/^$/d' /etc/hosts
+
+              # Set hostname
+              hostnamectl set-hostname '#{basename}'
+
+              # Prepend ourselves to /etc/hosts
+              test $? -eq 0 && (grep -w '#{name}' /etc/hosts || {
+                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
+              })
+            EOH
           end
         end
       end

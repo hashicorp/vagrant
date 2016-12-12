@@ -18,7 +18,11 @@ module VagrantPlugins
         def call(env)
           manager = Vagrant::Plugin::Manager.instance
           plugins = manager.installed_plugins
-          specs   = manager.installed_specs
+          specs   = Hash[
+            manager.installed_specs.map do |spec|
+              [spec.name, spec]
+            end
+          ]
 
           # Output!
           if specs.empty?
@@ -26,9 +30,10 @@ module VagrantPlugins
             return @app.call(env)
           end
 
-          specs.each do |spec|
-            # Grab the plugin.
-            plugin = plugins[spec.name]
+          plugins.each do |plugin_name, plugin|
+
+            spec = specs[plugin_name]
+            next if spec.nil?
 
             system = ""
             system = ", system" if plugin && plugin["system"]

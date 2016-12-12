@@ -37,7 +37,7 @@ This page only documents the specific parts of the `ansible` (remote) provisione
 To run Ansible against your Vagrant guest, the basic `Vagrantfile` configuration looks like:
 
 ```ruby
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
 
   #
   # Run Ansible from the Vagrant Host
@@ -51,33 +51,33 @@ end
 
 ##  Options
 
-This section lists the specific options for the Ansible (remote) provisioner. In addition to the options listed below, this provisioner supports the [common options for both Ansible provisioners](/docs/provisioning/ansible_common.html).
+This section lists the _specific_ options for the Ansible (remote) provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/docs/provisioning/ansible_common.html).
 
 - `ask_sudo_pass` (boolean) - require Ansible to [prompt for a sudo password](https://docs.ansible.com/intro_getting_started.html#remote-connection-information).
 
-  The default value is `false`.
+    The default value is `false`.
 
 - `ask_vault_pass` (boolean) - require Ansible to [prompt for a vault password](https://docs.ansible.com/playbooks_vault.html#vault).
 
-  The default value is `false`.
+    The default value is `false`.
 
 - `force_remote_user` (boolean) - require Vagrant to set the `ansible_ssh_user` setting in the generated inventory, or as an extra variable when a static inventory is used. All the Ansible `remote_user` parameters will then be overridden by the value of `config.ssh.username` of the [Vagrant SSH Settings](/docs/vagrantfile/ssh_settings.html).
 
-  If this option is set to `false` Vagrant will set the Vagrant SSH username as a default Ansible remote user, but `remote_user` parameters of your Ansible plays or tasks will still be taken into account and thus override the Vagrant configuration.
+    If this option is set to `false` Vagrant will set the Vagrant SSH username as a default Ansible remote user, but `remote_user` parameters of your Ansible plays or tasks will still be taken into account and thus override the Vagrant configuration.
 
-  The default value is `true`.
+    The default value is `true`.
 
-  **Note:** This option was introduced in Vagrant 1.8.0. Previous Vagrant versions behave like if this option was set to `false`.
+    **Note:** This option was introduced in Vagrant 1.8.0. Previous Vagrant versions behave like if this option was set to `false`.
 
 - `host_key_checking` (boolean) - require Ansible to [enable SSH host key checking](https://docs.ansible.com/intro_getting_started.html#host-key-checking).
 
-  The default value is `false`.
+    The default value is `false`.
 
 - `raw_ssh_args` (array of strings) - require Ansible to apply a list of OpenSSH client options.
 
-  Example: `['-o ControlMaster=no']`.
+    Example: `['-o ControlMaster=no']`.
 
-  It is an *unsafe wildcard* that can be used to pass additional SSH settings to Ansible via `ANSIBLE_SSH_ARGS` environment variable, overriding any other SSH arguments (e.g. defined in an [`ansible.cfg` configuration file](https://docs.ansible.com/intro_configuration.html#ssh-args)).
+    It is an *unsafe wildcard* that can be used to pass additional SSH settings to Ansible via `ANSIBLE_SSH_ARGS` environment variable, overriding any other SSH arguments (e.g. defined in an [`ansible.cfg` configuration file](https://docs.ansible.com/intro_configuration.html#ssh-args)).
 
 ## Tips and Tricks
 
@@ -123,7 +123,7 @@ If you apply this parallel provisioning pattern with a static Ansible inventory,
 
 The Ansible provisioner is implemented with native OpenSSH support in mind, and there is no official support for [paramiko](https://github.com/paramiko/paramiko/) (A native Python SSHv2 protocol library).
 
-If you really need to use this connection mode, it is though possible to enable paramiko as illustrated in the following configuration examples:
+If you really need to use this connection mode though, it is possible to enable paramiko as illustrated in the following configuration examples:
 
 With auto-generated inventory:
 

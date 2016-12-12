@@ -43,7 +43,7 @@ variables are respected. HTTPS is also supported.
 
 If an error occurs during the download or the download is interrupted with
 a Ctrl-C, then Vagrant will attempt to resume the download the next time it
-is requested. Vagrant will only attempt to resume a download for six hours
+is requested. Vagrant will only attempt to resume a download for 24 hours
 after the initial download.
 
 ## Options
@@ -149,6 +149,24 @@ with the `--all` flag.
 * `--provider VALUE` - The provider-specific box to remove with the given
   name. This is only required if a box is backed by multiple providers.
   If there is only a single provider, Vagrant will default to removing it.
+
+
+# Box prune
+
+**Command: `vagrant box prune`**
+
+This command removes old versions of installed boxes. If the box in currently in use vagrant will ask you if you to confirm.
+
+## Options
+
+* `--provider PROVIDER` - The specific provider type for the boxes to destroy.
+
+* `--dry-run` - Only print the boxes that would be removed.
+
+* `--name NAME` - The specific box name to check for outdated versions.
+
+* `--force` - Destroy without confirmation even when box is in use.
+
 
 # Box Repackage
 

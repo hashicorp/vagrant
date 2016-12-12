@@ -1,6 +1,6 @@
 require "tempfile"
 
-require "vagrant/util/template_renderer"
+require_relative "../../../../lib/vagrant/util/template_renderer"
 
 module VagrantPlugins
   module GuestGentoo
@@ -9,33 +9,43 @@ module VagrantPlugins
         include Vagrant::Util
 
         def self.configure_networks(machine, networks)
-          machine.communicate.tap do |comm|
-            # Remove any previous host only network additions to the interface file
-            comm.sudo("sed -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/conf.d/net > /tmp/vagrant-network-interfaces")
-            comm.sudo("cat /tmp/vagrant-network-interfaces > /etc/conf.d/net")
-            comm.sudo("rm -f /tmp/vagrant-network-interfaces")
+          comm = machine.communicate
 
-            # Configure each network interface
-            networks.each do |network|
-              entry = TemplateRenderer.render("guests/gentoo/network_#{network[:type]}",
-                                              options: network)
+          commands   = []
+          interfaces = machine.guest.capability(:network_interfaces, "/bin/ip")
 
-              # Upload the entry to a temporary location
-              temp = Tempfile.new("vagrant")
-              temp.binmode
-              temp.write(entry)
-              temp.close
+          # Remove any previous network additions to the configuration file.
+          commands << "sed -i'' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/conf.d/net"
 
-              comm.upload(temp.path, "/tmp/vagrant-network-entry")
+          networks.each_with_index do |network, i|
+            network[:device] = interfaces[network[:interface]]
 
-              # Configure the interface
-              comm.sudo("ln -fs /etc/init.d/net.lo /etc/init.d/net.eth#{network[:interface]}")
-              comm.sudo("/etc/init.d/net.eth#{network[:interface]} stop 2> /dev/null")
-              comm.sudo("cat /tmp/vagrant-network-entry >> /etc/conf.d/net")
-              comm.sudo("rm -f /tmp/vagrant-network-entry")
-              comm.sudo("/etc/init.d/net.eth#{network[:interface]} start")
+            entry = TemplateRenderer.render("guests/gentoo/network_#{network[:type]}",
+              options: network,
+            )
+
+            remote_path = "/tmp/vagrant-network-#{network[:device]}-#{Time.now.to_i}-#{i}"
+
+            Tempfile.open("vagrant-gentoo-configure-networks") do |f|
+              f.binmode
+              f.write(entry)
+              f.fsync
+              f.close
+              comm.upload(f.path, remote_path)
             end
+
+            commands << <<-EOH.gsub(/^ {14}/, '')
+              ln -sf /etc/init.d/net.lo /etc/init.d/net.#{network[:device]}
+              /etc/init.d/net.#{network[:device]} stop || true
+
+              cat '#{remote_path}' >> /etc/conf.d/net
+              rm -f '#{remote_path}'
+
+              /etc/init.d/net.#{network[:device]} start
+            EOH
           end
+
+          comm.sudo(commands.join("\n"))
         end
       end
     end
