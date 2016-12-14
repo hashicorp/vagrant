@@ -16,12 +16,19 @@ module VagrantPlugins
           commands   = []
           interfaces = machine.guest.capability(:network_interfaces)
 
+          nm_check = machine.communicate.execute(
+            "service NetworkManager status 2>&1 | grep -q running",
+            error_check: false
+          )
+          nm_enabled = nm_check == 0
+
           networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
 
             # Render a new configuration
             entry = TemplateRenderer.render("guests/redhat/network_#{network[:type]}",
               options: network,
+              nm_controlled: nm_enabled,
             )
 
             # Upload the new configuration
@@ -43,18 +50,11 @@ module VagrantPlugins
               /sbin/ifdown '#{network[:device]}'
               # Move new config into place
               mv -f '#{remote_path}' '#{final_path}'
-              # attempt to force network manager to reload configurations
-              nmcli c reload || true
             EOH
           end
 
           commands << <<-EOH.gsub(/^ {12}/, '')
-            # Restart network (through NetworkManager if running)
-            if service NetworkManager status 2>&1 | grep -q running; then
-              service NetworkManager restart
-            else
-              service network restart
-            fi
+            service network restart
           EOH
 
           comm.sudo(commands.join("\n"))
