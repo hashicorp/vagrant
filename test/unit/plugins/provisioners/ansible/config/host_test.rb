@@ -17,6 +17,8 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
                             ask_vault_pass
                             config_file
                             extra_vars
+                            force_remote_host
+                            force_remote_port
                             force_remote_user
                             galaxy_command
                             galaxy_role_file
@@ -50,6 +52,8 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
       expect(subject.ask_sudo_pass).to be_false
       expect(subject.ask_vault_pass).to be_false
       expect(subject.force_remote_user).to be_true
+      expect(subject.force_remote_host).to be_false
+      expect(subject.force_remote_port).to be_false
       expect(subject.host_key_checking).to be_false
       expect(subject.raw_ssh_args).to be_nil
     end

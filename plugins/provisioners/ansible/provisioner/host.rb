@@ -47,6 +47,7 @@ module VagrantPlugins
           # is not controlled during vagrant boot process.
           @command_arguments << "--timeout=30"
 
+          _extra_vars = []
           if !config.force_remote_user
             # Pass the vagrant ssh username as Ansible default remote user, because
             # the ansible_ssh_user parameter won't be added to the auto-generated inventory.
@@ -54,7 +55,21 @@ module VagrantPlugins
           elsif config.inventory_path
             # Using an extra variable is the only way to ensure that the Ansible remote user
             # is overridden (as the ansible inventory is not under vagrant control)
-            @command_arguments << "--extra-vars=ansible_ssh_user='#{@ssh_info[:username]}'"
+            _extra_vars << "ansible_ssh_user='#{@ssh_info[:username]}'"
+          end
+
+          # Allow ansible host and port to be overridden, allowing provisioning of hosts
+          # in static inventory; without static ip address assignment
+          if config.force_remote_host
+            _extra_vars << "ansible_ssh_host='#{@ssh_info[:host]}'"
+          end
+
+          if config.force_remote_port
+            _extra_vars << "ansible_ssh_port='#{@ssh_info[:port]}'"
+          end
+
+          if _extra_vars.size > 0
+            @command_arguments << "--extra-vars=#{_extra_vars.join(" ")}"
           end
 
           @command_arguments << "--ask-sudo-pass" if config.ask_sudo_pass

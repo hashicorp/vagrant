@@ -8,6 +8,8 @@ module VagrantPlugins
         attr_accessor :ask_sudo_pass
         attr_accessor :ask_vault_pass
         attr_accessor :force_remote_user
+        attr_accessor :force_remote_host
+        attr_accessor :force_remote_port
         attr_accessor :host_key_checking
         attr_accessor :raw_ssh_args
 
@@ -17,6 +19,8 @@ module VagrantPlugins
           @ask_sudo_pass       = false
           @ask_vault_pass      = false
           @force_remote_user   = true
+          @force_remote_host   = false
+          @force_remote_port   = false
           @host_key_checking   = false
           @raw_ssh_args        = UNSET_VALUE
         end
@@ -27,6 +31,8 @@ module VagrantPlugins
           @ask_sudo_pass       = false if @ask_sudo_pass     != true
           @ask_vault_pass      = false if @ask_vault_pass    != true
           @force_remote_user   = true  if @force_remote_user != false
+          @force_remote_host   = false if @force_remote_host != true
+          @force_remote_port   = false if @force_remote_port != true
           @host_key_checking   = false if @host_key_checking != true
           @raw_ssh_args        = nil   if @raw_ssh_args      == UNSET_VALUE
         end
