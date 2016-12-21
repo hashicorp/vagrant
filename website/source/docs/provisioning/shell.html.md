@@ -152,7 +152,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-If you are running a Batch of PowerShell script for Windows, make sure
+If you are running a Batch or PowerShell script for Windows, make sure
 that the external path has the proper extension (".bat" or ".ps1"), because
 Windows uses this to determine what kind of file it is to execute. If you
 exclude this extension, it likely will not work.
