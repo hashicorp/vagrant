@@ -148,7 +148,7 @@ module VagrantPlugins
           end
           s = nil
           if vars.is_a?(Hash)
-            s = vars.each.collect{ |k, v| "#{k}=#{v}" }.join(" ")
+            s = vars.each.collect{ |k, v| "#{k}=\"#{v}\"" }.join(" ")
           elsif vars.is_a?(Array)
             s = vars.join(" ")
           elsif vars.is_a?(String)
