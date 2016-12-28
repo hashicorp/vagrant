@@ -296,7 +296,7 @@ VF
         }
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           inventory_content = File.read(generated_inventory_file)
-          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
+          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=\"80\" maxRequestsPerChild=\"808\"")
         }
       end
 
