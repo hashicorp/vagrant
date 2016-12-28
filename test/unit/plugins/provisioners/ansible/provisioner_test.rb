@@ -292,11 +292,11 @@ VF
 
       it "adds host variables (given in Hash format) to the generated inventory" do
         config.host_vars = {
-          machine1: {"http_port" => 80, "maxRequestsPerChild" => 808}
+          machine1: {"http_port" => 80, "comments" => "'some text with spaces'"}
         }
         expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
           inventory_content = File.read(generated_inventory_file)
-          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
+          expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 comments='some text with spaces'$")
         }
       end
 
