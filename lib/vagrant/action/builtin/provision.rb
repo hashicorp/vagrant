@@ -109,6 +109,13 @@ module Vagrant
             # Don't run if sentinel is around and we're not always running
             next if !provision_enabled && options[:run] != :always
 
+            # Don't run if we're never running and not specified
+            if options[:run] == :never
+              next unless env[:provision_types] && \
+                          (env[:provision_types].include?(type_name) || \
+                           env[:provision_types].include?(options[:name]))
+            end
+
             name = type_name
             if options[:name]
               name = "#{options[:name]} (#{type_name})"
