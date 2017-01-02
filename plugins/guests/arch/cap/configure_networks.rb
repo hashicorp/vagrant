@@ -39,7 +39,7 @@ module VagrantPlugins
               comm.upload(f.path, remote_path)
             end
 
-            commands << <<-EOH.gsub(/^ {14}/, '')
+            commands << <<-EOH.gsub(/^ {14}/, '').rstrip
               # Configure #{network[:device]}
               mv '#{remote_path}' '/etc/netctl/#{network[:device]}' &&
               ip link set '#{network[:device]}' down &&
