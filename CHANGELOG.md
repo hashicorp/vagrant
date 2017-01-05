@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
   - communicator/winrm: Refactor WinRM communicator to use latest WinRM
       gems and V2 API [GH-8102]
+  - providers/hyperv: Prefer VMCX over XML configuration when VMCX is supported [GH-8119]
 
 BUG FIXES:
 
