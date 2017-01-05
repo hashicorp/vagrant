@@ -13,6 +13,7 @@ BUG FIXES:
 
   - command/package: Fix SecureRandom constant error [GH-8159]
   - guests/linux: Fix guest detection for names with spaces [GH-8092]
+  - guests/redhat: Fix network interface configuration [GH-8121]
 
 ## 1.9.1 (December 7, 2016)
 
