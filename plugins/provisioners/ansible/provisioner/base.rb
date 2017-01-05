@@ -99,6 +99,7 @@ module VagrantPlugins
           @command_arguments << "--extra-vars=#{extra_vars_argument}" if config.extra_vars
           @command_arguments << "--sudo" if config.sudo
           @command_arguments << "--sudo-user=#{config.sudo_user}" if config.sudo_user
+          @command_arguments << "--diff" if config.diff
           @command_arguments << "#{verbosity_argument}" if verbosity_is_enabled?
           @command_arguments << "--vault-password-file=#{config.vault_password_file}" if config.vault_password_file
           @command_arguments << "--tags=#{Helpers::as_list_argument(config.tags)}" if config.tags
