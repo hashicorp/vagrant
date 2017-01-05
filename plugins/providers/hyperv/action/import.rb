@@ -38,18 +38,18 @@ module VagrantPlugins
           config_type = nil
           vm_dir.each_child do |f|
             if f.extname.downcase == '.xml'
+              @logger.debug("Found XML config...")
               config_path = f
               config_type = 'xml'
               break
             end
           end
 
-          # Only check for .vmcx if there is no XML found to not
-          # risk breaking older vagrant boxes that added an XML
-          # file manually
-          if config_type == nil
+          vmcx_support = env[:machine].provider.driver.execute("has_vmcx_support.ps1", {})
+          if vmcx_support
             vm_dir.each_child do |f|
               if f.extname.downcase == '.vmcx'
+                @logger.debug("Found VMCX config and support...")
                 config_path = f
                 config_type = 'vmcx'
                 break
