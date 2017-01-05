@@ -6,6 +6,9 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - communicator/winrm: Refactor WinRM communicator to use latest WinRM
+      gems and V2 API [GH-8102]
+
 BUG FIXES:
 
   - command/package: Fix SecureRandom constant error [GH-8159]
