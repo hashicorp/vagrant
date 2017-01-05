@@ -142,10 +142,10 @@ module VagrantPlugins
           interactive: false,
         }.merge(opts || {})
 
+        opts[:shell] = :elevated if opts[:elevated]
         opts[:good_exit] = Array(opts[:good_exit])
-        command = wrap_in_scheduled_task(command, opts[:interactive]) if opts[:elevated]
         @logger.debug("#{opts[:shell]} executing:\n#{command}")
-        output = shell.send(opts[:shell], command, &block)
+        output = shell.send(opts[:shell], command, opts, &block)
         execution_output(output, opts)
       end
       alias_method :sudo, :execute
@@ -165,7 +165,7 @@ module VagrantPlugins
         # If we're passed a *nix command which PS can't parse we get exit code
         # 0, but output in stderr. We need to check both exit code and stderr.
         output = shell.send(:powershell, command)
-        return output[:exitcode] == 0 && flatten_stderr(output).length == 0
+        return output.exitcode == 0 && output.stderr.length == 0
       end
 
       def upload(from, to)
@@ -180,7 +180,7 @@ module VagrantPlugins
 
       protected
 
-      # This creates anew WinRMShell based on the information we know
+      # This creates a new WinRMShell based on the information we know
       # about this machine.
       def create_shell
         winrm_info = Helper.winrm_info(@machine)
@@ -192,55 +192,23 @@ module VagrantPlugins
         )
       end
 
-      # Creates and uploads a PowerShell script which wraps a command in a
-      # scheduled task. The scheduled task allows commands to run on the guest
-      # as a true local admin without any of the restrictions that WinRM puts
-      # in place.
-      #
-      # @return The wrapper command to execute
-      def wrap_in_scheduled_task(command, interactive)
-        path = File.expand_path("../scripts/elevated_shell.ps1", __FILE__)
-        script = Vagrant::Util::TemplateRenderer.render(path, options: {
-          interactive: interactive,
-        })
-        guest_script_path = "c:/tmp/vagrant-elevated-shell.ps1"
-        Tempfile.open(["vagrant-elevated-shell", "ps1"]) do |f|
-          f.binmode
-          f.write(script)
-          f.fsync
-          f.close
-          upload(f.path, guest_script_path)
-        end
-
-        # Convert to double byte unicode string then base64 encode
-        # just like PowerShell -EncodedCommand expects.
-        # Suppress the progress stream from leaking to stderr.
-        wrapped_encoded_command = Base64.strict_encode64(
-          "$ProgressPreference='SilentlyContinue'; #{command}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
-
-        "powershell -executionpolicy bypass -file '#{guest_script_path}' " +
-          "-username '#{shell.username}' -password '#{shell.password}' " +
-          "-encoded_command '#{wrapped_encoded_command}' " +
-          "-execution_time_limit '#{shell.execution_time_limit}'"
-      end
-
       # Handles the raw WinRM shell result and converts it to a
       # standard Vagrant communicator result
       def execution_output(output, opts)
         if opts[:shell] == :wql
           return output
         elsif opts[:error_check] && \
-          !opts[:good_exit].include?(output[:exitcode])
+          !opts[:good_exit].include?(output.exitcode)
           raise_execution_error(output, opts)
         end
-        output[:exitcode]
+        output.exitcode
       end
 
       def raise_execution_error(output, opts)
         # WinRM can return multiple stderr and stdout entries
         error_opts = opts.merge(
-          stdout: flatten_stdout(output),
-          stderr: flatten_stderr(output)
+          stdout: output.stdout,
+          stderr: output.stderr
         )
 
         # Use a different error message key if the caller gave us one,
@@ -249,20 +217,6 @@ module VagrantPlugins
 
         # Raise the error, use the type the caller gave us or the comm default
         raise opts[:error_class], error_opts
-      end
-
-
-      # TODO: Replace with WinRM Output class when WinRM 1.3 is released
-      def flatten_stderr(output)
-        output[:data].map do | line |
-          line[:stderr]
-        end.compact.join
-      end
-
-      def flatten_stdout(output)
-        output[:data].map do | line |
-          line[:flatten_stdout]
-        end.compact.join
       end
     end #WinRM class
   end

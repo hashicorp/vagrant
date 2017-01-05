@@ -59,6 +59,20 @@ to use port 4567 to talk to the guest if there is no other option.
 
 <hr>
 
-`config.winrm.execution_time_limit` - The maximum duration that a WinRM
-task can execute for. This defaults to two hours. The format of this value
-must be in this [Microsoft-documented format](https://msdn.microsoft.com/en-us/library/aa382678.aspx).
+`config.winrm.ssl_peer_verification` - When set to `false` ssl certificate validation is not performed.
+
+<hr>
+
+`config.winrm.timeout` - The maximum amount of time to wait for a response from the endpoint. This defaults to 60 seconds. Note that this will not "timeout" commands that exceed this amount of time to process, it just requires the endpoint to report the status of the command before the given amount of time passes.
+
+<hr>
+
+`config.winrm.retry_limit` - The maximum number of times to retry opening a shell after failure. This defaults to 3.
+
+<hr>
+
+`config.winrm.retry_delay` - The amount of time to wait between retries and defaults to 10 seconds.
+
+<hr>
+
+`config.winrm.codepage` - The WINRS_CODEPAGE which is the client's console output code page. The default is 65001 (UTF-8). <strong>Note:</strong> Versions of Windows older than Windows 7/Server 2008 R2 may exhibit undesirable behavior using the default UTF-8 codepage. When using these older versions of Windows, its best to use the native code page of the server's locale. For example, en-US servers will have a codepage of 437. The Windows `chcp` command can be used to determine the value of the native codepage.

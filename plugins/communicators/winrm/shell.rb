@@ -9,6 +9,7 @@ Vagrant::Util::SilenceWarnings.silence! do
   require "winrm"
 end
 
+require "winrm-elevated"
 require "winrm-fs"
 
 module VagrantPlugins
@@ -53,48 +54,55 @@ module VagrantPlugins
         @config                = config
       end
 
-      def powershell(command, &block)
-        # Ensure an exit code
-        command += "\r\nif ($?) { exit 0 } else { if($LASTEXITCODE) { exit $LASTEXITCODE } else { exit 1 } }"
-        session.create_executor do |executor|
-          execute_with_rescue(executor.method("run_powershell_script"), command, &block)
+      def powershell(command, opts = {}, &block)
+        connection.shell(:powershell) do |shell|
+          execute_with_rescue(shell, command, &block)
         end
       end
 
-      def cmd(command, &block)
-        session.create_executor do |executor|
-          execute_with_rescue(executor.method("run_cmd"), command, &block)
+      def cmd(command, opts = {}, &block)
+        shell_opts = {}
+        shell_opts[:codepage] = @config.codepage if @config.codepage
+        connection.shell(:cmd, shell_opts) do |shell|
+          execute_with_rescue(shell, command, &block)
         end
       end
 
-      def wql(query, &block)
+      def elevated(command, opts = {}, &block)
+        connection.shell(:elevated) do |shell|
+          shell.interactive_logon = opts[:interactive] || false
+          execute_with_rescue(shell, command, &block)
+        end
+      end
+
+      def wql(query, opts = {}, &block)
         retryable(tries: @config.max_tries, on: @@exceptions_to_retry_on, sleep: @config.retry_delay) do
-          handle_output(session.method("run_wql"), query, &block)
+          connection.run_wql(query)
         end
       rescue => e
         raise_winrm_exception(e, "run_wql", query)
       end
 
       def upload(from, to)
-        file_manager = WinRM::FS::FileManager.new(session)
+        file_manager = WinRM::FS::FileManager.new(connection)
         file_manager.upload(from, to)
       end
 
       def download(from, to)
-        file_manager = WinRM::FS::FileManager.new(session)
+        file_manager = WinRM::FS::FileManager.new(connection)
         file_manager.download(from, to)
       end
 
       protected
 
-      def execute_with_rescue(method, command, &block)
-        handle_output(method, command, &block)
+      def execute_with_rescue(shell, command, &block)
+        handle_output(shell, command, &block)
       rescue => e
-        raise_winrm_exception(e, method.name, command)
+        raise_winrm_exception(e, shell.class.name.split("::").last, command)
       end
 
-      def handle_output(execute_method, command, &block)
-        output = execute_method.call(command) do |out, err|
+      def handle_output(shell, command, &block)
+        output = shell.run(command) do |out, err|
           block.call(:stdout, out) if block_given? && out
           block.call(:stderr, err) if block_given? && err
         end
@@ -104,14 +112,10 @@ module VagrantPlugins
         # Verify that we didn't get a parser error, and if so we should
         # set the exit code to 1. Parse errors return exit code 0 so we
         # need to do this.
-        if output[:exitcode] == 0
-          (output[:data] || []).each do |data|
-            next if !data[:stderr]
-            if data[:stderr].include?("ParserError")
-              @logger.warn("Detected ParserError, setting exit code to 1")
-              output[:exitcode] = 1
-              break
-            end
+        if output.exitcode == 0
+          if output.stderr.include?("ParserError")
+            @logger.warn("Detected ParserError, setting exit code to 1")
+            output.exitcode = 1
           end
         end
 
@@ -159,21 +163,20 @@ module VagrantPlugins
         end
       end
 
-      def new_session
+      def new_connection
         @logger.info("Attempting to connect to WinRM...")
         @logger.info("  - Host: #{@host}")
         @logger.info("  - Port: #{@port}")
         @logger.info("  - Username: #{@config.username}")
         @logger.info("  - Transport: #{@config.transport}")
 
-        client = ::WinRM::WinRMWebService.new(endpoint, @config.transport.to_sym, endpoint_options)
-        client.set_timeout(@config.timeout)
+        client = ::WinRM::Connection.new(endpoint_options)
         client.logger = @logger
         client
       end
 
-      def session
-        @session ||= new_session
+      def connection
+        @connection ||= new_connection
       end
 
       def endpoint
@@ -188,8 +191,11 @@ module VagrantPlugins
       end
 
       def endpoint_options
-        { user: @username,
-          pass: @password,
+        { endpoint: endpoint,
+          transport: @config.transport,
+          operation_timeout: @config.timeout,
+          user: @username,
+          password: @password,
           host: @host,
           port: @port,
           basic_auth_only: @config.basic_auth_only,

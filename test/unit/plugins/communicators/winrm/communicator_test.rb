@@ -11,7 +11,9 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
   let(:ui) { double("ui") }
   let(:machine) { double("machine", config: config, provider: provider, ui: ui) }
   let(:shell) { double("shell") }
-
+  let(:good_output) { WinRM::Output.new.tap { |out| out.exitcode = 0 } }
+  let(:bad_output) { WinRM::Output.new.tap { |out| out.exitcode = 1 } }
+  
   subject do
     described_class.new(machine).tap do |comm|
       allow(comm).to receive(:create_shell).and_return(shell)
@@ -81,61 +83,47 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
 
   describe ".execute" do
     it "defaults to running in powershell" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 0 })
+      expect(shell).to receive(:powershell).with(kind_of(String), kind_of(Hash)).and_return(good_output)
       expect(subject.execute("dir")).to eq(0)
     end
 
-    it "wraps command in elevated shell script when elevated is true" do
-      expect(shell).to receive(:upload).with(kind_of(String), "c:/tmp/vagrant-elevated-shell.ps1")
-      expect(shell).to receive(:powershell) do |cmd|
-        expect(cmd).to eq("powershell -executionpolicy bypass -file 'c:/tmp/vagrant-elevated-shell.ps1' " +
-          "-username 'vagrant' -password 'password' -encoded_command 'JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIABkAGkAcgA7ACAAZQB4AGkAdAAgACQATABBAFMAVABFAFgASQBUAEMATwBEAEUA' -execution_time_limit 'PT2H'")
-      end.and_return({ exitcode: 0 })
+    it "use elevated shell script when elevated is true" do
+      expect(shell).to receive(:elevated).and_return(good_output)
       expect(subject.execute("dir", { elevated: true })).to eq(0)
     end
 
-    it "wraps command in elevated and interactive shell script when elevated and interactive are true" do
-      expect(shell).to receive(:upload).with(kind_of(String), "c:/tmp/vagrant-elevated-shell.ps1")
-      expect(shell).to receive(:powershell) do |cmd|
-        expect(cmd).to eq("powershell -executionpolicy bypass -file 'c:/tmp/vagrant-elevated-shell.ps1' " +
-          "-username 'vagrant' -password 'password' -encoded_command 'JABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAIABkAGkAcgA7ACAAZQB4AGkAdAAgACQATABBAFMAVABFAFgASQBUAEMATwBEAEUA' -execution_time_limit 'PT2H'")
-      end.and_return({ exitcode: 0 })
-      expect(subject.execute("dir", { elevated: true, interactive: true })).to eq(0)
-    end
-
     it "can use cmd shell" do
-      expect(shell).to receive(:cmd).with(kind_of(String)).and_return({ exitcode: 0 })
+      expect(shell).to receive(:cmd).with(kind_of(String), kind_of(Hash)).and_return(good_output)
       expect(subject.execute("dir", { shell: :cmd })).to eq(0)
     end
 
     it "raises error when error_check is true and exit code is non-zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(
-        { exitcode: 1, data: [{ stdout: '', stderr: '' }] })
+      expect(shell).to receive(:powershell).with(kind_of(String), kind_of(Hash)).and_return(bad_output)
       expect { subject.execute("dir") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::WinRMBadExitStatus)
     end
 
     it "does not raise error when error_check is false and exit code is non-zero" do
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return({ exitcode: 1 })
+      expect(shell).to receive(:powershell).with(kind_of(String), kind_of(Hash)).and_return(bad_output)
       expect(subject.execute("dir", { error_check: false })).to eq(1)
     end
   end
 
   describe ".test" do
     it "returns true when exit code is zero" do
-      output = { exitcode: 0, data:[{ stderr: '' }] }
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(output)
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(good_output)
       expect(subject.test("test -d c:/windows")).to be_true
     end
 
     it "returns false when exit code is non-zero" do
-      output = { exitcode: 1, data:[{ stderr: '' }] }
-      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(output)
+      expect(shell).to receive(:powershell).with(kind_of(String)).and_return(bad_output)
       expect(subject.test("test -d /tmp/foobar")).to be_false
     end
 
     it "returns false when stderr contains output" do
-      output = { exitcode: 0, data:[{ stderr: 'this is an error' }] }
+      output = WinRM::Output.new
+      output.exitcode = 1
+      output << { stderr: 'this is an error' }
       expect(shell).to receive(:powershell).with(kind_of(String)).and_return(output)
       expect(subject.test("[-x stuff] && foo")).to be_false
     end

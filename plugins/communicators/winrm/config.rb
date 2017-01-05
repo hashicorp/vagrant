@@ -13,6 +13,7 @@ module VagrantPlugins
       attr_accessor :ssl_peer_verification
       attr_accessor :execution_time_limit
       attr_accessor :basic_auth_only
+      attr_accessor :codepage
 
       def initialize
         @username               = UNSET_VALUE
@@ -27,6 +28,7 @@ module VagrantPlugins
         @ssl_peer_verification  = UNSET_VALUE
         @execution_time_limit   = UNSET_VALUE
         @basic_auth_only        = UNSET_VALUE
+        @codepage               = UNSET_VALUE
       end
 
       def finalize!
@@ -43,6 +45,7 @@ module VagrantPlugins
         @ssl_peer_verification = true if @ssl_peer_verification == UNSET_VALUE
         @execution_time_limit = "PT2H"   if @execution_time_limit == UNSET_VALUE
         @basic_auth_only = false    if @basic_auth_only == UNSET_VALUE
+        @codepage = nil        if @codepage == UNSET_VALUE
       end
 
       def validate(machine)
