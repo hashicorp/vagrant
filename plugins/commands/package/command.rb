@@ -1,4 +1,5 @@
 require 'optparse'
+require 'securerandom'
 
 module VagrantPlugins
   module CommandPackage
