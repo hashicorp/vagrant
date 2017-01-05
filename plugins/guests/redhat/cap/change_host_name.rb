@@ -31,12 +31,7 @@ module VagrantPlugins
                 sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
               }
 
-              # Restart network (through NetworkManager if running)
-              if service NetworkManager status 2>&1 | grep -q running; then
-                service NetworkManager restart
-              else
-                service network restart
-              fi
+              service network restart
             EOH
           end
         end
