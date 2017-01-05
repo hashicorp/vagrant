@@ -8,6 +8,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - command/package: Fix SecureRandom constant error [GH-8159]
+
 ## 1.9.1 (December 7, 2016)
 
 IMPROVEMENTS:
