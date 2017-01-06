@@ -398,6 +398,7 @@ module Vagrant
         end
 
         spec.full_gem_path = File.expand_path(directory)
+        spec.base_dir = File.dirname(spec.base_dir)
 
         @specs[spec.name] ||= []
         @specs[spec.name] << spec
