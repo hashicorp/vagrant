@@ -49,7 +49,7 @@ module VagrantPlugins
              (config.version.to_s.to_sym == :latest ||
               !@machine.guest.capability(:ansible_installed, config.version))
             @machine.ui.detail I18n.t("vagrant.provisioners.ansible.installing")
-            @machine.guest.capability(:ansible_install, config.install_mode, config.version)
+            @machine.guest.capability(:ansible_install, config.install_mode, config.version, config.pip_args)
           end
 
           # Check that Ansible Playbook command is available on the guest

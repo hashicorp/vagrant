@@ -8,17 +8,17 @@ module VagrantPlugins
           module AnsibleInstall
 
 
-            def self.ansible_install(machine, install_mode, ansible_version)
+            def self.ansible_install(machine, install_mode, ansible_version, pip_args)
               if (install_mode == :pip)
-                ansible_pip_install machine, ansible_version
+                ansible_pip_install machine, ansible_version, pip_args
               else
                 ansible_apt_install machine
               end
             end
 
-            def self.ansible_pip_install(machine, ansible_version)
+            def self.ansible_pip_install(machine, ansible_version, pip_args)
               pip_setup machine
-              Pip::pip_install machine, "ansible", ansible_version
+              Pip::pip_install machine, "ansible", ansible_version, pip_args
             end
 
             private
