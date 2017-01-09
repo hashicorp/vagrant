@@ -170,6 +170,8 @@ module Vagrant
       # Extra env keys are the remaining opts
       extra_env = opts.dup
 
+      check_cwd
+
       # Create a deterministic ID for this machine
       vf = nil
       vf = @env.vagrantfile_name[0] if @env.vagrantfile_name
@@ -558,6 +560,26 @@ module Vagrant
     def uid_file
       return nil if !@data_dir
       @data_dir.join("creator_uid")
+    end
+
+    def check_cwd
+      vagrant_cwd_filepath = @data_dir.join('vagrant_cwd')
+      vagrant_cwd = if File.exist?(vagrant_cwd_filepath)
+        File.read(vagrant_cwd_filepath).chomp
+      end
+
+      if vagrant_cwd
+        if vagrant_cwd != @env.cwd.to_s
+          ui.warn(I18n.t(
+            'vagrant.moved_cwd',
+            old_wd:     vagrant_cwd,
+            current_wd: @env.cwd.to_s))
+
+          File.write(vagrant_cwd_filepath, @env.cwd)
+        end
+      else
+        File.write(vagrant_cwd_filepath, @env.cwd)
+      end
     end
   end
 end
