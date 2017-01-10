@@ -163,11 +163,11 @@ module Vagrant
         local_keys = keys.dup
 
         # Load the box Vagrantfile, if there is one
-        if config.vm.box && !config.vm.box_ignore_box_vagrantfile && boxes
+        if config.vm.box && boxes
           box = boxes.find(config.vm.box, box_formats, config.vm.box_version)
           if box
             box_vagrantfile = find_vagrantfile(box.directory)
-            if box_vagrantfile
+            if box_vagrantfile && !config.vm.box_ignore_box_vagrantfile
               box_config_key =
                 "#{boxes.object_id}_#{box.name}_#{box.provider}".to_sym
               @loader.set(box_config_key, box_vagrantfile)
