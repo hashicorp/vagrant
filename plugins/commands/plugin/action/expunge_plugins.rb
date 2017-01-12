@@ -17,11 +17,26 @@ module VagrantPlugins
 
         def call(env)
           if !env[:force]
-            result = env[:ui].ask(
-              I18n.t("vagrant.commands.plugin.expunge_confirm") +
-                " [Y/N]:"
-            )
-            if result.to_s.downcase.strip != 'y'
+
+            result = nil
+            attempts = 0
+            while attempts < 5 && result.nil?
+              attempts += 1
+              result = env[:ui].ask(
+                I18n.t("vagrant.commands.plugin.expunge_confirm") +
+                  " [N]: "
+              )
+              result = result.to_s.downcase.strip
+              result = "n" if result.empty?
+              if !["y", "yes", "n", "no"].include?(result)
+                result = nil
+                env[:ui].error("Please answer Y or N")
+              else
+                result = result[0,1]
+              end
+            end
+
+            if result != 'y'
               abort_action = true
             end
           end

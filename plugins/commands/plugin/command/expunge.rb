@@ -29,11 +29,24 @@ module VagrantPlugins
           plugins = Vagrant::Plugin::Manager.instance.installed_plugins
 
           if !options[:reinstall] && !options[:force] && !plugins.empty?
-            result = @env.ui.ask(
-              I18n.t("vagrant.commands.plugin.expunge_request_reinstall") +
-                " [Y/N]:"
-            )
-            options[:reinstall] = result.to_s.downcase.strip == "y"
+            result = nil
+            attempts = 0
+            while attempts < 5 && result.nil?
+              attempts += 1
+              result = @env.ui.ask(
+                I18n.t("vagrant.commands.plugin.expunge_request_reinstall") +
+                  " [N]: "
+              )
+              result = result.to_s.downcase.strip
+              result = "n" if result.empty?
+              if !["y", "yes", "n", "no"].include?(result)
+                result = nil
+                @env.ui.error("Please answer Y or N")
+              else
+                result = result[0,1]
+              end
+            end
+            options[:reinstall] = result == "y"
           end
 
           # Remove all installed user plugins
