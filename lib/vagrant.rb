@@ -226,7 +226,9 @@ module Vagrant
       ENV.each do |k,v|
         if k.start_with?("VAGRANT_OLD_ENV")
           key = k.sub(/^VAGRANT_OLD_ENV_/, "")
-          h[key] = v
+          if !key.empty?
+            h[key] = v
+          end
         end
       end
     end
