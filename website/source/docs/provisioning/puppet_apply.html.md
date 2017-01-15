@@ -93,6 +93,8 @@ Vagrant.configure("2") do |config|
 end
 ```
 
+~> `puppet` need to be installed in the guest vm.
+
 By default, Vagrant will configure Puppet to look for manifests in the
 "manifests" folder relative to the project root, and will use the
 "default.pp" manifest as an entry-point. This means, if your directory
