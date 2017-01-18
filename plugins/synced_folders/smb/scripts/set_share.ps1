@@ -16,11 +16,11 @@ if (net share | Select-String $share_name) {
 $objSID = New-Object System.Security.Principal.SecurityIdentifier("S-1-1-0")
 $objUser = $objSID.Translate([System.Security.Principal.NTAccount])
 
-$grant = "$objUser,Full"
+$grant = "$objUser`,Full"
 
 if (![string]::IsNullOrEmpty($host_share_username)) {
     $computer_name = $(Get-WmiObject Win32_Computersystem).name
-    $grant         = "$computer_name\$host_share_username,Full"
+    $grant         = "$host_share_username`,Full"
 
     # Here we need to set the proper ACL for this folder. This lets full
     # recursive access to this folder.
