@@ -62,6 +62,9 @@ there are more detailed examples of using these options.
 * `protocol` (string) - Either "udp" or "tcp". This specifies the protocol
   that will be allowed through the forwarded port. By default this is "tcp".
 
+* `id` (string) - Name of the rule (can be visible in VirtualBox). By 
+  default this is "protocol""guest" (exemple : "tcp123").
+
 ## Forwarded Port Protocols
 
 By default, any defined port will only forward the TCP protocol. As an optional
