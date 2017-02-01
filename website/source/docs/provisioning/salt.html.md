@@ -18,6 +18,9 @@ that describes the current state a machine should be in, e.g. what
 packages should be installed, which services are running, and the
 contents of arbitrary files.
 
+_NOTE: The Salt provisioner is builtin to Vagrant. If the `vagrant-salt`
+plugin is installed, it should be uninstalled to ensure expected behavior._
+
 ## Masterless Quickstart
 
 What follows is a basic Vagrantfile that will get salt working
