@@ -13,6 +13,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - command/package: Fix SecureRandom constant error [GH-8159]
+  - core/bundler: Prevent pristine warning messages [GH-8191, GH-8190, GH-8147]
   - core/environment: Prevent persisting original environment variable if name is empty
       [GH-8198, GH-8126]
   - guests/linux: Fix guest detection for names with spaces [GH-8092]
