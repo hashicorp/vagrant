@@ -67,6 +67,13 @@ describe Vagrant::Environment do
     end
   end
 
+  describe "#gems_path" do
+    it "is set to Vagrant::Bundler defined path" do
+      instance = described_class.new
+      expect(instance.gems_path).to eq(Vagrant::Bundler.instance.plugin_gem_path)
+    end
+  end
+
   describe "#home_path" do
     it "is set to the home path given" do
       Dir.mktmpdir("vagrant-test-env-home-path-given") do |dir|
