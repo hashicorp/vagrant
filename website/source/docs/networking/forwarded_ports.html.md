@@ -44,6 +44,10 @@ This is a complete list of the options that are available for forwarded
 ports. Only the `guest` and `host` options are required. Below this section,
 there are more detailed examples of using these options.
 
+* `auto_correct` (boolean) - If true, the host port will be changed 
+  automatically in case it collides with a port already in use. By 
+  default, this is false.
+  
 * `guest` (int) - The port on the guest that you want to be exposed on
   the host. This can be any port.
 
