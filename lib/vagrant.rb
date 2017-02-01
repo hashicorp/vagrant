@@ -227,6 +227,12 @@ module Vagrant
         if k.start_with?("VAGRANT_OLD_ENV")
           key = k.sub(/^VAGRANT_OLD_ENV_/, "")
           h[key] = v
+          if key.length==0          
+            h.delete(key)
+          end
+        end
+        if k.length==0          
+          h.delete(k)
         end
       end
     end
