@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - commands/expunge: Display default value on prompt and validate input [GH-8192, GH-8171]
   - communicator/winrm: Refactor WinRM communicator to use latest WinRM
       gems and V2 API [GH-8102]
   - providers/hyperv: Prefer VMCX over XML configuration when VMCX is supported [GH-8119]
