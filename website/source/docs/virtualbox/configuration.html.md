@@ -63,7 +63,7 @@ To have backward compatibility:
 
 ```ruby
 config.vm.provider 'virtualbox' do |v|
-  v.linked_clone = true if Vagrant::VERSION >= '1.8.0'
+  v.linked_clone = true if Gem::Version.new(Vagrant::VERSION) >= Gem::Version.new('1.8.0')
 end
 ```
 
