@@ -106,6 +106,7 @@ module Vagrant
       plugin_source = Gem::Source::SpecificFile.new(path)
       plugin_info = {
         plugin_source.spec.name => {
+          "gem_version" => plugin_source.spec.version.to_s,
           "local_source" => plugin_source,
           "sources" => opts.fetch(:sources, Gem.sources.map(&:to_s))
         }
