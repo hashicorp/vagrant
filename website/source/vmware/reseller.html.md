@@ -23,7 +23,7 @@ qualify.
 
 We offer volume pricing when purchasing more than 150 licenses. If you or your
 organization plans to purchase more than 150 license seats, please contact
-support@hashicorp.com to learn more about volume discounts before making your
+sales@hashicorp.com to learn more about volume discounts before making your
 purchase.
 
 ## Quote
