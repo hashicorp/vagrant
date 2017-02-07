@@ -6,7 +6,7 @@ description: |-
   The "vagrant validate" command is used to validate your Vagrantfile.
 ---
 
-# Up
+# Validate
 
 **Command: `vagrant validate`**
 
