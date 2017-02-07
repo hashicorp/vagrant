@@ -1726,6 +1726,9 @@ en:
       up:
         upping: |-
           Bringing machine '%{name}' up with '%{provider}' provider...
+      validate:
+        success: |-
+          Vagrantfile validated successfully.
 
 #-------------------------------------------------------------------------------
 # Translations for Vagrant middleware actions
