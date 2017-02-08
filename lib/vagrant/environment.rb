@@ -121,7 +121,7 @@ module Vagrant
       @home_path  = Util::Platform.fs_real_path(@home_path)
       @boxes_path = @home_path.join("boxes")
       @data_dir   = @home_path.join("data")
-      @gems_path  = @home_path.join("gems")
+      @gems_path  = Vagrant::Bundler.instance.plugin_gem_path
       @tmp_path   = @home_path.join("tmp")
       @machine_index_dir = @data_dir.join("machine-index")
 
