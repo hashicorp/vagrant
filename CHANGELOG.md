@@ -17,6 +17,7 @@ BUG FIXES:
   - core/bundler: Prevent pristine warning messages [GH-8191, GH-8190, GH-8147]
   - core/environment: Prevent persisting original environment variable if name is empty
       [GH-8198, GH-8126]
+  - core/environment: Fix gems_path location [GH-8248]
   - guests/linux: Fix guest detection for names with spaces [GH-8092]
   - guests/redhat: Fix network interface configuration [GH-8148]
 
