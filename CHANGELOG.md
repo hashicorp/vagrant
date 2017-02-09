@@ -15,6 +15,7 @@ BUG FIXES:
 
   - command/package: Fix SecureRandom constant error [GH-8159]
   - core/bundler: Prevent pristine warning messages [GH-8191, GH-8190, GH-8147]
+  - core/bundler: Fix local installations of pre-release plugins [GH-8252, GH-8253]
   - core/environment: Prevent persisting original environment variable if name is empty
       [GH-8198, GH-8126]
   - core/environment: Fix gems_path location [GH-8248]
