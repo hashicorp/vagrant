@@ -107,7 +107,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
         nic_type: nil,
         type: :dhcp,
         dhcp_ip: "172.28.128.2",
-        dhcp_lower: "172.28.128.3",
+        dhcp_lower: "172.28.128.51",
         dhcp_upper: "172.28.128.254",
         adapter: 2
       })
