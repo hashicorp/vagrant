@@ -56,5 +56,10 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
       expect(comm.received_commands[0]).to match(/netctl restart 'eth2'/)
       expect(comm.received_commands[0]).to match(/netctl enable 'eth2'/)
     end
+
+    it "should not extraneous && joiners" do
+      cap.configure_networks(machine, [network_1, network_2])
+      expect(comm.received_commands[0]).not_to match(/^\s*&&\s*$/)
+    end
   end
 end
