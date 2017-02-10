@@ -19,6 +19,7 @@ BUG FIXES:
   - core/environment: Prevent persisting original environment variable if name is empty
       [GH-8198, GH-8126]
   - core/environment: Fix gems_path location [GH-8248]
+  - guests/arch: Fix configuring multiple network interfaces [GH-8165]
   - guests/linux: Fix guest detection for names with spaces [GH-8092]
   - guests/redhat: Fix network interface configuration [GH-8148]
 
