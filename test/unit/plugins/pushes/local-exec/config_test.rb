@@ -70,7 +70,7 @@ describe VagrantPlugins::LocalExecPush::Config do
           expect(errors).to be_empty
         end
 
-        it "passes with fixnum args" do
+        it "passes with integer args" do
           subject.args = 1
           expect(errors).to be_empty
         end
@@ -118,7 +118,7 @@ describe VagrantPlugins::LocalExecPush::Config do
           expect(errors).to be_empty
         end
 
-        it "passes with fixnum args" do
+        it "passes with integer args" do
           subject.args = 1
           expect(errors).to be_empty
         end

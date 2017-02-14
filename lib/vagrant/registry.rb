@@ -52,7 +52,7 @@ module Vagrant
 
     # Return the number of elements in this registry.
     #
-    # @return [Fixnum]
+    # @return [Integer]
     def length
       @items.keys.length
     end

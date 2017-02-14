@@ -63,10 +63,10 @@ module VagrantPlugins
       def args_valid?
         return true if !args
         return true if args.is_a?(String)
-        return true if args.is_a?(Fixnum)
+        return true if args.is_a?(Integer)
         if args.is_a?(Array)
           args.each do |a|
-            return false if !a.kind_of?(String) && !a.kind_of?(Fixnum)
+            return false if !a.kind_of?(String) && !a.kind_of?(Integer)
           end
 
           return true

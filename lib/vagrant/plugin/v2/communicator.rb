@@ -50,7 +50,7 @@ module Vagrant
         # until then. It will wait up to the given duration or raise an
         # exception if something goes wrong.
         #
-        # @param [Fixnum] duration Timeout in seconds.
+        # @param [Integer] duration Timeout in seconds.
         # @return [Boolean] Will return true on successful connection
         #   or false on timeout.
         def wait_for_ready(duration)
