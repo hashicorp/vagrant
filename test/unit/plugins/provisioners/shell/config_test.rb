@@ -30,7 +30,7 @@ describe "VagrantPlugins::Shell::Config" do
       expect(result["shell provisioner"]).to eq([])
     end
 
-    it "passes with fixnum args" do
+    it "passes with integer args" do
       subject.path = file_that_exists
       subject.args = 1
       subject.finalize!
@@ -112,7 +112,7 @@ describe "VagrantPlugins::Shell::Config" do
   end
 
   describe 'finalize!' do
-    it 'changes fixnum args into strings' do
+    it 'changes integer args into strings' do
       subject.path = file_that_exists
       subject.args = 1
       subject.finalize!
@@ -120,7 +120,7 @@ describe "VagrantPlugins::Shell::Config" do
       expect(subject.args).to eq '1'
     end
 
-    it 'changes fixnum args in arrays into strings' do
+    it 'changes integer args in arrays into strings' do
       subject.path = file_that_exists
       subject.args = ["string", 1, 2]
       subject.finalize!
