@@ -35,6 +35,26 @@ module Vagrant
         @logger  = Log4r::Logger.new("vagrant::util::subprocess")
       end
 
+      # @return [TrueClass, FalseClass] subprocess is currently running
+      def running?
+        !!(@process && @process.alive?)
+      end
+
+      # Stop the subprocess if running
+      #
+      # @return [TrueClass] FalseClass] true if process was running and stopped
+      def stop
+        if @process && @process.alive?
+          @process.stop
+          true
+        else
+          false
+        end
+      end
+
+      # Start the process
+      #
+      # @return [Result]
       def execute
         # Get the timeout, if we have one
         timeout = @options[:timeout]
@@ -62,7 +82,7 @@ module Vagrant
 
         # Build the ChildProcess
         @logger.info("Starting process: #{@command.inspect}")
-        process = ChildProcess.build(*@command)
+        @process = process = ChildProcess.build(*@command)
 
         # Create the pipes so we can read the output in real time as
         # we execute the command.
