@@ -132,7 +132,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
 
     it "prepends UUID output to command for garbage removal" do
       expect(command_channel).to receive(:send_data).
-        with("printf '#{command_garbage_marker}'\nls /\n")
+        with("printf '#{command_garbage_marker}'\n(>&2 printf '#{command_garbage_marker}')\nls /\n")
       expect(communicator.execute("ls /")).to eq(0)
     end
 
@@ -159,10 +159,30 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         stdout = ''
         expect(
           communicator.execute("ls /") do |type, data|
-            stdout << data
+            if type == :stdout
+              stdout << data
+            end
           end
         ).to eq(0)
         expect(stdout).to eq("bin\ntmp\n")
+      end
+    end
+
+    context "with garbage content prepended to command stderr output" do
+      let(:command_stderr_data) do
+        "Line of garbage\nMore garbage\n#{command_garbage_marker}bin\ntmp\n"
+      end
+
+      it "removes any garbage output prepended to command stderr output" do
+        stderr = ''
+        expect(
+          communicator.execute("ls /") do |type, data|
+            if type == :stderr
+              stderr << data
+            end
+          end
+        ).to eq(0)
+        expect(stderr).to eq("bin\ntmp\n")
       end
     end
 
