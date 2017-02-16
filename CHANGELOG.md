@@ -3,6 +3,7 @@
 FEATURES:
 
   - providers/hyperv: Support packaging of Hyper-V boxes [GH-7867]
+  - util/subprocess: Add #stop and #running? methods [GH-8270]
 
 IMPROVEMENTS:
 
