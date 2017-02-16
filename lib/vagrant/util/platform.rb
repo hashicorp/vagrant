@@ -33,6 +33,22 @@ module Vagrant
           end
         end
 
+        def wsl?
+          return @_wsl if defined?(@_wsl)
+          @_wsl = -> {
+            platform = File.read('/proc/sys/kernel/osrelease')
+            return platform.include?("Microsoft")
+          }.call
+          return @_wsl
+        end
+
+        [:darwin, :bsd, :freebsd, :linux, :solaris].each do |type|
+          define_method("#{type}?") do
+            platform.include?(type.to_s)
+          end
+        end
+
+
         def windows?
           return @_windows if defined?(@_windows)
           @_windows = %w[mingw mswin].any? { |t| platform.include?(t) }
@@ -105,6 +121,16 @@ module Vagrant
             end
           end
 
+          if wsl?
+            begin
+              path = path.gsub("\\", "/")
+              drive = path.chr.downcase
+              path = '/mnt/' + path.chr.downcase + '/' + path.sub(drive + ":", "")
+
+              return path
+            end
+          end
+
           # Sometimes cygpath isn't available (msys). Instead, do what we
           # can with bash tricks.
           process = Subprocess.execute(
@@ -120,6 +146,24 @@ module Vagrant
         #
         # @return [String]
         def cygwin_windows_path(path)
+          if wsl?
+            if path.start_with?("/mnt")
+              path = path.gsub('/mnt/', '')
+              home = path.chr.upcase + ":"
+              path.slice!(0)
+            else
+              process = Subprocess.execute(
+                "/mnt/c/Windows/System32/cmd.exe",
+                "/C \"echo %LocalAppData%\""
+              )
+              home = process.stdout.chomp.gsub("\"", "") + "\\Lxss"
+            end
+
+            path = home + path.gsub("/", "\\").gsub("\"", "")
+
+            return path
+          end
+
           return path if !cygwin?
 
           # Replace all "\" with "/", otherwise cygpath doesn't work.
