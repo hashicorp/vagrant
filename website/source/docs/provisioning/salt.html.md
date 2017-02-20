@@ -138,6 +138,9 @@ These may be used to control the output of state execution:
   Can be one of "all", "garbage", "trace", "debug", "info", or
   "warning". Requires `verbose` to be set to "true".
 
+* `verbose` (boolean) - The verbosity of the outputs. Defaults to "false".
+  Must be true for log_level taking effect and the output of the salt-commands being displayed.
+
 ## Pillar Data
 
 You can export pillar data for use during provisioning by using the ``pillar``
