@@ -18,7 +18,12 @@ module Vagrant
   # all Vagrant-installed plugins.
   class Bundler
 
-    HASHICORP_GEMSTORE = 'https://gems.hashicorp.com'.freeze
+    DEFAULT_GEM_SOURCES = [
+      "https://rubygems.org/".freeze,
+      "https://gems.hashicorp.com/".freeze
+    ].freeze
+
+    HASHICORP_GEMSTORE = "https://gems.hashicorp.com/".freeze
 
     def self.instance
       @bundler ||= self.new
@@ -209,7 +214,8 @@ module Vagrant
 
       update = {} if !update.is_a?(Hash)
       skips = []
-      installer_set = Gem::Resolver::InstallerSet.new(:both)
+      source_list = {}
+      installer_set = VagrantSet.new(:both)
 
       # Generate all required plugin deps
       plugin_deps = plugins.map do |name, info|
@@ -223,15 +229,36 @@ module Vagrant
           installer_set.add_local(plugin_source.spec.name, plugin_source.spec, plugin_source)
         end
         Array(info["sources"]).each do |source|
-          if !Gem.sources.include?(source)
-            @logger.debug("Adding RubyGems source for plugin install: #{source}")
-            Gem.sources << source
+          source_list[name] ||= []
+          if !source.end_with?("/")
+            source = source + "/"
           end
+          source_list[name] << source
         end
         Gem::Dependency.new(name, gem_version)
       end
 
       @logger.debug("Dependency list for installation: #{plugin_deps}")
+
+      all_sources = source_list.values.flatten.uniq
+      default_sources = DEFAULT_GEM_SOURCES & all_sources
+      all_sources -= DEFAULT_GEM_SOURCES
+
+      @logger.debug("Enabling user defined remote RubyGems sources")
+      all_sources.each do |src|
+        @logger.debug("Adding RubyGems source #{src}")
+        Gem.sources << src
+      end
+
+      @logger.debug("Enabling default remote RubyGems sources")
+      default_sources.each do |src|
+        @logger.debug("Adding source - #{src}")
+        installer_set.prefer_sources.push(src)
+        Gem.sources << src
+      end
+      installer_set.prefer_sources = source_list
+
+      @logger.debug("Current source list for install: #{Gem.sources}")
 
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
@@ -356,6 +383,29 @@ module Vagrant
           solution.reverse!
           retry
         end
+      end
+    end
+
+    # This is a custom Gem::Resolver::InstallerSet. It will prefer sources which are
+    # explicitly provided over default sources when matches are found. This is generally
+    # the entire set used for performing full resolutions on install.
+    class VagrantSet < Gem::Resolver::InstallerSet
+      attr_accessor :prefer_sources
+
+      def initialize(domain, defined_sources={})
+        @prefer_sources = defined_sources
+        super(domain)
+      end
+
+      # Allow InstallerSet to find matching specs, then filter
+      # for preferred sources
+      def find_all(req)
+        result = super
+        subset = result.find_all do |idx_spec|
+          prefer_sources[req.name] &&
+            prefer_sources[req.name].include?(idx_spec.source.uri.to_s)
+        end
+        subset.empty? ? result : subset
       end
     end
 
