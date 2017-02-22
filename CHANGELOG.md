@@ -14,6 +14,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - command/init: Include box version when using minimal option [GH-8283, GH-8282]
   - command/package: Fix SecureRandom constant error [GH-8159]
   - core/bundler: Prevent pristine warning messages [GH-8191, GH-8190, GH-8147]
   - core/bundler: Fix local installations of pre-release plugins [GH-8252, GH-8253]
