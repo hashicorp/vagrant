@@ -8,7 +8,7 @@ shared_examples "provider/network/intnet" do |provider, options|
 
   before do
     environment.skeleton("network_intnet")
-    assert_execute("vagrant", "box", "add", "box", options[:box])
+    assert_execute("vagrant", "box", "add", options[:box])
     assert_execute("vagrant", "up", "--provider=#{provider}")
   end
 
