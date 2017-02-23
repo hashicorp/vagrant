@@ -13,10 +13,6 @@ body {
   font-weight: 400;
 }
 
-h1, h2, h3, h4, h5 {
-  font-family: $font-family-klavika;
-}
-
 h1 {
   font-size: 42px;
   line-height: 42px;
@@ -24,7 +20,7 @@ h1 {
 }
 
 h2 {
-  text-transform: uppercase;
+  font-size: 36px;
   margin-top: 70px;
 }
 
@@ -33,13 +29,12 @@ h1 + h2 {
 }
 
 h3 {
-  font-size: 28px;
+  font-size: 24px;
   line-height: 28px;
 }
 
 p, a {
   font-family: $font-family-open-sans;
-  font-family: $font-weight-open-sans-reg;
 }
 
 .highlight{
