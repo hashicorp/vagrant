@@ -17,7 +17,6 @@
         text-shadow: 0 1px 10px rgba(255, 255, 255, 0.4);
 
         h1 {
-          @include museo-sans-light;
           color: $purple-text;
           font-size: 55px;
           font-weight: 700;
@@ -26,7 +25,6 @@
         }
 
         h2 {
-          @include museo-sans-light;
           color: $blue-text;
           font-size: 28px;
           font-weight: 100;
@@ -68,13 +66,11 @@
         font-size: 40px;
         margin-bottom: $baseline;
         color: $purple-text;
-        @include museo-sans-light;
       }
 
       h4 {
         font-size: 20px;
         line-height: $baseline * 1.5;
-        @include museo-sans-light;
       }
     }
   }
@@ -102,7 +98,6 @@
 
     h1 {
       color: $dark-gray-text;
-      @include museo-sans-light;
     }
 
     .customer-logos {

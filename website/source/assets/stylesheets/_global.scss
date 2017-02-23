@@ -13,17 +13,19 @@ body {
   font-weight: 300;
 }
 
+h1, h2, h3, h4, h5 {
+  font-family: $font-family-klavika;
+}
+
 h1 {
   font-size: 42px;
   line-height: 42px;
-  font-family: $font-family-museo-sans;
   font-weight: $font-weight-museo-sans-sb;
   margin-bottom: 24px;
 }
 
 h2 {
   text-transform: uppercase;
-  font-family: $font-family-museo-sans;
   font-weight: $font-weight-museo-sans-sb;
   margin-top: 70px;
 }
@@ -35,8 +37,11 @@ h1 + h2 {
 h3 {
   font-size: 28px;
   line-height: 28px;
-  font-family: $font-family-museo-sans;
   font-weight: $font-weight-museo-sans-sb;
+}
+
+p, a {
+  font-family: $font-family-open-sans;
 }
 
 .highlight{
@@ -48,7 +53,7 @@ pre {
   color: $white;
   font-size: 14px;
   font-weight: normal;
-  font-family: $font-family-monospace;
+  font-family: $font-family-mono;
   border: none;
   padding: 20px;
   margin-bottom: 0;
