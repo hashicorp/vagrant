@@ -14,9 +14,8 @@
   text-decoration: none;
   text-transform: uppercase;
   font-size: 25px;
-  letter-spacing: 5px;
+  letter-spacing: 2px;
 
-  @include museo-sans-light;
   @include rounded;
   @include hover;
 
