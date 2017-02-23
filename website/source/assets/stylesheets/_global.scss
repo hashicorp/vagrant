@@ -20,13 +20,11 @@ h1, h2, h3, h4, h5 {
 h1 {
   font-size: 42px;
   line-height: 42px;
-  font-weight: $font-weight-museo-sans-sb;
   margin-bottom: 24px;
 }
 
 h2 {
   text-transform: uppercase;
-  font-weight: $font-weight-museo-sans-sb;
   margin-top: 70px;
 }
 
@@ -37,7 +35,6 @@ h1 + h2 {
 h3 {
   font-size: 28px;
   line-height: 28px;
-  font-weight: $font-weight-museo-sans-sb;
 }
 
 p, a {
