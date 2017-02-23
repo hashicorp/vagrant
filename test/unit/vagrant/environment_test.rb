@@ -1030,6 +1030,16 @@ VF
       end
     end
 
+    context "with environmental variable VAGRANT_DOTFILE_PATH set with tilde" do
+      it "is set relative to the user's home directory" do
+        with_temp_env("VAGRANT_DOTFILE_PATH" => "~/.vagrant") do
+          instance = env.create_vagrant_env
+          expect(instance.cwd).to eq(env.workdir)
+          expect(instance.local_data_path.to_s).to eq(File.join(Dir.home, ".vagrant"))
+        end
+      end
+    end
+
     describe "upgrading V1 dotfiles" do
       let(:v1_dotfile_tempfile) do
         Tempfile.new("vagrant-upgrade-dotfile").tap do |f|
