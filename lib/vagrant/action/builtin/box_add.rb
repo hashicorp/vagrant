@@ -168,12 +168,15 @@ module Vagrant
             url               = url[0]
           end
 
+          display_original_url = Util::CredentialScrubber.scrub(Array(original_url).first)
+          display_url = Util::CredentialScrubber.scrub(url)
+
           env[:ui].output(I18n.t(
             "vagrant.box_loading_metadata",
-            name: Array(original_url).first))
+            name: display_original_url))
           if original_url != url
             env[:ui].detail(I18n.t(
-              "vagrant.box_expanding_url", url: url))
+              "vagrant.box_expanding_url", url: display_url))
           end
 
           metadata = nil
@@ -189,8 +192,8 @@ module Vagrant
             raise if !expanded
             raise Errors::BoxAddShortNotFound,
               error: e.extra_data[:message],
-              name: original_url,
-              url: url
+              name: display_original_url,
+              url: display_url
           ensure
             metadata_path.delete if metadata_path && metadata_path.file?
           end
@@ -208,12 +211,12 @@ module Vagrant
               raise Errors::BoxAddNoMatchingProvider,
                 name: metadata.name,
                 requested: provider,
-                url: url
+                url: display_url
             else
               raise Errors::BoxAddNoMatchingVersion,
                 constraints: version || ">= 0",
                 name: metadata.name,
-                url: url,
+                url: display_url,
                 versions: metadata.versions.join(", ")
             end
           end
@@ -265,7 +268,7 @@ module Vagrant
               raise "Bad box authentication hook, did not generate proper results."
             end
             provider_url = authed_urls[0]
-        end
+          end
 
           box_add(
             [[provider_url, metadata_provider.url]],
@@ -429,6 +432,7 @@ module Vagrant
           if opts[:ui]
             show_url = opts[:show_url]
             show_url ||= url
+            display_url = Util::CredentialScrubber.scrub(show_url)
 
             translation = "vagrant.box_downloading"
 
@@ -439,7 +443,7 @@ module Vagrant
 
             env[:ui].detail(I18n.t(
               translation,
-              url: show_url))
+              url: display_url))
             if File.file?(d.destination)
               env[:ui].info(I18n.t("vagrant.actions.box.download.resuming"))
             end
