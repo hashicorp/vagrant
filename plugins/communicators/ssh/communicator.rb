@@ -496,6 +496,8 @@ module VagrantPlugins
 
           marker_found = false
           data_buffer = ''
+          stderr_marker_found = false
+          stderr_data_buffer = ''
 
           ch.exec(shell_cmd(opts)) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
@@ -512,7 +514,7 @@ module VagrantPlugins
                   if marker_index
                     marker_found = true
                     data_buffer.slice!(0, marker_index + CMD_GARBAGE_MARKER.size)
-                    data.replace data_buffer
+                    data.replace(data_buffer)
                     data_buffer = nil
                   end
                 end
@@ -527,7 +529,20 @@ module VagrantPlugins
               # Filter out the clear screen command
               data = remove_ansi_escape_codes(data)
               @logger.debug("stderr: #{data}")
-              yield :stderr, data if block_given?
+              if !stderr_marker_found
+                stderr_data_buffer << data
+                marker_index = stderr_data_buffer.index(CMD_GARBAGE_MARKER)
+                if marker_index
+                  marker_found = true
+                  stderr_data_buffer.slice!(0, marker_index + CMD_GARBAGE_MARKER.size)
+                  data.replace(stderr_data_buffer)
+                  data_buffer = nil
+                end
+              end
+
+              if block_given? && marker_found
+                yield :stderr, data
+              end
             end
 
             ch2.on_request("exit-status") do |ch3, data|
@@ -583,7 +598,7 @@ module VagrantPlugins
               data = data.force_encoding('ASCII-8BIT')
               ch2.send_data data
             else
-              ch2.send_data "printf '#{CMD_GARBAGE_MARKER}'\n#{command}\n".force_encoding('ASCII-8BIT')
+              ch2.send_data "printf '#{CMD_GARBAGE_MARKER}'\n(>&2 printf '#{CMD_GARBAGE_MARKER}')\n#{command}\n".force_encoding('ASCII-8BIT')
               # Remember to exit or this channel will hang open
               ch2.send_data "exit\n"
             end
