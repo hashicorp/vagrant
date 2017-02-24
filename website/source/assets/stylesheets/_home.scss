@@ -27,7 +27,6 @@
 
         h1 {
           color: $purple-text;
-          // font-size: 55px;
           line-height: 1;
           margin-top: 350px;
         }
@@ -121,6 +120,23 @@
 
         #button-get-started {
           margin-left: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .page-home {
+    .hero {
+      background: $gray-background image-url("vagrant_header_background.png") no-repeat center -60px;
+      background-size: 1292px 532px;
+
+      .hero-content {
+        hgroup {
+          h1 {
+            margin-top: 280px;
+          }
         }
       }
     }
