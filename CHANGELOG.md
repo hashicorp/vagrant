@@ -18,6 +18,7 @@ BUG FIXES:
 
   - command/init: Include box version when using minimal option [GH-8283, GH-8282]
   - command/package: Fix SecureRandom constant error [GH-8159]
+  - communicator/ssh: Remove any STDERR output prior to command execution [GH-8291, GH-8288]
   - core/bundler: Prevent pristine warning messages [GH-8191, GH-8190, GH-8147]
   - core/bundler: Fix local installations of pre-release plugins [GH-8252, GH-8253]
   - core/bundler: Prefer user defined source when installing plugins [GH-8273, GH-8210]
