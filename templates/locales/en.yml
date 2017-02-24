@@ -664,6 +664,9 @@ en:
         Additionally, the created environment must be started with a provider
         matching this provider. For example, if you're using VirtualBox,
         the clone environment must also be using VirtualBox.
+      command_deprecated: |-
+        The command 'vagrant %{name}' has been deprecated and is no longer functional
+        within Vagrant.
       command_unavailable: |-
         The executable '%{file}' Vagrant is trying to run was not
         found in the PATH variable. This is an error. Please verify
@@ -1568,6 +1571,9 @@ en:
 # Translations for commands. e.g. `vagrant x`
 #-------------------------------------------------------------------------------
     commands:
+      deprecated: |-
+        [DEPRECATION WARNING]: The Vagrant command 'vagrant %{name}' is scheduled be
+        deprecated in an upcoming Vagrant release.
       common:
         vm_already_running: |-
           VirtualBox VM is already running.

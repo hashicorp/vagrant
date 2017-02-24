@@ -292,6 +292,10 @@ module Vagrant
       error_key(:clone_machine_not_found)
     end
 
+    class CommandDeprecated < VagrantError
+      error_key(:command_deprecated)
+    end
+
     class CommandUnavailable < VagrantError
       error_key(:command_unavailable)
     end
