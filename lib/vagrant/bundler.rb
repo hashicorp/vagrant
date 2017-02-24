@@ -253,7 +253,6 @@ module Vagrant
       @logger.debug("Enabling default remote RubyGems sources")
       default_sources.each do |src|
         @logger.debug("Adding source - #{src}")
-        installer_set.prefer_sources.push(src)
         Gem.sources << src
       end
       installer_set.prefer_sources = source_list
