@@ -165,7 +165,6 @@ body.layout-intro {
 }
 }
 
-
 .bs-docs-section {
   padding-top: 10px;
   padding-left: 3%;
@@ -209,6 +208,11 @@ body.layout-intro {
     max-width: 650px;
     margin-top: 25px;
     margin-bottom: 25px;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: $font-family-open-sans;
+    font-weight: $font-weight-b;
   }
 
   h1 {
