@@ -3,6 +3,7 @@
 FEATURES:
 
   - providers/hyperv: Support packaging of Hyper-V boxes [GH-7867]
+  - util/command_deprecation: Add utility module for command deprecation [GH-8300]
   - util/subprocess: Add #stop and #running? methods [GH-8270]
 
 IMPROVEMENTS:
@@ -27,6 +28,10 @@ BUG FIXES:
   - guests/arch: Fix configuring multiple network interfaces [GH-8165]
   - guests/linux: Fix guest detection for names with spaces [GH-8092]
   - guests/redhat: Fix network interface configuration [GH-8148]
+
+DEPRECATIONS:
+
+  - command/push: Disable push command [GH-8300]
 
 ## 1.9.1 (December 7, 2016)
 
