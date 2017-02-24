@@ -70,6 +70,8 @@ module VagrantPlugins
 
         return name
       end
+
+      include Vagrant::Util::CommandDeprecation::Complete
     end
   end
 end
