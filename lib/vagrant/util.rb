@@ -1,6 +1,7 @@
 module Vagrant
   module Util
     autoload :Busy,                      'vagrant/util/busy'
+    autoload :CommandDeprecation,        'vagrant/util/command_deprecation'
     autoload :Counter,                   'vagrant/util/counter'
     autoload :CredentialScrubber,        'vagrant/util/credential_scrubber'
     autoload :Env,                       'vagrant/util/env'
