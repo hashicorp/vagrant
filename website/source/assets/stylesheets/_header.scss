@@ -13,13 +13,13 @@
   .navbar-brand {
     .logo {
       width: $project-logo-width;
+      height: $header-height;
       padding: 0;
       line-height: $header-height;
       background-position: 0 center;
       font-size: 0;
       text-transform: uppercase;
-      @include img-retina("logo-header.png", "logo-header@2x.png", $project-logo-width, $project-logo-height);
-      background-position: 0 center;
+      background: image-url("logo-header.svg") center no-repeat;
 
       &:hover{
         opacity: .4;
