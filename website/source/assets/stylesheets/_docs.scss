@@ -95,16 +95,11 @@ body.layout-intro {
           -webkit-font-smoothing: antialiased;
         }
 
-        /*> a:hover,
-        > a:focus {
-        font-weight: $font-weight-museo-sans-xb;
-      }*/
-
       .nav {
         display: block;
 
         li.active a {
-          font-weight: $font-weight-museo-sans-xb;
+          font-weight: $font-weight-b;
         }
 
         li a {
@@ -128,7 +123,7 @@ body.layout-intro {
           }
 
           li.active a {
-            font-weight: $font-weight-museo-sans-xb;
+            font-weight: $font-weight-b;
           }
         }
       }
@@ -136,8 +131,6 @@ body.layout-intro {
 
     > a {
       text-transform: uppercase;
-      font-family: $font-family-museo-sans;
-      font-weight: $font-weight-museo-sans-sb;
       -webkit-font-smoothing: antialiased;
     }
   }
@@ -151,7 +144,6 @@ body.layout-intro {
 
       > a {
         -webkit-font-smoothing: antialiased;
-        font-family: $font-family-museo-sans;
         padding: 6px 15px;
       }
 
@@ -165,7 +157,6 @@ body.layout-intro {
 
           > a {
             -webkit-font-smoothing: antialiased;
-            font-family: $font-family-museo-sans;
           }
         }
       }
@@ -173,7 +164,6 @@ body.layout-intro {
   }
 }
 }
-
 
 .bs-docs-section {
   padding-top: 10px;
@@ -190,8 +180,7 @@ body.layout-intro {
 
   p, li, .alert {
     font-size: 20px;
-    font-family: $font-family-museo-sans;
-    font-weight: $font-weight-museo-sans;
+    font-family: $font-family-open-sans;
     line-height: 1.5em;
     margin: 0 0 18px;
     -webkit-font-smoothing: antialiased;
@@ -206,6 +195,7 @@ body.layout-intro {
   }
 
   a {
+    font-family: $font-family-open-sans;
     color: $vagrant-blue;
 
     &:hover{
@@ -218,6 +208,11 @@ body.layout-intro {
     max-width: 650px;
     margin-top: 25px;
     margin-bottom: 25px;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: $font-family-open-sans;
+    font-weight: $font-weight-b;
   }
 
   h1 {

@@ -38,11 +38,10 @@ $primary-button-color: #48b4fb;
 
 // Typography
 // -------------------------
-$font-family-museo-sans: "Museo Sans", "Helvetica Neue", helvetica, arial, sans-serif;
-$font-weight-museo-sans-xl: 100;
-$font-weight-museo-sans-reg: 300;
-$font-weight-museo-sans-sb: 500;
-$font-weight-museo-sans-xb: 700;
-$font-weight-museo-sans: $font-weight-museo-sans-reg;
-
-$font-family-monospace: "Courier New", monospace;
+$font-family-open-sans:       "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-klavika:         "klavika-web", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-family-mono:            "Courier New", Monaco, Menlo, Consolas, monospace;
+$font-weight-l:               300;
+$font-weight-reg:             400;
+$font-weight-b:               600;
+$font-weight-xb:              700;

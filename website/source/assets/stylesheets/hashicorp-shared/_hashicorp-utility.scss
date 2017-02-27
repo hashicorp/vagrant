@@ -3,12 +3,11 @@
 //
 // Notes:
 // - Include this in Application.scss before header and feature-footer
-// - museo-sans Google (Semibold - 600) font needs to be included if not already
+// - Open Sans and Klavika fonts needs to be included if not already
 // --------------------------------------------------
 
 // Variables
-$font-family-museo-sans:  'museo-sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-$header-font-family: $font-family-museo-sans;
+$header-font-family: $font-family-open-sans;
 $header-font-weight: 600; // semi-bold
 
 $header-height: 74px;
@@ -63,22 +62,22 @@ $nav-margin-right: 12px;
 }
 
 @mixin open-light() {
-  font-family: $font-family-museo-sans;
+  font-family: $font-family-open-sans;
   font-weight: 300;
 }
 
 @mixin open() {
-  font-family: $font-family-museo-sans;
+  font-family: $font-family-open-sans;
   font-weight: 400;
 }
 
 @mixin open-sb() {
-  font-family: $font-family-museo-sans;
+  font-family: $font-family-open-sans;
   font-weight: 600;
 }
 
 @mixin open-bold() {
-  font-family: $font-family-museo-sans;
+  font-family: $font-family-open-sans;
   font-weight: 700;
 }
 

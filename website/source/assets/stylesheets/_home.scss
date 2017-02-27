@@ -1,11 +1,20 @@
 .page-home {
-  h1 {
+
+  h1, h2, h3, h4, h5 {
+    color: $purple-text;
+    font-family: $font-family-klavika;
+    text-transform: uppercase;
     text-align: center;
+  }
+
+  p {
+    color: $purple-text;
   }
 
   .hero {
     @include padded;
-    background: $gray-background image-url("vagrant_header_background.png") no-repeat center -80px;
+    background: $gray-background image-url("vagrant_header_background.png") no-repeat center -20px;
+    background-size: 1292px 532px;
     text-align: center;
     border-bottom: 1px solid #c6e0f0;
 
@@ -17,22 +26,13 @@
         text-shadow: 0 1px 10px rgba(255, 255, 255, 0.4);
 
         h1 {
-          @include museo-sans-light;
           color: $purple-text;
-          font-size: 55px;
-          font-weight: 700;
-          line-height: 60px;
-          margin-bottom: ($baseline * 4);
+          line-height: 1;
+          margin-top: 350px;
         }
 
-        h2 {
-          @include museo-sans-light;
-          color: $blue-text;
-          font-size: 28px;
-          font-weight: 100;
-          letter-spacing: 1.6px;
-          line-height: 40px;
-          text-transform: none;
+        p {
+          color: $vagrant-blue;
         }
       }
 
@@ -50,12 +50,8 @@
     @include padded;
     background: $light-blue-background image-url("steps_background.png") center -120px;
 
-    h1 {
+    h2 {
       color: $blue-text;
-      text-transform: uppercase;
-      text-align: center;
-      font-size: 40px;
-      line-height: 50px;
     }
 
     hgroup {
@@ -63,18 +59,13 @@
       // width: 530px;
 
       h3 {
-        text-align: center;
-        text-transform: uppercase;
-        font-size: 40px;
+        font-weight: bold;
         margin-bottom: $baseline;
-        color: $purple-text;
-        @include museo-sans-light;
       }
 
       h4 {
         font-size: 20px;
         line-height: $baseline * 1.5;
-        @include museo-sans-light;
       }
     }
   }
@@ -83,7 +74,7 @@
     @include padded;
     @include get-started-bg;
 
-    h1 {
+    h2 {
       color: $white;
     }
 
@@ -100,9 +91,8 @@
     background-color: $black;
     border-bottom: 1px solid #333;
 
-    h1 {
+    h2 {
       color: $dark-gray-text;
-      @include museo-sans-light;
     }
 
     .customer-logos {
@@ -130,6 +120,23 @@
 
         #button-get-started {
           margin-left: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .page-home {
+    .hero {
+      background: $gray-background image-url("vagrant_header_background.png") no-repeat center -60px;
+      background-size: 1292px 532px;
+
+      .hero-content {
+        hgroup {
+          h1 {
+            margin-top: 280px;
+          }
         }
       }
     }
