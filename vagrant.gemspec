@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "net-ssh", "~> 3.0.1"
   s.add_dependency "net-sftp", "~> 2.1"
-  s.add_dependency "net-scp", "~> 1.1.0"
+  s.add_dependency "net-scp", "~> 1.2.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rest-client", ">= 1.6.0", "< 3.0"
   s.add_dependency "wdm", "~> 0.1.0"
@@ -44,7 +44,7 @@ Gem::Specification.new do |s|
   # Constraint rake to properly handle deprecated method usage
   # from within rspec
   s.add_development_dependency "rake", "~> 11.3.0"
-  s.add_development_dependency "rspec", "~> 2.14.0"
+  s.add_development_dependency "rspec", "~> 3.5.0"
   s.add_development_dependency "webmock", "~> 1.20"
   s.add_development_dependency "fake_ftp", "~> 0.1"
 
