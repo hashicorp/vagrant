@@ -64,16 +64,6 @@ module VagrantPlugins
         # @return [String]
         attr_accessor :installer_download_path
 
-        # @deprecated
-        def prerelease=(value)
-          STDOUT.puts <<-EOH
-[DEPRECATED] The configuration `chef.prerelease' has been deprecated. Please use
-`chef.channel' instead. The default value for channel is "stable", which
-includes the latest published versions of the Chef Client. You can choose to use
-prerelease versions by setting the channel to "current".
-EOH
-        end
-
         def initialize
           super
 

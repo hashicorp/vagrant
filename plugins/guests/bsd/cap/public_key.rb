@@ -22,14 +22,13 @@ module VagrantPlugins
           # Use execute (not sudo) because we want to execute this as the SSH
           # user (which is "vagrant" by default).
           comm.execute <<-EOH.gsub(/^ {12}/, "")
-            set -e
-
             mkdir -p ~/.ssh
-            chmod 0700 ~/.ssh
-            cat '#{remote_path}' >> ~/.ssh/authorized_keys
-            chmod 0600 ~/.ssh/authorized_keys
-
+            chmod 0700 ~/.ssh &&
+              cat '#{remote_path}' >> ~/.ssh/authorized_keys &&
+              chmod 0600 ~/.ssh/authorized_keys
+            result=$?
             rm -f '#{remote_path}'
+            exit $result
           EOH
         end
 
@@ -49,15 +48,16 @@ module VagrantPlugins
           # Use execute (not sudo) because we want to execute this as the SSH
           # user (which is "vagrant" by default).
           comm.execute <<-EOH.sub(/^ {12}/, "")
-            set -e
-
+            result=0
             if test -f ~/.ssh/authorized_keys; then
-              grep -v -x -f '#{remote_path}' ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.tmp
-              mv ~/.ssh/authorized_keys.tmp ~/.ssh/authorized_keys
-              chmod 0600 ~/.ssh/authorized_keys
+              grep -v -x -f '#{remote_path}' ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.tmp &&
+                mv ~/.ssh/authorized_keys.tmp ~/.ssh/authorized_keys &&
+                chmod 0600 ~/.ssh/authorized_keys
+              result=$?
             fi
 
             rm -f '#{remote_path}'
+            exit $result
           EOH
         end
       end

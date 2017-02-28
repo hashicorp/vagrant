@@ -1,20 +1,30 @@
-# VagrantUp.com
+# Vagrant Website
 
-This is the repository for the [Vagrant website](https://www.vagrantup.com).
-
-This is a [Middleman](https://middlemanapp.com) project, which builds a static
-site from these source files. The site is hosted fronted by
-[Fastly](https://www.fastly.com).
+This subdirectory contains the entire source for the [Vagrant Website](https://www.vagrantup.com/).
+This is a [Middleman](http://middlemanapp.com) project, which builds a static
+site from these source files.
 
 ## Contributions Welcome!
 
 If you find a typo or you feel like you can improve the HTML, CSS, or
 JavaScript, we welcome contributions. Feel free to open issues or pull
-requests like any normal GitHub project, and we will merge it in.
+requests like any normal GitHub project, and we'll merge it in.
 
 ## Running the Site Locally
 
-Running the site locally is simple. Clone this repo and run `make dev`.
+To run the site locally, clone this repository and run:
 
-Then open up `localhost:4567`. Note that some URLs you may need to append
-".html" to make them work (in the navigation and such).
+```shell
+$ make website
+```
+
+You must have Docker installed for this to work.
+
+Alternatively, you can manually run the website like this:
+
+```shell
+$ bundle
+$ bundle exec middleman server
+```
+
+Then open up `http://localhost:4567`.

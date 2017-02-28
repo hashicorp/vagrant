@@ -7,6 +7,9 @@ module Vagrant
     # thread. In that case, `safe_exec` automatically falls back to
     # forking.
     class SafeExec
+
+      @@logger = Log4r::Logger.new("vagrant::util::safe_exec")
+
       def self.exec(command, *args)
         # Create a list of things to rescue from. Since this is OS
         # specific, we need to do some defined? checks here to make
@@ -18,10 +21,27 @@ module Vagrant
 
         fork_instead = false
         begin
-          pid = nil
-          pid = fork if fork_instead
-          Kernel.exec(command, *args) if pid.nil?
-          Process.wait(pid) if pid
+          if fork_instead
+            if Vagrant::Util::Platform.windows?
+              @@logger.debug("Using subprocess because windows platform")
+              args = args.dup << {notify: [:stdout, :stderr]}
+              result = Vagrant::Util::Subprocess.execute(command, *args) do |type, data|
+                case type
+                when :stdout
+                  @@logger.info(data, new_line: false)
+                when :stderr
+                  @@logger.info(data, new_line: false)
+                end
+              end
+              Kernel.exit(result.exit_code)
+            else
+              pid = fork
+              Kernel.exec(command, *args)
+              Process.wait(pid)
+            end
+          else
+            Kernel.exec(command, *args)
+          end
         rescue *rescue_from
           # We retried already, raise the issue and be done
           raise if fork_instead

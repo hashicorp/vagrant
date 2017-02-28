@@ -31,10 +31,9 @@ describe "VagrantPlugins::GuestBSD::Cap::NFS" do
       }
       cap.mount_nfs_folder(machine, ip, folders)
 
-      expect(comm.received_commands[0]).to match(/set -e/)
       expect(comm.received_commands[0]).to match(/mkdir -p \/guest/)
-      expect(comm.received_commands[0]).to match(/mount -t nfs/)
-      expect(comm.received_commands[0]).to match(/1.2.3.4:\/host \/guest/)
+      expect(comm.received_commands[1]).to match(/mount -t nfs/)
+      expect(comm.received_commands[1]).to match(/1.2.3.4:\/host \/guest/)
     end
 
     it "mounts with options" do
@@ -49,7 +48,7 @@ describe "VagrantPlugins::GuestBSD::Cap::NFS" do
       }
       cap.mount_nfs_folder(machine, ip, folders)
 
-      expect(comm.received_commands[0]).to match(/mount -t nfs -o 'nfsv2,mntudp,banana'/)
+      expect(comm.received_commands[1]).to match(/mount -t nfs -o 'nfsv2,mntudp,banana'/)
     end
 
     it "escapes host and guest paths" do
@@ -61,8 +60,8 @@ describe "VagrantPlugins::GuestBSD::Cap::NFS" do
       }
       cap.mount_nfs_folder(machine, ip, folders)
 
-      expect(comm.received_commands[0]).to match(/host\\\'s/)
-      expect(comm.received_commands[0]).to match(/guest\\\ with\\\ spaces/)
+      expect(comm.received_commands[1]).to match(/host\\\'s/)
+      expect(comm.received_commands[1]).to match(/guest\\\ with\\\ spaces/)
     end
   end
 end

@@ -85,6 +85,9 @@ The provisioners in this case will output "A", then "C", then "B". Notice
 that "B" is last. That is because the ordering is outside-in, in
 the order of the file.
 
+If you want to apply a slightly different configuration to multiple machines,
+see [this tip](/docs/vagrantfile/tips.html#loop-over-vm-definitions).
+
 ## Controlling Multiple Machines
 
 The moment more than one machine is defined within a Vagrantfile, the

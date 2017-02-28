@@ -48,7 +48,7 @@ module VagrantPlugins
         run_cmd += volumes.map { |v| ['-v', v.to_s] }
         run_cmd += %W(--privileged) if params[:privileged]
         run_cmd += %W(-h #{params[:hostname]}) if params[:hostname]
-        run_cmd << "-i" << "-t" if params[:pty]
+        run_cmd << "-t" if params[:pty]
         run_cmd << "--rm=true" if params[:rm]
         run_cmd += params[:extra_args] if params[:extra_args]
         run_cmd += [image, cmd]

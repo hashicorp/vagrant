@@ -13,10 +13,8 @@ module VagrantPlugins
         def self.mount_nfs_folder(machine, ip, folders)
           comm = machine.communicate
 
+          # Mount each folder separately so we can retry.
           folders.each do |name, opts|
-            # Mount each folder separately so we can retry.
-            commands = ["set -e"]
-
             # Shellescape the paths in case they do not have special characters.
             guest_path = Shellwords.escape(opts[:guestpath])
             host_path  = Shellwords.escape(opts[:hostpath])
@@ -30,22 +28,24 @@ module VagrantPlugins
             end
             mount_opts = mount_opts.join(",")
 
-            # Make the directory on the guest.
-            commands << "mkdir -p #{guest_path}"
+            machine.communicate.sudo("mkdir -p #{guest_path}")
 
-            # Perform the mount operation.
-            commands << "mount -o #{mount_opts} #{ip}:#{host_path} #{guest_path}"
-
-            # Emit a mount event
-            commands << <<-EOH.gsub(/^ {14}/, '')
-              if command -v /sbin/init && /sbin/init --version | grep upstart; then
-                /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guest_path}
+            # Perform the mount operation and emit mount event if applicable
+            command = <<-EOH.gsub(/^ */, '')
+              mount -o #{mount_opts} #{ip}:#{host_path} #{guest_path}
+              result=$?
+              if test $result -eq 0; then
+                if test -x /sbin/initctl && command -v /sbin/init && /sbin/init 2>/dev/null --version | grep upstart; then
+                  /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guest_path}
+                fi
+              else
+                exit $result
               fi
             EOH
 
             # Run the command, raising a specific error.
             retryable(on: Vagrant::Errors::NFSMountFailed, tries: 3, sleep: 5) do
-              machine.communicate.sudo(commands.join("\n"),
+              machine.communicate.sudo(command,
                 error_class: Vagrant::Errors::NFSMountFailed,
               )
             end

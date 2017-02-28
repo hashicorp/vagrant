@@ -20,6 +20,7 @@ module VagrantPlugins
 
           check_files_existence
           warn_for_unsupported_platform
+
           execute_ansible_galaxy_from_host if config.galaxy_role_file
           execute_ansible_playbook_from_host
         end
@@ -88,6 +89,8 @@ module VagrantPlugins
         end
 
         def execute_ansible_galaxy_from_host
+          prepare_ansible_config_environment_variable
+
           command_values = {
             role_file: get_galaxy_role_file,
             roles_path: get_galaxy_roles_path
@@ -97,23 +100,23 @@ module VagrantPlugins
 
           command = str_command.split(VAGRANT_ARG_SEPARATOR)
           command << {
+            env: @environment_variables,
             # Write stdout and stderr data, since it's the regular Ansible output
             notify: [:stdout, :stderr],
             workdir: @machine.env.root_path.to_s
           }
 
-          # FIXME: role_file and roles_path arguments should be quoted in the console output
-          ui_running_ansible_command "galaxy", str_command.gsub(VAGRANT_ARG_SEPARATOR, ' ')
+          ui_running_ansible_command "galaxy", ansible_galaxy_command_for_shell_execution
 
           execute_command_from_host command
         end
 
         def execute_ansible_playbook_from_host
-          prepare_command_arguments
           prepare_environment_variables
+          prepare_command_arguments
 
           # Assemble the full ansible-playbook command
-          command = %w(ansible-playbook) << @command_arguments
+          command = [config.playbook_command] << @command_arguments
 
           # Add the raw arguments at the end, to give them the highest precedence
           command << config.raw_arguments if config.raw_arguments
@@ -234,6 +237,7 @@ module VagrantPlugins
             proxy_cmd += " exec nc %h %p 2>/dev/null"
 
             ssh_options << "-o ProxyCommand='#{ proxy_cmd }'"
+            # TODO ssh_options << "-o ProxyCommand=\"#{ proxy_cmd }\""
           end
 
           # Use an SSH ProxyCommand when corresponding Vagrant setting is defined

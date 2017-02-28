@@ -63,14 +63,6 @@ describe VagrantPlugins::Chef::Config::Base do
     end
   end
 
-  describe "#prerelease" do
-    it "should not exist in Vagrant 1.9" do
-      if Vagrant::VERSION >= "1.9"
-        raise "This option should be removed!"
-      end
-    end
-  end
-
   describe "#version" do
     it "defaults to :latest" do
       subject.finalize!

@@ -133,6 +133,14 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
       assert_valid
     end
+
+    ["1", 1, "1.0", 1.0].each do |valid|
+      it "is valid: #{valid}" do
+        subject.box_version = valid
+        subject.finalize!
+        assert_valid
+      end
+    end
   end
 
   describe "#communicator" do
@@ -525,6 +533,21 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.synced_folder(".", "")
       subject.finalize!
       assert_valid
+    end
+
+    it "allows providing custom name via options" do
+      subject.synced_folder(".", "/vagrant", name: "my-vagrant-folder")
+      sf = subject.synced_folders
+      expect(sf).to have_key("my-vagrant-folder")
+      expect(sf["my-vagrant-folder"][:guestpath]).to eq("/vagrant")
+      expect(sf["my-vagrant-folder"][:hostpath]).to eq(".")
+    end
+
+    it "allows providing custom name without guest path" do
+      subject.synced_folder(".", name: "my-vagrant-folder")
+      sf = subject.synced_folders
+      expect(sf).to have_key("my-vagrant-folder")
+      expect(sf["my-vagrant-folder"][:hostpath]).to eq(".")
     end
   end
 

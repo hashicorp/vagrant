@@ -15,23 +15,15 @@ when using the official installer is not an option. This page details the
 steps and prerequisites for installing Vagrant from source.
 
 ## Install Ruby
-You must have a modern Ruby (>= 2.0) in order to develop and build Vagrant. The
+You must have a modern Ruby (>= 2.2) in order to develop and build Vagrant. The
 specific Ruby version is documented in the Vagrant's `gemspec`. Please refer to
 the `vagrant.gemspec` in the repository on GitHub, as it will contain the most
-up-to-date requirement. This guide will not discuss how to install and manage Ruby. However, beware of the following pitfalls:
+up-to-date requirement. This guide will not discuss how to install and manage Ruby.
+However, beware of the following pitfalls:
 
 - Do **NOT** use the system Ruby - use a Ruby version manager like rvm or chruby
-- Ensure you have the latest version of Rubygems
-- Ensure you have installed a version of [Bundler](https://bundler.io) that is
-    compatible with Vagrant.
-
-    The bundler constraint is a floating requirement in Vagrant. You will need to inspect the `vagrant.gemspec` to determine the version when you are compiling from source. For example, if the gemspec specifies version 1.2.3, you will need to install a version of Bundler that satisfies that constraint.
-
-    You can install a specific version of bundler with the following command:
-
-    ```shell
-    gem install bundler -v '1.2.3'
-    ```
+- Vagrant plugins are configured based on current environment. If plugins are installed
+  using Vagrant from source, they will not work from the package based Vagrant installation.
 
 ## Clone Vagrant
 Clone Vagrant's repository from GitHub into the directory where you keep code on your machine:
@@ -50,7 +42,7 @@ $ cd /path/to/your/vagrant/clone
 Run the `bundle` command with a required version* to install the requirements:
 
 ```shell
-$ bundle _1.10.6_ install
+$ bundle install
 ```
 
 You can now run Vagrant by running `bundle exec vagrant` from inside that

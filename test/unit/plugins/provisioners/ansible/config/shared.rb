@@ -3,6 +3,7 @@ shared_examples_for 'options shared by both Ansible provisioners' do
   it "assigns default values to unset common options" do
     subject.finalize!
 
+    expect(subject.config_file).to be_nil
     expect(subject.extra_vars).to be_nil
     expect(subject.galaxy_command).to eql("ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force")
     expect(subject.galaxy_role_file).to be_nil
@@ -12,6 +13,7 @@ shared_examples_for 'options shared by both Ansible provisioners' do
     expect(subject.inventory_path).to be_nil
     expect(subject.limit).to be_nil
     expect(subject.playbook).to be_nil
+    expect(subject.playbook_command).to eql("ansible-playbook")
     expect(subject.raw_arguments).to be_nil
     expect(subject.skip_tags).to be_nil
     expect(subject.start_at_task).to be_nil

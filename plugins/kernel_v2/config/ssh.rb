@@ -15,24 +15,25 @@ module VagrantPlugins
       attr_accessor :ssh_command
       attr_accessor :pty
       attr_accessor :sudo_command
+      attr_accessor :export_command_template
 
       attr_reader :default
 
       def initialize
         super
 
-        @forward_agent = UNSET_VALUE
-        @forward_x11   = UNSET_VALUE
-        @forward_env   = UNSET_VALUE
-        @guest_port    = UNSET_VALUE
-        @keep_alive    = UNSET_VALUE
-        @proxy_command = UNSET_VALUE
-        @ssh_command   = UNSET_VALUE
-        @pty           = UNSET_VALUE
-        @shell         = UNSET_VALUE
-        @sudo_command  = UNSET_VALUE
-
-        @default    = SSHConnectConfig.new
+        @forward_agent           = UNSET_VALUE
+        @forward_x11             = UNSET_VALUE
+        @forward_env             = UNSET_VALUE
+        @guest_port              = UNSET_VALUE
+        @keep_alive              = UNSET_VALUE
+        @proxy_command           = UNSET_VALUE
+        @ssh_command             = UNSET_VALUE
+        @pty                     = UNSET_VALUE
+        @shell                   = UNSET_VALUE
+        @sudo_command            = UNSET_VALUE
+        @export_command_template = UNSET_VALUE
+        @default                 = SSHConnectConfig.new
       end
 
       def merge(other)
@@ -54,6 +55,10 @@ module VagrantPlugins
         @ssh_command = nil if @ssh_command == UNSET_VALUE
         @pty        = false if @pty == UNSET_VALUE
         @shell      = "bash -l" if @shell == UNSET_VALUE
+
+        if @export_command_template == UNSET_VALUE
+          @export_command_template = 'export %ENV_KEY%="%ENV_VALUE%"'
+        end
 
         if @sudo_command == UNSET_VALUE
           @sudo_command = "sudo -E -H %c"

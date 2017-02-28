@@ -52,9 +52,9 @@ module VagrantPlugins
             @machine.guest.capability(:ansible_install, config.install_mode, config.version)
           end
 
-          # Check that ansible binaries are well installed on the guest,
+          # Check that Ansible Playbook command is available on the guest
           @machine.communicate.execute(
-            "ansible-galaxy info --help && ansible-playbook --help",
+            "test -x \"$(command -v #{config.playbook_command})\"",
             error_class: Ansible::Errors::AnsibleNotFoundOnGuest,
             error_key: :ansible_not_found_on_guest
           )
@@ -72,14 +72,9 @@ module VagrantPlugins
         end
 
         def execute_ansible_galaxy_on_guest
-          command_values = {
-            role_file: "'#{get_galaxy_role_file}'",
-            roles_path: "'#{get_galaxy_roles_path}'"
-          }
+          prepare_ansible_config_environment_variable
 
-          remote_command = config.galaxy_command % command_values
-
-          execute_ansible_command_on_guest "galaxy", remote_command
+          execute_ansible_command_on_guest "galaxy", ansible_galaxy_command_for_shell_execution
         end
 
         def execute_ansible_playbook_on_guest
@@ -156,7 +151,7 @@ module VagrantPlugins
           # and error if it doesn't exist.
 
           remote_path = Helpers::expand_path_in_unix_style(path, config.provisioning_path)
-          command = "test #{test_args} #{remote_path}"
+          command = "test #{test_args} '#{remote_path}'"
 
           @machine.communicate.execute(
             command,

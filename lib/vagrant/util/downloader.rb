@@ -1,7 +1,8 @@
 require "uri"
 
 require "log4r"
-
+require "digest/md5"
+require "digest/sha1"
 require "vagrant/util/busy"
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"
@@ -17,6 +18,12 @@ module Vagrant
       #
       #     Vagrant/1.7.4 (+https://www.vagrantup.com; ruby2.1.0)
       USER_AGENT = "Vagrant/#{VERSION} (+https://www.vagrantup.com; #{RUBY_ENGINE}#{RUBY_VERSION})".freeze
+
+      # Supported file checksum
+      CHECKSUM_MAP = {
+        :md5 => Digest::MD5,
+        :sha1 => Digest::SHA1
+      }.freeze
 
       attr_reader :source
       attr_reader :destination
@@ -52,6 +59,10 @@ module Vagrant
         @ui          = options[:ui]
         @client_cert = options[:client_cert]
         @location_trusted = options[:location_trusted]
+        @checksums   = {
+          :md5 => options[:md5],
+          :sha1 => options[:sha1]
+        }
       end
 
       # This executes the actual download, downloading the source file
@@ -161,6 +172,8 @@ module Vagrant
           end
         end
 
+        validate_download!(@source, @destination, @checksums)
+
         # Everything succeeded
         true
       end
@@ -177,6 +190,46 @@ module Vagrant
       end
 
       protected
+
+      # Apply any checksum validations based on provided
+      # options content
+      #
+      # @param source [String] Source of file
+      # @param path [String, Pathname] local file path
+      # @param checksums [Hash] User provided options
+      # @option checksums [String] :md5 Compare MD5 checksum
+      # @option checksums [String] :sha1 Compare SHA1 checksum
+      # @return [Boolean]
+      def validate_download!(source, path, checksums)
+        CHECKSUM_MAP.each do |type, klass|
+          if checksums[type]
+            result = checksum_file(klass, path)
+            @logger.debug("Validating checksum (#{type}) for #{source}. " \
+              "expected: #{checksums[type]} actual: #{result}")
+            if checksums[type] != result
+              raise Errors::DownloaderChecksumError.new(
+                source: source,
+                path: path,
+                type: type,
+                expected_checksum: checksums[type],
+                actual_checksum: result
+              )
+            end
+          end
+        end
+        true
+      end
+
+      # Generate checksum on given file
+      #
+      # @param digest_class [Class] Digest class to use for generating checksum
+      # @param path [String, Pathname] Path to file
+      # @return [String] hexdigest result
+      def checksum_file(digest_class, path)
+        digester = digest_class.new
+        digester.file(path)
+        digester.hexdigest
+      end
 
       def execute_curl(options, subprocess_options, &data_proc)
         options = options.dup

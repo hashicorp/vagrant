@@ -15,6 +15,7 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
   it "supports a list of options" do
     supported_options = %w( ask_sudo_pass
                             ask_vault_pass
+                            config_file
                             extra_vars
                             force_remote_user
                             galaxy_command
@@ -26,6 +27,7 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
                             inventory_path
                             limit
                             playbook
+                            playbook_command
                             raw_arguments
                             raw_ssh_args
                             skip_tags
@@ -63,7 +65,7 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
   end
   describe "ask_vault_pass option" do
-    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_vault_pass, false
   end
 
   describe "#validate" do

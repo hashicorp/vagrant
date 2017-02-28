@@ -40,15 +40,22 @@ module VagrantPlugins
               # Down the interface before munging the config file. This might
               # fail if the interface is not actually set up yet so ignore
               # errors.
-              /sbin/ifdown '#{network[:device]}' || true
-
+              /sbin/ifdown '#{network[:device]}'
               # Move new config into place
-              mv '#{remote_path}' '#{final_path}'
-
-              # Bring the interface up
-              ARPCHECK=no /sbin/ifup '#{network[:device]}'
+              mv -f '#{remote_path}' '#{final_path}'
+              # attempt to force network manager to reload configurations
+              nmcli c reload || true
             EOH
           end
+
+          commands << <<-EOH.gsub(/^ {12}/, '')
+            # Restart network (through NetworkManager if running)
+            if service NetworkManager status 2>&1 | grep -q running; then
+              service NetworkManager restart
+            else
+              service network restart
+            fi
+          EOH
 
           comm.sudo(commands.join("\n"))
         end

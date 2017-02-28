@@ -340,6 +340,10 @@ module Vagrant
       error_key(:downloader_interrupted)
     end
 
+    class DownloaderChecksumError < VagrantError
+      error_key(:downloader_checksum_error)
+    end
+
     class EnvInval < VagrantError
       error_key(:env_inval)
     end
@@ -454,6 +458,10 @@ module Vagrant
 
     class NFSBadExports < VagrantError
       error_key(:nfs_bad_exports)
+    end
+
+    class NFSExportsFailed < VagrantError
+      error_key(:nfs_exports_failed)
     end
 
     class NFSCantReadExports < VagrantError
@@ -580,6 +588,10 @@ module Vagrant
       error_key(:plugin_uninstall_system)
     end
 
+    class PluginInitError < VagrantError
+      error_key(:plugin_init_error)
+    end
+
     class PushesNotDefined < VagrantError
       error_key(:pushes_not_defined)
     end
@@ -606,6 +618,10 @@ module Vagrant
 
     class RSyncNotInstalledInGuest < VagrantError
       error_key(:rsync_not_installed_in_guest)
+    end
+
+    class RSyncGuestInstallError < VagrantError
+      error_key(:rsync_guest_install_error)
     end
 
     class SCPPermissionDenied < VagrantError

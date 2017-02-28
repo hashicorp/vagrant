@@ -5,6 +5,8 @@ module VagrantPlugins
     class Config < Vagrant.plugin("2", :config)
       attr_accessor :inline
       attr_accessor :path
+      attr_accessor :md5
+      attr_accessor :sha1
       attr_accessor :env
       attr_accessor :upload_path
       attr_accessor :args
@@ -19,6 +21,8 @@ module VagrantPlugins
         @args                  = UNSET_VALUE
         @inline                = UNSET_VALUE
         @path                  = UNSET_VALUE
+        @md5                   = UNSET_VALUE
+        @sha1                  = UNSET_VALUE
         @env                   = UNSET_VALUE
         @upload_path           = UNSET_VALUE
         @privileged            = UNSET_VALUE
@@ -33,6 +37,8 @@ module VagrantPlugins
         @args                 = nil if @args == UNSET_VALUE
         @inline               = nil if @inline == UNSET_VALUE
         @path                 = nil if @path == UNSET_VALUE
+        @md5                  = nil if @md5 == UNSET_VALUE
+        @sha1                 = nil if @sha1 == UNSET_VALUE
         @env                  = {}  if @env == UNSET_VALUE
         @upload_path          = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
         @privileged           = true if @privileged == UNSET_VALUE

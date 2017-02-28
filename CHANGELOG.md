@@ -1,6 +1,80 @@
-## Next Version (Unreleased)
+## 1.9.1 (December 7, 2016)
+
+IMPROVEMENTS:
+
+  - core: Disable Vagrantfile loading when running plugin commands [GH-8066]
+  - guests/redhat: Detect and restart NetworkManager service if in use [GH-8052, GH-7994]
+
+BUG FIXES:
+
+  - core: Detect load failures within install solution sets and retry [GH-8068]
+  - core: Prevent interactive shell on plugin uninstall [GH-8086, GH-8087]
+  - core: Remove bundler usage from Util::Env [GH-8090, GH-8094]
+  - guests/linux: Prevent stderr output on init version check for synced folders [GH-8051]
+
+## 1.9.0 (November 28, 2016)
 
 FEATURES:
+
+  - commands/box: Add `prune` subcommand for removing outdated boxes [GH-7978]
+  - core: Remove Bundler integration for handling internal plugins [GH-7793, GH-8000, GH-8011, GH-8031]
+  - providers/hyperv: Add support for Hyper-V binary configuration format
+      [GH-7854, GH-7706, GH-6102]
+  - provisioners/shell: Support MD5/SHA1 checksum validation of remote scripts [GH-7985, GH-6323]
+
+IMPROVEMENTS:
+
+  - commands/plugin: Retain name sorted output when listing plugins [GH-8028]
+  - communicator/ssh: Support custom environment variable export template
+      [GH-7976, GH-6747]
+  - provisioners/ansible(both): Add `config_file` option to point the location of an
+      `ansible.cfg` file via ANSIBLE_CONFIG environment variable [GH-7195, GH-7918]
+  - synced_folders: Support custom naming and disable auto-mount [GH-7980, GH-6836]
+
+BUG FIXES:
+
+  - guests/linux: Do not match interfaces with special characters when sorting [GH-7989, GH-7988]
+  - provisioner/salt: Fix Hash construction for constant [GH-7986, GH-7981]
+
+## 1.8.7 (November 4, 2016)
+
+IMPROVEMENTS:
+
+  - guests/linux: Place ethernet devices at start of network devices list [GH-7848]
+  - guests/linux: Provide more consistent guest detection [GH-7887, GH-7827]
+  - guests/openbsd: Validate guest rsync installation success [GH-7929, GH-7898]
+  - guests/redhat: Include Virtuozzo Linux 7 within flavor identification [GH-7818]
+  - guests/windows: Allow vagrant to start Windows Nano without provisioning [GH-7831]
+  - provisioners/ansible_local: Change the Ansible binary detection mechanism [GH-7536]
+  - provisioners/ansible(both): Add the `playbook_command` option [GH-7881]
+  - provisioners/puppet: Support custom environment variables [GH-7931, GH-7252, GH-2270]
+  - util/safe_exec: Use subprocess for safe_exec on Windows [GH-7802]
+  - util/subprocess: Allow closing STDIN [GH-7778]
+
+BUG FIXES:
+
+  - communicators/winrm: Prevent connection leakage [GH-7712]
+  - core: Prevent duplicate provider priorities [GH-7756]
+  - core: Allow Numeric type for box version [GH-7874, GH-6960]
+  - core: Provide friendly error when user environment is too large [GH-7889, GH-7857]
+  - guests: Remove `set -e` usage for better shell compatibility [GH-7921, GH-7739]
+  - guests/linux: Fix incorrectly configured private network [GH-7844, GH-7848]
+  - guests/linux: Properly order network interfaces
+      [GH-7866, GH-7876, GH-7858, GH-7876]
+  - guests/linux: Only emit upstart event if initctl is available [GH-7813]
+  - guests/netbsd: Fix rsync installation [GH-7922, GH-7901]
+  - guests/photon: Fix networking setup [GH-7808, GH-7873]
+  - guests/redhat: Properly configure network and restart service [GH-7751]
+  - guests/redhat: Prevent NetworkManager from managing devices on initial start [GH-7926]
+  - hosts/linux: Fix race condition in writing /etc/exports file for NFS configuration
+      [GH-7947, GH-7938] - Thanks to Aron Griffis (@agriffis) for identifying this issue
+  - plugins/rsync: Escape exclude paths [GH-7928, GH-7910]
+  - providers/docker: Remove --interactive flag when pty is true [GH-7688]
+  - provisioners/ansible_local: Use enquoted path for file/directory existence checks
+  - provisioners/salt: Synchronize configuration defaults with documentation [GH-7907, GH-6624]
+  - pushes/atlas: Fix atlas push on Windows platform [GH-6938, GH-7802]
+
+## 1.8.6 (September 27, 2016)
 
 IMPROVEMENTS:
 
