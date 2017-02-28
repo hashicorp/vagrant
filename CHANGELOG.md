@@ -1,4 +1,4 @@
-## Next version (Unreleased)
+## 1.9.2 (February 27, 2017)
 
 FEATURES:
 
