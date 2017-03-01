@@ -239,7 +239,14 @@ module VagrantPlugins
               end
             end
 
-            env_vars = env_vars.join(" ")
+            if windows?
+              env_vars = env_vars.join("; ")
+              if !env_vars.empty?
+                env_vars << ";"
+              end
+            else
+              env_vars = env_vars.join(" ")
+            end
           end
 
           command = [
