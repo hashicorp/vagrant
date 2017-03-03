@@ -3,6 +3,7 @@ require "pathname"
 require "set"
 require "tempfile"
 require "fileutils"
+require "uri"
 
 require "rubygems/package"
 require "rubygems/uninstaller"
@@ -113,7 +114,7 @@ module Vagrant
         plugin_source.spec.name => {
           "gem_version" => plugin_source.spec.version.to_s,
           "local_source" => plugin_source,
-          "sources" => opts.fetch(:sources, Gem.sources.map(&:to_s))
+          "sources" => opts.fetch(:sources, [])
         }
       }
       @logger.debug("Installing local plugin - #{plugin_info}")
@@ -209,9 +210,6 @@ module Vagrant
     protected
 
     def internal_install(plugins, update, **extra)
-      # Only allow defined Gem sources
-      Gem.sources.clear
-
       update = {} if !update.is_a?(Hash)
       skips = []
       source_list = {}
@@ -225,11 +223,12 @@ module Vagrant
         else
           gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
         end
+        source_list[name] ||= []
         if plugin_source = info.delete("local_source")
           installer_set.add_local(plugin_source.spec.name, plugin_source.spec, plugin_source)
+          source_list[name] << plugin_source.path
         end
         Array(info["sources"]).each do |source|
-          source_list[name] ||= []
           if !source.end_with?("/")
             source = source + "/"
           end
@@ -244,8 +243,12 @@ module Vagrant
       default_sources = DEFAULT_GEM_SOURCES & all_sources
       all_sources -= DEFAULT_GEM_SOURCES
 
+      # Only allow defined Gem sources
+      Gem.sources.clear
+
       @logger.debug("Enabling user defined remote RubyGems sources")
       all_sources.each do |src|
+        next if URI.parse(src).scheme.nil?
         @logger.debug("Adding RubyGems source #{src}")
         Gem.sources << src
       end
@@ -255,9 +258,10 @@ module Vagrant
         @logger.debug("Adding source - #{src}")
         Gem.sources << src
       end
+      source_list.values.each{|srcs| srcs.delete_if{|src| default_sources.include?(src)}}
       installer_set.prefer_sources = source_list
 
-      @logger.debug("Current source list for install: #{Gem.sources}")
+      @logger.debug("Current source list for install: #{Gem.sources.to_a}")
 
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
@@ -401,8 +405,16 @@ module Vagrant
       def find_all(req)
         result = super
         subset = result.find_all do |idx_spec|
-          prefer_sources[req.name] &&
-            prefer_sources[req.name].include?(idx_spec.source.uri.to_s)
+          preferred = false
+          if prefer_sources[req.name]
+            if idx_spec.source.respond_to?(:path)
+              preferred = prefer_sources[req.name].include?(idx_spec.source.path.to_s)
+            end
+            if !preferred
+              preferred = prefer_sources[req.name].include?(idx_spec.source.uri.to_s)
+            end
+          end
+          preferred
         end
         subset.empty? ? result : subset
       end
