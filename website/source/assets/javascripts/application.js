@@ -3,6 +3,8 @@
 
 //= require lib/_Base
 
+//= require hashicorp/mega-nav
+
 //= require app/_app
 //= require app/_docs
 //= require app/_sidebar
