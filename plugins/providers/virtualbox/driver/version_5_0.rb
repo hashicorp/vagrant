@@ -269,7 +269,7 @@ module VagrantPlugins
           execute("controlvm", @uuid, "poweroff")
         end
 
-        def import(ovf)
+        def import(ovf, use_vdi)
           ovf = Vagrant::Util::Platform.cygwin_windows_path(ovf)
 
           output = ""
@@ -278,7 +278,11 @@ module VagrantPlugins
 
           # Dry-run the import to get the suggested name and path
           @logger.debug("Doing dry-run import to determine parallel-safe name...")
-          output = execute("import", "-n", ovf)
+          cmd = ["import", "-n", ovf]
+          if use_vdi
+            cmd = ["import", "-n", "--options", "importtovdi", ovf]
+          end
+          output = execute(*cmd)
           result = /Suggested VM name "(.+?)"/.match(output)
           if !result
             raise Vagrant::Errors::VirtualBoxNoName, output: output
@@ -556,6 +560,18 @@ module VagrantPlugins
           end
 
           nil
+        end
+
+        def read_disks
+          disks = [].tap do |d|
+            execute("showvminfo", @uuid, "--machinereadable", retryable: true).split("\n").each do |line|
+              if line =~ /^.+-ImageUUID-.+="(.+?)"$/
+                d.push($1.to_s)
+              end
+            end
+          end
+
+          disks
         end
 
         def read_used_ports

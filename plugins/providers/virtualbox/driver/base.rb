@@ -266,6 +266,12 @@ module VagrantPlugins
         def read_state
         end
 
+        # Return the array of disk UUID associated with this VM.
+        #
+        # @return [Array]
+        def read_disks
+        end
+
         # Returns a list of all forwarded ports in use by active
         # virtual machines.
         #

@@ -22,6 +22,21 @@ module VagrantPlugins
             customizations.each do |command|
               processed_command = command.collect do |arg|
                 arg = env[:machine].id if arg == :id
+
+                if arg =~ /^disk(\d+)$/
+                  disk_id = $1.to_i
+                  disks = env[:machine].provider.driver.read_disks
+
+                  if not disks or disk_id >= disks.size
+                    raise Vagrant::Errors::VMCustomizationFailed, {
+                      command: "Discovering UUID for the specified disk",
+                      error:   "Disk with index #{disk_id} does not exist"
+                    }
+                  end
+
+                  arg = disks[disk_id]
+                end
+
                 arg.to_s
               end
 

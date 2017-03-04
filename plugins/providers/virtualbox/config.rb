@@ -64,6 +64,11 @@ module VagrantPlugins
       # @return [Hash]
       attr_reader :network_adapters
 
+      # Import machine using vdi disks
+      #
+      # @return [Boolean]
+      attr_accessor :use_vdi
+
       def initialize
         @auto_nat_dns_proxy = UNSET_VALUE
         @check_guest_additions = UNSET_VALUE
@@ -75,6 +80,7 @@ module VagrantPlugins
         @gui              = UNSET_VALUE
         @linked_clone = UNSET_VALUE
         @linked_clone_snapshot = UNSET_VALUE
+        @use_vdi = UNSET_VALUE
 
         # We require that network adapter 1 is a NAT device.
         network_adapter(1, :nat)
@@ -147,6 +153,10 @@ module VagrantPlugins
 
         if @functional_vboxsf == UNSET_VALUE
           @functional_vboxsf = true
+        end
+
+        if @use_vdi == UNSET_VALUE
+          @use_vdi = false
         end
 
         # Default is to not show a GUI
