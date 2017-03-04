@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - core: Support host_ip for forwarded ports [GH-7035]
+
 BUG FIXES:
 
 ## 1.9.2 (February 27, 2017)
