@@ -934,6 +934,31 @@ en:
 
         If this message is erroneous, you may disable this check by setting
         `config.nfs.verify_installed` to `false` in your Vagrantfile.
+      nfs_exportfs_export_failed: |-
+        Vagrant was unable to export the requested NFS file system on this
+        machine.
+
+        error: %{stderr}
+        command: %{command}
+      nfs_exportfs_prune_failed: |-
+        Vagrant encountered an error while pruning an NFS file system from
+        this machine.
+
+        error: %{stderr}
+        command: %{command}
+      nfs_exportfs_list_failed: |-
+        Vagrant encountered a failure attempting to list the current NFS
+        exported file systems on this machine. Please review the error message
+        below to resolve the issue and try again.
+
+        error: %{stderr}
+        command: %{command}
+      nfsd_start_failure: |-
+        Vagrant failed to start the NFS server on this machine. Please review
+        the received error message below to resolve the issue and try again.
+
+        error: %{stderr}
+        command: %{command}
       no_default_provider: |-
         No usable default provider could be found for your system.
 
@@ -1985,7 +2010,7 @@ en:
           untar_failure: |-
             The box failed to unpackage properly. Please verify that the box
             file you're trying to add is not corrupted and that enough disk space
-            is available and then try again. 
+            is available and then try again.
             The output from attempting to unpackage (if any):
 
             %{output}
