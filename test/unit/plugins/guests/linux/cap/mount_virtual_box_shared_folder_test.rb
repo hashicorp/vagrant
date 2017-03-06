@@ -149,6 +149,49 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
         cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
       end
     end
+
+    context "with custom mount options" do
+
+      let(:ui){ double(:ui) }
+      before do
+        allow(ui).to receive(:warn)
+        allow(machine).to receive(:ui).and_return(ui)
+      end
+
+      context "with uid defined" do
+        let(:options_uid){ '1234' }
+
+        it "should only include uid defined within mount options" do
+          expect(comm).not_to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
+          expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
+          expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{options_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
+          cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["uid=#{options_uid}"]))
+        end
+      end
+
+      context "with gid defined" do
+        let(:options_gid){ '1234' }
+
+        it "should only include gid defined within mount options" do
+          expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
+          expect(comm).not_to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
+          expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{options_gid} #{mount_name} #{mount_guest_path}", anything)
+          cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["gid=#{options_gid}"]))
+        end
+      end
+
+      context "with uid and gid defined" do
+        let(:options_gid){ '1234' }
+        let(:options_uid){ '1234' }
+
+        it "should only include uid and gid defined within mount options" do
+          expect(comm).not_to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
+          expect(comm).not_to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{options_gid}:")
+          expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{options_uid},gid=#{options_gid} #{mount_name} #{mount_guest_path}", anything)
+          cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["gid=#{options_gid}", "uid=#{options_uid}"]))
+        end
+      end
+    end
   end
 
   describe ".unmount_virtualbox_shared_folder" do
