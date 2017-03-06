@@ -1,10 +1,10 @@
-require "vagrant/util/retryable"
+require_relative "../../../synced_folders/unix_mount_helpers"
 
 module VagrantPlugins
   module GuestTinyCore
     module Cap
       class MountNFS
-        extend Vagrant::Util::Retryable
+        extend SyncedFolder::UnixMountHelpers
 
         def self.mount_nfs_folder(machine, ip, folders)
           folders.each do |name, opts|
@@ -32,12 +32,7 @@ module VagrantPlugins
                                        error_class: Vagrant::Errors::NFSMountFailed)
             end
 
-            # Emit an upstart event if we can
-            machine.communicate.sudo <<-SCRIPT
-if command -v /sbin/init && /sbin/init --version | grep upstart; then
-  /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT='#{expanded_guest_path}'
-fi
-SCRIPT
+            emit_upstart_notification(machine, expanded_guest_path)
           end
         end
       end

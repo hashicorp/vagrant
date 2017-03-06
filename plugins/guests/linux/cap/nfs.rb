@@ -1,10 +1,10 @@
-require "vagrant/util/retryable"
+require_relative "../../../synced_folders/unix_mount_helpers"
 
 module VagrantPlugins
   module GuestLinux
     module Cap
       class NFS
-        extend Vagrant::Util::Retryable
+        extend SyncedFolder::UnixMountHelpers
 
         def self.nfs_client_installed(machine)
           machine.communicate.test("test -x /sbin/mount.nfs")
@@ -30,18 +30,7 @@ module VagrantPlugins
 
             machine.communicate.sudo("mkdir -p #{guest_path}")
 
-            # Perform the mount operation and emit mount event if applicable
-            command = <<-EOH.gsub(/^ */, '')
-              mount -o #{mount_opts} #{ip}:#{host_path} #{guest_path}
-              result=$?
-              if test $result -eq 0; then
-                if test -x /sbin/initctl && command -v /sbin/init && /sbin/init 2>/dev/null --version | grep upstart; then
-                  /sbin/initctl emit --no-wait vagrant-mounted MOUNTPOINT=#{guest_path}
-                fi
-              else
-                exit $result
-              fi
-            EOH
+            command = "mount -o #{mount_opts} #{ip}:#{host_path} #{guest_path}"
 
             # Run the command, raising a specific error.
             retryable(on: Vagrant::Errors::NFSMountFailed, tries: 3, sleep: 5) do
@@ -49,6 +38,8 @@ module VagrantPlugins
                 error_class: Vagrant::Errors::NFSMountFailed,
               )
             end
+
+            emit_upstart_notification(machine, guest_path)
           end
         end
       end
