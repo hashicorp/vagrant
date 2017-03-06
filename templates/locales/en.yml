@@ -1981,8 +1981,9 @@ en:
         unpackage:
           untar_failure: |-
             The box failed to unpackage properly. Please verify that the box
-            file you're trying to add is not corrupted and try again. The
-            output from attempting to unpackage (if any):
+            file you're trying to add is not corrupted and that enough disk space
+            is available and then try again. 
+            The output from attempting to unpackage (if any):
 
             %{output}
         add:
