@@ -43,6 +43,75 @@ describe Vagrant::BoxCollection, :skip_windows do
         expect { subject.all }.to_not raise_error
       end
     end
+
+    context "with multiple versions of the same box" do
+      before do
+        environment.box3("foo", "1.0", :virtualbox)
+        environment.box3("foo", "2.0.3", :virtualbox)
+        environment.box3("foo", "2.0.4", :virtualbox)
+        environment.box3("foo", "10.3", :virtualbox)
+        environment.box3("foo", "1.0", :vmware)
+        environment.box3("foo", "0.4.3", :vmware)
+        environment.box3("foo", "2.0.1", :vmware)
+        environment.box3("foo", "2.0.2.dev", :vmware)
+        environment.box3("foo", "2.0.2", :vmware)
+        environment.box3("bar", "20161203.2", :ec2)
+        environment.box3("bar", "20161203.2.3", :ec2)
+        environment.box3("bar", "20151102.0.0", :ec2)
+        environment.box3("foo-VAGRANTSLASH-bar", "1.0", :virtualbox)
+        environment.box3("foo-VAGRANTCOLON-colon", "1.0", :virtualbox)
+      end
+
+      it "should sort boxes by name" do
+        result = subject.all.map(&:first).uniq
+        expect(result).to eq(["bar", "foo", "foo/bar", "foo:colon"])
+      end
+
+      it "should group boxes by provider" do
+        expect do
+          current = ""
+          seen_pairs = {}
+          subject.all.each do |box_info|
+            box_key = "#{box_info[0]}_#{box_info[2]}"
+            if current != box_key
+              if seen_pairs[box_key]
+                raise KeyError.new("Box/provider pair already seen. Invalid sort!")
+              else
+                current = box_key
+                seen_pairs[box_key] = true
+              end
+            end
+          end
+        end.not_to raise_error
+      end
+
+      it "should sort boxes by version" do
+        box_list = subject.all.find_all do |box_info|
+          box_info[0] == "foo" && box_info[2].to_s == "virtualbox"
+        end
+        result = box_list.map{|box_info| box_info[1]}
+        expect(result).to eq([
+          "1.0",
+          "2.0.3",
+          "2.0.4",
+          "10.3"
+        ])
+      end
+
+      it "should sort boxes with pre-release versions" do
+        box_list = subject.all.find_all do |box_info|
+          box_info[0] == "foo" && box_info[2].to_s == "vmware"
+        end
+        result = box_list.map{|box_info| box_info[1]}
+        expect(result).to eq([
+          "0.4.3",
+          "1.0",
+          "2.0.1",
+          "2.0.2.dev",
+          "2.0.2"
+        ])
+      end
+    end
   end
 
   describe "#clean" do
@@ -217,6 +286,35 @@ describe Vagrant::BoxCollection, :skip_windows do
       # Actual test
       result = subject.find("foo", :virtualbox, "> 1.0, < 1.5")
       expect(result).to be_nil
+    end
+
+    context "with multiple versions of the same box" do
+      before do
+        environment.box3("foo", "1.0", :virtualbox)
+        environment.box3("foo", "2.0.3", :virtualbox)
+        environment.box3("foo", "2.0.4", :virtualbox)
+        environment.box3("foo", "10.3", :virtualbox)
+        environment.box3("foo", "1.0", :vmware)
+        environment.box3("foo", "0.4.3", :vmware)
+        environment.box3("foo", "2.0.1", :vmware)
+        environment.box3("foo", "2.0.2.dev", :vmware)
+        environment.box3("foo", "2.0.2", :vmware)
+        environment.box3("bar", "20161203.2", :ec2)
+        environment.box3("bar", "20161203.2.3", :ec2)
+        environment.box3("bar", "20151102.0.0", :ec2)
+        environment.box3("foo-VAGRANTSLASH-bar", "1.0", :virtualbox)
+        environment.box3("foo-VAGRANTCOLON-colon", "1.0", :virtualbox)
+      end
+
+      it "should return expected latest version" do
+        result = subject.find("foo", :virtualbox, "> 2, < 3")
+        expect(result.version).to eq("2.0.4")
+      end
+
+      it "should sort boxes with pre-release versions" do
+        result = subject.find("foo", :vmware, "> 2, < 3")
+        expect(result.version).to eq("2.0.2")
+      end
     end
   end
 
