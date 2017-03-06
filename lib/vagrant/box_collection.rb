@@ -246,7 +246,10 @@ module Vagrant
           end
         end
       end
-
+      # Sort the list to group like providers and properly ordered versions
+      results.sort_by! do |box_result|
+        [box_result[0], box_result[2], Gem::Version.new(box_result[1])]
+      end
       results
     end
 
