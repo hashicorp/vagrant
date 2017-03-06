@@ -8,6 +8,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - core: Fix box sorting on find and list [GH-7956, GH-8334]
+
 ## 1.9.2 (February 27, 2017)
 
 FEATURES:
