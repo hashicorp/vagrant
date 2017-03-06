@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - core: Support host_ip for forwarded ports [GH-7035]
+  - core: Include disk space hint in box install failure message [GH-8089]
 
 BUG FIXES:
 
