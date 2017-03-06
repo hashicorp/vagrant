@@ -42,6 +42,12 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
       expect { subject.winrm_address(machine) }.
         to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
     end
+
+    it "raise a WinRMNotReady exception if it detects an unset host ip" do
+      machine.stub(ssh_info: { host: nil })
+      expect { subject.winrm_address(machine) }.
+        to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
+    end
   end
 
   describe ".winrm_info" do

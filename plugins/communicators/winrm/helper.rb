@@ -33,7 +33,7 @@ module VagrantPlugins
         return addr if addr
 
         ssh_info = machine.ssh_info
-        raise Errors::WinRMNotReady if !ssh_info || ssh_info[:host].empty?
+        raise Errors::WinRMNotReady if !ssh_info || ssh_info[:host].to_s.empty?
         return ssh_info[:host]
       end
 
