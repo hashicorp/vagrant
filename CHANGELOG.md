@@ -12,6 +12,8 @@ BUG FIXES:
 
   - communicator/winrm: Prevent inaccurate WinRM address [GH-7983, GH-8073]
   - core: Fix box sorting on find and list [GH-7956, GH-8334]
+  - plugins/synced_folders: Give UID/GID precedence if found within mount options
+      [GH-8122, GH-8064, GH-7859]
 
 ## 1.9.2 (February 27, 2017)
 
