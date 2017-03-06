@@ -36,6 +36,12 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
       expect { subject.winrm_address(machine) }.
         to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
     end
+
+    it "raise an exception if it detects an empty host ip" do
+      machine.stub(ssh_info: { host: "" })
+      expect { subject.winrm_address(machine) }.
+        to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
+    end
   end
 
   describe ".winrm_info" do
