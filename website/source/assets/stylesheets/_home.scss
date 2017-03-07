@@ -7,10 +7,6 @@
     text-align: center;
   }
 
-  p {
-    color: $purple-text;
-  }
-
   .hero {
     @include padded;
     background: $gray-background image-url("vagrant_header_background.png") no-repeat center -20px;
@@ -66,6 +62,9 @@
       h4 {
         font-size: 20px;
         line-height: $baseline * 1.5;
+      }
+      p {
+        color: $purple-text;
       }
     }
   }
