@@ -7,6 +7,7 @@ IMPROVEMENTS:
   - command/plugin: Remove requirement for paths with no spaces [GH-7967]
   - core: Support host_ip for forwarded ports [GH-7035]
   - core: Include disk space hint in box install failure message [GH-8089]
+  - core/bundler: Allow vagrant constraint matching in prerelease mode [GH-8341]
 
 BUG FIXES:
 
