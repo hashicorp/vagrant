@@ -12,6 +12,7 @@ BUG FIXES:
 
   - communicator/winrm: Prevent inaccurate WinRM address [GH-7983, GH-8073]
   - core: Fix box sorting on find and list [GH-7956, GH-8334]
+  - core/bundler: Force path as preferred source on install [GH-8327]
   - plugins/synced_folders: Give UID/GID precedence if found within mount options
       [GH-8122, GH-8064, GH-7859]
 
