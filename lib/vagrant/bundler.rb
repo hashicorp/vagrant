@@ -280,7 +280,10 @@ module Vagrant
       # as we know the dependencies are satisfied and it will attempt to validate a gem's
       # dependencies are satisified by gems in the install directory (which will likely not
       # be true)
-      result = request_set.install_into(plugin_gem_path.to_s, true, ignore_dependencies: true)
+      result = request_set.install_into(plugin_gem_path.to_s, true,
+        ignore_dependencies: true,
+        prerelease: Vagrant.prerelease?
+      )
       result = result.map(&:full_spec)
       result
     end
@@ -425,7 +428,8 @@ module Vagrant
 
       def find_all(req)
         @specs.select do |spec|
-          req.match?(spec)
+          allow_prerelease = spec.name == "vagrant" && Vagrant.prerelease?
+          req.match?(spec, allow_prerelease)
         end.map do |spec|
           Gem::Resolver::InstalledSpecification.new(self, spec)
         end
@@ -474,7 +478,7 @@ module Vagrant
       # ignored.
       def load_spec (name, version, platform, source)
         version = Gem::Version.new(version) if !version.is_a?(Gem::Version)
-        @specs.fetch(name, []).detect{|s| s.name == name && s.version = version}
+        @specs.fetch(name, []).detect{|s| s.name == name && s.version == version}
       end
     end
   end
