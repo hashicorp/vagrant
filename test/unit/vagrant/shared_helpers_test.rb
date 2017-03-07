@@ -131,4 +131,16 @@ describe Vagrant do
       end
     end
   end
+
+  describe "#prerelease?" do
+    it "should return true when Vagrant version is development" do
+      stub_const("Vagrant::VERSION", "1.0.0.dev")
+      expect(subject.prerelease?).to be(true)
+    end
+
+    it "should return false when Vagrant version is release" do
+      stub_const("Vagrant::VERSION", "1.0.0")
+      expect(subject.prerelease?).to be(false)
+    end
+  end
 end

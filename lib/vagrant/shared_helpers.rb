@@ -102,4 +102,12 @@ module Vagrant
 
     Pathname.new(path).expand_path
   end
+
+  # This returns true/false if the running version of Vagrant is
+  # a pre-release version (development)
+  #
+  # @return [Boolean]
+  def self.prerelease?
+    Gem::Version.new(Vagrant::VERSION).prerelease?
+  end
 end
