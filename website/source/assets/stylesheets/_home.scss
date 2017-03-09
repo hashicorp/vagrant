@@ -4,11 +4,6 @@
     color: $purple-text;
     font-family: $font-family-klavika;
     text-transform: uppercase;
-    text-align: center;
-  }
-
-  p {
-    color: $purple-text;
   }
 
   .hero {
@@ -52,6 +47,8 @@
 
     h2 {
       color: $blue-text;
+      text-align: center;
+
     }
 
     hgroup {
@@ -61,11 +58,16 @@
       h3 {
         font-weight: bold;
         margin-bottom: $baseline;
+        text-align: center;
       }
 
       h4 {
         font-size: 20px;
+        text-align: center;
         line-height: $baseline * 1.5;
+      }
+      p {
+        color: $purple-text;
       }
     }
   }
@@ -76,6 +78,7 @@
 
     h2 {
       color: $white;
+      text-align: center;
     }
 
     pre {
@@ -93,6 +96,7 @@
 
     h2 {
       color: $dark-gray-text;
+      text-align: center;
     }
 
     .customer-logos {
