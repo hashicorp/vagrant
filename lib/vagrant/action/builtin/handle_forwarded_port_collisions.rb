@@ -64,6 +64,12 @@ module Vagrant
           # Get the extra ports we consider in use
           extra_in_use = env[:port_collision_extra_in_use] || {}
 
+          # If extras are provided as an Array (previous behavior) convert
+          # to Hash as expected for IP aliasing support
+          if extra_in_use.is_a?(Array)
+            extra_in_use = Hash[extra_in_use.map{|port| [port, Set.new(["*"])]}]
+          end
+
           # Get the remap
           remap = env[:port_collision_remap] || {}
 
