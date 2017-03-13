@@ -45,3 +45,6 @@ doc/
 .ruby-gemset
 .ruby-version
 .rvmrc
+
+# Box storage for spec
+test/vagrant-spec/boxes/*.box
