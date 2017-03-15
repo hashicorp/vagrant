@@ -56,11 +56,11 @@ Vagrant.configure(2) do |global_config|
           vmware.vmx['vhv.allow'] = 'TRUE'
         end
         config.vm.provision :shell, path: "./scripts/#{platform}-setup.#{provider_name}.sh", run: "once"
-        GUEST_BOXES.each_with_index do |box_info, idx|
+        guest_boxes.each_with_index do |box_info, idx|
           guest_box, box_version = box_info
           spec_cmd_args = ENV["VAGRANT_SPEC_ARGS"]
           if idx != 0
-            spec_cmd_args = "#{spec_cmd_args} --without-component 'cli/*'".strip
+            spec_cmd_args = "#{spec_cmd_args} --without-component cli/*".strip
           end
           config.vm.provision(
             :shell,
