@@ -29,3 +29,21 @@ you may set. A complete reference is shown below:
     virtual machine to report an IP address. This defaults to 120 seconds.
     This may have to be increased if your VM takes longer to boot.
   * `differencing_disk` (boolean) - Switch to use differencing disk intead of cloning whole VHD.
+  * `vm_integration_services` (Hash) - Hash to set the state of integration services.
+     
+    Example: 
+        
+    ```ruby
+    config.vm.provider "hyperv" do |h|
+      h.vm_integration_services = {
+          guest_service_interface: true,
+          heartbeat: true,
+          key_value_pair_exchange: false,
+          shutdown: true,
+          time_synchronization: true,
+          vss: true
+      }
+    end
+    ```
+  
+            

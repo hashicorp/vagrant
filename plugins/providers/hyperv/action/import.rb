@@ -21,6 +21,7 @@ module VagrantPlugins
           differencing_disk = env[:machine].provider_config.differencing_disk
           auto_start_action = env[:machine].provider_config.auto_start_action
           auto_stop_action = env[:machine].provider_config.auto_stop_action
+          vm_integration_services = env[:machine].provider_config.vm_integration_services
 
           env[:ui].output("Configured Dynamic memory allocation, maxmemory is #{maxmemory}") if maxmemory
           env[:ui].output("Configured startup memory is #{memory}") if memory
@@ -148,6 +149,21 @@ module VagrantPlugins
 
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)
+
+          env[:ui].detail("Setting VM Integration Services")
+          vm_integration_services.each do |key, value|
+            state = false
+            if value === true
+              state = "enabled"
+            elsif value === false
+              state = "disabled"
+            end
+            env[:ui].output("#{key} is #{state}") if state
+          end
+
+          vm_integration_services[:VmId] = server["id"]
+          env[:machine].provider.driver.set_vm_integration_services(vm_integration_services)
+
           env[:ui].detail("Successfully imported a VM with name: #{server['name']}")
           env[:machine].id = server["id"]
           @app.call(env)

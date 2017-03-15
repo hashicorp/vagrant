@@ -3,7 +3,6 @@ require "vagrant"
 module VagrantPlugins
   module HyperV
     class Config < Vagrant.plugin("2", :config)
-
       attr_accessor :ip_address_timeout # Time to wait for an IP address when booting, in seconds @return [Integer]
       attr_accessor :memory #  Memory size in mb @return [Integer]
       attr_accessor :maxmemory # Maximal memory size in mb enables dynamical memory allocation @return [Integer]
@@ -12,9 +11,9 @@ module VagrantPlugins
       attr_accessor :vlan_id # VLAN ID for network interface for the virtual machine. @return [Integer]
       attr_accessor :mac # MAC address for network interface for the virtual machine. @return [String]
       attr_accessor :differencing_disk # Create differencing disk instead of cloning whole VHD [Boolean]
-      attr_accessor :auto_start_action #action on automatic start of VM. Values: Nothing, StartIfRunning, Start
-      attr_accessor :auto_stop_action #action on automatic stop of VM. Values: ShutDown, TurnOff, Save
-      attr_accessor :vm_integration_service # Options for VMServiceIntegration
+      attr_accessor :auto_start_action #action on automatic start of VM. Values: Nothing, StartIfRunning, Start [String]
+      attr_accessor :auto_stop_action #action on automatic stop of VM. Values: ShutDown, TurnOff, Save [String]
+      attr_accessor :vm_integration_services # Options for VMServiceIntegration [Hash]
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -27,13 +26,13 @@ module VagrantPlugins
         @differencing_disk = UNSET_VALUE
         @auto_start_action = UNSET_VALUE
         @auto_stop_action = UNSET_VALUE
-        @vm_integration_service = {
+        @vm_integration_services = {
             guest_service_interface: UNSET_VALUE,
             heartbeat: UNSET_VALUE,
             key_value_pair_exchange: UNSET_VALUE,
             shutdown: UNSET_VALUE,
-            vss: UNSET_VALUE,
-            time_synchronization: UNSET_VALUE
+            time_synchronization: UNSET_VALUE,
+            vss: UNSET_VALUE
         }
       end
 
@@ -51,9 +50,10 @@ module VagrantPlugins
         @auto_start_action = nil if @auto_start_action == UNSET_VALUE
         @auto_stop_action = nil if @auto_stop_action == UNSET_VALUE
 
-        @vm_integration_service.each { |key, value|
-          @vm_integration_service[key] = nil if value == UNSET_VALUE
+        @vm_integration_services.each { |key, value|
+          @vm_integration_services[key] = nil if value == UNSET_VALUE
         }
+        @vm_integration_services = nil if @vm_integration_services.length == 0
       end
 
       def validate(machine)

@@ -118,6 +118,10 @@ module VagrantPlugins
           execute("delete_snapshot.ps1", {VmID: vm_id, SnapName: snapshot_name})
        end
 
+      def set_vm_integration_services(config)
+        execute("set_vm_integration_services.ps1", config)
+      end
+
       protected
 
       def execute_powershell(path, options, &block)
