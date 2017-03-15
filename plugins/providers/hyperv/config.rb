@@ -14,6 +14,7 @@ module VagrantPlugins
       attr_accessor :differencing_disk # Create differencing disk instead of cloning whole VHD [Boolean]
       attr_accessor :auto_start_action #action on automatic start of VM. Values: Nothing, StartIfRunning, Start
       attr_accessor :auto_stop_action #action on automatic stop of VM. Values: ShutDown, TurnOff, Save
+      attr_accessor :vm_integration_service # Options for VMServiceIntegration
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -21,11 +22,19 @@ module VagrantPlugins
         @maxmemory = UNSET_VALUE
         @cpus = UNSET_VALUE
         @vmname = UNSET_VALUE
-        @vlan_id  = UNSET_VALUE
-        @mac  = UNSET_VALUE
+        @vlan_id = UNSET_VALUE
+        @mac = UNSET_VALUE
         @differencing_disk = UNSET_VALUE
         @auto_start_action = UNSET_VALUE
         @auto_stop_action = UNSET_VALUE
+        @vm_integration_service = {
+            guest_service_interface: UNSET_VALUE,
+            heartbeat: UNSET_VALUE,
+            key_value_pair_exchange: UNSET_VALUE,
+            shutdown: UNSET_VALUE,
+            vss: UNSET_VALUE,
+            time_synchronization: UNSET_VALUE
+        }
       end
 
       def finalize!
@@ -41,12 +50,16 @@ module VagrantPlugins
         @differencing_disk = false if @differencing_disk == UNSET_VALUE
         @auto_start_action = nil if @auto_start_action == UNSET_VALUE
         @auto_stop_action = nil if @auto_stop_action == UNSET_VALUE
+
+        @vm_integration_service.each { |key, value|
+          @vm_integration_service[key] = nil if value == UNSET_VALUE
+        }
       end
 
       def validate(machine)
         errors = _detected_errors
 
-        { "Hyper-V" => errors }
+        {"Hyper-V" => errors}
       end
     end
   end
