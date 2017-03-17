@@ -16,6 +16,7 @@ BUG FIXES:
   - contrib/bash: Handle path spaces in bash completion [GH-8337]
   - core: Fix box sorting on find and list [GH-7956, GH-8334]
   - core/bundler: Force path as preferred source on install [GH-8327]
+  - core/provision: Update "never" behavior to match documentation [GH-8366, GH-8016]
   - plugins/synced_folders: Give UID/GID precedence if found within mount options
       [GH-8122, GH-8064, GH-7859]
 
