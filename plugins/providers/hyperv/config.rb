@@ -14,6 +14,7 @@ module VagrantPlugins
       attr_accessor :differencing_disk # Create differencing disk instead of cloning whole VHD [Boolean]
       attr_accessor :auto_start_action #action on automatic start of VM. Values: Nothing, StartIfRunning, Start
       attr_accessor :auto_stop_action #action on automatic stop of VM. Values: ShutDown, TurnOff, Save
+      attr_accessor :enable_virtualization_extensions # Enable virtualization extensions (nested virtualization). Values: true, false
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -26,6 +27,7 @@ module VagrantPlugins
         @differencing_disk = UNSET_VALUE
         @auto_start_action = UNSET_VALUE
         @auto_stop_action = UNSET_VALUE
+        @enable_virtualization_extensions = UNSET_VALUE
       end
 
       def finalize!
@@ -41,6 +43,7 @@ module VagrantPlugins
         @differencing_disk = false if @differencing_disk == UNSET_VALUE
         @auto_start_action = nil if @auto_start_action == UNSET_VALUE
         @auto_stop_action = nil if @auto_stop_action == UNSET_VALUE
+        @enable_virtualization_extensions = false if @enable_virtualization_extensions == UNSET_VALUE # TODO will this work?
       end
 
       def validate(machine)
