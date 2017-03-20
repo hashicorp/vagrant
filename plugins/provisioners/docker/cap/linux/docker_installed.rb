@@ -5,6 +5,7 @@ module VagrantPlugins
         module DockerInstalled
           def self.docker_installed(machine)
             paths = [
+              "/bin/docker",
               "/usr/bin/docker",
               "/usr/local/bin/docker",
               "/usr/sbin/docker",
