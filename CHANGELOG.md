@@ -8,6 +8,7 @@ IMPROVEMENTS:
   - core: Support host_ip for forwarded ports [GH-7035, GH-8350]
   - core: Include disk space hint in box install failure message [GH-8089]
   - core/bundler: Allow vagrant constraint matching in prerelease mode [GH-8341]
+  - provisioner/docker: Include /bin/docker as valid path [GH-8390]
   - provider/hyperv: Support enabling Hyper-V nested virtualization [GH-8325, GH-7738]
 
 BUG FIXES:
