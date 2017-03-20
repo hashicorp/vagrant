@@ -197,6 +197,11 @@ en:
       from the creator of the Vagrantfile, and not from Vagrant itself:
 
       %{message}
+    post_destroy_message: |-
+      Machine '%{name}' has a post `vagrant destroy` message. This is a message
+      from the creator of the Vagrantfile, and not from Vagrant itself:
+
+      %{message}      
     provisioner_cleanup: |-
       Running cleanup tasks for '%{name}' provisioner...
     rsync_auto_initial: |-
@@ -254,6 +259,8 @@ en:
       No machines to bring up. This is usually because all machines are
       set to `autostart: false`, which means you have to explicitly specify
       the name of the machine to bring up.
+    destroy_no_machines: |-
+      No machines to destroy.
     upgrading_home_path_v1_5: |-
       Vagrant is upgrading some internal state for the latest version.
       Please do not quit Vagrant at this time. While upgrading, Vagrant
@@ -1732,6 +1739,9 @@ en:
       up:
         upping: |-
           Bringing machine '%{name}' up with '%{provider}' provider...
+      destroy:
+        destroying: |-
+          Destroying machine '%{name}' up with '%{provider}' provider...          
 
 #-------------------------------------------------------------------------------
 # Translations for Vagrant middleware actions
