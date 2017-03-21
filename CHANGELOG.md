@@ -1,6 +1,4 @@
-## Next version (Unreleased)
-
-FEATURES:
+## 1.9.3 (March 21, 2017)
 
 IMPROVEMENTS:
 
@@ -18,6 +16,7 @@ BUG FIXES:
   - core: Fix box sorting on find and list [GH-7956, GH-8334]
   - core/bundler: Force path as preferred source on install [GH-8327]
   - core/provision: Update "never" behavior to match documentation [GH-8366, GH-8016]
+  - plugins/push: Isolate deprecation to Atlas strategy only
   - plugins/synced_folders: Give UID/GID precedence if found within mount options
       [GH-8122, GH-8064, GH-7859]
 
