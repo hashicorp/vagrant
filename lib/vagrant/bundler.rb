@@ -248,7 +248,11 @@ module Vagrant
 
       @logger.debug("Enabling user defined remote RubyGems sources")
       all_sources.each do |src|
-        next if URI.parse(src).scheme.nil?
+        begin
+          next if File.file?(src) || URI.parse(src).scheme.nil?
+        rescue URI::InvalidURIError
+          next
+        end
         @logger.debug("Adding RubyGems source #{src}")
         Gem.sources << src
       end
