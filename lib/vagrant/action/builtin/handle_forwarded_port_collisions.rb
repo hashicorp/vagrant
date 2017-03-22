@@ -243,10 +243,19 @@ module Vagrant
         end
 
         def port_check(host_ip, host_port)
-          # If the user hasn't specified a host_ip, his/her intention is taken to be
-          # to listen on all interfaces.
-          return is_port_open?("0.0.0.0", host_port) if host_ip.nil?
-          return is_port_open?(host_ip, host_port)
+          # If no host_ip is specified, intention taken to be list on all interfaces.
+          # If platform is windows, default back to localhost only
+          test_host_ip = host_ip || "0.0.0.0"
+          begin
+            is_port_open?(test_host_ip, host_port)
+          rescue Errno::EADDRNOTAVAIL
+            if !host_ip && test_host_ip == "0.0.0.0"
+              test_host_ip = "127.0.0.1"
+              retry
+            else
+              raise
+            end
+          end
         end
 
         def with_forwarded_ports(env)
