@@ -9,6 +9,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - command/up: Prevent other provider installation when explicitly defined [GH-8393, GH-8389]
+  - core: Provide fallback and retry when 0.0.0.0 is unavailable during port check [GH-8399, GH-8395]
   - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
   - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
 
