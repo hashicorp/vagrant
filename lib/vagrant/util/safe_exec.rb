@@ -40,7 +40,15 @@ module Vagrant
               Process.wait(pid)
             end
           else
-            Kernel.exec(command, *args)
+            if Vagrant::Util::Platform.windows?
+              @@logger.debug("Converting command and arguments to single string for exec")
+              @@logger.debug("Command: `#{command.inspect}` Args: `#{args.inspect}`")
+              full_command = "#{command} #{args.join(" ")}"
+              @@logger.debug("Converted command: #{full_command}")
+              Kernel.exec(full_command)
+            else
+              Kernel.exec(command, *args)
+            end
           end
         rescue *rescue_from
           # We retried already, raise the issue and be done
