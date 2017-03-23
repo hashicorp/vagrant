@@ -9,6 +9,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
+  - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
 
 ## 1.9.3 (March 21, 2017)
 
