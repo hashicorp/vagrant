@@ -2,6 +2,7 @@
 
 FEATURES:
 
+  - command/validate: Add Vagrantfile validation command [GH-8264, GH-8151]
   - provider/hyperv: Support integration services configuration [GH-8379, GH-8378]
 
 IMPROVEMENTS:
