@@ -79,8 +79,9 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
     The default value is `:default`, and any invalid value for this option will silently fall back to the default value.
 
-- `pip_args` (string) - When Ansible is installed via pip this option allows the defition of additional pip arguments to be passed along on the
-command line (for example, [--index-url](https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-i)).
+- `pip_args` (string) - When Ansible is installed via pip, this option allows the definition of additional pip arguments to be passed along on the command line (for example, [`--index-url`](https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-i)).
+
+    By default, this option is not set.
 
 - `provisioning_path` (string) - An absolute path on the guest machine where the Ansible files are stored. The `ansible-galaxy` and `ansible-playbook` commands are executed from this directory. This is the location to place an [ansible.cfg](http://docs.ansible.com/ansible/intro_configuration.html) file, in case you need it.
 
