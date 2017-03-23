@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
 
 ## 1.9.3 (March 21, 2017)
 
