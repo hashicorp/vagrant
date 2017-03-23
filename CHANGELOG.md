@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - core/bundler: Warn when plugin require fails instead of generating hard failure [GH-8400, GH-8392]
+
 BUG FIXES:
 
   - command/up: Prevent other provider installation when explicitly defined [GH-8393, GH-8389]
