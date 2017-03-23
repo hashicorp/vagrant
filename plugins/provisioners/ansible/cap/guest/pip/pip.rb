@@ -5,7 +5,7 @@ module VagrantPlugins
       module Guest
         module Pip
 
-          def self.pip_install(machine, package, version = "", pip_args = "", upgrade = true)
+          def self.pip_install(machine, package = "", version = "", pip_args = "", upgrade = true)
             upgrade_arg = "--upgrade" if upgrade
             version_arg = ""
 

@@ -81,6 +81,14 @@ describe VagrantPlugins::Ansible::Config::Guest do
       result = subject.validate(machine)
       expect(subject.install_mode).to eql(:pip)
     end
+
+    it "supports :pip_args_only install_mode" do
+      subject.install_mode = "pip_args_only"
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(subject.install_mode).to eql(:pip_args_only)
+    end
   end
 
 end

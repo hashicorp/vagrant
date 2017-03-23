@@ -38,8 +38,11 @@ module VagrantPlugins
         def validate(machine)
           super
 
-          if @install_mode.to_s.to_sym == :pip
+          case @install_mode.to_s.to_sym
+          when :pip
             @install_mode = :pip
+          when :pip_args_only
+            @install_mode = :pip_args_only
           else
             @install_mode = :default
           end

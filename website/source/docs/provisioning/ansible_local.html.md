@@ -69,19 +69,68 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
     **Attention:** There is no guarantee that this automated installation will replace a custom Ansible setup, that might be already present on the Vagrant box.
 
-- `install_mode` (`:default` or `:pip`) - Select the way to automatically install Ansible on the guest system.
+- `install_mode` (`:default`, `:pip`, or `:pip_args_only`) - Select the way to automatically install Ansible on the guest system.
 
   - `:default`: Ansible is installed from the operating system package manager. This mode doesn't support `version` selection. For many platforms (e.g Debian, FreeBSD, OpenSUSE) the official package repository is used, except for the following Linux distributions:
       - On Ubuntu-like systems, the latest Ansible release is installed from the `ppa:ansible/ansible` repository.
       - On RedHat-like systems, the latest Ansible release is installed from the [EPEL](http://fedoraproject.org/wiki/EPEL) repository.
 
-  - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). The `:pip` mode can install a specific version of Ansible if such information is specified with the `version` option described below.
+  - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). With the `:pip` mode you can optionally install a specific Ansible release by setting the [`version`](#version) option.
 
-    The default value is `:default`, and any invalid value for this option will silently fall back to the default value.
+        Example:
+
+        ```ruby
+        config.vm.provision "ansible_local" do |ansible|
+          ansible.playbook = "playbook.yml"
+          ansible.install_mode = "pip"
+          ansible.version = "2.2.1.0"
+        end
+        ```
+        With this configuration, Vagrant will install `pip` and then execute the command
+
+        ```shell
+        sudo pip install --upgrade ansible==2.2.1.0
+        ```
+
+  - `:pip_args_only`: This mode is very similar to the `:pip` mode, with the difference that in this case no pip arguments will be automatically set by Vagrant.
+
+        Example:
+
+        ```ruby
+        config.vm.provision "ansible_local" do |ansible|
+          ansible.playbook = "playbook.yml"
+          ansible.install_mode = "pip_args_only"
+          ansible.pip_args = "-r /vagrant/requirements.txt"
+        end
+        ```
+
+        With this configuration, Vagrant will install `pip` and then execute the command
+
+        ```shell
+        sudo pip install -r /vagrant/requirements.txt
+        ```
+
+    The default value of `install_mode` is `:default`, and any invalid value for this option will silently fall back to the default value.
 
 - `pip_args` (string) - When Ansible is installed via pip, this option allows the definition of additional pip arguments to be passed along on the command line (for example, [`--index-url`](https://pip.pypa.io/en/stable/reference/pip_install/#cmdoption-i)).
 
     By default, this option is not set.
+
+    Example:
+
+    ```ruby
+    config.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "playbook.yml"
+      ansible.install_mode = :pip
+      ansible.pip_args = "--install-url https://pypi.internal"
+    end
+    ```
+
+    With this configuration, Vagrant will install `pip` and then execute the command
+
+    ```shell
+    sudo pip install --index-url https://pypi.internal --upgrade ansible
+    ```
 
 - `provisioning_path` (string) - An absolute path on the guest machine where the Ansible files are stored. The `ansible-galaxy` and `ansible-playbook` commands are executed from this directory. This is the location to place an [ansible.cfg](http://docs.ansible.com/ansible/intro_configuration.html) file, in case you need it.
 
