@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - provider/hyperv: Support integration services configuration [GH-8379, GH-8378]
+
 IMPROVEMENTS:
 
 BUG FIXES:
