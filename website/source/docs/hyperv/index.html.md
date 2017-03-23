@@ -14,7 +14,7 @@ Vagrant comes with support out of the box for [Hyper-V](https://en.wikipedia.org
 a native hypervisor written by Microsoft. Hyper-V is available by default for
 almost all Windows 8.1 installs.
 
-The Hyper-V provider is compatible with Windows 8.1 only. Prior versions
+The Hyper-V provider is compatible with Windows 8.1 and later only. Prior versions
 of Hyper-V do not include the necessary APIs for Vagrant to work.
 
 Hyper-V must be enabled prior to using the provider. Most Windows installations

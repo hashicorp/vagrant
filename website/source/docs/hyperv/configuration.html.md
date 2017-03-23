@@ -29,6 +29,9 @@ you may set. A complete reference is shown below:
     virtual machine to report an IP address. This defaults to 120 seconds.
     This may have to be increased if your VM takes longer to boot.
   * `differencing_disk` (boolean) - Switch to use differencing disk intead of cloning whole VHD.
+  * `enable_virtualization_extensions` (boolean) - Enable virtualization extensions for the virtual CPUs.
+    This allows Hyper-V to be nested and run inside another Hyper-VM VM. It requires Windows 10  - 1511 (build 10586) or newer.
+    Default is not defined. This will be disabled if not set.
   * `vm_integration_services` (Hash) - Hash to set the state of integration services.
      
     Example: 

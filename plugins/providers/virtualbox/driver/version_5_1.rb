@@ -6,7 +6,7 @@ module VagrantPlugins
       # Driver for VirtualBox 5.1.x
       class Version_5_1 < Version_5_0
         def initialize(uuid)
-          super()
+          super
 
           @logger = Log4r::Logger.new("vagrant::provider::virtualbox_5_1")
         end

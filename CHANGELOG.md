@@ -4,10 +4,19 @@ FEATURES:
 
 IMPROVEMENTS:
 
+BUG FIXES:
+
+
+## 1.9.3 (March 21, 2017)
+
+IMPROVEMENTS:
+
   - command/plugin: Remove requirement for paths with no spaces [GH-7967]
   - core: Support host_ip for forwarded ports [GH-7035, GH-8350]
   - core: Include disk space hint in box install failure message [GH-8089]
   - core/bundler: Allow vagrant constraint matching in prerelease mode [GH-8341]
+  - provisioner/docker: Include /bin/docker as valid path [GH-8390]
+  - provider/hyperv: Support enabling Hyper-V nested virtualization [GH-8325, GH-7738]
 
 BUG FIXES:
 
@@ -15,6 +24,8 @@ BUG FIXES:
   - contrib/bash: Handle path spaces in bash completion [GH-8337]
   - core: Fix box sorting on find and list [GH-7956, GH-8334]
   - core/bundler: Force path as preferred source on install [GH-8327]
+  - core/provision: Update "never" behavior to match documentation [GH-8366, GH-8016]
+  - plugins/push: Isolate deprecation to Atlas strategy only
   - plugins/synced_folders: Give UID/GID precedence if found within mount options
       [GH-8122, GH-8064, GH-7859]
 

@@ -11,8 +11,9 @@ module VagrantPlugins
       attr_accessor :vlan_id # VLAN ID for network interface for the virtual machine. @return [Integer]
       attr_accessor :mac # MAC address for network interface for the virtual machine. @return [String]
       attr_accessor :differencing_disk # Create differencing disk instead of cloning whole VHD [Boolean]
-      attr_accessor :auto_start_action #action on automatic start of VM. Values: Nothing, StartIfRunning, Start [String]
-      attr_accessor :auto_stop_action #action on automatic stop of VM. Values: ShutDown, TurnOff, Save [String]
+      attr_accessor :auto_start_action #action on automatic start of VM. Values: Nothing, StartIfRunning, Start
+      attr_accessor :auto_stop_action #action on automatic stop of VM. Values: ShutDown, TurnOff, Save
+      attr_accessor :enable_virtualization_extensions # Enable virtualization extensions (nested virtualization). Values: true, false
       attr_accessor :vm_integration_services # Options for VMServiceIntegration [Hash]
 
       def initialize
@@ -26,6 +27,7 @@ module VagrantPlugins
         @differencing_disk = UNSET_VALUE
         @auto_start_action = UNSET_VALUE
         @auto_stop_action = UNSET_VALUE
+        @enable_virtualization_extensions = UNSET_VALUE
         @vm_integration_services = {
             guest_service_interface: UNSET_VALUE,
             heartbeat: UNSET_VALUE,
@@ -49,6 +51,7 @@ module VagrantPlugins
         @differencing_disk = false if @differencing_disk == UNSET_VALUE
         @auto_start_action = nil if @auto_start_action == UNSET_VALUE
         @auto_stop_action = nil if @auto_stop_action == UNSET_VALUE
+        @enable_virtualization_extensions = false if @enable_virtualization_extensions == UNSET_VALUE # TODO will this work?
 
         @vm_integration_services.each { |key, value|
           @vm_integration_services[key] = nil if value == UNSET_VALUE

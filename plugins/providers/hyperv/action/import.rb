@@ -21,11 +21,13 @@ module VagrantPlugins
           differencing_disk = env[:machine].provider_config.differencing_disk
           auto_start_action = env[:machine].provider_config.auto_start_action
           auto_stop_action = env[:machine].provider_config.auto_stop_action
+          enable_virtualization_extensions = env[:machine].provider_config.enable_virtualization_extensions
           vm_integration_services = env[:machine].provider_config.vm_integration_services
 
           env[:ui].output("Configured Dynamic memory allocation, maxmemory is #{maxmemory}") if maxmemory
           env[:ui].output("Configured startup memory is #{memory}") if memory
           env[:ui].output("Configured cpus number is #{cpus}") if cpus
+          env[:ui].output("Configured enable virtualization extensions is #{enable_virtualization_extensions}") if enable_virtualization_extensions
           env[:ui].output("Configured vmname is #{vmname}") if vmname
           env[:ui].output("Configured differencing disk instead of cloning") if differencing_disk
           env[:ui].output("Configured automatic start action is #{auto_start_action}") if auto_start_action
@@ -146,6 +148,7 @@ module VagrantPlugins
           options[:auto_start_action] = auto_start_action if auto_start_action
           options[:auto_stop_action] = auto_stop_action if auto_stop_action
           options[:differencing_disk] = differencing_disk if differencing_disk
+          options[:enable_virtualization_extensions] = "$True" if enable_virtualization_extensions and enable_virtualization_extensions == true
 
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)
