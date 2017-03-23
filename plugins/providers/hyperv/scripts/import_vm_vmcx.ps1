@@ -16,6 +16,7 @@
     [string]$auto_start_action=$null,
     [string]$auto_stop_action=$null,
     [string]$differencing_disk=$null
+    [string]$enable_virtualization_extensions=$False
 )
 
 # Include the following modules
@@ -84,6 +85,11 @@ if (!$memory) {
 
 if (!$switchname) {
     $switchname = (Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
+}
+
+# Enable nested virtualization if configured
+if ($enable_virtualization_extensions) {
+    Set-VMProcessor -VM $vmConfig.VM -ExposeVirtualizationExtensions $true
 }
 
 $vmNetworkAdapter = Get-VMNetworkAdapter -VM $vmConfig.VM
