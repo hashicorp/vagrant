@@ -8,10 +8,10 @@ module VagrantPlugins
         module RedHat
           module AnsibleInstall
 
-            def self.ansible_install(machine, install_mode, ansible_version)
+            def self.ansible_install(machine, install_mode, ansible_version, pip_args)
               if install_mode == :pip
                 pip_setup machine
-                Pip::pip_install machine, "ansible", ansible_version
+                Pip::pip_install machine, "ansible", ansible_version, pip_args
               else
                 ansible_rpm_install machine
               end

@@ -27,6 +27,7 @@ describe VagrantPlugins::Ansible::Config::Guest do
                             install_mode
                             inventory_path
                             limit
+                            pip_args
                             playbook
                             playbook_command
                             provisioning_path
