@@ -32,3 +32,21 @@ you may set. A complete reference is shown below:
   * `enable_virtualization_extensions` (boolean) - Enable virtualization extensions for the virtual CPUs.
     This allows Hyper-V to be nested and run inside another Hyper-VM VM. It requires Windows 10  - 1511 (build 10586) or newer.
     Default is not defined. This will be disabled if not set.
+  * `vm_integration_services` (Hash) - Hash to set the state of integration services.
+     
+    Example: 
+        
+    ```ruby
+    config.vm.provider "hyperv" do |h|
+      h.vm_integration_services = {
+          guest_service_interface: true,
+          heartbeat: true,
+          key_value_pair_exchange: false,
+          shutdown: true,
+          time_synchronization: true,
+          vss: true
+      }
+    end
+    ```
+  
+            
