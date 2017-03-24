@@ -1,0 +1,16 @@
+[Match]
+Name=<%= networks[0][:device] %>
+
+[Network]
+<%- gateway = nil %>
+<%- networks.each do |net| %>
+<%-   if net[:type] == 'dhcp' %>
+DHCP=yes
+<%-   elsif net[:ip] %>
+Address=<%= net[:ip] %>/<%= net[:netmask] %>
+<%-   end %>
+<%-   gateway ||= net[:gateway] %>
+<%- end %>
+<%- if gateway %>
+Gateway=<%= gateway %>
+<%- end %>
