@@ -8,6 +8,8 @@ FEATURES:
 IMPROVEMENTS:
 
   - core/bundler: Warn when plugin require fails instead of generating hard failure [GH-8400, GH-8392]
+  - provisioners/ansible_local: Add `pip_args` option to define additional parameters when installing Ansible via pip [GH-8170, GH-8405]
+  - provisioners/ansible_local: Add `:pip_args_only` install mode to allow full custom pip installations [GH-8405]
 
 BUG FIXES:
 
