@@ -17,6 +17,7 @@ BUG FIXES:
   - core: Provide fallback and retry when 0.0.0.0 is unavailable during port check [GH-8399, GH-8395]
   - core/bundler: Check if source is local path and prevent addition to remote sources [GH-8401]
   - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
+  - guests/linux: Fix SMB mount capbability [GH-8410, GH-8404]
   - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
 
 ## 1.9.3 (March 21, 2017)
