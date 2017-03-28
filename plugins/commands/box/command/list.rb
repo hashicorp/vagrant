@@ -22,7 +22,7 @@ module VagrantPlugins
           argv = parse_options(opts)
           return if !argv
 
-          boxes = @env.boxes.all.sort
+          boxes = @env.boxes.all
           if boxes.empty?
             return @env.ui.warn(I18n.t("vagrant.commands.box.no_installed_boxes"), prefix: false)
           end
