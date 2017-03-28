@@ -295,7 +295,7 @@ module Vagrant
     #
     # @return [Hash]
     def checkpoint
-      @checkpoint_thr.join
+      @checkpoint_thr.join(THREAD_MAX_JOIN_TIMEOUT)
       return @checkpoint_thr[:result]
     end
 

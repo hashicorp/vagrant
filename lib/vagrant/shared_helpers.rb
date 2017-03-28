@@ -12,6 +12,12 @@ module Vagrant
   # @return [String]
   DEFAULT_SERVER_URL = "https://atlas.hashicorp.com"
 
+  # Max number of seconds to wait for joining an active thread.
+  #
+  # @return [Integer]
+  # @note This is not the maxium time for a thread to complete.
+  THREAD_MAX_JOIN_TIMEOUT = 60
+
   # This holds a global lock for the duration of the block. This should
   # be invoked around anything that is modifying process state (such as
   # environmental variables).

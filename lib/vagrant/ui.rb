@@ -53,7 +53,7 @@ module Vagrant
             # We're being called in a trap-context. Wrap in a thread.
             Thread.new do
               @logger.info { "#{method}: #{message}" }
-            end.join
+            end.join(THREAD_MAX_JOIN_TIMEOUT)
           end
         end
       end
@@ -128,7 +128,7 @@ module Vagrant
           @lock.synchronize do
             safe_puts("#{Time.now.utc.to_i},#{target},#{type},#{data.join(",")}")
           end
-        end.join
+        end.join(THREAD_MAX_JOIN_TIMEOUT)
       end
     end
 
@@ -244,7 +244,7 @@ module Vagrant
             safe_puts(format_message(type, message, **opts),
                       io: channel, printer: printer)
           end
-        end.join
+        end.join(THREAD_MAX_JOIN_TIMEOUT)
       end
 
       def format_message(type, message, **opts)

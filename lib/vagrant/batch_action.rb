@@ -123,7 +123,9 @@ module Vagrant
         # Set some attributes on the thread for later
         thread[:machine] = machine
 
-        thread.join if !par
+        if !par
+          thread.join(THREAD_MAX_JOIN_TIMEOUT) while thread.alive?
+        end
         threads << thread
       end
 
@@ -131,7 +133,7 @@ module Vagrant
 
       threads.each do |thread|
         # Wait for the thread to complete
-        thread.join
+        thread.join(THREAD_MAX_JOIN_TIMEOUT) while thread.alive?
 
         # If the thread had an error, then store the error to show later
         if thread[:error]
