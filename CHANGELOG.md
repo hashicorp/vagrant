@@ -13,6 +13,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - command/box: Remove extraneous sort from box list prior to display [GH-8422]
   - command/up: Prevent other provider installation when explicitly defined [GH-8393, GH-8389]
   - core: Provide fallback and retry when 0.0.0.0 is unavailable during port check [GH-8399, GH-8395]
   - core/bundler: Check if source is local path and prevent addition to remote sources [GH-8401]
