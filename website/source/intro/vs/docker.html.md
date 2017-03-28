@@ -9,14 +9,26 @@ description: |-
 
 # Vagrant vs. Docker
 
-Vagrant uses kernel-level isolation whereas Docker uses userland-level
-isolation. In practice, this means Vagrant will provide more isolation from your
-virtual machines than Docker, but Docker will be faster to boot machines. After
-booting, speeds are roughly equivalent.
+Vagrant is a tool focused on providing a consistent development environment
+workflow across multiple operation systems. Docker is a container management
+that can consistently run software as long as a containerization system exists.
 
-Docker also lacks support for certain operating systems (like Windows and BSD).
-If your target deployment is a Windows environment, Docker will not provide the
-same production parity as a tool like Vagrant.
+Containers are generally more lightweight than virtual machines, so starting
+and stopping containers is extremely fast. Most common development machines
+don't have a containerization system built-in, and Docker uses a virtual machine
+with Linux installed to provide that.
 
-Both Vagrant and Docker have a vast library of community-contributed "images" or
-"boxes" to choose from.
+Currently, Docker lacks support for certain operating systems (such as
+Windows and BSD). If your target deployment is one of these operating systems,
+Docker will not provide the same production parity as a tool like Vagrant.
+Vagrant will allow you to run a Windows development environment on Mac or Linux,
+as well.
+
+For microservice heavy environments, Docker can be attractive because you
+can easily start a single Docker VM and start many containers above that
+very quickly. This is a good use case for Docker. Vagrant can do this as well
+with the Docker provider. A primary benefit for Vagrant is a consistent workflow
+but there are many cases where a pure-Docker workflow does make sense.
+
+Both Vagrant and Docker have a vast library of community-contributed "images"
+or "boxes" to choose from.
