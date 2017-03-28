@@ -18,11 +18,8 @@ than ideal performance with synced folders, [NFS](https://en.wikipedia.org/wiki/
 can offer a solution. Vagrant has built-in support to orchestrate the
 configuration of the NFS server on the host and guest for you.
 
-<div class="alert alert-info">
-  <strong>Windows users:</strong> NFS folders do not work on Windows
-  hosts. Vagrant will ignore your request for NFS synced folders on
-  Windows.
-</div>
+~> **Windows users:** NFS folders do not work on Windows hosts. Vagrant will
+ignore your request for NFS synced folders on Windows.
 
 ## Prerequisites
 
@@ -44,8 +41,6 @@ To enable NFS, just add the `type: "nfs"` flag onto your synced folder:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  # ...
-
   config.vm.synced_folder ".", "/vagrant", type: "nfs"
 end
 ```
@@ -94,10 +89,10 @@ In addition to the options specified above, it is possible for Vagrant to
 specify alternate NFS arguments when mounting the NFS share by using the
 `mount_options` key. For example, to use the `actimeo=2` client mount option:
 
-```
+```ruby
 config.vm.synced_folder ".", "/vagrant",
-    :nfs => true,
-    :mount_options => ['actimeo=2']
+  nfs: true,
+  mount_options: ['actimeo=2']
 ```
 
 This would result in the following `mount` command being executed on the guest:
@@ -112,10 +107,10 @@ when the mount is added, by using the OS-specific `linux__nfs_options` or
 arguments that are added by Vagrant automatically. For example, to make the
 NFS share asynchronous:
 
-```
+```ruby
 config.vm.synced_folder ".", "/vagrant",
-    :nfs => true,
-    :linux__nfs_options => ['rw','no_subtree_check','all_squash','async']
+  nfs: true,
+  linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
 ```
 
 This would result in the following content in `/etc/exports` on the host (note
@@ -206,11 +201,11 @@ mount.nfs: an incorrect mount option was specified
 
 When using NFSv4, ensure the `nfs_udp` option is set to false. For example:
 
-```
+```ruby
 config.vm.synced_folder ".", "/vagrant",
-    :nfs => true,
-    :nfs_version => 4,
-    :nfs_udp => false
+  nfs: true,
+  nfs_version: 4,
+  nfs_udp: false
 ```
 
 For more information about transport protocols and NFS version 4 see:

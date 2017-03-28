@@ -1,0 +1,39 @@
+svg.logo {
+  &.color {
+    opacity: 1.0;
+
+    path.text {
+      fill: $black;
+      opacity: 1.0;
+    }
+
+    path.front {
+      fill: $vagrant-blue;
+      opacity: 1.0;
+    }
+
+    polygon.shadow {
+      fill: $vagrant-blue-dark;
+      opacity: 1.0;
+    }
+  }
+
+  // The default logo class is the colored version
+  @extend .color;
+
+  &.white {
+    opacity: 1.0;
+
+    path.text {
+      fill: $white;
+    }
+
+    path.front, polygon.shadow {
+      fill: $white;
+    }
+
+    path.front {
+      opacity: 0.7;
+    }
+  }
+}
