@@ -1,0 +1,43 @@
+<% wrap_layout :inner do %>
+  <% content_for :sidebar do %>
+    <ul class="nav docs-sidenav">
+      <li<%= sidebar_current("intro-home") %>>
+        <a href="/intro/index.html">What is Vagrant?</a>
+      </li>
+
+      <li<%= sidebar_current("vs") %>>
+        <a href="/intro/vs/index.html">Vagrant vs. Other Software</a>
+        <ul class="nav">
+          <li<%= sidebar_current("vs-cli-tools") %>>
+            <a href="/intro/vs/cli-tools.html">CLI Tools</a>
+          </li>
+          <li<%= sidebar_current("vs-docker") %>>
+            <a href="/intro/vs/docker.html">Docker</a>
+          </li>
+          <li<%= sidebar_current("vs-terraform") %>>
+            <a href="/intro/vs/terraform.html">Terraform</a>
+          </li>
+        </ul>
+      </li>
+
+      <li<%= sidebar_current("gettingstarted") %>>
+        <a href="/intro/getting-started/index.html">Getting Started</a>
+        <ul class="nav">
+          <li<%= sidebar_current("gettingstarted-install") %>><a href="/intro/getting-started/install.html">Install</a></li>
+          <li<%= sidebar_current("gettingstarted-projectsetup") %>><a href="/intro/getting-started/project_setup.html">Project Setup</a></li>
+          <li<%= sidebar_current("gettingstarted-boxes") %>><a href="/intro/getting-started/boxes.html">Boxes</a></li>
+          <li<%= sidebar_current("gettingstarted-up") %>><a href="/intro/getting-started/up.html">Up and SSH</a></li>
+          <li<%= sidebar_current("gettingstarted-syncedfolders") %>><a href="/intro/getting-started/synced_folders.html">Synced Folders</a></li>
+          <li<%= sidebar_current("gettingstarted-provisioning") %>><a href="/intro/getting-started/provisioning.html">Provisioning</a></li>
+          <li<%= sidebar_current("gettingstarted-networking") %>><a href="/intro/getting-started/networking.html">Networking</a></li>
+          <li<%= sidebar_current("gettingstarted-share") %>><a href="/intro/getting-started/share.html">Share</a></li>
+          <li<%= sidebar_current("gettingstarted-teardown") %>><a href="/intro/getting-started/teardown.html">Teardown</a></li>
+          <li<%= sidebar_current("gettingstarted-rebuild") %>><a href="/intro/getting-started/rebuild.html">Rebuild</a></li>
+          <li<%= sidebar_current("gettingstarted-providers") %>><a href="/intro/getting-started/providers.html">Providers</a></li>
+        </ul>
+      </li>
+    </ul>
+  <% end %>
+
+  <%= yield %>
+<% end %>

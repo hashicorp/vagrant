@@ -1,146 +1,227 @@
-.page-home {
+#page-home {
+  // Override the main header
+  #header {
+    background: $home-header-background-color;
 
-  h1, h2, h3, h4, h5 {
-    color: $purple-text;
-    font-family: $font-family-klavika;
-    text-transform: uppercase;
-  }
-
-  .hero {
-    @include padded;
-    background: $gray-background image-url("vagrant_header_background.png") no-repeat center -20px;
-    background-size: 1292px 532px;
-    text-align: center;
-    border-bottom: 1px solid #c6e0f0;
-
-    .hero-content {
-      top: 50%;
-
-      hgroup {
-        margin: ($baseline * 4) 0 20px 0;
-        text-shadow: 0 1px 10px rgba(255, 255, 255, 0.4);
-
-        h1 {
-          color: $purple-text;
-          line-height: 1;
-          margin-top: 350px;
-        }
-
-        p {
-          color: $vagrant-blue;
-        }
-      }
-
-      #button-download {
-        margin-right: 10px;
-      }
-
-      #button-get-started {
-        margin-left: 10px;
+    .navbar-toggle {
+      .icon-bar {
+        border: 1px solid $home-header-link-color;
       }
     }
-  }
 
-  .why-vagrant {
-    @include padded;
-    background: $light-blue-background image-url("steps_background.png") center -120px;
-
-    h2 {
-      color: $blue-text;
-      text-align: center;
-
-    }
-
-    hgroup {
-      margin: ($baseline * 3) 0;
-      // width: 530px;
-
-      h3 {
-        font-weight: bold;
-        margin-bottom: $baseline;
-        text-align: center;
-      }
-
-      h4 {
-        font-size: 20px;
-        text-align: center;
-        line-height: $baseline * 1.5;
-      }
-      p {
-        color: $purple-text;
-      }
-    }
-  }
-
-  .get-started {
-    @include padded;
-    @include get-started-bg;
-
-    h2 {
-      color: $white;
-      text-align: center;
-    }
-
-    pre {
-      font-size: 20px;
-      padding: 40px 40px 10px 40px;
-      margin: 40px auto;
-      background: rgba($black, 0.6);
-    }
-  }
-
-  .customers {
-    @include padded;
-    background-color: $black;
-    border-bottom: 1px solid #333;
-
-    h2 {
-      color: $dark-gray-text;
-      text-align: center;
-    }
-
-    .customer-logos {
-      margin-top: $baseline * 3;
-
-      img {
-        width:100%;
-        height: auto;
-        -khtml-opacity: .5;
-        -moz-opacity: .5;
-        opacity: .5;
-        filter: alpha(opacity=50);
-      }
-    }
-  }
-}
-
-@media (max-width: 991px) {
-  .page-home {
-    .hero {
-      .hero-content {
-        #button-download {
-          margin-right: 0;
-        }
-
-        #button-get-started {
-          margin-left: 0;
+    .navbar-brand {
+      a {
+        svg.logo {
+          @extend svg.logo.color;
         }
       }
     }
-  }
-}
 
-@media (max-width: 480px) {
-  .page-home {
-    .hero {
-      background: $gray-background image-url("vagrant_header_background.png") no-repeat center -60px;
-      background-size: 1292px 532px;
+    ul.nav {
+      li {
+        a {
+          color: $home-header-link-color;
 
-      .hero-content {
-        hgroup {
-          h1 {
-            margin-top: 280px;
+          &:hover, &:focus, &:active {
+            background-color: transparent;
+            color: $home-header-link-color-hover;
+
+            svg {
+              fill: $home-header-link-color-hover;
+            }
           }
+
+          svg {
+            fill: $home-header-link-color;
+          }
+        }
+      }
+    }
+  }
+
+  header {
+    .hero {
+      margin: 140px auto 160px auto;
+      text-align: center;
+
+      .button {
+        margin: 5px;
+
+        @media (max-width: 768px) {
+          display: block;
+          margin-top: 10px;
+          text-align: center;
+        }
+      }
+
+      svg {
+        max-width: 90%;
+      }
+    }
+  }
+
+  section {
+    background: $white;
+    padding: 100px 0;
+  }
+
+  section.marketing {
+    h2 {
+      font-family: $font-family-klavika;
+      font-size: 36px;
+      font-weight: $font-weight-bold;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin: 20px 0 10px 0;
+      padding: 0;
+    }
+
+    p {
+      font-family: $font-family-open-sans;
+      font-size: 16px;
+      letter-spacing: 0.01em;
+      line-height: 1.8;
+      margin: 0 0 10px;
+    }
+
+    span.callout {
+      background: $black;
+      color: $white;
+      display: inline-block;
+      font-family: $font-family-klavika;
+      font-size: 18px;
+      font-weight: $font-weight-bold;
+      line-height: 1;
+      margin: 0;
+      padding: 5px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    &.black {
+      background: $black;
+
+      h2 {
+        color: $white;
+      }
+
+      p {
+        color: $white;
+        font-weight: $font-weight-bold;
+      }
+
+      span.callout {
+        background: $white;
+        color: $black;
+      }
+    }
+
+    &.blue-dark {
+      background: $vagrant-blue-dark;
+
+      h2 {
+        color: $white;
+      }
+
+      p {
+        color: $white;
+        font-weight: $font-weight-bold;
+      }
+    }
+
+    &.blue {
+      background: $vagrant-blue;
+
+      h2 {
+        color: $white;
+      }
+
+      p {
+        color: $white;
+        font-weight: $font-weight-bold;
+      }
+    }
+
+    &#simple {
+      .terminal {
+        border: 1px solid $white;
+        background-color: $black;
+        box-shadow: 3px 4px 0 rgba(0,0,0,0.1);
+        box-sizing: border-box;
+        color: $white;
+        font-family: $font-family-monospace;
+        font-size: 14px;
+        line-height: 1.8;
+        margin-top: 55px;
+        padding: 10px 20px 20px 20px;
+
+        .terminal-content {
+          margin-top: 15px;
+          overflow-x: scroll;
+          width: 100%;
+          white-space: nowrap;
+
+          span {
+            display: block;
+          }
+        }
+
+        span.circle {
+          &:before {
+            content: '\25CF';
+            color: $white;
+            font-size: 20px;
+            line-height: 1;
+            height: 100%;
+          }
+        }
+
+        span.command {
+          font-weight: $font-weight-bold;
+        }
+      }
+    }
+
+    &#parity {
+      display: flex;
+      align-items: center;
+
+      .parity-image {
+        text-align: center;
+
+        svg {
+          display: inline-block;
+          max-width: 400px;
+          margin: 40px;
+        }
+      }
+    }
+
+    &#cross {
+      .systems {
+        margin-top: 70px;
+        text-align: center;
+
+        svg {
+          max-width: 130px;
+          min-width: 20px;
+          height: auto;
+
+          fill: $white;
+          padding: 0 20px;
+        }
+      }
+    }
+
+    &#trusted {
+      p.logos {
+        margin-top: 40px;
+        text-align: center;
+
+        img {
+          max-width: 941px;
+          height: auto;
+          width: 100%;
         }
       }
     }

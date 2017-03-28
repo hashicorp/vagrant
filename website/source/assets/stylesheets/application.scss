@@ -1,63 +1,41 @@
-// Import bootstrap
-@import "bootstrap-sprockets";
-@import "bootstrap";
+@import 'bootstrap-sprockets';
+@import 'bootstrap';
 
-// Remote fonts
-@import url("//fonts.googleapis.com/css?family=Open+Sans:300,400,600");
-@import url("//fonts.googleapis.com/css?family=Inconsolata:400,700");
+@import url('//fonts.googleapis.com/css?family=Open+Sans:400,600');
+
+// Core variables and mixins
+@import '_variables';
 
 // Mega Nav
 @import 'hashicorp/mega-nav';
 
-// Core variables and mixins
-@import "_variables";
+// Anchor links
+@import 'hashicorp/anchor-links';
 
-// Utility classes
-@import "_mixins";
-@import "_utilities";
-
-// Core CSS
-@import "_fonts";
+// Sidebar
+@import 'hashicorp/sidebar';
 
 // Global Site
-@import "_global";
-
-// Hashicorp Shared Project Styles
-@import "hashicorp-shared/_hashicorp-utility";
-@import "hashicorp-shared/_project-utility";
-@import "hashicorp-shared/_hashicorp-header";
-@import "hashicorp-shared/_hashicorp-sidebar";
+@import '_global';
 
 // Components
-@import "_buttons";
-@import "_header";
-@import "_footer";
-@import "_sidebar";
+@import '_header';
+@import '_footer';
+@import '_inner';
+@import '_buttons';
+@import '_logos';
 
 // Pages
-@import "_about";
-@import "_docs";
-@import "_downloads";
-@import "_home";
-@import "_pages";
-@import "_sponsors";
-@import "_vmware";
+@import '_community';
+@import '_docs';
+@import '_downloads';
+@import '_home';
+@import '_vmware';
+@import '_syntax';
 
-code {
-  background-color: rgba($vagrant-blue, 0.1);
-  color: $vagrant-blue;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  code {
-    background-color: transparent;
-    color: inherit;
-  }
-}
-
-.legal-text {
-  p {
-    font-family: $font-family-monospace;
-    font-size: 16px;
-  }
-}
+// .legal-text {
+//   p {
+//     font-family: $font-family-monospace;
+//     font-size: 16px;
+//   }
+// }
