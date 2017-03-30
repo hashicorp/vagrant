@@ -1,12 +1,40 @@
 set :base_url, "https://www.vagrantup.com/"
 
 activate :hashicorp do |h|
-  h.name = "vagrant"
-  h.version = "1.9.2"
-  h.github_slug = "mitchellh/vagrant"
+  h.name         = "vagrant"
+  h.version      = "1.9.3"
+  h.github_slug  = "mitchellh/vagrant"
+  h.website_root = "website"
 end
 
 helpers do
+  # Get the title for the page.
+  #
+  # @param [Middleman::Page] page
+  #
+  # @return [String]
+  def title_for(page)
+    if page && page.data.page_title
+      return "#{page.data.page_title} - Vagrant by HashiCorp"
+    end
+
+     "Vagrant by HashiCorp"
+   end
+
+  # Get the description for the page
+  #
+  # @param [Middleman::Page] page
+  #
+  # @return [String]
+  def description_for(page)
+    description = (page.data.description || "")
+      .gsub('"', '')
+      .gsub(/\n+/, ' ')
+      .squeeze(' ')
+
+    return escape_html(description)
+  end
+
   # This helps by setting the "active" class for sidebar nav elements
   # if the YAML frontmatter matches the expected value.
   def sidebar_current(expected)
@@ -18,51 +46,47 @@ helpers do
     end
   end
 
-  # This returns the overall section of the documentation we're on.
-  def sidebar_section
-    current = current_page.data.sidebar_current
-    return "" if !current
-    current.split("-")[0]
+  # Returns the id for this page.
+  # @return [String]
+  def body_id_for(page)
+    if !(name = page.data.sidebar_current).blank?
+      return "page-#{name.strip}"
+    end
+    if page.url == "/" || page.url == "/index.html"
+      return "page-home"
+    end
+    if !(title = page.data.page_title).blank?
+      return title
+        .downcase
+        .gsub('"', '')
+        .gsub(/[^\w]+/, '-')
+        .gsub(/_+/, '-')
+        .squeeze('-')
+        .squeeze(' ')
+    end
+    return ""
   end
 
-  def body_classes
-    classify = ->(s) { s.downcase.gsub(/[^a-zA-Z0-9]/, "-").squeeze("-") }
-
+  # Returns the list of classes for this page.
+  # @return [String]
+  def body_classes_for(page)
     classes = []
 
-    if current_page.data.page_title
-      classes << "page-#{classify.call(current_page.data.page_title)}"
-    else
-      classes << "page-home"
+    if !(layout = page.data.layout).blank?
+      classes << "layout-#{page.data.layout}"
     end
 
-    if current_page.data.layout
-      classes << "layout-#{classify.call(current_page.data.layout)}"
+    if !(title = page.data.page_title).blank?
+      title = title
+        .downcase
+        .gsub('"', '')
+        .gsub(/[^\w]+/, '-')
+        .gsub(/_+/, '-')
+        .squeeze('-')
+        .squeeze(' ')
+      classes << "page-#{title}"
     end
 
     return classes.join(" ")
-  end
-  # "home layout-#{current_page.data.layout}"
-
-  # Get the title for the page.
-  #
-  # @param [Middleman::Page] page
-  #
-  # @return [String]
-  def title_for(page)
-    if page && page.data.page_title
-      return "#{page.data.page_title} - Vagrant by HashiCorp"
-    end
-
-    "Vagrant by HashiCorp"
-  end
-
-  # Get the description for the page
-  #
-  # @param [Middleman::Page] page
-  #
-  # @return [String]
-  def description_for(page)
-    return escape_html(current_page.data.description || "")
   end
 end

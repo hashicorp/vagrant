@@ -15,7 +15,7 @@ module VagrantPlugins
           mount_device   = "//#{options[:smb_host]}/#{name}"
 
           mount_options = options.fetch(:mount_options, [])
-          detected_ids = detect_owner_group_ids(machine, guest_path, mount_options, options)
+          detected_ids = detect_owner_group_ids(machine, guestpath, mount_options, options)
           mount_uid = detected_ids[:uid]
           mount_gid = detected_ids[:gid]
 

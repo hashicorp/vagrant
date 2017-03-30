@@ -29,11 +29,11 @@ module Vagrant
           end
           alias_method :non_deprecated_execute, :execute
 
-          def execute
+          def execute(*args, &block)
             @env[:ui].warn(I18n.t("vagrant.commands.deprecated",
               name: deprecation_command_name
             ) + "\n")
-            non_deprecated_execute
+            non_deprecated_execute(*args, &block)
           end
         end
       end
@@ -44,7 +44,7 @@ module Vagrant
         def self.included(klass)
           klass.include(CommandDeprecation)
           klass.class_eval do
-            def execute
+            def execute(*_)
               raise Vagrant::Errors::CommandDeprecated,
                 name: deprecation_command_name
             end

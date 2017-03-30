@@ -51,17 +51,23 @@ Vagrant.configure(2) do |global_config|
         config.vm.synced_folder '.', '/vagrant', disable: true
         config.vm.synced_folder '../../', '/vagrant'
         config.vm.provider :vmware_workstation do |vmware|
-          vmware.vmx["memsize"] = "2048"
+          vmware.vmx["memsize"] = ENV.fetch("VAGRANT_HOST_MEMORY", "2048")
           vmware.vmx['vhv.enable'] = 'TRUE'
           vmware.vmx['vhv.allow'] = 'TRUE'
         end
-        config.vm.provision :shell, path: "./scripts/#{platform}-setup.#{provider_name}.sh"
-        GUEST_BOXES.each do |guest_box, box_version|
+        config.vm.provision :shell, path: "./scripts/#{platform}-setup.#{provider_name}.sh", run: "once"
+        guest_boxes.each_with_index do |box_info, idx|
+          guest_box, box_version = box_info
+          spec_cmd_args = ENV["VAGRANT_SPEC_ARGS"]
+          if idx != 0
+            spec_cmd_args = "#{spec_cmd_args} --without-component cli/*".strip
+          end
           config.vm.provision(
             :shell,
             path: "./scripts/#{platform}-run.#{provider_name}.sh",
             keep_color: true,
             env: {
+              "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
               "VAGRANT_SPEC_BOX" => "/vagrant/test/vagrant-spec/boxes/#{guest_box.sub('/', '_')}.#{provider_name}.#{box_version}.box"
             }
           )

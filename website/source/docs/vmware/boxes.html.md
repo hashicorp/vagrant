@@ -67,6 +67,45 @@ in the box into a privately managed "vmwarevm" folder, and uses the first
   linked clones, please see the documentation.
 </div>
 
+## VMX Whitelisting
+
+Settings in the VMX file control the behavior of the VMware virtual machine
+when it is booted. In the past Vagrant has removed the configured network
+device when creating a new instance and inserted a new configuration. With
+the introduction of ["predictable network interface names"][iface-names] this
+approach can cause unexpected behaviors or errors with VMware Vagrant boxes.
+While some boxes that use the predictable network interface names are configured
+to handle the VMX modifications Vagrant makes, it is better if Vagrant does
+not make the modification at all.
+
+Vagrant will now warn if a whitelisted setting is detected within a Vagrant
+box VMX file. If it is detected, a warning will be shown alerting the user
+and providing a configuration snippet. The configuration snippet can be
+used in the Vagrantfile if Vagrant fails to start the virtual machine.
+
+### Making compatible boxes
+
+These are the VMX settings the whitelisting applies to:
+
+* `ethernet*.pcislotnumber`
+
+If the newly created box does not depend on Vagrant's existing behavior of
+modifying this setting, it can disable Vagrant from applying the modification
+by adding a Vagrantfile to the box with the following content:
+
+```ruby
+Vagrant.configure("2") do |config|
+  ["vmware_workstation", "vmware_fusion"].each do |vmware_provider|
+    config.vm.provider(vmware_provider) do |vmware|
+      vmware.whitelist_verified = true
+    end
+  end
+end
+```
+
+This will prevent Vagrant from displaying a warning to the user as well as
+disable the VMX settings modifications.
+
 ## Installed Software
 
 Base boxes for VMware should have the following software installed, as
@@ -105,3 +144,5 @@ single command) since VMware hard disks are not compressed by default.
 $ cd /path/to/my/vm.vmwarevm
 $ tar cvzf custom.box ./*
 ```
+
+[iface-names]: https://www.freedesktop.org/wiki/Software/systemd/PredictableNetworkInterfaceNames/

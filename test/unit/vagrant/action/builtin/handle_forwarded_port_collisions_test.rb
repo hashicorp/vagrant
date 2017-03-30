@@ -106,4 +106,29 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
 
   describe "#recover" do
   end
+
+  describe "#port_check" do
+    let(:host_ip){ "127.0.0.1" }
+    let(:host_port){ 8080 }
+
+    it "should check if the port is open" do
+      expect(instance).to receive(:is_port_open?).with(host_ip, host_port).and_return true
+      instance.send(:port_check, host_ip, host_port)
+    end
+
+    context "when host_ip is not set" do
+      let(:host_ip){ nil }
+
+      it "should set host_ip to 0.0.0.0 when unset" do
+        expect(instance).to receive(:is_port_open?).with("0.0.0.0", host_port).and_return true
+        instance.send(:port_check, host_ip, host_port)
+      end
+
+      it "should set host_ip to 127.0.0.1 when 0.0.0.0 is not available" do
+        expect(instance).to receive(:is_port_open?).with("0.0.0.0", host_port).and_raise Errno::EADDRNOTAVAIL
+        expect(instance).to receive(:is_port_open?).with("127.0.0.1", host_port).and_return true
+        instance.send(:port_check, host_ip, host_port)
+      end
+    end
+  end
 end

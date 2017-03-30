@@ -320,7 +320,7 @@ if Vagrant.plugins_enabled?
               global_logger.debug("Loading plugin `#{plugin_name}` with slash require: `#{plugin_slash}`")
               require plugin_slash
             rescue LoadError, Gem::LoadError
-              raise load_error
+              global_logger.warn("Failed to load plugin `#{plugin_name}`. Assuming library and moving on.")
             end
           end
         end

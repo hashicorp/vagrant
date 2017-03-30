@@ -11,9 +11,7 @@ description: |-
 # Debugging
 
 As much as we try to keep Vagrant stable and bug free, it is inevitable
-that issues will arise and Vagrant will behave in unexpected ways. In
-these cases, Vagrant has amazing [support](/support.html)
-channels available to assist you.
+that issues will arise and Vagrant will behave in unexpected ways.
 
 When using these support channels, it is generally helpful to include
 debugging logs along with any error reports. These logs can often help you
@@ -65,7 +63,7 @@ stdout using `&>`:
 $ vagrant up --debug &> vagrant.log
 ```
 
-On Windows: 
+On Windows:
 ```
 $ vagrant up --debug > vagrant.log 2>&1
 ```

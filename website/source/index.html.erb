@@ -4,109 +4,127 @@ description: |-
   portable development environments.
 ---
 
-<div class="page home">
+<header>
+  <div class="container hero">
+    <div class="row">
+      <div class="col-md-offset-2 col-md-8">
+        <%= inline_svg "logo-text.svg", height: 120, class: "logo" %>
 
-  <section class="hero">
-    <div class="container">
-      <div class="hero-content">
+        <h1>Development Environments Made Easy</h1>
 
-        <div class="row">
-          <div class="col-md-12">
-            <hgroup>
-            <h1>Development environments made easy.</h1>
-            <p>Create and configure lightweight, reproducible, and portable development environments.</p>
-            </hgroup>
-          </div>
-        </div>
-
-        <div class="row">
-          <a href="/downloads.html" class="no-hover-underline">
-            <div id="button-download" class="button col-md-3 col-md-offset-3">
-              <span>Download</span>
-            </div>
-          </a>
-
-          <a href="/docs/getting-started/" class="no-hover-underline">
-            <div id="button-get-started" class="button button col-md-3">
-              <span>Get Started</span>
-            </div>
-          </a>
-        </div>
+        <a class="button primary" href="/intro/index.html">Get Started</a>
+        <a class="button" href="/downloads.html">Download <%= latest_version %></a>
+        <a class="button" href="https://atlas.hashicorp.com/boxes/search" target="_TOP">Find Boxes</a>
       </div>
     </div>
-    </section>
+  </div>
+</header>
 
-    <section class="why-vagrant">
-    <div class="container">
-      <div class="row">
-        <h2 class="col-md-12">
-          Vagrant will change how you work
-        </h2>
+<section id="simple" class="marketing blue">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <span class="callout">Unified Workflow</span>
+        <h2>Simple and Powerful</h2>
+        <p>
+          Vagrant provides the same, easy workflow regardless of your role as
+          a developer, operator, or designer. It leverages a declarative
+          configuration file which describes all your software requirements,
+          packages, operating system configuration, users, and more.
+        </p>
       </div>
-      <div class="row">
-        <div class="col-sm-8 col-sm-offset-2">
-          <hgroup>
-          <h3>Set Up</h3>
-          <p>
-            Download and install Vagrant within minutes on Mac OS X, Windows, or a popular distribution of Linux. No complicated setup process, just a simple to use OS-standard installer.
-          </p>
-          </hgroup>
-
-          <hgroup>
-          <h3>Configure</h3>
-          <p>
-            Create a single file for your project to describe the type of machine you want, the software that needs to be installed, and the way you want to access the machine. Store this file with your project code.
-          </p>
-          </hgroup>
-
-          <hgroup>
-          <h3>Work</h3>
-          <p>
-            Run a single command &mdash; "vagrant up" &mdash; and sit back as Vagrant puts together your complete development environment. Say goodbye to the "works on my machine" excuse as Vagrant creates identical development environments for everyone on your team.
-          </p>
-          </hgroup>
-        </div>
-      </div>
-    </div>
-    </section>
-
-    <section class="get-started">
-    <div class="container">
-      <div class="row">
-        <div class="col-md-12">
-
-          <h2 class="all-caps">
-            See how easy it is
-          </h2>
-          <pre>
-$ vagrant init hashicorp/precise64
-$ vagrant up
-          </pre>
-          </div>
-        </div>
-        <div class="row">
-          <a href="/docs/getting-started/" class="no-hover-underline">
-            <div class="button white-button with-carat col-md-6 col-md-offset-3">
-              <span>get started&raquo;</span>
-            </div>
-          </a>
-        </div>
-      </div>
-      </section>
-
-      <section class="customers black">
-      <div class="container">
-        <div class="row">
-          <div class="customers-content col-md-12">
-            <h2 class="all-caps">
-              Trusted by
-            </h2>
-            <div class="customer-logos">
-              <%= image_tag "customers.png", alt: "customers", width: 941, height: 111 %>
-            </div>
+      <div class="col-md-6">
+        <div class="terminal">
+          <span class="circle"></span>
+          <span class="circle"></span>
+          <span class="circle"></span>
+          <div class="terminal-content">
+            <span class="command">$ vagrant init hashicorp/precise64</span>
+            <span>&nbsp;</span>
+            <span class="command">$ vagrant up</span>
+            <span>Bringing machine 'default' up with 'virtualbox' provider...</span>
+            <span>==> default: Importing base box 'hashicorp/precise64'...</span>
+            <span>==> default: Forwarding ports...</span>
+            <span>    default: 22 (guest) => 2222 (host) (adapter 1)</span>
+            <span>==> default: Waiting for machine to boot...</span>
+            <span>&nbsp;</span>
+            <span class="command">$ vagrant ssh</span>
+            <span>vagrant@precise64:~$ _</span>
           </div>
         </div>
       </div>
-      </section>
-
     </div>
+  </div>
+</section>
+
+<section id="parity" class="marketing">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="parity-image">
+          <%= inline_svg "parity.svg" %>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <span class="callout">Enforce Consistency</span>
+        <h2>Production Parity</h2>
+        <p>
+          The cost of fixing a bug exponentially increases the closer it gets to
+          production. Vagrant aims to mirror production environments by
+          providing the same operating system, packages, users, and
+          configurations, all while giving users the flexibility to use their
+          favorite editor, IDE, and browser. Vagrant also integrates with your
+          existing configuration management tooling like Chef, Puppet, Ansible,
+          or Salt, so you can use the same scripts to configure Vagrant as
+          production.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cross" class="marketing blue-dark">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <span class="callout">Cross-Platform</span>
+        <h2>Works where you work</h2>
+        <p>
+          Vagrant works on Mac, Linux, Windows, and more. Remote development
+          environments force users to give up their favorite editors and
+          programs. Vagrant works on your local system with the tools you're
+          already familiar with. Easily code in your favorite text editor, edit
+          images in your favorite manipulation program, and debug using your
+          favorite tools, all from the comfort of your local laptop.
+        </p>
+      </div>
+      <div class="col-md-6">
+        <div class="systems">
+          <%= inline_svg "systems/apple.svg" %>
+          <%= inline_svg "systems/linux.svg" %>
+          <%= inline_svg "systems/windows.svg" %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="trusted" class="marketing black">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <span class="callout">Trusted at Scale</span>
+        <h2>Trusted By</h2>
+        <p>
+          Vagrant is trusted by thousands of developers, operators, and
+          designers everyday. Here are just a few of the organizations that
+          choose Vagrant to automate their development environments, in
+          lightweight and reproducible ways.
+        </p>
+        <p class="logos">
+          <%= image_tag "customers.png", alt: "customers" %>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
