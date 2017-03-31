@@ -1,0 +1,421 @@
+de:
+  vagrant:
+    general:
+      creating_home_dir: "Verzeichnis %{directory} wurde angelegt, da noch nicht vorhanden."
+
+#-------------------------------------------------------------------------------
+# Translations for exception classes
+#-------------------------------------------------------------------------------
+    errors:
+      base_vm_not_found: Die Basis-VM mit dem Namen '%{name}' wurde nicht gefunden.
+      box_not_found: Die Box '%{name}' ist nicht vorhanden.
+      chef_not_detected: |-
+        Chef wurde auf der VM nicht gefunden (weder `chef-solo` noch `chef-client` können auf der VM aufgerufen werden).
+        Chef wird jedoch für die Konfiguration Ihrer VM benötigt.
+        
+        Stellen Sie sicher, dass Chef auf der VM installiert ist und die Programme im Pfad (PATH) liegen.
+      cli_missing_env: Der Befehl erwartet als letzten Parameter den Wert einer aktiven Vagrant Umgebung.
+      config_validation: |-
+        Bei der Überprüfung der Vagrant-Konfiguration traten folgende Fehler auf:
+
+        %{messages}
+      dotfile_is_directory: |-
+        Die Datei ".vagrant", die von Vagrant zum Speichern von Daten nutzt,
+        ist bereits vorhanden oder ist ein Verzeichnis!
+        Wenn Sie sich in Ihrem Home-Verzeichnis befinden, wechseln Sie in ein anderes Verzeichnis und führen Sie den Befehl erneut aus.
+        Alternativ können Sie auch den Dateinamen über den Parameter `config.vagrant.dotfile_name` anpassen.
+      interrupted: Vagrant wurde durch einen externen Befehl kontrolliert heruntergefahren.
+      multi_vm_required: Der verwendete Befehl setzt eine Multi-VM-Umgebung voraus.
+      multi_vm_target_required: `vagrant %{command}` erwartet einen Namen einer bestimmten VM innerhalb einer Multi-VM-Umgebung.
+      no_env: Keine Vagrant-Dateien gefunden. Rufen Sie `vagrant init` auf, um eine Vagrant-Umgebung in diesem Verzeichnis anzulegen.
+      ssh_authentication_failed: |-
+        Die SSH Authentifizierung ist fehlgeschlagen. Das liegt oft daran,
+        dass Ihr public/private Schlüssel nicht ordnungsgemäß auf der VM eingerichtet ist.
+        Bitte stellen Sie sicher, dass Ihr öffentlicher Schlüssel auf der VM 
+        und Ihr privater Schlüssel auf der lokalen Maschine korrekt eingestellt ist.
+      ssh_bad_exit_status: |-
+        Der folgende SSH-Befehl ist mit einen Fehlerstatus (> 0) abgebrochen.
+        Vagrant nimmt daher an, dass der Befehl fehlgeschlagen ist!
+
+        %{command}
+      ssh_connection_refused: |-
+        SSH Verbindung konnte nicht hergestellt werden!
+        Das passiert immer dann, wenn beim Starten der VM Fehler auftreten.
+        Das Problem kann meist mit folgenden Schritten behoben werden:
+        1) VM mit dem Befehl `vagrant reload` neu laden.
+        2) VM mit dem Befehl `vagrant destroy` LÖSCHEN und anschließend mit `vagrant up` neu anlegen. Alle Daten auf der VM gehen dabei verloren.
+        Falls das Problem weiterhin besteht, nehmen Sie bitte Kontakt mit einem Vagrant Entwickler oder dem Support auf.
+        Die Kontaktdaten finden Sie unter "support channels" auf der Vagrant Website.
+      ssh_key_bad_permissions: |-
+        Der private Schlüssel für den Zugriff auf die Box hat ungültige Zugriffsrechte. 
+        Setzen Sie die Rechte auf 0600, ansonsten wird der Schlüssel ignoriert.
+        Vagrant hat versucht, die Zugriffsrechte für Sie anzupassen, was jedoch fehlschlug.
+        Bitte setzen Sie die Rechte für die folgende Datei auf 0600 und führen Sie den Befehl erneut aus:
+
+        %{key_path}
+      ssh_unavailable_windows: |-
+        `vagrant ssh` ist auf der Windows Plattform nicht verfügbar.
+        Nutzen Sie die Datei vagrant.ppk zusammen mit Putty:
+
+          %{key_path}.ppk
+
+        Legen Sie dafür eine neue Putty Sitzung für `vagrant@localhost`
+        auf Port `%{ssh_port}` an.
+        In den Putty-Einstellungen wählen Sie dann unter Connection>SSH>Auth die ppk-Datei aus.
+        Speichern Sie die Einstellungen und verbinden Sie sich erneut.
+        
+        Weitere Details finden Sie auf dieser Webseite (englisch)
+
+          http://vagrantup.com/docs/getting-started/windows
+      system:
+        invalid_class: |-
+          Die ausgewählte Systemklasse erbt nicht von `Vagrant::Systems::Base`.
+          Diese Vererbung ist jedoch zwingend notwendig.
+
+          Die ermittelte Systemklasse lautet: %{system}
+        unknown_type: |-
+          
+          Der angegebene Systemtyp ist unbekannt. Bitte geben Sie einen gültigen Wert an.
+        unspecified: |-
+          Sie müssen für Ihre VM einen Systemtyp angeben! Nutzen Sie hierfür die Option `config.vm.system`.
+          Details zu den Einstellungen finden Sie in der Online-Dokumentation.
+      vagrantfile_syntax_error: |-
+        Die Datei "Vagrantfile" enthält Syntaxfehler:
+
+        %{file}
+      virtualbox_invalid_ose: |-
+        Vagrant hat festgestellt, dass Sie die OSE ("Open Source Edition") Version von VirtualBox nutzen.
+        Leider unterstütz Vagrant diese Version zur Zeit noch nicht, da es Unterschiede in der API gibt.
+        Bitte laden Sie die Standard-Version von virtualbox.org und führen Sie die Schritte dann nochmals aus.
+      virtualbox_invalid_version: |-
+        Vagrant hat festgestellt, dass Sie Version  %{version} von VirtualBox nutzen.
+        Vagrant benötigt jedoch mindestens VirtualBox Version 3.2.
+        Bitte aktualisieren Sie VirtualBox auf eine aktuelle Version.
+      virtualbox_not_detected: |-
+        Vagrant konnte VirtualBox nicht finden. Stellen Sie sicher, dass VirtualBox korrekt installiert ist.
+        Falls VirtualBox installiert ist und Sie diese Meldung sehen, kann es sein, dass eine veraltete Version von VirtualBox vorliegt.
+        Vagrant läuft ab VirtualBox Version 3.2.x. Bitte stellen Sie sicher, dass VirtualBox die Anforderungen erfüllt.
+      vm_creation_required: Sie müssen zuerst mit `vagrant up` eine VM erstellen, um den gewünschten Befehl zu nutzen.
+      vm_not_found: Eine VM mit dem Namen %{name} existiert nicht.
+
+#-------------------------------------------------------------------------------
+# Translations for config validation errors
+#-------------------------------------------------------------------------------
+    config:
+      common:
+        error_empty: `%{field}` muss ausgefüllt werden.
+      chef:
+        run_list_empty: "Die 'Run list' darf nicht leer sein."
+        cookbooks_path_empty: "Sie müssen für chef-solo einen Pfad zu den Rezepten angeben."
+        server_url_empty: "Sie müssen eine URL zum Chef Server angeben."
+        validation_key_path: "Der Pfad zum Validation-Schlüssel muss auf dem Chef Server vorhanden sein."
+      ssh:
+        private_key_missing: "`private_key_path` Datei muss vorhanden sein: %{path}"
+      vm:
+        base_mac_invalid: "MAC Adresse für eth0/NAT muss gesetzt sein. Wenden Sie sich an den box-Verwalter, um weitere Details zu erfahren."
+        boot_mode_invalid: "Boot Modus muss einen dieser Werte haben: vrdp oder gui"
+        box_missing: "Sie müssen eine box-Datei angeben."
+        box_not_found: "Die box-Datei '%{name}' wurde nicht gefunden."
+        shared_folder_hostpath_missing: "Der Pfad für den gemeinsamen Ordner '%{name}' existiert auf dem Host nicht: %{path}"
+
+#-------------------------------------------------------------------------------
+# Translations for commands. e.g. `vagrant x`
+#-------------------------------------------------------------------------------
+    commands:
+      common:
+        vm_not_created: "VM wurde nicht erstellt. Prozess wird fortgeführt..."
+      box:
+        no_installed_boxes: "Es liegen noch keine .box-Dateien vor. Rufen Sie `vagrant box add` auf, um welche hinzuzufügen."
+      ssh:
+        execute: "Ausführen: %{command}"
+      status:
+        output: |-
+          Aktueller VM status:
+
+          %{states}
+
+          %{message}
+        not_created: |-
+          Die VM wurde noch nicht erstelt. Rufen Sie `vagrant up` auf, um sie zu erstellen.
+        powered_off: Die VM ist ausgeschaltet. Rufen Sie `vagrant up` auf, um sie zu starten.
+        running: |-
+          Die VM läuft. Rufen Sie `vagrant halt` auf, um die VM zu stoppen.
+          Mit `vagrant suspend` versetzen Sie die VM in den Ruhezustand.
+          Anschließend können Sie die Maschine mit `vagrant up` wieder hochfahren.
+        saved: Rufen Sie `vagrant up` auf, um die VM aus dem Ruhezustand zu holen.
+        listing: |-
+          Die Umgebung besteht aus mehreren VMs. Die Namen aller VMs sind oben inklusive ihrem aktuellen Status aufgelistet.
+          Mehr Informationen zum Status einer VM erhalten Sie mit dem Befehl `vagrant status NAME`.
+      up:
+        vm_created: "VM wurde bereits erstellt. Leite Boot-Sequenz ein, falls noch nicht geschehen..."
+      upgrade_to_060:
+        already_done: "Die Umgebung scheint bereits auf die Version 0.6.0 aktualisiert zu sein. Es sind keine weiteren Schritte notwendig!"
+        ask: "Sind Sie sicher, dass Sie den Befehl ausführen möchten?"
+        backing_up: "Erstelle Sicherungskopie von vorheriger .vagrant Datei..."
+        complete: "Umgebung wurde erfolgreich auf Version 0.6.0 aktualisiert."
+        info: |-
+          Dieser Befehl aktualisiert Ihre vorhandene Umgebung von pre-0.6.0 auf eine 0.6.x Umgebung.
+          Dieser Befehl erstellt zuerst eine Sicherungskopie der aktuellen Datei. 
+          Falls nach dem Update Schwierigkeiten auftreten, können Sie das Update auch rückgängig machen,
+          indem Sie in das Verzeichnis wechseln, in dem die Vagrantfile liegt und dort die Backup-Datei wieder in ".vagrant" umbenennen.
+          Sie können die Befehl auch mehrfach ausführen.
+        quit: "Breche den Befehl auf Wunsch des Benutzers ab..."
+      version:
+        output: "Vagrant Version %{version}"
+
+#-------------------------------------------------------------------------------
+# Translations for Vagrant middleware acions
+#-------------------------------------------------------------------------------
+    actions:
+      runner:
+        waiting_cleanup: "Abbruch - temporäre Daten werden entfernt. Warte, bis alle Aufräumenarbeiten abgeschlossen sind..."
+        exit_immediately: "Sofortiger Abbruch (ohne Aufräumen!)"
+      vm:
+        boot:
+          booting: VM wird hochgefahren...
+          waiting: Warte bis VM hochgefahren ist. Dies kann ein paar Minuten dauern.
+          ready: VM wurde hochgefahren und kann genutzt werden!
+          failed: Verbindung zur VM fehlgeschlagen!
+          failed_to_boot: |-
+            Verbindung zur VM über SSH nicht möglich.
+            Öffnen Sie Virtualbox und stellen Sie sicher, dass die VM sauber hochgefahren ist.
+        check_box:
+          not_found: Box %{name} wurde nicht gefunden. Leite Download von der angegebenen URL ein...
+          not_specified: |-
+            Es wurde keine Basis-Box angegeben! Eine Basis-Box ist jedoch unbedingt notwendig,
+            damit Vagrant daraus eine VM erstellen kann. Bitte geben Sie in der Datei `Vagrantfile` über den
+            Parameter `config.vm.box` eine Basis-Box an.
+          does_not_exist: |-
+            Die angegebene Box `%{name}` existiert nicht.
+            Fügen Sie die Box mit dem Befehl `vagrant box add` hinzu.
+            Details hierzu finden Sie in der Dokumentation des Befehls.
+        check_guest_additions:
+          not_detected: |-
+            Keine Gasterweiterungen auf der Basis-Box gefunden!
+            Diese sind jedoch unbedingt notwendig, um z.B. Port-Weiterleitungen, 
+            Gemeinsame Ordner, Host-only-Netzwerke usw. zu nutzen.
+            
+            Falls Sie sich nicht über SSH verbinden können, installieren Sie die Gasterweiterungen
+            direkt auf der VM und erstellen Sie anschließend eine neue .box-Datei.
+            
+            Dies ist ein Hinweis - keine Fehlermeldung! Es kann sein, dass Sie die
+            VM trotzdem nutzen können. In diesem Fall ignorieren Sie diese Meldung einfach.
+          version_mismatch: |-
+            Die Gasterweiterungen auf der VM unterscheiden sich von der installierten VirtualBox-Version.
+            
+            Dies kann zu Problemen mit Funktionen wie Port-Weiterleitung, Gemeinsame Ordner, Host-only-Netzwerke usw. führen.
+            Falls Sie Probleme feststellen, aktualisieren Sie die Gasterweiterungen auf der VM und erstellen Sie eine neue Box.
+            
+            Version der Gasterweiterungen: %{guest_version}
+            Version von VirtualBox: %{virtualbox_version}
+        clear_forward_ports:
+          deleting: Vorhandene Port-Weiterleitungen werden entfernt...
+        clear_shared_folders:
+          deleting: Vorhandene Gemeinsame Ordner werden entfernt...
+        customize:
+          running: Anpassungen der VM laufen...
+        destroy:
+          destroying: Entferne VM und alle verknüpften Laufwerke...
+        destroy_network:
+          destroying: Entferne ungenutzte Netzwerk-Schnittstellen...
+        disable_networks:
+          disabling: Deaktiviere Host-only Netzwerk(e)...
+        discard_state:
+          discarding: Verwerfe gespeicherten Zustand der VM...
+        export:
+          create_dir: Erstelle temporäres Verzeichnis für den Export...
+          exporting: Exportiere VM...
+          power_off: "Die VM muss ausgeschaltet sein, um sie packen zu können."
+        forward_ports:
+          auto_empty: |-
+            Vagrant hat einen Konflikt in den Port-Einstellungen auf der VM festgestellt.
+            Normalerweise wird der Port von Vagrant automatisch korrigiert, 
+            jedoch sind auch alle anderen Ports in Verwendung, weshalb keine automatische Korrektur stattfinden konnte.
+            VM: %{vm_name}
+            Weitergeleiteter Port: %{name} (%{guest_port} => %{host_port})
+          below_threshold_error: |-
+            Die Ports für eine Weiterleitung vom Host müssen über 1024 liegen.
+            VirtualBox erlaubt keine Portweiterleitung unterhalb 1024
+            
+            Auf der Gast-Maschine sind Ports unterhalb 1024 möglich.
+            Sie können beispielsweise auf der Gast-Maschine SSH auf Port 22 laufen lassen
+            und eine Weiterleitung auf Port 2222 einrichten, nicht jedoch auf Port 222.
+          collision_error: |-
+            Vagrant kann die gewünschte Port-Weiterleitung nicht durchführen, da dies zu
+            Konflikte mit Weiterleitungen auf anderen VMs führen würde! Die Port-Weiterleitung
+            mit dem Namen '%{name}' auf Port (%{host_port}) wird vom Host bereits verwendet.
+            
+            Um diesen Konflikt zu umgehen, passen Sie die folgende Einstellung in der Vagrantfile an
+            (ersetzen Sie den Wert 1234 mit einem gültigen Host-Port):
+
+              config.vm.forward_port("%{name}", %{guest_port}, 1234)
+          fixed_collision: Port-Kollision behoben: Port '%{name}' leitet nun auf Port %{new_port} um.
+          forwarding: Leite Ports um...
+          forwarding_entry: "-- %{name}: %{guest_port} => %{host_port} (Adapter %{adapter})"
+          non_nat: |-
+            VirtualBox Adapter #%{adapter} ist nicht als "NAT" eingerichtet.
+            Port-Weiterleitung wird ignoriert '%{name}'.
+        halt:
+          force: Erzwinge Herunterfahren der VM...
+        import:
+          importing: Importiere Basis-Box '%{name}'...
+          failure: |-
+            Die VM konnte nicht importiert werden. Führen Sie den Befehl `VBoxManage import` aus, um eine
+            detaillierte Fehlermeldung zu erhalten.
+        match_mac:
+          matching: Passende MAC Adresse für NAT Netzwerk wird ermittelt...
+        network:
+          collides: |-
+            Das angegebenene Host-Netzwerk erzeugt einen Konflikt mit einem anderen ("bridged" oder "non-hostonly") Netzwerk.
+            Daher ist die angegebene IP-Adresse nicht abrufbar.
+            
+            Wechseln Sie die IP-Adresse oder den Namen des Host-only-Netzwerkes, 
+            damit Konflikte mit bridged oder non-hostonly-Netzwerken vermieden werden.
+          creating: Erstellen neues Host-only-Netzwerk...
+          enabling: Aktiviere Host-only-Netzwerk...
+          not_found: |-
+            Das angegebene Host-Netzwerk ist unbekannt: '%{name}.'
+            Wenn die Namensspezifikation entfernt wird, wird Vagrant ein neues
+            host-only-Netzwerk anlegen.
+            
+            Alternativ können Sie auch das gewünschte Netzwerk per Hand anlegen.
+            
+            The specified host network could not be found: '%{name}.'
+            If the name specification is removed, Vagrant will create a new
+            host only network for you. Alternatively, please create the
+            specified network manually.
+          preparing: Host-only-Netzwerk wird vorbereitet...
+        nfs:
+          host_required: |-
+            Für die NFS-Verzeichnisse wird eine Host-Klasse benötigt.
+            Standardmäßig werden diese automatisch ermittelt und können mit `config.vagrant.host` angepasst werden.
+            Jedoch ist momentan keine Host-Klasse geladen.
+          no_host_network: |-
+            NFS-Verzeichnisse werden nur mit einem Host-only-Netzwerk unterstützt.
+            Bitte aktivieren Sie das Host-only-Netzwerk über den `config.vm.network`-Parameter.
+          not_supported: |-
+            Die Host-Klasse meldet, dass NFS von dem Host nicht unterstützt wird 
+            oder `nfsd` nicht installiert ist.
+            
+            Stellen Sie sicher, dass `nfsd` aktiviert ist und versuchen Sie es erneut.
+          exporting: NFS-Verzeichnisse werden exportiert...
+          mounting: NFS-Verzeichnisse werden gemountet...
+        persist:
+          dotfile_error: |-
+            Die .-Datei, die von Vagrant zum Verwalten der UUID der VM genutzt wird,
+            ist bereits vorhanden oder ist keine Datei.
+            Die Datei liegt momentan hier '%{dotfile_path}'.
+            
+            Sie können diesen Wert über `config.vagrant.dotfile_name` anpassen.
+            
+            Möchten Sie Vagrant von Ihrem Home-Verzeichnis ausführen?
+            Dies ist ein häufiger Fehler für diese Fehlermeldung.
+            Um die Fehlermeldung zu verhindern verwenden Sie ein anderes Verzeichnis 
+            oder ändern Sie den Dateinamen über den Parameter `config.vagrant.dotfile_name`.
+          persisting: "Die VM UUID (%{uuid}) wird beibehalten..."
+        provision:
+          beginning: "Versorgungsprozess // Provisioning-Prozess wird gestartet..."
+          enabled: "Versorgungsprozess // Provisioning-Prozess wird durchgeführt von %{provisioner}..."
+          invalid_class: "Provisioner müssen von Vagrant::Provisioners::Base abgeleitet werden."
+          unknown_type: "Unbekannter Provisioner-Typ: %{provisioner}"
+        resume:
+          resuming: Ruhezustand der VM wird beendet...
+        share_folders:
+          creating: Meta-Daten für Gemeinsame Ordner werden erstellt...
+          mounting: Gemeinsame Ordner werden eingebunden...
+          mounting_entry: "-- %{name}: %{guest_path}"
+        suspend:
+          suspending: Aktueller Zustand der VM wird gespeichert und Ruhezustand eingeleitet...
+
+      box:
+        destroy:
+          destroying: "Box '%{name}' wird entfernt..."
+        download:
+          with: "Starte Download mit %{class}..."
+          cleaning: "Heruntergeladene Box wird optimiert..."
+          copying: "Kopiere Box in ein temporäres Verzeichnis..."
+          unknown_type: "Unbekannte oder ungültige URI als Quelle angegeben. Box kann über diese URI nicht geladen werden."
+        unpackage:
+          extracting: "Box wird entpackt..."
+          already_exists: |-
+            Die angegebene Box mit dem Namen '%{name}' ist schon vorhanden.
+            Prüfen Sie die Boxen und fügen Sie die Box unter einem anderen Namen hinzu 
+            oder löschen Sie die bestehende Box.
+            Führen Sie den Befehl anschließend noch einmal aus.
+        verify:
+          verifying: "Box wird verifiziert / überprüft..."
+          failed: |-
+            Die Box-Datei, die Sie angegeben haben, ist ungültig.
+            Prüfen Sie den Pfad zur Datei und ob die Box korrekt erstellt wurde.
+
+      general:
+        package:
+          packaging: "Paket wird zusätzlich auch diese Datei enthalten: %{file}"
+          compressing: "Paket wird komprimiert abgelegt in: %{tar_path}"
+          output_exists: |-
+            Die gewünschte Datei existiert bereits. Entfernen Sie die vorhandene Datei
+            oder wählen Sie einen anderen Dateinamen.
+          requires_directory: |-
+            Es wurde kein Verzeichnis angegeben, in dem die Packages abgelegt werden können.
+            Dieser Fehler sollte niemals auftauchen und resultiert daraus, dass 
+            Prozesse innerhalb von Vagrant inkonsistent sind.
+          include_file_missing: |-
+            Einzubindende Datei existiert nicht: %{file}
+
+    downloaders:
+      file:
+        file_missing: "Der angegebene Dateipfad existiert nicht."
+      http:
+        socket_error: |-
+          Beim Download der Datei ist ein Fehler aufgetreten.
+          Eine häufige Ursache dafür ist, dass keine Verbindung zum Internet besteht
+          oder die verwendetet Adresse ungültig ist.
+
+    hosts:
+      bsd:
+        nfs_export:
+          prepare: "Bearbeitung für /etc/exports wird gestartet. Administrator-Rechte werden benötigt..."
+      linux:
+        nfs_export:
+          prepare: "Bearbeitung für /etc/exports wird gestartet. Administrator-Rechte werden benötigt..."
+
+    provisioners:
+      chef:
+        json: "Erstelle JSON für Chef und lade es hoch..."
+        client_key_folder: "Erstelle Verzeichnis für Client-Schlüssel..."
+        upload_validation_key: "Lade Chef Client Prüfschlüssel hoch..."
+        running_client: "Führe chef-client aus..."
+        running_solo: "Führe chef-solo aus..."
+        invalid_provisioner: "Der angegebene Provisioner Vagrant::Provisioners::Chef ist ungültig! Verwenden Sie chef-solo oder chef-server."
+        not_detected: |-
+          Das Programm `%{binary}` scheint nicht in PATH der Gastmaschine zu liegen.
+          Oft liegt das daran, dass die Pfadvariable PATH falsch gesetzt ist oder Chef
+          noch nicht installiert wurde.
+          
+          Installieren Sie Chef, damit die VM konfiguriert werden kann.
+        server_url_required: |-
+          Chef server provisioning requires that the `config.chef.chef_server_url` be set to the
+          URL of your chef server. Examples include "http://12.12.12.12:4000" and
+          "http://myserver.com:4000" (the port of course can be different, but 4000 is the default)
+        server_validation_key_required: |-
+          Chef server provisioning requires that the `config.chef.validation_key_path` configuration
+          be set to a path on your local machine of the validation key used to register the
+          VM with the chef server.
+        server_validation_key_doesnt_exist: |-
+          The validation key set for `config.chef.validation_key_path` does not exist! This
+          file needs to exist so it can be uploaded to the virtual machine.
+
+    systems:
+      linux:
+        attempting_halt: "Linux wird ordnungsgemäß heruntergefahren..."
+        mount_fail: "Gemeinsame(r) Ordner konnte(n) nicht gemountet werden. Der Befehl `vboxsf` wurde nicht gefunden."
+        network_not_debian: |-
+          Host-only-Netzwerke werden nur in Debian/Ubuntu Linux-Distributionen unterstützt.
+          Wenn Sie eine andere Distributionen nutzen möchten, legen Sie eine Unterklasse von
+          `Vagrant::Systems::Linux` an und implementieren Sie beiden Methoden
+          `prepare_host_only_network` und `enable_host_only_network`.
+          
+          Alternativ können Sie Ihre entsprechenden Netzwerk-Einstellungen auch an die Vagrant Mailingliste
+          oder den IRC senden, so dass die Einstellungen in Vagrant integriert werden können.
+      solaris:
+        attempting_halt: "Solaris wird ordnungsgemäß heruntergefahren..."
