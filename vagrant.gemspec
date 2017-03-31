@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
   s.add_dependency "net-ssh", "~> 3.0.1"
   s.add_dependency "net-sftp", "~> 2.1"
-  s.add_dependency "net-scp", "~> 1.1.0"
+  s.add_dependency "net-scp", "~> 1.2.1"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rest-client", ">= 1.6.0", "< 3.0"
   s.add_dependency "wdm", "~> 0.1.0"
