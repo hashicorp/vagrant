@@ -250,6 +250,10 @@ module Vagrant
       def format_message(type, message, **opts)
         message
       end
+
+      def deprecated(message)
+        warn("[DEPRECATED] #{message}")
+      end
     end
 
     # Prefixed wraps an existing UI and adds a prefix to it.
