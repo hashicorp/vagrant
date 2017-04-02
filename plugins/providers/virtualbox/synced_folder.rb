@@ -85,7 +85,7 @@ module VagrantPlugins
       end
 
       def os_friendly_id(id)
-        id.gsub(/[\/]/,'_').sub(/^_/, '')
+        id.gsub(/[\/\\]/,'_').sub(/^_/, '')
       end
 
       # share_folders sets up the shared folder definitions on the
