@@ -9,6 +9,9 @@ description: |-
 
 # Sharing via ngrok
 
+[ngrok](https://ngrok.com) is a hosted reverse proxy service. It allows you to
+create a secure tunnel from a public endpoint to a locally running web service.
+
 Vagrant share can be driven using ngrok from the underlying transport
 by supplying the `--driver ngrok` flag to `vagrant share`.
 
