@@ -10,7 +10,7 @@ $ServiceName = "salt-minion"
 $startupType = "Manual"
 
 # Version to install - default to latest if there is an issue
-If ($version -notmatch "201[0-9]\.[0-9]\.[0-9](\-\d{1})?"){
+If ($version -notmatch "^20\d{2}\.([1-9]|1[012])\.\d+(\-\d+)?$"){
   $version = '2015.5.2'
 }
 
