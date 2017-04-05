@@ -43,7 +43,11 @@ module VagrantPlugins
         # Clear the sources so that installation uses custom sources
         old_sources = Gem.sources
         Gem.sources = Gem.default_sources
-        Gem.sources << "https://gems.hashicorp.com"
+        Vagrant::Bundler::DEFAULT_GEM_SOURCES.each do |source|
+          if !Gem.sources.include?(source)
+            Gem.sources << source
+          end
+        end
 
         # Use a silent UI so that we have no output
         Gem::DefaultUserInteraction.use_ui(Gem::SilentUI.new) do

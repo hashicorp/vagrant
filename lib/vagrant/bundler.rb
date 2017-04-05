@@ -19,12 +19,14 @@ module Vagrant
   # all Vagrant-installed plugins.
   class Bundler
 
+    # Location of HashiCorp gem repository
+    HASHICORP_GEMSTORE = "https://gems.hashicorp.com/".freeze
+
+    # Default gem repositories
     DEFAULT_GEM_SOURCES = [
       "https://rubygems.org/".freeze,
-      "https://gems.hashicorp.com/".freeze
+      HASHICORP_GEMSTORE
     ].freeze
-
-    HASHICORP_GEMSTORE = "https://gems.hashicorp.com/".freeze
 
     def self.instance
       @bundler ||= self.new
@@ -262,6 +264,9 @@ module Vagrant
         @logger.debug("Adding source - #{src}")
         Gem.sources << src
       end
+
+      validate_configured_sources!
+
       source_list.values.each{|srcs| srcs.delete_if{|src| default_sources.include?(src)}}
       installer_set.prefer_sources = source_list
 
@@ -319,6 +324,27 @@ module Vagrant
         end
       end
       list.values
+    end
+
+    # Iterates each configured RubyGem source to validate that it is properly
+    # available. If source is unavailable an exception is raised.
+    def validate_configured_sources!
+      Gem.sources.each_source do |src|
+        begin
+          src.load_specs(:released)
+        rescue Gem::Exception => source_error
+          if ENV["VAGRANT_ALLOW_PLUGIN_SOURCE_ERRORS"]
+            @logger.warn("Failed to load configured plugin source: #{src}!")
+            @logger.warn("Error received attempting to load source (#{src}): #{source_error}")
+            @logger.warn("Ignoring plugin source load failure due user request via env variable")
+          else
+            @logger.error("Failed to load configured plugin source `#{src}`: #{source_error}")
+            raise Vagrant::Errors::PluginSourceError,
+              source: src.uri.to_s,
+              error_msg: source_error.message
+          end
+        end
+      end
     end
 
     # Generate the builtin resolver set
