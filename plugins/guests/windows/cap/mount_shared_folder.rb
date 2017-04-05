@@ -1,4 +1,5 @@
 require "vagrant/util/template_renderer"
+require "base64"
 
 module VagrantPlugins
   module GuestWindows
@@ -33,7 +34,18 @@ module VagrantPlugins
             vm_provider_unc_path: vm_provider_unc_base + name,
           })
 
-          machine.communicate.execute(script, shell: :powershell)
+          if machine.config.vm.communicator == :winrm
+            machine.communicate.execute(script, shell: :powershell)
+          else
+            # Convert script to double byte unicode string then base64 encode
+            # just like PowerShell -EncodedCommand expects.
+            # Suppress the progress stream from leaking to stderr.
+            wrapped_encoded_command = Base64.strict_encode64(
+              "$ProgressPreference='SilentlyContinue'; #{script}; exit $LASTEXITCODE".encode('UTF-16LE', 'UTF-8'))
+            # Execute encoded PowerShell script via OpenSSH shell
+            machine.communicate.execute("powershell.exe -noprofile -executionpolicy bypass " +
+              "-encodedcommand '#{wrapped_encoded_command}'", shell: "sh")
+          end
         end
       end
     end
