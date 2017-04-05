@@ -11,7 +11,7 @@ $startupType = "Manual"
 
 # Version to install - default to latest if there is an issue
 If ($version -notmatch "201[0-9]\.[0-9]\.[0-9](\-\d{1})?"){
-  $version = '2015.5.2'
+  $version = '2016.11.3'
 }
 
 If ($runservice.ToLower() -eq "true"){
