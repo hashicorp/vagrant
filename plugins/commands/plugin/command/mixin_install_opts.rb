@@ -3,10 +3,7 @@ module VagrantPlugins
     module Command
       module MixinInstallOpts
         def build_install_opts(o, options)
-          options[:plugin_sources] = [
-            "https://rubygems.org",
-            "https://gems.hashicorp.com",
-          ]
+          options[:plugin_sources] = Vagrant::Bundler::DEFAULT_GEM_SOURCES.dup
 
           o.on("--entry-point NAME", String,
                "The name of the entry point file for loading the plugin.") do |entry_point|

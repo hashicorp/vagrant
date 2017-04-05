@@ -596,6 +596,10 @@ module Vagrant
       error_key(:plugin_init_error)
     end
 
+    class PluginSourceError < VagrantError
+      error_key(:plugin_source_error)
+    end
+
     class PushesNotDefined < VagrantError
       error_key(:pushes_not_defined)
     end

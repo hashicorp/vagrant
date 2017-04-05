@@ -1020,6 +1020,16 @@ en:
         You can however, install a plugin with the same name to replace
         these plugins. User-installed plugins take priority over
         system-installed plugins.
+      plugin_source_error: |-
+        Vagrant failed to load a configured plugin source. This can be caused
+        by a variety of issues including: transient connectivity issues, proxy
+        filtering rejecting access to a configured plugin source, or a configured
+        plugin source not responding correctly. Please review the error message
+        below to help resolve the issue:
+
+          %{error_msg}
+
+        Source: %{source}
       pushes_not_defined: |-
         The Vagrantfile does not define any 'push' strategies. In order to use
         `vagrant push`, you must define at least one push strategy:
@@ -1985,7 +1995,7 @@ en:
           untar_failure: |-
             The box failed to unpackage properly. Please verify that the box
             file you're trying to add is not corrupted and that enough disk space
-            is available and then try again. 
+            is available and then try again.
             The output from attempting to unpackage (if any):
 
             %{output}
