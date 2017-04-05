@@ -11,7 +11,7 @@ $startupType = "Manual"
 
 # Version to install - default to latest if there is an issue
 If ($version -notmatch "2\d{3}\.\d{1,2}\.\d+(\-\d{1})?"){
-  $version = '2015.5.2'
+  $version = '2016.11.3'
 }
 
 If ($runservice.ToLower() -eq "true"){
@@ -73,7 +73,7 @@ ElseIf(!$PSBoundParameters.ContainsKey('minion') -and $PSBoundParameters.Contain
 }
 Else {
   C:\tmp\salt.exe /S | Out-Null
-  Write-Host C:\tmp\salt.exe /S | Out-Null 
+  Write-Host C:\tmp\salt.exe /S | Out-Null
 }
 
 # Check if minion config has been uploaded
@@ -92,7 +92,7 @@ If($runservice) {
   # Start service
   Start-Service -Name "salt-minion" -ErrorAction SilentlyContinue
 
-  # Check if service is started, otherwise retry starting the 
+  # Check if service is started, otherwise retry starting the
   # service 4 times.
   $try = 0
   While (($service.Status -ne "Running") -and ($try -ne 4)) {
