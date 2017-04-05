@@ -23,6 +23,7 @@ BUG FIXES:
   - core/ui: Prevent deadlock detection errors [GH-8414, GH-8125]
   - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
   - guests/linux: Fix SMB mount capbability [GH-8410, GH-8404]
+  - guests/windows: Support mounting synced folders via SSH on windows [GH-7425, GH-6220]
   - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
 
 ## 1.9.3 (March 21, 2017)
