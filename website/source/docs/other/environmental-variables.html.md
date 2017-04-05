@@ -66,7 +66,14 @@ a scripting environment in order to set the directory that Vagrant sees.
 
 ## `VAGRANT_DOTFILE_PATH`
 
-`VAGRANT_DOTFILE_PATH` can be set to change the directory where Vagrant stores VM-specific state, such as the VirtualBox VM UUID. By default, this is set to `.vagrant`. If you keep your Vagrantfile in a Dropbox folder in order to share the folder between your desktop and laptop (for example), Vagrant will overwrite the files in this directory with the details of the VM on the most recently-used host. To avoid this, you could set `VAGRANT_DOTFILE_PATH` to `.vagrant-laptop` and `.vagrant-desktop` on the respective machines. (Remember to update your `.gitignore`!)
+`VAGRANT_DOTFILE_PATH` can be set to change the directory where Vagrant stores
+VM-specific state, such as the VirtualBox VM UUID. By default, this is set to
+`.vagrant`. If you keep your Vagrantfile in a Dropbox folder in order to share
+the folder between your desktop and laptop (for example), Vagrant will overwrite
+the files in this directory with the details of the VM on the most recently-used
+host. To avoid this, you could set `VAGRANT_DOTFILE_PATH` to `.vagrant-laptop`
+and `.vagrant-desktop` on the respective machines. (Remember to update your
+`.gitignore`!)
 
 ## `VAGRANT_HOME`
 
@@ -127,6 +134,15 @@ not load plugins.
 Note that any `vagrant plugin` commands automatically do not load any
 plugins, so if you do install any unstable plugins, you can always use
 the `vagrant plugin` commands without having to worry.
+
+## `VAGRANT_ALLOW_PLUGIN_SOURCE_ERRORS`
+
+If this is set to any value, then Vagrant will not error when a configured
+plugin source is unavailable. When installing a Vagrant plugin Vagrant
+will error and halt if a plugin source is inaccessible. In some cases it
+may be desirable to ignore inaccessible sources and continue with the
+plugin installation. Enabling this value will cause Vagrant to simply log
+the plugin source error and continue.
 
 ## `VAGRANT_NO_PARALLEL`
 
