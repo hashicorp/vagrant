@@ -7,6 +7,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - core: Update internal dependencies [GH-8329, GH-8456]
   - core/bundler: Warn when plugin require fails instead of generating hard failure [GH-8400, GH-8392]
   - core/bundler: Error when configured plugin sources are unavailable [GH-8442]
   - provider/docker: Improve IP and port detection [GH-7840, GH-7651]
