@@ -12,7 +12,7 @@ svg.logo {
       opacity: 1.0;
     }
 
-    polygon.shadow {
+    path.shadow {
       fill: $vagrant-blue-dark;
       opacity: 1.0;
     }
@@ -28,7 +28,7 @@ svg.logo {
       fill: $white;
     }
 
-    path.front, polygon.shadow {
+    path.front, path.shadow {
       fill: $white;
     }
 
