@@ -52,9 +52,8 @@ describe VagrantPlugins::CommandSnapshot::Command::List do
       it "prints a message if the vm does not exist" do
         machine.id = nil
 
-        expect(iso_env.ui).to receive(:info).with { |message, _|
-          expect(message).to include("VM not created")
-        }
+        expect(iso_env.ui).to receive(:info).with("==> default: VM not created. Moving on...", anything)
+          .and_return({})
         expect(machine).to_not receive(:action)
         expect(subject.execute).to eq(0)
       end

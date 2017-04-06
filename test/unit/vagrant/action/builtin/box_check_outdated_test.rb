@@ -93,7 +93,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
       subject.call(env)
 
-      expect(env[:box_outdated]).to be_false
+      expect(env[:box_outdated]).to be(false)
     end
 
     it "sets env if there is an update" do
@@ -126,7 +126,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
       subject.call(env)
 
-      expect(env[:box_outdated]).to be_true
+      expect(env[:box_outdated]).to be(true)
     end
 
     it "has an update if it is local" do
@@ -138,7 +138,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
       subject.call(env)
 
-      expect(env[:box_outdated]).to be_true
+      expect(env[:box_outdated]).to be(true)
     end
 
     it "does not have a local update if not within constraints" do
@@ -152,7 +152,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
       subject.call(env)
 
-      expect(env[:box_outdated]).to be_false
+      expect(env[:box_outdated]).to be(false)
     end
 
     it "does nothing if metadata download fails" do
@@ -163,7 +163,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
       subject.call(env)
 
-      expect(env[:box_outdated]).to be_false
+      expect(env[:box_outdated]).to be(false)
     end
 
     it "raises error if has_update? errors" do

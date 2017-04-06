@@ -147,7 +147,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       folders["root"] = { type: "unusable" }
 
       expect { subject.synced_folders(machine) }.
-        to raise_error
+        to raise_error(RuntimeError)
     end
 
     it "should ignore disabled folders" do

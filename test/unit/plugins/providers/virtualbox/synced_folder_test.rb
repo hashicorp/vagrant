@@ -42,8 +42,6 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
       machine.stub(driver: driver)
     end
 
-    it "should share the folders" do
-      pending
-    end
+    it "should share the folders"
   end
 end

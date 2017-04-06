@@ -71,7 +71,7 @@ describe VagrantPlugins::Kernel_V2::PushConfig do
   describe "#__compiled_pushes" do
     it "raises an exception if not finalized" do
       subject.instance_variable_set(:@__finalized, false)
-      expect { subject.__compiled_pushes }.to raise_error
+      expect { subject.__compiled_pushes }.to raise_error(RuntimeError)
     end
 
     it "returns a copy of the compiled pushes" do

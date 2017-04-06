@@ -109,7 +109,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   describe ".ready?" do
     before(&connection_setup)
     it "returns true if shell test is successful" do
-      expect(communicator.ready?).to be_true
+      expect(communicator.ready?).to be(true)
     end
 
     context "with an invalid shell test" do
@@ -268,7 +268,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
     before(&connection_setup)
     context "with exit code as zero" do
       it "returns true" do
-        expect(communicator.test("ls")).to be_true
+        expect(communicator.test("ls")).to be(true)
       end
     end
 
@@ -278,7 +278,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
 
       it "returns false" do
-        expect(communicator.test("/bin/false")).to be_false
+        expect(communicator.test("/bin/false")).to be(false)
       end
     end
   end
@@ -585,14 +585,14 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
 
   describe ".generate_environment_export" do
     it "should generate bourne shell compatible export" do
-      communicator.send(:generate_environment_export, "TEST", "value").should eq("export TEST=\"value\"\n")
+      expect(communicator.send(:generate_environment_export, "TEST", "value")).to eq("export TEST=\"value\"\n")
     end
 
     context "with custom template defined" do
       let(:export_command_template){ "setenv %ENV_KEY% %ENV_VALUE%" }
 
       it "should generate custom export based on template" do
-        communicator.send(:generate_environment_export, "TEST", "value").should eq("setenv TEST value\n")
+        expect(communicator.send(:generate_environment_export, "TEST", "value")).to eq("setenv TEST value\n")
       end
     end
   end

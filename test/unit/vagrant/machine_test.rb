@@ -81,7 +81,7 @@ describe Vagrant::Machine do
 
       it "should not insert key" do
         subject = new_instance
-        expect(subject.config.ssh.insert_key).to be_false
+        expect(subject.config.ssh.insert_key).to be(false)
       end
     end
 
@@ -197,7 +197,7 @@ describe Vagrant::Machine do
 
       it "should initialize the capabilities" do
         instance = new_provider_mock
-        expect(instance).to receive(:_initialize).with { |p, m|
+        expect(instance).to receive(:_initialize).with(any_args) { |p, m|
           expect(p).to eq(provider_name)
           expect(m.name).to eq(name)
           true
@@ -383,7 +383,7 @@ describe Vagrant::Machine do
     it "should run the callable with the proper env" do
       subject.action_raw(:foo, callable)
 
-      expect(@env[:called]).to be_true
+      expect(@env[:called]).to be(true)
       expect(@env[:action_name]).to eq(:machine_action_foo)
       expect(@env[:machine]).to equal(subject)
       expect(@env[:machine_action]).to eq(:foo)
@@ -398,7 +398,7 @@ describe Vagrant::Machine do
     it "should merge in any extra env" do
       subject.action_raw(:bar, callable, foo: :bar)
 
-      expect(@env[:called]).to be_true
+      expect(@env[:called]).to be(true)
       expect(@env[:foo]).to eq(:bar)
     end
   end
@@ -788,18 +788,18 @@ describe Vagrant::Machine do
 
       context "with custom ssh_info" do
         it "keys_only should be default" do
-          expect(instance.ssh_info[:keys_only]).to be_true
+          expect(instance.ssh_info[:keys_only]).to be(true)
         end
         it "paranoid should be default" do
-          expect(instance.ssh_info[:paranoid]).to be_false
+          expect(instance.ssh_info[:paranoid]).to be(false)
         end
         it "keys_only should be overridden" do
           instance.config.ssh.keys_only = false
-          expect(instance.ssh_info[:keys_only]).to be_false
+          expect(instance.ssh_info[:keys_only]).to be(false)
         end
         it "paranoid should be overridden" do
           instance.config.ssh.paranoid = true
-          expect(instance.ssh_info[:paranoid]).to be_true
+          expect(instance.ssh_info[:paranoid]).to be(true)
         end
       end
     end

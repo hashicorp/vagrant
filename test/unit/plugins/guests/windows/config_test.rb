@@ -23,7 +23,7 @@ describe VagrantPlugins::GuestWindows::Config do
       it "should not default #{attribute} if overridden" do
         subject.send("#{attribute}=".to_sym, 10)
         subject.finalize!
-        subject.send(attribute).should == 10
+        expect(subject.send(attribute)).to be(10)
       end
 
       it "should return error #{attribute} if nil" do

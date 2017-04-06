@@ -136,7 +136,7 @@ describe Vagrant::MachineIndex do
     end
 
     it "should include? by prefix" do
-      expect(subject.include?("b")).to be_true
+      expect(subject.include?("b")).to be(true)
     end
 
     it "locks the entry so subsequent gets fail" do
@@ -159,7 +159,7 @@ describe Vagrant::MachineIndex do
 
   describe "#include" do
     it "should not include non-existent things" do
-      expect(subject.include?("foo")).to be_false
+      expect(subject.include?("foo")).to be(false)
     end
 
     it "should include created entries" do
@@ -168,7 +168,7 @@ describe Vagrant::MachineIndex do
       subject.release(result)
 
       subject = described_class.new(data_dir)
-      expect(subject.include?(result.id)).to be_true
+      expect(subject.include?(result.id)).to be(true)
     end
   end
 
@@ -204,7 +204,7 @@ describe Vagrant::MachineIndex do
 
     it "can delete an entry that doesn't exist" do
       e = entry_klass.new
-      expect(subject.delete(e)).to be_true
+      expect(subject.delete(e)).to be(true)
     end
 
     it "updates an existing entry" do

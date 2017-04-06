@@ -45,10 +45,10 @@ describe Vagrant::CLI do
       commands[:bar] = [command_lambda("bar", 0), { primary: true }]
       commands[:baz] = [command_lambda("baz", 0), { primary: false }]
 
-      expect(env.ui).to receive(:info).with { |message, opts|
+      expect(env.ui).to receive(:info).with(any_args) { |message, opts|
         expect(message).to include("foo")
         expect(message).to include("bar")
-        expect(message.include?("baz")).to be_false
+        expect(message.include?("baz")).to be(false)
       }
 
       subject.help

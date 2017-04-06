@@ -356,7 +356,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
       config = subject.get_provider_config(:virtualbox)
       expect(config.name).to eq("foo")
-      expect(config.gui).to be_true
+      expect(config.gui).to be(true)
     end
 
     it "raises an exception if there is a problem loading" do
@@ -543,7 +543,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       sf = subject.synced_folders
       expect(sf.length).to eq(1)
       expect(sf).to have_key("/vagrant")
-      expect(sf["/vagrant"][:disabled]).to be_true
+      expect(sf["/vagrant"][:disabled]).to be(true)
     end
 
     it "allows overriding previously set options" do
@@ -553,7 +553,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       sf = subject.synced_folders
       expect(sf.length).to eq(1)
       expect(sf).to have_key("/vagrant")
-      expect(sf["/vagrant"][:disabled]).to be_false
+      expect(sf["/vagrant"][:disabled]).to be(false)
       expect(sf["/vagrant"][:foo]).to eq(:bar)
     end
 
