@@ -52,14 +52,14 @@ describe Vagrant::Util::Subprocess do
     context "when subprocess has not been started" do
       it "should return false" do
         sp = described_class.new("ls")
-        expect(sp.running?).to be_false
+        expect(sp.running?).to be(false)
       end
     end
     context "when subprocess has completed" do
       it "should return false" do
         sp = described_class.new("ls")
         sp.execute
-        expect(sp.running?).to be_false
+        expect(sp.running?).to be(false)
       end
     end
     context "when subprocess is running" do
@@ -67,7 +67,7 @@ describe Vagrant::Util::Subprocess do
         sp = described_class.new("sleep", "5")
         thread = Thread.new{ sp.execute }
         sleep(0.1)
-        expect(sp.running?).to be_true
+        expect(sp.running?).to be(true)
         sp.stop
         thread.join
       end
@@ -78,7 +78,7 @@ describe Vagrant::Util::Subprocess do
     context "when subprocess has not been started" do
       it "should return false" do
         sp = described_class.new("ls")
-        expect(sp.stop).to be_false
+        expect(sp.stop).to be(false)
       end
     end
 
@@ -86,7 +86,7 @@ describe Vagrant::Util::Subprocess do
       it "should return false" do
         sp = described_class.new("ls")
         sp.execute
-        expect(sp.stop).to be_false
+        expect(sp.stop).to be(false)
       end
     end
 
@@ -95,7 +95,7 @@ describe Vagrant::Util::Subprocess do
       it "should return true" do
         thread = Thread.new{ sp.execute }
         sleep(0.1)
-        expect(sp.stop).to be_true
+        expect(sp.stop).to be(true)
         thread.join
       end
 
@@ -103,7 +103,7 @@ describe Vagrant::Util::Subprocess do
         thread = Thread.new{ sp.execute }
         sleep(0.1)
         sp.stop
-        expect(sp.running?).to be_false
+        expect(sp.running?).to be(false)
         thread.join
       end
     end

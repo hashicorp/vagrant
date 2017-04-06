@@ -75,12 +75,12 @@ describe VagrantPlugins::DockerProvider::Driver do
 
     context 'when container exists' do
       before { subject.stub(execute: "foo\n#{cid}\nbar") }
-      it { expect(result).to be_true }
+      it { expect(result).to be_truthy }
     end
 
     context 'when container does not exist' do
       before { subject.stub(execute: "foo\n#{cid}extra\nbar") }
-      it { expect(result).to be_false }
+      it { expect(result).to be_falsey }
     end
   end
 
@@ -102,12 +102,12 @@ describe VagrantPlugins::DockerProvider::Driver do
 
     context 'when container exists' do
       before { subject.stub(execute: "foo\n#{cid}\nbar") }
-      it { expect(result).to be_true }
+      it { expect(result).to be_truthy }
     end
 
     context 'when container does not exist' do
       before { subject.stub(execute: "foo\n#{cid}extra\nbar") }
-      it { expect(result).to be_false }
+      it { expect(result).to be_falsey }
     end
   end
 

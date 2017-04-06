@@ -104,15 +104,15 @@ describe Vagrant::CapabilityHost do
     end
 
     it "does not have a non-existent capability" do
-      expect(subject.capability?(:foo)).to be_false
+      expect(subject.capability?(:foo)).to be(false)
     end
 
     it "has capabilities of itself" do
-      expect(subject.capability?(:self)).to be_true
+      expect(subject.capability?(:self)).to be(true)
     end
 
     it "has capabilities of parent" do
-      expect(subject.capability?(:parent)).to be_true
+      expect(subject.capability?(:parent)).to be(true)
     end
   end
 

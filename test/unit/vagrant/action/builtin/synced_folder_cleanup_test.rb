@@ -131,9 +131,9 @@ describe Vagrant::Action::Builtin::SyncedFolderCleanup do
 
       subject.call(env)
 
-      expect(trackers[0].clean).to be_true
-      expect(trackers[1].clean).to be_true
-      expect(trackers[2].clean).to be_true
+      expect(trackers[0].clean).to be(true)
+      expect(trackers[1].clean).to be(true)
+      expect(trackers[2].clean).to be(true)
     end
   end
 end

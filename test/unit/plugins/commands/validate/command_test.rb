@@ -30,7 +30,7 @@ describe VagrantPlugins::CommandValidate::Command do
         end
       EOH
 
-      expect(env.ui).to receive(:info).with { |message, _|
+      expect(env.ui).to receive(:info).with(any_args) { |message, _|
         expect(message).to include("Vagrantfile validated successfully.")
       }
 

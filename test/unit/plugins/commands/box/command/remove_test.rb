@@ -18,7 +18,7 @@ describe VagrantPlugins::CommandBox::Command::Remove do
   let(:action_runner) { double("action_runner") }
 
   before do
-    iso_env.stub(action_runner: action_runner)
+    allow(iso_env).to receive(:action_runner).and_return(action_runner)
   end
 
   context "with no arguments" do
@@ -32,9 +32,9 @@ describe VagrantPlugins::CommandBox::Command::Remove do
     let(:argv) { ["foo"] }
 
     it "invokes the action runner" do
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with(any_args) { |action, opts|
         expect(opts[:box_name]).to eq("foo")
-        expect(opts[:force_confirm_box_remove]).to be_false
+        expect(opts[:force_confirm_box_remove]).to be(false)
         true
       }
 
@@ -45,9 +45,9 @@ describe VagrantPlugins::CommandBox::Command::Remove do
       let(:argv) { super() + ["--force"] }
 
       it "invokes the action runner with force option" do
-        expect(action_runner).to receive(:run).with { |action, opts|
+        expect(action_runner).to receive(:run).with(any_args) { |action, opts|
           expect(opts[:box_name]).to eq("foo")
-          expect(opts[:force_confirm_box_remove]).to be_true
+          expect(opts[:force_confirm_box_remove]).to be(true)
           true
         }
 
@@ -60,7 +60,7 @@ describe VagrantPlugins::CommandBox::Command::Remove do
     let(:argv) { ["foo", "bar"] }
 
     it "uses the 2nd arg as a provider" do
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with(any_args) { |action, opts|
         expect(opts[:box_name]).to eq("foo")
         expect(opts[:box_provider]).to eq("bar")
         true

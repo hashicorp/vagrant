@@ -308,7 +308,7 @@ describe Vagrant::Box, :skip_windows do
       end
 
       # Repackage our box to some temporary directory
-      expect(subject.repackage(box_output_path)).to be_true
+      expect(subject.repackage(box_output_path)).to be(true)
 
       # Let's now add this box again under a different name, and then
       # verify that we get the proper result back.

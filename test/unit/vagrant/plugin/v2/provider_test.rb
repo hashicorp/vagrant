@@ -48,8 +48,8 @@ describe Vagrant::Plugin::V2::Provider do
     end
 
     it "can execute capabilities" do
-      expect(subject.capability?(:foo)).to be_false
-      expect(subject.capability?(:bar)).to be_true
+      expect(subject.capability?(:foo)).to be(false)
+      expect(subject.capability?(:bar)).to be(true)
 
       expect { subject.capability(:bar) }.
         to raise_error("bar YEAH")

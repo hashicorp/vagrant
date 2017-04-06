@@ -18,13 +18,13 @@ describe Vagrant do
   describe "#in_installer?" do
     it "is not if env is not set" do
       with_temp_env("VAGRANT_INSTALLER_ENV" => nil) do
-        expect(subject.in_installer?).to be_false
+        expect(subject.in_installer?).to be(false)
       end
     end
 
     it "is if env is set" do
       with_temp_env("VAGRANT_INSTALLER_ENV" => "/foo") do
-        expect(subject.in_installer?).to be_true
+        expect(subject.in_installer?).to be(true)
       end
     end
   end
@@ -47,13 +47,13 @@ describe Vagrant do
   describe "#plugins_enabled?" do
     it "returns true if the env is not set" do
       with_temp_env("VAGRANT_NO_PLUGINS" => nil) do
-        expect(subject.plugins_enabled?).to be_true
+        expect(subject.plugins_enabled?).to be(true)
       end
     end
 
     it "returns false if the env is set" do
       with_temp_env("VAGRANT_NO_PLUGINS" => "1") do
-        expect(subject.plugins_enabled?).to be_false
+        expect(subject.plugins_enabled?).to be(false)
       end
     end
   end
