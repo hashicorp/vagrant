@@ -295,7 +295,8 @@ module Vagrant
       # be true)
       result = request_set.install_into(plugin_gem_path.to_s, true,
         ignore_dependencies: true,
-        prerelease: Vagrant.prerelease?
+        prerelease: Vagrant.prerelease?,
+        wrappers: true
       )
       result = result.map(&:full_spec)
       result
