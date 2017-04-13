@@ -14,6 +14,7 @@ IMPROVEMENTS:
   - provider/docker: Do not force docker host VM on Darwin or Windows [GH-8437, GH-7895]
   - provisioners/ansible_local: Add `pip_args` option to define additional parameters when installing Ansible via pip [GH-8170, GH-8405]
   - provisioners/ansible_local: Add `:pip_args_only` install mode to allow full custom pip installations [GH-8405]
+  - provisioners/salt: Update minion version installed to 2016.11.3 [GH-8448]
 
 BUG FIXES:
 
