@@ -360,6 +360,7 @@ module VagrantPlugins
             Errno::ECONNRESET,
             Errno::ENETUNREACH,
             Errno::EHOSTUNREACH,
+            Errno::ENETUNREACH,
             Net::SSH::Disconnect,
             Timeout::Error
           ]
