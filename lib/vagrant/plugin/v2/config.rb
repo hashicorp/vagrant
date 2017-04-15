@@ -46,7 +46,7 @@ module Vagrant
           result = self.class.new
 
           # Set all of our instance variables on the new class
-          [self, other].each do |obj|
+          [other, self].each do |obj|
             obj.instance_variables.each do |key|
               # Ignore keys that start with a double underscore. This allows
               # configuration classes to still hold around internal state
