@@ -22,6 +22,10 @@ module VagrantPlugins
 
               # If the forwarded port was marked as disabled, ignore.
               next if options[:disabled]
+              
+              if id == "ssh"
+                guest_port = config.ssh.guest_port
+              end
 
               key = "#{host_ip}#{protocol}#{host_port}"
               mappings[key] =
