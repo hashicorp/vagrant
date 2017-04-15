@@ -18,8 +18,11 @@ module VagrantPlugins
           args = " #{args.join(" ")}"
         end
 
-        if @machine.config.vm.communicator == :winrm
+        case @machine.config.vm.communicator
+        when :winrm
           provision_winrm(args)
+        when :winssh
+          provision_winssh(args)
         else
           provision_ssh(args)
         end
@@ -70,6 +73,59 @@ module VagrantPlugins
                       error_check: false)
 
             comm.upload(path.to_s, config.upload_path)
+
+            if config.name
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "script: #{config.name}"))
+            elsif config.path
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: path.to_s))
+            else
+              @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
+                                      script: "inline script"))
+            end
+
+            # Execute it with sudo
+            comm.execute(
+              command,
+              sudo: config.privileged,
+              error_key: :ssh_bad_exit_status_muted
+            ) do |type, data|
+              handle_comm(type, data)
+            end
+          end
+        end
+      end
+
+      # This is the provision method called if Windows OpenSSH is what is running
+      # on the remote end, which assumes a non-POSIX-style host.
+      def provision_winssh(args)
+        with_script_file do |path|
+          # Upload the script to the machine
+          @machine.communicate.tap do |comm|
+            env = config.env.map{|k,v| comm.generate_environment_export(k, v)}.join
+            remote_ext = @machine.config.winssh.shell == "powershell" ? "ps1" : "bat"
+            upload_path = "C:\\Windows\\Temp\\#{File.basename(path)}.#{remote_ext}"
+            if remote_ext == "ps1"
+              # Copy powershell_args from configuration
+              shell_args = config.powershell_args
+              # For PowerShell scripts bypass the execution policy unless already specified
+              shell_args += " -ExecutionPolicy Bypass" if config.powershell_args !~ /[-\/]ExecutionPolicy/i
+              # CLIXML output is kinda useless, especially on non-windows hosts
+              shell_args += " -OutputFormat Text" if config.powershell_args !~ /[-\/]OutputFormat/i
+              command = "#{env}\npowershell #{shell_args} #{upload_path}#{args}"
+            else
+              command = "#{env}\n#{upload_path}#{args}"
+            end
+
+            # Reset upload path permissions for the current ssh user
+            info = nil
+            retryable(on: Vagrant::Errors::SSHNotReady, tries: 3, sleep: 2) do
+              info = @machine.ssh_info
+              raise Vagrant::Errors::SSHNotReady if info.nil?
+            end
+
+            comm.upload(path.to_s, upload_path)
 
             if config.name
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
