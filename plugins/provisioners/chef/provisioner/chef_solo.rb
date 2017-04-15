@@ -72,7 +72,9 @@ module VagrantPlugins
           paths = [paths] if paths.is_a?(String) || paths.first.is_a?(Symbol)
 
           results = []
-          paths.each do |type, path|
+          paths.each do |type = nil, path|
+            type ||= :host
+
             # Create the local/remote path based on whether this is a host
             # or VM path.
             local_path = nil
