@@ -2089,6 +2089,7 @@ en:
           The chef binary (either `chef-solo` or `chef-client`) was not found on
           the VM and is required for chef provisioning. Please verify that chef
           is installed and that the binary is available on the PATH.
+          Try installing the vagrant-omnibus plugin.
         cookbook_folder_not_found_warning:
           "The cookbook path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
@@ -2136,6 +2137,7 @@ en:
           could be because the PATH is not properly setup or perhaps chef is not
           installed on this guest. Chef provisioning can not continue without
           chef properly installed.
+          Try installing the vagrant-omnibus plugin.
         server_url_required: |-
           Chef server provisioning requires that the `config.chef.chef_server_url` be set to the
           URL of your chef server. Examples include "http://12.12.12.12:4000" and
