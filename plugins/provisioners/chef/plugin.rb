@@ -58,6 +58,16 @@ module VagrantPlugins
         Cap::Debian::ChefInstall
       end
 
+      guest_capability(:freebsd, :chef_install) do
+        require_relative "cap/freebsd/chef_install"
+        Cap::FreeBSD::ChefInstall
+      end
+
+      guest_capability(:freebsd, :chef_installed) do
+        require_relative "cap/freebsd/chef_installed"
+        Cap::FreeBSD::ChefInstalled
+      end
+
       guest_capability(:linux, :chef_installed) do
         require_relative "cap/linux/chef_installed"
         Cap::Linux::ChefInstalled
