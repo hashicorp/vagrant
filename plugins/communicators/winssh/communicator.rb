@@ -20,7 +20,7 @@ module VagrantPlugins
 
         sudo  = opts[:sudo]
 
-        @logger.info("Execute: #{command}")
+        @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
 
         # Open the channel so we can execute or command
@@ -55,6 +55,9 @@ SCRIPT
           tfile.close
           upload(tfile.path, remote_name)
           tfile.delete
+
+          base_cmd = shell_cmd(opts.merge(shell: base_cmd))
+          @logger.debug("Base SSH exec command: #{base_cmd}")
 
           ch.exec(base_cmd) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
