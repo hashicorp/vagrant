@@ -13,6 +13,7 @@ IMPROVEMENTS:
   - guests/elementary: Add support for new guest "Elementary OS" [GH-8472]
   - guests/esxi: Add public_key capability [GH-8310]
   - guests/freebsd: Add chef_install and chef_installed? capabilities [GH-8443]
+  - guests/gentoo: Add support for systemd in network configuration [GH-8407, GH-8406]
   - provider/docker: Improve IP and port detection [GH-7840, GH-7651]
   - provider/docker: Do not force docker host VM on Darwin or Windows [GH-8437, GH-7895]
   - provisioners/ansible_local: Add `pip_args` option to define additional parameters when installing Ansible via pip [GH-8170, GH-8405]
