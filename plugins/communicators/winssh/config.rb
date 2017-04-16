@@ -1,7 +1,5 @@
 require File.expand_path("../../../kernel_v2/config/ssh", __FILE__)
 
-# forward_x11 pty sudo_command
-
 module VagrantPlugins
   module CommunicatorWinSSH
     class Config < VagrantPlugins::Kernel_V2::SSHConfig
@@ -22,6 +20,11 @@ module VagrantPlugins
       def to_s
         "WINSSH"
       end
+
+      # Remove configuration options from regular SSH that are
+      # not used within this communicator
+      undef :forward_x11
+      undef :pty
     end
   end
 end
