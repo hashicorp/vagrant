@@ -143,7 +143,7 @@ module VagrantPlugins
         # If we're already attempting to switch out the SSH key, then
         # just return that we're ready (for Machine#guest).
         @lock.synchronize do
-          return true if @inserted_key || !@machine.config.ssh.insert_key
+          return true if @inserted_key || !machine_config_ssh.insert_key
           @inserted_key = true
         end
 
@@ -458,9 +458,9 @@ module VagrantPlugins
         # Determine the shell to execute. Prefer the explicitly passed in shell
         # over the default configured shell. If we are using `sudo` then we
         # need to wrap the shell in a `sudo` call.
-        cmd = @machine.config.ssh.shell
+        cmd = machine_config_ssh.shell
         cmd = shell if shell
-        cmd = @machine.config.ssh.sudo_command.gsub("%c", cmd) if sudo
+        cmd = machine_config_ssh.sudo_command.gsub("%c", cmd) if sudo
         cmd
       end
 
@@ -482,7 +482,7 @@ module VagrantPlugins
 
         # Open the channel so we can execute or command
         channel = connection.open_channel do |ch|
-          if @machine.config.ssh.pty
+          if machine_config_ssh.pty
             ch.request_pty do |ch2, success|
               pty = success && command != ""
 
@@ -611,7 +611,7 @@ module VagrantPlugins
         begin
           keep_alive = nil
 
-          if @machine.config.ssh.keep_alive
+          if machine_config_ssh.keep_alive
             # Begin sending keep-alive packets while we wait for the script
             # to complete. This avoids connections closing on long-running
             # scripts.
@@ -687,8 +687,12 @@ module VagrantPlugins
       end
 
       def generate_environment_export(env_key, env_value)
-        template = @machine.config.ssh.export_command_template
+        template = machine_config_ssh.export_command_template
         template.sub("%ENV_KEY%", env_key).sub("%ENV_VALUE%", env_value) + "\n"
+      end
+
+      def machine_config_ssh
+        @machine.config.ssh
       end
     end
   end
