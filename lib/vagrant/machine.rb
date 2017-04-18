@@ -170,7 +170,7 @@ module Vagrant
       # Extra env keys are the remaining opts
       extra_env = opts.dup
 
-      check_cwd
+      check_cwd # Warns the UI if the machine was last used on a different dir
 
       # Create a deterministic ID for this machine
       vf = nil
