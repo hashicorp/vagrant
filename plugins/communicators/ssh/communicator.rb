@@ -519,7 +519,7 @@ module VagrantPlugins
                   end
                 end
 
-                if block_given? && marker_found
+                if block_given? && marker_found && !data.empty?
                   yield :stdout, data
                 end
               end
@@ -540,7 +540,7 @@ module VagrantPlugins
                 end
               end
 
-              if block_given? && marker_found
+              if block_given? && marker_found && !data.empty?
                 yield :stderr, data
               end
             end

@@ -168,6 +168,24 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
     end
 
+    context "with no command output" do
+      let(:command_stdout_data) do
+        "#{command_garbage_marker}"
+      end
+
+      it "does not send empty stdout data string" do
+        empty = true
+        expect(
+          communicator.execute("ls /") do |type, data|
+            if type == :stdout && data.empty?
+              empty = false
+            end
+          end
+        ).to eq(0)
+        expect(empty).to be(true)
+      end
+    end
+
     context "with garbage content prepended to command stderr output" do
       let(:command_stderr_data) do
         "Line of garbage\nMore garbage\n#{command_garbage_marker}bin\ntmp\n"
@@ -183,6 +201,24 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           end
         ).to eq(0)
         expect(stderr).to eq("bin\ntmp\n")
+      end
+    end
+
+    context "with no command output on stderr" do
+      let(:command_stderr_data) do
+        "#{command_garbage_marker}"
+      end
+
+      it "does not send empty stderr data string" do
+        empty = true
+        expect(
+          communicator.execute("ls /") do |type, data|
+            if type == :stderr && data.empty?
+              empty = false
+            end
+          end
+        ).to eq(0)
+        expect(empty).to be(true)
       end
     end
 
