@@ -118,7 +118,7 @@ module Vagrant
 
             # If the port is open (listening for TCP connections)
             in_use = is_forwarded_already(extra_in_use, host_port, host_ip) ||
-              port_checker[host_ip, host_port] ||
+              call_port_checker(port_checker, host_ip, host_port) ||
               lease_check(host_ip, host_port)
             if in_use
               if !repair || !options[:auto_correct]
@@ -137,7 +137,7 @@ module Vagrant
 
                 # If the port is in use, then we can't use this either...
                 in_use = is_forwarded_already(extra_in_use, repaired_port, host_ip) ||
-                  port_checker[host_ip, repaired_port] ||
+                  call_port_checker(port_checker, host_ip, repaired_port) ||
                   lease_check(host_ip, repaired_port)
                 if in_use
                   @logger.info("Repaired port also in use: #{repaired_port}. Trying another...")
@@ -265,6 +265,13 @@ module Vagrant
 
             yield options
           end
+        end
+
+        def call_port_checker(port_checker, host_ip, host_port)
+          call_args = [host_ip, host_port]
+          # Trim args if checker method does not support inclusion of host_ip
+          call_args = call_args.slice(call_args.size - port_checker.arity.abs, port_checker.arity.abs)
+          port_checker[*call_args]
         end
       end
     end
