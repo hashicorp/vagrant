@@ -478,6 +478,7 @@ module Vagrant
             url ||= uri.opaque
             #7570 Strip leading slash left in front of drive letter by uri.path
             Util::Platform.windows? && url.gsub!(/^\/([a-zA-Z]:)/, '\1')
+            url = URI.unescape(url)
 
             begin
               File.open(url, "r") do |f|
