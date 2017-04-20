@@ -55,5 +55,13 @@ describe Vagrant::Util::Platform do
     it "correctly converts a path" do
       expect(described_class.windows_unc_path("c:/foo").to_s).to eql("\\\\?\\c:\\foo")
     end
+
+    context "when given a UNC path" do
+      let(:unc_path){ "\\\\srvname\\path" }
+
+      it "should not modify the path" do
+        expect(described_class.windows_unc_path(unc_path).to_s).to eql(unc_path)
+      end
+    end
   end
 end
