@@ -15,6 +15,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
   let(:collision_remap){ nil }
   let(:collision_repair){ nil }
   let(:collision_port_check){ nil }
+  let(:port_check_method){ nil }
 
   let(:machine) do
     double("machine").tap do |machine|
@@ -98,6 +99,41 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
             it "should automatically correct collision" do
               expect{ instance.call(env) }.not_to raise_error
             end
+          end
+        end
+      end
+
+      context "with custom port_check method" do
+        let(:check_result){ [] }
+        let(:port_options){ {guest: 80, host: 8080, host_ip: "127.0.1.1"} }
+
+        context "that accepts two parameters" do
+          let(:collision_port_check) do
+            lambda do |host_ip, host_port|
+              check_result.push(host_ip)
+              check_result.push(host_port)
+              false
+            end
+          end
+
+          it "should receive both host_ip and host_port" do
+            instance.call(env)
+            expect(check_result).to include(port_options[:host])
+            expect(check_result).to include(port_options[:host_ip])
+          end
+        end
+
+        context "that accepts one parameter" do
+          let(:collision_port_check) do
+            lambda do |host_port|
+              check_result.push(host_port)
+              false
+            end
+          end
+
+          it "should receive the host_port only" do
+            instance.call(env)
+            expect(check_result).to eq([port_options[:host]])
           end
         end
       end
