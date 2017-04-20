@@ -36,6 +36,7 @@ BUG FIXES:
   - guests/linux: Fix SMB mount capbability [GH-8410, GH-8404]
   - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
   - provisioners/salt: Allow Salt version to match 2 digit month [GH-8428]
+  - provisioners/shell: Properly handle remote paths on Windows that include spaces [GH-8498, GH-7234]
 
 ## 1.9.3 (March 21, 2017)
 
