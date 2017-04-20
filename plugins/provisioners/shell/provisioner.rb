@@ -190,7 +190,7 @@ module VagrantPlugins
             # CLIXML output is kinda useless, especially on non-windows hosts
             shell_args += " -OutputFormat Text" if config.powershell_args !~ /[-\/]OutputFormat/i
 
-            command = "#{exec_path}#{args}"
+            command = "\"#{exec_path}\"#{args}"
             command = "powershell #{shell_args.to_s} -file #{command}" if
               File.extname(exec_path).downcase == '.ps1'
 
