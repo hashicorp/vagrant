@@ -104,8 +104,11 @@ module VagrantPlugins
           # Upload the script to the machine
           @machine.communicate.tap do |comm|
             env = config.env.map{|k,v| comm.generate_environment_export(k, v)}.join
-            remote_ext = @machine.config.winssh.shell == "powershell" ? "ps1" : "bat"
-            upload_path = "C:\\Windows\\Temp\\#{File.basename(path)}.#{remote_ext}"
+            upload_path = config.upload_path.to_s
+            if File.extname(upload_path).empty?
+              remote_ext = @machine.config.winssh.shell == "powershell" ? "ps1" : "bat"
+              upload_path << ".#{remote_ext}"
+            end
             if remote_ext == "ps1"
               # Copy powershell_args from configuration
               shell_args = config.powershell_args
