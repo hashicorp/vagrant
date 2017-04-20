@@ -29,6 +29,7 @@ BUG FIXES:
   - command/up: Prevent other provider installation when explicitly defined [GH-8393, GH-8389]
   - communicators/ssh: Do not yield empty output data [GH-8495, GH-8259]
   - core: Provide fallback and retry when 0.0.0.0 is unavailable during port check [GH-8399, GH-8395]
+  - core: Support port checker methods that do not expect inclusion of host_ip [GH-8497, GH-8423]
   - core/bundler: Check if source is local path and prevent addition to remote sources [GH-8401]
   - core/ui: Prevent deadlock detection errors [GH-8414, GH-8125]
   - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
