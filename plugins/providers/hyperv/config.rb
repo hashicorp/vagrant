@@ -8,6 +8,7 @@ module VagrantPlugins
       attr_accessor :maxmemory # Maximal memory size in mb enables dynamical memory allocation @return [Integer]
       attr_accessor :cpus # Number of cpu's @return [Integer]
       attr_accessor :vmname # Name that will be shoen in Hyperv Manager @return [String]
+      attr_accessor :vswitch # Name that will be used as the Virtual Switch. @return [String]
       attr_accessor :vlan_id # VLAN ID for network interface for the virtual machine. @return [Integer]
       attr_accessor :mac # MAC address for network interface for the virtual machine. @return [String]
       attr_accessor :differencing_disk # Create differencing disk instead of cloning whole VHD [Boolean]
@@ -22,6 +23,7 @@ module VagrantPlugins
         @maxmemory = UNSET_VALUE
         @cpus = UNSET_VALUE
         @vmname = UNSET_VALUE
+        @vswitch = UNSET_VALUE
         @vlan_id = UNSET_VALUE
         @mac = UNSET_VALUE
         @differencing_disk = UNSET_VALUE
@@ -46,6 +48,7 @@ module VagrantPlugins
         @maxmemory = nil if @maxmemory == UNSET_VALUE
         @cpus = nil if @cpus == UNSET_VALUE
         @vmname = nil if @vmname == UNSET_VALUE
+        @vswitch = nil if @vswitch == UNSET_VALUE
         @vlan_id = nil if @vlan_id == UNSET_VALUE
         @mac = nil if @mac == UNSET_VALUE
         @differencing_disk = false if @differencing_disk == UNSET_VALUE

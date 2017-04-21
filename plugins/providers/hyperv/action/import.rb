@@ -18,6 +18,7 @@ module VagrantPlugins
           maxmemory = env[:machine].provider_config.maxmemory
           cpus = env[:machine].provider_config.cpus
           vmname = env[:machine].provider_config.vmname
+          vswitch = env[:machine].provider_config.vswitch
           differencing_disk = env[:machine].provider_config.differencing_disk
           auto_start_action = env[:machine].provider_config.auto_start_action
           auto_stop_action = env[:machine].provider_config.auto_stop_action
@@ -29,6 +30,7 @@ module VagrantPlugins
           env[:ui].output("Configured cpus number is #{cpus}") if cpus
           env[:ui].output("Configured enable virtualization extensions is #{enable_virtualization_extensions}") if enable_virtualization_extensions
           env[:ui].output("Configured vmname is #{vmname}") if vmname
+          env[:ui].output("Configured Virtual Switch is #{vswitch}") if vswitch
           env[:ui].output("Configured differencing disk instead of cloning") if differencing_disk
           env[:ui].output("Configured automatic start action is #{auto_start_action}") if auto_start_action
           env[:ui].output("Configured automatic stop action is #{auto_stop_action}") if auto_stop_action
@@ -85,14 +87,16 @@ module VagrantPlugins
           env[:machine].config.vm.networks.each do |type, opts|
             next if type != :public_network && type != :private_network
 
-            switchToFind = opts[:bridge]
-
+            # switchToFind = opts[:bridge]
+            switchToFind = vswitch
             if switchToFind
               puts "Looking for switch with name: #{switchToFind}"
-              switch = switches.find { |s| s["Name"].downcase == switchToFind.downcase }["Name"]
+              switch = switches.find {|s| s["Name"].downcase == switchToFind.downcase}["Name"]
               puts "Found switch: #{switch}"
             end
           end
+
+          raise Errors::SwitchDoesNotExist if switch.nil? && !vswitch.nil?
 
           if switch.nil?
             if switches.length > 1
@@ -136,9 +140,9 @@ module VagrantPlugins
           options = {
               vm_config_file: config_path.to_s.gsub("/", "\\"),
               vm_config_type: config_type,
-              source_path:    source_path.to_s,
-              dest_path:      dest_path,
-              data_path:      env[:machine].data_dir.to_s.gsub("/", "\\")
+              source_path: source_path.to_s,
+              dest_path: dest_path,
+              data_path: env[:machine].data_dir.to_s.gsub("/", "\\")
           }
           options[:switchname] = switch if switch
           options[:memory] = memory if memory

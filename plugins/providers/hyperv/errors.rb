@@ -22,6 +22,10 @@ module VagrantPlugins
         error_key(:no_switches)
       end
 
+      class SwitchDoesNotExist < HyperVError
+        error_key(:switch_doesnot_exist)
+      end
+
       class PowerShellFeaturesDisabled < HyperVError
         error_key(:powershell_features_disabled)
       end
