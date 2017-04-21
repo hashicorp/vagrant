@@ -12,10 +12,6 @@ module VagrantPlugins
               hostname '#{name}'
               sed -i '' 's/^hostname=.*$/hostname=\"#{name}\"/' /etc/rc.conf
 
-              # Remove comments and blank lines from /etc/hosts
-              sed -i'' -e 's/#.*$//' /etc/hosts
-              sed -i'' -e '/^$/d' /etc/hosts
-
               # Prepend ourselves to /etc/hosts
               grep -w '#{name}' /etc/hosts || {
                 echo -e '127.0.0.1\\t#{name}\\t#{basename}' | cat - /etc/hosts > /tmp/tmp-hosts
