@@ -192,7 +192,7 @@ module Vagrant
           return path + "\\" if path =~ /^[a-zA-Z]:\\?$/
 
           # Convert to UNC path
-          "\\\\?\\" + path.gsub("/", "\\")
+          path.gsub("/", "\\")
         end
 
         # Returns a boolean noting whether the terminal supports color.
