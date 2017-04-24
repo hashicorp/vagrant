@@ -3,4 +3,5 @@
 BOOTPROTO=dhcp
 ONBOOT=yes
 DEVICE=<%= options[:device] %>
+NM_CONTROLLED=<%= options.fetch(:nm_controlled, "no") %>
 #VAGRANT-END
