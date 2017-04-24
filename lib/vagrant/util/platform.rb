@@ -188,11 +188,16 @@ module Vagrant
         def windows_unc_path(path)
           path = path.gsub("/", "\\")
 
-          # If the path is just a drive letter, then return that as-is
-          return path + "\\" if path =~ /^[a-zA-Z]:\\?$/
-
           # Convert to UNC path
-          "\\\\?\\" + path.gsub("/", "\\")
+          if path =~ /^[a-zA-Z]:\\?$/
+            # If the path is just a drive letter, then return that as-is
+            path + "\\"
+          elsif path.start_with?("\\\\")
+            # If the path already starts with `\\` assume UNC and return as-is
+            path
+          else
+            "\\\\?\\" + path.gsub("/", "\\")
+          end
         end
 
         # Returns a boolean noting whether the terminal supports color.
