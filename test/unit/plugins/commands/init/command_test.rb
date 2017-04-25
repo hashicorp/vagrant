@@ -78,6 +78,13 @@ describe VagrantPlugins::CommandInit::Command do
       expect(contents).to match(/config.vm.box_version = "1.2.3"/)
     end
 
+    it "creates a minimal Vagrantfile with a box and box version" do
+      described_class.new(["--minimal", "--box-version", "1.2.3", "hashicorp/precise64"], env).execute
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.box = "hashicorp\/precise64"/)
+      expect(contents).to match(/config.vm.box_version = "1.2.3"/)
+    end
+
     it "creates a Vagrantfile at a custom path" do
       described_class.new(["--output", "vf.rb"], env).execute
       expect(File.exist?(File.join(env.cwd, "vf.rb"))).to be(true)

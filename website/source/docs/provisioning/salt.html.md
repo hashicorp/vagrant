@@ -75,7 +75,7 @@ distribution's stable package manager, git tree-ish, daily ppa, or testing repos
 * `bootstrap_options` (string) - Additional command-line options to
   pass to the bootstrap script.
 
-* `version`  (string, default: "2015.5.2") - Version of minion to be installed. Only supported on Windows guest machines.
+* `version`  (string, default: "2016.11.3") - Version of minion to be installed. Only supported on Windows guest machines.
 
 ## Minion Options
 These only make sense when `no_minion` is `false`.
@@ -137,6 +137,9 @@ These may be used to control the output of state execution:
 * `log_level` (string) - The verbosity of the outputs. Defaults to "debug".
   Can be one of "all", "garbage", "trace", "debug", "info", or
   "warning". Requires `verbose` to be set to "true".
+
+* `verbose` (boolean) - The verbosity of the outputs. Defaults to "false".
+  Must be true for log_level taking effect and the output of the salt-commands being displayed.
 
 ## Pillar Data
 

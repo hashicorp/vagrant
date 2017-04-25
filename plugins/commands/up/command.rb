@@ -128,7 +128,7 @@ module VagrantPlugins
         # First create a set of all the providers we need to check for.
         # Most likely this will be a set of one.
         providers = Set.new
-        with_target_vms(names) do |machine|
+        with_target_vms(names, provider: provider) do |machine|
           # Check if we have this machine in the index
           entry    = @env.machine_index.get(machine.name.to_s)
 

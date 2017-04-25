@@ -65,7 +65,7 @@ This command saves a new named snapshot. If this command is used, the
 
 # Snapshot Restore
 
-**Command: `vagrant snapshot restore NAME`**
+**Command: `vagrant snapshot restore [vm-name] NAME`**
 
 This command restores the named snapshot.
 

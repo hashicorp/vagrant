@@ -3,6 +3,7 @@ require "pathname"
 require "set"
 require "tempfile"
 require "fileutils"
+require "uri"
 
 require "rubygems/package"
 require "rubygems/uninstaller"
@@ -18,7 +19,14 @@ module Vagrant
   # all Vagrant-installed plugins.
   class Bundler
 
-    HASHICORP_GEMSTORE = 'https://gems.hashicorp.com'.freeze
+    # Location of HashiCorp gem repository
+    HASHICORP_GEMSTORE = "https://gems.hashicorp.com/".freeze
+
+    # Default gem repositories
+    DEFAULT_GEM_SOURCES = [
+      "https://rubygems.org/".freeze,
+      HASHICORP_GEMSTORE
+    ].freeze
 
     def self.instance
       @bundler ||= self.new
@@ -108,7 +116,7 @@ module Vagrant
         plugin_source.spec.name => {
           "gem_version" => plugin_source.spec.version.to_s,
           "local_source" => plugin_source,
-          "sources" => opts.fetch(:sources, Gem.sources.map(&:to_s))
+          "sources" => opts.fetch(:sources, [])
         }
       }
       @logger.debug("Installing local plugin - #{plugin_info}")
@@ -204,12 +212,10 @@ module Vagrant
     protected
 
     def internal_install(plugins, update, **extra)
-      # Only allow defined Gem sources
-      Gem.sources.clear
-
       update = {} if !update.is_a?(Hash)
       skips = []
-      installer_set = Gem::Resolver::InstallerSet.new(:both)
+      source_list = {}
+      installer_set = VagrantSet.new(:both)
 
       # Generate all required plugin deps
       plugin_deps = plugins.map do |name, info|
@@ -219,19 +225,52 @@ module Vagrant
         else
           gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
         end
+        source_list[name] ||= []
         if plugin_source = info.delete("local_source")
           installer_set.add_local(plugin_source.spec.name, plugin_source.spec, plugin_source)
+          source_list[name] << plugin_source.path
         end
         Array(info["sources"]).each do |source|
-          if !Gem.sources.include?(source)
-            @logger.debug("Adding RubyGems source for plugin install: #{source}")
-            Gem.sources << source
+          if !source.end_with?("/")
+            source = source + "/"
           end
+          source_list[name] << source
         end
         Gem::Dependency.new(name, gem_version)
       end
 
       @logger.debug("Dependency list for installation: #{plugin_deps}")
+
+      all_sources = source_list.values.flatten.uniq
+      default_sources = DEFAULT_GEM_SOURCES & all_sources
+      all_sources -= DEFAULT_GEM_SOURCES
+
+      # Only allow defined Gem sources
+      Gem.sources.clear
+
+      @logger.debug("Enabling user defined remote RubyGems sources")
+      all_sources.each do |src|
+        begin
+          next if File.file?(src) || URI.parse(src).scheme.nil?
+        rescue URI::InvalidURIError
+          next
+        end
+        @logger.debug("Adding RubyGems source #{src}")
+        Gem.sources << src
+      end
+
+      @logger.debug("Enabling default remote RubyGems sources")
+      default_sources.each do |src|
+        @logger.debug("Adding source - #{src}")
+        Gem.sources << src
+      end
+
+      validate_configured_sources!
+
+      source_list.values.each{|srcs| srcs.delete_if{|src| default_sources.include?(src)}}
+      installer_set.prefer_sources = source_list
+
+      @logger.debug("Current source list for install: #{Gem.sources.to_a}")
 
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
@@ -254,7 +293,11 @@ module Vagrant
       # as we know the dependencies are satisfied and it will attempt to validate a gem's
       # dependencies are satisified by gems in the install directory (which will likely not
       # be true)
-      result = request_set.install_into(plugin_gem_path.to_s, true, ignore_dependencies: true)
+      result = request_set.install_into(plugin_gem_path.to_s, true,
+        ignore_dependencies: true,
+        prerelease: Vagrant.prerelease?,
+        wrappers: true
+      )
       result = result.map(&:full_spec)
       result
     end
@@ -282,6 +325,27 @@ module Vagrant
         end
       end
       list.values
+    end
+
+    # Iterates each configured RubyGem source to validate that it is properly
+    # available. If source is unavailable an exception is raised.
+    def validate_configured_sources!
+      Gem.sources.each_source do |src|
+        begin
+          src.load_specs(:released)
+        rescue Gem::Exception => source_error
+          if ENV["VAGRANT_ALLOW_PLUGIN_SOURCE_ERRORS"]
+            @logger.warn("Failed to load configured plugin source: #{src}!")
+            @logger.warn("Error received attempting to load source (#{src}): #{source_error}")
+            @logger.warn("Ignoring plugin source load failure due user request via env variable")
+          else
+            @logger.error("Failed to load configured plugin source `#{src}`: #{source_error}")
+            raise Vagrant::Errors::PluginSourceError,
+              source: src.uri.to_s,
+              error_msg: source_error.message
+          end
+        end
+      end
     end
 
     # Generate the builtin resolver set
@@ -359,6 +423,37 @@ module Vagrant
       end
     end
 
+    # This is a custom Gem::Resolver::InstallerSet. It will prefer sources which are
+    # explicitly provided over default sources when matches are found. This is generally
+    # the entire set used for performing full resolutions on install.
+    class VagrantSet < Gem::Resolver::InstallerSet
+      attr_accessor :prefer_sources
+
+      def initialize(domain, defined_sources={})
+        @prefer_sources = defined_sources
+        super(domain)
+      end
+
+      # Allow InstallerSet to find matching specs, then filter
+      # for preferred sources
+      def find_all(req)
+        result = super
+        subset = result.find_all do |idx_spec|
+          preferred = false
+          if prefer_sources[req.name]
+            if idx_spec.source.respond_to?(:path)
+              preferred = prefer_sources[req.name].include?(idx_spec.source.path.to_s)
+            end
+            if !preferred
+              preferred = prefer_sources[req.name].include?(idx_spec.source.uri.to_s)
+            end
+          end
+          preferred
+        end
+        subset.empty? ? result : subset
+      end
+    end
+
     # This is a custom Gem::Resolver::Set for use with vagrant "system" gems. It
     # allows the installed set of gems to be used for providing a solution while
     # enforcing strict constraints. This ensures that plugins cannot "upgrade"
@@ -376,7 +471,8 @@ module Vagrant
 
       def find_all(req)
         @specs.select do |spec|
-          req.match?(spec)
+          allow_prerelease = spec.name == "vagrant" && Vagrant.prerelease?
+          req.match?(spec, allow_prerelease)
         end.map do |spec|
           Gem::Resolver::InstalledSpecification.new(self, spec)
         end
@@ -425,7 +521,7 @@ module Vagrant
       # ignored.
       def load_spec (name, version, platform, source)
         version = Gem::Version.new(version) if !version.is_a?(Gem::Version)
-        @specs.fetch(name, []).detect{|s| s.name == name && s.version = version}
+        @specs.fetch(name, []).detect{|s| s.name == name && s.version == version}
       end
     end
   end

@@ -292,6 +292,10 @@ module Vagrant
       error_key(:clone_machine_not_found)
     end
 
+    class CommandDeprecated < VagrantError
+      error_key(:command_deprecated)
+    end
+
     class CommandUnavailable < VagrantError
       error_key(:command_unavailable)
     end
@@ -590,6 +594,10 @@ module Vagrant
 
     class PluginInitError < VagrantError
       error_key(:plugin_init_error)
+    end
+
+    class PluginSourceError < VagrantError
+      error_key(:plugin_source_error)
     end
 
     class PushesNotDefined < VagrantError

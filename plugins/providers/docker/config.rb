@@ -228,7 +228,9 @@ module VagrantPlugins
         # host VM. Other users can optionally disable this by setting the
         # value explicitly to false in their Vagrantfile.
         if @force_host_vm == UNSET_VALUE
-          @force_host_vm = !Vagrant::Util::Platform.linux?
+          @force_host_vm = !Vagrant::Util::Platform.linux? &&
+            !Vagrant::Util::Platform.darwin? &&
+            !Vagrant::Util::Platform.windows?
         end
 
         # The machine name must be a symbol

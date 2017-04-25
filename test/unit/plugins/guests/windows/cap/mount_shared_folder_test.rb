@@ -6,10 +6,15 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
 
   let(:machine) { double("machine") }
   let(:communicator) { double(:execute) }
+  let(:config) { double("config") }
+  let(:vm) { double("vm") }
 
   before do
     allow(machine).to receive(:communicate).and_return(communicator)
     allow(communicator).to receive(:execute)
+    allow(machine).to receive(:config).and_return(config)
+    allow(config).to receive(:vm).and_return(vm)
+    allow(vm).to receive(:communicator).and_return(:winrm)
   end
 
   describe "virtualbox" do
@@ -94,6 +99,24 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
               vm_provider_unc_path: "\\\\host\\name",
             })
         described_class.mount_smb_shared_folder(machine, 'name', 'guestpath', {:smb_username => "user", :smb_password => "pass", :smb_host => "host"})
+      end
+    end
+  end
+
+  describe "virtualbox-ssh" do
+
+    let(:described_class) do
+      VagrantPlugins::GuestWindows::Plugin.components.guest_capabilities[:windows].get(:mount_virtualbox_shared_folder)
+    end
+
+    before do
+      allow(vm).to receive(:communicator).and_return(:ssh)
+    end
+
+    describe ".mount_shared_folder" do
+      it "should call mount_volume script via ssh" do
+        expect(communicator).to receive(:execute).with(/powershell/, shell: "sh")
+        described_class.mount_virtualbox_shared_folder(machine, 'name', 'guestpath', {})
       end
     end
   end

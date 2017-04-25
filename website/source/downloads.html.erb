@@ -9,24 +9,26 @@ description: |-
 <h1>Download Vagrant</h1>
 
 <div class="downloads">
-  <div class="description">
-    <p>
-      Below are the available downloads for the latest version of Vagrant
-      (<%= latest_version %>). Please download the proper package for your
-      operating system and architecture.
-    </p>
-    <p>
-      You can find the
-      <a href="https://releases.hashicorp.com/vagrant/<%= latest_version %>/vagrant_<%= latest_version %>_SHA256SUMS">
-        SHA256 checksums for Vagrant <%= latest_version %>
-      </a>
-      online and you can
-      <a href="https://releases.hashicorp.com/vagrant/<%= latest_version %>/vagrant_<%= latest_version %>_SHA256SUMS.sig">
-        verify the checksum's signature file
-      </a>,
-      which has been signed using <a href="https://www.hashicorp.com/security.html" target="_blank" rel="nofollow noopener noreferrer">HashiCorp's GPG key</a>.
-      You can also <a href="https://releases.hashicorp.com/vagrant/" target="_blank" rel="nofollow noopener noreferrer">download older versions of Vagrant</a> from the releases service.
-    </p>
+  <div class="description row">
+    <div class="col-md-12">
+      <p>
+        Below are the available downloads for the latest version of Vagrant
+        (<%= latest_version %>). Please download the proper package for your
+        operating system and architecture.
+      </p>
+      <p>
+        You can find the
+        <a href="https://releases.hashicorp.com/vagrant/<%= latest_version %>/vagrant_<%= latest_version %>_SHA256SUMS">
+          SHA256 checksums for Vagrant <%= latest_version %>
+        </a>
+        online and you can
+        <a href="https://releases.hashicorp.com/vagrant/<%= latest_version %>/vagrant_<%= latest_version %>_SHA256SUMS.sig">
+          verify the checksum's signature file
+        </a>,
+        which has been signed using <a href="https://www.hashicorp.com/security.html" target="_blank" rel="nofollow noopener noreferrer">HashiCorp's GPG key</a>.
+        You can also <a href="https://releases.hashicorp.com/vagrant/" target="_blank" rel="nofollow noopener noreferrer">download older versions of Vagrant</a> from the releases service.
+      </p>
+    </div>
   </div>
 
   <% product_versions.each do |os, arches| %>
@@ -47,9 +49,11 @@ description: |-
     </div>
   <% end %>
 
-  <div class="poweredby">
-    <a href="https://www.fastly.com?utm_source=hashicorp" target="_blank" rel="nofollow noopener noreferrer">
-      <%= image_tag "fastly_logo.png" %>
-    </a>
+  <div class="row">
+    <div class="col-md-12 poweredby">
+      <a href="https://www.fastly.com?utm_source=hashicorp" target="_blank" rel="nofollow noopener noreferrer">
+        <%= inline_svg "fastly.svg", height: 50 %>
+      </a>
+    </div>
   </div>
 </div>

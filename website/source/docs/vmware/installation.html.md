@@ -125,7 +125,7 @@ $ vagrant plugin install vagrant-vmware-workstation
 
 ## Support
 If you have any issues purchasing, installing, or using the Vagrant VMware
-plugins, please [contact support](/support.html). To
+plugins, please [contact support](mailto:support@hashicorp.com). To
 expedite the support process, please include the
-[Vagrant debug output](/docs/other/debugging.html) as a Gist or pastebin if
+[Vagrant debug output](/docs/other/debugging.html) as a Gist if
 applicable. This will help us more quickly diagnose your issue.

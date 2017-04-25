@@ -30,6 +30,17 @@ module VagrantPlugins
         require_relative "cap/halt"
         Cap::Halt
       end
+      
+      guest_capability(:esxi, :remove_public_key) do
+        require_relative "cap/public_key"
+        Cap::PublicKey
+      end
+      
+      guest_capability(:esxi, :insert_public_key) do
+        require_relative "cap/public_key"
+        Cap::PublicKey
+      end
+      
     end
   end
 end

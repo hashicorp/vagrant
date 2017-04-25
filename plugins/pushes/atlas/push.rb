@@ -73,6 +73,12 @@ module VagrantPlugins
 
         return result
       end
+
+      include Vagrant::Util::CommandDeprecation::Complete
+
+      def deprecation_command_name
+        "push (atlas strategy)"
+      end
     end
   end
 end

@@ -3,6 +3,7 @@ require "shellwords"
 require "tmpdir"
 
 require "vagrant/util/subprocess"
+require "vagrant/util/powershell"
 
 module Vagrant
   module Util
@@ -42,27 +43,17 @@ module Vagrant
         # Checks if the user running Vagrant on Windows has administrative
         # privileges.
         #
+        # From: https://support.microsoft.com/en-us/kb/243330
+        # SID: S-1-5-19
+        #
         # @return [Boolean]
         def windows_admin?
           return @_windows_admin if defined?(@_windows_admin)
 
-          # We lazily-load this because it is only available on Windows
-          require "win32/registry"
-
-          # Verify that we have administrative privileges. The odd method of
-          # detecting this is based on this StackOverflow question:
-          #
-          # https://stackoverflow.com/questions/560366/
-          #   detect-if-running-with-administrator-privileges-under-windows-xp
           @_windows_admin = -> {
-            begin
-              Win32::Registry::HKEY_USERS.open("S-1-5-19") {}
-
-              # The above doesn't seem to be 100% bullet proof. See GH-5616.
-              return (`reg query HKU\\S-1-5-19 2>&1` =~ /ERROR/).nil?
-            rescue Win32::Registry::Error
-              return false
-            end
+            ps_cmd = "[System.Security.Principal.WindowsIdentity]::GetCurrent().Groups | ForEach-Object { if ($_.Value -eq 'S-1-5-19'){ Write-Host 'true'; break }}"
+            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+            return output == 'true'
           }.call
 
           return @_windows_admin
@@ -78,15 +69,13 @@ module Vagrant
         # @return [Boolean]
         def windows_hyperv_admin?
           return @_windows_hyperv_admin if defined?(@_windows_hyperv_admin)
+
           @_windows_hyperv_admin = -> {
-            begin
-              username = ENV["USERNAME"]
-              process = Subprocess.execute("net", "localgroup", "Hyper-V Administrators")
-              return process.stdout.include?(username)
-            rescue Errors::CommandUnavailableWindows
-              return false
-            end
+            ps_cmd = "[System.Security.Principal.WindowsIdentity]::GetCurrent().Groups | ForEach-Object { if ($_.Value -eq 'S-1-5-32-578'){ Write-Host 'true'; break }}"
+            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+            return output == 'true'
           }.call
+
           return @_windows_hyperv_admin
         end
 
@@ -199,11 +188,16 @@ module Vagrant
         def windows_unc_path(path)
           path = path.gsub("/", "\\")
 
-          # If the path is just a drive letter, then return that as-is
-          return path + "\\" if path =~ /^[a-zA-Z]:\\?$/
-
           # Convert to UNC path
-          "\\\\?\\" + path.gsub("/", "\\")
+          if path =~ /^[a-zA-Z]:\\?$/
+            # If the path is just a drive letter, then return that as-is
+            path + "\\"
+          elsif path.start_with?("\\\\")
+            # If the path already starts with `\\` assume UNC and return as-is
+            path
+          else
+            "\\\\?\\" + path.gsub("/", "\\")
+          end
         end
 
         # Returns a boolean noting whether the terminal supports color.

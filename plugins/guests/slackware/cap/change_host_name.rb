@@ -14,9 +14,6 @@ module VagrantPlugins
               chmod o-w /etc/hostname
               hostname -F /etc/hostname
 
-              # Remove comments and blank lines from /etc/hosts
-              sed -i'' -e 's/#.*$//' -e '/^$/d' /etc/hosts
-
               # Prepend ourselves to /etc/hosts
               grep -w '#{name}' /etc/hosts || {
                 sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts

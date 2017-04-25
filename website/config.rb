@@ -1,48 +1,21 @@
 set :base_url, "https://www.vagrantup.com/"
 
 activate :hashicorp do |h|
-  h.name = "vagrant"
-  h.version = "1.9.1"
-  h.github_slug = "mitchellh/vagrant"
+  h.name         = "vagrant"
+  h.version      = "1.9.4"
+  h.github_slug  = "mitchellh/vagrant"
+  h.website_root = "website"
 end
 
 helpers do
-  # This helps by setting the "active" class for sidebar nav elements
-  # if the YAML frontmatter matches the expected value.
-  def sidebar_current(expected)
-    current = current_page.data.sidebar_current || ""
-    if current.start_with?(expected)
-      return " class=\"active\""
-    else
-      return ""
-    end
+  # Returns the FQDN of the image URL.
+  #
+  # @param [String] path
+  #
+  # @return [String]
+  def image_url(path)
+    File.join(base_url, image_path(path))
   end
-
-  # This returns the overall section of the documentation we're on.
-  def sidebar_section
-    current = current_page.data.sidebar_current
-    return "" if !current
-    current.split("-")[0]
-  end
-
-  def body_classes
-    classify = ->(s) { s.downcase.gsub(/[^a-zA-Z0-9]/, "-").squeeze("-") }
-
-    classes = []
-
-    if current_page.data.page_title
-      classes << "page-#{classify.call(current_page.data.page_title)}"
-    else
-      classes << "page-home"
-    end
-
-    if current_page.data.layout
-      classes << "layout-#{classify.call(current_page.data.layout)}"
-    end
-
-    return classes.join(" ")
-  end
-  # "home layout-#{current_page.data.layout}"
 
   # Get the title for the page.
   #
@@ -54,8 +27,8 @@ helpers do
       return "#{page.data.page_title} - Vagrant by HashiCorp"
     end
 
-    "Vagrant by HashiCorp"
-  end
+     "Vagrant by HashiCorp"
+   end
 
   # Get the description for the page
   #
@@ -63,6 +36,66 @@ helpers do
   #
   # @return [String]
   def description_for(page)
-    return escape_html(current_page.data.description || "")
+    description = (page.data.description || "")
+      .gsub('"', '')
+      .gsub(/\n+/, ' ')
+      .squeeze(' ')
+
+    return escape_html(description)
+  end
+
+  # This helps by setting the "active" class for sidebar nav elements
+  # if the YAML frontmatter matches the expected value.
+  def sidebar_current(expected)
+    current = current_page.data.sidebar_current || ""
+    if current.start_with?(expected)
+      return " class=\"active\""
+    else
+      return ""
+    end
+  end
+
+  # Returns the id for this page.
+  # @return [String]
+  def body_id_for(page)
+    if !(name = page.data.sidebar_current).blank?
+      return "page-#{name.strip}"
+    end
+    if page.url == "/" || page.url == "/index.html"
+      return "page-home"
+    end
+    if !(title = page.data.page_title).blank?
+      return title
+        .downcase
+        .gsub('"', '')
+        .gsub(/[^\w]+/, '-')
+        .gsub(/_+/, '-')
+        .squeeze('-')
+        .squeeze(' ')
+    end
+    return ""
+  end
+
+  # Returns the list of classes for this page.
+  # @return [String]
+  def body_classes_for(page)
+    classes = []
+
+    if !(layout = page.data.layout).blank?
+      classes << "layout-#{page.data.layout}"
+    end
+
+    if !(title = page.data.page_title).blank?
+      title = title
+        .downcase
+        .gsub('"', '')
+        .gsub(/[^\w]+/, '-')
+        .gsub(/_+/, '-')
+        .squeeze('-')
+        .squeeze(' ')
+      classes << "page-#{title}"
+    end
+
+    return classes.join(" ")
   end
 end

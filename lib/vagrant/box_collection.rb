@@ -246,7 +246,10 @@ module Vagrant
           end
         end
       end
-
+      # Sort the list to group like providers and properly ordered versions
+      results.sort_by! do |box_result|
+        [box_result[0], box_result[2], Gem::Version.new(box_result[1])]
+      end
       results
     end
 
@@ -272,21 +275,30 @@ module Vagrant
           return nil
         end
 
+        # Keep a mapping of Gem::Version mangled versions => directories.
+        # ie. 0.1.0.pre.alpha.2 => 0.1.0-alpha.2
+        # This is so we can sort version numbers properly here, but still
+        # refer to the real directory names in path checks below and pass an
+        # unmangled version string to Box.new
+        version_dir_map = {}
+
         versions = box_directory.children(true).map do |versiondir|
           next if !versiondir.directory?
           next if versiondir.basename.to_s.start_with?(".")
 
-          version = versiondir.basename.to_s
+          version = Gem::Version.new(versiondir.basename.to_s)
+          version_dir_map[version.to_s] = versiondir.basename.to_s
+          version
         end.compact
 
         # Traverse through versions with the latest version first
         versions.sort.reverse.each do |v|
-          if !requirements.all? { |r| r.satisfied_by?(Gem::Version.new(v)) }
+          if !requirements.all? { |r| r.satisfied_by?(v) }
             # Unsatisfied version requirements
             next
           end
 
-          versiondir = box_directory.join(v)
+          versiondir = box_directory.join(version_dir_map[v.to_s])
           providers.each do |provider|
             provider_dir = versiondir.join(provider.to_s)
             next if !provider_dir.directory?
@@ -303,7 +315,7 @@ module Vagrant
             end
 
             return Box.new(
-              name, provider, v, provider_dir,
+              name, provider, version_dir_map[v.to_s], provider_dir,
               metadata_url: metadata_url,
             )
           end

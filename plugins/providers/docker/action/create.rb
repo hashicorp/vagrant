@@ -129,6 +129,9 @@ module VagrantPlugins
             # Don't include SSH if we've explicitly asked not to
             next if options[:id] == "ssh" && !include_ssh
 
+            # Skip port if it is disabled
+            next if options[:disabled]
+
             # If the guest port is 0, put it in the random group
             if options[:guest] == 0
               random << options[:host]

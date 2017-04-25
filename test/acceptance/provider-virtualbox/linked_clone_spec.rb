@@ -9,7 +9,7 @@ shared_examples 'provider/linked_clone' do |provider, options|
 
   before do
     environment.skeleton('linked_clone')
-    assert_execute('vagrant', 'box', 'add', 'basic', options[:box])
+    assert_execute('vagrant', 'box', 'add', 'box', options[:box])
   end
 
   after do

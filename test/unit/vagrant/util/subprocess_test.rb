@@ -47,4 +47,65 @@ describe Vagrant::Util::Subprocess do
       expect(result.stdout).to eq(data)
     end
   end
+
+  describe "#running?" do
+    context "when subprocess has not been started" do
+      it "should return false" do
+        sp = described_class.new("ls")
+        expect(sp.running?).to be_false
+      end
+    end
+    context "when subprocess has completed" do
+      it "should return false" do
+        sp = described_class.new("ls")
+        sp.execute
+        expect(sp.running?).to be_false
+      end
+    end
+    context "when subprocess is running" do
+      it "should return true" do
+        sp = described_class.new("sleep", "5")
+        thread = Thread.new{ sp.execute }
+        sleep(0.1)
+        expect(sp.running?).to be_true
+        sp.stop
+        thread.join
+      end
+    end
+  end
+
+  describe "#stop" do
+    context "when subprocess has not been started" do
+      it "should return false" do
+        sp = described_class.new("ls")
+        expect(sp.stop).to be_false
+      end
+    end
+
+    context "when subprocess has already completed" do
+      it "should return false" do
+        sp = described_class.new("ls")
+        sp.execute
+        expect(sp.stop).to be_false
+      end
+    end
+
+    context "when subprocess is running" do
+      let(:sp){ described_class.new("sleep", "1") }
+      it "should return true" do
+        thread = Thread.new{ sp.execute }
+        sleep(0.1)
+        expect(sp.stop).to be_true
+        thread.join
+      end
+
+      it "should stop the process" do
+        thread = Thread.new{ sp.execute }
+        sleep(0.1)
+        sp.stop
+        expect(sp.running?).to be_false
+        thread.join
+      end
+    end
+  end
 end

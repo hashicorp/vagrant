@@ -664,6 +664,9 @@ en:
         Additionally, the created environment must be started with a provider
         matching this provider. For example, if you're using VirtualBox,
         the clone environment must also be using VirtualBox.
+      command_deprecated: |-
+        The command 'vagrant %{name}' has been deprecated and is no longer functional
+        within Vagrant.
       command_unavailable: |-
         The executable '%{file}' Vagrant is trying to run was not
         found in the PATH variable. This is an error. Please verify
@@ -1017,6 +1020,16 @@ en:
         You can however, install a plugin with the same name to replace
         these plugins. User-installed plugins take priority over
         system-installed plugins.
+      plugin_source_error: |-
+        Vagrant failed to load a configured plugin source. This can be caused
+        by a variety of issues including: transient connectivity issues, proxy
+        filtering rejecting access to a configured plugin source, or a configured
+        plugin source not responding correctly. Please review the error message
+        below to help resolve the issue:
+
+          %{error_msg}
+
+        Source: %{source}
       pushes_not_defined: |-
         The Vagrantfile does not define any 'push' strategies. In order to use
         `vagrant push`, you must define at least one push strategy:
@@ -1568,6 +1581,9 @@ en:
 # Translations for commands. e.g. `vagrant x`
 #-------------------------------------------------------------------------------
     commands:
+      deprecated: |-
+        [DEPRECATION WARNING]: The Vagrant command 'vagrant %{name}' is scheduled be
+        deprecated in an upcoming Vagrant release.
       common:
         vm_already_running: |-
           VirtualBox VM is already running.
@@ -1726,6 +1742,9 @@ en:
       up:
         upping: |-
           Bringing machine '%{name}' up with '%{provider}' provider...
+      validate:
+        success: |-
+          Vagrantfile validated successfully.
 
 #-------------------------------------------------------------------------------
 # Translations for Vagrant middleware actions
@@ -1975,8 +1994,9 @@ en:
         unpackage:
           untar_failure: |-
             The box failed to unpackage properly. Please verify that the box
-            file you're trying to add is not corrupted and try again. The
-            output from attempting to unpackage (if any):
+            file you're trying to add is not corrupted and that enough disk space
+            is available and then try again.
+            The output from attempting to unpackage (if any):
 
             %{output}
         add:

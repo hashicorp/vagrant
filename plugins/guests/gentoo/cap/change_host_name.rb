@@ -9,12 +9,14 @@ module VagrantPlugins
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, "")
               # Set the hostname
-              hostname '#{basename}'
-              echo "hostname=#{basename}" > /etc/conf.d/hostname
 
-              # Remove comments and blank lines from /etc/hosts
-              sed -i'' -e 's/#.*$//' /etc/hosts
-              sed -i'' -e '/^$/d' /etc/hosts
+              # Use hostnamectl on systemd
+              if [[ `systemctl` =~ -\.mount ]]; then
+                systemctl set-hostname '#{name}'
+              else
+                hostname '#{basename}'
+                echo "hostname=#{basename}" > /etc/conf.d/hostname
+              fi
 
               # Prepend ourselves to /etc/hosts
               grep -w '#{name}' /etc/hosts || {

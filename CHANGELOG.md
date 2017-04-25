@@ -2,26 +2,111 @@
 
 FEATURES:
 
+IMPROVEMENTS:
+
+  - guests: Do not modify existing /etc/hosts content [GH-8506, GH-7794]
+
+BUG FIXES:
+
+## 1.9.4 (April 24, 2017)
+
+FEATURES:
+
+  - command/validate: Add Vagrantfile validation command [GH-8264, GH-8151]
+  - communicators/winssh: Add WinSSH communicator for Win32-OpenSSH [GH-8485]
+  - provider/hyperv: Support integration services configuration [GH-8379, GH-8378]
+
+IMPROVEMENTS:
+
+  - core: Update internal dependencies [GH-8329, GH-8456]
+  - core/bundler: Warn when plugin require fails instead of generating hard failure [GH-8400, GH-8392]
+  - core/bundler: Error when configured plugin sources are unavailable [GH-8442]
+  - guests/elementary: Add support for new guest "Elementary OS" [GH-8472]
+  - guests/esxi: Add public_key capability [GH-8310]
+  - guests/freebsd: Add chef_install and chef_installed? capabilities [GH-8443]
+  - guests/gentoo: Add support for systemd in network configuration [GH-8407, GH-8406]
+  - guests/windows: Support mounting synced folders via SSH on windows [GH-7425, GH-6220]
+  - hosts/windows: Improve user permission detection [GH-7797]
+  - provider/docker: Improve IP and port detection [GH-7840, GH-7651]
+  - provider/docker: Do not force docker host VM on Darwin or Windows [GH-8437, GH-7895]
+  - provisioners/ansible_local: Add `pip_args` option to define additional parameters when installing Ansible via pip [GH-8170, GH-8405]
+  - provisioners/ansible_local: Add `:pip_args_only` install mode to allow full custom pip installations [GH-8405]
+  - provisioners/salt: Update minion version installed to 2016.11.3 [GH-8448]
+
+BUG FIXES:
+
+  - command/box: Remove extraneous sort from box list prior to display [GH-8422]
+  - command/box: Properly handle local paths with spaces for box add [GH-8503, GH-6825]
+  - command/up: Prevent other provider installation when explicitly defined [GH-8393, GH-8389]
+  - communicators/ssh: Do not yield empty output data [GH-8495, GH-8259]
+  - core: Provide fallback and retry when 0.0.0.0 is unavailable during port check [GH-8399, GH-8395]
+  - core: Support port checker methods that do not expect inclusion of host_ip [GH-8497, GH-8423]
+  - core/bundler: Check if source is local path and prevent addition to remote sources [GH-8401]
+  - core/ui: Prevent deadlock detection errors [GH-8414, GH-8125]
+  - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
+  - guests/linux: Fix SMB mount capbability [GH-8410, GH-8404]
+  - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
+  - hosts/windows: Fix UNC path generation when UNC paath is provided [GH-8504]
+  - provisioners/salt: Allow Salt version to match 2 digit month [GH-8428]
+  - provisioners/shell: Properly handle remote paths on Windows that include spaces [GH-8498, GH-7234]
+
+## 1.9.3 (March 21, 2017)
+
+IMPROVEMENTS:
+
+  - command/plugin: Remove requirement for paths with no spaces [GH-7967]
+  - core: Support host_ip for forwarded ports [GH-7035, GH-8350]
+  - core: Include disk space hint in box install failure message [GH-8089]
+  - core/bundler: Allow vagrant constraint matching in prerelease mode [GH-8341]
+  - provisioner/docker: Include /bin/docker as valid path [GH-8390]
+  - provider/hyperv: Support enabling Hyper-V nested virtualization [GH-8325, GH-7738]
+
+BUG FIXES:
+
+  - communicator/winrm: Prevent inaccurate WinRM address [GH-7983, GH-8073]
+  - contrib/bash: Handle path spaces in bash completion [GH-8337]
+  - core: Fix box sorting on find and list [GH-7956, GH-8334]
+  - core/bundler: Force path as preferred source on install [GH-8327]
+  - core/provision: Update "never" behavior to match documentation [GH-8366, GH-8016]
+  - plugins/push: Isolate deprecation to Atlas strategy only
+  - plugins/synced_folders: Give UID/GID precedence if found within mount options
+      [GH-8122, GH-8064, GH-7859]
+
+## 1.9.2 (February 27, 2017)
+
+FEATURES:
+
   - providers/hyperv: Support packaging of Hyper-V boxes [GH-7867]
+  - util/command_deprecation: Add utility module for command deprecation [GH-8300]
+  - util/subprocess: Add #stop and #running? methods [GH-8270]
 
 IMPROVEMENTS:
 
   - commands/expunge: Display default value on prompt and validate input [GH-8192, GH-8171]
   - communicator/winrm: Refactor WinRM communicator to use latest WinRM
       gems and V2 API [GH-8102]
+  - core: Scrub URL credentials from output when adding boxes [GH-8194, GH-8117]
   - providers/hyperv: Prefer VMCX over XML configuration when VMCX is supported [GH-8119]
 
 BUG FIXES:
 
+  - command/init: Include box version when using minimal option [GH-8283, GH-8282]
   - command/package: Fix SecureRandom constant error [GH-8159]
+  - communicator/ssh: Remove any STDERR output prior to command execution [GH-8291, GH-8288]
   - core/bundler: Prevent pristine warning messages [GH-8191, GH-8190, GH-8147]
   - core/bundler: Fix local installations of pre-release plugins [GH-8252, GH-8253]
+  - core/bundler: Prefer user defined source when installing plugins [GH-8273, GH-8210]
   - core/environment: Prevent persisting original environment variable if name is empty
       [GH-8198, GH-8126]
   - core/environment: Fix gems_path location [GH-8248]
+  - core/environment: Properly expand dotfile path [GH-8196, GH-8108]
   - guests/arch: Fix configuring multiple network interfaces [GH-8165]
   - guests/linux: Fix guest detection for names with spaces [GH-8092]
   - guests/redhat: Fix network interface configuration [GH-8148]
+
+DEPRECATIONS:
+
+  - command/push: Disable push command [GH-8300]
 
 ## 1.9.1 (December 7, 2016)
 

@@ -138,6 +138,7 @@ other networks over the public network. To do so, you can use a shell
 provisioner script:
 
 ```ruby
+Vagrant.configure("2") do |config|
   config.vm.network "public_network", ip: "192.168.0.17"
 
   # default router
@@ -154,6 +155,7 @@ provisioner script:
   config.vm.provision "shell",
     run: "always",
     inline: "eval `route -n | awk '{ if ($8 ==\"eth0\" && $2 != \"0.0.0.0\") print \"route del default gw \" $2; }'`"
+end
 ```
 
 Note the above is fairly complex and may be guest OS specific, but we

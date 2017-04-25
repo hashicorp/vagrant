@@ -1,48 +1,63 @@
-// Global values
-// --------------------------------------------------
+// Colors
+$white: #FFFFFF;
+$black: #000000;
+$gray-darker: #555555;
 
-$header-height: 92px;
-$btn-border-radius: 4px;
-$el-border-radius: 6px;
-$baseline: 20px;
-
-//grayscale
-$black: #000;
-$white: #fff;
-$gray-background: #f7f6f1;
-$dark-gray-text: #7f7f7f;
-$light-gray-background: #f0f0f0;
-$light-gray: #ccc;
-$light-gray-text: #eeeeee;
-$dark-gray-background: #333;
-$medium-gray-text: #666;
-
-//vagrant colors
-$blue-text: #2490cc;
-$dark-blue-text: #476576;
-$light-blue-background: #dbf1ff;
-$vagrant-blue: #0094bf;
-$light-sidebar-background: #a1ccf0;
-$docs-blue: #22407f;
-$blue-background: #1e71a1;
-$purple-text: #270836;
-$purple: #735f9f;
-
-//misc colors
-$blue: #48b4fb;
-$green: #43d193;
-$code-highlight-text: #73c5dd;
-$current-color: inherit;
-$button-color: $vagrant-blue;
-$primary-button-color: #48b4fb;
+$consul-pink: #D62783;
+$consul-pink-dark: #961D59;
+$packer-blue: #1DAEFF;
+$packer-blue-dark: #1D94DD;
+$terraform-purple: #5C4EE5;
+$terraform-purple-dark: #4040B2;
+$vagrant-blue: #1563FF;
+$vagrant-blue-dark: #104EB2;
+$vault-black: #000000;
+$vault-blue: #00ABE0;
+$vault-gray: #919FA8;
 
 // Typography
-// -------------------------
-$font-family-museo-sans: "Museo Sans", "Helvetica Neue", helvetica, arial, sans-serif;
-$font-weight-museo-sans-xl: 100;
-$font-weight-museo-sans-reg: 300;
-$font-weight-museo-sans-sb: 500;
-$font-weight-museo-sans-xb: 700;
-$font-weight-museo-sans: $font-weight-museo-sans-reg;
+$font-family-klavika:   'klavika-web', Helvetica, sans-serif;
+$font-family-open-sans: 'Open Sans', sans-serif;
+$font-family-monospace: 'Fira Mono', monospace;
+$font-size:             15px;
+$font-weight-reg:       400;
+$font-weight-bold:      600;
 
-$font-family-monospace: "Courier New", monospace;
+// Body
+$body-font-color: $gray-darker;
+$body-link-color: $vagrant-blue;
+
+// Home
+$home-header-background-color: transparent;
+$home-header-link-color: $gray-darker;
+$home-header-link-color-hover: $black;
+
+// Sidebar
+$sidebar-background-color: $white;
+$sidebar-font-size: $font-size - 2;
+$sidebar-link-color: $body-font-color;
+$sidebar-link-color-hover: $black;
+$sidebar-link-color-active: $body-link-color;
+$sidebar-font-family: $font-family-open-sans;
+$sidebar-font-weight: $font-weight-reg;
+
+// Header
+$header-background-color: $vagrant-blue;
+$header-font-size: $font-size - 2;
+$header-height: 92px;
+$header-link-color: rgba($white, 0.85);
+$header-link-color-hover: $white;
+
+// Footer
+$footer-font-size: $font-size - 2;
+$footer-link-color: $body-font-color;
+$footer-link-color-hover: $black;
+
+// Button
+$button-background: $white;
+$button-font-color: #7b8A8E;
+$button-font-family: $font-family-klavika;
+$button-font-size: $font-size;
+$button-font-weight: $font-weight-bold;
+$button-primary-background: $vagrant-blue;
+$button-primary-font-color: $white;

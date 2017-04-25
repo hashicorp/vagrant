@@ -7,9 +7,9 @@ module VagrantPlugins
         module Ubuntu
           module AnsibleInstall
 
-            def self.ansible_install(machine, install_mode, ansible_version)
-              if install_mode == :pip
-                Debian::AnsibleInstall::ansible_pip_install machine, ansible_version
+            def self.ansible_install(machine, install_mode, ansible_version, pip_args)
+              if install_mode != :default
+                Debian::AnsibleInstall::ansible_install machine, install_mode, ansible_version, pip_args
               else
                 ansible_apt_install machine
               end

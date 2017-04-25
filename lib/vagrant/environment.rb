@@ -160,8 +160,8 @@ module Vagrant
       # it is expanded relative to the root path. Otherwise, we use the
       # default (which is also expanded relative to the root path).
       if !root_path.nil?
-        if !(ENV["VAGRANT_DOTFILE_PATH"] or "").empty? && !opts[:child]
-          opts[:local_data_path] ||= root_path.join(ENV["VAGRANT_DOTFILE_PATH"])
+        if !ENV["VAGRANT_DOTFILE_PATH"].to_s.empty? && !opts[:child]
+          opts[:local_data_path] ||= Pathname.new(File.expand_path(ENV["VAGRANT_DOTFILE_PATH"], root_path))
         else
           opts[:local_data_path] ||= root_path.join(DEFAULT_LOCAL_DATA)
         end
@@ -295,7 +295,7 @@ module Vagrant
     #
     # @return [Hash]
     def checkpoint
-      @checkpoint_thr.join
+      @checkpoint_thr.join(THREAD_MAX_JOIN_TIMEOUT)
       return @checkpoint_thr[:result]
     end
 
