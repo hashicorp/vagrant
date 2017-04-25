@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - guests: Do not modify existing /etc/hosts content [GH-8506, GH-7794]
+
 BUG FIXES:
 
 ## 1.9.4 (April 24, 2017)
