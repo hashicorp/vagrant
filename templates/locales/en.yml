@@ -1189,6 +1189,13 @@ en:
         If that doesn't work, destroy your VM and recreate it with a `vagrant destroy`
         followed by a `vagrant up`. If that doesn't work, contact a Vagrant
         maintainer (support channels listed on the website) for more assistance.
+      ssh_connection_aborted: |-
+        SSH connection was aborted! This usually happens when the machine is taking
+        too long to reboot or the SSH daemon is not properly configured on the VM.
+        First, try reloading your machine with `vagrant reload`, since a simple
+        restart sometimes fixes things. If that doesn't work, destroy your machine
+        and recreate it with a `vagrant destroy` followed by a `vagrant up`. If that
+        doesn't work, contact support.
       ssh_connection_reset: |-
         SSH connection was reset! This usually happens when the machine is
         taking too long to reboot. First, try reloading your machine with

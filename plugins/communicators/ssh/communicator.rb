@@ -25,6 +25,20 @@ module VagrantPlugins
       PTY_DELIM_END = "bccbb768c119429488cfd109aacea6b5-pty"
       # Marker for start of regular command output
       CMD_GARBAGE_MARKER = "41e57d38-b4f7-4e46-9c38-13873d338b86-vagrant-ssh"
+      # These are the exceptions that we retry because they represent
+      # errors that are generally fixed from a retry and don't
+      # necessarily represent immediate failure cases.
+      SSH_RETRY_EXCEPTIONS = [
+        Errno::EACCES,
+        Errno::EADDRINUSE,
+        Errno::ECONNABORTED,
+        Errno::ECONNREFUSED,
+        Errno::ECONNRESET,
+        Errno::ENETUNREACH,
+        Errno::EHOSTUNREACH,
+        Net::SSH::Disconnect,
+        Timeout::Error
+      ]
 
       include Vagrant::Util::ANSIEscapeCodeRemover
       include Vagrant::Util::Retryable
@@ -81,6 +95,8 @@ module VagrantPlugins
               message = "Connection refused."
             rescue Vagrant::Errors::SSHConnectionReset
               message = "Connection reset."
+            rescue Vagrant::Errors::SSHConnectionAborted
+              message = "Connection aborted."
             rescue Vagrant::Errors::SSHHostDown
               message = "Host appears down."
             rescue Vagrant::Errors::SSHNoRoute
@@ -350,24 +366,10 @@ module VagrantPlugins
         # Connect to SSH, giving it a few tries
         connection = nil
         begin
-          # These are the exceptions that we retry because they represent
-          # errors that are generally fixed from a retry and don't
-          # necessarily represent immediate failure cases.
-          exceptions = [
-            Errno::EACCES,
-            Errno::EADDRINUSE,
-            Errno::ECONNREFUSED,
-            Errno::ECONNRESET,
-            Errno::ENETUNREACH,
-            Errno::EHOSTUNREACH,
-            Net::SSH::Disconnect,
-            Timeout::Error
-          ]
-
           timeout = 60
 
           @logger.info("Attempting SSH connection...")
-          connection = retryable(tries: opts[:retries], on: exceptions) do
+          connection = retryable(tries: opts[:retries], on: SSH_RETRY_EXCEPTIONS) do
             Timeout.timeout(timeout) do
               begin
                 # This logger will get the Net-SSH log data for us.
@@ -426,6 +428,10 @@ module VagrantPlugins
           # This is raised if we failed to connect the max number of times
           # due to an ECONNRESET.
           raise Vagrant::Errors::SSHConnectionReset
+        rescue Errno::ECONNABORTED
+          # This is raised if we failed to connect the max number of times
+          # due to an ECONNABORTED
+          raise Vagrant::Errors::SSHConnectionAborted
         rescue Errno::EHOSTDOWN
           # This is raised if we get an ICMP DestinationUnknown error.
           raise Vagrant::Errors::SSHHostDown

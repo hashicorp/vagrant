@@ -664,6 +664,10 @@ module Vagrant
       error_key(:ssh_connection_refused)
     end
 
+    class SSHConnectionAborted < VagrantError
+      error_key(:ssh_connection_aborted)
+    end
+
     class SSHConnectionReset < VagrantError
       error_key(:ssh_connection_reset)
     end
