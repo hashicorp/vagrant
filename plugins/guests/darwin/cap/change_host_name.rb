@@ -22,10 +22,6 @@ module VagrantPlugins
 
               hostname '#{name}'
 
-              # Remove comments and blank lines from /etc/hosts
-              sed -i'' -e 's/#.*$//' /etc/hosts
-              sed -i'' -e '/^$/d' /etc/hosts
-
               # Prepend ourselves to /etc/hosts - sed on bsd is sad
               grep -w '#{name}' /etc/hosts || {
                 echo -e '127.0.0.1\\t#{name}\\t#{basename}' | cat - /etc/hosts > /tmp/tmp-hosts &&
