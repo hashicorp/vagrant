@@ -46,7 +46,7 @@ BUG FIXES:
   - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
   - guests/linux: Fix SMB mount capbability [GH-8410, GH-8404]
   - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
-  - hosts/windows: Fix UNC path generation when UNC paath is provided [GH-8504]
+  - hosts/windows: Fix UNC path generation when UNC path is provided [GH-8504]
   - provisioners/salt: Allow Salt version to match 2 digit month [GH-8428]
   - provisioners/shell: Properly handle remote paths on Windows that include spaces [GH-8498, GH-7234]
 
