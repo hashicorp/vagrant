@@ -17,19 +17,23 @@ module VagrantPlugins
         end
 
         def clear_forwarded_ports
-          args = []
-          read_forwarded_ports(@uuid).each do |nic, name, _, _|
-            args.concat(["--natpf#{nic}", "delete", name])
-          end
+          retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
+            args = []
+            read_forwarded_ports(@uuid).each do |nic, name, _, _|
+              args.concat(["--natpf#{nic}", "delete", name])
+            end
 
-          execute("modifyvm", @uuid, *args) if !args.empty?
+            execute("modifyvm", @uuid, *args) if !args.empty?
+          end
         end
 
         def clear_shared_folders
-          info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
-          info.split("\n").each do |line|
-            if line =~ /^SharedFolderNameMachineMapping\d+="(.+?)"$/
-              execute("sharedfolder", "remove", @uuid, "--name", $1.to_s)
+          retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
+            info = execute("showvminfo", @uuid, "--machinereadable", retryable: true)
+            info.split("\n").each do |line|
+              if line =~ /^SharedFolderNameMachineMapping\d+="(.+?)"$/
+                execute("sharedfolder", "remove", @uuid, "--name", $1.to_s)
+              end
             end
           end
         end
@@ -41,22 +45,29 @@ module VagrantPlugins
             args += ["--snapshot", snapshot_name, "--options", "link"]
           end
 
-          execute("clonevm", master_id, *args)
+          execute("clonevm", master_id, *args, retryable: true)
           return get_machine_id(machine_name)
         end
 
         def create_dhcp_server(network, options)
-          execute("dhcpserver", "add", "--ifname", network,
-                  "--ip", options[:dhcp_ip],
-                  "--netmask", options[:netmask],
-                  "--lowerip", options[:dhcp_lower],
-                  "--upperip", options[:dhcp_upper],
-                  "--enable")
+          retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
+            begin
+              execute("dhcpserver", "add", "--ifname", network,
+                      "--ip", options[:dhcp_ip],
+                      "--netmask", options[:netmask],
+                      "--lowerip", options[:dhcp_lower],
+                      "--upperip", options[:dhcp_upper],
+                      "--enable")
+            rescue Vagrant::Errors::VBoxManageError => e
+              return if e.extra_data[:stderr] == 'VBoxManage: error: DHCP server already exists'
+              raise
+            end
+          end
         end
 
         def create_host_only_network(options)
           # Create the interface
-          execute("hostonlyif", "create") =~ /^Interface '(.+?)' was successfully created$/
+          execute("hostonlyif", "create", retryable: true) =~ /^Interface '(.+?)' was successfully created$/
           name = $1.to_s
 
           # Get the IP so we can determine v4 vs v6
@@ -66,11 +77,13 @@ module VagrantPlugins
           if ip.ipv4?
             execute("hostonlyif", "ipconfig", name,
                     "--ip", options[:adapter_ip],
-                    "--netmask", options[:netmask])
+                    "--netmask", options[:netmask],
+                    retryable: true)
           elsif ip.ipv6?
             execute("hostonlyif", "ipconfig", name,
                     "--ipv6", options[:adapter_ip],
-                    "--netmasklengthv6", options[:netmask].to_s)
+                    "--netmasklengthv6", options[:netmask].to_s,
+                    retryable: true)
           else
             raise "BUG: Unknown IP type: #{ip.inspect}"
           end
@@ -85,7 +98,26 @@ module VagrantPlugins
         end
 
         def create_snapshot(machine_id, snapshot_name)
-          execute("snapshot", machine_id, "take", snapshot_name)
+          execute("snapshot", machine_id, "take", snapshot_name, retryable: true) do |type, data|
+            if type == :stderr
+              # Append the data so we can see the full view
+              total << data.gsub("\r", "")
+
+              # Break up the lines. We can't get the progress until we see an "OK"
+              lines = total.split("\n")
+
+              # The progress of the import will be in the last line. Do a greedy
+              # regular expression to find what we're looking for.
+              match = /.+(\d{2})%/.match(lines.last)
+              if match
+                current = match[1].to_i
+                if current > last
+                  last = current
+                  yield current if block_given?
+                end
+              end
+            end
+          end
         end
 
         def delete_snapshot(machine_id, snapshot_name)
@@ -95,7 +127,7 @@ module VagrantPlugins
           yield 0 if block_given?
 
           # Snapshot and report the % progress
-          execute("snapshot", machine_id, "delete", snapshot_name) do |type, data|
+          execute("snapshot", machine_id, "delete", snapshot_name, retryable: true) do |type, data|
             if type == :stderr
               # Append the data so we can see the full view
               total << data.gsub("\r", "")
@@ -142,7 +174,7 @@ module VagrantPlugins
           total = ""
           yield 0 if block_given?
 
-          execute("snapshot", machine_id, "restore", snapshot_name) do |type, data|
+          execute("snapshot", machine_id, "restore", snapshot_name, retryable: true) do |type, data|
             if type == :stderr
               # Append the data so we can see the full view
               total << data.gsub("\r", "")
@@ -165,7 +197,7 @@ module VagrantPlugins
         end
 
         def delete
-          execute("unregistervm", @uuid, "--delete")
+          execute("unregistervm", @uuid, "--delete", retryable: true)
         end
 
         def delete_unused_host_only_networks
@@ -199,12 +231,12 @@ module VagrantPlugins
             raw("dhcpserver", "remove", "--ifname", name)
 
             # Delete the actual host only network interface.
-            execute("hostonlyif", "remove", name)
+            execute("hostonlyif", "remove", name, retryable: true)
           end
         end
 
         def discard_saved_state
-          execute("discardstate", @uuid)
+          execute("discardstate", @uuid, retryable: true)
         end
 
         def enable_adapters(adapters)
@@ -237,7 +269,7 @@ module VagrantPlugins
             end
           end
 
-          execute("modifyvm", @uuid, *args)
+          execute("modifyvm", @uuid, *args, retryable: true)
         end
 
         def execute_command(command)
@@ -245,11 +277,20 @@ module VagrantPlugins
         end
 
         def export(path)
-          execute("export", @uuid, "--output", path.to_s)
+          retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
+            begin
+              execute("export", @uuid, "--output", path.to_s)
+            rescue Vagrant::Errors::VBoxManageError => e
+              raise if !e.extra_data[:stderr].include?("VERR_E_FILE_ERROR")
+
+              # If the file already exists we'll throw a custom error
+              raise Vagrant::Errors::VirtualBoxFileExists,
+                stderr: e.extra_data[:stderr]
+            end
+          end
         end
 
         def forward_ports(ports)
-          args = []
           ports.each do |options|
             pf_builder = [options[:name],
               options[:protocol] || "tcp",
@@ -258,11 +299,11 @@ module VagrantPlugins
               options[:guestip] || "",
               options[:guestport]]
 
-            args.concat(["--natpf#{options[:adapter] || 1}",
-                        pf_builder.join(",")])
-          end
+            args = ["--natpf#{options[:adapter] || 1}",
+                        pf_builder.join(",")]
 
-          execute("modifyvm", @uuid, *args) if !args.empty?
+            execute("modifyvm", @uuid, *args, retryable: true)
+          end
         end
 
         def get_machine_id(machine_name)
@@ -273,7 +314,7 @@ module VagrantPlugins
         end
 
         def halt
-          execute("controlvm", @uuid, "poweroff")
+          execute("controlvm", @uuid, "poweroff", retryable: true)
         end
 
         def import(ovf)
@@ -322,7 +363,7 @@ module VagrantPlugins
             end
           end
 
-          execute("import", ovf , *name_params, *disk_params) do |type, data|
+          execute("import", ovf , *name_params, *disk_params, retryable: true) do |type, data|
             if type == :stdout
               # Keep track of the stdout so that we can get the VM name
               output << data
@@ -604,26 +645,30 @@ module VagrantPlugins
 
         def reconfig_host_only(interface)
           execute("hostonlyif", "ipconfig", interface[:name],
-                  "--ipv6", interface[:ipv6])
+                  "--ipv6", interface[:ipv6], retryable: true)
         end
 
         def remove_dhcp_server(network_name)
-          execute("dhcpserver", "remove", "--netname", network_name)
+          execute("dhcpserver", "remove", "--netname", network_name, retryable: true)
         end
 
         def set_mac_address(mac)
-          execute("modifyvm", @uuid, "--macaddress1", mac)
+          execute("modifyvm", @uuid, "--macaddress1", mac, retryable: true)
         end
 
         def set_name(name)
-          execute("modifyvm", @uuid, "--name", name, retryable: true)
-        rescue Vagrant::Errors::VBoxManageError => e
-          raise if !e.extra_data[:stderr].include?("VERR_ALREADY_EXISTS")
+          retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
+            begin
+              execute("modifyvm", @uuid, "--name", name)
+            rescue Vagrant::Errors::VBoxManageError => e
+              raise if !e.extra_data[:stderr].include?("VERR_ALREADY_EXISTS")
 
-          # We got VERR_ALREADY_EXISTS. This means that we're renaming to
-          # a VM name that already exists. Raise a custom error.
-          raise Vagrant::Errors::VirtualBoxNameExists,
-            stderr: e.extra_data[:stderr]
+              # We got VERR_ALREADY_EXISTS. This means that we're renaming to
+              # a VM name that already exists. Raise a custom error.
+              raise Vagrant::Errors::VirtualBoxNameExists,
+                stderr: e.extra_data[:stderr]
+            end
+          end
         end
 
         def share_folders(folders)
@@ -647,10 +692,10 @@ module VagrantPlugins
             args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             # Enable symlinks on the shared folder
-            execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1")
+            execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1", retryable: true)
 
             # Add the shared folder
-            execute("sharedfolder", "add", @uuid, *args)
+            execute("sharedfolder", "add", @uuid, *args, retryable: true)
           end
         end
 
@@ -672,40 +717,40 @@ module VagrantPlugins
 
         def start(mode)
           command = ["startvm", @uuid, "--type", mode.to_s]
-          r = raw(*command)
+          retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
+            r = raw(*command)
 
-          if r.exit_code == 0 || r.stdout =~ /VM ".+?" has been successfully started/
-            # Some systems return an exit code 1 for some reason. For that
-            # we depend on the output.
-            return true
+            if r.exit_code == 0 || r.stdout =~ /VM ".+?" has been successfully started/
+              # Some systems return an exit code 1 for some reason. For that
+              # we depend on the output.
+              return true
+            end
+
+            # If we reached this point then it didn't work out.
+            raise Vagrant::Errors::VBoxManageError,
+              command: command.inspect,
+              stderr: r.stderr
           end
-
-          # If we reached this point then it didn't work out.
-          raise Vagrant::Errors::VBoxManageError,
-            command: command.inspect,
-            stderr: r.stderr
         end
 
         def suspend
-          execute("controlvm", @uuid, "savestate")
+          execute("controlvm", @uuid, "savestate", retryable: true)
         end
 
         def unshare_folders(names)
           names.each do |name|
-            begin
-              execute(
-                "sharedfolder", "remove", @uuid,
-                "--name", name,
-                "--transient")
+            retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
+              begin
+                execute(
+                  "sharedfolder", "remove", @uuid,
+                  "--name", name,
+                  "--transient")
 
-              execute(
-                "setextradata", @uuid,
-                "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
-            rescue Vagrant::Errors::VBoxManageError => e
-              if e.extra_data[:stderr].include?("VBOX_E_FILE_ERROR")
-                # The folder doesn't exist. ignore.
-              else
-                raise
+                execute(
+                  "setextradata", @uuid,
+                  "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{name}")
+              rescue Vagrant::Errors::VBoxManageError => e
+                raise if !e.extra_data[:stderr].include?("VBOX_E_FILE_ERROR")
               end
             end
           end
