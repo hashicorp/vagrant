@@ -15,7 +15,7 @@
     [string]$vmname=$null,
     [string]$auto_start_action=$null,
     [string]$auto_stop_action=$null,
-    [string]$differencing_disk=$null
+    [string]$differencing_disk=$null,
     [string]$enable_virtualization_extensions=$False
 )
 
