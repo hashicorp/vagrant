@@ -13,7 +13,7 @@ Vagrant and [Terraform][terraform] are both projects from [HashiCorp][hashicorp]
 Vagrant is a tool focused for managing development environments and
 Terraform is a tool for building infrastructure.
 
-Terraform can decribe complex sets of infrastructure that exists
+Terraform can describe complex sets of infrastructure that exists
 locally or remotely. It is focused on building and changing that infrastructure
 over time. The minimal aspects of virtual machine lifecycle can be reproduced
 in Terraform, sometimes leading to confusion with Vagrant.
