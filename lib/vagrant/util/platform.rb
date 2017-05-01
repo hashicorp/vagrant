@@ -51,9 +51,9 @@ module Vagrant
           return @_windows_admin if defined?(@_windows_admin)
 
           @_windows_admin = -> {
-            ps_cmd = "[System.Security.Principal.WindowsIdentity]::GetCurrent().Groups | ForEach-Object { if ($_.Value -eq 'S-1-5-19'){ Write-Host 'true'; break }}"
+            ps_cmd = '(new-object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)'
             output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
-            return output == 'true'
+            return output == 'True'
           }.call
 
           return @_windows_admin
