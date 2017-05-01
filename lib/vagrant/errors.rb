@@ -460,6 +460,10 @@ module Vagrant
       error_key(:network_type_not_supported)
     end
 
+    class NetworkManagerNotInstalled < VagrantError
+      error_key(:network_manager_not_installed)
+    end
+
     class NFSBadExports < VagrantError
       error_key(:nfs_bad_exports)
     end

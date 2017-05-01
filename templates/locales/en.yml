@@ -882,6 +882,13 @@ en:
         %{message}
       network_type_not_supported: |-
         The %{type} network type is not supported for this box or guest.
+      network_manager_not_installed: |-
+        Vagrant was instructed to configure the %{device} network device to
+        be managed by NetworkManager. However, the configured guest VM does
+        not have NetworkManager installed. To fix this error please remove
+        the `nm_controlled` setting from local Vagantfile. If NetworkManager
+        is required to manage the network devices, please use a box with
+        NetworkManager installed.
       nfs_bad_exports: |-
         NFS is reporting that your exports file is invalid. Vagrant does
         this check before making any changes to the file. Please correct

@@ -19,6 +19,13 @@ module VagrantPlugins
           machine.communicate.sudo("#{path} -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |type, data|
             s << data if type == :stdout
           end
+          # In some cases net devices may be added to the guest and will not
+          # properly show up when using `ip`. This pulls any device information
+          # that can be found in /proc and adds it to the list of interfaces
+          s << "\n"
+          machine.communicate.sudo("cat /proc/net/dev | grep -E '^[a-z0-9 ]+:' | awk '{print $1}' | sed 's/://'", error_check: false) do |type, data|
+            s << data if type == :stdout
+          end
           ifaces = s.split("\n")
           @@logger.debug("Unsorted list: #{ifaces.inspect}")
           # Break out integers from strings and sort the arrays to provide
@@ -35,7 +42,7 @@ module VagrantPlugins
               end
             end
           end
-          ifaces = ifaces.sort do |lhs, rhs|
+          ifaces = ifaces.uniq.sort do |lhs, rhs|
             result = 0
             slice_length = [rhs.size, lhs.size].min
             slice_length.times do |idx|
