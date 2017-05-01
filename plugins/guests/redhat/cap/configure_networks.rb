@@ -14,7 +14,7 @@ module VagrantPlugins
 
           network_scripts_dir = machine.guest.capability(:network_scripts_dir)
 
-          commands   = []
+          commands   = {:start => [], :middle => [], :end => []}
           interfaces = machine.guest.capability(:network_interfaces)
 
           # Check if NetworkManager is installed on the system
@@ -64,21 +64,25 @@ module VagrantPlugins
             final_path = "#{network_scripts_dir}/ifcfg-#{network[:device]}"
 
             if nm_controlled
-              commands << "nmcli d disconnect '#{network[:device]}'"
+              if extra_opts[:nm_controlled] == "no"
+                commands[:start] << "nmcli d disconnect iface '#{network[:device]}'"
+              end
             else
-              commands << "/sbin/ifdown '#{network[:device]}'"
+              commands[:start] << "/sbin/ifdown '#{network[:device]}'"
             end
-            commands << "mv -f '#{remote_path}' '#{final_path}'"
-            if nmcli_installed
-              commands << "nmcli c reload"
-            end
+            commands[:middle] << "mv -f '#{remote_path}' '#{final_path}'"
             if extra_opts[:nm_controlled] == "no"
-              commands << "/sbin/ifup '#{network[:device]}'"
-            else
-              commands << "nmcli c up ifname '#{network[:device]}'"
+              commands[:end] << "/sbin/ifup '#{network[:device]}'"
             end
           end
+          if nmcli_installed
+            commands[:middle] << "((nmcli c help 2>&1 | grep reload) && nmcli c reload) || " \
+              "(test -f /etc/init.d/NetworkManager && /etc/init.d/NetworkManager restart) || " \
+              "((systemctl | grep NetworkManager.service) && systemctl NetworkManager restart)"
+          end
+          commands = commands[:start] + commands[:middle] + commands[:end]
           comm.sudo(commands.join("\n"))
+          comm.wait_for_ready(5)
         end
       end
     end
