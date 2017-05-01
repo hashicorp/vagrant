@@ -136,6 +136,8 @@ $ vmware-vdiskmanager -k /path/to/main.vmdk
 
 ## Packaging
 
+add metadata.json
+
 Remove any extraneous files from the "vmwarevm" folder
 and package it. Be sure to compress the tar with gzip (done below in a
 single command) since VMware hard disks are not compressed by default.
