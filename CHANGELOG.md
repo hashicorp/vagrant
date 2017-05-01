@@ -9,6 +9,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - provisioners/shell: Fix Windows batch file provisioning [GH-8539, GH-8535]
   - provider/hyperv: Fix import script [GH-8529]
 
 ## 1.9.4 (April 24, 2017)
