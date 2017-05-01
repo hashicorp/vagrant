@@ -53,6 +53,10 @@ module VagrantPlugins
             service network restart
           EOH
 
+          networks.each do |network|
+            commands << "/sbin/ifup #{network[:device]}"
+          end
+
           comm.sudo(commands.join("\n"))
         end
       end
