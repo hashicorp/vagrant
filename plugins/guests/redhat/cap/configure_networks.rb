@@ -41,9 +41,16 @@ module VagrantPlugins
               # fail if the interface is not actually set up yet so ignore
               # errors.
               /sbin/ifdown '#{network[:device]}'
+
               # Move new config into place
               mv -f '#{remote_path}' '#{final_path}'
-              # attempt to force network manager to reload configurations
+
+              # Apply correct permissions
+              chown root:root '#{final_path}'
+              chmod 644 '#{final_path}'
+              chcon -u system_u -r object_r -t net_conf_t '#{final_path}'
+
+              # Attempt to force network manager to reload configurations
               nmcli c reload || true
             EOH
           end
