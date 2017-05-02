@@ -48,18 +48,19 @@ understand their purpose.
   will need to update that value as well.
 
 - `channel` (string) - The release channel from which to pull the Chef Client
-  or the Chef Development Kit. The default value is `"stable"` which will pull
-  the latest stable version of the Chef Client. For newer versions, or if you
+  or the Chef Development Kit. The default value is `"latest"` which will pull
+  the latest version of the Chef Client. For older versions, or if you
   wish to install the Chef Development Kit, you may need to change the channel
-  to "current". Because Chef Software floats the versions that are contained in
-  the channel, they may change and Vagrant is unable to detect this.
+  to "current" or "stable". Because Chef Software floats the versions that are
+  contained in the channel, they may change and Vagrant is unable to detect
+  this.
 
 - `version` (string) - The version of Chef to install on the guest. If Chef is
   already installed on the system, the installed version is compared with the
   requested version. If they match, no action is taken. If they do not match,
   the value specified in this attribute will be installed in favor of the
   existing version (a message will be displayed).
-  
+
   You can also specify "latest" (default), which will install the latest
   version of Chef on the system. In this case, Chef will use whatever
   version is on the system. To force the newest version of Chef to be
