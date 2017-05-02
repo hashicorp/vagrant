@@ -171,6 +171,8 @@ module VagrantPlugins
           machine.ui.info(I18n.t("vagrant.rsync_showing_output"));
         end
 
+        machine.env.hook(:sync_pre)
+
         # If we have tasks to do before rsyncing, do those.
         if machine.guest.capability?(:rsync_pre)
           machine.guest.capability(:rsync_pre, opts)
@@ -198,6 +200,8 @@ module VagrantPlugins
         if machine.guest.capability?(:rsync_post)
           machine.guest.capability(:rsync_post, opts)
         end
+
+        machine.env.hook(:sync_post)
       end
     end
   end

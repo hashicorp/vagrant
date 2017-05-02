@@ -138,6 +138,14 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       subject.rsync_single(machine, ssh_info, opts)
     end
 
+    it "runs the `sync_pre` and `sync_post` hooks" do
+      expect(machine.env).to receive(:hook).with(:sync_pre).ordered
+      expect(Vagrant::Util::Subprocess).to receive(:execute).ordered.and_return(result)
+      expect(machine.env).to receive(:hook).with(:sync_post).ordered
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
     it "executes the rsync_pre capability first if it exists" do
       expect(guest).to receive(:capability?).with(:rsync_pre).and_return(true)
       expect(guest).to receive(:capability).with(:rsync_pre, opts).ordered
