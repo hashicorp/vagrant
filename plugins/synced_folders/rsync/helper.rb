@@ -49,8 +49,12 @@ module VagrantPlugins
         guestpath = Shellwords.escape(guestpath)
 
         if Vagrant::Util::Platform.windows?
-          # rsync for Windows expects cygwin style paths, always.
+          # Cygwin's rsync expects cygwin style paths in form of '/cygdrive/c/path/to/file'
           hostpath = Vagrant::Util::Platform.cygwin_path(hostpath)
+          if !Vagrant::Util::Platform.cygwin?
+            # MSYS' rsync expects paths in form of '/c/path/to/file'
+            hostpath = hostpath.sub(%r{^/cygdrive}, '')
+          end
         end
 
         # Make sure the host path ends with a "/" to avoid creating
