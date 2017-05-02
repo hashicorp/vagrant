@@ -2486,6 +2486,10 @@ BACKWARDS INCOMPATIBILITIES:
     format, but this is _opt-in_. Old Vagrantfile format continues to be supported,
     as promised. To use the new features that will be introduced throughout
     the 1.x series, you'll have to upgrade at some point.
+  - The .vagrant file is no longer supported and has been replaced by
+    a .vagrant directory. Running vagrant will automatically upgrade
+    to the new style directory format, after which old versions of
+    Vagrant will not be able to see or control your VM.
 
 FEATURES:
 
