@@ -368,6 +368,12 @@ module VagrantPlugins
         @__defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
+      # Returns configured post_up_message. If value is callable, returns the
+      # value of invoking it.
+      def post_up_message
+        @post_up_message.respond_to?(:call) ? @post_up_message.call : @post_up_message
+      end
+
       #-------------------------------------------------------------------
       # Internal methods, don't call these.
       #-------------------------------------------------------------------

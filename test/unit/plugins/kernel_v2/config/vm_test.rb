@@ -305,6 +305,12 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.finalize!
       expect(subject.post_up_message).to eq("foo")
     end
+
+    it "can be a proc" do
+      subject.post_up_message = -> { "bar" }
+      subject.finalize!
+      expect(subject.post_up_message).to eq("bar")
+    end
   end
 
   describe "#provider and #__providers" do
