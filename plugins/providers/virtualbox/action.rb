@@ -286,6 +286,17 @@ module VagrantPlugins
       end
 
       # This is the action that will exec into an SSH shell.
+      def self.action_scp_exec
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use CheckVirtualbox
+          b.use CheckCreated
+          b.use CheckAccessible
+          b.use CheckRunning
+          b.use Vagrant::Action::Builtin::SCPExec
+        end
+      end
+
+      # This is the action that will exec into an SSH shell.
       def self.action_ssh
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
