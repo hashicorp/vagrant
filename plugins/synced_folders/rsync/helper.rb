@@ -41,8 +41,8 @@ module VagrantPlugins
         hostpath  = Vagrant::Util::Platform.fs_real_path(hostpath).to_s
 
         # if the guest has a guest path scrubber capability, use it
-        if machine.guest.capability?(:rsync_scrub_guestpath)
-          guestpath = machine.guest.capability(:rsync_scrub_guestpath, opts)
+        if capability?(machine, :rsync_scrub_guestpath)
+          guestpath = capability(machine, :rsync_scrub_guestpath, opts)
         end
 
         # Shellescape
@@ -140,8 +140,9 @@ module VagrantPlugins
 
         # Tell local rsync how to invoke remote rsync with sudo
         rsync_path = opts[:rsync_path]
-        if !rsync_path && machine.guest.capability?(:rsync_command)
-          rsync_path = machine.guest.capability(:rsync_command)
+                
+        if !rsync_path && capability?(machine, :rsync_command)
+          rsync_path = capability(machine, :rsync_command)
         end
         if rsync_path
           args << "--rsync-path"<< rsync_path
@@ -172,8 +173,8 @@ module VagrantPlugins
         end
 
         # If we have tasks to do before rsyncing, do those.
-        if machine.guest.capability?(:rsync_pre)
-          machine.guest.capability(:rsync_pre, opts)
+        if capability?(machine, :rsync_pre)
+          capability(machine, :rsync_pre, opts)
         end
 
         if opts.include?(:verbose)
@@ -195,8 +196,38 @@ module VagrantPlugins
         end
 
         # If we have tasks to do after rsyncing, do those.
-        if machine.guest.capability?(:rsync_post)
-          machine.guest.capability(:rsync_post, opts)
+        if capability?(machine, :rsync_post)
+          capability(machine, :rsync_post, opts)
+        end
+      end
+
+      private
+
+      def self.capability?(machine, key)
+        @_capabilities ||= {}
+
+        machine_id = machine.id
+        @_capabilities[machine_id] ||= {}
+
+        if @_capabilities[machine_id].key?(key)
+          @_capabilities[machine_id][key]
+        else
+          @_capabilities[machine_id][key] = machine.guest.capability?(key)
+        end
+      end
+
+      def self.capability(machine, key, opts = nil)
+        @_capabilities_values ||= {}
+
+        machine_id = machine.id
+        @_capabilities_values[machine_id] ||= {}
+
+        if @_capabilities_values[machine_id].key?(key)
+          @_capabilities_values[machine_id][key]
+        elsif !opts.nil?
+          @_capabilities_values[machine_id][key] = machine.guest.capability(key, opts)
+        else
+          @_capabilities_values[machine_id][key] = machine.guest.capability(key)
         end
       end
     end
