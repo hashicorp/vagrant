@@ -169,6 +169,9 @@ module Vagrant
 
       # Extra env keys are the remaining opts
       extra_env = opts.dup
+      extra_env.keys.each do |k|
+        extra_env[(k.to_s rescue k) || k] = extra_env.delete(k)
+      end
 
       # Create a deterministic ID for this machine
       vf = nil
