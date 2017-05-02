@@ -563,6 +563,9 @@ module VagrantPlugins
             # Set the terminal
             ch2.send_data generate_environment_export("TERM", "vt100")
 
+            # Default terminal encoding to UTF-8 [GH-3295]
+            ch2.send_data "export LANG=UTF-8\n"
+
             # Set SSH_AUTH_SOCK if we are in sudo and forwarding agent.
             # This is to work around often misconfigured boxes where
             # the SSH_AUTH_SOCK env var is not preserved.
