@@ -105,7 +105,11 @@ module VagrantPlugins
               data[:docker_guestpath] = data[:guestpath]
               data[:docker_sfid] = id
               data[:docker_host_sfid] = host_sfid
-              data[:id] = id[0...6] + rand(10000).to_s
+              if !data[:id].nil? and data[:id].start_with? 'persist_'
+                data[:id] = data[:id]
+              else
+                data[:id] = id[0...6] + rand(10000).to_s
+              end
 
               # If we specify exact then we know what we're doing
               if !data[:docker__exact]
