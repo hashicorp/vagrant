@@ -95,6 +95,19 @@ This command accepts optional command-line flags:
   to a more complex constraint by comma-separating multiple constraints:
   "> 1.0.2, < 1.1.0" (do not forget to quote these on the command-line).
 
+## Behind corporate firewalls
+
+### Offline package install
+
+Installing is done the same way, but can refer to a Gem file downloaded
+from [RubyGems.org](https://rubygems.org/) in a folder (e.g. `C:\somewhere`)
+
+In the folder, from the command prompt, execute the command:
+
+```
+C:\somewhere> vagrant plugin install vagrant-vbguest-0.10.0.gem
+```
+
 # Plugin License
 
 **Command: `vagrant plugin license <name> <license-file>`**
