@@ -18,6 +18,10 @@ module VagrantPlugins
           command = ["modifyvm", env[:machine].id, "--rtcuseutc", "on"]
           attempt_and_log(command, "Enabling rtcuseutc...")
 
+          # Use ioapic so that the VM sees multicore.
+          command = ["modifyvm", env[:machine].id, "--ioapic", "on"]
+          attempt_and_log(command, "Enabling ioapic...")
+
           if env[:machine].provider_config.auto_nat_dns_proxy
             @logger.info("Automatically figuring out whether to enable/disable NAT DNS proxy...")
 
