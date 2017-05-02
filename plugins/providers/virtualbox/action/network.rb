@@ -87,7 +87,8 @@ module VagrantPlugins
             @logger.info("Network slot #{slot}. Type: #{type}.")
 
             # Get the normalized configuration for this type
-            config = send("#{type}_config", options)
+            # apparently by now options is an array and we need a hash
+            config = send("#{type}_config", options[0])
             config[:adapter] = slot
             @logger.debug("Normalized configuration: #{config.inspect}")
 
