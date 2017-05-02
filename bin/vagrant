@@ -106,6 +106,19 @@ begin
   # Default to colored output
   opts[:ui_class] ||= Vagrant::UI::Colored
 
+  # Allow user to override cwd via --path
+  argv.each_index do |i|
+    arg = argv[i]
+
+    if arg == "--path" or arg == "-p"
+      argv.delete(arg)
+      arg = argv[i]
+      opts[:cwd] = arg
+      argv.delete(arg)
+      break
+    end
+  end
+
   # Recombine the arguments
   if !argv_extra.empty?
     argv << "--"
