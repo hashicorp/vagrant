@@ -65,8 +65,10 @@ module VagrantPlugins
             comm.sudo("mkdir -p #{dirname}/private_keys")
             comm.sudo("chmod -R 0777 #{dirname}")
             comm.upload(config.client_cert_path, "#{dirname}/certs/#{cn}.pem")
-            comm.upload(config.client_private_key_path,
-              "#{dirname}/private_keys/#{cn}.pem")
+            if config.server_ca_public_key
+              comm.upload(config.server_ca_public_key, "#{dirname}/certs/ca.pem")
+            end
+            comm.upload(config.client_private_key_path, "#{dirname}/private_keys/#{cn}.pem")
 
             # Setup the options so that they point to our directories
             options << "--certdir=#{dirname}/certs"

@@ -2212,6 +2212,10 @@ en:
           The specified client cert path could not be found
         client_private_key_not_found: |-
           The specified client private key path could not be found
+        server_cert_and_client_cert: |-
+          When the server CA public key is given, the client cert key should also be given
+        server_cert_not_found: |-
+          The specified server CA public key could not be found
         not_detected: |-
           The `%{binary}` binary appears not to be in the PATH of the guest. This
           could be because the PATH is not properly setup or perhaps Puppet is not

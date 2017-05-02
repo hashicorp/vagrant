@@ -8,6 +8,7 @@ module VagrantPlugins
 
         attr_accessor :client_cert_path
         attr_accessor :client_private_key_path
+        attr_accessor :server_ca_public_key
         attr_accessor :facter
         attr_accessor :options
         attr_accessor :puppet_server
@@ -19,6 +20,7 @@ module VagrantPlugins
           @binary_path             = UNSET_VALUE
           @client_cert_path        = UNSET_VALUE
           @client_private_key_path = UNSET_VALUE
+          @erver_ca_public_key     = UNSET_VALUE
           @facter                  = {}
           @options                 = []
           @puppet_node             = UNSET_VALUE
@@ -37,6 +39,7 @@ module VagrantPlugins
           @binary_path      = nil if @binary_path == UNSET_VALUE
           @client_cert_path = nil if @client_cert_path == UNSET_VALUE
           @client_private_key_path = nil if @client_private_key_path == UNSET_VALUE
+          @server_ca_public_key = nil if @server_ca_public_key == UNSET_VALUE
           @puppet_node   = nil if @puppet_node == UNSET_VALUE
           @puppet_server = "puppet" if @puppet_server == UNSET_VALUE
         end
@@ -56,6 +59,20 @@ module VagrantPlugins
             if !path.file?
               errors << I18n.t(
                 "vagrant.provisioners.puppet_server.client_cert_not_found")
+            end
+          end
+
+          if (server_ca_public_key && ! client_private_key_path)
+             errors << I18n.t(
+               "vagrant.provisioners.puppet_server.server_cert_and_client_cert")
+          end
+
+          if server_ca_public_key
+            path = Pathname.new(server_ca_public_key).
+              expand_path(machine.env.root_path)
+            if !path.file?
+              errors << I18n.t(
+                "vagrant.provisioners.puppet_server.server_cert_not_found")
             end
           end
 
