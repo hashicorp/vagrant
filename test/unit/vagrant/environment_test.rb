@@ -768,7 +768,8 @@ VF
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
       plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider).to eq(:bar)
       end
     end
@@ -779,7 +780,8 @@ VF
         provider_usable_class(true), { defaultable: false, priority: 7 }]
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider).to eq(:foo)
       end
     end
@@ -790,7 +792,8 @@ VF
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
       plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider(exclude: [:bar, :foo])).to eq(:boom)
       end
     end
@@ -801,7 +804,8 @@ VF
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
       plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz",
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider).to eq(:baz)
       end
     end
@@ -811,7 +815,8 @@ VF
       plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz",
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider).to eq(:baz)
       end
     end
@@ -821,7 +826,8 @@ VF
       plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz",
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider(force_default: false)).to eq(:bar)
       end
     end
@@ -831,7 +837,8 @@ VF
       plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz",
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider(force_default: false)).to eq(:baz)
       end
     end
@@ -841,7 +848,8 @@ VF
       plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 8 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz") do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => "baz",
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider(
           exclude: [:baz], force_default: false)).to eq(:bar)
       end
@@ -852,9 +860,26 @@ VF
       plugin_providers[:bar] = [provider_usable_class(false), { priority: 5 }]
       plugin_providers[:baz] = [provider_usable_class(false), { priority: 5 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect { subject.default_provider }.to raise_error(
           Vagrant::Errors::NoDefaultProvider)
+      end
+    end
+
+    it "is the provider in the Vagrantfile that is preferred and usable" do
+      subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.provider "bar"
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => 'baz,bar') do
+        expect(subject.default_provider).to eq(:bar)
       end
     end
 
@@ -868,7 +893,8 @@ VF
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
       plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider).to eq(:foo)
       end
     end
@@ -880,7 +906,8 @@ VF
       plugin_providers[:foo] = [provider_usable_class(true), { priority: 5 }]
       plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider).to eq(:foo)
       end
     end
@@ -892,8 +919,24 @@ VF
       plugin_providers[:foo] = [provider_usable_class(true), { priority: 7 }]
       plugin_providers[:bar] = [provider_usable_class(true), { priority: 5 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider).to eq(:bar)
+      end
+    end
+
+    it "is the preferred usable provider outside the Vagrantfile" do
+      subject.vagrantfile.config.vm.provider "foo"
+      subject.vagrantfile.config.vm.finalize!
+
+      plugin_providers[:foo] = [provider_usable_class(false), { priority: 5 }]
+      plugin_providers[:bar] = [provider_usable_class(true), { priority: 7 }]
+      plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
+      plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
+
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => 'boom,baz') do
+        expect(subject.default_provider).to eq(:boom)
       end
     end
 
@@ -906,7 +949,8 @@ VF
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
       plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider).to eq(:bar)
       end
     end
@@ -923,7 +967,8 @@ VF
       plugin_providers[:baz] = [provider_usable_class(true), { priority: 2 }]
       plugin_providers[:boom] = [provider_usable_class(true), { priority: 3 }]
 
-      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil) do
+      with_temp_env("VAGRANT_DEFAULT_PROVIDER" => nil,
+                    "VAGRANT_PREFERRED_PROVIDERS" => nil) do
         expect(subject.default_provider(machine: :sub)).to eq(:bar)
       end
     end
