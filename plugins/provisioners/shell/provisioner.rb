@@ -261,6 +261,14 @@ module VagrantPlugins
           script = config.inline
         end
 
+        # Ruby may have guessed wrong about the encoding
+        if !script.valid_encoding?
+          script.force_encoding('UTF-8')
+        end
+        if !script.valid_encoding?
+          script.force_encoding('iso-8859-15')
+        end
+
         # Replace Windows line endings with Unix ones unless binary file
         # or we're running on Windows.
         if !config.binary && @machine.config.vm.communicator != :winrm
