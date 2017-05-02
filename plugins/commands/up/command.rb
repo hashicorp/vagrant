@@ -146,7 +146,7 @@ module VagrantPlugins
           p = provider
           p = entry.provider.to_sym if !p && entry
           p = @env.default_provider(
-            machine: machine.name.to_sym, check_usable: false) if !p
+            machine: machine.name.to_sym, check_usable: false) if !p && entry
 
           # Add it to the set
           providers.add(p)
