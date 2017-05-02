@@ -161,9 +161,9 @@ module VagrantPlugins
             b2.use ClearForwardedPorts
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
-            b2.use Package
             b2.use Export
             b2.use PackageVagrantfile
+            b2.use Package
           end
         end
       end
