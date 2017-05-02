@@ -319,6 +319,9 @@ module Vagrant
 
       # Implement the algorithm from
       # https://www.vagrantup.com/docs/providers/basic_usage.html#default-provider
+      # with additional steps 2.5 and 3.5 from
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1444492
+      # to allow system-configured provider priorities.
       #
       # 1. The --provider flag on a vagrant up is chosen above all else, if it is
       #    present.
@@ -382,12 +385,33 @@ module Vagrant
       # otherwise excluded, return it now.
       return default if usable.include?(default)
 
+      # 2.5. Vagrant will go through all of the config.vm.provider calls in the
+      #      Vagrantfile and try each in order. It will choose the first
+      #      provider that is usable and listed in VAGRANT_PREFERRED_PROVIDERS.
+
+      preferred = ENV.fetch('VAGRANT_PREFERRED_PROVIDERS', '')
+                     .split(',')
+                     .map {|s| s.strip}
+                     .select {|s| !s.empty?}
+                     .map {|s| s.to_sym}
+
+      config.each do |key|
+        return key if usable.include?(key) && preferred.include?(key)
+      end
+
       # 3. Vagrant will go through all of the config.vm.provider calls in the
       #    Vagrantfile and try each in order. It will choose the first provider
       #    that is usable. For example, if you configure Hyper-V, it will never
       #    be chosen on Mac this way. It must be both configured and usable.
 
       config.each do |key|
+        return key if usable.include?(key)
+      end
+
+      # 3.5. Vagrant will go through VAGRANT_PREFERRED_PROVIDERS and find the
+      #      first plugin that reports it is usable.
+
+      preferred.each do |key|
         return key if usable.include?(key)
       end
 
