@@ -83,7 +83,7 @@ module VagrantPlugins
       def package_vm(vm, options)
         opts = options.inject({}) do |acc, data|
           k,v = data
-          acc["package.#{k}"] = v
+          acc["package.#{k}".to_sym] = v
           acc
         end
 
