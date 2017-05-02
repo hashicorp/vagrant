@@ -77,4 +77,22 @@ describe VagrantPlugins::CommandGlobalStatus::Command do
       expect(entries[0].name).to eq(entryC_machine.name.to_s)
     end
   end
+
+  describe "execute with --json" do
+    let(:argv) { ["--json"] }
+
+    it "outputs JSON" do
+      # Let's put some things in the index
+      iso_env.machine_index.set(new_entry("foo"))
+      iso_env.machine_index.set(new_entry("bar"))
+
+      expect(iso_env.ui).to receive(:info).with { |message, _|
+        global_status_hash_list = JSON.parse(message)
+        expect(global_status_hash_list[0]["name"]).to eq("foo")
+        expect(global_status_hash_list[1]["name"]).to eq("bar")
+      }
+
+      expect(subject.execute).to eq(0)
+    end
+  end
 end
