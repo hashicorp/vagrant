@@ -192,6 +192,19 @@ module VagrantPlugins
             guestpath: guestpath,
             hostpath: hostpath,
             stderr: r.stderr
+        else
+          if opts[:owner] || opts[:group]
+            group = opts[:group] ? ":#{folder_opts[:group]}" : ''
+
+            machine.communicate.tap do |comm|
+              shell_opts = nil
+              if comm.test("uname -s | grep 'FreeBSD'", { shell: 'sh' })
+                shell_opts = { shell: 'sh' }
+              end
+
+              comm.sudo("chown -R #{opts[:owner]}#{group} '#{guestpath}'", shell_opts)
+            end
+          end
         end
 
         # If we have tasks to do after rsyncing, do those.
