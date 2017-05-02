@@ -46,6 +46,11 @@ module VagrantPlugins
       #
       # @return [Boolean]
       attr_accessor :force_host_vm
+      
+      # When enabled, all volumes mounted to a docker container will have symlink support enabled.
+      #
+      # @return [Boolean]
+      attr_accessor :symlink_volumes
 
       # True if the Docker container exposes SSH access. If this is true,
       # then Vagrant can do a bunch more things like setting the hostname,
