@@ -340,7 +340,7 @@ module Vagrant
             if opts[:checksum] && opts[:checksum_type]
               env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
               validate_checksum(
-                opts[:checksum_type], opts[:checksum], box_url)
+                opts[:checksum_type], opts[:checksum], box_url, env)
             end
 
             # Add the box!
@@ -516,7 +516,7 @@ module Vagrant
           !!(match.last.chomp =~ /application\/json/)
         end
 
-        def validate_checksum(checksum_type, checksum, path)
+        def validate_checksum(checksum_type, checksum, path, env)
           checksum_klass = case checksum_type.to_sym
           when :md5
             Digest::MD5
@@ -529,6 +529,7 @@ module Vagrant
               type: checksum_type.to_s
           end
 
+          env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
           @logger.info("Validating checksum with #{checksum_klass}")
           @logger.info("Expected checksum: #{checksum}")
 
