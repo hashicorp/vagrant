@@ -138,7 +138,7 @@ module VagrantPlugins
                                       script: path.to_s))
             else
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
-                                      script: "inline script"))
+                                      script: "inline script: #{config.inline.strip}"))
             end
 
             # Execute it with sudo
@@ -210,7 +210,7 @@ module VagrantPlugins
                                       local: config.path.to_s, remote: exec_path))
             else
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
-                                      script: "inline PowerShell script"))
+                                      script: "inline PowerShell script: #{config.inline.strip}"))
             end
 
             # Execute it with sudo
