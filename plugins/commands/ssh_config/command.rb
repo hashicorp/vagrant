@@ -23,6 +23,9 @@ module VagrantPlugins
           o.on("--host NAME", "Name the host for the config") do |h|
             options[:host] = h
           end
+          o.on("--ignore-down", "Ignore machines not running") do |i|
+            options[:ignore_down] = i
+          end
         end
 
         argv = parse_options(opts)
@@ -30,10 +33,20 @@ module VagrantPlugins
 
         with_target_vms(argv) do |machine|
           ssh_info = machine.ssh_info
-          raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
+          hostname = options[:host] || machine.name || "vagrant"
+
+          if ssh_info.nil?
+            # doesn't appear to be any common way across providers to distinguish
+            # between machines not running and failing to provide ssh info.
+            if options[:ignore_down]
+              @logger.debug("Ignoring machine '#{hostname}' with no ssh response")
+              next
+            end
+            raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
+          end
 
           variables = {
-            host_key: options[:host] || machine.name || "vagrant",
+            host_key: hostname,
             ssh_host: ssh_info[:host],
             ssh_port: ssh_info[:port],
             ssh_user: ssh_info[:username],
