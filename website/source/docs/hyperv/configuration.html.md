@@ -41,7 +41,7 @@ you may set. A complete reference is shown below:
       h.vm_integration_services = {
           guest_service_interface: true,
           heartbeat: true,
-          key_value_pair_exchange: false,
+          key_value_pair_exchange: true,
           shutdown: true,
           time_synchronization: true,
           vss: true
