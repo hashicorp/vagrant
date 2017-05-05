@@ -10,7 +10,7 @@
 
     [string]$switchname=$null,
     [string]$memory=$null,
-    [string]$maxmemory=$null,   
+    [string]$maxmemory=$null,
     [string]$cpus=$null,
     [string]$vmname=$null,
     [string]$auto_start_action=$null,
@@ -24,7 +24,7 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 $VmProperties = @{
-    Path = $vm_config_file 
+    Path = $vm_config_file
     SnapshotFilePath   = Join-Path $data_path 'Snapshots'
     VhdDestinationPath = Join-Path $data_path 'Virtual Hard Disks'
     VirtualMachinePath = $data_path
@@ -88,7 +88,7 @@ if (!$switchname) {
 }
 
 # Enable nested virtualization if configured
-if ($enable_virtualization_extensions) {
+if ($enable_virtualization_extensions -eq "True") {
     Set-VMProcessor -VM $vmConfig.VM -ExposeVirtualizationExtensions $true
 }
 
@@ -139,7 +139,7 @@ if($differencing_disk){
     }
 
     foreach($controller in $controllers){
-        foreach($drive in $controller.Drives){            
+        foreach($drive in $controller.Drives){
             if([System.IO.Path]::GetFileName($drive.Path) -eq [System.IO.Path]::GetFileName($source_path)){
                 # Remove the old disk and replace it with a differencing version
                 $path = $drive.Path
