@@ -9,6 +9,14 @@ module VagrantPlugins
         error_key(:communicator_non_docker)
       end
 
+      class ContainerNotRunningError < DockerError
+        error_key(:not_running)
+      end
+
+      class ContainerNotCreatedError < DockerError
+        error_key(:not_created)
+      end
+
       class ExecuteError < DockerError
         error_key(:execute_error)
       end
