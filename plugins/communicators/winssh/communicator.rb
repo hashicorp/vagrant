@@ -19,6 +19,7 @@ module VagrantPlugins
         }.merge(opts)
 
         sudo  = opts[:sudo]
+        shell = (opts[:shell] || machine_config_ssh.shell).to_s
 
         @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
@@ -31,10 +32,10 @@ module VagrantPlugins
           stderr_data_buffer = ''
 
           tfile = Tempfile.new('vagrant-ssh')
-          remote_ext = machine_config_ssh.shell.to_s == "powershell" ? "ps1" : "bat"
+          remote_ext = shell == "powershell" ? "ps1" : "bat"
           remote_name = "C:\\Windows\\Temp\\#{File.basename(tfile.path)}.#{remote_ext}"
 
-          if machine_config_ssh.shell.to_s == "powershell"
+          if shell == "powershell"
             base_cmd = "powershell -File #{remote_name}"
             tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
 Remove-Item #{remote_name}
