@@ -215,7 +215,11 @@ module Vagrant
       update = {} if !update.is_a?(Hash)
       skips = []
       source_list = {}
+      system_plugins = plugins.map do |plugin_name, plugin_info|
+        plugin_name if plugin_info["system"]
+      end.compact
       installer_set = VagrantSet.new(:both)
+      installer_set.system_plugins = system_plugins
 
       # Generate all required plugin deps
       plugin_deps = plugins.map do |name, info|
@@ -239,7 +243,18 @@ module Vagrant
         Gem::Dependency.new(name, gem_version)
       end
 
-      @logger.debug("Dependency list for installation: #{plugin_deps}")
+      if Vagrant.strict_dependency_enforcement
+        @logger.debug("Enabling strict dependency enforcement")
+        plugin_deps += vagrant_internal_specs.map do |spec|
+          next if system_plugins.include?(spec.name)
+          Gem::Dependency.new(spec.name, spec.version)
+        end.compact
+      else
+        @logger.debug("Disabling strict dependency enforcement")
+      end
+
+      @logger.debug("Dependency list for installation:\n - " \
+        "#{plugin_deps.map{|d| "#{d.name} #{d.requirement}"}.join("\n - ")}")
 
       all_sources = source_list.values.flatten.uniq
       default_sources = DEFAULT_GEM_SOURCES & all_sources
@@ -274,11 +289,6 @@ module Vagrant
 
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
-
-      system_plugins = plugins.map do |plugin_name, plugin_info|
-        plugin_name if plugin_info["system"]
-      end.compact
-      installer_set.system_plugins = system_plugins
 
       installer_set = Gem::Resolver.compose_sets(
         installer_set,
