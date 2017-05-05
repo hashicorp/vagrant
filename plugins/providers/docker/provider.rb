@@ -137,9 +137,20 @@ module VagrantPlugins
         return nil if state.id != :running
 
         port_name = "#{@machine.config.ssh.guest_port}/tcp"
-
         network   = driver.inspect_container(@machine.id)['NetworkSettings']
-        port_info = network['Ports'][port_name].first
+
+        if network["Ports"][port_name].respond_to?(:first)
+          port_info = network["Ports"][port_name].first
+        else
+          ip = network["IpAddress"]
+          port = @machine.config.ssh.guest_port
+          if !ip.to_s.empty?
+            port_info = {
+              "HostIp" => ip,
+              "HostPort" => port
+            }
+          end
+        end
 
         # If we were not able to identify the container's IP, we return nil
         # here and we let Vagrant core deal with it ;)
