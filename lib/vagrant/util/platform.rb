@@ -28,6 +28,27 @@ module Vagrant
           return @_cygwin
         end
 
+        def wsl?
+          if !defined?(@_wsl)
+            @_wsl = false
+            original_verbose = $VERBOSE
+            begin
+              $VERBOSE = nil
+              # Use PATH values to check for `/mnt/c` path indicative of WSL
+              if ENV.fetch("PATH", "").downcase.include?("/mnt/c")
+                # Validate WSL via uname output
+                uname = Subprocess.execute("uname", "-r")
+                if uname.exit_code == 0 && uname.stdout.downcase.include?("microsoft")
+                  @_wsl = true
+                end
+              end
+            ensure
+              $VERBOSE = original_verbose
+            end
+          end
+          @_wsl
+        end
+
         [:darwin, :bsd, :freebsd, :linux, :solaris].each do |type|
           define_method("#{type}?") do
             platform.include?(type.to_s)
@@ -221,6 +242,72 @@ module Vagrant
           return @_platform if defined?(@_platform)
           @_platform = RbConfig::CONFIG["host_os"].downcase
           return @_platform
+        end
+
+        # Determine if given path is within the WSL rootfs. Returns
+        # true if within the subsystem, or false if outside the subsystem.
+        #
+        # @param [String] path Path to check
+        # @return [Boolean] path is within subsystem
+        def wsl_path?(path)
+          wsl? && !path.to_s.downcase.start_with?("/mnt/")
+        end
+
+        # Allow Vagrant to access Vagrant managed machines outside the
+        # Windows Subsystem for Linux
+        #
+        # @return [Boolean]
+        def wsl_windows_access?
+          if !defined?(@_wsl_windows_access)
+            @_wsl_windows_access = wsl? && ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
+          end
+          @_wsl_windows_access
+        end
+
+        # The allowed windows system path Vagrant can manage from the Windows
+        # Subsystem for Linux
+        #
+        # @return [Pathname]
+        def wsl_windows_accessible_path
+          if !defined?(@_wsl_windows_accessible_path)
+            access_path = ENV.fetch("VAGRANT_WSL_ACCESS_WINDOWS_USER_HOME_PATH",
+              "/mnt/c/Users/#{ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]}")
+            @_wsl_windows_accessible_path = Pathname.new(access_path)
+          end
+          @_wsl_windows_accessible_path
+        end
+
+        # Checks given path to determine if Vagrant is allowed to bypass checks
+        #
+        # @param [String] path Path to check
+        # @return [Boolean] Vagrant is allowed to bypass checks
+        def wsl_windows_access_bypass?(path)
+          wsl? && wsl_windows_access? &&
+            path.to_s.start_with?(wsl_windows_accessible_path.to_s)
+        end
+
+        # If running within the Windows Subsystem for Linux, this will provide
+        # simple setup to allow sharing of the user's VAGRANT_HOME directory
+        # within the subsystem
+        #
+        # @param [Logger] logger Optional logger to display information
+        def wsl_init(logger=nil)
+          if wsl? && ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
+            shared_user = ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
+            if logger
+              logger.warn("Windows Subsystem for Linux detected. Allowing access to user: #{shared_user}")
+              logger.warn("Vagrant will be allowed to control Vagrant managed machines within the user's home path.")
+            end
+            if ENV["VAGRANT_HOME"] || ENV["VAGRANT_WSL_DISABLE_VAGRANT_HOME"]
+              logger.warn("VAGRANT_HOME environment variable already set. Not overriding!") if logger
+            else
+              home_path = wsl_windows_accessible_path
+              ENV["VAGRANT_HOME"] = File.join(home_path, ".vagrant.d")
+              if logger
+                logger.info("Overriding VAGRANT_HOME environment variable to configured windows user. (#{ENV["VAGRANT_HOME"]})")
+              end
+            end
+          end
         end
 
         # @private

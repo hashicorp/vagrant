@@ -112,6 +112,13 @@ begin
     argv += argv_extra
   end
 
+  # If we are running with the Windows Subsystem for Linux do
+  # some extra setup to allow access to Vagrant managed machines
+  # outside the subsystem
+  if Vagrant::Util::Platform.wsl?
+    Vagrant::Util::Platform.wsl_init(logger)
+  end
+
   # Create the environment, which is the cwd of wherever the
   # `vagrant` command was invoked from
   logger.debug("Creating Vagrant environment")

@@ -1381,6 +1381,16 @@ en:
         log out and log back in for the new environmental variables to take
         effect. If you're on Linux or Mac, verify your PATH contains the folder
         that has VBoxManage in it.
+      vboxmanage_not_found_wsl_error: |-
+        The "VBoxManage.exe" command or one of its dependencies could not
+        be found. Please verify VirtualBox is properly installed. You can verify
+        everything is okay by running "VBoxManage.exe --version" and verifying
+        that the VirtualBox version is outputted.
+
+        If you just installed VirtualBox, you have to log out and log back in for
+        the new environmental variables to take effect. Using the VirtualBox
+        provider within the WSL requires VirtualBox executables to be available
+        on the system PATH.
       virtualbox_broken_version_040214: |-
         Vagrant detected you have VirtualBox 4.2.14 installed. VirtualBox
         4.2.14 contains a critical bug which prevents it from working with

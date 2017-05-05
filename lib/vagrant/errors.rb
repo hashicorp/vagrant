@@ -780,6 +780,10 @@ module Vagrant
       error_key(:vboxmanage_not_found_error)
     end
 
+    class VBoxManageNotFoundWSLError < VagrantError
+      error_key(:vboxmanage_not_found_wsl_error)
+    end
+
     class VirtualBoxBrokenVersion040214 < VagrantError
       error_key(:virtualbox_broken_version_040214)
     end
