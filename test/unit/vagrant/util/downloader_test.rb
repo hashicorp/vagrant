@@ -22,7 +22,7 @@ describe Vagrant::Util::Downloader do
 
   describe "#download!" do
     let(:curl_options) {
-      ["-q", "--fail", "--location", "--max-redirs", "10",
+      ["--no-progress-bar", "--fail", "--location", "--max-redirs", "10",
        "--user-agent", described_class::USER_AGENT,
        "--output", destination, source, {}]
     }
@@ -195,7 +195,7 @@ describe Vagrant::Util::Downloader do
 
   describe "#head" do
     let(:curl_options) {
-      ["-q", "--fail", "--location", "--max-redirs", "10", "--user-agent", described_class::USER_AGENT, source, {}]
+      ["--no-progress-bar", "--fail", "--location", "--max-redirs", "10", "--user-agent", described_class::USER_AGENT, source, {}]
     }
 
     it "returns the output" do

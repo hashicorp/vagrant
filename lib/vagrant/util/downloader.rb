@@ -270,7 +270,7 @@ module Vagrant
       def options
         # Build the list of parameters to execute with cURL
         options = [
-          "-q",
+          "--no-progress-bar",
           "--fail",
           "--location",
           "--max-redirs", "10",
