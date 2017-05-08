@@ -178,14 +178,12 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
-              next
+              raise Vagrant::Errors::VMNotCreatedError
             end
 
             b2.use Call, IsState, :running do |env1, b3|
               if !env1[:result]
-                b3.use Message, I18n.t("vagrant_hyperv.message_not_running")
-                next
+                raise Vagrant::Errors::VMNotRunningError
               end
 
               b3.use SSHExec
@@ -199,14 +197,12 @@ module VagrantPlugins
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("vagrant_hyperv.message_not_created")
-              next
+              raise Vagrant::Errors::VMNotCreatedError
             end
 
             b2.use Call, IsState, :running do |env1, b3|
               if !env1[:result]
-                b3.use Message, I18n.t("vagrant_hyperv.message_not_running")
-                next
+                raise Vagrant::Errors::VMNotRunningError
               end
 
               b3.use SSHRun

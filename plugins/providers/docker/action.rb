@@ -177,14 +177,12 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
-              next
+              raise Errors::ContainerNotCreatedError
             end
 
             b2.use Call, IsState, :running do |env2, b3|
               if !env2[:result]
-                b3.use Message, I18n.t("docker_provider.messages.not_running")
-                next
+                raise Errors::ContainerNotRunningError
               end
 
               b3.use PrepareSSH
@@ -199,13 +197,12 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :not_created do |env, b2|
             if env[:result]
-              b2.use Message, I18n.t("docker_provider.messages.not_created")
-              next
+              raise Errors::ContainerNotCreatedError
             end
 
             b2.use Call, IsState, :running do |env2, b3|
               if !env2[:result]
-                raise Vagrant::Errors::VMNotRunningError
+                raise Errors::ContainerNotRunningError
               end
 
               b3.use SSHRun
