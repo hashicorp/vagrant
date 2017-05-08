@@ -26,7 +26,7 @@ setting in the created Vagrantfile.
 * `--box-version` - (Optional) The box version or box version constraint to add
   to the `Vagrantfile`.
 
-* `--force` - If specified, this command will overwite any existing
+* `--force` - If specified, this command will overwrite any existing
   `Vagrantfile`.
 
 * `--minimal` - If specified, a minimal Vagrantfile will be created. This
