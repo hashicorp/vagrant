@@ -891,5 +891,9 @@ module Vagrant
     class VMPowerOffToPackage < VagrantError
       error_key(:power_off, "vagrant.actions.vm.export")
     end
+
+    class WSLVagrantVersionMismatch < VagrantError
+      error_key(:wsl_vagrant_version_mismatch)
+    end
   end
 end

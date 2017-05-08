@@ -1520,6 +1520,16 @@ en:
         VM must be running to open SSH connection. Run `vagrant up`
         to start the virtual machine.
       test_key: "test value"
+      wsl_vagrant_version_mismatch: |-
+        Vagrant cannot currently enable access to manage machines within the Windows
+        environment because the version of Vagrant installed on Windows does not
+        match this version of Vagrant running within the Windows Subsystem for Linux.
+        Please ensure both installation of Vagrant are the same. If you do not want
+        update your Vagrant installations you can disable Windows access by unsetting
+        the `VAGRANT_WSL_ACCESS_WINDOWS_USER` environment variable.
+
+          Windows Vagrant version: %{windows_version}
+          Windows Subsystem for Linux Vagrant version: %{wsl_version}
 
 #-------------------------------------------------------------------------------
 # Translations for config validation errors

@@ -293,6 +293,7 @@ module Vagrant
         # @param [Logger] logger Optional logger to display information
         def wsl_init(logger=nil)
           if wsl? && ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
+            wsl_validate_matching_vagrant_versions!
             shared_user = ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
             if logger
               logger.warn("Windows Subsystem for Linux detected. Allowing access to user: #{shared_user}")
@@ -307,6 +308,24 @@ module Vagrant
                 logger.info("Overriding VAGRANT_HOME environment variable to configured windows user. (#{ENV["VAGRANT_HOME"]})")
               end
             end
+          end
+        end
+
+        # Confirm Vagrant versions installed within the WSL and the Windows system
+        # are the same. Raise error if they do not match.
+        def wsl_validate_matching_vagrant_versions!
+          valid = false
+          result = Util::Subprocess.execute("vagrant.exe", "version")
+          if result.exit_code == 0
+            windows_version = result.stdout.match(/Installed Version: (?<version>.+$)/)
+            if windows_version
+              valid = windows_version[:version] == Vagrant::VERSION
+            end
+          end
+          if !valid
+            raise Vagrant::Errors::WSLVagrantVersionMismatch,
+              wsl_version: Vagrant::VERSION,
+              windows_version: windows_version ? windows_version[:version] : "unknown"
           end
         end
 
