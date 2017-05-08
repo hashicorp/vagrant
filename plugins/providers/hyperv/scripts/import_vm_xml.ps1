@@ -6,7 +6,7 @@ Param(
 
     [string]$switchname=$null,
     [string]$memory=$null,
-    [string]$maxmemory=$null,   
+    [string]$maxmemory=$null,
     [string]$cpus=$null,
     [string]$vmname=$null,
     [string]$auto_start_action=$null,
@@ -163,7 +163,7 @@ $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'contro
 
 # Only set EFI secure boot for Gen 2 machines, not gen 1
 if ($generation -ne 1) {
-    # Set EFI secure boot 
+    # Set EFI secure boot
     if ($secure_boot_enabled -eq "True") {
         Set-VMFirmware -VM $vm -EnableSecureBoot On
     }  else {
@@ -172,7 +172,7 @@ if ($generation -ne 1) {
 }
 
 # Enable nested virtualization if configured
-if ($enable_virtualization_extensions) {
+if ($enable_virtualization_extensions -eq "True") {
     Set-VMProcessor -VM $vm -ExposeVirtualizationExtensions $true
 }
 
