@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - communicators/ssh: Retry on aborted connections [GH-8526, GH-8520]
+  - communicators/winssh: Enabling shared folders and networking setup [GH-8567]
   - guests: Do not modify existing /etc/hosts content [GH-8506, GH-7794]
   - guests/redhat: Update network configuration capability to properly handle NM [GH-8531]
   - hosts/windows: Check for elevated shell for Hyper-V [GH-8548, GH-8510]
