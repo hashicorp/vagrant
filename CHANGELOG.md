@@ -14,7 +14,8 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - provisioners/shell: Fix Windows batch file provisioning [GH-8539, GH-8535]
-  - provider/hyperv: Fix import script [GH-8529]
+  - providers/docker: Fall back to old style for SSH info lookup [GH-8566, GH-8552]
+  - providers/hyperv: Fix import script [GH-8529]
 
 ## 1.9.4 (April 24, 2017)
 
