@@ -895,5 +895,9 @@ module Vagrant
     class WSLVagrantVersionMismatch < VagrantError
       error_key(:wsl_vagrant_version_mismatch)
     end
+
+    class WSLVagrantAccessError < VagrantError
+      error_key(:wsl_vagrant_access_error)
+    end
   end
 end

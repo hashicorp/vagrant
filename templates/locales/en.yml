@@ -1530,6 +1530,14 @@ en:
 
           Windows Vagrant version: %{windows_version}
           Windows Subsystem for Linux Vagrant version: %{wsl_version}
+      wsl_vagrant_access_error: |-
+        Vagrant will not operate outside the Windows Subsystem for Linux unless explicitly
+        instructed. Due to the inability to enforce expected Linux file ownership and
+        permissions on the Windows system, Vagrant will not make modifications to prevent
+        unexpected errors. To learn more about this, and the options that are available,
+        please refer to the Vagrant documentation:
+
+          https://www.vagrantup.com/docs/other/wsl
 
 #-------------------------------------------------------------------------------
 # Translations for config validation errors

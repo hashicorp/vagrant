@@ -290,22 +290,29 @@ module Vagrant
         # simple setup to allow sharing of the user's VAGRANT_HOME directory
         # within the subsystem
         #
+        # @param [Environment] env
         # @param [Logger] logger Optional logger to display information
-        def wsl_init(logger=nil)
-          if wsl? && ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
-            wsl_validate_matching_vagrant_versions!
-            shared_user = ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
-            if logger
-              logger.warn("Windows Subsystem for Linux detected. Allowing access to user: #{shared_user}")
-              logger.warn("Vagrant will be allowed to control Vagrant managed machines within the user's home path.")
-            end
-            if ENV["VAGRANT_HOME"] || ENV["VAGRANT_WSL_DISABLE_VAGRANT_HOME"]
-              logger.warn("VAGRANT_HOME environment variable already set. Not overriding!") if logger
-            else
-              home_path = wsl_windows_accessible_path
-              ENV["VAGRANT_HOME"] = File.join(home_path, ".vagrant.d")
+        def wsl_init(env, logger=nil)
+          if wsl?
+            if ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
+              wsl_validate_matching_vagrant_versions!
+              shared_user = ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
               if logger
-                logger.info("Overriding VAGRANT_HOME environment variable to configured windows user. (#{ENV["VAGRANT_HOME"]})")
+                logger.warn("Windows Subsystem for Linux detected. Allowing access to user: #{shared_user}")
+                logger.warn("Vagrant will be allowed to control Vagrant managed machines within the user's home path.")
+              end
+              if ENV["VAGRANT_HOME"] || ENV["VAGRANT_WSL_DISABLE_VAGRANT_HOME"]
+                logger.warn("VAGRANT_HOME environment variable already set. Not overriding!") if logger
+              else
+                home_path = wsl_windows_accessible_path
+                ENV["VAGRANT_HOME"] = File.join(home_path, ".vagrant.d")
+                if logger
+                  logger.info("Overriding VAGRANT_HOME environment variable to configured windows user. (#{ENV["VAGRANT_HOME"]})")
+                end
+              end
+            else
+              if env.local_data_path.to_s.start_with?("/mnt/")
+                raise Vagrant::Errors::WSLVagrantAccessError
               end
             end
           end
@@ -319,13 +326,14 @@ module Vagrant
           if result.exit_code == 0
             windows_version = result.stdout.match(/Installed Version: (?<version>.+$)/)
             if windows_version
-              valid = windows_version[:version] == Vagrant::VERSION
+              windows_version = windows_version[:version].strip
+              valid = windows_version == Vagrant::VERSION
             end
           end
           if !valid
             raise Vagrant::Errors::WSLVagrantVersionMismatch,
               wsl_version: Vagrant::VERSION,
-              windows_version: windows_version ? windows_version[:version] : "unknown"
+              windows_version: windows_version || "unknown"
           end
         end
 
