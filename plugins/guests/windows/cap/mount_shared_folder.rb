@@ -34,7 +34,7 @@ module VagrantPlugins
             vm_provider_unc_path: vm_provider_unc_base + name,
           })
 
-          if machine.config.vm.communicator == :winrm
+          if machine.config.vm.communicator == :winrm || machine.config.vm.communicator == :winssh
             machine.communicate.execute(script, shell: :powershell)
           else
             # Convert script to double byte unicode string then base64 encode

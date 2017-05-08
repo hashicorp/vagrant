@@ -28,7 +28,7 @@ if( (Test-Path "$MountPoint") -and (Test-ReparsePoint "$MountPoint") )
 }
 elseif(Test-Path $MountPoint)
 {
-  Write-Debug "Mount point already exists and is not a symbolic link"
+  Write-Error "Mount point already exists and is not a symbolic link"
   exit 1
 }
 

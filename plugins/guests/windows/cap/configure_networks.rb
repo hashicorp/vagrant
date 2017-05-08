@@ -9,10 +9,6 @@ module VagrantPlugins
         @@logger = Log4r::Logger.new("vagrant::guest::windows::configure_networks")
 
         def self.configure_networks(machine, networks)
-          if machine.config.vm.communicator != :winrm
-            raise Errors::NetworkWinRMRequired
-          end
-
           @@logger.debug("Networks: #{networks.inspect}")
 
           guest_network = GuestNetwork.new(machine.communicate)
