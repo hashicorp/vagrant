@@ -5,13 +5,14 @@ require "vagrant/action/builder"
 module VagrantPlugins
   module CommandPlugin
     module Action
-      # This middleware sequence will install a plugin.
+      # This middleware sequence will remove all plugins.
       def self.action_expunge
         Vagrant::Action::Builder.new.tap do |b|
           b.use ExpungePlugins
         end
       end
 
+      # This middleware sequence will install a plugin.
       def self.action_install
         Vagrant::Action::Builder.new.tap do |b|
           b.use InstallGem
