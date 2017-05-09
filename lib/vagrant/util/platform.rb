@@ -141,6 +141,10 @@ module Vagrant
         # This expands the path and ensures proper casing of each part
         # of the path.
         def fs_real_path(path, **opts)
+          # This line fixes bug on windows, when using MobaXterm/cygwin.
+          # path uses short filename but Dir.entries(path) uses long filename.
+          return path if cygwin?
+
           path = Pathname.new(File.expand_path(path))
 
           if path.exist? && !fs_case_sensitive?
