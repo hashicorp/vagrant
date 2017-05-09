@@ -31,9 +31,7 @@ module Vagrant
         def wsl?
           if !defined?(@_wsl)
             @_wsl = false
-            original_verbose = $VERBOSE
-            begin
-              $VERBOSE = nil
+            SilenceWarnings.silence! do
               # Use PATH values to check for `/mnt/c` path indicative of WSL
               if ENV.fetch("PATH", "").downcase.include?("/mnt/c")
                 # Validate WSL via uname output
@@ -42,8 +40,6 @@ module Vagrant
                   @_wsl = true
                 end
               end
-            ensure
-              $VERBOSE = original_verbose
             end
           end
           @_wsl
