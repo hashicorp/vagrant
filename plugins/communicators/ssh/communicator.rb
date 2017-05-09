@@ -358,7 +358,7 @@ module VagrantPlugins
           paranoid:              ssh_info[:paranoid],
           password:              ssh_info[:password],
           port:                  ssh_info[:port],
-          timeout:               15,
+          timeout:               30,
           user_known_hosts_file: [],
           verbose:               :debug,
         }
