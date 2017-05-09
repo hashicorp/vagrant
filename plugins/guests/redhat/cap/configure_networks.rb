@@ -74,8 +74,7 @@ module VagrantPlugins
             end
           end
           if nmcli_installed
-            commands[:middle] << "((nmcli c help 2>&1 | grep reload) && nmcli c reload) || " \
-              "(test -f /etc/init.d/NetworkManager && /etc/init.d/NetworkManager restart) || " \
+            commands[:middle] << "(test -f /etc/init.d/NetworkManager && /etc/init.d/NetworkManager restart) || " \
               "((systemctl | grep NetworkManager.service) && systemctl restart NetworkManager)"
           end
           commands = commands[:start] + commands[:middle] + commands[:end]
