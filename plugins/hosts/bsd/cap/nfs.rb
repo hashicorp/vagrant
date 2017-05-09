@@ -1,4 +1,5 @@
 require "log4r"
+require "open3"
 
 require "vagrant/util"
 require "vagrant/util/shell_quote"
@@ -177,13 +178,16 @@ module VagrantPlugins
             "sed", "-E", "-e",
             "/^# VAGRANT-BEGIN:( #{user})? #{id}/," +
             "/^# VAGRANT-END:( #{user})? #{id}/ d",
-            "-ibak",
             "/etc/exports"
           ]
 
           # Use sed to just strip out the block of code which was inserted
           # by Vagrant, and restart NFS.
-          system(*command)
+          stdin, stdout, stderr = Open3.popen3(*command)
+
+          f = File.new("/etc/exports", "w")
+          f.write(stdout.gets)
+          f.close
         end
 
         def self.nfs_checkexports!
