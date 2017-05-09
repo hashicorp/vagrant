@@ -64,9 +64,7 @@ module VagrantPlugins
             final_path = "#{network_scripts_dir}/ifcfg-#{network[:device]}"
 
             if nm_controlled
-              if extra_opts[:nm_controlled] == "no"
-                commands[:start] << "nmcli d disconnect iface '#{network[:device]}'"
-              end
+              commands[:start] << "nmcli d disconnect iface '#{network[:device]}'"
             else
               commands[:start] << "/sbin/ifdown '#{network[:device]}'"
             end
@@ -78,7 +76,7 @@ module VagrantPlugins
           if nmcli_installed
             commands[:middle] << "((nmcli c help 2>&1 | grep reload) && nmcli c reload) || " \
               "(test -f /etc/init.d/NetworkManager && /etc/init.d/NetworkManager restart) || " \
-              "((systemctl | grep NetworkManager.service) && systemctl NetworkManager restart)"
+              "((systemctl | grep NetworkManager.service) && systemctl restart NetworkManager)"
           end
           commands = commands[:start] + commands[:middle] + commands[:end]
           comm.sudo(commands.join("\n"))
