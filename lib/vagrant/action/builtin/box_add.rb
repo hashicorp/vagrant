@@ -126,7 +126,7 @@ module Vagrant
             raise Errors::BoxAddNameRequired
           end
 
-          if env[:box_version]
+          unless env[:box_version] == '>= 0'
             raise Errors::BoxAddDirectVersion
           end
 
