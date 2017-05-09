@@ -2221,6 +2221,11 @@ en:
         uploading_client_cert: |-
           Uploading client certificate and private key...
 
+      scpupload:
+        no_dest_file: "SCPupload destination must be specified."
+        no_source_file: "SCPupload source must be specified."
+        path_invalid: "SCP upload source file %{path} must exist"
+
       shell:
         args_bad_type: "Shell provisioner `args` must be a string or array."
         invalid_encoding: |-
