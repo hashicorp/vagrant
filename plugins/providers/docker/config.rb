@@ -19,6 +19,8 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :build_dir
 
+      attr_accessor :compose
+
       # An optional file name of a Dockerfile to be used when building
       # the image. This requires Docker >1.5.0.
       #
@@ -138,6 +140,7 @@ module VagrantPlugins
         @build_args = []
         @build_dir  = UNSET_VALUE
         @cmd        = UNSET_VALUE
+        @compose    = UNSET_VALUE
         @create_args = UNSET_VALUE
         @dockerfile = UNSET_VALUE
         @env        = {}
@@ -201,6 +204,7 @@ module VagrantPlugins
         @build_args = [] if @build_args == UNSET_VALUE
         @build_dir  = nil if @build_dir == UNSET_VALUE
         @cmd        = [] if @cmd == UNSET_VALUE
+        @compose    = false if @compose == UNSET_VALUE
         @create_args = [] if @create_args == UNSET_VALUE
         @dockerfile = nil if @dockerfile == UNSET_VALUE
         @env       ||= {}
