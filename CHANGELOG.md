@@ -14,6 +14,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - guests/debian: Fix use_dhcp_assigned_default_route [GH-8577, GH-8575]
   - provisioners/shell: Fix Windows batch file provisioning [GH-8539, GH-8535]
   - providers/docker: Fall back to old style for SSH info lookup [GH-8566, GH-8552]
   - providers/hyperv: Fix import script [GH-8529]
