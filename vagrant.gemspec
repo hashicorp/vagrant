@@ -32,9 +32,6 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm-fs", "~> 1.0"
   s.add_dependency "winrm-elevated", "~> 1.1"
 
-  # We lock this down to avoid compilation issues.
-  s.add_dependency "nokogiri", "~> 1.7.1"
-
   # NOTE: The ruby_dep gem is an implicit dependency from the listen gem. Later versions
   # of the ruby_dep gem impose an aggressive constraint on the required ruby version (>= 2.2.5).
   # Explicit constraint is defined to provide required dependency to listen without imposing
