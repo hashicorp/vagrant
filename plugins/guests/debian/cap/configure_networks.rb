@@ -15,11 +15,12 @@ module VagrantPlugins
           entries    = []
           interfaces = machine.guest.capability(:network_interfaces)
 
+          root_device = interfaces.first
           networks.each do |network|
             network[:device] = interfaces[network[:interface]]
 
             entry = TemplateRenderer.render("guests/debian/network_#{network[:type]}",
-              options: network,
+              options: network.merge(:root_device => root_device),
             )
             entries << entry
           end
