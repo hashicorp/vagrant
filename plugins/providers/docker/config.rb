@@ -19,6 +19,10 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :build_dir
 
+      # Use docker-compose to manage the lifecycle and environment for
+      # containers instead of using docker directly.
+      #
+      # @return [Boolean]
       attr_accessor :compose
 
       # An optional file name of a Dockerfile to be used when building
