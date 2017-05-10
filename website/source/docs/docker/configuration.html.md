@@ -30,6 +30,10 @@ General settings:
   * `cmd` (array of strings) - Custom command to run on the container.
     Example: `["ls", "/app"]`.
 
+  * `compose` (boolean) - If true, Vagrant will use `docker-compose` to
+    manage the lifecycle and configuration of containers. This defaults
+    to false.
+
   * `create_args` (array of strings) - Additional arguments to pass to
     `docker run` when the container is started. This can be used to set
     parameters that are not exposed via the Vagrantfile.
@@ -51,8 +55,8 @@ General settings:
   * `force_host_vm` (boolean) - If true, then a host VM will be spun up
     even if the computer running Vagrant supports Linux containers. This
     is useful to enforce a consistent environment to run Docker. This value
-    defaults to "true" on Mac and Windows hosts and defaults to "false" on
-    Linux hosts. Mac/Windows users who choose to use a different Docker
+    defaults to "false" on Linux, Mac, and Windows hosts and defaults to "true"
+    on other hosts. Users on other hosts who choose to use a different Docker
     provider or opt-in to the native Docker builds can explicitly set this
     value to false to disable the behavior.
 
