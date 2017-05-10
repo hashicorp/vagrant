@@ -79,9 +79,9 @@ to user ID mismatches).
 Vagrant supports enabling user access to provide seamless behavior and
 control between Vagrant on Windows and Vagrant on WSL. By setting the
 `VAGRANT_WSL_ACCESS_WINDOWS_USER` environment variable, Vagrant will
-allow access to Vagrant managed machines in that user's home path, as
-well as share the `VAGRANT_HOME` directory. Below is a demonstration
-of the behavior:
+allow access to Vagrant managed machines in that user's home path in
+Windows (`C:\Users\vagrant` for example), as well as share the `VAGRANT_HOME`
+directory. Below is a demonstration of the behavior:
 
 ```
 C:\Users\vagrant> bash
@@ -108,9 +108,9 @@ are unsure of how this may affect your system, do not enable this feature.
 
 ## Using Docker
 
-The docker daemon cannot be run in side the Windows Subsystem for Linux. However,
+The docker daemon cannot be run inside the Windows Subsystem for Linux. However,
 the daemon _can_ be run on Windows and accessed by Vagrant while running in the
-WSL. Once docker is installed and running on windows, export the following
+WSL. Once docker is installed and running on Windows, export the following
 environment variable to give Vagrant access:
 
 ```
