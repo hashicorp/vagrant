@@ -1381,6 +1381,16 @@ en:
         log out and log back in for the new environmental variables to take
         effect. If you're on Linux or Mac, verify your PATH contains the folder
         that has VBoxManage in it.
+      vboxmanage_not_found_wsl_error: |-
+        The "VBoxManage.exe" command or one of its dependencies could not
+        be found. Please verify VirtualBox is properly installed. You can verify
+        everything is okay by running "VBoxManage.exe --version" and verifying
+        that the VirtualBox version is outputted.
+
+        If you just installed VirtualBox, you have to log out and log back in for
+        the new environmental variables to take effect. Using the VirtualBox
+        provider within the WSL requires VirtualBox executables to be available
+        on the system PATH.
       virtualbox_broken_version_040214: |-
         Vagrant detected you have VirtualBox 4.2.14 installed. VirtualBox
         4.2.14 contains a critical bug which prevents it from working with
@@ -1510,6 +1520,24 @@ en:
         VM must be running to open SSH connection. Run `vagrant up`
         to start the virtual machine.
       test_key: "test value"
+      wsl_vagrant_version_mismatch: |-
+        Vagrant cannot currently enable access to manage machines within the Windows
+        environment because the version of Vagrant installed on Windows does not
+        match this version of Vagrant running within the Windows Subsystem for Linux.
+        Please ensure both installation of Vagrant are the same. If you do not want
+        update your Vagrant installations you can disable Windows access by unsetting
+        the `VAGRANT_WSL_ACCESS_WINDOWS_USER` environment variable.
+
+          Windows Vagrant version: %{windows_version}
+          Windows Subsystem for Linux Vagrant version: %{wsl_version}
+      wsl_vagrant_access_error: |-
+        Vagrant will not operate outside the Windows Subsystem for Linux unless explicitly
+        instructed. Due to the inability to enforce expected Linux file ownership and
+        permissions on the Windows system, Vagrant will not make modifications to prevent
+        unexpected errors. To learn more about this, and the options that are available,
+        please refer to the Vagrant documentation:
+
+          https://www.vagrantup.com/docs/other/wsl
 
 #-------------------------------------------------------------------------------
 # Translations for config validation errors

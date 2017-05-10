@@ -84,11 +84,15 @@ module VagrantPlugins
       def state
         # We have to check if the UID matches to avoid issues with
         # VirtualBox.
-        uid = @machine.uid
-        if uid && uid.to_s != Process.uid.to_s
-          raise Vagrant::Errors::VirtualBoxUserMismatch,
-            original_uid: uid.to_s,
-            uid: Process.uid.to_s
+        if Vagrant::Util::Platform.wsl_windows_access_bypass?(@machine.data_dir)
+          @logger.warn("Skipping UID check on machine by user request for WSL Windows access.")
+        else
+          uid = @machine.uid
+          if uid && uid.to_s != Process.uid.to_s
+            raise Vagrant::Errors::VirtualBoxUserMismatch,
+              original_uid: uid.to_s,
+              uid: Process.uid.to_s
+          end
         end
 
         # Determine the ID of the state here.

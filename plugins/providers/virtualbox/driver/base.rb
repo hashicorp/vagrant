@@ -66,6 +66,12 @@ module VagrantPlugins
                 break
               end
             end
+          elsif Vagrant::Util::Platform.wsl?
+            @logger.debug("Linux platform detected but executing within WSL. Locating VBoxManage.")
+            @vboxmanage_path = Vagrant::Util::Which.which("VBoxManage") || Vagrant::Util::Which.which("VBoxManage.exe")
+            if !@vboxmanage_path
+              raise Vagrant::Errors::VBoxManageNotFoundWSLError
+            end
           end
 
           # Fall back to hoping for the PATH to work out

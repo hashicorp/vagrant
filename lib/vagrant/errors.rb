@@ -780,6 +780,10 @@ module Vagrant
       error_key(:vboxmanage_not_found_error)
     end
 
+    class VBoxManageNotFoundWSLError < VagrantError
+      error_key(:vboxmanage_not_found_wsl_error)
+    end
+
     class VirtualBoxBrokenVersion040214 < VagrantError
       error_key(:virtualbox_broken_version_040214)
     end
@@ -886,6 +890,14 @@ module Vagrant
 
     class VMPowerOffToPackage < VagrantError
       error_key(:power_off, "vagrant.actions.vm.export")
+    end
+
+    class WSLVagrantVersionMismatch < VagrantError
+      error_key(:wsl_vagrant_version_mismatch)
+    end
+
+    class WSLVagrantAccessError < VagrantError
+      error_key(:wsl_vagrant_access_error)
     end
   end
 end
