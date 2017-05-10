@@ -90,7 +90,6 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
           it "creates and starts the networks via ifup and disables devices in NetworkManager" do
             cap.configure_networks(machine, [network_1, network_2])
             expect(comm.received_commands[0]).to match(/nmcli.*disconnect/)
-            expect(comm.received_commands[0]).to match(/nmcli c reload/)
             expect(comm.received_commands[0]).to match(/ifup/)
             expect(comm.received_commands[0]).to_not match(/ifdown/)
           end
@@ -102,9 +101,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
           it "creates and starts the networks with one managed manually and one NetworkManager controlled" do
             cap.configure_networks(machine, [network_1, network_2])
             expect(comm.received_commands[0]).to match(/nmcli.*disconnect.*eth1/)
-            expect(comm.received_commands[0]).to match(/nmcli c reload/)
             expect(comm.received_commands[0]).to match(/ifup.*eth1/)
-            expect(comm.received_commands[0]).to match(/nmcli.*reload/)
             expect(comm.received_commands[0]).to_not match(/ifdown/)
           end
         end
@@ -119,7 +116,6 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
           it "creates and starts the networks manually" do
             cap.configure_networks(machine, [network_1, network_2])
             expect(comm.received_commands[0]).to match(/ifdown/)
-            expect(comm.received_commands[0]).to match(/nmcli c reload/)
             expect(comm.received_commands[0]).to match(/ifup/)
             expect(comm.received_commands[0]).to_not match(/nmcli c up/)
             expect(comm.received_commands[0]).to_not match(/nmcli d disconnect/)
@@ -131,7 +127,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
 
           it "creates and starts the networks via nmcli" do
             cap.configure_networks(machine, [network_1, network_2])
-            expect(comm.received_commands[0]).to match(/nmcli/)
+            expect(comm.received_commands[0]).to match(/NetworkManager/)
             expect(comm.received_commands[0]).to match(/ifdown/)
             expect(comm.received_commands[0]).to_not match(/ifup/)
           end
@@ -144,7 +140,6 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
             cap.configure_networks(machine, [network_1, network_2])
             expect(comm.received_commands[0]).to match(/ifup/)
             expect(comm.received_commands[0]).to match(/ifdown/)
-            expect(comm.received_commands[0]).to match(/nmcli c reload/)
             expect(comm.received_commands[0]).to_not match(/nmcli c up/)
             expect(comm.received_commands[0]).to_not match(/nmcli d disconnect/)
           end
@@ -158,7 +153,6 @@ describe "VagrantPlugins::GuestRedHat::Cap::ConfigureNetworks" do
             expect(comm.received_commands[0]).to_not match(/nmcli.*disconnect/)
             expect(comm.received_commands[0]).to match(/ifdown/)
             expect(comm.received_commands[0]).to match(/ifup.*eth1/)
-            expect(comm.received_commands[0]).to match(/nmcli.*reload/)
           end
         end
       end
