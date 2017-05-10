@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - hosts/windows: Support running within WSL [GH-8570]
+
 IMPROVEMENTS:
 
   - communicators/ssh: Retry on aborted connections [GH-8526, GH-8520]
