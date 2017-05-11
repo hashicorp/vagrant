@@ -32,15 +32,44 @@ module VagrantPlugins
         end
 
         def build(dir, **opts, &block)
-          @logger.debug("Applying build using `#{dir}` directory.")
+          name = machine.name.to_s
+          @logger.debug("Applying build for `#{name}` using `#{dir}` directory.")
           begin
             update_composition(:apply) do |composition|
-              composition["build"] = dir
+              services = composition["services"] ||= {}
+              services[name] ||= {}
+              services[name]["build"] = {"context" => dir}
+              # Extract custom dockerfile location if set
+              if opts[:extra_args] && opts[:extra_args].include?("--file")
+                services[name]["build"]["dockerfile"] = opts[:extra_args][opts[:extra_args].index("--file") + 1]
+              end
+              # Extract any build args that can be found
+              case opts[:build_args]
+              when Array
+                if opts[:build_args].include?("--build-arg")
+                  idx = 0
+                  build_args = {}
+                  while(idx < opts[:build_args].size)
+                    arg_value = opts[:build_args][idx]
+                    idx += 1
+                    if arg_value.start_with?("--build-arg")
+                      if !arg_value.include?("=")
+                        arg_value = opts[:build_args][idx]
+                        idx += 1
+                      end
+                      key, val = arg_value.to_s.split("=", 2).to_s.split("=")
+                      build_args[key] = val
+                    end
+                  end
+                end
+              when Hash
+                services[name]["build"]["args"] = opts[:build_args]
+              end
             end
           rescue => error
             @logger.error("Failed to apply build using `#{dir}` directory: #{error.class} - #{error}")
             update_composition do |composition|
-              composition.delete("build")
+              composition["services"].delete(name)
             end
             raise
           end
@@ -61,7 +90,8 @@ module VagrantPlugins
           begin
             update_composition(:apply) do |composition|
               services = composition["services"] ||= {}
-              services[name] = {
+              services[name] ||= {}
+              services[name].merge(
                 "image" => image,
                 "environment" => env,
                 "expose" => expose,
@@ -69,7 +99,7 @@ module VagrantPlugins
                 "volumes" => volumes,
                 "links" => links,
                 "command" => cmd
-              }
+              )
             end
           rescue => error
             @logger.error("Failed to create container `#{name}`: #{error.class} - #{error}")
@@ -84,22 +114,30 @@ module VagrantPlugins
         def rm(cid)
           if created?(cid)
             destroy = false
-            compose_execute("rm", "-f", machine.name.to_s)
-            update_composition(:conditional_apply) do |composition|
-              if composition["services"] && composition["services"].key?(machine.name.to_s)
-                @logger.info("Removing container `#{machine.name}`")
-                composition["services"].delete(machine.name.to_s)
-                destroy = composition["services"].empty?
+            synchronized do
+              compose_execute("rm", "-f", machine.name.to_s)
+              update_composition do |composition|
+                if composition["services"] && composition["services"].key?(machine.name.to_s)
+                  @logger.info("Removing container `#{machine.name}`")
+                  if composition["services"].size > 1
+                    composition["services"].delete(machine.name.to_s)
+                  else
+                    destroy = true
+                  end
+                end
               end
-              !destroy
-            end
-            if destroy
-              @logger.info("No containers remain. Destroying full environment.")
-              compose_execute("down", "--remove-orphans", "--volumes", "--rmi", "local")
-              @logger.info("Deleting composition path `#{composition_path}`")
-              composition_path.delete
+              if destroy
+                @logger.info("No containers remain. Destroying full environment.")
+                compose_execute("down", "--volumes", "--rmi", "local")
+                @logger.info("Deleting composition path `#{composition_path}`")
+                composition_path.delete
+              end
             end
           end
+        end
+
+        def rmi(*_)
+          true
         end
 
         def created?(cid)
