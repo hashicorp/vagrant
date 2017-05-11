@@ -34,6 +34,11 @@ General settings:
     manage the lifecycle and configuration of containers. This defaults
     to false.
 
+  * `compose_configuration` (Hash) - Configuration values used for populating
+    the `docker-compose.yml` file. The value of this Hash is directly merged
+    and written to the `docker-compose.yml` file allowing customization of
+    non-services items like networks and volumes.
+
   * `create_args` (array of strings) - Additional arguments to pass to
     `docker run` when the container is started. This can be used to set
     parameters that are not exposed via the Vagrantfile.

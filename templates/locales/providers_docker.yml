@@ -117,6 +117,11 @@ en:
         run exits and doesn't keep running.
 
     errors:
+      compose_lock_timeout: |-
+        Vagrant enountered a timeout waiting for the docker compose driver
+        to become available. Please try to run your command again. If you
+        continue to experience this error it may be resolved by disabling
+        parallel execution.
       not_created: |-
         The container hasn't been created yet.
       not_running: |-

@@ -25,6 +25,12 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :compose
 
+      # Configuration Hash used for build the docker-compose composition
+      # file. This can be used for adding networks or volumes.
+      #
+      # @return [Hash]
+      attr_reader :compose_configuration
+
       # An optional file name of a Dockerfile to be used when building
       # the image. This requires Docker >1.5.0.
       #
@@ -145,6 +151,7 @@ module VagrantPlugins
         @build_dir  = UNSET_VALUE
         @cmd        = UNSET_VALUE
         @compose    = UNSET_VALUE
+        @compose_configuration = {}
         @create_args = UNSET_VALUE
         @dockerfile = UNSET_VALUE
         @env        = {}

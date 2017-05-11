@@ -6,6 +6,8 @@ module VagrantPlugins
     class Driver
       class Compose < Driver
 
+        # @return [Integer] Maximum number of seconds to wait for lock
+        LOCK_TIMEOUT = 60
         # @return [String] Compose file format version
         COMPOSE_VERSION = "2".freeze
 
@@ -25,11 +27,22 @@ module VagrantPlugins
           @data_directory.mkpath
           @logger = Log4r::Logger.new("vagrant::docker::driver::compose")
           @compose_lock = Mutex.new
+          @logger.debug("Docker compose driver initialize for machine `#{@machine.name}` (`#{@machine.id}`)")
+          @logger.debug("Data directory for composition file `#{@data_directory}`")
         end
 
         def build(dir, **opts, &block)
-          update_composition do |composition|
-            composition["build"] = dir
+          @logger.debug("Applying build using `#{dir}` directory.")
+          begin
+            update_composition(:apply) do |composition|
+              composition["build"] = dir
+            end
+          rescue => error
+            @logger.error("Failed to apply build using `#{dir}` directory: #{error.class} - #{error}")
+            update_composition do |composition|
+              composition.delete("build")
+            end
+            raise
           end
         end
 
@@ -44,9 +57,9 @@ module VagrantPlugins
           cmd     = Array(params.fetch(:cmd))
           env     = params.fetch(:env)
           expose  = Array(params[:expose])
-
+          @logger.debug("Creating container `#{name}`")
           begin
-            update_composition do |composition|
+            update_composition(:apply) do |composition|
               services = composition["services"] ||= {}
               services[name] = {
                 "image" => image,
@@ -58,8 +71,9 @@ module VagrantPlugins
                 "command" => cmd
               }
             end
-          rescue
-            update_composition(false) do |composition|
+          rescue => error
+            @logger.error("Failed to create container `#{name}`: #{error.class} - #{error}")
+            update_composition do |composition|
               composition["services"].delete(name)
             end
             raise
@@ -71,16 +85,19 @@ module VagrantPlugins
           if created?(cid)
             destroy = false
             compose_execute("rm", "-f", machine.name.to_s)
-            update_composition do |composition|
+            update_composition(:conditional_apply) do |composition|
               if composition["services"] && composition["services"].key?(machine.name.to_s)
                 @logger.info("Removing container `#{machine.name}`")
                 composition["services"].delete(machine.name.to_s)
                 destroy = composition["services"].empty?
               end
+              !destroy
             end
             if destroy
               @logger.info("No containers remain. Destroying full environment.")
-              compose_execute("down", "--remove-orphans")
+              compose_execute("down", "--remove-orphans", "--volumes", "--rmi", "local")
+              @logger.info("Deleting composition path `#{composition_path}`")
+              composition_path.delete
             end
           end
         end
@@ -88,7 +105,7 @@ module VagrantPlugins
         def created?(cid)
           result = super
           if !result
-            composition = get_current_composition
+            composition = get_composition
             if composition["services"] && composition["services"].has_key?(machine.name.to_s)
               result = true
             end
@@ -108,7 +125,7 @@ module VagrantPlugins
 
         # Execute a `docker-compose` command
         def compose_execute(*cmd, **opts)
-          @compose_lock.synchronize do
+          synchronized do
             execute("docker-compose", "-f", composition_path.to_s,
               "-p", machine.env.cwd.basename.to_s, *cmd, **opts)
           end
@@ -124,23 +141,29 @@ module VagrantPlugins
         # Update the composition and apply changes if requested
         #
         # @param [Boolean] apply Apply composition changes
-        def update_composition(apply=true)
-          machine.env.lock("compose", retry: true) do
-            composition = get_current_composition
-            yield composition
-            write_composition(composition)
-            apply_composition! if apply
+        def update_composition(*args)
+          synchronized do
+            machine.env.lock("compose", retry: true) do
+              composition = get_composition
+              result = yield composition
+              write_composition(composition)
+              if args.include?(:apply) || (args.include?(:conditional) && result)
+                apply_composition!
+              end
+            end
           end
         end
 
         # @return [Hash] current composition contents
-        def get_current_composition
+        def get_composition
           composition = {"version" => COMPOSE_VERSION.dup}
           if composition_path.exist?
             composition.merge!(
               YAML.load(composition_path.read)
             )
           end
+          composition.merge!(machine.provider_config.compose_configuration.dup)
+          @logger.debug("Fetched composition with provider configuration applied: #{composition}")
           composition
         end
 
@@ -148,10 +171,11 @@ module VagrantPlugins
         #
         # @param [Hash] composition New composition
         def write_composition(composition)
+          @logger.debug("Saving composition to `#{composition_path}`: #{composition}")
           tmp_file = Tempfile.new("vagrant-docker-compose")
           tmp_file.write(composition.to_yaml)
           tmp_file.close
-          @compose_lock.synchronize do
+          synchronized do
             FileUtils.mv(tmp_file.path, composition_path.to_s)
           end
         end
@@ -159,6 +183,28 @@ module VagrantPlugins
         # @return [Pathname] path to the docker-compose.yml file
         def composition_path
           data_directory.join("docker-compose.yml")
+        end
+
+        def synchronized
+          if !@compose_lock.owned?
+            timeout = LOCK_TIMEOUT.to_f
+            until @compose_lock.owned?
+              if @compose_lock.try_lock
+                if timeout > 0
+                  timeout -= sleep(1)
+                else
+                  raise Errors::ComposeLockTimeoutError
+                end
+              end
+            end
+            got_lock = true
+          end
+          begin
+            result = yield
+          ensure
+            @compose_lock.unlock if got_lock
+          end
+          result
         end
       end
     end

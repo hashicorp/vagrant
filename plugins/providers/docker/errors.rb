@@ -9,6 +9,10 @@ module VagrantPlugins
         error_key(:communicator_non_docker)
       end
 
+      class ComposeLockTimeoutError < DockerError
+        error_key(:compose_lock_timeout)
+      end
+
       class ContainerNotRunningError < DockerError
         error_key(:not_running)
       end
