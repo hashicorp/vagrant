@@ -91,7 +91,7 @@ module VagrantPlugins
             update_composition(:apply) do |composition|
               services = composition["services"] ||= {}
               services[name] ||= {}
-              services[name].merge(
+              services[name].merge!(
                 "image" => image,
                 "environment" => env,
                 "expose" => expose,

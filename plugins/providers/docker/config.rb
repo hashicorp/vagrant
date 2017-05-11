@@ -29,7 +29,7 @@ module VagrantPlugins
       # file. This can be used for adding networks or volumes.
       #
       # @return [Hash]
-      attr_reader :compose_configuration
+      attr_accessor :compose_configuration
 
       # An optional file name of a Dockerfile to be used when building
       # the image. This requires Docker >1.5.0.
@@ -252,6 +252,11 @@ module VagrantPlugins
         @vagrant_machine = @vagrant_machine.to_sym if @vagrant_machine
 
         @expose.uniq!
+
+        if @compose_configuration.is_a?(Hash)
+          # Ensures configuration is using basic types
+          @compose_configuration = JSON.parse(@compose_configuration.to_json)
+        end
       end
 
       def validate(machine)
@@ -270,6 +275,10 @@ module VagrantPlugins
           if !build_dir_pn.directory?
             errors << I18n.t("docker_provider.errors.config.build_dir_invalid")
           end
+        end
+
+        if !@compose_configuration.is_a?(Hash)
+          errors << I18n.t("docker_provider.errors.config.compose_configuration_hash")
         end
 
         if !@create_args.is_a?(Array)
