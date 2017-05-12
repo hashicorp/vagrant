@@ -2,7 +2,7 @@
 
 FEATURES:
 
-  - hosts/windows: Support running within WSL [GH-8570]
+  - hosts/windows: Support running within WSL [GH-8570, GH-8582]
 
 IMPROVEMENTS:
 
