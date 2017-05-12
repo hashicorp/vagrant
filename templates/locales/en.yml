@@ -1538,7 +1538,14 @@ en:
         please refer to the Vagrant documentation:
 
           https://www.vagrantup.com/docs/other/wsl
+      wsl_virtualbox_windows_access: |-
+        Vagrant is unable to use the VirtualBox provider from the Windows Subsystem for
+        Linux without access to the Windows environment. Enabling this access must be
+        done with caution and an understanding of the implications. For more information
+        on enabing Windows access and using VirtualBox from the Windows Subsystem for
+        Linux, please refer to the Vagrant documentation:
 
+          https://www.vagrantup.com/docs/other/wsl
 #-------------------------------------------------------------------------------
 # Translations for config validation errors
 #-------------------------------------------------------------------------------

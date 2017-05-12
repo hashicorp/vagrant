@@ -899,5 +899,9 @@ module Vagrant
     class WSLVagrantAccessError < VagrantError
       error_key(:wsl_vagrant_access_error)
     end
+
+    class WSLVirtualBoxWindowsAccessError < VagrantError
+      error_key(:wsl_virtualbox_windows_access)
+    end
   end
 end

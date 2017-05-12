@@ -121,7 +121,11 @@ begin
   # some extra setup to allow access to Vagrant managed machines
   # outside the subsystem
   if Vagrant::Util::Platform.wsl?
-    Vagrant::Util::Platform.wsl_init(env, logger)
+    recreate_env = Vagrant::Util::Platform.wsl_init(env, logger)
+    if recreate_env
+      logger.info("Re-creating Vagrant environment due to WSL modifications.")
+      env = Vagrant::Environment.new(opts)
+    end
   end
 
   if !Vagrant.in_installer? && !Vagrant.very_quiet?

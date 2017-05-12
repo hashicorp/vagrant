@@ -270,7 +270,7 @@ module VagrantPlugins
         end
 
         def import(ovf)
-          ovf = Vagrant::Util::Platform.cygwin_windows_path(ovf)
+          ovf = Vagrant::Util::Platform.windows_path(ovf)
 
           output = ""
           total = ""
@@ -614,10 +614,7 @@ module VagrantPlugins
 
         def share_folders(folders)
           folders.each do |folder|
-            hostpath = folder[:hostpath]
-            if Vagrant::Util::Platform.windows?
-              hostpath = Vagrant::Util::Platform.windows_unc_path(hostpath)
-            end
+            hostpath = Vagrant::Util::Platform.windows_path(folder[:hostpath])
             args = ["--name",
               folder[:name],
               "--hostpath",

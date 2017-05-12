@@ -45,7 +45,19 @@ module VagrantPlugins
         run_cmd += expose.map { |p| ['--expose', "#{p}"] }
         run_cmd += links.map { |k, v| ['--link', "#{k}:#{v}"] }
         run_cmd += ports.map { |p| ['-p', p.to_s] }
-        run_cmd += volumes.map { |v| ['-v', v.to_s] }
+        run_cmd += volumes.map { |v|
+          v = v.to_s
+          if v.include?(":") && (Vagrant::Util::Platform.windows? || Vagrant::Util::Platform.wsl?)
+            host, guest = v.split(":", 2)
+            host = Vagrant::Util::Platform.windows_path(host)
+            # NOTE: Docker does not support UNC style paths (which also
+            # means that there's no long path support). Hopefully this
+            # will be fixed someday and the gsub below can be removed.
+            host.gsub!(/^[^A-Za-z]+/, "")
+            v = [host, guest].join(":")
+          end
+          ['-v', v.to_s]
+        }
         run_cmd += %W(--privileged) if params[:privileged]
         run_cmd += %W(-h #{params[:hostname]}) if params[:hostname]
         run_cmd << "-t" if params[:pty]
