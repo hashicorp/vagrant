@@ -1,5 +1,3 @@
-# NOTE: DETACHED
-
 require "json"
 require "log4r"
 
@@ -37,7 +35,7 @@ module VagrantPlugins
           name = machine.name.to_s
           @logger.debug("Applying build for `#{name}` using `#{dir}` directory.")
           begin
-            update_composition(:apply) do |composition|
+            update_composition do |composition|
               services = composition["services"] ||= {}
               services[name] ||= {}
               services[name]["build"] = {"context" => dir}
@@ -103,7 +101,6 @@ module VagrantPlugins
                 )
               end
               services[name].merge!(
-                "image" => image,
                 "environment" => env,
                 "expose" => expose,
                 "ports" => ports,
@@ -111,6 +108,7 @@ module VagrantPlugins
                 "links" => links,
                 "command" => cmd
               )
+              services[name]["image"] = image if image
               services[name]["hostname"] = params[:hostname] if params[:hostname]
               services[name]["privileged"] = true if params[:privileged]
               services[name]["pty"] = true if params[:pty]
