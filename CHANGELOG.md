@@ -175,6 +175,7 @@ IMPROVEMENTS:
   - provisioners/puppet: Support custom environment variables [GH-7931, GH-7252, GH-2270]
   - util/safe_exec: Use subprocess for safe_exec on Windows [GH-7802]
   - util/subprocess: Allow closing STDIN [GH-7778]
+  - providers/docker: Support building containter images directly from git
 
 BUG FIXES:
 

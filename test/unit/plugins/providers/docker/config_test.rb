@@ -43,6 +43,7 @@ describe VagrantPlugins::DockerProvider::Config do
     before { subject.finalize! }
 
     its(:build_dir) { should be_nil }
+    its(:git_repo) { should be_nil }
     its(:expose) { should eq([]) }
     its(:cmd) { should eq([]) }
     its(:env) { should eq({}) }
@@ -67,16 +68,44 @@ describe VagrantPlugins::DockerProvider::Config do
     Vagrant::Util::Platform.stub(linux?: true)
   end
 
-  it "should be invalid if both build dir and image are set" do
-    subject.build_dir = build_dir
-    subject.image = "foo"
-    subject.finalize!
-    assert_invalid
+  describe "should be invalid if any two or more of build dir, git repo and image are set" do
+    it "build dir and image" do
+      subject.build_dir = build_dir
+      subject.image = "foo"
+      subject.git_repo = nil
+      subject.finalize!
+      assert_invalid
+    end
+    
+    it "build dir and git repo" do
+      subject.build_dir = build_dir
+      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.image = nil
+      subject.finalize!
+      assert_invalid
+    end
+    
+    it "git repo dir and image" do
+      subject.build_dir = nil
+      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.image = "foo"
+      subject.finalize!
+      assert_invalid
+    end
+    
+    it "build dir, git repo and image" do
+      subject.build_dir = build_dir
+      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.image = "foo"
+      subject.finalize!
+      assert_invalid
+    end
   end
 
   describe "#build_dir" do
-    it "should be valid if not set with image" do
+    it "should be valid if not set with image or git repo" do
       subject.build_dir = nil
+      subject.git_repo = nil
       subject.image = "foo"
       subject.finalize!
       assert_valid
@@ -86,6 +115,52 @@ describe VagrantPlugins::DockerProvider::Config do
       subject.build_dir = build_dir
       subject.finalize!
       assert_valid
+    end
+  end
+  
+  describe "#git_repo" do
+    it "should be valid if not set with image or build dir" do
+      subject.build_dir = nil
+      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.image = nil
+      subject.finalize!
+      assert_valid
+    end
+
+    it "should be valid with a http git url" do
+      subject.git_repo = "http://someone.com/something.git#branch:dir"
+      subject.finalize!
+      assert_valid
+    end
+    
+    it "should be valid with a git@ url" do
+      subject.git_repo = "git@someone.com:somebody/something"
+      subject.finalize!
+      assert_valid
+    end
+    
+    it "should be valid with a git:// url" do
+      subject.git_repo = "git://someone.com/something"
+      subject.finalize!
+      assert_valid
+    end
+    
+    it "should be valid with a short url beginning with github.com url" do
+      subject.git_repo = "github.com/somebody/something"
+      subject.finalize!
+      assert_valid
+    end
+    
+    it "should be invalid with an non-git url" do
+      subject.git_repo = "http://foo.bar.com"
+      subject.finalize!
+      assert_invalid
+    end
+    
+    it "should be invalid with an non url" do
+      subject.git_repo = "http||://foo.bar.com sdfs"
+      subject.finalize!
+      assert_invalid
     end
   end
 
@@ -160,7 +235,7 @@ describe VagrantPlugins::DockerProvider::Config do
 
     subject { one.merge(two) }
 
-    context "#build_dir and #image" do
+    context "#build_dir, #git_repo and #image" do
       it "overrides image if build_dir is set previously" do
         one.build_dir = "foo"
         two.image = "bar"
@@ -168,22 +243,72 @@ describe VagrantPlugins::DockerProvider::Config do
         expect(subject.build_dir).to be_nil
         expect(subject.image).to eq("bar")
       end
+      
+      it "overrides image if git_repo is set previously" do
+        one.git_repo = "foo"
+        two.image = "bar"
 
-      it "overrides image if build_dir is set previously" do
+        expect(subject.image).to eq("bar")
+        expect(subject.git_repo).to be_nil
+      end
+
+      it "overrides build_dir if image is set previously" do
         one.image = "foo"
         two.build_dir = "bar"
 
-        expect(subject.image).to be_nil
         expect(subject.build_dir).to eq("bar")
+        expect(subject.image).to be_nil
+      end
+      
+      it "overrides build_dir if git_repo is set previously" do
+        one.git_repo = "foo"
+        two.build_dir = "bar"
+       
+        expect(subject.build_dir).to eq("bar")
+        expect(subject.git_repo).to be_nil
+      end
+      
+      it "overrides git_repo if build_dir is set previously" do
+        one.build_dir = "foo"
+        two.git_repo = "bar"
+
+        expect(subject.build_dir).to be_nil
+        expect(subject.git_repo).to eq("bar")
+      end
+      
+      it "overrides git_repo if image is set previously" do
+        one.image = "foo"
+        two.git_repo = "bar"
+
+        expect(subject.image).to be_nil
+        expect(subject.git_repo).to eq("bar")
       end
 
-      it "preserves if both set" do
+      it "preserves if both image and build_dir are set" do
         one.image = "foo"
         two.image = "baz"
         two.build_dir = "bar"
 
-        expect(subject.image).to eq("baz")
         expect(subject.build_dir).to eq("bar")
+        expect(subject.image).to eq("baz")
+      end
+      
+      it "preserves if both image and git_repo are set" do
+        one.image = "foo"
+        two.image = "baz"
+        two.git_repo = "bar"
+
+        expect(subject.image).to eq("baz")
+        expect(subject.git_repo).to eq("bar")
+      end
+      
+      it "preserves if both build_dir and git_repo are set" do
+        one.build_dir = "foo"
+        two.build_dir = "baz"
+        two.git_repo = "bar"
+
+        expect(subject.build_dir).to eq("baz")
+        expect(subject.git_repo).to eq("bar")
       end
     end
 
