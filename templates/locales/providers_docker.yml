@@ -122,6 +122,10 @@ en:
         to become available. Please try to run your command again. If you
         continue to experience this error it may be resolved by disabling
         parallel execution.
+      docker_compose_not_installed: |-
+        Vagrant has been instructed to use to use the Compose driver for the
+        Docker plugin but was unable to locate the `docker-compose` executable.
+        Ensure that `docker-compose` is installed and available on the PATH.
       not_created: |-
         The container hasn't been created yet.
       not_running: |-

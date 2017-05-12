@@ -20,6 +20,9 @@ module VagrantPlugins
         #
         # @param [Vagrant::Machine] machine Machine instance for this driver
         def initialize(machine)
+          if !Vagrant::Util::Which.which("vagrant-compose")
+            raise Errors::DockerComposeNotInstalledError
+          end
           super()
           @machine = machine
           @data_directory = Pathname.new(machine.env.local_data_path).
@@ -88,7 +91,10 @@ module VagrantPlugins
           expose  = Array(params[:expose])
           @logger.debug("Creating container `#{name}`")
           begin
-            update_composition(:apply) do |composition|
+            update_args = [:apply]
+            update_args.push(:detach) if params[:detach]
+            update_args << block
+            update_composition(*update_args) do |composition|
               services = composition["services"] ||= {}
               services[name] ||= {}
               if params[:extra_args].is_a?(Hash)
@@ -174,17 +180,26 @@ module VagrantPlugins
         end
 
         # Execute a `docker-compose` command
-        def compose_execute(*cmd, **opts)
+        def compose_execute(*cmd, **opts, &block)
           synchronized do
             execute("docker-compose", "-f", composition_path.to_s,
-              "-p", machine.env.cwd.basename.to_s, *cmd, **opts)
+              "-p", machine.env.cwd.basename.to_s, *cmd, **opts, &block)
           end
         end
 
         # Apply any changes made to the composition
-        def apply_composition!
+        def apply_composition!(*args)
+          block = args.detect{|arg| arg.is_a?(Proc) }
+          execute_args = ["up", "--remove-orphans"]
+          if args.include?(:detach)
+            execute_args << "-d"
+          end
           machine.env.lock("compose", retry: true) do
-            compose_execute("up", "-d", "--remove-orphans")
+            if block
+              compose_execute(*execute_args, &block)
+            else
+              compose_execute(*execute_args)
+            end
           end
         end
 
@@ -198,7 +213,7 @@ module VagrantPlugins
               result = yield composition
               write_composition(composition)
               if args.include?(:apply) || (args.include?(:conditional) && result)
-                apply_composition!
+                apply_composition!(*args)
               end
             end
           end

@@ -21,6 +21,10 @@ module VagrantPlugins
         error_key(:not_created)
       end
 
+      class DockerComposeNotInstalledError < DockerError
+        error_key(:docker_compose_not_installed)
+      end
+
       class ExecuteError < DockerError
         error_key(:execute_error)
       end
