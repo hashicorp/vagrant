@@ -1,3 +1,5 @@
+# NOTE: DETACHED
+
 require "json"
 require "log4r"
 
@@ -84,13 +86,22 @@ module VagrantPlugins
           ports   = Array(params[:ports])
           volumes = Array(params[:volumes])
           cmd     = Array(params.fetch(:cmd))
-          env     = params.fetch(:env)
+          env     = Hash[*params.fetch(:env).flatten.map(&:to_s)]
           expose  = Array(params[:expose])
           @logger.debug("Creating container `#{name}`")
           begin
             update_composition(:apply) do |composition|
               services = composition["services"] ||= {}
               services[name] ||= {}
+              if params[:extra_args].is_a?(Hash)
+                services[name].merge!(
+                  Hash[
+                    params[:extra_args].map{ |k, v|
+                      [k.to_s, v]
+                    }
+                  ]
+                )
+              end
               services[name].merge!(
                 "image" => image,
                 "environment" => env,
@@ -100,6 +111,9 @@ module VagrantPlugins
                 "links" => links,
                 "command" => cmd
               )
+              services[name]["hostname"] = params[:hostname] if params[:hostname]
+              services[name]["privileged"] = true if params[:privileged]
+              services[name]["pty"] = true if params[:pty]
             end
           rescue => error
             @logger.error("Failed to create container `#{name}`: #{error.class} - #{error}")
@@ -196,11 +210,9 @@ module VagrantPlugins
         def get_composition
           composition = {"version" => COMPOSE_VERSION.dup}
           if composition_path.exist?
-            composition.merge!(
-              YAML.load(composition_path.read)
-            )
+            composition = Vagrant::Util::DeepMerge.deep_merge(composition, YAML.load(composition_path.read))
           end
-          composition.merge!(machine.provider_config.compose_configuration.dup)
+          composition = Vagrant::Util::DeepMerge.deep_merge(composition, machine.provider_config.compose_configuration.dup)
           @logger.debug("Fetched composition with provider configuration applied: #{composition}")
           composition
         end
