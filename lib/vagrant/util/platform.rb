@@ -249,13 +249,52 @@ module Vagrant
           wsl? && !path.to_s.downcase.start_with?("/mnt/")
         end
 
+        # Convert a WSL path to the local Windows path. This is useful
+        # for conversion when calling out to Windows executables from
+        # the WSL
+        #
+        # @param [String, Pathname] path Path to convert
+        # @return [String]
+        def wsl_to_windows_path(path)
+          if wsl?
+            if wsl_path?(path)
+              parts = path.split("/")
+              parts.delete_if(&:empty?)
+              [wsl_windows_appdata_local, "lxss", *parts].join("\\")
+            else
+              path = path.to_s.sub("/mnt/", "")
+              parts = path.split("/")
+              parts.first << ":"
+              path = parts.join("\\")
+              path
+            end
+          else
+            path
+          end
+        end
+
+        # Automatically convert a given path to a Windows path. Will only
+        # be applied if running on a Windows host. If running on Windows
+        # host within the WSL, the actual Windows path will be returned.
+        #
+        # @param [Pathname, String] path Path to convert
+        # @return [String]
+        def windows_path(path)
+          path = cygwin_windows_path(path)
+          path = wsl_to_windows_path(path)
+          if windows? || wsl?
+            path = windows_unc_path(path)
+          end
+          path
+        end
+
         # Allow Vagrant to access Vagrant managed machines outside the
         # Windows Subsystem for Linux
         #
         # @return [Boolean]
         def wsl_windows_access?
           if !defined?(@_wsl_windows_access)
-            @_wsl_windows_access = wsl? && ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
+            @_wsl_windows_access = wsl? && ENV["VAGRANT_WSL_ENABLE_WINDOWS_ACCESS"]
           end
           @_wsl_windows_access
         end
@@ -266,8 +305,12 @@ module Vagrant
         # @return [Pathname]
         def wsl_windows_accessible_path
           if !defined?(@_wsl_windows_accessible_path)
-            access_path = ENV.fetch("VAGRANT_WSL_ACCESS_WINDOWS_USER_HOME_PATH",
-              "/mnt/c/Users/#{ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]}")
+            access_path = ENV["VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH"]
+            if access_path.to_s.empty?
+              access_path = wsl_windows_home.gsub("\\", "/").sub(":", "")
+              access_path[0] = access_path[0].downcase
+              access_path = "/mnt/#{access_path}"
+            end
             @_wsl_windows_accessible_path = Pathname.new(access_path)
           end
           @_wsl_windows_accessible_path
@@ -290,9 +333,12 @@ module Vagrant
         # @param [Logger] logger Optional logger to display information
         def wsl_init(env, logger=nil)
           if wsl?
-            if ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
+            if ENV["VAGRANT_WSL_ENABLE_WINDOWS_ACCESS"]
               wsl_validate_matching_vagrant_versions!
-              shared_user = ENV["VAGRANT_WSL_ACCESS_WINDOWS_USER"]
+              shared_user = ENV["VAGRANT_WSL_WINDOWS_ACCESS_USER"]
+              if shared_user.to_s.empty?
+                shared_user = wsl_windows_username
+              end
               if logger
                 logger.warn("Windows Subsystem for Linux detected. Allowing access to user: #{shared_user}")
                 logger.warn("Vagrant will be allowed to control Vagrant managed machines within the user's home path.")
@@ -300,11 +346,12 @@ module Vagrant
               if ENV["VAGRANT_HOME"] || ENV["VAGRANT_WSL_DISABLE_VAGRANT_HOME"]
                 logger.warn("VAGRANT_HOME environment variable already set. Not overriding!") if logger
               else
-                home_path = wsl_windows_accessible_path
+                home_path = wsl_windows_accessible_path.to_s
                 ENV["VAGRANT_HOME"] = File.join(home_path, ".vagrant.d")
                 if logger
                   logger.info("Overriding VAGRANT_HOME environment variable to configured windows user. (#{ENV["VAGRANT_HOME"]})")
                 end
+                true
               end
             else
               if env.local_data_path.to_s.start_with?("/mnt/")
@@ -312,6 +359,45 @@ module Vagrant
               end
             end
           end
+        end
+
+        # Fetch the Windows username currently in use
+        #
+        # @return [String, Nil]
+        def wsl_windows_username
+          if !@_wsl_windows_username
+            result = Util::Subprocess.execute("cmd.exe", "/c", "echo %USERNAME%")
+            if result.exit_code == 0
+              @_wsl_windows_username = result.stdout.strip
+            end
+          end
+          @_wsl_windows_username
+        end
+
+        # Fetch the Windows user home directory
+        #
+        # @return [String, Nil]
+        def wsl_windows_home
+          if !@_wsl_windows_home
+            result = Util::Subprocess.execute("cmd.exe", "/c" "echo %USERPROFILE%")
+            if result.exit_code == 0
+              @_wsl_windows_home = result.stdout.gsub("\"", "").strip
+            end
+          end
+          @_wsl_windows_home
+        end
+
+        # Fetch the Windows user local app data directory
+        #
+        # @return [String, Nil]
+        def wsl_windows_appdata_local
+          if !@_wsl_windows_appdata_local
+            result = Util::Subprocess.execute("cmd.exe", "/c", "echo %LOCALAPPDATA%")
+            if result.exit_code == 0
+              @_wsl_windows_appdata_local = result.stdout.gsub("\"", "").strip
+            end
+          end
+          @_wsl_windows_appdata_local
         end
 
         # Confirm Vagrant versions installed within the WSL and the Windows system

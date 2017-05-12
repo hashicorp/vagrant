@@ -68,43 +68,36 @@ Vagrant to access them.
 ## Windows Access
 
 Working within the WSL provides a layer of isolation from the actual
-Windows system. In some cases, a user may be using Vagrant in a regular
-Windows environment, and then transition to using Vagrant within the
-WSL. Using Vagrant within the WSL will appear to be isolated from
-the Windows system. A new `VAGRANT_HOME` directory will be created within
-the WSL (meaning all boxes will require re-downloading). Vagrant will also
-lose the ability to control Vagrant managed machines within Windows (due
-to user ID mismatches).
-
-Vagrant supports enabling user access to provide seamless behavior and
-control between Vagrant on Windows and Vagrant on WSL. By setting the
-`VAGRANT_WSL_ACCESS_WINDOWS_USER` environment variable, Vagrant will
-allow access to Vagrant managed machines in that user's home path in
-Windows (`C:\Users\vagrant` for example), as well as share the `VAGRANT_HOME`
-directory. Below is a demonstration of the behavior:
+Windows system. In most cases Vagrant will need access to the actual
+Windows system to function correctly. As most Vagrant providers will
+need to be installed on Windows directly (not within the WSL) Vagrant
+will require Windows access. Access to the Windows system is controlled
+via an environment variable: `VAGRANT_WSL_ENABLE_WINDOWS_ACCESS`. If
+this environment variable is set, Vagrant will access the Windows system
+to run executables and enable things like synced folders. When running
+in a bash shell within WSL, the environment variable can be setup like so:
 
 ```
-C:\Users\vagrant> bash
-vagrant@vagrant-10:/mnt/c/Users/vagrant$ mkdir test
-vagrant@vagrant-10:/mnt/c/Users/vagrant$ cd test
-vagrant@vagrant-10:/mnt/c/Users/vagrant/test$ vagrant init hashicorp/precisec4
-vagrant@vagrant-10:/mnt/c/Users/vagrant$ vagrant up
-Vagrant will not operate outside the Windows Subsystem for Linux unless explicitly
-instructed. Due to the inability to enforce expected Linux file ownership and
-permissions on the Windows system, Vagrant will not make modifications to prevent
-unexpected errors. To learn more about this, and the options that are available,
-please refer to the Vagrant documentation:
-
-  https://www.vagrantup.com/docs/other/wsl
-vagrant@vagrant-10:/mnt/c/Users/vagrant$ export VAGRANT_WSL_ACCESS_WINDOWS_USER=vagrant
-vagrant@vagrant-10:/mnt/c/Users/vagrant$ vagrant up
-Bringing machine 'default' up with 'virtualbox' provider...
+$ export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
 ```
 
-It is important to note that file permissions cannot be enforced when Vagrant
-modifies the Windows file system. It is for this reason that you must explicitly
-enable this functionality with the express knowledge of the implication. If you
-are unsure of how this may affect your system, do not enable this feature.
+This will enable Vagrant to access the Windows system outside of the
+WSL and properly interact with Windows executables. This will automatically
+modify the `VAGRANT_HOME` environment variable if it is not already defined,
+setting it to be within the user's home directory on Windows.
+
+It is important to note that paths shared with the Windows system will
+not have Linux permissions enforced. For example, when a directory within
+the WSL is synced to a guest using the VirtualBox provider, any local
+permissions defined on that directory (or its contents) will not be
+visible from the guest. Likewise, any files created from the guest within
+the synced folder will be world readable/writeable in WSL.
+
+Other useful WSL related environment variables:
+
+* `VAGRANT_WSL_WINDOWS_ACCESS_USER` - Override current Windows username
+* `VAGRANT_WSL_DISABLE_VAGRANT_HOME` - Do not modify the `VAGRANT_HOME` variable
+* `VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH` - Custom Windows system home path
 
 ## Using Docker
 

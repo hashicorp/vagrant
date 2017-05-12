@@ -67,6 +67,10 @@ module VagrantPlugins
               end
             end
           elsif Vagrant::Util::Platform.wsl?
+            if !Vagrant::Util::Platform.wsl_windows_access?
+              @logger.error("No user Windows access defined for the Windows Subsystem for Linux. This is required for VirtualBox.")
+              raise Vagrant::Errors::WSLVirtualBoxWindowsAccessError
+            end
             @logger.debug("Linux platform detected but executing within WSL. Locating VBoxManage.")
             @vboxmanage_path = Vagrant::Util::Which.which("VBoxManage") || Vagrant::Util::Which.which("VBoxManage.exe")
             if !@vboxmanage_path
