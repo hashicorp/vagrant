@@ -16,5 +16,6 @@ module Vagrant
     autoload :StringBlockEditor,         'vagrant/util/string_block_editor'
     autoload :Subprocess,                'vagrant/util/subprocess'
     autoload :TemplateRenderer,          'vagrant/util/template_renderer'
+    autoload :Which,                     'vagrant/util/which'
   end
 end
