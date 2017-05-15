@@ -32,12 +32,13 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
   end
   let(:data_directory){ double("data-directory", join: composition_path) }
   let(:local_data_path){ double("local-data-path") }
-  let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "-d", "--remove-orphans", {}] }
+  let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "--remove-orphans", "-d", {}] }
 
 
   subject{ described_class.new(machine) }
 
   before do
+    allow(Vagrant::Util::Which).to receive(:which).and_return("/dev/null/docker-compose")
     allow(env).to receive(:lock).and_yield
     allow(Pathname).to receive(:new).with(local_data_path).and_return(local_data_path)
     allow(local_data_path).to receive(:join).and_return(data_directory)
