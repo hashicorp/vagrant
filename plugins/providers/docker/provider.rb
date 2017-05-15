@@ -31,11 +31,13 @@ module VagrantPlugins
 
       # Returns the driver instance for this provider.
       def driver
-        return @driver if @driver
-        @driver = Driver.new
-
-        # If we are running on a host machine, then we set the executor
-        # to execute remotely.
+        if !@driver
+          if @machine.provider_config.compose
+            @driver = Driver::Compose.new(@machine)
+          else
+            @driver = Driver.new
+          end
+        end
         if host_vm?
           @driver.executor = Executor::Vagrant.new(host_vm)
         end

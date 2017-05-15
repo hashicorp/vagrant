@@ -117,6 +117,15 @@ en:
         run exits and doesn't keep running.
 
     errors:
+      compose_lock_timeout: |-
+        Vagrant enountered a timeout waiting for the docker compose driver
+        to become available. Please try to run your command again. If you
+        continue to experience this error it may be resolved by disabling
+        parallel execution.
+      docker_compose_not_installed: |-
+        Vagrant has been instructed to use to use the Compose driver for the
+        Docker plugin but was unable to locate the `docker-compose` executable.
+        Ensure that `docker-compose` is installed and available on the PATH.
       not_created: |-
         The container hasn't been created yet.
       not_running: |-
@@ -134,6 +143,8 @@ en:
           "build_dir" must exist and contain a Dockerfile
         build_dir_or_image: |-
           One of "build_dir" or "image" must be set
+        compose_configuration_hash: |-
+          "compose_configuration" must be a hash
         create_args_array: |-
           "create_args" must be an array
         invalid_link: |-

@@ -1,6 +1,7 @@
 require "json"
-
 require "log4r"
+
+require_relative "./driver/compose"
 
 module VagrantPlugins
   module DockerProvider
