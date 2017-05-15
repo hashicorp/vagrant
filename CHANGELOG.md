@@ -14,6 +14,7 @@ IMPROVEMENTS:
   - hosts/windows: Check for elevated shell for Hyper-V [GH-8548, GH-8510]
   - hosts/windows: Fix invalid share names on Windows guests from Windows hosts [GH-8433]
   - providers: Return errors from docker/hyperv on ssh when not available [GH-8565, GH-8508]
+  - providers/docker: Add support for driving provider with docker-compose [GH-8576]
 
 BUG FIXES:
 
