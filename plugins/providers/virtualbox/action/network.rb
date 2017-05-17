@@ -309,7 +309,7 @@ module VagrantPlugins
 
             # Calculate the lower and upper bound for the DHCP server
             dhcp_lower    = ip_parts.dup
-            dhcp_lower[3] += 3
+            dhcp_lower[3] += 51
             dhcp_options[:dhcp_lower] = options[:dhcp_lower] || dhcp_lower.join(".")
 
             dhcp_upper    = ip_parts.dup
