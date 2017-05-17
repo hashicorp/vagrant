@@ -165,7 +165,7 @@ jailbreak by setting `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`.
 ## `VAGRANT_VAGRANTFILE`
 
 This specifies the filename of the Vagrantfile that Vagrant searches for.
-By default, this is "Vagrantfile." Note that this is _not_ a file path,
+By default, this is "Vagrantfile". Note that this is _not_ a file path,
 but just a filename.
 
 This environmental variable is commonly used in scripting environments
