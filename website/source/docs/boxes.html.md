@@ -69,8 +69,8 @@ $ vagrant init hashicorp/precise64
 or you can update your `Vagrantfile` as follows:
 
 ```ruby
-Vagrant.configure("2") do
-  config.box = "hashicorp/precise64"
+Vagrant.configure("2") do |config|
+  config.vm.box = "hashicorp/precise64"
 end
 ```
 
