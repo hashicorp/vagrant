@@ -1,0 +1,13 @@
+---
+layout: "docs"
+page_title: "Account Recovery"
+sidebar_current: "vagrant-cloud-users-recovery"
+---
+
+# Account Recovery
+
+If you have lost access to your Vagrant Enterprise account, use the reset
+password form on the login page to send yourself a link to reset your password.
+
+If an email is unknown, [contact us](mailto:support@hashicorp.com) for further
+help.
