@@ -1,0 +1,11 @@
+---
+layout: "docs"
+page_title: "User Accounts" 
+sidebar_current: "vagrant-cloud-users"
+---
+
+# User Accounts
+
+Users are the main identity system in Vagrant Enterprise. A user can be a
+member of multiple [organizations](/docs/enterprise/organizations/index.html),
+as well as individually collaborate on various resources.
