@@ -28,7 +28,7 @@ things they cannot do are:
 ## Vagrant Login
 
 In order to access these boxes from Vagrant, you'll need to first
-authenticate with your Atlas account.
+authenticate with your Vagrant Enterprise account.
 
 1. Run `vagrant login`
 2. Enter your credentials

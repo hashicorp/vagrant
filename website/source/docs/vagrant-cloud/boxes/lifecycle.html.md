@@ -30,7 +30,7 @@ user will see the following message in Vagrant:
 
 ## Box Version Release States
 
-Atlas lets you create new versions of boxes without
+Vagrant Enterprise lets you create new versions of boxes without
 releasing them or without Vagrant seeing the update. This lets you prepare
 a box for release slowly. Box versions have three states:
 

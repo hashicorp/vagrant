@@ -7,16 +7,16 @@ sidebar_current: "vagrant-cloud-boxes-distributing"
 ## Distributing Boxes
 
 To distribute the box to your team, update your Vagrantfile to reference the
-box on Atlas.
+box on Vagrant Enterprise.
 
     Vagrant.configure(2) do |config|
       config.vm.box = "ATLAS_USERNAME_HERE/example-box"
     end
 
-Now when a team member runs `vagrant up`, the box will be downloaded from Atlas.
+Now when a team member runs `vagrant up`, the box will be downloaded from Vagrant Enterprise.
 If the box is private, the team member will be prompted to authorize access. Users
-are granted access to private resources by logging in with an Atlas username and
-password or by using a shared Atlas token.
+are granted access to private resources by logging in with a Vagrant Enterprise username and
+password or by using a shared Vagrant Enterprise token.
 [Learn more about authorization options here](/help/user-accounts/authentication).
 
 ## Private Boxes
@@ -43,7 +43,7 @@ and if necessary a collaborator can be removed
 ### Vagrant Login
 
 In order to access these private boxes from Vagrant, you'll need to first
-authenticate with your Atlas account.
+authenticate with your Vagrant Enterprise account.
 
 1. Run `vagrant login` (with [the latest version of Vagrant](/help/intro/updating-tools))
 2. Enter your credentials

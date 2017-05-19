@@ -7,8 +7,8 @@ sidebar_current: "vagrant-cloud-boxes-release-workflow"
 # API Release Workflow
 
 Creating new boxes through their [release lifecycle](/help/boxes/lifecycle)
-is possible through the Atlas website, but you can also automate
-the task via the Atlas API.
+is possible through the Vagrant Enterprise website, but you can also automate
+the task via the Vagrant Enterprise API.
 
 1. Create box, or locate a boxes `tag`, like `hashicorp/precise64`
 2. After some event, like the end of a CI build, you may want to

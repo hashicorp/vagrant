@@ -6,7 +6,7 @@ sidebar_current: "vagrant-cloud-boxes-using"
 
 # Finding and Using Boxes
 
-A primary use case of Atlas by HashiCorp is to be able to easily find
+A primary use case of Vagrant Enterprise by HashiCorp is to be able to easily find
 boxes you can use with Vagrant that contain the technologies you need
 for a Vagrant environment. We've made it extremely easy to do that:
 
