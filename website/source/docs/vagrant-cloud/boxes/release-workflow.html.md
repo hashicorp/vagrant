@@ -6,7 +6,7 @@ sidebar_current: "vagrant-cloud-boxes-release-workflow"
 
 # API Release Workflow
 
-Creating new boxes through their [release lifecycle](/help/boxes/lifecycle)
+Creating new boxes through their [release lifecycle](/docs/vagrant-cloud/boxes/lifecycle.html)
 is possible through the Vagrant Enterprise website, but you can also automate
 the task via the Vagrant Enterprise API.
 

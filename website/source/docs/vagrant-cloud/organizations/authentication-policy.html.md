@@ -14,7 +14,7 @@ Enterprise.
 ## Requiring Two-Factor Authentication
 
 Organization owners can require that all organization team members use
-[two-factor authentication](/docs/enterprise/user-accounts/authentication.html).
+[two-factor authentication](/docs/vagrant-cloud/users/authentication.html).
 Those that lack two-factor authentication will be locked out of the web
 interface until they enable it or leave the organization.
 
