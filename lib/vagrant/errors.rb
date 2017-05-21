@@ -564,6 +564,10 @@ module Vagrant
       error_key(:provisioner_winrm_unsupported)
     end
 
+    class ProvisionAutoUpFailure < VagrantError
+      error_key(:auto_up_failure, "vagrant.actions.vm.provision")
+    end
+
     class PluginGemNotFound < VagrantError
       error_key(:plugin_gem_not_found)
     end
