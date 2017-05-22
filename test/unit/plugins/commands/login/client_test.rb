@@ -107,13 +107,13 @@ describe VagrantPlugins::LoginCommand::Client do
     end
 
     it "prefers the environment variable" do
-      stub_env("ATLAS_TOKEN" => "ABCD1234")
+      stub_env("VAGRANT_CLOUD_TOKEN" => "ABCD1234")
       subject.store_token("EFGH5678")
       expect(subject.token).to eq("ABCD1234")
     end
 
     it "prints a warning if the envvar and stored file are both present" do
-      stub_env("ATLAS_TOKEN" => "ABCD1234")
+      stub_env("VAGRANT_CLOUD_TOKEN" => "ABCD1234")
       subject.store_token("EFGH5678")
       expect(env.ui).to receive(:warn).with(/detected both/)
       subject.token

@@ -29,7 +29,8 @@ module VagrantPlugins
               # Vagrant Cloud to Atlas. This preserves access tokens
               # appending to both without leaking access tokens to
               # unsavory URLs.
-              if u.host == VCLOUD && server_uri.host == ATLAS
+              if (u.host == VCLOUD && server_uri.host == ATLAS) ||
+                  (u.host == ATLAS && server_uri.host == VCLOUD)
                 replace = true
               end
             end

@@ -25,31 +25,54 @@ Just run `vagrant share --ssh`!
 
 When SSH sharing is enabled, Vagrant generates a brand new keypair for
 SSH access. The public key portion is automatically inserted
-into the Vagrant machine, and the private key portion is uploaded to the
-server managing the Vagrant shares. This private key is encrypted using
+into the Vagrant machine, and the private key portion is provided to the
+user connecting to the Vagrant share. This private key is encrypted using
 a password that you will be prompted for. This password is _never_ transmitted
 across the network by Vagrant, and is an extra layer of security preventing
-us or anyone who may know your share name from easily accessing your machine.
+anyone who may know your share name from easily accessing your machine.
 
 After running `vagrant share --ssh`, it will output the name of your share:
 
 ```
 $ vagrant share --ssh
 ==> default: Detecting network information for machine...
-    default: Local machine address: 192.168.163.152
-    default: Local HTTP port: 4567
-    default: Local HTTPS port: disabled
-    default: SSH Port: 22
+default: Local machine address: 192.168.84.130
 ==> default: Generating new SSH key...
-    default: Please enter a password to encrypt the key:
-    default: Repeat the password to confirm:
-    default: Inserting generated SSH key into machine...
-==> default: Checking authentication and authorization...
+default: Please enter a password to encrypt the key:
+default: Repeat the password to confirm:
+default: Inserting generated SSH key into machine...
+default: Local HTTP port: disabled
+default: Local HTTPS port: disabled
+default: SSH Port: 2200
 ==> default: Creating Vagrant Share session...
-    default: Share will be at: itty-bitty-polar-8667
-==> default: Your Vagrant Share is running!
-    default: Name: itty-bitty-polar-8667
-...
+share: Cloning VMware VM: 'hashicorp/vagrant-share'. This can take some time...
+share: Verifying vmnet devices are healthy...
+share: Preparing network adapters...
+share: Starting the VMware VM...
+share: Waiting for machine to boot. This may take a few minutes...
+share: SSH address: 192.168.84.134:22
+share: SSH username: tc
+share: SSH auth method: password
+share:
+share: Inserting generated public key within guest...
+share: Removing insecure key from the guest if it's present...
+share: Key inserted! Disconnecting and reconnecting using new SSH key...
+share: Machine booted and ready!
+share: Forwarding ports...
+share: -- 31338 => 65534
+share: -- 22 => 2202
+share: SSH address: 192.168.84.134:22
+share: SSH username: tc
+share: SSH auth method: password
+share: Configuring network adapters within the VM...
+==> share:
+==> share: Your Vagrant Share is running! Name: bazaar_wolf:sultan_oasis
+==> share:
+==> share: You're sharing with SSH access. This means that another can SSH to
+==> share: your Vagrant machine by running:
+==> share:
+==> share:   vagrant connect --ssh bazaar_wolf:sultan_oasis
+==> share:
 ```
 
 Anyone can then SSH directly to your Vagrant environment by running
@@ -57,8 +80,8 @@ Anyone can then SSH directly to your Vagrant environment by running
 previously.
 
 ```
-$ vagrant connect --ssh itty-bitty-polar-8667
-Loading share 'itty-bitty-polar-8667'...
+$ vagrant connect --ssh bazaar_wolf:sultan_oasis
+Loading share 'bazaar_wolf:sultan_oasis'...
 The SSH key to connect to this share is encrypted. You will
 require the password entered when creating the share to
 decrypt it. Verify you have access to this password before
@@ -76,8 +99,3 @@ vagrant@vagrant:~$
 
 If the private key is encrypted (the default behavior), then the connecting
 person will be prompted for the password to decrypt the private key.
-
-Additional flags are available such as `--ssh-once` to add another layer
-of security to your SSH shared session. With this flag active, only one
-`vagrant connect --ssh` can be attempted before the keypair is destroyed,
-preventing any future connections.

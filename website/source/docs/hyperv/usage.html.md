@@ -21,5 +21,5 @@ admin rights. Vagrant will show you an error if it does not have the proper
 permissions.
 
 Boxes for Hyper-V can be easily found on
-[HashiCorp's Atlas](https://atlas.hashicorp.com/boxes/search). To get started, you might
+[HashiCorp's Vagrant Cloud](https://vagrantcloud.com/boxes/search). To get started, you might
 want to try the `hashicorp/precise64` box.

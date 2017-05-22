@@ -66,7 +66,7 @@ Provider-specific guides for creating base boxes are linked below:
 * [VMware Base Boxes](/docs/vmware/boxes.html)
 * [VirtualBox Base Boxes](/docs/virtualbox/boxes.html)
 
-### Packer and Atlas
+### Packer and Vagrant Cloud
 
 We strongly recommend using [Packer](https://www.packer.io) to create reproducible
 builds for your base boxes, as well as automating the builds with
@@ -265,7 +265,7 @@ provider-specific guides are linked to towards the top of this page.
 You can distribute the box file however you would like. However, if you want
 to support versioning, putting multiple providers at a single URL, pushing
 updates, analytics, and more, we recommend you add the box to
-[HashiCorp's Atlas](/docs/other/atlas.html).
+[HashiCorp's Vagrant Cloud](/docs/vagrant-cloud).
 
 You can upload both public and private boxes to this service.
 

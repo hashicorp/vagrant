@@ -19,7 +19,7 @@ boxes. You can read the documentation on the [vagrant box](/docs/cli/box.html)
 command for more information.
 
 The easiest way to use a box is to add a box from the
-[publicly available catalog of Vagrant boxes](https://atlas.hashicorp.com/boxes/search).
+[publicly available catalog of Vagrant boxes](https://vagrantcloud.com/boxes/search).
 You can also add and share your own customized boxes on this website.
 
 Boxes also support versioning so that members of your team using Vagrant
@@ -32,7 +32,7 @@ sub-pages in the navigation to the left.
 ## Discovering Boxes
 
 The easiest way to find boxes is to look on the
-[public Vagrant box catalog](https://atlas.hashicorp.com/boxes/search)
+[public Vagrant box catalog](https://vagrantcloud.com/boxes/search)
 for a box matching your use case. The catalog contains most major operating
 systems as bases, as well as specialized boxes to get you up and running
 quickly with LAMP stacks, Ruby, Python, etc.
@@ -53,7 +53,7 @@ initialize a Vagrant environment with `vagrant init hashicorp/precise64`.
 
 ~> **Namespaces do not guarantee canonical boxes!** A common misconception is
 that a namespace like "ubuntu" represents the canonical space for Ubuntu boxes.
-This is untrue. Namespaces on Atlas behave very similarly to namespaces on
+This is untrue. Namespaces on Vagrant Cloud behave very similarly to namespaces on
 GitHub, for example. Just as GitHub's support team is unable to assist with
 issues in someone's repository, HashiCorp's support team is unable to assist
 with third-party published boxes.
@@ -74,8 +74,8 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-For other users, we recommend the [Bento boxes](https://atlas.hashicorp.com/bento). The Bento boxes are [open source](https://github.com/chef/bento) and built for a number of providers including VMware, Virtualbox, and Parallels. There are a variety of operating systems and versions available.
+For other users, we recommend the [Bento boxes](https://vagrantcloud.com/bento). The Bento boxes are [open source](https://github.com/chef/bento) and built for a number of providers including VMware, Virtualbox, and Parallels. There are a variety of operating systems and versions available.
 
 These are the only two officially-recommended box sets.
 
-~> **It is often a point of confusion**, but Canonical (the company that makes the Ubuntu operating system) publishes boxes under the "ubuntu" namespace on Atlas. These boxes only support Virtualbox and do not provide an ideal experience for most users. If you encounter issues with these boxes, please try the Bento boxes instead.
+~> **It is often a point of confusion**, but Canonical (the company that makes the Ubuntu operating system) publishes boxes under the "ubuntu" namespace on Vagrant Cloud. These boxes only support Virtualbox and do not provide an ideal experience for most users. If you encounter issues with these boxes, please try the Bento boxes instead.

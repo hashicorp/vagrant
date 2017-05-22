@@ -16,15 +16,12 @@ Any TCP traffic sent to this IP is sent to the shared Vagrant environment.
 
 ## Usage
 
-Just call `vagrant share`. This will automatically share as many ports as
-possible for remote connections. If the Vagrant environment has a static IP or
-DNS address, then almost every port will be available (although some must be
-explicitly enabled for security reasons). Otherwise, Vagrant will only
-expose forwarded ports on the machine. Please see
+Just call `vagrant share --full`. This will automatically share as many ports as
+possible for remote connections. Please see
 [the Vagrant share security page](/docs/share/security.html) for more
 information.
 
-Note the share name at the end of calling `vagrant share`, and give this to
+Note the share name at the end of calling `vagrant share --full`, and give this to
 the person who wants to connect to your machine. They simply have to call
 `vagrant connect NAME`. This will give them a static IP they can use to access
 your Vagrant environment.

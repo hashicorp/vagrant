@@ -8,7 +8,7 @@ module VagrantPlugins
     class Plugin < Vagrant.plugin("2")
       name "vagrant-login"
       description <<-DESC
-      Provides the login command and internal API access to Atlas.
+      Provides the login command and internal API access to Vagrant Cloud.
       DESC
 
       command(:login) do
