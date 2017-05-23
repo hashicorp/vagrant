@@ -123,6 +123,12 @@ module VagrantPlugins
         customize("pre-boot", ["modifyvm", :id, "--cpus", count.to_i])
       end
 
+      [:pagefusion=,:vram=,:acpi=,:ioapic=,:hpet=,:triplefaultreset=,:hwvirtex=,:nestedpaging=,:largepages=,:vtxvpid=,:vtxux=,:pae=,:longmode=,:synthcpu=].each do |name|
+        define_method(name) do |arg|
+          customize("pre-boot", ["modifyvm", :id, "--"+name.to_s.chomp("="), arg.to_s])
+        end
+      end
+
       def merge(other)
         super.tap do |result|
           c = customizations.dup
