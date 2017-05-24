@@ -652,6 +652,10 @@ module Vagrant
       error_key(:shell_expand_failed)
     end
 
+    class SnapshotConflictFailed < VagrantError
+      error_key(:snapshot_force)
+    end
+
     class SSHAuthenticationFailed < VagrantError
       error_key(:ssh_authentication_failed)
     end

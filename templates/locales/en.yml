@@ -1156,6 +1156,8 @@ en:
         (probably for one of your shared folders). This is an extremely rare
         error case and most likely indicates an unusual configuration of the
         guest system. Please report a bug with your Vagrantfile and debug log.
+      snapshot_force: |-
+        You must include the `--force` option to replace an existing snapshot.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please

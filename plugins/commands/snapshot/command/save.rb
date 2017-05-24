@@ -6,6 +6,7 @@ module VagrantPlugins
       class Save < Vagrant.plugin("2", :command)
         def execute
           options = {}
+          options[:force] = false
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant snapshot save [options] [vm-name] <name>"
@@ -16,6 +17,10 @@ module VagrantPlugins
             o.separator ""
             o.separator "Snapshots are useful for experimenting in a machine and being able"
             o.separator "to rollback quickly."
+
+            o.on("-f", "--force", "Replace snapshot without confirmation") do |f|
+              options[:force] = f
+            end
           end
 
           # Parse the options
@@ -28,7 +33,22 @@ module VagrantPlugins
 
           name = argv.pop
           with_target_vms(argv) do |vm|
-            vm.action(:snapshot_save, snapshot_name: name)
+            if !vm.provider.capability?(:snapshot_list)
+              vm.ui.info(I18n.t("vagrant.commands.snapshot.not_supported"))
+              next
+            end
+
+            snapshot_list = vm.provider.capability(:snapshot_list)
+
+            if !snapshot_list.include? name
+              vm.action(:snapshot_save, snapshot_name: name)
+            elsif options[:force]
+              # not a unique snapshot name
+              vm.action(:snapshot_delete, snapshot_name: name)
+              vm.action(:snapshot_save, snapshot_name: name)
+            else
+              raise Vagrant::Errors::SnapshotConflictFailed
+            end
           end
 
           # Success, exit status 0
