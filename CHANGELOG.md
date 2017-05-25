@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- commands/snapshot: enforce unique snapshot names and introduce `--force` flag [GH-7810]
+
 BUG FIXES:
 
 ## 1.9.5 (May 15, 2017)
