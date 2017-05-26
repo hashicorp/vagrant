@@ -27,7 +27,7 @@ and we will do so using a shell script. Create the following shell script
 and save it as `bootstrap.sh` in the same directory as your Vagrantfile:
 
 ```bash
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 apt-get update
 apt-get install -y apache2
