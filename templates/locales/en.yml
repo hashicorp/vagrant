@@ -1158,6 +1158,12 @@ en:
         guest system. Please report a bug with your Vagrantfile and debug log.
       snapshot_force: |-
         You must include the `--force` option to replace an existing snapshot.
+      snapshot_not_supported: |-
+        This provider doesn't support snapshots.
+
+        This may be intentional or this may be a bug. If this provider
+        should support snapshots, then please report this as a bug to the
+        maintainer of the provider.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please

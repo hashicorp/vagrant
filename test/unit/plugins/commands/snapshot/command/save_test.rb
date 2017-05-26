@@ -38,6 +38,21 @@ describe VagrantPlugins::CommandSnapshot::Command::Save do
       end
     end
 
+    context "with an unsupported provider" do
+      let(:argv)     { ["test"] }
+
+      before do
+        allow(machine.provider).to receive(:capability?).with(:snapshot_list).
+          and_return(false)
+      end
+
+      it "raises an exception" do
+        machine.id = "foo"
+        expect { subject.execute }.
+          to raise_error(Vagrant::Errors::SnapshotNotSupported)
+      end
+    end
+
     context "with a snapshot name given" do
       let(:argv)     { ["test"] }
       it "calls snapshot_save with a snapshot name" do

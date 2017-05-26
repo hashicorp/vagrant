@@ -34,8 +34,7 @@ module VagrantPlugins
           name = argv.pop
           with_target_vms(argv) do |vm|
             if !vm.provider.capability?(:snapshot_list)
-              vm.ui.info(I18n.t("vagrant.commands.snapshot.not_supported"))
-              next
+              raise Vagrant::Errors::SnapshotNotSupported
             end
 
             snapshot_list = vm.provider.capability(:snapshot_list)
