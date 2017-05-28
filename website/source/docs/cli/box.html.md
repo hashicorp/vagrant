@@ -19,6 +19,7 @@ The main functionality of this command is exposed via even more subcommands:
 * `add`
 * `list`
 * `outdated`
+* `prune`
 * `remove`
 * `repackage`
 * `update`
@@ -125,6 +126,22 @@ a box. This generally requires an internet connection.
 * `--global` - Check for updates for all installed boxes, not just the
   boxes for the current Vagrant environment.
 
+# Box Prune
+
+**Command: `vagrant box prune`**
+
+This command removes old versions of installed boxes. If the box in currently in use vagrant will ask you if you to confirm.
+
+## Options
+
+* `--provider PROVIDER` - The specific provider type for the boxes to destroy.
+
+* `--dry-run` - Only print the boxes that would be removed.
+
+* `--name NAME` - The specific box name to check for outdated versions.
+
+* `--force` - Destroy without confirmation even when box is in use.
+
 # Box Remove
 
 **Command: `vagrant box remove NAME`**
@@ -149,24 +166,6 @@ with the `--all` flag.
 * `--provider VALUE` - The provider-specific box to remove with the given
   name. This is only required if a box is backed by multiple providers.
   If there is only a single provider, Vagrant will default to removing it.
-
-
-# Box prune
-
-**Command: `vagrant box prune`**
-
-This command removes old versions of installed boxes. If the box in currently in use vagrant will ask you if you to confirm.
-
-## Options
-
-* `--provider PROVIDER` - The specific provider type for the boxes to destroy.
-
-* `--dry-run` - Only print the boxes that would be removed.
-
-* `--name NAME` - The specific box name to check for outdated versions.
-
-* `--force` - Destroy without confirmation even when box is in use.
-
 
 # Box Repackage
 
