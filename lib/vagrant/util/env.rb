@@ -6,7 +6,7 @@ module Vagrant
         if defined?(::Bundler) && defined?(::Bundler::ORIGINAL_ENV)
           ENV.replace(::Bundler::ORIGINAL_ENV)
         end
-        ENV.update(Vagrant.original_env)
+        ENV.update(Vagrant.original_env.delete_if {|k,v| k.nil? || k == ""})
         yield
       ensure
         ENV.replace(original_env.to_hash)
