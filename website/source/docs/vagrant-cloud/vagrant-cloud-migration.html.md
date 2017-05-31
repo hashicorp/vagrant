@@ -57,7 +57,7 @@ If you do not create a token in Atlas by June 27th, you will need to create a to
 ## Packer and Terraform Enterprise
 
 Packer has two post-processors which can create Vagrant boxes in Terraform Enterprise (Atlas): `atlas` and `vagrant-cloud`.
-The `atlas post-processor will no longer create Vagrant boxes after June 27th.
+The `atlas post-processor` will no longer create Vagrant boxes after June 27th.
 If you are currently publishing Vagrant boxes with Packer, please ensure that you are using the vagrant-cloud post-processor.
 
 For example, if your Packer post-processor JSON looks like this:
