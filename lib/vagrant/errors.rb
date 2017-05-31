@@ -656,6 +656,10 @@ module Vagrant
       error_key(:snapshot_force)
     end
 
+    class SnapshotNotSupported < VagrantError
+      error_key(:snapshot_not_supported)
+    end
+
     class SSHAuthenticationFailed < VagrantError
       error_key(:ssh_authentication_failed)
     end
