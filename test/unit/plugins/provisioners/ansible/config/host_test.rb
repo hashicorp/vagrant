@@ -16,6 +16,7 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
     supported_options = %w( ask_sudo_pass
                             ask_vault_pass
                             config_file
+                            diff
                             extra_vars
                             force_remote_user
                             galaxy_command

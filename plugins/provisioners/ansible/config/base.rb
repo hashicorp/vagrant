@@ -7,6 +7,7 @@ module VagrantPlugins
         PLAYBOOK_COMMAND_DEFAULT = "ansible-playbook".freeze
 
         attr_accessor :config_file
+        attr_accessor :diff
         attr_accessor :extra_vars
         attr_accessor :galaxy_role_file
         attr_accessor :galaxy_roles_path
@@ -28,6 +29,7 @@ module VagrantPlugins
 
         def initialize
           @config_file         = UNSET_VALUE
+          @diff                = UNSET_VALUE
           @extra_vars          = UNSET_VALUE
           @galaxy_role_file    = UNSET_VALUE
           @galaxy_roles_path   = UNSET_VALUE
@@ -50,6 +52,7 @@ module VagrantPlugins
 
         def finalize!
           @config_file         = nil                      if @config_file         == UNSET_VALUE
+          @diff                = false                    if @diff                != true
           @extra_vars          = nil                      if @extra_vars          == UNSET_VALUE
           @galaxy_role_file    = nil                      if @galaxy_role_file    == UNSET_VALUE
           @galaxy_roles_path   = nil                      if @galaxy_roles_path   == UNSET_VALUE

@@ -4,6 +4,7 @@ shared_examples_for 'options shared by both Ansible provisioners' do
     subject.finalize!
 
     expect(subject.config_file).to be_nil
+    expect(subject.diff).to be_false
     expect(subject.extra_vars).to be_nil
     expect(subject.galaxy_command).to eql("ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force")
     expect(subject.galaxy_role_file).to be_nil
