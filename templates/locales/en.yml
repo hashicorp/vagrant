@@ -1539,7 +1539,7 @@ en:
         unexpected errors. To learn more about this, and the options that are available,
         please refer to the Vagrant documentation:
 
-          https://www.vagrantup.com/docs/other/wsl
+          https://www.vagrantup.com/docs/other/wsl.html
       wsl_virtualbox_windows_access: |-
         Vagrant is unable to use the VirtualBox provider from the Windows Subsystem for
         Linux without access to the Windows environment. Enabling this access must be
@@ -1547,7 +1547,7 @@ en:
         on enabing Windows access and using VirtualBox from the Windows Subsystem for
         Linux, please refer to the Vagrant documentation:
 
-          https://www.vagrantup.com/docs/other/wsl
+          https://www.vagrantup.com/docs/other/wsl.html
 #-------------------------------------------------------------------------------
 # Translations for config validation errors
 #-------------------------------------------------------------------------------
