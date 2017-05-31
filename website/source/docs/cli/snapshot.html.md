@@ -21,12 +21,12 @@ Vagrant will give you an error message.
 
 The main functionality of this command is exposed via even more subcommands:
 
-* `push`
-* `pop`
-* `save`
-* `restore`
-* `list`
-* `delete`
+* [`push`](#snapshot-push)
+* [`pop`](#snapshot-pop)
+* [`save`](#snapshot-save)
+* [`restore`](#snapshot-restore)
+* [`list`](#snapshot-list)
+* [`delete`](#snapshot-delete)
 
 # Snapshot Push
 
