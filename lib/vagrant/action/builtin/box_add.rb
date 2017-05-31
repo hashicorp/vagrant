@@ -30,6 +30,12 @@ module Vagrant
         def call(env)
           @download_interrupted = false
 
+          unless env[:box_name].nil?
+            if URI.parse(env[:box_name]).kind_of?(URI::HTTP)
+              env[:ui].warn(I18n.t("vagrant.box_add_url_warn"))
+            end
+          end
+
           url = Array(env[:box_url]).map do |u|
             u = u.gsub("\\", "/")
             if Util::Platform.windows? && u =~ /^[a-z]:/i

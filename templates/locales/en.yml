@@ -22,6 +22,9 @@ en:
       Successfully added box '%{name}' (v%{version}) for '%{provider}'!
     box_adding_direct: |-
       Box file was not detected as metadata. Adding it directly...
+    box_add_url_warn: |-
+      It looks like you attempted to add a box with a URL for the name...
+      Instead, use box_url instead of box for box URLs.
     box_downloading: |-
       Downloading: %{url}
     box_download_error: |-
