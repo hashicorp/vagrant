@@ -8,7 +8,7 @@ module VagrantPlugins
             # Check if Ansible is installed (at the given version).
             # @return [true, false]
             def self.ansible_installed(machine, version)
-              command = 'test -x "$(command -v ansible)"'
+              command = 'test -x "$(command -v ansible --help)"'
 
               if !version.empty?
                 command << "&& ansible --version | grep 'ansible #{version}'"
