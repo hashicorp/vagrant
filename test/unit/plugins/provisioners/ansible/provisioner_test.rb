@@ -42,7 +42,8 @@ VF
     private_key_path: ['/path/to/my/key'],
     username: 'testuser',
     host: '127.0.0.1',
-    port: 2223
+    port: 2223,
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
   }}
 
   let(:existing_file) { File.expand_path(__FILE__) }
@@ -171,9 +172,9 @@ VF
         expect(File.exists?(generated_inventory_file)).to be_true
         inventory_content = File.read(generated_inventory_file)
         if with_ssh_user
-          expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_user='#{machine.ssh_info[:username]}' ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
+          expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_user='#{machine.ssh_info[:username]}' ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}' ansible_ssh_common_args='#{machine.ssh_info[:ansible_ssh_common_args]}'\n")
         else
-          expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
+          expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}' ansible_ssh_common_args='#{machine.ssh_info[:ansible_ssh_common_args]}'\n")
         end
         expect(inventory_content).to include("# MISSING: '#{iso_env.machine_names[1]}' machine was probably removed without using Vagrant. This machine should be recreated.\n")
       }
