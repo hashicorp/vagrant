@@ -16,12 +16,12 @@ This is the command used to manage (add, remove, etc.) [boxes](/docs/boxes.html)
 
 The main functionality of this command is exposed via even more subcommands:
 
-* `add`
-* `list`
-* `outdated`
-* `remove`
-* `repackage`
-* `update`
+* [`add`](#box-add)
+* [`list`](#box-list)
+* [`outdated`](#box-outdated)
+* [`remove`](#box-remove)
+* [`repackage`](#box-repackage)
+* [`update`](#box-update)
 
 # Box Add
 
