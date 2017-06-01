@@ -61,7 +61,7 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
     This option is enabled by default.
 
-    Vagrant will try to install (or upgrade) Ansible when one of these conditions are met:
+    Vagrant will try to install (or upgrade) Ansible when one of these conditions are set:
 
     - Ansible is not installed (or cannot be found).
     - The `version` option is set to `"latest"`.
