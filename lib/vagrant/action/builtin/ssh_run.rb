@@ -44,7 +44,9 @@ module Vagrant
 
           # Allow the user to specify a tty or non-tty manually, but if they
           # don't then we default to a TTY
-          if !opts[:extra_args].include?("-t") && !opts[:extra_args].include?("-T")
+          if !opts[:extra_args].include?("-t") &&
+              !opts[:extra_args].include?("-T") &&
+              env[:tty]
             opts[:extra_args] << "-t"
           end
 

@@ -9,6 +9,7 @@ module VagrantPlugins
 
       def execute
         options = {}
+        options[:tty] = true
 
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant ssh [options] [name|id] [-- extra ssh args]"
@@ -22,6 +23,10 @@ module VagrantPlugins
 
           o.on("-p", "--plain", "Plain mode, leaves authentication up to user") do |p|
             options[:plain_mode] = p
+          end
+
+          o.on("-t", "--[no-]tty", "Enables tty when executing an ssh command (defaults to true)") do |t|
+            options[:tty] = t
           end
         end
 
@@ -48,7 +53,8 @@ module VagrantPlugins
             @logger.debug("Executing single command on remote machine: #{options[:command]}")
             env = vm.action(:ssh_run,
                             ssh_opts: ssh_opts,
-                            ssh_run_command: options[:command],)
+                            ssh_run_command: options[:command],
+                            tty: options[:tty],)
 
             # Exit with the exit status of the command or a 0 if we didn't
             # get one.
