@@ -1167,6 +1167,9 @@ en:
         This may be intentional or this may be a bug. If this provider
         should support snapshots, then please report this as a bug to the
         maintainer of the provider.
+      snapshot_not_found: |-
+        The snapshot name `%{snapshot_name}` was not found for the
+        virtual machine `%{machine}`.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please

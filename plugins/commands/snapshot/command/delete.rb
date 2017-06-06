@@ -23,7 +23,19 @@ module VagrantPlugins
 
           name = argv.pop
           with_target_vms(argv) do |vm|
-            vm.action(:snapshot_delete, snapshot_name: name)
+            if !vm.provider.capability?(:snapshot_list)
+              raise Vagrant::Errors::SnapshotNotSupported
+            end
+
+            snapshot_list = vm.provider.capability(:snapshot_list)
+
+            if snapshot_list.include? name
+              vm.action(:snapshot_delete, snapshot_name: name)
+            else
+              raise Vagrant::Errors::SnapshotNotFound,
+                snapshot_name: name,
+                machine: vm.name.to_s
+            end
           end
 
           # Success, exit status 0
