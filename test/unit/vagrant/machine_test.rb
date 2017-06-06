@@ -307,6 +307,28 @@ describe Vagrant::Machine do
       expect { instance.action(action_name) }.
         to raise_error(Vagrant::Errors::UnimplementedProviderAction)
     end
+
+    it 'should warn if the machine was last run under a different directory' do
+      action_name  = :up
+      callable     = lambda { |_env| }
+      original_cwd = env.cwd.to_s
+
+      allow(provider).to receive(:action).with(action_name).and_return(callable)
+      allow(subject.ui).to receive(:warn)
+
+      instance.action(action_name)
+
+      expect(subject.ui).to_not have_received(:warn)
+
+      # Whenever the machine is run on a different directory, the user is warned
+      allow(env).to receive(:cwd).and_return('/a/new/path')
+      instance.action(action_name)
+
+      expect(subject.ui).to have_received(:warn) do |warn_msg|
+        expect(warn_msg).to include(original_cwd)
+        expect(warn_msg).to include('/a/new/path')
+      end
+    end
   end
 
   describe "#action_raw" do
