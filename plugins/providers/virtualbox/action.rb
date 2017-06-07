@@ -245,14 +245,13 @@ module VagrantPlugins
         end
       end
 
-      # This is the action that is primarily responsible for saving a snapshot
+      # This is the action that is primarily responsible for restoring a snapshot
       def self.action_snapshot_restore
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use Call, Created do |env, b2|
             if !env[:result]
-              b2.use MessageNotCreated
-              next
+              raise Vagrant::Errors::VMNotCreatedError
             end
 
             b2.use CheckAccessible

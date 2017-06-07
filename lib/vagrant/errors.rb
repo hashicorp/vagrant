@@ -656,6 +656,10 @@ module Vagrant
       error_key(:snapshot_force)
     end
 
+    class SnapshotNotFound < VagrantError
+      error_key(:snapshot_not_found)
+    end
+
     class SnapshotNotSupported < VagrantError
       error_key(:snapshot_not_supported)
     end
