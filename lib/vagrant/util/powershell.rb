@@ -23,7 +23,7 @@ module Vagrant
           "-NoProfile",
           "-NonInteractive",
           "-ExecutionPolicy", "Bypass",
-          "&('#{path}')",
+          "&('#{path}'); Stop-Process $pid",
           args
         ].flatten
 
@@ -46,7 +46,7 @@ module Vagrant
           "-NonInteractive",
           "-ExecutionPolicy", "Bypass",
           "-Command",
-          command
+          "#{command}; Stop-Process $pid",
         ].flatten
 
         r = Subprocess.execute(*c)
@@ -65,7 +65,7 @@ module Vagrant
           "-NonInteractive",
           "-ExecutionPolicy", "Bypass",
           "-Command",
-          "$PSVersionTable.PSVersion.Major"
+          "$PSVersionTable.PSVersion.Major; Stop-Process $pid",
         ].flatten
 
         r = Subprocess.execute(*command)
