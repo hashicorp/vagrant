@@ -5,8 +5,17 @@ FEATURES:
 IMPROVEMENTS:
 
 - commands/snapshot: enforce unique snapshot names and introduce `--force` flag [GH-7810]
+- snapshot/list: raise exception if provider does not support snapshots [GH-8619]
+- snapshot/save: raise exception if provider does not support snapshots [GH-8619]
+- core/box: warn if user sets box as url [GH-7118]
+- commands/ssh: introduce tty flag for `vagrant ssh -c` [GH-6827]
+- core: warn about vagrant CWD changes for a machine [GH-3921]
+- snapshot/delete: improve error message when given snapshot doesn't exist [GH-8653]
+- snapshot/restore: improve error message when given snapshot doesn't exist [GH-8653]
 
 BUG FIXES:
+
+- snapshot/restore: exit 1 if vm has not been created when command is invoked [GH-8653]
 
 ## 1.9.5 (May 15, 2017)
 
