@@ -16,6 +16,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - snapshot/restore: exit 1 if vm has not been created when command is invoked [GH-8653]
+- communicators/ssh: Move `none` cipher to end of default cipher list in Net::SSH [GH-8661]
 
 ## 1.9.5 (May 15, 2017)
 
