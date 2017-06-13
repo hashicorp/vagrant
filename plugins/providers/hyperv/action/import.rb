@@ -48,7 +48,7 @@ module VagrantPlugins
             end
           end
 
-          vmcx_support = env[:machine].provider.driver.execute("has_vmcx_support.ps1", {})
+          vmcx_support = env[:machine].provider.driver.execute("has_vmcx_support.ps1", {})['result']
           if vmcx_support
             vm_dir.each_child do |f|
               if f.extname.downcase == '.vmcx'
