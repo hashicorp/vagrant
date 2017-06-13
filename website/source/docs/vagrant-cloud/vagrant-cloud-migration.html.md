@@ -65,7 +65,8 @@ For example, if your Packer post-processor JSON looks like this:
 ```json
 {
   "variables": {
-    "atlas_token": "{{env `ATLAS_TOKEN`}}"
+    "atlas_token": "{{env `ATLAS_TOKEN`}}",
+    "version": "1.0.{{timestamp}}"
   },
   "builders": [
   ],
@@ -76,7 +77,7 @@ For example, if your Packer post-processor JSON looks like this:
       "artifact": "hashicorp/example",
       "artifact_type": "vagrant.box",
       "metadata": {
-        "version": "1.0.{{timestamp}}"
+        "version": "{{user `version`}}"
       }
     }
   ]
@@ -88,7 +89,8 @@ You must replace the `atlas` post-processor with the `vagrant` and `vagrant-clou
 ```json
 {
   "variables": {
-    "vagrantcloud_token": "{{env `VAGRANTCLOUD_TOKEN`}}"
+    "vagrantcloud_token": "{{env `VAGRANTCLOUD_TOKEN`}}",
+    "version": "1.0.{{timestamp}}"
   },
   "builders": [
   ],
@@ -102,7 +104,7 @@ You must replace the `atlas` post-processor with the `vagrant` and `vagrant-clou
         "type": "vagrant-cloud",
         "access_token": "{{user `vagrantcloud_token`}}",
         "box_tag": "hashicorp/example",
-        "version": "1.0.{{timestamp}}"
+        "version": "{{user `version`}}"
       }
     ]
   ]
