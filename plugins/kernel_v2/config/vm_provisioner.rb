@@ -9,6 +9,15 @@ module VagrantPlugins
       # @return [String]
       attr_reader :name
 
+      # Internal unique name for this provisioner
+      # Set to the given :name if exists, otherwise
+      # it's set as a UUID.
+      #
+      # Note: This is for internal use only.
+      #
+      # @return [String]
+      attr_reader :id
+
       # The type of the provisioner that should be registered
       # as a plugin.
       #
@@ -35,6 +44,7 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
 
+        @id = name || SecureRandom.uuid
         @config  = nil
         @invalid = false
         @name    = name

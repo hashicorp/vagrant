@@ -424,6 +424,24 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect{ subject.finalize! }.to_not raise_error
     end
 
+    it "generates a uuid if no name was provided" do
+      allow(SecureRandom).to receive(:uuid).and_return("MY_CUSTOM_VALUE")
+
+      subject.provision("shell", path: "foo") { |s| s.inline = "foo" }
+      subject.finalize!
+
+      r = subject.provisioners
+      expect(r[0].id).to eq("MY_CUSTOM_VALUE")
+    end
+
+    it "sets id as name if a name was provided" do
+      subject.provision("ghost", type: "shell", path: "motoko") { |s| s.inline = "motoko" }
+      subject.finalize!
+
+      r = subject.provisioners
+      expect(r[0].id).to eq(:ghost)
+    end
+
     describe "merging" do
       it "ignores non-overriding runs" do
         subject.provision("shell", inline: "foo", run: "once")
@@ -437,6 +455,16 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
         expect(merged_provs.length).to eql(2)
         expect(merged_provs[0].run).to eq("once")
         expect(merged_provs[1].run).to eq("always")
+      end
+
+      it "does not merge duplicate provisioners" do
+        subject.provision("shell", inline: "foo")
+        subject.provision("shell", inline: "bar")
+
+        merged = subject.merge(subject)
+        merged_provs = merged.provisioners
+
+        expect(merged_provs.length).to eql(2)
       end
 
       it "copies the configs" do
