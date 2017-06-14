@@ -8,6 +8,7 @@ IMPROVEMENTS:
   - commands/ssh: Introduce tty flag for `vagrant ssh -c` [GH-6827]
   - core: Warn about vagrant CWD changes for a machine [GH-3921]
   - core/box: Warn if user sets box as url [GH-7118]
+  - guests/kali: Add support for guest [GH-8553]
   - guests/smartos: Update halt capability and add public key insert and remove capabilities [GH-8618]
   - snapshot/delete: Improve error message when given snapshot doesn't exist [GH-8653]
   - snapshot/list: Raise exception if provider does not support snapshots [GH-8619]
