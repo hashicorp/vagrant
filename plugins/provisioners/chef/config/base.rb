@@ -56,6 +56,21 @@ module VagrantPlugins
         # @return [String]
         attr_accessor :version
 
+        # Location of Omnibus installation scripts.
+        # This URL specifies the location of install.sh/install.ps1 for
+        # Linux/Unix and Windows respectively.
+        #
+        # It defaults to https://omnitruck.chef.io/. The full URL is then:
+        #  - Linux/Unix: https://omnitruck.chef.io/install.sh
+        #  - Windows: https://omnitruck.chef.io/install.ps1
+        #
+        # If you want to have https://example.com/install.sh as Omnibus script
+        # for your Linux/Unix installations, you should set this option to
+        # https://example.com
+        #
+        # @return [String]
+        attr_accessor :omnibus_url
+
         # The path where the Chef installer will be downloaded to. Only valid if
         # install is true or "force". It defaults to nil, which means that the
         # omnibus installer will choose the destination and you have no control
@@ -74,6 +89,7 @@ module VagrantPlugins
           @log_level   = UNSET_VALUE
           @channel     = UNSET_VALUE
           @version     = UNSET_VALUE
+          @omnibus_url = UNSET_VALUE
           @installer_download_path = UNSET_VALUE
         end
 
@@ -85,6 +101,7 @@ module VagrantPlugins
           @log_level   = :info     if @log_level == UNSET_VALUE
           @channel     = "stable"  if @channel == UNSET_VALUE
           @version     = :latest   if @version == UNSET_VALUE
+          @omnibus_url = 'https://omnitruck.chef.io' if @omnibus_url == UNSET_VALUE
           @installer_download_path = nil  if @installer_download_path == UNSET_VALUE
 
           # Make sure the install is a symbol if it's not a boolean

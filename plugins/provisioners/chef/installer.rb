@@ -2,12 +2,13 @@ module VagrantPlugins
   module Chef
     class Installer
       def initialize(machine, options = {})
-        @machine    = machine
-        @product    = options.fetch(:product)
-        @channel    = options.fetch(:channel)
-        @version    = options.fetch(:version)
-        @force      = options.fetch(:force)
-        @options    = options.dup
+        @machine     = machine
+        @product     = options.fetch(:product)
+        @channel     = options.fetch(:channel)
+        @version     = options.fetch(:version)
+        @force       = options.fetch(:force)
+        @omnibus_url = options.fetch(:omnibus_url)
+        @options     = options.dup
       end
 
       # This handles verifying the Chef installation, installing it if it was
@@ -29,7 +30,7 @@ module VagrantPlugins
 
         @machine.ui.detail(I18n.t("vagrant.chef_installing",
           version: @version.to_s))
-        @machine.guest.capability(:chef_install, @product, @version, @channel, @options)
+        @machine.guest.capability(:chef_install, @product, @version, @channel, @omnibus_url, @options)
 
         if !@machine.guest.capability(:chef_installed, @product, @version)
           raise Provisioner::Base::ChefError, :install_failed

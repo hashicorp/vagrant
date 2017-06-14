@@ -82,4 +82,17 @@ describe VagrantPlugins::Chef::Config::Base do
       expect(subject.installer_download_path).to be(nil)
     end
   end
+
+  describe "#omnibus_url" do
+    it "defaults to https://omnitruck.chef.io" do
+      subject.finalize!
+      expect(subject.omnibus_url).to eq("https://omnitruck.chef.io")
+    end
+
+    it "makes use of the configured url" do
+      subject.omnibus_url = "https://omnitruck.example.com"
+      subject.finalize!
+      expect(subject.omnibus_url).to eq("https://omnitruck.example.com")
+    end
+  end
 end

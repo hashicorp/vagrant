@@ -58,6 +58,7 @@ module VagrantPlugins
             product: config.product,
             channel: config.channel,
             version: config.version,
+            omnibus_url: config.omnibus_url,
             force: config.install == :force,
             download_path:  config.installer_download_path
           )
