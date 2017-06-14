@@ -4,21 +4,22 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- commands/snapshot: enforce unique snapshot names and introduce `--force` flag [GH-7810]
-- snapshot/list: raise exception if provider does not support snapshots [GH-8619]
-- snapshot/save: raise exception if provider does not support snapshots [GH-8619]
-- core/box: warn if user sets box as url [GH-7118]
-- commands/ssh: introduce tty flag for `vagrant ssh -c` [GH-6827]
-- core: warn about vagrant CWD changes for a machine [GH-3921]
-- snapshot/delete: improve error message when given snapshot doesn't exist [GH-8653]
-- snapshot/restore: improve error message when given snapshot doesn't exist [GH-8653]
+  - commands/snapshot: enforce unique snapshot names and introduce `--force` flag [GH-7810]
+  - commands/ssh: introduce tty flag for `vagrant ssh -c` [GH-6827]
+  - core: warn about vagrant CWD changes for a machine [GH-3921]
+  - core/box: warn if user sets box as url [GH-7118]
+  - snapshot/delete: improve error message when given snapshot doesn't exist [GH-8653]
+  - snapshot/list: raise exception if provider does not support snapshots [GH-8619]
+  - snapshot/restore: improve error message when given snapshot doesn't exist [GH-8653]
+  - snapshot/save: raise exception if provider does not support snapshots [GH-8619]
 
 BUG FIXES:
 
-- communicators/ssh: Move `none` cipher to end of default cipher list in Net::SSH [GH-8661]
-- core: add unique identifier to provisioner objects [GH-8680]
-- provisioners/ansible_local: Catch pip_args in FreeBSD's and SUSE's ansible_install [GH-8676]
-- snapshot/restore: exit 1 if vm has not been created when command is invoked [GH-8653]
+  - communicators/ssh: Move `none` cipher to end of default cipher list in Net::SSH [GH-8661]
+  - core: add unique identifier to provisioner objects [GH-8680]
+  - providers/docker: Fix check for docker-compose [GH-8659, GH-8660]
+  - provisioners/ansible_local: Catch pip_args in FreeBSD's and SUSE's ansible_install [GH-8676]
+  - snapshot/restore: exit 1 if vm has not been created when command is invoked [GH-8653]
 
 ## 1.9.5 (May 15, 2017)
 
