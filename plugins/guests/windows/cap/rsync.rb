@@ -13,7 +13,7 @@ module VagrantPlugins
           machine.communicate.tap do |comm|
             # rsync does not construct any gaps in the path to the target directory
             # make sure that all subdirectories are created
-            comm.execute("mkdir '#{opts[:guestpath]}'")
+            comm.execute("mkdir -p '#{opts[:guestpath]}'")
           end
         end
       end
