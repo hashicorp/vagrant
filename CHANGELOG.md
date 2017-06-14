@@ -10,6 +10,7 @@ IMPROVEMENTS:
   - core/box: Warn if user sets box as url [GH-7118]
   - guests/kali: Add support for guest [GH-8553]
   - guests/smartos: Update halt capability and add public key insert and remove capabilities [GH-8618]
+  - provisioners/ansible: Fix SSH keys only behavior to be consistent with Vagrant [GH-8467]
   - snapshot/delete: Improve error message when given snapshot doesn't exist [GH-8653]
   - snapshot/list: Raise exception if provider does not support snapshots [GH-8619]
   - snapshot/restore: Improve error message when given snapshot doesn't exist [GH-8653]
