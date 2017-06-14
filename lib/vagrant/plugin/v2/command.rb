@@ -43,6 +43,9 @@ module Vagrant
         # If this method returns `nil`, then you should assume that help
         # was printed and parsing failed.
         def parse_options(opts=nil)
+          # make sure optparse doesn't use POSIXLY_CORRECT parsing
+          ENV["POSIXLY_CORRECT"] = nil
+          
           # Creating a shallow copy of the arguments so the OptionParser
           # doesn't destroy the originals.
           argv = @argv.dup
