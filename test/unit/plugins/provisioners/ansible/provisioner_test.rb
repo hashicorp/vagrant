@@ -40,6 +40,7 @@ VF
   let(:config)  { VagrantPlugins::Ansible::Config::Host.new }
   let(:ssh_info) {{
     private_key_path: ['/path/to/my/key'],
+    keys_only: true,
     username: 'testuser',
     host: '127.0.0.1',
     port: 2223
@@ -987,6 +988,21 @@ VF
         end
       end
 
+    end
+
+    describe 'with config.ssh.keys_only = false' do
+      it 'does not set IdentitiesOnly=yes in ANSIBLE_SSH_ARGS' do
+        ssh_info[:keys_only] = false
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          cmd_opts = args.last
+          expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o IdentitiesOnly=yes")
+
+          # Ending this block with a negative expectation (to_not / not_to)
+          # would lead to a failure of the above expectation.
+          true
+        }
+      end
     end
   end
 end
