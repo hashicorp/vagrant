@@ -20,7 +20,7 @@ module VagrantPlugins
         #
         # @param [Vagrant::Machine] machine Machine instance for this driver
         def initialize(machine)
-          if !Vagrant::Util::Which.which("vagrant-compose")
+          if !Vagrant::Util::Which.which("docker-compose")
             raise Errors::DockerComposeNotInstalledError
           end
           super()
