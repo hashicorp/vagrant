@@ -149,3 +149,11 @@ config.ssh.export_command_template = 'export %ENV_KEY%="%ENV_VALUE%"'
 `config.ssh.sudo_command` - The command to use when executing a command
 with `sudo`. This defaults to `sudo -E -H %c`. The `%c` will be replaced by
 the command that is being executed.
+
+`config.ssh.compression` - If `false`, this setting will not include the
+compression setting when ssh'ing into a machine. If this is not set, it will
+default to `true` and `Compression=yes` will be enabled with ssh.
+
+`config.ssh.dsa_authentication` - If `false`, this setting  will not include
+`DSAAuthentication` when ssh'ing into a machine. If this is not set, it will
+default to `true` and `DSAAuthentication=yes` will be used with ssh.

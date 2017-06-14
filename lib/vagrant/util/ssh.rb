@@ -107,9 +107,15 @@ module Vagrant
         # Command line options
         command_options = [
           "-p", options[:port].to_s,
-          "-o", "Compression=yes",
-          "-o", "DSAAuthentication=yes",
           "-o", "LogLevel=#{log_level}"]
+
+        if ssh_info[:compression]
+          command_options += ["-o", "Compression=yes"]
+        end
+
+        if ssh_info[:dsa_authentication]
+          command_options += ["-o", "DSAAuthentication=yes"]
+        end
 
         # Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the
         # IdentitiesOnly option. Also, we don't enable it in plain mode or if
