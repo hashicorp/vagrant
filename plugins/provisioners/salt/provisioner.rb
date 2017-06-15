@@ -184,6 +184,20 @@ module VagrantPlugins
         end
       end
 
+      # Get command-line options for masterless provisioning
+      def get_masterless
+        options = ""
+
+        if @config.masterless
+          options = " --local"
+          if @config.minion_id
+            options += " --id #{@config.minion_id}"
+          end
+        end
+
+        return options
+      end
+
       # Copy master and minion configs to VM
       def upload_configs
         if @config.minion_config
@@ -335,16 +349,12 @@ module VagrantPlugins
 
       def call_highstate
         if @config.run_highstate
-          local=""
-          if @config.masterless
-            local=" --local"
-          end
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
             unless @config.masterless?
               @machine.communicate.sudo("salt '*' saltutil.sync_all")
             end
-            @machine.communicate.sudo("salt '*' state.highstate --verbose #{local}#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
             if @config.verbose
                 @machine.env.ui.info(data.rstrip)
             end
@@ -355,7 +365,7 @@ module VagrantPlugins
               unless @config.masterless?
                 @machine.communicate.execute("C:\\salt\\salt-call.bat saltutil.sync_all", opts)
               end
-              @machine.communicate.execute("C:\\salt\\salt-call.bat state.highstate --retcode-passthrough #{local}#{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
+              @machine.communicate.execute("C:\\salt\\salt-call.bat state.highstate --retcode-passthrough#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data.rstrip)
                 end
@@ -364,7 +374,7 @@ module VagrantPlugins
               unless @config.masterless?
                 @machine.communicate.sudo("salt-call saltutil.sync_all")
               end
-              @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough #{local}#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+              @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data.rstrip)
                 end
