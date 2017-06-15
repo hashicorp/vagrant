@@ -36,7 +36,19 @@ module VagrantPlugins
           options[:snapshot_name] = name
 
           with_target_vms(argv) do |vm|
-            vm.action(:snapshot_restore, options)
+            if !vm.provider.capability?(:snapshot_list)
+              raise Vagrant::Errors::SnapshotNotSupported
+            end
+
+            snapshot_list = vm.provider.capability(:snapshot_list)
+
+            if snapshot_list.include? name
+              vm.action(:snapshot_restore, options)
+            else
+              raise Vagrant::Errors::SnapshotNotFound,
+                snapshot_name: name,
+                machine: vm.name.to_s
+            end
           end
 
           # Success, exit status 0

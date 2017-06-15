@@ -1,8 +1,8 @@
 require File.expand_path("../../../../../base", __FILE__)
 
-require Vagrant.source_root.join("plugins/commands/snapshot/command/save")
+require Vagrant.source_root.join("plugins/commands/snapshot/command/delete")
 
-describe VagrantPlugins::CommandSnapshot::Command::Save do
+describe VagrantPlugins::CommandSnapshot::Command::Delete do
   include_context "unit"
 
   let(:iso_env) do
@@ -55,18 +55,21 @@ describe VagrantPlugins::CommandSnapshot::Command::Save do
 
     context "with a snapshot name given" do
       let(:argv)     { ["test"] }
-      it "calls snapshot_save with a snapshot name" do
+      it "calls snapshot_delete with a snapshot name" do
         machine.id = "foo"
 
+        allow(machine.provider).to receive(:capability).with(:snapshot_list).
+          and_return(["test"])
+
         expect(machine).to receive(:action) do |name, opts|
-          expect(name).to eq(:snapshot_save)
+          expect(name).to eq(:snapshot_delete)
           expect(opts[:snapshot_name]).to eq("test")
         end
 
         expect(subject.execute).to eq(0)
       end
 
-      it "doesn't snapshot a non-existent machine" do
+      it "doesn't delete a snapshot on a non-existent machine" do
         machine.id = nil
 
         expect(subject).to receive(:with_target_vms){}
@@ -76,34 +79,18 @@ describe VagrantPlugins::CommandSnapshot::Command::Save do
       end
     end
 
-    context "with a duplicate snapshot name given and no force flag" do
-      let(:argv)     { ["test"] }
+    context "with a snapshot name that doesn't exist" do
+      let(:argv)     { ["nopetest"] }
 
       it "fails to take a snapshot and prints a warning to the user" do
-        machine.id = "fool"
+        machine.id = "foo"
 
         allow(machine.provider).to receive(:capability).with(:snapshot_list).
           and_return(["test"])
 
         expect(machine).to_not receive(:action)
         expect { subject.execute }.
-          to raise_error(Vagrant::Errors::SnapshotConflictFailed)
-      end
-    end
-
-    context "with a duplicate snapshot name given and a force flag" do
-      let(:argv)     { ["test", "--force"] }
-
-      it "deletes the existing snapshot and takes a new one" do
-        machine.id = "foo"
-
-        allow(machine.provider).to receive(:capability).with(:snapshot_list).
-          and_return(["test"])
-
-        expect(machine).to receive(:action).with(:snapshot_delete, snapshot_name: "test")
-        expect(machine).to receive(:action).with(:snapshot_save, snapshot_name: "test")
-
-        expect(subject.execute).to eq(0)
+          to raise_error(Vagrant::Errors::SnapshotNotFound)
       end
     end
   end

@@ -280,6 +280,31 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       subject.call(env)
     end
 
+    context "with a box name accidentally set as a URL" do
+      it "displays a warning to the user" do
+        box_path = iso_env.box2_file(:virtualbox)
+        with_web_server(box_path) do |port|
+
+          box_url_name = "http://127.0.0.1:#{port}/#{box_path.basename}"
+          env[:box_name] = box_url_name
+
+          expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+            expect(name).to eq(box_url_name)
+            expect(version).to eq("0")
+            expect(opts[:metadata_url]).to be_nil
+            true
+          }.and_return(box)
+
+          expect(app).to receive(:call).with(env)
+
+          expect(env[:ui]).to receive(:warn)
+            .with(/It looks like you attempted to add a box with a URL for the name/)
+
+          subject.call(env)
+        end
+      end
+    end
+
     context "with URL containing credentials" do
       let(:username){ "box-username" }
       let(:password){ "box-password" }

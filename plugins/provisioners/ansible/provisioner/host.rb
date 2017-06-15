@@ -249,11 +249,8 @@ module VagrantPlugins
           # Don't access user's known_hosts file, except when host_key_checking is enabled.
           ssh_options << "-o UserKnownHostsFile=/dev/null" unless config.host_key_checking
 
-          # Set IdentitiesOnly=yes to avoid authentication errors when the host has more than 5 ssh keys.
-          # Notes:
-          #  - Solaris/OpenSolaris/Illumos uses SunSSH which doesn't support the IdentitiesOnly option.
-          #  - this could be improved by sharing logic with lib/vagrant/util/ssh.rb
-          ssh_options << "-o IdentitiesOnly=yes" unless Vagrant::Util::Platform.solaris?
+          # Compare to lib/vagrant/util/ssh.rb
+          ssh_options << "-o IdentitiesOnly=yes" if !Vagrant::Util::Platform.solaris? && @ssh_info[:keys_only]
 
           # Multiple Private Keys
           unless !config.inventory_path && @ssh_info[:private_key_path].size == 1

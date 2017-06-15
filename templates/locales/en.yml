@@ -22,6 +22,9 @@ en:
       Successfully added box '%{name}' (v%{version}) for '%{provider}'!
     box_adding_direct: |-
       Box file was not detected as metadata. Adding it directly...
+    box_add_url_warn: |-
+      It looks like you attempted to add a box with a URL for the name...
+      Instead, use box_url instead of box for box URLs.
     box_downloading: |-
       Downloading: %{url}
     box_download_error: |-
@@ -162,6 +165,10 @@ en:
       description of what they do.
 
       %{list}
+    moved_cwd: |-
+      This machine used to live in %{old_wd} but it's now at %{current_wd}.
+      Please change the name of the machine if you want to run it as a different
+      machine.
     guest_deb_installing_smb: |-
       Installing SMB "mount.cifs"...
     global_status_footer: |-
@@ -1158,6 +1165,15 @@ en:
         guest system. Please report a bug with your Vagrantfile and debug log.
       snapshot_force: |-
         You must include the `--force` option to replace an existing snapshot.
+      snapshot_not_supported: |-
+        This provider doesn't support snapshots.
+
+        This may be intentional or this may be a bug. If this provider
+        should support snapshots, then please report this as a bug to the
+        maintainer of the provider.
+      snapshot_not_found: |-
+        The snapshot name `%{snapshot_name}` was not found for the
+        virtual machine `%{machine}`.
       ssh_authentication_failed: |-
         SSH authentication failed! This is typically caused by the public/private
         keypair for the SSH user not being properly set on the guest VM. Please
@@ -1539,7 +1555,7 @@ en:
         unexpected errors. To learn more about this, and the options that are available,
         please refer to the Vagrant documentation:
 
-          https://www.vagrantup.com/docs/other/wsl
+          https://www.vagrantup.com/docs/other/wsl.html
       wsl_virtualbox_windows_access: |-
         Vagrant is unable to use the VirtualBox provider from the Windows Subsystem for
         Linux without access to the Windows environment. Enabling this access must be
@@ -1547,7 +1563,7 @@ en:
         on enabing Windows access and using VirtualBox from the Windows Subsystem for
         Linux, please refer to the Vagrant documentation:
 
-          https://www.vagrantup.com/docs/other/wsl
+          https://www.vagrantup.com/docs/other/wsl.html
 #-------------------------------------------------------------------------------
 # Translations for config validation errors
 #-------------------------------------------------------------------------------

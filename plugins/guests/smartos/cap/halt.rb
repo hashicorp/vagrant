@@ -10,7 +10,7 @@ module VagrantPlugins
           # does not exist in /etc/user_attr. TODO
           begin
             machine.communicate.execute(
-              "#{machine.config.smartos.suexec_cmd} /usr/sbin/shutdown -y -i5 -g0")
+              "#{machine.config.smartos.suexec_cmd} /usr/sbin/poweroff")
           rescue IOError, Vagrant::Errors::SSHDisconnected
             # Ignore, this probably means connection closed because it
             # shut down.

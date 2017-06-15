@@ -5,7 +5,7 @@ describe "VagrantPlugins::GuestSmartos::Cap::Halt" do
   let(:machine) { double("machine") }
   let(:config) { double("config", smartos: double("smartos", suexec_cmd: 'pfexec')) }
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:shutdown_command){ "pfexec /usr/sbin/shutdown -y -i5 -g0" }
+  let(:shutdown_command){ "pfexec /usr/sbin/poweroff" }
 
   before do
     machine.stub(:communicate).and_return(communicator)

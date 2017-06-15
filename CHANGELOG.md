@@ -4,9 +4,26 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- commands/snapshot: enforce unique snapshot names and introduce `--force` flag [GH-7810]
+  - commands/snapshot: Enforce unique snapshot names and introduce `--force` flag [GH-7810]
+  - commands/ssh: Introduce tty flag for `vagrant ssh -c` [GH-6827]
+  - core: Warn about vagrant CWD changes for a machine [GH-3921]
+  - core/box: Warn if user sets box as url [GH-7118]
+  - guests/kali: Add support for guest [GH-8553]
+  - guests/smartos: Update halt capability and add public key insert and remove capabilities [GH-8618]
+  - provisioners/ansible: Fix SSH keys only behavior to be consistent with Vagrant [GH-8467]
+  - snapshot/delete: Improve error message when given snapshot doesn't exist [GH-8653]
+  - snapshot/list: Raise exception if provider does not support snapshots [GH-8619]
+  - snapshot/restore: Improve error message when given snapshot doesn't exist [GH-8653]
+  - snapshot/save: Raise exception if provider does not support snapshots [GH-8619]
 
 BUG FIXES:
+
+  - communicators/ssh: Move `none` cipher to end of default cipher list in Net::SSH [GH-8661]
+  - core: Add unique identifier to provisioner objects [GH-8680]
+  - guests/windows: Fix directory creation when using rsync for synced folders [GH-8588]
+  - providers/docker: Fix check for docker-compose [GH-8659, GH-8660]
+  - provisioners/ansible_local: Catch pip_args in FreeBSD's and SUSE's ansible_install [GH-8676]
+  - snapshot/restore: Exit 1 if vm has not been created when command is invoked [GH-8653]
 
 ## 1.9.5 (May 15, 2017)
 

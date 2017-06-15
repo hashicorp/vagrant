@@ -31,9 +31,19 @@ module VagrantPlugins
         Cap::Halt
       end
 
+      guest_capability(:smartos, :insert_public_key) do
+        require_relative "cap/insert_public_key"
+        Cap::InsertPublicKey
+      end
+
       guest_capability(:smartos, :mount_nfs_folder) do
         require_relative "cap/mount_nfs"
         Cap::MountNFS
+      end
+
+      guest_capability(:smartos, :remove_public_key) do
+        require_relative "cap/remove_public_key"
+        Cap::RemovePublicKey
       end
 
       guest_capability(:smartos, :rsync_installed) do
@@ -58,3 +68,4 @@ module VagrantPlugins
     end
   end
 end
+
