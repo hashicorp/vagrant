@@ -440,6 +440,8 @@ module Vagrant
       info[:keys_only] ||= @config.ssh.default.keys_only
       info[:paranoid] ||= @config.ssh.default.paranoid
       info[:username] ||= @config.ssh.default.username
+      info[:compression] ||= @config.ssh.default.compression
+      info[:dsa_authentication] ||= @config.ssh.default.dsa_authentication
 
       # We set overrides if they are set. These take precedence over
       # provider-returned data.
@@ -447,6 +449,8 @@ module Vagrant
       info[:port] = @config.ssh.port if @config.ssh.port
       info[:keys_only] = @config.ssh.keys_only
       info[:paranoid] = @config.ssh.paranoid
+      info[:compression] = @config.ssh.compression
+      info[:dsa_authentication] = @config.ssh.dsa_authentication
       info[:username] = @config.ssh.username if @config.ssh.username
       info[:password] = @config.ssh.password if @config.ssh.password
 
