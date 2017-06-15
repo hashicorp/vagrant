@@ -7,6 +7,7 @@ IMPROVEMENTS:
   - commands/snapshot: Enforce unique snapshot names and introduce `--force` flag [GH-7810]
   - commands/ssh: Introduce tty flag for `vagrant ssh -c` [GH-6827]
   - core: Warn about vagrant CWD changes for a machine [GH-3921]
+  - core: Allow Compression and DSAAuthentication ssh flags to be configurable [GH-8693]
   - core/box: Warn if user sets box as url [GH-7118]
   - guests/kali: Add support for guest [GH-8553]
   - guests/smartos: Update halt capability and add public key insert and remove capabilities [GH-8618]
