@@ -577,13 +577,13 @@ module Vagrant
       end
 
       if vagrant_cwd.nil?
-        File.write(vagrant_cwd_filepath, @env.cwd)
-      elsif vagrant_cwd != @env.cwd.to_s
+        File.write(vagrant_cwd_filepath, @env.root_path)
+      elsif vagrant_cwd != @env.root_path.to_s
         ui.warn(I18n.t(
           'vagrant.moved_cwd',
           old_wd:     vagrant_cwd,
-          current_wd: @env.cwd.to_s))
-        File.write(vagrant_cwd_filepath, @env.cwd)
+          current_wd: @env.root_path.to_s))
+        File.write(vagrant_cwd_filepath, @env.root_path)
       end
     end
   end
