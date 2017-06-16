@@ -3,12 +3,21 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
         def self.change_host_name(machine, name)
-          su_cmd = machine.config.smartos.suexec_cmd
+          sudo = machine.config.smartos.suexec_cmd
 
-          # Only do this if the hostname is not already set
-          if !machine.communicate.test("hostname | grep '#{name}'")
-            machine.communicate.execute("#{su_cmd} sh -c \"echo '#{name}' > /etc/nodename\"")
-            machine.communicate.execute("#{su_cmd} hostname #{name}")
+          machine.communicate.tap do |comm|
+            comm.execute <<-EOH.sub(/^ */, '')
+              if hostname | grep '#{name}' ; then
+                exit 0
+              fi
+
+              if [ -d /usbkey ] && [ "$(zonename)" == "global" ] ; then
+                #{sudo} sed -i '' 's/hostname=.*/hostname=#{name}/' /usbkey/config
+              fi
+
+              #{sudo} echo '#{name}' > /etc/nodename
+              #{sudo} hostname #{name}
+            EOH
           end
         end
       end

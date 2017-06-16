@@ -11,7 +11,7 @@ describe "VagrantPlugins::GuestSmartos::Cap::InsertPublicKey" do
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    allow(machine).to receive(:communicate).and_return(comm)
+    machine.stub(:communicate).and_return(comm)
   end
 
   after do

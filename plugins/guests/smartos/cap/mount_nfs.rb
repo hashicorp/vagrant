@@ -7,8 +7,17 @@ module VagrantPlugins
 
           folders.each do |name, opts|
             machine.communicate.tap do |comm|
-              comm.execute("#{sudo} mkdir -p #{opts[:guestpath]}", {shell: "sh"})
-              comm.execute("#{sudo} /usr/sbin/mount -F nfs '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'", {shell: "sh"})
+              nfsDescription = "#{ip}:#{opts[:hostpath]}:#{opts[:guestpath]}"
+
+              comm.execute <<-EOH.sub(/^ */, '')
+                if [ -d /usbkey ] && [ "$(zonename)" == "global" ] ; then
+                  #{sudo} mkdir -p /usbkey/config.inc
+                  printf '#{nfsDescription}\\n' | #{sudo} tee -a /usbkey/config.inc/nfs_mounts
+                fi
+
+                #{sudo} mkdir -p #{opts[:guestpath]}
+                #{sudo} /usr/sbin/mount -F nfs '#{ip}:#{opts[:hostpath]}' '#{opts[:guestpath]}'
+              EOH
             end
           end
         end

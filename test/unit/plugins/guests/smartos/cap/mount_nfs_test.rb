@@ -1,30 +1,38 @@
 require_relative "../../../../base"
+require_relative "../../../../../../plugins/guests/smartos/config"
 
-describe "VagrantPlugins::VagrantPlugins::Cap::MountNFS" do
-  let(:plugin) { VagrantPlugins::GuestSmartos::Plugin.components.guest_capabilities[:smartos].get(:mount_nfs_folder) }
+describe "VagrantPlugins::GuestSmartos::Cap::MountNFS" do
+  let(:caps) do
+    VagrantPlugins::GuestSmartos::Plugin
+        .components
+        .guest_capabilities[:smartos]
+  end
+
   let(:machine) { double("machine") }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
   let(:config) { double("config", smartos: VagrantPlugins::GuestSmartos::Config.new) }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
-    machine.stub(:communicate).and_return(communicator)
+    machine.stub(:communicate).and_return(comm)
     machine.stub(:config).and_return(config)
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
   describe ".mount_nfs_folder" do
-    it "creates the directory mount point" do
-      communicator.expect_command(%Q(pfexec mkdir -p /mountpoint))
-      plugin.mount_nfs_folder(machine, '1.1.1.1', {'nfs' => {guestpath: '/mountpoint'}})
-    end
+    let(:cap) { caps.get(:mount_nfs_folder) }
 
-    it "mounts the NFS share" do
-      communicator.expect_command(%Q(pfexec /usr/sbin/mount -F nfs '1.1.1.1:/some/share' '/mountpoint'))
-      plugin.mount_nfs_folder(machine, '1.1.1.1', {'nfs' => {guestpath: '/mountpoint', hostpath: '/some/share'}})
+    it "mounts the folder" do
+      cap.mount_nfs_folder(machine, '1.1.1.1', {'nfs' => {guestpath: '/mountpoint', hostpath: '/some/share'}})
+
+      expect(comm.received_commands[0]).to match(/if \[ -d \/usbkey \] && \[ "\$\(zonename\)" == "global" \] ; then/)
+      expect(comm.received_commands[0]).to match(/pfexec mkdir -p \/usbkey\/config.inc/)
+      expect(comm.received_commands[0]).to match(/printf '1\.1\.1\.1:\/some\/share:\/mountpoint' | pfexec tee -a \/usbkey\/config.inc\/nfs_mounts/)
+      expect(comm.received_commands[0]).to match(/fi/)
+      expect(comm.received_commands[0]).to match(/pfexec mkdir -p \/mountpoint/)
+      expect(comm.received_commands[0]).to match(/pfexec \/usr\/sbin\/mount -F nfs '1\.1\.1\.1:\/some\/share' '\/mountpoint'/)
     end
   end
 end
-
