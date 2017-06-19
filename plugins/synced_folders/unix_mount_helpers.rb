@@ -50,7 +50,7 @@ module VagrantPlugins
                 command: gid_command,
                 output: output[:stderr]
               ) { |type, data| output[type] << data if output[type] }
-              mount_gid = output[:stdout].split(':').at(2)
+              mount_gid = output[:stdout].split(':').at(2).to_s.chomp
               self.class_variable_get(:@@logger).debug("Owner group ID (lookup): #{options[:group]} -> #{mount_gid}")
             rescue Vagrant::Errors::VirtualBoxMountFailed
               if options[:owner] == options[:group]
