@@ -101,6 +101,18 @@ module Vagrant
         warnings = []
         errors   = []
 
+        if !@sources[:root].nil? && @sources[:root].eql?(@sources[:home])
+          # Vagrants home dir is set to the same dir as its project directory
+          # so we don't want to load and merge the same Vagrantfile config
+          # and execute its settings/procs twice
+          #
+          # Note: This protection won't work if there are two separate but
+          # identical Vagrantfiles in the home and project dir
+          @logger.info("Duplicate Vagrantfile config objects detected in :root and :home.")
+          @sources.delete(:home)
+          @logger.info("Removed :home config from being loaded")
+        end
+
         order.each do |key|
           next if !@sources.key?(key)
 
