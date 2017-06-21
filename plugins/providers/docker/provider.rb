@@ -144,7 +144,7 @@ module VagrantPlugins
         if network["Ports"][port_name].respond_to?(:first)
           port_info = network["Ports"][port_name].first
         else
-          ip = network["IpAddress"]
+          ip = network["IPAddress"]
           port = @machine.config.ssh.guest_port
           if !ip.to_s.empty?
             port_info = {
