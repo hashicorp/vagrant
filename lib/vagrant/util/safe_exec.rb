@@ -41,14 +41,11 @@ module Vagrant
             end
           else
             if Vagrant::Util::Platform.windows?
-              @@logger.debug("Converting command and arguments to single string for exec")
-              @@logger.debug("Command: `#{command.inspect}` Args: `#{args.inspect}`")
-              full_command = "#{command} #{args.join(" ")}"
-              @@logger.debug("Converted command: #{full_command}")
-              Kernel.exec(full_command)
-            else
-              Kernel.exec(command, *args)
+              # Re-generate strings to ensure common encoding
+              command = "#{command}".force_encoding("UTF-8")
+              args = args.map{|arg| "#{arg}".force_encoding("UTF-8") }
             end
+            Kernel.exec(command, *args)
           end
         rescue *rescue_from
           # We retried already, raise the issue and be done
