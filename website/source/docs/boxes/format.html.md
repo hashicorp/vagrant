@@ -18,7 +18,7 @@ Box files made for Vagrant 1.0.x (the VirtualBox export `tar` files) continue
 to work with Vagrant today. When Vagrant encounters one of these old boxes,
 it automatically updates it internally to the new format.
 
-Today, there are two different components:
+Today, there are three different components:
 
 * Box File - This is a compressed (`tar`, `tar.gz`, `zip`) file that is specific
   to a single provider and can contain anything. Vagrant core does not ever
@@ -34,7 +34,11 @@ Today, there are two different components:
   metadata does not exist, a box file can still be added directly, but
   it will not support versioning and updating.
 
-Each component is covered in more detail below.
+* Box Information - This is a JSON documnent that can provide additional
+  information about the box that displays when a user runs
+  `vagrant box list -i`. More information is provided [here](/docs/boxes/info.html).
+
+The first two components are covered in more detail below.
 
 ## Box File
 
