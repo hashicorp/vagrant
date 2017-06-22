@@ -171,7 +171,17 @@ describe Vagrant::Util::SSH do
       }}
 
       it "executes SSH in a subprocess with options and returns an exit code Fixnum" do
-        expect(described_class.exec(ssh_info, {subprocess: true})).to be_an(Fixnum)
+        # mock out ChildProcess
+        process = double()
+        allow(ChildProcess).to receive(:build).and_return(process)
+        allow(process).to receive(:io).and_return(true)
+        allow(process.io).to receive(:inherit!).and_return(true)
+        allow(process).to receive(:start).and_return(true)
+        allow(process).to receive(:wait).and_return(true)
+
+        allow(process).to receive(:exit_code).and_return(0)
+
+        expect(described_class.exec(ssh_info, {subprocess: true})).to eq(0)
       end
     end
   end
