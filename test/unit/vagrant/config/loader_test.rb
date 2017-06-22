@@ -23,7 +23,7 @@ describe Vagrant::Config::Loader do
       end
 
       def self.merge(old, new)
-        old.merge(new)
+        old.merge(new) {|key, oldval, newval| oldval.concat(newval)}
       end
     end
   end
@@ -175,6 +175,25 @@ describe Vagrant::Config::Loader do
         # Verify the count is only one
         expect(count).to eq(1)
       end
+    end
+
+    it "should discard duplicate configs if :home and :root are the same" do
+      proc = Proc.new do |config|
+        config[:foo] = ["yep"]
+      end
+
+      order = [:root, :home]
+
+      instance.set(:root, [[current_version, proc]])
+      instance.set(:home, [[current_version, proc]])
+
+      result, warnings, errors = instance.load(order)
+
+      # Verify the config result
+      expect(result[:foo]).to eq(["yep"])
+      expect(result[:foo].size).to eq(1)
+      expect(warnings).to eq([])
+      expect(errors).to eq([])
     end
 
     it "should only load configuration files once" do
