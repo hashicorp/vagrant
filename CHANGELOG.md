@@ -26,6 +26,7 @@ BUG FIXES:
   - guests/solaris: Do not use UNC style path for shared folders from windows hosts [GH-7723]
   - guests/windows: Fix directory creation when using rsync for synced folders [GH-8588]
   - providers/docker: Fix check for docker-compose [GH-8659, GH-8660]
+  - providers/docker: Fix SSH under docker provider [GH-8706]
   - providers/hyperv: Fix box import [GH-8678, GH-8677]
   - provisioners/ansible_local: Catch pip_args in FreeBSD's and SUSE's ansible_install [GH-8676]
   - provisioners/salt: Fix minion ID configuration [GH-7865, GH-7454]
