@@ -2361,6 +2361,9 @@ en:
           Please check https://docs.ansible.com/intro_installation.html#control-machine-requirements
 
       docker:
+        wrong_provisioner: |-
+          The Docker post-install provisioner cannot also take a Docker post-install
+          provisioner
         not_running: "Docker is not running on the guest VM."
         install_failed: "Docker installation failed."
 
