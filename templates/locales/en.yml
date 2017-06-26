@@ -387,7 +387,7 @@ en:
         provider. Double-check your requested provider to verify you didn't
         simply misspell it.
 
-        If you're adding a box from HashiCorp's Atlas, make sure the box is
+        If you're adding a box from HashiCorp's Vagrant Cloud, make sure the box is
         released.
 
         Name: %{name}
@@ -406,7 +406,7 @@ en:
       box_add_short_not_found: |-
         The box '%{name}' could not be found or
         could not be accessed in the remote catalog. If this is a private
-        box on HashiCorp's Atlas, please verify you're logged in via
+        box on HashiCorp's Vagrant Cloud, please verify you're logged in via
         `vagrant login`. Also, please double-check the name. The expanded
         URL and error message are shown below:
 
@@ -571,12 +571,12 @@ en:
 
         %{versions}
       box_server_not_set: |-
-        A URL to an Atlas server is not set, so boxes cannot be added with a
+        A URL to a Vagrant Cloud server is not set, so boxes cannot be added with a
         shorthand ("mitchellh/precise64") format. You may also be seeing this
         error if you meant to type in a path to a box file which doesn't exist
         locally on your system.
 
-        To set a URL to an Atlas server, set the `VAGRANT_SERVER_URL`
+        To set a URL to a Vagrant Cloud server, set the `VAGRANT_SERVER_URL`
         environmental variable. Or, if you meant to use a file path, make sure
         the path to the file is valid.
       box_update_multi_provider: |-

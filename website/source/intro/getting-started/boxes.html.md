@@ -34,8 +34,8 @@ $ vagrant box add hashicorp/precise64
 ```
 
 This will download the box named "hashicorp/precise64" from
-[HashiCorp's Atlas box catalog](https://atlas.hashicorp.com/boxes/search), a place where you can find
-and host boxes. While it is easiest to download boxes from HashiCorp's Atlas
+[HashiCorp's Vagrant Cloud box catalog](https://vagrantcloud.com/boxes/search), a place where you can find
+and host boxes. While it is easiest to download boxes from HashiCorp's Vagrant Cloud
 you can also add boxes from a local file, custom URL, etc.
 
 Boxes are globally stored for the current user. Each project uses a box
@@ -52,7 +52,7 @@ will not be covered in the getting started guide.
 
 ~> **Namespaces do not guarantee canonical boxes!** A common misconception is
 that a namespace like "ubuntu" represents the canonical space for Ubuntu boxes.
-This is untrue. Namespaces on Atlas behave very similarly to namespaces on
+This is untrue. Namespaces on Vagrant Cloud behave very similarly to namespaces on
 GitHub, for example. Just as GitHub's support team is unable to assist with
 issues in someone's repository, HashiCorp's support team is unable to assist
 with third-party published boxes.
@@ -103,12 +103,12 @@ For the remainder of this getting started guide, we will only use the
 this getting started guide, the first question you will probably have is
 "where do I find more boxes?"
 
-The best place to find more boxes is [HashiCorp's Atlas box catalog](https://atlas.hashicorp.com/boxes/search).
-HashiCorp's Atlas has a public directory of freely available boxes that
-run various platforms and technologies. HashiCorp's Atlas also has a great search
+The best place to find more boxes is [HashiCorp's Vagrant Cloud box catalog](https://vagrantcloud.com/boxes/search).
+HashiCorp's Vagrant Cloud has a public directory of freely available boxes that
+run various platforms and technologies. HashiCorp's Vagrant Cloud also has a great search
 feature to allow you to find the box you care about.
 
-In addition to finding free boxes, HashiCorp's Atlas lets you host your own
+In addition to finding free boxes, HashiCorp's Vagrant Cloud lets you host your own
 boxes, as well as private boxes if you intend on creating boxes for your
 own organization.
 

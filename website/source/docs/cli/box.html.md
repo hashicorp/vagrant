@@ -32,10 +32,10 @@ This adds a box with the given address to Vagrant. The address can be
 one of three things:
 
 * A shorthand name from the
-[public catalog of available Vagrant images](https://atlas.hashicorp.com/boxes/search),
+[public catalog of available Vagrant images](https://vagrantcloud.com/boxes/search),
 such as "hashicorp/precise64".
 
-* File path or HTTP URL to a box in a [catalog](https://atlas.hashicorp.com/boxes/search).
+* File path or HTTP URL to a box in a [catalog](https://vagrantcloud.com/boxes/search).
 For HTTP, basic authentication is supported and `http_proxy` environmental
 variables are respected. HTTPS is also supported.
 
@@ -99,8 +99,8 @@ you are not using a catalog).
   to be specified.
 
 <div class="alert alert-warning">
-  <strong>Checksums for versioned boxes or boxes from HashiCorp's Atlas:</strong>
-  For boxes from HashiCorp's Atlas, the checksums are embedded in the metadata
+  <strong>Checksums for versioned boxes or boxes from HashiCorp's Vagrant Cloud:</strong>
+  For boxes from HashiCorp's Vagrant Cloud, the checksums are embedded in the metadata
   of the box. The metadata itself is served over TLS and its format is validated.
 </div>
 

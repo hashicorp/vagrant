@@ -28,15 +28,11 @@ To use HTTP sharing, simply run `vagrant share`:
 ```
 $ vagrant share
 ==> default: Detecting network information for machine...
-    default: Local machine address: 192.168.163.152
-    default: Local HTTP port: 4567
-    default: Local HTTPS port: disabled
-==> default: Checking authentication and authorization...
+default: Local machine address: 192.168.84.130
+default: Local HTTP port: 9999
+default: Local HTTPS port: disabled
 ==> default: Creating Vagrant Share session...
-    default: Share will be at: ghastly-wombat-4051
-==> default: Your Vagrant Share is running!
-    default: Name: ghastly-wombat-4051
-==> default: URL: http://ghastly-wombat-4051.vagrantshare.com
+==> default: HTTP URL: http://b1fb1f3f.ngrok.io
 ```
 
 Vagrant detects where your HTTP server is running in your Vagrant environment
@@ -83,12 +79,10 @@ should do this anyways!
 ## HTTPS (SSL)
 
 Vagrant Share can also expose an SSL port that can be accessed over
-SSL. For example, instead of accessing `http://foo.vagrantshare.com`, it
-could be accessed at `https://foo.vagrantshare.com`.
+SSL. Creating an HTTPS share requires a non-free ngrok account.
 
 `vagrant share` by default looks for any SSL traffic on port 443 in your
 development environment. If it cannot find any, then SSL is disabled by
 default.
 
-You can force SSL by setting the `--https` flag to point to the accessible
-SSL port.
+The HTTPS share can be explicitly disabled using the `--disable-https` flag.

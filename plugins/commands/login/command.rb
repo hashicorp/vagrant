@@ -2,7 +2,7 @@ module VagrantPlugins
   module LoginCommand
     class Command < Vagrant.plugin("2", "command")
       def self.synopsis
-        "log in to HashiCorp's Atlas"
+        "log in to HashiCorp's Vagrant Cloud"
       end
 
       def execute
@@ -19,7 +19,7 @@ module VagrantPlugins
             options[:logout] = k
           end
 
-          o.on("-t", "--token TOKEN", String, "Set the Atlas token") do |t|
+          o.on("-t", "--token TOKEN", String, "Set the Vagrant Cloud token") do |t|
             options[:token] = t
           end
         end
@@ -44,14 +44,14 @@ module VagrantPlugins
 
         # If it is a private cloud installation, show that
         if Vagrant.server_url != Vagrant::DEFAULT_SERVER_URL
-          @env.ui.output("Atlas URL: #{Vagrant.server_url}")
+          @env.ui.output("Vagrant Cloud URL: #{Vagrant.server_url}")
         end
 
         # Ask for the username
         login    = nil
         password = nil
         while !login
-          login = @env.ui.ask("Atlas Username: ")
+          login = @env.ui.ask("Vagrant Cloud Username: ")
         end
 
         while !password

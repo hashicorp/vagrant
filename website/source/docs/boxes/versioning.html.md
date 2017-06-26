@@ -30,10 +30,10 @@ to update your own custom boxes with versions. That is covered in
 
 `vagrant box list` only shows _installed_ versions of boxes. If you want
 to see all available versions of a box, you will have to find the box
-on [HashiCorp's Atlas](/docs/other/atlas.html). An easy way to find a box
-is to use the url `https://atlas.hashicorp.com/$USER/$BOX`. For example, for
+on [HashiCorp's Vagrant Cloud](/docs/vagrant-cloud). An easy way to find a box
+is to use the url `https://vagrantcloud.com/$USER/$BOX`. For example, for
 the `hashicorp/precise64` box, you can find information about it at
-`https://atlas.hashicorp.com/hashicorp/precise64`.
+`https://vagrantcloud.com/hashicorp/precise64`.
 
 You can check if the box you are using is outdated with `vagrant box outdated`.
 This can check if the box in your current Vagrant environment is outdated

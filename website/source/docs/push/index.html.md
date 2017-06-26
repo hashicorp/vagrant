@@ -10,8 +10,7 @@ description: |-
 # Vagrant Push
 
 As of version 1.7, Vagrant is capable of deploying or "pushing" application code
-in the same directory as your Vagrantfile to a remote such as an FTP server or
-[HashiCorp's Atlas][Atlas].
+in the same directory as your Vagrantfile to a remote such as an FTP server.
 
 Pushes are defined in an application's `Vagrantfile` and are invoked using the
 `vagrant push` subcommand. Much like other components of Vagrant, each Vagrant
@@ -57,5 +56,4 @@ $ vagrant push staging
 Vagrant Push is the easiest way to deploy your application. You can read more
 in the documentation links on the sidebar.
 
-[Atlas]: https://atlas.hashicorp.com/  "HashiCorp's Atlas Service"
 [Vagrant Providers]: /docs/providers/  "Vagrant Providers"

@@ -86,33 +86,36 @@ module VagrantPlugins
       end
 
       # Reads the access token if there is one. This will first read the
-      # `ATLAS_TOKEN` environment variable and then fallback to the stored
+      # `VAGRANT_CLOUD_TOKEN` environment variable and then fallback to the stored
       # access token on disk.
       #
       # @return [String]
       def token
-        if present?(ENV["ATLAS_TOKEN"]) && token_path.exist?
+        if present?(ENV["VAGRANT_CLOUD_TOKEN"]) && token_path.exist?
           @env.ui.warn <<-EOH.strip
-Vagrant detected both the ATLAS_TOKEN environment variable and a Vagrant login
-token are present on this system. The ATLAS_TOKEN environment variable takes
+Vagrant detected both the VAGRANT_CLOUD_TOKEN environment variable and a Vagrant login
+token are present on this system. The VAGRANT_CLOUD_TOKEN environment variable takes
 precedence over the locally stored token. To remove this error, either unset
-the ATLAS_TOKEN environment variable or remove the login token stored on disk:
+the VAGRANT_CLOUD_TOKEN environment variable or remove the login token stored on disk:
 
     ~/.vagrant.d/data/vagrant_login_token
 
-In general, the ATLAS_TOKEN is more preferred because it is respected by all
-HashiCorp products.
 EOH
         end
 
-        if present?(ENV["ATLAS_TOKEN"])
+        if present?(ENV["VAGRANT_CLOUD_TOKEN"])
           @logger.debug("Using authentication token from environment variable")
-          return ENV["ATLAS_TOKEN"]
+          return ENV["VAGRANT_CLOUD_TOKEN"]
         end
 
         if token_path.exist?
           @logger.debug("Using authentication token from disk at #{token_path}")
           return token_path.read.strip
+        end
+
+        if present?(ENV["ATLAS_TOKEN"])
+          @logger.warn("ATLAS_TOKEN detected within environment. Using ATLAS_TOKEN in place of VAGRANT_CLOUD_TOKEN.")
+          return ENV["ATLAS_TOKEN"]
         end
 
         @logger.debug("No authentication token in environment or #{token_path}")
