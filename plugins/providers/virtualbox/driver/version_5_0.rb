@@ -426,6 +426,29 @@ module VagrantPlugins
         def read_guest_additions_version
           output = execute("guestproperty", "get", @uuid, "/VirtualBox/GuestAdd/Version",
                            retryable: true)
+
+          # VBoxManage may return "No Value Set" if it is called too
+          # soon after the creation of the VM, resulting in even valid
+          # guest additions not being detected.
+          #
+          # "GuestAdditionsVersion" is populated at "GuestAdditionsRunLevel" 1
+          run_level = execute("showvminfo", @uuid, '--machinereadable') \
+                        .match(/GuestAdditionsRunLevel=(\d+)/)[0].to_i
+
+          # 60 * 0.5 == wait 30 seconds
+          60.times do
+            if output == "No value set!\n" && run_level <= 1
+              sleep 0.5
+              output = execute("guestproperty", "get", @uuid,
+                               "/VirtualBox/GuestAdd/Version", retryable: true)
+
+              @logger.debug('retried GuestAdditionsVersion inspect: ' + output)
+            else
+              break
+            end
+          end
+
+          @logger.debug('VBoxManage GuestAdditions inspection: ' + output)
           if output =~ /^Value: (.+?)$/
             # Split the version by _ since some distro versions modify it
             # to look like this: 4.1.2_ubuntu, and the distro part isn't
