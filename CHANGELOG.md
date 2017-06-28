@@ -9,6 +9,7 @@ IMPROVEMENTS:
   - core: Warn about vagrant CWD changes for a machine [GH-3921]
   - core: Allow Compression and DSAAuthentication ssh flags to be configurable [GH-8693]
   - core/box: Warn if user sets box as url [GH-7118]
+  - core/bundler: Enforce stict constraints on vendored libraries [GH-8692]
   - guests/kali: Add support for guest [GH-8553]
   - guests/smartos: Update halt capability and add public key insert and remove capabilities [GH-8618]
   - provisioners/ansible: Fix SSH keys only behavior to be consistent with Vagrant [GH-8467]
