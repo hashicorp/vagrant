@@ -4,9 +4,11 @@ module VagrantPlugins
   module DockerProvisioner
     class Config < Vagrant.plugin("2", :config)
       attr_reader :images
+      attr_accessor :post_install_provisioner
 
       def initialize
         @images = Set.new
+        @post_install_provisioner = nil
 
         @__build_images   = []
         @__containers     = Hash.new { |h, k| h[k] = {} }
@@ -36,6 +38,15 @@ module VagrantPlugins
 
       def pull_images(*images)
         @images += images.map(&:to_s)
+      end
+
+      def post_install_provision(name, **options, &block)
+        # Abort
+        raise DockerError, :wrong_provisioner if options[:type] == "docker"
+
+        proxy = VagrantPlugins::Kernel_V2::VMConfig.new
+        proxy.provision(name, **options, &block)
+        @post_install_provisioner = proxy.provisioners.first
       end
 
       def run(name, **options)

@@ -53,6 +53,9 @@ of these functions have examples in more detailed sections below.
 
 * `pull_images` - Pull the given images. This does not start these images.
 
+* `post_install_provisioner` - A [provisioner block](/docs/provisioning) that runs post docker
+   installation.
+
 * `run` - Run a container and configure it to start on boot. This can
   only be specified once.
 
@@ -191,6 +194,15 @@ that are generally useful to know if you are using this provisioner.
 
 ### Customize `/etc/default/docker`
 
-To customize this file, use a shell provisioner before the Docker provisioner
-that sets this file up. The Docker provisioner will not modify this file
-in a destructive way.
+To customize this file, use the `post_install_provisioner` shell provisioner.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "docker" do |d|
+    d.post_install_provision "shell", inline:"echo export http_proxy='http://127.0.0.1:3128/' >> /etc/default/docker"
+    d.run "ubuntu",
+      cmd: "bash -l",
+      args: "-v '/vagrant:/var/www'"
+  end
+end
+```

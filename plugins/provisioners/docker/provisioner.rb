@@ -19,7 +19,16 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::provisioners::docker")
 
         @logger.info("Checking for Docker installation...")
-        @installer.ensure_installed
+        if @installer.ensure_installed
+          if !config.post_install_provisioner.nil?
+            @logger.info("Running post setup provision script...")
+            env = {
+                  callable: method(:run_provisioner),
+                  provisioner: config.post_install_provisioner,
+                  machine: machine}
+            machine.env.hook(:run_provisioner, env)
+          end
+        end
 
         # Attempt to start service if not running
         @client.start_service
@@ -39,6 +48,14 @@ module VagrantPlugins
           @machine.ui.info(I18n.t("vagrant.docker_starting_containers"))
           @client.run(config.containers)
         end
+      end
+
+      def run_provisioner(env)
+        klass  = Vagrant.plugin("2").manager.provisioners[env[:provisioner].type]
+        result = klass.new(env[:machine], env[:provisioner].config)
+        result.config.finalize!
+
+        result.provision
       end
     end
   end
