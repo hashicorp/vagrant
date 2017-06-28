@@ -27,6 +27,7 @@ BUG FIXES:
   - guests/linux: Strip whitespace from GID [GH-8666, GH-8664]
   - guests/solaris: Do not use UNC style path for shared folders from windows hosts [GH-7723]
   - guests/windows: Fix directory creation when using rsync for synced folders [GH-8588]
+  - hosts/windows: Force common encoding when running system commands [GH-8725]
   - providers/docker: Fix check for docker-compose [GH-8659, GH-8660]
   - providers/docker: Fix SSH under docker provider [GH-8706]
   - providers/hyperv: Fix box import [GH-8678, GH-8677]
