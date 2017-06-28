@@ -223,11 +223,13 @@ module Vagrant
 
       # Generate all required plugin deps
       plugin_deps = plugins.map do |name, info|
+        gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
         if update[:gems] == true || (update[:gems].respond_to?(:include?) && update[:gems].include?(name))
-          gem_version = plugins[name]["gem_version"].to_s.empty? ? "> 0" : plugins[name]["gem_version"]
+          if Gem::Requirement.new(gem_version).exact?
+            gem_version = "> 0"
+            @logger.debug("Detected exact version match for `#{name}` plugin update. Reset to loose constraint #{gem_version.inspect}.")
+          end
           skips << name
-        else
-          gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
         end
         source_list[name] ||= []
         if plugin_source = info.delete("local_source")
