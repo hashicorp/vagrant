@@ -91,7 +91,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       env[:box_name] = "foo"
       env[:box_url] = box_path.to_s
 
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo")
         expect(version).to eq("0")
@@ -113,7 +113,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
         box_path.to_s,
       ]
 
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo")
         expect(version).to eq("0")
@@ -132,7 +132,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
         env[:box_name] = "foo"
         env[:box_url] = "http://127.0.0.1:#{port}/#{box_path.basename}"
 
-        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
           expect(checksum(path)).to eq(checksum(box_path))
           expect(name).to eq("foo")
           expect(version).to eq("0")
@@ -152,7 +152,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
         env[:box_name] = "foo"
         env[:box_url] = "ftp://127.0.0.1:#{port}/#{box_path.basename}"
 
-        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
           expect(checksum(path)).to eq(checksum(box_path))
           expect(name).to eq("foo")
           expect(version).to eq("0")
@@ -268,7 +268,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       env[:box_provider] = "virtualbox"
 
       box_collection.stub(find: box)
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo")
         expect(version).to eq("0")
@@ -315,7 +315,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
           env[:box_name] = "foo"
           env[:box_url] = "http://#{username}:#{password}@127.0.0.1:#{port}/#{box_path.basename}"
 
-          expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+          expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
             expect(checksum(path)).to eq(checksum(box_path))
             expect(name).to eq("foo")
             expect(version).to eq("0")
@@ -363,7 +363,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       with_web_server(md_path) do |port|
         env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
 
-        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
           expect(name).to eq("foo/bar")
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
@@ -408,7 +408,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       with_web_server(md_path, **opts) do |port|
         env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
 
-        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
           expect(name).to eq("foo/bar")
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
@@ -453,7 +453,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
         url = "http://127.0.0.1:#{port}"
         env[:box_url] = "mitchellh/precise64.json"
 
-        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
           expect(name).to eq("mitchellh/precise64")
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
@@ -504,7 +504,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
         env[:box_url] = "mitchellh/precise64.json"
         env[:box_server_url] = url
 
-        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
           expect(name).to eq("mitchellh/precise64")
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
@@ -565,7 +565,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
           end
         end
 
-        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
           expect(name).to eq("foo/bar")
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
@@ -610,7 +610,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       with_web_server(md_path) do |port|
         env[:box_url] = "http://127.0.0.1:#{port}/#{md_path.basename}"
 
-        expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
           expect(name).to eq("foo/bar")
           expect(version).to eq("0.7")
           expect(checksum(path)).to eq(checksum(box_path))
@@ -754,7 +754,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       end
 
       env[:box_url] = tf.path
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
@@ -798,7 +798,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
 
       env[:box_url] = tf.path
       env[:box_provider] = "vmware"
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
@@ -847,7 +847,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
 
       env[:box_url] = tf.path
       env[:box_provider] = "vmware"
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
@@ -887,7 +887,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
 
       env[:box_url] = tf.path
       env[:box_version] = "~> 0.1"
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.5")
@@ -932,7 +932,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       env[:box_url] = tf.path
       env[:box_provider] = "vmware"
       env[:box_version] = "~> 0.1"
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.5")
@@ -980,7 +980,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
 
       env[:box_url] = tf.path
       env[:box_provider] = ["virtualbox", "vmware"]
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
@@ -1028,7 +1028,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
 
       expect(env[:ui]).to receive(:ask).and_return("1")
 
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
@@ -1204,11 +1204,11 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       env[:box_force] = true
       env[:box_url] = tf.path
       box_collection.stub(find: box)
-      expect(box_collection).to receive(:add).with { |path, name, version, **opts|
+      expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")
         expect(version).to eq("0.7")
-        expect(opts[:force]).to be_true
+        expect(opts[:force]).to be(true)
         expect(opts[:metadata_url]).to eq("file://#{tf.path}")
         true
       }.and_return(box)

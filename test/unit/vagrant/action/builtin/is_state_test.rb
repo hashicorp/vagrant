@@ -23,7 +23,7 @@ describe Vagrant::Action::Builtin::IsState do
       expect(app).to receive(:call).with(env)
 
       subject.call(env)
-      expect(env[:result]).to be_false
+      expect(env[:result]).to be(false)
     end
 
     it "sets result to true if is proper state" do
@@ -34,7 +34,7 @@ describe Vagrant::Action::Builtin::IsState do
       expect(app).to receive(:call).with(env)
 
       subject.call(env)
-      expect(env[:result]).to be_true
+      expect(env[:result]).to be(true)
     end
 
     it "inverts the result if specified" do
@@ -45,7 +45,7 @@ describe Vagrant::Action::Builtin::IsState do
       expect(app).to receive(:call).with(env)
 
       subject.call(env)
-      expect(env[:result]).to be_false
+      expect(env[:result]).to be(false)
     end
   end
 end

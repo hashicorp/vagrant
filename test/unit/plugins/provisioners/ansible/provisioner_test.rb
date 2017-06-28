@@ -45,6 +45,7 @@ VF
     host: '127.0.0.1',
     port: 2223
   }}
+  let(:default_execute_result) { Vagrant::Util::Subprocess::Result.new(0, "", "") }
 
   let(:existing_file) { File.expand_path(__FILE__) }
   let(:generated_inventory_dir) { File.join(machine.env.local_data_path, %w(provisioners ansible inventory)) }
@@ -74,7 +75,7 @@ VF
     expected_transport_mode = "ssh")
 
     it "sets implicit arguments in a specific order" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
 
         expect(args[0]).to eq("ansible-playbook")
         expect(args[1]).to eq("--connection=ssh")
@@ -84,11 +85,11 @@ VF
         expect(inventory_count).to be > 0
 
         expect(args[args.length-2]).to eq("playbook.yml")
-      }
+      }.and_return(default_execute_result)
     end
 
     it "sets --limit argument" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         all_limits = args.select { |x| x =~ /^(--limit=|-l)/ }
         if config.raw_arguments
           raw_limits = config.raw_arguments.select { |x| x =~ /^(--limit=|-l)/ }
@@ -102,11 +103,11 @@ VF
             expect(all_limits.first).to eq("--limit=#{machine.name}")
           end
         end
-      }
+      }.and_return(default_execute_result)
     end
 
     it "exports environment variables" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         cmd_opts = args.last
 
         if expected_host_key_checking
@@ -119,30 +120,30 @@ VF
         expect(cmd_opts[:env]).to_not include("ANSIBLE_NOCOLOR")
         expect(cmd_opts[:env]['ANSIBLE_HOST_KEY_CHECKING']).to eql(expected_host_key_checking.to_s)
         expect(cmd_opts[:env]['PYTHONUNBUFFERED']).to eql(1)
-      }
+      }.and_return(default_execute_result)
     end
 
     # "roughly" verify that only expected args/vars have been defined by the provisioner
     it "sets the expected number of arguments and environment variables" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         expect(args.length-2).to eq(expected_args_count)
         expect(args.last[:env].length).to eq(expected_vars_count)
-      }
+      }.and_return(default_execute_result)
     end
 
     it "enables '#{expected_transport_mode}' as default transport mode" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         index = args.rindex("--connection=#{expected_transport_mode}")
         expect(index).to be > 0
-        expect(find_last_argument_after(index, args, /--connection=\w+/)).to be_false
-      }
+        expect(find_last_argument_after(index, args, /--connection=\w+/)).to be(false)
+      }.and_return(default_execute_result)
     end
 
   end
 
   def self.it_should_set_optional_arguments(arg_map)
     it "sets optional arguments" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         arg_map.each_pair do |vagrant_option, ansible_argument|
           index = args.index(ansible_argument)
           if config.send(vagrant_option)
@@ -151,25 +152,25 @@ VF
             expect(index).to be_nil
           end
         end
-      }
+      }.and_return(default_execute_result)
     end
   end
 
   def self.it_should_explicitly_enable_ansible_ssh_control_persist_defaults
     it "configures ControlPersist (like Ansible defaults) via ANSIBLE_SSH_ARGS" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         cmd_opts = args.last
         expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ControlMaster=auto")
         expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ControlPersist=60s")
-      }
+      }.and_return(default_execute_result)
     end
   end
 
   def self.it_should_create_and_use_generated_inventory(with_ssh_user = true)
     it "generates an inventory with all active machines" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         expect(config.inventory_path).to be_nil
-        expect(File.exists?(generated_inventory_file)).to be_true
+        expect(File.exists?(generated_inventory_file)).to be(true)
         inventory_content = File.read(generated_inventory_file)
         if with_ssh_user
           expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_user='#{machine.ssh_info[:username]}' ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
@@ -177,22 +178,22 @@ VF
           expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
         end
         expect(inventory_content).to include("# MISSING: '#{iso_env.machine_names[1]}' machine was probably removed without using Vagrant. This machine should be recreated.\n")
-      }
+      }.and_return(default_execute_result)
     end
 
     it "sets as ansible inventory the directory containing the auto-generated inventory file" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         inventory_index = args.rindex("--inventory-file=#{generated_inventory_dir}")
         expect(inventory_index).to be > 0
-        expect(find_last_argument_after(inventory_index, args, /--inventory-file=\w+/)).to be_false
-      }
+        expect(find_last_argument_after(inventory_index, args, /--inventory-file=\w+/)).to be(false)
+      }.and_return(default_execute_result)
     end
   end
 
   describe "#provision" do
 
     before do
-      unless example.metadata[:skip_before]
+      unless RSpec.current_example.metadata[:skip_before]
         config.finalize!
 
         Vagrant::Util::Subprocess.stub(execute: Vagrant::Util::Subprocess::Result.new(0, "", ""))
@@ -201,7 +202,7 @@ VF
     end
 
     after do
-      unless example.metadata[:skip_after]
+      unless RSpec.current_example.metadata[:skip_after]
         subject.provision
       end
     end
@@ -259,18 +260,18 @@ VF
       it_should_create_and_use_generated_inventory
 
       it "does not add any group section to the generated inventory" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to_not match(/^\s*\[^\\+\]\s*$/)
 
           # Ending this block with a negative expectation (to_not / not_to)
           # would lead to a failure of the above expectation.
           true
-        }
+        }.and_return(default_execute_result)
       end
 
       it "doesn't show the ansible-playbook command" do
-        expect(machine.env.ui).not_to receive(:detail).with { |full_command|
+        expect(machine.env.ui).not_to receive(:detail).with(any_args) { |full_command|
           expect(full_command).to include("ansible-playbook")
         }
       end
@@ -282,9 +283,9 @@ VF
       end
 
       it "uses custom playbook_command to run playbooks" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args[0]).to eq("custom-ansible-playbook")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -295,40 +296,40 @@ VF
         config.host_vars = {
           machine1: {"http_port" => 80, "comments" => "'some text with spaces'"}
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 comments='some text with spaces'$")
-        }
+        }.and_return(default_execute_result)
       end
 
       it "adds host variables (given in Array format) to the generated inventory" do
         config.host_vars = {
           machine1: ["http_port=80", "maxRequestsPerChild=808"]
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
-        }
+        }.and_return(default_execute_result)
       end
 
       it "adds host variables (given in String format) to the generated inventory " do
         config.host_vars = {
           :machine1 => "http_port=80 maxRequestsPerChild=808"
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
-        }
+        }.and_return(default_execute_result)
       end
 
       it "retrieves the host variables by machine name, also in String format" do
         config.host_vars = {
           "machine1" => "http_port=80 maxRequestsPerChild=808"
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -347,7 +348,7 @@ VF
           "bar:children" => ["group1", "group2", "group3", "group5"],
         }
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
 
           # Accept String instead of Array for group member list
@@ -372,7 +373,7 @@ VF
           # A group of groups only includes declared groups
           expect(inventory_content).not_to include("group5")
           expect(inventory_content).to match(Regexp.quote("[bar:children]\ngroup1\ngroup2\ngroup3\n") + "$")
-        }
+        }.and_return(default_execute_result)
       end
 
       it "adds group vars to the generated inventory" do
@@ -385,7 +386,7 @@ VF
           "group3:vars" => "stringvar1=stringvalue1 stringvar2=stringvalue2",
         }
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
 
           # Hash syntax
@@ -396,7 +397,7 @@ VF
 
           # Single string syntax
           expect(inventory_content).to include("[group3:vars]\nstringvar1=stringvalue1\nstringvar2=stringvalue2\n")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -421,11 +422,11 @@ VF
       it_should_set_optional_arguments({ "sudo_user" => "--sudo-user=root" })
 
       it "it does not set boolean flag when corresponding option is set to false" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args.index("--sudo")).to be_nil
           expect(args.index("--ask-sudo-pass")).to be_nil
           expect(args.index("--ask-vault-pass")).to be_nil
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -450,26 +451,26 @@ VF
       it_should_set_arguments_and_environment_variables 17, 4, false, "paramiko"
 
       it "sets all raw arguments" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           config.raw_arguments.each do |raw_arg|
             expect(args).to include(raw_arg)
           end
-        }
+        }.and_return(default_execute_result)
       end
 
       it "sets raw arguments after arguments related to supported options" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args.index("--user=lion")).to be > args.index("--user=testuser")
           expect(args.index("--inventory-file=/forget/it/my/friend")).to be > args.index("--inventory-file=#{generated_inventory_dir}")
           expect(args.index("--limit=bar")).to be > args.index("--limit=all")
           expect(args.index("--skip-tags=ignored")).to be > args.index("--skip-tags=foo,bar")
-        }
+        }.and_return(default_execute_result)
       end
 
       it "sets boolean flag (e.g. --sudo) defined in raw_arguments, even if corresponding option is set to false" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args).to include('--sudo')
-        }
+        }.and_return(default_execute_result)
       end
 
     end
@@ -492,10 +493,10 @@ VF
       it_should_set_arguments_and_environment_variables 6
 
       it "uses a --user argument to set a default remote user" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args).not_to include("--extra-vars=ansible_ssh_user='#{machine.ssh_info[:username]}'")
           expect(args).to include("--user=#{machine.ssh_info[:username]}")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -524,13 +525,13 @@ VF
 
       it "generates an inventory with winrm connection settings" do
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(config.inventory_path).to be_nil
-          expect(File.exists?(generated_inventory_file)).to be_true
+          expect(File.exists?(generated_inventory_file)).to be(true)
           inventory_content = File.read(generated_inventory_file)
 
           expect(inventory_content).to include("machine1 ansible_connection=winrm ansible_ssh_host=127.0.0.1 ansible_ssh_port=55986 ansible_ssh_user='winner' ansible_ssh_pass='winword'\n")
-        }
+        }.and_return(default_execute_result)
       end
 
       describe "with force_remote_user option disabled" do
@@ -539,12 +540,12 @@ VF
         end
 
         it "doesn't set the ansible remote user in inventory and use '--user' argument with the vagrant ssh username" do
-          expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
             inventory_content = File.read(generated_inventory_file)
 
             expect(inventory_content).to include("machine1 ansible_connection=winrm ansible_ssh_host=127.0.0.1 ansible_ssh_port=55986 ansible_ssh_pass='winword'\n")
             expect(args).to include("--user=testuser")
-          }
+          }.and_return(default_execute_result)
         end
       end
     end
@@ -557,18 +558,18 @@ VF
       it_should_set_arguments_and_environment_variables 6
 
       it "does not generate the inventory and uses given inventory path instead" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args).to include("--inventory-file=#{existing_file}")
           expect(args).not_to include("--inventory-file=#{generated_inventory_file}")
-          expect(File.exists?(generated_inventory_file)).to be_false
-        }
+          expect(File.exists?(generated_inventory_file)).to be(false)
+        }.and_return(default_execute_result)
       end
 
       it "uses an --extra-vars argument to force ansible_ssh_user parameter" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args).not_to include("--user=#{machine.ssh_info[:username]}")
           expect(args).to include("--extra-vars=ansible_ssh_user='#{machine.ssh_info[:username]}'")
-        }
+        }.and_return(default_execute_result)
       end
 
       describe "with force_remote_user option disabled" do
@@ -577,10 +578,10 @@ VF
         end
 
         it "uses a --user argument to set a default remote user" do
-          expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
             expect(args).not_to include("--extra-vars=ansible_ssh_user='#{machine.ssh_info[:username]}'")
             expect(args).to include("--user=#{machine.ssh_info[:username]}")
-          }
+          }.and_return(default_execute_result)
         end
       end
     end
@@ -591,11 +592,11 @@ VF
       end
 
       it "sets ANSIBLE_CONFIG environment variable" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]).to include("ANSIBLE_CONFIG")
           expect(cmd_opts[:env]['ANSIBLE_CONFIG']).to eql(existing_file)
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -607,9 +608,9 @@ VF
       it_should_set_arguments_and_environment_variables 6
 
       it "should ask the vault password" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args).to include("--ask-vault-pass")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -621,9 +622,9 @@ VF
       it_should_set_arguments_and_environment_variables 6
 
       it "uses the given vault password file" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args).to include("--vault-password-file=#{existing_file}")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -636,12 +637,12 @@ VF
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes custom SSH options via ANSIBLE_SSH_ARGS with the highest priority" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           raw_opt_index = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ControlMaster=no")
           default_opt_index = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ControlMaster=auto")
           expect(raw_opt_index).to be < default_opt_index
-        }
+        }.and_return(default_execute_result)
       end
 
       describe "and with ssh forwarding enabled" do
@@ -650,12 +651,12 @@ VF
         end
 
         it "sets '-o ForwardAgent=yes' via ANSIBLE_SSH_ARGS with higher priority than raw_ssh_args values" do
-          expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
             cmd_opts = args.last
             forwardAgentYes = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ForwardAgent=yes")
             forwardAgentNo = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ForwardAgent=no")
             expect(forwardAgentYes).to be < forwardAgentNo
-          }
+          }.and_return(default_execute_result)
         end
       end
 
@@ -670,11 +671,11 @@ VF
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes additional Identity Files via ANSIBLE_SSH_ARGS" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-i '/an/other/identity'")
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-i '/yet/an/other/key'")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -687,10 +688,10 @@ VF
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "enables SSH-Forwarding via ANSIBLE_SSH_ARGS" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ForwardAgent=yes")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -700,10 +701,10 @@ VF
       end
 
       it "sets '-o ProxyCommand' via ANSIBLE_SSH_ARGS" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ProxyCommand='ssh -W %h:%p -q user@remote_libvirt_host'")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -719,7 +720,7 @@ VF
           it_should_set_optional_arguments({ "verbose" => "-#{verbose_option}" })
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
-            expect(machine.env.ui).to receive(:detail).with { |full_command|
+            expect(machine.env.ui).to receive(:detail).with(any_args) { |full_command|
               expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
             }
           end
@@ -734,7 +735,7 @@ VF
           it_should_set_optional_arguments({ "verbose" => "-#{verbose_option}" })
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
-            expect(machine.env.ui).to receive(:detail).with { |full_command|
+            expect(machine.env.ui).to receive(:detail).with(any_args) { |full_command|
               expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
             }
           end
@@ -750,7 +751,7 @@ VF
         it_should_set_optional_arguments({ "verbose" => "-v" })
 
         it "shows the ansible-playbook command and set verbosity to '-v' level" do
-          expect(machine.env.ui).to receive(:detail).with { |full_command|
+          expect(machine.env.ui).to receive(:detail).with(any_args) { |full_command|
             expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -v playbook.yml")
           }
         end
@@ -764,7 +765,7 @@ VF
         it_should_set_arguments_and_environment_variables
 
         it "doesn't show the ansible-playbook command" do
-          expect(machine.env.ui).not_to receive(:detail).with { |full_command|
+          expect(machine.env.ui).not_to receive(:detail).with(any_args) { |full_command|
             expect(full_command).to include("ansible-playbook")
           }
         end
@@ -778,11 +779,11 @@ VF
       end
 
       it "disables ansible-playbook colored output" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]).to_not include("ANSIBLE_FORCE_COLOR")
           expect(cmd_opts[:env]['ANSIBLE_NOCOLOR']).to eql("true")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -821,11 +822,11 @@ VF
       end
 
       it "sets ANSIBLE_ROLES_PATH with corresponding absolute path" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]).to include("ANSIBLE_ROLES_PATH")
           expect(cmd_opts[:env]['ANSIBLE_ROLES_PATH']).to eql(File.join(machine.env.root_path, "my-roles"))
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -892,17 +893,17 @@ VF
                                         })
 
       it "also includes given raw arguments" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args).to include("--why-not")
           expect(args).to include("--su-user=foot")
           expect(args).to include("--ask-su-pass")
           expect(args).to include("--limit=all")
           expect(args).to include("--private-key=./myself.key")
-        }
+        }.and_return(default_execute_result)
       end
 
       it "shows the ansible-playbook command, with additional quotes when required" do
-        expect(machine.env.ui).to receive(:detail).with { |full_command|
+        expect(machine.env.ui).to receive(:detail).with(any_args) { |full_command|
           expect(full_command).to eq(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -i '/my/key1' -i '/my/key2' -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
         }
       end
@@ -933,10 +934,10 @@ VF
       end
 
       it "uses an SSH ProxyCommand to reach the VM" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ProxyCommand='ssh boot9docker@127.0.0.1 -p 2299 -i /path/to/docker/host/key -o Compression=yes -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no exec nc %h %p 2>/dev/null'")
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -951,7 +952,7 @@ VF
       end
 
       it "warns that Windows is not officially supported for the Ansible control machine" do
-        expect(machine.env.ui).to receive(:warn).with { |warning|
+        expect(machine.env.ui).to receive(:warn).with(any_args) { |warning|
           expect(warning).to eq(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine"))
         }
       end
@@ -963,28 +964,28 @@ VF
       end
 
       it "does not set IdentitiesOnly=yes in ANSIBLE_SSH_ARGS" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o IdentitiesOnly=yes")
 
           # Ending this block with a negative expectation (to_not / not_to)
           # would lead to a failure of the above expectation.
           true
-        }
+        }.and_return(default_execute_result)
       end
 
       describe "and with host_key_checking option enabled" do
         it "does not set ANSIBLE_SSH_ARGS environment variable" do
           config.host_key_checking = true
 
-          expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
             cmd_opts = args.last
             expect(cmd_opts[:env]).to_not include('ANSIBLE_SSH_ARGS')
 
             # Ending this block with a negative expectation (to_not / not_to)
             # would lead to a failure of the above expectation.
             true
-          }
+          }.and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
         end
       end
 

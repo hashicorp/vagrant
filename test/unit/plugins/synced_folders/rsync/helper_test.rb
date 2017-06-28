@@ -64,9 +64,9 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:ui)        { machine.ui }
 
     before do
-      Vagrant::Util::Subprocess.stub(execute: result)
+      Vagrant::Util::Subprocess.stub(:execute){ result }
 
-      guest.stub(capability?: false)
+      guest.stub(:capability?){ false }
     end
 
     it "doesn't raise an error if it succeeds" do
@@ -83,9 +83,9 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       Vagrant::Util::Platform.stub(windows?: true)
       expect(Vagrant::Util::Platform).to receive(:cygwin_path).and_return("foo")
 
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         expect(args[args.length - 3]).to eql("foo/")
-      }
+      }.and_return(result)
 
       subject.rsync_single(machine, ssh_info, opts)
     end
@@ -103,11 +103,11 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         opts[:hostpath] = "/foo"
         opts[:guestpath] = "/bar"
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
           expect(args[args.length - 3]).to eql("#{expected}/")
           expect(args[args.length - 2]).to include("/bar")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -118,22 +118,22 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
 
         hostpath_expanded = File.expand_path(opts[:hostpath], machine.env.root_path)
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args[args.length - 3]).to eql("#{hostpath_expanded}/")
           expect(args[args.length - 2]).to include("/bar")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
 
     it "executes within the root path" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         expect(args.last).to be_kind_of(Hash)
 
         opts = args.last
         expect(opts[:workdir]).to eql(machine.env.root_path.to_s)
-      }
+      }.and_return(result)
 
       subject.rsync_single(machine, ssh_info, opts)
     end
@@ -158,11 +158,11 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       it "excludes files if given as a string" do
         opts[:exclude] = "foo"
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           index = args.find_index("foo")
           expect(index).to be > 0
           expect(args[index-1]).to eql("--exclude")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -170,7 +170,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       it "excludes multiple files" do
         opts[:exclude] = ["foo", "bar"]
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           index = args.find_index("foo")
           expect(index).to be > 0
           expect(args[index-1]).to eql("--exclude")
@@ -178,7 +178,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
           index = args.find_index("bar")
           expect(index).to be > 0
           expect(args[index-1]).to eql("--exclude")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -186,14 +186,14 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
 
     context "custom arguments" do
       it "uses the default arguments if not given" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args[1]).to eq("--verbose")
           expect(args[2]).to eq("--archive")
           expect(args[3]).to eq("--delete")
 
           expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
           expect(args[args.length - 3]).to eql("#{expected}/")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -201,13 +201,13 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       it "uses the custom arguments if given" do
         opts[:args] = ["--verbose", "-z"]
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args[1]).to eq("--verbose")
           expect(args[2]).to eq("-z")
 
           expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
           expect(args[args.length - 3]).to eql("#{expected}/")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -228,19 +228,19 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:ui)        { machine.ui }
 
     before do
-      Vagrant::Util::Subprocess.stub(execute: result)
+      Vagrant::Util::Subprocess.stub(:execute){ result }
 
-      guest.stub(capability?: false)
+      guest.stub(:capability?){ false }
     end
 
     it "includes IdentitiesOnly, StrictHostKeyChecking, and UserKnownHostsFile with defaults" do
 
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         expect(args[9]).to include('IdentitiesOnly')
         expect(args[9]).to include('StrictHostKeyChecking')
         expect(args[9]).to include('UserKnownHostsFile')
         expect(args[9]).to include("-i '/path/to/key'")
-      }
+      }.and_return(result)
 
       subject.rsync_single(machine, ssh_info, opts)
     end

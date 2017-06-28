@@ -46,11 +46,11 @@ describe VagrantPlugins::DockerProvider::Config do
     its(:expose) { should eq([]) }
     its(:cmd) { should eq([]) }
     its(:env) { should eq({}) }
-    its(:force_host_vm) { should be_false }
+    its(:force_host_vm) { should be(false) }
     its(:host_vm_build_dir_options) { should be_nil }
     its(:image) { should be_nil }
     its(:name) { should be_nil }
-    its(:privileged) { should be_false }
+    its(:privileged) { should be(false) }
     its(:stop_timeout) { should eq(1) }
     its(:vagrant_machine) { should be_nil }
     its(:vagrant_vagrantfile) { should be_nil }

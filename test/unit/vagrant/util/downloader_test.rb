@@ -69,7 +69,7 @@ describe Vagrant::Util::Downloader do
           with("curl", *curl_options).
           and_return(subprocess_result)
 
-        expect(subject.download!).to be_true
+        expect(subject.download!).to be(true)
       end
     end
 
@@ -90,7 +90,7 @@ describe Vagrant::Util::Downloader do
           with("curl", *curl_options).
           and_return(subprocess_result)
 
-        expect(subject.download!).to be_true
+        expect(subject.download!).to be(true)
       end
     end
 
@@ -116,7 +116,7 @@ describe Vagrant::Util::Downloader do
             end
 
             it "should not raise an exception" do
-              expect(subject.download!).to be_true
+              expect(subject.download!).to be(true)
             end
           end
 
@@ -144,7 +144,7 @@ describe Vagrant::Util::Downloader do
           end
 
           it "should not raise an exception" do
-            expect(subject.download!).to be_true
+            expect(subject.download!).to be(true)
           end
         end
 

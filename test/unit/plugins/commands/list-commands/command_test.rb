@@ -28,7 +28,7 @@ describe VagrantPlugins::CommandListCommands::Command do
       commands[:bar] = [command_lambda("bar", 0), { primary: true }]
       commands[:baz] = [command_lambda("baz", 0), { primary: false }]
 
-      expect(iso_env.ui).to receive(:info).with { |message, opts|
+      expect(iso_env.ui).to receive(:info).with(any_args) { |message, opts|
         expect(message).to include("foo")
         expect(message).to include("bar")
         expect(message).to include("baz")

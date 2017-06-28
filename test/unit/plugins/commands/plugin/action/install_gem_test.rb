@@ -84,7 +84,7 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
       end
 
       it "should uninstall the plugin" do
-        expect(action_runner).to receive(:run).with { |action, newenv|
+        expect(action_runner).to receive(:run).with(any_args) { |action, newenv|
           expect(newenv[:plugin_name]).to eql("foo")
         }
 

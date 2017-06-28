@@ -3,8 +3,8 @@ require "rubygems"
 
 # Gems
 require "checkpoint"
-require "rspec/autorun"
 require "webmock/rspec"
+require "rspec/its"
 
 # Require Vagrant itself so we can reference the proper
 # classes to test.
@@ -33,8 +33,6 @@ VAGRANT_TEST_CWD = Dir.mktmpdir("vagrant-test-cwd")
 
 # Configure RSpec
 RSpec.configure do |c|
-  c.treat_symbols_as_metadata_keys_with_true_values = true
-
   if Vagrant::Util::Platform.windows?
     c.filter_run_excluding :skip_windows
   else

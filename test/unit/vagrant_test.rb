@@ -59,11 +59,11 @@ describe Vagrant do
         name "i_am_installed"
       end
 
-      expect(described_class.has_plugin?("i_am_installed")).to be_true
+      expect(described_class.has_plugin?("i_am_installed")).to be(true)
     end
 
     it "should return false if the plugin is not installed" do
-      expect(described_class.has_plugin?("i_dont_exist")).to be_false
+      expect(described_class.has_plugin?("i_dont_exist")).to be(false)
     end
 
     it "finds plugins by gem name" do
@@ -71,8 +71,8 @@ describe Vagrant do
       specs[0].name = "foo"
       Vagrant::Plugin::Manager.instance.stub(installed_specs: specs)
 
-      expect(described_class.has_plugin?("foo")).to be_true
-      expect(described_class.has_plugin?("bar")).to be_false
+      expect(described_class.has_plugin?("foo")).to be(true)
+      expect(described_class.has_plugin?("bar")).to be(false)
     end
 
     it "finds plugins by gem name and version" do
@@ -81,9 +81,9 @@ describe Vagrant do
       specs[0].version = "1.2.3"
       Vagrant::Plugin::Manager.instance.stub(installed_specs: specs)
 
-      expect(described_class.has_plugin?("foo", "~> 1.2.0")).to be_true
-      expect(described_class.has_plugin?("foo", "~> 1.0.0")).to be_false
-      expect(described_class.has_plugin?("bar", "~> 1.2.0")).to be_false
+      expect(described_class.has_plugin?("foo", "~> 1.2.0")).to be(true)
+      expect(described_class.has_plugin?("foo", "~> 1.0.0")).to be(false)
+      expect(described_class.has_plugin?("bar", "~> 1.2.0")).to be(false)
     end
   end
 

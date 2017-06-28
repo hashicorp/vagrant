@@ -47,7 +47,7 @@ describe VagrantPlugins::CommandUp::Command do
       end
 
       it "should attempt to use dummy provider" do
-        expect{ subject.execute }.to raise_error
+        expect{ subject.execute }.to raise_error(Vagrant::Errors::ProviderNotFound)
       end
 
       context "with --provider set" do

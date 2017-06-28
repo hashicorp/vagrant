@@ -30,9 +30,9 @@ describe Vagrant::Plugin::Manager do
     it "installs the plugin and adds it to the state file" do
       specs = Array.new(5) { Gem::Specification.new }
       specs[3].name = "foo"
-      expect(bundler).to receive(:install).once.with { |plugins, local|
+      expect(bundler).to receive(:install).once.with(any_args) { |plugins, local|
         expect(plugins).to have_key("foo")
-        expect(local).to be_false
+        expect(local).to be(false)
       }.and_return(specs)
       expect(bundler).to receive(:clean)
 
@@ -92,10 +92,10 @@ describe Vagrant::Plugin::Manager do
       end
 
       it "installs a version with constraints" do
-        expect(bundler).to receive(:install).once.with { |plugins, local|
+        expect(bundler).to receive(:install).once.with(any_args) { |plugins, local|
           expect(plugins).to have_key("foo")
           expect(plugins["foo"]["gem_version"]).to eql(">= 0.1.0")
-          expect(local).to be_false
+          expect(local).to be(false)
         }.and_return(specs)
         expect(bundler).to receive(:clean)
 
@@ -107,10 +107,10 @@ describe Vagrant::Plugin::Manager do
       end
 
       it "installs with an exact version but doesn't constrain" do
-        expect(bundler).to receive(:install).once.with { |plugins, local|
+        expect(bundler).to receive(:install).once.with(any_args) { |plugins, local|
           expect(plugins).to have_key("foo")
           expect(plugins["foo"]["gem_version"]).to eql("0.1.0")
-          expect(local).to be_false
+          expect(local).to be(false)
         }.and_return(specs)
         expect(bundler).to receive(:clean)
 
@@ -170,7 +170,7 @@ describe Vagrant::Plugin::Manager do
         subject.uninstall_plugin("bar")
 
         plugins = subject.installed_plugins
-        expect(plugins["foo"]["system"]).to be_true
+        expect(plugins["foo"]["system"]).to be(true)
       end
 
       it "raises an error if uninstalling a system gem" do
@@ -243,9 +243,9 @@ describe Vagrant::Plugin::Manager do
           expect(plugins.length).to eql(2)
           expect(plugins).to have_key("foo")
           expect(plugins["foo"]["gem_version"]).to eq("0.1.0")
-          expect(plugins["foo"]["system"]).to be_false
+          expect(plugins["foo"]["system"]).to be_falsey
           expect(plugins).to have_key("bar")
-          expect(plugins["bar"]["system"]).to be_true
+          expect(plugins["bar"]["system"]).to be(true)
         end
       end
     end

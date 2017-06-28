@@ -12,14 +12,14 @@ describe "VagrantPlugins::GuestWindows::GuestNetwork" do
       expect(communicator).to receive(:test).with(
         /.+Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter "Index=7 and DHCPEnabled=True"/).
         and_return(true)
-      expect(subject.is_dhcp_enabled(7)).to be_true
+      expect(subject.is_dhcp_enabled(7)).to be(true)
     end
 
     it "should return false for non-DHCP NICs" do
       expect(communicator).to receive(:test).with(
         /.+Get-WmiObject -Class Win32_NetworkAdapterConfiguration -Filter "Index=8 and DHCPEnabled=True"/).
         and_return(false)
-      expect(subject.is_dhcp_enabled(8)).to be_false
+      expect(subject.is_dhcp_enabled(8)).to be(false)
     end
   end
 

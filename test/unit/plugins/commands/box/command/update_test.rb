@@ -27,7 +27,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
   subject { described_class.new(argv, iso_env) }
 
   before do
-    iso_env.stub(action_runner: action_runner)
+    allow(iso_env).to receive(:action_runner).and_return(action_runner)
     machine.config.vm.box = "foo"
   end
 
@@ -64,7 +64,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
         subject.execute
 
-        expect(called).to be_false
+        expect(called).to be(false)
       end
 
       it "does update if there is an update" do
@@ -108,7 +108,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
         subject.execute
 
-        expect(action_called).to be_true
+        expect(action_called).to be(true)
       end
 
       it "raises an error if there are multiple providers" do
@@ -162,7 +162,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
 
           subject.execute
 
-          expect(action_called).to be_true
+          expect(action_called).to be(true)
         end
 
         it "raises an error if that provider doesn't exist" do
@@ -206,14 +206,14 @@ describe VagrantPlugins::CommandBox::Command::Update do
               expect(opts[:box_download_ca_cert]).to eq("foo")
               expect(opts[:box_download_ca_path]).to eq("bar")
               expect(opts[:box_client_cert]).to eq("baz")
-              expect(opts[:box_download_insecure]).to be_true
+              expect(opts[:box_download_insecure]).to be(true)
             end
 
             opts
           end
 
           subject.execute
-          expect(action_called).to be_true
+          expect(action_called).to be(true)
         end
       end
 
@@ -295,7 +295,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
                     insecure: false}}).
             and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
 
-          expect(action_runner).to receive(:run).with { |action, opts|
+          expect(action_runner).to receive(:run).with(any_args) { |action, opts|
             expect(opts[:box_url]).to eq(box.metadata_url)
             expect(opts[:box_provider]).to eq("virtualbox")
             expect(opts[:box_version]).to eq("1.1")
@@ -322,11 +322,11 @@ describe VagrantPlugins::CommandBox::Command::Update do
                       insecure: false}}).
               and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
 
-            expect(action_runner).to receive(:run).with { |action, opts|
+            expect(action_runner).to receive(:run).with(any_args) { |action, opts|
               expect(opts[:box_download_ca_cert]).to eq("oof")
               expect(opts[:box_download_ca_path]).to eq("rab")
               expect(opts[:box_client_cert]).to eq("zab")
-              expect(opts[:box_download_insecure]).to be_false
+              expect(opts[:box_download_insecure]).to be(false)
               true
             }
 
@@ -345,11 +345,11 @@ describe VagrantPlugins::CommandBox::Command::Update do
                 and_return([md, md.version("1.1"),
                             md.version("1.1").provider("virtualbox")])
 
-              expect(action_runner).to receive(:run).with { |action, opts|
+              expect(action_runner).to receive(:run).with(any_args) { |action, opts|
                 expect(opts[:box_download_ca_cert]).to eq("foo")
                 expect(opts[:box_download_ca_path]).to eq("bar")
                 expect(opts[:box_client_cert]).to eq("baz")
-                expect(opts[:box_download_insecure]).to be_true
+                expect(opts[:box_download_insecure]).to be(true)
                 true
               }
 

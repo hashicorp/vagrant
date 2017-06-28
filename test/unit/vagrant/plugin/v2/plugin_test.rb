@@ -71,8 +71,8 @@ describe Vagrant::Plugin::V2::Plugin do
         command("bar", primary: false) { "bar" }
       end
 
-      expect(plugin.components.commands[:foo][1][:primary]).to be_true
-      expect(plugin.components.commands[:bar][1][:primary]).to be_false
+      expect(plugin.components.commands[:foo][1][:primary]).to be(true)
+      expect(plugin.components.commands[:bar][1][:primary]).to be(false)
     end
 
     ["spaces bad", "sym^bols"].each do |bad|

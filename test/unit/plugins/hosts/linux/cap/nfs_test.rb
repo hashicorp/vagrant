@@ -147,10 +147,12 @@ EOH
 
     it "should retain existing file owner and group IDs" do
       pending("investigate using a simulated FS to test")
+      test_with_simulated_fs
     end
 
     it "should raise custom exception when chown fails" do
       pending("investigate using a simulated FS to test")
+      test_with_simulated_fs
     end
   end
 end

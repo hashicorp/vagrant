@@ -10,7 +10,7 @@ describe VagrantPlugins::SyncedFolderNFS::Config do
       subject.finalize!
     end
 
-    its(:functional) { should be_true }
+    its(:functional) { should be(true) }
     its(:map_gid) { should eq(:auto) }
     its(:map_uid) { should eq(:auto) }
   end
