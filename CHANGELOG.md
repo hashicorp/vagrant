@@ -1,6 +1,4 @@
-## Next version (Unreleased)
-
-FEATURES:
+## 1.9.6 (June 28, 2017)
 
 IMPROVEMENTS:
 
