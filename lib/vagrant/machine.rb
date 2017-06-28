@@ -571,19 +571,24 @@ module Vagrant
     # from its previous location on disk. If the machine
     # has moved, it prints a warning to the user.
     def check_cwd
+      desired_encoding = @env.root_path.to_s.encoding
       vagrant_cwd_filepath = @data_dir.join('vagrant_cwd')
       vagrant_cwd = if File.exist?(vagrant_cwd_filepath)
-        File.read(vagrant_cwd_filepath).chomp
-      end
+                      File.read(vagrant_cwd_filepath,
+                        external_encoding: desired_encoding
+                      ).chomp
+                    end
 
-      if vagrant_cwd.nil?
-        File.write(vagrant_cwd_filepath, @env.root_path)
-      elsif vagrant_cwd != @env.root_path.to_s
-        ui.warn(I18n.t(
-          'vagrant.moved_cwd',
-          old_wd:     vagrant_cwd,
-          current_wd: @env.root_path.to_s))
-        File.write(vagrant_cwd_filepath, @env.root_path)
+      if vagrant_cwd != @env.root_path.to_s
+        if vagrant_cwd
+          ui.warn(I18n.t(
+            'vagrant.moved_cwd',
+            old_wd:     "#{vagrant_cwd}",
+            current_wd: "#{@env.root_path.to_s}"))
+        end
+        File.write(vagrant_cwd_filepath, @env.root_path.to_s,
+          external_encoding: desired_encoding
+        )
       end
     end
   end
