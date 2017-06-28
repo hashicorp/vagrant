@@ -116,4 +116,17 @@ module Vagrant
   def self.prerelease?
     Gem::Version.new(Vagrant::VERSION).prerelease?
   end
+
+  # This allows control over dependency resolution when installing
+  # plugins into vagrant. When true, dependency libraries that Vagrant
+  # core relies upon will be hard constraints.
+  #
+  # @return [Boolean]
+  def self.strict_dependency_enforcement
+    if ENV["VAGRANT_DISABLE_STRICT_DEPENDENCY_ENFORCEMENT"]
+      false
+    else
+      true
+    end
+  end
 end
