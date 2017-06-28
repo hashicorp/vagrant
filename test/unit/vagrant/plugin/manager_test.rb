@@ -4,7 +4,7 @@ require "pathname"
 require "vagrant/plugin"
 require "vagrant/plugin/manager"
 require "vagrant/plugin/state_file"
-
+require "vagrant/util/deep_merge"
 require File.expand_path("../../../base", __FILE__)
 
 describe Vagrant::Plugin::Manager do
@@ -243,7 +243,7 @@ describe Vagrant::Plugin::Manager do
           expect(plugins.length).to eql(2)
           expect(plugins).to have_key("foo")
           expect(plugins["foo"]["gem_version"]).to eq("0.1.0")
-          expect(plugins["foo"]["system"]).to be_false
+          expect(plugins["foo"]["system"]).to be_true
           expect(plugins).to have_key("bar")
           expect(plugins["bar"]["system"]).to be_true
         end
