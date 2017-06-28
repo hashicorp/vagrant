@@ -220,7 +220,7 @@ module Vagrant
       # Generate all required plugin deps
       plugin_deps = plugins.map do |name, info|
         if update[:gems] == true || (update[:gems].respond_to?(:include?) && update[:gems].include?(name))
-          gem_version = '> 0'
+          gem_version = plugins[name]["gem_version"].to_s.empty? ? "> 0" : plugins[name]["gem_version"]
           skips << name
         else
           gem_version = info['gem_version'].to_s.empty? ? '> 0' : info['gem_version']
@@ -275,12 +275,16 @@ module Vagrant
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
 
+      system_plugins = plugins.map do |plugin_name, plugin_info|
+        plugin_name if plugin_info["system"]
+      end.compact
+      installer_set.system_plugins = system_plugins
+
       installer_set = Gem::Resolver.compose_sets(
         installer_set,
-        generate_builtin_set,
+        generate_builtin_set(system_plugins),
         generate_plugin_set(skips)
       )
-
       @logger.debug("Generating solution set for installation.")
 
       # Generate the required solution set for new plugins
@@ -349,11 +353,13 @@ module Vagrant
     end
 
     # Generate the builtin resolver set
-    def generate_builtin_set
+    def generate_builtin_set(system_plugins=[])
       builtin_set = BuiltinSet.new
       @logger.debug("Generating new builtin set instance.")
       vagrant_internal_specs.each do |spec|
-        builtin_set.add_builtin_spec(spec)
+        if !system_plugins.include?(spec.name)
+          builtin_set.add_builtin_spec(spec)
+        end
       end
       builtin_set
     end
@@ -428,9 +434,11 @@ module Vagrant
     # the entire set used for performing full resolutions on install.
     class VagrantSet < Gem::Resolver::InstallerSet
       attr_accessor :prefer_sources
+      attr_accessor :system_plugins
 
       def initialize(domain, defined_sources={})
         @prefer_sources = defined_sources
+        @system_plugins = []
         super(domain)
       end
 
@@ -438,6 +446,11 @@ module Vagrant
       # for preferred sources
       def find_all(req)
         result = super
+        if system_plugins.include?(req.name)
+          result.delete_if do |spec|
+            spec.is_a?(Gem::Resolver::InstalledSpecification)
+          end
+        end
         subset = result.find_all do |idx_spec|
           preferred = false
           if prefer_sources[req.name]
