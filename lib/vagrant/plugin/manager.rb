@@ -146,7 +146,7 @@ module Vagrant
             system[k] = v.merge("system" => true)
           end
         end
-        plugin_list = system.merge(@user_file.installed_plugins)
+        plugin_list = Util::DeepMerge.deep_merge(system, @user_file.installed_plugins)
 
         # Sort plugins by name
         Hash[
@@ -161,7 +161,15 @@ module Vagrant
       #
       # @return [Array<Gem::Specification>]
       def installed_specs
-        installed = Set.new(installed_plugins.keys)
+        installed_plugin_info = installed_plugins
+        installed = Set.new(installed_plugin_info.keys)
+        installed_versions = Hash[
+          installed_plugin_info.map{|plugin_name, plugin_info|
+            gem_version = plugin_info["gem_version"].to_s
+            gem_version = "> 0" if gem_version.empty?
+            [plugin_name, Gem::Requirement.new(gem_version)]
+          }
+        ]
 
         # Go through the plugins installed in this environment and
         # get the latest version of each.
@@ -169,6 +177,9 @@ module Vagrant
         Gem::Specification.find_all.each do |spec|
           # Ignore specs that aren't in our installed list
           next if !installed.include?(spec.name)
+
+          next if installed_versions[spec.name] &&
+            !installed_versions[spec.name].satisfied_by?(spec.version)
 
           # If we already have a newer version in our list of installed,
           # then ignore it
