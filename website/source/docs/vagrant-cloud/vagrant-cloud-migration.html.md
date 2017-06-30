@@ -114,7 +114,7 @@ You must replace the `atlas` post-processor with the `vagrant` and `vagrant-clou
 ## Vagrant Share
 
 Vagrant Share via Atlas has been deprecated, and instead Vagrant supports native integration with [ngrok](https://ngrok.com).
-Users of Vagrant Share should switch to the [ngrok-powered Vagrant Share driver](https://www.vagrantup.com/docs/share/ngrok.html) prior to June 27th, which will become the default in the next version of Vagrant
+Users of Vagrant Share should switch to the [ngrok-powered Vagrant Share driver](https://www.vagrantup.com/docs/share) prior to June 27th, which will become the default in the next version of Vagrant
 
 ## Downtime
 

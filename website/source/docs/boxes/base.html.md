@@ -70,7 +70,7 @@ Provider-specific guides for creating base boxes are linked below:
 
 We strongly recommend using [Packer](https://www.packer.io) to create reproducible
 builds for your base boxes, as well as automating the builds with
-[Atlas](/docs/other/atlas.html). Read more about
+[Atlas](https://atlas.hashicorp.com). Read more about
 [Creating Vagrant Boxes with Packer](https://atlas.hashicorp.com/help/packer/artifacts/creating-vagrant-boxes)
 in the Atlas documentation.
 

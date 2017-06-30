@@ -23,29 +23,13 @@ world with an Internet connection. It will give you a URL that will route
 directly to your Vagrant environment from any device in the world that is
 connected to the Internet.
 
-## Login to HashiCorp's Atlas
-
-Before being able to share your Vagrant environment, you will need an account on
-[HashiCorp's Atlas](/docs/other/atlas.html). Do not worry, it is free.
-
-Once you have an account, log in using `vagrant login`:
-
-```
-$ vagrant login
-Username or Email: mitchellh
-Password (will be hidden):
-You are now logged in!
-```
-
-## Share
-
-Once you are logged in, run `vagrant share`:
+Run `vagrant share`:
 
 ```
 $ vagrant share
 ...
-==> default: Your Vagrant Share is running!
-==> default: URL: http://frosty-weasel-0857.vagrantshare.com
+==> default: Creating Vagrant Share session...
+==> default: HTTP URL: http://b1fb1f3f.ngrok.io
 ...
 ```
 
