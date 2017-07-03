@@ -11,21 +11,12 @@ module Vagrant
     class Platform
       class << self
         def cygwin?
-          return @_cygwin if defined?(@_cygwin)
-          @_cygwin = -> {
-            # Installer detects Cygwin
-            return true if ENV["VAGRANT_DETECTED_OS"] &&
-              ENV["VAGRANT_DETECTED_OS"].downcase.include?("cygwin")
-
-            # Ruby running in Cygwin
-            return true if platform.include?("cygwin")
-
-            # Heuristic. If the path contains Cygwin, we just assume we're
-            # in Cygwin. It is generally a safe bet.
-            path = ENV["PATH"] || ""
-            return path.include?("cygwin")
-          }.call
-          return @_cygwin
+          if !defined?(@_cygwin)
+            @_cygwin = ENV["VAGRANT_DETECTED_OS"].to_s.downcase.include?("cygwin") ||
+              platform.include?("cygwin") ||
+              ENV["OSTYPE"].to_s.downcase.include?("cygwin")
+          end
+          @_cygwin
         end
 
         def wsl?

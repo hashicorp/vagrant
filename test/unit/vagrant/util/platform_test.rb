@@ -29,14 +29,20 @@ describe Vagrant::Util::Platform do
       end
     end
 
+    it "returns true if OSTYPE includes cygwin" do
+      with_temp_env(OSTYPE: "cygwin") do
+        expect(subject).to be_cygwin
+      end
+    end
+
     it "returns true if platform has cygwin" do
       allow(subject).to receive(:platform).and_return("cygwin")
       expect(subject).to be_cygwin
     end
 
-    it "returns true if the PATH contains cygwin" do
+    it "returns false if the PATH contains cygwin" do
       with_temp_env(PATH: "C:/cygwin") do
-        expect(subject).to be_cygwin
+        expect(subject).to_not be_cygwin
       end
     end
 
