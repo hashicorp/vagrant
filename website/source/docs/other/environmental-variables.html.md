@@ -46,7 +46,7 @@ This option will not affect global box functions like `vagrant box update`.
 
 Vagrant does occasional network calls to check whether the version of Vagrant
 that is running locally is up to date. We understand that software making remote
-calls over the internet for any reason can be undesirable. To surpress these
+calls over the internet for any reason can be undesirable. To suppress these
 calls, set the environment variable `VAGRANT_CHECKPOINT_DISABLE` to any
 non-empty value.
 
