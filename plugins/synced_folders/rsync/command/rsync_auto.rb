@@ -48,6 +48,9 @@ module VagrantPlugins
           paths = {}
           ignores = []
           with_target_vms(argv) do |machine|
+            next if machine.state.id == :not_created
+            cwd = machine.env.cwd.to_s
+
             if machine.provider.capability?(:proxy_machine)
               proxy = machine.provider.capability(:proxy_machine)
               if proxy
@@ -69,6 +72,21 @@ module VagrantPlugins
 
             folders = cached[:rsync]
             next if !folders || folders.empty?
+
+            # NOTE: This check is required with boot2docker since all containers
+            # share the same virtual machine. This prevents rsync-auto from
+            # syncing all known containers with rsync to the boot2docker vm
+            # and only syncs the current working dirs folders.
+            sync_folders = {}
+            folders.each do |id, folder_opts|
+              if cwd != folder_opts[:hostpath]
+                machine.ui.info(I18n.t("vagrant.rsync_auto_remove_folder",
+                                    folder: folder_opts[:hostpath]))
+              else
+                sync_folders[id] = folder_opts
+              end
+            end
+            folders = sync_folders
 
             # Get the SSH info for this machine so we can do an initial
             # sync to the VM.

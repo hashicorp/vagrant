@@ -13,31 +13,77 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
     env.create_vagrant_env
   end
 
-  let(:synced_folders) { {} }
+  let(:synced_folders_empty) { {} }
+  let(:synced_folders_dupe) { {"1234":
+                               {type: "rsync",
+                                exclude: false,
+                                hostpath: "/Users/brian/code/vagrant-sandbox"},
+                               "5678":
+                               {type: "rsync",
+                                exclude: false,
+                                hostpath: "/Not/The/Same/Path"}} }
 
   let(:helper_class) { VagrantPlugins::SyncedFolderRSync::RsyncHelper }
 
+  let(:paths) { {} }
+  let(:ssh_info) {{}}
+
+  def machine_stub(name)
+    double(name).tap do |m|
+      m.stub(id: "foo")
+      m.stub(reload: nil)
+      m.stub(ssh_info: ssh_info)
+      m.stub(ui: iso_env.ui)
+      m.stub(provider: double("provider"))
+      m.stub(state: double("state", id: :not_created))
+      m.stub(env: iso_env)
+
+      m.ui.stub(error: nil)
+    end
+  end
+
+  subject do
+    described_class.new(argv, iso_env).tap
+  end
+
+
+  describe "#execute" do
+    let (:machine) { machine_stub("m") }
+    let (:cached_folders) { { rsync: synced_folders_dupe } }
+
+    before do
+        allow(subject).to receive(:with_target_vms) { |&block| block.call machine }
+    end
+
+    it "does not sync folders outside of the cwd" do
+      allow(machine.ui).to receive(:info)
+      allow(machine.state).to receive(:id).and_return(:created)
+      allow(machine.env).to receive(:cwd).
+        and_return("/Users/brian/code/vagrant-sandbox")
+      allow(machine.provider).to receive(:capability?).and_return(false)
+
+      allow(subject).to receive(:synced_folders).
+        with(machine, cached: true).and_return(cached_folders)
+      allow(helper_class).to receive(:rsync_single).and_return(true)
+      allow(Vagrant::Util::Busy).to receive(:busy).and_return(true)
+      allow(Listen).to receive(:to).and_return(true)
+
+
+      expect(machine.ui).to receive(:info).
+        with("Not syncing /Not/The/Same/Path as it is not part of the current working directory.")
+      expect(helper_class).to receive(:rsync_single)
+
+      subject.execute()
+    end
+  end
+
   subject do
     described_class.new(argv, iso_env).tap do |s|
-      s.stub(synced_folders: synced_folders)
+      s.stub(synced_folders: synced_folders_empty)
     end
   end
 
   describe "#callback" do
-    let(:paths) { {} }
-    let(:ssh_info) {{}}
-
-    def machine_stub(name)
-      double(name).tap do |m|
-        m.stub(id: "foo")
-        m.stub(reload: nil)
-        m.stub(ssh_info: ssh_info)
-        m.stub(ui: double("ui"))
-
-        m.ui.stub(error: nil)
-      end
-    end
-
     it "syncs modified folders to the proper path" do
       paths["/foo"] = [
         { machine: machine_stub("m1"), opts: double("opts_m1") },
