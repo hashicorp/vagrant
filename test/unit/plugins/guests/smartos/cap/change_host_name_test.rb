@@ -1,33 +1,39 @@
 require_relative "../../../../base"
-require_relative "../../../../../../plugins/guests/smartos/config"
 
-describe "VagrantPlugins::VagrantPlugins::Cap::ChangeHostName" do
-  let(:plugin) { VagrantPlugins::GuestSmartos::Plugin.components.guest_capabilities[:smartos].get(:change_host_name) }
+describe "VagrantPlugins::GuestSmartos::Cap::ChangeHostName" do
+  let(:caps) do
+    VagrantPlugins::GuestSmartos::Plugin
+        .components
+        .guest_capabilities[:smartos]
+  end
+
   let(:machine) { double("machine") }
+  let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
   let(:config) { double("config", smartos: VagrantPlugins::GuestSmartos::Config.new) }
-  let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
-  let(:old_hostname) { 'oldhostname.olddomain.tld' }
-  let(:new_hostname) { 'newhostname.olddomain.tld' }
 
   before do
-    machine.stub(:communicate).and_return(communicator)
+    machine.stub(:communicate).and_return(comm)
     machine.stub(:config).and_return(config)
-    communicator.stub_command("hostname | grep '#{old_hostname}'", stdout: old_hostname)
   end
 
   after do
-    communicator.verify_expectations!
+    comm.verify_expectations!
   end
 
   describe ".change_host_name" do
-    it "refreshes the hostname service with the hostname command" do
-      communicator.expect_command(%Q(pfexec hostname #{new_hostname}))
-      plugin.change_host_name(machine, new_hostname)
-    end
+    let(:cap) { caps.get(:change_host_name) }
 
-    it "writes the hostname into /etc/nodename" do
-      communicator.expect_command(%Q(pfexec sh -c "echo '#{new_hostname}' > /etc/nodename"))
-      plugin.change_host_name(machine, new_hostname)
+    it "changes the hostname if appropriate" do
+      cap.change_host_name(machine, "testhost")
+
+      expect(comm.received_commands[0]).to match(/if hostname | grep 'testhost' ; then/)
+      expect(comm.received_commands[0]).to match(/exit 0/)
+      expect(comm.received_commands[0]).to match(/fi/)
+      expect(comm.received_commands[0]).to match(/if \[ -d \/usbkey \] && \[ "\$\(zonename\)" == "global" \] ; then/)
+      expect(comm.received_commands[0]).to match(/pfexec sed -i '' 's\/hostname=\.\*\/hostname=testhost\/' \/usbkey\/config/)
+      expect(comm.received_commands[0]).to match(/fi/)
+      expect(comm.received_commands[0]).to match(/pfexec echo 'testhost' > \/etc\/nodename/)
+      expect(comm.received_commands[0]).to match(/pfexec hostname testhost/)
     end
   end
 end
