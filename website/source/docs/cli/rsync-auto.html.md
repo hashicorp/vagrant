@@ -3,7 +3,7 @@ layout: "docs"
 page_title: "vagrant rsync-auto - Command-Line Interface"
 sidebar_current: "cli-rsyncauto"
 description: |-
-  The "vagrant rsync-auth" command watches all local directories of any rsync
+  The "vagrant rsync-auto" command watches all local directories of any rsync
   configured synced folders and automatically initiates an rsync transfer when
   changes are detected.
 ---
