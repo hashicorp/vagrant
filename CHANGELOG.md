@@ -12,6 +12,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - core: Update cygwin detection to prevent PATH related errors [GH-8749, GH-6788]
+  - provider/docker: Only rsync-auto current working dir with docker provider [GH-8756]
 
 ## 1.9.6 (June 28, 2017)
 
