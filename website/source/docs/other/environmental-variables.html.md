@@ -32,6 +32,18 @@ Vagrant to use this provider for any _new_ Vagrant environments. Existing
 Vagrant environments will continue to use the provider they came `up` with.
 Once you `vagrant destroy` existing environments, this will take effect.
 
+## `VAGRANT_PREFERRED_PROVIDERS`
+
+This configures providers that Vagrant should prefer.
+
+Much like the `VAGRANT_DEFAULT_PROVIDER` this environment variable normally
+does not need to be set. By setting this you will instruct Vagrant to
+_prefer_ providers defined in this environment variable for any _new_
+Vagrant environments. Existing Vagrant environments will continue to use
+the provider they came `up` with. Once you `vagrant destroy` existing environments,
+this will take effect. A single provider can be defined within this environment
+variable or a comma delimited list of providers.
+
 ## `VAGRANT_BOX_UPDATE_CHECK_DISABLE`
 
 By default, Vagrant will query the metadata API server to see if a newer
