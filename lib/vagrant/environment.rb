@@ -332,13 +332,20 @@ module Vagrant
       # 2. If the VAGRANT_DEFAULT_PROVIDER environmental variable is set, it
       #    takes next priority and will be the provider chosen.
 
-      default = ENV["VAGRANT_DEFAULT_PROVIDER"]
-      default = nil if default == ""
-      default = default.to_sym if default
+      default = ENV["VAGRANT_DEFAULT_PROVIDER"].to_s
+      if default.empty?
+        default = nil
+      else
+        default = default.to_sym
+        @logger.debug("Default provider: `#{default}`")
+      end
 
       # If we're forcing the default, just short-circuit and return
       # that (the default behavior)
-      return default if default && opts[:force_default]
+      if default && opts[:force_default]
+        @logger.debug("Using forced default provider: `#{default}`")
+        return default
+      end
 
       # Determine the config to use to look for provider definitions. By
       # default it is the global but if we're targeting a specific machine,
@@ -375,15 +382,20 @@ module Vagrant
         # it's always set.
         usable << [popts[:priority], key]
       end
+      @logger.debug("Initial usable provider list: #{usable}")
 
       # Sort the usable providers by priority. Higher numbers are higher
       # priority, otherwise alpha sort.
       usable = usable.sort {|a, b| a[0] == b[0] ? a[1] <=> b[1] : b[0] <=> a[0]}
-                     .map  {|prio, key| key}
+                      .map {|prio, key| key}
+      @logger.debug("Priority sorted usable provider list: #{usable}")
 
       # If we're not forcing the default, but it's usable and hasn't been
       # otherwise excluded, return it now.
-      return default if usable.include?(default)
+      if usable.include?(default)
+        @logger.debug("Using default provider `#{default}` as it was found in usable list.")
+        return default
+      end
 
       # 2.5. Vagrant will go through all of the config.vm.provider calls in the
       #      Vagrantfile and try each in order. It will choose the first
@@ -394,9 +406,13 @@ module Vagrant
                      .map {|s| s.strip}
                      .select {|s| !s.empty?}
                      .map {|s| s.to_sym}
+      @logger.debug("Preferred provider list: #{preferred}")
 
       config.each do |key|
-        return key if usable.include?(key) && preferred.include?(key)
+        if usable.include?(key) && preferred.include?(key)
+          @logger.debug("Using preferred provider `#{key}` detected in configuration and usable.")
+          return key
+        end
       end
 
       # 3. Vagrant will go through all of the config.vm.provider calls in the
@@ -405,14 +421,20 @@ module Vagrant
       #    be chosen on Mac this way. It must be both configured and usable.
 
       config.each do |key|
-        return key if usable.include?(key)
+        if usable.include?(key)
+          @logger.debug("Using provider `#{key}` detected in configuration and usable.")
+          return key
+        end
       end
 
       # 3.5. Vagrant will go through VAGRANT_PREFERRED_PROVIDERS and find the
       #      first plugin that reports it is usable.
 
       preferred.each do |key|
-        return key if usable.include?(key)
+        if usable.include?(key)
+          @logger.debug("Using preferred provider `#{key}` found in usable list.")
+          return key
+        end
       end
 
       # 4. Vagrant will go through all installed provider plugins (including the
@@ -422,7 +444,10 @@ module Vagrant
       #    example, if you have the VMware provider installed, it will always
       #    take priority over VirtualBox.
 
-      return usable[0] if !usable.empty?
+      if !usable.empty?
+        @logger.debug("Using provider `#{usable[0]}` as it is the highest priority in the usable list.")
+        return usable[0]
+      end
 
       # 5. If Vagrant still has not found any usable providers, it will error.
 
