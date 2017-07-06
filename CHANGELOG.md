@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - core: Add support for preferred providers [GH-8558]
+
 IMPROVEMENTS:
 
   - guests/bsd: Invoke `tee` with explicit path [GH-8740]
