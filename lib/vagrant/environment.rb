@@ -317,6 +317,21 @@ module Vagrant
       opts[:force_default] = true if !opts.key?(:force_default)
       opts[:check_usable] = true if !opts.key?(:check_usable)
 
+      # Implement the algorithm from
+      # https://www.vagrantup.com/docs/providers/basic_usage.html#default-provider
+      # with additional steps 2.5 and 3.5 from
+      # https://bugzilla.redhat.com/show_bug.cgi?id=1444492
+      # to allow system-configured provider priorities.
+      #
+      # 1. The --provider flag on a vagrant up is chosen above all else, if it is
+      #    present.
+      #
+      # (Step 1 is done by the caller; this method is only called if --provider
+      # wasn't given.)
+      #
+      # 2. If the VAGRANT_DEFAULT_PROVIDER environmental variable is set, it
+      #    takes next priority and will be the provider chosen.
+
       default = ENV["VAGRANT_DEFAULT_PROVIDER"]
       default = nil if default == ""
       default = default.to_sym if default
@@ -334,22 +349,12 @@ module Vagrant
         root_config = machine_info[:config]
       end
 
-      # Get the list of providers within our configuration and assign
-      # a priority to each in the order they exist so that we try these first.
-      config = {}
-      root_config.vm.__providers.reverse.each_with_index do |key, idx|
-        config[key] = idx + 1
-      end
+      # Get the list of providers within our configuration, in order.
+      config = root_config.vm.__providers
 
-      # Determine the max priority so that we can add the config priority
-      # to that to make sure it is highest.
-      max_priority = 0
-      Vagrant.plugin("2").manager.providers.each do |key, data|
-        priority = data[1][:priority]
-        max_priority = priority if priority > max_priority
-      end
-
-      ordered = []
+      # Get the list of usable providers with their internally-declared
+      # priorities.
+      usable = []
       Vagrant.plugin("2").manager.providers.each do |key, data|
         impl  = data[0]
         popts = data[1]
@@ -359,33 +364,67 @@ module Vagrant
 
         # Skip providers that can't be defaulted, unless they're in our
         # config, in which case someone made our decision for us.
-        if !config.key?(key)
+        if !config.include?(key)
           next if popts.key?(:defaultable) && !popts[:defaultable]
         end
 
-        # The priority is higher if it is in our config. Otherwise, it is
-        # the priority it set PLUS the length of the config to make sure it
-        # is never higher than the configuration keys.
-        priority = popts[:priority]
-        priority = config[key] + max_priority if config.key?(key)
+        # Skip providers that aren't usable.
+        next if opts[:check_usable] && !impl.usable?(false)
 
-        ordered << [priority, key, impl, popts]
+        # Each provider sets its own priority, defaulting to 5 so we can trust
+        # it's always set.
+        usable << [popts[:priority], key]
       end
 
-      # Order the providers by priority. Higher values are tried first.
-      ordered = ordered.sort do |a, b|
-        # If we see the default, then that one always wins
-        next -1 if a[1] == default
-        next 1  if b[1] == default
+      # Sort the usable providers by priority. Higher numbers are higher
+      # priority, otherwise alpha sort.
+      usable = usable.sort {|a, b| a[0] == b[0] ? a[1] <=> b[1] : b[0] <=> a[0]}
+                     .map  {|prio, key| key}
 
-        b[0] <=> a[0]
+      # If we're not forcing the default, but it's usable and hasn't been
+      # otherwise excluded, return it now.
+      return default if usable.include?(default)
+
+      # 2.5. Vagrant will go through all of the config.vm.provider calls in the
+      #      Vagrantfile and try each in order. It will choose the first
+      #      provider that is usable and listed in VAGRANT_PREFERRED_PROVIDERS.
+
+      preferred = ENV.fetch('VAGRANT_PREFERRED_PROVIDERS', '')
+                     .split(',')
+                     .map {|s| s.strip}
+                     .select {|s| !s.empty?}
+                     .map {|s| s.to_sym}
+
+      config.each do |key|
+        return key if usable.include?(key) && preferred.include?(key)
       end
 
-      # Find the matching implementation
-      ordered.each do |_, key, impl, _|
-        return key if !opts[:check_usable]
-        return key if impl.usable?(false)
+      # 3. Vagrant will go through all of the config.vm.provider calls in the
+      #    Vagrantfile and try each in order. It will choose the first provider
+      #    that is usable. For example, if you configure Hyper-V, it will never
+      #    be chosen on Mac this way. It must be both configured and usable.
+
+      config.each do |key|
+        return key if usable.include?(key)
       end
+
+      # 3.5. Vagrant will go through VAGRANT_PREFERRED_PROVIDERS and find the
+      #      first plugin that reports it is usable.
+
+      preferred.each do |key|
+        return key if usable.include?(key)
+      end
+
+      # 4. Vagrant will go through all installed provider plugins (including the
+      #    ones that come with Vagrant), and find the first plugin that reports
+      #    it is usable. There is a priority system here: systems that are known
+      #    better have a higher priority than systems that are worse. For
+      #    example, if you have the VMware provider installed, it will always
+      #    take priority over VirtualBox.
+
+      return usable[0] if !usable.empty?
+
+      # 5. If Vagrant still has not found any usable providers, it will error.
 
       # No providers available is a critical error for Vagrant.
       raise Errors::NoDefaultProvider
