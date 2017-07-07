@@ -1,4 +1,4 @@
-## Next version (Unreleased)
+## 1.9.7 (July 7, 2017)
 
 FEATURES:
 
