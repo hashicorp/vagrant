@@ -1,3 +1,11 @@
+## Next Version (Unreleased)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
 ## 1.9.7 (July 7, 2017)
 
 FEATURES:
