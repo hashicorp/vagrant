@@ -161,3 +161,8 @@ config.winssh.export_command_template = '$env:%ENV_KEY%="%ENV_VALUE%"'
 with `sudo`. This defaults to `%c` (assumes vagrant user is an administator
 and needs no escalation). The `%c` will be replaced by the command that is
 being executed.
+
+<hr>
+
+`config.winssh.upload_directory` - The upload directory used on the guest
+to store scripts for execute. This is set to `C:\Windows\Temp` by default.

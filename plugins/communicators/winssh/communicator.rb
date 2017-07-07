@@ -33,7 +33,7 @@ module VagrantPlugins
 
           tfile = Tempfile.new('vagrant-ssh')
           remote_ext = shell == "powershell" ? "ps1" : "bat"
-          remote_name = "C:\\Windows\\Temp\\#{File.basename(tfile.path)}.#{remote_ext}"
+          remote_name = "#{machine_config_ssh.upload_directory}\\#{File.basename(tfile.path)}.#{remote_ext}"
 
           if shell == "powershell"
             base_cmd = "powershell -File #{remote_name}"
