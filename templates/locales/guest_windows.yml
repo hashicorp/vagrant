@@ -1,6 +1,10 @@
 en:
   vagrant_windows:
     errors:
+      public_key_directory_failure: |-
+        Vagrant failed to properly discover the correct paths for the
+        temporary directory and user profile directory on the Windows
+        guest. Please ensure the guest is properly configured.
       network_winrm_required: |-
         Configuring networks on Windows requires the communicator to be
         set to WinRM. To do this, add the following to your Vagrantfile:

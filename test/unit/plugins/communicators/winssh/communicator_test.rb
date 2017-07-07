@@ -22,7 +22,8 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     double("winssh",
       insert_key: false,
       export_command_template: export_command_template,
-      shell: 'cmd'
+      shell: 'cmd',
+      upload_directory: "C:\\Windows\\Temp"
     )
   end
   # Configuration mock

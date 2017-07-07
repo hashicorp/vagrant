@@ -66,7 +66,7 @@ describe Vagrant::Util::Subprocess do
       it "should return true" do
         sp = described_class.new("sleep", "5")
         thread = Thread.new{ sp.execute }
-        sleep(0.1)
+        sleep(0.3)
         expect(sp.running?).to be_true
         sp.stop
         thread.join

@@ -74,6 +74,16 @@ module VagrantPlugins
         Cap::RSync
       end
 
+      guest_capability(:windows, :insert_public_key) do
+        require_relative "cap/public_key"
+        Cap::PublicKey
+      end
+
+      guest_capability(:windows, :remove_public_key) do
+        require_relative "cap/public_key"
+        Cap::PublicKey
+      end
+
       protected
 
       def self.init!
