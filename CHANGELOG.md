@@ -14,6 +14,7 @@ BUG FIXES:
 
   - communicators/winssh: Make script upload directory configurable [GH-8761]
   - core: Update cygwin detection to prevent PATH related errors [GH-8749, GH-6788]
+  - core: Fix URI parsing of box names to prevent errors [GH-8762, GH-8758]
   - provider/docker: Only rsync-auto current working dir with docker provider [GH-8756]
 
 ## 1.9.6 (June 28, 2017)
