@@ -8,9 +8,11 @@ IMPROVEMENTS:
 
   - guests/bsd: Invoke `tee` with explicit path [GH-8740]
   - guests/smartos: Guest updates for host name and nfs capabilities [GH-8695]
+  - guests/windows: Add public key capabilities for WinSSH communicator [GH-8761]
 
 BUG FIXES:
 
+  - communicators/winssh: Make script upload directory configurable [GH-8761]
   - core: Update cygwin detection to prevent PATH related errors [GH-8749, GH-6788]
   - provider/docker: Only rsync-auto current working dir with docker provider [GH-8756]
 
