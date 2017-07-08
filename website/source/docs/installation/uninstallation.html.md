@@ -28,7 +28,7 @@ On **Windows**
 On **Mac OS X**:
 
 ```sh
-rm -rf /Applications/Vagrant
+rm -rf /opt/vagrant
 rm -f /usr/local/bin/vagrant
 sudo pkgutil --forget com.vagrant.vagrant
 ```
