@@ -47,6 +47,14 @@ module VagrantPlugins
 
             # Render a new configuration
             template_options = network.merge(extra_opts)
+
+            # ALT expects netmasks to be in the CIDR notation, but users may
+            # specify IPV4 netmasks like "255.255.255.0". This magic converts
+            # the netmask to the proper value.
+            if template_options[:netmask] && template_options[:netmask].to_s.include?(".")
+              template_options[:netmask] = (32-Math.log2((IPAddr.new(template_options[:netmask], Socket::AF_INET).to_i^0xffffffff)+1)).to_i
+            end
+
             options_entry = TemplateRenderer.render("guests/alt/network_#{network[:type]}", options: template_options)
 
             # Upload the new configuration
@@ -89,7 +97,7 @@ module VagrantPlugins
               end
             end
 
-            if nm_controlled
+            if nm_controlled and extra_opts[:nm_controlled] == "yes"
               commands[:start] << "nmcli d disconnect iface '#{network[:device]}'"
             else
               commands[:start] << "/sbin/ifdown '#{network[:device]}'"
@@ -105,8 +113,8 @@ module VagrantPlugins
             end
           end
           if nmcli_installed
-            commands[:middle] << "(test -f /etc/init.d/NetworkManager && /etc/init.d/NetworkManager restart) || " \
-              "((systemctl | grep NetworkManager.service) && systemctl restart NetworkManager)"
+            commands[:middle] << "((systemctl | grep NetworkManager.service) && systemctl restart NetworkManager) || " \
+              "(test -f /etc/init.d/NetworkManager && /etc/init.d/NetworkManager restart)"
           end
           commands = commands[:start] + commands[:middle] + commands[:end]
           comm.sudo(commands.join("\n"))
