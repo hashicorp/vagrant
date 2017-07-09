@@ -35,6 +35,8 @@ module VagrantPlugins
                 sed -i -e "s/\(\s\)$CURRENT_HOSTNAME_SHORT\(\s\)/\1$NEW_HOSTNAME_SHORT\2/g" -e "s/\(\s\)$CURRENT_HOSTNAME_SHORT$/\1$NEW_HOSTNAME_SHORT/g" /etc/hosts
               fi
 
+              # Restart network
+              service network restart
             EOH
           end
         end
