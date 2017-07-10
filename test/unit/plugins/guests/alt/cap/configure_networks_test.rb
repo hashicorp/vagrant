@@ -67,13 +67,12 @@ describe "VagrantPlugins::GuestALT::Cap::ConfigureNetworks" do
         end
 
         context "with nm_controlled option omitted" do
-          it "downs networks manually, creates ifaces, starts networks manually and restart NetworksManager" do
+          it "downs networks via nmcli, creates ifaces and restart NetworksManager" do
             cap.configure_networks(machine, [network_1, network_2])
-            expect(comm.received_commands[0]).to match(/ifdown/)
+            expect(comm.received_commands[0]).to match(/nmcli.*disconnect/)
             expect(comm.received_commands[0]).to match(/mkdir.*\/etc\/net\/ifaces/)
-            expect(comm.received_commands[0]).to match(/ifup/)
             expect(comm.received_commands[0]).to match(/NetworkManager/)
-            expect(comm.received_commands[0]).to_not match(/nmcli/)
+            expect(comm.received_commands[0]).to_not match(/ifdown|ifup/)
           end
         end
 
