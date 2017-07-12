@@ -103,7 +103,7 @@ module VagrantPlugins
         end
 
         def verify_chef_nodes_folder
-          if not File.exists? @config.nodes_path[0][1]
+          if !File.exists? @config.nodes_path[0][1]
             raise ChefError, :missing_chef_node_folder
           end
         end
