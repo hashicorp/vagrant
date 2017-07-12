@@ -35,6 +35,7 @@ module VagrantPlugins
           upload_encrypted_data_bag_secret
           setup_json
           setup_zero_config
+          verify_chef_nodes_folder
           run_chef_zero
           delete_encrypted_data_bag_secret
         end
@@ -98,6 +99,12 @@ module VagrantPlugins
             if !@machine.communicate.test("test -d #{folder}", sudo: true)
               raise ChefError, :missing_shared_folders
             end
+          end
+        end
+
+        def verify_chef_nodes_folder
+          if not File.exists? @config.nodes_path[0][1]
+            raise ChefError, :missing_chef_node_folder
           end
         end
 
