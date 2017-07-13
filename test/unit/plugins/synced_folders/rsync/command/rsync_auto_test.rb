@@ -21,7 +21,11 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
                                "5678":
                                {type: "rsync",
                                 exclude: false,
-                                hostpath: "/Not/The/Same/Path"}} }
+                                hostpath: "/Not/The/Same/Path"},
+                               "0912":
+                               {type: "rsync",
+                                exclude: false,
+                                hostpath: "/Users/brian/code/relative-dir"}}}
 
   let(:helper_class) { VagrantPlugins::SyncedFolderRSync::RsyncHelper }
 
@@ -37,6 +41,8 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       m.stub(provider: double("provider"))
       m.stub(state: double("state", id: :not_created))
       m.stub(env: iso_env)
+      m.stub(config: double("config"))
+
 
       m.ui.stub(error: nil)
     end
@@ -51,6 +57,26 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
     let (:machine) { machine_stub("m") }
     let (:cached_folders) { { rsync: synced_folders_dupe } }
 
+    # NOTE: `relative-dir` is not actually a "relative dir" in this data structure
+    # due to the fact that when vagrant stores synced folders, it path expands
+    # them with root_dir, and when you grab those synced_folders options from
+    # the machines config file, they end up being a full path rather than a
+    # relative path, and so these tests reflect that.
+    # For reference:
+    # https://github.com/mitchellh/vagrant/blob/9c1b014536e61b332cfaa00774a87a240cce8ed9/lib/vagrant/action/builtin/synced_folders.rb#L45-L46
+    let(:config_synced_folders)  { {"/vagrant":
+                                   {type: "rsync",
+                                    exclude: false,
+                                    hostpath: "/Users/brian/code/vagrant-sandbox"},
+                                  "/vagrant/other-dir":
+                                   {type: "rsync",
+                                    exclude: false,
+                                    hostpath: "/Users/brian/code/vagrant-sandbox/other-dir"},
+                                  "/vagrant/relative-dir":
+                                   {type: "rsync",
+                                    exclude: false,
+                                    hostpath: "/Users/brian/code/relative-dir"}}}
+
     before do
         allow(subject).to receive(:with_target_vms) { |&block| block.call machine }
     end
@@ -61,6 +87,8 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       allow(machine.env).to receive(:cwd).
         and_return("/Users/brian/code/vagrant-sandbox")
       allow(machine.provider).to receive(:capability?).and_return(false)
+      allow(machine.config).to receive(:vm).and_return(true)
+      allow(machine.config.vm).to receive(:synced_folders).and_return(config_synced_folders)
 
       allow(subject).to receive(:synced_folders).
         with(machine, cached: true).and_return(cached_folders)
@@ -71,6 +99,10 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
       expect(machine.ui).to receive(:info).
         with("Not syncing /Not/The/Same/Path as it is not part of the current working directory.")
+      expect(machine.ui).to receive(:info).
+        with("Watching: /Users/brian/code/vagrant-sandbox")
+      expect(machine.ui).to receive(:info).
+        with("Watching: /Users/brian/code/relative-dir")
       expect(helper_class).to receive(:rsync_single)
 
       subject.execute()
