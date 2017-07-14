@@ -255,7 +255,7 @@ module VagrantPlugins
           # Multiple Private Keys
           unless !config.inventory_path && @ssh_info[:private_key_path].size == 1
             @ssh_info[:private_key_path].each do |key|
-              ssh_options << "-o 'IdentityFile=%s'" % [ key.gsub('%', '%%') ]
+              ssh_options += ["-o", "IdentityFile=%s" % [key.gsub('%', '%%')]]
             end
           end
 
