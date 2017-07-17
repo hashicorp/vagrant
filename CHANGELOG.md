@@ -6,6 +6,9 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Update util/ssh to use `-o` for identity files [GH-8786]
+- provisioners/ansible: Update to use `-o` for identity files [GH-8786]
+
 ## 1.9.7 (July 7, 2017)
 
 FEATURES:
