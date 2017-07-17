@@ -78,8 +78,13 @@ module VagrantPlugins
             # syncing all known containers with rsync to the boot2docker vm
             # and only syncs the current working dirs folders.
             sync_folders = {}
+            # Still sync existing synced folders from vagrantfile
+            config_synced_folders = machine.config.vm.synced_folders.values.map { |x| x[:hostpath] }
+            config_synced_folders.map! { |x| File.expand_path(x, machine.env.root_path) }
             folders.each do |id, folder_opts|
-              if cwd != folder_opts[:hostpath]
+              if cwd != folder_opts[:hostpath] &&
+                  !config_synced_folders.include?(folder_opts[:hostpath])
+
                 machine.ui.info(I18n.t("vagrant.rsync_auto_remove_folder",
                                     folder: folder_opts[:hostpath]))
               else
