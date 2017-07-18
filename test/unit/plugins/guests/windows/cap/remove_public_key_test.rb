@@ -47,6 +47,7 @@ describe "VagrantPlugins::GuestWindows::Cap::RemovePublicKey" do
       it "removes the public key" do
         expect(comm).to receive(:download)
         expect(comm).to receive(:upload)
+        expect(comm).to receive(:execute).with(/Set-Acl .*/, shell: "powershell")
         expect(comm).to receive(:execute).with(/move .*/, shell: "cmd")
         cap.remove_public_key(machine, public_key_insecure)
         expect(File.read(@tempfile.path)).to include(public_key_other)
@@ -58,6 +59,7 @@ describe "VagrantPlugins::GuestWindows::Cap::RemovePublicKey" do
       it "does nothing" do
         expect(comm).to_not receive(:download)
         expect(comm).to_not receive(:upload)
+        expect(comm).to_not receive(:execute).with(/Set-Acl .*/, shell: "powershell")
         expect(comm).to_not receive(:execute).with(/move .*/, shell: "cmd")
         cap.remove_public_key(machine, public_key_insecure)
       end

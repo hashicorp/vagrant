@@ -50,6 +50,7 @@ module VagrantPlugins
           end
           comm.upload(keys_file.path, remote_upload_path)
           keys_file.delete
+          comm.execute("Set-Acl \"#{remote_upload_path}\" (Get-Acl \"#{remote_authkeys_path}\")", shell: "powershell")
           comm.execute("move /y \"#{remote_upload_path}\" \"#{remote_authkeys_path}\"", shell: "cmd")
         end
 
@@ -75,6 +76,7 @@ module VagrantPlugins
             File.write(keys_file.path, current_content.join("\r\n") + "\r\n")
             comm.upload(keys_file.path, remote_upload_path)
             keys_file.delete
+            comm.execute("Set-Acl \"#{remote_upload_path}\" (Get-Acl \"#{remote_authkeys_path}\")", shell: "powershell")
             comm.execute("move /y \"#{remote_upload_path}\" \"#{remote_authkeys_path}\"", shell: "cmd")
           end
         end
