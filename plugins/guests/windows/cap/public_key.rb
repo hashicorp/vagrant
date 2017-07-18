@@ -28,20 +28,17 @@ module VagrantPlugins
           home_dir = directories[:home]
           temp_dir = directories[:temp]
 
-          remote_ssh_dir = "#{home_dir}\\.ssh"
-          remote_upload_path = "#{temp_dir}\\vagrant-insert-pubkey-#{Time.now.to_i}"
-          remote_authkeys_path = "#{remote_ssh_dir}\authorized_keys"
-
           # Ensure the user's ssh directory exists
+          remote_ssh_dir = "#{home_dir}\\.ssh"
           comm.execute("dir \"#{remote_ssh_dir}\"\n if errorlevel 1 (mkdir \"#{remote_ssh_dir}\")", shell: "cmd")
           remote_upload_path = "#{temp_dir}\\vagrant-insert-pubkey-#{Time.now.to_i}"
           remote_authkeys_path = "#{remote_ssh_dir}\\authorized_keys"
 
           keys_file = Tempfile.new("vagrant-windows-insert-public-key")
+          keys_file.close
           # Check if an authorized_keys file already exists
           result = comm.execute("dir \"#{remote_authkeys_path}\"", shell: "cmd", error_check: false)
           if result == 0
-            keys_file.close
             comm.download(remote_authkeys_path, keys_file.path)
             current_content = File.read(keys_file.path).split(/[\r\n]+/)
             if !current_content.include?(contents)
@@ -49,11 +46,10 @@ module VagrantPlugins
             end
             File.write(keys_file.path, current_content.join("\r\n") + "\r\n")
           else
-            keys_file.puts(contents)
-            keys_file.close
+            File.write(keys_file.path, contents + "\r\n")
           end
-          keys_file.delete
           comm.upload(keys_file.path, remote_upload_path)
+          keys_file.delete
           comm.execute("move /y \"#{remote_upload_path}\" \"#{remote_authkeys_path}\"", shell: "cmd")
         end
 
