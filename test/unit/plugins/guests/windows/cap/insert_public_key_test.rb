@@ -41,6 +41,7 @@ describe "VagrantPlugins::GuestWindows::Cap::InsertPublicKey" do
       it "inserts the public key" do
         expect(comm).to receive(:download)
         expect(comm).to receive(:upload)
+        expect(comm).to receive(:execute).with(/Set-Acl .*/, shell: "powershell")
         expect(comm).to receive(:execute).with(/move .*/, shell: "cmd")
         cap.insert_public_key(machine, "ssh-rsa ...")
         expect(File.read(@tempfile.path)).to include("ssh-rsa ...")
@@ -56,6 +57,7 @@ describe "VagrantPlugins::GuestWindows::Cap::InsertPublicKey" do
       it "inserts the public key" do
         expect(comm).to_not receive(:download)
         expect(comm).to receive(:upload)
+        expect(comm).to receive(:execute).with(/Set-Acl .*/, shell: "powershell")
         expect(comm).to receive(:execute).with(/move .*/, shell: "cmd")
         cap.insert_public_key(machine, "ssh-rsa ...")
         expect(File.read(@tempfile.path)).to include("ssh-rsa ...")
