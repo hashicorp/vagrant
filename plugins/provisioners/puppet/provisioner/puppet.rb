@@ -199,8 +199,6 @@ module VagrantPlugins
           if config.environment_path
             options << "--environmentpath #{environments_guest_path}/"
             options << "--environment #{@config.environment}"
-          else
-            options << "--manifestdir #{manifests_guest_path}"
           end
 
           options << @manifest_file
