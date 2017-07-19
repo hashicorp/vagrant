@@ -9,6 +9,7 @@ BUG FIXES:
 - commands/rsync-auto: Ensure relative dirs are still rsync'd if defined [GH-8781]
 - core: Update util/ssh to use `-o` for identity files [GH-8786]
 - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
+- provisioners/puppet: Remove `--manifestdir` flag from puppet apply in provisioner [GH-8786]
 
 ## 1.9.7 (July 7, 2017)
 
