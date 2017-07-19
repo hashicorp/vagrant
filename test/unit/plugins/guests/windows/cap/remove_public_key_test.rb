@@ -27,6 +27,7 @@ describe "VagrantPlugins::GuestWindows::Cap::RemovePublicKey" do
     allow(machine).to receive(:communicate).and_return(comm)
 
     allow(comm).to receive(:execute).with(/echo .+/, shell: "cmd").and_yield(:stdout, "TEMP\r\nHOME\r\n")
+    allow(comm).to receive(:execute).with(/dir .+\.ssh/, shell: "cmd")
     allow(comm).to receive(:execute).with(/dir .+authorized_keys/, shell: "cmd", error_check: false).and_return(auth_keys_check_result)
   end
 
@@ -48,7 +49,6 @@ describe "VagrantPlugins::GuestWindows::Cap::RemovePublicKey" do
         expect(comm).to receive(:download)
         expect(comm).to receive(:upload)
         expect(comm).to receive(:execute).with(/Set-Acl .*/, shell: "powershell")
-        expect(comm).to receive(:execute).with(/move .*/, shell: "cmd")
         cap.remove_public_key(machine, public_key_insecure)
         expect(File.read(@tempfile.path)).to include(public_key_other)
         expect(File.read(@tempfile.path)).to_not include(public_key_insecure)
@@ -58,9 +58,8 @@ describe "VagrantPlugins::GuestWindows::Cap::RemovePublicKey" do
     context "when authorized_keys does not exist on guest" do
       it "does nothing" do
         expect(comm).to_not receive(:download)
-        expect(comm).to_not receive(:upload)
-        expect(comm).to_not receive(:execute).with(/Set-Acl .*/, shell: "powershell")
-        expect(comm).to_not receive(:execute).with(/move .*/, shell: "cmd")
+        expect(comm).to receive(:upload)
+        expect(comm).to receive(:execute).with(/Set-Acl .*/, shell: "powershell")
         cap.remove_public_key(machine, public_key_insecure)
       end
     end
