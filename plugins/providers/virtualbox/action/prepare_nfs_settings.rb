@@ -1,3 +1,4 @@
+require "ipaddr"
 require "vagrant/action/builtin/mixin_synced_folders"
 
 module VagrantPlugins
@@ -56,6 +57,23 @@ module VagrantPlugins
             # machine_ip array yet, do so.
             if dynamic_ip && !machine_ip.include?(dynamic_ip)
               machine_ip.push(dynamic_ip)
+            end
+          end
+
+          if host_ip && !machine_ip.empty?
+            interface = @machine.provider.driver.read_host_only_interfaces.detect do |iface|
+              iface[:ip] == host_ip
+            end
+            host_ipaddr = IPAddr.new("#{host_ip}/#{interface.fetch(:netmask, "0.0.0.0")}")
+
+            case machine_ip
+            when String
+              machine_ip = nil if !host_ipaddr.include?(machine_ip)
+            when Array
+              machine_ip.delete_if do |m_ip|
+                !host_ipaddr.include?(m_ip)
+              end
+              machine_ip = nil if machine_ip.empty?
             end
           end
 

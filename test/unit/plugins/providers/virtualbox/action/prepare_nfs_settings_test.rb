@@ -47,6 +47,10 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
   end
 
   context "with an nfs synced folder" do
+    let(:host_only_interfaces) {
+      [{name: "vmnet2", ip: "1.2.3.4"}]
+    }
+
     before do
       # We can't be on Windows, because NFS gets disabled on Windows
       Vagrant::Util::Platform.stub(windows?: false)
@@ -58,14 +62,36 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
       driver.stub(read_network_interfaces: {
         2 => {type: :hostonly, hostonly: "vmnet2"},
       })
-      driver.stub(read_host_only_interfaces: [
-        {name: "vmnet2", ip: "1.2.3.4"},
-      ])
+      driver.stub(read_host_only_interfaces: host_only_interfaces)
       allow(driver).to receive(:read_guest_ip).with(1).and_return("2.3.4.5")
 
       # override sleep to 0 so test does not take seconds
       retry_options = subject.retry_options
       allow(subject).to receive(:retry_options).and_return(retry_options.merge(sleep: 0))
+    end
+
+    context "with host interface netmask defined" do
+      context "with machine IP included within host interface range" do
+        let(:host_only_interfaces) {
+          [{name: "vmnet2", ip: "2.3.4.1", netmask: "255.255.255.0"}]
+        }
+
+        it "sets nfs_host_ip and nfs_machine_ip properly" do
+          subject.call(env)
+
+          expect(env[:nfs_host_ip]).to eq("2.3.4.1")
+          expect(env[:nfs_machine_ip]).to eq("2.3.4.5")
+        end
+      end
+      context "with machine IP included within host interface range" do
+        let(:host_only_interfaces) {
+          [{name: "vmnet2", ip: "1.2.3.4", netmask: "255.255.255.0"}]
+        }
+
+        it "raises an error when the machine IP is not within host interface range" do
+          expect{ subject.call(env) }.to raise_error(Vagrant::Errors::NFSNoHostonlyNetwork)
+        end
+      end
     end
 
     it "sets nfs_host_ip and nfs_machine_ip properly" do
