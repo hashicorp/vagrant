@@ -143,6 +143,11 @@ For \*nix users, make sure to edit your `/etc/sudoers` file with `visudo`. It pr
 
 All of the snippets below require Vagrant version 1.7.3 or higher.
 
+<div class="alert alert-warning" role="alert">
+  <strong>Use the apropiate group for your user</strong> The following examples may
+  need adjustment.
+</div>
+
 For OS X, sudoers should have this entry:
 
 ```
