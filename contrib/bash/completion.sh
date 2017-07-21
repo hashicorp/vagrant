@@ -91,7 +91,7 @@ _vagrant() {
               return 0
             ;;
             "box")
-              box_commands="add help list outdated remove repackage update"
+              box_commands="add help list outdated prune remove repackage update"
               COMPREPLY=($(compgen -W "${box_commands}" -- ${cur}))
               return 0
             ;;
