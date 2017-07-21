@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- bash: Add box prune to contrib bash completion [GH-8806]
+
 BUG FIXES:
 
 - commands/rsync-auto: Ensure relative dirs are still rsync'd if defined [GH-8781]
