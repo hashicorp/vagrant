@@ -1579,6 +1579,8 @@ en:
           Missing required value for `chef.nodes_path'.
         environment_path_missing: |-
           Environment path not found: %{path}
+        nodes_path_missing: |-
+          Path specified for `nodes_path` does not exist: %{path}
         environment_path_required: |-
           When 'environment' is specified, you must provide 'environments_path'.
         cookbooks_path_missing: |-

@@ -79,6 +79,13 @@ module VagrantPlugins
 
           if !present?(Array(nodes_path))
             errors << I18n.t("vagrant.config.chef.nodes_path_empty")
+          else
+            missing_paths = Array.new
+            nodes_path.each { |dir| missing_paths << dir[1] if !File.exists? dir[1] }
+            # If it exists at least one path on disk it's ok for Chef provisioning
+            if missing_paths.size == nodes_path.size
+              errors << I18n.t("vagrant.config.chef.nodes_path_missing", path: missing_paths.to_s)
+            end
           end
 
           if environment && environments_path.empty?
