@@ -2192,8 +2192,6 @@ en:
         running_solo_again: "Running chef-solo again (failed to converge)..."
         running_zero: "Running chef-client (local-mode)..."
         running_zero_again: "Running chef-client (local-mode) again (failed to converge)..."
-        missing_chef_node_folder: |-
-          Nodes folder that Chef requires is missing in this Vagrant project
         missing_shared_folders: |-
           Shared folders that Chef requires are missing on the virtual machine.
           This is usually due to configuration changing after already booting the
