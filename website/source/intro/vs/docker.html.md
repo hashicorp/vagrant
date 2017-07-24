@@ -19,7 +19,7 @@ don't have a containerization system built-in, and Docker uses a virtual machine
 with Linux installed to provide that.
 
 Currently, Docker lacks support for certain operating systems (such as
-Windows and BSD). If your target deployment is one of these operating systems,
+BSD). If your target deployment is one of these operating systems,
 Docker will not provide the same production parity as a tool like Vagrant.
 Vagrant will allow you to run a Windows development environment on Mac or Linux,
 as well.
