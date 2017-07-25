@@ -44,8 +44,19 @@ module Vagrant
               # Re-generate strings to ensure common encoding
               @@logger.debug("Converting command and arguments to common UTF-8 encoding for exec.")
               @@logger.debug("Command: `#{command.inspect}` Args: `#{args.inspect}`")
-              command = "#{command}".force_encoding("UTF-8")
-              args = args.map{|arg| "#{arg}".force_encoding("UTF-8") }
+              begin
+                command = "#{command}".encode("UTF-8")
+              rescue Encoding::UndefinedConversionError => e
+                @@logger.warn("Failed to convert command - #{e.class}: #{e} (`#{command}`)")
+              end
+              args = args.map do |arg|
+                begin
+                  "#{arg}".encode("UTF-8")
+                rescue Encoding::UndefinedConversionError => e
+                  @@logger.warn("Failed to convert command argument - #{e.class}: #{e} (`#{arg}`)")
+                  arg
+                end
+              end
               @@logger.debug("Converted - Command: `#{command.inspect}` Args: `#{args.inspect}`")
             end
             Kernel.exec(command, *args)
