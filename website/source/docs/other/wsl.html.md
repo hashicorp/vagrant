@@ -99,6 +99,21 @@ Other useful WSL related environment variables:
 * `VAGRANT_WSL_DISABLE_VAGRANT_HOME` - Do not modify the `VAGRANT_HOME` variable
 * `VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH` - Custom Windows system home path
 
+If a Vagrant project directory is not within the user's home directory on the
+Windows system, certain actions that include permission checks may fail (like
+`vagrant ssh`). When accessing Vagrant projects outside the WSL Vagrant will
+skip these permission checks when the project path is within the path defined
+in the `VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH` environment variable. For
+example, if a user wants to run a Vagrant project from the WSL that is located
+at `C:\TestDir\vagrant-project`:
+
+```
+C:\Users\vagrant> cd C:\TestDir\vagrant-project
+C:\TestDir\vagrant-project> bash
+vagrant@vagrant-10:/mnt/c/TestDir/vagrant-project$ export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/c/TestDir"
+vagrant@vagrant-10:/mnt/c/TestDir/vagrant-project$ vagrant ssh
+```
+
 ## Using Docker
 
 The docker daemon cannot be run inside the Windows Subsystem for Linux. However,
