@@ -161,6 +161,34 @@ the plugin source error and continue.
 If this is set, Vagrant will not perform any parallel operations (such as
 parallel box provisioning). All operations will be performed in serial.
 
+## `VAGRANT_DETECTED_OS`
+
+This environment variable may be set by the Vagrant launcher to help determine
+the current runtime platform. In general Vagrant will set this value when running
+on a Windows host using a cygwin or msys based shell. If this value is set, the
+Vagrant launcher will not modify it.
+
+## `VAGRANT_DETECTED_ARCH`
+
+This environment variable may be set by the Vagrant launcher to help determine
+the current runtime architecture in use. In general Vagrant will set this value
+when running on a Windows host using a cygwin or msys based shell. The value
+the Vagrant launcher may set in this environment variable will not always match
+the actual architecture of the platform itself. Instead it signifies the detected
+architecture of the environment it is running within. If this value is set, the
+Vagrant launcher will not modify it.
+
+## `VAGRANT_WINPTY_DISABLE`
+
+If this is set, Vagrant will _not_ wrap interactive processes with winpty where
+required.
+
+## `VAGRANT_PREFER_SYSTEM_BIN`
+
+If this is set, Vagrant will prefer using utility executables (like `ssh` and `rsync`)
+from the local system instead of those vendored within the Vagrant installation.
+This currently only applies to Windows systems.
+
 ## `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`
 
 As of Vagrant 1.7.3, Vagrant tries to intelligently detect if it is running in
