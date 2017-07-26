@@ -25,6 +25,7 @@ IMPROVEMENTS:
   - guests/bsd: Invoke `tee` with explicit path [GH-8740]
   - guests/smartos: Guest updates for host name and nfs capabilities [GH-8695]
   - guests/windows: Add public key capabilities for WinSSH communicator [GH-8761]
+  - providers/virtualbox: Filter machine IPs when preparing NFS settings [GH-8819]
 
 BUG FIXES:
 
