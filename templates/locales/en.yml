@@ -1014,6 +1014,11 @@ en:
 
           vagrant plugin expunge --reinstall
 
+        Or you may want to try updating the installed plugins to their latest
+        versions:
+
+          vagrant plugin update
+
         Error message given during initialization: %{message}
       plugin_load_error: |-
         The plugins failed to load properly. The error message given is
