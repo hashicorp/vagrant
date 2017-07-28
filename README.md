@@ -34,7 +34,7 @@ To build your first virtual environment:
     vagrant up
 
 Note: The above `vagrant up` command will also trigger Vagrant to download the
-`precise32` box via the specified URL. Vagrant only does this if it detects that
+`precise64` box via the specified URL. Vagrant only does this if it detects that
 the box doesn't already exist on your system.
 
 ## Getting Started Guide
