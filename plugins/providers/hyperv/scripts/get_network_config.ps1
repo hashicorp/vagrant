@@ -7,21 +7,36 @@ Param(
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-$ip_address = ""
 $vm = Get-VM -Id $VmId -ErrorAction "Stop"
 $networks = Get-VMNetworkAdapter -VM $vm
 foreach ($network in $networks) {
   if ($network.IpAddresses.Length -gt 0) {
-    $ip_address = $network.IpAddresses[0]
-    if (-Not ([string]::IsNullOrEmpty($ip_address))) {
-      # We found our IP address!
-      break
+    foreach ($ip_address in $network.IpAddresses) {
+      if ($ip_address.Contains(".")) {
+        $ip4_address = $ip_address
+      } elseif ($ip_address.Contains(":")) {
+        $ip6_address = $ip_address
+      }
+      if (-Not ([string]::IsNullOrEmpty($ip4_address)) -Or -Not ([string]::IsNullOrEmpty($ip6_address))) {
+        # We found our IP address!
+        break
+      }
     }
   }
 }
 
-$resultHash = @{
-    ip = "$ip_address"
+if (-Not ([string]::IsNullOrEmpty($ip4_address))) {
+  $guest_ipaddress = $ip4_address
+} elseif (-Not ([string]::IsNullOrEmpty($ip6_address))) {
+  $guest_ipaddress = $ip6_address
 }
-$result = ConvertTo-Json $resultHash
-Write-Output-Message $result
+
+if (-Not ([string]::IsNullOrEmpty($guest_ipaddress))) {
+  $resultHash = @{
+      ip = $guest_ipaddress
+  }
+  $result = ConvertTo-Json $resultHash
+  Write-Output-Message $result
+} else {
+  Write-Error-Message "Failed to determine IP address"
+}
