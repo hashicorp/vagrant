@@ -30,11 +30,11 @@ installed. After this,
 
 To build your first virtual environment:
 
-    vagrant init hashicorp/precise32
+    vagrant init ubuntu/xenial64
     vagrant up
 
 Note: The above `vagrant up` command will also trigger Vagrant to download the
-`precise64` box via the specified URL. Vagrant only does this if it detects that
+`xenial64` box via the specified URL. Vagrant only does this if it detects that
 the box doesn't already exist on your system.
 
 ## Getting Started Guide
