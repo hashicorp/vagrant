@@ -6,27 +6,27 @@ sidebar_current: "vagrant-cloud-boxes-create-x"
 
 # Creating a New Vagrant Box
 
-This page will cover creating a new box in Vagrant Enterprise and how to distribute
-it to users. Boxes can be distributed without Vagrant Enterprise, but
+This page will cover creating a new box in Vagrant Cloud and how to distribute
+it to users. Boxes can be distributed without Vagrant Cloud, but
 miss out on several [important features](/docs/vagrant-cloud/boxes).
 
-There are __three ways to create and upload Vagrant Boxes to Vagrant Enterprise__. All
+There are __three ways to create and upload Vagrant Boxes to Vagrant Cloud__. All
 three options are outlined below.
 
 We recommend using Packer, as is it is fully repeatable and keeps a strong
-history of changes within Vagrant Enterprise. However, for some situations, including
+history of changes within Vagrant Cloud. However, for some situations, including
 legacy workflows, the Web UI or API will work well.
 
-All three options require you [sign up for Vagrant Enterprise](https://vagrantcloud.com/account/new).
+All three options require you [sign up for Vagrant Cloud](https://vagrantcloud.com/account/new).
 
 ## Creating Boxes with Packer
 
 Using Packer requires more up front effort, but the repeatable and
 automated builds will end any manual management of boxes. Additionally,
-all boxes will be stored and served from Vagrant Enterprise, keeping a history along
+all boxes will be stored and served from Vagrant Cloud, keeping a history along
  the way.
 
-## Creating Boxes via the Vagrant Enterprise Web Interface
+## Creating Boxes via the Vagrant Cloud Web Interface
 
 You'll first need to create a box file. This can be done via
 the [vagrant `package` command](http://docs.vagrantup.com/v2/boxes/base.html)
@@ -47,7 +47,7 @@ locally in Vagrant. `virtualbox` is the most common provider.
 1. Upload the `.box` file for each provider, or use a url to the `.box`
 file that is publicly accessible
 
-You can find all of your boxes in the [Vagrant section](https://vagrantcloud.com/vagrant) of Vagrant Enterprise.
+You can find all of your boxes in the [Vagrant section](https://vagrantcloud.com/vagrant) of Vagrant Cloud.
 
 Once you've created and released a box, you can release new versions of
 the box by clicking "Create New Version" under the versions sidebar on

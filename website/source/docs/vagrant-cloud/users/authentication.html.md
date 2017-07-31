@@ -6,13 +6,13 @@ sidebar_current: "vagrant-cloud-users-authentication"
 
 # Authentication
 
-Vagrant Enterprise requires a username and password to sign up and login.
+Vagrant Cloud requires a username and password to sign up and login.
 However, there are several ways to authenticate with your account.
 
 ### Authentication Tokens
 
 Authentication tokens are keys used to access your account via tools or over the
-various APIs used in Vagrant Enterprise.
+various APIs used in Vagrant Cloud.
 
 You can create new tokens in the token section of your account settings. It's
 important to keep tokens secure, as they are essentially a password and can be
