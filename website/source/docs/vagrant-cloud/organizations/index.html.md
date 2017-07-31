@@ -1,12 +1,12 @@
 ---
 layout: "docs"
-page_page_title: "Organizations in Vagrant Enterprise"
+page_page_title: "Organizations in Vagrant Cloud"
 sidebar_current: "vagrant-cloud-organizations"
 ---
 
-## Organizations in Vagrant Enterprise
+## Organizations in Vagrant Cloud
 
-Organizations are a group of users in Vagrant Enterprise that have access and
+Organizations are a group of users in Vagrant Cloud that have access and
 ownership over shared resources. When operating within a team, we recommend
 creating an organization to manage access control, auditing, billing and
 authorization.

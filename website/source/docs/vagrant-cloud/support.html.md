@@ -1,12 +1,12 @@
 ---
 layout: "docs"
-page_title: "Vagrant Enterprise Support"
+page_title: "Vagrant Cloud Support"
 sidebar_current: "vagrant-cloud-support"
 ---
 
 # Contacting Support
 
-All users of Vagrant Enterprise are urged to email feedback, questions or
+All users of Vagrant Cloud are urged to email feedback, questions or
 requests to the HashiCorp team.
 
 ### Free Support
@@ -17,8 +17,8 @@ hours.
 
 ## HashiCorp Tools Support
 
-It's often the case that Vagrant Enterprise questions or feedback relates to
-the HashiCorp tooling. We encourage all Vagrant Enterprise users to search for
+It's often the case that Vagrant Cloud questions or feedback relates to
+the HashiCorp tooling. We encourage all Vagrant Cloud users to search for
 related issues and problems in the open source repositories and mailing lists
 prior to contacting us to help make our support more efficient and to help
 resolve problems faster.
@@ -28,7 +28,7 @@ websites.
 
 ## Documentation Feedback
 
-Due to the dynamic nature of Vagrant Enterprise and the broad set of features
+Due to the dynamic nature of Vagrant Cloud and the broad set of features
 it provides, there may be information lacking in the documentation.
 
 In this case, we appreciate any feedback to be emailed to us so

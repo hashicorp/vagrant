@@ -6,11 +6,11 @@ sidebar_current: "vagrant-cloud-boxes-catalog"
 
 # Discovering Vagrant Boxes
 
-Vagrant Enterprise serves a public, searchable index of Vagrant boxes. It's easy to find
+Vagrant Cloud serves a public, searchable index of Vagrant boxes. It's easy to find
 boxes you can use with Vagrant that contain the technologies you need
 for a Vagrant environment.
 
-You don't need a Vagrant Enterprise account to use public boxes.
+You don't need a Vagrant Cloud account to use public boxes.
 
 1. Go to the [Box search page](https://vagrantcloud.com/boxes/search)
 
@@ -37,10 +37,10 @@ are some things to note when you're choosing a box:
 trust the box more than an anonymous user
 - __The number of downloads of the box__. Heavily downloaded boxes
 are likely vetted more often by other members of the community. Hashicorp
-responds to reports of malicious software distributed via Vagrant Enterprise
+responds to reports of malicious software distributed via Vagrant Cloud
 and takes down boxes
 - __The latest release date__. More up-to-date boxes contain up-to-date
 software
-- __Availability of the box download__. Vagrant Enterprise periodically checks if box
+- __Availability of the box download__. Vagrant Cloud periodically checks if box
 has is publicly accessible. You can see this information on the box
 page next to the provider

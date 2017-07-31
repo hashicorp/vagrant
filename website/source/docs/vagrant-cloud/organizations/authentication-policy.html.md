@@ -21,7 +21,7 @@ interface until they enable it or leave the organization.
 Visit your organization's configuration page to enable this feature. All
 organization owners must have two-factor authentication enabled to require the
 practice organization-wide. Note: locked-out users are still be able to interact
-with Vagrant Enterprise using their `ATLAS_TOKEN`.
+with Vagrant Cloud using their `ATLAS_TOKEN`.
 
 ## Disabling Two-Factor Authentication Requirement
 
