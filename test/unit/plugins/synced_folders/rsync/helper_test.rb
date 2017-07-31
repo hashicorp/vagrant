@@ -233,6 +233,28 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       guest.stub(capability?: false)
     end
 
+    context "with an IPv6 address" do
+      before { ssh_info[:host] = "fe00::0" }
+
+      it "formats the address correctly" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(args[13]).to include("@[#{ssh_info[:host]}]")
+        }
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+    end
+
+    context "with an IPv4 address" do
+      before { ssh_info[:host] = "127.0.0.1" }
+
+      it "formats the address correctly" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+          expect(args[13]).to include("@#{ssh_info[:host]}")
+        }
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+    end
+
     it "includes IdentitiesOnly, StrictHostKeyChecking, and UserKnownHostsFile with defaults" do
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
