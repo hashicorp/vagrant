@@ -41,6 +41,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
     allow(Vagrant::Util::Which).to receive(:which).and_return("/dev/null/docker-compose")
     allow(env).to receive(:lock).and_yield
     allow(Pathname).to receive(:new).with(local_data_path).and_return(local_data_path)
+    allow(Pathname).to receive(:new).with('/host/path').and_call_original
     allow(local_data_path).to receive(:join).and_return(data_directory)
     allow(data_directory).to receive(:mkpath)
     allow(FileUtils).to receive(:mv)
@@ -90,6 +91,18 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
           expect(docker_yml).to receive(:write).with(/#{link}/)
         end
         subject.create(params)
+      end
+    end
+
+    context 'with relative path in share folders' do
+      before do
+        params[:volumes] = './path:guest/path'
+        allow(Pathname).to receive(:new).with('./path').and_call_original
+        allow(Pathname).to receive(:new).with('/compose/cwd/path').and_call_original
+      end
+
+      it 'should expand the relative host directory' do
+        expect(docker_yml).to receive(:write).with(%r{/compose/cwd/path})
       end
     end
 
