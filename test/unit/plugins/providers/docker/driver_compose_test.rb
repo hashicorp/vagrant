@@ -82,11 +82,22 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       expect(docker_yml).to receive(:write).with(/#{params[:volumes]}/)
     end
 
+    context 'when links are provided as strings' do
+      before{ params[:links] = ["linkl1:linkr1", "linkl2:linkr2"] }
+
+      it 'links containers' do
+        params[:links].flatten.map{|l| l.split(':')}.each do |link|
+          expect(docker_yml).to receive(:write).with(/#{link}/)
+        end
+        subject.create(params)
+      end
+    end
+
     it 'links containers' do
       params[:links].each do |link|
         expect(docker_yml).to receive(:write).with(/#{link}/)
-        subject.create(params)
       end
+      subject.create(params)
     end
 
     it 'sets environmental variables' do

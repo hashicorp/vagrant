@@ -83,7 +83,14 @@ module VagrantPlugins
           # need to worry about uniqueness with compose
           name    = machine.name.to_s
           image   = params.fetch(:image)
-          links   = params.fetch(:links)
+          links   = Array(params.fetch(:links, [])).map do |link|
+            case link
+            when Array
+              link
+            else
+              link.to_s.split(":")
+            end
+          end
           ports   = Array(params[:ports])
           volumes = Array(params[:volumes]).map do |v|
             v = v.to_s
