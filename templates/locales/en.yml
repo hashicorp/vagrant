@@ -1584,6 +1584,8 @@ en:
           Missing required value for `chef.nodes_path'.
         environment_path_missing: |-
           Environment path not found: %{path}
+        nodes_path_missing: |-
+          Path specified for `nodes_path` does not exist: %{path}
         environment_path_required: |-
           When 'environment' is specified, you must provide 'environments_path'.
         cookbooks_path_missing: |-
@@ -2163,8 +2165,16 @@ en:
           The chef binary (either `chef-solo` or `chef-client`) was not found on
           the VM and is required for chef provisioning. Please verify that chef
           is installed and that the binary is available on the PATH.
-        cookbook_folder_not_found_warning:
+        cookbooks_folder_not_found_warning:
           "The cookbook path '%{path}' doesn't exist. Ignoring..."
+        nodes_folder_not_found_warning:
+          "The node path '%{path}' doesn't exist. Ignoring..."
+        data_bags_folder_not_found_warning:
+          "The databag path '%{path}' doesn't exist. Ignoring..."
+        roles_folder_not_found_warning:
+          "The role path '%{path}' doesn't exist. Ignoring..."
+        environments_folder_not_found_warning:
+          "The environment path '%{path}' doesn't exist. Ignoring..."
         json: "Generating chef JSON and uploading..."
         client_key_folder: "Creating folder to hold client key..."
         generating_node_name: |-

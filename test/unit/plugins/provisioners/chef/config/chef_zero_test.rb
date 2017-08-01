@@ -110,6 +110,17 @@ describe VagrantPlugins::Chef::Config::ChefZero do
       end
     end
 
+    context "when an element of nodes_path does not exist on disk" do
+      it "returns an error" do
+        nodes_path = ["/path/to/nodes/that/will/never/exist"]
+        subject.nodes_path = nodes_path
+        subject.finalize!
+        expect(errors).to include(I18n.t("vagrant.config.chef.nodes_path_missing",
+          path: nodes_path
+        ))
+      end
+    end
+
     context "when the nodes_path is an empty array" do
       it "returns an error" do
         subject.nodes_path = []
