@@ -87,7 +87,8 @@ module VagrantPlugins
                 key         = Digest::MD5.hexdigest(local_path)
                 remote_path = "#{guest_provisioning_path}/#{key}"
               else
-                @machine.ui.warn(I18n.t("vagrant.provisioners.chef.cookbook_folder_not_found_warning",
+                appended_folder = "cookbooks" if appended_folder.nil?
+                @machine.ui.warn(I18n.t("vagrant.provisioners.chef.#{appended_folder}_folder_not_found_warning",
                                        path: local_path.to_s))
                 next
               end
