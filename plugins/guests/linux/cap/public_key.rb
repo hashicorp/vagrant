@@ -53,6 +53,7 @@ module VagrantPlugins
               result=$?
             fi
             rm -f '#{remote_path}'
+            chmod 0600 ~/.ssh/authorized_keys
             exit $result
           EOH
         end
