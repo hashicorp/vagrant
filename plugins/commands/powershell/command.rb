@@ -13,6 +13,10 @@ module VagrantPlugins
       def execute
         options = {}
 
+        comops = {
+            elevated:    false
+        }
+
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant powershell [-- extra powershell args]"
 
@@ -22,6 +26,10 @@ module VagrantPlugins
 
           o.on("-c", "--command COMMAND", "Execute a powershell command directly") do |c|
             options[:command] = c
+          end
+
+          o.on("-e", "--elevate", "Execute command elevated using task scheduler") do |c|
+            comops[:elevated] = true
           end
         end
 
@@ -51,14 +59,14 @@ module VagrantPlugins
           end
 
           if !options[:command].nil?
-            out_code = machine.communicate.execute(options[:command].dup) do |type,data|
-              machine.ui.detail(data) if type == :stdout
-            end
-            if out_code == 0
-              machine.ui.success("Command: #{options[:command]} executed succesfully with output code #{out_code}.")
-            end
-            next
+            out_code = machine.communicate.execute(options[:command].dup, comops) do |type,data|
+            machine.ui.detail(data) if type == :stdout
           end
+          if out_code == 0
+            machine.ui.success("Command: #{options[:command]} executed succesfully with output code #{out_code}.")
+          end
+          next
+        end
 
           ps_info = VagrantPlugins::CommunicatorWinRM::Helper.winrm_info(machine)
           ps_info[:username] = machine.config.winrm.username
