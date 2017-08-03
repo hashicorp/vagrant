@@ -130,14 +130,15 @@ module VagrantPlugins
         opts[:nfs_udp] = true if !opts.key?(:nfs_udp)
         opts[:nfs_version] ||= 3
 
-
         if opts[:nfs_version].to_s.start_with?('4') && opts[:nfs_udp]
           machine.ui.info I18n.t("vagrant.actions.vm.nfs.v4_with_udp_warning")
         end
 
         # We use a CRC32 to generate a 32-bit checksum so that the
         # fsid is compatible with both old and new kernels.
-        opts[:uuid] = Zlib.crc32(opts[:hostpath]).to_s
+        if !opts[:uuid]
+          opts[:uuid] = Zlib.crc32(opts[:hostpath]).to_s
+        end
       end
 
       # Prepares the UID/GID settings for a single folder.

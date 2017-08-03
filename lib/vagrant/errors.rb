@@ -504,6 +504,22 @@ module Vagrant
       error_key(:nfs_client_not_installed_in_guest)
     end
 
+    class NFSExportfsExportFailed < VagrantError
+      error_key(:nfs_exportfs_export_failed)
+    end
+
+    class NFSExportfsPruneFailed < VagrantError
+      error_key(:nfs_exportfs_prune_failed)
+    end
+
+    class NFSExportfsListFailed < VagrantError
+      error_key(:nfs_exportfs_list_failed)
+    end
+
+    class NFSDStartFailure < VagrantError
+      error_key(:nfsd_start_failure)
+    end
+
     class NoDefaultProvider < VagrantError
       error_key(:no_default_provider)
     end

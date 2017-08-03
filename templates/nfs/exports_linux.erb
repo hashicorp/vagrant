@@ -1,7 +1,0 @@
-# VAGRANT-BEGIN: <%= user %> <%= uuid %>
-<% ips.each do |ip| %>
-<% folders.each do |name, opts| %>
-"<%= opts[:hostpath] %>" <%= ip %>(<%= opts[:linux__nfs_options].join(",") %>)
-<% end %>
-<% end %>
-# VAGRANT-END: <%= user %> <%= uuid %>
