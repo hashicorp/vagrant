@@ -5,10 +5,8 @@ module VagrantPlugins
     #   https://docs.chef.io/install_omnibus.html
     #
     module Omnibus
-      OMNITRUCK = "https://omnitruck.chef.io".freeze
-
-      def sh_command(project, version, channel, options = {})
-        command =  "curl -sL #{OMNITRUCK}/install.sh | bash"
+      def sh_command(project, version, channel, omnibus_url, options = {})
+        command =  "curl -sL #{omnibus_url}/install.sh | bash"
         command << " -s -- -P \"#{project}\" -c \"#{channel}\""
 
         if version != :latest
@@ -23,8 +21,8 @@ module VagrantPlugins
       end
       module_function :sh_command
 
-      def ps_command(project, version, channel, options = {})
-        command =  ". { iwr -useb #{OMNITRUCK}/install.ps1 } | iex; install"
+      def ps_command(project, version, channel, omnibus_url, options = {})
+        command =  ". { iwr -useb #{omnibus_url}/install.ps1 } | iex; install"
         command << " -project '#{project}' -channel '#{channel}'"
 
         if version != :latest

@@ -5,8 +5,8 @@ module VagrantPlugins
     module Cap
       module Windows
         module ChefInstall
-          def self.chef_install(machine, project, version, channel, options = {})
-            command = Omnibus.ps_command(project, version, channel, options)
+          def self.chef_install(machine, project, version, channel, omnibus_url, options = {})
+            command = Omnibus.ps_command(project, version, channel, omnibus_url, options)
             machine.communicate.sudo(command)
           end
         end
