@@ -34,17 +34,17 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
   def machine_stub(name)
     double(name).tap do |m|
-      m.stub(id: "foo")
-      m.stub(reload: nil)
-      m.stub(ssh_info: ssh_info)
-      m.stub(ui: iso_env.ui)
-      m.stub(provider: double("provider"))
-      m.stub(state: double("state", id: :not_created))
-      m.stub(env: iso_env)
-      m.stub(config: double("config"))
+      allow(m).to receive(:id).and_return("foo")
+      allow(m).to receive(:reload).and_return(nil)
+      allow(m).to receive(:ssh_info).and_return(ssh_info)
+      allow(m).to receive(:ui).and_return(iso_env.ui)
+      allow(m).to receive(:provider).and_return(double("provider"))
+      allow(m).to receive(:state).and_return(double("state", id: :not_created))
+      allow(m).to receive(:env).and_return(iso_env)
+      allow(m).to receive(:config).and_return(double("config"))
 
 
-      m.ui.stub(error: nil)
+      allow(m.ui).to receive(:error).and_return(nil)
     end
   end
 
@@ -111,7 +111,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
   subject do
     described_class.new(argv, iso_env).tap do |s|
-      s.stub(synced_folders: synced_folders_empty)
+      allow(s).to receive(:synced_folders).and_return(synced_folders_empty)
     end
   end
 
@@ -207,7 +207,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       ]
 
       paths["/foo"].each do |data|
-        data[:machine].stub(id: nil)
+        allow(data[:machine]).to receive(:id).and_return(nil)
         expect(helper_class).to_not receive(:rsync_single)
       end
 

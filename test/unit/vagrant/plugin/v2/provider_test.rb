@@ -42,7 +42,7 @@ describe Vagrant::Plugin::V2::Provider do
         end
       end
 
-      machine.stub(id: "YEAH")
+      allow(machine).to receive(:id).and_return("YEAH")
 
       instance._initialize("foo", machine)
     end

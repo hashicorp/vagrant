@@ -24,7 +24,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
   let(:box) do
     box_dir = iso_env.box3("foo", "1.0", :virtualbox)
     Vagrant::Box.new("foo", :virtualbox, "1.0", box_dir).tap do |b|
-      b.stub(has_update?: nil)
+      allow(b).to receive(:has_update?).and_return(nil)
     end
   end
 
@@ -35,7 +35,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
   end
 
   before do
-    machine.stub(box: box)
+    allow(machine).to receive(:box).and_return(box)
   end
 
   context "disabling outdated checking" do
@@ -63,7 +63,7 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
   context "no box" do
     it "raises an exception if the machine doesn't have a box yet" do
-      machine.stub(box: nil)
+      allow(machine).to receive(:box).and_return(nil)
 
       expect(app).to receive(:call).with(env).once
 
@@ -75,8 +75,8 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
   context "with a non-versioned box" do
     it "does nothing" do
-      box.stub(metadata_url: nil)
-      box.stub(version: "0")
+      allow(box).to receive(:metadata_url).and_return(nil)
+      allow(box).to receive(:version).and_return("0")
 
       expect(app).to receive(:call).once
       expect(box).to receive(:has_update?).never

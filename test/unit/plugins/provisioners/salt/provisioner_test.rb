@@ -20,13 +20,13 @@ describe VagrantPlugins::Salt::Provisioner do
   let(:guest)        { double("guest") }
 
   before do
-    machine.stub(communicate: communicator)
-    machine.stub(guest: guest)
+    allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:guest).and_return(guest)
 
-    communicator.stub(execute: true)
-    communicator.stub(upload: true)
+    allow(communicator).to receive(:execute).and_return(true)
+    allow(communicator).to receive(:upload).and_return(true)
 
-    guest.stub(capability?: false)
+    allow(guest).to receive(:capability?).and_return(false)
   end
 
   describe "#provision" do

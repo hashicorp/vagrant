@@ -25,10 +25,10 @@ describe VagrantPlugins::ProviderVirtualBox::Config do
 
   before do
     vm_config = double("vm_config")
-    vm_config.stub(networks: [])
+    allow(vm_config).to receive(:networks).and_return([])
     config = double("config")
-    config.stub(vm: vm_config)
-    machine.stub(config: config)
+    allow(config).to receive(:vm).and_return(vm_config)
+    allow(machine).to receive(:config).and_return(config)
   end
 
   its "valid by default" do

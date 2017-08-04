@@ -9,8 +9,8 @@ describe Vagrant::Util::Downloader do
 
   let(:subprocess_result) do
     double("subprocess_result").tap do |result|
-      result.stub(exit_code: exit_code)
-      result.stub(stderr: "")
+      allow(result).to receive(:exit_code).and_return(exit_code)
+      allow(result).to receive(:stderr).and_return("")
     end
   end
 
@@ -199,7 +199,7 @@ describe Vagrant::Util::Downloader do
     }
 
     it "returns the output" do
-      subprocess_result.stub(stdout: "foo")
+      allow(subprocess_result).to receive(:stdout).and_return("foo")
 
       options = curl_options.dup
       options.unshift("-I")

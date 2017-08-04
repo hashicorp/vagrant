@@ -13,7 +13,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::NetworkFixIPv6 do
 
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :dummy).tap do |m|
-      m.provider.stub(driver: driver)
+      allow(m.provider).to receive(:driver).and_return(driver)
     end
   end
 
@@ -45,7 +45,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::NetworkFixIPv6 do
         .and_return(private_network: { ip: 'fe:80::' })
       allow(UDPSocket).to receive(:new).with(Socket::AF_INET6)
         .and_return(socket)
-      socket.stub(:connect)
+      allow(socket).to receive(:connect)
     end
 
     it "only checks the interfaces associated with the VM" do

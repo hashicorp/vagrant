@@ -22,7 +22,7 @@ describe VagrantPlugins::DockerProvider::Command::Exec do
   end
 
   before do
-    Vagrant.plugin("2").manager.stub(commands: {})
+    allow(Vagrant.plugin("2").manager).to receive(:commands).and_return({})
     allow(subject).to receive(:exec_command)
   end
 

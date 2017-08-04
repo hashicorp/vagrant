@@ -24,7 +24,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
 
   let(:machine_config) do
     double("machine_config").tap do |top_config|
-      top_config.stub(vm: vm_config)
+      allow(top_config).to receive(:vm).and_return(vm_config)
     end
   end
 
@@ -98,8 +98,8 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
       plugins[:default] = [impl(true, "default"), 10]
       plugins[:nfs] = [impl(true, "nfs"), 5]
 
-      subject.stub(plugins: plugins)
-      vm_config.stub(synced_folders: folders)
+      allow(subject).to receive(:plugins).and_return(plugins)
+      allow(vm_config).to receive(:synced_folders).and_return(folders)
     end
 
     it "should raise exception if bad type is given" do
@@ -133,7 +133,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
 
       other_folders = { "bar" => {} }
       other = double("config")
-      other.stub(synced_folders: other_folders)
+      allow(other).to receive(:synced_folders).and_return(other_folders)
 
       result = subject.synced_folders(machine, config: other)
       expect(result.length).to eq(1)
@@ -201,7 +201,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
     it "should be able to save and retrieve cached versions" do
       other_folders = {}
       other = double("config")
-      other.stub(synced_folders: other_folders)
+      allow(other).to receive(:synced_folders).and_return(other_folders)
 
       other_folders["foo"] = { type: "default" }
       result = subject.synced_folders(machine, config: other)

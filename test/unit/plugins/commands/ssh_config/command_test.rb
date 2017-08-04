@@ -32,7 +32,7 @@ describe VagrantPlugins::CommandSSHConfig::Command do
   subject { described_class.new(argv, iso_env) }
 
   before do
-    machine.stub(ssh_info: ssh_info)
+    allow(machine).to receive(:ssh_info).and_return(ssh_info)
     allow(subject).to receive(:with_target_vms) { |&block| block.call machine }
   end
 

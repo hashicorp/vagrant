@@ -27,24 +27,24 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
     end
 
     it "returns the SSH info host if available" do
-      machine.stub(ssh_info: { host: "bar" })
+      allow(machine).to receive(:ssh_info).and_return({ host: "bar" })
       expect(subject.winrm_address(machine)).to eq("bar")
     end
 
     it "raise an exception if it can't detect a host" do
-      machine.stub(ssh_info: nil)
+      allow(machine).to receive(:ssh_info).and_return(nil)
       expect { subject.winrm_address(machine) }.
         to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
     end
 
     it "raise an exception if it detects an empty host ip" do
-      machine.stub(ssh_info: { host: "" })
+      allow(machine).to receive(:ssh_info).and_return({ host: "" })
       expect { subject.winrm_address(machine) }.
         to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
     end
 
     it "raise a WinRMNotReady exception if it detects an unset host ip" do
-      machine.stub(ssh_info: { host: nil })
+      allow(machine).to receive(:ssh_info).and_return({ host: nil })
       expect { subject.winrm_address(machine) }.
         to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
     end
@@ -52,15 +52,15 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
 
   describe ".winrm_info" do
     before do
-      machine.provider.stub(:capability?).
-        with(:winrm_info).and_return(false)
-      subject.stub(winrm_address: nil)
-      subject.stub(winrm_port: nil)
+      allow(machine.provider).to receive(:capability?)
+        .with(:winrm_info).and_return(false)
+      allow(subject).to receive(:winrm_address).and_return(nil)
+      allow(subject).to receive(:winrm_port).and_return(nil)
     end
 
     it "returns default info if no capability" do
-      subject.stub(winrm_address: "bar")
-      subject.stub(winrm_port: 45)
+      allow(subject).to receive(:winrm_address).and_return("bar")
+      allow(subject).to receive(:winrm_port).and_return(45)
 
       result = subject.winrm_info(machine)
       expect(result[:host]).to eq("bar")
@@ -68,18 +68,19 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
     end
 
     it "raises an exception if capability returns nil" do
-      machine.provider.stub(:capability?).
-        with(:winrm_info).and_return(true)
-      machine.provider.stub(:capability).with(:winrm_info).and_return(nil)
+      allow(machine.provider).to receive(:capability?)
+        .with(:winrm_info).and_return(true)
+      allow(machine.provider).to receive(:capability)
+        .with(:winrm_info).and_return(nil)
 
       expect { subject.winrm_info(machine) }.
         to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
     end
 
     it "returns the proper information if set" do
-      machine.provider.stub(:capability?).
-        with(:winrm_info).and_return(true)
-      machine.provider.stub(:capability).with(:winrm_info).and_return({
+      allow(machine.provider).to receive(:capability?)
+        .with(:winrm_info).and_return(true)
+      allow(machine.provider).to receive(:capability).with(:winrm_info).and_return({
         host: "foo",
         port: 12,
       })
@@ -90,12 +91,12 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
     end
 
     it "defaults information if capability doesn't set it" do
-      machine.provider.stub(:capability?).
-        with(:winrm_info).and_return(true)
-      machine.provider.stub(:capability).with(:winrm_info).and_return({})
+      allow(machine.provider).to receive(:capability?)
+        .with(:winrm_info).and_return(true)
+      allow(machine.provider).to receive(:capability).with(:winrm_info).and_return({})
 
-      subject.stub(winrm_address: "bar")
-      subject.stub(winrm_port: 45)
+      allow(subject).to receive(:winrm_address).and_return("bar")
+      allow(subject).to receive(:winrm_port).and_return(45)
 
       result = subject.winrm_info(machine)
       expect(result[:host]).to eq("bar")
@@ -132,8 +133,8 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
       machine.config.winrm.guest_port = 2222
       machine.config.vm.network "forwarded_port", host: 1234, guest: 2222
 
-      machine.provider.stub(:capability?).with(:forwarded_ports).and_return(true)
-      machine.provider.stub(:capability).with(:forwarded_ports).and_return({
+      allow(machine.provider).to receive(:capability?).with(:forwarded_ports).and_return(true)
+      allow(machine.provider).to receive(:capability).with(:forwarded_ports).and_return({
         1234 => 4567,
         2456 => 2222,
       })

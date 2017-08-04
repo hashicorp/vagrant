@@ -31,8 +31,8 @@ describe Vagrant::Environment do
 
     before do
       m = Vagrant.plugin("2").manager
-      m.stub(hosts: plugin_hosts)
-      m.stub(host_capabilities: plugin_host_caps)
+      allow(m).to receive(:hosts).and_return(plugin_hosts)
+      allow(m).to receive(:host_capabilities).and_return(plugin_host_caps)
 
       # Detect the host
       env.vagrantfile <<-VF
@@ -160,7 +160,8 @@ describe Vagrant::Environment do
 
       it "moves the boxes into the new directory structure" do
         # Kind of hacky but avoids two instantiations of BoxCollection
-        Vagrant::Environment.any_instance.stub(boxes: double("boxes"))
+        allow(Vagrant::Environment).to receive(:boxes)
+          .and_return(double("boxes"))
 
         collection = double("collection")
         expect(Vagrant::BoxCollection).to receive(:new).with(
@@ -177,8 +178,8 @@ describe Vagrant::Environment do
 
     before do
       m = Vagrant.plugin("2").manager
-      m.stub(hosts: plugin_hosts)
-      m.stub(host_capabilities: plugin_host_caps)
+      allow(m).to receive(:hosts).and_return(plugin_hosts)
+      allow(m).to receive(:host_capabilities).and_return(plugin_host_caps)
     end
 
     it "should default to some host even if there are none" do
@@ -641,7 +642,7 @@ VF
       klass = double("machine_index")
       stub_const("Vagrant::MachineIndex", klass)
 
-      klass.should_receive(:new).with(any_args) do |path|
+      expect(klass).to receive(:new).with(any_args) do |path|
         expect(path.to_s.start_with?(subject.home_path.to_s)).to be(true)
         true
       end
@@ -759,7 +760,7 @@ VF
 
     before do
       m = Vagrant.plugin("2").manager
-      m.stub(providers: plugin_providers)
+      allow(m).to receive(:providers).and_return(plugin_providers)
     end
 
     it "is the highest matching usable provider" do

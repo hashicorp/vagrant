@@ -7,7 +7,7 @@ describe VagrantPlugins::DockerProvider::Driver do
   let(:cid)          { 'side-1-song-10' }
 
   before do
-    subject.stub(:execute) { |*args| @cmd = args.join(' ') }
+    allow(subject).to receive(:execute) { |*args| @cmd = args.join(' ') }
   end
 
   describe '#create' do
@@ -74,19 +74,19 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     context 'when container exists' do
-      before { subject.stub(execute: "foo\n#{cid}\nbar") }
+      before { allow(subject).to receive(:execute).and_return("foo\n#{cid}\nbar") }
       it { expect(result).to be_truthy }
     end
 
     context 'when container does not exist' do
-      before { subject.stub(execute: "foo\n#{cid}extra\nbar") }
+      before { allow(subject).to receive(:execute).and_return("foo\n#{cid}extra\nbar") }
       it { expect(result).to be_falsey }
     end
   end
 
   describe '#pull' do
     it 'should pull images' do
-      subject.should_receive(:execute).with('docker', 'pull', 'foo')
+      expect(subject).to receive(:execute).with('docker', 'pull', 'foo')
       subject.pull('foo')
     end
   end
@@ -101,43 +101,43 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
 
     context 'when container exists' do
-      before { subject.stub(execute: "foo\n#{cid}\nbar") }
+      before { allow(subject).to receive(:execute).and_return("foo\n#{cid}\nbar") }
       it { expect(result).to be_truthy }
     end
 
     context 'when container does not exist' do
-      before { subject.stub(execute: "foo\n#{cid}extra\nbar") }
+      before { allow(subject).to receive(:execute).and_return("foo\n#{cid}extra\nbar") }
       it { expect(result).to be_falsey }
     end
   end
 
   describe '#privileged?' do
     it 'identifies privileged containers' do
-      subject.stub(inspect_container: {'HostConfig' => {"Privileged" => true}})
+      allow(subject).to receive(:inspect_container).and_return({'HostConfig' => {"Privileged" => true}})
       expect(subject).to be_privileged(cid)
     end
 
     it 'identifies unprivileged containers' do
-      subject.stub(inspect_container: {'HostConfig' => {"Privileged" => false}})
+      allow(subject).to receive(:inspect_container).and_return({'HostConfig' => {"Privileged" => false}})
       expect(subject).to_not be_privileged(cid)
     end
   end
 
   describe '#start' do
     context 'when container is running' do
-      before { subject.stub(running?: true) }
+      before { allow(subject).to receive(:running?).and_return(true) }
 
       it 'does not start the container' do
-        subject.should_not_receive(:execute).with('docker', 'start', cid)
+        expect(subject).to_not receive(:execute).with('docker', 'start', cid)
         subject.start(cid)
       end
     end
 
     context 'when container is not running' do
-      before { subject.stub(running?: false) }
+      before { allow(subject).to receive(:running?).and_return(false) }
 
       it 'starts the container' do
-        subject.should_receive(:execute).with('docker', 'start', cid)
+        expect(subject).to receive(:execute).with('docker', 'start', cid)
         subject.start(cid)
       end
     end
@@ -145,24 +145,24 @@ describe VagrantPlugins::DockerProvider::Driver do
 
   describe '#stop' do
     context 'when container is running' do
-      before { subject.stub(running?: true) }
+      before { allow(subject).to receive(:running?).and_return(true) }
 
       it 'stops the container' do
-        subject.should_receive(:execute).with('docker', 'stop', '-t', '1', cid)
+        expect(subject).to receive(:execute).with('docker', 'stop', '-t', '1', cid)
         subject.stop(cid, 1)
       end
 
       it "stops the container with the set timeout" do
-        subject.should_receive(:execute).with('docker', 'stop', '-t', '5', cid)
+        expect(subject).to receive(:execute).with('docker', 'stop', '-t', '5', cid)
         subject.stop(cid, 5)
       end
     end
 
     context 'when container is not running' do
-      before { subject.stub(running?: false) }
+      before { allow(subject).to receive(:running?).and_return(false) }
 
       it 'does not stop container' do
-        subject.should_not_receive(:execute).with('docker', 'stop', '-t', '1', cid)
+        expect(subject).to_not receive(:execute).with('docker', 'stop', '-t', '1', cid)
         subject.stop(cid, 1)
       end
     end
@@ -170,19 +170,19 @@ describe VagrantPlugins::DockerProvider::Driver do
 
   describe '#rm' do
     context 'when container has been created' do
-      before { subject.stub(created?: true) }
+      before { allow(subject).to receive(:created?).and_return(true) }
 
       it 'removes the container' do
-        subject.should_receive(:execute).with('docker', 'rm', '-f', '-v', cid)
+        expect(subject).to receive(:execute).with('docker', 'rm', '-f', '-v', cid)
         subject.rm(cid)
       end
     end
 
     context 'when container has not been created' do
-      before { subject.stub(created?: false) }
+      before { allow(subject).to receive(:created?).and_return(false) }
 
       it 'does not attempt to remove the container' do
-        subject.should_not_receive(:execute).with('docker', 'rm', '-f', '-v', cid)
+        expect(subject).to_not receive(:execute).with('docker', 'rm', '-f', '-v', cid)
         subject.rm(cid)
       end
     end
@@ -191,10 +191,10 @@ describe VagrantPlugins::DockerProvider::Driver do
   describe '#inspect_container' do
     let(:data) { '[{"json": "value"}]' }
 
-    before { subject.stub(execute: data) }
+    before { allow(subject).to receive(:execute).and_return(data) }
 
     it 'inspects the container' do
-      subject.should_receive(:execute).with('docker', 'inspect', cid)
+      expect(subject).to receive(:execute).with('docker', 'inspect', cid)
       subject.inspect_container(cid)
     end
 
@@ -206,10 +206,10 @@ describe VagrantPlugins::DockerProvider::Driver do
   describe '#all_containers' do
     let(:containers) { "container1\ncontainer2" }
 
-    before { subject.stub(execute: containers) }
+    before { allow(subject).to receive(:execute).and_return(containers) }
 
     it 'returns an array of all known containers' do
-      subject.should_receive(:execute).with('docker', 'ps', '-a', '-q', '--no-trunc')
+      expect(subject).to receive(:execute).with('docker', 'ps', '-a', '-q', '--no-trunc')
       expect(subject.all_containers).to eq(['container1', 'container2'])
     end
   end
@@ -217,10 +217,10 @@ describe VagrantPlugins::DockerProvider::Driver do
   describe '#docker_bridge_ip' do
     let(:containers) { " inet 123.456.789.012/16 " }
 
-    before { subject.stub(execute: containers) }
+    before { allow(subject).to receive(:execute).and_return(containers) }
 
     it 'returns an array of all known containers' do
-      subject.should_receive(:execute).with('/sbin/ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
+      expect(subject).to receive(:execute).with('/sbin/ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
       expect(subject.docker_bridge_ip).to eq('123.456.789.012')
     end
   end

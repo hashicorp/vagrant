@@ -21,14 +21,14 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
 
   subject do
     described_class.new(argv, iso_env).tap do |s|
-      s.stub(synced_folders: synced_folders)
+      allow(s).to receive(:synced_folders).and_return(synced_folders)
     end
   end
 
   before do
     iso_env.machine_names.each do |name|
       m = iso_env.machine(name, iso_env.default_provider)
-      m.stub(communicate: communicator)
+      allow(m).to receive(:communicate).and_return(communicator)
     end
   end
 
@@ -41,8 +41,8 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
       let(:machine) { iso_env.machine(iso_env.machine_names[0], iso_env.default_provider) }
 
       before do
-        communicator.stub(ready?: true)
-        machine.stub(ssh_info: ssh_info)
+        allow(communicator).to receive(:ready?).and_return(true)
+        allow(machine).to receive(:ssh_info).and_return(ssh_info)
 
         synced_folders[:rsync] = [
           [:one, {}],
@@ -51,7 +51,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
       end
 
       it "doesn't sync if communicator isn't ready and exits with 1" do
-        communicator.stub(ready?: false)
+        allow(communicator).to receive(:ready?).and_return(false)
 
         expect(helper_class).to receive(:rsync_single).never
 

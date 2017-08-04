@@ -15,7 +15,7 @@ describe Vagrant::Action::Builtin::ProvisionerCleanup do
 
   let(:machine_config) do
     double("machine_config").tap do |config|
-      config.stub(vm: vm_config)
+      allow(config).to receive(:vm).and_return(vm_config)
     end
   end
 

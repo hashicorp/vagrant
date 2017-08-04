@@ -69,7 +69,7 @@ describe Vagrant do
     it "finds plugins by gem name" do
       specs = [Gem::Specification.new]
       specs[0].name = "foo"
-      Vagrant::Plugin::Manager.instance.stub(installed_specs: specs)
+      allow(Vagrant::Plugin::Manager.instance).to receive(:installed_specs).and_return(specs)
 
       expect(described_class.has_plugin?("foo")).to be(true)
       expect(described_class.has_plugin?("bar")).to be(false)
@@ -79,7 +79,7 @@ describe Vagrant do
       specs = [Gem::Specification.new]
       specs[0].name = "foo"
       specs[0].version = "1.2.3"
-      Vagrant::Plugin::Manager.instance.stub(installed_specs: specs)
+      allow(Vagrant::Plugin::Manager.instance).to receive(:installed_specs).and_return(specs)
 
       expect(described_class.has_plugin?("foo", "~> 1.2.0")).to be(true)
       expect(described_class.has_plugin?("foo", "~> 1.0.0")).to be(false)

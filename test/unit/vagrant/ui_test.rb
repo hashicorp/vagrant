@@ -350,7 +350,7 @@ describe Vagrant::UI::Prefixed do
 
   describe "#opts" do
     it "is the parent's opts" do
-      ui.stub(opts: Object.new)
+      allow(ui).to receive(:opts).and_return(Object.new)
       expect(subject.opts).to be(ui.opts)
     end
   end

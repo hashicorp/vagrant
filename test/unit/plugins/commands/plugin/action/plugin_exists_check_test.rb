@@ -9,11 +9,11 @@ describe VagrantPlugins::CommandPlugin::Action::PluginExistsCheck do
   subject { described_class.new(app, env) }
 
   before do
-    Vagrant::Plugin::Manager.stub(instance: manager)
+    allow(Vagrant::Plugin::Manager).to receive(:instance).and_return(manager)
   end
 
   it "should raise an exception if the plugin doesn't exist" do
-    manager.stub(installed_plugins: { "foo" => {} })
+    allow(manager).to receive(:installed_plugins).and_return({ "foo" => {} })
     expect(app).not_to receive(:call)
 
     env[:plugin_name] = "bar"
@@ -22,7 +22,7 @@ describe VagrantPlugins::CommandPlugin::Action::PluginExistsCheck do
   end
 
   it "should call the app if the plugin is installed" do
-    manager.stub(installed_plugins: { "bar" => {} })
+    allow(manager).to receive(:installed_plugins).and_return({ "bar" => {} })
     expect(app).to receive(:call).once.with(env)
 
     env[:plugin_name] = "bar"

@@ -38,7 +38,7 @@ describe Vagrant::Action::Builtin::HandleBox do
   end
 
   it "doesn't do anything if a box exists" do
-    machine.stub(box: box)
+    allow(machine).to receive(:box).and_return(box)
 
     expect(action_runner).to receive(:run).never
     expect(app).to receive(:call).with(env)
@@ -48,7 +48,7 @@ describe Vagrant::Action::Builtin::HandleBox do
 
   context "with a box set and no box_url" do
     before do
-      machine.stub(box: nil)
+      allow(machine).to receive(:box).and_return(nil)
 
       machine.config.vm.box = "foo"
     end
@@ -86,7 +86,7 @@ describe Vagrant::Action::Builtin::HandleBox do
 
   context "with a box and box_url set" do
     before do
-      machine.stub(box: nil)
+      allow(machine).to receive(:box).and_return(nil)
 
       machine.config.vm.box = "foo"
       machine.config.vm.box_url = "bar"
@@ -109,7 +109,7 @@ describe Vagrant::Action::Builtin::HandleBox do
 
   context "with a box with a checksum set" do
     before do
-      machine.stub(box: nil)
+      allow(machine).to receive(:box).and_return(nil)
 
       machine.config.vm.box = "foo"
       machine.config.vm.box_url = "bar"

@@ -8,8 +8,8 @@ describe "VagrantPlugins::GuestSmartos::Cap::Halt" do
   let(:shutdown_command){ "pfexec /usr/sbin/poweroff" }
 
   before do
-    machine.stub(:communicate).and_return(communicator)
-    machine.stub(:config).and_return(config)
+    allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:config).and_return(config)
   end
 
   after do

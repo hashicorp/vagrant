@@ -12,63 +12,63 @@ describe VagrantPlugins::HyperV::Provider do
   before do
     stub_const("Vagrant::Util::Platform", platform)
     stub_const("Vagrant::Util::PowerShell", powershell)
-    machine.stub(id: "foo")
-    platform.stub(windows?: true)
-    platform.stub(windows_admin?: true)
-    platform.stub(windows_hyperv_admin?: true)
-    powershell.stub(available?: true)
+    allow(machine).to receive(:id).and_return("foo")
+    allow(platform).to receive(:windows?).and_return(true)
+    allow(platform).to receive(:windows_admin?).and_return(true)
+    allow(platform).to receive(:windows_hyperv_admin?).and_return(true)
+    allow(powershell).to receive(:available?).and_return(true)
   end
 
   describe ".usable?" do
     subject { described_class }
 
     it "returns false if not windows" do
-      platform.stub(windows?: false)
+      allow(platform).to receive(:windows?).and_return(false)
       expect(subject).to_not be_usable
     end
 
     it "returns false if neither an admin nor a hyper-v admin" do
-      platform.stub(windows_admin?: false)
-      platform.stub(windows_hyperv_admin?: false)
+      allow(platform).to receive(:windows_admin?).and_return(false)
+      allow(platform).to receive(:windows_hyperv_admin?).and_return(false)
       expect(subject).to_not be_usable
     end
 
     it "returns true if not an admin but is a hyper-v admin" do
-      platform.stub(windows_admin?: false)
-      platform.stub(windows_hyperv_admin?: true)
+      allow(platform).to receive(:windows_admin?).and_return(false)
+      allow(platform).to receive(:windows_hyperv_admin?).and_return(true)
       expect(subject).to be_usable
     end
 
     it "returns false if powershell is not available" do
-      powershell.stub(available?: false)
+      allow(powershell).to receive(:available?).and_return(false)
       expect(subject).to_not be_usable
     end
 
     it "raises an exception if not windows" do
-      platform.stub(windows?: false)
+      allow(platform).to receive(:windows?).and_return(false)
 
       expect { subject.usable?(true) }.
         to raise_error(VagrantPlugins::HyperV::Errors::WindowsRequired)
     end
 
     it "raises an exception if neither an admin nor a hyper-v admin" do
-      platform.stub(windows_admin?: false)
-      platform.stub(windows_hyperv_admin?: false)
+      allow(platform).to receive(:windows_admin?).and_return(false)
+      allow(platform).to receive(:windows_hyperv_admin?).and_return(false)
 
       expect { subject.usable?(true) }.
         to raise_error(VagrantPlugins::HyperV::Errors::AdminRequired)
     end
 
     it "raises an exception if neither an admin nor a hyper-v admin" do
-      platform.stub(windows_admin?: false)
-      platform.stub(windows_hyperv_admin?: false)
+      allow(platform).to receive(:windows_admin?).and_return(false)
+      allow(platform).to receive(:windows_hyperv_admin?).and_return(false)
 
       expect { subject.usable?(true) }.
         to raise_error(VagrantPlugins::HyperV::Errors::AdminRequired)
     end
 
     it "raises an exception if powershell is not available" do
-      powershell.stub(available?: false)
+      allow(powershell).to receive(:available?).and_return(false)
 
       expect { subject.usable?(true) }.
         to raise_error(VagrantPlugins::HyperV::Errors::PowerShellRequired)
@@ -83,13 +83,13 @@ describe VagrantPlugins::HyperV::Provider do
 
   describe "#state" do
     it "returns not_created if no ID" do
-      machine.stub(id: nil)
+      allow(machine).to receive(:id).and_return(nil)
 
       expect(subject.state.id).to eq(:not_created)
     end
 
     it "calls an action to determine the ID" do
-      machine.stub(id: "foo")
+      allow(machine).to receive(:id).and_return("foo")
       expect(machine).to receive(:action).with(:read_state).
         and_return({ machine_state_id: :bar })
 

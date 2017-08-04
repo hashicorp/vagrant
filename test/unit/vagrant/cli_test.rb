@@ -11,7 +11,7 @@ describe Vagrant::CLI do
   let(:env)     { iso_env.create_vagrant_env }
 
   before do
-    Vagrant.plugin("2").manager.stub(commands: commands)
+    allow(Vagrant.plugin("2").manager).to receive(:commands).and_return(commands)
   end
 
   describe "#execute" do

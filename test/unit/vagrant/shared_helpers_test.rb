@@ -31,12 +31,12 @@ describe Vagrant do
 
   describe "#installer_embedded_dir" do
     it "returns nil if not in an installer" do
-      Vagrant.stub(in_installer?: false)
+      allow(Vagrant).to receive(:in_installer?).and_return(false)
       expect(subject.installer_embedded_dir).to be_nil
     end
 
     it "returns the set directory" do
-      Vagrant.stub(in_installer?: true)
+      allow(Vagrant).to receive(:in_installer?).and_return(true)
 
       with_temp_env("VAGRANT_INSTALLER_EMBEDDED_DIR" => "/foo") do
         expect(subject.installer_embedded_dir).to eq("/foo")

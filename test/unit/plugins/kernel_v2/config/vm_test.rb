@@ -32,10 +32,10 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
   before do
     env = double("env")
-    env.stub(root_path: nil)
-    machine.stub(env: env)
-    machine.stub(provider_config: nil)
-    machine.stub(provider_options: {})
+    allow(env).to receive(:root_path).and_return(nil)
+    allow(machine).to receive(:env).and_return(env)
+    allow(machine).to receive(:provider_config).and_return(nil)
+    allow(machine).to receive(:provider_options).and_return({})
 
     subject.box = "foo"
   end

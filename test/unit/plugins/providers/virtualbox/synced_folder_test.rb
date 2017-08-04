@@ -7,8 +7,8 @@ require Vagrant.source_root.join("plugins/providers/virtualbox/synced_folder")
 describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
   let(:machine) do
     double("machine").tap do |m|
-      m.stub(provider_config: VagrantPlugins::ProviderVirtualBox::Config.new)
-      m.stub(provider_name: :virtualbox)
+      allow(m).to receive(:provider_config).and_return(VagrantPlugins::ProviderVirtualBox::Config.new)
+      allow(m).to receive(:provider_name).and_return(:virtualbox)
     end
   end
 
@@ -20,12 +20,12 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
 
   describe "usable" do
     it "should be with virtualbox provider" do
-      machine.stub(provider_name: :virtualbox)
+      allow(machine).to receive(:provider_name).and_return(:virtualbox)
       expect(subject).to be_usable(machine)
     end
 
     it "should not be with another provider" do
-      machine.stub(provider_name: :vmware_fusion)
+      allow(machine).to receive(:provider_name).and_return(:vmware_fusion)
       expect(subject).not_to be_usable(machine)
     end
 
@@ -39,7 +39,7 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
     let(:driver) { double("driver") }
 
     before do
-      machine.stub(driver: driver)
+      allow(machine).to receive(:driver).and_return(driver)
     end
 
     it "should share the folders"

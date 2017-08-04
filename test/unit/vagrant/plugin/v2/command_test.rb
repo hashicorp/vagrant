@@ -78,7 +78,7 @@ describe Vagrant::Plugin::V2::Command do
     subject { instance }
 
     it "should raise an exception if a root_path is not available" do
-      environment.stub(root_path: nil)
+      allow(environment).to receive(:root_path).and_return(nil)
 
       expect { instance.with_target_vms }.
         to raise_error(Vagrant::Errors::NoEnvironmentError)
@@ -86,16 +86,18 @@ describe Vagrant::Plugin::V2::Command do
 
     it "should yield every VM in order if no name is given" do
       foo_vm = double("foo")
-      foo_vm.stub(name: "foo", provider: :foobarbaz)
-      foo_vm.stub(ui: Vagrant::UI::Silent.new)
-      foo_vm.stub(state: nil)
+      allow(foo_vm).to receive(:name).and_return("foo")
+      allow(foo_vm).to receive(:provider).and_return(:foobarbaz)
+      allow(foo_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(foo_vm).to receive(:state).and_return(nil)
 
       bar_vm = double("bar")
-      bar_vm.stub(name: "bar", provider: :foobarbaz)
-      bar_vm.stub(ui: Vagrant::UI::Silent.new)
-      bar_vm.stub(state: nil)
+      allow(bar_vm).to receive(:name).and_return("bar")
+      allow(bar_vm).to receive(:provider).and_return(:foobarbaz)
+      allow(bar_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(bar_vm).to receive(:state).and_return(nil)
 
-      environment.stub(machine_names: [:foo, :bar])
+      allow(environment).to receive(:machine_names).and_return([:foo, :bar])
       allow(environment).to receive(:machine).with(:foo, environment.default_provider).and_return(foo_vm)
       allow(environment).to receive(:machine).with(:bar, environment.default_provider).and_return(bar_vm)
 
@@ -108,7 +110,7 @@ describe Vagrant::Plugin::V2::Command do
     end
 
     it "raises an exception if the named VM doesn't exist" do
-      environment.stub(machine_names: [:default])
+      allow(environment).to receive(:machine_names).and_return([:default])
       allow(environment).to receive(:machine).with(:foo, anything).and_return(nil)
 
       expect { instance.with_target_vms("foo") }.
@@ -117,9 +119,10 @@ describe Vagrant::Plugin::V2::Command do
 
     it "yields the given VM if a name is given" do
       foo_vm = double("foo")
-      foo_vm.stub(name: "foo", provider: :foobarbaz)
-      foo_vm.stub(ui: Vagrant::UI::Silent.new)
-      foo_vm.stub(state: nil)
+      allow(foo_vm).to receive(:name).and_return("foo")
+      allow(foo_vm).to receive(:provider).and_return(:foobarbaz)
+      allow(foo_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(foo_vm).to receive(:state).and_return(nil)
 
       allow(environment).to receive(:machine).with(:foo, environment.default_provider).and_return(foo_vm)
 
@@ -130,9 +133,10 @@ describe Vagrant::Plugin::V2::Command do
 
     it "calls state after yielding the vm to update the machine index" do
       foo_vm = double("foo")
-      foo_vm.stub(name: "foo", provider: :foobarbaz)
-      foo_vm.stub(ui: Vagrant::UI::Silent.new)
-      foo_vm.stub(state: nil)
+      allow(foo_vm).to receive(:name).and_return("foo")
+      allow(foo_vm).to receive(:provider).and_return(:foobarbaz)
+      allow(foo_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(foo_vm).to receive(:state).and_return(nil)
 
       allow(environment).to receive(:machine).with(:foo, environment.default_provider).and_return(foo_vm)
 
@@ -145,9 +149,10 @@ describe Vagrant::Plugin::V2::Command do
       foo_vm = double("foo")
       provider = :foobarbaz
 
-      foo_vm.stub(name: "foo", provider: provider)
-      foo_vm.stub(ui: Vagrant::UI::Silent.new)
-      foo_vm.stub(state: nil)
+      allow(foo_vm).to receive(:name).and_return("foo")
+      allow(foo_vm).to receive(:provider).and_return(provider)
+      allow(foo_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(foo_vm).to receive(:state).and_return(nil)
       allow(environment).to receive(:machine).with(:foo, provider).and_return(foo_vm)
 
       vms = []
@@ -158,7 +163,7 @@ describe Vagrant::Plugin::V2::Command do
     it "should raise an exception if an active machine exists with a different provider" do
       name = :foo
 
-      environment.stub(active_machines: [[name, :vmware]])
+      allow(environment).to receive(:active_machines).and_return([[name, :vmware]])
       expect { instance.with_target_vms(name.to_s, provider: :foo) }.
         to raise_error Vagrant::Errors::ActiveMachineWithDifferentProvider
     end
@@ -168,11 +173,12 @@ describe Vagrant::Plugin::V2::Command do
       provider = :vmware
       vmware_vm = double("vmware_vm")
 
-      environment.stub(active_machines: [[name, provider]])
+      allow(environment).to receive(:active_machines).and_return([[name, provider]])
       allow(environment).to receive(:machine).with(name, provider).and_return(vmware_vm)
-      vmware_vm.stub(name: name, provider: provider)
-      vmware_vm.stub(ui: Vagrant::UI::Silent.new)
-      vmware_vm.stub(state: nil)
+      allow(vmware_vm).to receive(:name).and_return(name)
+      allow(vmware_vm).to receive(:provider).and_return(provider)
+      allow(vmware_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(vmware_vm).to receive(:state).and_return(nil)
 
       vms = []
       instance.with_target_vms(name.to_s) { |vm| vms << vm }
@@ -184,10 +190,12 @@ describe Vagrant::Plugin::V2::Command do
       provider = :vmware
       vmware_vm = double("vmware_vm")
 
-      environment.stub(active_machines: [[name, provider]])
+      allow(environment).to receive(:active_machines).and_return([[name, provider]])
       allow(environment).to receive(:machine).with(name, provider).and_return(vmware_vm)
-      vmware_vm.stub(name: name, provider: provider, ui: Vagrant::UI::Silent.new)
-      vmware_vm.stub(state: nil)
+      allow(vmware_vm).to receive(:name).and_return(name)
+      allow(vmware_vm).to receive(:provider).and_return(provider)
+      allow(vmware_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(vmware_vm).to receive(:state).and_return(nil)
 
       vms = []
       instance.with_target_vms(name.to_s, provider: provider) { |vm| vms << vm }
@@ -199,9 +207,10 @@ describe Vagrant::Plugin::V2::Command do
       machine = double("machine")
 
       allow(environment).to receive(:machine).with(name, environment.default_provider).and_return(machine)
-      machine.stub(name: name, provider: environment.default_provider)
-      machine.stub(ui: Vagrant::UI::Silent.new)
-      machine.stub(state: nil)
+      allow(machine).to receive(:name).and_return(name)
+      allow(machine).to receive(:provider).and_return(environment.default_provider)
+      allow(machine).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(machine).to receive(:state).and_return(nil)
 
       results = []
       instance.with_target_vms(name.to_s) { |m| results << m }
@@ -213,13 +222,14 @@ describe Vagrant::Plugin::V2::Command do
       provider = :vmware
       vmware_vm = double("vmware_vm")
 
-      environment.stub(active_machines: [[name, provider]])
+      allow(environment).to receive(:active_machines).and_return([[name, provider]])
       allow(environment).to receive(:machine).with(name, provider).and_return(vmware_vm)
-      environment.stub(machine_names: [])
-      environment.stub(primary_machine_name: name)
-      vmware_vm.stub(name: name, provider: provider)
-      vmware_vm.stub(ui: Vagrant::UI::Silent.new)
-      vmware_vm.stub(state: nil)
+      allow(environment).to receive(:machine_names).and_return([])
+      allow(environment).to receive(:primary_machine_name).and_return(name)
+      allow(vmware_vm).to receive(:name).and_return(name)
+      allow(vmware_vm).to receive(:provider).and_return(provider)
+      allow(vmware_vm).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(vmware_vm).to receive(:state).and_return(nil)
 
       vms = []
       instance.with_target_vms(nil, single_target: true) { |vm| vms << vm }
@@ -230,13 +240,14 @@ describe Vagrant::Plugin::V2::Command do
       name = :foo
       machine = double("machine")
 
-      environment.stub(active_machines: [])
+      allow(environment).to receive(:active_machines).and_return([])
       allow(environment).to receive(:machine).with(name, environment.default_provider).and_return(machine)
-      environment.stub(machine_names: [])
-      environment.stub(primary_machine_name: name)
-      machine.stub(name: name, provider: environment.default_provider)
-      machine.stub(ui: Vagrant::UI::Silent.new)
-      machine.stub(state: nil)
+      allow(environment).to receive(:machine_names).and_return([])
+      allow(environment).to receive(:primary_machine_name).and_return(name)
+      allow(machine).to receive(:name).and_return(name)
+      allow(machine).to receive(:provider).and_return(environment.default_provider)
+      allow(machine).to receive(:ui).and_return(Vagrant::UI::Silent.new)
+      allow(machine).to receive(:state).and_return(nil)
 
       vms = []
       instance.with_target_vms(nil, single_target: true) { |vm| vms << machine }
@@ -255,7 +266,7 @@ describe Vagrant::Plugin::V2::Command do
       other_machine.id = "foo"
 
       # Make sure we don't have a root path, to test
-      environment.stub(root_path: nil)
+      allow(environment).to receive(:root_path).and_return(nil)
 
       results = []
       subject.with_target_vms(other_machine.index_uuid) { |m| results << m }
@@ -282,7 +293,7 @@ describe Vagrant::Plugin::V2::Command do
       FileUtils.rm_rf(iso_env.workdir)
 
       # Make sure we don't have a root path, to test
-      environment.stub(root_path: nil)
+      allow(environment).to receive(:root_path).and_return(nil)
 
       # Run the command
       expect {

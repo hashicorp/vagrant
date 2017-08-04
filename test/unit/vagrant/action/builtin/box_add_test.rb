@@ -81,7 +81,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
   end
 
   before do
-    box_collection.stub(find: nil)
+    allow(box_collection).to receive(:find).and_return(nil)
   end
 
   context "with box file directly" do
@@ -267,7 +267,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       env[:box_url] = box_path.to_s
       env[:box_provider] = "virtualbox"
 
-      box_collection.stub(find: box)
+      allow(box_collection).to receive(:find).and_return(box)
       expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo")
@@ -691,7 +691,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
       expect(box_collection).to receive(:add).never
       expect(app).to receive(:call).never
 
-      Vagrant.stub(server_url: nil)
+      allow(Vagrant).to receive(:server_url).and_return(nil)
 
       expect { subject.call(env) }.
         to raise_error(Vagrant::Errors::BoxServerNotSet)
@@ -1225,7 +1225,7 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
 
       env[:box_force] = true
       env[:box_url] = tf.path
-      box_collection.stub(find: box)
+      allow(box_collection).to receive(:find).and_return(box)
       expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
         expect(checksum(path)).to eq(checksum(box_path))
         expect(name).to eq("foo/bar")

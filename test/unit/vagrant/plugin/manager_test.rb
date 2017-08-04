@@ -21,7 +21,7 @@ describe Vagrant::Plugin::Manager do
   end
 
   before do
-    Vagrant::Bundler.stub(instance: bundler)
+    allow(Vagrant::Bundler).to receive(:instance).and_return(bundler)
   end
 
   subject { described_class.new(path) }
@@ -152,7 +152,7 @@ describe Vagrant::Plugin::Manager do
       before do
         systems_path.unlink
 
-        described_class.stub(system_plugins_file: systems_path)
+        allow(described_class).to receive(:system_plugins_file).and_return(systems_path)
 
         sf = Vagrant::Plugin::StateFile.new(systems_path)
         sf.add_plugin("foo", version: "0.2.0")
@@ -230,7 +230,7 @@ describe Vagrant::Plugin::Manager do
       before do
         systems_path.unlink
 
-        described_class.stub(system_plugins_file: systems_path)
+        allow(described_class).to receive(:system_plugins_file).and_return(systems_path)
 
         sf = Vagrant::Plugin::StateFile.new(systems_path)
         sf.add_plugin("foo", version: "0.2.0")

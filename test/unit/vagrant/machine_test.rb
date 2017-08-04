@@ -12,7 +12,7 @@ describe Vagrant::Machine do
   let(:provider) { new_provider_mock }
   let(:provider_cls) do
     obj = double("provider_cls")
-    obj.stub(new: provider)
+    allow(obj).to receive(:new).and_return(provider)
     obj
   end
   let(:provider_config) { Object.new }
@@ -21,9 +21,9 @@ describe Vagrant::Machine do
   let(:base)     { false }
   let(:box) do
     double("box").tap do |b|
-      b.stub(name: "foo")
-      b.stub(provider: :dummy)
-      b.stub(version: "1.0")
+      allow(b).to receive(:name).and_return("foo")
+      allow(b).to receive(:provider).and_return(:dummy)
+      allow(b).to receive(:version).and_return("1.0")
     end
   end
 
@@ -50,8 +50,8 @@ describe Vagrant::Machine do
 
   def new_provider_mock
     double("provider").tap do |obj|
-      obj.stub(_initialize: nil)
-      obj.stub(machine_id_changed: nil)
+      allow(obj).to receive(:_initialize).and_return(nil)
+      allow(obj).to receive(:machine_id_changed).and_return(nil)
       allow(obj).to receive(:state).and_return(Vagrant::MachineState.new(
         :created, "", ""))
     end
@@ -533,9 +533,9 @@ describe Vagrant::Machine do
 
       # Setup the box information
       box = double("box")
-      box.stub(name: "foo")
-      box.stub(provider: :bar)
-      box.stub(version: "1.2.3")
+      allow(box).to receive(:name).and_return("foo")
+      allow(box).to receive(:provider).and_return(:bar)
+      allow(box).to receive(:version).and_return("1.2.3")
       subject.box = box
 
       subject.id = "foo"

@@ -24,7 +24,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
   end
 
   it "deletes the box if it is the only option" do
-    box_collection.stub(all: [["foo", "1.0", :virtualbox]])
+    allow(box_collection).to receive(:all).and_return([["foo", "1.0", :virtualbox]])
 
     env[:box_name] = "foo"
 
@@ -41,8 +41,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
   end
 
   it "deletes the box with the specified provider if given" do
-    box_collection.stub(
-      all: [
+    allow(box_collection).to receive(:all)
+      .and_return([
         ["foo", "1.0", :virtualbox],
         ["foo", "1.0", :vmware],
       ])
@@ -63,8 +63,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
   end
 
   it "deletes the box with the specified version if given" do
-    box_collection.stub(
-      all: [
+    allow(box_collection).to receive(:all)
+      .and_return([
         ["foo", "1.0", :virtualbox],
         ["foo", "1.1", :virtualbox],
       ])
@@ -93,7 +93,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
           "version" => "1.0",
         }
 
-        entry.stub(valid?: valid)
+        allow(entry).to receive(:valid?).and_return(valid)
       end
     end
 
@@ -102,8 +102,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
     before do
       env[:action_runner] = action_runner
 
-      box_collection.stub(
-        all: [
+      allow(box_collection).to receive(:all)
+        .and_return([
           ["foo", "1.0", :virtualbox],
           ["foo", "1.1", :virtualbox],
         ])
@@ -154,7 +154,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
   end
 
   it "errors if the box doesn't exist" do
-    box_collection.stub(all: [])
+    allow(box_collection).to receive(:all).and_return([])
 
     expect(app).to receive(:call).never
 
@@ -166,7 +166,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
     env[:box_name] = "foo"
     env[:box_provider] = "bar"
 
-    box_collection.stub(all: [["foo", "1.0", :virtualbox]])
+    allow(box_collection).to receive(:all).and_return([["foo", "1.0", :virtualbox]])
 
     expect(app).to receive(:call).never
 
@@ -177,8 +177,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
   it "errors if there are multiple providers" do
     env[:box_name] = "foo"
 
-    box_collection.stub(
-      all: [
+    allow(box_collection).to receive(:all)
+      .and_return([
         ["foo", "1.0", :virtualbox],
         ["foo", "1.0", :vmware],
       ])
@@ -193,8 +193,8 @@ describe Vagrant::Action::Builtin::BoxRemove do
     env[:box_name] = "foo"
     env[:box_provider] = "virtualbox"
 
-    box_collection.stub(
-      all: [
+    allow(box_collection).to receive(:all)
+      .and_return([
         ["foo", "1.0", :virtualbox],
         ["foo", "1.1", :virtualbox],
       ])
@@ -209,7 +209,7 @@ describe Vagrant::Action::Builtin::BoxRemove do
     env[:box_name] = "foo"
     env[:box_version] = "1.1"
 
-    box_collection.stub(all: [["foo", "1.0", :virtualbox]])
+    allow(box_collection).to receive(:all).and_return([["foo", "1.0", :virtualbox]])
 
     expect(app).to receive(:call).never
 

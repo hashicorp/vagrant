@@ -55,14 +55,14 @@ describe Vagrant::Plugin::V1::Command do
 
     let(:environment) do
       env = double("environment")
-      env.stub(root_path: "foo")
+      allow(env).to receive(:root_path).and_return("foo")
       env
     end
 
     let(:instance)    { klass.new([], environment) }
 
     it "should raise an exception if a root_path is not available" do
-      environment.stub(root_path: nil)
+      allow(environment).to receive(:root_path).and_return(nil)
 
       expect { instance.with_target_vms }.
         to raise_error(Vagrant::Errors::NoEnvironmentError)
@@ -75,9 +75,9 @@ describe Vagrant::Plugin::V1::Command do
       bar_vm = double("bar")
       allow(bar_vm).to receive(:name).and_return("bar")
 
-      environment.stub(multivm?: true,
-                       vms: { "foo" => foo_vm, "bar" => bar_vm },
-                       vms_ordered: [foo_vm, bar_vm])
+      allow(environment).to receive(:multivm?).and_return(true)
+      allow(environment).to receive(:vms).and_return({ "foo" => foo_vm, "bar" => bar_vm })
+      allow(environment).to receive(:vms_ordered).and_return([foo_vm, bar_vm])
 
       vms = []
       instance.with_target_vms do |vm|
@@ -88,7 +88,8 @@ describe Vagrant::Plugin::V1::Command do
     end
 
     it "raises an exception if the named VM doesn't exist" do
-      environment.stub(multivm?: true, vms: {})
+      allow(environment).to receive(:multivm?).and_return(true)
+      allow(environment).to receive(:vms).and_return({})
 
       expect { instance.with_target_vms("foo") }.
         to raise_error(Vagrant::Errors::VMNotFoundError)
@@ -98,8 +99,8 @@ describe Vagrant::Plugin::V1::Command do
       foo_vm = double("foo")
       allow(foo_vm).to receive(:name).and_return(:foo)
 
-      environment.stub(multivm?: true,
-                       vms: { foo: foo_vm, bar: nil })
+      allow(environment).to receive(:multivm?).and_return(true)
+      allow(environment).to receive(:vms).and_return({ foo: foo_vm, bar: nil })
 
       vms = []
       instance.with_target_vms("foo") { |vm| vms << vm }

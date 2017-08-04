@@ -110,7 +110,7 @@ describe Vagrant::Box, :skip_windows do
       }
       RAW
 
-      subject.stub(load_metadata: metadata)
+      allow(subject).to receive(:load_metadata).and_return(metadata)
 
       expect(subject.has_update?).to be_nil
     end
@@ -136,7 +136,7 @@ describe Vagrant::Box, :skip_windows do
       }
       RAW
 
-      subject.stub(load_metadata: metadata)
+      allow(subject).to receive(:load_metadata).and_return(metadata)
 
       result = subject.has_update?
       expect(result).to_not be_nil
@@ -180,7 +180,7 @@ describe Vagrant::Box, :skip_windows do
       }
       RAW
 
-      subject.stub(load_metadata: metadata)
+      allow(subject).to receive(:load_metadata).and_return(metadata)
 
       result = subject.has_update?(">= 1.1, < 1.4")
       expect(result).to_not be_nil
@@ -256,8 +256,8 @@ describe Vagrant::Box, :skip_windows do
 
     it "raises an error if the download failed" do
       dl = double("downloader")
-      Vagrant::Util::Downloader.stub(new: dl)
-      dl.should_receive(:download!).and_raise(
+      allow(Vagrant::Util::Downloader).to receive(:new).and_return(dl)
+      expect(dl).to receive(:download!).and_raise(
         Vagrant::Errors::DownloaderError.new(message: "foo"))
 
       expect { subject.load_metadata }.

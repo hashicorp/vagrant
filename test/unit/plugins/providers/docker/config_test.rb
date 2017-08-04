@@ -63,8 +63,8 @@ describe VagrantPlugins::DockerProvider::Config do
 
   before do
     # By default lets be Linux for validations
-    Vagrant::Util::Platform.stub(linux: true)
-    Vagrant::Util::Platform.stub(linux?: true)
+    allow(Vagrant::Util::Platform).to receive(:linux).and_return(true)
+    allow(Vagrant::Util::Platform).to receive(:linux?).and_return(true)
   end
 
   it "should be invalid if both build dir and image are set" do

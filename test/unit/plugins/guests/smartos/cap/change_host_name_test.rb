@@ -12,8 +12,8 @@ describe "VagrantPlugins::GuestSmartos::Cap::ChangeHostName" do
   let(:config) { double("config", smartos: VagrantPlugins::GuestSmartos::Config.new) }
 
   before do
-    machine.stub(:communicate).and_return(comm)
-    machine.stub(:config).and_return(config)
+    allow(machine).to receive(:communicate).and_return(comm)
+    allow(machine).to receive(:config).and_return(config)
   end
 
   after do

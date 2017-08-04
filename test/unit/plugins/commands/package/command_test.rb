@@ -25,7 +25,7 @@ describe VagrantPlugins::CommandPackage::Command do
   let(:action_runner) { double("action_runner") }
 
   before do
-    iso_env.stub(action_runner: action_runner)
+    allow(iso_env).to receive(:action_runner).and_return(action_runner)
   end
 
   describe "#execute" do

@@ -9,7 +9,7 @@ describe VagrantPlugins::DockerProvider::SyncedFolder do
     let(:machine) { double("machine") }
 
     before do
-      machine.stub(provider_name: :docker)
+      allow(machine).to receive(:provider_name).and_return(:docker)
     end
 
     it "is usable" do
@@ -17,12 +17,12 @@ describe VagrantPlugins::DockerProvider::SyncedFolder do
     end
 
     it "is not usable if provider isn't docker" do
-      machine.stub(provider_name: :virtualbox)
+      allow(machine).to receive(:provider_name).and_return(:virtualbox)
       expect(subject).to_not be_usable(machine)
     end
 
     it "raises an error if bad provider if specified" do
-      machine.stub(provider_name: :virtualbox)
+      allow(machine).to receive(:provider_name).and_return(:virtualbox)
       expect { subject.usable?(machine, true) }.
         to raise_error(VagrantPlugins::DockerProvider::Errors::SyncedFolderNonDocker)
     end

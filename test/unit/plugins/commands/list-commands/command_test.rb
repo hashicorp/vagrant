@@ -19,7 +19,7 @@ describe VagrantPlugins::CommandListCommands::Command do
   subject { described_class.new(argv, iso_env) }
 
   before do
-    Vagrant.plugin("2").manager.stub(commands: commands)
+    allow(Vagrant.plugin("2").manager).to receive(:commands).and_return(commands)
   end
 
   describe "execute" do

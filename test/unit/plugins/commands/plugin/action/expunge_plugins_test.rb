@@ -27,7 +27,7 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
   subject { described_class.new(app, env) }
 
   before do
-    Vagrant::Plugin::Manager.stub(instance: manager)
+    allow(Vagrant::Plugin::Manager).to receive(:instance).and_return(manager)
   end
 
   describe "#call" do
