@@ -81,6 +81,10 @@ module VagrantPlugins
          execute("suspend_vm.ps1", { VmId: vm_id })
        end
 
+       def network(options)
+         execute("network.ps1", options)
+       end
+
        def import(options)
          config_type = options.delete(:vm_config_type)
          if config_type === "vmcx"
@@ -131,7 +135,18 @@ module VagrantPlugins
         ps_options = []
         options.each do |key, value|
           ps_options << "-#{key}"
-          ps_options << "'#{value}'"
+
+          if value.kind_of(Array)
+            ps_options << "@("
+
+            value.each do |item|
+              ps_options << "#{item}"
+            end
+          else
+            ps_options << "'#{value}'"
+          end
+
+          
         end
 
         # Always have a stop error action for failures

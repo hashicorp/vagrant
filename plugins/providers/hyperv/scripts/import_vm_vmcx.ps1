@@ -8,7 +8,6 @@
     [Parameter(Mandatory=$true)]
     [string]$data_path,
 
-    [string]$switchname=$null,
     [string]$memory=$null,
     [string]$maxmemory=$null,
     [string]$cpus=$null,
@@ -83,17 +82,11 @@ if (!$memory) {
     }
 }
 
-if (!$switchname) {
-    $switchname = (Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
-}
-
 # Enable nested virtualization if configured
 if ($enable_virtualization_extensions -eq "True") {
     Set-VMProcessor -VM $vmConfig.VM -ExposeVirtualizationExtensions $true
 }
 
-$vmNetworkAdapter = Get-VMNetworkAdapter -VM $vmConfig.VM
-Connect-VMNetworkAdapter -VMNetworkAdapter $vmNetworkAdapter -SwitchName $switchname
 Set-VM -VM $vmConfig.VM -NewVMName $vm_name
 Set-VM -VM $vmConfig.VM -ErrorAction "Stop"
 Set-VM -VM $vmConfig.VM -ProcessorCount $processors

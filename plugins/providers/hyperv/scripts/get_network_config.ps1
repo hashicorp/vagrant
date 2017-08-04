@@ -9,15 +9,10 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 
 $ip_address = ""
 $vm = Get-VM -Id $VmId -ErrorAction "Stop"
-$networks = Get-VMNetworkAdapter -VM $vm
-foreach ($network in $networks) {
-  if ($network.IpAddresses.Length -gt 0) {
-    $ip_address = $network.IpAddresses[0]
-    if (-Not ([string]::IsNullOrEmpty($ip_address))) {
-      # We found our IP address!
-      break
-    }
-  }
+$network = Get-VMNetworkAdapter -VM $vm | Select-Object -First 1
+
+if ($network.IpAddresses.Length -gt 0) {
+  $ip_address = $network.IpAddresses[0]
 }
 
 $resultHash = @{

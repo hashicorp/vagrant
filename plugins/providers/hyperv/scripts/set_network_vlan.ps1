@@ -11,7 +11,9 @@ forEach ($module in $modules) { . $module }
 
 try {
   $vm = Get-VM -Id $VmId -ErrorAction "stop"
-  Set-VMNetworkAdapterVlan $vm -Access -Vlanid $VlanId
+  $adapter = Get-VMNetworkAdapter -VM $vm | Select-Object -First 1 
+
+  Set-VMNetworkAdapterVlan $vm -VMNetworkAdapterName $adapter.Name -Access -Vlanid $VlanId
 }
 catch {
   Write-Error-Message "Failed to set VM's Vlan ID $_"

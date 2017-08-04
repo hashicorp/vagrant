@@ -159,6 +159,7 @@ module VagrantPlugins
           b.use Call, IsState, :not_created do |env1, b1|
             if env1[:result]
               b1.use Import
+              b1.use Network
             end
 
             b1.use action_start
@@ -288,6 +289,7 @@ module VagrantPlugins
       autoload :CheckEnabled, action_root.join("check_enabled")
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :Import, action_root.join("import")
+      autoload :Network action_root.join("network")
       autoload :Package, action_root.join("package")
       autoload :IsWindows, action_root.join("is_windows")
       autoload :ReadState, action_root.join("read_state")
