@@ -135,18 +135,7 @@ module VagrantPlugins
         ps_options = []
         options.each do |key, value|
           ps_options << "-#{key}"
-
-          if value.kind_of(Array)
-            ps_options << "@("
-
-            value.each do |item|
-              ps_options << "#{item}"
-            end
-          else
-            ps_options << "'#{value}'"
-          end
-
-          
+            ps_options << "'#{value}'"         
         end
 
         # Always have a stop error action for failures

@@ -1,4 +1,11 @@
-param($networks, $vmname)
+param([string[]]$networks, [string]$vmname)
+
+"$networks and $vmname" | Set-Content c:\test.txt
+
+
+Write-Host "Networks: $networks"
+Write-Host "VMName: $vmname"
+
 
 #clear out existing nics
 Get-VMNetworkAdapter -VMName $vmname | Remove-VMNetworkAdapter

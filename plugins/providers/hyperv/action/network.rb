@@ -3,7 +3,7 @@ require "log4r"
 module VagrantPlugins
   module HyperV
     module Action
-        class network
+        class Network
             def initialize(app, env)
                 @app = app
                 @logger = Log4r::Logger.new("vagrant::hyperv::import")
@@ -14,9 +14,15 @@ module VagrantPlugins
                 switches = env[:machine].provider.driver.execute("get_switches.ps1", {})
                 raise Errors::NoSwitches if switches.empty?
 
-                options[:networks] = []
-                options[:vmname]
-                
+                options = {
+                    networks: "",
+                    vmname: ""
+                }
+
+                options[:vmname] = env[:machine].provider_config.vmname
+
+                outswitches = []
+
                 env[:machine].config.vm.networks.each do |type, opts|
                     next if type != :public_network && type != :private_network
                     
@@ -45,9 +51,10 @@ module VagrantPlugins
                         switch = switches[switch]["Name"]
                     end  
                     
-                    options[:networks] << switch
+                    outswitches << switch
                 end
 
+                options[:networks] = "@(#{outswitches.join(',')})"
                 env[:machine].provider.driver.network(options)
 
             end
