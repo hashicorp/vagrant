@@ -1,17 +1,12 @@
-param([string[]]$networks, [string]$vmname)
+param([string]$networks, [string]$VMId)
 
-"$networks and $vmname" | Set-Content c:\test.txt
-
-
-Write-Host "Networks: $networks"
-Write-Host "VMName: $vmname"
-
+$vm = Get-VM -Id $VMId
 
 #clear out existing nics
-Get-VMNetworkAdapter -VMName $vmname | Remove-VMNetworkAdapter
+Get-VMNetworkAdapter -VM $vm | Remove-VMNetworkAdapter
 
 #setup networks to use target network switches.
-foreach($net in $networks)
+foreach($net in $networks.Split("|"))
 {
-    Add-VMNetworkAdapter -VMName $vmname -SwitchName $net
+    Add-VMNetworkAdapter -VM $vm -SwitchName $net
 }

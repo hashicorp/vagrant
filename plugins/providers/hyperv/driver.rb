@@ -82,6 +82,7 @@ module VagrantPlugins
        end
 
        def network(options)
+         options[:VMId] = vm_id
          execute("network.ps1", options)
        end
 

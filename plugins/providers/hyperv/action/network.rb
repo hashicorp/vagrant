@@ -16,10 +16,8 @@ module VagrantPlugins
 
                 options = {
                     networks: "",
-                    vmname: ""
+                    VMId: ""
                 }
-
-                options[:vmname] = env[:machine].provider_config.vmname
 
                 outswitches = []
 
@@ -54,9 +52,9 @@ module VagrantPlugins
                     outswitches << switch
                 end
 
-                options[:networks] = "@(#{outswitches.join(',')})"
+                options[:networks] = "#{outswitches.join('|')}"
                 env[:machine].provider.driver.network(options)
-
+                @app.call(env)
             end
         end
 
