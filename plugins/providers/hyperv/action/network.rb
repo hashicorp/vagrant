@@ -16,10 +16,14 @@ module VagrantPlugins
 
                 options = {
                     networks: "",
+                    macs: "",
+                    vlan: "",
                     VMId: ""
                 }
 
                 outswitches = []
+                outmacs = []
+                outvlan = []
 
                 env[:machine].config.vm.networks.each do |type, opts|
                     next if type != :public_network && type != :private_network
@@ -48,11 +52,25 @@ module VagrantPlugins
                         end
                         switch = switches[switch]["Name"]
                     end  
+
+                    if opts[:mac]
+                        outmacs << opts[:mac]
+                    else
+                        outmacs << "auto"
+                    end
+
+                    if opts[:vlan]
+                        outvlan << opts[:vlan]
+                    else
+                        outvlan << "none"
+                    end
                     
                     outswitches << switch
                 end
 
                 options[:networks] = "#{outswitches.join('|')}"
+                options[:mac] = "#{outmacs.join("|")}"
+                options[:vlan] = "#{outvlan.join("|")}"
                 env[:machine].provider.driver.network(options)
                 @app.call(env)
             end
