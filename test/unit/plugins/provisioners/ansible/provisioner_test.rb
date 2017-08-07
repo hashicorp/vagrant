@@ -266,10 +266,6 @@ VF
         expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to_not match(/^\s*\[^\\+\]\s*$/)
-
-          # Ending this block with a negative expectation (to_not / not_to)
-          # would lead to a failure of the above expectation.
-          true
         }.and_return(default_execute_result)
       end
 
@@ -678,8 +674,7 @@ VF
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/an/other/identity")
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/yet/an/other/key")
-          default_execute_result
-        }
+        }.and_return(default_execute_result)
       end
     end
 
@@ -689,12 +684,11 @@ VF
       end
 
       it "replaces `%` with `%%`" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) do |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/foo%%bar/key")
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/bar%%%%buz/key")
-          default_execute_result
-        end
+        }.and_return(default_execute_result)
       end
     end
 
@@ -822,9 +816,14 @@ VF
         expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
       end
 
-      it "execute ansible-galaxy and ansible-playbook" do
-        # TODO: to be improved, but I'm currenty facing some issues, maybe only present in RSpec 2.14...
-        expect(Vagrant::Util::Subprocess).to receive(:execute).twice
+      it "execute ansible-galaxy, and then ansible-playbook" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |cmd, *args|
+          expect(cmd).to eq("ansible-galaxy")
+        }.and_return(default_execute_result)
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |cmd, *args|
+          expect(cmd).to eq("ansible-playbook")
+        }.and_return(default_execute_result)
       end
 
       describe "with verbose option enabled" do
@@ -987,10 +986,6 @@ VF
         expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o IdentitiesOnly=yes")
-
-          # Ending this block with a negative expectation (to_not / not_to)
-          # would lead to a failure of the above expectation.
-          true
         }.and_return(default_execute_result)
       end
 
@@ -1001,10 +996,6 @@ VF
           expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
             cmd_opts = args.last
             expect(cmd_opts[:env]).to_not include('ANSIBLE_SSH_ARGS')
-
-            # Ending this block with a negative expectation (to_not / not_to)
-            # would lead to a failure of the above expectation.
-            true
           }.and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
         end
       end
@@ -1018,11 +1009,7 @@ VF
         expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o IdentitiesOnly=yes")
-
-          # Ending this block with a negative expectation (to_not / not_to)
-          # would lead to a failure of the above expectation.
-          default_execute_result
-        }
+        }.and_return(default_execute_result)
       end
     end
   end
