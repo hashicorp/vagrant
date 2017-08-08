@@ -6,4 +6,4 @@ Param(
     [string]$Destination
 )
 
-New-VHD -Path $Destination -ParentPath $Source -ErrorAction Stop
+Hyper-V\New-VHD -Path $Destination -ParentPath $Source -ErrorAction Stop

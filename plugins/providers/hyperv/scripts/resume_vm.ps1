@@ -3,5 +3,5 @@ Param(
     [string]$VmId
 )
 
-$VM = Get-VM -Id $VmId -ErrorAction "Stop"
-Resume-VM $VM
+$VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
+Hyper-V\Resume-VM $VM

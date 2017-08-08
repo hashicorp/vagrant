@@ -2,7 +2,7 @@
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-$check = $(-Not (-Not (Get-Command "Get-VMSwitch" -errorAction SilentlyContinue)))
+$check = $(-Not (-Not (Get-Command "Hyper-V\Get-VMSwitch" -errorAction SilentlyContinue)))
 $result = @{
     result = $check
 }

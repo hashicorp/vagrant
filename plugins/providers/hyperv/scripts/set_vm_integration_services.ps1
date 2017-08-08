@@ -12,7 +12,7 @@ param (
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-$vm = Get-VM -Id $VmId -ErrorAction "stop"
+$vm = Hyper-V\Get-VM -Id $VmId -ErrorAction "stop"
 
 # Set the service based on value
 function VmSetService
@@ -21,10 +21,10 @@ function VmSetService
 
     if ($Value -ne $null){
         if($Value -eq "true"){
-            Enable-VMIntegrationService -VM $Vm -Name $Name
+            Hyper-V\Enable-VMIntegrationService -VM $Vm -Name $Name
         }
         if($Value -eq "false"){
-            Disable-VMIntegrationService -VM $Vm -Name $Name
+            Hyper-V\Disable-VMIntegrationService -VM $Vm -Name $Name
         }
     }
 }

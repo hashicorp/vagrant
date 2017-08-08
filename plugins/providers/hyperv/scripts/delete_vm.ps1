@@ -3,5 +3,5 @@ Param(
     [string]$VmId
 )
 
-$VM = Get-VM -Id $VmId -ErrorAction "Stop"
-Remove-VM $VM -Force
+$VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
+Hyper-V\Remove-VM $VM -Force
