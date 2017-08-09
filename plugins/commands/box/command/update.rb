@@ -33,6 +33,10 @@ module VagrantPlugins
               options[:provider] = p.to_sym
             end
 
+            o.on("-f", "--force", "Overwrite an existing box if it exists") do |f|
+              options[:force] = f
+            end
+
             build_download_options(o, download_options)
           end
 
@@ -40,15 +44,15 @@ module VagrantPlugins
           return if !argv
 
           if options[:box]
-            update_specific(options[:box], options[:provider], download_options)
+            update_specific(options[:box], options[:provider], download_options, options[:force])
           else
-            update_vms(argv, options[:provider], download_options)
+            update_vms(argv, options[:provider], download_options, options[:force])
           end
 
           0
         end
 
-        def update_specific(name, provider, download_options)
+        def update_specific(name, provider, download_options, force)
           boxes = {}
           @env.boxes.all.each do |n, v, p|
             boxes[n] ||= {}
@@ -81,11 +85,11 @@ module VagrantPlugins
 
           to_update.each do |n, p, v|
             box = @env.boxes.find(n, p, v)
-            box_update(box, "> #{v}", @env.ui, download_options)
+            box_update(box, "> #{v}", @env.ui, download_options, force)
           end
         end
 
-        def update_vms(argv, provider, download_options)
+        def update_vms(argv, provider, download_options, force)
           machines = {}
 
           with_target_vms(argv, provider: provider) do |machine|
@@ -120,11 +124,11 @@ module VagrantPlugins
             if download_options[:insecure].nil?
               download_options[:insecure] = machine.config.vm.box_download_insecure
             end
-            box_update(box, version, machine.ui, download_options)
+            box_update(box, version, machine.ui, download_options, force)
           end
         end
 
-        def box_update(box, version, ui, download_options)
+        def box_update(box, version, ui, download_options, force)
           ui.output(I18n.t("vagrant.box_update_checking", name: box.name))
           ui.detail("Latest installed version: #{box.version}")
           ui.detail("Version constraints: #{version}")
@@ -149,6 +153,7 @@ module VagrantPlugins
             box_provider: update[2].name,
             box_version: update[1].version,
             ui: ui,
+            box_force: force,
             box_client_cert: download_options[:client_cert],
             box_download_ca_cert: download_options[:ca_cert],
             box_download_ca_path: download_options[:ca_path],
