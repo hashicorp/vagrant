@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - bash: Add box prune to contrib bash completion [GH-8806]
 - core: Updated Vagrants rspec gem to 3.5.0 [GH-8850]
+- docs: Allign contrib/sudoers file for ubuntu linux with docs [GH-8842]
 - provisioners/chef: Add config option omnibus_url for chef provisioners [GH-8682]
 - provisioners/chef: Improve exception handling around missing folder paths [GH-8775]
 
@@ -15,6 +16,7 @@ BUG FIXES:
 - core: Update util/ssh to use `-o` for identity files [GH-8786]
 - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
 - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
+- provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
 - provisioners/puppet: Remove `--manifestdir` flag from puppet apply in provisioner [GH-8786]
 
 ## 1.9.7 (July 7, 2017)
