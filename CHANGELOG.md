@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - bash: Add box prune to contrib bash completion [GH-8806]
+- core: Updated Vagrants rspec gem to 3.5.0 [GH-8850]
 - provisioners/chef: Add config option omnibus_url for chef provisioners [GH-8682]
 - provisioners/chef: Improve exception handling around missing folder paths [GH-8775]
 
