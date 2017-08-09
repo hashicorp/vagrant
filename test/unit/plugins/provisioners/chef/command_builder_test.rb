@@ -20,8 +20,8 @@ describe VagrantPlugins::Chef::CommandBuilder do
 
   describe ".initialize" do
     it "raises an error when chef type is not client or solo" do
-      expect { VagrantPlugins::Chef::CommandBuilder.new(chef_config, :client_bad) }.
-        to raise_error
+      expect { VagrantPlugins::Chef::CommandBuilder.new(:client_bad, chef_config) }.
+        to raise_error(RuntimeError)
     end
 
     it "does not raise an error for :client" do

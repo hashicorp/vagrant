@@ -16,7 +16,7 @@ describe VagrantPlugins::CommandInit::Command do
   let(:vagrantfile_path) { File.join(env.cwd, "Vagrantfile") }
 
   before do
-    Vagrant.plugin("2").manager.stub(commands: {})
+    allow(Vagrant.plugin("2").manager).to receive(:commands).and_return({})
   end
 
   after do

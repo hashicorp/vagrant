@@ -22,21 +22,21 @@ describe VagrantPlugins::DockerProvisioner::Provisioner do
   let(:hook)         { double("hook") }
 
   before do
-    machine.stub(communicate: communicator)
-    machine.stub(guest: guest)
+    allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:guest).and_return(guest)
 
-    communicator.stub(execute: true)
-    communicator.stub(upload: true)
+    allow(communicator).to receive(:execute).and_return(true)
+    allow(communicator).to receive(:upload).and_return(true)
 
-    guest.stub(capability?: false)
-    guest.stub(capability: false)
+    allow(guest).to receive(:capability?).and_return(false)
+    allow(guest).to receive(:capability).and_return(false)
 
-    client.stub(start_service: true)
-    client.stub(daemon_running?: true)
+    allow(client).to receive(:start_service).and_return(true)
+    allow(client).to receive(:daemon_running?).and_return(true)
 
-    config.stub(images: Set.new)
-    config.stub(build_images: Set.new)
-    config.stub(containers: Hash.new)
+    allow(config).to receive(:images).and_return(Set.new)
+    allow(config).to receive(:build_images).and_return(Set.new)
+    allow(config).to receive(:containers).and_return(Hash.new)
   end
 
   describe "#provision" do
@@ -47,7 +47,7 @@ describe VagrantPlugins::DockerProvisioner::Provisioner do
     end
 
     it "invokes a post_install_provisioner if defined and docker is installed" do
-      installer.stub(ensure_installed: true)
+      allow(installer).to receive(:ensure_installed).and_return(true)
       allow(config).to receive(:post_install_provisioner).and_return(provisioner)
       allow(machine).to receive(:env).and_return(iso_env)
       allow(machine.env).to receive(:hook).and_return(true)
@@ -57,7 +57,7 @@ describe VagrantPlugins::DockerProvisioner::Provisioner do
     end
 
     it "does not invoke post_install_provisioner if not defined" do
-      installer.stub(ensure_installed: true)
+      allow(installer).to receive(:ensure_installed).and_return(true)
       allow(config).to receive(:post_install_provisioner).and_return(nil)
       allow(machine).to receive(:env).and_return(iso_env)
       allow(machine.env).to receive(:hook).and_return(true)

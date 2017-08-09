@@ -11,7 +11,7 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
   subject { described_class.new(app, env) }
 
   before do
-    Vagrant::Plugin::Manager.stub(instance: manager)
+    allow(Vagrant::Plugin::Manager).to receive(:instance).and_return(manager)
   end
 
   describe "#call" do
@@ -75,7 +75,7 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
       before do
         spec = Gem::Specification.new
         spec.name = "foo"
-        manager.stub(install_plugin: spec)
+        allow(manager).to receive(:install_plugin).and_return(spec)
 
         env[:plugin_name] = "foo"
         subject.call(env)
@@ -84,7 +84,7 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
       end
 
       it "should uninstall the plugin" do
-        expect(action_runner).to receive(:run).with { |action, newenv|
+        expect(action_runner).to receive(:run).with(any_args) { |action, newenv|
           expect(newenv[:plugin_name]).to eql("foo")
         }
 

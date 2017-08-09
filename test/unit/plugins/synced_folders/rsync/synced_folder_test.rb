@@ -19,19 +19,19 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
   let(:helper_class) { VagrantPlugins::SyncedFolderRSync::RsyncHelper }
 
   before do
-    machine.env.stub(host: host)
-    machine.stub(guest: guest)
+    allow(machine.env).to receive(:host).and_return(host)
+    allow(machine).to receive(:guest).and_return(guest)
   end
 
   describe "#usable?" do
     it "is usable if rsync can be found" do
       expect(Vagrant::Util::Which).to receive(:which).with("rsync").and_return(true)
-      expect(subject.usable?(machine)).to be_true
+      expect(subject.usable?(machine)).to be(true)
     end
 
     it "is not usable if rsync cant be found" do
       expect(Vagrant::Util::Which).to receive(:which).with("rsync").and_return(false)
-      expect(subject.usable?(machine)).to be_false
+      expect(subject.usable?(machine)).to be(false)
     end
 
     it "raises an exception if asked to" do
@@ -47,7 +47,7 @@ describe VagrantPlugins::SyncedFolderRSync::SyncedFolder do
     }}
 
     before do
-      machine.stub(ssh_info: ssh_info)
+      allow(machine).to receive(:ssh_info).and_return(ssh_info)
       allow(guest).to receive(:capability?).with(:rsync_installed)
     end
 

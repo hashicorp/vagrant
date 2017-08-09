@@ -51,7 +51,7 @@ describe VagrantPlugins::Ansible::Config::Guest do
     it "assigns default values to unset guest-specific options" do
       subject.finalize!
 
-      expect(subject.install).to be_true
+      expect(subject.install).to be(true)
       expect(subject.install_mode).to eql(:default)
       expect(subject.provisioning_path).to eql("/vagrant")
       expect(subject.tmp_path).to eql("/tmp/vagrant-ansible")

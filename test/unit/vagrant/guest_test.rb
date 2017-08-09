@@ -9,10 +9,10 @@ describe Vagrant::Guest do
   let(:guests)  { {} }
   let(:machine) do
     double("machine").tap do |m|
-      m.stub(inspect: "machine")
-      m.stub(config: double("config"))
-      m.config.stub(vm: double("vm_config"))
-      m.config.vm.stub(guest: nil)
+      allow(m).to receive(:inspect).and_return("machine")
+      allow(m).to receive(:config).and_return(double("config"))
+      allow(m.config).to receive(:vm).and_return(double("vm_config"))
+      allow(m.config.vm).to receive(:guest).and_return(nil)
     end
   end
 
@@ -47,7 +47,7 @@ describe Vagrant::Guest do
 
   describe "#detect!" do
     it "auto-detects if no explicit guest name given" do
-      machine.config.vm.stub(guest: nil)
+      allow(machine.config.vm).to receive(:guest).and_return(nil)
       expect(subject).to receive(:initialize_capabilities!).
         with(nil, guests, capabilities, machine)
 
@@ -55,7 +55,7 @@ describe Vagrant::Guest do
     end
 
     it "uses the explicit guest name if specified" do
-      machine.config.vm.stub(guest: :foo)
+      allow(machine.config.vm).to receive(:guest).and_return(:foo)
       expect(subject).to receive(:initialize_capabilities!).
         with(:foo, guests, capabilities, machine)
 
@@ -63,7 +63,7 @@ describe Vagrant::Guest do
     end
 
     it "raises a user-friendly error if specified guest doesn't exist" do
-      machine.config.vm.stub(guest: :foo)
+      allow(machine.config.vm).to receive(:guest).and_return(:foo)
 
       expect { subject.detect! }.
         to raise_error(Vagrant::Errors::GuestExplicitNotDetected)

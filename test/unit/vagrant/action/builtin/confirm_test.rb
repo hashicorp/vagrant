@@ -47,7 +47,7 @@ describe Vagrant::Action::Builtin::Confirm do
       end
     end
     described_class.new(app, env, message, allowed: ["y", "N"]).call(env)
-    expect(env[:result]).to be_true
+    expect(env[:result]).to be(true)
     expect(times).to eq(4)
   end
 end

@@ -223,7 +223,7 @@ describe Vagrant::BoxCollection, :skip_windows do
       environment.box3("foo", "0", :virtualbox,
         metadata_url: "foourl")
 
-      expect(hook).to receive(:call).with { |name, env|
+      expect(hook).to receive(:call).with(any_args) { |name, env|
         expect(name).to eq(:authenticate_box_url)
         expect(env[:box_urls]).to eq(["foourl"])
         true

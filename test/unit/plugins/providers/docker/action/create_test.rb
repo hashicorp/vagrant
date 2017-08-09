@@ -15,7 +15,7 @@ describe VagrantPlugins::DockerProvider::Action::Create do
 
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :virtualbox).tap do |m|
-      m.provider.stub(driver: driver)
+      allow(m.provider).to receive(:driver).and_return(driver)
     end
   end
 

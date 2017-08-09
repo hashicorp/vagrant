@@ -16,7 +16,7 @@ describe Vagrant::Action::Builtin::IsEnvSet do
       expect(app).to receive(:call).with(env)
 
       subject.call(env)
-      expect(env[:result]).to be_true
+      expect(env[:result]).to be(true)
     end
 
     it "sets result to false if it isn't set" do
@@ -25,7 +25,7 @@ describe Vagrant::Action::Builtin::IsEnvSet do
       expect(app).to receive(:call).with(env)
 
       subject.call(env)
-      expect(env[:result]).to be_false
+      expect(env[:result]).to be(false)
     end
   end
 end

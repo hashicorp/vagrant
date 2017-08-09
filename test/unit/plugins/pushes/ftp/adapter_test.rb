@@ -109,6 +109,7 @@ describe VagrantPlugins::FTPPush::SFTPAdapter do
   describe "#upload" do
     it "uploads the file" do
       pending "a way to mock an SFTP server"
+      test_with_mock_sftp_server
     end
   end
 end

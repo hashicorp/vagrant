@@ -22,7 +22,7 @@ describe VagrantPlugins::CommandPush::Command do
   subject { described_class.new(argv, env) }
 
   before do
-    Vagrant.plugin("2").manager.stub(pushes: pushes)
+    allow(Vagrant.plugin("2").manager).to receive(:pushes).and_return(pushes)
   end
 
   describe "#execute" do

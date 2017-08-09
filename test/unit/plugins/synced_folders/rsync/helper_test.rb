@@ -20,7 +20,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
   subject { described_class }
 
   before do
-    machine.stub(guest: guest)
+    allow(machine).to receive(:guest).and_return(guest)
 
     # Don't do all the crazy Cygwin stuff
     allow(Vagrant::Util::Platform).to receive(:cygwin_path) do |path, **opts|
@@ -64,9 +64,9 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:ui)        { machine.ui }
 
     before do
-      Vagrant::Util::Subprocess.stub(execute: result)
+      allow(Vagrant::Util::Subprocess).to receive(:execute){ result }
 
-      guest.stub(capability?: false)
+      allow(guest).to receive(:capability?){ false }
     end
 
     it "doesn't raise an error if it succeeds" do
@@ -74,25 +74,25 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     end
 
     it "doesn't call cygwin_path on non-Windows" do
-      Vagrant::Util::Platform.stub(windows?: false)
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(false)
       expect(Vagrant::Util::Platform).not_to receive(:cygwin_path)
       subject.rsync_single(machine, ssh_info, opts)
     end
 
     it "calls cygwin_path on Windows" do
-      Vagrant::Util::Platform.stub(windows?: true)
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
       expect(Vagrant::Util::Platform).to receive(:cygwin_path).and_return("foo")
 
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         expect(args[args.length - 3]).to eql("foo/")
-      }
+      }.and_return(result)
 
       subject.rsync_single(machine, ssh_info, opts)
     end
 
     it "raises an error if the exit code is non-zero" do
-      Vagrant::Util::Subprocess.stub(
-        execute: Vagrant::Util::Subprocess::Result.new(1, "", ""))
+      allow(Vagrant::Util::Subprocess).to receive(:execute)
+        .and_return(Vagrant::Util::Subprocess::Result.new(1, "", ""))
 
       expect {subject.rsync_single(machine, ssh_info, opts) }.
         to raise_error(Vagrant::Errors::RSyncError)
@@ -103,11 +103,11 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         opts[:hostpath] = "/foo"
         opts[:guestpath] = "/bar"
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
           expect(args[args.length - 3]).to eql("#{expected}/")
           expect(args[args.length - 2]).to include("/bar")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -118,22 +118,22 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
 
         hostpath_expanded = File.expand_path(opts[:hostpath], machine.env.root_path)
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args[args.length - 3]).to eql("#{hostpath_expanded}/")
           expect(args[args.length - 2]).to include("/bar")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
 
     it "executes within the root path" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         expect(args.last).to be_kind_of(Hash)
 
         opts = args.last
         expect(opts[:workdir]).to eql(machine.env.root_path.to_s)
-      }
+      }.and_return(result)
 
       subject.rsync_single(machine, ssh_info, opts)
     end
@@ -158,11 +158,11 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       it "excludes files if given as a string" do
         opts[:exclude] = "foo"
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           index = args.find_index("foo")
           expect(index).to be > 0
           expect(args[index-1]).to eql("--exclude")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -170,7 +170,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       it "excludes multiple files" do
         opts[:exclude] = ["foo", "bar"]
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           index = args.find_index("foo")
           expect(index).to be > 0
           expect(args[index-1]).to eql("--exclude")
@@ -178,7 +178,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
           index = args.find_index("bar")
           expect(index).to be > 0
           expect(args[index-1]).to eql("--exclude")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -186,14 +186,14 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
 
     context "custom arguments" do
       it "uses the default arguments if not given" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args[1]).to eq("--verbose")
           expect(args[2]).to eq("--archive")
           expect(args[3]).to eq("--delete")
 
           expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
           expect(args[args.length - 3]).to eql("#{expected}/")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -201,13 +201,13 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       it "uses the custom arguments if given" do
         opts[:args] = ["--verbose", "-z"]
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
           expect(args[1]).to eq("--verbose")
           expect(args[2]).to eq("-z")
 
           expected = Vagrant::Util::Platform.fs_real_path("/foo").to_s
           expect(args[args.length - 3]).to eql("#{expected}/")
-        }
+        }.and_return(result)
 
         subject.rsync_single(machine, ssh_info, opts)
       end
@@ -228,19 +228,19 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:ui)        { machine.ui }
 
     before do
-      Vagrant::Util::Subprocess.stub(execute: result)
+      allow(Vagrant::Util::Subprocess).to receive(:execute){ result }
 
-      guest.stub(capability?: false)
+      allow(guest).to receive(:capability?){ false }
     end
 
     it "includes IdentitiesOnly, StrictHostKeyChecking, and UserKnownHostsFile with defaults" do
 
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
         expect(args[9]).to include('IdentitiesOnly')
         expect(args[9]).to include('StrictHostKeyChecking')
         expect(args[9]).to include('UserKnownHostsFile')
         expect(args[9]).to include("-i '/path/to/key'")
-      }
+      }.and_return(result)
 
       subject.rsync_single(machine, ssh_info, opts)
     end
@@ -248,7 +248,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     it "omits IdentitiesOnly with keys_only = false" do
       ssh_info[:keys_only] = false
 
-      Vagrant::Util::Subprocess.should_receive(:execute) do |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
         expect(args[9]).not_to include('IdentitiesOnly')
         result
       end
@@ -259,7 +259,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     it "omits StrictHostKeyChecking and UserKnownHostsFile with paranoid = true" do
       ssh_info[:keys_only] = false
 
-      Vagrant::Util::Subprocess.should_receive(:execute) do |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
         expect(args[9]).not_to include('StrictHostKeyChecking ')
         expect(args[9]).not_to include('UserKnownHostsFile ')
         result

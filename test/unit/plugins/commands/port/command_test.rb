@@ -53,7 +53,7 @@ describe VagrantPlugins::CommandPort::Command do
 
     it "ensures the vm is running" do
       allow(state).to receive(:id).and_return(:stopped)
-      expect(env.ui).to receive(:error).with { |message, _|
+      expect(env.ui).to receive(:error).with(any_args) { |message, _|
         expect(message).to include("does not support listing forwarded ports")
       }
 
@@ -62,7 +62,7 @@ describe VagrantPlugins::CommandPort::Command do
 
     it "shows a friendly error when the capability is not supported" do
       allow(machine.provider).to receive(:capability?).and_return(false)
-      expect(env.ui).to receive(:error).with { |message, _|
+      expect(env.ui).to receive(:error).with(any_args) { |message, _|
         expect(message).to include("does not support listing forwarded ports")
       }
 
@@ -74,7 +74,7 @@ describe VagrantPlugins::CommandPort::Command do
       allow(machine.provider).to receive(:capability).with(:forwarded_ports)
         .and_return([])
 
-      expect(env.ui).to receive(:info).with { |message, _|
+      expect(env.ui).to receive(:info).with(any_args) { |message, _|
         expect(message).to include("there are no forwarded ports")
       }
 

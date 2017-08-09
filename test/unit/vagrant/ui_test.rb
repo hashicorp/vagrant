@@ -5,7 +5,7 @@ describe Vagrant::UI::Basic do
     it "outputs within the a new thread" do
       current = Thread.current.object_id
 
-      expect(subject).to receive(:safe_puts).with { |*args|
+      expect(subject).to receive(:safe_puts).with(any_args) { |*args|
         expect(Thread.current.object_id).to_not eq(current)
         true
       }
@@ -14,7 +14,7 @@ describe Vagrant::UI::Basic do
     end
 
     it "outputs using `puts` by default" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, **opts|
         expect(opts[:printer]).to eq(:puts)
         true
       }
@@ -23,7 +23,7 @@ describe Vagrant::UI::Basic do
     end
 
     it "outputs using `print` if new_line is false" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, **opts|
         expect(opts[:printer]).to eq(:print)
         true
       }
@@ -32,7 +32,7 @@ describe Vagrant::UI::Basic do
     end
 
     it "outputs using `print` if new_line is false" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, **opts|
         expect(opts[:printer]).to eq(:print)
         true
       }
@@ -44,7 +44,7 @@ describe Vagrant::UI::Basic do
       stdout = StringIO.new
       subject.stdout = stdout
 
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, **opts|
         expect(opts[:io]).to be(stdout)
         true
       }
@@ -60,7 +60,7 @@ describe Vagrant::UI::Basic do
       stderr = StringIO.new
       subject.stderr = stderr
 
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, **opts|
         expect(opts[:io]).to be(stderr)
         true
       }
@@ -81,7 +81,7 @@ describe Vagrant::UI::Basic do
 
   context "#detail" do
     it "outputs details" do
-      expect(subject).to receive(:safe_puts).with { |message, **opts|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, **opts|
         expect(message).to eq("foo")
         true
       }
@@ -114,7 +114,7 @@ describe Vagrant::UI::Colored do
     end
 
     it "does not bold by default with a color" do
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, *args|
         expect(message).to start_with("\033[0;31m")
         expect(message).to end_with("\033[0m")
       }
@@ -125,7 +125,7 @@ describe Vagrant::UI::Colored do
 
   describe "#error" do
     it "colors red" do
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, *args|
         expect(message).to start_with("\033[0;31m")
         expect(message).to end_with("\033[0m")
       }
@@ -153,7 +153,7 @@ describe Vagrant::UI::Colored do
     it "colors output to color specified in global opts" do
       subject.opts[:color] = :red
 
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, *args|
         expect(message).to start_with("\033[0;31m")
         expect(message).to end_with("\033[0m")
       }
@@ -164,7 +164,7 @@ describe Vagrant::UI::Colored do
     it "colors output to specified color over global opts" do
       subject.opts[:color] = :red
 
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, *args|
         expect(message).to start_with("\033[0;32m")
         expect(message).to end_with("\033[0m")
       }
@@ -175,7 +175,7 @@ describe Vagrant::UI::Colored do
     it "bolds the output if specified" do
       subject.opts[:color] = :red
 
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, *args|
         expect(message).to start_with("\033[1;31m")
         expect(message).to end_with("\033[0m")
       }
@@ -186,7 +186,7 @@ describe Vagrant::UI::Colored do
 
   describe "#success" do
     it "colors green" do
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, *args|
         expect(message).to start_with("\033[0;32m")
         expect(message).to end_with("\033[0m")
       }
@@ -197,7 +197,7 @@ describe Vagrant::UI::Colored do
 
   describe "#warn" do
     it "colors yellow" do
-      expect(subject).to receive(:safe_puts).with { |message, *args|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message, *args|
         expect(message).to start_with("\033[0;33m")
         expect(message).to end_with("\033[0m")
       }
@@ -218,7 +218,7 @@ describe Vagrant::UI::MachineReadable do
   [:detail, :warn, :error, :info, :output, :success].each do |method|
     describe "##{method}" do
       it "outputs UI type to the machine-readable output" do
-        expect(subject).to receive(:safe_puts).with { |message|
+        expect(subject).to receive(:safe_puts).with(any_args) { |message|
           parts = message.split(",")
           expect(parts.length).to eq(5)
           expect(parts[1]).to eq("")
@@ -235,7 +235,7 @@ describe Vagrant::UI::MachineReadable do
 
   describe "#machine" do
     it "is formatted properly" do
-      expect(subject).to receive(:safe_puts).with { |message|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message|
         parts = message.split(",")
         expect(parts.length).to eq(5)
         expect(parts[1]).to eq("")
@@ -249,7 +249,7 @@ describe Vagrant::UI::MachineReadable do
     end
 
     it "includes a target if given" do
-      expect(subject).to receive(:safe_puts).with { |message|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message|
         parts = message.split(",")
         expect(parts.length).to eq(4)
         expect(parts[1]).to eq("boom")
@@ -262,7 +262,7 @@ describe Vagrant::UI::MachineReadable do
     end
 
     it "replaces commas" do
-      expect(subject).to receive(:safe_puts).with { |message|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message|
         parts = message.split(",")
         expect(parts.length).to eq(4)
         expect(parts[3]).to eq("foo%!(VAGRANT_COMMA)bar")
@@ -273,7 +273,7 @@ describe Vagrant::UI::MachineReadable do
     end
 
     it "replaces newlines" do
-      expect(subject).to receive(:safe_puts).with { |message|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message|
         parts = message.split(",")
         expect(parts.length).to eq(4)
         expect(parts[3]).to eq("foo\\nbar\\r")
@@ -286,7 +286,7 @@ describe Vagrant::UI::MachineReadable do
     # This is for a bug where JSON parses are frozen and an
     # exception was being raised.
     it "works properly with frozen string arguments" do
-      expect(subject).to receive(:safe_puts).with { |message|
+      expect(subject).to receive(:safe_puts).with(any_args) { |message|
         parts = message.split(",")
         expect(parts.length).to eq(4)
         expect(parts[3]).to eq("foo\\nbar\\r")
@@ -350,7 +350,7 @@ describe Vagrant::UI::Prefixed do
 
   describe "#opts" do
     it "is the parent's opts" do
-      ui.stub(opts: Object.new)
+      allow(ui).to receive(:opts).and_return(Object.new)
       expect(subject.opts).to be(ui.opts)
     end
   end

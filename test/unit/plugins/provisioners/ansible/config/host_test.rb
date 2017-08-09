@@ -47,10 +47,10 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
     it "assigns default values to unset host-specific options" do
       subject.finalize!
 
-      expect(subject.ask_sudo_pass).to be_false
-      expect(subject.ask_vault_pass).to be_false
-      expect(subject.force_remote_user).to be_true
-      expect(subject.host_key_checking).to be_false
+      expect(subject.ask_sudo_pass).to be(false)
+      expect(subject.ask_vault_pass).to be(false)
+      expect(subject.force_remote_user).to be(true)
+      expect(subject.host_key_checking).to be(false)
       expect(subject.raw_ssh_args).to be_nil
     end
   end

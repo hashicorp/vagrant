@@ -23,7 +23,7 @@ describe VagrantPlugins::SyncedFolderNFS::ActionCleanup do
   subject { described_class.new(app, env) }
 
   before do
-    machine.env.stub(host: host)
+    allow(machine.env).to receive(:host).and_return(host)
   end
 
   it "does nothing if there are no valid IDs" do

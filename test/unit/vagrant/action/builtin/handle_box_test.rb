@@ -38,7 +38,7 @@ describe Vagrant::Action::Builtin::HandleBox do
   end
 
   it "doesn't do anything if a box exists" do
-    machine.stub(box: box)
+    allow(machine).to receive(:box).and_return(box)
 
     expect(action_runner).to receive(:run).never
     expect(app).to receive(:call).with(env)
@@ -48,13 +48,13 @@ describe Vagrant::Action::Builtin::HandleBox do
 
   context "with a box set and no box_url" do
     before do
-      machine.stub(box: nil)
+      allow(machine).to receive(:box).and_return(nil)
 
       machine.config.vm.box = "foo"
     end
 
     it "adds a box that doesn't exist" do
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with(any_args) { |action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box)
         expect(opts[:box_provider]).to eq(:dummy)
@@ -70,7 +70,7 @@ describe Vagrant::Action::Builtin::HandleBox do
     it "adds a box using any format the provider allows" do
       machine.provider_options[:box_format] = [:foo, :bar]
 
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with(any_args) { |action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box)
         expect(opts[:box_provider]).to eq([:foo, :bar])
@@ -86,14 +86,14 @@ describe Vagrant::Action::Builtin::HandleBox do
 
   context "with a box and box_url set" do
     before do
-      machine.stub(box: nil)
+      allow(machine).to receive(:box).and_return(nil)
 
       machine.config.vm.box = "foo"
       machine.config.vm.box_url = "bar"
     end
 
     it "adds a box that doesn't exist" do
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with(any_args) { |action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box_url)
         expect(opts[:box_provider]).to eq(:dummy)
@@ -109,7 +109,7 @@ describe Vagrant::Action::Builtin::HandleBox do
 
   context "with a box with a checksum set" do
     before do
-      machine.stub(box: nil)
+      allow(machine).to receive(:box).and_return(nil)
 
       machine.config.vm.box = "foo"
       machine.config.vm.box_url = "bar"
@@ -118,7 +118,7 @@ describe Vagrant::Action::Builtin::HandleBox do
     end
 
     it "adds a box that doesn't exist and maps checksum options correctly" do
-      expect(action_runner).to receive(:run).with { |action, opts|
+      expect(action_runner).to receive(:run).with(any_args) { |action, opts|
         expect(opts[:box_name]).to eq(machine.config.vm.box)
         expect(opts[:box_url]).to eq(machine.config.vm.box_url)
         expect(opts[:box_provider]).to eq(:dummy)

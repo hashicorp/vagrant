@@ -13,7 +13,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
 
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :dummy).tap do |m|
-      m.provider.stub(driver: driver)
+      allow(m.provider).to receive(:driver).and_return(driver)
     end
   end
 
@@ -24,7 +24,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
   subject { described_class.new(app, env) }
 
   before do
-    driver.stub(read_vms: {})
+    allow(driver).to receive(:read_vms).and_return({})
   end
 
   it "calls the next action in the chain" do
@@ -39,7 +39,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSValidIds do
 
   it "sets nfs_valid_ids" do
     hash = {"foo" => "1", "bar" => "4"}
-    driver.stub(read_vms: hash)
+    allow(driver).to receive(:read_vms).and_return(hash)
 
     subject.call(env)
 

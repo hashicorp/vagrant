@@ -1,6 +1,7 @@
 require File.expand_path("../../../../base", __FILE__)
 
 require Vagrant.source_root.join("plugins/provisioners/docker/config")
+require Vagrant.source_root.join("plugins/provisioners/docker/provisioner")
 require Vagrant.source_root.join("plugins/kernel_v2/config/vm")
 
 describe VagrantPlugins::DockerProvisioner::Config do
@@ -142,7 +143,7 @@ describe VagrantPlugins::DockerProvisioner::Config do
   describe "#post_install_provision" do
     it "raises an error if 'docker' provisioner was provided" do
       expect {subject.post_install_provision("myprov", :type=>"docker", :inline=>"echo 'hello'")}
-        .to raise_error()
+        .to raise_error(VagrantPlugins::DockerProvisioner::DockerError)
     end
 
     it "setups a basic provisioner" do

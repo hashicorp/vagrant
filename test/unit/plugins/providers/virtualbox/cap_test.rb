@@ -14,8 +14,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap do
 
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :dummy).tap do |m|
-      m.provider.stub(driver: driver)
-      m.stub(state: state)
+      allow(m.provider).to receive(:driver).and_return(driver)
+      allow(m).to receive(:state).and_return(state)
     end
   end
 

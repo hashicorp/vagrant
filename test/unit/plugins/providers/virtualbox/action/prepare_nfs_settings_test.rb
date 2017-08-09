@@ -15,7 +15,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
 
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :dummy).tap do |m|
-      m.provider.stub(driver: driver)
+      allow(m.provider).to receive(:driver).and_return(driver)
     end
   end
 
@@ -33,8 +33,8 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
   end
 
   it "calls the next action in the chain" do
-    driver.stub(read_network_interfaces: {2 => {type: :hostonly, hostonly: "vmnet2"}})
-    driver.stub(read_host_only_interfaces: [{name: "vmnet2", ip: "1.2.3.4"}])
+    allow(driver).to receive(:read_network_interfaces).and_return({2 => {type: :hostonly, hostonly: "vmnet2"}})
+    allow(driver).to receive(:read_host_only_interfaces).and_return([{name: "vmnet2", ip: "1.2.3.4"}])
     allow(driver).to receive(:read_guest_ip).with(1).and_return("2.3.4.5")
 
     called = false
@@ -53,16 +53,16 @@ describe VagrantPlugins::ProviderVirtualBox::Action::PrepareNFSSettings do
 
     before do
       # We can't be on Windows, because NFS gets disabled on Windows
-      Vagrant::Util::Platform.stub(windows?: false)
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(false)
 
       env[:machine].config.vm.synced_folder("/host/path", "/guest/path", type: "nfs")
       env[:machine].config.finalize!
 
       # Stub out the stuff so it just works by default
-      driver.stub(read_network_interfaces: {
+      allow(driver).to receive(:read_network_interfaces).and_return({
         2 => {type: :hostonly, hostonly: "vmnet2"},
       })
-      driver.stub(read_host_only_interfaces: host_only_interfaces)
+      allow(driver).to receive(:read_host_only_interfaces).and_return(host_only_interfaces)
       allow(driver).to receive(:read_guest_ip).with(1).and_return("2.3.4.5")
 
       # override sleep to 0 so test does not take seconds

@@ -17,11 +17,11 @@ shared_examples_for 'options shared by both Ansible provisioners' do
     expect(subject.raw_arguments).to be_nil
     expect(subject.skip_tags).to be_nil
     expect(subject.start_at_task).to be_nil
-    expect(subject.sudo).to be_false
+    expect(subject.sudo).to be(false)
     expect(subject.sudo_user).to be_nil
     expect(subject.tags).to be_nil
     expect(subject.vault_password_file).to be_nil
-    expect(subject.verbose).to be_false
+    expect(subject.verbose).to be(false)
   end
 
 end

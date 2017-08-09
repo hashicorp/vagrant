@@ -7,8 +7,8 @@ describe "Vagrant::Shell::Provisioner" do
   let(:env){ isolated_environment }
   let(:machine) {
     double(:machine, env: env, id: "ID").tap { |machine|
-      machine.stub_chain(:config, :vm, :communicator).and_return(:not_winrm)
-      machine.stub_chain(:communicate, :tap) {}
+      allow(machine).to receive_message_chain(:config, :vm, :communicator).and_return(:not_winrm)
+      allow(machine).to receive_message_chain(:communicate, :tap) {}
     }
   }
 
@@ -62,7 +62,7 @@ describe "Vagrant::Shell::Provisioner" do
 
       let(:digest){ double("digest") }
       before do
-        Vagrant::Util::Downloader.any_instance.should_receive(:execute_curl).and_return(true)
+        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
         allow(digest).to receive(:file).and_return(digest)
         expect(Digest::SHA1).to receive(:new).and_return(digest)
         expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
@@ -92,7 +92,7 @@ describe "Vagrant::Shell::Provisioner" do
 
       let(:digest){ double("digest") }
       before do
-        Vagrant::Util::Downloader.any_instance.should_receive(:execute_curl).and_return(true)
+        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
         allow(digest).to receive(:file).and_return(digest)
         expect(Digest::MD5).to receive(:new).and_return(digest)
         expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')

@@ -11,8 +11,8 @@ describe VagrantPlugins::CommandPlugin::Action::UpdateGems do
   subject { described_class.new(app, env) }
 
   before do
-    Vagrant::Plugin::Manager.stub(instance: manager)
-    manager.stub(installed_specs: [])
+    allow(Vagrant::Plugin::Manager).to receive(:instance).and_return(manager)
+    allow(manager).to receive(:installed_specs).and_return([])
   end
 
   describe "#call" do

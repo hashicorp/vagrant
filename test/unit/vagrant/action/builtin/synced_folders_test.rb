@@ -19,7 +19,7 @@ describe Vagrant::Action::Builtin::SyncedFolders do
 
   let(:machine_config) do
     double("machine_config").tap do |top_config|
-      top_config.stub(vm: vm_config)
+      allow(top_config).to receive(:vm).and_return(vm_config)
     end
   end
 
@@ -42,8 +42,8 @@ describe Vagrant::Action::Builtin::SyncedFolders do
       plugins[:nfs] = [impl(true, "nfs"), 5]
 
       env[:root_path] = Pathname.new(Dir.mktmpdir("vagrant-test-synced-folders-call"))
-      subject.stub(plugins: plugins)
-      subject.stub(synced_folders: synced_folders)
+      allow(subject).to receive(:plugins).and_return(plugins)
+      allow(subject).to receive(:synced_folders).and_return(synced_folders)
       allow(subject).to receive(:save_synced_folders)
     end
 

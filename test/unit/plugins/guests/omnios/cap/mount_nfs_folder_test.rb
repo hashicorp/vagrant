@@ -40,8 +40,6 @@ describe "VagrantPlugins::GuestOmniOS::Cap:RSync" do
       expect(comm.received_commands[0]).to match(/'1.2.3.4:#{hostpath}' '#{guestpath}'/)
     end
 
-    it "mounts with options" do
-      pending "not yet implemented"
-    end
+    it "mounts with options"
   end
 end

@@ -31,8 +31,8 @@ describe Vagrant::Environment do
 
     before do
       m = Vagrant.plugin("2").manager
-      m.stub(hosts: plugin_hosts)
-      m.stub(host_capabilities: plugin_host_caps)
+      allow(m).to receive(:hosts).and_return(plugin_hosts)
+      allow(m).to receive(:host_capabilities).and_return(plugin_host_caps)
 
       # Detect the host
       env.vagrantfile <<-VF
@@ -48,8 +48,8 @@ describe Vagrant::Environment do
     it "should return whether it can install or not" do
       plugin_host_caps[:foo] = { provider_install_foo: Class }
 
-      expect(subject.can_install_provider?(:foo)).to be_true
-      expect(subject.can_install_provider?(:bar)).to be_false
+      expect(subject.can_install_provider?(:foo)).to be(true)
+      expect(subject.can_install_provider?(:bar)).to be(false)
     end
   end
 
@@ -160,7 +160,8 @@ describe Vagrant::Environment do
 
       it "moves the boxes into the new directory structure" do
         # Kind of hacky but avoids two instantiations of BoxCollection
-        Vagrant::Environment.any_instance.stub(boxes: double("boxes"))
+        allow(Vagrant::Environment).to receive(:boxes)
+          .and_return(double("boxes"))
 
         collection = double("collection")
         expect(Vagrant::BoxCollection).to receive(:new).with(
@@ -177,8 +178,8 @@ describe Vagrant::Environment do
 
     before do
       m = Vagrant.plugin("2").manager
-      m.stub(hosts: plugin_hosts)
-      m.stub(host_capabilities: plugin_host_caps)
+      allow(m).to receive(:hosts).and_return(plugin_hosts)
+      allow(m).to receive(:host_capabilities).and_return(plugin_host_caps)
     end
 
     it "should default to some host even if there are none" do
@@ -202,7 +203,7 @@ describe Vagrant::Environment do
       plugin_host_caps[:foo] = { bar: Class }
 
       result = subject.host
-      expect(result.capability?(:bar)).to be_true
+      expect(result.capability?(:bar)).to be(true)
     end
 
     it "should attempt to detect a host if host is :detect" do
@@ -216,7 +217,7 @@ describe Vagrant::Environment do
       plugin_host_caps[:foo] = { bar: Class }
 
       result = subject.host
-      expect(result.capability?(:bar)).to be_true
+      expect(result.capability?(:bar)).to be(true)
     end
 
     it "should use an exact host if specified" do
@@ -231,7 +232,7 @@ describe Vagrant::Environment do
       plugin_host_caps[:foo] = { bar: Class }
 
       result = subject.host
-      expect(result.capability?(:bar)).to be_true
+      expect(result.capability?(:bar)).to be(true)
     end
 
     it "should raise an error if an exact match was specified but not found" do
@@ -270,7 +271,7 @@ describe Vagrant::Environment do
         end
       end
 
-      expect(raised).to be_true
+      expect(raised).to be(true)
     end
 
     it "allows nested locks on the same environment" do
@@ -282,7 +283,7 @@ describe Vagrant::Environment do
         end
       end
 
-      expect(success).to be_true
+      expect(success).to be(true)
     end
 
     it "cleans up all lock files" do
@@ -641,8 +642,8 @@ VF
       klass = double("machine_index")
       stub_const("Vagrant::MachineIndex", klass)
 
-      klass.should_receive(:new).with do |path|
-        expect(path.to_s.start_with?(subject.home_path.to_s)).to be_true
+      expect(klass).to receive(:new).with(any_args) do |path|
+        expect(path.to_s.start_with?(subject.home_path.to_s)).to be(true)
         true
       end
 
@@ -759,7 +760,7 @@ VF
 
     before do
       m = Vagrant.plugin("2").manager
-      m.stub(providers: plugin_providers)
+      allow(m).to receive(:providers).and_return(plugin_providers)
     end
 
     it "is the highest matching usable provider" do
@@ -985,7 +986,7 @@ VF
         Dir.chdir(temp_dir) do
           instance = described_class.new(local_data_path: "foo")
           expect(instance.local_data_path).to eq(instance.cwd.join("foo"))
-          expect(File.exist?(instance.local_data_path)).to be_false
+          expect(File.exist?(instance.local_data_path)).to be(false)
         end
       end
     end
@@ -1249,7 +1250,7 @@ VF
 
       env = environment.create_vagrant_env
       env.push("foo")
-      expect(push_class.pushed?).to be_true
+      expect(push_class.pushed?).to be(true)
     end
   end
 
@@ -1257,7 +1258,7 @@ VF
     it "should call the action runner with the proper hook" do
       hook_name = :foo
 
-      expect(instance.action_runner).to receive(:run).with { |callable, env|
+      expect(instance.action_runner).to receive(:run).with(any_args) { |callable, env|
         expect(env[:action_name]).to eq(hook_name)
       }
 
@@ -1279,7 +1280,7 @@ VF
     end
 
     it "should allow passing in custom data" do
-      expect(instance.action_runner).to receive(:run).with { |callable, env|
+      expect(instance.action_runner).to receive(:run).with(any_args) { |callable, env|
         expect(env[:foo]).to eq(:bar)
       }
 
@@ -1287,7 +1288,7 @@ VF
     end
 
     it "should allow passing a custom callable" do
-      expect(instance.action_runner).to receive(:run).with { |callable, env|
+      expect(instance.action_runner).to receive(:run).with(any_args) { |callable, env|
         expect(callable).to eq(:what)
       }
 

@@ -19,7 +19,7 @@ describe VagrantPlugins::CommandListCommands::Command do
   subject { described_class.new(argv, iso_env) }
 
   before do
-    Vagrant.plugin("2").manager.stub(commands: commands)
+    allow(Vagrant.plugin("2").manager).to receive(:commands).and_return(commands)
   end
 
   describe "execute" do
@@ -28,7 +28,7 @@ describe VagrantPlugins::CommandListCommands::Command do
       commands[:bar] = [command_lambda("bar", 0), { primary: true }]
       commands[:baz] = [command_lambda("baz", 0), { primary: false }]
 
-      expect(iso_env.ui).to receive(:info).with { |message, opts|
+      expect(iso_env.ui).to receive(:info).with(any_args) { |message, opts|
         expect(message).to include("foo")
         expect(message).to include("bar")
         expect(message).to include("baz")

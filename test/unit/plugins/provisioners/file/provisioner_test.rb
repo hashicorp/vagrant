@@ -20,19 +20,19 @@ describe VagrantPlugins::FileUpload::Provisioner do
   let(:guest)        { double("guest") }
 
   before do
-    machine.stub(communicate: communicator)
-    machine.stub(guest: guest)
+    allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:guest).and_return(guest)
 
-    communicator.stub(execute: true)
-    communicator.stub(upload: true)
+    allow(communicator).to receive(:execute).and_return(true)
+    allow(communicator).to receive(:upload).and_return(true)
 
-    guest.stub(capability?: false)
+    allow(guest).to receive(:capability?).and_return(false)
   end
 
   describe "#provision" do
     it "creates the destination directory" do
-      config.stub(source: "/source")
-      config.stub(destination: "/foo/bar")
+      allow(config).to receive(:source).and_return("/source")
+      allow(config).to receive(:destination).and_return("/foo/bar")
 
       expect(communicator).to receive(:execute).with("mkdir -p /foo")
 
@@ -40,8 +40,8 @@ describe VagrantPlugins::FileUpload::Provisioner do
     end
 
     it "uploads the file" do
-      config.stub(source: "/source")
-      config.stub(destination: "/foo/bar")
+      allow(config).to receive(:source).and_return("/source")
+      allow(config).to receive(:destination).and_return("/foo/bar")
 
       expect(communicator).to receive(:upload).with("/source", "/foo/bar")
 
@@ -49,8 +49,8 @@ describe VagrantPlugins::FileUpload::Provisioner do
     end
 
     it "expands the source file path" do
-      config.stub(source: "source")
-      config.stub(destination: "/foo/bar")
+      allow(config).to receive(:source).and_return("source")
+      allow(config).to receive(:destination).and_return("/foo/bar")
 
       expect(communicator).to receive(:upload).with(
         File.expand_path("source"), "/foo/bar")
@@ -59,8 +59,8 @@ describe VagrantPlugins::FileUpload::Provisioner do
     end
 
     it "expands the destination file path if capable" do
-      config.stub(source: "/source")
-      config.stub(destination: "$HOME/foo")
+      allow(config).to receive(:source).and_return("/source")
+      allow(config).to receive(:destination).and_return("$HOME/foo")
 
       expect(guest).to receive(:capability?).
         with(:shell_expand_guest_path).and_return(true)
