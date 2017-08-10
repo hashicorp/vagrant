@@ -1,3 +1,5 @@
+require 'socket'
+
 module VagrantPlugins
   module LoginCommand
     class Command < Vagrant.plugin("2", "command")
@@ -59,7 +61,7 @@ module VagrantPlugins
           password = @env.ui.ask("Password (will be hidden): ", echo: false)
         end
 
-        description_default = "Vagrant login"
+        description_default = "Vagrant login from #{Socket.gethostname}"
         while !description
           description =
             @env.ui.ask("Token description (Defaults to #{description_default.inspect}): ")
