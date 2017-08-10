@@ -48,8 +48,9 @@ module VagrantPlugins
         end
 
         # Ask for the username
-        login    = nil
-        password = nil
+        login       = nil
+        password    = nil
+        description = nil
         while !login
           login = @env.ui.ask("Vagrant Cloud Username: ")
         end
@@ -58,7 +59,14 @@ module VagrantPlugins
           password = @env.ui.ask("Password (will be hidden): ", echo: false)
         end
 
-        token = @client.login(login, password)
+        description_default = "Vagrant login"
+        while !description
+          description =
+            @env.ui.ask("Token description (Defaults to #{description_default.inspect}): ")
+        end
+        description = description_default if description.empty?
+
+        token = @client.login(login, password, description: description)
         if !token
           @env.ui.error(I18n.t("login_command.invalid_login"))
           return 1

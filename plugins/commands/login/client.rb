@@ -40,15 +40,24 @@ module VagrantPlugins
       # Login logs a user in and returns the token for that user. The token
       # is _not_ stored unless {#store_token} is called.
       #
-      # @param [String] user
-      # @param [String] pass
+      # @param [String] username_or_email
+      # @param [String] password
+      # @param [String] description
       # @return [String] token The access token, or nil if auth failed.
-      def login(user, pass)
-        @logger.info("Logging in '#{user}'")
+      def login(username_or_email, password, description: nil)
+        @logger.info("Logging in '#{username_or_email}'")
 
         with_error_handling do
-          url      = "#{Vagrant.server_url}/api/v1/authenticate"
-          request  = { "user" => { "login" => user, "password" => pass } }
+          url = "#{Vagrant.server_url}/api/v1/authenticate"
+          request = {
+            user: {
+              login: username_or_email,
+              password: password
+            },
+            token: {
+              description: description
+            }
+          }
 
           proxy   = nil
           proxy ||= ENV["HTTPS_PROXY"] || ENV["https_proxy"]
