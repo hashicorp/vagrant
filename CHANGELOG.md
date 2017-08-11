@@ -17,7 +17,7 @@ BUG FIXES:
 - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
 - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
 - provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
-- provisioners/puppet: Remove `--manifestdir` flag from puppet apply in provisioner [GH-8786]
+- provisioners/puppet: Remove `--manifestdir` flag from puppet apply in provisioner [GH-8797]
 
 ## 1.9.7 (July 7, 2017)
 
