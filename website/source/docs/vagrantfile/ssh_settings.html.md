@@ -20,7 +20,7 @@ defaults are typically fine, but you can fine tune whatever you would like.
 
 `config.ssh.username` - This sets the username that Vagrant will SSH
 as by default. Providers are free to override this if they detect a more
-appropriate user. By default this is "vagrant," since that is what most
+appropriate user. By default this is "vagrant", since that is what most
 public boxes are made as.
 
 <hr>
