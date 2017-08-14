@@ -252,7 +252,8 @@ VF
         config.finalize!
 
         allow(subject).to receive(:check_path)
-        allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(Vagrant::Util::Subprocess::Result.new(1, "", ""))
+        allow(Vagrant::Util::Subprocess).to receive(:execute)
+          .and_return(Vagrant::Util::Subprocess::Result.new(1, "", ""))
 
         expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
       end
@@ -263,16 +264,14 @@ VF
       it_should_create_and_use_generated_inventory
 
       it "does not add any group section to the generated inventory" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to_not match(/^\s*\[^\\+\]\s*$/)
         }.and_return(default_execute_result)
       end
 
       it "doesn't show the ansible-playbook command" do
-        expect(machine.env.ui).not_to receive(:detail).with(any_args) { |full_command|
-          expect(full_command).to include("ansible-playbook")
-        }
+        expect(machine.env.ui).to_not receive(:detail).with(/ansible-playbook/)
       end
     end
 
@@ -282,9 +281,8 @@ VF
       end
 
       it "uses custom playbook_command to run playbooks" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
-          expect(args[0]).to eq("custom-ansible-playbook")
-        }.and_return(default_execute_result)
+        expect(Vagrant::Util::Subprocess).to receive(:execute)
+          .with("custom-ansible-playbook", any_args)
       end
     end
 
@@ -295,7 +293,7 @@ VF
         config.host_vars = {
           machine1: {"http_port" => 80, "comments" => "'some text with spaces'"}
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 comments='some text with spaces'$")
         }.and_return(default_execute_result)
@@ -305,7 +303,7 @@ VF
         config.host_vars = {
           machine1: ["http_port=80", "maxRequestsPerChild=808"]
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
         }.and_return(default_execute_result)
@@ -315,7 +313,7 @@ VF
         config.host_vars = {
           :machine1 => "http_port=80 maxRequestsPerChild=808"
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
         }.and_return(default_execute_result)
@@ -733,9 +731,8 @@ VF
           it_should_set_optional_arguments({ "verbose" => "-#{verbose_option}" })
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
-            expect(machine.env.ui).to receive(:detail).with(any_args) { |full_command|
-              expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
-            }
+            expect(machine.env.ui).to receive(:detail)
+              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
           end
         end
 
@@ -748,9 +745,8 @@ VF
           it_should_set_optional_arguments({ "verbose" => "-#{verbose_option}" })
 
           it "shows the ansible-playbook command and set verbosity to '-#{verbose_option}' level" do
-            expect(machine.env.ui).to receive(:detail).with(any_args) { |full_command|
-              expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
-            }
+            expect(machine.env.ui).to receive(:detail)
+              .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -#{verbose_option} playbook.yml")
           end
         end
       end
@@ -764,9 +760,8 @@ VF
         it_should_set_optional_arguments({ "verbose" => "-v" })
 
         it "shows the ansible-playbook command and set verbosity to '-v' level" do
-          expect(machine.env.ui).to receive(:detail).with(any_args) { |full_command|
-            expect(full_command).to eq("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -v playbook.yml")
-          }
+          expect(machine.env.ui).to receive(:detail)
+            .with("PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --limit=\"machine1\" --inventory-file=#{generated_inventory_dir} -v playbook.yml")
         end
       end
 
@@ -778,9 +773,7 @@ VF
         it_should_set_arguments_and_environment_variables
 
         it "doesn't show the ansible-playbook command" do
-          expect(machine.env.ui).not_to receive(:detail).with(any_args) { |full_command|
-            expect(full_command).to include("ansible-playbook")
-          }
+          expect(machine.env.ui).to_not receive(:detail).with(/ansible-playbook/)
         end
       end
 
@@ -817,21 +810,30 @@ VF
       end
 
       it "execute ansible-galaxy, and then ansible-playbook" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |cmd, *args|
-          expect(cmd).to eq("ansible-galaxy")
-        }.and_return(default_execute_result)
+        expect(Vagrant::Util::Subprocess).to receive(:execute)
+          .once
+          .with('ansible-galaxy', any_args)
+          .and_return(default_execute_result)
+        expect(Vagrant::Util::Subprocess).to receive(:execute)
+          .once
+          .with('ansible-playbook', any_args)
+          .and_return(default_execute_result)
+      end
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |cmd, *args|
-          expect(cmd).to eq("ansible-playbook")
-        }.and_return(default_execute_result)
+      it "doesn't show the ansible-galaxy command" do
+        expect(machine.env.ui).to_not receive(:detail).with(/ansible-galaxy/)
       end
 
       describe "with verbose option enabled" do
         before do
+          config.galaxy_roles_path = "/tmp/roles"
           config.verbose = true
         end
 
-        xit "shows the ansible-galaxy command in use"
+        it "shows the ansible-galaxy command in use" do
+          expect(machine.env.ui).to receive(:detail)
+            .with(%Q(ansible-galaxy install --role-file='#{existing_file}' --roles-path='/tmp/roles' --force))
+        end
       end
     end
 
@@ -868,7 +870,7 @@ VF
     end
 
     # The Vagrant Ansible provisioner does not validate the coherency of
-    # argument combinations, and let ansible-playbook complain.
+    # argument combinations, and lets ansible-playbook complain.
     describe "with a maximum of options" do
       before do
         # vagrant general options
@@ -922,9 +924,8 @@ VF
       end
 
       it "shows the ansible-playbook command, with additional quotes when required" do
-        expect(machine.env.ui).to receive(:detail).with(any_args) { |full_command|
-          expect(full_command).to eq(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
-        }
+        expect(machine.env.ui).to receive(:detail)
+          .with(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
       end
     end
 
@@ -971,9 +972,8 @@ VF
       end
 
       it "warns that Windows is not officially supported for the Ansible control machine" do
-        expect(machine.env.ui).to receive(:warn).with(any_args) { |warning|
-          expect(warning).to eq(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine"))
-        }
+        expect(machine.env.ui).to receive(:warn)
+          .with(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine"))
       end
     end
 
