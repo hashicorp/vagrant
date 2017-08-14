@@ -4,7 +4,7 @@ module VagrantPlugins
       class ShellExpandGuestPath
         def self.shell_expand_guest_path(machine, path)
           real_path = nil
-          machine.communicate.execute("printf #{path}",
+          machine.communicate.execute("printf \"#{path}\"",
                                       shell: "sh") do |type, data|
             if type == :stdout
               real_path ||= ""

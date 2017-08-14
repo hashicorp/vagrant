@@ -18,10 +18,10 @@ module VagrantPlugins
             #
             # https://serverfault.com/questions/538368/make-scp-always-overwrite-or-create-directory
             # https://unix.stackexchange.com/questions/292641/get-scp-path-behave-like-rsync-path/292732
-            command = "mkdir -p %s" % destination
+            command = "mkdir -p \"%s\"" % destination
             source << "/."
           else
-            command = "mkdir -p %s" % File.dirname(destination)
+            command = "mkdir -p \"%s\"" % File.dirname(destination)
           end
           comm.execute(command)
 

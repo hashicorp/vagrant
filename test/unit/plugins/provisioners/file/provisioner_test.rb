@@ -34,7 +34,25 @@ describe VagrantPlugins::FileUpload::Provisioner do
       allow(config).to receive(:source).and_return("/source")
       allow(config).to receive(:destination).and_return("/foo/bar")
 
-      expect(communicator).to receive(:execute).with("mkdir -p /foo")
+      expect(communicator).to receive(:execute).with("mkdir -p \"/foo\"")
+
+      subject.provision
+    end
+
+    it "creates the destination directory with a space" do
+      allow(config).to receive(:source).and_return("/source")
+      allow(config).to receive(:destination).and_return("/foo bar/bar")
+
+      expect(communicator).to receive(:execute).with("mkdir -p \"/foo bar\"")
+
+      subject.provision
+    end
+
+    it "creates the destination directory above file" do
+      allow(config).to receive(:source).and_return("/source/file.sh")
+      allow(config).to receive(:destination).and_return("/foo/bar/file.sh")
+
+      expect(communicator).to receive(:execute).with("mkdir -p \"/foo/bar\"")
 
       subject.provision
     end
