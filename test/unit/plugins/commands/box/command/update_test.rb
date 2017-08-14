@@ -94,6 +94,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
         allow(action_runner).to receive(:run) do |action, opts|
           if opts[:box_provider]
             action_called = true
+            expect(opts[:box_force]).to eq(nil)
             expect(opts[:box_url]).to eq(metadata_url.to_s)
             expect(opts[:box_provider]).to eq("virtualbox")
             expect(opts[:box_version]).to eq("1.1")
@@ -350,6 +351,27 @@ describe VagrantPlugins::CommandBox::Command::Update do
                 expect(opts[:box_download_ca_path]).to eq("bar")
                 expect(opts[:box_client_cert]).to eq("baz")
                 expect(opts[:box_download_insecure]).to be(true)
+                true
+              }
+
+              subject.execute
+            end
+          end
+
+          context "force flag is specified on the command line" do
+            let(:argv) { ["--force"].concat(download_options) }
+
+            it "passes force through to action_box_add as true" do
+              expect(box).to receive(:has_update?).
+                with(machine.config.vm.box_version,
+                     {download_options:
+                       {ca_cert: "foo", ca_path: "bar", client_cert: "baz",
+                        insecure: true}}).
+                and_return([md, md.version("1.1"),
+                            md.version("1.1").provider("virtualbox")])
+
+              expect(action_runner).to receive(:run).with(any_args) { |action, opts|
+                expect(opts[:box_force]).to be(true)
                 true
               }
 
