@@ -61,6 +61,9 @@ describe VagrantPlugins::LoginCommand::Client do
           "login" => "foo",
           "password" => "bar",
         },
+        "token" => {
+          "description" => "Token description"
+        }
       }
 
       response = {
@@ -76,7 +79,8 @@ describe VagrantPlugins::LoginCommand::Client do
         with(body: JSON.dump(request), headers: headers).
         to_return(status: 200, body: JSON.dump(response))
 
-      expect(subject.login("foo", "bar")).to eq("baz")
+      expect(subject.login("foo", "bar", description: "Token description"))
+        .to eq("baz")
     end
 
     it "returns nil on bad login" do
