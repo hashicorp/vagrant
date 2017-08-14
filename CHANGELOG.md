@@ -12,6 +12,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- box/update: Add force flag for box upgrade command [GH-8871]
 - commands/rsync-auto: Ensure relative dirs are still rsync'd if defined [GH-8781]
 - core: Update util/ssh to use `-o` for identity files [GH-8786]
 - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
