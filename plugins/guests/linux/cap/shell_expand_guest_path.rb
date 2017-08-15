@@ -4,7 +4,7 @@ module VagrantPlugins
       class ShellExpandGuestPath
         def self.shell_expand_guest_path(machine, path)
           real_path = nil
-          machine.communicate.execute("echo; printf #{path}") do |type, data|
+          machine.communicate.execute("echo; printf \"#{path}\"") do |type, data|
             if type == :stdout
               real_path ||= ""
               real_path += data
@@ -19,7 +19,7 @@ module VagrantPlugins
           if !real_path
             # If no real guest path was detected, this is really strange
             # and we raise an exception because this is a bug.
-            raise ShellExpandFailed
+            raise Vagrant::Errors::ShellExpandFailed
           end
 
           # Chomp the string so that any trailing newlines are killed
