@@ -18,7 +18,9 @@ BUG FIXES:
 - core: Update util/ssh to use `-o` for identity files [GH-8786]
 - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
 - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
+- provisioners/file: Ensure remote folder exists prior to scp file or folder [GH-8880]
 - provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
+- provisioners/shell: Allow frozen string scripts [GH-8875]
 - provisioners/puppet: Remove `--manifestdir` flag from puppet apply in provisioner [GH-8797]
 
 ## 1.9.7 (July 7, 2017)
