@@ -43,6 +43,37 @@ describe "Vagrant::Shell::Provisioner" do
     end
   end
 
+  context "with a script that was set to freeze the string" do
+    TEST_CONSTANT_VARIABLE = <<-TEST_CONSTANT_VARIABLE.freeze
+      echo test
+    TEST_CONSTANT_VARIABLE
+
+    let(:script) { TEST_CONSTANT_VARIABLE }
+    let(:config) {
+      double(
+        :config,
+        :args        => "doesn't matter",
+        :env         => {},
+        :upload_path => "arbitrary",
+        :remote?     => false,
+        :path        => nil,
+        :inline      => script,
+        :binary      => false,
+      )
+    }
+
+    it "does not raise an exception" do
+      vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
+
+      RSpec::Expectations.configuration.on_potential_false_positives = :nothing
+      # This test should be fine, since we are specifically looking for the
+      # string 'freeze' when RuntimeError is raised
+      expect {
+        vsp.provision
+      }.not_to raise_error(RuntimeError)
+    end
+  end
+
   context "with remote script" do
 
     context "that does not have matching sha1 checksum" do

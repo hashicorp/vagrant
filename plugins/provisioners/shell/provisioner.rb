@@ -265,7 +265,7 @@ module VagrantPlugins
         # or we're running on Windows.
         if !config.binary && @machine.config.vm.communicator != :winrm
           begin
-            script.gsub!(/\r\n?$/, "\n")
+            script = script.gsub(/\r\n?$/, "\n")
           rescue ArgumentError
             script = script.force_encoding("ASCII-8BIT").gsub(/\r\n?$/, "\n")
           end
