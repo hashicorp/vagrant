@@ -16,10 +16,10 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
-        # Validate the configuration
-        @env.machine(@env.machine_names.first, @env.default_provider).action_raw(
-          :config_validate,
-          Vagrant::Action::Builtin::ConfigValidate)
+        # Validate the configuration of all machines
+        with_target_vms() do |machine|
+          machine.action_raw(:config_validate, Vagrant::Action::Builtin::ConfigValidate)
+        end
 
         @env.ui.info(I18n.t("vagrant.commands.validate.success"))
 

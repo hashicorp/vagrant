@@ -48,5 +48,51 @@ describe VagrantPlugins::CommandValidate::Command do
         expect(err.message).to include("The following settings shouldn't exist: bix")
       }
     end
+
+    it "validates correct Vagrantfile of all vms" do
+      iso_env.vagrantfile <<-EOH
+        Vagrant.configure("2") do |config|
+          config.vm.box = "hashicorp/precise64"
+
+          config.vm.define "test" do |vm|
+            vm.vm.provider :virtualbox
+          end
+
+          config.vm.define "machine" do |vm|
+            vm.vm.provider :virtualbox
+          end
+        end
+      EOH
+
+      expect(env.ui).to receive(:info).with(any_args) { |message, _|
+        expect(message).to include("Vagrantfile validated successfully.")
+      }
+
+      expect(subject.execute).to eq(0)
+    end
+
+    it "validates the configuration of all vms" do
+      iso_env.vagrantfile <<-EOH
+        Vagrant.configure("2") do |config|
+          config.vm.box = "hashicorp/precise64"
+
+          config.vm.define "test" do |vm|
+            vm.vm.provider :virtualbox
+          end
+
+          config.vm.define "machine" do |vm|
+            vm.vm.not_provider :virtualbox
+          end
+        end
+      EOH
+
+      expect { subject.execute }.to raise_error(Vagrant::Errors::ConfigInvalid) { |err|
+        expect(err.message).to include("The following settings shouldn't exist: not_provider")
+      }
+    end
+
+    it "throws an exception if there's no Vagrantfile" do
+      expect { subject.execute }.to raise_error(Vagrant::Errors::NoEnvironmentError)
+    end
   end
 end
