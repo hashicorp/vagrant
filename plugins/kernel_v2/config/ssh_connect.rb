@@ -11,6 +11,7 @@ module VagrantPlugins
       attr_accessor :paranoid
       attr_accessor :compression
       attr_accessor :dsa_authentication
+      attr_accessor :extra_args
 
       def initialize
         @host             = UNSET_VALUE
@@ -23,6 +24,7 @@ module VagrantPlugins
         @paranoid         = UNSET_VALUE
         @compression      = UNSET_VALUE
         @dsa_authentication = UNSET_VALUE
+        @extra_args       = UNSET_VALUE
       end
 
       def finalize!
@@ -36,6 +38,7 @@ module VagrantPlugins
         @paranoid         = false if @paranoid == UNSET_VALUE
         @compression      = true if @compression == UNSET_VALUE
         @dsa_authentication = true if @dsa_authentication == UNSET_VALUE
+        @extra_args       = nil if @extra_args == UNSET_VALUE
 
         if @private_key_path && !@private_key_path.is_a?(Array)
           @private_key_path = [@private_key_path]

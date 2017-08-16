@@ -167,6 +167,12 @@ module Vagrant
         #
         # Without having extra_args be last, the user loses this ability
         command_options += ["-o", "ForwardAgent=yes"] if ssh_info[:forward_agent]
+
+        # Note about :extra_args
+        #   ssh_info[:extra_args] comes from a machines ssh config in a Vagrantfile,
+        #   where as opts[:extra_args] comes from running the ssh command
+        command_options += Array(ssh_info[:extra_args]) if ssh_info[:extra_args]
+
         command_options.concat(opts[:extra_args]) if opts[:extra_args]
 
         # Build up the host string for connecting

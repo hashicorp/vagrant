@@ -162,6 +162,42 @@ describe Vagrant::Util::SSH do
       end
     end
 
+    context "when extra_args is provided as an array" do
+      let(:ssh_info) {{
+        host: "localhost",
+        port: 2222,
+        username: "vagrant",
+        private_key_path: [temporary_file],
+        extra_args: ["-L", "8008:localhost:80"]
+      }}
+
+      it "enables agent forwarding options" do
+        allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
+
+        expect(described_class.exec(ssh_info)).to eq(nil)
+        expect(Vagrant::Util::SafeExec).to have_received(:exec)
+          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}", "-L", "8008:localhost:80")
+      end
+    end
+
+    context "when extra_args is provided as a string" do
+      let(:ssh_info) {{
+        host: "localhost",
+        port: 2222,
+        username: "vagrant",
+        private_key_path: [temporary_file],
+        extra_args: "-6"
+      }}
+
+      it "enables agent forwarding options" do
+        allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
+
+        expect(described_class.exec(ssh_info)).to eq(nil)
+        expect(Vagrant::Util::SafeExec).to have_received(:exec)
+          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}", "-6")
+      end
+    end
+
     context "with subprocess enabled" do
       let(:ssh_info) {{
         host: "localhost",

@@ -442,6 +442,7 @@ module Vagrant
       info[:username] ||= @config.ssh.default.username
       info[:compression] ||= @config.ssh.default.compression
       info[:dsa_authentication] ||= @config.ssh.default.dsa_authentication
+      info[:extra_args] ||= @config.ssh.default.extra_args
 
       # We set overrides if they are set. These take precedence over
       # provider-returned data.
@@ -453,6 +454,7 @@ module Vagrant
       info[:dsa_authentication] = @config.ssh.dsa_authentication
       info[:username] = @config.ssh.username if @config.ssh.username
       info[:password] = @config.ssh.password if @config.ssh.password
+      info[:extra_args] = @config.ssh.extra_args if @config.ssh.extra_args
 
       # We also set some fields that are purely controlled by Varant
       info[:forward_agent] = @config.ssh.forward_agent
