@@ -9,5 +9,5 @@ sidebar_current: "vagrant-cloud-users-recovery"
 If you have lost access to your Vagrant Cloud account, use the reset
 password form on the login page to send yourself a link to reset your password.
 
-If an email is unknown, [contact us](mailto:support@hashicorp.com) for further
-help.
+If an email is unknown, [contact us](mailto:support+vagrantcloud@hashicorp.com)
+for further help.

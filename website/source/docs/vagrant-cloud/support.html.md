@@ -6,8 +6,11 @@ sidebar_current: "vagrant-cloud-support"
 
 # Contacting Support
 
-All users of Vagrant Cloud are urged to email feedback, questions or
-requests to the HashiCorp team.
+All users of Vagrant Cloud are urged to email feedback, questions, and requests
+to HashiCorp Support at
+<a href="mailto:support+vagrantcloud@hashicorp.com">
+support+vagrantcloud@hashicorp.com
+</a>.
 
 ### Free Support
 
@@ -31,6 +34,14 @@ websites.
 Due to the dynamic nature of Vagrant Cloud and the broad set of features
 it provides, there may be information lacking in the documentation.
 
-In this case, we appreciate any feedback to be emailed to us so
-we can make improvements. Please email feedback to
-<a href="mailto:support@hashicorp.com">support@hashicorp.com</a>.
+Vagrant Cloud documentation is open source.
+If you'd like to improve or correct the documentation,
+please submit a pull-request to the
+[Vagrant project on GitHub](https://github.com/mitchellh/vagrant/tree/master/website/source/docs/vagrant-cloud/).
+The Vagrant Cloud documentation can be found in the `/website/source/vagrant-cloud/` directory.
+
+Otherwise, to make a suggestion or report an error in documentation, please
+email feedback to
+<a href="mailto:support+vagrantcloud@hashicorp.com">
+support+vagrantcloud@hashicorp.com
+</a>.
