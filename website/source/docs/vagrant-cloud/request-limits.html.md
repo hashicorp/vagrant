@@ -28,4 +28,7 @@ If you have received a 429 HTTP status code in the response to your request, you
 
 ## My use case requires more requests.  What do I do?
 
-Please contact support@hashicorp.com.
+Please contact
+<a href="support+vagrantcloud@hashicorp.com">
+support+vagrantcloud@hashicorp.com
+</a>.

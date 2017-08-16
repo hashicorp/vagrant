@@ -6,8 +6,11 @@ sidebar_current: "vagrant-cloud-support"
 
 # Contacting Support
 
-All users of Vagrant Cloud are urged to email feedback, questions or
-requests to the HashiCorp team.
+All users of Vagrant Cloud are urged to email feedback, questions, and requests
+to HashiCorp Support at
+<a href="mailto:support+vagrantcloud@hashicorp.com">
+support+vagrantcloud@hashicorp.com
+</a>.
 
 ### Free Support
 
@@ -33,4 +36,6 @@ it provides, there may be information lacking in the documentation.
 
 In this case, we appreciate any feedback to be emailed to us so
 we can make improvements. Please email feedback to
-<a href="mailto:support@hashicorp.com">support@hashicorp.com</a>.
+<a href="mailto:support+vagrantcloud@hashicorp.com">
+support+vagrantcloud@hashicorp.com
+</a>.
