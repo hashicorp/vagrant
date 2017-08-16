@@ -122,5 +122,5 @@ WSL. Once docker is installed and running on Windows, export the following
 environment variable to give Vagrant access:
 
 ```
-$ vagrant@vagrant-10:/mnt/c/Users/vagrant$ export DOCKER_HOST=tcp://127.0.0.1:2375
+vagrant@vagrant-10:/mnt/c/Users/vagrant$ export DOCKER_HOST=tcp://127.0.0.1:2375
 ```
