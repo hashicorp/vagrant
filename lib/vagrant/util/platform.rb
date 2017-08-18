@@ -397,7 +397,7 @@ module Vagrant
           valid = false
           result = Util::Subprocess.execute("vagrant.exe", "version")
           if result.exit_code == 0
-            windows_version = result.stdout.match(/Installed Version: (?<version>.+$)/)
+            windows_version = result.stdout.match(/Installed Version: (?<version>[\w.-]+)/)
             if windows_version
               windows_version = windows_version[:version].strip
               valid = windows_version == Vagrant::VERSION
