@@ -1051,6 +1051,17 @@ en:
           %{error_msg}
 
         Source: %{source}
+      powershell_not_found: |-
+        Failed to locate the powershell executable on the available PATH. Please
+        ensure powershell is installed and available on the local PATH, then
+        run the command again.
+      powershell_invalid_version: |-
+        The version of powershell currently installed on this host is less than
+        the required minimum version. Please upgrade the installed version of
+        powershell to the minimum required version and run the command again.
+
+          Installed version: %{installed_version}
+          Minimum required version: %{minimum_version}
       pushes_not_defined: |-
         The Vagrantfile does not define any 'push' strategies. In order to use
         `vagrant push`, you must define at least one push strategy:

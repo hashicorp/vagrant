@@ -536,6 +536,14 @@ module Vagrant
       error_key(:requires_directory, "vagrant.actions.general.package")
     end
 
+    class PowerShellNotFound < VagrantError
+      error_key(:powershell_not_found)
+    end
+
+    class PowerShellInvalidVersion < VagrantError
+      error_key(:powershell_invalid_version)
+    end
+
     class ProviderCantInstall < VagrantError
       error_key(:provider_cant_install)
     end
