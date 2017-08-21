@@ -1,3 +1,4 @@
+require "ipaddr"
 require "shellwords"
 
 require "vagrant/util/platform"
@@ -145,6 +146,15 @@ module VagrantPlugins
         end
         if rsync_path
           args << "--rsync-path"<< rsync_path
+        end
+
+        # If the remote host is an IPv6 address reformat
+        begin
+          if IPAddr.new(host).ipv6?
+            host = "[#{host}]"
+          end
+        rescue IPAddr::Error
+          # Ignore
         end
 
         # Build up the actual command to execute
