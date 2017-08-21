@@ -157,3 +157,10 @@ default to `true` and `Compression=yes` will be enabled with ssh.
 `config.ssh.dsa_authentication` - If `false`, this setting  will not include
 `DSAAuthentication` when ssh'ing into a machine. If this is not set, it will
 default to `true` and `DSAAuthentication=yes` will be used with ssh.
+
+`config.ssh.extra_args` - This settings value is passed directly into the
+ssh executable. This allows you to pass any arbitrary commands to do things such
+as reverse tunneling down into the ssh program. These options can either be
+single flags set as strings such as `"-6"` for IPV6 or an array of arguments
+such as `["-L", "8008:localhost:80"]` for enabling a tunnel from host port 8008
+to port 80 on guest.

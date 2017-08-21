@@ -793,6 +793,17 @@ describe Vagrant::Machine do
         it "paranoid should be default" do
           expect(instance.ssh_info[:paranoid]).to be(false)
         end
+        it "extra_args should be nil" do
+          expect(instance.ssh_info[:extra_args]).to be(nil)
+        end
+        it "extra_args should be set" do
+          instance.config.ssh.extra_args = ["-L", "127.1.2.7:8008:127.1.2.7:8008"]
+          expect(instance.ssh_info[:extra_args]).to eq(["-L", "127.1.2.7:8008:127.1.2.7:8008"])
+        end
+        it "extra_args should be set as an array" do
+          instance.config.ssh.extra_args = "-6"
+          expect(instance.ssh_info[:extra_args]).to eq("-6")
+        end
         it "keys_only should be overridden" do
           instance.config.ssh.keys_only = false
           expect(instance.ssh_info[:keys_only]).to be(false)
