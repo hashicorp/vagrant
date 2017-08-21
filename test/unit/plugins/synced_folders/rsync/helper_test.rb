@@ -237,9 +237,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       before { ssh_info[:host] = "fe00::0" }
 
       it "formats the address correctly" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-          expect(args[13]).to include("@[#{ssh_info[:host]}]")
-        }
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args, "@[#{ssh_info[:host]}]:''", instance_of(Hash))
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
@@ -248,9 +246,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       before { ssh_info[:host] = "127.0.0.1" }
 
       it "formats the address correctly" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with { |*args|
-          expect(args[13]).to include("@#{ssh_info[:host]}")
-        }
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args, "@#{ssh_info[:host]}:''", instance_of(Hash))
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
