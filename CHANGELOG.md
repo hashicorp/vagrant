@@ -21,6 +21,7 @@ BUG FIXES:
   - communicators/winssh: Fix public key insertion to retain ACL [GH-8790]
   - core: Update util/ssh to use `-o` for identity files [GH-8786]
   - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
+  - hosts/windows: Prevent control characters in version check for WSL [GH-8902, GH-8901]
   - providers/docker: Split String type links into Array when using compose [GH-8837, GH-8821]
   - providers/docker: Expand relative volume paths correctly [GH-8838, GH-8822]
   - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
