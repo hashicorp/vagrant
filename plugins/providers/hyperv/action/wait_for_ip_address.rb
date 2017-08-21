@@ -23,19 +23,23 @@ module VagrantPlugins
               return if env[:interrupted]
 
               # Try to get the IP
-              network_info = env[:machine].provider.driver.read_guest_ip
-              guest_ip = network_info["ip"]
+              begin
+                network_info = env[:machine].provider.driver.read_guest_ip
+                guest_ip = network_info["ip"]
 
-              if guest_ip
-                begin
-                  IPAddr.new(guest_ip)
-                  break
-                rescue IPAddr::InvalidAddressError
-                  # Ignore, continue looking.
-                  @logger.warn("Invalid IP address returned: #{guest_ip}")
+                if guest_ip
+                  begin
+                    IPAddr.new(guest_ip)
+                    break
+                  rescue IPAddr::InvalidAddressError
+                    # Ignore, continue looking.
+                    @logger.warn("Invalid IP address returned: #{guest_ip}")
+                  end
                 end
+              rescue Errors::PowerShellError
+                # Ignore, continue looking.
+                @logger.warn("Failed to read guest IP.")
               end
-
               sleep 1
             end
           end
