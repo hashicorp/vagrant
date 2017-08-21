@@ -20,6 +20,7 @@ BUG FIXES:
   - core: Update util/ssh to use `-o` for identity files [GH-8786]
   - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
   - providers/docker: Split String type links into Array when using compose [GH-8837, GH-8821]
+  - providers/docker: Expand relative volume paths correctly [GH-8838, GH-8822]
   - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
   - provisioners/file: Ensure remote folder exists prior to scp file or folder [GH-8880]
   - provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
