@@ -7,7 +7,7 @@ module VagrantPlugins
         def self.insert_public_key(machine, contents)
           if machine.communicate.is_a?(CommunicatorWinSSH::Communicator)
             contents = contents.strip
-            modify_authorized_keys machine do |keys|
+            winssh_modify_authorized_keys machine do |keys|
               if !keys.include?(contents)
                 keys << contents
               end
@@ -19,7 +19,7 @@ module VagrantPlugins
 
         def self.remove_public_key(machine, contents)
           if machine.communicate.is_a?(CommunicatorWinSSH::Communicator)
-            modify_authorized_keys machine do |keys|
+            winssh_modify_authorized_keys machine do |keys|
               keys.delete(contents)
             end
           else
@@ -27,7 +27,7 @@ module VagrantPlugins
           end
         end
 
-        def self.modify_authorized_keys(machine)
+        def self.winssh_modify_authorized_keys(machine)
           comm = machine.communicate
           directories = fetch_guest_paths(comm)
           home_dir = directories[:home]
