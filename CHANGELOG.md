@@ -9,6 +9,7 @@ IMPROVEMENTS:
   - commands/validate: Improve functionality of the validate command [GH-8889]n
   - core: Updated Vagrants rspec gem to 3.5.0 [GH-8850]
   - core: Validate powershell availability and version before use [GH-8839]
+  - core: Introduce extra_args setting for ssh configs [GH-8895]
   - docs: Align contrib/sudoers file for ubuntu linux with docs [GH-8842]
   - provider/hyperv: Prefer IPv4 guest address [GH-8831, GH-8759]
   - provisioners/chef: Add config option omnibus_url for chef provisioners [GH-8682]
