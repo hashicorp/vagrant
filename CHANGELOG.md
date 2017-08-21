@@ -19,6 +19,7 @@ BUG FIXES:
   - commands/rsync-auto: Ensure relative dirs are still rsync'd if defined [GH-8781]
   - core: Update util/ssh to use `-o` for identity files [GH-8786]
   - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
+  - providers/docker: Split String type links into Array when using compose [GH-8837, GH-8821]
   - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
   - provisioners/file: Ensure remote folder exists prior to scp file or folder [GH-8880]
   - provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
