@@ -27,6 +27,7 @@ BUG FIXES:
   - provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
   - provisioners/shell: Allow frozen string scripts [GH-8875]
   - provisioners/puppet: Remove `--manifestdir` flag from puppet apply in provisioner [GH-8797]
+  - synced_folders/rsync: Correctly format IPv6 host [GH-8840, GH-8809]
 
 ## 1.9.7 (July 7, 2017)
 
