@@ -4,25 +4,26 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- bash: Add box prune to contrib bash completion [GH-8806]
-- commands/login: Ask for description of Vagrant Cloud token [GH-8876]
-- commands/validate: Improve functionality of the validate command [GH-8889]
-- core: Updated Vagrants rspec gem to 3.5.0 [GH-8850]
-- docs: Align contrib/sudoers file for ubuntu linux with docs [GH-8842]
-- provisioners/chef: Add config option omnibus_url for chef provisioners [GH-8682]
-- provisioners/chef: Improve exception handling around missing folder paths [GH-8775]
+  - bash: Add box prune to contrib bash completion [GH-8806]
+  - commands/login: Ask for description of Vagrant Cloud token [GH-8876]
+  - commands/validate: Improve functionality of the validate command [GH-8889]
+  - core: Updated Vagrants rspec gem to 3.5.0 [GH-8850]
+  - docs: Align contrib/sudoers file for ubuntu linux with docs [GH-8842]
+  - provider/hyperv: Prefer IPv4 guest address [GH-8831, GH-8759]
+  - provisioners/chef: Add config option omnibus_url for chef provisioners [GH-8682]
+  - provisioners/chef: Improve exception handling around missing folder paths [GH-8775]
 
 BUG FIXES:
 
-- box/update: Add force flag for box upgrade command [GH-8871]
-- commands/rsync-auto: Ensure relative dirs are still rsync'd if defined [GH-8781]
-- core: Update util/ssh to use `-o` for identity files [GH-8786]
-- guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
-- provisioners/ansible: Update to use `-o` for identity files [GH-8786]
-- provisioners/file: Ensure remote folder exists prior to scp file or folder [GH-8880]
-- provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
-- provisioners/shell: Allow frozen string scripts [GH-8875]
-- provisioners/puppet: Remove `--manifestdir` flag from puppet apply in provisioner [GH-8797]
+  - box/update: Add force flag for box upgrade command [GH-8871]
+  - commands/rsync-auto: Ensure relative dirs are still rsync'd if defined [GH-8781]
+  - core: Update util/ssh to use `-o` for identity files [GH-8786]
+  - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
+  - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
+  - provisioners/file: Ensure remote folder exists prior to scp file or folder [GH-8880]
+  - provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
+  - provisioners/shell: Allow frozen string scripts [GH-8875]
+  - provisioners/puppet: Remove `--manifestdir` flag from puppet apply in provisioner [GH-8797]
 
 ## 1.9.7 (July 7, 2017)
 
