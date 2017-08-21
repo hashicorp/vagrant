@@ -6,7 +6,7 @@ IMPROVEMENTS:
 
   - bash: Add box prune to contrib bash completion [GH-8806]
   - commands/login: Ask for description of Vagrant Cloud token [GH-8876]
-  - commands/validate: Improve functionality of the validate command [GH-8889]
+  - commands/validate: Improve functionality of the validate command [GH-8889]n
   - core: Updated Vagrants rspec gem to 3.5.0 [GH-8850]
   - core: Validate powershell availability and version before use [GH-8839]
   - docs: Align contrib/sudoers file for ubuntu linux with docs [GH-8842]
@@ -18,6 +18,7 @@ BUG FIXES:
 
   - box/update: Add force flag for box upgrade command [GH-8871]
   - commands/rsync-auto: Ensure relative dirs are still rsync'd if defined [GH-8781]
+  - communicators/winssh: Fix public key insertion to retain ACL [GH-8790]
   - core: Update util/ssh to use `-o` for identity files [GH-8786]
   - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
   - providers/docker: Split String type links into Array when using compose [GH-8837, GH-8821]
