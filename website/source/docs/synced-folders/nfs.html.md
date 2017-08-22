@@ -168,7 +168,7 @@ Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
 %sudo ALL=(root) NOPASSWD: VAGRANT_EXPORTS_CHOWN, VAGRANT_EXPORTS_MV, VAGRANT_NFSD_CHECK, VAGRANT_NFSD_START, VAGRANT_NFSD_APPLY
 ```
 
-For Fedora Linux, sudoers might look like this (given your user
+For Fedora and Solus Linux, sudoers might look like this (given your user
 belongs to the vagrant group):
 
 ```
