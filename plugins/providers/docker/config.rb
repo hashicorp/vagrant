@@ -281,6 +281,10 @@ module VagrantPlugins
           errors << I18n.t("docker_provider.errors.config.compose_configuration_hash")
         end
 
+        if @compose && @force_host_vm
+          errors << I18n.t("docker_provider.errors.config.compose_force_vm")
+        end
+
         if !@create_args.is_a?(Array)
           errors << I18n.t("docker_provider.errors.config.create_args_array")
         end
