@@ -145,6 +145,8 @@ en:
           One of "build_dir" or "image" must be set
         compose_configuration_hash: |-
           "compose_configuration" must be a hash
+        compose_force_vm: |-
+          Docker compose is not currently supported from within proxy VM.
         create_args_array: |-
           "create_args" must be an array
         invalid_link: |-
