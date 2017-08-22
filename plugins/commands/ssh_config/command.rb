@@ -1,6 +1,7 @@
 require 'optparse'
 
 require "vagrant/util/safe_puts"
+require "vagrant/util/platform"
 
 module VagrantPlugins
   module CommandSSHConfig
@@ -9,6 +10,10 @@ module VagrantPlugins
 
       def self.synopsis
         "outputs OpenSSH valid configuration to connect to the machine"
+      end
+
+      def convert_win_paths(paths)
+        paths.map! { |path| Vagrant::Util::Platform.format_windows_path(path, :disable_unc) }
       end
 
       def execute
@@ -31,6 +36,10 @@ module VagrantPlugins
         with_target_vms(argv) do |machine|
           ssh_info = machine.ssh_info
           raise Vagrant::Errors::SSHNotReady if ssh_info.nil?
+
+          if Vagrant::Util::Platform.windows?
+            ssh_info[:private_key_path] = convert_win_paths(ssh_info[:private_key_path])
+          end
 
           variables = {
             host_key: options[:host] || machine.name || "vagrant",
