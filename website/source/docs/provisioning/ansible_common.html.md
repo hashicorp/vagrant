@@ -113,7 +113,7 @@ Some of these options are for advanced usage only and should not be used unless 
 
 - `playbook_command` (string) - The command used to run playbooks.
 
-   The default value is `ansible-playbook`
+    The default value is `ansible-playbook`
 
 - `raw_arguments` (array of strings) - a list of additional `ansible-playbook` arguments.
 

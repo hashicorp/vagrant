@@ -89,6 +89,25 @@ describe VagrantPlugins::DockerProvider::Config do
     end
   end
 
+  describe "#compose" do
+    before do
+      valid_defaults
+    end
+
+    it "should be valid when enabled" do
+      subject.compose = true
+      subject.finalize!
+      assert_valid
+    end
+
+    it "should be invalid when force_host_vm is enabled" do
+      subject.compose = true
+      subject.force_host_vm = true
+      subject.finalize!
+      assert_invalid
+    end
+  end
+
   describe "#create_args" do
     before do
       valid_defaults

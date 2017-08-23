@@ -78,6 +78,15 @@ module VagrantPlugins
         # Build up the batch job of what we'll do
         machines = []
         if names
+          # To prevent vagrant from attempting to validate a global vms config
+          # (which doesn't exist within the local dir) when attempting to
+          # install a machines provider, this check below will disable the
+          # install_providers function if a user gives us a machine id instead
+          # of the machines name.
+          machine_names = []
+          with_target_vms(names, provider: options[:provider]){|m| machine_names << m.name }
+          options[:install_provider] = false if !(machine_names - names).empty?
+
           # If we're installing providers, then do that. We don't
           # parallelize this step because it is likely the same provider
           # anyways.

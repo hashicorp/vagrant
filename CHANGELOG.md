@@ -1,7 +1,5 @@
 ## Next Version (Unreleased)
 
-FEATURES:
-
 IMPROVEMENTS:
 
   - bash: Add box prune to contrib bash completion [GH-8806]
@@ -19,12 +17,14 @@ BUG FIXES:
 
   - box/update: Add force flag for box upgrade command [GH-8871]
   - commands/rsync-auto: Ensure relative dirs are still rsync'd if defined [GH-8781]
+  - commands/up: Disable install providers when using global id on vagrant up [GH-8910]
   - communicators/winssh: Fix public key insertion to retain ACL [GH-8790]
   - core: Update util/ssh to use `-o` for identity files [GH-8786]
   - guests/freebsd: Fix regex for listing network devices on some FreeBSD boxes. [GH-8760]
   - hosts/windows: Prevent control characters in version check for WSL [GH-8902, GH-8901]
   - providers/docker: Split String type links into Array when using compose [GH-8837, GH-8821]
   - providers/docker: Expand relative volume paths correctly [GH-8838, GH-8822]
+  - providers/docker: Error when compose option enabled with force_host_vm [GH-8911]
   - provisioners/ansible: Update to use `-o` for identity files [GH-8786]
   - provisioners/file: Ensure remote folder exists prior to scp file or folder [GH-8880]
   - provisioners/salt: Fix error case when github is unreachable for installer [GH-8864]
