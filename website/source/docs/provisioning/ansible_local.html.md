@@ -14,10 +14,8 @@ description: |-
 The Vagrant Ansible Local provisioner allows you to provision the guest using [Ansible](http://ansible.com) playbooks by executing **`ansible-playbook` directly on the guest machine**.
 
 <div class="alert alert-warning">
-  <strong>Warning:</strong> If you are not familiar with Ansible and Vagrant already,
-  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
-  provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
-  is a great way to learn Ansible.
+  <strong>Warning:</strong>
+  If you are not familiar with Ansible and Vagrant already, I recommend starting with the <a href="/docs/provisioning/shell.html">shell provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant is a great way to learn Ansible.
 </div>
 
 ## Setup Requirements
@@ -67,7 +65,10 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
     - The `version` option is set to `"latest"`.
     - The current Ansible version does not correspond to the `version` option.
 
-    **Attention:** There is no guarantee that this automated installation will replace a custom Ansible setup, that might be already present on the Vagrant box.
+    <div class="alert alert-warning">
+      <strong>Attention:</strong>
+      There is no guarantee that this automated installation will replace a custom Ansible setup, that might be already present on the Vagrant box.
+    </div>
 
 - `install_mode` (`:default`, `:pip`, or `:pip_args_only`) - Select the way to automatically install Ansible on the guest system.
 
@@ -148,7 +149,10 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
     When this option is set to `"latest"`, no version check is applied.
 
-    **Warning:** It is currently possible to use this option to specify which version of Ansible must be automatically installed, but only in combination with the `install_mode` set to `:pip`.
+    <div class="alert alert-info">
+      <strong>Tip:</strong>
+      It is currently possible to use this option to specify which version of Ansible must be automatically installed, but <strong>only</strong> in combination with the `install_mode` set to <strong>`:pip`</strong>.
+    </div>
 
 ## Tips and Tricks
 
