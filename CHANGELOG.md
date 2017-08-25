@@ -4,8 +4,11 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- commands/ssh-config: Properly display windows path if invoked from msys2 or cygwin [GH-8915]
+
 BUG FIXES:
 
+- guests/shell_expand_guest_path : Properly expand guest paths that include relative path alias [GH-8918]
 
 ## 1.9.8 (August 23, 2017)
 
