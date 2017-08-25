@@ -33,10 +33,11 @@ describe "VagrantPlugins::GuestNetBSD::Cap::ShellExpandGuestPath" do
 
     it "returns a path with a space in it" do
       path = "/home/vagrant folder/folder"
+      path_with_spaces = "/home/vagrant\\ folder/folder"
       allow(machine.communicate).to receive(:execute).
-        with(any_args).and_yield(:stdout, "/home/vagrant folder/folder")
+        with(any_args).and_yield(:stdout, path_with_spaces)
 
-      expect(machine.communicate).to receive(:execute).with("printf \"#{path}\"")
+      expect(machine.communicate).to receive(:execute).with("printf #{path_with_spaces}")
       cap.shell_expand_guest_path(machine, path)
     end
   end
