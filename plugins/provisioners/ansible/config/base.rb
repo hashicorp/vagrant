@@ -46,7 +46,7 @@ module VagrantPlugins
         def initialize
           @become              = UNSET_VALUE
           @become_user         = UNSET_VALUE
-          @compatibility_mode  = UNSET_VALUE
+          @compatibility_mode  = Ansible::COMPATIBILITY_MODE_AUTO
           @config_file         = UNSET_VALUE
           @extra_vars          = UNSET_VALUE
           @galaxy_role_file    = UNSET_VALUE
@@ -94,6 +94,12 @@ module VagrantPlugins
         # other error accumulator.
         def validate(machine)
           @errors = _detected_errors
+
+          # Validate that a compatibility mode was provided
+          if !compatibility_mode
+            @errors << I18n.t("vagrant.provisioners.ansible.errors.no_compatibility_mode",
+              valid_modes: Ansible::COMPATIBILITY_MODES.map { |s| "'#{s}'" }.join(', '))
+          end
 
           # Validate that a playbook path was provided
           if !playbook

@@ -2374,6 +2374,8 @@ en:
             `%{config_option}` does not exist on the %{system}: %{path}
           extra_vars_invalid: |-
             `extra_vars` must be a hash or a path to an existing file. Received: %{value} (as %{type})
+          no_compatibility_mode: |-
+            `compatibility_mode` must be correctly set (possible values: %{valid_modes}).
           no_playbook: |-
             `playbook` file path must be set.
           raw_arguments_invalid: |-

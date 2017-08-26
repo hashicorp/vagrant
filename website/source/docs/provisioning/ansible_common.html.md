@@ -29,10 +29,11 @@ Some of these options are for advanced usage only and should not be used unless 
 
     Possible values:
 
-    - `"1.8"` (Ansible versions prior to 1.8 should mostly work well, but some options might not be supported)
-    - `"2.0"` (The generated Ansible inventory will be incompatible with Ansible 1.x)
+    - `"auto"` _(Vagrant will automatically select the optimal compatibilty mode by checking the Ansible version currently available)_
+    - `"1.8"` _(Ansible versions prior to 1.8 should mostly work well, but some options might not be supported)_
+    - `"2.0"` _(The generated Ansible inventory will be incompatible with Ansible 1.x)_
 
-    By default this option is not set, and Vagrant will try to automatically set the optimal compatibilty mode by checking the Ansible version currently available. Note that Vagrant doesn't validate this option, and any unsupported value (e.g. "2.3") will also lead Vagrant to auto-detect the compatibility mode.
+    By default this option is set to `"auto"`. If Vagrant is not able to detect any supported Ansible version, it will falls back on the compatibility mode `"1.8"` with a warning.
 
     <div class="alert alert-info">
       <strong>Compatibility Note:</strong>

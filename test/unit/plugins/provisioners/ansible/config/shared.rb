@@ -5,7 +5,7 @@ shared_examples_for 'options shared by both Ansible provisioners' do
 
     expect(subject.become).to be(false)
     expect(subject.become_user).to be_nil
-    expect(subject.compatibility_mode).to be_nil
+    expect(subject.compatibility_mode).to eql(VagrantPlugins::Ansible::COMPATIBILITY_MODE_AUTO)
     expect(subject.config_file).to be_nil
     expect(subject.extra_vars).to be_nil
     expect(subject.galaxy_command).to eql("ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force")
@@ -46,23 +46,37 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
 
   describe "compatibility_mode option" do
 
-    %w(1.8 2.0).each do |minimal_version|
-      it "supports compatibility mode '#{minimal_version}'" do
-        subject.compatibility_mode = minimal_version
+    VagrantPlugins::Ansible::COMPATIBILITY_MODES.each do |valid_mode|
+      it "supports compatibility mode '#{valid_mode}'" do
+        subject.compatibility_mode = valid_mode
         subject.finalize!
 
         result = subject.validate(machine)
-        expect(subject.compatibility_mode).to eql(minimal_version)
+        expect(subject.compatibility_mode).to eql(valid_mode)
       end
     end
 
+    it "returns an error if the compatibility mode is not set" do
+      subject.compatibility_mode = nil
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result[provisioner_label]).to eql([
+        I18n.t("vagrant.provisioners.ansible.errors.no_compatibility_mode",
+               valid_modes: "'auto', '1.8', '2.0'")
+      ])
+    end
+
     %w(invalid 1.9 2.3).each do |invalid_mode|
-      it "silently forces the compatibility mode detection for invalid mode '#{invalid_mode}'" do
+      it "returns an error if the compatibility mode is invalid (e.g. '#{invalid_mode}')" do
         subject.compatibility_mode = invalid_mode
         subject.finalize!
 
         result = subject.validate(machine)
-        expect(subject.compatibility_mode).to be_nil
+        expect(result[provisioner_label]).to eql([
+          I18n.t("vagrant.provisioners.ansible.errors.no_compatibility_mode",
+                 valid_modes: "'auto', '1.8', '2.0'")
+        ])
       end
     end
 
@@ -109,6 +123,7 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
   end
 
   it "it collects and returns all detected errors" do
+    subject.compatibility_mode = nil
     subject.playbook = nil
     subject.extra_vars = ["var1", 3, "var2", 5]
     subject.raw_arguments = { arg1: 1, arg2: "foo" }
@@ -116,7 +131,10 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
 
     result = subject.validate(machine)
 
-    expect(result[provisioner_label].size).to eql(3)
+    expect(result[provisioner_label].size).to eql(4)
+    expect(result[provisioner_label]).to include(
+      I18n.t("vagrant.provisioners.ansible.errors.no_compatibility_mode",
+             valid_modes: "'auto', '1.8', '2.0'"))
     expect(result[provisioner_label]).to include(
       I18n.t("vagrant.provisioners.ansible.errors.no_playbook"))
     expect(result[provisioner_label]).to include(

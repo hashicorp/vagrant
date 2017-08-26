@@ -48,11 +48,11 @@ module VagrantPlugins
         end
 
         def set_compatibility_mode
-          unless config.compatibility_mode
+          if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
             detect_compatibility_mode(gather_ansible_version)
           end
 
-          unless Ansible::COMPATIBILITY_MODES.include?(config.compatibility_mode)
+          unless Ansible::COMPATIBILITY_MODES.slice(1..-1).include?(config.compatibility_mode)
             raise "Programming Error: compatibility_mode must correctly set at this stage!"
           end
 
@@ -60,7 +60,7 @@ module VagrantPlugins
         end
 
         def detect_compatibility_mode(ansible_version_stdoutput)
-          if config.compatibility_mode
+          if config.compatibility_mode != Ansible::COMPATIBILITY_MODE_AUTO
             raise "Programming Error: detect_compatibility_mode() shouldn't have been called."
           end
 
@@ -86,8 +86,8 @@ module VagrantPlugins
             # Nothing to do here, the fallback to default compatibility_mode is done below
           end
 
-          unless config.compatibility_mode
-            config.compatibility_mode = Ansible::DEFAULT_COMPATIBILITY_MODE
+          if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
+            config.compatibility_mode = Ansible::SAFE_COMPATIBILITY_MODE
 
             @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_not_detected",
               compatibility_mode: config.compatibility_mode,

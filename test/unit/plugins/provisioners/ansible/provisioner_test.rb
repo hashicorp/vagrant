@@ -305,9 +305,9 @@ VF
                                         "ask_become_pass" => "--ask-sudo-pass"})
     end
 
-    context "with no compatibility_mode defined" do
+    context "with compatibility_mode 'auto'" do
       before do
-        config.compatibility_mode = nil
+        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_AUTO
       end
 
       valid_versions = {
@@ -348,16 +348,16 @@ VF
             allow(subject).to receive(:gather_ansible_version).and_return(unknown_ansible_version)
           end
 
-          it "applies the default compatibility mode ('#{VagrantPlugins::Ansible::DEFAULT_COMPATIBILITY_MODE}')" do
+          it "applies the safest compatibility mode ('#{VagrantPlugins::Ansible::SAFE_COMPATIBILITY_MODE}')" do
             expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
-              expect(config.compatibility_mode).to eq(VagrantPlugins::Ansible::DEFAULT_COMPATIBILITY_MODE)
+              expect(config.compatibility_mode).to eq(VagrantPlugins::Ansible::SAFE_COMPATIBILITY_MODE)
             }.and_return(default_execute_result)
           end
 
           it "warns about not being able to detect the best compatibility mode" do
             expect(machine.env.ui).to receive(:warn).with(
               I18n.t("vagrant.provisioners.ansible.compatibility_mode_not_detected",
-                compatibility_mode: VagrantPlugins::Ansible::DEFAULT_COMPATIBILITY_MODE,
+                compatibility_mode: VagrantPlugins::Ansible::SAFE_COMPATIBILITY_MODE,
                 gathered_version: unknown_ansible_version) +
               "\n")
           end
