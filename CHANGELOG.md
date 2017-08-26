@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - commands/ssh-config: Properly display windows path if invoked from msys2 or cygwin [GH-8915]
+- providers/salt: Remove duplicate stdout, stderr output from salt [GH-8767]
 
 BUG FIXES:
 
