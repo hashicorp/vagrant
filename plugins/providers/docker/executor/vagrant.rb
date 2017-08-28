@@ -65,6 +65,10 @@ module VagrantPlugins
           stdout.chomp
         end
 
+        def windows?
+          false
+        end
+
         protected
 
         def ssh_run(cmd)
