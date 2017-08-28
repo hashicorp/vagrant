@@ -67,7 +67,7 @@ describe Vagrant::Util::SSH do
 
       expect(described_class.exec(ssh_info)).to eq(nil)
       expect(Vagrant::Util::SafeExec).to have_received(:exec)
-        .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}")
+        .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"#{ssh_info[:private_key_path][0]}\"")
     end
 
     context "when disabling compression or dsa_authentication flags" do
@@ -85,7 +85,7 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}")
+          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"#{ssh_info[:private_key_path][0]}\"")
       end
     end
 
@@ -103,7 +103,7 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}")
+          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "IdentityFile=\"#{ssh_info[:private_key_path][0]}\"")
       end
     end
 
@@ -140,7 +140,7 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}","-o", "ForwardX11=yes", "-o", "ForwardX11Trusted=yes")
+          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"#{ssh_info[:private_key_path][0]}\"","-o", "ForwardX11=yes", "-o", "ForwardX11Trusted=yes")
       end
     end
 
@@ -158,7 +158,7 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}","-o", "ForwardAgent=yes")
+          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"#{ssh_info[:private_key_path][0]}\"","-o", "ForwardAgent=yes")
       end
     end
 
@@ -176,7 +176,7 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}", "-L", "8008:localhost:80")
+          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"#{ssh_info[:private_key_path][0]}\"", "-L", "8008:localhost:80")
       end
     end
 
@@ -194,7 +194,7 @@ describe Vagrant::Util::SSH do
 
         expect(described_class.exec(ssh_info)).to eq(nil)
         expect(Vagrant::Util::SafeExec).to have_received(:exec)
-          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=#{ssh_info[:private_key_path][0]}", "-6")
+          .with("ssh", "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"#{ssh_info[:private_key_path][0]}\"", "-6")
       end
     end
 
