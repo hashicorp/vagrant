@@ -319,7 +319,7 @@ VF
       valid_versions.each_pair do |ansible_version, mode|
         describe "and ansible version #{ansible_version}" do
           before do
-            allow(subject).to receive(:gather_ansible_version).and_return("ansible #{ansible_version}")
+            allow(subject).to receive(:gather_ansible_version).and_return("ansible #{ansible_version}\n...\n")
           end
 
           it "detects the compatibility mode #{mode}" do
@@ -339,7 +339,7 @@ VF
 
       invalid_versions = [
         "ansible devel",
-        "ansible 2.x.y.z",
+        "ansible 2.x.y.z\n...\n",
         "2.9.2.1",
       ]
       invalid_versions.each do |unknown_ansible_version|
