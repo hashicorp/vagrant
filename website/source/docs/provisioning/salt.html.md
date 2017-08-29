@@ -94,6 +94,8 @@ public key
 
 * `masterless`  (boolean) - Calls state.highstate in local mode. Uses `minion_id` and `pillar_data` when provided.
 
+* `salt_call_args` (array) - An array of additional command line flag arguments to be passed to the `salt-call` command when provisioning with masterless.
+
 ## Master Options
 These only make sense when `install_master` is `true`. Not supported on Windows guest machines.
 
