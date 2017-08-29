@@ -12,7 +12,7 @@ $startupType = "Manual"
 
 # Version to install - default to latest if there is an issue
 If ($version -notmatch "2\d{3}\.\d{1,2}\.\d+(\-\d{1})?"){
-  $version = '2016.11.3'
+  $version = '2017.7.1'
 }
 
 If ($pythonVersion -notmatch "\d+") {
@@ -55,21 +55,17 @@ If ([IntPtr]::Size -eq 4) {
 }
 
 # Download minion setup file
-$possibleFilenames = @("Salt-Minion-$version-$arch-Setup.exe", "Salt-Minion-$version-Py$pythonVersion-$arch-Setup.exe")
-foreach ($minionFilename in $possibleFilenames) {
-  try {
-    Write-Host "Downloading Salt minion installer $minionFilename"
-    $webclient = New-Object System.Net.WebClient
-    $url = "https://repo.saltstack.com/windows/$minionFilename"
-    $file = "C:\tmp\salt.exe"
-    $webclient.DownloadFile($url, $file)
-    break
-  }
-  catch {
-    Write-Host "Unable to download $minionFilename"
-  }
+$minionFilename = "Salt-Minion-$version-$arch-Setup.exe"
+$versionYear = [regex]::Match($version, "\d+").Value
+If ([convert]::ToInt32($versionYear) -ge 2017)
+{
+  $minionFilename = "Salt-Minion-$version-Py$pythonVersion-$arch-Setup.exe"
 }
-
+Write-Host "Downloading Salt minion installer $minionFilename"
+$webclient = New-Object System.Net.WebClient
+$url = "https://repo.saltstack.com/windows/$minionFilename"
+$file = "C:\tmp\salt.exe"
+$webclient.DownloadFile($url, $file)
 
 # Install minion silently
 Write-Host "Installing Salt minion..."
