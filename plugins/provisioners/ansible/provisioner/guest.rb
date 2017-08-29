@@ -65,7 +65,7 @@ module VagrantPlugins
           if (!config.version.empty? &&
               config.version.to_s.to_sym != :latest &&
               !@machine.guest.capability(:ansible_installed, config.version))
-            raise Ansible::Errors::AnsibleVersionNotFoundOnGuest, required_version: config.version.to_s
+            raise Ansible::Errors::AnsibleVersionMismatch, system: "guest", required_version: config.version.to_s
           end
         end
 

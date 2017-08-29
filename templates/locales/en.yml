@@ -2364,11 +2364,11 @@ en:
             to contribute back support. Thank you!
 
             https://github.com/mitchellh/vagrant
-          ansible_version_not_found_on_guest: |-
-            The requested Ansible version (%{required_version}) was not found on the guest.
-            Please check the ansible installation on your guest system,
+          ansible_version_mismatch: |-
+            The requested Ansible version (%{required_version}) was not found on the %{system}.
+            Please check the Ansible installation on your Vagrant %{system} system,
             or adapt the `version` option of this provisioner in your Vagrantfile.
-            See https://docs.vagrantup.com/v2/provisioning/ansible_local.html
+            See https://docs.vagrantup.com/v2/provisioning/ansible_common.html#version
             for more information.
           config_file_not_found: |-
             `%{config_option}` does not exist on the %{system}: %{path}

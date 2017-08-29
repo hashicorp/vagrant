@@ -28,6 +28,7 @@ module VagrantPlugins
         attr_accessor :tags
         attr_accessor :vault_password_file
         attr_accessor :verbose
+        attr_accessor :version
 
         #
         # Deprecated options
@@ -64,6 +65,7 @@ module VagrantPlugins
           @tags                = UNSET_VALUE
           @vault_password_file = UNSET_VALUE
           @verbose             = UNSET_VALUE
+          @version             = UNSET_VALUE
         end
 
         def finalize!
@@ -87,6 +89,7 @@ module VagrantPlugins
           @tags                = nil                      if @tags                == UNSET_VALUE
           @vault_password_file = nil                      if @vault_password_file == UNSET_VALUE
           @verbose             = false                    if @verbose             == UNSET_VALUE
+          @version             = ""                       if @version             == UNSET_VALUE
         end
 
         # Just like the normal configuration "validate" method except that

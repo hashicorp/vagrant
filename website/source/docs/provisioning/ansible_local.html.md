@@ -62,8 +62,8 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
     Vagrant will try to install (or upgrade) Ansible when one of these conditions are met:
 
     - Ansible is not installed (or cannot be found).
-    - The `version` option is set to `"latest"`.
-    - The current Ansible version does not correspond to the `version` option.
+    - The [`version`](/docs/provisioning/ansible_common.html#version) option is set to `"latest"`.
+    - The current Ansible version does not correspond to the [`version`](/docs/provisioning/ansible_common.html#version) option.
 
     <div class="alert alert-warning">
       <strong>Attention:</strong>
@@ -76,7 +76,7 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
       - On Ubuntu-like systems, the latest Ansible release is installed from the `ppa:ansible/ansible` repository.
       - On RedHat-like systems, the latest Ansible release is installed from the [EPEL](http://fedoraproject.org/wiki/EPEL) repository.
 
-  - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). With the `:pip` mode you can optionally install a specific Ansible release by setting the [`version`](#version) option.
+  - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). With the `:pip` mode you can optionally install a specific Ansible release by setting the [`version`](/docs/provisioning/ansible_common.html#version) option.
 
         Example:
 
@@ -140,19 +140,6 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 - `tmp_path` (string) - An absolute path on the guest machine where temporary files are stored by the Ansible Local provisioner.
 
     The default value is `/tmp/vagrant-ansible`
-
-- `version` (string) - The expected Ansible version.
-
-    This option is disabled by default.
-
-    When an Ansible version is defined (e.g. `"1.8.2"`), the Ansible local provisioner will be executed only if Ansible is installed at the requested version.
-
-    When this option is set to `"latest"`, no version check is applied.
-
-    <div class="alert alert-info">
-      <strong>Tip:</strong>
-      It is currently possible to use this option to specify which version of Ansible must be automatically installed, but <strong>only</strong> in combination with the `install_mode` set to <strong>`:pip`</strong>.
-    </div>
 
 ## Tips and Tricks
 

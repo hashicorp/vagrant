@@ -13,7 +13,8 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
   let(:existing_file) { File.expand_path(__FILE__) }
 
   it "supports a list of options" do
-    supported_options = %w( ask_become_pass
+    supported_options = %w(
+                            ask_become_pass
                             ask_sudo_pass
                             ask_vault_pass
                             become
@@ -40,7 +41,9 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
                             sudo_user
                             tags
                             vault_password_file
-                            verbose )
+                            verbose
+                            version
+                          )
 
     expect(get_provisioner_option_names(described_class)).to eql(supported_options)
   end

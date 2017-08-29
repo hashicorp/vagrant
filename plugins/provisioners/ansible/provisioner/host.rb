@@ -19,6 +19,7 @@ module VagrantPlugins
           @ssh_info = @machine.ssh_info
 
           warn_for_unsupported_platform
+          check_required_ansible_version unless config.version.empty?
           check_files_existence
           set_compatibility_mode
 
@@ -33,6 +34,19 @@ module VagrantPlugins
         def warn_for_unsupported_platform
           if Vagrant::Util::Platform.windows?
             @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine") + "\n")
+          end
+        end
+
+        def check_required_ansible_version
+          if config.version.to_s.to_sym == :latest
+            @logger.debug("The :latest version requirement is not supported (yet) by the host-based provisioner")
+            return
+          end
+
+          @logger.info("Checking for Ansible version on Vagrant host...")
+          found_version = gather_ansible_version
+          if (!found_version || "ansible #{config.version}\n" != found_version.lines[0])
+            raise Ansible::Errors::AnsibleVersionMismatch, system: "host", required_version: config.version.to_s
           end
         end
 

@@ -42,7 +42,7 @@ Some of these options are for advanced usage only and should not be used unless 
 
     <div class="alert alert-warning">
       <strong>Attention:</strong>
-      Vagrant doesn't perform any validation between the `compatibility_mode` value and the value of the ansible_local [`version`](/docs/provisioning/ansible_local.html#version) option.
+      Vagrant doesn't perform any validation between the `compatibility_mode` value and the value of the [`version`](#version) option.
     </div>
 
 - `config_file` (string) - The path to an [Ansible Configuration file](https://docs.ansible.com/intro_configuration.html).
@@ -185,3 +185,16 @@ Some of these options are for advanced usage only and should not be used unless 
     Examples: `true` (equivalent to `v`), `-vvv` (equivalent to `vvv`), `vvvv`.
 
     Note that when the `verbose` option is enabled, the `ansible-playbook` command used by Vagrant will be displayed.
+
+- `version` (string) - The expected Ansible version.
+
+    This option is disabled by default.
+
+    When an Ansible version is defined (e.g. `"2.1.6.0"`), the Ansible provisioner will be executed only if Ansible is installed at the requested version.
+
+    When this option is set to `"latest"`, no version check is applied.
+
+    <div class="alert alert-info">
+      <strong>Tip:</strong>
+      With the `ansible_local` provisioner, it is currently possible to use this option to specify which version of Ansible must be automatically installed, but <strong>only</strong> in combination with the [**`install_mode`**](ansible_local.html#install_mode)  set to <strong>`:pip`</strong>.
+    </div>

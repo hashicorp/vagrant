@@ -947,6 +947,46 @@ VF
       end
     end
 
+
+    context "with version option set" do
+      before do
+        config.version = "2.3.4.5"
+      end
+
+      describe "and the installed ansible version is correct" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible #{config.version}\n...\n")
+        end
+
+        it "executes ansible-playbook command" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
+        end
+      end
+
+      describe "and there is an ansible version mismatch" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible 1.9.6\n...\n")
+        end
+
+        it "raises an error about the ansible version mismatch", skip_before: true, skip_after: true do
+          config.finalize!
+          expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleVersionMismatch)
+        end
+      end
+
+      describe "and the installed ansible version cannot be detected" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return(nil)
+        end
+
+        it "raises an error about the ansible version mismatch", skip_before: true, skip_after: true do
+          config.finalize!
+          expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleVersionMismatch)
+        end
+      end
+    end
+
+    # TODO: add more tests, now that we know how to deal with multiple Subprocess stub executions
     describe "with galaxy support" do
 
       before do

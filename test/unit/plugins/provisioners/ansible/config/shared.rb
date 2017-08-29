@@ -25,6 +25,7 @@ shared_examples_for 'options shared by both Ansible provisioners' do
     expect(subject.tags).to be_nil
     expect(subject.vault_password_file).to be_nil
     expect(subject.verbose).to be(false)
+    expect(subject.version).to be_empty
   end
 
 end
