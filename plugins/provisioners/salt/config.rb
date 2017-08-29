@@ -34,6 +34,7 @@ module VagrantPlugins
       attr_accessor :no_minion
       attr_accessor :bootstrap_options
       attr_accessor :version
+      attr_accessor :python_version
       attr_accessor :run_service
       attr_accessor :master_id
 
@@ -64,6 +65,7 @@ module VagrantPlugins
         @masterless = UNSET_VALUE
         @minion_id = UNSET_VALUE
         @version = UNSET_VALUE
+        @python_version = UNSET_VALUE
         @run_service = UNSET_VALUE
         @master_id = UNSET_VALUE
       end
@@ -89,6 +91,7 @@ module VagrantPlugins
         @masterless         = false if @masterless == UNSET_VALUE
         @minion_id          = nil if @minion_id == UNSET_VALUE
         @version            = nil if @version == UNSET_VALUE
+        @python_version     = nil if @python_version == UNSET_VALUE
         @run_service        = nil if @run_service == UNSET_VALUE
         @master_id          = nil if @master_id == UNSET_VALUE
 

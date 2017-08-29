@@ -121,7 +121,7 @@ module VagrantPlugins
           options = "%s -F -c %s" % [options, config_dir]
         end
 
-        if @config.seed_master && @config.install_master
+        if @config.seed_master && @config.install_master && @machine.config.vm.communicator != :winrm
           seed_dir = "/tmp/minion-seed-keys"
           @machine.communicate.sudo("mkdir -p -m777 #{seed_dir}")
           @config.seed_master.each do |name, keyfile|
@@ -132,27 +132,27 @@ module VagrantPlugins
           options = "#{options} -k #{seed_dir}"
         end
 
-        if configure && !install
+        if configure && !install && @machine.config.vm.communicator != :winrm
           options = "%s -C" % options
         end
 
-        if @config.install_master
+        if @config.install_master && @machine.config.vm.communicator != :winrm
           options = "%s -M" % options
         end
 
-        if @config.install_syndic
+        if @config.install_syndic && @machine.config.vm.communicator != :winrm
           options = "%s -S" % options
         end
 
-        if @config.no_minion
+        if @config.no_minion && @machine.config.vm.communicator != :winrm
           options = "%s -N" % options
         end
 
-        if @config.install_type
+        if @config.install_type && @machine.config.vm.communicator != :winrm
           options = "%s %s" % [options, @config.install_type]
         end
 
-        if @config.install_args
+        if @config.install_args && @machine.config.vm.communicator != :winrm
           options = "%s %s" % [options, @config.install_args]
         end
 
@@ -266,6 +266,9 @@ module VagrantPlugins
           if @machine.config.vm.communicator == :winrm
             if @config.version
               options += " -version %s" % @config.version
+            end
+            if @config.python_version
+              options += " -pythonVersion %s" % @config.python_version
             end
             if @config.run_service
               @machine.env.ui.info "Salt minion will be stopped after installing."

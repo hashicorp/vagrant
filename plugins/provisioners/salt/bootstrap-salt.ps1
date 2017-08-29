@@ -1,5 +1,6 @@
 Param(
   [string]$version,
+  [string]$pythonVersion = "2",
   [string]$runservice,
   [string]$minion,
   [string]$master
@@ -12,6 +13,11 @@ $startupType = "Manual"
 # Version to install - default to latest if there is an issue
 If ($version -notmatch "2\d{3}\.\d{1,2}\.\d+(\-\d{1})?"){
   $version = '2016.11.3'
+}
+
+If ($pythonVersion -notmatch "\d+") {
+  $pythonVersion = "2"
+  Write-Host "Defaulting to minion Python version $pythonVersion"
 }
 
 If ($runservice.ToLower() -eq "true"){
@@ -49,11 +55,20 @@ If ([IntPtr]::Size -eq 4) {
 }
 
 # Download minion setup file
-Write-Host "Downloading Salt minion installer Salt-Minion-$version-$arch-Setup.exe"
-$webclient = New-Object System.Net.WebClient
-$url = "https://repo.saltstack.com/windows/Salt-Minion-$version-$arch-Setup.exe"
-$file = "C:\tmp\salt.exe"
-$webclient.DownloadFile($url, $file)
+$possibleFilenames = @("Salt-Minion-$version-$arch-Setup.exe", "Salt-Minion-$version-Py$pythonVersion-$arch-Setup.exe")
+foreach ($minionFilename in $possibleFilenames) {
+  try {
+    Write-Host "Downloading Salt minion installer $minionFilename"
+    $webclient = New-Object System.Net.WebClient
+    $url = "https://repo.saltstack.com/windows/$minionFilename"
+    $file = "C:\tmp\salt.exe"
+    $webclient.DownloadFile($url, $file)
+    break
+  }
+  catch {
+    Write-Host "Unable to download $minionFilename"
+  }
+}
 
 
 # Install minion silently
