@@ -10,6 +10,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - guests/shell_expand_guest_path : Properly expand guest paths that include relative path alias [GH-8918]
+- util/ssh: Properly quote key path for IdentityFile option to allow for spaces [GH-8924]
 
 ## 1.9.8 (August 23, 2017)
 
