@@ -139,7 +139,8 @@ module Vagrant
             # Use '-o' instead of '-i' because '-i' does not call
             # percent_expand in misc.c, but '-o' does. when passing the path,
             # replace '%' in the path with '%%' to escape the '%'
-            command_options += ["-o", "IdentityFile=%s" % [path.to_s.gsub('%', '%%')]]
+            path = path.to_s.gsub('%', '%%')
+            command_options += ["-o", "IdentityFile=\"#{path}\""]
           end
         end
 
