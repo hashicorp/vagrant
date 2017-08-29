@@ -67,6 +67,7 @@ $url = "https://repo.saltstack.com/windows/$minionFilename"
 $file = "C:\tmp\salt.exe"
 $webclient.DownloadFile($url, $file)
 
+
 # Install minion silently
 Write-Host "Installing Salt minion..."
 #Wait for process to exit before continuing...
