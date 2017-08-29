@@ -32,4 +32,89 @@ describe VagrantPlugins::Salt::Provisioner do
   describe "#provision" do
 
   end
+
+  describe "#call_highstate" do
+    context "master" do
+      it "passes along extra cli flags" do
+        allow(config).to receive(:run_highstate).and_return(true)
+        allow(config).to receive(:verbose).and_return(true)
+        allow(config).to receive(:masterless?).and_return(false)
+        allow(config).to receive(:masterless).and_return(false)
+        allow(config).to receive(:minion_id).and_return(nil)
+        allow(config).to receive(:log_level).and_return(nil)
+        allow(config).to receive(:colorize).and_return(false)
+        allow(config).to receive(:pillar_data).and_return([])
+        allow(config).to receive(:install_master).and_return(true)
+
+        allow(config).to receive(:salt_args).and_return(["--async"])
+        allow(machine.communicate).to receive(:sudo)
+        allow(machine.config.vm).to receive(:communicator).and_return(:notwinrm)
+
+        expect(machine.communicate).to receive(:sudo).with("salt '*' state.highstate --verbose --log-level=debug --no-color --async", {:error_key=>:ssh_bad_exit_status_muted})
+        subject.call_highstate()
+      end
+
+      it "has no additional cli flags if not included" do
+        allow(config).to receive(:run_highstate).and_return(true)
+        allow(config).to receive(:verbose).and_return(true)
+        allow(config).to receive(:masterless?).and_return(false)
+        allow(config).to receive(:masterless).and_return(false)
+        allow(config).to receive(:minion_id).and_return(nil)
+        allow(config).to receive(:log_level).and_return(nil)
+        allow(config).to receive(:colorize).and_return(false)
+        allow(config).to receive(:pillar_data).and_return([])
+        allow(config).to receive(:install_master).and_return(true)
+
+        allow(config).to receive(:salt_args).and_return(nil)
+        allow(machine.communicate).to receive(:sudo)
+        allow(machine.config.vm).to receive(:communicator).and_return(:notwinrm)
+
+        expect(machine.communicate).to receive(:sudo).with("salt '*' state.highstate --verbose --log-level=debug --no-color ", {:error_key=>:ssh_bad_exit_status_muted})
+        subject.call_highstate()
+      end
+    end
+
+    context "with masterless" do
+      it "passes along extra cli flags" do
+        allow(config).to receive(:run_highstate).and_return(true)
+        allow(config).to receive(:verbose).and_return(true)
+        allow(config).to receive(:masterless?).and_return(true)
+        allow(config).to receive(:masterless).and_return(true)
+        allow(config).to receive(:minion_id).and_return(nil)
+        allow(config).to receive(:log_level).and_return(nil)
+        allow(config).to receive(:colorize).and_return(false)
+        allow(config).to receive(:pillar_data).and_return([])
+
+        allow(config).to receive(:salt_args).and_return(["--async"])
+        allow(config).to receive(:salt_call_args).and_return(["--output-dif"])
+        allow(machine.communicate).to receive(:sudo)
+        allow(machine.config.vm).to receive(:communicator).and_return(:notwinrm)
+        allow(config).to receive(:install_master).and_return(false)
+
+        expect(machine.communicate).to receive(:sudo).with("salt-call state.highstate --retcode-passthrough --local --log-level=debug --no-color --output-dif", {:error_key=>:ssh_bad_exit_status_muted})
+        subject.call_highstate()
+      end
+
+      it "has no additional cli flags if not included" do
+        allow(config).to receive(:run_highstate).and_return(true)
+        allow(config).to receive(:verbose).and_return(true)
+        allow(config).to receive(:masterless?).and_return(true)
+        allow(config).to receive(:masterless).and_return(true)
+        allow(config).to receive(:minion_id).and_return(nil)
+        allow(config).to receive(:log_level).and_return(nil)
+        allow(config).to receive(:colorize).and_return(false)
+        allow(config).to receive(:pillar_data).and_return([])
+
+        allow(config).to receive(:salt_call_args).and_return(nil)
+        allow(config).to receive(:salt_args).and_return(nil)
+        allow(machine.communicate).to receive(:sudo)
+        allow(machine.config.vm).to receive(:communicator).and_return(:notwinrm)
+        allow(config).to receive(:install_master).and_return(false)
+
+        expect(machine.communicate).to receive(:sudo).with("salt-call state.highstate --retcode-passthrough --local --log-level=debug --no-color ", {:error_key=>:ssh_bad_exit_status_muted})
+        subject.call_highstate()
+      end
+    end
+  end
+
 end

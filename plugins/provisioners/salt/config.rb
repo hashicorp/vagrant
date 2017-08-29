@@ -24,6 +24,8 @@ module VagrantPlugins
       attr_accessor :log_level
       attr_accessor :masterless
       attr_accessor :minion_id
+      attr_accessor :salt_call_args
+      attr_accessor :salt_args
 
       ## bootstrap options
       attr_accessor :temp_config_dir
@@ -66,6 +68,8 @@ module VagrantPlugins
         @version = UNSET_VALUE
         @run_service = UNSET_VALUE
         @master_id = UNSET_VALUE
+        @salt_call_args = UNSET_VALUE
+        @salt_args = UNSET_VALUE
       end
 
       def finalize!
@@ -91,6 +95,8 @@ module VagrantPlugins
         @version            = nil if @version == UNSET_VALUE
         @run_service        = nil if @run_service == UNSET_VALUE
         @master_id          = nil if @master_id == UNSET_VALUE
+        @salt_call_args     = nil if @salt_call_args == UNSET_VALUE
+        @salt_args          = nil if @salt_args == UNSET_VALUE
 
         # NOTE: Optimistic defaults are set in the provisioner. UNSET_VALUEs
         # are converted there to allow proper detection of unset values.
@@ -144,6 +150,14 @@ module VagrantPlugins
 
         if @install_master && !@no_minion && !@seed_master && @run_highstate
           errors << I18n.t("vagrant.provisioners.salt.must_accept_keys")
+        end
+
+        if @salt_call_args && !@salt_call_args.is_a?(Array)
+          errors << I18n.t("vagrant.provisioners.salt.args_array")
+        end
+
+        if @salt_args && !@salt_args.is_a?(Array)
+          errors << I18n.t("vagrant.provisioners.salt.args_array")
         end
 
         return {"salt provisioner" => errors}
