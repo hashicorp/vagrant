@@ -109,6 +109,8 @@ These only make sense when `install_master` is `true`. Not supported on Windows 
 * `seed_master`  (dictionary) - Upload keys to master, thereby
 pre-seeding it before use. Example: `{minion_name:/path/to/key.pub}`
 
+* `salt_args` (array) - An array of additional command line flag arguments to be passed to the `salt` command when provisioning with masterless.
+
 ## Execute States
 
 Either of the following may be used to actually execute states

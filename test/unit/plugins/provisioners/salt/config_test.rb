@@ -78,5 +78,41 @@ describe VagrantPlugins::Salt::Config do
         expect(result[error_key]).to be_empty
       end
     end
+
+    context "salt_call_args" do
+      it "fails if salt_call_args is not an array" do
+        subject.salt_call_args = "--flags"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to_not be_empty
+      end
+
+      it "is valid if is set and not missing" do
+        subject.salt_call_args = ["--flags"]
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+    end
+
+    context "salt_args" do
+      it "fails if not an array" do
+        subject.salt_args = "--flags"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to_not be_empty
+      end
+
+      it "is valid if is set and not missing" do
+        subject.salt_args = ["--flags"]
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+    end
   end
 end
