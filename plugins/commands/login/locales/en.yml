@@ -2,7 +2,7 @@ en:
   login_command:
     errors:
       server_error: |-
-        The Vagrant Cloud server responded with an not-OK response:
+        The Vagrant Cloud server responded with a not-OK response:
 
         %{errors}
       server_unreachable: |-
