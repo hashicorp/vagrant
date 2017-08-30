@@ -2,12 +2,15 @@ en:
   login_command:
     errors:
       server_error: |-
-        The Vagrant Cloud server responded with an not-OK response:
+        The Vagrant Cloud server responded with a not-OK response:
 
         %{errors}
       server_unreachable: |-
         The Vagrant Cloud server is not currently accepting connections. Please check
         your network connection and try again later.
+
+      unauthorized: |-
+        Invalid username or password. Please try again.
 
     check_logged_in: |-
       You are already logged in.
