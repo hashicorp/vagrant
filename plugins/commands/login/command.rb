@@ -17,12 +17,20 @@ module VagrantPlugins
             options[:check] = c
           end
 
+          o.on("-d", "--description DESCRIPTION", String, "Description for the Vagrant Cloud token") do |t|
+            options[:description] = t
+          end
+
           o.on("-k", "--logout", "Logs you out if you're logged in") do |k|
             options[:logout] = k
           end
 
           o.on("-t", "--token TOKEN", String, "Set the Vagrant Cloud token") do |t|
             options[:token] = t
+          end
+
+          o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |t|
+            options[:login] = t
           end
         end
 
@@ -31,6 +39,7 @@ module VagrantPlugins
         return if !argv
 
         @client = Client.new(@env)
+        @client.username_or_email = options[:login]
 
         # Determine what task we're actually taking based on flags
         if options[:check]
@@ -50,25 +59,30 @@ module VagrantPlugins
         end
 
         # Ask for the username
-        login       = nil
-        password    = nil
-        description = nil
-        while !login
-          login = @env.ui.ask("Vagrant Cloud Username: ")
+        if @client.username_or_email
+          @env.ui.output("Vagrant Cloud username or email: #{@client.username_or_email}")
+        end
+        until @client.username_or_email
+          @client.username_or_email = @env.ui.ask("Vagrant Cloud username or email: ")
         end
 
-        while !password
-          password = @env.ui.ask("Password (will be hidden): ", echo: false)
+        until @client.password
+          @client.password = @env.ui.ask("Password (will be hidden): ", echo: false)
         end
 
-        description_default = "Vagrant login from #{Socket.gethostname}"
-        while !description
-          description =
-            @env.ui.ask("Token description (Defaults to #{description_default.inspect}): ")
+        description = options[:description]
+        if description
+          @env.ui.output("Token description: #{description}")
+        else
+          description_default = "Vagrant login from #{Socket.gethostname}"
+          until description
+            description =
+              @env.ui.ask("Token description (Defaults to #{description_default.inspect}): ")
+          end
+          description = description_default if description.empty?
         end
-        description = description_default if description.empty?
 
-        token = @client.login(login, password, description: description)
+        token = @client.login(description: description)
         if !token
           @env.ui.error(I18n.t("login_command.invalid_login"))
           return 1

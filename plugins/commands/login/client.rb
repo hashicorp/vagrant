@@ -7,6 +7,9 @@ module VagrantPlugins
     class Client
       include Vagrant::Util::Presence
 
+      attr_accessor :username_or_email
+      attr_accessor :password
+
       # Initializes a login client with the given Vagrant::Environment.
       #
       # @param [Vagrant::Environment] env
@@ -40,11 +43,9 @@ module VagrantPlugins
       # Login logs a user in and returns the token for that user. The token
       # is _not_ stored unless {#store_token} is called.
       #
-      # @param [String] username_or_email
-      # @param [String] password
       # @param [String] description
       # @return [String] token The access token, or nil if auth failed.
-      def login(username_or_email, password, description: nil)
+      def login(description: nil)
         @logger.info("Logging in '#{username_or_email}'")
 
         with_error_handling do
