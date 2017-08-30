@@ -133,4 +133,27 @@ describe Vagrant::Util::Platform do
       end
     end
   end
+
+  describe ".systemd?" do
+    before{ allow(subject).to receive(:windows?).and_return(false) }
+    after{ subject.reset! }
+
+    context "on windows" do
+      before{ expect(subject).to receive(:windows?).and_return(true) }
+
+      it "should return false" do
+        expect(subject.systemd?).to be_falsey
+      end
+    end
+
+    it "should return true if systemd is in use" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(double(:result, stdout: "systemd"))
+      expect(subject.systemd?).to be_truthy
+    end
+
+    it "should return false if systemd is not in use" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(double(:result, stdout: "other"))
+      expect(subject.systemd?).to be_falsey
+    end
+  end
 end

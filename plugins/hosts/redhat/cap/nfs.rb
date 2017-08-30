@@ -5,11 +5,19 @@ module VagrantPlugins
     module Cap
       class NFS
         def self.nfs_check_command(env)
-          "#{nfs_server_binary} status"
+          if Vagrant::Util::Platform.systemd?
+            "systemctl status --no-pager nfs-server.service"
+          else
+            "#{nfs_server_binary} status"
+          end
         end
 
         def self.nfs_start_command(env)
-          "#{nfs_server_binary} start"
+          if Vagrant::Util::Platform.systemd?
+            "systemctl start nfs-server.service"
+          else
+            "#{nfs_server_binary} start"
+          end
         end
 
         protected

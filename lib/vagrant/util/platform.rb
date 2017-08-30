@@ -448,6 +448,19 @@ module Vagrant
           end
         end
 
+        # systemd is in use
+        def systemd?
+          if !defined?(@_systemd)
+            if !windows?
+              result = Vagrant::Util::Subprocess.execute("ps", "-o", "comm=", "1")
+              @_systemd = result.stdout.chomp == "systemd"
+            else
+              @_systemd = false
+            end
+          end
+          @_systemd
+        end
+
         # @private
         # Reset the cached values for platform. This is not considered a public
         # API and should only be used for testing.
