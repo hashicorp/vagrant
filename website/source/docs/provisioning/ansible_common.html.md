@@ -196,5 +196,5 @@ Some of these options are for advanced usage only and should not be used unless 
 
     <div class="alert alert-info">
       <strong>Tip:</strong>
-      With the `ansible_local` provisioner, it is currently possible to use this option to specify which version of Ansible must be automatically installed, but <strong>only</strong> in combination with the [**`install_mode`**](ansible_local.html#install_mode)  set to <strong>`:pip`</strong>.
+      With the `ansible_local` provisioner, it is currently possible to use this option to specify which version of Ansible must be automatically installed, but <strong>only</strong> in combination with the [**`install_mode`**](/docs/provisioning/ansible_local.html#install_mode)  set to <strong>`:pip`</strong>.
     </div>
