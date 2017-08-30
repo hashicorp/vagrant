@@ -11,6 +11,7 @@ module VagrantPlugins
 
         def initialize(machine, config)
           super
+          @control_machine = "host"
           @logger = Log4r::Logger.new("vagrant::provisioners::ansible_host")
         end
 
@@ -46,7 +47,7 @@ module VagrantPlugins
           @logger.info("Checking for Ansible version on Vagrant host...")
           found_version = gather_ansible_version
           if (!found_version || "ansible #{config.version}\n" != found_version.lines[0])
-            raise Ansible::Errors::AnsibleVersionMismatch, system: "host", required_version: config.version.to_s
+            raise Ansible::Errors::AnsibleVersionMismatch, system: @control_machine, required_version: config.version.to_s
           end
         end
 
@@ -326,7 +327,7 @@ module VagrantPlugins
                   _key: :config_file_not_found,
                   config_option: option_name,
                   path: expanded_path,
-                  system: "host"
+                  system: @control_machine
           end
         end
 

@@ -40,6 +40,7 @@ module VagrantPlugins
 
         def initialize(machine, config)
           super
+          @control_machine = nil
 
           @command_arguments = []
           @environment_variables = {}
