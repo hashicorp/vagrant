@@ -986,7 +986,6 @@ VF
       end
     end
 
-    # TODO: add more tests, now that we know how to deal with multiple Subprocess stub executions
     describe "with galaxy support" do
 
       before do
