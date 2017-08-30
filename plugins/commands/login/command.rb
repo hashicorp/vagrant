@@ -82,10 +82,21 @@ module VagrantPlugins
           description = description_default if description.empty?
         end
 
-        token = @client.login(description: description)
-        if !token
-          @env.ui.error(I18n.t("login_command.invalid_login"))
-          return 1
+        code = nil
+
+        begin
+          token = @client.login(description: description, code: code)
+        rescue Errors::TwoFactorRequired
+          until code
+            code = @env.ui.ask("2FA code: ")
+
+            if @client.two_factor_delivery_methods.include?(code.downcase)
+              delivery_method, code = code, nil
+              @client.request_code delivery_method
+            end
+          end
+
+          retry
         end
 
         @client.store_token(token)

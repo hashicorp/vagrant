@@ -9,6 +9,9 @@ en:
         The Vagrant Cloud server is not currently accepting connections. Please check
         your network connection and try again later.
 
+      unauthorized: |-
+        Invalid username or password. Please try again.
+
     check_logged_in: |-
       You are already logged in.
     check_not_logged_in: |-
