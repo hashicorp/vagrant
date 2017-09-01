@@ -313,7 +313,8 @@ VF
       valid_versions = {
         "0.6": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8,
         "1.9.4": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8,
-        "2.2.1.0": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
+        "2.5.0.0-rc1": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
+        "2.x.y.z": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
         "4.3.2.1": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
       }
       valid_versions.each_pair do |ansible_version, mode|
@@ -331,7 +332,7 @@ VF
           it "warns about compatibility mode auto-detection being used" do
             expect(machine.env.ui).to receive(:warn).with(
               I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
-                compatibility_mode: mode, ansible_version: "ansible #{ansible_version}") +
+                compatibility_mode: mode, ansible_version: ansible_version) +
               "\n")
           end
         end
@@ -339,7 +340,7 @@ VF
 
       invalid_versions = [
         "ansible devel",
-        "ansible 2.x.y.z\n...\n",
+        "anything 1.2",
         "2.9.2.1",
       ]
       invalid_versions.each do |unknown_ansible_version|
@@ -371,6 +372,7 @@ VF
         config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8
       end
 
+      it_should_check_ansible_version
       it_should_create_and_use_generated_inventory
 
       it "doesn't warn about compatibility mode auto-detection" do
@@ -381,12 +383,23 @@ VF
     context "with compatibility_mode '#{VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0}'" do
       before do
         config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0
+        allow(subject).to receive(:gather_ansible_version).and_return("ansible 2.3.0.0\n...\n")
       end
 
       it_should_create_and_use_generated_inventory
 
       it "doesn't warn about compatibility mode auto-detection" do
         expect(machine.env.ui).to_not receive(:warn)
+      end
+
+      describe "and an incompatible ansible version" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible 1.9.3\n...\n")
+        end
+
+        it "raises a compatibility conflict error", skip_before: false, skip_after: true do
+          expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCompatibilityModeConflict)
+        end
       end
 
       describe "deprecated 'sudo' options are aliases for equivalent 'become' options" do
@@ -413,7 +426,7 @@ VF
         config.playbook_command = "custom-ansible-playbook"
 
         # set the compatibility mode to ensure that only ansible-playbook is excuted
-        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0
+        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8
       end
 
       it "uses custom playbook_command to run playbooks" do
@@ -968,20 +981,29 @@ VF
           allow(subject).to receive(:gather_ansible_version).and_return("ansible 1.9.6\n...\n")
         end
 
-        it "raises an error about the ansible version mismatch", skip_before: true, skip_after: true do
-          config.finalize!
+        it "raises an error about the ansible version mismatch", skip_before: false, skip_after: true do
           expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleVersionMismatch)
         end
       end
 
       describe "and the installed ansible version cannot be detected" do
         before do
-          allow(subject).to receive(:gather_ansible_version).and_return(nil)
+          allow(subject).to receive(:gather_ansible_version).and_return("")
         end
 
-        it "raises an error about the ansible version mismatch", skip_before: true, skip_after: true do
-          config.finalize!
-          expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleVersionMismatch)
+        it "skips the ansible version check and executes ansible-playbook command" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
+        end
+      end
+
+      describe "with special value: 'latest'" do
+        before do
+          config.version = :latest
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible 2.2.0.1\n...\n")
+        end
+
+        it "skips the ansible version check and executes ansible-playbook command" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
         end
       end
     end
@@ -1168,7 +1190,7 @@ VF
         allow(machine.ui).to receive(:warn)
 
         # Set the compatibility mode to only get the Windows warning
-        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0
+        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8
       end
 
       it "warns that Windows is not officially supported for the Ansible control machine" do

@@ -20,9 +20,9 @@ module VagrantPlugins
           @ssh_info = @machine.ssh_info
 
           warn_for_unsupported_platform
-          check_required_ansible_version unless config.version.empty?
           check_files_existence
           set_compatibility_mode
+          check_required_ansible_version
 
           execute_ansible_galaxy_from_host if config.galaxy_role_file
           execute_ansible_playbook_from_host
@@ -39,15 +39,16 @@ module VagrantPlugins
         end
 
         def check_required_ansible_version
-          if config.version.to_s.to_sym == :latest
-            @logger.debug("The :latest version requirement is not supported (yet) by the host-based provisioner")
+          # Skip this check when not required, nor possible
+          if !@gathered_version || config.version.empty? || config.version.to_s.to_sym == :latest
             return
           end
 
-          @logger.info("Checking for Ansible version on Vagrant host...")
-          found_version = gather_ansible_version
-          if (!found_version || "ansible #{config.version}\n" != found_version.lines[0])
-            raise Ansible::Errors::AnsibleVersionMismatch, system: @control_machine, required_version: config.version.to_s
+          if config.version != @gathered_version
+            raise Ansible::Errors::AnsibleVersionMismatch,
+              system: @control_machine,
+              required_version: config.version,
+              current_version: @gathered_version
           end
         end
 
@@ -105,7 +106,7 @@ module VagrantPlugins
         end
 
         def gather_ansible_version
-          raw_output = nil
+          raw_output = ""
           command = %w(ansible --version)
 
           command << {
@@ -119,7 +120,7 @@ module VagrantPlugins
               end
             end
             if result.exit_code != 0
-              raw_output = nil
+              raw_output = ""
             end
           rescue Vagrant::Errors::CommandUnavailable
             raise Ansible::Errors::AnsibleNotFoundOnHost

@@ -66,19 +66,22 @@ module VagrantPlugins
           if (!config.version.empty? &&
               config.version.to_s.to_sym != :latest &&
               !@machine.guest.capability(:ansible_installed, config.version))
-            raise Ansible::Errors::AnsibleVersionMismatch, system: @control_machine, required_version: config.version.to_s
+            raise Ansible::Errors::AnsibleVersionMismatch,
+              system: @control_machine,
+              required_version: config.version,
+              current_version: @gathered_version
           end
         end
 
         def gather_ansible_version
-          raw_output = nil
+          raw_output = ""
           result = @machine.communicate.execute("ansible --version", error_check: false) do |type, output|
             if type == :stdout && output.lines[0]
               raw_output = output.lines[0]
             end
           end
           if result != 0
-            raw_output = nil
+            raw_output = ""
           end
           raw_output
         end

@@ -26,6 +26,10 @@ module VagrantPlugins
       class AnsibleVersionMismatch < AnsibleError
         error_key(:ansible_version_mismatch)
       end
+
+      class AnsibleCompatibilityModeConflict < AnsibleError
+        error_key(:ansible_compatibility_mode_conflict)
+      end
     end
   end
 end

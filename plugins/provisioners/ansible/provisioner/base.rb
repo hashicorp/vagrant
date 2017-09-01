@@ -46,45 +46,31 @@ module VagrantPlugins
           @environment_variables = {}
           @inventory_machines = {}
           @inventory_path = nil
+
+          @gathered_version_stdout = nil
+          @gathered_version_major = nil
+          @gathered_version = nil
         end
 
         def set_compatibility_mode
-          if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
-            detect_compatibility_mode(gather_ansible_version)
-          end
-
-          unless Ansible::COMPATIBILITY_MODES.slice(1..-1).include?(config.compatibility_mode)
-            raise "Programming Error: compatibility_mode must correctly set at this stage!"
-          end
-
-          @lexicon = ANSIBLE_PARAMETER_NAMES[config.compatibility_mode]
-        end
-
-        def detect_compatibility_mode(ansible_version_stdoutput)
-          if config.compatibility_mode != Ansible::COMPATIBILITY_MODE_AUTO
-            raise "Programming Error: detect_compatibility_mode() shouldn't have been called."
-          end
-
           begin
-            first_line = ansible_version_stdoutput.lines[0]
-            full_version = first_line.match(/ansible (\d)(\.\d+){1,}/)
+            set_gathered_ansible_version(gather_ansible_version)
+          rescue Exception => e
+            # Nothing to do here, as the fallback on safe compatibility_mode is done below
+            @logger.error("Error while gathering the ansible version: #{e.to_s}")
+          end
 
-            if full_version
-              major_version, _ = full_version.captures
-
-              if major_version.to_i <= 1
-                config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V1_8
-              else
-                config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V2_0
-              end
-
-              @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
-                compatibility_mode: config.compatibility_mode,
-                ansible_version: full_version) +
-              "\n")
+          if @gathered_version_major
+            if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
+              detect_compatibility_mode
+            elsif @gathered_version_major.to_i < 2 && config.compatibility_mode == Ansible::COMPATIBILITY_MODE_V2_0
+              # A better version comparator will be needed
+              # when more compatibility modes come... but so far let's keep it simple!
+              raise Ansible::Errors::AnsibleCompatibilityModeConflict,
+                ansible_version: @gathered_version,
+                system: @control_machine,
+                compatibility_mode: config.compatibility_mode
             end
-          rescue
-            # Nothing to do here, the fallback to default compatibility_mode is done below
           end
 
           if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
@@ -92,9 +78,15 @@ module VagrantPlugins
 
             @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_not_detected",
               compatibility_mode: config.compatibility_mode,
-              gathered_version: ansible_version_stdoutput) +
+              gathered_version: @gathered_version_stdout) +
             "\n")
           end
+
+          unless Ansible::COMPATIBILITY_MODES.slice(1..-1).include?(config.compatibility_mode)
+            raise "Programming Error: compatibility_mode must correctly set at this stage!"
+          end
+
+          @lexicon = ANSIBLE_PARAMETER_NAMES[config.compatibility_mode]
         end
 
         def check_files_existence
@@ -354,6 +346,39 @@ module VagrantPlugins
           else
             # safe default, in case input strays
             '-v'
+          end
+        end
+
+        private
+
+        def detect_compatibility_mode
+          if !@gathered_version_major || config.compatibility_mode != Ansible::COMPATIBILITY_MODE_AUTO
+            raise "Programming Error: detect_compatibility_mode() shouldn't have been called."
+          end
+
+          if @gathered_version_major.to_i <= 1
+            config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V1_8
+          else
+            config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V2_0
+          end
+
+          @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
+            compatibility_mode: config.compatibility_mode,
+            ansible_version: @gathered_version) +
+          "\n")
+        end
+
+        def set_gathered_ansible_version(stdout_output)
+          @gathered_version_stdout = stdout_output
+          if !@gathered_version_stdout.empty?
+            first_line = @gathered_version_stdout.lines[0]
+            ansible_version_pattern = first_line.match(/(^ansible\s+)(.+)$/)
+            if ansible_version_pattern
+              _, @gathered_version, _ = ansible_version_pattern.captures
+              if @gathered_version
+                @gathered_version_major = @gathered_version.match(/^(\d)\..+$/).captures[0].to_i
+              end
+            end
           end
         end
 

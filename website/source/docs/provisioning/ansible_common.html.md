@@ -35,14 +35,16 @@ Some of these options are for advanced usage only and should not be used unless 
 
     By default this option is set to `"auto"`. If Vagrant is not able to detect any supported Ansible version, it will falls back on the compatibility mode `"1.8"` with a warning.
 
-    <div class="alert alert-info">
-      <strong>Compatibility Note:</strong>
-      This option was introduced in Vagrant 2.0. Previous Vagrant versions behave like if this option was set to `"1.8"`.
-    </div>
+    Vagrant will error if the specified compatibility mode is incompatible with the current Ansible version.
 
     <div class="alert alert-warning">
       <strong>Attention:</strong>
       Vagrant doesn't perform any validation between the `compatibility_mode` value and the value of the [`version`](#version) option.
+    </div>
+
+    <div class="alert alert-info">
+      <strong>Compatibility Note:</strong>
+      This option was introduced in Vagrant 2.0. Previous Vagrant versions behave like if this option was set to `"1.8"`.
     </div>
 
 - `config_file` (string) - The path to an [Ansible Configuration file](https://docs.ansible.com/intro_configuration.html).
