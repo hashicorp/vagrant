@@ -29,6 +29,7 @@ module VagrantPlugins
           nfs_start_command = env.host.capability(:nfs_start_command)
 
           nfs_opts_setup(folders)
+          folders = folder_dupe_check(folders)
           output = Vagrant::Util::TemplateRenderer.render('nfs/exports_linux',
                                            uuid: id,
                                            ips: ips,
@@ -83,6 +84,37 @@ module VagrantPlugins
         end
 
         protected
+
+        # Takes a hash of folders and removes any duplicate exports that
+        # share the same hostpath to avoid duplicate entries in /etc/exports
+        # ref: GH-4666
+        def self.folder_dupe_check(folders)
+          return_folders = {}
+          # Group by hostpath to see if there are multiple exports coming
+          # from the same folder
+          export_groups = folders.values.group_by { |h| h[:hostpath] }
+
+          # We need to check that each group key only has 1 value,
+          # and if not, check each nfs option. If all nfs options are the same
+          # we're good, otherwise throw an exception
+          export_groups.each do |path,group|
+            if group.size > 1
+              # if the linux nfs options aren't all the same throw an exception
+              group1_opts = group.first[:linux__nfs_options]
+
+              if !group.all? {|g| g[:linux__nfs_options] == group1_opts}
+                raise Vagrant::Errors::NFSDupePerms, hostpath: group.first[:hostpath]
+              else
+                # if they're the same just pick the first one
+                return_folders[path] = group.first
+              end
+            else
+              # just return folder, there are no duplicates
+              return_folders[path] = group.first
+            end
+          end
+          return_folders
+        end
 
         def self.nfs_cleanup(remove_ids)
           return if !File.exist?(NFS_EXPORTS_PATH)
