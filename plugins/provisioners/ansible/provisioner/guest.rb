@@ -30,12 +30,10 @@ module VagrantPlugins
         # requested, and so on. This method will raise exceptions if things are wrong.
         #
         # Current limitations:
-        #   - The installation of a specific Ansible version is not supported.
-        #     Such feature is difficult to systematically provide via package repositories (apt, yum, ...).
-        #     Installing via pip python packaging or directly from github source would be appropriate,
-        #     but these approaches require more dependency burden.
-        #   - There is no guarantee that the automated installation will replace
-        #     a previous Ansible installation.
+        #   - The installation of a specific Ansible version is only supported by
+        #     the "pip" install_mode.
+        #   - There is no abslute guarantee that the automated installation will replace
+        #     a previous Ansible installation (although it works fine in many cases)
         #
         def check_and_install_ansible
           @logger.info("Checking for Ansible installation...")
