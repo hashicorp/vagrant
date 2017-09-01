@@ -21,8 +21,7 @@ module VagrantPlugins
 
           warn_for_unsupported_platform
           check_files_existence
-          set_compatibility_mode
-          check_required_ansible_version
+          check_ansible_version_and_compatibility
 
           execute_ansible_galaxy_from_host if config.galaxy_role_file
           execute_ansible_playbook_from_host
@@ -38,7 +37,10 @@ module VagrantPlugins
           end
         end
 
-        def check_required_ansible_version
+        def check_ansible_version_and_compatibility
+          # This step will also fetch the Ansible version data into related instance variables
+          set_and_check_compatibility_mode
+
           # Skip this check when not required, nor possible
           if !@gathered_version || config.version.empty? || config.version.to_s.to_sym == :latest
             return

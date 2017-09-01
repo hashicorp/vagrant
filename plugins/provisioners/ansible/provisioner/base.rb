@@ -52,7 +52,7 @@ module VagrantPlugins
           @gathered_version = nil
         end
 
-        def set_compatibility_mode
+        def set_and_check_compatibility_mode
           begin
             set_gathered_ansible_version(gather_ansible_version)
           rescue Exception => e
