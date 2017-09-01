@@ -2344,8 +2344,8 @@ en:
 
             If you haven't installed Ansible yet, please install Ansible
             on your Vagrant basebox, or enable the automated setup with the
-            `install` option of this provisioner. Please check
-            https://docs.vagrantup.com/v2/provisioning/ansible_local.html
+            ansible_local provisioner `install` option. Please check
+            https://docs.vagrantup.com/v2/provisioning/ansible_local.html#install
             for more information.
           ansible_not_found_on_host: |-
             The Ansible software could not be found! Please verify
@@ -2367,7 +2367,7 @@ en:
           ansible_version_mismatch: |-
             The requested Ansible version (%{required_version}) was not found on the %{system}.
             Please check the Ansible installation on your Vagrant %{system} system (currently: %{current_version}),
-            or adapt the `version` option of this provisioner in your Vagrantfile.
+            or adapt the provisioner `version` option in your Vagrantfile.
             See https://docs.vagrantup.com/v2/provisioning/ansible_common.html#version
             for more information.
           ansible_compatibility_mode_conflict: |-
