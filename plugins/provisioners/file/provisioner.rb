@@ -3,7 +3,7 @@ module VagrantPlugins
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
         @machine.communicate.tap do |comm|
-          source = File.expand_path(config.source)
+          source = config.source
           destination = expand_guest_path(config.destination)
 
           # if source is a directory, make it then trim destination with dirname
@@ -18,8 +18,8 @@ module VagrantPlugins
             #
             # https://serverfault.com/questions/538368/make-scp-always-overwrite-or-create-directory
             # https://unix.stackexchange.com/questions/292641/get-scp-path-behave-like-rsync-path/292732
-            command = "mkdir -p \"%s\"" % destination
-            source << "/."
+            command = "mkdir -p \"%s\"" % destination unless Dir.exists?(destination)
+            source << '.' if source =~ /\/$/
           else
             command = "mkdir -p \"%s\"" % File.dirname(destination)
           end

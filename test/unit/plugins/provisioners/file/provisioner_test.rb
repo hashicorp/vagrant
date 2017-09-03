@@ -57,7 +57,7 @@ describe VagrantPlugins::FileUpload::Provisioner do
       subject.provision
     end
 
-    it "uploads the file" do
+    it "uploads the file pattern 1 (There is no / at the end of the path name)" do
       allow(config).to receive(:source).and_return("/source")
       allow(config).to receive(:destination).and_return("/foo/bar")
 
@@ -66,12 +66,11 @@ describe VagrantPlugins::FileUpload::Provisioner do
       subject.provision
     end
 
-    it "expands the source file path" do
-      allow(config).to receive(:source).and_return("source")
-      allow(config).to receive(:destination).and_return("/foo/bar")
+    it "uploads the file pattern 2 (There is / at the end of the path name)" do
+      allow(config).to receive(:source).and_return("/source/")
+      allow(config).to receive(:destination).and_return("/foo/bar/")
 
-      expect(communicator).to receive(:upload).with(
-        File.expand_path("source"), "/foo/bar")
+      expect(communicator).to receive(:upload).with("/source/", "/foo/bar/")
 
       subject.provision
     end
