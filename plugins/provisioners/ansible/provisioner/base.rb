@@ -228,7 +228,7 @@ module VagrantPlugins
           end
 
           group_vars.each_pair do |gname, gmembers|
-            if defined_groups.include?(gname.sub(/:vars$/, ""))
+            if defined_groups.include?(gname.sub(/:vars$/, "")) || gname == "all:vars"
               inventory_groups += "\n[#{gname}]\n" + gmembers.join("\n") + "\n"
             end
           end

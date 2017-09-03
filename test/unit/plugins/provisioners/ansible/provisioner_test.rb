@@ -396,6 +396,19 @@ VF
           expect(inventory_content).to include("[group3:vars]\nstringvar1=stringvalue1\nstringvar2=stringvalue2\n")
         }.and_return(default_execute_result)
       end
+
+      it "adds 'all:vars' section to the generated inventory" do
+        config.groups = {
+          "all:vars" => { "var1" => "value1", "var2" => "value2" }
+        }
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+          inventory_content = File.read(generated_inventory_file)
+
+          expect(inventory_content).to include("[all:vars]\nvar1=value1\nvar2=value2\n")
+
+        }.and_return(default_execute_result)
+      end
     end
 
     describe "with host_key_checking option enabled" do
