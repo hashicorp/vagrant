@@ -2406,6 +2406,8 @@ en:
           You must include both public and private keys.
         must_accept_keys: |-
           You must accept keys when running highstate with master!
+        args_array: |-
+          You must set this value as an array.
 
     pushes:
       file:

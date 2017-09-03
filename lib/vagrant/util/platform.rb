@@ -4,6 +4,7 @@ require "tmpdir"
 
 require "vagrant/util/subprocess"
 require "vagrant/util/powershell"
+require "vagrant/util/which"
 
 module Vagrant
   module Util
@@ -17,6 +18,15 @@ module Vagrant
               ENV["OSTYPE"].to_s.downcase.include?("cygwin")
           end
           @_cygwin
+        end
+
+        def msys?
+          if !defined?(@_msys)
+            @_msys = ENV["VAGRANT_DETECTED_OS"].to_s.downcase.include?("msys") ||
+              platform.include?("msys") ||
+              ENV["OSTYPE"].to_s.downcase.include?("msys")
+          end
+          @_msys
         end
 
         def wsl?
@@ -93,24 +103,35 @@ module Vagrant
         # @param [String] path
         # @return [String]
         def cygwin_path(path)
-          if cygwin?
-            begin
-              # First try the real cygpath
-              process = Subprocess.execute("cygpath", "-u", "-a", path.to_s)
-              return process.stdout.chomp
-            rescue Errors::CommandUnavailableWindows
-            end
+          begin
+            # We have to revert to the old env
+            # path here, otherwise it looks like
+            # msys2 ends up using the wrong cygpath
+            # binary and ends up with a `/cygdrive`
+            # when it doesn't exist in msys2
+            original_path_env = ENV['PATH']
+            ENV['PATH'] = ENV['VAGRANT_OLD_ENV_PATH']
+            cygpath = Vagrant::Util::Which.which("cygpath")
+            cygpath.gsub!("/", '\\')
+            process = Subprocess.execute(
+              cygpath, "-u", "-a", path.to_s)
+            return process.stdout.chomp
+          rescue Errors::CommandUnavailableWindows => e
+            # Sometimes cygpath isn't available (msys). Instead, do what we
+            # can with bash tricks.
+            process = Subprocess.execute(
+              "bash",
+              "--noprofile",
+              "--norc",
+              "-c", "cd #{Shellwords.escape(path)} && pwd")
+            return process.stdout.chomp
+          ensure
+            ENV['PATH'] = original_path_env
           end
-
-          # Sometimes cygpath isn't available (msys). Instead, do what we
-          # can with bash tricks.
-          process = Subprocess.execute(
-            "bash",
-            "--noprofile",
-            "--norc",
-            "-c", "cd #{Shellwords.escape(path)} && pwd")
-          return process.stdout.chomp
         end
+
+        # Identical to cygwin_path for now
+        alias_method :msys_path, :cygwin_path
 
         # This takes any path and converts it to a full-length Windows
         # path on Windows machines in Cygwin.
@@ -262,6 +283,23 @@ module Vagrant
           else
             path
           end
+        end
+
+        # Takes a windows path and formats it to the
+        # 'unix' style (i.e. `/cygdrive/c` or `/c/`)
+        #
+        # @param [Pathname, String] path Path to convert
+        # @param [Hash] hash of arguments
+        # @return [String]
+        def format_windows_path(path, *args)
+          path = cygwin_path(path) if cygwin?
+          path = msys_path(path) if msys?
+          path = wsl_to_windows_path(path) if wsl?
+          if windows? || wsl?
+            path = windows_unc_path(path) if !args.include?(:disable_unc)
+          end
+
+          path
         end
 
         # Automatically convert a given path to a Windows path. Will only

@@ -7,7 +7,12 @@ describe VagrantPlugins::LoginCommand::Client do
 
   let(:env) { isolated_environment.create_vagrant_env }
 
-  subject { described_class.new(env) }
+  subject(:client) { described_class.new(env) }
+
+  before(:all) do
+    I18n.load_path << Vagrant.source_root.join("plugins/commands/login/locales/en.yml")
+    I18n.reload!
+  end
 
   before do
     stub_env("ATLAS_TOKEN" => nil)
@@ -38,7 +43,7 @@ describe VagrantPlugins::LoginCommand::Client do
         expect(subject.logged_in?).to be(true)
       end
 
-      it "returns false if the endpoint returns a non-200" do
+      it "raises an error if the endpoint returns a non-200" do
         stub_request(:get, url)
           .with(headers: headers)
           .to_return(body: JSON.pretty_generate("bad" => true), status: 401)
@@ -55,47 +60,159 @@ describe VagrantPlugins::LoginCommand::Client do
   end
 
   describe "#login" do
-    it "returns the access token after successful login" do
-      request = {
-        "user" => {
-          "login" => "foo",
-          "password" => "bar",
+    let(:request) {
+      {
+        user: {
+          login: login,
+          password: password,
         },
-        "token" => {
-          "description" => "Token description"
+        token: {
+          description: description,
+        },
+        two_factor: {
+          code: nil
         }
       }
+    }
 
-      response = {
-        "token" => "baz",
-      }
+    let(:login) { "foo" }
+    let(:password) { "bar" }
+    let(:description) { "Token description" }
 
-      headers = {
+    let(:headers) {
+      {
         "Accept" => "application/json",
         "Content-Type" => "application/json",
       }
+    }
+    let(:response) {
+      {
+        token: "baz"
+      }
+    }
 
+    it "returns the access token after successful login" do
       stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
         with(body: JSON.dump(request), headers: headers).
         to_return(status: 200, body: JSON.dump(response))
 
-      expect(subject.login("foo", "bar", description: "Token description"))
-        .to eq("baz")
+      client.username_or_email = login
+      client.password = password
+
+      expect(client.login(description: "Token description")).to eq("baz")
     end
 
-    it "returns nil on bad login" do
-      stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
-        to_return(status: 401, body: "")
+    context "when 2fa is required" do
+      let(:response) {
+        {
+          two_factor: {
+            default_delivery_method: default_delivery_method,
+            delivery_methods: delivery_methods
+          }
+        }
+      }
+      let(:default_delivery_method) { "app" }
+      let(:delivery_methods) { ["app"] }
 
-      expect(subject.login("foo", "bar")).to be(false)
+      before do
+        stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
+          to_return(status: 406, body: JSON.dump(response))
+      end
+
+      it "raises a two-factor required error" do
+        expect {
+          client.login
+        }.to raise_error(VagrantPlugins::LoginCommand::Errors::TwoFactorRequired)
+      end
+
+      context "when the default delivery method is not app" do
+        let(:default_delivery_method) { "sms" }
+        let(:delivery_methods) { ["app", "sms"] }
+
+        it "requests a code and then raises a two-factor required error" do
+          expect(client)
+            .to receive(:request_code)
+            .with(default_delivery_method)
+
+          expect {
+            client.login
+          }.to raise_error(VagrantPlugins::LoginCommand::Errors::TwoFactorRequired)
+        end
+      end
     end
 
-    it "raises an exception if it can't reach the sever" do
-      stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
-        to_raise(SocketError)
+    context "on bad login" do
+      before do
+        stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
+          to_return(status: 401, body: "")
+      end
 
-      expect { subject.login("foo", "bar") }.
-        to raise_error(VagrantPlugins::LoginCommand::Errors::ServerUnreachable)
+      it "raises an error" do
+        expect {
+          client.login
+        }.to raise_error(VagrantPlugins::LoginCommand::Errors::Unauthorized)
+      end
+    end
+
+    context "if it can't reach the server" do
+      before do
+        stub_request(:post, "#{Vagrant.server_url}/api/v1/authenticate").
+          to_raise(SocketError)
+      end
+
+      it "raises an exception" do
+        expect {
+          subject.login
+        }.to raise_error(VagrantPlugins::LoginCommand::Errors::ServerUnreachable)
+      end
+    end
+  end
+
+  describe "#request_code" do
+    let(:request) {
+      {
+        user: {
+          login: login,
+          password: password,
+        },
+        two_factor: {
+          delivery_method: delivery_method
+        }
+      }
+    }
+
+    let(:login) { "foo" }
+    let(:password) { "bar" }
+    let(:delivery_method) { "sms" }
+
+    let(:headers) {
+      {
+        "Accept" => "application/json",
+        "Content-Type" => "application/json"
+      }
+    }
+
+    let(:response) {
+      {
+        two_factor: {
+          obfuscated_destination: "SMS number ending in 1234"
+        }
+      }
+    }
+
+    it "displays that the code was sent" do
+      expect(env.ui)
+        .to receive(:success)
+        .with("2FA code sent to SMS number ending in 1234.")
+
+      stub_request(:post, "#{Vagrant.server_url}/api/v1/two-factor/request-code").
+        with(body: JSON.dump(request), headers: headers).
+        to_return(status: 201, body: JSON.dump(response))
+
+      client.username_or_email = login
+      client.password = password
+
+      client.request_code delivery_method
     end
   end
 

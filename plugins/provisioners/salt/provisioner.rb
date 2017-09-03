@@ -198,6 +198,16 @@ module VagrantPlugins
         return options
       end
 
+      # Append additional arguments to the salt command
+      def get_salt_args
+        " " + Array(@config.salt_args).join(" ")
+      end
+
+      # Append additional arguments to the salt-call command
+      def get_call_args
+        " " + Array(@config.salt_call_args).join(" ")
+      end
+
       # Copy master and minion configs to VM
       def upload_configs
         if @config.minion_config
@@ -331,10 +341,15 @@ module VagrantPlugins
 
       def call_overstate
         if @config.run_overstate
+          # If verbose is on, do not duplicate a failed command's output in the error message.
+          ssh_opts = {}
+          if @config.verbose
+            ssh_opts = { error_key: :ssh_bad_exit_status_muted }
+          end
           if @config.install_master
             @machine.env.ui.info "Calling state.overstate... (this may take a while)"
             @machine.communicate.sudo("salt '*' saltutil.sync_all")
-            @machine.communicate.sudo("salt-run state.over") do |type, data|
+            @machine.communicate.sudo("salt-run state.over", ssh_opts) do |type, data|
               if @config.verbose
                 @machine.env.ui.info(data)
               end
@@ -349,12 +364,19 @@ module VagrantPlugins
 
       def call_highstate
         if @config.run_highstate
+          # If verbose is on, do not duplicate a failed command's output in the error message.
+          ssh_opts = {}
+          if @config.verbose
+            ssh_opts = { error_key: :ssh_bad_exit_status_muted }
+          end
+
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
             unless @config.masterless?
               @machine.communicate.sudo("salt '*' saltutil.sync_all")
             end
-            @machine.communicate.sudo("salt '*' state.highstate --verbose#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+            options = "#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}#{get_salt_args}"
+            @machine.communicate.sudo("salt '*' state.highstate --verbose#{options}", ssh_opts) do |type, data|
             if @config.verbose
                 @machine.env.ui.info(data.rstrip)
             end
@@ -365,7 +387,9 @@ module VagrantPlugins
               unless @config.masterless?
                 @machine.communicate.execute("C:\\salt\\salt-call.bat saltutil.sync_all", opts)
               end
-              @machine.communicate.execute("C:\\salt\\salt-call.bat state.highstate --retcode-passthrough#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}", opts) do |type, data|
+              # TODO: something equivalent to { error_key: :ssh_bad_exit_status_muted }?
+              options = "#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}#{get_call_args}"
+              @machine.communicate.execute("C:\\salt\\salt-call.bat state.highstate --retcode-passthrough#{options}", opts) do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data.rstrip)
                 end
@@ -374,7 +398,8 @@ module VagrantPlugins
               unless @config.masterless?
                 @machine.communicate.sudo("salt-call saltutil.sync_all")
               end
-              @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}") do |type, data|
+              options = "#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}#{get_call_args}"
+              @machine.communicate.sudo("salt-call state.highstate --retcode-passthrough#{options}", ssh_opts) do |type, data|
                 if @config.verbose
                   @machine.env.ui.info(data.rstrip)
                 end
@@ -403,14 +428,20 @@ module VagrantPlugins
           end
         end
 
+        # If verbose is on, do not duplicate a failed command's output in the error message.
+        ssh_opts = {}
+        if @config.verbose
+          ssh_opts = { error_key: :ssh_bad_exit_status_muted }
+        end
+
         @machine.env.ui.info "Running the following orchestrations: #{@config.orchestrations}"
         @machine.env.ui.info "Running saltutil.sync_all before orchestrating"
-        @machine.communicate.sudo("salt '*' saltutil.sync_all", &log_output)
+        @machine.communicate.sudo("salt '*' saltutil.sync_all", ssh_opts, &log_output)
 
         @config.orchestrations.each do |orchestration|
           cmd = "salt-run -l info state.orchestrate #{orchestration}"
           @machine.env.ui.info "Calling #{cmd}... (this may take a while)"
-          @machine.communicate.sudo(cmd, &log_output)
+          @machine.communicate.sudo(cmd, ssh_opts, &log_output)
         end
       end
 

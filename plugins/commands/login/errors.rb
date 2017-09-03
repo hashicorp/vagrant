@@ -12,6 +12,13 @@ module VagrantPlugins
       class ServerUnreachable < Error
         error_key(:server_unreachable)
       end
+
+      class Unauthorized < Error
+        error_key(:unauthorized)
+      end
+
+      class TwoFactorRequired < Error
+      end
     end
   end
 end

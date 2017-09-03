@@ -24,7 +24,7 @@ describe VagrantPlugins::CommandSSHConfig::Command do
     username:         "testuser",
     keys_only:        true,
     paranoid:         false,
-    private_key_path: [],
+    private_key_path: ["/home/vagrant/.private/keys.key"],
     forward_agent:    false,
     forward_x11:      false
   }}
@@ -53,6 +53,7 @@ Host #{machine.name}
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
   PasswordAuthentication no
+  IdentityFile /home/vagrant/.private/keys.key
   IdentitiesOnly yes
   LogLevel FATAL
       SSHCONFIG
@@ -135,6 +136,20 @@ Host #{machine.name}
 
       expect(output).not_to include('StrictHostKeyChecking ')
       expect(output).not_to include('UserKnownHostsFile ')
+    end
+
+    it "formats windows paths if windows" do
+      allow(machine).to receive(:ssh_info) { ssh_info.merge(private_key_path: ["C:\\path\\to\\vagrant\\home.key"]) }
+      allow(Vagrant::Util::Platform).to receive(:format_windows_path).and_return("/home/vagrant/home.key")
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
+      subject.execute
+      expect(output).to include('IdentityFile /home/vagrant/home.key')
     end
   end
 end
