@@ -202,7 +202,13 @@ module VagrantPlugins
             forced_remote_user = "ansible_ssh_user='#{ssh_info[:username]}' "
           end
 
-          "#{machine.name} ansible_ssh_host=#{ssh_info[:host]} ansible_ssh_port=#{ssh_info[:port]} #{forced_remote_user}ansible_ssh_private_key_file='#{ssh_info[:private_key_path][0]}'\n"
+          ansible_ssh_common_args = ""
+          if !config.host_key_checking.nil?
+            ansible_ssh_common_args = "ansible_ssh_common_args='-o StrictHostKeyChecking="
+            ansible_ssh_common_args += if config.host_key_checking then "yes'" else "no'" end
+          end
+
+          "#{machine.name} ansible_ssh_host=#{ssh_info[:host]} ansible_ssh_port=#{ssh_info[:port]} #{forced_remote_user}ansible_ssh_private_key_file='#{ssh_info[:private_key_path][0]}' #{ansible_ssh_common_args}\n"
         end
 
         def get_inventory_winrm_machine(machine, winrm_net_info)
