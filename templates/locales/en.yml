@@ -2338,6 +2338,11 @@ en:
           ansible_command_failed: |-
             Ansible failed to complete successfully. Any error output should be
             visible above. Please fix these errors and try again.
+          ansible_compatibility_mode_conflict: |-
+            The requested Ansible compatibility mode (%{compatibility_mode}) is in conflict with
+            the Ansible installation on your Vagrant %{system} system (currently: %{ansible_version}).
+            See https://docs.vagrantup.com/v2/provisioning/ansible_common.html#compatibility_mode
+            for more information.
           ansible_not_found_on_guest: |-
             The Ansible software could not be found! Please verify
             that Ansible is correctly installed on your guest system.
@@ -2355,6 +2360,18 @@ en:
             on your host system. Vagrant can't do this for you in a safe and
             automated way.
             Please check https://docs.ansible.com for more information.
+          ansible_programming_error: |-
+            Ansible Provisioner Programming Error:
+
+            %{message}
+
+            Internal Details:
+
+            %{details}
+
+            Sorry, but this Vagrant error should never occur.
+            Please check https://github.com/mitchellh/vagrant/issues for any
+            existing bug report. If needed, please create a new issue. Thank you!
           cannot_support_pip_install: |-
             Unfortunately Vagrant does not support yet installing Ansible
             from pip for the guest OS running in the machine.
@@ -2370,17 +2387,12 @@ en:
             or adapt the provisioner `version` option in your Vagrantfile.
             See https://docs.vagrantup.com/v2/provisioning/ansible_common.html#version
             for more information.
-          ansible_compatibility_mode_conflict: |-
-            The requested Ansible compatibility mode (%{compatibility_mode}) is in conflict with
-            the Ansible installation on your Vagrant %{system} system (currently: %{ansible_version}).
-            See https://docs.vagrantup.com/v2/provisioning/ansible_common.html#compatibility_mode
-            for more information.
           config_file_not_found: |-
             `%{config_option}` does not exist on the %{system}: %{path}
           extra_vars_invalid: |-
             `extra_vars` must be a hash or a path to an existing file. Received: %{value} (as %{type})
           no_compatibility_mode: |-
-            `compatibility_mode` must be correctly set (possible values: %{valid_modes}).
+            `compatibility_mode` must be a valid mode (possible values: %{valid_modes}).
           no_playbook: |-
             `playbook` file path must be set.
           raw_arguments_invalid: |-

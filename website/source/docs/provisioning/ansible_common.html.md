@@ -17,15 +17,15 @@ These options get passed to the `ansible-playbook` command that ships with Ansib
 
 Some of these options are for advanced usage only and should not be used unless you understand their purpose.
 
-- `become` (boolean) - Cause Ansible to perform all the playbook tasks [as another user](http://docs.ansible.com/ansible/become.html), different from the one used to log into the guest system.
+- `become` (boolean) - Perform all the Ansible playbook tasks [as another user](http://docs.ansible.com/ansible/become.html), different from the user used to log into the guest system.
 
     The default value is `false`.
 
 - `become_user` (string) - Set the default username to be used by the Ansible `become` [privilege escalation](http://docs.ansible.com/ansible/become.html) mechanism.
 
-    By default this option is not defined, and the Ansible default value (`root`) will be used.
+    By default this option is not set, and the Ansible default value (`root`) will be used.
 
-- `compatibility_mode` (string) - Set the **minimal** version of Ansible to be supported. Vagrant will use some parameters that are only compatible since the given version.
+- `compatibility_mode` (string) - Set the **minimal** version of Ansible to be supported. Vagrant will only use parameters that are compatible with the given version.
 
     Possible values:
 
@@ -33,7 +33,7 @@ Some of these options are for advanced usage only and should not be used unless 
     - `"1.8"` _(Ansible versions prior to 1.8 should mostly work well, but some options might not be supported)_
     - `"2.0"` _(The generated Ansible inventory will be incompatible with Ansible 1.x)_
 
-    By default this option is set to `"auto"`. If Vagrant is not able to detect any supported Ansible version, it will falls back on the compatibility mode `"1.8"` with a warning.
+    By default this option is set to `"auto"`. If Vagrant is not able to detect any supported Ansible version, it will fall back on the compatibility mode `"1.8"` with a warning.
 
     Vagrant will error if the specified compatibility mode is incompatible with the current Ansible version.
 
@@ -44,7 +44,7 @@ Some of these options are for advanced usage only and should not be used unless 
 
     <div class="alert alert-info">
       <strong>Compatibility Note:</strong>
-      This option was introduced in Vagrant 2.0. Previous Vagrant versions behave like if this option was set to `"1.8"`.
+      This option was introduced in Vagrant 2.0. The behavior of previous Vagrant versions can be simulated by setting the `compatibility_mode` to `"1.8"`.
     </div>
 
 - `config_file` (string) - The path to an [Ansible Configuration file](https://docs.ansible.com/intro_configuration.html).
