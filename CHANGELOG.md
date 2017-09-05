@@ -13,6 +13,7 @@ BUG FIXES:
 
 - guests/shell_expand_guest_path : Properly expand guest paths that include relative path alias [GH-8918]
 - provisioners/ansible(both): Add the "all:vars" section to the inventory when defined in `groups` option [GH-7730]
+- provisioners/file: Align file provisioner functionality on all platforms [GH-8939]
 - util/ssh: Properly quote key path for IdentityFile option to allow for spaces [GH-8924]
 
 ## 1.9.8 (August 23, 2017)
