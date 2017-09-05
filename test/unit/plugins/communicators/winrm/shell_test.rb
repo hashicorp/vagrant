@@ -31,6 +31,35 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     end
   end
 
+  describe "#upload" do
+    let(:fm) { double("file_manager") }
+    it "should call file_manager.upload for each passed in path" do
+      from = ["/path", "/path/folder", "/path/folder/file.py"]
+      to = "/destination"
+      size = 80
+
+      allow(WinRM::FS::FileManager).to receive(:new).with(connection)
+        .and_return(fm)
+      allow(fm).to receive(:upload).and_return(size)
+
+      expect(fm).to receive(:upload).exactly(from.size).times
+      expect(subject.upload(from, to)).to eq(size*from.size)
+    end
+
+    it "should call file_manager.upload once for a single path" do
+      from = "/path/folder/file.py"
+      to = "/destination"
+      size = 80
+
+      allow(WinRM::FS::FileManager).to receive(:new).with(connection)
+        .and_return(fm)
+      allow(fm).to receive(:upload).and_return(size)
+
+      expect(fm).to receive(:upload).exactly(1).times
+      expect(subject.upload(from, to)).to eq(size)
+    end
+  end
+
   describe ".powershell" do
     it "should call winrm powershell" do
       expect(shell).to receive(:run).with("dir").and_return(output)
@@ -66,7 +95,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     end
   end
 
-  describe ".cmd" do  
+  describe ".cmd" do
     it "should call winrm cmd" do
       expect(connection).to receive(:shell).with(:cmd, { })
       expect(shell).to receive(:run).with("dir").and_return(output)
