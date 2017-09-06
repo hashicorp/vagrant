@@ -98,26 +98,7 @@ module VagrantPlugins
         end
 
         def create_snapshot(machine_id, snapshot_name)
-          execute("snapshot", machine_id, "take", snapshot_name, retryable: true) do |type, data|
-            if type == :stderr
-              # Append the data so we can see the full view
-              total << data.gsub("\r", "")
-
-              # Break up the lines. We can't get the progress until we see an "OK"
-              lines = total.split("\n")
-
-              # The progress of the import will be in the last line. Do a greedy
-              # regular expression to find what we're looking for.
-              match = /.+(\d{2})%/.match(lines.last)
-              if match
-                current = match[1].to_i
-                if current > last
-                  last = current
-                  yield current if block_given?
-                end
-              end
-            end
-          end
+          execute("snapshot", machine_id, "take", snapshot_name, retryable: true)
         end
 
         def delete_snapshot(machine_id, snapshot_name)
@@ -291,6 +272,7 @@ module VagrantPlugins
         end
 
         def forward_ports(ports)
+          args = []
           ports.each do |options|
             pf_builder = [options[:name],
               options[:protocol] || "tcp",
@@ -299,11 +281,11 @@ module VagrantPlugins
               options[:guestip] || "",
               options[:guestport]]
 
-            args = ["--natpf#{options[:adapter] || 1}",
-                        pf_builder.join(",")]
-
-            execute("modifyvm", @uuid, *args, retryable: true)
+            args.concat(["--natpf#{options[:adapter] || 1}",
+                        pf_builder.join(",")])
           end
+
+          execute("modifyvm", @uuid, *args, retryable: true) if !args.empty?
         end
 
         def get_machine_id(machine_name)
