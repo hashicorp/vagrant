@@ -79,6 +79,42 @@ EOH
       expect(exports_content).to include("/tmp")
       expect(exports_content).not_to include("/var")
     end
+
+    it "throws an exception with at least 2 different nfs options" do
+      folders = {"/vagrant"=>
+                 {:hostpath=>"/home/vagrant",
+                  :linux__nfs_options=>["rw","all_squash"]},
+                 "/var/www/project"=>
+                 {:hostpath=>"/home/vagrant",
+                  :linux__nfs_options=>["rw","sync"]}}
+
+      expect { cap.nfs_export(env, ui, SecureRandom.uuid, ["127.0.0.1"], folders) }.
+        to raise_error Vagrant::Errors::NFSDupePerms
+    end
+
+    it "writes only 1 hostpath for multiple exports" do
+      folders = {"/vagrant"=>
+                 {:hostpath=>"/home/vagrant",
+                  :linux__nfs_options=>["rw","all_squash"]},
+                 "/var/www/otherproject"=>
+                 {:hostpath=>"/newhome/otherproject",
+                  :linux__nfs_options=>["rw","all_squash"]},
+                 "/var/www/project"=>
+                 {:hostpath=>"/home/vagrant",
+                  :linux__nfs_options=>["rw","all_squash"]}}
+      valid_id = SecureRandom.uuid
+      content =<<-EOH
+\n# VAGRANT-BEGIN: #{Process.uid} #{valid_id}
+"/home/vagrant" 127.0.0.1(rw,all_squash,anonuid=,anongid=,fsid=)
+"/newhome/otherproject" 127.0.0.1(rw,all_squash,anonuid=,anongid=,fsid=)
+# VAGRANT-END: #{Process.uid} #{valid_id}
+EOH
+
+      cap.nfs_export(env, ui, valid_id, ["127.0.0.1"], folders)
+      exports_content = File.read(exports_path)
+      expect(exports_content).to eq(content)
+    end
+
   end
 
   describe ".nfs_prune" do

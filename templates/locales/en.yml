@@ -912,6 +912,9 @@ en:
         command: %{command}
         stdout: %{stdout}
         stderr: %{stderr}
+      nfs_dupe_permissions: |-
+        You have attempted to export the same nfs host path at %{hostpath} with
+        different nfs permissions. Please pick one permission and reload your guest.
       nfs_cant_read_exports: |-
         Vagrant can't read your current NFS exports! The exports file should be
         readable by any user. This is usually caused by invalid permissions
