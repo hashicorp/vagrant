@@ -12,6 +12,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - guests/shell_expand_guest_path : Properly expand guest paths that include relative path alias [GH-8918]
+- hosts/linux: Remove duplicate export folders before writing /etc/exports [GH-8945]
 - provisioners/ansible(both): Add the "all:vars" section to the inventory when defined in `groups` option [GH-7730]
 - provisioners/ansible_local: Extra variables are no longer truncated when a dollar ($) character is present [GH-7735]
 - provisioners/file: Align file provisioner functionality on all platforms [GH-8939]
