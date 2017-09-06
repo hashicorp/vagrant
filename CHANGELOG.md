@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - commands/login: Add support for two-factor authentication [GH-8935]
 - commands/ssh-config: Properly display windows path if invoked from msys2 or cygwin [GH-8915]
+- guests/kali: Fix file permissions on guest plugin ruby files [GH-8950]
 - providers/salt: Remove duplicate stdout, stderr output from salt [GH-8767]
 - providers/salt: Introduce salt_call_args and salt_args option for salt provisioner [GH-8927]
 
