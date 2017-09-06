@@ -9,6 +9,7 @@ IMPROVEMENTS:
   - guests/kali: Fix file permissions on guest plugin ruby files [GH-8950]
   - providers/salt: Remove duplicate stdout, stderr output from salt [GH-8767]
   - providers/salt: Introduce salt_call_args and salt_args option for salt provisioner [GH-8927]
+  - providers/virtualbox: Improving resilience of some VirtualBox commands [GH-8951]
   - provisioners/ansible(both): Add the compatibility_mode option, with auto-detection enabled by default [GH-8913, GH-6570]
   - provisioners/ansible: Add the version option to the host-based provisioner [GH-8913, GH-8914]
   - provisioners/ansible(both): Add the become and become_user options with deprecation of sudo and sudo_user options [GH-8913, GH-6570]
