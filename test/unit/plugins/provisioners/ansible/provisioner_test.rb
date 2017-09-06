@@ -60,6 +60,8 @@ VF
 
     stubbed_ui = Vagrant::UI::Colored.new
     allow(stubbed_ui).to receive(:detail).and_return("")
+    allow(stubbed_ui).to receive(:warn).and_return("")
+
     allow(machine.env).to receive(:ui).and_return(stubbed_ui)
 
     config.playbook = 'playbook.yml'
@@ -69,6 +71,15 @@ VF
   # Class methods for code reuse across examples
   #
 
+  def self.it_should_check_ansible_version()
+    it "execute 'ansible --version' before executing 'ansible-playbook'" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).
+        once.with('ansible', '--version', { :notify => [:stdout, :stderr] })
+      expect(Vagrant::Util::Subprocess).to receive(:execute).
+        once.with('ansible-playbook', any_args)
+    end
+  end
+
   def self.it_should_set_arguments_and_environment_variables(
     expected_args_count = 5,
     expected_vars_count = 4,
@@ -76,9 +87,7 @@ VF
     expected_transport_mode = "ssh")
 
     it "sets implicit arguments in a specific order" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
-
-        expect(args[0]).to eq("ansible-playbook")
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         expect(args[1]).to eq("--connection=ssh")
         expect(args[2]).to eq("--timeout=30")
 
@@ -90,7 +99,7 @@ VF
     end
 
     it "sets --limit argument" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         all_limits = args.select { |x| x =~ /^(--limit=|-l)/ }
         if config.raw_arguments
           raw_limits = config.raw_arguments.select { |x| x =~ /^(--limit=|-l)/ }
@@ -108,7 +117,7 @@ VF
     end
 
     it "exports environment variables" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         cmd_opts = args.last
 
         if expected_host_key_checking
@@ -116,6 +125,7 @@ VF
         else
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o UserKnownHostsFile=/dev/null")
         end
+
         expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentitiesOnly=yes")
         expect(cmd_opts[:env]['ANSIBLE_FORCE_COLOR']).to eql("true")
         expect(cmd_opts[:env]).to_not include("ANSIBLE_NOCOLOR")
@@ -126,14 +136,14 @@ VF
 
     # "roughly" verify that only expected args/vars have been defined by the provisioner
     it "sets the expected number of arguments and environment variables" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
-        expect(args.length-2).to eq(expected_args_count)
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+        expect(args.length - 2).to eq(expected_args_count)
         expect(args.last[:env].length).to eq(expected_vars_count)
       }.and_return(default_execute_result)
     end
 
     it "enables '#{expected_transport_mode}' as default transport mode" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         index = args.rindex("--connection=#{expected_transport_mode}")
         expect(index).to be > 0
         expect(find_last_argument_after(index, args, /--connection=\w+/)).to be(false)
@@ -144,7 +154,7 @@ VF
 
   def self.it_should_set_optional_arguments(arg_map)
     it "sets optional arguments" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         arg_map.each_pair do |vagrant_option, ansible_argument|
           index = args.index(ansible_argument)
           if config.send(vagrant_option)
@@ -159,7 +169,7 @@ VF
 
   def self.it_should_explicitly_enable_ansible_ssh_control_persist_defaults
     it "configures ControlPersist (like Ansible defaults) via ANSIBLE_SSH_ARGS" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         cmd_opts = args.last
         expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ControlMaster=auto")
         expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ControlPersist=60s")
@@ -167,23 +177,24 @@ VF
     end
   end
 
-  def self.it_should_create_and_use_generated_inventory(with_ssh_user = true)
+  def self.it_should_create_and_use_generated_inventory(with_user = true)
     it "generates an inventory with all active machines" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         expect(config.inventory_path).to be_nil
         expect(File.exists?(generated_inventory_file)).to be(true)
         inventory_content = File.read(generated_inventory_file)
-        if with_ssh_user
-          expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_user='#{machine.ssh_info[:username]}' ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
+        _ssh = config.compatibility_mode == VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0 ? "" : "_ssh"
+        if with_user
+          expect(inventory_content).to include("#{machine.name} ansible#{_ssh}_host=#{machine.ssh_info[:host]} ansible#{_ssh}_port=#{machine.ssh_info[:port]} ansible#{_ssh}_user='#{machine.ssh_info[:username]}' ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
         else
-          expect(inventory_content).to include("#{machine.name} ansible_ssh_host=#{machine.ssh_info[:host]} ansible_ssh_port=#{machine.ssh_info[:port]} ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
+          expect(inventory_content).to include("#{machine.name} ansible#{_ssh}_host=#{machine.ssh_info[:host]} ansible#{_ssh}_port=#{machine.ssh_info[:port]} ansible_ssh_private_key_file='#{machine.ssh_info[:private_key_path][0]}'\n")
         end
         expect(inventory_content).to include("# MISSING: '#{iso_env.machine_names[1]}' machine was probably removed without using Vagrant. This machine should be recreated.\n")
       }.and_return(default_execute_result)
     end
 
     it "sets as ansible inventory the directory containing the auto-generated inventory file" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
         inventory_index = args.rindex("--inventory-file=#{generated_inventory_dir}")
         expect(inventory_index).to be > 0
         expect(find_last_argument_after(inventory_index, args, /--inventory-file=\w+/)).to be(false)
@@ -260,11 +271,12 @@ VF
     end
 
     describe "with default options" do
+      it_should_check_ansible_version
       it_should_set_arguments_and_environment_variables
       it_should_create_and_use_generated_inventory
 
       it "does not add any group section to the generated inventory" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) {
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to_not match(/^\s*\[^\\+\]\s*$/)
         }.and_return(default_execute_result)
@@ -275,14 +287,152 @@ VF
       end
     end
 
+    describe "deprecated 'sudo' options are aliases for equivalent 'become' options" do
+      before do
+        # Filter the deprecation notices
+        allow($stdout).to receive(:puts)
+
+        config.sudo = true
+        config.sudo_user = 'deployer'
+        config.ask_sudo_pass = true
+      end
+
+      it_should_set_optional_arguments({"sudo"            => "--sudo",
+                                        "sudo_user"       => "--sudo-user=deployer",
+                                        "ask_sudo_pass"   => "--ask-sudo-pass",
+                                        "become"          => "--sudo",
+                                        "become_user"     => "--sudo-user=deployer",
+                                        "ask_become_pass" => "--ask-sudo-pass"})
+    end
+
+    context "with compatibility_mode 'auto'" do
+      before do
+        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_AUTO
+      end
+
+      valid_versions = {
+        "0.6": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8,
+        "1.9.4": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8,
+        "2.5.0.0-rc1": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
+        "2.x.y.z": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
+        "4.3.2.1": VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0,
+      }
+      valid_versions.each_pair do |ansible_version, mode|
+        describe "and ansible version #{ansible_version}" do
+          before do
+            allow(subject).to receive(:gather_ansible_version).and_return("ansible #{ansible_version}\n...\n")
+          end
+
+          it "detects the compatibility mode #{mode}" do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+              expect(config.compatibility_mode).to eq(mode)
+            }.and_return(default_execute_result)
+          end
+
+          it "warns about compatibility mode auto-detection being used" do
+            expect(machine.env.ui).to receive(:warn).with(
+              I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
+                compatibility_mode: mode, ansible_version: ansible_version) +
+              "\n")
+          end
+        end
+      end
+
+      invalid_versions = [
+        "ansible devel",
+        "anything 1.2",
+        "2.9.2.1",
+      ]
+      invalid_versions.each do |unknown_ansible_version|
+        describe "and `ansible --version` returning '#{unknown_ansible_version}'" do
+          before do
+            allow(subject).to receive(:gather_ansible_version).and_return(unknown_ansible_version)
+          end
+
+          it "applies the safest compatibility mode ('#{VagrantPlugins::Ansible::SAFE_COMPATIBILITY_MODE}')" do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+              expect(config.compatibility_mode).to eq(VagrantPlugins::Ansible::SAFE_COMPATIBILITY_MODE)
+            }.and_return(default_execute_result)
+          end
+
+          it "warns about not being able to detect the best compatibility mode" do
+            expect(machine.env.ui).to receive(:warn).with(
+              I18n.t("vagrant.provisioners.ansible.compatibility_mode_not_detected",
+                compatibility_mode: VagrantPlugins::Ansible::SAFE_COMPATIBILITY_MODE,
+                gathered_version: unknown_ansible_version) +
+              "\n")
+          end
+        end
+      end
+
+    end
+
+    context "with compatibility_mode '#{VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8}'" do
+      before do
+        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8
+      end
+
+      it_should_check_ansible_version
+      it_should_create_and_use_generated_inventory
+
+      it "doesn't warn about compatibility mode auto-detection" do
+        expect(machine.env.ui).to_not receive(:warn)
+      end
+    end
+
+    context "with compatibility_mode '#{VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0}'" do
+      before do
+        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V2_0
+        allow(subject).to receive(:gather_ansible_version).and_return("ansible 2.3.0.0\n...\n")
+      end
+
+      it_should_create_and_use_generated_inventory
+
+      it "doesn't warn about compatibility mode auto-detection" do
+        expect(machine.env.ui).to_not receive(:warn)
+      end
+
+      describe "and an incompatible ansible version" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible 1.9.3\n...\n")
+        end
+
+        it "raises a compatibility conflict error", skip_before: false, skip_after: true do
+          expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCompatibilityModeConflict)
+        end
+      end
+
+      describe "deprecated 'sudo' options are aliases for equivalent 'become' options" do
+        before do
+          # Filter the deprecation notices
+          allow($stdout).to receive(:puts)
+
+          config.sudo = true
+          config.sudo_user = 'deployer'
+          config.ask_sudo_pass = true
+        end
+
+        it_should_set_optional_arguments({"sudo"            => "--become",
+                                          "sudo_user"       => "--become-user=deployer",
+                                          "ask_sudo_pass"   => "--ask-become-pass",
+                                          "become"          => "--become",
+                                          "become_user"     => "--become-user=deployer",
+                                          "ask_become_pass" => "--ask-become-pass"})
+      end
+    end
+
     describe "with playbook_command option" do
       before do
         config.playbook_command = "custom-ansible-playbook"
+
+        # set the compatibility mode to ensure that only ansible-playbook is excuted
+        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8
       end
 
       it "uses custom playbook_command to run playbooks" do
         expect(Vagrant::Util::Subprocess).to receive(:execute)
           .with("custom-ansible-playbook", any_args)
+          .and_return(default_execute_result)
       end
     end
 
@@ -297,7 +447,7 @@ VF
             "description" => "text with spaces but no quotes",
           }
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) {
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 comments='some text with spaces and quotes' description='text with spaces but no quotes'")
         }.and_return(default_execute_result)
@@ -307,7 +457,8 @@ VF
         config.host_vars = {
           machine1: ["http_port=80", "maxRequestsPerChild=808"]
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) {
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
         }.and_return(default_execute_result)
@@ -317,7 +468,8 @@ VF
         config.host_vars = {
           :machine1 => "http_port=80 maxRequestsPerChild=808"
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) {
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
         }.and_return(default_execute_result)
@@ -327,7 +479,8 @@ VF
         config.host_vars = {
           "machine1" => "http_port=80 maxRequestsPerChild=808"
         }
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) {
           inventory_content = File.read(generated_inventory_file)
           expect(inventory_content).to match("^" + Regexp.quote(machine.name) + ".+http_port=80 maxRequestsPerChild=808")
         }.and_return(default_execute_result)
@@ -349,7 +502,7 @@ VF
           "bar:children" => ["group1", "group2", "group3", "group5"],
         }
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
 
           # Accept String instead of Array for group member list
@@ -387,7 +540,7 @@ VF
           "group3:vars" => "stringvar1=stringvalue1 stringvar2=stringvalue2",
         }
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           inventory_content = File.read(generated_inventory_file)
 
           # Hash syntax
@@ -425,18 +578,18 @@ VF
 
     describe "with boolean (flag) options disabled" do
       before do
-        config.sudo = false
-        config.ask_sudo_pass = false
+        config.become = false
+        config.ask_become_pass = false
         config.ask_vault_pass = false
 
-        config.sudo_user = 'root'
+        config.become_user = 'root'
       end
 
       it_should_set_arguments_and_environment_variables 6
-      it_should_set_optional_arguments({ "sudo_user" => "--sudo-user=root" })
+      it_should_set_optional_arguments({ "become_user" => "--sudo-user=root" })
 
       it "it does not set boolean flag when corresponding option is set to false" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args.index("--sudo")).to be_nil
           expect(args.index("--ask-sudo-pass")).to be_nil
           expect(args.index("--ask-vault-pass")).to be_nil
@@ -446,7 +599,7 @@ VF
 
     describe "with raw_arguments option" do
       before do
-        config.sudo = false
+        config.become = false
         config.force_remote_user = false
         config.skip_tags = %w(foo bar)
         config.limit = "all"
@@ -465,7 +618,7 @@ VF
       it_should_set_arguments_and_environment_variables 17, 4, false, "paramiko"
 
       it "sets all raw arguments" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           config.raw_arguments.each do |raw_arg|
             expect(args).to include(raw_arg)
           end
@@ -473,7 +626,7 @@ VF
       end
 
       it "sets raw arguments after arguments related to supported options" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args.index("--user=lion")).to be > args.index("--user=testuser")
           expect(args.index("--inventory-file=/forget/it/my/friend")).to be > args.index("--inventory-file=#{generated_inventory_dir}")
           expect(args.index("--limit=bar")).to be > args.index("--limit=all")
@@ -482,7 +635,7 @@ VF
       end
 
       it "sets boolean flag (e.g. --sudo) defined in raw_arguments, even if corresponding option is set to false" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args).to include('--sudo')
         }.and_return(default_execute_result)
       end
@@ -507,7 +660,7 @@ VF
       it_should_set_arguments_and_environment_variables 6
 
       it "uses a --user argument to set a default remote user" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args).not_to include("--extra-vars=ansible_ssh_user='#{machine.ssh_info[:username]}'")
           expect(args).to include("--user=#{machine.ssh_info[:username]}")
         }.and_return(default_execute_result)
@@ -538,8 +691,7 @@ VF
       it_should_set_arguments_and_environment_variables
 
       it "generates an inventory with winrm connection settings" do
-
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(config.inventory_path).to be_nil
           expect(File.exists?(generated_inventory_file)).to be(true)
           inventory_content = File.read(generated_inventory_file)
@@ -554,7 +706,7 @@ VF
         end
 
         it "doesn't set the ansible remote user in inventory and use '--user' argument with the vagrant ssh username" do
-          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
             inventory_content = File.read(generated_inventory_file)
 
             expect(inventory_content).to include("machine1 ansible_connection=winrm ansible_ssh_host=127.0.0.1 ansible_ssh_port=55986 ansible_ssh_pass='winword'\n")
@@ -572,7 +724,7 @@ VF
       it_should_set_arguments_and_environment_variables 6
 
       it "does not generate the inventory and uses given inventory path instead" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args).to include("--inventory-file=#{existing_file}")
           expect(args).not_to include("--inventory-file=#{generated_inventory_file}")
           expect(File.exists?(generated_inventory_file)).to be(false)
@@ -580,7 +732,7 @@ VF
       end
 
       it "uses an --extra-vars argument to force ansible_ssh_user parameter" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args).not_to include("--user=#{machine.ssh_info[:username]}")
           expect(args).to include("--extra-vars=ansible_ssh_user='#{machine.ssh_info[:username]}'")
         }.and_return(default_execute_result)
@@ -592,7 +744,7 @@ VF
         end
 
         it "uses a --user argument to set a default remote user" do
-          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
             expect(args).not_to include("--extra-vars=ansible_ssh_user='#{machine.ssh_info[:username]}'")
             expect(args).to include("--user=#{machine.ssh_info[:username]}")
           }.and_return(default_execute_result)
@@ -606,7 +758,7 @@ VF
       end
 
       it "sets ANSIBLE_CONFIG environment variable" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]).to include("ANSIBLE_CONFIG")
           expect(cmd_opts[:env]['ANSIBLE_CONFIG']).to eql(existing_file)
@@ -622,7 +774,7 @@ VF
       it_should_set_arguments_and_environment_variables 6
 
       it "should ask the vault password" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args).to include("--ask-vault-pass")
         }.and_return(default_execute_result)
       end
@@ -636,7 +788,7 @@ VF
       it_should_set_arguments_and_environment_variables 6
 
       it "uses the given vault password file" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args).to include("--vault-password-file=#{existing_file}")
         }.and_return(default_execute_result)
       end
@@ -651,7 +803,7 @@ VF
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes custom SSH options via ANSIBLE_SSH_ARGS with the highest priority" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           raw_opt_index = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ControlMaster=no")
           default_opt_index = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ControlMaster=auto")
@@ -665,7 +817,7 @@ VF
         end
 
         it "sets '-o ForwardAgent=yes' via ANSIBLE_SSH_ARGS with higher priority than raw_ssh_args values" do
-          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
             cmd_opts = args.last
             forwardAgentYes = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ForwardAgent=yes")
             forwardAgentNo = cmd_opts[:env]['ANSIBLE_SSH_ARGS'].index("-o ForwardAgent=no")
@@ -685,7 +837,7 @@ VF
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "passes additional Identity Files via ANSIBLE_SSH_ARGS" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/an/other/identity")
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/yet/an/other/key")
@@ -699,7 +851,7 @@ VF
       end
 
       it "replaces `%` with `%%`" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/foo%%bar/key")
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o IdentityFile=/bar%%%%buz/key")
@@ -716,7 +868,7 @@ VF
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
 
       it "enables SSH-Forwarding via ANSIBLE_SSH_ARGS" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ForwardAgent=yes")
         }.and_return(default_execute_result)
@@ -729,7 +881,7 @@ VF
       end
 
       it "sets '-o ProxyCommand' via ANSIBLE_SSH_ARGS" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ProxyCommand='ssh -W %h:%p -q user@remote_libvirt_host'")
         }.and_return(default_execute_result)
@@ -799,14 +951,64 @@ VF
     describe "without colorized output" do
       before do
         allow(machine.env).to receive(:ui).and_return(Vagrant::UI::Basic.new)
+
+        allow(machine.env.ui).to receive(:warn).and_return("") # hide the breaking change warning
       end
 
       it "disables ansible-playbook colored output" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]).to_not include("ANSIBLE_FORCE_COLOR")
           expect(cmd_opts[:env]['ANSIBLE_NOCOLOR']).to eql("true")
         }.and_return(default_execute_result)
+      end
+    end
+
+
+    context "with version option set" do
+      before do
+        config.version = "2.3.4.5"
+      end
+
+      describe "and the installed ansible version is correct" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible #{config.version}\n...\n")
+        end
+
+        it "executes ansible-playbook command" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
+        end
+      end
+
+      describe "and there is an ansible version mismatch" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible 1.9.6\n...\n")
+        end
+
+        it "raises an error about the ansible version mismatch", skip_before: false, skip_after: true do
+          expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleVersionMismatch)
+        end
+      end
+
+      describe "and the installed ansible version cannot be detected" do
+        before do
+          allow(subject).to receive(:gather_ansible_version).and_return("")
+        end
+
+        it "skips the ansible version check and executes ansible-playbook command" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
+        end
+      end
+
+      describe "with special value: 'latest'" do
+        before do
+          config.version = :latest
+          allow(subject).to receive(:gather_ansible_version).and_return("ansible 2.2.0.1\n...\n")
+        end
+
+        it "skips the ansible version check and executes ansible-playbook command" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args).and_return(default_execute_result)
+        end
       end
     end
 
@@ -826,7 +1028,11 @@ VF
         expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCommandFailed)
       end
 
-      it "execute ansible-galaxy, and then ansible-playbook" do
+      it "execute three commands: ansible --version, ansible-galaxy, and ansible-playbook" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute)
+          .once
+          .with('ansible', '--version', { :notify => [:stdout, :stderr] })
+          .and_return(default_execute_result)
         expect(Vagrant::Util::Subprocess).to receive(:execute)
           .once
           .with('ansible-galaxy', any_args)
@@ -860,7 +1066,7 @@ VF
       end
 
       it "sets ANSIBLE_ROLES_PATH with corresponding absolute path" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]).to include("ANSIBLE_ROLES_PATH")
           expect(cmd_opts[:env]['ANSIBLE_ROLES_PATH']).to eql(File.join(machine.env.root_path, "my-roles"))
@@ -897,10 +1103,10 @@ VF
         # command line arguments
         config.galaxy_roles_path = "/up/to the stars"
         config.extra_vars = { var1: %Q(string with 'apo$trophe$', \\, " and =), var2: { x: 42 } }
-        config.sudo = true
-        config.sudo_user = 'deployer'
+        config.become = true
+        config.become_user = 'deployer'
         config.verbose = "vvv"
-        config.ask_sudo_pass = true
+        config.ask_become_pass = true
         config.ask_vault_pass = true
         config.vault_password_file = existing_file
         config.tags = %w(db www)
@@ -918,10 +1124,10 @@ VF
       it_should_set_arguments_and_environment_variables 21, 6, true
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
       it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars={\"var1\":\"string with 'apo$trophe$', \\\\, \\\" and =\",\"var2\":{\"x\":42}}",
-                                          "sudo"                => "--sudo",
-                                          "sudo_user"           => "--sudo-user=deployer",
+                                          "become"              => "--sudo",
+                                          "become_user"         => "--sudo-user=deployer",
                                           "verbose"             => "-vvv",
-                                          "ask_sudo_pass"       => "--ask-sudo-pass",
+                                          "ask_become_pass"     => "--ask-sudo-pass",
                                           "ask_vault_pass"      => "--ask-vault-pass",
                                           "vault_password_file" => "--vault-password-file=#{File.expand_path(__FILE__)}",
                                           "tags"                => "--tags=db,www",
@@ -931,7 +1137,7 @@ VF
                                         })
 
       it "also includes given raw arguments" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           expect(args).to include("--why-not")
           expect(args).to include("--su-user=foot")
           expect(args).to include("--ask-su-pass")
@@ -971,7 +1177,7 @@ VF
       end
 
       it "uses an SSH ProxyCommand to reach the VM" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to include("-o ProxyCommand='ssh boot9docker@127.0.0.1 -p 2299 -i /path/to/docker/host/key -o Compression=yes -o ConnectTimeout=5 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no exec nc %h %p 2>/dev/null'")
         }.and_return(default_execute_result)
@@ -986,11 +1192,14 @@ VF
       before do
         allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
         allow(machine.ui).to receive(:warn)
+
+        # Set the compatibility mode to only get the Windows warning
+        config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8
       end
 
       it "warns that Windows is not officially supported for the Ansible control machine" do
         expect(machine.env.ui).to receive(:warn)
-          .with(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine"))
+          .with(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine") + "\n")
       end
     end
 
@@ -1000,7 +1209,7 @@ VF
       end
 
       it "does not set IdentitiesOnly=yes in ANSIBLE_SSH_ARGS" do
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o IdentitiesOnly=yes")
         }.and_return(default_execute_result)
@@ -1010,7 +1219,7 @@ VF
         it "does not set ANSIBLE_SSH_ARGS environment variable" do
           config.host_key_checking = true
 
-          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
             cmd_opts = args.last
             expect(cmd_opts[:env]).to_not include('ANSIBLE_SSH_ARGS')
           }.and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
@@ -1023,7 +1232,7 @@ VF
       it 'does not set IdentitiesOnly=yes in ANSIBLE_SSH_ARGS' do
         ssh_info[:keys_only] = false
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
           cmd_opts = args.last
           expect(cmd_opts[:env]['ANSIBLE_SSH_ARGS']).to_not include("-o IdentitiesOnly=yes")
         }.and_return(default_execute_result)

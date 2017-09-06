@@ -17,6 +17,36 @@ These options get passed to the `ansible-playbook` command that ships with Ansib
 
 Some of these options are for advanced usage only and should not be used unless you understand their purpose.
 
+- `become` (boolean) - Perform all the Ansible playbook tasks [as another user](http://docs.ansible.com/ansible/become.html), different from the user used to log into the guest system.
+
+    The default value is `false`.
+
+- `become_user` (string) - Set the default username to be used by the Ansible `become` [privilege escalation](http://docs.ansible.com/ansible/become.html) mechanism.
+
+    By default this option is not set, and the Ansible default value (`root`) will be used.
+
+- `compatibility_mode` (string) - Set the **minimal** version of Ansible to be supported. Vagrant will only use parameters that are compatible with the given version.
+
+    Possible values:
+
+    - `"auto"` _(Vagrant will automatically select the optimal compatibilty mode by checking the Ansible version currently available)_
+    - `"1.8"` _(Ansible versions prior to 1.8 should mostly work well, but some options might not be supported)_
+    - `"2.0"` _(The generated Ansible inventory will be incompatible with Ansible 1.x)_
+
+    By default this option is set to `"auto"`. If Vagrant is not able to detect any supported Ansible version, it will fall back on the compatibility mode `"1.8"` with a warning.
+
+    Vagrant will error if the specified compatibility mode is incompatible with the current Ansible version.
+
+    <div class="alert alert-warning">
+      <strong>Attention:</strong>
+      Vagrant doesn't perform any validation between the `compatibility_mode` value and the value of the [`version`](#version) option.
+    </div>
+
+    <div class="alert alert-info">
+      <strong>Compatibility Note:</strong>
+      This option was introduced in Vagrant 2.0. The behavior of previous Vagrant versions can be simulated by setting the `compatibility_mode` to `"1.8"`.
+    </div>
+
 - `config_file` (string) - The path to an [Ansible Configuration file](https://docs.ansible.com/intro_configuration.html).
 
     By default, this option is not set, and Ansible will [search for a possible configuration file in some default locations](/docs/provisioning/ansible_intro.html#ANSIBLE_CONFIG).
@@ -123,17 +153,28 @@ Some of these options are for advanced usage only and should not be used unless 
     - `['--check', '-M', '/my/modules']`
     - `["--connection=paramiko", "--forks=10"]`
 
-    **Caveat:** The `ansible` provisioner does not support whitespace characters in `raw_arguments` elements. Therefore **don't write** something like `["-c paramiko"]`, which will result with an invalid `" parmiko"` parameter value.
+    <div class="alert alert-warn">
+      <strong>Attention:</strong>
+      The `ansible` provisioner does not support whitespace characters in `raw_arguments` elements. Therefore **don't write** something like `["-c paramiko"]`, which will result with an invalid `" parmiko"` parameter value.
+    </div>
 
 - `skip_tags` (string or array of strings) - Only plays, roles and tasks that [*do not match* these values will be executed](https://docs.ansible.com/playbooks_tags.html).
 
 - `start_at_task` (string) - The task name where the [playbook execution will start](https://docs.ansible.com/playbooks_startnstep.html#start-at-task).
 
-- `sudo` (boolean) - Cause Ansible to perform all the playbook tasks [using sudo](https://docs.ansible.com/glossary.html#sudo).
+- `sudo` (boolean) - Backwards compatible alias for the [`become`](#become) option.
 
-    The default value is `false`.
+    <div class="alert alert-warning">
+      <strong>Deprecation:</strong>
+      The `sudo` option is deprecated and will be removed in a future release. Please use the [**`become`**](#become) option instead.
+    </div>
 
-- `sudo_user` (string) - set the default username who should be used by the sudo command.
+- `sudo_user` (string) - Backwards compatible alias for the [`become_user`](#become_user) option.
+
+    <div class="alert alert-warning">
+      <strong>Deprecation:</strong>
+      The `sudo_user` option is deprecated and will be removed in a future release. Please use the [**`become_user`**](#become_user) option instead.
+    </div>
 
 - `tags` (string or array of strings) - Only plays, roles and tasks [tagged with these values will be executed](https://docs.ansible.com/playbooks_tags.html) .
 
@@ -146,3 +187,16 @@ Some of these options are for advanced usage only and should not be used unless 
     Examples: `true` (equivalent to `v`), `-vvv` (equivalent to `vvv`), `vvvv`.
 
     Note that when the `verbose` option is enabled, the `ansible-playbook` command used by Vagrant will be displayed.
+
+- `version` (string) - The expected Ansible version.
+
+    This option is disabled by default.
+
+    When an Ansible version is defined (e.g. `"2.1.6.0"`), the Ansible provisioner will be executed only if Ansible is installed at the requested version.
+
+    When this option is set to `"latest"`, no version check is applied.
+
+    <div class="alert alert-info">
+      <strong>Tip:</strong>
+      With the `ansible_local` provisioner, it is currently possible to use this option to specify which version of Ansible must be automatically installed, but <strong>only</strong> in combination with the [**`install_mode`**](/docs/provisioning/ansible_local.html#install_mode)  set to <strong>`:pip`</strong>.
+    </div>

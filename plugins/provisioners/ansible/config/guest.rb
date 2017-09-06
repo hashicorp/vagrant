@@ -11,7 +11,6 @@ module VagrantPlugins
         attr_accessor :install
         attr_accessor :install_mode
         attr_accessor :pip_args
-        attr_accessor :version
 
         def initialize
           super
@@ -21,7 +20,6 @@ module VagrantPlugins
           @pip_args          = UNSET_VALUE
           @provisioning_path = UNSET_VALUE
           @tmp_path          = UNSET_VALUE
-          @version           = UNSET_VALUE
         end
 
         def finalize!
@@ -32,7 +30,6 @@ module VagrantPlugins
           @pip_args          = ""                     if @pip_args          == UNSET_VALUE
           @provisioning_path = "/vagrant"             if provisioning_path  == UNSET_VALUE
           @tmp_path          = "/tmp/vagrant-ansible" if tmp_path           == UNSET_VALUE
-          @version           = ""                     if @version           == UNSET_VALUE
         end
 
         def validate(machine)

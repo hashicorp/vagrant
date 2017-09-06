@@ -3,6 +3,9 @@ shared_examples_for 'options shared by both Ansible provisioners' do
   it "assigns default values to unset common options" do
     subject.finalize!
 
+    expect(subject.become).to be(false)
+    expect(subject.become_user).to be_nil
+    expect(subject.compatibility_mode).to eql(VagrantPlugins::Ansible::COMPATIBILITY_MODE_AUTO)
     expect(subject.config_file).to be_nil
     expect(subject.extra_vars).to be_nil
     expect(subject.galaxy_command).to eql("ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force")
@@ -17,11 +20,12 @@ shared_examples_for 'options shared by both Ansible provisioners' do
     expect(subject.raw_arguments).to be_nil
     expect(subject.skip_tags).to be_nil
     expect(subject.start_at_task).to be_nil
-    expect(subject.sudo).to be(false)
-    expect(subject.sudo_user).to be_nil
+    expect(subject.sudo).to be(false)              # deprecated
+    expect(subject.sudo_user).to be_nil            # deprecated
     expect(subject.tags).to be_nil
     expect(subject.vault_password_file).to be_nil
     expect(subject.verbose).to be(false)
+    expect(subject.version).to be_empty
   end
 
 end
@@ -39,6 +43,44 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
     expect(result[provisioner_label]).to eql([
       I18n.t("vagrant.provisioners.ansible.errors.no_playbook")
     ])
+  end
+
+  describe "compatibility_mode option" do
+
+    VagrantPlugins::Ansible::COMPATIBILITY_MODES.each do |valid_mode|
+      it "supports compatibility mode '#{valid_mode}'" do
+        subject.compatibility_mode = valid_mode
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(subject.compatibility_mode).to eql(valid_mode)
+      end
+    end
+
+    it "returns an error if the compatibility mode is not set" do
+      subject.compatibility_mode = nil
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result[provisioner_label]).to eql([
+        I18n.t("vagrant.provisioners.ansible.errors.no_compatibility_mode",
+               valid_modes: "'auto', '1.8', '2.0'")
+      ])
+    end
+
+    %w(invalid 1.9 2.3).each do |invalid_mode|
+      it "returns an error if the compatibility mode is invalid (e.g. '#{invalid_mode}')" do
+        subject.compatibility_mode = invalid_mode
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[provisioner_label]).to eql([
+          I18n.t("vagrant.provisioners.ansible.errors.no_compatibility_mode",
+                 valid_modes: "'auto', '1.8', '2.0'")
+        ])
+      end
+    end
+
   end
 
   it "passes if the extra_vars option is a hash" do
@@ -82,6 +124,7 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
   end
 
   it "it collects and returns all detected errors" do
+    subject.compatibility_mode = nil
     subject.playbook = nil
     subject.extra_vars = ["var1", 3, "var2", 5]
     subject.raw_arguments = { arg1: 1, arg2: "foo" }
@@ -89,7 +132,10 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
 
     result = subject.validate(machine)
 
-    expect(result[provisioner_label].size).to eql(3)
+    expect(result[provisioner_label].size).to eql(4)
+    expect(result[provisioner_label]).to include(
+      I18n.t("vagrant.provisioners.ansible.errors.no_compatibility_mode",
+             valid_modes: "'auto', '1.8', '2.0'"))
     expect(result[provisioner_label]).to include(
       I18n.t("vagrant.provisioners.ansible.errors.no_playbook"))
     expect(result[provisioner_label]).to include(
@@ -102,7 +148,15 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
              value: subject.raw_arguments.to_s))
   end
 
+  describe "become option" do
+    it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :become, false
+  end
+
   describe "sudo option" do
+    before do
+      # Filter the deprecation notice
+      allow($stdout).to receive(:puts)
+    end
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :sudo, false
   end
 
