@@ -33,7 +33,7 @@ module VagrantPlugins
         # Current limitations:
         #   - The installation of a specific Ansible version is only supported by
         #     the "pip" install_mode.
-        #   - There is no abslute guarantee that the automated installation will replace
+        #   - There is no absolute guarantee that the automated installation will replace
         #     a previous Ansible installation (although it works fine in many cases)
         #
         def check_and_install_ansible
