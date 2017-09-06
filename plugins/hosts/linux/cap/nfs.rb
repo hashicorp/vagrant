@@ -1,3 +1,4 @@
+require "shellwords"
 require "vagrant/util"
 require "vagrant/util/shell_quote"
 require "vagrant/util/retryable"
@@ -15,11 +16,19 @@ module VagrantPlugins
         end
 
         def self.nfs_check_command(env)
-          "/etc/init.d/nfs-kernel-server status"
+          if Vagrant::Util::Platform.systemd?
+            "systemctl status --no-pager nfs-server.service"
+          else
+            "/etc/init.d/nfs-kernel-server status"
+          end
         end
 
         def self.nfs_start_command(env)
-          "/etc/init.d/nfs-kernel-server start"
+          if Vagrant::Util::Platform.systemd?
+            "systemctl start nfs-server.service"
+          else
+            "/etc/init.d/nfs-kernel-server start"
+          end
         end
 
         def self.nfs_export(env, ui, id, ips, folders)
@@ -44,16 +53,20 @@ module VagrantPlugins
           nfs_write_exports(output)
 
           if nfs_running?(nfs_check_command)
-            system("sudo #{nfs_apply_command}")
+            Vagrant::Util::Subprocess.execute("sudo", *Shellwords.split(nfs_apply_command)).exit_code == 0
           else
-            system("sudo #{nfs_start_command}")
+            Vagrant::Util::Subprocess.execute("sudo", *Shellwords.split(nfs_start_command)).exit_code == 0
           end
         end
 
         def self.nfs_installed(environment)
-          retryable(tries: 10, on: TypeError) do
-            # Check procfs to see if NFSd is a supported filesystem
-            system("cat /proc/filesystems | grep nfsd > /dev/null 2>&1")
+          if Vagrant::Util::Platform.systemd?
+            Vagrant::Util::Subprocess.execute("/bin/sh", "-c",
+              "systemctl --no-pager --no-legend --plain list-unit-files --all --type=service " \
+                "| grep nfs-server.service").exit_code == 0
+          else
+            Vagrant::Util::Subprocess.execute("modinfo", "nfsd").exit_code == 0 ||
+              Vagrant::Util::Subprocess.execute("grep", "nfsd", "/proc/filesystems").exit_code == 0
           end
         end
 
@@ -218,7 +231,7 @@ module VagrantPlugins
         end
 
         def self.nfs_running?(check_command)
-          system(check_command)
+          Vagrant::Util::Subprocess.execute(*Shellwords.split(check_command)).exit_code == 0
         end
       end
     end

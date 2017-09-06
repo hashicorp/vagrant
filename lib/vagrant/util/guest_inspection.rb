@@ -8,7 +8,7 @@ module Vagrant
 
         ## systemd helpers
 
-        # systemd is in used
+        # systemd is in use
         #
         # @return [Boolean]
         def systemd?(comm)

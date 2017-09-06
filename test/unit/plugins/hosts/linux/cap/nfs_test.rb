@@ -33,6 +33,44 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
     @tmp_exports = nil
   end
 
+  describe ".nfs_check_command" do
+    let(:cap){ caps.get(:nfs_check_command) }
+
+    context "without systemd" do
+      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(false) }
+
+      it "should use init.d script" do
+        expect(cap.nfs_check_command(env)).to include("init.d")
+      end
+    end
+    context "with systemd" do
+      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(true) }
+
+      it "should use systemctl" do
+        expect(cap.nfs_check_command(env)).to include("systemctl")
+      end
+    end
+  end
+
+  describe ".nfs_start_command" do
+    let(:cap){ caps.get(:nfs_start_command) }
+
+    context "without systemd" do
+      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(false) }
+
+      it "should use init.d script" do
+        expect(cap.nfs_start_command(env)).to include("init.d")
+      end
+    end
+    context "with systemd" do
+      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(true) }
+
+      it "should use systemctl" do
+        expect(cap.nfs_start_command(env)).to include("systemctl")
+      end
+    end
+  end
+
   describe ".nfs_export" do
 
     let(:cap){ caps.get(:nfs_export) }
@@ -43,8 +81,9 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
       allow(host).to receive(:capability).with(:nfs_check_command).and_return("/bin/true")
       allow(host).to receive(:capability).with(:nfs_start_command).and_return("/bin/true")
       allow(ui).to receive(:info)
-      allow(cap).to receive(:system).with("sudo /bin/true").and_return(true)
-      allow(cap).to receive(:system).with("/bin/true").and_return(true)
+      allow(Vagrant::Util::Subprocess).to receive(:execute).and_call_original
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("sudo", "/bin/true").and_return(double(:result, exit_code: 0))
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("/bin/true").and_return(double(:result, exit_code: 0))
     end
 
     it "should export new entries" do
