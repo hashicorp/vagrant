@@ -70,7 +70,7 @@ module VagrantPlugins
             if arg =~ /(--start-at-task|--limit)=(.+)/
               shell_args << %Q(#{$1}="#{$2}")
             elsif arg =~ /(--extra-vars)=(.+)/
-              shell_args << %Q(%s="%s") % [$1, $2.gsub('\\', '\\\\\\').gsub('"', %Q(\\"))]
+              shell_args << %Q(%s=%s) % [$1, $2.shellescape]
             else
               shell_args << arg
             end

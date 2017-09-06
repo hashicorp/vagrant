@@ -867,10 +867,10 @@ VF
     context "with extra_vars option defined" do
       describe "with a hash value" do
         before do
-          config.extra_vars = { var1: %Q(string with 'apostrophes', \\, " and =), var2: { x: 42 } }
+          config.extra_vars = { var1: %Q(string with 'apo$trophe$', \\, " and =), var2: { x: 42 } }
         end
 
-        it_should_set_optional_arguments({ "extra_vars" => "--extra-vars={\"var1\":\"string with 'apostrophes', \\\\, \\\" and =\",\"var2\":{\"x\":42}}" })
+        it_should_set_optional_arguments({ "extra_vars" => "--extra-vars={\"var1\":\"string with 'apo$trophe$', \\\\, \\\" and =\",\"var2\":{\"x\":42}}" })
       end
 
       describe "with a string value referring to file path (with the '@' prefix)" do
@@ -892,7 +892,7 @@ VF
 
         # command line arguments
         config.galaxy_roles_path = "/up/to the stars"
-        config.extra_vars = { var1: %Q(string with 'apostrophes', \\, " and =), var2: { x: 42 } }
+        config.extra_vars = { var1: %Q(string with 'apo$trophe$', \\, " and =), var2: { x: 42 } }
         config.sudo = true
         config.sudo_user = 'deployer'
         config.verbose = "vvv"
@@ -913,7 +913,7 @@ VF
 
       it_should_set_arguments_and_environment_variables 21, 6, true
       it_should_explicitly_enable_ansible_ssh_control_persist_defaults
-      it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars={\"var1\":\"string with 'apostrophes', \\\\, \\\" and =\",\"var2\":{\"x\":42}}",
+      it_should_set_optional_arguments({  "extra_vars"          => "--extra-vars={\"var1\":\"string with 'apo$trophe$', \\\\, \\\" and =\",\"var2\":{\"x\":42}}",
                                           "sudo"                => "--sudo",
                                           "sudo_user"           => "--sudo-user=deployer",
                                           "verbose"             => "-vvv",
@@ -938,7 +938,7 @@ VF
 
       it "shows the ansible-playbook command, with additional quotes when required" do
         expect(machine.env.ui).to receive(:detail)
-          .with(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars="{\\"var1\\":\\"string with 'apostrophes', \\\\\\\\, \\\\\\" and =\\",\\"var2\\":{\\"x\\":42}}" --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
+          .with(%Q(PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_ROLES_PATH='/up/to the stars' ANSIBLE_CONFIG='#{existing_file}' ANSIBLE_HOST_KEY_CHECKING=true ANSIBLE_SSH_ARGS='-o IdentitiesOnly=yes -o IdentityFile=/my/key1 -o IdentityFile=/my/key2 -o ForwardAgent=yes -o ControlMaster=no -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --connection=ssh --timeout=30 --ask-sudo-pass --ask-vault-pass --limit="machine*:&vagrant:!that_one" --inventory-file=#{generated_inventory_dir} --extra-vars=\\{\\"var1\\":\\"string\\ with\\ \\'apo\\$trophe\\$\\',\\ \\\\\\\\,\\ \\\\\\"\\ and\\ \\=\\",\\"var2\\":\\{\\"x\\":42\\}\\} --sudo --sudo-user=deployer -vvv --vault-password-file=#{existing_file} --tags=db,www --skip-tags=foo,bar --start-at-task="joe's awesome task" --why-not --su-user=foot --ask-su-pass --limit=all --private-key=./myself.key --extra-vars='{\"var3\":\"foo\"}' playbook.yml))
       end
     end
 
