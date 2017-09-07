@@ -7,6 +7,7 @@ IMPROVEMENTS:
   - commands/login: Add support for two-factor authentication [GH-8935]
   - commands/ssh-config: Properly display windows path if invoked from msys2 or
       cygwin [GH-8915]
+  - guests/alt: Add support for ALT Linux [GH-8746]
   - guests/kali: Fix file permissions on guest plugin ruby files [GH-8950]
   - hosts/linux: Provide common systemd detection for services interaction, fix NFS
       host interactions [GH-8938]
