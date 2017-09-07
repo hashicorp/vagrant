@@ -92,8 +92,7 @@ elevated PowerShell. Note that you will lose access to the shared folders in
 any running VMs, so halt all Vagrant VMs before running this.
 
 ```PowerShell
-PS C:\> Get-WmiObject -Class Win32_Share | Where-Object { $_.Name -match "[0-9a-f
-]{32}"  } | %{ $_.delete() }
+PS C:\> Get-WmiObject -Class Win32_Share | Where-Object { $_.Name -match "[0-9a-f]{32}"  } | %{ $_.delete() }
 ```
 
 Output will look something like the following for each share that is deleted:
