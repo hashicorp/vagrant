@@ -5,23 +5,35 @@ FEATURES:
 IMPROVEMENTS:
 
   - commands/login: Add support for two-factor authentication [GH-8935]
-  - commands/ssh-config: Properly display windows path if invoked from msys2 or cygwin [GH-8915]
+  - commands/ssh-config: Properly display windows path if invoked from msys2 or
+      cygwin [GH-8915]
   - guests/kali: Fix file permissions on guest plugin ruby files [GH-8950]
+  - hosts/linux: Provide common systemd detection for services interaction, fix NFS
+      host interactions [GH-8938]
   - providers/salt: Remove duplicate stdout, stderr output from salt [GH-8767]
-  - providers/salt: Introduce salt_call_args and salt_args option for salt provisioner [GH-8927]
+  - providers/salt: Introduce salt_call_args and salt_args option for salt provisioner
+      [GH-8927]
   - providers/virtualbox: Improving resilience of some VirtualBox commands [GH-8951]
-  - provisioners/ansible(both): Add the compatibility_mode option, with auto-detection enabled by default [GH-8913, GH-6570]
-  - provisioners/ansible: Add the version option to the host-based provisioner [GH-8913, GH-8914]
-  - provisioners/ansible(both): Add the become and become_user options with deprecation of sudo and sudo_user options [GH-8913, GH-6570]
-  - provisioners/ansible: Add the ask_become_pass option with deprecation of the ask_sudo_pass option [GH-8913, GH-6570]
+  - provisioners/ansible(both): Add the compatibility_mode option, with auto-detection
+      enabled by default [GH-8913, GH-6570]
+  - provisioners/ansible: Add the version option to the host-based provisioner
+      [GH-8913, GH-8914]
+  - provisioners/ansible(both): Add the become and become_user options with deprecation
+      of sudo and sudo_user options [GH-8913, GH-6570]
+  - provisioners/ansible: Add the ask_become_pass option with deprecation of the
+      ask_sudo_pass option [GH-8913, GH-6570]
 
 BUG FIXES:
 
-  - guests/shell_expand_guest_path : Properly expand guest paths that include relative path alias [GH-8918]
+  - guests/shell_expand_guest_path : Properly expand guest paths that include relative
+      path alias [GH-8918]
   - hosts/linux: Remove duplicate export folders before writing /etc/exports [GH-8945]
-  - provisioners/ansible(both): Add single quotes to the inventory host variables, only when necessary [GH-8597]
-  - provisioners/ansible(both): Add the "all:vars" section to the inventory when defined in `groups` option [GH-7730]
-  - provisioners/ansible_local: Extra variables are no longer truncated when a dollar ($) character is present [GH-7735]
+  - provisioners/ansible(both): Add single quotes to the inventory host variables, only
+      when necessary [GH-8597]
+  - provisioners/ansible(both): Add the "all:vars" section to the inventory when defined
+      in `groups` option [GH-7730]
+  - provisioners/ansible_local: Extra variables are no longer truncated when a dollar ($)
+      character is present [GH-7735]
   - provisioners/file: Align file provisioner functionality on all platforms [GH-8939]
   - util/ssh: Properly quote key path for IdentityFile option to allow for spaces [GH-8924]
 
