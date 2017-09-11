@@ -11,6 +11,7 @@ module VagrantPlugins
 
         def initialize(machine, config)
           super
+          @control_machine = "host"
           @logger = Log4r::Logger.new("vagrant::provisioners::ansible_host")
         end
 
@@ -18,8 +19,9 @@ module VagrantPlugins
           # At this stage, the SSH access is guaranteed to be ready
           @ssh_info = @machine.ssh_info
 
-          check_files_existence
           warn_for_unsupported_platform
+          check_files_existence
+          check_ansible_version_and_compatibility
 
           execute_ansible_galaxy_from_host if config.galaxy_role_file
           execute_ansible_playbook_from_host
@@ -31,7 +33,24 @@ module VagrantPlugins
 
         def warn_for_unsupported_platform
           if Vagrant::Util::Platform.windows?
-            @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine"))
+            @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.windows_not_supported_for_control_machine") + "\n")
+          end
+        end
+
+        def check_ansible_version_and_compatibility
+          # This step will also fetch the Ansible version data into related instance variables
+          set_and_check_compatibility_mode
+
+          # Skip this check when not required, nor possible
+          if !@gathered_version || config.version.empty? || config.version.to_s.to_sym == :latest
+            return
+          end
+
+          if config.version != @gathered_version
+            raise Ansible::Errors::AnsibleVersionMismatch,
+              system: @control_machine,
+              required_version: config.version,
+              current_version: @gathered_version
           end
         end
 
@@ -49,15 +68,15 @@ module VagrantPlugins
 
           if !config.force_remote_user
             # Pass the vagrant ssh username as Ansible default remote user, because
-            # the ansible_ssh_user parameter won't be added to the auto-generated inventory.
+            # the ansible_ssh_user/ansible_user parameter won't be added to the auto-generated inventory.
             @command_arguments << "--user=#{@ssh_info[:username]}"
           elsif config.inventory_path
             # Using an extra variable is the only way to ensure that the Ansible remote user
             # is overridden (as the ansible inventory is not under vagrant control)
-            @command_arguments << "--extra-vars=ansible_ssh_user='#{@ssh_info[:username]}'"
+            @command_arguments << "--extra-vars=#{@lexicon[:ansible_user]}='#{@ssh_info[:username]}'"
           end
 
-          @command_arguments << "--ask-sudo-pass" if config.ask_sudo_pass
+          @command_arguments << "--#{@lexicon[:ask_become_pass]}" if config.ask_become_pass
           @command_arguments << "--ask-vault-pass" if config.ask_vault_pass
 
           prepare_common_command_arguments
@@ -86,6 +105,30 @@ module VagrantPlugins
           rescue Vagrant::Errors::CommandUnavailable
             raise Ansible::Errors::AnsibleNotFoundOnHost
           end
+        end
+
+        def gather_ansible_version
+          raw_output = ""
+          command = %w(ansible --version)
+
+          command << {
+            notify: [:stdout, :stderr]
+          }
+
+          begin
+            result = Vagrant::Util::Subprocess.execute(*command) do |type, output|
+              if type == :stdout && output.lines[0]
+                raw_output = output
+              end
+            end
+            if result.exit_code != 0
+              raw_output = ""
+            end
+          rescue Vagrant::Errors::CommandUnavailable
+            raise Ansible::Errors::AnsibleNotFoundOnHost
+          end
+
+          raw_output
         end
 
         def execute_ansible_galaxy_from_host
@@ -199,19 +242,19 @@ module VagrantPlugins
         def get_inventory_ssh_machine(machine, ssh_info)
           forced_remote_user = ""
           if config.force_remote_user
-            forced_remote_user = "ansible_ssh_user='#{ssh_info[:username]}' "
+            forced_remote_user = "#{@lexicon[:ansible_user]}='#{ssh_info[:username]}' "
           end
 
-          "#{machine.name} ansible_ssh_host=#{ssh_info[:host]} ansible_ssh_port=#{ssh_info[:port]} #{forced_remote_user}ansible_ssh_private_key_file='#{ssh_info[:private_key_path][0]}'\n"
+          "#{machine.name} #{@lexicon[:ansible_host]}=#{ssh_info[:host]} #{@lexicon[:ansible_port]}=#{ssh_info[:port]} #{forced_remote_user}ansible_ssh_private_key_file='#{ssh_info[:private_key_path][0]}'\n"
         end
 
         def get_inventory_winrm_machine(machine, winrm_net_info)
           forced_remote_user = ""
           if config.force_remote_user
-            forced_remote_user = "ansible_ssh_user='#{machine.config.winrm.username}' "
+            forced_remote_user = "#{@lexicon[:ansible_user]}='#{machine.config.winrm.username}' "
           end
 
-          "#{machine.name} ansible_connection=winrm ansible_ssh_host=#{winrm_net_info[:host]} ansible_ssh_port=#{winrm_net_info[:port]} #{forced_remote_user}ansible_ssh_pass='#{machine.config.winrm.password}'\n"
+          "#{machine.name} ansible_connection=winrm #{@lexicon[:ansible_host]}=#{winrm_net_info[:host]} #{@lexicon[:ansible_port]}=#{winrm_net_info[:port]} #{forced_remote_user}#{@lexicon[:ansible_password]}='#{machine.config.winrm.password}'\n"
         end
 
         def ansible_ssh_args
@@ -287,7 +330,7 @@ module VagrantPlugins
                   _key: :config_file_not_found,
                   config_option: option_name,
                   path: expanded_path,
-                  system: "host"
+                  system: @control_machine
           end
         end
 

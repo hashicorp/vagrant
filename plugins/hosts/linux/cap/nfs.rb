@@ -1,3 +1,4 @@
+require "shellwords"
 require "vagrant/util"
 require "vagrant/util/shell_quote"
 require "vagrant/util/retryable"
@@ -15,11 +16,19 @@ module VagrantPlugins
         end
 
         def self.nfs_check_command(env)
-          "/etc/init.d/nfs-kernel-server status"
+          if Vagrant::Util::Platform.systemd?
+            "systemctl status --no-pager nfs-server.service"
+          else
+            "/etc/init.d/nfs-kernel-server status"
+          end
         end
 
         def self.nfs_start_command(env)
-          "/etc/init.d/nfs-kernel-server start"
+          if Vagrant::Util::Platform.systemd?
+            "systemctl start nfs-server.service"
+          else
+            "/etc/init.d/nfs-kernel-server start"
+          end
         end
 
         def self.nfs_export(env, ui, id, ips, folders)
@@ -29,6 +38,7 @@ module VagrantPlugins
           nfs_start_command = env.host.capability(:nfs_start_command)
 
           nfs_opts_setup(folders)
+          folders = folder_dupe_check(folders)
           output = Vagrant::Util::TemplateRenderer.render('nfs/exports_linux',
                                            uuid: id,
                                            ips: ips,
@@ -43,16 +53,20 @@ module VagrantPlugins
           nfs_write_exports(output)
 
           if nfs_running?(nfs_check_command)
-            system("sudo #{nfs_apply_command}")
+            Vagrant::Util::Subprocess.execute("sudo", *Shellwords.split(nfs_apply_command)).exit_code == 0
           else
-            system("sudo #{nfs_start_command}")
+            Vagrant::Util::Subprocess.execute("sudo", *Shellwords.split(nfs_start_command)).exit_code == 0
           end
         end
 
         def self.nfs_installed(environment)
-          retryable(tries: 10, on: TypeError) do
-            # Check procfs to see if NFSd is a supported filesystem
-            system("cat /proc/filesystems | grep nfsd > /dev/null 2>&1")
+          if Vagrant::Util::Platform.systemd?
+            Vagrant::Util::Subprocess.execute("/bin/sh", "-c",
+              "systemctl --no-pager --no-legend --plain list-unit-files --all --type=service " \
+                "| grep nfs-server.service").exit_code == 0
+          else
+            Vagrant::Util::Subprocess.execute("modinfo", "nfsd").exit_code == 0 ||
+              Vagrant::Util::Subprocess.execute("grep", "nfsd", "/proc/filesystems").exit_code == 0
           end
         end
 
@@ -83,6 +97,37 @@ module VagrantPlugins
         end
 
         protected
+
+        # Takes a hash of folders and removes any duplicate exports that
+        # share the same hostpath to avoid duplicate entries in /etc/exports
+        # ref: GH-4666
+        def self.folder_dupe_check(folders)
+          return_folders = {}
+          # Group by hostpath to see if there are multiple exports coming
+          # from the same folder
+          export_groups = folders.values.group_by { |h| h[:hostpath] }
+
+          # We need to check that each group key only has 1 value,
+          # and if not, check each nfs option. If all nfs options are the same
+          # we're good, otherwise throw an exception
+          export_groups.each do |path,group|
+            if group.size > 1
+              # if the linux nfs options aren't all the same throw an exception
+              group1_opts = group.first[:linux__nfs_options]
+
+              if !group.all? {|g| g[:linux__nfs_options] == group1_opts}
+                raise Vagrant::Errors::NFSDupePerms, hostpath: group.first[:hostpath]
+              else
+                # if they're the same just pick the first one
+                return_folders[path] = group.first
+              end
+            else
+              # just return folder, there are no duplicates
+              return_folders[path] = group.first
+            end
+          end
+          return_folders
+        end
 
         def self.nfs_cleanup(remove_ids)
           return if !File.exist?(NFS_EXPORTS_PATH)
@@ -186,7 +231,7 @@ module VagrantPlugins
         end
 
         def self.nfs_running?(check_command)
-          system(check_command)
+          Vagrant::Util::Subprocess.execute(*Shellwords.split(check_command)).exit_code == 0
         end
       end
     end

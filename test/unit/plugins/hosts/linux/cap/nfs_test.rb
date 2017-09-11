@@ -33,6 +33,44 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
     @tmp_exports = nil
   end
 
+  describe ".nfs_check_command" do
+    let(:cap){ caps.get(:nfs_check_command) }
+
+    context "without systemd" do
+      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(false) }
+
+      it "should use init.d script" do
+        expect(cap.nfs_check_command(env)).to include("init.d")
+      end
+    end
+    context "with systemd" do
+      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(true) }
+
+      it "should use systemctl" do
+        expect(cap.nfs_check_command(env)).to include("systemctl")
+      end
+    end
+  end
+
+  describe ".nfs_start_command" do
+    let(:cap){ caps.get(:nfs_start_command) }
+
+    context "without systemd" do
+      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(false) }
+
+      it "should use init.d script" do
+        expect(cap.nfs_start_command(env)).to include("init.d")
+      end
+    end
+    context "with systemd" do
+      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(true) }
+
+      it "should use systemctl" do
+        expect(cap.nfs_start_command(env)).to include("systemctl")
+      end
+    end
+  end
+
   describe ".nfs_export" do
 
     let(:cap){ caps.get(:nfs_export) }
@@ -43,8 +81,9 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
       allow(host).to receive(:capability).with(:nfs_check_command).and_return("/bin/true")
       allow(host).to receive(:capability).with(:nfs_start_command).and_return("/bin/true")
       allow(ui).to receive(:info)
-      allow(cap).to receive(:system).with("sudo /bin/true").and_return(true)
-      allow(cap).to receive(:system).with("/bin/true").and_return(true)
+      allow(Vagrant::Util::Subprocess).to receive(:execute).and_call_original
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("sudo", "/bin/true").and_return(double(:result, exit_code: 0))
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("/bin/true").and_return(double(:result, exit_code: 0))
     end
 
     it "should export new entries" do
@@ -79,6 +118,42 @@ EOH
       expect(exports_content).to include("/tmp")
       expect(exports_content).not_to include("/var")
     end
+
+    it "throws an exception with at least 2 different nfs options" do
+      folders = {"/vagrant"=>
+                 {:hostpath=>"/home/vagrant",
+                  :linux__nfs_options=>["rw","all_squash"]},
+                 "/var/www/project"=>
+                 {:hostpath=>"/home/vagrant",
+                  :linux__nfs_options=>["rw","sync"]}}
+
+      expect { cap.nfs_export(env, ui, SecureRandom.uuid, ["127.0.0.1"], folders) }.
+        to raise_error Vagrant::Errors::NFSDupePerms
+    end
+
+    it "writes only 1 hostpath for multiple exports" do
+      folders = {"/vagrant"=>
+                 {:hostpath=>"/home/vagrant",
+                  :linux__nfs_options=>["rw","all_squash"]},
+                 "/var/www/otherproject"=>
+                 {:hostpath=>"/newhome/otherproject",
+                  :linux__nfs_options=>["rw","all_squash"]},
+                 "/var/www/project"=>
+                 {:hostpath=>"/home/vagrant",
+                  :linux__nfs_options=>["rw","all_squash"]}}
+      valid_id = SecureRandom.uuid
+      content =<<-EOH
+\n# VAGRANT-BEGIN: #{Process.uid} #{valid_id}
+"/home/vagrant" 127.0.0.1(rw,all_squash,anonuid=,anongid=,fsid=)
+"/newhome/otherproject" 127.0.0.1(rw,all_squash,anonuid=,anongid=,fsid=)
+# VAGRANT-END: #{Process.uid} #{valid_id}
+EOH
+
+      cap.nfs_export(env, ui, valid_id, ["127.0.0.1"], folders)
+      exports_content = File.read(exports_path)
+      expect(exports_content).to eq(content)
+    end
+
   end
 
   describe ".nfs_prune" do

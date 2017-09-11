@@ -14,10 +14,8 @@ description: |-
 The Vagrant Ansible provisioner allows you to provision the guest using [Ansible](http://ansible.com) playbooks by executing **`ansible-playbook` from the Vagrant host**.
 
 <div class="alert alert-warning">
-  <strong>Warning:</strong> If you are not familiar with Ansible and Vagrant already,
-  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
-  provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
-  is a great way to learn Ansible.
+  <strong>Warning:</strong>
+  If you are not familiar with Ansible and Vagrant already, I recommend starting with the <a href="/docs/provisioning/shell.html">shell provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant is a great way to learn Ansible.
 </div>
 
 ## Setup Requirements
@@ -53,9 +51,16 @@ end
 
 This section lists the _specific_ options for the Ansible (remote) provisioner. In addition to the options listed below, this provisioner supports the [**common options** for both Ansible provisioners](/docs/provisioning/ansible_common.html).
 
-- `ask_sudo_pass` (boolean) - require Ansible to [prompt for a sudo password](https://docs.ansible.com/intro_getting_started.html#remote-connection-information).
+- `ask_become_pass` (boolean) - require Ansible to [prompt for a password](https://docs.ansible.com/intro_getting_started.html#remote-connection-information) when switching to another user with the [become/sudo mechanism](http://docs.ansible.com/ansible/become.html).
 
     The default value is `false`.
+
+- `ask_sudo_pass` (boolean) - Backwards compatible alias for the [ask_become_pass](#ask_become_pass) option.
+
+    <div class="alert alert-warning">
+      <strong>Deprecation:</strong>
+      The `ask_sudo_pass` option is deprecated and will be removed in a future release. Please use the [**`ask_become_pass`**](#ask_become_pass) option instead.
+    </div>
 
 - `ask_vault_pass` (boolean) - require Ansible to [prompt for a vault password](https://docs.ansible.com/playbooks_vault.html#vault).
 
@@ -67,7 +72,10 @@ This section lists the _specific_ options for the Ansible (remote) provisioner. 
 
     The default value is `true`.
 
-    **Note:** This option was introduced in Vagrant 1.8.0. Previous Vagrant versions behave like if this option was set to `false`.
+    <div class="alert alert-info">
+      <strong>Compatibility Note:</strong>
+      This option was introduced in Vagrant 1.8.0. Previous Vagrant versions behave like if this option was set to `false`.
+    </div>
 
 - `host_key_checking` (boolean) - require Ansible to [enable SSH host key checking](https://docs.ansible.com/intro_getting_started.html#host-key-checking).
 
@@ -115,9 +123,10 @@ N = 3
 end
 ```
 
-**Caveats:**
-
-If you apply this parallel provisioning pattern with a static Ansible inventory, you will have to organize the things so that [all the relevant private keys are provided to the `ansible-playbook` command](https://github.com/mitchellh/vagrant/pull/5765#issuecomment-120247738). The same kind of considerations applies if you are using multiple private keys for a same machine (see [`config.ssh.private_key_path` SSH setting](/docs/vagrantfile/ssh_settings.html)).
+<div class="alert alert-info">
+  <strong>Tip:</strong>
+  If you apply this parallel provisioning pattern with a static Ansible inventory, you will have to organize the things so that [all the relevant private keys are provided to the `ansible-playbook` command](https://github.com/mitchellh/vagrant/pull/5765#issuecomment-120247738). The same kind of considerations applies if you are using multiple private keys for a same machine (see [`config.ssh.private_key_path` SSH setting](/docs/vagrantfile/ssh_settings.html)).
+</div>
 
 ### Force Paramiko Connection Mode
 

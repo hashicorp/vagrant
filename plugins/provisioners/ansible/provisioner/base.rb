@@ -1,3 +1,4 @@
+require_relative "../constants"
 require_relative "../errors"
 require_relative "../helpers"
 
@@ -14,15 +15,80 @@ module VagrantPlugins
 
         RANGE_PATTERN = %r{(?:\[[a-z]:[a-z]\]|\[[0-9]+?:[0-9]+?\])}.freeze
 
+        ANSIBLE_PARAMETER_NAMES = {
+          Ansible::COMPATIBILITY_MODE_V1_8 => {
+            ansible_host: "ansible_ssh_host",
+            ansible_password: "ansible_ssh_pass",
+            ansible_port: "ansible_ssh_port",
+            ansible_user: "ansible_ssh_user",
+            ask_become_pass: "ask-sudo-pass",
+            become: "sudo",
+            become_user: "sudo-user",
+          },
+          Ansible::COMPATIBILITY_MODE_V2_0 => {
+            ansible_host: "ansible_host",
+            ansible_password: "ansible_password",
+            ansible_port: "ansible_port",
+            ansible_user: "ansible_user",
+            ask_become_pass: "ask-become-pass",
+            become: "become",
+            become_user: "become-user",
+          }
+        }
+
         protected
 
         def initialize(machine, config)
           super
+          @control_machine = nil
 
           @command_arguments = []
           @environment_variables = {}
           @inventory_machines = {}
           @inventory_path = nil
+
+          @gathered_version_stdout = nil
+          @gathered_version_major = nil
+          @gathered_version = nil
+        end
+
+        def set_and_check_compatibility_mode
+          begin
+            set_gathered_ansible_version(gather_ansible_version)
+          rescue StandardError => e
+            # Nothing to do here, as the fallback on safe compatibility_mode is done below
+            @logger.error("Error while gathering the ansible version: #{e.to_s}")
+          end
+
+          if @gathered_version_major
+            if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
+              detect_compatibility_mode
+            elsif @gathered_version_major.to_i < 2 && config.compatibility_mode == Ansible::COMPATIBILITY_MODE_V2_0
+              # A better version comparator will be needed
+              # when more compatibility modes come... but so far let's keep it simple!
+              raise Ansible::Errors::AnsibleCompatibilityModeConflict,
+                ansible_version: @gathered_version,
+                system: @control_machine,
+                compatibility_mode: config.compatibility_mode
+            end
+          end
+
+          if config.compatibility_mode == Ansible::COMPATIBILITY_MODE_AUTO
+            config.compatibility_mode = Ansible::SAFE_COMPATIBILITY_MODE
+
+            @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_not_detected",
+              compatibility_mode: config.compatibility_mode,
+              gathered_version: @gathered_version_stdout) +
+            "\n")
+          end
+
+          unless Ansible::COMPATIBILITY_MODES.slice(1..-1).include?(config.compatibility_mode)
+            raise Ansible::Errors::AnsibleProgrammingError,
+              message: "The config.compatibility_mode must be correctly set at this stage!",
+              details: "config.compatibility_mode: '#{config.compatibility_mode}'"
+          end
+
+          @lexicon = ANSIBLE_PARAMETER_NAMES[config.compatibility_mode]
         end
 
         def check_files_existence
@@ -70,7 +136,7 @@ module VagrantPlugins
             if arg =~ /(--start-at-task|--limit)=(.+)/
               shell_args << %Q(#{$1}="#{$2}")
             elsif arg =~ /(--extra-vars)=(.+)/
-              shell_args << %Q(%s="%s") % [$1, $2.gsub('\\', '\\\\\\').gsub('"', %Q(\\"))]
+              shell_args << %Q(%s=%s) % [$1, $2.shellescape]
             else
               shell_args << arg
             end
@@ -97,8 +163,8 @@ module VagrantPlugins
 
           @command_arguments << "--inventory-file=#{inventory_path}"
           @command_arguments << "--extra-vars=#{extra_vars_argument}" if config.extra_vars
-          @command_arguments << "--sudo" if config.sudo
-          @command_arguments << "--sudo-user=#{config.sudo_user}" if config.sudo_user
+          @command_arguments << "--#{@lexicon[:become]}" if config.become
+          @command_arguments << "--#{@lexicon[:become_user]}=#{config.become_user}" if config.become_user
           @command_arguments << "#{verbosity_argument}" if verbosity_is_enabled?
           @command_arguments << "--vault-password-file=#{config.vault_password_file}" if config.vault_password_file
           @command_arguments << "--tags=#{Helpers::as_list_argument(config.tags)}" if config.tags
@@ -148,7 +214,13 @@ module VagrantPlugins
           end
           s = nil
           if vars.is_a?(Hash)
-            s = vars.each.collect{ |k, v| "#{k}=#{v}" }.join(" ")
+            s = vars.each.collect {
+              |k, v|
+                if v.is_a?(String) && v.include?(' ') && !v.match(/^('|")[^'"]+('|")$/)
+                  v = %Q('#{v}')
+                end
+                "#{k}=#{v}"
+              }.join(" ")
           elsif vars.is_a?(Array)
             s = vars.join(" ")
           elsif vars.is_a?(String)
@@ -228,7 +300,7 @@ module VagrantPlugins
           end
 
           group_vars.each_pair do |gname, gmembers|
-            if defined_groups.include?(gname.sub(/:vars$/, ""))
+            if defined_groups.include?(gname.sub(/:vars$/, "")) || gname == "all:vars"
               inventory_groups += "\n[#{gname}]\n" + gmembers.join("\n") + "\n"
             end
           end
@@ -282,6 +354,44 @@ module VagrantPlugins
           else
             # safe default, in case input strays
             '-v'
+          end
+        end
+
+        private
+
+        def detect_compatibility_mode
+          if !@gathered_version_major || config.compatibility_mode != Ansible::COMPATIBILITY_MODE_AUTO
+            raise Ansible::Errors::AnsibleProgrammingError,
+              message: "The detect_compatibility_mode() function shouldn't have been called!",
+              details: %Q(config.compatibility_mode: '#{config.compatibility_mode}'
+gathered version major number: '#{@gathered_version_major}'
+gathered version stdout version:
+#{@gathered_version_stdout})
+          end
+
+          if @gathered_version_major.to_i <= 1
+            config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V1_8
+          else
+            config.compatibility_mode = Ansible::COMPATIBILITY_MODE_V2_0
+          end
+
+          @machine.env.ui.warn(I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
+            compatibility_mode: config.compatibility_mode,
+            ansible_version: @gathered_version) +
+          "\n")
+        end
+
+        def set_gathered_ansible_version(stdout_output)
+          @gathered_version_stdout = stdout_output
+          if !@gathered_version_stdout.empty?
+            first_line = @gathered_version_stdout.lines[0]
+            ansible_version_pattern = first_line.match(/(^ansible\s+)(.+)$/)
+            if ansible_version_pattern
+              _, @gathered_version, _ = ansible_version_pattern.captures
+              if @gathered_version
+                @gathered_version_major = @gathered_version.match(/^(\d)\..+$/).captures[0].to_i
+              end
+            end
           end
         end
 

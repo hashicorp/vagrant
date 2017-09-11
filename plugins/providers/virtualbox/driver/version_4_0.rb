@@ -85,11 +85,18 @@ module VagrantPlugins
 
           execute("list", "vms").split("\n").each do |line|
             if vm_name = line[/^".+?"\s+\{(.+?)\}$/, 1]
-              info = execute("showvminfo", vm_name, "--machinereadable", retryable: true)
-              info.split("\n").each do |line|
-                if network_name = line[/^hostonlyadapter\d+="(.+?)"$/, 1]
-                  networks.delete(network_name)
+              begin
+                info = execute("showvminfo", vm_name, "--machinereadable", retryable: true)
+                info.split("\n").each do |line|
+                  if network_name = line[/^hostonlyadapter\d+="(.+?)"$/, 1]
+                    networks.delete(network_name)
+                  end
                 end
+              rescue Vagrant::Errors::VBoxManageError => e
+                raise if !e.extra_data[:stderr].include?("VBOX_E_OBJECT_NOT_FOUND")
+
+                # VirtualBox could not find the vm. It may have been deleted
+                # by another process after we called 'vboxmanage list vms'? Ignore this error.
               end
             end
           end
@@ -422,8 +429,15 @@ module VagrantPlugins
               # Ignore our own used ports
               next if uuid == @uuid
 
-              read_forwarded_ports(uuid, true).each do |_, _, hostport, _|
-                ports << hostport
+              begin
+                read_forwarded_ports(uuid, true).each do |_, _, hostport, _|
+                  ports << hostport
+                end
+              rescue Vagrant::Errors::VBoxManageError => e
+                raise if !e.extra_data[:stderr].include?("VBOX_E_OBJECT_NOT_FOUND")
+
+                # VirtualBox could not find the vm. It may have been deleted
+                # by another process after we called 'vboxmanage list vms'? Ignore this error.
               end
             end
           end

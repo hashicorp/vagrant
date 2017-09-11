@@ -83,9 +83,22 @@ module VagrantPlugins
         raise_winrm_exception(e, "run_wql", query)
       end
 
+      # @param from [Array<String>, String] a single path or folder, or an
+      #        array of paths and folders to upload to the guest
+      # @param to [String] a path or folder on the guest to upload to
+      # @return [FixNum] Total size transfered from host to guest
       def upload(from, to)
         file_manager = WinRM::FS::FileManager.new(connection)
-        file_manager.upload(from, to)
+        if from.is_a?(Array)
+          # Preserve return FixNum of bytes transfered
+          return_bytes = 0
+          from.each do |file|
+            return_bytes += file_manager.upload(file, to)
+          end
+          return return_bytes
+        else
+          file_manager.upload(from, to)
+        end
       end
 
       def download(from, to)

@@ -468,6 +468,10 @@ module Vagrant
       error_key(:nfs_bad_exports)
     end
 
+    class NFSDupePerms < VagrantError
+      error_key(:nfs_dupe_permissions)
+    end
+
     class NFSExportsFailed < VagrantError
       error_key(:nfs_exports_failed)
     end

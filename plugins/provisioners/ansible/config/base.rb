@@ -1,3 +1,5 @@
+require_relative "../constants"
+
 module VagrantPlugins
   module Ansible
     module Config
@@ -6,6 +8,9 @@ module VagrantPlugins
         GALAXY_COMMAND_DEFAULT = "ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force".freeze
         PLAYBOOK_COMMAND_DEFAULT = "ansible-playbook".freeze
 
+        attr_accessor :become
+        attr_accessor :become_user
+        attr_accessor :compatibility_mode
         attr_accessor :config_file
         attr_accessor :extra_vars
         attr_accessor :galaxy_role_file
@@ -20,13 +25,29 @@ module VagrantPlugins
         attr_accessor :raw_arguments
         attr_accessor :skip_tags
         attr_accessor :start_at_task
-        attr_accessor :sudo
-        attr_accessor :sudo_user
         attr_accessor :tags
         attr_accessor :vault_password_file
         attr_accessor :verbose
+        attr_accessor :version
+
+        #
+        # Deprecated options
+        #
+        alias :sudo :become
+        def sudo=(value)
+          show_deprecation_info 'sudo', 'become'
+          @become = value
+        end
+        alias :sudo_user :become_user
+        def sudo_user=(value)
+          show_deprecation_info 'sudo_user', 'become_user'
+          @become_user = value
+        end
 
         def initialize
+          @become              = UNSET_VALUE
+          @become_user         = UNSET_VALUE
+          @compatibility_mode  = Ansible::COMPATIBILITY_MODE_AUTO
           @config_file         = UNSET_VALUE
           @extra_vars          = UNSET_VALUE
           @galaxy_role_file    = UNSET_VALUE
@@ -41,14 +62,16 @@ module VagrantPlugins
           @raw_arguments       = UNSET_VALUE
           @skip_tags           = UNSET_VALUE
           @start_at_task       = UNSET_VALUE
-          @sudo                = UNSET_VALUE
-          @sudo_user           = UNSET_VALUE
           @tags                = UNSET_VALUE
           @vault_password_file = UNSET_VALUE
           @verbose             = UNSET_VALUE
+          @version             = UNSET_VALUE
         end
 
         def finalize!
+          @become              = false                    if @become              != true
+          @become_user         = nil                      if @become_user         == UNSET_VALUE
+          @compatibility_mode  = nil                      unless Ansible::COMPATIBILITY_MODES.include?(@compatibility_mode)
           @config_file         = nil                      if @config_file         == UNSET_VALUE
           @extra_vars          = nil                      if @extra_vars          == UNSET_VALUE
           @galaxy_role_file    = nil                      if @galaxy_role_file    == UNSET_VALUE
@@ -63,11 +86,10 @@ module VagrantPlugins
           @raw_arguments       = nil                      if @raw_arguments       == UNSET_VALUE
           @skip_tags           = nil                      if @skip_tags           == UNSET_VALUE
           @start_at_task       = nil                      if @start_at_task       == UNSET_VALUE
-          @sudo                = false                    if @sudo                != true
-          @sudo_user           = nil                      if @sudo_user           == UNSET_VALUE
           @tags                = nil                      if @tags                == UNSET_VALUE
           @vault_password_file = nil                      if @vault_password_file == UNSET_VALUE
           @verbose             = false                    if @verbose             == UNSET_VALUE
+          @version             = ""                       if @version             == UNSET_VALUE
         end
 
         # Just like the normal configuration "validate" method except that
@@ -75,6 +97,12 @@ module VagrantPlugins
         # other error accumulator.
         def validate(machine)
           @errors = _detected_errors
+
+          # Validate that a compatibility mode was provided
+          if !compatibility_mode
+            @errors << I18n.t("vagrant.provisioners.ansible.errors.no_compatibility_mode",
+              valid_modes: Ansible::COMPATIBILITY_MODES.map { |s| "'#{s}'" }.join(', '))
+          end
 
           # Validate that a playbook path was provided
           if !playbook
@@ -111,6 +139,14 @@ module VagrantPlugins
             end
           end
 
+        end
+
+        protected
+
+        def show_deprecation_info(deprecated_option, new_option)
+          puts "DEPRECATION: The '#{deprecated_option}' option for the Ansible provisioner is deprecated."
+          puts "Please use the '#{new_option}' option instead."
+          puts "The '#{deprecated_option}' option will be removed in a future release of Vagrant.\n\n"
         end
       end
     end
