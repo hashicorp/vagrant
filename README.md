@@ -1,7 +1,7 @@
 # Vagrant
 
 * Website: [https://www.vagrantup.com/](https://www.vagrantup.com/)
-* Source: [https://github.com/mitchellh/vagrant](https://github.com/mitchellh/vagrant)
+* Source: [https://github.com/hashicorp/vagrant](https://github.com/hashicorp/vagrant)
 * [![Gitter chat](https://badges.gitter.im/mitchellh/vagrant.png)](https://gitter.im/mitchellh/vagrant)
 * Mailing list: [Google Groups](https://groups.google.com/group/vagrant-up)
 
@@ -49,7 +49,7 @@ and you're welcome to give it a shot. Please review the installation page [here]
 
 ## Contributing to Vagrant
 
-To install Vagrant from source, please [follow the guide in the Wiki](https://github.com/mitchellh/vagrant/wiki/Installing-Vagrant-from-Source).
+To install Vagrant from source, please [follow the guide in the Wiki](https://github.com/hashicorp/vagrant/wiki/Installing-Vagrant-from-Source).
 
 You can run the test suite with:
 
