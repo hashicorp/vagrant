@@ -63,7 +63,7 @@ the machine, but replace it with perhaps a more secure key later.
 <hr>
 
 `config.ssh.keys_only` - Only use Vagrant-provided SSH private keys (do not use
-any keys stored in ssh-agent). The default value is `true`.`
+any keys stored in ssh-agent). The default value is `true`.
 
 <hr>
 
