@@ -300,7 +300,7 @@ module VagrantPlugins
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
           if @machine.config.vm.communicator == :winrm
-            bootstrap = @machine.communicate.sudo("powershell.exe -executionpolicy bypass -file %s %s" % [bootstrap_destination, options]) do |type, data|
+            bootstrap = @machine.communicate.sudo("powershell.exe -NonInteractive -NoProfile -executionpolicy bypass -file %s %s" % [bootstrap_destination, options]) do |type, data|
               if data[0] == "\n"
                 # Remove any leading newline but not whitespace. If we wanted to
                 # remove newlines and whitespace we would have used data.lstrip

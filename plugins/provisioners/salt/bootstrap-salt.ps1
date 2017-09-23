@@ -53,7 +53,27 @@ Write-Host "Downloading Salt minion installer Salt-Minion-$version-$arch-Setup.e
 $webclient = New-Object System.Net.WebClient
 $url = "https://repo.saltstack.com/windows/Salt-Minion-$version-$arch-Setup.exe"
 $file = "C:\tmp\salt.exe"
-$webclient.DownloadFile($url, $file)
+
+[int]$retries = 0
+Do {
+ try {
+    $retries++
+    $ErrorActionPreference='Stop'
+    $webclient.DownloadFile($url, $file)
+ } catch [Exception] {
+    if($retries -eq 3) {
+        $_
+        $_.GetType()
+        $_.Exception
+        $_.Exception.StackTrace
+        Write-Host
+        exit 1
+    }
+    Write-Warning "Retrying download in 2 seconds. Retry # $retries"
+    Start-Sleep -s 2
+    }
+}
+Until($retries -eq 3)
 
 
 # Install minion silently
