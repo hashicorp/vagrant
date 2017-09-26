@@ -115,7 +115,7 @@ if ($auto_start_action) {
 }
 
 if ($auto_stop_action) {
-    Set-VM -VM $vmConfig.VM -AutomaticStartAction $auto_stop_action
+    Set-VM -VM $vmConfig.VM -AutomaticStopAction $auto_stop_action
 }
 
 # Only set EFI secure boot for Gen 2 machines, not gen 1
