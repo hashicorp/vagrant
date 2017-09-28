@@ -8,7 +8,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-- guests/windows Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
+- guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
 
 ## 2.0.0 (September 7, 2017)
 
