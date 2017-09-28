@@ -98,21 +98,20 @@ module Vagrant
         end
 
         # This takes any path and converts it from a Windows path to a
-        # Cygwin or msys style path.
+        # Cygwin style path.
         #
         # @param [String] path
         # @return [String]
         def cygwin_path(path)
           begin
-            # We have to revert to the old env
-            # path here, otherwise it looks like
-            # msys2 ends up using the wrong cygpath
-            # binary and ends up with a `/cygdrive`
-            # when it doesn't exist in msys2
-            original_path_env = ENV['PATH']
-            ENV['PATH'] = ENV['VAGRANT_OLD_ENV_PATH']
             cygpath = Vagrant::Util::Which.which("cygpath")
-            cygpath.gsub!("/", '\\')
+            if cygpath.nil?
+              # If Which can't find it, just attempt to invoke it directly
+              cygpath = "cygpath"
+            else
+              cygpath.gsub!("/", '\\')
+            end
+
             process = Subprocess.execute(
               cygpath, "-u", "-a", path.to_s)
             return process.stdout.chomp
@@ -125,13 +124,28 @@ module Vagrant
               "--norc",
               "-c", "cd #{Shellwords.escape(path)} && pwd")
             return process.stdout.chomp
+          end
+        end
+
+        # This takes any path and converts it from a Windows path to a
+        # msys style path.
+        #
+        # @param [String] path
+        # @return [String]
+        def msys_path(path)
+          begin
+            # We have to revert to the old env
+            # path here, otherwise it looks like
+            # msys2 ends up using the wrong cygpath
+            # binary and ends up with a `/cygdrive`
+            # when it doesn't exist in msys2
+            original_path_env = ENV['PATH']
+            ENV['PATH'] = ENV['VAGRANT_OLD_ENV_PATH']
+            cygwin_path(path)
           ensure
             ENV['PATH'] = original_path_env
           end
         end
-
-        # Identical to cygwin_path for now
-        alias_method :msys_path, :cygwin_path
 
         # This takes any path and converts it to a full-length Windows
         # path on Windows machines in Cygwin.
