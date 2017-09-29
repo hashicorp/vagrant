@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Clear POSIXLY_CORRECT when using optparse [GH-8685]
 - provisioners/shell: Use ui.detail for displaying output [GH-8983]
 
 BUG FIXES:
