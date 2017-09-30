@@ -30,7 +30,7 @@ module VagrantPlugins
           }
           exit 1
         EOH
-        @communicator.test(cmd, { shell: :powershell })
+        @communicator.test(cmd)
       end
 
       # Configures the specified interface for DHCP
