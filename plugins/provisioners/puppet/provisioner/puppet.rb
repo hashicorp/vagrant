@@ -105,9 +105,16 @@ module VagrantPlugins
           end
 
           # Make sure the temporary directory is properly set up
+          if windows?
+            tmp_command = "mkdir -p #{config.temp_dir}"
+            comm_opts = { shell: :powershell}
+          else
+            tmp_command = "mkdir -p #{config.temp_dir}; chmod 0777 #{config.temp_dir}"
+            comm_opts = {}
+          end
+
           @machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p #{config.temp_dir}")
-            comm.sudo("chmod 0777 #{config.temp_dir}")
+            comm.sudo(tmp_command, comm_opts)
           end
 
           verify_shared_folders(check)
@@ -271,6 +278,10 @@ module VagrantPlugins
             error_key: :ssh_bad_exit_status_muted,
             good_exit: [0,2],
           }
+
+          if windows?
+            opts[:shell] = :powershell
+          end
           @machine.communicate.sudo(command, opts) do |type, data|
             if !data.chomp.empty?
               @machine.ui.info(data.chomp)
@@ -281,14 +292,22 @@ module VagrantPlugins
         def verify_shared_folders(folders)
           folders.each do |folder|
             @logger.debug("Checking for shared folder: #{folder}")
-            if !@machine.communicate.test("test -d #{folder}", sudo: true)
+            if windows?
+              testcommand = "Test-Path #{folder}"
+              comm_opts = { shell: :powershell}
+            else
+              testcommand = "test -d #{folder}"
+              comm_opts = { sudo: true}
+            end
+
+            if !@machine.communicate.test(testcommand, comm_opts)
               raise PuppetError, :missing_shared_folders
             end
           end
         end
 
         def windows?
-          @machine.config.vm.communicator == :winrm
+          @machine.config.vm.communicator == :winrm || @machine.config.vm.communicator == :winssh
         end
       end
     end
