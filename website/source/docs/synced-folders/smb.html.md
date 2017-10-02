@@ -87,6 +87,30 @@ removes it. To clean up SMB synced folder shares, periodically run
 `net share` in a command prompt, find the shares you do not want, then
 run `net share NAME /delete` for each, where NAME is the name of the share.
 
+To quickly remove all the shares created by Vagrant, run the following in an
+elevated PowerShell. Note that you will lose access to the shared folders in
+any running VMs, so halt all Vagrant VMs before running this.
+
+```PowerShell
+PS C:\> Get-WmiObject -Class Win32_Share | Where-Object { $_.Name -match "[0-9a-f]{32}"  } | %{ $_.delete() }
+```
+
+Output will look something like the following for each share that is deleted:
+```
+__GENUS          : 2
+__CLASS          : __PARAMETERS
+__SUPERCLASS     :
+__DYNASTY        : __PARAMETERS
+__RELPATH        :
+__PROPERTY_COUNT : 1
+__DERIVATION     : {}
+__SERVER         :
+__NAMESPACE      :
+__PATH           :
+ReturnValue      : 0
+PSComputerName   :
+```
+
 ## Common Issues
 
 ### "wrong fs type" Error
