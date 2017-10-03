@@ -123,7 +123,14 @@ module VagrantPlugins
               env[:machine].provider.driver.execute("clone_vhd.ps1", {Source: source_path, Destination: dest_path})
             else
               FileUtils.mkdir_p(env[:machine].data_dir.join("Virtual Hard Disks"))
-              FileUtils.cp(source_path, dest_path)
+			        hd_dir.each_child do |f|
+                if %w{.vhd .vhdx}.include?(f.extname.downcase)
+                  image_pathc = f
+                  image_extc = f.extname.downcase
+                  image_filenamec = File.basename(f, image_extc)
+                  FileUtils.cp(image_pathc.to_s, env[:machine].data_dir.join("Virtual Hard Disks").join("#{image_filenamec}#{image_extc}").to_s)
+                end
+              end
             end
           end
           image_path = dest_path
