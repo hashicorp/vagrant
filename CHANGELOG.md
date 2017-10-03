@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- providers/virtualbox: Virtualbox 5.2 support [GH-8955]
+
 IMPROVEMENTS:
 
 - core: Clear POSIXLY_CORRECT when using optparse [GH-8685]
