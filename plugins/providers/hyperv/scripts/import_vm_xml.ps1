@@ -187,10 +187,13 @@ foreach ($controller in $controllers) {
     foreach ($drive in $drives) {
         #if drive type is ISO then set DVD Drive accordingly
         $driveType = $drive.type."#text"
-
+        
+        $dest_folder = Split-Path -Path $dest_path
+        $dest_file = Split-Path -Path $drive.pathname."#text" -Leaf -Resolve
+        
         $addDriveParam = @{
             ControllerNumber = $rx.Match($controller.node.name).value
-            Path = $dest_path
+            Path = "$($dest_folder)\$($dest_file)"
         }
 
         if ($drive.pool_id."#text") {
