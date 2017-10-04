@@ -32,6 +32,8 @@ you may set. A complete reference is shown below:
   * `enable_virtualization_extensions` (boolean) - Enable virtualization extensions for the virtual CPUs.
     This allows Hyper-V to be nested and run inside another Hyper-VM VM. It requires Windows 10  - 1511 (build 10586) or newer.
     Default is not defined. This will be disabled if not set.
+  * `auto_start_action` (Nothing, StartIfRunning, Start) - Action on automatic start of VM when booting OS
+  * `auto_stop_action` (ShutDown, TurnOff, Save) - Action on automatic stop of VM when shutting down OS.    
   * `vm_integration_services` (Hash) - Hash to set the state of integration services.
      
     Example: 
@@ -48,5 +50,3 @@ you may set. A complete reference is shown below:
       }
     end
     ```
-  
-            
