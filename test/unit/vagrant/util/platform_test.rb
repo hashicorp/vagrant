@@ -22,7 +22,33 @@ describe Vagrant::Util::Platform do
       allow(Vagrant::Util::Which).to receive(:which).and_return("C:/msys2/cygpath")
       allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(subprocess_result)
 
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("C:\\msys2\\cygpath", "-u", "-a", "C:\\msys2\\home\\vagrant")
+
       expect(subject.cygwin_path(path)).to eq("/home/vagrant")
+    end
+  end
+
+  describe "#msys_path" do
+    let(:updated_path) { "/home/vagrant" }
+    let(:subprocess_result) do
+      double("subprocess_result").tap do |result|
+        allow(result).to receive(:exit_code).and_return(0)
+        allow(result).to receive(:stdout).and_return(updated_path)
+      end
+    end
+    let(:old_path) { "/old/path/bin:/usr/local/bin:/usr/bin" }
+
+    it "takes a windows path and returns a formatted path" do
+      path = ENV["PATH"]
+      allow(Vagrant::Util::Which).to receive(:which).and_return("C:/msys2/cygpath")
+      allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(subprocess_result)
+      allow(ENV).to receive(:[]).with("PATH").and_return(path)
+      allow(ENV).to receive(:[]).with("VAGRANT_OLD_ENV_PATH").and_return(old_path)
+
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("C:\\msys2\\cygpath", "-u", "-a", path)
+
+      expect(subject.msys_path(path)).to eq("/home/vagrant")
+      expect(ENV["PATH"]).to eq(path)
     end
   end
 

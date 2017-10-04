@@ -71,7 +71,7 @@ Provider-specific guides for creating base boxes are linked below:
 We strongly recommend using [Packer](https://www.packer.io) to create reproducible
 builds for your base boxes, as well as automating the builds with
 [Atlas](https://atlas.hashicorp.com). Read more about
-[Creating Vagrant Boxes with Packer](https://atlas.hashicorp.com/help/packer/artifacts/creating-vagrant-boxes)
+[Creating Vagrant Boxes with Packer](https://www.terraform.io/docs/enterprise/packer/artifacts/creating-vagrant-boxes.html)
 in the Atlas documentation.
 
 ### Disk Space

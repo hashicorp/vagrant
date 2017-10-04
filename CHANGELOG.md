@@ -2,9 +2,21 @@
 
 FEATURES:
 
+- providers/virtualbox: Virtualbox 5.2 support [GH-8955]
+
 IMPROVEMENTS:
 
+- core: Clear POSIXLY_CORRECT when using optparse [GH-8685]
+- docs: Add auto_start_action and auto_stop_action to docs. [GH-9029]
+- provisioners/chef: Handle chef provisioner reboot request [GH-8874]
+- provisioners/shell: Use ui.detail for displaying output [GH-8983]
+
 BUG FIXES:
+
+- core: Rescue more exceptions when checking if port is open [GH-8517]
+- guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
+- providers/hyper-v: Properly invoke Auto stop action [GH-9000]
+- virtualbox/synced_folders: Allow synced folders to contain spaces in the guest path [GH-8995]
 
 ## 2.0.0 (September 7, 2017)
 

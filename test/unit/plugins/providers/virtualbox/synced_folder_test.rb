@@ -44,4 +44,30 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
 
     it "should share the folders"
   end
+
+  describe "os_friendly_id" do
+    it "should not replace normal chars" do
+      expect(subject.send(:os_friendly_id, 'perfectly_valid0_name')).to eq('perfectly_valid0_name')
+    end
+
+    it "should replace spaces" do
+      expect(subject.send(:os_friendly_id, 'Program Files')).to eq('Program_Files')
+    end
+
+    it "should replace leading underscore" do
+      expect(subject.send(:os_friendly_id, '_vagrant')).to eq('vagrant')
+    end
+
+    it "should replace slash" do
+      expect(subject.send(:os_friendly_id, 'va/grant')).to eq('va_grant')
+    end
+
+    it "should replace leading underscore and slash" do
+      expect(subject.send(:os_friendly_id, '/vagrant')).to eq('vagrant')
+    end
+
+    it "should replace backslash" do
+      expect(subject.send(:os_friendly_id, 'foo\\bar')).to eq('foo_bar')
+    end
+  end
 end

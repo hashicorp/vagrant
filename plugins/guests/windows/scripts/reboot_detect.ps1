@@ -32,6 +32,11 @@ if (ShuttingDown) {
     exit 2
   }
 
+  if ($LASTEXITCODE -eq 1115) {
+    # A system shutdown is in progress
+    exit 2
+  }
+
   # Remove the pending reboot we just created above
   if ($LASTEXITCODE -eq 0) {
     . shutdown.exe -a
