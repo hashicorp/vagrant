@@ -65,7 +65,7 @@ on this machine. Not supported on Windows guest machines.
 * `install_type`  (stable | git | daily | testing) - Whether to install from a
 distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
 
-* `install_args` (string, default: "develop") - When performing a git install, you can specify a branch, tag, or any treeish. Not supported on Windows.
+* `install_args` (string, default: "develop") - When performing a install, you can specify the salt version in the case of `install_type=git`, or  branch, tag, or any treeish in the case of `install_type=git`. Not supported on Windows.
 
 * `always_install`   (boolean) - Installs salt binaries even
  if they are already detected, default `false`
@@ -75,7 +75,7 @@ distribution's stable package manager, git tree-ish, daily ppa, or testing repos
 * `bootstrap_options` (string) - Additional command-line options to
   pass to the bootstrap script.
 
-* `version`  (string, default: "2016.11.3") - Version of minion to be installed. Only supported on Windows guest machines.
+* `version`  (string, default: "2016.11.3") - Version of salt to be installed. Only supported on Windows guest machines. On linux, use `install_args` to install the specific minion version
 
 ## Minion Options
 These only make sense when `no_minion` is `false`.
