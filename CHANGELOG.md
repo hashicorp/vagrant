@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 - core: Clear POSIXLY_CORRECT when using optparse [GH-8685]
 - docs: Add auto_start_action and auto_stop_action to docs. [GH-9029]
+- provisioners/chef: Handle chef provisioner reboot request [GH-8874]
 - provisioners/shell: Use ui.detail for displaying output [GH-8983]
 
 BUG FIXES:
