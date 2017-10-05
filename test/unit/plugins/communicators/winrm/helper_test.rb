@@ -148,4 +148,31 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
       expect(subject.winrm_port(machine)).to eq(2456)
     end
   end
+
+  describe ".winrm_info_invalid?" do
+    it "returns true if it can't detect a host" do
+      allow(machine).to receive(:ssh_info).and_return(nil)
+      expect(subject).to be_winrm_info_invalid(machine.ssh_info)
+    end
+
+    it "returns true if it detects an empty host ip" do
+      allow(machine).to receive(:ssh_info).and_return({ host: "" })
+      expect(subject).to be_winrm_info_invalid(machine.ssh_info)
+    end
+
+    it "returns true if it detects an unset host ip" do
+      allow(machine).to receive(:ssh_info).and_return({ host: nil })
+      expect(subject).to be_winrm_info_invalid(machine.ssh_info)
+    end
+
+    it "returns true if it detects an APIPA" do
+      machine.stub(ssh_info: { host: "169.254.123.123" })
+      expect(subject).to be_winrm_info_invalid(machine.ssh_info)
+    end
+
+    it "returns false if the IP is valid" do
+      machine.stub(ssh_info: { host: "192.168.123.123" })
+      expect(subject).not_to be_winrm_info_invalid(machine.ssh_info)
+    end
+  end
 end
