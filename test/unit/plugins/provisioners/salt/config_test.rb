@@ -155,7 +155,6 @@ describe VagrantPlugins::Salt::Config do
         result = subject.validate(machine)
         expect(result[error_key]).to_not be_empty
       end
-
     end
   end
 end
