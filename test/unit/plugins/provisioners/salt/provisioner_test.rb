@@ -30,7 +30,22 @@ describe VagrantPlugins::Salt::Provisioner do
   end
 
   describe "#provision" do
-
+    context "minion" do
+      it "does not add linux-only bootstrap flags when on windows" do
+        additional_windows_options = "-these options -should -remain"
+        allow(config).to receive(:seed_master).and_return(true)
+        allow(config).to receive(:install_master).and_return(true)
+        allow(config).to receive(:install_syndic).and_return(true)
+        allow(config).to receive(:no_minion).and_return(true)
+        allow(config).to receive(:install_type).and_return('stable')
+        allow(config).to receive(:install_args).and_return('develop')
+        allow(config).to receive(:verbose).and_return(true)
+        allow(machine.config.vm).to receive(:communicator).and_return(:winrm)
+        allow(config).to receive(:bootstrap_options).and_return(additional_windows_options)
+        result = subject.bootstrap_options(true, true, "C:\\salttmp")
+        expect(result.strip).to eq(additional_windows_options)
+      end
+    end
   end
 
   describe "#call_highstate" do
