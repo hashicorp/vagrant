@@ -32,7 +32,7 @@ describe VagrantPlugins::Salt::Provisioner do
   describe "#provision" do
     context "minion" do
       it "does not add linux-only bootstrap flags when on windows" do
-        additional_windows_options = "-these options -should -remain"
+        additional_windows_options = "-only -these options -should -remain"
         allow(config).to receive(:seed_master).and_return(true)
         allow(config).to receive(:install_master).and_return(true)
         allow(config).to receive(:install_syndic).and_return(true)
