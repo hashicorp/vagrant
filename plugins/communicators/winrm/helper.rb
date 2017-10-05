@@ -38,7 +38,7 @@ module VagrantPlugins
       end
 
       def self.winrm_info_invalid?(ssh_info)
-        invalid = (!ssh_info || ssh_info[:host].to_s.empty? || ssh_info[:host].to_s.match(/^169.254/))
+        invalid = (!ssh_info || ssh_info[:host].to_s.empty? || ssh_info[:host].start_with?("169.254"))
         return invalid
       end
 
