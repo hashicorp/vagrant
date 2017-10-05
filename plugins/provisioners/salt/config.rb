@@ -36,6 +36,7 @@ module VagrantPlugins
       attr_accessor :no_minion
       attr_accessor :bootstrap_options
       attr_accessor :version
+      attr_accessor :python_version
       attr_accessor :run_service
       attr_accessor :master_id
 
@@ -66,6 +67,7 @@ module VagrantPlugins
         @masterless = UNSET_VALUE
         @minion_id = UNSET_VALUE
         @version = UNSET_VALUE
+        @python_version = UNSET_VALUE
         @run_service = UNSET_VALUE
         @master_id = UNSET_VALUE
         @salt_call_args = UNSET_VALUE
@@ -93,6 +95,7 @@ module VagrantPlugins
         @masterless         = false if @masterless == UNSET_VALUE
         @minion_id          = nil if @minion_id == UNSET_VALUE
         @version            = nil if @version == UNSET_VALUE
+        @python_version     = nil if @python_version == UNSET_VALUE
         @run_service        = nil if @run_service == UNSET_VALUE
         @master_id          = nil if @master_id == UNSET_VALUE
         @salt_call_args     = nil if @salt_call_args == UNSET_VALUE
@@ -158,6 +161,14 @@ module VagrantPlugins
 
         if @salt_args && !@salt_args.is_a?(Array)
           errors << I18n.t("vagrant.provisioners.salt.args_array")
+        end
+
+        if @python_version && @python_version.is_a?(String) && !@python_version.scan(/\D/).empty?
+          errors << I18n.t("vagrant.provisioners.salt.python_version")
+        end
+
+        if @python_version && !(@python_version.is_a?(Integer) || @python_version.is_a?(String))
+          errors << I18n.t("vagrant.provisioners.salt.python_version")
         end
 
         return {"salt provisioner" => errors}

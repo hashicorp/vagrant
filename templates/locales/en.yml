@@ -2444,6 +2444,8 @@ en:
           You must accept keys when running highstate with master!
         args_array: |-
           You must set this value as an array.
+        python_version: |-
+          You must set this as an integer or string that represents an integer.
 
     pushes:
       file:

@@ -63,7 +63,7 @@ on this machine. Not supported on Windows guest machines.
 `false`. Not supported on Windows guest machines.
 
 * `install_type`  (stable | git | daily | testing) - Whether to install from a
-distribution's stable package manager, git tree-ish, daily ppa, or testing repository.
+distribution's stable package manager, git tree-ish, daily ppa, or testing repository. Not supported on Windows guest machines.
 
 * `install_args` (string, default: "develop") - When performing a git install, you can specify a branch, tag, or any treeish. Not supported on Windows.
 
@@ -75,7 +75,9 @@ distribution's stable package manager, git tree-ish, daily ppa, or testing repos
 * `bootstrap_options` (string) - Additional command-line options to
   pass to the bootstrap script.
 
-* `version`  (string, default: "2016.11.3") - Version of minion to be installed. Only supported on Windows guest machines.
+* `version`  (string, default: "2017.7.1") - Version of minion to be installed. Only supported on Windows guest machines.
+
+* `python_version`  (string, default: "2") - Major Python version of minion to be installed. Only valid for minion versions >= 2017.7.0. Only supported on Windows guest machines.
 
 ## Minion Options
 These only make sense when `no_minion` is `false`.
