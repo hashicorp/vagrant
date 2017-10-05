@@ -163,6 +163,14 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.salt.args_array")
         end
 
+        if @python_version && @python_version.is_a?(String) && !@python_version.scan(/\D/).empty?
+          errors << I18n.t("vagrant.provisioners.salt.python_version")
+        end
+
+        if @python_version && !(@python_version.is_a?(Integer) || @python_version.is_a?(String))
+          errors << I18n.t("vagrant.provisioners.salt.python_version")
+        end
+
         return {"salt provisioner" => errors}
       end
     end

@@ -77,7 +77,7 @@ distribution's stable package manager, git tree-ish, daily ppa, or testing repos
 
 * `version`  (string, default: "2017.7.1") - Version of minion to be installed. Only supported on Windows guest machines.
 
-* `python_version`  (string, default: "2") - Python version of minion to be installed. Only valid for minion versions >= 2017.7.1. Only supported on Windows guest machines.
+* `python_version`  (string, default: "2") - Major Python version of minion to be installed. Only valid for minion versions >= 2017.7.0. Only supported on Windows guest machines.
 
 ## Minion Options
 These only make sense when `no_minion` is `false`.

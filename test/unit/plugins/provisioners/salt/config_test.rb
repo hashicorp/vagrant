@@ -114,5 +114,48 @@ describe VagrantPlugins::Salt::Config do
         expect(result[error_key]).to be_empty
       end
     end
+
+    context "python_version" do
+      it "is valid if is set and not missing" do
+        subject.python_version = "2"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+
+      it "can be a string" do
+        subject.python_version = "2"
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+
+      it "can be an integer" do
+        subject.python_version = 2
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to be_empty
+      end
+
+      it "is not a number that is not an integer" do
+        subject.python_version = 2.7
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to_not be_empty
+      end
+
+      it "is not a string that does not parse to an integer" do
+        subject.python_version = '2.7'
+        subject.finalize!
+
+        result = subject.validate(machine)
+        expect(result[error_key]).to_not be_empty
+      end
+
+    end
   end
 end
