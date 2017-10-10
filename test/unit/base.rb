@@ -33,6 +33,8 @@ VAGRANT_TEST_CWD = Dir.mktmpdir("vagrant-test-cwd")
 
 # Configure RSpec
 RSpec.configure do |c|
+  c.formatter = :documentation
+
   if Vagrant::Util::Platform.windows?
     c.filter_run_excluding :skip_windows
   else
