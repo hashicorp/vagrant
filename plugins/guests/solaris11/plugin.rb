@@ -10,14 +10,14 @@ module VagrantPlugins
       name "Solaris 11 guest."
       description "Solaris 11 guest support."
 
+      guest(:solaris11, :solaris) do
+        require_relative "guest"
+        Guest
+      end
+
       config(:solaris11) do
         require_relative "config"
         Config
-      end
-
-      guest(:solaris11) do
-        require_relative "guest"
-        Guest
       end
 
       guest_capability(:solaris11, :change_host_name) do
@@ -28,36 +28,6 @@ module VagrantPlugins
       guest_capability(:solaris11, :configure_networks) do
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
-      end
-
-      guest_capability(:solaris11, :halt) do
-        require_relative "cap/halt"
-        Cap::Halt
-      end
-
-      guest_capability(:solaris11, :mount_virtualbox_shared_folder) do
-        require_relative "cap/mount_virtualbox_shared_folder"
-        Cap::MountVirtualBoxSharedFolder
-      end
-
-      guest_capability(:solaris11, :rsync_installed) do
-        require_relative "cap/rsync"
-        Cap::RSync
-      end
-
-      guest_capability(:solaris11, :rsync_pre) do
-        require_relative "cap/rsync"
-        Cap::RSync
-      end
-
-      guest_capability(:solaris11, :insert_public_key) do
-        require_relative "cap/insert_public_key"
-        Cap::InsertPublicKey
-      end
-
-      guest_capability(:solaris11, :remove_public_key) do
-        require_relative "cap/remove_public_key"
-        Cap::RemovePublicKey
       end
     end
   end
