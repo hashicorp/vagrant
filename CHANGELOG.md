@@ -16,6 +16,7 @@ BUG FIXES:
 
 - core: Rescue more exceptions when checking if port is open [GH-8517]
 - guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
+- guests/solaris11: Inherit from Solaris guest and keep solaris11 specific methods [GH-9034]
 - providers/hyper-v: Properly invoke Auto stop action [GH-9000]
 - provisioners/puppet: Fix winssh communicator support in puppet provisioner [GH-9014]
 - virtualbox/synced_folders: Allow synced folders to contain spaces in the guest path [GH-8995]
