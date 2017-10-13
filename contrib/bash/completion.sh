@@ -140,6 +140,15 @@ _vagrant() {
               ;;
           esac
           ;;
+        "snapshot")
+          case "$prev" in
+            "restore"|"delete")
+              local snapshot_list=$(vagrant snapshot list)
+              COMPREPLY=($(compgen -W "${snapshot_list}" -- ${cur}))
+              return 0
+            ;;
+          esac
+          ;;
         *)
           ;;
       esac
