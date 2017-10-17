@@ -36,6 +36,7 @@ module VagrantPlugins
         Errno::ECONNRESET,
         Errno::ENETUNREACH,
         Errno::EHOSTUNREACH,
+        Errno::EPIPE,
         Net::SSH::Disconnect,
         Timeout::Error
       ]
