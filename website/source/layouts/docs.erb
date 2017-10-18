@@ -1,3 +1,61 @@
+<% content_for :head do %>
+  <script type="text/javascript">
+    var setExampleLanguage = function(language) {
+      $(".examples-menu").removeClass("active");
+      $(".examples-menu-" + language).addClass("active");
+      $(".examples pre.highlight").hide();
+      $(".examples pre.highlight." + language).show();
+    }
+
+    $(document).ready(function() {
+      setExampleLanguage("shell"); }
+    );
+  </script>
+
+  <style>
+    li {
+      margin: 0 !important;
+    }
+
+    .examples p {
+      display: none;
+    }
+
+    ul.examples-header {
+      margin: 0;
+      padding: 0 1em;
+    }
+
+    ul.examples-header > li {
+      border: 1px solid #ccc;
+      border-bottom: 0;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      display: inline-block;
+      margin: 0 !important;
+      margin-bottom: -1px !important;
+      padding: 0 0.5em;
+      padding-bottom: 1px;
+    }
+
+    ul.examples-header > li.active {
+      background-color: #f8f8f8;
+    }
+
+    ul.examples-header > li a {
+      color: #555 !important;
+    }
+
+    ul.examples-header > li a:hover {
+      color: #333 !important;
+      text-decoration: none !important;
+    }
+
+    .example-body {
+    }
+  </style>
+<% end %>
+
 <% wrap_layout :inner do %>
   <% content_for :sidebar do %>
     <ul class="nav docs-sidenav">
@@ -18,7 +76,7 @@
 
       <li<%= sidebar_current("cli") %>>
         <a href="/docs/cli/">Commands (CLI)</a>
-        <ul class="nav">
+        <ul class="nav">  
           <li<%= sidebar_current("cli-box") %>><a href="/docs/cli/box.html">box</a></li>
           <li<%= sidebar_current("cli-connect") %>><a href="/docs/cli/connect.html">connect</a></li>
           <li<%= sidebar_current("cli-destroy") %>><a href="/docs/cli/destroy.html">destroy</a></li>
@@ -253,6 +311,7 @@
           <li<%= sidebar_current("vagrant-cloud-request-limits") %>><a href="/docs/vagrant-cloud/request-limits.html">Request Limits</a></li>
           <li<%= sidebar_current("vagrant-cloud-support") %>><a href="/docs/vagrant-cloud/support.html">Support</a></li>
           <li<%= sidebar_current("vagrant-cloud-migration") %>><a href="/docs/vagrant-cloud/vagrant-cloud-migration.html">Vagrant Cloud Migration</a></li>
+          <li<%= sidebar_current("vagrant-cloud-api") %>><a href="/docs/vagrant-cloud/api.html">API</a></li>
         </ul>
       </li>
     </ul>
