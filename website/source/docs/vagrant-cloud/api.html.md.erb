@@ -69,9 +69,10 @@ sidebar_current: "vagrant-cloud-api"
     * [Request and Response Format](#request-and-response-format)
     * [Response Codes](#response-codes)
 * [Creating a usable box from scratch](#creating-a-usable-box-from-scratch)
-* [Authentication Tokens](#authentication-tokens)
+* [Authentication](#authentication-1)
     * [Create a token](#create-a-token)
     * [Validate a token](#validate-a-token)
+    * [Request a 2FA code](#validate-a-token)
 * [Organizations](#organizations)
     * [Read an organization](#read-an-organization)
 * [Boxes](#boxes)
@@ -270,7 +271,7 @@ In order to create a usable box on Vagrant Cloud, perform the following steps:
   </div>
 </div>
 
-## Authentication Tokens
+## Authentication
 
 ### Create a token
 
@@ -282,6 +283,8 @@ Creates a new token for the given user.
 
 * `token`
     * `desription` (Optional) - A description of the token.
+* `two_factor`
+    * `code` - A two-factor authentication code. Required to use this API method if 2FA is enabled. See [Request a 2FA code](#request-a-2fa-code) if not using a TOTP application.
 * `user`
     * `login` - Username or email address of the user authenticating.
     * `password` - The user's password.
@@ -386,6 +389,79 @@ Responds [`200 OK`](#200-ok) if the authentication request was successful, other
     ```
   </div>
 </div>
+
+### Request a 2FA code
+
+`POST /api/v1/two-factor/request-code`
+
+Sends a 2FA code to the requested delivery method.
+
+#### Arguments
+
+* `two_factor`
+    * `delivery_method` - A valid 2FA delivery method. Currently only `sms` is supported.
+* `user`
+    * `login` - Username or email address of the user authenticating.
+    * `password` - The user's password.
+
+#### Example Request
+
+<div class="examples">
+  <ul class="examples-header">
+    <li class="examples-menu examples-menu-shell"><a onclick="setExampleLanguage('shell');">cURL</a></li>
+    <li class="examples-menu examples-menu-ruby"><a onclick="setExampleLanguage('ruby');">Ruby</a></li>
+  </ul>
+  <div class="examples-body">
+    ```shell
+    curl \
+      --header "Content-Type: application/json" \
+      https://app.vagrantup.com/api/v1/authenticate \
+      --data '
+        {
+          "two_factor": {
+            "delivery_method": "sms"
+          },
+          "user": {
+            "login": "myuser",
+            "password": "secretpassword"
+          }
+        }
+      '
+    ```
+
+    ```ruby
+    # gem install http, or add `gem "http"` to your Gemfile
+    require "http"
+
+    api = HTTP.persistent("https://app.vagrantup.com").headers(
+      "Content-Type" => "application/json"
+    )
+
+    response = api.post("/api/v1/two-factor/request-code", json: {
+      two_factor: { delivery_method: "sms" },
+      user: { login: "myuser", password: "secretpassword" }
+    })
+
+    if response.status.success?
+      # Success, the response attributes are available here.
+      p response.parse
+    else
+      # Error, inspect the `errors` key for more information.
+      p response.code, response.body
+    end
+    ```
+  </div>
+</div>
+
+#### Example Response
+
+```json
+{
+  "two_factor": {
+    "obfuscated_destination": "SMS number ending in 7890"
+  }
+}
+```
 
 ## Organizations
 
