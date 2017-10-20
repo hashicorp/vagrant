@@ -75,13 +75,12 @@ Some API endpoints require authentication to create new resources, update or del
 Clients can authenticate using an authentication token.
 The token can be passed to Vagrant Cloud one of two ways:
 
-1. (Preferred) Set the `X-Atlas-Token` header to the value of the authentication token.
+1. (Preferred) Set the `Authorization` header to `"Bearer "` and the value of the authentication token.
 2. Pass the authentication token as an `access_token` URL parameter.
 
 Examples below will set the header, but feel free to use whichever method is easier for your implementation.
 
--> The header name `X-Atlas-Token` is an artifact of Vagrant Cloud's previous project name, "Atlas".
--> This header will be updated in the near future, but `X-Atlas-Token` will continue to be supported for now to ensure backwards-compatibility.
+-> The `X-Atlas-Token` header is also supported for backwards-compatibility.
 
 ### Request and Response Format
 
@@ -171,27 +170,27 @@ In order to create a usable box on Vagrant Cloud, perform the following steps:
     # Create a new box
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/boxes \
       --data '{ "box": { "username": "myuser", "name": "test" } }'
 
     # Create a new version
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/versions \
       --data '{ "version": { "version": "1.2.3" } }'
 
     # Create a new provider
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/providers \
       --data '{ "provider": { "name": "virtualbox" } }'
 
     # Prepare the provider for upload/get an upload URL
     response=$(curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
 
     # Extract the upload URL from the response (requires the jq command)
@@ -202,7 +201,7 @@ In order to create a usable box on Vagrant Cloud, perform the following steps:
 
     # Release the version
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release \
       --request PUT
     ```
@@ -213,7 +212,7 @@ In order to create a usable box on Vagrant Cloud, perform the following steps:
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
       "Content-Type" => "application/json",
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     # Create a new box
@@ -334,7 +333,7 @@ Responds [`200 OK`](#200-ok) if the authentication request was successful, other
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/authenticate
     ```
 
@@ -343,7 +342,7 @@ Responds [`200 OK`](#200-ok) if the authentication request was successful, other
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.get("/api/v1/authenticate")
@@ -448,7 +447,7 @@ Sends a 2FA code to the requested delivery method.
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/user/myuser
     ```
 
@@ -457,7 +456,7 @@ Sends a 2FA code to the requested delivery method.
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.get("/api/v1/user/myuser")
@@ -501,7 +500,7 @@ Sends a 2FA code to the requested delivery method.
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test
     ```
 
@@ -510,7 +509,7 @@ Sends a 2FA code to the requested delivery method.
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.get("/api/v1/box/myuser/test")
@@ -612,7 +611,7 @@ Sends a 2FA code to the requested delivery method.
     ```shell
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/boxes \
       --data '
         {
@@ -633,7 +632,7 @@ Sends a 2FA code to the requested delivery method.
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
       "Content-Type" => "application/json",
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.post("/api/v1/boxes", json: {
@@ -684,7 +683,7 @@ Response body is identical to [Reading a box](#read-a-box).
     ```shell
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test \
       --request PUT \
       --data '
@@ -706,7 +705,7 @@ Response body is identical to [Reading a box](#read-a-box).
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
       "Content-Type" => "application/json",
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.put("/api/v1/box/myuser/test", json: {
@@ -743,7 +742,7 @@ Response body is identical to [Reading a box](#read-a-box).
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       --request DELETE \
       https://app.vagrantup.com/api/v1/box/myuser/test
     ```
@@ -753,7 +752,7 @@ Response body is identical to [Reading a box](#read-a-box).
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.delete("/api/v1/box/myuser/test")
@@ -789,7 +788,7 @@ Response body is identical to [Reading a box](#read-a-box).
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3
     ```
 
@@ -798,7 +797,7 @@ Response body is identical to [Reading a box](#read-a-box).
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.get("/api/v1/box/myuser/test/version/1.2.3")
@@ -864,7 +863,7 @@ Response body is identical to [Reading a box](#read-a-box).
     ```shell
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/versions \
       --data '
         {
@@ -882,7 +881,7 @@ Response body is identical to [Reading a box](#read-a-box).
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
       "Content-Type" => "application/json",
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.post("/api/v1/box/myuser/test/versions", json: {
@@ -928,7 +927,7 @@ Response body is identical to [Reading a version](#read-a-version).
     ```shell
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3 \
       --request PUT \
       --data '
@@ -947,7 +946,7 @@ Response body is identical to [Reading a version](#read-a-version).
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
       "Content-Type" => "application/json",
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.put("/api/v1/box/myuser/test/version/1.2.3", json: {
@@ -986,7 +985,7 @@ Response body is identical to [Reading a version](#read-a-version).
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       --request DELETE \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3
     ```
@@ -996,7 +995,7 @@ Response body is identical to [Reading a version](#read-a-version).
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.delete("/api/v1/box/myuser/test/version/1.2.3")
@@ -1030,7 +1029,7 @@ Response body is identical to [Reading a version](#read-a-version).
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release \
       --request PUT
     ```
@@ -1040,7 +1039,7 @@ Response body is identical to [Reading a version](#read-a-version).
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.put("/api/v1/box/myuser/test/version/1.2.3/release")
@@ -1074,7 +1073,7 @@ Response body is identical to [Reading a version](#read-a-version).
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke \
       --request PUT
     ```
@@ -1084,7 +1083,7 @@ Response body is identical to [Reading a version](#read-a-version).
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.put("/api/v1/box/myuser/test/version/1.2.3/revoke")
@@ -1120,7 +1119,7 @@ Response body is identical to [Reading a version](#read-a-version).
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox
     ```
 
@@ -1129,7 +1128,7 @@ Response body is identical to [Reading a version](#read-a-version).
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.get("/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox")
@@ -1181,7 +1180,7 @@ Response body is identical to [Reading a version](#read-a-version).
     ```shell
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/providers \
       --data '
         {
@@ -1199,7 +1198,7 @@ Response body is identical to [Reading a version](#read-a-version).
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
       "Content-Type" => "application/json",
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.post("/api/v1/box/myuser/test/version/1.2.3/providers", json: {
@@ -1245,7 +1244,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
     ```shell
     curl \
       --header "Content-Type: application/json" \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/virtualbox \
       --request PUT \
       --data '
@@ -1264,7 +1263,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
       "Content-Type" => "application/json",
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.put("/api/v1/box/myuser/test/version/1.2.3/virtualbox", json: {
@@ -1303,7 +1302,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
   <div class="examples-body">
     ```shell
     curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       --request DELETE \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox
     ```
@@ -1313,7 +1312,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.delete("/api/v1/box/myuser/test/verison/1.2.3/provider/virtualbox")
@@ -1351,7 +1350,7 @@ Prepares the provider for upload, and returns a JSON blob containing an `upload_
   <div class="examples-body">
     ```shell
     response=$(curl \
-      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
       https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/virtualbox/upload)
 
     # Requires the jq command
@@ -1368,7 +1367,7 @@ Prepares the provider for upload, and returns a JSON blob containing an `upload_
     require "http"
 
     api = HTTP.persistent("https://app.vagrantup.com").headers(
-      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
     response = api.get("/api/v1/box/myuser/test/version/1.2.3/virtualbox/upload")
