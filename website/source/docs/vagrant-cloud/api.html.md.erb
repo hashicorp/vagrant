@@ -4,6 +4,64 @@ page_title: "Vagrant Cloud API"
 sidebar_current: "vagrant-cloud-api"
 ---
 
+<% content_for :head do %>
+  <script type="text/javascript">
+    var setExampleLanguage = function(language) {
+      $(".examples-menu").removeClass("active");
+      $(".examples-menu-" + language).addClass("active");
+      $(".examples pre.highlight").hide();
+      $(".examples pre.highlight." + language).show();
+    }
+
+    $(document).ready(function() {
+      setExampleLanguage("shell"); }
+    );
+  </script>
+
+  <style>
+    li {
+      margin: 0 !important;
+    }
+
+    .examples p {
+      display: none;
+    }
+
+    ul.examples-header {
+      margin: 0;
+      padding: 0 1em;
+    }
+
+    ul.examples-header > li {
+      border: 1px solid #ccc;
+      border-bottom: 0;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      display: inline-block;
+      margin: 0 !important;
+      margin-bottom: -1px !important;
+      padding: 0 0.5em;
+      padding-bottom: 1px;
+    }
+
+    ul.examples-header > li.active {
+      background-color: #f8f8f8;
+    }
+
+    ul.examples-header > li a {
+      color: #555 !important;
+    }
+
+    ul.examples-header > li a:hover {
+      color: #333 !important;
+      text-decoration: none !important;
+    }
+
+    .example-body {
+    }
+  </style>
+<% end %>
+
 # Vagrant Cloud API
 
 * [Using the API](#using-the-api)
@@ -1200,7 +1258,7 @@ Prepares the provider for upload, and returns a JSON blob containing an `upload_
     upload_path=$(echo "$response" | jq .upload_path)
 
     curl \
-     $upload_path \
+      $upload_path \
       --request PUT \
       --upload-file virtualbox-1.2.3.box
     ```
