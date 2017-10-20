@@ -72,6 +72,8 @@ sidebar_current: "vagrant-cloud-api"
 * [Authentication Tokens](#authentication-tokens)
     * [Create a token](#create-a-token)
     * [Validate a token](#validate-a-token)
+* [Organizations](#organizations)
+    * [Read an organization](#read-an-organization)
 * [Boxes](#boxes)
     * [Read a box](#read-a-box)
     * [Create a box](#create-a-box)
@@ -384,6 +386,59 @@ Responds [`200 OK`](#200-ok) if the authentication request was successful, other
     ```
   </div>
 </div>
+
+## Organizations
+
+### Read an organization
+
+`GET /api/v1/user/:username`
+
+#### Example Request
+
+<div class="examples">
+  <ul class="examples-header">
+    <li class="examples-menu examples-menu-shell"><a onclick="setExampleLanguage('shell');">cURL</a></li>
+    <li class="examples-menu examples-menu-ruby"><a onclick="setExampleLanguage('ruby');">Ruby</a></li>
+  </ul>
+  <div class="examples-body">
+    ```shell
+    curl \
+      --header "X-Atlas-Token: $VAGRANT_CLOUD_TOKEN" \
+      https://app.vagrantup.com/api/v1/user/myuser
+    ```
+
+    ```ruby
+    # gem install http, or add `gem "http"` to your Gemfile
+    require "http"
+
+    api = HTTP.persistent("https://app.vagrantup.com").headers(
+      "X-Atlas-Token" => ENV['VAGRANT_CLOUD_TOKEN']
+    )
+
+    response = api.get("/api/v1/user/myuser")
+
+    if response.status.success?
+      # Success, the response attributes are available here.
+      p response.parse
+    else
+      # Error, inspect the `errors` key for more information.
+      p response.code, response.body
+    end
+    ```
+  </div>
+</div>
+
+#### Example Response
+
+```json
+{
+  "username": "myuser",
+  "avatar_url": "https://www.gravatar.com/avatar/130a640278870c3dada38b3d912ee022?s=460&d=mm",
+  "profile_html": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>\n",
+  "profile_markdown": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  "boxes": []
+}
+```
 
 ## Boxes
 
