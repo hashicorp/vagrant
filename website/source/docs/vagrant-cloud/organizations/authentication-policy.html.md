@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "Organization Authentication Policy"
 sidebar_current: "vagrant-cloud-organizations-authentication-policy"
 ---

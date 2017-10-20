@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "Create a New Box Version"
 sidebar_current: "vagrant-cloud-boxes-create-version"
 ---

@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "Create an Organization"
 sidebar_current: "vagrant-cloud-organizations-create"
 ---

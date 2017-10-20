@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_page_title: "Organizations in Vagrant Cloud"
 sidebar_current: "vagrant-cloud-organizations"
 ---

@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "Account Recovery"
 sidebar_current: "vagrant-cloud-users-recovery"
 ---

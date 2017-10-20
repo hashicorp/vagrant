@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "Request Limits"
 sidebar_current: "vagrant-cloud-request-limits"
 ---
