@@ -45,7 +45,7 @@ module Vagrant
         result = 1
       end
 
-      result = 0 if !result.is_a?(Fixnum)
+      result = 0 if !result.is_a?(Integer)
       return result
     end
 
