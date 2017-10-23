@@ -22,6 +22,7 @@ BUG FIXES:
   - guests/solaris11: Inherit from Solaris guest and keep solaris11 specific methods [GH-9034]
   - guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
   - guests/windows: Specify expected shell when executing on guest (fixes winssh communicator usage) [GH-90112]
+  - providers/docker: Isolate windows check within executor to handle running through VM [GH-8921]
   - providers/hyper-v: Properly invoke Auto stop action [GH-9000]
   - provisioners/puppet: Fix winssh communicator support in puppet provisioner [GH-9014]
   - virtualbox/synced_folders: Allow synced folders to contain spaces in the guest path [GH-8995]
