@@ -29,6 +29,10 @@ module VagrantPlugins
 
           result.stdout
         end
+
+        def windows?
+          ::Vagrant::Util::Platform.windows? || ::Vagrant::Util::Platform.wsl?
+        end
       end
     end
   end
