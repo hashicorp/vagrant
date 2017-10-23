@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary       = "Build and distribute virtualized development environments."
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
-  s.required_ruby_version     = "~> 2.2", "< 2.4"
+  s.required_ruby_version     = "~> 2.2", "< 2.5"
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "vagrant"
 
@@ -43,7 +43,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake", "~> 12.0.0"
   s.add_development_dependency "rspec", "~> 3.5.0"
   s.add_development_dependency "rspec-its", "~> 1.2.0"
-  s.add_development_dependency "webmock", "~> 1.20"
+  s.add_development_dependency "webmock", "~> 2.3.1"
   s.add_development_dependency "fake_ftp", "~> 0.1.1"
 
   # The following block of code determines the files that should be included
