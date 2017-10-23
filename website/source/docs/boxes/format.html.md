@@ -34,7 +34,7 @@ Today, there are three different components:
   metadata does not exist, a box file can still be added directly, but
   it will not support versioning and updating.
 
-* Box Information - This is a JSON documnent that can provide additional
+* Box Information - This is a JSON document that can provide additional
   information about the box that displays when a user runs
   `vagrant box list -i`. More information is provided [here](/docs/boxes/info.html).
 
