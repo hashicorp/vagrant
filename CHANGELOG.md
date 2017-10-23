@@ -2,27 +2,28 @@
 
 FEATURES:
 
-- core: Introduce Ruby 2.4 to Vagrant [GH-9102]
-- providers/virtualbox: Virtualbox 5.2 support [GH-8955]
+  - core: Introduce Ruby 2.4 to Vagrant [GH-9102]
+  - providers/virtualbox: Virtualbox 5.2 support [GH-8955]
 
 IMPROVEMENTS:
 
-- core: Clear POSIXLY_CORRECT when using optparse [GH-8685]
-- docs: Add auto_start_action and auto_stop_action to docs. [GH-9029]
-- docs: Fix typo in box format doc [GH-9100]
-- providers/salt: Support Windows Salt Minions greater than 2016.x.x [GH-8926]
-- provisioners/chef: Handle chef provisioner reboot request [GH-8874]
-- provisioners/shell: Use ui.detail for displaying output [GH-8983]
+  - core: Clear POSIXLY_CORRECT when using optparse [GH-8685]
+  - docs: Add auto_start_action and auto_stop_action to docs. [GH-9029]
+  - docs: Fix typo in box format doc [GH-9100]
+  - provisioners/chef: Handle chef provisioner reboot request [GH-8874]
+  - providers/salt: Support Windows Salt Minions greater than 2016.x.x [GH-8926]
+  - provisioners/shell: Use ui.detail for displaying output [GH-8983]
 
 BUG FIXES:
 
-- communicators/ssh: Retry on Errno::EPIPE exceptions [GH-9065]
-- core: Rescue more exceptions when checking if port is open [GH-8517]
-- guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
-- guests/solaris11: Inherit from Solaris guest and keep solaris11 specific methods [GH-9034]
-- providers/hyper-v: Properly invoke Auto stop action [GH-9000]
-- provisioners/puppet: Fix winssh communicator support in puppet provisioner [GH-9014]
-- virtualbox/synced_folders: Allow synced folders to contain spaces in the guest path [GH-8995]
+  - communicators/ssh: Retry on Errno::EPIPE exceptions [GH-9065]
+  - core: Rescue more exceptions when checking if port is open [GH-8517]
+  - guests/solaris11: Inherit from Solaris guest and keep solaris11 specific methods [GH-9034]
+  - guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
+  - guests/windows: Specify expected shell when executing on guest (fixes winssh communicator usage) [GH-90112]
+  - providers/hyper-v: Properly invoke Auto stop action [GH-9000]
+  - provisioners/puppet: Fix winssh communicator support in puppet provisioner [GH-9014]
+  - virtualbox/synced_folders: Allow synced folders to contain spaces in the guest path [GH-8995]
 
 ## 2.0.0 (September 7, 2017)
 
