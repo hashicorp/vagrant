@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "Vagrant Cloud"
 sidebar_current: "vagrant-cloud"
 ---

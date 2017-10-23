@@ -1,0 +1,128 @@
+<% content_for :head do %>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $(".anchor-nav li").click(function() {
+        $(".anchor-nav li").removeClass("active");;
+        $(this).addClass("active");;
+      });
+    });
+  </script>
+  <style>
+    #docs-sidebar {
+      position: sticky;
+      top: 0;
+      bottom: 0;
+      max-height: calc(100vh);
+      overflow-y: scroll;
+    }
+  </style>
+<% end %>
+
+<% wrap_layout :inner do %>
+  <% content_for :sidebar do %>
+    <ul class="nav docs-sidenav">
+      <li><a href="/docs/">Vagrant Documentation</a></li>
+      <li<%= sidebar_current("vagrant-cloud") %>>
+        <a href="/docs/vagrant-cloud/">Vagrant Cloud</a>
+        <ul class="nav">
+          <li<%= sidebar_current("vagrant-cloud-boxes") %>>
+            <a href="/docs/vagrant-cloud/boxes/index.html">Boxes</a>
+            <ul class="nav">
+              <li<%= sidebar_current("vagrant-cloud-boxes-catalog") %>><a href="/docs/vagrant-cloud/boxes/catalog.html">Catalog</a></li>
+              <li<%= sidebar_current("vagrant-cloud-boxes-create-x") %>><a href="/docs/vagrant-cloud/boxes/create.html">Creating a New Box</a></li>
+              <li<%= sidebar_current("vagrant-cloud-boxes-create-version") %>><a href="/docs/vagrant-cloud/boxes/create-version.html">Creating a New Version</a></li>
+              <li<%= sidebar_current("vagrant-cloud-boxes-distributing") %>><a href="/docs/vagrant-cloud/boxes/distributing.html">Distributing</a></li>
+              <li<%= sidebar_current("vagrant-cloud-boxes-lifecycle") %>><a href="/docs/vagrant-cloud/boxes/lifecycle.html">Lifecycle</a></li>
+              <li<%= sidebar_current("vagrant-cloud-boxes-private") %>><a href="/docs/vagrant-cloud/boxes/private.html">Private Boxes</a></li>
+              <li<%= sidebar_current("vagrant-cloud-boxes-release-workflow") %>><a href="/docs/vagrant-cloud/boxes/release-workflow.html">Release Workflow</a></li>
+              <li<%= sidebar_current("vagrant-cloud-boxes-using") %>><a href="/docs/vagrant-cloud/boxes/using.html">Finding & Using Boxes</a></li>
+            </ul>
+          </li>
+
+          <li<%= sidebar_current("vagrant-cloud-organizations") %>>
+            <a href="/docs/vagrant-cloud/organizations/index.html">Organizations</a>
+            <ul class="nav">
+              <li<%= sidebar_current("vagrant-cloud-organizations-create") %>><a href="/docs/vagrant-cloud/organizations/create.html">Create an Organization</a></li>
+              <li<%= sidebar_current("vagrant-cloud-organizations-migrate") %>><a href="/docs/vagrant-cloud/organizations/migrate.html">Migrate User to Organization</a></li>
+              <li<%= sidebar_current("vagrant-cloud-organizations-authentication-policy") %>><a href="/docs/vagrant-cloud/organizations/authentication-policy.html">Authentication Policy</a></li>
+            </ul>
+          </li>
+
+          <li<%= sidebar_current("vagrant-cloud-users") %>>
+            <a href="/docs/vagrant-cloud/users/index.html">Users</a>
+            <ul class="nav">
+              <li<%= sidebar_current("vagrant-cloud-users-authentication") %>><a href="/docs/vagrant-cloud/users/authentication.html">Authentication</a></li>
+              <li<%= sidebar_current("vagrant-cloud-users-recovery") %>><a href="/docs/vagrant-cloud/users/recovery.html">Account Recovery</a></li>
+            </ul>
+          </li>
+
+          <li<%= sidebar_current("vagrant-cloud-request-limits") %>><a href="/docs/vagrant-cloud/request-limits.html">Request Limits</a></li>
+          <li<%= sidebar_current("vagrant-cloud-support") %>><a href="/docs/vagrant-cloud/support.html">Support</a></li>
+          <li<%= sidebar_current("vagrant-cloud-migration") %>><a href="/docs/vagrant-cloud/vagrant-cloud-migration.html">Vagrant Cloud Migration</a></li>
+          <li<%= sidebar_current("vagrant-cloud-api") %>>
+            <a href="/docs/vagrant-cloud/api.html">API</a>
+            <ul class="nav anchor-nav">
+              <li>
+                <a href="#using-the-api">Using the API</a>
+                <ul class="nav">
+                  <li><a href="#authentication">Authentication</a></li>
+                  <li><a href="#request-and-response-format">Request and Response Format</a></li>
+                  <li><a href="#response-codes">Response Codes</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#creating-a-usable-box-from-scratch">Creating a usable box from scratch</a>
+              </li>
+              <li>
+                <a href="#authentication-1">Authentication</a>
+                <ul class="nav">
+                  <li><a href="#create-a-token">Create a token</a></li>
+                  <li><a href="#validate-a-token">Validate a token</a></li>
+                  <li><a href="#validate-a-token">Request a 2FA code</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#organizations">Organizations</a>
+                <ul class="nav">
+                  <li><a href="#read-an-organization">Read an organization</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#boxes">Boxes</a>
+                <ul class="nav">
+                  <li><a href="#read-a-box">Read a box</a></li>
+                  <li><a href="#create-a-box">Create a box</a></li>
+                  <li><a href="#update-a-box">Update a box</a></li>
+                  <li><a href="#delete-a-box">Delete a box</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#versions">Versions</a>
+                <ul class="nav">
+                  <li><a href="#read-a-version">Read a version</a></li>
+                  <li><a href="#create-a-version">Create a version</a></li>
+                  <li><a href="#update-a-version">Update a version</a></li>
+                  <li><a href="#delete-a-version">Delete a version</a></li>
+                  <li><a href="#release-a-version">Release a version</a></li>
+                  <li><a href="#revoke-a-version">Revoke a version</a></li>
+                </ul>
+              </li>
+              <li>
+                <a href="#providers">Providers</a>
+                <ul class="nav">
+                  <li><a href="#read-a-provider">Read a provider</a></li>
+                  <li><a href="#create-a-provider">Create a providers</a></li>
+                  <li><a href="#update-a-provider">Update a provider</a></li>
+                  <li><a href="#delete-a-provider">Delete a provider</a></li>
+                  <li><a href="#upload-a-provider">Upload a provider</a></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  <% end %>
+
+  <%= yield %>
+<% end %>

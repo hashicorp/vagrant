@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "Distributing Boxes"
 sidebar_current: "vagrant-cloud-boxes-distributing"
 ---

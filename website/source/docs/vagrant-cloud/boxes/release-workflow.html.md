@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "API Release Workflow"
 sidebar_current: "vagrant-cloud-boxes-release-workflow"
 ---

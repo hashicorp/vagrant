@@ -1,5 +1,5 @@
 ---
-layout: "docs"
+layout: "vagrant-cloud"
 page_title: "Box Versioning and Lifecycle"
 sidebar_current: "vagrant-cloud-boxes-lifecycle"
 ---
