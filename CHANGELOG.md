@@ -14,6 +14,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- communicators/ssh: Retry on Errno::EPIPE exceptions [GH-9065]
 - core: Rescue more exceptions when checking if port is open [GH-8517]
 - guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
 - guests/solaris11: Inherit from Solaris guest and keep solaris11 specific methods [GH-9034]
