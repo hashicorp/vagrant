@@ -2,6 +2,7 @@
 
 FEATURES:
 
+- core: Introduce Ruby 2.4 to Vagrant [GH-9102]
 - providers/virtualbox: Virtualbox 5.2 support [GH-8955]
 
 IMPROVEMENTS:
