@@ -64,7 +64,7 @@ module VagrantPlugins
       def set_all_networks_to_work
         @logger.info("Setting all networks to 'Work Network'")
         command = File.read(File.expand_path("../scripts/set_work_network.ps1", __FILE__))
-        @communicator.execute(command)
+        @communicator.execute(command, { shell: :powershell })
       end
 
       protected
@@ -76,7 +76,7 @@ module VagrantPlugins
       def wsman_version
         @logger.debug("querying WSMan version")
         version = ''
-        @communicator.execute(PS_GET_WSMAN_VER) do |type, line|
+        @communicator.execute(PS_GET_WSMAN_VER, { shell: :powershell }) do |type, line|
           version = version + "#{line}" if type == :stdout && !line.nil?
         end
         @logger.debug("wsman version: #{version}")
@@ -108,7 +108,7 @@ module VagrantPlugins
       def network_adapters_v3_winrm
         command = File.read(File.expand_path("../scripts/winrs_v3_get_adapters.ps1", __FILE__))
         output = ""
-        @communicator.execute(command) do |type, line|
+        @communicator.execute(command, { shell: :powershell }) do |type, line|
           output = output + "#{line}" if type == :stdout && !line.nil?
         end
 
