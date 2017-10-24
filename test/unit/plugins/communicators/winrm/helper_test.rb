@@ -50,7 +50,7 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
     end
 
     it "raise an exception if it detects an APIPA" do
-      machine.stub(ssh_info: { host: "169.254.123.123" })
+      allow(machine).to receive(:ssh_info).and_return({ host: "169.254.123.123" })
       expect { subject.winrm_address(machine) }.
         to raise_error(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
     end
@@ -166,12 +166,12 @@ describe VagrantPlugins::CommunicatorWinRM::Helper do
     end
 
     it "returns true if it detects an APIPA" do
-      machine.stub(ssh_info: { host: "169.254.123.123" })
+      allow(machine).to receive(:ssh_info).and_return({ host: "169.254.123.123" })
       expect(subject).to be_winrm_info_invalid(machine.ssh_info)
     end
 
     it "returns false if the IP is valid" do
-      machine.stub(ssh_info: { host: "192.168.123.123" })
+      allow(machine).to receive(:ssh_info).and_return({ host: "192.168.123.123" })
       expect(subject).not_to be_winrm_info_invalid(machine.ssh_info)
     end
   end
