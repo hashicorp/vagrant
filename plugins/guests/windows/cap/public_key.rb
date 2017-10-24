@@ -1,5 +1,7 @@
 require "tempfile"
 
+require_relative '../../../communicators/winssh/communicator'
+
 module VagrantPlugins
   module GuestWindows
     module Cap
