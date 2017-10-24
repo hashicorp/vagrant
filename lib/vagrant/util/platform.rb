@@ -447,18 +447,20 @@ module Vagrant
         # are the same. Raise error if they do not match.
         def wsl_validate_matching_vagrant_versions!
           valid = false
-          result = Util::Subprocess.execute("vagrant.exe", "version")
-          if result.exit_code == 0
-            windows_version = result.stdout.match(/Installed Version: (?<version>[\w.-]+)/)
-            if windows_version
-              windows_version = windows_version[:version].strip
-              valid = windows_version == Vagrant::VERSION
+          if Util::Which.which("vagrant.exe")
+            result = Util::Subprocess.execute("vagrant.exe", "version")
+            if result.exit_code == 0
+              windows_version = result.stdout.match(/Installed Version: (?<version>[\w.-]+)/)
+              if windows_version
+                windows_version = windows_version[:version].strip
+                valid = windows_version == Vagrant::VERSION
+              end
             end
-          end
-          if !valid
-            raise Vagrant::Errors::WSLVagrantVersionMismatch,
-              wsl_version: Vagrant::VERSION,
-              windows_version: windows_version || "unknown"
+            if !valid
+              raise Vagrant::Errors::WSLVagrantVersionMismatch,
+                wsl_version: Vagrant::VERSION,
+                windows_version: windows_version || "unknown"
+            end
           end
         end
 

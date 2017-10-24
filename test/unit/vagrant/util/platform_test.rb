@@ -182,4 +182,36 @@ describe Vagrant::Util::Platform do
       expect(subject.systemd?).to be_falsey
     end
   end
+
+  describe ".wsl_validate_matching_vagrant_versions!" do
+    let(:exe_version){ Vagrant::VERSION.to_s }
+
+    before do
+      allow(Vagrant::Util::Which).to receive(:which).and_return(true)
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("vagrant.exe", "version").
+        and_return(double(exit_code: 0, stdout: "Installed Version: #{exe_version}"))
+    end
+
+    it "should not raise an error" do
+      Vagrant::Util::Platform.wsl_validate_matching_vagrant_versions!
+    end
+
+    context "when windows vagrant.exe is not installed" do
+      before{ expect(Vagrant::Util::Which).to receive(:which).with("vagrant.exe").and_return(nil) }
+
+      it "should not raise an error" do
+        Vagrant::Util::Platform.wsl_validate_matching_vagrant_versions!
+      end
+    end
+
+    context "when versions do not match" do
+      let(:exe_version){ "1.9.9" }
+
+      it "should raise an error" do
+        expect {
+          Vagrant::Util::Platform.wsl_validate_matching_vagrant_versions!
+        }.to raise_error(Vagrant::Errors::WSLVagrantVersionMismatch)
+      end
+    end
+  end
 end
