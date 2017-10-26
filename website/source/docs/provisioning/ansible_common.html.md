@@ -145,6 +145,8 @@ Some of these options are for advanced usage only and should not be used unless 
 
     The default value is `ansible-playbook`
 
+- `playbook_roles_path` (string) - Environment variable `ANSIBLE_ROLES_PATH` will be set to this value when running the `ansible-playbook` command.
+
 - `raw_arguments` (array of strings) - a list of additional `ansible-playbook` arguments.
 
     It is an *unsafe wildcard* that can be used to apply Ansible options that are not (yet) supported by this Vagrant provisioner. As of Vagrant 1.7, `raw_arguments` has the highest priority and its values can potentially override or break other Vagrant settings.

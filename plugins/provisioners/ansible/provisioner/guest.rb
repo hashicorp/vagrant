@@ -100,6 +100,7 @@ module VagrantPlugins
         def execute_ansible_playbook_on_guest
           prepare_common_command_arguments
           prepare_common_environment_variables
+          prepare_playbook_environment_variables
 
           execute_ansible_command_on_guest "playbook", ansible_playbook_command_for_shell_execution
         end

@@ -184,11 +184,13 @@ module VagrantPlugins
           # (e.g. local provisioner [GH-2103], possible change in vagrant/ansible integration, etc.)
           @environment_variables["ANSIBLE_NOCOLOR"] = "true" if !@machine.env.ui.color?
 
+          prepare_ansible_config_environment_variable
+        end
+
+        def prepare_playbook_environment_variables
           # Use ANSIBLE_ROLES_PATH to tell ansible-playbook where to look for roles
           # (there is no equivalent command line argument in ansible-playbook)
-          @environment_variables["ANSIBLE_ROLES_PATH"] = get_galaxy_roles_path if config.galaxy_roles_path
-
-          prepare_ansible_config_environment_variable
+          @environment_variables["ANSIBLE_ROLES_PATH"] = get_playbook_roles_path if config.playbook_roles_path
         end
 
         def prepare_ansible_config_environment_variable
@@ -330,6 +332,16 @@ module VagrantPlugins
           base_dir = get_provisioning_working_directory
           if config.galaxy_roles_path
             Helpers::expand_path_in_unix_style(config.galaxy_roles_path, base_dir)
+          else
+            playbook_path = Helpers::expand_path_in_unix_style(config.playbook, base_dir)
+            File.join(Pathname.new(playbook_path).parent, 'roles')
+          end
+        end
+
+        def get_playbook_roles_path
+          base_dir = get_provisioning_working_directory
+          if config.playbook_roles_path
+            Helpers::expand_path_in_unix_style(config.playbook_roles_path, base_dir)
           else
             playbook_path = Helpers::expand_path_in_unix_style(config.playbook, base_dir)
             File.join(Pathname.new(playbook_path).parent, 'roles')

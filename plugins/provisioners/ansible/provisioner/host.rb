@@ -85,6 +85,7 @@ module VagrantPlugins
 
         def prepare_environment_variables
           prepare_common_environment_variables
+          prepare_playbook_environment_variables
 
           # Some Ansible options must be passed as environment variables,
           # as there is no equivalent command line arguments
