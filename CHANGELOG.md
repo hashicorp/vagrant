@@ -13,6 +13,7 @@ IMPROVEMENTS:
   - docs: Fix typo in box format doc [GH-9100]
   - provisioners/chef: Handle chef provisioner reboot request [GH-8874]
   - providers/salt: Support Windows Salt Minions greater than 2016.x.x [GH-8926]
+  - provisioners/salt: Add wget to bootstrap_salt options when fetching installer file [GH-9112]
   - provisioners/shell: Use ui.detail for displaying output [GH-8983]
 
 BUG FIXES:
