@@ -297,8 +297,7 @@ module Vagrant
         # If we're in Vagrant, then we use the packaged CA bundle
         if Vagrant.in_installer?
           subprocess_options[:env] ||= {}
-          subprocess_options[:env]["CURL_CA_BUNDLE"] =
-            File.expand_path("cacert.pem", ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"])
+          subprocess_options[:env]["CURL_CA_BUNDLE"] = ENV["CURL_CA_BUNDLE"]
         end
 
         return [options, subprocess_options]
