@@ -1697,6 +1697,9 @@ en:
         will_not_destroy: |-
           The VM '%{name}' will not be destroyed, since the confirmation
           was declined.
+        warning: |-
+          Destroying guests with `--parallel` automatically enables `--force`.
+          Press ctrl-c to cancel.
       init:
         success: |-
           A `Vagrantfile` has been placed in this directory. You are now

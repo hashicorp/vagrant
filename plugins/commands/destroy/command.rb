@@ -20,7 +20,7 @@ module VagrantPlugins
           end
 
           o.on("--[no-]parallel",
-               "Enable or disable parallelism if provider supports it") do |p|
+               "Enable or disable parallelism if provider supports it (automatically enables force)") do |p|
             options[:parallel] = p
           end
         end
@@ -29,13 +29,22 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
-        @logger.debug("'Destroy' each target VM...")
-
-        if options[:parallel]
+        if options[:parallel] && !options[:force]
+          @env.ui.warn(I18n.t("vagrant.commands.destroy.warning"))
+          sleep(5)
           options[:force] = true
         end
 
+        @logger.debug("'Destroy' each target VM...")
+
         machines = []
+        init_states = {}
+        declined = 0
+
+        # gather states to be checked after destroy
+        with_target_vms(argv, reverse: true) do |vm|
+          init_states[vm.name] = vm.state.id
+        end
 
         @env.batch(options[:parallel]) do |batch|
           with_target_vms(argv, reverse: true) do |vm|
@@ -44,17 +53,20 @@ module VagrantPlugins
           end
         end
 
-        states = machines.map { |m| m.state.id }
-        if states.uniq.length == 1 && states.first == :not_created
-          # Nothing was declined
-          return 0
-        elsif states.uniq.length == 1 && states.first != :not_created
-          # Everything was declined
-          return 1
-        else
-          # Some was declined
-          return 2
+        machines.each do |m|
+          if m.state.id == init_states[m.name]
+            declined += 1
+          end
         end
+
+        # Nothing was declined
+        return 0 if declined == 0
+
+        # Everything was declined, state was not changed
+        return 1 if declined == machines.length
+
+        # Some was declined
+        return 2
       end
     end
   end
