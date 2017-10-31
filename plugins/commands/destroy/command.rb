@@ -41,14 +41,12 @@ module VagrantPlugins
         init_states = {}
         declined = 0
 
-        # gather states to be checked after destroy
-        with_target_vms(argv, reverse: true) do |vm|
-          init_states[vm.name] = vm.state.id
-        end
-
         @env.batch(options[:parallel]) do |batch|
           with_target_vms(argv, reverse: true) do |vm|
+            # gather states to be checked after destroy
+            init_states[vm.name] = vm.state.id
             machines << vm
+
             batch.action(vm, :destroy, force_confirm_destroy: options[:force])
           end
         end
