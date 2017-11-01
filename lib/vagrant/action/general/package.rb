@@ -73,6 +73,8 @@ module Vagrant
 
           self.class.validate!(env["package.output"], env["package.directory"])
 
+          package_with_folder_path if env["package.output"].include?(File::SEPARATOR)
+
           raise Errors::PackageOutputDirectory if File.directory?(fullpath)
 
           @app.call(env)
@@ -81,6 +83,16 @@ module Vagrant
           copy_include_files
           setup_private_key
           compress
+        end
+
+        def package_with_folder_path
+          folder_path = File.expand_path("..", @fullpath)
+          create_box_folder(folder_path) unless File.directory?(folder_path)
+        end
+
+        def create_box_folder(folder_path)
+          @env[:ui].info(I18n.t("vagrant.actions.general.package.box_folder", folder_path: folder_path))
+          FileUtils.mkdir_p(folder_path)
         end
 
         def recover(env)
