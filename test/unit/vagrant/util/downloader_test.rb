@@ -210,4 +210,32 @@ describe Vagrant::Util::Downloader do
       expect(subject.head).to eq("foo")
     end
   end
+
+  describe "#options" do
+    describe "CURL_CA_BUNDLE" do
+      let(:ca_bundle){ "CUSTOM_CA_BUNDLE" }
+
+      context "when running within the installer" do
+        before do
+          allow(Vagrant).to receive(:in_installer?).and_return(true)
+          allow(ENV).to receive(:[]).with("CURL_CA_BUNDLE").and_return(ca_bundle)
+        end
+
+        it "should set custom CURL_CA_BUNDLE in subprocess ENV" do
+          _, subprocess_opts = subject.send(:options)
+          expect(subprocess_opts[:env]).not_to be_nil
+          expect(subprocess_opts[:env]["CURL_CA_BUNDLE"]).to eql(ca_bundle)
+        end
+      end
+
+      context "when not running within the installer" do
+        before{ allow(Vagrant).to receive(:installer?).and_return(false) }
+
+        it "should not set custom CURL_CA_BUNDLE in subprocess ENV" do
+          _, subprocess_opts = subject.send(:options)
+          expect(subprocess_opts[:env]).to be_nil
+        end
+      end
+    end
+  end
 end
