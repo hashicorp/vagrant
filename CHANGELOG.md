@@ -24,6 +24,7 @@ BUG FIXES:
   - guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
   - guests/windows: Specify expected shell when executing on guest (fixes winssh communicator usage) [GH-9012]
   - guests/windows: Include WinSSH Communicator when using insert_public_key [GH-9105]
+  - hosts/windows: Check for vagrant.exe when validating versions within WSL [GH-9107, GH-8962]
   - providers/docker: Isolate windows check within executor to handle running through VM [GH-8921]
   - providers/hyper-v: Properly invoke Auto stop action [GH-9000]
   - provisioners/puppet: Fix winssh communicator support in puppet provisioner [GH-9014]
