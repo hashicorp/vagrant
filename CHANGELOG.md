@@ -7,6 +7,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - command/destroy: Introduce parallel destroy for certain providers [GH-9127]
   - communicators/winrm: Include APIPA check within ready check [GH-8997]
   - core: Clear POSIXLY_CORRECT when using optparse [GH-8685]
   - docs: Add auto_start_action and auto_stop_action to docs. [GH-9029]
