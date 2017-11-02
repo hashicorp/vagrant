@@ -25,6 +25,9 @@ directory containing the `shutdown` command.
 ## Options
 
 * `-f` or `--force` - Do not ask for confirmation before destroying.
+* `--[no-]parallel` - Destroys multiple machines in parallel if the provider
+  supports it. Please consult the provider documentation to see if this feature
+  is supported.
 
 <div class="alert alert-info">
   The `destroy` command does not remove a box that may have been installed on
