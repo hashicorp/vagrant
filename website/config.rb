@@ -2,8 +2,8 @@ set :base_url, "https://www.vagrantup.com/"
 
 activate :hashicorp do |h|
   h.name         = "vagrant"
-  h.version      = "2.0.0"
-  h.github_slug  = "mitchellh/vagrant"
+  h.version      = "2.0.1"
+  h.github_slug  = "hashicorp/vagrant"
   h.website_root = "website"
 end
 
