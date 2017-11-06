@@ -60,8 +60,9 @@ Do {
     $retries++
     $ErrorActionPreference='Stop'
     $webclient.DownloadFile($url, $file)
+    break
  } catch [Exception] {
-    if($retries -eq 3) {
+    if($retries -eq 5) {
         $_
         $_.GetType()
         $_.Exception
@@ -73,7 +74,7 @@ Do {
     Start-Sleep -s 2
     }
 }
-Until($retries -eq 3)
+Until($retries -eq 5)
 
 
 # Install minion silently
