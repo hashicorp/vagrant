@@ -6,8 +6,10 @@ require_relative "../client"
 module VagrantPlugins
   module LoginCommand
     class AddAuthentication
-      VCLOUD = "vagrantcloud.com".freeze
-      ATLAS  = "atlas.hashicorp.com".freeze
+      ALLOWED_AUTHENTICATION_HOSTS = %w[
+        atlas.hashicorp.com
+        vagrantcloud.com
+      ].freeze
 
       def initialize(app, env)
         @app = app
@@ -25,12 +27,8 @@ module VagrantPlugins
             replace = u.host == server_uri.host
 
             if !replace
-              # We need this in here for the transition we made from
-              # Vagrant Cloud to Atlas. This preserves access tokens
-              # appending to both without leaking access tokens to
-              # unsavory URLs.
-              if (u.host == VCLOUD && server_uri.host == ATLAS) ||
-                  (u.host == ATLAS && server_uri.host == VCLOUD)
+              if ALLOWED_AUTHENTICATION_HOSTS.include?(u.host) &&
+                  ALLOWED_AUTHENTICATION_HOSTS.include?(server_uri.host)
                 replace = true
               end
             end
