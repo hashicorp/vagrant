@@ -71,13 +71,15 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
 
       original = [
         "http://google.com/box.box",
+        "http://app.vagrantup.com/foo.box",
         "http://vagrantcloud.com/foo.box",
         "http://vagrantcloud.com/bar.box?arg=true",
       ]
 
       expected = original.dup
       expected[1] = "#{original[1]}?access_token=#{token}"
-      expected[2] = "#{original[2]}&access_token=#{token}"
+      expected[2] = "#{original[2]}?access_token=#{token}"
+      expected[3] = "#{original[3]}&access_token=#{token}"
 
       env[:box_urls] = original.dup
       subject.call(env)

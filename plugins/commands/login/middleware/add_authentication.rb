@@ -7,6 +7,7 @@ module VagrantPlugins
   module LoginCommand
     class AddAuthentication
       ALLOWED_AUTHENTICATION_HOSTS = %w[
+        app.vagrantup.com
         atlas.hashicorp.com
         vagrantcloud.com
       ].freeze
