@@ -54,6 +54,23 @@ module Vagrant
         raise Errors::SSHKeyBadPermissions, key_path: key_path
       end
 
+      def self.determine_ssh_bin(original_ssh_path)
+        begin
+          original_path_env = ENV['PATH']
+          ENV['PATH'] = ENV['VAGRANT_OLD_ENV_PATH']
+          ssh_path = Which.which("ssh")
+          puts "the path: #{ssh_path}"
+          if !ssh_path.nil?
+            LOGGER.debug("Found default ssh binary. Using that instead...")
+            original_ssh_path = ssh_path
+          end
+        ensure
+          ENV['PATH'] = original_path_env
+        end
+
+        return original_ssh_path
+      end
+
       # Halts the running of this process and replaces it with a full-fledged
       # SSH shell into a remote machine.
       #
@@ -79,9 +96,9 @@ module Vagrant
           raise Errors::SSHUnavailable
         end
 
-        # On Windows, we need to detect whether SSH is actually "plink"
-        # underneath the covers. In this case, we tell the user.
         if Platform.windows?
+          # On Windows, we need to detect whether SSH is actually "plink"
+          # underneath the covers. In this case, we tell the user.
           r = Subprocess.execute(ssh_path)
           if r.stdout.include?("PuTTY Link") || r.stdout.include?("Plink: command-line connection utility")
             raise Errors::SSHIsPuttyLink,
@@ -90,6 +107,9 @@ module Vagrant
               username: ssh_info[:username],
               key_path: ssh_info[:private_key_path].join(", ")
           end
+
+          # use system ssh if available
+          ssh_path = determine_ssh_bin(ssh_path)
         end
 
         # If plain mode is enabled then we don't do any authentication (we don't
@@ -185,7 +205,9 @@ module Vagrant
         # we really don't care since both work.
         ENV["nodosfilewarning"] = "1" if Platform.cygwin?
 
-        ssh = ssh_info[:ssh_command] || 'ssh'
+        # If an ssh command is defined, use that. If an ssh binary was
+        # discovered on the path, use that. Otherwise fail to just trying `ssh`
+        ssh = ssh_info[:ssh_command] || ssh_path || 'ssh'
 
         # Invoke SSH with all our options
         if !opts[:subprocess]
