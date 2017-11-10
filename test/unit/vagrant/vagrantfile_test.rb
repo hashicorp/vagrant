@@ -408,7 +408,7 @@ describe Vagrant::Vagrantfile do
         before do
           ARGV.clear
           ARGV.concat(['playbooks/foo.yaml'])
-          vm_name = File.basename(ARGV[1]).delete(File.extname(ARGV[1]))
+          vm_name = File.basename(ARGV[1]).sub(File.extname(ARGV[1]),'')
           expect { print 'foo' }.to output(vm_name).to_stdout
 
           configure do |config|
