@@ -202,6 +202,14 @@ VF
     end
   end
 
+  def ensure_that_config_is_valid
+    # Abort the test when an invalid configuration is detected
+    config.validate(machine)
+    if config._detected_errors.length > 0
+      raise "Invalid Provisioner Configuration! Detected Errors:\n#{config._detected_errors.to_s}"
+    end
+  end
+
   describe "#provision" do
 
     before do
@@ -216,6 +224,8 @@ VF
 
     after do
       unless RSpec.current_example.metadata[:skip_after]
+        ensure_that_config_is_valid
+
         subject.provision
       end
     end
@@ -233,6 +243,7 @@ VF
 
         config.playbook = STUBBED_INVALID_PATH
         config.finalize!
+        ensure_that_config_is_valid
 
         expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleError,
           "`playbook` does not exist on the host: #{STUBBED_INVALID_PATH}")
@@ -245,11 +256,8 @@ VF
 
             config.playbook = existing_file
             config.send(option_name + '=', STUBBED_INVALID_PATH)
-            if option_name == 'extra_vars'
-              # little trick to auto-append the '@' prefix, which is a duty of the config validator...
-              config.validate(machine)
-            end
             config.finalize!
+            ensure_that_config_is_valid
 
             expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleError,
               "`#{option_name}` does not exist on the host: #{STUBBED_INVALID_PATH}")
@@ -261,6 +269,7 @@ VF
     describe 'when ansible-playbook fails' do
       it "raises an error", skip_before: true, skip_after: true do
         config.finalize!
+        ensure_that_config_is_valid
 
         allow(subject).to receive(:check_path)
         allow(Vagrant::Util::Subprocess).to receive(:execute)
@@ -398,6 +407,7 @@ VF
         end
 
         it "raises a compatibility conflict error", skip_before: false, skip_after: true do
+          ensure_that_config_is_valid
           expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleCompatibilityModeConflict)
         end
       end
@@ -986,6 +996,7 @@ VF
         end
 
         it "raises an error about the ansible version mismatch", skip_before: false, skip_after: true do
+          ensure_that_config_is_valid
           expect {subject.provision}.to raise_error(VagrantPlugins::Ansible::Errors::AnsibleVersionMismatch)
         end
       end
@@ -1020,6 +1031,7 @@ VF
 
       it "raises an error when ansible-galaxy command fails", skip_before: true, skip_after: true do
         config.finalize!
+        ensure_that_config_is_valid
 
         allow(subject).to receive(:check_path)
         allow(Vagrant::Util::Subprocess).to receive(:execute)
