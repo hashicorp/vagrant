@@ -1,15 +1,15 @@
 # Guest boxes to use for vagrant-spec
 GUEST_BOXES = {
-  'spox/ubuntu-16.04' => '0.0.1',
-  'spox/centos-7' => '0.0.1',
+  'hashicorp-vagrant/ubuntu-16.04' => '1.0.0',
+  'hashicorp-vagrant/centos-7.4' => '1.0.0',
   'spox/windows-10' => '0.0.1',
   'spox/osx-10.12' => '0.0.1'
 }
 
 # Host boxes to run vagrant-spec
 HOST_BOXES = {
-  'spox/ubuntu-16.04' => '0.0.1',
-  'spox/centos-7' => '0.0.1',
+  'hashicorp-vagrant/ubuntu-16.04' => '1.0.0',
+  'hashicorp-vagrant/centos-7.4' => '1.0.0',
   'spox/windows-10' => '0.0.1',
   'spox/osx-10.12' => '0.0.1'
 }
