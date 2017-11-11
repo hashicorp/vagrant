@@ -313,20 +313,20 @@ describe Vagrant::UI::Prefixed do
 
   describe "#ask" do
     it "does not request bolding" do
-      expect(ui).to receive(:ask).with("    #{prefix}: foo", bold: false, target: prefix)
+      expect(ui).to receive(:ask).with(/    #{prefix}: foo$/, bold: false, target: prefix)
       subject.ask("foo")
     end
   end
 
   describe "#detail" do
     it "prefixes with spaces and the message" do
-      expect(ui).to receive(:safe_puts).with("    #{prefix}: foo", anything)
+      expect(ui).to receive(:safe_puts).with(/    #{prefix}: foo$/, anything)
       subject.detail("foo")
     end
 
     it "prefixes every line" do
       expect(ui).to receive(:detail).with(
-        "    #{prefix}: foo\n    #{prefix}: bar", bold: false, target: prefix)
+        /    #{prefix}: foo\\n.*    #{prefix}: bar$/, bold: false, target: prefix)
       subject.detail("foo\nbar")
     end
 
@@ -357,17 +357,17 @@ describe Vagrant::UI::Prefixed do
 
   describe "#output" do
     it "prefixes with an arrow and the message" do
-      expect(ui).to receive(:output).with("==> #{prefix}: foo", anything)
+      expect(ui).to receive(:output).with(/==> #{prefix}: foo$/, anything)
       subject.output("foo")
     end
 
     it "prefixes with spaces if requested" do
-      expect(ui).to receive(:output).with("    #{prefix}: foo", anything)
+      expect(ui).to receive(:output).with(/    #{prefix}: foo$/, anything)
       subject.output("foo", prefix_spaces: true)
     end
 
     it "prefixes every line" do
-      expect(ui).to receive(:output).with("==> #{prefix}: foo\n==> #{prefix}: bar", anything)
+      expect(ui).to receive(:output).with(/==> #{prefix}: foo\\n.*==> #{prefix}: bar$/, anything)
       subject.output("foo\nbar")
     end
 
@@ -377,18 +377,18 @@ describe Vagrant::UI::Prefixed do
     end
 
     it "requests bolding" do
-      expect(ui).to receive(:output).with("==> #{prefix}: foo", bold: true, target: prefix)
+      expect(ui).to receive(:output).with(/==> #{prefix}: foo$/, bold: true, target: prefix)
       subject.output("foo")
     end
 
     it "does not request bolding if class-level disabled" do
       ui.opts[:bold] = false
-      expect(ui).to receive(:output).with("==> #{prefix}: foo", target: prefix)
+      expect(ui).to receive(:output).with(/==> #{prefix}: foo$/, target: prefix)
       subject.output("foo")
     end
 
     it "prefixes with another prefix if requested" do
-      expect(ui).to receive(:output).with("==> bar: foo", anything)
+      expect(ui).to receive(:output).with(/==> bar: foo$/, anything)
       subject.output("foo", target: "bar")
     end
   end
