@@ -326,7 +326,7 @@ describe Vagrant::UI::Prefixed do
 
     it "prefixes every line" do
       expect(ui).to receive(:detail).with(
-        /    #{prefix}: foo\\n.*    #{prefix}: bar$/, bold: false, target: prefix)
+        /    #{prefix}: foo\n.*    #{prefix}: bar$/, bold: false, target: prefix)
       subject.detail("foo\nbar")
     end
 
@@ -367,7 +367,7 @@ describe Vagrant::UI::Prefixed do
     end
 
     it "prefixes every line" do
-      expect(ui).to receive(:output).with(/==> #{prefix}: foo\\n.*==> #{prefix}: bar$/, anything)
+      expect(ui).to receive(:output).with(/==> #{prefix}: foo\n.*==> #{prefix}: bar$/, anything)
       subject.output("foo\nbar")
     end
 
