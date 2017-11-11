@@ -315,8 +315,9 @@ module Vagrant
 
         prefix = ""
         if !opts.key?(:prefix) || opts[:prefix]
-          prefix = OUTPUT_PREFIX
-          prefix = " " * OUTPUT_PREFIX.length if \
+          now = "#{Time.now.strftime('%F %T.%L')} "
+          prefix = now + OUTPUT_PREFIX
+          prefix = now + " " * OUTPUT_PREFIX.length if \
             type == :detail || type == :ask || opts[:prefix_spaces]
         end
 
