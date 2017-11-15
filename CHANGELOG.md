@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - commands/package: Fix --output path with specified folder [GH-9131] 
+
 ## 2.0.1 (November 2, 2017)
 
 FEATURES:
