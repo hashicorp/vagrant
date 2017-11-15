@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
+
 BUG FIXES:
 
   - commands/package: Fix --output path with specified folder [GH-9131] 
