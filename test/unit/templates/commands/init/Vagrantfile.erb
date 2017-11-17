@@ -1,0 +1,20 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  config.vm.hostname = "vagrant.dev"  
+  config.vm.box = "<%= box_name %>"
+  <% if box_version -%>
+  config.vm.box_version = "<%= box_version %>"
+  <% end -%>
+
+  <% if box_url -%>
+  # The url from where the 'config.vm.box' box will be fetched if it
+  # doesn't already exist on the user's system.
+  config.vm.box_url = "<%= box_url %>"
+  <% end -%>
+end
