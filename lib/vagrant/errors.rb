@@ -784,6 +784,10 @@ module Vagrant
       error_key(:vagrantfile_syntax_error)
     end
 
+    class VagrantfileTemplateNotFoundError < VagrantError
+      error_key(:vagrantfile_template_not_found_error)
+    end
+
     class VagrantfileWriteError < VagrantError
       error_key(:vagrantfile_write_error)
     end

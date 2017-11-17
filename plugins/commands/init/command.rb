@@ -71,6 +71,12 @@ module VagrantPlugins
         # Strip the .erb extension off the template if the user passes it in
         options[:template] = options[:template].chomp(".erb")
 
+        # Make sure the template actually exists
+        full_template_path = Vagrant::Util::TemplateRenderer.new(options[:template], template_root: template_root).full_template_path
+        if !File.file?(full_template_path)
+          raise Vagrant::Errors::VagrantfileTemplateNotFoundError, path: full_template_path
+        end
+
         contents = Vagrant::Util::TemplateRenderer.render(options[:template],
           box_name: argv[0] || "base",
           box_url: argv[1],

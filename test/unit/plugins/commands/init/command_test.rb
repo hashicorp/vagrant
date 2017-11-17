@@ -61,6 +61,12 @@ describe VagrantPlugins::CommandInit::Command do
       expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
     end
 
+    it "raises an appropriate exception when the template file can't be found" do
+      expect {
+      described_class.new(["--template", "./a/b/c/template"], env).execute
+      }.to raise_error(Vagrant::Errors::VagrantfileTemplateNotFoundError)
+    end
+
     it "does not overwrite an existing Vagrantfile" do
       # Create an existing Vagrantfile
       File.open(File.join(env.cwd, "Vagrantfile"), "w+") { |f| f.write("") }
