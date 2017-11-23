@@ -34,6 +34,11 @@ Vagrant.configure("2") do |config|
   # NOTE: This will enable public access to the opened port
   # config.vm.network "forwarded_port", guest: 80, host: 8080
 
+  # Forward ssh key from host ssh agent the the guest.  This is useful for
+  # GitHub access from the guest machine, or connecting to other servers
+  # via ssh.
+  # config.ssh.forward_agent = true
+
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine and only allow access
   # via 127.0.0.1 to disable public access
