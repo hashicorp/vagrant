@@ -4,11 +4,12 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - docs: Include virtualbox 5.2.x as supported in docs [GH-9237]
   - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
 
 BUG FIXES:
 
-  - commands/package: Fix --output path with specified folder [GH-9131] 
+  - commands/package: Fix --output path with specified folder [GH-9131]
 
 ## 2.0.1 (November 2, 2017)
 
