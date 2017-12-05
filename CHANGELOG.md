@@ -2,6 +2,8 @@
 
 FEATURES:
 
+  - guests: Add support for the Haiku operating system [GH-7805]
+
 IMPROVEMENTS:
 
   - docs: Include virtualbox 5.2.x as supported in docs [GH-9237]
