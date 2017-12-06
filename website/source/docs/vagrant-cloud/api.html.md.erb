@@ -13,9 +13,9 @@ sidebar_current: "vagrant-cloud-api"
       $(".examples pre.highlight." + language).show();
     }
 
-    $(document).ready(function() {
-      setExampleLanguage("shell"); }
-    );
+    $(document).on('ready turbolinks:load', function() {
+      setExampleLanguage("shell");
+    });
   </script>
 
   <style>
