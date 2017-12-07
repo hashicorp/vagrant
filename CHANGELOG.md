@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
   - docs: Include virtualbox 5.2.x as supported in docs [GH-9237]
   - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
+  - provisioners/salt: Fixes timeout issue in salt bootstrapping for windows [GH-8992]
 
 BUG FIXES:
 
