@@ -30,11 +30,6 @@ module VagrantPlugins
       def prepare(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
 
-        # Check if this host can start and SMB service
-        if machine.env.host.capability?(:smb_start)
-          machine.env.host.capability(:smb_start)
-        end
-
         smb_username = smb_password = nil
 
         # If we need auth information, then ask the user.
@@ -48,11 +43,37 @@ module VagrantPlugins
           end
         end
 
+        script_path = File.expand_path("../scripts/check_credentials.ps1", __FILE__)
+
         if !have_auth
-          machine.env.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          smb_username = machine.env.ui.ask("Username: ")
-          smb_password = machine.env.ui.ask("Password (will be hidden): ", echo: false)
+          machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
+          auth_success = false
+          while !auth_success do
+            @creds[:username] = machine.ui.ask("Username: ")
+            @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+
+            args = []
+            args << "-username" << "'#{@creds[:username].gsub("'", "''")}'"
+            args << "-password" << "'#{@creds[:password].gsub("'", "''")}'"
+
+            r = Vagrant::Util::PowerShell.execute(script_path, *args)
+
+            if r.exit_code == 0
+              auth_success = true
+            end
+
+            if !auth_success
+              machine.ui.output(I18n.t("vagrant_sf_smb.incorrect_credentials") + "\n ")
+            end
+          end
         end
+
+        # Check if this host can start and SMB service
+        if machine.env.host.capability?(:smb_start)
+          machine.env.host.capability(:smb_start)
+        end
+
+        script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
 
         folders.each do |id, data|
           data[:smb_username] ||= smb_username
