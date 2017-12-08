@@ -87,6 +87,20 @@ describe Vagrant::Config::Loader do
       expect(warnings).to eq([])
       expect(errors).to eq([])
     end
+
+    it "should throw a NameError exception if invalid or undefined variable is used" do
+      vagrantfile = <<-VF
+      Vagrant.configure("2") do |config|
+        config.ssh.port = variable
+      end
+      VF
+
+      instance.set(:foo, temporary_file(vagrantfile))
+
+      expect {
+        instance.load([:foo])
+      }.to raise_error(Vagrant::Errors::VagrantfileNameError, /invalid or undefined variable/)
+    end
   end
 
   describe "finalization" do

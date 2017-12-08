@@ -1374,6 +1374,14 @@ en:
         Path: %{path}
         Line number: %{line}
         Message: %{exception_class}: %{message}
+      vagrantfile_name_error: |-
+        There was an error loading a Vagrantfile. The file being loaded
+        and the error message are shown below. This is usually caused by
+        an invalid or undefined variable.
+
+        Path: %{path}
+        Line number: %{line}
+        Message: %{message}
       vagrantfile_syntax_error: |-
         There is a syntax error in the following Vagrantfile. The syntax error
         message is reproduced below for convenience:
