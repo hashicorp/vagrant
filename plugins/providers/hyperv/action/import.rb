@@ -148,7 +148,7 @@ module VagrantPlugins
           options[:auto_start_action] = auto_start_action if auto_start_action
           options[:auto_stop_action] = auto_stop_action if auto_stop_action
           options[:differencing_disk] = differencing_disk if differencing_disk
-          options[:enable_virtualization_extensions] = "$True" if enable_virtualization_extensions and enable_virtualization_extensions == true
+          options[:enable_virtualization_extensions] = "True" if enable_virtualization_extensions and enable_virtualization_extensions == true
 
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)
