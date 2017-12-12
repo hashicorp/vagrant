@@ -14,7 +14,7 @@ This is the operating system you run in the virtual machine.
 
 ### Vagrantfile
 ```ruby
-# Copy-paste your Vagrantfile here
+# Copy-paste your Vagrantfile here (but don't include sensitive information such as passwords, authentication tokens, or email addresses)
 ```
 
 Please note, if you are using Homestead or a different Vagrantfile format, we
