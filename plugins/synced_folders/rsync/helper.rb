@@ -62,7 +62,7 @@ module VagrantPlugins
 
         # Folder options
         opts[:owner] ||= ssh_info[:username]
-        opts[:group] ||= ssh_info[:username]
+        opts[:group] ||= Vagrant::Util::Platform.darwin? ? "staff" : ssh_info[:username]
 
         # set log level
         log_level = ssh_info[:log_level] || "FATAL"
