@@ -274,7 +274,7 @@ You can upload both public and private boxes to this service.
 To test the box, pretend you are a new user of Vagrant and give it a shot:
 
 ```
-$ vagrant box add my-box /path/to/the/new.box
+$ vagrant box add --name my-box /path/to/the/new.box
 ...
 $ vagrant init my-box
 ...
