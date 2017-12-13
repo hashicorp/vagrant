@@ -1379,6 +1379,9 @@ en:
         message is reproduced below for convenience:
 
         %{file}
+      vagrantfile_template_not_found_error: |-
+        The Vagrantfile template '%{path}' does not exist. Please double check
+        the template path and try again.
       vagrantfile_write_error: |-
         The user that is running Vagrant doesn't have the proper permissions
         to write a Vagrantfile to the specified location. Please ensure that
