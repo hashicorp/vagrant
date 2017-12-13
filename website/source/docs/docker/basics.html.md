@@ -77,10 +77,10 @@ Private and public networks are not currently supported.
 
 ## Host VM
 
-On systems that cannot run Linux containers natively, such as Mac OS X
-or Windows, Vagrant automatically spins up a "host VM" to run Docker.
-This allows your Docker-based Vagrant environments to remain portable,
-without inconsistencies depending on the platform they are running on.
+If the system cannot run Linux containers natively, Vagrant automatically spins
+up a "host VM" to run Docker. This allows your Docker-based Vagrant environments
+to remain portable, without inconsistencies depending on the platform they are
+running on.
 
 Vagrant will spin up a single instance of a host VM and run multiple
 containers on this one VM. This means that with the Docker provider,
