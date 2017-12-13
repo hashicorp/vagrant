@@ -2,7 +2,7 @@
 
 FEATURES:
 
-  - guests: Add support for the Haiku operating system [GH-7805]
+  - guests: Add support for the Haiku operating system [GH-7805, GH-9245]
 
 IMPROVEMENTS:
 
