@@ -40,7 +40,7 @@ module VagrantPlugins
             options[:output] = output
           end
 
-          o.on("--template FILE", String, "Path to Vagrantfile template") do |template|
+          o.on("--template FILE", String, "Path to custom Vagrantfile template") do |template|
             options[:template] = template
           end
         end

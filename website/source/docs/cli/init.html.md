@@ -36,6 +36,8 @@ setting in the created Vagrantfile.
 * `--output FILE` - This will output the Vagrantfile to the given file.
   If this is "-", the Vagrantfile will be sent to stdout.
 
+* `--template FILE` - Provide a custom ERB template for generating the Vagrantfile.
+
 ## Examples
 
 Create a base Vagrantfile:
