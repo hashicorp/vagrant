@@ -63,6 +63,11 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
+    it "removes the credentials file before completion" do
+      expect(comm).to receive(:sudo).with(/rm.+smb_creds_.+/)
+      cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+    end
+
     it "sends upstart notification after mount" do
       expect(comm).to receive(:sudo).with(/emit/)
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)

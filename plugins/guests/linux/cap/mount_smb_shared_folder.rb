@@ -46,22 +46,27 @@ SCRIPT
 
           # Attempt to mount the folder. We retry here a few times because
           # it can fail early on.
-
-          retryable(on: Vagrant::Errors::LinuxMountFailed, tries: 10, sleep: 2) do
-            no_such_device = false
-            stderr = ""
-            status = machine.communicate.sudo(mount_command, error_check: false) do |type, data|
-              if type == :stderr
-                no_such_device = true if data =~ /No such device/i
-                stderr += data.to_s
+          begin
+            retryable(on: Vagrant::Errors::LinuxMountFailed, tries: 10, sleep: 2) do
+              no_such_device = false
+              stderr = ""
+              status = machine.communicate.sudo(mount_command, error_check: false) do |type, data|
+                if type == :stderr
+                  no_such_device = true if data =~ /No such device/i
+                  stderr += data.to_s
+                end
+              end
+              if status != 0 || no_such_device
+                clean_command = mount_command.gsub(smb_password, "PASSWORDHIDDEN")
+                raise Vagrant::Errors::LinuxMountFailed,
+                  command: clean_command,
+                  output: stderr
               end
             end
-            if status != 0 || no_such_device
-              clean_command = mount_command.gsub(smb_password, "PASSWORDHIDDEN")
-              raise Vagrant::Errors::LinuxMountFailed,
-                command: clean_command,
-                output: stderr
-            end
+          ensure
+            # Always remove credentials file after mounting attempts
+            # have been completed
+            machine.communicate.sudo("rm /etc/smb_creds_#{name}")
           end
 
           emit_upstart_notification(machine, expanded_guest_path)
