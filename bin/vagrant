@@ -52,6 +52,19 @@ if argv.include?("--debug")
   ENV["VAGRANT_LOG"] = "debug"
 end
 
+# Enable log timestamps if requested
+if argv.include?("--timestamp")
+  argv.delete("--timestamp")
+  ENV["VAGRANT_LOG_TIMESTAMP"] = "1"
+end
+
+# Convenience flag to enable debug with timestamps
+if argv.include?("--debug-timestamp")
+  argv.delete("--debug-timestamp")
+  ENV["VAGRANT_LOG"] = "debug"
+  ENV["VAGRANT_LOG_TIMESTAMP"] = "1"
+end
+
 # Stdout/stderr should not buffer output
 $stdout.sync = true
 $stderr.sync = true
