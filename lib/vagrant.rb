@@ -1,7 +1,8 @@
 require "vagrant/shared_helpers"
 
-require 'rubygems'
-require 'log4r'
+require "rubygems"
+require "log4r"
+require "vagrant/util"
 
 # Enable logging if it is requested. We do this before
 # anything else so that we can setup the output before
@@ -41,12 +42,14 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     logger = Log4r::Logger.new("vagrant")
     logger.outputters = Log4r::Outputter.stderr
     logger.level = level
+    base_formatter = Log4r::BasicFormatter.new
     if ENV["VAGRANT_LOG_TIMESTAMP"]
-      Log4r::Outputter.stderr.formatter = Log4r::PatternFormatter.new(
+      base_formatter = Log4r::PatternFormatter.new(
         pattern: "%d [%5l] %m",
         date_pattern: "%F %T"
       )
     end
+    Log4r::Outputter.stderr.formatter = Vagrant::Util::LoggingFormatter.new(base_formatter)
     logger = nil
   end
 end
@@ -69,7 +72,8 @@ global_logger.info("Vagrant version: #{Vagrant::VERSION}")
 global_logger.info("Ruby version: #{RUBY_VERSION}")
 global_logger.info("RubyGems version: #{Gem::VERSION}")
 ENV.each do |k, v|
-  global_logger.info("#{k}=#{v.inspect}") if k =~ /^VAGRANT_/
+  next if k.start_with?("VAGRANT_OLD")
+  global_logger.info("#{k}=#{v.inspect}") if k.start_with?("VAGRANT_")
 end
 
 # We need these components always so instead of an autoload we
