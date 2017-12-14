@@ -17,7 +17,7 @@ module VagrantPlugins
 
         def self.nfs_check_command(env)
           if Vagrant::Util::Platform.systemd?
-            "systemctl status --no-pager nfs-server.service"
+            "systemctl status --no-pager nfs-kernel-server.service"
           else
             "/etc/init.d/nfs-kernel-server status"
           end
@@ -25,7 +25,7 @@ module VagrantPlugins
 
         def self.nfs_start_command(env)
           if Vagrant::Util::Platform.systemd?
-            "systemctl start nfs-server.service"
+            "systemctl start nfs-kernel-server.service"
           else
             "/etc/init.d/nfs-kernel-server start"
           end
@@ -62,8 +62,8 @@ module VagrantPlugins
         def self.nfs_installed(environment)
           if Vagrant::Util::Platform.systemd?
             Vagrant::Util::Subprocess.execute("/bin/sh", "-c",
-              "systemctl --no-pager --no-legend --plain list-unit-files --all --type=service " \
-                "| grep nfs-server.service").exit_code == 0
+              "systemctl --no-pager --no-legend --plain list-units --all --type=service " \
+                "| grep nfs-kernel-server.service").exit_code == 0
           else
             Vagrant::Util::Subprocess.execute("modinfo", "nfsd").exit_code == 0 ||
               Vagrant::Util::Subprocess.execute("grep", "nfsd", "/proc/filesystems").exit_code == 0
