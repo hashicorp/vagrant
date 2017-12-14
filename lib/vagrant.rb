@@ -41,6 +41,12 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     logger = Log4r::Logger.new("vagrant")
     logger.outputters = Log4r::Outputter.stderr
     logger.level = level
+    if ENV["VAGRANT_LOG_TIMESTAMP"]
+      Log4r::Outputter.stderr.formatter = Log4r::PatternFormatter.new(
+        pattern: "%d [%5l] %m",
+        date_pattern: "%F %T"
+      )
+    end
     logger = nil
   end
 end
