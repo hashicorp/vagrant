@@ -17,6 +17,7 @@ BUG FIXES:
 
   - commands/package: Fix --output path with specified folder [GH-9131]
   - providers/hyper-v: Fix enable virtualization extensions on import [GH-9255]
+  - provisioners/ansible(both): Fix broken 'ask_sudo_pass' option [GH-9173]
 
 ## 2.0.1 (November 2, 2017)
 
