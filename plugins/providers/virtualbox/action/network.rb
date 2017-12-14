@@ -1,4 +1,5 @@
 require "ipaddr"
+require "resolv"
 require "set"
 
 require "log4r"
@@ -258,7 +259,12 @@ module VagrantPlugins
           # Default IP is in the 20-bit private network block for DHCP based networks
           options[:ip] = "172.28.128.1" if options[:type] == :dhcp && !options[:ip]
 
-          ip = IPAddr.new(options[:ip])
+          begin
+            ip = IPAddr.new(options[:ip])
+          rescue IPAddr::InvalidAddressError => e
+            raise Vagrant::Errors::NetworkAddressInvalid, :ip => options[:ip], :error_msg => e.message
+          end
+
           if ip.ipv4?
             options[:netmask] ||= "255.255.255.0"
 
