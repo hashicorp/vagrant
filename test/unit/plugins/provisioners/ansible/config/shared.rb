@@ -30,6 +30,17 @@ shared_examples_for 'options shared by both Ansible provisioners' do
 
 end
 
+shared_examples_for 'any deprecated option' do |deprecated_option, new_option, option_value|
+  it "shows the deprecation message" do
+    expect($stdout).to receive(:puts).with("DEPRECATION: The '#{deprecated_option}' option for the Ansible provisioner is deprecated.").and_return(nil)
+    expect($stdout).to receive(:puts).with("Please use the '#{new_option}' option instead.").and_return(nil)
+    expect($stdout).to receive(:puts).with("The '#{deprecated_option}' option will be removed in a future release of Vagrant.\n\n").and_return(nil)
+
+    subject.send("#{deprecated_option}=", option_value)
+    subject.finalize!
+  end
+end
+
 shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
 
   provisioner_label  = "ansible #{ansible_setup} provisioner"
@@ -158,6 +169,15 @@ shared_examples_for 'an Ansible provisioner' do | path_prefix, ansible_setup |
       allow($stdout).to receive(:puts)
     end
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :sudo, false
+    it_behaves_like "any deprecated option", :sudo, :become, true
+  end
+
+  describe "sudo_user option" do
+    before do
+      # Filter the deprecation notice
+      allow($stdout).to receive(:puts)
+    end
+    it_behaves_like "any deprecated option", :sudo_user, :become_user, "foo"
   end
 
 end
