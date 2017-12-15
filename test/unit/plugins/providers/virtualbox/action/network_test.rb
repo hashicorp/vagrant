@@ -70,6 +70,20 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     }])
   end
 
+  it "raises the appropriate error when provided with an invalid IP address" do
+    guest = double("guest")
+    machine.config.vm.network 'private_network', { ip: '192.168.33.06' }
+
+    expect{ subject.call(env) }.to raise_error(Vagrant::Errors::NetworkAddressInvalid)
+  end
+
+  it "raises no invalid network error when provided with a valid IP address" do
+    guest = double("guest")
+    machine.config.vm.network 'private_network', { ip: '192.168.33.6' }
+
+    expect{ subject.call(env) }.not_to raise_error(Vagrant::Errors::NetworkAddressInvalid)
+  end
+
   context "with a dhcp private network" do
     let(:bridgedifs)  { [] }
     let(:hostonlyifs) { [] }

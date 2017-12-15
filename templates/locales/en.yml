@@ -891,6 +891,11 @@ en:
         %{message}
       network_type_not_supported: |-
         The %{type} network type is not supported for this box or guest.
+      network_address_invalid: |-
+        The IP address '%{ip}' is not valid. Please review the error message
+        below to help resolve the issue:
+
+          %{error_msg}
       network_manager_not_installed: |-
         Vagrant was instructed to configure the %{device} network device to
         be managed by NetworkManager. However, the configured guest VM does
