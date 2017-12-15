@@ -54,6 +54,11 @@ module VagrantPlugins
         Cap::Linux::DockerDaemonRunning
       end
 
+      guest_capability("windows", "docker_daemon_running") do
+        require_relative "cap/windows/docker_daemon_running"
+        Cap::Windows::DockerDaemonRunning
+      end
+
       provisioner(:docker) do
         require_relative "provisioner"
         Provisioner
