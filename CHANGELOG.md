@@ -8,6 +8,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - core: Add optional timestamp prefix on log output [GH-9269]
+  - core: Print more helpful error message for NameEror exceptions in Vagrantfiles [GH-9252]
   - docs: Include virtualbox 5.2.x as supported in docs [GH-9237]
   - guests/dragonflybsd: Base guest on FreeBSD to inherit more functionality [GH-9205]
   - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
