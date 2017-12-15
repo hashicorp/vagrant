@@ -780,6 +780,10 @@ module Vagrant
       error_key(:vagrantfile_load_error)
     end
 
+    class VagrantfileNameError < VagrantError
+      error_key(:vagrantfile_name_error)
+    end
+
     class VagrantfileSyntaxError < VagrantError
       error_key(:vagrantfile_syntax_error)
     end

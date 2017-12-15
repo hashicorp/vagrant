@@ -122,7 +122,27 @@ module Vagrant
 
               # Get the proper version loader for this version and load
               version_loader = @versions.get(version)
-              version_config = version_loader.load(proc)
+              begin
+                version_config = version_loader.load(proc)
+              rescue NameError => e
+                line = "(unknown)"
+                path = "(unknown)"
+                if e.backtrace && e.backtrace[0]
+                  backtrace_tokens = e.backtrace[0].split(":")
+                  path = backtrace_tokens[0]
+                  backtrace_tokens.each do |part|
+                    if part =~ /\d+/
+                      line = part.to_i
+                      break
+                    end
+                  end
+                end
+
+                raise Errors::VagrantfileNameError,
+                  path: path,
+                  line: line,
+                  message: e.message.sub(/' for .*$/, "'")
+              end
 
               # Store the errors/warnings associated with loading this
               # configuration. We'll store these for later.
