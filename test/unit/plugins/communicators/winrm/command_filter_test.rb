@@ -65,11 +65,9 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
 
     it 'filters out rm commands' do
       expect(subject.filter('rm /some/dir')).to eq(
-        "rm \"/some/dir\" -force")
+                                                  "if (Test-Path /some/dir) {Remove-Item /some/dir -force}")
       expect(subject.filter('rm -f /some/dir')).to eq(
-        "rm \"/some/dir\" -force")
-      expect(subject.filter('rm -f "/some/dir"')).to eq(
-        "rm \"/some/dir\" -force")
+                                                     "if (Test-Path /some/dir) {Remove-Item /some/dir -force}")
     end
 
     it 'filters out mkdir commands' do
