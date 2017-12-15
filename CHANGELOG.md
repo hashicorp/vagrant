@@ -2,6 +2,7 @@
 
 FEATURES:
 
+  - core: Provide mechanism for removing sensitive data from output [GH-9276]
   - command/init: Support custom Vagrantfile templates [GH-9202]
   - guests: Add support for the Haiku operating system [GH-7805, GH-9245]
 
