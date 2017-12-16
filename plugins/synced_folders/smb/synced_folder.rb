@@ -17,69 +17,46 @@ module VagrantPlugins
       end
 
       def usable?(machine, raise_error=false)
-        if !Vagrant::Util::Platform.windows?
-          raise Errors::WindowsHostRequired if raise_error
-          return false
-        end
-
-        if !Vagrant::Util::Platform.windows_admin?
-          raise Errors::WindowsAdminRequired if raise_error
-          return false
-        end
-
-        psv = Vagrant::Util::PowerShell.version.to_i
-        if psv < 3
-          if raise_error
-            raise Errors::PowershellVersion,
-              version: psv.to_s
-          end
-          return false
-        end
-
-        true
+        # If the machine explicitly states SMB is not supported, then
+        # believe it
+        return false if !machine.config.smb.functional
+        return true if machine.env.host.capability?(:smb_installed) &&
+          machine.env.host.capability(:smb_installed)
+        return false if !raise_error
+        raise Vagrant::Errors::SMBNotSupported
       end
 
       def prepare(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
 
-        script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
+        smb_username = smb_password = nil
 
         # If we need auth information, then ask the user.
         have_auth = false
         folders.each do |id, data|
           if data[:smb_username] && data[:smb_password]
-            @creds[:username] = data[:smb_username]
-            @creds[:password] = data[:smb_password]
+            smb_username = data[:smb_username]
+            smb_password = data[:smb_password]
             have_auth = true
             break
           end
         end
 
         if !have_auth
-          machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          @creds[:username] = machine.ui.ask("Username: ")
-          @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+          machine.env.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
+          smb_username = machine.env.ui.ask("Username: ")
+          smb_password = machine.env.ui.ask("Password (will be hidden): ", echo: false)
         end
 
         folders.each do |id, data|
-          hostpath = data[:hostpath]
+          data[:smb_username] ||= smb_username
+          data[:smb_password] ||= smb_password
 
-          data[:smb_id] ||= Digest::MD5.hexdigest(
-            "#{machine.id}-#{id.gsub("/", "-")}")
-
-          args = []
-          args << "-path" << "\"#{hostpath.gsub("/", "\\")}\""
-          args << "-share_name" << data[:smb_id]
-          #args << "-host_share_username" << @creds[:username]
-
-          r = Vagrant::Util::PowerShell.execute(script_path, *args)
-          if r.exit_code != 0
-            raise Errors::DefineShareFailed,
-              host: hostpath.to_s,
-              stderr: r.stderr,
-              stdout: r.stdout
-          end
+          # Register password as sensitive
+          Vagrant::Util::CredentialScrubber.sensitive(smb_password)
         end
+
+        machine.env.host.capability(:smb_prepare, machine, folders, opts)
       end
 
       def enable(machine, folders, nfsopts)
@@ -109,7 +86,7 @@ module VagrantPlugins
         end
 
         if need_host_ip
-          candidate_ips = load_host_ips
+          candidate_ips = machine.env.host.capability(:configured_ip_addresses)
           @logger.debug("Potential host IPs: #{candidate_ips.inspect}")
           host_ip = machine.guest.capability(
             :choose_addressable_ip_addr, candidate_ips)
@@ -141,25 +118,8 @@ module VagrantPlugins
       end
 
       def cleanup(machine, opts)
-
-      end
-
-      protected
-
-      def load_host_ips
-        script_path = File.expand_path("../scripts/host_info.ps1", __FILE__)
-        r = Vagrant::Util::PowerShell.execute(script_path)
-        if r.exit_code != 0
-          raise Errors::PowershellError,
-            script: script_path,
-            stderr: r.stderr
-        end
-
-        res = JSON.parse(r.stdout)["ip_addresses"]
-        if res.instance_of? String
-          [ res ]
-        else
-          res
+        if machine.env.host.capability?(:smb_cleanup)
+          machine.env.host.capability(:smb_cleanup, machine, opts)
         end
       end
     end

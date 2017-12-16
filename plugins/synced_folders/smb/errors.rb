@@ -10,6 +10,10 @@ module VagrantPlugins
         error_key(:define_share_failed)
       end
 
+      class PruneShareFailed < SMBError
+        error_key(:prune_share_failed)
+      end
+
       class NoHostIPAddr < SMBError
         error_key(:no_routable_host_addr)
       end

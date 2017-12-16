@@ -11,12 +11,28 @@ en:
       folders shortly. Please use the proper username/password of your
       Windows account.
 
+    uac:
+      prune_warning: |-
+        Vagrant requires administator access for pruning SMB shares and
+        may request access to complete removal of stale shares.
+      create_warning: |-
+        Vagrant requires administator access to create SMB shares and
+        may request access to complete setup of configured shares.
     errors:
       define_share_failed: |-
         Exporting an SMB share failed! Details about the failure are shown
         below. Please inspect the error message and correct any problems.
 
         Host path: %{host}
+
+        Stderr: %{stderr}
+
+        Stdout: %{stdout}
+      prune_share_failed: |-
+        Pruning an SMB share failed! Details about the failure are shown
+        below. Please inspect the error message and correct any problems.
+
+        Share name: %{name}
 
         Stderr: %{stderr}
 

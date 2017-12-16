@@ -1,3 +1,4 @@
+require "tmpdir"
 require_relative "subprocess"
 require_relative "which"
 
@@ -25,21 +26,26 @@ module Vagrant
       # @return [Subprocess::Result]
       def self.execute(path, *args, **opts, &block)
         validate_install!
-        command = [
-          "powershell",
-          "-NoLogo",
-          "-NoProfile",
-          "-NonInteractive",
-          "-ExecutionPolicy", "Bypass",
-          "&('#{path}')",
-          args
-        ].flatten
 
-        # Append on the options hash since Subprocess doesn't use
-        # Ruby 2.0 style options yet.
-        command << opts
+        if opts.delete(:sudo) || opts.delete(:runas)
+          powerup_command(path, args, opts)
+        else
+          command = [
+            "powershell",
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy", "Bypass",
+            "&('#{path}')",
+            args
+          ].flatten
 
-        Subprocess.execute(*command, &block)
+          # Append on the options hash since Subprocess doesn't use
+          # Ruby 2.0 style options yet.
+          command << opts
+
+          Subprocess.execute(*command, &block)
+        end
       end
 
       # Execute a powershell command.
@@ -56,7 +62,7 @@ module Vagrant
           "-ExecutionPolicy", "Bypass",
           "-Command",
           command
-        ].flatten
+        ].flatten.compact
 
         r = Subprocess.execute(*c)
         return nil if r.exit_code != 0
@@ -75,7 +81,7 @@ module Vagrant
             "-NonInteractive",
             "-ExecutionPolicy", "Bypass",
             "-Command",
-            "$PSVersionTable.PSVersion.Major"
+            "Write-Output $PSVersionTable.PSVersion.Major"
           ].flatten
 
           r = Subprocess.execute(*command)
@@ -100,6 +106,60 @@ module Vagrant
           @_powershell_validation = true
         end
         @_powershell_validation
+      end
+
+      # Powerup the given command to perform privileged operations.
+      #
+      # @param [String] path
+      # @param [Array<String>] args
+      # @return [Array<String>]
+      def self.powerup_command(path, args, opts)
+        Dir.mktmpdir("vagrant") do |dpath|
+          all_args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", path] + args
+          arg_list = "@('" + all_args.join("', '") + "')"
+          stdout = File.join(dpath, "stdout.txt")
+          stderr = File.join(dpath, "stderr.txt")
+          exitcode = File.join(dpath, "exitcode.txt")
+
+          script = "$sp = Start-Process -FilePath powershell -ArgumentList #{arg_list} " \
+            "-PassThru -Wait -RedirectStandardOutput '#{stdout}' -RedirectStandardError '#{stderr}' -WindowStyle Hidden; " \
+            "if($sp){ Set-Content -Path '#{exitcode}' -Value $sp.ExitCode;exit $sp.ExitCode; }else{ exit 1 }"
+
+          # escape quotes so we can nest our script within a start-process
+          script.gsub!("'", "''")
+
+          cmd = [
+            "powershell",
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-ExecutionPolicy", "Bypass",
+            "-Command", "$p = Start-Process -FilePath powershell -ArgumentList " \
+              "@('-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', '#{script}') " \
+              "-PassThru -Wait -WindowStyle Hidden -Verb RunAs; if($p){ exit $p.ExitCode; }else{ exit 1 }"
+          ]
+
+          result = Subprocess.execute(*cmd.push(opts))
+          if File.exist?(stdout)
+            r_stdout = File.read(stdout)
+          else
+            r_stdout = result.stdout
+          end
+          if File.exist?(stderr)
+            r_stderr = File.read(stderr)
+          else
+            r_stderr = result.stderr
+          end
+
+          code = 1
+          if File.exist?(exitcode)
+            code_txt = File.read(exitcode).strip
+            if code_txt.match(/^\d+$/)
+              code = code_txt.to_i
+            end
+          end
+          Subprocess::Result.new(code, r_stdout, r_stderr)
+        end
       end
     end
   end

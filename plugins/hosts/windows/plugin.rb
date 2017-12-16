@@ -30,6 +30,26 @@ module VagrantPlugins
         require_relative "cap/ps"
         Cap::PS
       end
+
+      host_capability("windows", "smb_installed") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
+      host_capability("windows", "smb_prepare") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
+      host_capability("windows", "smb_cleanup") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
+      host_capability("windows", "configured_ip_addresses") do
+        require_relative "cap/configured_ip_addresses"
+        Cap::ConfiguredIPAddresses
+      end
     end
   end
 end
