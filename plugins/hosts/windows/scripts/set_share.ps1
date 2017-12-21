@@ -4,8 +4,6 @@ $objUser = $objSID.Translate([System.Security.Principal.NTAccount])
 
 $grant = "$objUser,Full"
 
-# First we split the defs string by commas to get
-# each group of parameters
 for ($i=0; $i -le $args.length; $i = $i + 3) {
     $path = $args[$i]
     $share_name = $args[$i+1]

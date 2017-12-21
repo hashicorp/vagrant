@@ -1,4 +1,3 @@
-# Share names are comma delimited
 ForEach ($share_name in $args) {
     $result = net share $share_name /DELETE
     if ($LastExitCode -ne 0) {
