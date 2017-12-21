@@ -49,16 +49,6 @@ en:
 
         As another option, you can manually specify an IP for the machine
         to mount from using the `smb_host` option to the synced folder.
-      powershell_error: |-
-        An error occurred while executing a PowerShell script. This error
-        is shown below. Please read the error message and see if this is
-        a configuration error with your system. If it is not, then please
-        report a bug.
-
-        Script: %{script}
-        Error:
-
-        %{stderr}
       powershell_version: |-
         PowerShell version 3 or later is required for SMB synced folders
         to work on Windows. You have version: '%{version}'. Please update

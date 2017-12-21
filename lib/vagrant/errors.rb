@@ -552,6 +552,10 @@ module Vagrant
       error_key(:powershell_invalid_version)
     end
 
+    class PowerShellError < VagrantError
+      error_key(:powershell_error, "vagrant_ps.errors.powershell_error")
+    end
+
     class ProviderCantInstall < VagrantError
       error_key(:provider_cant_install)
     end
