@@ -22,6 +22,8 @@ module VagrantPlugins
           # If a domain is provided in the username, separate it
           username, domain = (options[:smb_username] || '').split('@', 2)
           smb_password = options[:smb_password]
+          # Ensure password is scrubbed
+          Vagrant::Util::CredentialScrubber.sensitive(smb_password)
 
           options[:mount_options] ||= []
           if machine.env.host.capability?(:smb_mount_options)
@@ -61,9 +63,8 @@ SCRIPT
                 end
               end
               if status != 0 || no_such_device
-                clean_command = mount_command.gsub(smb_password, "PASSWORDHIDDEN")
                 raise Vagrant::Errors::LinuxMountFailed,
-                  command: clean_command,
+                  command: mount_command,
                   output: stderr
               end
             end

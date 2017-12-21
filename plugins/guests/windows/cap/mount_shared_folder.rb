@@ -18,6 +18,10 @@ module VagrantPlugins
         end
 
         def self.mount_smb_shared_folder(machine, name, guestpath, options)
+          if !options[:smb_password].to_s.empty?
+            # Ensure password is scrubbed
+            Vagrant::Util::CredentialScrubber.sensitive(options[:smb_password])
+          end
           machine.communicate.execute("cmdkey /add:#{options[:smb_host]} /user:#{options[:smb_username]} /pass:#{options[:smb_password]}", {shell: :powershell, elevated: true})
           mount_shared_folder(machine, name, guestpath, "\\\\#{options[:smb_host]}\\")
         end
