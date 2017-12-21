@@ -55,7 +55,8 @@ without requiring a password each time:
 ```
 Cmnd_Alias VAGRANT_SMB_ADD = /usr/sbin/sharing -a * -S * -s * -g * -n *
 Cmnd_Alias VAGRANT_SMB_REMOVE = /usr/sbin/sharing -r *
-%admin ALL=(root) NOPASSWD: VAGRANT_SMB_ADD, VAGRANT_SMB_REMOVE
+Cmnd_Alias VAGRANT_SMB_LIST = /usr/sbin/sharing -l
+%admin ALL=(root) NOPASSWD: VAGRANT_SMB_ADD, VAGRANT_SMB_REMOVE, VAGRANT_SMB_LIST
 ```
 
 ### Guests

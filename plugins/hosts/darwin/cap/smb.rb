@@ -18,12 +18,16 @@ module VagrantPlugins
 
         def self.smb_cleanup(env, machine, opts)
           m_id = machine_id(machine)
-          result = Vagrant::Util::Subprocess.execute("/bin/sh", "-c",
-            "/usr/sbin/sharing -l | grep -E \"^name:.+\\svgt-#{m_id}-\" | awk '{print $2}'")
+          result = Vagrant::Util::Subprocess.execute("/usr/bin/sudo", "/usr/sbin/sharing", "-l")
           if result.exit_code != 0
             @@logger.warn("failed to locate any shares for cleanup")
           end
-          shares = result.stdout.split(/\s/).map(&:strip)
+          shares = result.stdout.split("\n").map do |line|
+            if line.start_with?("name:")
+              share_name = line.sub("name:", "").strip
+              share_name if share_name.start_with?("vgt-#{m_id}")
+            end
+          end.compact
           @@logger.debug("shares to be removed: #{shares}")
           shares.each do |share_name|
             @@logger.info("removing share name=#{share_name}")
