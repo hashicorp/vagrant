@@ -10,6 +10,40 @@ module VagrantPlugins
           File.exist?("/usr/sbin/sharing")
         end
 
+        # Check if the required SMB services are loaded and enabled. If they are
+        # not, then start them up
+        def self.smb_start(env)
+          result = Vagrant::Util::Subprocess.execute("pwpolicy", "gethashtypes")
+          if result.exit_code == 0 && !result.stdout.include?("SMB-NT")
+            @@logger.error("SMB compatible password has not been stored")
+            raise SyncedFolderSMB::Errors::SMBCredentialsMissing
+          end
+          result = Vagrant::Util::Subprocess.execute("launchctl", "list", "com.apple.smb.preferences")
+          if result.exit_code != 0
+            @@logger.warn("smb preferences service not enabled. enabling and starting...")
+            cmd = ["/bin/launchctl", "load", "-w", "/System/Library/LaunchDaemons/com.apple.smb.preferences.plist"]
+            result = Vagrant::Util::Subprocess.execute("/usr/bin/sudo", *cmd)
+            if result.exit_code != 0
+              raise SyncedFolderSMB::Errors::SMBStartFailed,
+                command: cmd.join(" "),
+                stderr: result.stderr,
+                stdout: result.stdout
+            end
+          end
+          result = Vagrant::Util::Subprocess.execute("launchctl", "list", "com.apple.smbd")
+          if result.exit_code != 0
+            @@logger.warn("smbd service not enabled. enabling and starting...")
+            cmd = ["/bin/launchctl", "load", "-w", "/System/Library/LaunchDaemons/com.apple.smbd.plist"]
+            result = Vagrant::Util::Subprocess.execute("/usr/bin/sudo", *cmd)
+            if result.exit_code != 0
+              raise SyncedFolderSMB::Errors::SMBStartFailed,
+                command: cmd.join(" "),
+                stderr: result.stderr,
+                stdout: result.stdout
+            end
+          end
+        end
+
         # Required options for mounting a share hosted
         # on macos.
         def self.smb_mount_options(env)

@@ -56,7 +56,9 @@ without requiring a password each time:
 Cmnd_Alias VAGRANT_SMB_ADD = /usr/sbin/sharing -a * -S * -s * -g * -n *
 Cmnd_Alias VAGRANT_SMB_REMOVE = /usr/sbin/sharing -r *
 Cmnd_Alias VAGRANT_SMB_LIST = /usr/sbin/sharing -l
-%admin ALL=(root) NOPASSWD: VAGRANT_SMB_ADD, VAGRANT_SMB_REMOVE, VAGRANT_SMB_LIST
+Cmnd_Alias VAGRANT_SMB_PSTART = /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.smb.preferences.plist
+Cmnd_Alias VAGRANT_SMB_DSTART = /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.smb.preferences.plist
+%admin ALL=(root) NOPASSWD: VAGRANT_SMB_ADD, VAGRANT_SMB_REMOVE, VAGRANT_SMB_LIST, VAGRANT_SMB_PSTART, VAGRANT_SMB_DSTART
 ```
 
 ### Guests

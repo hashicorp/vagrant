@@ -3,6 +3,8 @@ require_relative "../../../../base"
 require_relative "../../../../../../plugins/hosts/darwin/cap/smb"
 
 describe VagrantPlugins::HostDarwin::Cap::SMB do
+  include_context "unit"
+
   let(:subject){ VagrantPlugins::HostDarwin::Cap::SMB }
   let(:machine){ double(:machine) }
   let(:env){ double(:env) }
@@ -23,18 +25,61 @@ describe VagrantPlugins::HostDarwin::Cap::SMB do
     end
   end
 
+  describe ".smb_start" do
+    before{ allow(Vagrant::Util::Subprocess).to receive(:execute)
+        .and_return(result.new(0, "SMB-NT", "")) }
+
+    it "should check for NT compatible password" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("pwpolicy", "gethashtypes").
+        and_return(result.new(0, "SMB-NT", ""))
+      subject.smb_start(env)
+    end
+
+    it "should raise error if NT compatible password is not set" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("pwpolicy", "gethashtypes").
+        and_return(result.new(0, "", ""))
+      expect{ subject.smb_start(env) }.to raise_error(VagrantPlugins::SyncedFolderSMB::Errors::SMBCredentialsMissing)
+    end
+
+    it "should ignore if the command returns non-zero" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("pwpolicy", "gethashtypes").
+        and_return(result.new(1, "", ""))
+      subject.smb_start(env)
+    end
+
+    it "should not load smb preferences if it is already loaded" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("launchctl", "list", /preferences/).and_return(result.new(0, "", ""))
+      expect(Vagrant::Util::Subprocess).not_to receive(:execute).with(/sudo/, /launchctl/, "load", "-w", /preferences/)
+      subject.smb_start(env)
+    end
+
+    it "should load smb preferences if it is not already loaded" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("launchctl", "list", /preferences/).and_return(result.new(1, "", ""))
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(/sudo/, /launchctl/, "load", "-w", /preferences/).and_return(result.new(0, "", ""))
+      subject.smb_start(env)
+    end
+
+    it "should raise error if load smb preferences fails" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("launchctl", "list", /preferences/).and_return(result.new(1, "", ""))
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(/sudo/, /launchctl/, "load", "-w", /preferences/).and_return(result.new(1, "", ""))
+      expect{ subject.smb_start(env) }.to raise_error(VagrantPlugins::SyncedFolderSMB::Errors::SMBStartFailed)
+    end
+
+    # TODO Finish out last start coverage
+  end
+
   describe ".smb_cleanup" do
     after{ subject.smb_cleanup(env, machine, options) }
 
     it "should search for shares with generated machine ID" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
-        anything, anything, /.*CUSTOM_ID.*/).and_return(result.new(0, "", ""))
+        "/usr/bin/sudo", /sharing/, "-l").and_return(result.new(0, "", ""))
     end
 
     it "should remove shares individually" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).
-        with(anything, anything, /.*CUSTOM_ID.*/).
-        and_return(result.new(0, "vgt-CUSTOM_ID-1\nvgt-CUSTOM_ID-2\n", ""))
+        with("/usr/bin/sudo", /sharing/, "-l").
+        and_return(result.new(0, "name: vgt-CUSTOM_ID-1\nname: vgt-CUSTOM_ID-2\n", ""))
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(/sudo/, /sharing/, anything, /CUSTOM_ID/).
         twice.and_return(result.new(0, "", ""))
     end

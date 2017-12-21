@@ -30,6 +30,11 @@ module VagrantPlugins
       def prepare(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
 
+        # Check if this host can start and SMB service
+        if machine.env.host.capability?(:smb_start)
+          machine.env.host.capability(:smb_start)
+        end
+
         smb_username = smb_password = nil
 
         # If we need auth information, then ask the user.

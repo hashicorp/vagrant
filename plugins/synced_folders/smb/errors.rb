@@ -10,6 +10,14 @@ module VagrantPlugins
         error_key(:not_supported)
       end
 
+      class SMBStartFailed < SMBError
+        error_key(:start_failed)
+      end
+
+      class SMBCredentialsMissing < SMBError
+        error_key(:credentials_missing)
+      end
+
       class DefineShareFailed < SMBError
         error_key(:define_share_failed)
       end

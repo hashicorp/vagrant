@@ -41,6 +41,11 @@ module VagrantPlugins
         Cap::SMB
       end
 
+      host_capability("darwin", "smb_start") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
       host_capability("darwin", "configured_ip_addresses") do
         require_relative "cap/configured_ip_addresses"
         Cap::ConfiguredIPAddresses

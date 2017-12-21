@@ -67,7 +67,7 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
   end
 
   describe ".prepare" do
-    let(:host_caps){ [:smb_prepare] }
+    let(:host_caps){ [:smb_start, :smb_prepare] }
 
     context "without credentials provided" do
       before do
@@ -85,6 +85,11 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
         expect(folders['/first/path'][:smb_password]).to eq('password')
         expect(folders['/second/path'][:smb_username]).to eq('username')
         expect(folders['/second/path'][:smb_password]).to eq('password')
+      end
+
+      it "should start the SMB service if capability is available" do
+        expect(host).to receive(:capability).with(:smb_install, any_args)
+        subject.prepare(machine, folders, options)
       end
     end
 
