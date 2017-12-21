@@ -51,6 +51,14 @@ describe VagrantPlugins::CommandDestroy::Command do
       expect(subject.execute).to eq(0)
     end
 
+    it "exits 0 if vms are not created" do
+      allow_any_instance_of(Vagrant::BatchAction).to receive(:action) .with(machine, :destroy, anything)
+      allow(machine.state).to receive(:id).and_return(:not_created)
+
+      expect(machine.state).to receive(:id).and_return(:not_created)
+      expect(subject.execute).to eq(0)
+    end
+
     it "exits 1 if a vms destroy was declined" do
       allow_any_instance_of(Vagrant::BatchAction).to receive(:action) .with(machine, :destroy, anything)
 
