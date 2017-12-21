@@ -62,7 +62,7 @@ module VagrantPlugins
             r = Vagrant::Util::Subprocess.execute(*cmd)
 
             if r.exit_code != 0
-              raise Errors::DefineShareFailed,
+              raise VagrantPlugins::SyncedFolderSMB::Errors::DefineShareFailed,
                 host: hostpath.to_s,
                 stderr: r.stderr,
                 stdout: r.stdout
