@@ -18,6 +18,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - commands/destroy: Exit 0 if vagrant destroy finds no running vms [GH-9251]
   - commands/package: Fix --output path with specified folder [GH-9131]
   - providers/hyper-v: Fix enable virtualization extensions on import [GH-9255]
   - provisioners/ansible(both): Fix broken 'ask_sudo_pass' option [GH-9173]
