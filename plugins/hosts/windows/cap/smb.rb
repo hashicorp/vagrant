@@ -11,10 +11,6 @@ module VagrantPlugins
         def self.smb_installed(env)
           psv = Vagrant::Util::PowerShell.version.to_i
           if psv < 3
-            if raise_error
-              raise SyncedFolderSMB::Errors::PowershellVersion,
-                version: psv.to_s
-            end
             return false
           end
 
