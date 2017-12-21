@@ -1,5 +1,9 @@
 en:
   vagrant_sf_smb:
+    not_supported: |-
+      It appears your machine doesn't support SMB, or there is not an
+      adapter to enable SMB on this machine for Vagrant. Ensure SMB
+      host functionality is available on this machine and try again.
     mounting: |-
       Mounting SMB shared folders...
     mounting_single: |-

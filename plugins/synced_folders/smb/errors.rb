@@ -6,6 +6,10 @@ module VagrantPlugins
         error_namespace("vagrant_sf_smb.errors")
       end
 
+      class SMBNotSupported < SMBError
+        error_key(:not_supported)
+      end
+
       class DefineShareFailed < SMBError
         error_key(:define_share_failed)
       end

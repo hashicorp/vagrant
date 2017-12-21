@@ -6,6 +6,8 @@ require "log4r"
 require "vagrant/util/platform"
 require "vagrant/util/powershell"
 
+require_relative "errors"
+
 module VagrantPlugins
   module SyncedFolderSMB
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
@@ -13,7 +15,6 @@ module VagrantPlugins
         super
 
         @logger = Log4r::Logger.new("vagrant::synced_folders::smb")
-        @creds  = {}
       end
 
       def usable?(machine, raise_error=false)
@@ -23,7 +24,7 @@ module VagrantPlugins
         return true if machine.env.host.capability?(:smb_installed) &&
           machine.env.host.capability(:smb_installed)
         return false if !raise_error
-        raise Vagrant::Errors::SMBNotSupported
+        raise Errors::SMBNotSupported
       end
 
       def prepare(machine, folders, opts)
@@ -53,13 +54,13 @@ module VagrantPlugins
           data[:smb_password] ||= smb_password
 
           # Register password as sensitive
-          Vagrant::Util::CredentialScrubber.sensitive(smb_password)
+          Vagrant::Util::CredentialScrubber.sensitive(data[:smb_password])
         end
 
         machine.env.host.capability(:smb_prepare, machine, folders, opts)
       end
 
-      def enable(machine, folders, nfsopts)
+      def enable(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.mounting"))
 
         # Make sure that this machine knows this dance
@@ -99,10 +100,7 @@ module VagrantPlugins
         ssh_info = machine.ssh_info
 
         folders.each do |id, data|
-          data = data.dup
           data[:smb_host] ||= host_ip
-          data[:smb_username] ||= @creds[:username]
-          data[:smb_password] ||= @creds[:password]
 
           # Default the owner/group of the folder to the SSH user
           data[:owner] ||= ssh_info[:username]
