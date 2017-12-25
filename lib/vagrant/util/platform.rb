@@ -274,9 +274,9 @@ module Vagrant
           if linux?
             # A simplest way to get the Linux distribution name.
             result = Subprocess.execute(
-                "python",
-                "-c",
-                "import platform;print(platform.linux_distribution()[0])"
+              "python",
+              "-c",
+              "import platform;print(platform.linux_distribution()[0].split(' ')[0])"
             )
 
             if result.exit_code.zero?
