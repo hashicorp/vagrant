@@ -266,6 +266,27 @@ module Vagrant
           return @_platform
         end
 
+        def linux_distro
+          return @_linux_distro if defined?(@_linux_distro)
+
+          @_linux_distro = nil
+
+          if linux?
+            # A simplest way to get the Linux distribution name.
+            result = Subprocess.execute(
+                "python",
+                "-c",
+                "import platform;print(platform.linux_distribution()[0])"
+            )
+
+            if result.exit_code.zero?
+              @_linux_distro = result.stdout.chomp
+            end
+          end
+
+          @_linux_distro
+        end
+
         # Determine if given path is within the WSL rootfs. Returns
         # true if within the subsystem, or false if outside the subsystem.
         #
@@ -273,6 +294,28 @@ module Vagrant
         # @return [Boolean] path is within subsystem
         def wsl_path?(path)
           wsl? && !path.to_s.downcase.start_with?("/mnt/")
+        end
+
+        # Compute the path to rootfs of currently active WSL.
+        #
+        # @return [String] A path to rootfs of a current WSL instance.
+        def wsl_rootfs
+          return @_wsl_rootfs if defined?(@_wsl_rootfs)
+
+          @_wsl_rootfs = nil
+
+          if wsl?
+            # Handle WSL installation from Microsoft Store.
+            @_wsl_rootfs = PowerShell.execute_cmd('(Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss" -Recurse | ForEach-Object { Get-ItemProperty $_.pspath } | Where-Object { $_.PackageFamilyName -eq ($(get-appxpackage).PackageFamilyName | findstr ' + linux_distro + ') }).BasePath')
+          end
+
+          if @_wsl_rootfs.nil?
+            # Looks like WSL has been installed via "lxrun /install" which is deprecated.
+            @_wsl_rootfs = wsl_windows_appdata_local + '\\lxss'
+          else
+            # The path has been found in the registry, so append the directory with FS.
+            @_wsl_rootfs += '\\rootfs'
+          end
         end
 
         # Convert a WSL path to the local Windows path. This is useful
@@ -286,7 +329,7 @@ module Vagrant
             if wsl_path?(path)
               parts = path.split("/")
               parts.delete_if(&:empty?)
-              [wsl_windows_appdata_local, "lxss", *parts].join("\\")
+              [wsl_rootfs, *parts].join("\\")
             else
               path = path.to_s.sub("/mnt/", "")
               parts = path.split("/")
