@@ -1629,6 +1629,10 @@ en:
         Linux, please refer to the Vagrant documentation:
 
           https://www.vagrantup.com/docs/other/wsl.html
+
+      wsl_rootfs_not_found_error: |-
+        Vagrant is unable to determine WSL instance it is currently in. If you see this
+        error then your WSL installation is incorrect.
 #-------------------------------------------------------------------------------
 # Translations for config validation errors
 #-------------------------------------------------------------------------------

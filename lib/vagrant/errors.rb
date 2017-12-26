@@ -947,5 +947,9 @@ module Vagrant
     class WSLVirtualBoxWindowsAccessError < VagrantError
       error_key(:wsl_virtualbox_windows_access)
     end
+
+    class WSLRootFsNotFoundError < VagrantError
+      error_key(:wsl_rootfs_not_found_error)
+    end
   end
 end
