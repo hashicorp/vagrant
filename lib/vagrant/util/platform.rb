@@ -266,27 +266,6 @@ module Vagrant
           return @_platform
         end
 
-        def linux_distro
-          return @_linux_distro if defined?(@_linux_distro)
-
-          @_linux_distro = nil
-
-          if linux?
-            # A simplest way to get the Linux distribution name.
-            result = Subprocess.execute(
-              "python",
-              "-c",
-              "import platform;print(platform.linux_distribution()[0].split(' ')[0])"
-            )
-
-            if result.exit_code.zero?
-              @_linux_distro = result.stdout.chomp
-            end
-          end
-
-          @_linux_distro
-        end
-
         # Determine if given path is within the WSL rootfs. Returns
         # true if within the subsystem, or false if outside the subsystem.
         #
@@ -305,17 +284,33 @@ module Vagrant
           @_wsl_rootfs = nil
 
           if wsl?
-            # Handle WSL installation from Microsoft Store.
-            @_wsl_rootfs = PowerShell.execute_cmd('(Get-ChildItem "HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss" -Recurse | ForEach-Object { Get-ItemProperty $_.pspath } | Where-Object { $_.PackageFamilyName -eq ($(get-appxpackage).PackageFamilyName | findstr ' + linux_distro + ') }).BasePath')
+            PowerShell.execute_cmd('(Get-ChildItem HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss | ForEach-Object {Get-ItemProperty $_.PSPath}).BasePath').split(" ").each do |path|
+              # Lowercase the drive letter, skip the next symbol (which is a
+              # colon from a Windows path) and convert path to UNIX style.
+              path = "/mnt/" + path[0, 1].downcase + path[2..-1].tr('\\', '/') + "/rootfs"
+
+              begin
+                fs = Dir.open(path)
+              rescue Errno::EACCES
+                # Current WSL instance doesn't have an access to its mount from
+                # within itself despite all others are available. That's the
+                # hacky way we're using to determine current instance.
+                @_wsl_rootfs = path
+                # You can create and simultaneously run multiple WSL instances,
+                # comment out the "break", run this script within each one and
+                # it'll return only single value.
+                break
+              else
+                fs.close
+              end
+            end
+
+            if @_wsl_rootfs.nil?
+              raise Vagrant::Errors::WSLRootFsNotFoundError
+            end
           end
 
-          if @_wsl_rootfs.nil?
-            # Looks like WSL has been installed via "lxrun /install" which is deprecated.
-            @_wsl_rootfs = wsl_windows_appdata_local + '\\lxss'
-          else
-            # The path has been found in the registry, so append the directory with FS.
-            @_wsl_rootfs += '\\rootfs'
-          end
+          @_wsl_rootfs
         end
 
         # Convert a WSL path to the local Windows path. This is useful
