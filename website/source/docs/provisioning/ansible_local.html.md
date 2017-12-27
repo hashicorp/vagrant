@@ -123,7 +123,7 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
     config.vm.provision "ansible_local" do |ansible|
       ansible.playbook = "playbook.yml"
       ansible.install_mode = :pip
-      ansible.pip_args = "--install-url https://pypi.internal"
+      ansible.pip_args = "--index-url https://pypi.internal"
     end
     ```
 
