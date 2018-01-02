@@ -51,7 +51,8 @@ module Vagrant
       # Execute a powershell command.
       #
       # @param [String] command PowerShell command to execute.
-      # @return [Subprocess::Result]
+      # @return [nil, String] Returns nil if exit code is non-zero.
+      #   Returns stdout string if exit code is zero.
       def self.execute_cmd(command)
         validate_install!
         c = [
