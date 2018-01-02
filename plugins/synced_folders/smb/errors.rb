@@ -18,6 +18,14 @@ module VagrantPlugins
         error_key(:credentials_missing)
       end
 
+      class SMBListFailed < SMBError
+        error_key(:list_failed)
+      end
+
+      class SMBNameError < SMBError
+        error_key(:name_error)
+      end
+
       class DefineShareFailed < SMBError
         error_key(:define_share_failed)
       end

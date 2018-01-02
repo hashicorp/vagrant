@@ -55,6 +55,18 @@ en:
         Stderr: %{stderr}
 
         Stdout: %{stdout}
+      name_error: |-
+        Vagrant is unable to setup a requested SMB share. An SMB share already
+        exists with the given name.
+
+        Share name: %{name}
+
+        Current path: %{existing_path}
+
+        Requested path: %{path}
+      list_failed: |-
+        Vagrant failed to generate a list of local SMB shares. Please try
+        running the command again.
       no_routable_host_addr: |-
         We couldn't detect an IP address that was routable to this
         machine from the guest machine! Please verify networking is properly

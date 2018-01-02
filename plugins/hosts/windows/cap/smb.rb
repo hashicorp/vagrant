@@ -64,7 +64,10 @@ module VagrantPlugins
             # Check if this name is already in use
             if share_info = current_shares[data[:smb_id]]
               if !hostpath.empty? && share_info["Path"].downcase != hostpath.downcase
-                raise "share in use with different path"
+                raise SyncedFolderSMB::Errors::SMBNameError,
+                  path: hostpath,
+                  existing_path: share_info["Path"],
+                  name: data[:smb_id]
               end
               @@logger.info("skip creation of existing share name=#{name} id=#{data[:smb_id]}")
               next
@@ -98,7 +101,7 @@ module VagrantPlugins
         def self.existing_shares
           result = Vagrant::Util::PowerShell.execute_cmd("Get-SmbShare|Format-List")
           if result.nil?
-            raise "failed to get existing shares"
+            raise SyncedFolderSMB::Errors::SMBListFailed
           end
           shares = {}
           name = nil
