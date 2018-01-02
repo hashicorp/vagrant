@@ -21,17 +21,17 @@ module VagrantPlugins
           script_path = File.expand_path("../../scripts/unset_share.ps1", __FILE__)
 
           m_id = machine_id(machine)
-          result = Vagrant::Util::PowerShell.execute_cmd("net share")
-          if result.nil?
-            @@logger.warn("failed to get current share list")
-            return
-          end
-          prune_shares = result.split("\n").map do |line|
-            sections = line.split(/\s/)
-            if sections.first.to_s.start_with?("vgt-#{m_id}")
-              sections.first
+          prune_shares = existing_shares.map do |share_name, share_info|
+            if share_info["Description"].start_with?("vgt-#{m_id}-")
+              @@logger.info("removing smb share name=#{share_name} id=#{m_id}")
+              share_name
+            else
+              @@logger.info("skipping smb share removal, not owned name=#{share_name}")
+              @@logger.debug("smb share ID not present name=#{share_name} id=#{m_id} description=#{share_info["Description"]}")
+              nil
             end
           end.compact
+
           @@logger.debug("shares to be removed: #{prune_shares}")
 
           if prune_shares.size > 0
@@ -53,12 +53,22 @@ module VagrantPlugins
           script_path = File.expand_path("../../scripts/set_share.ps1", __FILE__)
 
           shares = []
+          current_shares = existing_shares
           folders.each do |id, data|
-            hostpath = data[:hostpath]
+            hostpath = data[:hostpath].to_s
 
             chksum_id = Digest::MD5.hexdigest(id)
             name = "vgt-#{machine_id(machine)}-#{chksum_id}"
             data[:smb_id] ||= name
+
+            # Check if this name is already in use
+            if share_info = current_shares[data[:smb_id]]
+              if !hostpath.empty? && share_info["Path"].downcase != hostpath.downcase
+                raise "share in use with different path"
+              end
+              @@logger.info("skip creation of existing share name=#{name} id=#{data[:smb_id]}")
+              next
+            end
 
             @@logger.info("creating new share name=#{name} id=#{data[:smb_id]}")
 
@@ -80,6 +90,29 @@ module VagrantPlugins
                 stdout: result.stdout
             end
           end
+        end
+
+        # Generate a list of existing local smb shares
+        #
+        # @return [Hash]
+        def self.existing_shares
+          result = Vagrant::Util::PowerShell.execute_cmd("Get-SmbShare|Format-List")
+          if result.nil?
+            raise "failed to get existing shares"
+          end
+          shares = {}
+          name = nil
+          result.lines.each do |line|
+            key, value = line.split(":", 2).map(&:strip)
+            if key == "Name"
+              name = value
+              shares[name] = {}
+            end
+            next if name.nil? || key.to_s.empty?
+            shares[name][key] = value
+          end
+          @@logger.debug("local share listing: #{shares}")
+          shares
         end
 
         # Generates a unique identifier for the given machine
