@@ -9,10 +9,27 @@ describe VagrantPlugins::HostWindows::Cap::SMB do
   let(:options){ {} }
   let(:result){ Vagrant::Util::Subprocess::Result }
   let(:powershell_version){ "3" }
+  let(:smblist){ <<-EOF
+Name        : vgt-CUSTOM_ID-1
+Path        : /a/path
+Description : vgt-CUSTOM_ID-1
+
+Name        : vgt-CUSTOM_ID-2
+Path        : /other/path
+Description : vgt-CUSTOM_ID-2
+
+Name        : my-share
+Path        : /my/path
+Description : Not Vagrant Owned
+
+    EOF
+  }
+
 
   before do
     allow(subject).to receive(:machine_id).and_return("CUSTOM_ID")
     allow(Vagrant::Util::PowerShell).to receive(:version).and_return(powershell_version)
+    allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return("")
     allow(machine.env.ui).to receive(:warn)
     allow(subject).to receive(:sleep)
   end
@@ -35,8 +52,8 @@ describe VagrantPlugins::HostWindows::Cap::SMB do
 
   describe ".smb_cleanup" do
     before do
-      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with("net share").
-        and_return("vgt-CUSTOM_ID-1\nvgt-CUSTOM_ID-2\n")
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/Get-SmbShare/).
+        and_return(smblist)
       allow(Vagrant::Util::PowerShell).to receive(:execute).and_return(result.new(0, "", ""))
     end
     after{ subject.smb_cleanup(env, machine, options) }
@@ -52,7 +69,7 @@ describe VagrantPlugins::HostWindows::Cap::SMB do
 
     context "when no shares are defined" do
       before do
-        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with("net share").
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/Get-SmbShare/).
           and_return("")
       end
 

@@ -88,7 +88,7 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
       end
 
       it "should start the SMB service if capability is available" do
-        expect(host).to receive(:capability).with(:smb_install, any_args)
+        expect(host).to receive(:capability).with(:smb_start, any_args)
         subject.prepare(machine, folders, options)
       end
     end

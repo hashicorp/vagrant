@@ -65,7 +65,23 @@ describe VagrantPlugins::HostDarwin::Cap::SMB do
       expect{ subject.smb_start(env) }.to raise_error(VagrantPlugins::SyncedFolderSMB::Errors::SMBStartFailed)
     end
 
-    # TODO Finish out last start coverage
+    it "should not load smbd if it is already loaded" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("launchctl", "list", /smbd/).and_return(result.new(0, "", ""))
+      expect(Vagrant::Util::Subprocess).not_to receive(:execute).with(/sudo/, /launchctl/, "load", "-w", /smbd/)
+      subject.smb_start(env)
+    end
+
+    it "should load smbd if it is not already loaded" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("launchctl", "list", /smbd/).and_return(result.new(1, "", ""))
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(/sudo/, /launchctl/, "load", "-w", /smbd/).and_return(result.new(0, "", ""))
+      subject.smb_start(env)
+    end
+
+    it "should raise error if load smbd fails" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("launchctl", "list", /smbd/).and_return(result.new(1, "", ""))
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(/sudo/, /launchctl/, "load", "-w", /smbd/).and_return(result.new(1, "", ""))
+      expect{ subject.smb_start(env) }.to raise_error(VagrantPlugins::SyncedFolderSMB::Errors::SMBStartFailed)
+    end
   end
 
   describe ".smb_cleanup" do
