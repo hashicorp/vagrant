@@ -27,7 +27,7 @@ for ($i=0; $i -le $args.length; $i = $i + 3) {
         exit 1
     }
 
-    $result = net share $share_name=$path /unlimited /GRANT:$grant /REMARK:"${share_id}"
+    $result = net share $share_id=$path /unlimited /GRANT:$grant /REMARK:"${share_name}"
     if ($LastExitCode -ne 0) {
         $host.ui.WriteLine("share path: ${path}")
         $host.ui.WriteErrorLine("error ${result}")
