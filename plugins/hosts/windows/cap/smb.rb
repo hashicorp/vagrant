@@ -63,7 +63,9 @@ module VagrantPlugins
 
             # Check if this name is already in use
             if share_info = current_shares[data[:smb_id]]
-              if !hostpath.empty? && share_info["Path"].downcase != hostpath.downcase
+              exist_path = File.expand_path(share_info["Path"]).downcase
+              request_path = File.expand_path(hostpath).downcase
+              if !hostpath.empty? && exist_path != request_path
                 raise SyncedFolderSMB::Errors::SMBNameError,
                   path: hostpath,
                   existing_path: share_info["Path"],

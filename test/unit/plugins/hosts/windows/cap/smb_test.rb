@@ -110,6 +110,29 @@ Description : Not Vagrant Owned
       subject.smb_prepare(env, machine, folders, options)
     end
 
+    context "when share already exists" do
+      let(:shares){ {"ID1" => {"Path" => "/host/2"}} }
+      before do
+        allow(File).to receive(:expand_path).and_call_original
+        expect(subject).to receive(:existing_shares).and_return(shares)
+      end
+
+      it "should expand paths when comparing existing to requested" do
+        expect(File).to receive(:expand_path).at_least(2).with("/host/2").and_return("expanded_path")
+        subject.smb_prepare(env, machine, folders, options)
+      end
+
+      context "with different path" do
+        let(:shares){ {"ID1" => {"Path" => "/host/3"}} }
+
+        it "should raise an error" do
+          expect{
+            subject.smb_prepare(env, machine, folders, options)
+          }.to raise_error(VagrantPlugins::SyncedFolderSMB::Errors::SMBNameError)
+        end
+      end
+    end
+
     context "when no shared are defined" do
       after{ subject.smb_prepare(env, machine, {}, options) }
 
