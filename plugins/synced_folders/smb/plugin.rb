@@ -12,6 +12,11 @@ module VagrantPlugins
       Windows or macOS and share them to guest machines.
       EOF
 
+      config("smb") do
+        require_relative "config"
+        Config
+      end
+
       synced_folder("smb", 7) do
         require_relative "synced_folder"
         init!
