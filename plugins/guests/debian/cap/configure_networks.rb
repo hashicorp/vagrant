@@ -9,107 +9,89 @@ module VagrantPlugins
         include Vagrant::Util
         extend Vagrant::Util::GuestInspection::Linux
 
-        def self.generate_netplan_cfg(options)
-          cfg = {"network" => {"version" => 2,
-                              "renderer" => "networkd",
-                              "ethernets" => {}}}
+        NETPLAN_DEFAULT_VERSION = 2
+        NETPLAN_DEFAULT_RENDERER = "networkd".freeze
+        NETPLAN_DIRECTORY = "/etc/netplan".freeze
+        NETWORKD_DIRECTORY = "/etc/systemd/network".freeze
 
-          options.each do |option|
-            cfg["network"]["ethernets"].merge!(option)
-          end
-          return cfg
-        end
 
-        def self.build_interface_entries(interface)
-          entry = {interface[:device] => {"dhcp4" => true}}
-          if interface[:ip]
-            # is this always the right prefix length to pick??
-            entry[interface[:device]].merge!({"addresses" => ["#{interface[:ip]}/24"]})
-            entry[interface[:device]]["dhcp4"] = false
-          end
+        def self.configure_networks(machine, networks)
+          comm = machine.communicate
+          interfaces = machine.guest.capability(:network_interfaces)
 
-          if interface[:gateway]
-            entry[interface[:device]].merge!({"gateway4" => interface[:gateway]})
-          end
-          return entry
-        end
-
-        def self.determine_systemd_networkd(comm)
-          return systemd?(comm) && systemd_networkd?(comm)
-        end
-
-        def self.upload_tmp_file(comm, content, remote_path)
-          Tempfile.open("vagrant-debian-configure-networks") do |f|
-            f.binmode
-            f.write(content)
-            f.fsync
-            f.close
-            comm.upload(f.path, remote_path)
+          if netplan?(comm)
+            configure_netplan(machine, interfaces, comm, networks)
+          elsif systemd?(comm)
+            if systemd_networkd?(comm)
+              configure_networkd(machine, interfaces, comm, networks)
+            else
+              configure_systemd(machine, interfaces, comm, networks)
+            end
+          else
+            configure_nettools(machine, interfaces, comm, networks)
           end
         end
 
-        def self.configure_netplan_networks(machine, interfaces, comm, networks)
-          commands = []
-          entries = []
+        # Configure networking using netplan
+        def self.configure_netplan(machine, interfaces, comm, networks)
+          ethernets = {}.tap do |e_nets|
+            networks.each do |network|
+              e_config = {}.tap do |entry|
+                if network[:ip]
+                  mask = IPAddr.new(network.fetch(:netmask, "255.255.255.0")).to_i.to_s(2).count("1")
+                  entry["addresses"] = ["#{network[:ip]}/#{mask}"]
+                else
+                  entry["dhcp4"] = true
+                end
+                if network[:gateway]
+                  entry["gateway4"] = network[:gateway]
+                end
+              end
+              e_nets[interfaces[network[:interface]]] = e_config
+            end
+          end
+          np_config = {"network" => {"version" => NETPLAN_DEFAULT_VERSION,
+            "renderer" => NETPLAN_DEFAULT_RENDERER, "ethernets" => ethernets}}
+
+          remote_path = upload_tmp_file(comm, np_config.to_yaml)
+          dest_path = "#{NETPLAN_DIRECTORY}/99-vagrant.yaml"
+          comm.sudo(["mv -f '#{remote_path}' '#{dest_path}'",
+            "chown root:root '#{dest_path}'",
+            "chmod 0644 '#{dest_path}'",
+            "netplan apply"].join("\n"))
+        end
+
+        # Configure guest networking using networkd
+        def self.configure_networkd(machine, interfaces, comm, networks)
+          net_conf = []
 
           root_device = interfaces.first
           networks.each do |network|
-            network[:device] = interfaces[network[:interface]]
-
-            options = network.merge(:root_device => root_device)
-            entry = build_interface_entries(options)
-            entries << entry
+            dev_name = interfaces[network[:interface]]
+            net_conf << "[Match]"
+            net_conf << "Name=#{dev_name}"
+            net_conf << "[Network]"
+            if network[:ip]
+              mask = IPAddr.new(network.fetch(:netmask, "255.255.255.0")).to_i.to_s(2).count("1")
+              net_conf << "DHCP=no"
+              net_conf << "Address=#{network[:ip]}/#{mask}"
+              net_conf << "Gateway=#{network[:gateway]}" if network[:gateway]
+            else
+              net_conf << "DHCP=yes"
+            end
           end
 
-          remote_path = "/tmp/vagrant-network-entry"
-
-          netplan_cfg = generate_netplan_cfg(entries)
-          content = netplan_cfg.to_yaml
-          upload_tmp_file(comm, content, remote_path)
-
-          commands << <<-EOH.gsub(/^ {12}/, "")
-          mv '#{remote_path}' /etc/netplan/99-vagrant.yaml
-          sudo netplan apply
-          EOH
-
-          return commands
+          remote_path = upload_tmp_file(comm, net_conf.join("\n"))
+          dest_path = "#{NETWORKD_DIRECTORY}/99-vagrant.network"
+          comm.sudo(["mkdir -p #{NETWORKD_DIRECTORY}",
+            "mv -f '#{remote_path}' '#{dest_path}'",
+            "chown root:root '#{dest_path}'",
+            "chmod 0644 '#{dest_path}'",
+            "systemctl restart systemd-networkd.service"].join("\n"))
         end
 
-        def self.configure_networkd_networks(machine, interfaces, comm, networks)
-          commands = []
-          entries = []
-
-          root_device = interfaces.first
-          networks.each.with_index do |network,i|
-            network[:device] = interfaces[network[:interface]]
-            # generic systemd-networkd config file
-            # update for debian
-            entry = TemplateRenderer.render("guests/debian/networkd/network_#{network[:type]}",
-              options: network,
-            )
-
-            remote_path = "/tmp/vagrant-network-#{network[:device]}-#{Time.now.to_i}-#{i}"
-            upload_tmp_file(comm, entry, remote_path)
-
-            commands << <<-EOH.gsub(/^ {14}/, '').rstrip
-              # Configure #{network[:device]}
-              mv '#{remote_path}' '/etc/systemd/network/#{network[:device]}.network' &&
-              sudo chown root:root '/etc/systemd/network/#{network[:device]}.network' &&
-              sudo chmod 644 '/etc/systemd/network/#{network[:device]}.network' &&
-              ip link set '#{network[:device]}' down &&
-              sudo rm /etc/resolv.conf &&
-              sudo ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf &&
-              sudo systemctl enable systemd-resolved.service &&
-              sudo systemctl start systemd-resolved.service &&
-              sudo systemctl enable systemd-networkd.service
-              sudo systemctl start systemd-networkd.service
-            EOH
-          end
-
-          return commands
-        end
-
-        def self.configure_other_networks(machine, interfaces, comm, networks)
+        # Configure guest networking using net-tools
+        def self.configure_nettools(machine, interfaces, comm, networks)
           commands = []
           entries = []
           root_device = interfaces.first
@@ -122,8 +104,8 @@ module VagrantPlugins
             entries << entry
           end
 
-          remote_path = "/tmp/vagrant-network-entry"
           content = entries.join("\n")
+          remote_path = "/tmp/vagrant-network-entry"
           upload_tmp_file(comm, content, remote_path)
 
           networks.each do |network|
@@ -153,32 +135,26 @@ module VagrantPlugins
           networks.each do |network|
             commands << "/sbin/ifup '#{network[:device]}'"
           end
-
-          return commands
+          comm.sudo(commands.join("\n"))
         end
 
-        def self.configure_networks(machine, networks)
-          comm = machine.communicate
-
-          commands = []
-          interfaces = machine.guest.capability(:network_interfaces)
-
-          systemd_controlled = determine_systemd_networkd(comm)
-          netplan_cli = netplan?(comm)
-
-          if systemd_controlled
-            if netplan_cli
-              commands = configure_netplan_networks(machine, interfaces, comm, networks)
-            else
-              commands = configure_networkd_networks(machine, interfaces, comm, networks)
-            end
-          else
-            commands = configure_other_networks(machine, interfaces, comm, networks)
+        # Simple helper to upload content to guest temporary file
+        #
+        # @param [Vagrant::Plugin::Communicator] comm
+        # @param [String] content
+        # @return [String] remote path
+        def self.upload_tmp_file(comm, content, remote_path=nil)
+          if remote_path.nil?
+            remote_path = "/tmp/vagrant-network-entry-#{Time.now.to_i}"
           end
-
-          # Run all the commands in one session to prevent partial configuration
-          # due to a severed network.
-          comm.sudo(commands.join("\n"))
+          Tempfile.open("vagrant-debian-configure-networks") do |f|
+            f.binmode
+            f.write(content)
+            f.fsync
+            f.close
+            comm.upload(f.path, remote_path)
+          end
+          remote_path
         end
       end
     end
