@@ -41,6 +41,7 @@ module VagrantPlugins
               b2.use ProvisionerCleanup, :before
               b2.use StopInstance
               b2.use DeleteVM
+              b2.use SyncedFolderCleanup
             end
           end
         end
@@ -144,6 +145,7 @@ module VagrantPlugins
               b2.use StartInstance
               b2.use WaitForIPAddress
               b2.use WaitForCommunicator, [:running]
+              b2.use SyncedFolderCleanup
               b2.use SyncedFolders
               b2.use SetHostname
             end
