@@ -47,7 +47,7 @@ module VagrantPlugins
         # Required options for mounting a share hosted
         # on macos.
         def self.smb_mount_options(env)
-          ["ver=3", "sec=ntlmssp", "nounix", "noperm"]
+          ["sec=ntlmssp", "nounix", "noperm"]
         end
 
         def self.smb_cleanup(env, machine, opts)
