@@ -9,7 +9,7 @@ module VagrantPlugins
       name "SMB synced folders"
       description <<-EOF
       The SMB synced folders plugin enables you to use SMB folders on
-      Windows and share them to guest machines.
+      Windows or macOS and share them to guest machines.
       EOF
 
       synced_folder("smb", 7) do
