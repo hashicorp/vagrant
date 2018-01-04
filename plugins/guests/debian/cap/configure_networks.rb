@@ -38,8 +38,15 @@ module VagrantPlugins
             networks.each do |network|
               e_config = {}.tap do |entry|
                 if network[:ip]
-                  mask = IPAddr.new(network.fetch(:netmask, "255.255.255.0")).to_i.to_s(2).count("1")
-                  entry["addresses"] = ["#{network[:ip]}/#{mask}"]
+                  mask = network[:netmask]
+                  if mask && IPAddr.new(network[:ip]).ipv4?
+                    begin
+                      mask = IPAddr.new(mask).to_i.to_s(2).count("1")
+                    rescue IPAddr::Error
+                      # ignore and use given value
+                    end
+                  end
+                  entry["addresses"] = [[network[:ip], mask].compact.join("/")]
                 else
                   entry["dhcp4"] = true
                 end
@@ -72,9 +79,17 @@ module VagrantPlugins
             net_conf << "Name=#{dev_name}"
             net_conf << "[Network]"
             if network[:ip]
-              mask = IPAddr.new(network.fetch(:netmask, "255.255.255.0")).to_i.to_s(2).count("1")
+              mask = network[:netmask]
+              if mask && IPAddr.new(network[:ip]).ipv4?
+                begin
+                  mask = IPAddr.new(mask).to_i.to_s(2).count("1")
+                rescue IPAddr::Error
+                  # ignore and use given value
+                end
+              end
+              address = [network[:ip], mask].compact.join("/")
               net_conf << "DHCP=no"
-              net_conf << "Address=#{network[:ip]}/#{mask}"
+              net_conf << "Address=#{address}"
               net_conf << "Gateway=#{network[:gateway]}" if network[:gateway]
             else
               net_conf << "DHCP=yes"
