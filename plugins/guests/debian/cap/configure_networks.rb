@@ -19,13 +19,13 @@ module VagrantPlugins
           comm = machine.communicate
           interfaces = machine.guest.capability(:network_interfaces)
 
-          if netplan?(comm)
-            configure_netplan(machine, interfaces, comm, networks)
-          elsif systemd?(comm)
-            if systemd_networkd?(comm)
+          if systemd?(comm)
+            if netplan?(comm)
+              configure_netplan(machine, interfaces, comm, networks)
+            elsif systemd_networkd?(comm)
               configure_networkd(machine, interfaces, comm, networks)
             else
-              configure_systemd(machine, interfaces, comm, networks)
+              configure_nettools(machine, interfaces, comm, networks)
             end
           else
             configure_nettools(machine, interfaces, comm, networks)
