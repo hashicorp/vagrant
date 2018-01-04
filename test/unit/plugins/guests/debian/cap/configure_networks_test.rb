@@ -20,9 +20,6 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
     comm.verify_expectations!
   end
 
-  describe "#generate_netplan_cfg" do
-  end
-
   describe "#build_interface_entries" do
     let(:network_0) do
       {
@@ -40,10 +37,6 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
         gateway: "33.33.0.1",
       }
     end
-
-    it "builds an interface entry" do
-    end
-
   end
 
   describe ".configure_networks" do
