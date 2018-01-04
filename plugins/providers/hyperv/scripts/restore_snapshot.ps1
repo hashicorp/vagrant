@@ -4,5 +4,5 @@ Param(
     [string]$SnapName
 )
 
-$VM = Get-VM -Id $VmId -ErrorAction "Stop"
-Restore-VMSnapshot $VM -Name $SnapName -Confirm:$false
+$VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
+Hyper-V\Restore-VMSnapshot $VM -Name $SnapName -Confirm:$false

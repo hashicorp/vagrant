@@ -7,8 +7,8 @@ Param(
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
-$vm = Get-VM -Id $VmId -ErrorAction "Stop"
-$networks = Get-VMNetworkAdapter -VM $vm
+$vm = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
+$networks = Hyper-V\Get-VMNetworkAdapter -VM $vm
 foreach ($network in $networks) {
   if ($network.IpAddresses.Length -gt 0) {
     foreach ($ip_address in $network.IpAddresses) {

@@ -30,7 +30,7 @@ $VmProperties = @{
     VirtualMachinePath = $data_path
 }
 
-$vmConfig = (Compare-VM -Copy -GenerateNewID @VmProperties)
+$vmConfig = (Hyper-V\Compare-VM -Copy -GenerateNewID @VmProperties)
 
 $generation = $vmConfig.VM.Generation
 
@@ -43,13 +43,13 @@ if (!$vmname) {
 
 if (!$cpus) {
     # Get the processorcount of the VM
-    $processors = (Get-VMProcessor -VM $vmConfig.VM).Count
+    $processors = (Hyper-V\Get-VMProcessor -VM $vmConfig.VM).Count
 }else {
     $processors = $cpus
 }
 
 function GetUniqueName($name) {
-    Get-VM | ForEach-Object -Process {
+    Hyper-V\Get-VM | ForEach-Object -Process {
         if ($name -eq $_.Name) {
             $name =  $name + "_1"
         }
@@ -63,7 +63,7 @@ do {
 } while ($vm_name -ne $name)
 
 if (!$memory) {
-    $configMemory = Get-VMMemory -VM $vmConfig.VM
+    $configMemory = Hyper-V\Get-VMMemory -VM $vmConfig.VM
     $dynamicmemory = $configMemory.DynamicMemoryEnabled
 
     $MemoryMaximumBytes = ($configMemory.Maximum)
@@ -84,46 +84,46 @@ if (!$memory) {
 }
 
 if (!$switchname) {
-    $switchname = (Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
+    $switchname = (Hyper-V\Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
 }
 
 # Enable nested virtualization if configured
 if ($enable_virtualization_extensions -eq "True") {
-    Set-VMProcessor -VM $vmConfig.VM -ExposeVirtualizationExtensions $true
+    Hyper-V\Set-VMProcessor -VM $vmConfig.VM -ExposeVirtualizationExtensions $true
 }
 
-$vmNetworkAdapter = Get-VMNetworkAdapter -VM $vmConfig.VM
-Connect-VMNetworkAdapter -VMNetworkAdapter $vmNetworkAdapter -SwitchName $switchname
-Set-VM -VM $vmConfig.VM -NewVMName $vm_name
-Set-VM -VM $vmConfig.VM -ErrorAction "Stop"
-Set-VM -VM $vmConfig.VM -ProcessorCount $processors
+$vmNetworkAdapter = Hyper-V\Get-VMNetworkAdapter -VM $vmConfig.VM
+Hyper-V\Connect-VMNetworkAdapter -VMNetworkAdapter $vmNetworkAdapter -SwitchName $switchname
+Hyper-V\Set-VM -VM $vmConfig.VM -NewVMName $vm_name
+Hyper-V\Set-VM -VM $vmConfig.VM -ErrorAction "Stop"
+Hyper-V\Set-VM -VM $vmConfig.VM -ProcessorCount $processors
 
 if ($dynamicmemory) {
-    Set-VM -VM $vmConfig.VM -DynamicMemory
-    Set-VM -VM $vmConfig.VM -MemoryMinimumBytes $MemoryMinimumBytes -MemoryMaximumBytes $MemoryMaximumBytes -MemoryStartupBytes $MemoryStartupBytes
+    Hyper-V\Set-VM -VM $vmConfig.VM -DynamicMemory
+    Hyper-V\Set-VM -VM $vmConfig.VM -MemoryMinimumBytes $MemoryMinimumBytes -MemoryMaximumBytes $MemoryMaximumBytes -MemoryStartupBytes $MemoryStartupBytes
 } else {
-    Set-VM -VM $vmConfig.VM -StaticMemory
-    Set-VM -VM $vmConfig.VM -MemoryStartupBytes $MemoryStartupBytes
+    Hyper-V\Set-VM -VM $vmConfig.VM -StaticMemory
+    Hyper-V\Set-VM -VM $vmConfig.VM -MemoryStartupBytes $MemoryStartupBytes
 }
 
 if ($notes) {
-    Set-VM -VM $vmConfig.VM -Notes $notes
+    Hyper-V\Set-VM -VM $vmConfig.VM -Notes $notes
 }
 
 if ($auto_start_action) {
-    Set-VM -VM $vmConfig.VM -AutomaticStartAction $auto_start_action
+    Hyper-V\Set-VM -VM $vmConfig.VM -AutomaticStartAction $auto_start_action
 }
 
 if ($auto_stop_action) {
-    Set-VM -VM $vmConfig.VM -AutomaticStopAction $auto_stop_action
+    Hyper-V\Set-VM -VM $vmConfig.VM -AutomaticStopAction $auto_stop_action
 }
 
 # Only set EFI secure boot for Gen 2 machines, not gen 1
 if ($generation -ne 1) {
-    Set-VMFirmware -VM $vmConfig.VM -EnableSecureBoot (Get-VMFirmware -VM $vmConfig.VM).SecureBoot
+    Hyper-V\Set-VMFirmware -VM $vmConfig.VM -EnableSecureBoot (Hyper-V\Get-VMFirmware -VM $vmConfig.VM).SecureBoot
 }
 
-$report = Compare-VM -CompatibilityReport $vmConfig
+$report = Hyper-V\Compare-VM -CompatibilityReport $vmConfig
 
 # Stop if there are incompatibilities
 if($report.Incompatibilities.Length -gt 0){
@@ -133,9 +133,9 @@ if($report.Incompatibilities.Length -gt 0){
 
 if($differencing_disk){
     # Get all controller on the VM, first scsi, then IDE if it is a Gen 1 device
-    $controllers = Get-VMScsiController -VM $vmConfig.VM
+    $controllers = Hyper-V\Get-VMScsiController -VM $vmConfig.VM
     if($generation -eq 1){
-        $controllers = @($controllers) + @(Get-VMIdeController -VM $vmConfig.VM)
+        $controllers = @($controllers) + @(Hyper-V\Get-VMIdeController -VM $vmConfig.VM)
     }
 
     foreach($controller in $controllers){
@@ -143,17 +143,17 @@ if($differencing_disk){
             if([System.IO.Path]::GetFileName($drive.Path) -eq [System.IO.Path]::GetFileName($source_path)){
                 # Remove the old disk and replace it with a differencing version
                 $path = $drive.Path
-                Remove-VMHardDiskDrive $drive
-                New-VHD -Path $dest_path -ParentPath $source_path -ErrorAction Stop
-                Add-VMHardDiskDrive -VM $vmConfig.VM -Path $dest_path
+                Hyper-V\Remove-VMHardDiskDrive $drive
+                Hyper-V\New-VHD -Path $dest_path -ParentPath $source_path -ErrorAction Stop
+                Hyper-V\Add-VMHardDiskDrive -VM $vmConfig.VM -Path $dest_path
             }
         }
     }
 }
 
-Import-VM -CompatibilityReport $vmConfig
+Hyper-V\Import-VM -CompatibilityReport $vmConfig
 
-$vm_id = (Get-VM $vm_name).id.guid
+$vm_id = (Hyper-V\Get-VM $vm_name).id.guid
 $resultHash = @{
     name = $vm_name
     id = $vm_id

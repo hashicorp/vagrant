@@ -37,7 +37,7 @@ if (!$cpus) {
 }
 
 function GetUniqueName($name) {
-    Get-VM | ForEach-Object -Process {
+    Hyper-V\Get-VM | ForEach-Object -Process {
         if ($name -eq $_.Name) {
             $name =  $name + "_1"
         }
@@ -118,13 +118,13 @@ $vm_params = @{
 }
 
 # Generation parameter was added in ps v4
-if((get-command New-VM).Parameters.Keys.Contains("generation")) {
+if((get-command Hyper-V\New-VM).Parameters.Keys.Contains("generation")) {
     $vm_params.Generation = $generation
 }
 
 # Create the VM using the values in the hash map
 
-$vm = New-VM @vm_params
+$vm = Hyper-V\New-VM @vm_params
 
 $notes = (Select-Xml -xml $vmconfig -XPath "//notes").node.'#text'
 
@@ -156,7 +156,7 @@ if ($auto_stop_action) {
 }
 
 # Set the values on the VM
-$vm | Set-VM @more_vm_params -Passthru
+$vm | Hyper-V\Set-VM @more_vm_params -Passthru
 
 # Add drives to the virtual machine
 $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'controller')]"
@@ -165,15 +165,15 @@ $controllers = Select-Xml -xml $vmconfig -xpath "//*[starts-with(name(.),'contro
 if ($generation -ne 1) {
     # Set EFI secure boot
     if ($secure_boot_enabled -eq "True") {
-        Set-VMFirmware -VM $vm -EnableSecureBoot On
+        Hyper-V\Set-VMFirmware -VM $vm -EnableSecureBoot On
     }  else {
-        Set-VMFirmware -VM $vm -EnableSecureBoot Off
+        Hyper-V\Set-VMFirmware -VM $vm -EnableSecureBoot Off
     }
 }
 
 # Enable nested virtualization if configured
 if ($enable_virtualization_extensions -eq "True") {
-    Set-VMProcessor -VM $vm -ExposeVirtualizationExtensions $true
+    Hyper-V\Set-VMProcessor -VM $vm -ExposeVirtualizationExtensions $true
 }
 
 # A regular expression pattern to pull the number from controllers
@@ -206,12 +206,12 @@ foreach ($controller in $controllers) {
 
         if ($drivetype -eq 'VHD') {
             $addDriveParam.add("ControllerType",$ControllerType)
-            $vm | Add-VMHardDiskDrive @AddDriveparam
+            $vm | Hyper-V\Add-VMHardDiskDrive @AddDriveparam
         }
     }
 }
 
-$vm_id = (Get-VM $vm_name).id.guid
+$vm_id = (Hyper-V\Get-VM $vm_name).id.guid
 $resultHash = @{
     name = $vm_name
     id = $vm_id

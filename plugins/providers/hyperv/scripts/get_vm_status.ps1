@@ -28,7 +28,7 @@ if($HyperVVersion -lt ([version]'10.0')) {
   $ExceptionType = [Microsoft.HyperV.PowerShell.VirtualizationException]
 }
 try {
-    $VM = Get-VM -Id $VmId -ErrorAction "Stop"
+    $VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
     $State = $VM.state
     $Status = $VM.status
 } catch [Exception] {

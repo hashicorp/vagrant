@@ -3,8 +3,8 @@ Param(
     [string]$VmId
 )
 
-$VM = Get-VM -Id $VmId -ErrorAction "Stop"
-$Snapshots = @(Get-VMSnapshot $VM | Select-Object Name)
+$VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
+$Snapshots = @(Hyper-V\Get-VMSnapshot $VM | Select-Object Name)
 $result = ConvertTo-json $Snapshots
 
 Write-Host "===Begin-Output==="

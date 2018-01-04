@@ -8,8 +8,8 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 $ip_address = ""
-$vm = Get-VM -Id $VmId -ErrorAction "Stop"
-$networks = Get-VMNetworkAdapter -VM $vm
+$vm = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
+$networks = Hyper-V\Get-VMNetworkAdapter -VM $vm
 foreach ($network in $networks) {
   if ($network.MacAddress -gt 0) {
     $mac_address = $network.MacAddress
