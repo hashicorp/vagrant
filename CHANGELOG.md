@@ -8,6 +8,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - config/ssh: Deprecate :paranoid in favor of :verify_host_key [GH-9341]
   - core: Add optional timestamp prefix on log output [GH-9269]
   - core: Print more helpful error message for NameEror exceptions in Vagrantfiles [GH-9252]
   - docs: Include virtualbox 5.2.x as supported in docs [GH-9237]
