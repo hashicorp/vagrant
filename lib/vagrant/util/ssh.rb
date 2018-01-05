@@ -126,7 +126,7 @@ module Vagrant
         end
 
         # no strict hostkey checking unless paranoid
-        if ! ssh_info[:paranoid]
+        if ! ssh_info[:verify_host_key]
           command_options += [
             "-o", "StrictHostKeyChecking=no",
             "-o", "UserKnownHostsFile=/dev/null"]

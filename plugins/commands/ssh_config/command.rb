@@ -47,7 +47,7 @@ module VagrantPlugins
             ssh_port: ssh_info[:port],
             ssh_user: ssh_info[:username],
             keys_only: ssh_info[:keys_only],
-            paranoid: ssh_info[:paranoid],
+            verify_host_key: ssh_info[:verify_host_key],
             private_key_path: ssh_info[:private_key_path],
             log_level: ssh_info[:log_level],
             forward_agent: ssh_info[:forward_agent],

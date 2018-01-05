@@ -790,8 +790,8 @@ describe Vagrant::Machine do
         it "keys_only should be default" do
           expect(instance.ssh_info[:keys_only]).to be(true)
         end
-        it "paranoid should be default" do
-          expect(instance.ssh_info[:paranoid]).to be(false)
+        it "verify_host_key should be default" do
+          expect(instance.ssh_info[:verify_host_key]).to be(false)
         end
         it "extra_args should be nil" do
           expect(instance.ssh_info[:extra_args]).to be(nil)
@@ -808,9 +808,9 @@ describe Vagrant::Machine do
           instance.config.ssh.keys_only = false
           expect(instance.ssh_info[:keys_only]).to be(false)
         end
-        it "paranoid should be overridden" do
-          instance.config.ssh.paranoid = true
-          expect(instance.ssh_info[:paranoid]).to be(true)
+        it "verify_host_key should be overridden" do
+          instance.config.ssh.verify_host_key = true
+          expect(instance.ssh_info[:verify_host_key]).to be(true)
         end
       end
     end

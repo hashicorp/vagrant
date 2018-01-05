@@ -2,7 +2,7 @@ Host <%= host_key %>
   HostName <%= ssh_host %>
   User <%= ssh_user %>
   Port <%= ssh_port %>
-<% if ! paranoid -%>
+<% if ! verify_host_key -%>
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
 <% end -%>

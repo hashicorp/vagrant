@@ -23,7 +23,7 @@ describe VagrantPlugins::CommandSSHConfig::Command do
     port:             1234,
     username:         "testuser",
     keys_only:        true,
-    paranoid:         false,
+    verify_host_key:         false,
     private_key_path: ["/home/vagrant/.private/keys.key"],
     forward_agent:    false,
     forward_x11:      false
@@ -124,8 +124,8 @@ Host #{machine.name}
       expect(output).not_to include('IdentitiesOnly')
     end
 
-    it "omits StrictHostKeyChecking and UserKnownHostsFile when paranoid is true" do
-      allow(machine).to receive(:ssh_info) { ssh_info.merge(paranoid: true) }
+    it "omits StrictHostKeyChecking and UserKnownHostsFile when verify_host_key is true" do
+      allow(machine).to receive(:ssh_info) { ssh_info.merge(verify_host_key: true) }
 
       output = ""
       allow(subject).to receive(:safe_puts) do |data|

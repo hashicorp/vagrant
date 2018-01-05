@@ -1633,6 +1633,9 @@ en:
           Unknown configuration section '%{key}'.
       ssh:
         private_key_missing: "`private_key_path` file must exist: %{path}"
+        paranoid_deprecated: |-
+          The key `paranoid` is deprecated. Please use `verify_host_key`. Supported
+          values are exactly the same, only the name of the option has changed.
       vm:
         bad_version: |-
           Invalid box version constraints: %{version}

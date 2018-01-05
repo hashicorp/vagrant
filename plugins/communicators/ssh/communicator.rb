@@ -364,7 +364,7 @@ module VagrantPlugins
           forward_agent:         ssh_info[:forward_agent],
           send_env:              ssh_info[:forward_env],
           keys_only:             ssh_info[:keys_only],
-          paranoid:              ssh_info[:paranoid],
+          verify_host_key:       ssh_info[:verify_host_key],
           password:              ssh_info[:password],
           port:                  ssh_info[:port],
           timeout:               15,

@@ -298,7 +298,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
           username: nil,
           password: nil,
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
@@ -311,10 +311,10 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
         communicator.send(:connect)
       end
 
-      it "has paranoid disabled" do
+      it "has verify_host_key disabled" do
         expect(Net::SSH).to receive(:start).with(
           nil, nil, hash_including(
-            paranoid: false
+            verify_host_key: false
           )
         ).and_return(true)
         communicator.send(:connect)
@@ -339,7 +339,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       end
     end
 
-    context "with keys_only disabled and paranoid enabled" do
+    context "with keys_only disabled and verify_host_key enabled" do
 
       before do
         expect(machine).to receive(:ssh_info).and_return(
@@ -349,7 +349,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
           username: nil,
           password: nil,
           keys_only: false,
-          paranoid: true
+          verify_host_key: true
         )
       end
 
@@ -362,10 +362,10 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
         communicator.send(:connect)
       end
 
-      it "has paranoid disabled" do
+      it "has verify_host_key disabled" do
         expect(Net::SSH).to receive(:start).with(
           nil, nil, hash_including(
-            paranoid: true
+            verify_host_key: true
           )
         ).and_return(true)
         communicator.send(:connect)
@@ -382,7 +382,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
           username: nil,
           password: nil,
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
@@ -406,7 +406,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
           username: nil,
           password: nil,
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
@@ -439,7 +439,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
           username: 'vagrant',
           password: 'vagrant',
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
@@ -477,7 +477,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
           username: 'vagrant',
           password: 'vagrant',
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
