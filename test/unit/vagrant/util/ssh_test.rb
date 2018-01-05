@@ -89,13 +89,13 @@ describe Vagrant::Util::SSH do
       end
     end
 
-    context "when paranoid is true" do
+    context "when verify_host_key is true" do
       let(:ssh_info) {{
         host: "localhost",
         port: 2222,
         username: "vagrant",
         private_key_path: [temporary_file],
-        paranoid: true
+        verify_host_key: true
       }}
 
       it "does not disable StrictHostKeyChecking or set UserKnownHostsFile" do

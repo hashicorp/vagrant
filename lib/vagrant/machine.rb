@@ -438,7 +438,7 @@ module Vagrant
       info[:port] ||= @config.ssh.default.port
       info[:private_key_path] ||= @config.ssh.default.private_key_path
       info[:keys_only] ||= @config.ssh.default.keys_only
-      info[:paranoid] ||= @config.ssh.default.paranoid
+      info[:verify_host_key] ||= @config.ssh.default.verify_host_key
       info[:username] ||= @config.ssh.default.username
       info[:compression] ||= @config.ssh.default.compression
       info[:dsa_authentication] ||= @config.ssh.default.dsa_authentication
@@ -449,7 +449,7 @@ module Vagrant
       info[:host] = @config.ssh.host if @config.ssh.host
       info[:port] = @config.ssh.port if @config.ssh.port
       info[:keys_only] = @config.ssh.keys_only
-      info[:paranoid] = @config.ssh.paranoid
+      info[:verify_host_key] = @config.ssh.verify_host_key
       info[:compression] = @config.ssh.compression
       info[:dsa_authentication] = @config.ssh.dsa_authentication
       info[:username] = @config.ssh.username if @config.ssh.username

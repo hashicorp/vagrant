@@ -220,7 +220,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:ssh_info) {{
       :private_key_path => ['/path/to/key'],
       :keys_only        => true,
-      :paranoid         => false,
+      :verify_host_key  => false,
     }}
     let(:opts)      {{
       hostpath: "/foo",

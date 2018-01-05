@@ -9,6 +9,7 @@ module VagrantPlugins
       attr_accessor :insert_key
       attr_accessor :keys_only
       attr_accessor :paranoid
+      attr_accessor :verify_host_key
       attr_accessor :compression
       attr_accessor :dsa_authentication
       attr_accessor :extra_args
@@ -22,6 +23,7 @@ module VagrantPlugins
         @insert_key       = UNSET_VALUE
         @keys_only        = UNSET_VALUE
         @paranoid         = UNSET_VALUE
+        @verify_host_key  = UNSET_VALUE
         @compression      = UNSET_VALUE
         @dsa_authentication = UNSET_VALUE
         @extra_args       = UNSET_VALUE
@@ -36,6 +38,7 @@ module VagrantPlugins
         @insert_key       = true if @insert_key == UNSET_VALUE
         @keys_only        = true if @keys_only == UNSET_VALUE
         @paranoid         = false if @paranoid == UNSET_VALUE
+        @verify_host_key  = false if @verify_host_key == UNSET_VALUE
         @compression      = true if @compression == UNSET_VALUE
         @dsa_authentication = true if @dsa_authentication == UNSET_VALUE
         @extra_args       = nil if @extra_args == UNSET_VALUE
@@ -43,6 +46,11 @@ module VagrantPlugins
         if @private_key_path && !@private_key_path.is_a?(Array)
           @private_key_path = [@private_key_path]
         end
+
+        if @paranoid
+          @verify_host_key = @paranoid
+        end
+
       end
 
       # NOTE: This is _not_ a valid config validation method, since it
@@ -62,6 +70,10 @@ module VagrantPlugins
                 path: raw_path)
             end
           end
+        end
+
+        if @paranoid
+          machine.env.ui.warn(I18n.t("vagrant.config.ssh.paranoid_deprecated"))
         end
 
         errors
