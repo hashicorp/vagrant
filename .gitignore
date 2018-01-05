@@ -43,7 +43,6 @@ doc/
 .rbenv
 .rbenv-gemsets
 .ruby-gemset
-.ruby-version
 .rvmrc
 
 # Box storage for spec
