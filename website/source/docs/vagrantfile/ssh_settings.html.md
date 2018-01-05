@@ -67,8 +67,17 @@ any keys stored in ssh-agent). The default value is `true`.
 
 <hr>
 
+`config.ssh.verify_host_key` - Perform strict host-key verification. The default
+value is `false`.
+
+<hr>
+
 `config.ssh.paranoid` - Perform strict host-key verification. The default value
 is `false`.
+
+__Deprecation:__
+The `config.ssh.paranoid` option is deprecated and will be removed in a future release.
+Please use the `config.ssh.verify_host_key` option instead.
 
 <hr>
 
