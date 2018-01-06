@@ -83,7 +83,7 @@ module Vagrant
           extra_subprocess_opts[:notify] = :stderr
 
           progress_data = ""
-          progress_regexp = /(\r(.+?))\r/
+          progress_regexp = /^\r\s*(\d.+)\r$/m
 
           # Setup the proc that'll receive the real-time data from
           # the downloader.
@@ -99,9 +99,28 @@ module Vagrant
               # we report new progress reports. Otherwise, just keep
               # accumulating.
               match = progress_regexp.match(progress_data)
+
               break if !match
-              data = match[2]
-              progress_data.gsub!(match[1], "")
+
+              # If the download has been redirected and we are no longer downloading
+              # from the original host, notify the user that the target host has
+              # changed from the source.
+              if progress_data.include?("Location")
+                location = progress_data.scan(/Location: (.+?)$/m).flatten.compact.last.to_s.strip
+                if !location.empty?
+                  @logger.info("download redirected to #{location}")
+                  location_uri = URI.parse(location)
+                  source_uri = URI.parse(source)
+                  if location_uri.host != source_uri.host
+                    @ui.clear_line
+                    @ui.detail "Download redirected to host: #{location_uri.host}"
+                  end
+                end
+              end
+
+              data = match[1].to_s
+              stop = progress_data.index(data) + data.length
+              progress_data.slice!(0, stop)
 
               # Ignore the first \r and split by whitespace to grab the columns
               columns = data.strip.split(/\s+/)
@@ -273,7 +292,7 @@ module Vagrant
           "-q",
           "--fail",
           "--location",
-          "--max-redirs", "10",
+          "--max-redirs", "10", "--verbose",
           "--user-agent", USER_AGENT,
         ]
 
