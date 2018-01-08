@@ -6,7 +6,7 @@ module VagrantPlugins
 
           comm = machine.communicate
 
-          if comm.test("test -f /sbin/ip")
+          if comm.test("which ip")
             command = "LANG=en ip addr  | grep -Po 'inet \\K[\\d.]+' | grep -v 127.0.0.1"
           else
             command = "LANG=en ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1 }'"
