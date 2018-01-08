@@ -21,6 +21,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - commands/box: Show all box providers with `update outdated --global` [GH-9347]
   - commands/destroy: Exit 0 if vagrant destroy finds no running vms [GH-9251]
   - commands/package: Fix --output path with specified folder [GH-9131]
   - providers/hyper-v: Fix enable virtualization extensions on import [GH-9255]
