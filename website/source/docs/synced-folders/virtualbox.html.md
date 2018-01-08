@@ -16,6 +16,12 @@ VirtualBox shared folders are the default synced folder type. These synced
 folders use the VirtualBox shared folder system to sync file changes from
 the guest to the host and vice versa.
 
+## Options
+
+* `SharedFoldersEnableSymlinksCreate` (boolean) - If false, will disable the
+ability to create symlinks with the given virtualbox shared folder. Defaults to
+true if the option is not present.
+
 ## Caveats
 
 There is a [VirtualBox bug][sendfile bug] related to `sendfile` which can result

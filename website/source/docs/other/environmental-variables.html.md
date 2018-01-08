@@ -211,3 +211,10 @@ but just a filename.
 This environmental variable is commonly used in scripting environments
 where a single folder may contain multiple Vagrantfiles representing
 different configurations.
+
+## `VAGRANT_DISABLE_VBOXSYMLINKCREATE`
+
+If set, this will disable the ability to create symlinks with all virtualbox
+shared folders. Defaults to true if the option is not set. This can be overriden
+on a per-folder basis within your Vagrantfile config by settings the
+`SharedFoldersEnableSymlinksCreate` option to true.
