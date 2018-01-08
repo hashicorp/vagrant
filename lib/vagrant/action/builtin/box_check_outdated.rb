@@ -69,6 +69,7 @@ module Vagrant
             env[:ui].warn(I18n.t(
               "vagrant.box_outdated_single",
               name: update[0].name,
+              provider: box.provider,
               current: box.version,
               latest: update[1].version))
           else

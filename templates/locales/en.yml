@@ -36,7 +36,7 @@ en:
     box_loading_metadata: |-
       Loading metadata for box '%{name}'
     box_outdated: |-
-      * '%{name}' is outdated! Current: %{current}. Latest: %{latest}
+      * '%{name}' for '%{provider}' is outdated! Current: %{current}. Latest: %{latest}
     box_outdated_checking_with_refresh: |-
       Checking if box '%{name}' is up to date...
     box_outdated_local: |-
@@ -58,20 +58,20 @@ en:
       Error loading box metadata while attempting to check for
       updates: %{message}
     box_outdated_single: |-
-      A newer version of the box '%{name}' is available! You currently
-      have version '%{current}'. The latest is version '%{latest}'. Run
-      `vagrant box update` to update.
+      A newer version of the box '%{name}' for provider '%{provider}' is
+      available! You currently have version '%{current}'. The latest is version
+      '%{latest}'. Run `vagrant box update` to update.
     box_outdated_metadata_error: |-
-      * '%{name}': Error loading metadata: %{message}
+      * '%{name}' for '%{provider}': Error loading metadata: %{message}
     box_outdated_no_metadata: |-
-      * '%{name}' wasn't added from a catalog, no version information
+      * '%{name}' for '%{provider}' wasn't added from a catalog, no version information
     box_updating: |-
       Updating '%{name}' with provider '%{provider}' from version
       '%{old}' to '%{new}'...
     box_update_checking: |-
       Checking for updates to '%{name}'
     box_up_to_date: |-
-      * '%{name}' (v%{version}) is up to date
+      * '%{name}' for '%{provider}' (v%{version}) is up to date
     box_up_to_date_single: |-
       Box '%{name}' (v%{version}) is running the latest version.
     cfengine_bootstrapping: |-
