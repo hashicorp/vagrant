@@ -51,15 +51,12 @@ module VagrantPlugins
         def outdated_global(download_options)
           boxes = {}
           @env.boxes.all.reverse.each do |name, version, provider|
-            next if boxes[name]
-            boxes[name] = @env.boxes.find(name, provider, version)
-          end
-
-          boxes.values.each do |box|
+            box = @env.boxes.find(name, provider, version)
             if !box.metadata_url
               @env.ui.output(I18n.t(
                 "vagrant.box_outdated_no_metadata",
-                name: box.name))
+                name: box.name,
+                provider: box.provider))
               next
             end
 
@@ -70,6 +67,7 @@ module VagrantPlugins
               @env.ui.error(I18n.t(
                 "vagrant.box_outdated_metadata_error",
                 name: box.name,
+                provider: box.provider,
                 message: e.extra_data[:message]))
               next
             end
@@ -80,11 +78,13 @@ module VagrantPlugins
               @env.ui.success(I18n.t(
                 "vagrant.box_up_to_date",
                 name: box.name,
+                provider: box.provider,
                 version: box.version))
             else
               @env.ui.warn(I18n.t(
                 "vagrant.box_outdated",
                 name: box.name,
+                provider: box.provider,
                 current: box.version,
                 latest: latest.to_s,))
             end
