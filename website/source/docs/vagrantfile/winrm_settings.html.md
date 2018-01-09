@@ -51,7 +51,7 @@ to use port 4567 to talk to the guest if there is no other option.
 
 <hr>
 
-`config.winrm.transport` - The transport used for WinRM communication. Valid settings include: `:negotiate`, `ssl`, and `:plaintext`. The default is `:negotiate`.
+`config.winrm.transport` - The transport used for WinRM communication. Valid settings include: `:negotiate`, `:ssl`, and `:plaintext`. The default is `:negotiate`.
 
 <hr>
 
