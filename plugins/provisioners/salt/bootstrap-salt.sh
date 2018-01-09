@@ -1,6 +1,6 @@
 #!/bin/sh -
 
-cd `mktemp --directory`
+cd `mktemp -d`
 
 # We just download the bootstrap script by default and execute that.
 if [ -x /usr/bin/fetch ]; then
