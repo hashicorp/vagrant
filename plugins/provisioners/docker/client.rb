@@ -132,7 +132,6 @@ module VagrantPlugins
           docker run #{args}
         ]
 
-        name = container_name(config)
         sha  = Digest::SHA1.hexdigest(args)
         container_data_path(config).open("w+") do |f|
           f.write(sha)
