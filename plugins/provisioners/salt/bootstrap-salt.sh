@@ -1,5 +1,7 @@
 #!/bin/sh -
 
+cd `mktemp --directory`
+
 # We just download the bootstrap script by default and execute that.
 if [ -x /usr/bin/fetch ]; then
     /usr/bin/fetch -o bootstrap-salt.sh https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable/bootstrap-salt.sh
