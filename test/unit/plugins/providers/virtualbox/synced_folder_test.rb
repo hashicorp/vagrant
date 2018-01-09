@@ -5,6 +5,7 @@ require Vagrant.source_root.join("plugins/providers/virtualbox/config")
 require Vagrant.source_root.join("plugins/providers/virtualbox/synced_folder")
 
 describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
+  include_context "unit"
   let(:machine) do
     double("machine").tap do |m|
       allow(m).to receive(:provider_config).and_return(VagrantPlugins::ProviderVirtualBox::Config.new)
@@ -37,12 +38,54 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
 
   describe "prepare" do
     let(:driver) { double("driver") }
+    let(:provider) { double("driver", driver: driver) }
+    let(:folders) { {"/folder"=>
+                      {:SharedFoldersEnableSymlinksCreate=>true,
+                       :guestpath=>"/folder",
+                       :hostpath=>"/Users/brian/vagrant-folder",
+                       :disabled=>false,
+                       :__vagrantfile=>true}} }
+
+    let(:folders_disabled) { {"/folder"=>
+                                {:SharedFoldersEnableSymlinksCreate=>false,
+                                 :guestpath=>"/folder",
+                                 :hostpath=>"/Users/brian/vagrant-folder",
+                                 :disabled=>false,
+                                 :__vagrantfile=>true}} }
+
+    let(:folders_nosymvar) { {"/folder"=>
+                                {:guestpath=>"/folder",
+                                 :hostpath=>"/Users/brian/vagrant-folder",
+                                 :disabled=>false,
+                                 :__vagrantfile=>true}} }
 
     before do
-      allow(machine).to receive(:driver).and_return(driver)
+      allow(machine).to receive(:provider).and_return(provider)
     end
 
-    it "should share the folders"
+    it "should prepare and share the folders" do
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>true}])
+      subject.prepare(machine, folders, nil)
+    end
+
+    it "should prepare and share the folders without symlinks enabled" do
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>false}])
+      subject.prepare(machine, folders_disabled, nil)
+    end
+
+    it "should prepare and share the folders without symlinks enabled with env var set" do
+      stub_env('VAGRANT_DISABLE_VBOXSYMLINKCREATE'=>'1')
+
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>false}])
+      subject.prepare(machine, folders_nosymvar, nil)
+    end
+
+    it "should prepare and share the folders and override symlink setting" do
+      stub_env('VAGRANT_DISABLE_VBOXSYMLINKCREATE'=>'1')
+
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>true}])
+      subject.prepare(machine, folders, nil)
+    end
   end
 
   describe "os_friendly_id" do

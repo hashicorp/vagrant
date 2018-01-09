@@ -103,12 +103,23 @@ module VagrantPlugins
             hostpath = Vagrant::Util::Platform.cygwin_windows_path(hostpath)
           end
 
+          sharefoldersenablesymlinkscreate = true
+
+          if ENV['VAGRANT_DISABLE_VBOXSYMLINKCREATE']
+            sharefoldersenablesymlinkscreate = false
+          end
+
+          unless data[:SharedFoldersEnableSymlinksCreate].nil?
+            sharefoldersenablesymlinkscreate = data[:SharedFoldersEnableSymlinksCreate]
+          end
+
           # Only setup the shared folders that match our transient level
           if (!!data[:transient]) == transient
             defs << {
               name: os_friendly_id(id),
               hostpath: hostpath.to_s,
               transient: transient,
+              SharedFoldersEnableSymlinksCreate: sharefoldersenablesymlinkscreate
             }
           end
         end
