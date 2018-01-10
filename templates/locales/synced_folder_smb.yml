@@ -10,6 +10,8 @@ en:
       You will be asked for the username and password to use for the SMB
       folders shortly. Please use the proper username/password of your
       Windows account.
+    incorrect_credentials: |-
+      Credentials incorrect. Please try again.
 
     errors:
       define_share_failed: |-
