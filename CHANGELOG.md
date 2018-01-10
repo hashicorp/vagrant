@@ -13,6 +13,7 @@ IMPROVEMENTS:
   - core: Print more helpful error message for NameEror exceptions in Vagrantfiles [GH-9252]
   - docs: Include virtualbox 5.2.x as supported in docs [GH-9237]
   - docs: Improve how to pipe debug log on powershell [GH-9330]
+  - guests/debian: Update guest configure networks [GH-9338]
   - guests/dragonflybsd: Base guest on FreeBSD to inherit more functionality [GH-9205]
   - providers/hyper-v: Ensure Hyper-V cmdlets are fully qualified [GH-8863]
   - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
