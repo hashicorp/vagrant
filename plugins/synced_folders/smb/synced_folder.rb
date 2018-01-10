@@ -22,11 +22,6 @@ module VagrantPlugins
           return false
         end
 
-        if !Vagrant::Util::Platform.windows_admin?
-          raise Errors::WindowsAdminRequired if raise_error
-          return false
-        end
-
         psv = Vagrant::Util::PowerShell.version.to_i
         if psv < 3
           if raise_error

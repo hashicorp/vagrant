@@ -9,7 +9,7 @@ Param(
 $ErrorAction = "Stop"
 
 if (net share | Select-String $share_name) {
-  net share $share_name /delete /y
+    Start-Process -Wait -Verb runAs -FilePath "net" -ArgumentList ("share", "$share_name", "/delete", "/y")
 }
 
 # The names of the user are language dependent!
@@ -35,10 +35,11 @@ if (![string]::IsNullOrEmpty($host_share_username)) {
     #>
 }
 
-$result = net share $share_name=$path /unlimited /GRANT:$grant
-if ($LastExitCode -eq 0) {
+$process = Start-Process -PassThru -Wait -Verb runAs -FilePath "net" -ArgumentList ("share", "$share_name=$path", "/unlimited", "/GRANT:$grant")
+if ($process.ExitCode -eq 0) {
     exit 0
 }
 
-$host.ui.WriteErrorLine("Error: $result")
+$host.ui.WriteErrorLine("Error: net share $share_name=$path /unlimited /GRANT:$grant returned error code $($process.ExitCode)")
+
 exit 1
