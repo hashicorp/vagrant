@@ -31,7 +31,7 @@ module VagrantPlugins
           if recurse
             ret_cmd = "rm #{dir} -recurse -force"
           else
-            ret_cmd = "rm #{dir} -force"
+            ret_cmd = "if (Test-Path #{dir}) {Remove-Item #{dir} -force}"
           end
           return ret_cmd
         end
