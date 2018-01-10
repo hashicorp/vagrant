@@ -1,5 +1,6 @@
 require "digest/md5"
 require "json"
+require "etc"
 
 require "log4r"
 
@@ -57,8 +58,14 @@ module VagrantPlugins
 
         if !have_auth
           machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          @creds[:username] = machine.ui.ask("Username: ")
+          login_name = Etc.getlogin
+          @creds[:username] = machine.ui.ask("Username [#{login_name}]:")
           @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+
+          # Use the login name if the user hit enter during the credential input.
+          if "" == @creds[:username]
+            @creds[:username] = login_name
+          end
         end
 
         folders.each do |id, data|
@@ -70,7 +77,7 @@ module VagrantPlugins
           args = []
           args << "-path" << "\"#{hostpath.gsub("/", "\\")}\""
           args << "-share_name" << data[:smb_id]
-          #args << "-host_share_username" << @creds[:username]
+          args << "-host_share_username" << @creds[:username]
 
           r = Vagrant::Util::PowerShell.execute(script_path, *args)
           if r.exit_code != 0
