@@ -15,11 +15,27 @@ module Vagrant
           comm.test("systemctl | grep '^-\.mount'")
         end
 
+        # systemd-networkd.service is in use
+        #
+        # @return [Boolean]
+        def systemd_networkd?(comm)
+          comm.test("sudo systemctl status systemd-networkd.service")
+        end
+
         # systemd hostname set is via hostnamectl
         #
         # @return [Boolean]
         def hostnamectl?(comm)
           comm.test("hostnamectl")
+        end
+
+        ## netplan helpers
+
+        # netplan is installed
+        #
+        # @return [Boolean]
+        def netplan?(comm)
+          comm.test("netplan -h")
         end
 
         ## nmcli helpers
