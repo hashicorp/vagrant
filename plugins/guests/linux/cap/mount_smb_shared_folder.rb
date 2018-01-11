@@ -24,7 +24,7 @@ module VagrantPlugins
           smb_password = options[:smb_password]
 
           options[:mount_options] ||= []
-          options[:mount_options] << "sec=ntlm"
+          options[:mount_options] << "sec=ntlm" unless options[:mount_options].grep(/^sec=/) || options.fetch(:nosec, false)
           options[:mount_options] << "credentials=/etc/smb_creds_#{name}"
 
           mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
