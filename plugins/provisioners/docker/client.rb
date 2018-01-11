@@ -128,8 +128,9 @@ module VagrantPlugins
         args = container_run_args(config)
 
         @machine.communicate.sudo %[rm -f #{config[:cidfile]}
-                                    docker run #{args}
-        ]
+                                  ]
+        @machine.communicate.sudo %[docker run #{args}
+                                  ]
 
         sha  = Digest::SHA1.hexdigest(args)
         container_data_path(config).open("w+") do |f|
