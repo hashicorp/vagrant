@@ -64,6 +64,7 @@ $ vagrant up --debug &> vagrant.log
 ```
 
 On Windows in PowerShell (outputs to log and screen):
+
 ```
 $ vagrant up --debug 2>&1 | Tee-Object -FilePath ".\vagrant.log"
 ```
