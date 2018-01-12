@@ -16,6 +16,7 @@ IMPROVEMENTS:
   - guests/amazon: Improve guest detection [GH-9307]
   - guests/debian: Update guest configure networks [GH-9338]
   - guests/dragonflybsd: Base guest on FreeBSD to inherit more functionality [GH-9205]
+  - guests/linux: Improve NFS service name detection and interactions [GH-9274]
   - guests/solaris: Improve guest detection for alternatives [GH-9295]
   - providers/hyper-v: Ensure Hyper-V cmdlets are fully qualified [GH-8863]
   - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
