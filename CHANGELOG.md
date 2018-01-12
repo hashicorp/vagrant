@@ -6,6 +6,7 @@ FEATURES:
   - core: Relax Ruby constraints to include 2.5 [GH-9363]
   - command/init: Support custom Vagrantfile templates [GH-9202]
   - guests: Add support for the Haiku operating system [GH-7805, GH-9245]
+  - synced_folders/smb: Add support for macOS hosts [GH-9294]
   - vagrant-spec: Update vagrant-spec to include Windows platforms and updated linux boxes [GH-9183]
 
 IMPROVEMENTS:
@@ -25,6 +26,7 @@ IMPROVEMENTS:
   - providers/virtualbox: Add a clean error message for invalid IP addresses [GH-9275]
   - providers/virtualbox: Introduce flag for SharedFoldersEnableSymlinksCreate setting [GH-9354]
   - provisioners/salt: Fixes timeout issue in salt bootstrapping for windows [GH-8992]
+  - synced_folders/smb: Update Windows implementation [GH-9294]
 
 BUG FIXES:
 
