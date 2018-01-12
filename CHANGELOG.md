@@ -6,6 +6,7 @@ FEATURES:
   - core: Relax Ruby constraints to include 2.5 [GH-9363]
   - command/init: Support custom Vagrantfile templates [GH-9202]
   - guests: Add support for the Haiku operating system [GH-7805, GH-9245]
+  - vagrant-spec: Update vagrant-spec to include Windows platforms and updated linux boxes [GH-9183]
 
 IMPROVEMENTS:
 
