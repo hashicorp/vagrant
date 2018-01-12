@@ -16,6 +16,7 @@ module Vagrant
           @keys              = keys || {}
           @config_map        = config_map
           @missing_key_calls = Set.new
+          @logger            = Log4r::Logger.new("vagrant::config")
         end
 
         # We use method_missing as a way to get the configuration that is
@@ -30,6 +31,7 @@ module Vagrant
             @keys[name] = config_klass.new
             return @keys[name]
           else
+            @logger.debug("missing key request name=#{name} loc=#{caller.first}")
             # Record access to a missing key as an error
             @missing_key_calls.add(name.to_s)
             return DummyConfig.new
