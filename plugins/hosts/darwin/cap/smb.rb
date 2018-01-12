@@ -41,6 +41,7 @@ module VagrantPlugins
                 stderr: result.stderr,
                 stdout: result.stdout
             end
+            Vagrant::Util::Subprocess.execute("/usr/bin/sudo", "/bin/launchctl", "start", "com.apple.smbd")
           end
         end
 
