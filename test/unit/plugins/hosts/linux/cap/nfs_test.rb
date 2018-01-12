@@ -24,13 +24,56 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
     @original_exports_path = VagrantPlugins::HostLinux::Cap::NFS::NFS_EXPORTS_PATH
     VagrantPlugins::HostLinux::Cap::NFS.send(:remove_const, :NFS_EXPORTS_PATH)
     VagrantPlugins::HostLinux::Cap::NFS.const_set(:NFS_EXPORTS_PATH, tmp_exports_path.to_s)
+    allow(Vagrant::Util::Subprocess).to receive(:execute).with("systemctl", "list-units", any_args).
+      and_return(Vagrant::Util::Subprocess::Result.new(1, "", ""))
+    allow(Vagrant::Util::Platform).to receive(:systemd?).and_return(false)
   end
 
   after do
     VagrantPlugins::HostLinux::Cap::NFS.send(:remove_const, :NFS_EXPORTS_PATH)
     VagrantPlugins::HostLinux::Cap::NFS.const_set(:NFS_EXPORTS_PATH, @original_exports_path)
+    VagrantPlugins::HostLinux::Cap::NFS.reset!
     File.unlink(tmp_exports_path.to_s) if File.exist?(tmp_exports_path.to_s)
     @tmp_exports = nil
+  end
+
+  describe ".nfs_service_name_systemd" do
+    let(:cap){ VagrantPlugins::HostLinux::Cap::NFS }
+
+    context "without service match" do
+      it "should use default service name" do
+        expect(cap.nfs_service_name_systemd).to eq(cap.const_get(:NFS_DEFAULT_NAME_SYSTEMD))
+      end
+    end
+
+    context "with service match" do
+      let(:custom_nfs_service_name){ "custom-nfs-server-service-name" }
+      before{ expect(Vagrant::Util::Subprocess).to receive(:execute).with("systemctl", "list-units", any_args).
+          and_return(Vagrant::Util::Subprocess::Result.new(0, custom_nfs_service_name, "")) }
+
+      it "should use the matched service name" do
+        expect(cap.nfs_service_name_systemd).to eq(custom_nfs_service_name)
+      end
+    end
+  end
+
+  describe ".nfs_service_name_sysv" do
+    let(:cap){ VagrantPlugins::HostLinux::Cap::NFS }
+
+    context "without service match" do
+      it "should use default service name" do
+        expect(cap.nfs_service_name_sysv).to eq(cap.const_get(:NFS_DEFAULT_NAME_SYSV))
+      end
+    end
+
+    context "with service match" do
+      let(:custom_nfs_service_name){ "/etc/init.d/custom-nfs-server-service-name" }
+      before{ expect(Dir).to receive(:glob).with(/.+init\.d.+/).and_return([custom_nfs_service_name]) }
+
+      it "should use the matched service name" do
+        expect(cap.nfs_service_name_sysv).to eq(File.basename(custom_nfs_service_name))
+      end
+    end
   end
 
   describe ".nfs_check_command" do
@@ -44,7 +87,9 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
       end
     end
     context "with systemd" do
-      before{ expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(true) }
+      before do
+        expect(Vagrant::Util::Platform).to receive(:systemd?).and_return(true)
+      end
 
       it "should use systemctl" do
         expect(cap.nfs_check_command(env)).to include("systemctl")
@@ -162,6 +207,8 @@ EOH
 
     before do
       allow(ui).to receive(:info)
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("mv", any_args).
+        and_call_original
     end
 
     it "should remove entries no longer valid" do
@@ -189,6 +236,8 @@ EOH
 
     before do
       File.write(tmp_exports_path, "original content")
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("mv", any_args).
+        and_call_original
     end
 
     it "should write updated contents to file" do

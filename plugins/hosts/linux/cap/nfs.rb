@@ -9,7 +9,35 @@ module VagrantPlugins
       class NFS
 
         NFS_EXPORTS_PATH = "/etc/exports".freeze
+        NFS_DEFAULT_NAME_SYSTEMD = "nfs-server.service".freeze
+        NFS_DEFAULT_NAME_SYSV = "nfs-kernel-server".freeze
         extend Vagrant::Util::Retryable
+
+        def self.nfs_service_name_systemd
+          if !defined?(@_nfs_systemd)
+            result = Vagrant::Util::Subprocess.execute("systemctl", "list-units",
+              "*nfs*server*", "--no-pager", "--no-legend")
+            if result.exit_code == 0
+              @_nfs_systemd = result.stdout.to_s.split(/\s+/).first
+            end
+            if @_nfs_systemd.to_s.empty?
+              @_nfs_systemd = NFS_DEFAULT_NAME_SYSTEMD
+            end
+          end
+          @_nfs_systemd
+        end
+
+        def self.nfs_service_name_sysv
+          if !defined?(@_nfs_sysv)
+            @_nfs_sysv = Dir.glob("/etc/init.d/*nfs*server*").first.to_s
+            if @_nfs_sysv.empty?
+              @_nfs_sysv = NFS_DEFAULT_NAME_SYSV
+            else
+              @_nfs_sysv = File.basename(@_nfs_sysv)
+            end
+          end
+          @_nfs_sysv
+        end
 
         def self.nfs_apply_command(env)
           "exportfs -ar"
@@ -17,17 +45,17 @@ module VagrantPlugins
 
         def self.nfs_check_command(env)
           if Vagrant::Util::Platform.systemd?
-            "systemctl status --no-pager nfs-server.service"
+            "systemctl status --no-pager #{nfs_service_name_systemd}"
           else
-            "/etc/init.d/nfs-kernel-server status"
+            "/etc/init.d/#{nfs_service_name_sysv} status"
           end
         end
 
         def self.nfs_start_command(env)
           if Vagrant::Util::Platform.systemd?
-            "systemctl start nfs-server.service"
+            "systemctl start #{nfs_service_name_systemd}"
           else
-            "/etc/init.d/nfs-kernel-server start"
+            "/etc/init.d/#{nfs_service_name_sysv} start"
           end
         end
 
@@ -63,7 +91,7 @@ module VagrantPlugins
           if Vagrant::Util::Platform.systemd?
             Vagrant::Util::Subprocess.execute("/bin/sh", "-c",
               "systemctl --no-pager --no-legend --plain list-unit-files --all --type=service " \
-                "| grep nfs-server.service").exit_code == 0
+                "| grep #{nfs_service_name_systemd}").exit_code == 0
           else
             Vagrant::Util::Subprocess.execute("modinfo", "nfsd").exit_code == 0 ||
               Vagrant::Util::Subprocess.execute("grep", "nfsd", "/proc/filesystems").exit_code == 0
@@ -232,6 +260,13 @@ module VagrantPlugins
 
         def self.nfs_running?(check_command)
           Vagrant::Util::Subprocess.execute(*Shellwords.split(check_command)).exit_code == 0
+        end
+
+        # @private
+        # Reset the cached values for capability. This is not considered a public
+        # API and should only be used for testing.
+        def self.reset!
+          instance_variables.each(&method(:remove_instance_variable))
         end
       end
     end
