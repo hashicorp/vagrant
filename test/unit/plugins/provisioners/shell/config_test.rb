@@ -127,5 +127,26 @@ describe "VagrantPlugins::Shell::Config" do
 
       expect(subject.args).to eq ["string", '1', '2']
     end
+
+    context "with sensitive option enabled" do
+      it 'marks environment variable values sensitive' do
+        subject.env = {"KEY1" => "VAL1", "KEY2" => "VAL2"}
+        subject.sensitive = true
+
+        expect(Vagrant::Util::CredentialScrubber).to receive(:sensitive).with("VAL1")
+        expect(Vagrant::Util::CredentialScrubber).to receive(:sensitive).with("VAL2")
+        subject.finalize!
+      end
+    end
+
+    context "with sensitive option disabled" do
+      it 'does not mark environment variable values sensitive' do
+        subject.env = {"KEY1" => "VAL1", "KEY2" => "VAL2"}
+        subject.sensitive = false
+
+        expect(Vagrant::Util::CredentialScrubber).not_to receive(:sensitive)
+        subject.finalize!
+      end
+    end
   end
 end
