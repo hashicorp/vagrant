@@ -25,16 +25,19 @@ module VagrantPlugins
           # Ensure password is scrubbed
           Vagrant::Util::CredentialScrubber.sensitive(smb_password)
 
-          options[:mount_options] ||= []
+          mnt_opts = []
           if machine.env.host.capability?(:smb_mount_options)
-            options[:mount_options] += machine.env.host.capability(:smb_mount_options)
+            mnt_opts += machine.env.host.capability(:smb_mount_options)
           else
-            options[:mount_options] << "sec=ntlm"
+            mnt_opts << "sec=ntlmssp"
           end
-          options[:mount_options] << "credentials=/etc/smb_creds_#{name}"
+          mnt_opts << "credentials=/etc/smb_creds_#{name}"
+          mnt_opts << "uid=#{mount_uid}"
+          mnt_opts << "gid=#{mount_gid}"
 
-          mount_options = "-o uid=#{mount_uid},gid=#{mount_gid}"
-          mount_options += ",#{Array(options[:mount_options]).join(",")}" if options[:mount_options]
+          mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
+
+          mount_options = "-o #{mnt_opts.join(",")}"
           mount_command = "mount -t cifs #{mount_options} #{mount_device} #{expanded_guest_path}"
 
           # Create the guest path if it doesn't exist
@@ -75,6 +78,21 @@ SCRIPT
           end
 
           emit_upstart_notification(machine, expanded_guest_path)
+        end
+
+        def self.merge_mount_options(base, overrides)
+          base = base.join(",").split(",")
+          overrides = overrides.join(",").split(",")
+          b_kv = Hash[base.map{|item| item.split("=", 2) }]
+          o_kv = Hash[overrides.map{|item| item.split("=", 2) }]
+          merged = {}.tap do |opts|
+            (b_kv.keys + o_kv.keys).uniq.each do |key|
+              opts[key] = o_kv.fetch(key, b_kv[key])
+            end
+          end
+          merged.map do |key, value|
+            [key, value].compact.join("=")
+          end
         end
       end
     end

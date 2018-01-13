@@ -7,7 +7,9 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       .guest_capabilities[:linux]
   end
 
-  let(:machine) { double("machine") }
+  let(:machine) { double("machine", env: env) }
+  let(:env) { double("env", host: host) }
+  let(:host) { double("host") }
   let(:guest) { double("guest") }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
   let(:mount_owner){ "vagrant" }
@@ -29,6 +31,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
+    allow(host).to receive(:capability?).and_return(false)
   end
 
   after do
@@ -71,6 +74,34 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
     it "sends upstart notification after mount" do
       expect(comm).to receive(:sudo).with(/emit/)
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+    end
+
+    context "with custom mount options" do
+      let(:folder_options) do
+        {
+          owner: mount_owner,
+          group: mount_group,
+          smb_host: "localhost",
+          smb_username: "user",
+          smb_password: "pass",
+          mount_options: ["ro", "sec=custom"]
+        }
+      end
+
+      it "adds given mount options to command" do
+        expect(comm).to receive(:sudo).with(/ro/, any_args)
+        cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+      end
+
+      it "replaces defined options" do
+        expect(comm).to receive(:sudo).with(/sec=custom/, any_args)
+        cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+      end
+
+      it "does not include replaced options" do
+        expect(comm).not_to receive(:sudo).with(/sec=ntlm/, any_args)
+        cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+      end
     end
   end
 end
