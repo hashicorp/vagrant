@@ -17,6 +17,16 @@ module VagrantPlugins
           true
         end
 
+        def self.smb_validate_password(env, machine, username, password)
+          script_path = File.expand_path("../../scripts/check_credentials.ps1", __FILE__)
+          args = []
+          args << "-username" << "'#{username.gsub("'", "''")}'"
+          args << "-password" << "'#{password.gsub("'", "''")}'"
+
+          r = Vagrant::Util::PowerShell.execute(script_path, *args)
+          r.exit_code == 0
+        end
+
         def self.smb_cleanup(env, machine, opts)
           script_path = File.expand_path("../../scripts/unset_share.ps1", __FILE__)
 

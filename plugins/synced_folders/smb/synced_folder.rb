@@ -11,6 +11,10 @@ require_relative "errors"
 module VagrantPlugins
   module SyncedFolderSMB
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
+
+      # Maximum number of times to retry requesting username/password
+      CREDENTIAL_RETRY_MAX = 5
+
       def initialize(*args)
         super
 
@@ -43,28 +47,27 @@ module VagrantPlugins
           end
         end
 
-        script_path = File.expand_path("../scripts/check_credentials.ps1", __FILE__)
-
         if !have_auth
           machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          auth_success = false
-          while !auth_success do
-            @creds[:username] = machine.ui.ask("Username: ")
-            @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+          retries = 0
+          while retries < CREDENTIAL_RETRY_MAX do
+            smb_username = machine.ui.ask("Username: ")
+            smb_password = machine.ui.ask("Password (will be hidden): ", echo: false)
+            auth_success = true
 
-            args = []
-            args << "-username" << "'#{@creds[:username].gsub("'", "''")}'"
-            args << "-password" << "'#{@creds[:password].gsub("'", "''")}'"
-
-            r = Vagrant::Util::PowerShell.execute(script_path, *args)
-
-            if r.exit_code == 0
-              auth_success = true
+            if machine.env.host.capability?(:smb_validate_password)
+              Vagrant::Util::CredentialScrubber.sensitive(smb_password)
+              auth_success = machine.env.host.capability(:smb_validate_password,
+                smb_username, smb_password)
             end
 
-            if !auth_success
-              machine.ui.output(I18n.t("vagrant_sf_smb.incorrect_credentials") + "\n ")
-            end
+            break if auth_success
+            machine.ui.output(I18n.t("vagrant_sf_smb.incorrect_credentials") + "\n ")
+            retries += 1
+          end
+
+          if retries >= CREDENTIAL_RETRY_MAX
+            raise Errors::CredentialsRequestError
           end
         end
 
@@ -72,8 +75,6 @@ module VagrantPlugins
         if machine.env.host.capability?(:smb_start)
           machine.env.host.capability(:smb_start)
         end
-
-        script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
 
         folders.each do |id, data|
           data[:smb_username] ||= smb_username

@@ -39,6 +39,9 @@ en:
         Vagrant SMB synced folders require the account password to be stored
         in an NT compatible format. Please update your sharing settings to
         enable a Windows compatible password and try again.
+      credentials_request_error: |-
+        Vagrant failed to receive credential information required for preparing
+        an SMB share.
       define_share_failed: |-
         Exporting an SMB share failed! Details about the failure are shown
         below. Please inspect the error message and correct any problems.
