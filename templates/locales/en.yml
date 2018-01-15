@@ -1629,6 +1629,9 @@ en:
           Unknown configuration section '%{key}'. If this section was part of
           a Vagrant 1.0.x plugin, note that 1.0.x plugins are incompatible with 1.1+.
       root:
+        sensitive_bad_type: |-
+          Invalid type provided for `sensitive`. The sensitive option expects a string
+          or an array of strings.
         bad_key: |-
           Unknown configuration section '%{key}'.
       ssh:

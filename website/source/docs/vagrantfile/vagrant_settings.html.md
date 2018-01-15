@@ -21,3 +21,7 @@ Vagrant. By default this is `:detect`, which causes Vagrant to auto-detect
 the host. Vagrant needs to know this information in order to perform some
 host-specific things, such as preparing NFS folders if they're enabled.
 You should only manually set this if auto-detection fails.
+
+`config.vagrant.sensitive` - (string, array) - Value or list of values that
+should not be displayed in Vagrant's output. Value(s) will be removed from
+Vagrant's normal UI output as well as logger output.
