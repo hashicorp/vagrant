@@ -48,14 +48,6 @@ module Vagrant
         self
       end
 
-      # Start checkpoint check
-      #
-      # @return [self]
-      def check
-        start_check
-        self
-      end
-
       # Check has completed
       def complete?
         !@checkpoint_thread.nil? && !@checkpoint_thread.alive?
@@ -78,7 +70,7 @@ module Vagrant
       # Run check
       #
       # @return [self]
-      def start_check
+      def check
         if enabled && @checkpoint_thread.nil?
           logger.debug("starting plugin check")
           @checkpoint_thread = Thread.new do
@@ -169,6 +161,15 @@ module Vagrant
         end
       end
 
+      # @private
+      # Reset the cached values for platform. This is not considered a public
+      # API and should only be used for testing.
+      def reset!
+        logger = @logger
+        instance_variables.each(&method(:remove_instance_variable))
+        @logger = logger
+        @enabled = false
+      end
     end
   end
 end
