@@ -84,7 +84,7 @@ The remainder of the available options are optional:
 * `sha1` (string) - SHA1 checksum used to validate remotely downloaded shell files.
 
 * `sensitive` (boolean) - Marks the Hash values used in the `env` option as sensitive
-  and hides them from output.
+  and hides them from output. By default this is "false".
 
 <a name="inline-scripts"></a>
 ## Inline Scripts
