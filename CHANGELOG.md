@@ -25,6 +25,7 @@ IMPROVEMENTS:
   - hosts/windows: Check credentials during SMB prepare [GH-9365]
   - providers/hyper-v: Ensure Hyper-V cmdlets are fully qualified [GH-8863]
   - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
+  - provisioners/shell: Support hiding environment variable values in output [GH-9367]
   - providers/virtualbox: Add a clean error message for invalid IP addresses [GH-9275]
   - providers/virtualbox: Introduce flag for SharedFoldersEnableSymlinksCreate setting [GH-9354]
   - provisioners/salt: Fixes timeout issue in salt bootstrapping for windows [GH-8992]
