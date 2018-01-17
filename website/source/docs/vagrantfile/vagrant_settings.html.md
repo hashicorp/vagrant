@@ -25,3 +25,7 @@ You should only manually set this if auto-detection fails.
 `config.vagrant.sensitive` - (string, array) - Value or list of values that
 should not be displayed in Vagrant's output. Value(s) will be removed from
 Vagrant's normal UI output as well as logger output.
+
+```ruby
+config.vagrant.sensitive = ["MySecretPassword", ENV["MY_TOKEN"]]
+```
