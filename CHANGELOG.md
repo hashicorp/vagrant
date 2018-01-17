@@ -4,6 +4,7 @@ FEATURES:
 
   - core: Provide mechanism for removing sensitive data from output [GH-9276]
   - core: Relax Ruby constraints to include 2.5 [GH-9363]
+  - core: Hide sensitive values in output [GH-9369]
   - command/init: Support custom Vagrantfile templates [GH-9202]
   - guests: Add support for the Haiku operating system [GH-7805, GH-9245]
   - synced_folders/smb: Add support for macOS hosts [GH-9294]
