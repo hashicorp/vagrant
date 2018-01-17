@@ -13,10 +13,8 @@ describe Vagrant::Util::Which do
     file.chmod(mode)
 
     # set the path to the directory where the file is located
-    savepath = ENV['PATH']
-    ENV['PATH'] = dir.to_s
+    allow(ENV).to receive(:[]).with("PATH").and_return(dir.to_s)
     block.call filename + test_extension
-    ENV['PATH'] = savepath
 
     file.unlink
   end
@@ -38,6 +36,15 @@ describe Vagrant::Util::Which do
   it "should return nil for a non-executable file" do
     tester '.txt', '.txt', 0644 do |name|
       expect(described_class.which(name)).to be_nil
+    end
+  end
+
+  context "original_path option" do
+    before{ allow(ENV).to receive(:[]).with("PATH").and_return("") }
+
+    it "should use the original path when instructed" do
+      expect(ENV).to receive(:fetch).with("VAGRANT_OLD_ENV_PATH", any_args).and_return("")
+      described_class.which("file", original_path: true)
     end
   end
 end
