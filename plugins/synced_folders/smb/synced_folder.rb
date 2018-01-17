@@ -11,6 +11,10 @@ require_relative "errors"
 module VagrantPlugins
   module SyncedFolderSMB
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
+
+      # Maximum number of times to retry requesting username/password
+      CREDENTIAL_RETRY_MAX = 5
+
       def initialize(*args)
         super
 
@@ -30,11 +34,6 @@ module VagrantPlugins
       def prepare(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
 
-        # Check if this host can start and SMB service
-        if machine.env.host.capability?(:smb_start)
-          machine.env.host.capability(:smb_start)
-        end
-
         smb_username = smb_password = nil
 
         # If we need auth information, then ask the user.
@@ -49,9 +48,32 @@ module VagrantPlugins
         end
 
         if !have_auth
-          machine.env.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          smb_username = machine.env.ui.ask("Username: ")
-          smb_password = machine.env.ui.ask("Password (will be hidden): ", echo: false)
+          machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
+          retries = 0
+          while retries < CREDENTIAL_RETRY_MAX do
+            smb_username = machine.ui.ask("Username: ")
+            smb_password = machine.ui.ask("Password (will be hidden): ", echo: false)
+            auth_success = true
+
+            if machine.env.host.capability?(:smb_validate_password)
+              Vagrant::Util::CredentialScrubber.sensitive(smb_password)
+              auth_success = machine.env.host.capability(:smb_validate_password,
+                smb_username, smb_password)
+            end
+
+            break if auth_success
+            machine.ui.output(I18n.t("vagrant_sf_smb.incorrect_credentials") + "\n ")
+            retries += 1
+          end
+
+          if retries >= CREDENTIAL_RETRY_MAX
+            raise Errors::CredentialsRequestError
+          end
+        end
+
+        # Check if this host can start and SMB service
+        if machine.env.host.capability?(:smb_start)
+          machine.env.host.capability(:smb_start)
         end
 
         folders.each do |id, data|

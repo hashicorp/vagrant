@@ -26,6 +26,10 @@ module VagrantPlugins
         error_key(:name_error)
       end
 
+      class CredentialsRequestError < SMBError
+        error_key(:credentials_request_error)
+      end
+
       class DefineShareFailed < SMBError
         error_key(:define_share_failed)
       end

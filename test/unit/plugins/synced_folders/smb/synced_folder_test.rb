@@ -71,8 +71,8 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
 
     context "without credentials provided" do
       before do
-        expect(machine.env.ui).to receive(:ask).and_return('username')
-        expect(machine.env.ui).to receive(:ask).and_return('password')
+        expect(machine.env.ui).to receive(:ask).with(/name/, any_args).and_return('username').at_least(1)
+        expect(machine.env.ui).to receive(:ask).with(/word/, any_args).and_return('password').at_least(1)
       end
 
       it "should prompt for credentials" do
@@ -90,6 +90,27 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
       it "should start the SMB service if capability is available" do
         expect(host).to receive(:capability).with(:smb_start, any_args)
         subject.prepare(machine, folders, options)
+      end
+
+      context "with host smb_validate_password capability" do
+        let(:host_caps){ [:smb_start, :smb_prepare, :smb_validate_password] }
+
+        it "should validate the password" do
+          expect(host).to receive(:capability).with(:smb_validate_password, 'username', 'password').and_return(true)
+          subject.prepare(machine, folders, options)
+        end
+
+        it "should retry when validation fails" do
+          expect(host).to receive(:capability).with(:smb_validate_password, 'username', 'password').and_return(false)
+          expect(host).to receive(:capability).with(:smb_validate_password, 'username', 'password').and_return(true)
+          subject.prepare(machine, folders, options)
+        end
+
+        it "should raise an error if it exceeds the maximum number of retries" do
+          expect(host).to receive(:capability).with(:smb_validate_password, 'username', 'password').and_return(false).
+            exactly(VagrantPlugins::SyncedFolderSMB::SyncedFolder::CREDENTIAL_RETRY_MAX).times
+          expect{ subject.prepare(machine, folders, options) }.to raise_error(VagrantPlugins::SyncedFolderSMB::Errors::CredentialsRequestError)
+        end
       end
     end
 
