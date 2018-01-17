@@ -22,6 +22,7 @@ IMPROVEMENTS:
   - guests/linux: Improve NFS service name detection and interactions [GH-9274]
   - guests/linux: Support mount option overrides for SMB mounts [GH-9366]
   - guests/solaris: Improve guest detection for alternatives [GH-9295]
+  - hosts/windows: Check credentials during SMB prepare [GH-9365]
   - providers/hyper-v: Ensure Hyper-V cmdlets are fully qualified [GH-8863]
   - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
   - providers/virtualbox: Add a clean error message for invalid IP addresses [GH-9275]
