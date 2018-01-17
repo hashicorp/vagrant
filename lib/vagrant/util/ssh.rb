@@ -54,23 +54,6 @@ module Vagrant
         raise Errors::SSHKeyBadPermissions, key_path: key_path
       end
 
-      def self.determine_ssh_bin(original_ssh_path)
-        begin
-          original_path_env = ENV['PATH']
-          ENV['PATH'] = ENV['VAGRANT_OLD_ENV_PATH']
-          ssh_path = Which.which("ssh")
-          puts "the path: #{ssh_path}"
-          if !ssh_path.nil?
-            LOGGER.debug("Found default ssh binary. Using that instead...")
-            original_ssh_path = ssh_path
-          end
-        ensure
-          ENV['PATH'] = original_path_env
-        end
-
-        return original_ssh_path
-      end
-
       # Halts the running of this process and replaces it with a full-fledged
       # SSH shell into a remote machine.
       #
@@ -83,7 +66,14 @@ module Vagrant
       def self.exec(ssh_info, opts={})
         # Ensure the platform supports ssh. On Windows there are several programs which
         # include ssh, notably git, mingw and cygwin, but make sure ssh is in the path!
-        ssh_path = Which.which("ssh")
+
+        # First try using the original path provided
+        ssh_path = Which.which("ssh", original_path: true)
+        # If we didn't find an ssh executable, see if we shipped one
+        if !ssh_path
+          ssh_path = Which.which("ssh")
+        end
+
         if !ssh_path
           if Platform.windows?
             raise Errors::SSHUnavailableWindows,
@@ -107,9 +97,6 @@ module Vagrant
               username: ssh_info[:username],
               key_path: ssh_info[:private_key_path].join(", ")
           end
-
-          # use system ssh if available
-          ssh_path = determine_ssh_bin(ssh_path)
         end
 
         # If plain mode is enabled then we don't do any authentication (we don't

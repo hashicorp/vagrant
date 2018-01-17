@@ -28,32 +28,6 @@ describe Vagrant::Util::SSH do
     end
   end
 
-  describe "#determine_ssh_bin" do
-    let (:original_ssh_path) { "/system/dir/bin/ssh" }
-    let (:new_ssh_path) { "/new/ssh/path/bin/ssh" }
-    let (:old_path) { "/old/path/bin:/usr/local/bin:/usr/bin" }
-
-    it "returns passed in ssh path if not found on original path" do
-      path = ENV["PATH"]
-      allow(ENV).to receive(:[]).with("PATH").and_return(path)
-      allow(ENV).to receive(:[]).with("VAGRANT_OLD_ENV_PATH").and_return(old_path)
-      allow(Vagrant::Util::Which).to receive(:which).and_return(nil)
-
-      expect(described_class.determine_ssh_bin(original_ssh_path)).to eq(original_ssh_path)
-      expect(ENV["PATH"]).to eq(path)
-    end
-
-    it "returns system ssh path if found on original path" do
-      path = ENV["PATH"]
-      allow(ENV).to receive(:[]).with("PATH").and_return(path)
-      allow(ENV).to receive(:[]).with("VAGRANT_OLD_ENV_PATH").and_return(old_path)
-      allow(Vagrant::Util::Which).to receive(:which).and_return(new_ssh_path)
-
-      expect(described_class.determine_ssh_bin(original_ssh_path)).to eq(new_ssh_path)
-      expect(ENV["PATH"]).to eq(path)
-    end
-  end
-
   describe "#exec" do
     let(:ssh_info) {{
       host: "localhost",
@@ -65,6 +39,19 @@ describe Vagrant::Util::SSH do
     }}
 
     let(:ssh_path) { "/usr/bin/ssh" }
+
+    it "searches original PATH for exectuable" do
+      expect(Vagrant::Util::Which).to receive(:which).with("ssh", original_path: true).and_return("valid-return")
+      allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
+      described_class.exec(ssh_info)
+    end
+
+    it "searches current PATH if original PATH did not result in valid executable" do
+      expect(Vagrant::Util::Which).to receive(:which).with("ssh", original_path: true).and_return(nil)
+      expect(Vagrant::Util::Which).to receive(:which).with("ssh").and_return("valid-return")
+      allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
+      described_class.exec(ssh_info)
+    end
 
     it "raises an exception if there is no ssh" do
       allow(Vagrant::Util::Which).to receive(:which).and_return(nil)
