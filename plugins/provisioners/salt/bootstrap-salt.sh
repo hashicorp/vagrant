@@ -1,12 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #
 # Download the bootstrap script and execute it.
 
 # Move an existing bootstrap-salt.sh out of the way, if present.
-function rename_old_bootstrap()
+rename_old_bootstrap()
 {
-    local BOOTSTRAP_LOCAL_OLD="$(mktemp /tmp/bootstrap-salt-old.XXXXXXXX)"
-
     if [ -s "${BOOTSTRAP_LOCAL}" -a -e "${BOOTSTRAP_LOCAL_OLD}" ]
     then
         mv -f "${BOOTSTRAP_LOCAL}" "${BOOTSTRAP_LOCAL_OLD}"
@@ -19,7 +17,7 @@ function rename_old_bootstrap()
 }
 
 # Remove bad/old bootstrap script(s) and temp CA file.
-function cleanup()
+cleanup()
 {
     if [ -s "${BOOTSTRAP_LOCAL}" ]
     then
@@ -39,69 +37,68 @@ function cleanup()
 }
 
 # Restore a valid old copy of the bootstrap script, if present.
-function old_ver()
+old_ver()
 {
     if [ -s "${BOOTSTRAP_LOCAL_OLD}" ]
     then
         echo "Notice: Failed fetching ${BOOTSTRAP_LOCAL##*/}"
         echo "Old version located locally. Using that instead."
-        DL_CMD=(mv -f "${BOOTSTRAP_LOCAL_OLD}" "${BOOTSTRAP_LOCAL}")
+        mv -f "${BOOTSTRAP_LOCAL_OLD}" "${BOOTSTRAP_LOCAL}"
     else
-        # Deliberately set to a command that will fail.
-        DL_CMD=(false)
+        return 1
     fi
 }
 
-# Set DL_CMD to a suitable command array to try.
-function get_dl_cmd()
+# Generate and execute a requested download command.
+get_dl_cmd()
 {
-    local dl_util="${1}"
-    local use_cert=${2}
-
-    DL_CMD=(${dl_util})
+    dl_util="${1}"
+    use_cert=${2}
+    cert_args=""
 
     case "${dl_util}" in
         curl)
-            if [ ${use_cert} -eq 1 ]
+            if [ ${use_cert} -ne 0 ]
             then
-                DL_CMD=(${DL_CMD[@]} --cacert "${GITHUB_CA_FILE}")
+                cert_args="--cacert ${GITHUB_CA_FILE}"
             fi
-            DL_CMD=(${DL_CMD[@]} -s -L -o "${BOOTSTRAP_LOCAL}"
-                    "${BOOTSTRAP_URL}")
+            ${dl_util} ${cert_args} -s -L -o "${BOOTSTRAP_LOCAL}" \
+                       "${BOOTSTRAP_URL}"
             ;;
         fetch)
-            if [ ${use_cert} -eq 1 ]
+            if [ ${use_cert} -ne 0 ]
             then
-                DL_CMD=(${DL_CMD[@]} --ca-cert="${GITHUB_CA_FILE}")
+                cert_args="--ca-cert=${GITHUB_CA_FILE}"
             fi
-            DL_CMD=(${DL_CMD[@]} -o "${BOOTSTRAP_LOCAL}" "${BOOTSTRAP_URL}")
+            ${dl_util} ${cert_args} -o "${BOOTSTRAP_LOCAL}" \
+                        "${BOOTSTRAP_URL}"
             ;;
         old_ver)
             if [ ${use_cert} -ne 0 ]
             then
                 # Certificate check not applicable here.
-                DL_CMD=(false)
+                return 1
             else
                 old_ver
             fi
             ;;
         python)
-            if [ ${use_cert} -eq 1 ]
+            if [ ${use_cert} -ne 0 ]
             then
                 # Python version currently unimplemented.
-                DL_CMD=(false)
-            else
-                DL_CMD=(${DL_CMD[@]} -c
-                        "import urllib; urllib.urlretrieve('${BOOTSTRAP_URL}', '${BOOTSTRAP_LOCAL}')")
+                return 1
             fi
+            ${dl_util} -c \
+                       "import urllib; urllib.urlretrieve('${BOOTSTRAP_URL}', '${BOOTSTRAP_LOCAL}')" \
+                       2>/dev/null
             ;;
         wget)
-            if [ ${use_cert} -eq 1 ]
+            if [ ${use_cert} -ne 0 ]
             then
-                DL_CMD=(${DL_CMD[@]} --ca-certificate="${GITHUB_CA_FILE}")
+                cert_args="--ca-certificate=${GITHUB_CA_FILE}"
             fi
-            DL_CMD=(${DL_CMD[@]} -q -O "${BOOTSTRAP_LOCAL}"
-                    "${BOOTSTRAP_URL}")
+            ${dl_util} ${cert_args} -q -O "${BOOTSTRAP_LOCAL}" \
+                        "${BOOTSTRAP_URL}"
             ;;
         *)
             {
@@ -112,15 +109,14 @@ function get_dl_cmd()
     esac
 }
 
-# Execute the command in the DL_CMD global array.
-function exec_dl_cmd()
+# Trigger download command calls.
+exec_dl_cmd()
 {
-    local dl_util="${1}"
-    local -i use_cert=${2-0}
+    dl_util="${1}"
+    use_cert=${2-0}
+    dl_cmd_result=0
 
     get_dl_cmd "${dl_util}" ${use_cert}
-
-    "${DL_CMD[@]}"
     dl_cmd_result=${?}
 
     if [ ${dl_cmd_result} -eq 0 -a -s "${BOOTSTRAP_LOCAL}" ]
@@ -140,14 +136,11 @@ function exec_dl_cmd()
 }
 
 # Fetch the required Salt bootstrap script.
-function fetch_bootstrap_sh()
+fetch_bootstrap_sh()
 {
-    local dl_util
-    local -i dl_cmd_result=0
-
     for dl_util in "${@}"
     do
-        if command -v ${dl_util} 1>/dev/null
+        if [ -n "$(which ${dl_util})" ] || [ "${dl_util}" = "old_ver" ]
         then
             exec_dl_cmd ${dl_util}
             if [ ${?} -eq 0 ]
@@ -168,7 +161,7 @@ function fetch_bootstrap_sh()
 }
 
 # Execute the Salt bootstrap script.
-function run_bootstrap_sh()
+run_bootstrap_sh()
 {
     if [ -s "${BOOTSTRAP_LOCAL}" ]
     then
@@ -180,11 +173,10 @@ function run_bootstrap_sh()
 
 # Begin execution.
 
-declare -r BOOTSTRAP_URL="https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable/bootstrap-salt.sh"
-declare -r BOOTSTRAP_LOCAL="${HOME}/bootstrap-salt.sh"
-declare -r BOOTSTRAP_LOCAL_OLD="$(rename_old_bootstrap)"
-declare -a DL_CMD=()
-declare -r GITHUB_CA_FILE="$(mktemp /tmp/bootstrap-salt-ca.XXXXXXXX)"
+BOOTSTRAP_URL="https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable/bootstrap-salt.sh"
+BOOTSTRAP_LOCAL="${HOME}/bootstrap-salt.sh"
+BOOTSTRAP_LOCAL_OLD="$(mktemp /tmp/bootstrap-salt-old.XXXXXXXX)"
+GITHUB_CA_FILE="$(mktemp /tmp/bootstrap-salt-ca.XXXXXXXX)"
 cat <<EOF >>"${GITHUB_CA_FILE}"
 -----BEGIN CERTIFICATE-----
 MIIDxTCCAq2gAwIBAgIQAqxcJmoLQJuPC3nyrkYldzANBgkqhkiG9w0BAQUFADBs
@@ -213,5 +205,6 @@ EOF
 
 trap cleanup EXIT
 
+rename_old_bootstrap
 fetch_bootstrap_sh curl fetch python wget old_ver
 run_bootstrap_sh "${@}"
