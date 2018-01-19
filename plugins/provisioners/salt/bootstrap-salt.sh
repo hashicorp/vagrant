@@ -33,7 +33,14 @@ cleanup()
         rm -f "${BOOTSTRAP_LOCAL_OLD}" "${BOOTSTRAP_LOCAL}"
     fi
 
-    rm -f "${GITHUB_CA_FILE}"
+    if [ ${KEEP_BOOTSTRAP} -eq 0 ]
+    then
+        rm -f "${BOOTSTRAP_LOCAL}"
+    fi
+
+    # Remove the CA certificate and this script from the guest
+    # unconditionally.
+    rm -f "${GITHUB_CA_FILE}" "${0}"
 }
 
 # Restore a valid old copy of the bootstrap script, if present.
@@ -165,7 +172,7 @@ run_bootstrap_sh()
 {
     if [ -s "${BOOTSTRAP_LOCAL}" ]
     then
-        sh "${BOOTSTRAP_LOCAL}" "$@"
+        sh "${BOOTSTRAP_LOCAL}" "$@" || { KEEP_BOOTSTRAP=1 && exit 1 ; }
     else
         exit 1
     fi
@@ -177,6 +184,7 @@ BOOTSTRAP_URL="https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable
 BOOTSTRAP_LOCAL="${HOME}/bootstrap-salt.sh"
 BOOTSTRAP_LOCAL_OLD="$(mktemp /tmp/bootstrap-salt-old.XXXXXXXX)"
 GITHUB_CA_FILE="$(mktemp /tmp/bootstrap-salt-ca.XXXXXXXX)"
+KEEP_BOOTSTRAP=0
 cat <<EOF >>"${GITHUB_CA_FILE}"
 -----BEGIN CERTIFICATE-----
 MIIDxTCCAq2gAwIBAgIQAqxcJmoLQJuPC3nyrkYldzANBgkqhkiG9w0BAQUFADBs
