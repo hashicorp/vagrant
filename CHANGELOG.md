@@ -15,6 +15,7 @@ IMPROVEMENTS:
   - config/ssh: Deprecate :paranoid in favor of :verify_host_key [GH-9341]
   - core: Add optional timestamp prefix on log output [GH-9269]
   - core: Print more helpful error message for NameEror exceptions in Vagrantfiles [GH-9252]
+  - core: Update checkpoint implementation to announce updates and support notifications [GH-9380]
   - docs: Include virtualbox 5.2.x as supported in docs [GH-9237]
   - docs: Improve how to pipe debug log on powershell [GH-9330]
   - guests/amazon: Improve guest detection [GH-9307]
