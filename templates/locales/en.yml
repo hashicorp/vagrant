@@ -1,5 +1,10 @@
 en:
   vagrant:
+    alert: |-
+      [%{date}]:
+        %{message}
+
+        - %{url}
     boot_completed: |-
       Machine booted and ready!
     boot_waiting: |-
@@ -283,6 +288,10 @@ en:
     version_no_checkpoint: |-
       Vagrant was unable to check for the latest version of Vagrant.
       Please check manually at https://www.vagrantup.com
+    version_upgrade_available: |-
+      A new version of Vagrant is available: %{latest_version}!
+      To upgrade visit: https://www.vagrantup.com/downloads.html
+
     version_upgrade_howto: |-
       To upgrade to the latest version, visit the downloads page and
       download and install the latest version of Vagrant from the URL
