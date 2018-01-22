@@ -129,4 +129,20 @@ module Vagrant
       true
     end
   end
+
+  # Use Ruby Resolv in place of libc
+  #
+  # @return [boolean] enabled or not
+  def self.enable_resolv_replace
+    if !ENV["VAGRANT_DISABLE_RESOLV_REPLACE"]
+      begin
+        require "resolv-replace"
+        true
+      rescue
+        false
+      end
+    else
+      false
+    end
+  end
 end

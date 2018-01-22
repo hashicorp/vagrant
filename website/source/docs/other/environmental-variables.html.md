@@ -218,3 +218,9 @@ If set, this will disable the ability to create symlinks with all virtualbox
 shared folders. Defaults to true if the option is not set. This can be overriden
 on a per-folder basis within your Vagrantfile config by settings the
 `SharedFoldersEnableSymlinksCreate` option to true.
+
+## `VAGRANT_DISABLE_RESOLV_REPLACE`
+
+Vagrant will automatically load `resolv-replace` to use Ruby's Resolv library
+in place of the libc resolver. This behavior can be disabled by setting this
+environment variable.
