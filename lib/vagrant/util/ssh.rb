@@ -72,6 +72,10 @@ module Vagrant
         # If we didn't find an ssh executable, see if we shipped one
         if !ssh_path
           ssh_path = Which.which("ssh")
+          if ssh_path && Platform.windows? && (Platform.cygwin? || Platform.msys?)
+            LOGGER.warn("Failed to locate native SSH executable. Using vendored version.")
+            LOGGER.warn("If display issues are encountered, install the ssh package for your environment.")
+          end
         end
 
         if !ssh_path
