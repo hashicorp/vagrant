@@ -254,6 +254,12 @@ if I18n.config.respond_to?(:enforce_available_locales=)
   I18n.config.enforce_available_locales = true
 end
 
+if Vagrant.enable_resolv_replace
+  global_logger.info("resolv replacement has been enabled!")
+else
+  global_logger.warn("resolv replacement has not been enabled!")
+end
+
 # Setup the plugin manager and load any defined plugins
 require_relative "vagrant/plugin/manager"
 plugins = Vagrant::Plugin::Manager.instance.installed_plugins
