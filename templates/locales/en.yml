@@ -329,7 +329,22 @@ en:
         invalid_event: |-
           %{event} is not a valid event for customization. Valid events
           are: %{valid_events}
+      warning:
+        shared_folder_symlink_create: |-
+          Vagrant is currently configured to create VirtualBox synced folders with
+          the `SharedFoldersEnableSymlinksCreate` option enabled. If the Vagrant
+          guest is not trusted, you may want to disable this option. For more
+          information on this option, please refer to the VirtualBox manual:
 
+            https://www.virtualbox.org/manual/ch04.html#sharedfolders
+
+          This option can be disabled globally with an environment variable:
+
+            VAGRANT_DISABLE_VBOXSYMLINKCREATE=1
+
+          or on a per folder basis within the Vagrantfile:
+
+            config.vm.synced_folder '/host/path', '/guest/path', SharedFoldersEnableSymlinksCreate: false
     general:
       batch_notify_error: |-
         An error occurred. The error will be shown after all tasks complete.
