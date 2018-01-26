@@ -66,7 +66,18 @@ module Vagrant
       def self.exec(ssh_info, opts={})
         # Ensure the platform supports ssh. On Windows there are several programs which
         # include ssh, notably git, mingw and cygwin, but make sure ssh is in the path!
-        ssh_path = Which.which("ssh")
+
+        # First try using the original path provided
+        ssh_path = Which.which("ssh", original_path: true)
+        # If we didn't find an ssh executable, see if we shipped one
+        if !ssh_path
+          ssh_path = Which.which("ssh")
+          if ssh_path && Platform.windows? && (Platform.cygwin? || Platform.msys?)
+            LOGGER.warn("Failed to locate native SSH executable. Using vendored version.")
+            LOGGER.warn("If display issues are encountered, install the ssh package for your environment.")
+          end
+        end
+
         if !ssh_path
           if Platform.windows?
             raise Errors::SSHUnavailableWindows,
@@ -79,9 +90,9 @@ module Vagrant
           raise Errors::SSHUnavailable
         end
 
-        # On Windows, we need to detect whether SSH is actually "plink"
-        # underneath the covers. In this case, we tell the user.
         if Platform.windows?
+          # On Windows, we need to detect whether SSH is actually "plink"
+          # underneath the covers. In this case, we tell the user.
           r = Subprocess.execute(ssh_path)
           if r.stdout.include?("PuTTY Link") || r.stdout.include?("Plink: command-line connection utility")
             raise Errors::SSHIsPuttyLink,
@@ -185,7 +196,9 @@ module Vagrant
         # we really don't care since both work.
         ENV["nodosfilewarning"] = "1" if Platform.cygwin?
 
-        ssh = ssh_info[:ssh_command] || 'ssh'
+        # If an ssh command is defined, use that. If an ssh binary was
+        # discovered on the path, use that. Otherwise fail to just trying `ssh`
+        ssh = ssh_info[:ssh_command] || ssh_path || 'ssh'
 
         # Invoke SSH with all our options
         if !opts[:subprocess]
