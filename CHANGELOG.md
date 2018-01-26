@@ -35,6 +35,7 @@ IMPROVEMENTS:
   - providers/virtualbox: Provide warning for SharedFoldersEnableSymlinksCreate setting [GH-9389]
   - provisioners/salt: Fixes timeout issue in salt bootstrapping for windows [GH-8992]
   - synced_folders/smb: Update Windows implementation [GH-9294]
+  - util/ssh: Attempt to locate local ssh client before attempting installer provided [GH-9400]
 
 BUG FIXES:
 
