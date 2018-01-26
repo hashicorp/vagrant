@@ -26,6 +26,19 @@ any arbitrary commands to do things such as reverse tunneling down into the
 * `-p` or `--plain` - This does an SSH without authentication, leaving
   authentication up to the user.
 
+## SSH client usage
+
+Vagrant will attempt to use the local SSH client installed on the host machine. On
+POSIX machines, an SSH client must be installed and available on the PATH.
+
+For Windows installations, an SSH client is provided within the installer
+image. If no SSH client is found on the current PATH, Vagrant will use the
+SSH client it provided. Depending on the local environment used for running
+Vagrant, the installer provided SSH client may not work correctly. For example,
+when using a cygwin or msys2 shell the SSH client will fail to work as expected
+when run interactively. Installing the SSH package built for the current working
+environment will resolve this issue.
+
 ## Background Execution
 
 If the command you specify runs in the background (such as appending a `&` to
