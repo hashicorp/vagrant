@@ -20,10 +20,18 @@ Some of these options are for advanced usage only and should not be used unless 
 - `become` (boolean) - Perform all the Ansible playbook tasks [as another user](http://docs.ansible.com/ansible/become.html), different from the user used to log into the guest system.
 
     The default value is `false`.
+    <div class="alert alert-info">
+      <strong>Compatibility Note:</strong>
+      This option was introduced in Vagrant 2.0. 
+    </div>
 
 - `become_user` (string) - Set the default username to be used by the Ansible `become` [privilege escalation](http://docs.ansible.com/ansible/become.html) mechanism.
 
     By default this option is not set, and the Ansible default value (`root`) will be used.
+    <div class="alert alert-info">
+      <strong>Compatibility Note:</strong>
+      This option was introduced in Vagrant 2.0. 
+    </div>
 
 - `compatibility_mode` (string) - Set the **minimal** version of Ansible to be supported. Vagrant will only use parameters that are compatible with the given version.
 
