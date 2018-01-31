@@ -40,6 +40,8 @@ describe VagrantPlugins::Salt::Provisioner do
         allow(config).to receive(:install_type).and_return('stable')
         allow(config).to receive(:install_args).and_return('develop')
         allow(config).to receive(:verbose).and_return(true)
+        allow(config).to receive(:master_json_config).and_return(true)
+        allow(config).to receive(:minion_json_config).and_return(true)
         allow(machine.config.vm).to receive(:communicator).and_return(:winrm)
         allow(config).to receive(:bootstrap_options).and_return(additional_windows_options)
         result = subject.bootstrap_options(true, true, "C:\\salttmp")
