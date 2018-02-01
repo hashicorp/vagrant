@@ -32,6 +32,10 @@ module VagrantPlugins
               if test -f /etc/init.d/hostname.sh; then
                 /etc/init.d/hostname.sh start || true
               fi
+              if test -x /sbin/dhclient ; then
+                /sbin/dhclient -r
+                /sbin/dhclient -nw
+              fi
             EOH
           end
         end
