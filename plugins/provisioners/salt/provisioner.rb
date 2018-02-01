@@ -110,11 +110,11 @@ module VagrantPlugins
 
       # Generates option string for bootstrap script
       def bootstrap_options(install, configure, config_dir)
-        options = ""
-
         # Any extra options passed to bootstrap
         if @config.bootstrap_options
-          options = "%s %s" % [options, @config.bootstrap_options]
+          options = @config.bootstrap_options
+        else
+          options = ""
         end
 
         if configure && @machine.config.vm.communicator != :winrm
