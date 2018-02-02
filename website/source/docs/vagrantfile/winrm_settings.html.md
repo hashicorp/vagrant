@@ -55,7 +55,7 @@ to use port 4567 to talk to the guest if there is no other option.
 
 <hr>
 
-`config.winrm.basic_auth_only` - Whether to use Basic Authentication. Defaults to `false`. If set to `true` you should also use the `:plaintext` transport setting and the Windows machine must be confiured appropriately. <strong>Note:</strong> It is strongly recommended that you only use basic authentication for debugging purposes. Credentials will be transferred in plain text.
+`config.winrm.basic_auth_only` - Whether to use Basic Authentication. Defaults to `false`. If set to `true` you should also use the `:plaintext` transport setting and the Windows machine must be configured appropriately. <strong>Note:</strong> It is strongly recommended that you only use basic authentication for debugging purposes. Credentials will be transferred in plain text.
 
 <hr>
 
