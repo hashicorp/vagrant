@@ -4,7 +4,6 @@ Param(
     [Parameter(Mandatory=$true)]
     [string]$dest_path,
 
-    [string]$switchname=$null,
     [string]$memory=$null,
     [string]$maxmemory=$null,
     [string]$cpus=$null,
@@ -78,12 +77,6 @@ else {
     }
 }
 
-
-if (!$switchname) {
-    # Get the name of the virtual switch
-    $switchname = (Select-Xml -xml $vmconfig -XPath "//AltSwitchName").node."#text"
-}
-
 if ($generation -eq 1) {
     # Determine boot device
     Switch ((Select-Xml -xml $vmconfig -XPath "//boot").node.device0."#text") {
@@ -112,7 +105,6 @@ $vm_params = @{
     Name = $vm_name
     NoVHD = $True
     MemoryStartupBytes = $MemoryStartupBytes
-    SwitchName = $switchname
     BootDevice = $bootdevice
     ErrorAction = "Stop"
 }

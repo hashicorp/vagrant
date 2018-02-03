@@ -11,7 +11,9 @@ forEach ($module in $modules) { . $module }
 
 try {
   $vm = Hyper-V\Get-VM -Id $VmId -ErrorAction "stop"
-  Hyper-V\Set-VMNetworkAdapterVlan $vm -Access -Vlanid $VlanId
+  $adapter = Hyper-V\Get-VMNetworkAdapter -VM $vm | Select-Object -First 1 
+
+  Hyper-V\Set-VMNetworkAdapterVlan $vm -VMNetworkAdapterName $adapter.Name -Access -Vlanid $VlanId
 }
 catch {
   Write-Error-Message "Failed to set VM's Vlan ID $_"

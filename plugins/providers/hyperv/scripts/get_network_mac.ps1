@@ -9,17 +9,11 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 
 $ip_address = ""
 $vm = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
-$networks = Hyper-V\Get-VMNetworkAdapter -VM $vm
-foreach ($network in $networks) {
-  if ($network.MacAddress -gt 0) {
-    $mac_address = $network.MacAddress
-    if (-Not ([string]::IsNullOrEmpty($mac_address))) {
-      # We found our mac address!
-      break
-    }
-  }
-}
+$network = Hyper-V\Get-VMNetworkAdapter -VM $vm | Select-Object -First 1
 
+if ($network.MacAddress -gt 0) {
+  $mac_address = $network.MacAddress
+}
 
 $resultHash = @{
     mac = "$mac_address"

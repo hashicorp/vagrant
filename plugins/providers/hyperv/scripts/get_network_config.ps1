@@ -7,9 +7,10 @@ Param(
 $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
+$ip_address = ""
 $vm = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
-$networks = Hyper-V\Get-VMNetworkAdapter -VM $vm
-foreach ($network in $networks) {
+$network = Hyper-V\Get-VMNetworkAdapter -VM $vm | Select-Object -First 1
+
   if ($network.IpAddresses.Length -gt 0) {
     foreach ($ip_address in $network.IpAddresses) {
       if ($ip_address.Contains(".")) {
@@ -23,7 +24,7 @@ foreach ($network in $networks) {
       }
     }
   }
-}
+
 
 if (-Not ([string]::IsNullOrEmpty($ip4_address))) {
   $guest_ipaddress = $ip4_address
