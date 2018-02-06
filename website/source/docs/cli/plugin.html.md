@@ -114,7 +114,7 @@ be shown, too.
 # Plugin Repair
 
 Vagrant may fail to properly initialize user installed custom plugins. This can
-be caused my improper plugin installation/removal, or by manual manipluation of
+be caused my improper plugin installation/removal, or by manual manipulation of
 plugin related files like the `plugins.json` data file. Vagrant can attempt
 to automatically repair the problem.
 
