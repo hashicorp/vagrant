@@ -29,7 +29,7 @@ Some of these options are for advanced usage only and should not be used unless 
 
     Possible values:
 
-    - `"auto"` _(Vagrant will automatically select the optimal compatibilty mode by checking the Ansible version currently available)_
+    - `"auto"` _(Vagrant will automatically select the optimal compatibility mode by checking the Ansible version currently available)_
     - `"1.8"` _(Ansible versions prior to 1.8 should mostly work well, but some options might not be supported)_
     - `"2.0"` _(The generated Ansible inventory will be incompatible with Ansible 1.x)_
 

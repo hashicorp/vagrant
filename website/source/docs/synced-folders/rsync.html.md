@@ -42,7 +42,7 @@ is unable to automatically install rsync for your operating system,
 it will tell you.
 
 The destination folder will be created as the user initiating the connection,
-this is `vagrant` by default. This user requires the appropiate permissions on
+this is `vagrant` by default. This user requires the appropriate permissions on
 the destination folder.
 
 ## Options

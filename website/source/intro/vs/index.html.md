@@ -17,5 +17,5 @@ something that is invalid or out of date in the comparisons, please [open an
 issue](https://github.com/mitchellh/vagrant/issues) and we'll address it as soon
 as possible.
 
-Use the navigation on the left to read comparisons of Vagrant versus simliar
+Use the navigation on the left to read comparisons of Vagrant versus similar
 software.

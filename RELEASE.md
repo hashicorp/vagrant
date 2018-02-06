@@ -2,7 +2,7 @@
 
 This documents how to release Vagrant. Various steps in this document will
 require privileged access to private systems, so this document is only
-targetted at Vagrant core members who have the ability to cut a release.
+targeted at Vagrant core members who have the ability to cut a release.
 
 1. Update `version.txt` to the version you want to release.
 
