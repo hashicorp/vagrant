@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+  - guests/debian: Renew DHCP lease on hostname change [GH-9405]
+
 ## 2.0.2 (January 29, 2018)
 
 FEATURES:
