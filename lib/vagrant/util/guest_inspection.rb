@@ -12,7 +12,7 @@ module Vagrant
         #
         # @return [Boolean]
         def systemd?(comm)
-          comm.test("systemctl | grep '^-\.mount'")
+          comm.test("ps -o comm= 1 | grep systemd")
         end
 
         # systemd-networkd.service is in use
