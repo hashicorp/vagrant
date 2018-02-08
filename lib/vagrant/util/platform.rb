@@ -97,6 +97,22 @@ module Vagrant
           return @_windows_hyperv_admin
         end
 
+        # Checks if Hyper-V is enabled on the host system and returns true
+        # if enabled.
+        #
+        # @return [Boolean]
+        def windows_hyperv_enabled?
+          return @_windows_hyperv_enabled if defined?(@_windows_hyperv_enabled)
+
+          @_windows_hyperv_enabled = -> {
+            ps_cmd = "$(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State"
+            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+            return output == 'Enabled'
+          }.call
+
+          return @_windows_hyperv_enabled
+        end
+
         # This takes any path and converts it from a Windows path to a
         # Cygwin style path.
         #

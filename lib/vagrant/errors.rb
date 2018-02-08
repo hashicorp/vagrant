@@ -372,6 +372,10 @@ module Vagrant
       error_key(:home_dir_unknown_version)
     end
 
+    class HypervVirtualBoxError < VagrantError
+      error_key(:hyperv_virtualbox_error)
+    end
+
     class ForwardPortAdapterNotFound < VagrantError
       error_key(:forward_port_adapter_not_found)
     end
