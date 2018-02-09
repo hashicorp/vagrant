@@ -3,6 +3,7 @@
 FEATURES:
 
 IMPROVEMENTS:
+  - provisioners/salt: Change to a temporary directory before downloading script files [GH-9351]
 
 BUG FIXES:
 
