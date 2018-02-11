@@ -26,6 +26,14 @@ module Vagrant
       command_plugin = nil
       if @sub_command
         command_plugin = Vagrant.plugin("2").manager.commands[@sub_command.to_sym]
+
+        if !command_plugin
+          alias_command = Alias.new(@env).commands[@sub_command.to_sym]
+
+          if alias_command
+            return alias_command.call(@sub_args)
+          end
+        end
       end
 
       if !command_plugin || !@sub_command
