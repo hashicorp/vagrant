@@ -18,7 +18,11 @@ module VagrantPlugins
 
               # Prepend ourselves to /etc/hosts
               grep -w '#{name}' /etc/hosts || {
-                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
+                if grep -w '^127\\.0\\.1\\.1' /etc/hosts ; then
+                  sed -i'' 's/^127\\.0\\.1\\.1\\s.*$/127.0.1.1\\t#{name}\\t#{basename}/' /etc/hosts
+                else
+                  sed -i'' '1i 127.0.1.1\\t#{name}\\t#{basename}' /etc/hosts
+                fi
               }
 
               # Update mailname
