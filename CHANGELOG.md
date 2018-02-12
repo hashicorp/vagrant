@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - provisioners/salt: Change to a temporary directory before downloading script files [GH-9351]
+  - guests/solaris: More explicit Solaris 11 and inherit SmartOS from Solaris [GH-9398]
 
 BUG FIXES:
 
