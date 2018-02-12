@@ -9,6 +9,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
   - guests/debian: Renew DHCP lease on hostname change [GH-9405]
+  - guests/debian: Point hostname to 127.0.1.1 in /etc/hosts [GH-9404]
   - guests/openbsd: Atomically apply new hostname.if(5) [GH-9265]
 
 ## 2.0.2 (January 29, 2018)
