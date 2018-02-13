@@ -304,9 +304,9 @@ module Vagrant
                 # within itself despite all others are available. That's the
                 # hacky way we're using to determine current instance.
                 # For example we have three WSL instances:
-                # A -> C:\User\USER\AppData\Local|Packages\A\LocalState\rootfs
-                # B -> C:\User\USER\AppData\Local|Packages\B\LocalState\rootfs
-                # C -> C:\User\USER\AppData\Local|Packages\C\LocalState\rootfs
+                # A -> C:\User\USER\AppData\Local\Packages\A\LocalState\rootfs
+                # B -> C:\User\USER\AppData\Local\Packages\B\LocalState\rootfs
+                # C -> C:\User\USER\AppData\Local\Packages\C\LocalState\rootfs
                 # If we're in "A" WSL at the moment, then its path will not be
                 # accessible since it's mounted for exactly the instance we're
                 # in. All others can be opened.
