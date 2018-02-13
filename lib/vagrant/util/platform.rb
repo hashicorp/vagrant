@@ -1,6 +1,8 @@
 require "rbconfig"
 require "shellwords"
+require "tempfile"
 require "tmpdir"
+require "log4r"
 
 require "vagrant/util/subprocess"
 require "vagrant/util/powershell"
@@ -275,6 +277,71 @@ module Vagrant
           wsl? && !path.to_s.downcase.start_with?("/mnt/")
         end
 
+        # Compute the path to rootfs of currently active WSL.
+        #
+        # @return [String] A path to rootfs of a current WSL instance.
+        def wsl_rootfs
+          return @_wsl_rootfs if defined?(@_wsl_rootfs)
+
+          @_wsl_rootfs = nil
+
+          if wsl?
+            # Mark our filesystem with a temporary file having an unique name.
+            marker = Tempfile.new(Time.now.to_i.to_s)
+            logger = Log4r::Logger.new("vagrant::util::platfowm::wsl")
+
+            logger.debug("Querying installed WSL from Windows registry.")
+
+            PowerShell.execute_cmd('(Get-ChildItem HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss | ForEach-Object {Get-ItemProperty $_.PSPath}).BasePath').split("\r\n").each do |path|
+              # Lowercase the drive letter, skip the next symbol (which is a
+              # colon from a Windows path) and convert path to UNIX style.
+              path = "/mnt/#{path[0, 1].downcase}#{path[2..-1].tr('\\', '/')}/rootfs"
+
+              begin
+                # https://blogs.msdn.microsoft.com/wsl/2016/06/15/wsl-file-system-support
+                logger.debug("Checking whether the \"#{path}\" is a root VolFS mount of current WSL instance.")
+                # Current WSL instance doesn't have an access to its mount from
+                # within itself despite all others are available. That's the
+                # hacky way we're using to determine current instance.
+                # For example we have three WSL instances:
+                # A -> C:\User\USER\AppData\Local|Packages\A\LocalState\rootfs
+                # B -> C:\User\USER\AppData\Local|Packages\B\LocalState\rootfs
+                # C -> C:\User\USER\AppData\Local|Packages\C\LocalState\rootfs
+                # If we're in "A" WSL at the moment, then its path will not be
+                # accessible since it's mounted for exactly the instance we're
+                # in. All others can be opened.
+                Dir.open(path) do |fs|
+                  # A fallback for a case if our trick will stop working. For
+                  # that we've created a temporary file with an unique name in
+                  # a current WSL and now seeking it among all WSL.
+                  @_wsl_rootfs = path if File.exist?("#{fs.path}/#{marker.path}")
+                end
+              rescue Errno::EACCES
+                @_wsl_rootfs = path
+                # You can create and simultaneously run multiple WSL instances,
+                # comment out the "break", run this script within each one and
+                # it'll return only single value.
+                break
+              rescue Errno::ENOENT
+                # Warn about data discrepancy between Winreg and file system
+                # states. For the sake of justice, it's worth mentioning that
+                # it is possible only when someone will manually break WSL by
+                # removing a directory of its base path (kinda "stupid WSL
+                # uninstallation by removing hidden and system directory").
+                logger.warn("Windows registry has an information about WSL instance with the \"#{path}\" base path that is no longer exist or broken.")
+              end
+              # All other exceptions have to be raised since they will mean
+              # something unpredictably terrible.
+            end
+
+            marker.close!
+
+            raise Vagrant::Errors::WSLRootFsNotFoundError if @_wsl_rootfs.nil?
+          end
+
+          @_wsl_rootfs
+        end
+
         # Convert a WSL path to the local Windows path. This is useful
         # for conversion when calling out to Windows executables from
         # the WSL
@@ -286,7 +353,7 @@ module Vagrant
             if wsl_path?(path)
               parts = path.split("/")
               parts.delete_if(&:empty?)
-              [wsl_windows_appdata_local, "lxss", *parts].join("\\")
+              [wsl_rootfs, *parts].join("\\")
             else
               path = path.to_s.sub("/mnt/", "")
               parts = path.split("/")
