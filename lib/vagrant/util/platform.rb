@@ -308,7 +308,7 @@ module Vagrant
 
             logger.debug("Querying installed WSL from Windows registry.")
 
-            PowerShell.execute_cmd('(Get-ChildItem HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss | ForEach-Object {Get-ItemProperty $_.PSPath}).BasePath').split(" ").each do |path|
+            PowerShell.execute_cmd('(Get-ChildItem HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss | ForEach-Object {Get-ItemProperty $_.PSPath}).BasePath').split("\r\n").each do |path|
               # Lowercase the drive letter, skip the next symbol (which is a
               # colon from a Windows path) and convert path to UNIX style.
               path = "/mnt/#{path[0, 1].downcase}#{path[2..-1].tr('\\', '/')}/rootfs"
