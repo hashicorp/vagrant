@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+  - providers/hyper-v: Exit if Hyper-V is enabled and VirtualBox provider is used [GH-9456]
   - provisioners/salt: Change to a temporary directory before downloading script files [GH-9351]
   - guests/solaris: More explicit Solaris 11 and inherit SmartOS from Solaris [GH-9398]
 
