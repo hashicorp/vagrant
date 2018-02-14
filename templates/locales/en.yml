@@ -846,6 +846,10 @@ en:
         ("%{value}") could not be found. Please verify that the plugin is
         installed which implements this host and that the value you used
         for `config.vagrant.host` is correct.
+      hyperv_virtualbox_error: |-
+        Hyper-V and VirtualBox cannot be used together and will result in a
+        system crash. Vagrant will now exit. Please disable Hyper-V if you wish
+        to use VirtualBox.
       interrupted: |-
         Vagrant exited after cleanup due to external interrupt.
       local_data_dir_not_accessible: |-

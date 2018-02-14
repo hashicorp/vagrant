@@ -214,4 +214,19 @@ describe Vagrant::Util::Platform do
       end
     end
   end
+
+  describe ".windows_hyperv_enabled?" do
+    it "should return true if enabled" do
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return('Enabled')
+
+      expect(Vagrant::Util::Platform.windows_hyperv_enabled?).to be_truthy
+    end
+
+    it "should return false if disabled" do
+      Vagrant::Util::Platform.reset!
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return('Disabled')
+
+      expect(Vagrant::Util::Platform.windows_hyperv_enabled?).to be_falsey
+    end
+  end
 end
