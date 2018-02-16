@@ -57,6 +57,9 @@ module Vagrant
     # The directory where temporary files for Vagrant go.
     attr_reader :tmp_path
 
+    # File where command line aliases go.
+    attr_reader :aliases_path
+
     # The directory where boxes are stored.
     attr_reader :boxes_path
 
@@ -123,6 +126,7 @@ module Vagrant
       @data_dir   = @home_path.join("data")
       @gems_path  = Vagrant::Bundler.instance.plugin_gem_path
       @tmp_path   = @home_path.join("tmp")
+      @aliases_path = @home_path.join("aliases")
       @machine_index_dir = @data_dir.join("machine-index")
 
       # Prepare the directories

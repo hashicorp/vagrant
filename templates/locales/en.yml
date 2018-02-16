@@ -378,6 +378,12 @@ en:
         Machine name: %{name}
         Active provider: %{active_provider}
         Requested provider: %{requested_provider}
+      alias_invalid_error: |-
+        The defined alias is not valid. Please review the information below
+        to help resolve the issue:
+
+        Alias: %{alias}
+        Message: %{message}
       batch_multi_error: |-
         An error occurred while executing multiple actions in parallel.
         Any errors that occurred are shown below.

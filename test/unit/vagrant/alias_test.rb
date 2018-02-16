@@ -25,6 +25,18 @@ describe Vagrant::Alias do
       end
     end
 
+    it "raises an error on invalid keywords" do
+      keywords = [
+        "keyword with a space = command",
+        "keyword\twith a tab = command",
+        "keyword\nwith a newline = command",
+      ]
+
+      keywords.each do |keyword|
+        expect { interpreter.interpret(keyword) }.to raise_error(Vagrant::Errors::AliasInvalidError)
+      end
+    end
+
     it "properly interprets a simple alias" do
       keyword, command = interpreter.interpret("keyword=command")
 
@@ -44,6 +56,13 @@ describe Vagrant::Alias do
 
       expect(keyword).to eq("keyword")
       expect(command).to eq("command = command")
+    end
+
+    it "allows keywords with non-alpha-numeric characters" do
+      keyword, command = interpreter.interpret("keyword! = command")
+
+      expect(keyword).to eq("keyword!")
+      expect(command).to eq("command")
     end
   end
 end
