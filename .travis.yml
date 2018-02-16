@@ -10,8 +10,9 @@ addons:
     - bsdtar
 
 rvm:
-  - 2.3.5
-  - 2.4.2
+  - 2.3.6
+  - 2.4.3
+  - 2.5.0
 
 branches:
   only:
