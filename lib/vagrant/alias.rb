@@ -5,10 +5,10 @@ module Vagrant
   class Alias
     def initialize(env)
       @aliases = Registry.new
+      @env = env
 
-      aliases_file = env.home_path.join("aliases")
-      if aliases_file.file?
-        aliases_file.readlines.each do |line|
+      if env.aliases_path.file?
+        env.aliases_path.readlines.each do |line|
           # separate keyword-command pairs
           keyword, command = interpret(line)
 
@@ -31,6 +31,11 @@ module Vagrant
 
       keyword, command = line.split("=", 2).collect(&:strip)
 
+      # validate the keyword
+      if keyword.match(/[\s]/i)
+        raise Errors::AliasInvalidError, alias: line, message: "Alias keywords must not contain any whitespace."
+      end
+
       [keyword, command]
     end
 
@@ -43,7 +48,7 @@ module Vagrant
             return exec "#{command[1..-1]} #{args.join(" ")}".strip
           end
 
-          return CLI.new(command.split.concat(args), env).execute
+          return CLI.new(command.split.concat(args), @env).execute
         end
       end
     end
