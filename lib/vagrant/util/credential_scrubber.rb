@@ -30,7 +30,7 @@ module Vagrant
       # @param [String] string
       # @return [String]
       def self.desensitize(string)
-        string = string.dup
+        string = string.to_s.dup
         sensitive_strings.each do |remove|
           string.gsub!(remove, REPLACEMENT_TEXT)
         end
@@ -39,7 +39,10 @@ module Vagrant
 
       # Register a sensitive string to be scrubbed
       def self.sensitive(string)
-        sensitive_strings.push(string).uniq!
+        string = string.to_s.dup
+        if string.length > 0
+          sensitive_strings.push(string).uniq!
+        end
         nil
       end
 
