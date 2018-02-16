@@ -9,13 +9,12 @@ module Vagrant
       aliases_file = env.home_path.join("aliases")
       if aliases_file.file?
         aliases_file.readlines.each do |line|
-          # skip comments
-          next if line.strip.start_with?("#")
-
           # separate keyword-command pairs
-          keyword, command = line.split("=").collect(&:strip)
+          keyword, command = interpret(line)
 
-          register(keyword, command)
+          if keyword && command
+            register(keyword, command)
+          end
         end
       end
     end
@@ -23,6 +22,16 @@ module Vagrant
     # This returns all the registered alias commands.
     def commands
       @aliases
+    end
+
+    # This interprets a raw line from the aliases file.
+    def interpret(line)
+      # is it a comment?
+      return nil if line.strip.start_with?("#")
+
+      keyword, command = line.split("=", 2).collect(&:strip)
+
+      [keyword, command]
     end
 
     # This registers an alias.
