@@ -401,4 +401,23 @@ describe Vagrant::Vagrantfile do
       expect(subject.primary_machine_name).to be_nil
     end
   end
+
+  describe "#machine_names_if_filename_and_path" do
+    it "returns the machine name single-VM by the file name" do
+      RSpec.describe [:foo] do
+        before do
+          ARGV.clear
+          ARGV.concat(['playbooks/foo.yaml'])
+          vm_name = File.basename(ARGV[1]).sub(File.extname(ARGV[1]),'')
+          expect { print 'foo' }.to output(vm_name).to_stdout
+
+          configure do |config|
+            config.vm.define vm_name
+          end
+
+          expect(subject.machine_names).to eq([:foo])
+        end
+      end
+    end
+  end
 end

@@ -42,6 +42,7 @@ module Vagrant
     # @return [Machine]
     def machine(name, provider, boxes, data_path, env)
       # Load the configuration for the machine
+      name = File.basename(name.to_s).sub(File.extname(name.to_s),'').to_sym # Become a vmname if name from file path.
       results = machine_config(name, provider, boxes)
       box             = results[:box]
       config          = results[:config]
@@ -111,6 +112,7 @@ module Vagrant
     #   machine. See the main documentation body for more info.
     def machine_config(name, provider, boxes)
       keys = @keys.dup
+      name = File.basename(name.to_s).sub(File.extname(name.to_s),'').to_sym # Become a vmname if name from file path.
 
       sub_machine = @config.vm.defined_vms[name]
       if !sub_machine
