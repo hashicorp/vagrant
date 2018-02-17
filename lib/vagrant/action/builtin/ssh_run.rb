@@ -35,8 +35,13 @@ module Vagrant
           end
 
           # Get the command and wrap it in a login shell
-          command = ShellQuote.escape(env[:ssh_run_command], "'")
-          command = "#{env[:machine].config.ssh.shell} -c '#{command}'"
+          if env[:machine].guest.name == :windows
+            command = ShellQuote.escape(env[:ssh_run_command], "\"")
+            command = "cmd /c \"#{command}\""
+          else
+            command = ShellQuote.escape(env[:ssh_run_command], "'")
+            command = "#{env[:machine].config.ssh.shell} -c '#{command}'"
+          end
 
           # Execute!
           opts = env[:ssh_opts] || {}
