@@ -10,7 +10,7 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       # This middleware works around a bug in VirtualBox where booting
-      # a VM with an IPv6 host-only network will someties lose the
+      # a VM with an IPv6 host-only network will sometimes lose the
       # route to that machine.
       class NetworkFixIPv6
         include Vagrant::Util::Presence
@@ -43,12 +43,15 @@ module VagrantPlugins
           # If we have no IPv6, forget it
           return if !has_v6
 
+          link_local_range = IPAddr.new("fe80::/10")
           host_only_interfaces(env).each do |interface|
             next if !present?(interface[:ipv6])
             next if interface[:status] != "Up"
 
             ip = IPAddr.new(interface[:ipv6])
             ip |= ("1" * (128 - interface[:ipv6_prefix].to_i)).to_i(2)
+
+            next if link_local_range.include?(ip)
 
             @logger.info("testing IPv6: #{ip}")
 
