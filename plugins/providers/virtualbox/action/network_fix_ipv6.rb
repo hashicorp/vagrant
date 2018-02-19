@@ -43,12 +43,15 @@ module VagrantPlugins
           # If we have no IPv6, forget it
           return if !has_v6
 
+          link_local_range = IPAddr.new("fe80::/10")
           host_only_interfaces(env).each do |interface|
             next if !present?(interface[:ipv6])
             next if interface[:status] != "Up"
 
             ip = IPAddr.new(interface[:ipv6])
             ip |= ("1" * (128 - interface[:ipv6_prefix].to_i)).to_i(2)
+
+            next if link_local_range.include?(ip)
 
             @logger.info("testing IPv6: #{ip}")
 
