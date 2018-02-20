@@ -10,27 +10,56 @@ description: |-
 
 # Configuration
 
-While Vagrant VMware providers are a drop-in replacement for VirtualBox, there
+While Vagrant VMware Desktop provider is a drop-in replacement for VirtualBox, there
 are some additional features that are exposed that allow you to more finely
 configure VMware-specific aspects of your machines.
 
-## "VMware Fusion.app" Location
+Configuration settings for the provider are set in the Vagrantfile:
 
-The provider by default looks for VMware Fusion in "/Applications" and
-"~/Applications." If you put your applications in some other place, you will
-have to manually tell Vagrant where VMware Fusion is.
-
-This can be done with the `VAGRANT_VMWARE_FUSION_APP` environmental variable.
-
-For example, if you put your applications in an "/Apps" directory, you
-would configure Vagrant like this:
-
-```
-$ export VAGRANT_VMWARE_FUSION_APP="/Apps/VMware Fusion.app"
-$ vagrant up --provider=vmware_fusion
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.box = "my-box"
+  config.vm.provider "vmware_desktop" do |v|
+    v.gui = true
+  end
+end
 ```
 
-## VM Clone Directory
+## Provider settings
+
+* `clone_directory` (string) - Path for storing VMware clones. This value can
+  also be set using the `VAGRANT_VMWARE_CLONE_DIRECTORY` environment variable.
+  This defaults to `./.vagrant`
+* `enable_vmrun_ip_lookup` (bool) - Use vmrun to discover guest IP address.
+  This defaults to `true`
+* `functional_hgfs` (bool) - HGFS is functional within the guest.
+  This defaults to detected capability of the guest
+* `unmount_default_hgfs` (bool) - Unmount the default HGFS mount point within the guest.
+  This defaults to `false`
+* `gui` (bool) - Launch guest with a GUI.
+  This defaults to `false`
+* `ssh_info_public` (bool) - Use the public IP address for SSH connections to guest.
+  This defaults to `false`
+* `verify_vmnet` (bool) - Verify vmnet devices health before usage.
+  This defaults to `true`
+* `linked_clone` (bool) - Use linked clones instead of full copy clones.
+  This defaults to `true`
+* `vmx` (hash) - VMX key/value pairs to set or unset. If the value is `nil`, the key will
+  be deleted.
+* `whitelist_verified` (bool, symbol) - Flag that VMware box has been properly configured
+  for whitelisted VMX settings. `true` if verified, `false` if unverified, `:disable_warning`
+  to silence whitelist warnings.
+* `port_forward_network_pause` - Number of seconds to pause after applying port forwarding
+  configuration. This allows guest time to acquire DHCP address if previous address is
+  dropped when VMware network services are restarted.
+  This defaults to `0`
+* `utility_port` (integer) - Listen port of the Vagrant VMware Utility service.
+  This defaults to `9922`
+* `utility_certificate_path` (string) - Path to the Vagrant VMware Utility service
+  certificates directory.
+  The default value is dependent on the host
+
+### VM Clone Directory
 
 By default, the VMware provider will clone the VMware VM in the box
 to the ".vagrant" folder relative to the folder where the Vagrantfile is.
@@ -44,8 +73,7 @@ variable. This does not need to be unique per project. Each project will
 get a different sub-directory within this folder. Therefore, it is safe to
 set this systemwide.
 
-
-## Linked Clones
+### Linked Clones
 
 By default new machines are created using a linked clone to the base
 box. This reduces the time and required disk space incurred by directly
@@ -57,40 +85,22 @@ differencing disk images are created where the parent disk image belongs to
 the master VM. To disable linked clones:
 
 ```ruby
-config.vm.provider "vmware_fusion" do |v|
+config.vm.provider "vmware_desktop" do |v|
   v.linked_clone = false
 end
 ```
 
-## Virtual Machine GUI
-
-The VMware provider generally starts the virtual machines
-in headless mode. If you would like to see the UI because you are running
-a desktop within the VM, or if you need to debug potential boot issues
-with the VM, you can configure the VMware provider to boot with the
-GUI:
-
-```ruby
-config.vm.provider "vmware_fusion" do |v|
-  v.gui = true
-end
-```
-
-Use "vmware_workstation" if you are using VMware workstation.
-
-## VMX Customization
+### VMX Customization
 
 If you want to add or remove specific keys from the VMX file, you can do
 that:
 
 ```ruby
-config.vm.provider "vmware_fusion" do |v|
+config.vm.provider "vmware_desktop" do |v|
   v.vmx["custom-key"]  = "value"
   v.vmx["another-key"] = nil
 end
 ```
-
-Use "vmware_workstation" if you are using VMware workstation.
 
 In the example above, the "custom-key" key will be set to "value" and the
 "another-key" key will be removed from the VMX file.
@@ -107,7 +117,7 @@ The most common keys people look for are setting memory and CPUs.
 The example below sets both:
 
 ```ruby
-config.vm.provider "vmware_fusion" do |v|
+config.vm.provider "vmware_desktop" do |v|
   v.vmx["memsize"] = "1024"
   v.vmx["numvcpus"] = "2"
 end
