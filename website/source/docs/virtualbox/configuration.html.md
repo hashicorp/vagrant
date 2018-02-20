@@ -37,7 +37,7 @@ By setting another name, your VM can be more easily identified.
 
 ```ruby
 config.vm.provider "virtualbox" do |v|
-  v.name = "my_vm"
+  vb.name = "my_vm"
 end
 ```
 
