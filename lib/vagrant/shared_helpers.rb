@@ -10,7 +10,7 @@ module Vagrant
   # of Vagrant that may require remote access.
   #
   # @return [String]
-  DEFAULT_SERVER_URL = "https://vagrantcloud.com"
+  DEFAULT_SERVER_URL = "https://vagrantcloud.com".freeze
 
   # Max number of seconds to wait for joining an active thread.
   #
