@@ -59,7 +59,7 @@ Cmnd_Alias VAGRANT_SMB_LIST = /usr/sbin/sharing -l
 Cmnd_Alias VAGRANT_SMB_PLOAD = /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.smb.preferences.plist
 Cmnd_Alias VAGRANT_SMB_DLOAD = /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
 Cmnd_Alias VAGRANT_SMB_DSTART = /bin/launchctl start com.apple.smbd
-%admin ALL=(root) NOPASSWD: VAGRANT_SMB_ADD, VAGRANT_SMB_REMOVE, VAGRANT_SMB_LIST, VAGRANT_SMB_PLOAD, VAGRANT_SMB_DLOAD VAGRANT_SMB_DSTART
+%admin ALL=(root) NOPASSWD: VAGRANT_SMB_ADD, VAGRANT_SMB_REMOVE, VAGRANT_SMB_LIST, VAGRANT_SMB_PLOAD, VAGRANT_SMB_DLOAD, VAGRANT_SMB_DSTART
 ```
 
 ### Guests
