@@ -89,7 +89,7 @@ module Vagrant
           extra_subprocess_opts[:notify] = :stderr
 
           progress_data = ""
-          progress_regexp = /^\r\s*(\d.+)\r$/m
+          progress_regexp = /^\r\s*(\d.+?)\r/m
 
           # Setup the proc that'll receive the real-time data from
           # the downloader.
