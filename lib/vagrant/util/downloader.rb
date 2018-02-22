@@ -101,13 +101,6 @@ module Vagrant
             progress_data << data
 
             while true
-              # If we have a full amount of column data (two "\r") then
-              # we report new progress reports. Otherwise, just keep
-              # accumulating.
-              match = progress_regexp.match(progress_data)
-
-              break if !match
-
               # If the download has been redirected and we are no longer downloading
               # from the original host, notify the user that the target host has
               # changed from the source.
@@ -129,9 +122,24 @@ module Vagrant
                 break
               end
 
-              data = match[1].to_s
-              stop = progress_data.index(data) + data.length
-              progress_data.slice!(0, stop)
+              # If we have a full amount of column data (two "\r") then
+              # we report new progress reports. Otherwise, just keep
+              # accumulating.
+              match = nil
+              check_match = true
+
+              while check_match
+                check_match = progress_regexp.match(progress_data)
+                if check_match
+                  data = check_match[1].to_s
+                  stop = progress_data.index(data) + data.length
+                  progress_data.slice!(0, stop)
+
+                  match = check_match
+                end
+              end
+
+              break if !match
 
               # Ignore the first \r and split by whitespace to grab the columns
               columns = data.strip.split(/\s+/)
