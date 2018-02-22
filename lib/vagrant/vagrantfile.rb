@@ -155,6 +155,7 @@ module Vagrant
       # Track the original box so we know if we changed
       box = nil
       original_box = config.vm.box
+      original_version = config.vm.box_version
 
       # The proc below loads the box and provider overrides. This is
       # in a proc because it may have to recurse if the provider override
@@ -188,10 +189,11 @@ module Vagrant
         end
 
         # If the box changed, then we need to reload
-        if original_box != config.vm.box
+        if original_box != config.vm.box || original_version != config.vm.box_version
           # TODO: infinite loop protection?
 
           original_box = config.vm.box
+          original_version = config.vm.box_version
           load_box_proc.call
         end
       end

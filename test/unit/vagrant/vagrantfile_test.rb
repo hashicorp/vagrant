@@ -288,9 +288,11 @@ describe Vagrant::Vagrantfile do
 
       configure do |config|
         config.vm.box = "base"
+        config.vm.box_version = "1.0"
 
         config.vm.provider "foo" do |_, c|
           c.vm.box = "foobox"
+          c.vm.box_version = "2.0"
         end
       end
 
@@ -300,7 +302,7 @@ describe Vagrant::Vagrantfile do
       end
       VF
 
-      iso_env.box3("foobox", "1.0", :foo, vagrantfile: <<-VF)
+      iso_env.box3("foobox", "2.0", :foo, vagrantfile: <<-VF)
       Vagrant.configure("2") do |config|
         config.ssh.port = 234
       end
@@ -311,8 +313,10 @@ describe Vagrant::Vagrantfile do
       box     = results[:box]
       expect(config.vm.box).to eq("foobox")
       expect(config.ssh.port).to eq(234)
+      expect(config.vm.box_version).to eq("2.0")
       expect(box).to_not be_nil
       expect(box.name).to eq("foobox")
+      expect(box.version).to eq("2.0")
     end
 
     it "raises an error if the machine is not found" do
