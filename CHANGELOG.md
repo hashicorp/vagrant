@@ -15,6 +15,7 @@ BUG FIXES:
   - guests/debian: Update systemd? check for guest inspection [GH-9459]
   - guests/gentoo: Disable if/netplugd when setting up a static ip on a gentoo guest using openrc [GH-9261]
   - guests/openbsd: Atomically apply new hostname.if(5) [GH-9265]
+  - hosts/windows: Fix halt problem when determining powershell version on old powershells [GH-9470]
 
 ## 2.0.2 (January 29, 2018)
 
