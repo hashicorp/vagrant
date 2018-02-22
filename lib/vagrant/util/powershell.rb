@@ -11,6 +11,7 @@ module Vagrant
     class PowerShell
       # NOTE: Version checks are only on Major
       MINIMUM_REQUIRED_VERSION = 3
+      LOGGER = Log4r::Logger.new("vagrant::util::powershell")
 
       # @return [Boolean] powershell executable available on PATH
       def self.available?
@@ -85,8 +86,14 @@ module Vagrant
             "Write-Output $PSVersionTable.PSVersion.Major"
           ].flatten
 
-          r = Subprocess.execute(*command)
-          @_powershell_version = r.exit_code != 0 ? nil : r.stdout.chomp
+          version = nil
+          begin
+            r = Subprocess.execute(*command, notify: [:stdout, :stderr], timeout: 10) {|io_name,data| version = data}
+          rescue Vagrant::Util::Subprocess::TimeoutExceeded
+            LOGGER.debug("Timeout exceeded while attempting to determine version of Powershell.")
+          end
+
+          @_powershell_version = version
         end
         @_powershell_version
       end
