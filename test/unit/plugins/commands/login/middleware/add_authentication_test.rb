@@ -97,11 +97,13 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
       original = [
         "http://google.com/box.box",
         "http://vagrantcloud.com/foo.box",
-        "http://example.com/bar.box"
+        "http://example.com/bar.box",
+        "http://example.com/foo.box"
       ]
 
       expected = original.dup
-      expected.last.replace(expected.last + "?access_token=#{token}")
+      expected[2] = expected[2] + "?access_token=#{token}"
+      expected[3] = expected[3] + "?access_token=#{token}"
 
       expect(subject).to receive(:sleep).once
       expect(ui).to receive(:warn).once

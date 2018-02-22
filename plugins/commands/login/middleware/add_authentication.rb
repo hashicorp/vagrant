@@ -13,6 +13,18 @@ module VagrantPlugins
       TARGET_HOST = "vagrantcloud.com".freeze
       CUSTOM_HOST_NOTIFY_WAIT = 5
 
+      def self.custom_host_notified!
+        @_host_notify = true
+      end
+
+      def self.custom_host_notified?
+        if defined?(@_host_notify)
+          @_host_notify
+        else
+          false
+        end
+      end
+
       def initialize(app, env)
         @app = app
         LoginCommand::Plugin.init!
@@ -33,16 +45,17 @@ module VagrantPlugins
         server_uri = URI.parse(Vagrant.server_url.to_s)
 
         if token && !server_uri.host.to_s.empty?
-          if server_uri.host != TARGET_HOST
-            env[:ui].warn(I18n.t("login_command.middleware.authentication.different_target",
-              custom_host: server_uri.host, known_host: TARGET_HOST) + "\n")
-            sleep CUSTOM_HOST_NOTIFY_WAIT
-          end
-
           env[:box_urls].map! do |url|
             u = URI.parse(url)
 
             if u.host == server_uri.host
+              if server_uri.host != TARGET_HOST && !self.class.custom_host_notified?
+                env[:ui].warn(I18n.t("login_command.middleware.authentication.different_target",
+                  custom_host: server_uri.host, known_host: TARGET_HOST) + "\n")
+                sleep CUSTOM_HOST_NOTIFY_WAIT
+                self.class.custom_host_notified!
+              end
+
               q = CGI.parse(u.query || "")
 
               current = q["access_token"]
