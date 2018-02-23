@@ -133,6 +133,15 @@ describe Vagrant::Util::Platform do
     it "fixes drive letters on Windows", :windows do
       expect(described_class.fs_real_path("c:/foo").to_s).to eql("C:/foo")
     end
+
+    it "gracefully handles invalid input string errors" do
+      bad_string = double("bad_string")
+      allow(bad_string).to receive(:to_s).and_raise(ArgumentError)
+      allow_any_instance_of(String).to receive(:encode).with("filesystem").and_return(bad_string)
+      allow(subject).to receive(:fs_case_sensitive?).and_return(false)
+
+      expect(described_class.fs_real_path("/dev/null").to_s).to eql("/dev/null")
+    end
   end
 
   describe "#windows_unc_path" do

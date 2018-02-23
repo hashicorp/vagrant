@@ -147,4 +147,23 @@ module Vagrant
       end
     end
   end
+
+  # Set the global logger
+  #
+  # @param log Logger
+  # @return [Logger]
+  def self.global_logger=(log)
+    @_global_logger = log
+  end
+
+  # Get the global logger instance
+  #
+  # @return [Logger]
+  def self.global_logger
+    if @_global_logger.nil?
+      require "log4r"
+      @_global_logger = Log4r::Logger.new("vagrant::global")
+    end
+    @_global_logger
+  end
 end
