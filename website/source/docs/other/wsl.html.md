@@ -65,6 +65,12 @@ the Windows system, not within the WSL. It is important to ensure that
 any required Windows executable is available within your `PATH` to allow
 Vagrant to access them.
 
+For example, when using the VirtualBox provider:
+
+```
+export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
+```
+
 ## Windows Access
 
 Working within the WSL provides a layer of isolation from the actual
