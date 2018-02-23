@@ -34,6 +34,16 @@ describe Vagrant::Util::CredentialScrubber do
       subject.sensitive("value")
       expect(subject.sensitive_strings.count("value")).to eq(1)
     end
+
+    it "should not add an empty string" do
+      subject.sensitive("")
+      expect(subject.sensitive_strings).to be_empty
+    end
+
+    it "should type cast input to string" do
+      subject.sensitive(2)
+      expect(subject.sensitive_strings.first).to eq("2")
+    end
   end
 
   describe ".unsensitive" do
