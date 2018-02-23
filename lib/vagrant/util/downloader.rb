@@ -25,6 +25,12 @@ module Vagrant
         :sha1 => Digest::SHA1
       }.freeze
 
+      # Hosts that do not require notification on redirect
+      SILENCED_HOSTS = [
+        "vagrantcloud.com".freeze,
+        "vagrantup.com".freeze
+      ].freeze
+
       attr_reader :source
       attr_reader :destination
 
@@ -83,7 +89,7 @@ module Vagrant
           extra_subprocess_opts[:notify] = :stderr
 
           progress_data = ""
-          progress_regexp = /(\r(.+?))\r/
+          progress_regexp = /^\r\s*(\d.+?)\r/m
 
           # Setup the proc that'll receive the real-time data from
           # the downloader.
@@ -95,13 +101,45 @@ module Vagrant
             progress_data << data
 
             while true
+              # If the download has been redirected and we are no longer downloading
+              # from the original host, notify the user that the target host has
+              # changed from the source.
+              if progress_data.include?("Location")
+                location = progress_data.scan(/Location: (.+?)$/m).flatten.compact.first.to_s.strip
+                if !location.empty?
+                  @logger.info("download redirected to #{location}")
+                  location_uri = URI.parse(location)
+                  source_uri = URI.parse(source)
+                  source_host = source_uri.host.split(".", 2).last
+                  location_host = location_uri.host.split(".", 2).last
+                  if !@redirect_notify && location_host != source_host && !SILENCED_HOSTS.include?(location_host)
+                    @ui.clear_line
+                    @ui.detail "Download redirected to host: #{location_uri.host}"
+                  end
+                  @redirect_notify = true
+                end
+                progress_data.replace("")
+                break
+              end
+
               # If we have a full amount of column data (two "\r") then
               # we report new progress reports. Otherwise, just keep
               # accumulating.
-              match = progress_regexp.match(progress_data)
+              match = nil
+              check_match = true
+
+              while check_match
+                check_match = progress_regexp.match(progress_data)
+                if check_match
+                  data = check_match[1].to_s
+                  stop = progress_data.index(data) + data.length
+                  progress_data.slice!(0, stop)
+
+                  match = check_match
+                end
+              end
+
               break if !match
-              data = match[2]
-              progress_data.gsub!(match[1], "")
 
               # Ignore the first \r and split by whitespace to grab the columns
               columns = data.strip.split(/\s+/)
@@ -273,7 +311,7 @@ module Vagrant
           "-q",
           "--fail",
           "--location",
-          "--max-redirs", "10",
+          "--max-redirs", "10", "--verbose",
           "--user-agent", USER_AGENT,
         ]
 
