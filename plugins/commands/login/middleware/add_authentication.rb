@@ -6,35 +6,56 @@ require_relative "../client"
 module VagrantPlugins
   module LoginCommand
     class AddAuthentication
-      ALLOWED_AUTHENTICATION_HOSTS = %w[
-        app.vagrantup.com
-        atlas.hashicorp.com
-        vagrantcloud.com
+      REPLACEMENT_HOSTS = [
+        "app.vagrantup.com".freeze,
+        "atlas.hashicorp.com".freeze
       ].freeze
+      TARGET_HOST = "vagrantcloud.com".freeze
+      CUSTOM_HOST_NOTIFY_WAIT = 5
+
+      def self.custom_host_notified!
+        @_host_notify = true
+      end
+
+      def self.custom_host_notified?
+        if defined?(@_host_notify)
+          @_host_notify
+        else
+          false
+        end
+      end
 
       def initialize(app, env)
         @app = app
+        LoginCommand::Plugin.init!
       end
 
       def call(env)
         client = Client.new(env[:env])
         token  = client.token
 
-        if token && Vagrant.server_url
-          server_uri = URI.parse(Vagrant.server_url)
+        env[:box_urls].map! do |url|
+          u = URI.parse(url)
+          if u.host != TARGET_HOST && REPLACEMENT_HOSTS.include?(u.host)
+            u.host = TARGET_HOST
+          end
+          u.to_s
+        end
 
+        server_uri = URI.parse(Vagrant.server_url.to_s)
+
+        if token && !server_uri.host.to_s.empty?
           env[:box_urls].map! do |url|
             u = URI.parse(url)
-            replace = u.host == server_uri.host
 
-            if !replace
-              if ALLOWED_AUTHENTICATION_HOSTS.include?(u.host) &&
-                  ALLOWED_AUTHENTICATION_HOSTS.include?(server_uri.host)
-                replace = true
+            if u.host == server_uri.host
+              if server_uri.host != TARGET_HOST && !self.class.custom_host_notified?
+                env[:ui].warn(I18n.t("login_command.middleware.authentication.different_target",
+                  custom_host: server_uri.host, known_host: TARGET_HOST) + "\n")
+                sleep CUSTOM_HOST_NOTIFY_WAIT
+                self.class.custom_host_notified!
               end
-            end
 
-            if replace
               q = CGI.parse(u.query || "")
 
               current = q["access_token"]
@@ -50,7 +71,7 @@ module VagrantPlugins
         end
 
         @app.call(env)
-      end
+      end.freeze
     end
   end
 end
