@@ -126,8 +126,10 @@ module Vagrant
       @data_dir   = @home_path.join("data")
       @gems_path  = Vagrant::Bundler.instance.plugin_gem_path
       @tmp_path   = @home_path.join("tmp")
-      @aliases_path = @home_path.join("aliases")
       @machine_index_dir = @data_dir.join("machine-index")
+
+      @aliases_path = Pathname.new(ENV["VAGRANT_ALIAS_FILE"]).expand_path if ENV.key?("VAGRANT_ALIAS_FILE")
+      @aliases_path ||= @home_path.join("aliases")
 
       # Prepare the directories
       setup_home_path
