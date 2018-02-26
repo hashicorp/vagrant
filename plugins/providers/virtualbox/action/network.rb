@@ -479,6 +479,11 @@ module VagrantPlugins
           @env[:machine].provider.driver.read_host_only_interfaces.each do |interface|
             return interface if config[:name] && config[:name] == interface[:name]
 
+            #if a config name is specified, we should only look for that.
+            if config[:name] != ""
+                next
+            end
+
             if interface[:ip] != ""
               return interface if this_netaddr == \
                 network_address(interface[:ip], interface[:netmask])
