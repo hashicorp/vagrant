@@ -2464,7 +2464,7 @@ BUG FIXES:
   - Ignore "guest not ready" errors when attempting to graceful halt and
     carry on checks whether the halt succeeded. [GH-1679]
   - Handle the case where a roles path for Chef solo isn't properly
-	defined. [GH-1665]
+    defined. [GH-1665]
   - Finding V1 boxes now works properly again to avoid "box not found"
     errors. [GH-1691]
   - Setting hostname on SLES 11 works again. [GH-1781]
