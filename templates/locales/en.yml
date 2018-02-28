@@ -1630,12 +1630,9 @@ en:
 
           https://www.vagrantup.com/docs/other/wsl.html
       wsl_rootfs_not_found_error: |-
-        Vagrant is unable to determine WSL instance you are currently in because Windows
-        registry has no information about it at "HKCU:\Software\Microsoft\Windows\Current
-        Version\Lxss".
-
-        It is recommended to destroy this WSL and do a clean installation from Microsoft
-        Store.
+        Vagrant is unable to determine the location of this instance of the Windows
+        Subsystem for Linux. If this error persists it may be resolved by destroying
+        this subsystem and installing it again.
 #-------------------------------------------------------------------------------
 # Translations for config validation errors
 #-------------------------------------------------------------------------------
