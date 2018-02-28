@@ -1,6 +1,8 @@
 require "rbconfig"
 require "shellwords"
+require "tempfile"
 require "tmpdir"
+require "log4r"
 
 require "vagrant/util/subprocess"
 require "vagrant/util/powershell"
@@ -291,6 +293,87 @@ module Vagrant
           wsl? && !path.to_s.downcase.start_with?("/mnt/")
         end
 
+        # Compute the path to rootfs of currently active WSL.
+        #
+        # @return [String] A path to rootfs of a current WSL instance.
+        def wsl_rootfs
+          return @_wsl_rootfs if defined?(@_wsl_rootfs)
+
+          if wsl?
+            # Mark our filesystem with a temporary file having an unique name.
+            marker = Tempfile.new(Time.now.to_i.to_s)
+            logger = Log4r::Logger.new("vagrant::util::platform::wsl")
+
+            # Check for lxrun installation first
+            lxrun_path = [wsl_windows_appdata_local, "lxss"].join("\\")
+            paths = [lxrun_path]
+
+            logger.debug("checking registry for WSL installation path")
+            paths += PowerShell.execute_cmd(
+              '(Get-ChildItem HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss ' \
+                '| ForEach-Object {Get-ItemProperty $_.PSPath}).BasePath').to_s.split("\r\n").map(&:strip)
+            paths.delete_if{|path| path.to_s.empty?}
+
+            paths.each do |path|
+              # Lowercase the drive letter, skip the next symbol (which is a
+              # colon from a Windows path) and convert path to UNIX style.
+              check_path = "/mnt/#{path[0, 1].downcase}#{path[2..-1].tr('\\', '/')}/rootfs"
+
+              logger.debug("checking `#{path}` for current WSL instance")
+              begin
+                # https://blogs.msdn.microsoft.com/wsl/2016/06/15/wsl-file-system-support
+                # Current WSL instance doesn't have an access to its mount from
+                # within itself despite all others are available. That's the
+                # hacky way we're using to determine current instance.
+                # For example we have three WSL instances:
+                # A -> C:\User\USER\AppData\Local\Packages\A\LocalState\rootfs
+                # B -> C:\User\USER\AppData\Local\Packages\B\LocalState\rootfs
+                # C -> C:\User\USER\AppData\Local\Packages\C\LocalState\rootfs
+                # If we're in "A" WSL at the moment, then its path will not be
+                # accessible since it's mounted for exactly the instance we're
+                # in. All others can be opened.
+                Dir.open(check_path) do |fs|
+                  # A fallback for a case if our trick will stop working. For
+                  # that we've created a temporary file with an unique name in
+                  # a current WSL and now seeking it among all WSL.
+                  if File.exist?("#{fs.path}/#{marker.path}")
+                    @_wsl_rootfs = path
+                    break
+                  end
+                end
+              rescue Errno::EACCES
+                @_wsl_rootfs = path
+                # You can create and simultaneously run multiple WSL instances,
+                # comment out the "break", run this script within each one and
+                # it'll return only single value.
+                break
+              rescue Errno::ENOENT
+                # Warn about data discrepancy between Winreg and file system
+                # states. For the sake of justice, it's worth mentioning that
+                # it is possible only when someone will manually break WSL by
+                # removing a directory of its base path (kinda "stupid WSL
+                # uninstallation by removing hidden and system directory").
+                logger.warn("WSL instance at `#{path} is broken or no longer exists")
+              end
+              # All other exceptions have to be raised since they will mean
+              # something unpredictably terrible.
+            end
+
+            marker.close!
+
+            raise Vagrant::Errors::WSLRootFsNotFoundError if @_wsl_rootfs.nil?
+          end
+
+          # Attach the rootfs leaf to the path
+          if @_wsl_rootfs != lxrun_path
+            @_wsl_rootfs = "#{@_wsl_rootfs}\\rootfs"
+          end
+
+          logger.debug("detected `#{@_wsl_rootfs}` as current WSL instance")
+
+          @_wsl_rootfs
+        end
+
         # Convert a WSL path to the local Windows path. This is useful
         # for conversion when calling out to Windows executables from
         # the WSL
@@ -298,11 +381,17 @@ module Vagrant
         # @param [String, Pathname] path Path to convert
         # @return [String]
         def wsl_to_windows_path(path)
-          if wsl? && wsl_windows_access?
+          if wsl? && wsl_windows_access? && !path.match(/^[a-zA-Z]:/)
             if wsl_path?(path)
               parts = path.split("/")
               parts.delete_if(&:empty?)
-              [wsl_windows_appdata_local, "lxss", *parts].join("\\")
+              root_path = wsl_rootfs
+              # lxrun splits home separate so we need to account
+              # for it's specialness here when we build the path
+              if root_path.end_with?("lxss") && parts.first != "home"
+                root_path = "#{root_path}\\rootfs"
+              end
+              [root_path, *parts].join("\\")
             else
               path = path.to_s.sub("/mnt/", "")
               parts = path.split("/")

@@ -23,6 +23,7 @@ tags
 test/tmp/
 vendor/
 /exec
+.ruby-bundle
 
 # Documentation
 _site/*

@@ -13,12 +13,27 @@ module Vagrant
       MINIMUM_REQUIRED_VERSION = 3
       LOGGER = Log4r::Logger.new("vagrant::util::powershell")
 
+      # @return [String|nil] a powershell executable, depending on environment
+      def self.executable
+        if !defined?(@_powershell_executable)
+          @_powershell_executable = "powershell"
+
+          # Try to use WSL interoperability if PowerShell is not symlinked to
+          # the container.
+          if Which.which(@_powershell_executable).nil? && Platform.wsl?
+            @_powershell_executable += ".exe"
+
+            if Which.which(@_powershell_executable).nil?
+              @_powershell_executable = nil
+            end
+          end
+        end
+        @_powershell_executable
+      end
+
       # @return [Boolean] powershell executable available on PATH
       def self.available?
-        if !defined?(@_powershell_available)
-          @_powershell_available = !!Which.which("powershell")
-        end
-        @_powershell_available
+        !executable.nil?
       end
 
       # Execute a powershell script.
@@ -27,12 +42,11 @@ module Vagrant
       # @return [Subprocess::Result]
       def self.execute(path, *args, **opts, &block)
         validate_install!
-
         if opts.delete(:sudo) || opts.delete(:runas)
           powerup_command(path, args, opts)
         else
           command = [
-            "powershell",
+            executable,
             "-NoLogo",
             "-NoProfile",
             "-NonInteractive",
@@ -57,7 +71,7 @@ module Vagrant
       def self.execute_cmd(command)
         validate_install!
         c = [
-          "powershell",
+          executable,
           "-NoLogo",
           "-NoProfile",
           "-NonInteractive",
@@ -77,7 +91,7 @@ module Vagrant
       def self.version
         if !defined?(@_powershell_version)
           command = [
-            "powershell",
+            executable,
             "-NoLogo",
             "-NoProfile",
             "-NonInteractive",

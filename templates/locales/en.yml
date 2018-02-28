@@ -1629,6 +1629,10 @@ en:
         Linux, please refer to the Vagrant documentation:
 
           https://www.vagrantup.com/docs/other/wsl.html
+      wsl_rootfs_not_found_error: |-
+        Vagrant is unable to determine the location of this instance of the Windows
+        Subsystem for Linux. If this error persists it may be resolved by destroying
+        this subsystem and installing it again.
 #-------------------------------------------------------------------------------
 # Translations for config validation errors
 #-------------------------------------------------------------------------------
