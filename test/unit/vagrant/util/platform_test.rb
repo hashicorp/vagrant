@@ -4,8 +4,7 @@ require "vagrant/util/platform"
 
 describe Vagrant::Util::Platform do
   include_context "unit"
-
-
+  after{ described_class.reset! }
   subject { described_class }
 
   describe "#cygwin_path" do
@@ -55,11 +54,6 @@ describe Vagrant::Util::Platform do
   describe "#cygwin?" do
     before do
       allow(subject).to receive(:platform).and_return("test")
-      described_class.reset!
-    end
-
-    after do
-      described_class.reset!
     end
 
     around do |example|
@@ -99,11 +93,6 @@ describe Vagrant::Util::Platform do
   describe "#msys?" do
     before do
       allow(subject).to receive(:platform).and_return("test")
-      described_class.reset!
-    end
-
-    after do
-      described_class.reset!
     end
 
     around do |example|
@@ -162,7 +151,6 @@ describe Vagrant::Util::Platform do
 
   describe ".systemd?" do
     before{ allow(subject).to receive(:windows?).and_return(false) }
-    after{ subject.reset! }
 
     context "on windows" do
       before{ expect(subject).to receive(:windows?).and_return(true) }
@@ -223,10 +211,85 @@ describe Vagrant::Util::Platform do
     end
 
     it "should return false if disabled" do
-      Vagrant::Util::Platform.reset!
       allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return('Disabled')
 
       expect(Vagrant::Util::Platform.windows_hyperv_enabled?).to be_falsey
+    end
+  end
+
+  context "within the WSL" do
+    before{ allow(subject).to receive(:wsl?).and_return(true) }
+
+    describe ".wsl_path?" do
+      it "should return true when path is not within /mnt" do
+        expect(subject.wsl_path?("/tmp")).to be(true)
+      end
+
+      it "should return false when path is within /mnt" do
+        expect(subject.wsl_path?("/mnt/c")).to be false
+      end
+    end
+
+    describe ".wsl_rootfs" do
+      let(:appdata_path){ "C:\\Custom\\Path" }
+      let(:registry_paths){ nil }
+
+      before do
+        allow(subject).to receive(:wsl_windows_appdata_local).and_return(appdata_path)
+        allow(Tempfile).to receive(:new).and_return(double("tempfile", path: "file.path", close!: true))
+        allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return(registry_paths)
+      end
+
+      context "when no instance information is in the registry" do
+        before do
+          expect(Dir).to receive(:open).with(/.*Custom.*Path.*/).and_yield(double("path", path: appdata_path))
+          expect(File).to receive(:exist?).and_return(true)
+        end
+
+        it "should only check the lxrun path" do
+          expect(subject.wsl_rootfs).to include(appdata_path)
+        end
+      end
+
+      context "with instance information in the registry" do
+        let(:registry_paths) { ["C:\\Path1", "C:\\Path2"].join("\r\n") }
+
+        before do
+          allow(Dir).to receive(:open).and_yield(double("path", path: appdata_path))
+          allow(File).to receive(:exist?).and_return(false)
+        end
+
+        context "when no matches are detected" do
+          it "should check all paths given" do
+            expect(Dir).to receive(:open).and_yield(double("path", path: appdata_path)).exactly(3).times
+            expect(File).to receive(:exist?).and_return(false).exactly(3).times
+            expect{ subject.wsl_rootfs }.to raise_error(Vagrant::Errors::WSLRootFsNotFoundError)
+          end
+
+          it "should raise not found error" do
+            expect{ subject.wsl_rootfs }.to raise_error(Vagrant::Errors::WSLRootFsNotFoundError)
+          end
+        end
+
+        context "when file marker match found" do
+          let(:matching_path){ registry_paths.split("\r\n").last }
+          let(:matching_part){ matching_path.split("\\").last }
+
+          before do
+            allow(File).to receive(:exist?).with(/#{matching_part}/).and_return(true)
+          end
+
+          it "should return the matching path" do
+            expect(Dir).to receive(:open).with(/#{matching_part}/).and_yield(double("path", path: matching_part))
+            expect(subject.wsl_rootfs).to eq(matching_path)
+          end
+
+          it "should return matching path when access error encountered" do
+            expect(Dir).to receive(:open).with(/#{matching_part}/).and_raise(Errno::EACCES)
+            expect(subject.wsl_rootfs).to eq(matching_path)
+          end
+        end
+      end
     end
   end
 end
