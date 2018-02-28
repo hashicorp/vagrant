@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
   - guests/solaris: More explicit Solaris 11 and inherit SmartOS from Solaris [GH-9398]
+  - hosts/windows: Add support for latest WSL release [GH-9525, GH-9300]
   - plugins/login: Update middleware to re-map hosts and warn on custom server [GH-9499]
   - providers/hyper-v: Exit if Hyper-V is enabled and VirtualBox provider is used [GH-9456]
   - provisioners/salt: Change to a temporary directory before downloading script files [GH-9351]
