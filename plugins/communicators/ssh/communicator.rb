@@ -193,6 +193,9 @@ module VagrantPlugins
             f.write(priv)
           end
 
+          @logger.info("Changing permissions on private key to 0600")
+          @machine.data_dir.join("private_key").chmod(0600)
+
           # Remove the old key if it exists
           @machine.ui.detail(I18n.t("vagrant.inserting_remove_key"))
           @machine.guest.capability(
