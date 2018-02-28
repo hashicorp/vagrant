@@ -281,12 +281,69 @@ describe Vagrant::Util::Platform do
 
           it "should return the matching path" do
             expect(Dir).to receive(:open).with(/#{matching_part}/).and_yield(double("path", path: matching_part))
-            expect(subject.wsl_rootfs).to eq(matching_path)
+            expect(subject.wsl_rootfs).to start_with(matching_path)
           end
 
           it "should return matching path when access error encountered" do
             expect(Dir).to receive(:open).with(/#{matching_part}/).and_raise(Errno::EACCES)
-            expect(subject.wsl_rootfs).to eq(matching_path)
+            expect(subject.wsl_rootfs).to start_with(matching_path)
+          end
+        end
+      end
+    end
+
+    describe ".wsl_to_windows_path" do
+      let(:path){ "/home/vagrant/test" }
+
+      context "when not within WSL" do
+        before{ allow(subject).to receive(:wsl?).and_return(false) }
+
+        it "should return the path unmodified" do
+          expect(subject.wsl_to_windows_path(path)).to eq(path)
+        end
+      end
+
+      context "when within WSL" do
+        before{ allow(subject).to receive(:wsl?).and_return(true) }
+
+        context "when windows access is not enabled" do
+          before{ allow(subject).to receive(:wsl_windows_access?).and_return(false) }
+
+          it "should return the path unmodified" do
+            expect(subject.wsl_to_windows_path(path)).to eq(path)
+          end
+        end
+
+        context "when windows access is enabled" do
+          let(:rootfs_path){ "C:\\WSL\\rootfs" }
+
+          before do
+            allow(subject).to receive(:wsl_windows_access?).and_return(true)
+            allow(subject).to receive(:wsl_rootfs).and_return(rootfs_path)
+          end
+
+          it "should generate expanded path when within WSL" do
+            expect(subject.wsl_to_windows_path(path)).to eq("#{rootfs_path}#{path.gsub("/", "\\")}")
+          end
+
+          it "should generate direct path when outside the WSL" do
+            expect(subject.wsl_to_windows_path("/mnt/c/vagrant")).to eq("c:\\vagrant")
+          end
+
+          it "should not modify path when already in windows format" do
+            expect(subject.wsl_to_windows_path("C:\\vagrant")).to eq("C:\\vagrant")
+          end
+
+          context "when within lxrun generated WSL instance" do
+            let(:rootfs_path){ "C:\\WSL\\lxss" }
+
+            it "should not include rootfs when accessing home" do
+              expect(subject.wsl_to_windows_path("/home/vagrant")).not_to include("rootfs")
+            end
+
+            it "should include rootfs when accessing non-home path" do
+              expect(subject.wsl_to_windows_path("/tmp/test")).to include("rootfs")
+            end
           end
         end
       end

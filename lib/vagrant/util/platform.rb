@@ -305,7 +305,8 @@ module Vagrant
             logger = Log4r::Logger.new("vagrant::util::platform::wsl")
 
             # Check for lxrun installation first
-            paths = [[wsl_windows_appdata_local, "lxss"].join("\\")]
+            lxrun_path = [wsl_windows_appdata_local, "lxss"].join("\\")
+            paths = [lxrun_path]
 
             logger.debug("checking registry for WSL installation path")
             paths += PowerShell.execute_cmd(
@@ -363,6 +364,11 @@ module Vagrant
             raise Vagrant::Errors::WSLRootFsNotFoundError if @_wsl_rootfs.nil?
           end
 
+          # Attach the rootfs leaf to the path
+          if @_wsl_rootfs != lxrun_path
+            @_wsl_rootfs = "#{@_wsl_rootfs}\\rootfs"
+          end
+
           logger.debug("detected `#{@_wsl_rootfs}` as current WSL instance")
 
           @_wsl_rootfs
@@ -375,11 +381,17 @@ module Vagrant
         # @param [String, Pathname] path Path to convert
         # @return [String]
         def wsl_to_windows_path(path)
-          if wsl? && wsl_windows_access?
+          if wsl? && wsl_windows_access? && !path.match(/^[a-zA-Z]:/)
             if wsl_path?(path)
               parts = path.split("/")
               parts.delete_if(&:empty?)
-              [wsl_rootfs, *parts].join("\\")
+              root_path = wsl_rootfs
+              # lxrun splits home separate so we need to account
+              # for it's specialness here when we build the path
+              if root_path.end_with?("lxss") && parts.first != "home"
+                root_path = "#{root_path}\\rootfs"
+              end
+              [root_path, *parts].join("\\")
             else
               path = path.to_s.sub("/mnt/", "")
               parts = path.split("/")
