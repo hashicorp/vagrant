@@ -1,4 +1,5 @@
 require "fileutils"
+require 'vagrant/util/platform'
 
 module VagrantPlugins
   module ProviderVirtualBox
@@ -32,7 +33,15 @@ module VagrantPlugins
         end
 
         def ovf_path
-          File.join(@env["export.temp_dir"], "box.ovf")
+          path = File.join(@env["export.temp_dir"], "box.ovf")
+
+          # If we're within WSL, we should use the correct path rather than
+          # the mnt path. GH-9059
+          if Vagrant::Util::Platform.wsl?
+            path = Vagrant::Util::Platform.wsl_to_windows_path(path)
+          end
+
+          return path
         end
       end
     end
