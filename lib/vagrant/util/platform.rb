@@ -105,9 +105,9 @@ module Vagrant
           return @_windows_hyperv_enabled if defined?(@_windows_hyperv_enabled)
 
           @_windows_hyperv_enabled = -> {
-            ps_cmd = "$(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online).State"
+            ps_cmd = "$(Get-ComputerInfo).HypervisorPresent"
             output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
-            return output == 'Enabled'
+            return output == 'True'
           }.call
 
           return @_windows_hyperv_enabled
