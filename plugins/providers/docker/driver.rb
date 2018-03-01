@@ -49,14 +49,23 @@ module VagrantPlugins
         run_cmd += volumes.map { |v|
           v = v.to_s
           if v.include?(":") && @executor.windows?
-            host, guest = v.split(":", 2)
-            host = Vagrant::Util::Platform.windows_path(host)
-            # NOTE: Docker does not support UNC style paths (which also
-            # means that there's no long path support). Hopefully this
-            # will be fixed someday and the gsub below can be removed.
-            host.gsub!(/^[^A-Za-z]+/, "")
-            v = [host, guest].join(":")
+            if v.index(":") != v.rindex(":")
+              # If we have 2 colons, the host path is an absolute Windows URL
+              # and we need to remove the colon from it
+              host, colon, guest = v.rpartition(":")
+              host = "//" + host[0].downcase + host[2..-1]
+              v = [host, guest].join(":")
+            else 
+              host, guest = v.split(":", 2)
+                  host = Vagrant::Util::Platform.windows_path(host)
+                  # NOTE: Docker does not support UNC style paths (which also
+                  # means that there's no long path support). Hopefully this
+                  # will be fixed someday and the gsub below can be removed.
+                  host.gsub!(/^[^A-Za-z]+/, "")
+                  v = [host, guest].join(":")
+            end
           end
+
           ['-v', v.to_s]
         }
         run_cmd += %W(--privileged) if params[:privileged]
