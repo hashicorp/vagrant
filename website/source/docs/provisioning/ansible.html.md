@@ -125,7 +125,7 @@ end
 
 <div class="alert alert-info">
   <strong>Tip:</strong>
-  If you apply this parallel provisioning pattern with a static Ansible inventory, you will have to organize the things so that [all the relevant private keys are provided to the `ansible-playbook` command](https://github.com/mitchellh/vagrant/pull/5765#issuecomment-120247738). The same kind of considerations applies if you are using multiple private keys for a same machine (see [`config.ssh.private_key_path` SSH setting](/docs/vagrantfile/ssh_settings.html)).
+  If you apply this parallel provisioning pattern with a static Ansible inventory, you will have to organize the things so that [all the relevant private keys are provided to the `ansible-playbook` command](https://github.com/hashicorp/vagrant/pull/5765#issuecomment-120247738). The same kind of considerations applies if you are using multiple private keys for a same machine (see [`config.ssh.private_key_path` SSH setting](/docs/vagrantfile/ssh_settings.html)).
 </div>
 
 ### Force Paramiko Connection Mode

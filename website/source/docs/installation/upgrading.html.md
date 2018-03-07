@@ -29,7 +29,7 @@ newer Vagrantfiles may have backwards incompatible changes until 2.0 final.
 
 <div class="alert alert-info alert-block">
   <strong>Run into troubles upgrading?</strong> Please
-  <a href="https://github.com/mitchellh/vagrant/issues" class="alert-link">report an issue</a>
+  <a href="https://github.com/hashicorp/vagrant/issues" class="alert-link">report an issue</a>
   if you run into problems upgrading. Upgrades are meant to be a smooth
   process and we consider it a bug if it was not.
 </div>

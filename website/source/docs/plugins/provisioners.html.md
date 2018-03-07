@@ -50,7 +50,7 @@ The provisioner class should subclass and implement
 Vagrant return the proper parent class for provisioners.
 
 This class and the methods that need to be implemented are
-[very well documented](https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/plugin/v2/provisioner.rb).
+[very well documented](https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/plugin/v2/provisioner.rb).
 The documentation on the class in the comments should be enough
 to understand what needs to be done.
 
@@ -60,7 +60,7 @@ There are two main methods that need to be implemented: the
 The `configure` method is called early in the machine booting process
 to allow the provisioner to define new configuration on the machine, such
 as sharing folders, defining networks, etc. As an example, the
-[Chef solo provisioner](https://github.com/mitchellh/vagrant/blob/master/plugins/provisioners/chef/provisioner/chef_solo.rb#L24)
+[Chef solo provisioner](https://github.com/hashicorp/vagrant/blob/master/plugins/provisioners/chef/provisioner/chef_solo.rb#L24)
 uses this to define shared folders.
 
 The `provision` method is called when the machine is booted and ready
