@@ -63,7 +63,7 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
     # the machines config file, they end up being a full path rather than a
     # relative path, and so these tests reflect that.
     # For reference:
-    # https://github.com/mitchellh/vagrant/blob/9c1b014536e61b332cfaa00774a87a240cce8ed9/lib/vagrant/action/builtin/synced_folders.rb#L45-L46
+    # https://github.com/hashicorp/vagrant/blob/9c1b014536e61b332cfaa00774a87a240cce8ed9/lib/vagrant/action/builtin/synced_folders.rb#L45-L46
     let(:config_synced_folders)  { {"/vagrant":
                                    {type: "rsync",
                                     exclude: false,

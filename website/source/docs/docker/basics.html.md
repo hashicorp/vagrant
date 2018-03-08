@@ -88,7 +88,7 @@ you only have the overhead of one virtual machine, and only if it is
 absolutely necessary.
 
 By default, the host VM Vagrant spins up is
-[backed by boot2docker](https://github.com/mitchellh/vagrant/blob/master/plugins/providers/docker/hostmachine/Vagrantfile),
+[backed by boot2docker](https://github.com/hashicorp/vagrant/blob/master/plugins/providers/docker/hostmachine/Vagrantfile),
 because it launches quickly and uses little resources. But the host VM
 can be customized to point to _any_ Vagrantfile. This allows the host VM
 to more closely match production by running a VM running Ubuntu, RHEL,

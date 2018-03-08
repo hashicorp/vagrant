@@ -36,4 +36,4 @@ In Apache:
 
     EnableSendfile Off
 
-[sendfile bug]: https://github.com/mitchellh/vagrant/issues/351#issuecomment-1339640
+[sendfile bug]: https://github.com/hashicorp/vagrant/issues/351#issuecomment-1339640

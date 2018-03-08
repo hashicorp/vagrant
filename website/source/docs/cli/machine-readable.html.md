@@ -35,7 +35,7 @@ of the commands. It is likely that what you may want to achieve with
 the machine-readable output is not possible due to missing information.
 
 In this case, we ask that you please
-[open an issue](https://github.com/mitchellh/vagrant/issues)
+[open an issue](https://github.com/hashicorp/vagrant/issues)
 requesting that certain information become available. We will most likely add
 it!
 

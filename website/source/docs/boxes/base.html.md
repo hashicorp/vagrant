@@ -119,7 +119,7 @@ users, passwords, private keys, etc.).
 
 By default, Vagrant expects a "vagrant" user to SSH into the machine as.
 This user should be setup with the
-[insecure keypair](https://github.com/mitchellh/vagrant/tree/master/keys)
+[insecure keypair](https://github.com/hashicorp/vagrant/tree/master/keys)
 that Vagrant uses as a default to attempt to SSH. Also, even though
 Vagrant uses key-based authentication by default, it is a general convention
 to set the password for the "vagrant" user to "vagrant". This lets people

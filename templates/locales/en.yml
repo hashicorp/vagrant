@@ -302,7 +302,7 @@ en:
       If you're curious what changed in the latest release, view the
       CHANGELOG below:
 
-        https://github.com/mitchellh/vagrant/blob/v%{version}/CHANGELOG.md
+        https://github.com/hashicorp/vagrant/blob/v%{version}/CHANGELOG.md
 
     cfengine_config:
       classes_array: |-
@@ -1167,7 +1167,7 @@ en:
         take a look at the Vagrant source code linked below and try
         to contribute back support. Thank you!
 
-        https://github.com/mitchellh/vagrant
+        https://github.com/hashicorp/vagrant
       rsync_error: |-
         There was an error when attempting to rsync a synced folder.
         Please inspect the error message below for more info.
@@ -2394,7 +2394,7 @@ en:
           take a look at the Vagrant source code linked below and try
           to contribute back support. Thank you!
 
-          https://github.com/mitchellh/vagrant
+          https://github.com/hashicorp/vagrant
         errors:
           ansible_command_failed: |-
             Ansible failed to complete successfully. Any error output should be
@@ -2431,7 +2431,7 @@ en:
             %{details}
 
             Sorry, but this Vagrant error should never occur.
-            Please check https://github.com/mitchellh/vagrant/issues for any
+            Please check https://github.com/hashicorp/vagrant/issues for any
             existing bug report. If needed, please create a new issue. Thank you!
           cannot_support_pip_install: |-
             Unfortunately Vagrant does not support yet installing Ansible
@@ -2441,7 +2441,7 @@ en:
             take a look at the Vagrant source code linked below and try
             to contribute back support. Thank you!
 
-            https://github.com/mitchellh/vagrant
+            https://github.com/hashicorp/vagrant
           ansible_version_mismatch: |-
             The requested Ansible version (%{required_version}) was not found on the %{system}.
             Please check the Ansible installation on your Vagrant %{system} system (currently: %{current_version}),
