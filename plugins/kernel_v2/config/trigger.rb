@@ -37,6 +37,16 @@ module VagrantPlugins
       # @return [String, Array]
       attr_accessor :only_on
 
+      # A local inline or file script to execute for the trigger
+      #
+      # @return [???]
+      attr_accessor :run
+
+      # A remote inline or file script to execute for the trigger
+      #
+      # @return [???]
+      attr_accessor :run_remote
+
       def initialize
         @logger = Log4r::Logger.new("vagrant::config::trigger")
 
@@ -47,6 +57,8 @@ module VagrantPlugins
         @on_error = UNSET_VALUE
         @ignore = UNSET_VALUE
         @only_on = UNSET_VALUE
+        @run = UNSET_VALUE
+        @run_remote = UNSET_VALUE
       end
 
       # @param [Array, Symbol] command Vagrant command to create trigger on
@@ -74,7 +86,9 @@ module VagrantPlugins
         @warn = nil if @warn == UNSET_VALUE
         @on_error = DEFAULT_ON_ERROR if @on_error == UNSET_VALUE
         @ignore = nil if @ignore == UNSET_VALUE
-        @only_on = :halt if @only_on == UNSET_VALUE
+        @only_on = nil if @only_on == UNSET_VALUE
+        @run = nil if @run == UNSET_VALUE
+        @run_remote = nil if @run_remote == UNSET_VALUE
       end
 
       # Validate Trigger settings
