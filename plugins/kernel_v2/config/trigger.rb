@@ -63,12 +63,12 @@ module VagrantPlugins
 
       # @param [Array, Symbol] command Vagrant command to create trigger on
       # @param [Block] block The defined after block
-      def before(**command, &block)
+      def before(*command, &block)
       end
 
       # @param [Array, Symbol] command Vagrant command to create trigger on
       # @param [Block] block The defined after block
-      def after(**command, &block)
+      def after(*command, &block)
       end
 
       # @param [Array, Symbol] command Vagrant command to create trigger on
