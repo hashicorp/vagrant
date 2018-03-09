@@ -39,18 +39,21 @@ module VagrantPlugins
 
       # A local inline or file script to execute for the trigger
       #
-      # @return [???]
+      # @return [Hash]
       attr_accessor :run
 
       # A remote inline or file script to execute for the trigger
       #
-      # @return [???]
+      # @return [Hash]
       attr_accessor :run_remote
 
       def initialize
         @logger = Log4r::Logger.new("vagrant::config::trigger")
 
         # Internal state
+        @_commands = []
+
+        # Trigger config options
         @name = UNSET_VALUE
         @info = UNSET_VALUE
         @warn = UNSET_VALUE
@@ -71,9 +74,10 @@ module VagrantPlugins
       def after(*command, &block)
       end
 
-      # @param [Array, Symbol] command Vagrant command to create trigger on
-      # @return [ActionHook] returns action hook?
-      def parse_trigger_block(**command)
+      # Sets the internal Trigger state for which commands the Trigger will run on
+      #
+      # @param [Array, Symbol, Args] command Vagrant command to create trigger on
+      def parse_command_whitelist(*command)
       end
 
       #-------------------------------------------------------------------
@@ -93,6 +97,15 @@ module VagrantPlugins
 
       # Validate Trigger settings
       def validate(machine)
+        if !@run.nil?
+          # validate proper keys
+          # WARN if invalid keys are used?
+        end
+
+        if !@run_remote.nil?
+          # validate proper keys
+          # WARN if invalid keys are used?
+        end
       end
 
       # The String representation of this Trigger.
