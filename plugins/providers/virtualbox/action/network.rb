@@ -480,8 +480,8 @@ module VagrantPlugins
             return interface if config[:name] && config[:name] == interface[:name]
 
             #if a config name is specified, we should only look for that.
-            if config[:name] != ""
-                next
+            if config[:name].to_s != ""
+              next
             end
 
             if interface[:ip] != ""
