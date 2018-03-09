@@ -97,6 +97,8 @@ module VagrantPlugins
 
       # Validate Trigger settings
       def validate(machine)
+        errors = _detected_errors
+
         if !@run.nil?
           # validate proper keys
           # WARN if invalid keys are used?
@@ -106,6 +108,8 @@ module VagrantPlugins
           # validate proper keys
           # WARN if invalid keys are used?
         end
+
+        {"triggers" => errors}
       end
 
       # The String representation of this Trigger.
