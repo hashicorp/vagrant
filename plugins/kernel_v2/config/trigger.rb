@@ -10,6 +10,15 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :name
 
+      # Internal unique name for this provisioner
+      # Set to the given :name if exists, otherwise
+      # it's set as a UUID.
+      #
+      # Note: This is for internal use only.
+      #
+      # @return [String]
+      attr_reader :id
+
       # A string to print at the WARN level
       #
       # @return [String]
@@ -51,7 +60,13 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::config::trigger")
 
         # Internal state
-        @_commands = []
+        @id = SecureRandom.uuid
+        # Expected to store state like:
+        # {@id=>{"command" => [Triggers],"command2"=>[Triggers]}}
+        # finalize will take this data structure and construct action hooks
+        # Does this make sense
+        @_before_triggers = {} # A hash of all before triggers and their settings
+        @_after_triggers  = {} # A hash of all after triggers and their settings
 
         # Trigger config options
         @name = UNSET_VALUE
@@ -64,27 +79,61 @@ module VagrantPlugins
         @run_remote = UNSET_VALUE
       end
 
+      # Reads in and parses Vagrant command whitelist and settings for a defined
+      # trigger
+      #
       # @param [Array, Symbol] command Vagrant command to create trigger on
-      # @param [Block] block The defined after block
+      # @param [Block] block The defined before block
       def before(*command, &block)
+        if block_given?
+          puts "the command: #{command}"
+          puts "the block: #{block}"
+          command.each do |cmd|
+            @_before_triggers[@id] = {cmd=>block}
+          end
+          puts @_before_triggers
+        elsif command.last.is_a?(Hash)
+          blck = command.pop
+          command.each do |cmd|
+            @_before_triggers[@id] = {cmd=>blck}
+          end
+        else
+          # No config block given at all, validation step should throw error?
+        end
+        puts "The trigger: #{@_before_triggers}"
       end
 
       # @param [Array, Symbol] command Vagrant command to create trigger on
       # @param [Block] block The defined after block
       def after(*command, &block)
-      end
-
-      # Sets the internal Trigger state for which commands the Trigger will run on
-      #
-      # @param [Array, Symbol, Args] command Vagrant command to create trigger on
-      def parse_command_whitelist(*command)
+        if block_given?
+          store_after_trigger(command, block)
+        elsif command.last.is_a?(Hash)
+          blck = command.pop
+          store_after_trigger(command, blck)
+        else
+          # No config block given at all, validation step should throw error?
+        end
       end
 
       #-------------------------------------------------------------------
       # Internal methods, don't call these.
       #-------------------------------------------------------------------
 
+      def store_before_trigger(*command, block)
+        command.each do |cmd|
+          @_before_triggers[@id] = {cmd=>block}
+        end
+      end
+
+      def store_after_trigger(*command, block)
+        command.each do |cmd|
+          @_after_triggers[@id] = {cmd=>block}
+        end
+      end
+
       def finalize!
+        # Ensure all config options are set to nil if untouched by user
         @name = nil if @name == UNSET_VALUE
         @info = nil if @info == UNSET_VALUE
         @warn = nil if @warn == UNSET_VALUE
@@ -98,16 +147,6 @@ module VagrantPlugins
       # Validate Trigger settings
       def validate(machine)
         errors = _detected_errors
-
-        if !@run.nil?
-          # validate proper keys
-          # WARN if invalid keys are used?
-        end
-
-        if !@run_remote.nil?
-          # validate proper keys
-          # WARN if invalid keys are used?
-        end
 
         {"triggers" => errors}
       end
