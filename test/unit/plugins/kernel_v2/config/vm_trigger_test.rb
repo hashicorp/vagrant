@@ -1,8 +1,8 @@
 require File.expand_path("../../../../base", __FILE__)
 
-require Vagrant.source_root.join("plugins/kernel_v2/config/trigger")
+require Vagrant.source_root.join("plugins/kernel_v2/config/vm_trigger")
 
-describe VagrantPlugins::Kernel_V2::TriggerConfig do
+describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
   include_context "unit"
 
   subject { described_class.new }
@@ -29,6 +29,8 @@ describe VagrantPlugins::Kernel_V2::TriggerConfig do
     allow(machine).to receive(:env).and_return(env)
     allow(machine).to receive(:provider_config).and_return(nil)
     allow(machine).to receive(:provider_options).and_return({})
+
+    subject.name = "foo"
   end
 
   it "is valid with test defaults" do
