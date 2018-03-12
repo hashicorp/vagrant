@@ -15,6 +15,8 @@ then
     mv "${GEM_PATH}" vagrant-spec.gem
 fi
 
+vagrant status --debug
+
 guests=$(vagrant status | grep vmware | awk '{print $1}')
 
 vagrant up --no-provision

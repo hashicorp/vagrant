@@ -57,12 +57,10 @@ Vagrant.configure(2) do |global_config|
         config.vm.box_version = box_version
         config.vm.synced_folder '.', '/vagrant', disable: true
         config.vm.synced_folder '../../', '/vagrant'
-        [:vmware_workstation, :vmware_fusion].each do |vmware_provider|
-          config.vm.provider vmware_provider do |vmware|
-            vmware.vmx["memsize"] = ENV.fetch("VAGRANT_HOST_MEMORY", "2048")
-            vmware.vmx['vhv.enable'] = 'TRUE'
-            vmware.vmx['vhv.allow'] = 'TRUE'
-          end
+        config.vm.provider :vmware_desktop do |vmware|
+          vmware.vmx["memsize"] = ENV.fetch("VAGRANT_HOST_MEMORY", "2048")
+          vmware.vmx['vhv.enable'] = 'TRUE'
+          vmware.vmx['vhv.allow'] = 'TRUE'
         end
         if platform == "windows"
           config.vm.provision :shell, path: "./scripts/#{platform}-setup.#{provider_name}.ps1", run: "once"
