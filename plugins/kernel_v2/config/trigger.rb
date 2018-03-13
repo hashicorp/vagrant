@@ -32,8 +32,7 @@ module VagrantPlugins
         end
 
         command.each do |cmd|
-          trigger = VagrantConfigTrigger.new(cmd)
-          trigger.add_config(blk)
+          trigger = create_trigger(cmd, blk)
           @_before_triggers << trigger
         end
       end
@@ -42,7 +41,7 @@ module VagrantPlugins
       # trigger
       #
       # @param [Symbol] command Vagrant command to create trigger on
-      # @param [Block] block The defined before block
+      # @param [Block] block The defined after block
       def after(*command, &block)
         blk = block
         if !block_given? && command.last.is_a?(Hash)
@@ -55,8 +54,7 @@ module VagrantPlugins
         end
 
         command.each do |cmd|
-          trigger = VagrantConfigTrigger.new(cmd)
-          trigger.add_config(blk)
+          trigger = create_trigger(cmd, blk)
           @_after_triggers << trigger
         end
       end
@@ -64,6 +62,19 @@ module VagrantPlugins
       #-------------------------------------------------------------------
       # Internal methods, don't call these.
       #-------------------------------------------------------------------
+
+      # @param [Symbol] command Vagrant command to create trigger on
+      # @param [Block] block The defined config block
+      def create_trigger(command, block)
+        trigger = VagrantConfigTrigger.new(cmd)
+        if block.is_a?(Hash)
+          trigger.set_options(block)
+        else
+          block.call(trigger, VagrantConfigTrigger)
+        end
+        trigger.finalize!
+        return trigger
+      end
 
       def finalize!
         # read through configured settings blocks and set their values

@@ -79,15 +79,9 @@ module VagrantPlugins
         @command = command.to_sym
       end
 
-      # Expecting a ruby block of a trigger config
-      def add_config(config_block)
-        if config_block.is_a?(Hash)
-          # We have a ruby hash
-          self.set_options(config_block)
-        else
-          # We have a ruby block
-        end
-      end
+      #-------------------------------------------------------------------
+      # Internal methods, don't call these.
+      #-------------------------------------------------------------------
 
       def finalize!
         # Ensure all config options are set to nil if untouched by user
