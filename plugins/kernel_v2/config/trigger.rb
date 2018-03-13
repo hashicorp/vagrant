@@ -63,8 +63,13 @@ module VagrantPlugins
       # Internal methods, don't call these.
       #-------------------------------------------------------------------
 
+      # Creates a new trigger config. If a block is given, parse that block
+      # by calling it with the created trigger. Otherwise set the options if it's
+      # a hash.
+      #
       # @param [Symbol] command Vagrant command to create trigger on
       # @param [Block] block The defined config block
+      # @return [VagrantConfigTrigger]
       def create_trigger(command, block)
         trigger = VagrantConfigTrigger.new(command)
         if block.is_a?(Hash)
