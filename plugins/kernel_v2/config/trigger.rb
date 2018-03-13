@@ -66,7 +66,7 @@ module VagrantPlugins
       # @param [Symbol] command Vagrant command to create trigger on
       # @param [Block] block The defined config block
       def create_trigger(command, block)
-        trigger = VagrantConfigTrigger.new(cmd)
+        trigger = VagrantConfigTrigger.new(command)
         if block.is_a?(Hash)
           trigger.set_options(block)
         else
