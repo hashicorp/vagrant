@@ -113,6 +113,17 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
+        commands = []
+        # TODO: Should this be cached...?
+        Vagrant.plugin("2").manager.commands.each do |key,data|
+          commands.push(key)
+        end
+
+        if !commands.include?(@command)
+          machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
+                                cmd: @command))
+        end
+
         if !@run.nil?
           if !@run.is_a?(Hash)
             # Run must be a hash

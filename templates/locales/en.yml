@@ -1678,6 +1678,8 @@ en:
           The key `paranoid` is deprecated. Please use `verify_host_key`. Supported
           values are exactly the same, only the name of the option has changed.
       triggers:
+        bad_command_warning: |-
+          The command '%{cmd}' was not found for this trigger.
         name_bad_type: |-
           Invalid type set for `name` on trigger for command '%{cmd}'. `name` should be a String.
         on_error_bad_type: |-
