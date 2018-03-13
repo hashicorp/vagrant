@@ -11,8 +11,8 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::config::trigger")
 
         # Internal State
-        @_before_triggers = [] # An array of VagrantConfigTrigger objectrs
-        @_after_triggers  = [] # An array of VagrantConfigTrigger objectrs
+        @_before_triggers = [] # An array of VagrantConfigTrigger objects
+        @_after_triggers  = [] # An array of VagrantConfigTrigger objects
       end
 
       # Reads in and parses Vagrant command whitelist and settings for a defined
