@@ -90,6 +90,7 @@ module VagrantPlugins
       end
 
       # Validate Trigger settings
+      # TODO: Validate not called if there are providers defined in vagrantfile
       def validate(machine)
         errors = _detected_errors
         @_before_triggers.each do |bt|

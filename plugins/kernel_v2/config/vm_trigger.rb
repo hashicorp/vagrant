@@ -114,12 +114,12 @@ module VagrantPlugins
         errors = _detected_errors
 
         commands = []
-        # TODO: Should this be cached...?
         Vagrant.plugin("2").manager.commands.each do |key,data|
           commands.push(key)
         end
 
         if !commands.include?(@command)
+          # does this make sense to print on this machine?
           machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
                                 cmd: @command))
         end
