@@ -90,16 +90,76 @@ module VagrantPlugins
         @warn = nil if @warn == UNSET_VALUE
         @on_error = DEFAULT_ON_ERROR if @on_error == UNSET_VALUE
         @ignore = nil if @ignore == UNSET_VALUE
-        @only_on = nil if @only_on == UNSET_VALUE
         @run = nil if @run == UNSET_VALUE
         @run_remote = nil if @run_remote == UNSET_VALUE
+        @only_on = nil if @only_on == UNSET_VALUE
+
+        # these values are expected to always be an Array internally,
+        # but can be set as a single String or Symbol
+        if @only_on.is_a?(String)
+          @logger.debug("Updating @only_on variable to be an Array")
+          @only_on = Array(@only_on)
+        end
+
+        if @ignore.is_a?(String)
+          @logger.debug("Updating @ignore variable to be an Array and Symbol")
+          @ignore = Array(@ignore.to_sym)
+        elsif @ignore.is_a?(Symbol)
+          @logger.debug("Updating @ignore variable to be an Array")
+          @ignore = Array(@ignore)
+        end
       end
 
       def validate(machine)
-        binding.pry
         errors = _detected_errors
-        # Validate that each config option has the right values and is the right type
-        {"triggers" => errors}
+
+        if !@run.nil?
+          if !@run.is_a?(Hash)
+            # Run must be a hash
+            errors << I18n.t("vagrant.config.triggers.run.bad_type", cmd: @command)
+          end
+
+          if !@run.key?(:inline) && !@run.key?(:file)
+            errors << I18n.t("vagrant.config.triggers.run.missing_context", cmd: @command)
+          end
+        end
+
+        if !@run_remote.nil?
+          if !@run_remote.is_a?(Hash)
+            errors << I18n.t("vagrant.config.triggers.run_remote.bad_type", cmd: @command)
+          end
+        end
+
+        if !@name.nil? && !@name.is_a?(String)
+          errors << I18n.t("vagrant.config.triggers.name_bad_type", cmd: @command)
+        end
+
+        if !@info.nil? && !@info.is_a?(String)
+          errors << I18n.t("vagrant.config.triggers.info_bad_type", cmd: @command)
+        end
+
+        if !@warn.nil? && !@warn.is_a?(String)
+          errors << I18n.t("vagrant.config.triggers.warn_bad_type", cmd: @command)
+        end
+
+        if @on_error != :halt
+          if @on_error != :continue
+            # must be :halt or :continue
+            errors << I18n.t("vagrant.config.triggers.on_error_bad_type", cmd: @command)
+          end
+        end
+
+        # @ignore validations?
+        # @only_on validations?
+
+        errors
+      end
+
+      # The String representation of this Trigger.
+      #
+      # @return [String]
+      def to_s
+        "Trigger Config"
       end
     end
   end

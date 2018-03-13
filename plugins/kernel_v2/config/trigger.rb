@@ -84,27 +84,25 @@ module VagrantPlugins
       def finalize!
         # read through configured settings blocks and set their values
         # and then set up action hooks here?
-        if !@_before_triggers.empty?
-          binding.pry
-        end
+        #if !@_before_triggers.empty?
+        #  binding.pry
+        #end
       end
 
       # Validate Trigger settings
       def validate(machine)
-        if !@_before_triggers.empty?
-          binding.pry
-        end
-
         errors = _detected_errors
         @_before_triggers.each do |bt|
-          errors << bt.validate(machine)
+          error = bt.validate(machine)
+          errors.concat error if !error.empty?
         end
 
         @_after_triggers.each do |at|
-          errors << at.validate(machine)
+          error = at.validate(machine)
+          errors.concat error if !error.empty?
         end
 
-        {"triggers" => errors}
+        {"trigger" => errors}
       end
 
       # The String representation of this Trigger.

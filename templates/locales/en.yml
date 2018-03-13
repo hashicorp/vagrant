@@ -1677,6 +1677,27 @@ en:
         paranoid_deprecated: |-
           The key `paranoid` is deprecated. Please use `verify_host_key`. Supported
           values are exactly the same, only the name of the option has changed.
+      triggers:
+        name_bad_type: |-
+          Invalid type set for `name` on trigger for command '%{cmd}'. `name` should be a String.
+        on_error_bad_type: |-
+          Invalid type set for `on_error` on trigger for command '%{cmd}'. `on_error` can
+          only be `:halt` (default) or `:continue`.
+        run:
+          bad_type: |-
+            Invalid type set for `run` on trigger for command '%{cmd}'. `run` must be a
+            Hash with either key `:inline` or `:file`
+          missing_context: |-
+            Missing key for trigger config setting `run` for command '%{cmd}'. `run` is expected
+            to be given either an `:inline` or `:file` setting.
+        run_remote:
+          bad_type: |-
+            Invalid type set for `run_remote` on trigger for command '%{cmd}'. `run` must be a
+            Hash with either key `:inline` or `:file`
+          missing_context: |-
+            Missing key for trigger config setting `run` for command '%{cmd}'. `run_remote` is expected
+            to be given either an `:inline` or `:file` setting.
+
       vm:
         bad_version: |-
           Invalid box version constraints: %{version}
