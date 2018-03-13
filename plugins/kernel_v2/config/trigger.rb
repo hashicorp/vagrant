@@ -84,9 +84,6 @@ module VagrantPlugins
       def finalize!
         # read through configured settings blocks and set their values
         # and then set up action hooks here?
-        # for some reason not all triggers are showing up here
-        #puts @_before_triggers if !@_before_triggers.empty?
-        #puts @_after_triggers if !@_after_triggers.empty?
         if !@_before_triggers.empty?
           binding.pry
         end
