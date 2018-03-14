@@ -102,6 +102,19 @@ module VagrantPlugins
         return trigger
       end
 
+      # Solve the mystery of disappearing state??
+      def merge(other)
+        super.tap do |result|
+          other_defined_before_triggers = other.instance_variable_get(:@_before_triggers)
+          other_defined_after_triggers = other.instance_variable_get(:@_after_triggers)
+
+          #overrides???
+
+          result.instance_variable_set(:@_before_triggers, other_defined_before_triggers)
+          result.instance_variable_set(:@_after_triggers, other_defined_after_triggers)
+        end
+      end
+
       def finalize!
         # read through configured settings blocks and set their values
         # and then set up action hooks here?
