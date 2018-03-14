@@ -130,6 +130,7 @@ module VagrantPlugins
       # Validate Trigger settings
       # TODO: Validate not called if there are guests defined in vagrantfile
       def validate(machine)
+        binding.pry
         errors = _detected_errors
         @_before_triggers.each do |bt|
           error = bt.validate(machine)
