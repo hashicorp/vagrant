@@ -7,6 +7,10 @@ module VagrantPlugins
     class VagrantConfigTrigger < Vagrant.plugin("2", :config)
       DEFAULT_ON_ERROR = :halt
 
+      #-------------------------------------------------------------------
+      # Config class for a given Trigger
+      #-------------------------------------------------------------------
+
       # Internal unique name for this trigger
       #
       # Note: This is for internal use only.
@@ -79,10 +83,6 @@ module VagrantPlugins
         @command = command.to_sym
       end
 
-      #-------------------------------------------------------------------
-      # Internal methods, don't call these.
-      #-------------------------------------------------------------------
-
       def finalize!
         # Ensure all config options are set to nil if untouched by user
         @name = nil if @name == UNSET_VALUE
@@ -103,7 +103,8 @@ module VagrantPlugins
         end
 
         if !@ignore.nil?
-          @ignore = Array(@ignore.to_sym)
+          @ignore = @ignore.to_sym if @ignore.is_a?(String)
+          @ignore = Array(@ignore)
         end
 
         # Convert @run and @run_remote to be a "Shell provisioner"
