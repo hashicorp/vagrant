@@ -15,13 +15,34 @@ module VagrantPlugins
         @_after_triggers  = [] # An array of VagrantConfigTrigger objects
       end
 
+      #-------------------------------------------------------------------
+      # Trigger before/after functions
+      #-------------------------------------------------------------------
+      #
+      # Commands are expected to be ether:
+      #   - splat
+      #     + config.trigger.before :up, :destroy, :halt do |trigger|....
+      #   - array
+      #     + config.trigger.before [:up, :destroy, :halt] do |trigger|....
+      #
+      # Config is expected to be given as a block, or the last parameter as a hash
+      #
+      #   - block
+      #     + config.trigger.before :up, :destroy, :halt do |trigger|
+      #         trigger.option = "option"
+      #       end
+      #   - hash
+      #     + config.trigger.before :up, :destroy, :halt, options: "option"
+
       # Reads in and parses Vagrant command whitelist and settings for a defined
       # trigger
       #
       # @param [Symbol] command Vagrant command to create trigger on
       # @param [Block] block The defined before block
       def before(*command, &block)
+        command.flatten!
         blk = block
+
         if !block_given? && command.last.is_a?(Hash)
           # We were given a hash rather than a block,
           # so the last element should be the "config block"
@@ -43,6 +64,7 @@ module VagrantPlugins
       # @param [Symbol] command Vagrant command to create trigger on
       # @param [Block] block The defined after block
       def after(*command, &block)
+        command.flatten!
         blk = block
         if !block_given? && command.last.is_a?(Hash)
           # We were given a hash rather than a block,
@@ -77,20 +99,23 @@ module VagrantPlugins
         else
           block.call(trigger, VagrantConfigTrigger)
         end
-        trigger.finalize!
         return trigger
       end
 
       def finalize!
         # read through configured settings blocks and set their values
         # and then set up action hooks here?
-        #if !@_before_triggers.empty?
-        #  binding.pry
-        #end
+        if !@_before_triggers.empty?
+          @_before_triggers.map { |t| t.finalize! }
+        end
+
+        if !@_after_triggers.empty?
+          @_after_triggers.map { |t| t.finalize! }
+        end
       end
 
       # Validate Trigger settings
-      # TODO: Validate not called if there are providers defined in vagrantfile
+      # TODO: Validate not called if there are guests defined in vagrantfile
       def validate(machine)
         errors = _detected_errors
         @_before_triggers.each do |bt|
@@ -110,7 +135,7 @@ module VagrantPlugins
       #
       # @return [String]
       def to_s
-        "Trigger"
+        "trigger"
       end
     end
   end

@@ -12,7 +12,7 @@ module VagrantPlugins
       # Note: This is for internal use only.
       #
       # @return [String]
-      attr_reader :id
+      attr_accessor :id
 
       # Name for the given Trigger. Defaults to nil.
       #
@@ -96,18 +96,23 @@ module VagrantPlugins
 
         # these values are expected to always be an Array internally,
         # but can be set as a single String or Symbol
-        if @only_on.is_a?(String)
-          @logger.debug("Updating @only_on variable to be an Array")
+        #
+        # map to all be strings
+        if !@only_on.nil?
           @only_on = Array(@only_on)
         end
 
-        if @ignore.is_a?(String)
-          @logger.debug("Updating @ignore variable to be an Array and Symbol")
+        if !@ignore.nil?
           @ignore = Array(@ignore.to_sym)
-        elsif @ignore.is_a?(Symbol)
-          @logger.debug("Updating @ignore variable to be an Array")
-          @ignore = Array(@ignore)
         end
+
+        # Convert @run and @run_remote to be a "Shell provisioner"
+        if @run
+        end
+
+        if @run_remote
+        end
+
       end
 
       def validate(machine)
@@ -119,7 +124,7 @@ module VagrantPlugins
         end
 
         if !commands.include?(@command)
-          @logger.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
+          machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
                                 cmd: @command))
         end
 
@@ -137,6 +142,10 @@ module VagrantPlugins
         if !@run_remote.nil?
           if !@run_remote.is_a?(Hash)
             errors << I18n.t("vagrant.config.triggers.run_remote.bad_type", cmd: @command)
+          end
+
+          if !@run_remote.key?(:inline) && !@run_remote.key?(:file)
+            errors << I18n.t("vagrant.config.triggers.run_remote.missing_context", cmd: @command)
           end
         end
 
