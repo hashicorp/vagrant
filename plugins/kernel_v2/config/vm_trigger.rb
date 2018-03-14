@@ -42,7 +42,7 @@ module VagrantPlugins
 
       # If set, will not run trigger for the configured Vagrant commands.
       #
-      # @return [String, Array]
+      # @return [Symbol, Array]
       attr_accessor :ignore
 
 
