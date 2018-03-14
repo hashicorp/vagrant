@@ -119,8 +119,7 @@ module VagrantPlugins
         end
 
         if !commands.include?(@command)
-          # does this make sense to print on this machine?
-          machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
+          @logger.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
                                 cmd: @command))
         end
 
