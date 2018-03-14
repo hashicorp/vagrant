@@ -5,7 +5,7 @@ module Vagrant
   #
   # Capabilities allow small pieces of functionality to be plugged in using
   # the Vagrant plugin model. Capabilities even allow for a certain amount
-  # of inheritence, where only a subset of capabilities may be implemented but
+  # of inheritance, where only a subset of capabilities may be implemented but
   # a parent implements the rest.
   #
   # Capabilities are used heavily in Vagrant for host/guest interactions. For

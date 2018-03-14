@@ -6,7 +6,7 @@ module Vagrant
   module Action
     module Builtin
       # This built-in middleware handles the `box` setting by verifying
-      # the box is already installed, dowloading the box if it isn't,
+      # the box is already installed, downloading the box if it isn't,
       # updating the box if it is requested, etc.
       class HandleBox
         @@big_lock = Mutex.new

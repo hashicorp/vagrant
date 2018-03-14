@@ -3,14 +3,14 @@ layout: "docs"
 page_title: "Command Plugins - Plugin Development"
 sidebar_current: "plugins-commands"
 description: |-
-  This page documents how to add new commands to Vagrant, invokable
+  This page documents how to add new commands to Vagrant, invocable
   via "vagrant YOUR-COMMAND". Prior to reading this, you should be familiar
   with the plugin development basics.
 ---
 
 # Plugin Development: Commands
 
-This page documents how to add new commands to Vagrant, invokable
+This page documents how to add new commands to Vagrant, invocable
 via `vagrant YOUR-COMMAND`. Prior to reading this, you should be familiar
 with the [plugin development basics](/docs/plugins/development-basics.html).
 
@@ -34,7 +34,7 @@ end
 
 Commands are defined with the `command` method, which takes as an argument
 the name of the command, in this case "foo." This means the command will be
-invokable via `vagrant foo`. Then the block argument returns a class that
+invocable via `vagrant foo`. Then the block argument returns a class that
 implements the `Vagrant.plugin(2, "command")` interface.
 
 You can also define _non-primary commands_. These commands do not show

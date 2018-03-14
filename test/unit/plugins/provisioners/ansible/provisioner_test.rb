@@ -435,7 +435,7 @@ VF
       before do
         config.playbook_command = "custom-ansible-playbook"
 
-        # set the compatibility mode to ensure that only ansible-playbook is excuted
+        # set the compatibility mode to ensure that only ansible-playbook is executed
         config.compatibility_mode = VagrantPlugins::Ansible::COMPATIBILITY_MODE_V1_8
       end
 

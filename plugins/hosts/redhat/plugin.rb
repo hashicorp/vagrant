@@ -12,7 +12,7 @@ module VagrantPlugins
       end
 
       # Linux-specific helpers we need to determine paths that can
-      # be overriden.
+      # be overridden.
       host_capability("redhat", "nfs_check_command") do
         require_relative "cap/nfs"
         Cap::NFS

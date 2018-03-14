@@ -59,7 +59,7 @@ describe Vagrant::Util::CheckpointClient do
   end
 
   describe "#display" do
-    it "should only dislay once" do
+    it "should only display once" do
       expect(subject).to receive(:version_check).once
       expect(subject).to receive(:alerts_check).once
 

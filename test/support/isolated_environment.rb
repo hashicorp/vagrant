@@ -17,7 +17,7 @@ class IsolatedEnvironment
   attr_reader :workdir
 
   # Initializes an isolated environment. You can pass in some
-  # options here to configure runing custom applications in place
+  # options here to configure running custom applications in place
   # of others as well as specifying environmental variables.
   #
   # @param [Hash] apps A mapping of application name (such as "vagrant")

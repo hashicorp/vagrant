@@ -18,7 +18,7 @@ describe "VagrantPlugins::GuestSolaris11::Cap::ConfigureNetworks" do
     comm.verify_expectations!
   end
 
-  describe ".configufre_networks" do
+  describe ".configure_networks" do
     let(:cap) { caps.get(:configure_networks) }
     let(:network_1) do
       {

@@ -180,15 +180,15 @@ module VagrantPlugins
 
           # If we still don't have a bridge chosen (this means that one wasn't
           # specified in the Vagrantfile, or the bridge specified in the Vagrantfile
-          # wasn't found), then we fall back to the normal means of searchign for a
+          # wasn't found), then we fall back to the normal means of searching for a
           # bridged network.
           if !chosen_bridge
             if bridgedifs.length == 1
-              # One bridgable interface? Just use it.
+              # One bridgeable interface? Just use it.
               chosen_bridge = bridgedifs[0][:name]
               @logger.debug("Only one bridged interface available. Using it by default.")
             else
-              # More than one bridgable interface requires a user decision, so
+              # More than one bridgeable interface requires a user decision, so
               # show options to choose from.
               @env[:ui].info I18n.t(
                 "vagrant.actions.vm.bridged_networking.available",

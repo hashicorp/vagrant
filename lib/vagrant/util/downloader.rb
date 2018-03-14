@@ -302,7 +302,7 @@ module Vagrant
         result
       end
 
-      # Returns the varoius cURL and subprocess options.
+      # Returns the various cURL and subprocess options.
       #
       # @return [Array<Array, Hash>]
       def options

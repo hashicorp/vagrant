@@ -7,7 +7,7 @@ module Vagrant
       # own form of plugin.
       #
       # The guest class itself is only responsible for detecting itself,
-      # and may provide helpers for the capabilties.
+      # and may provide helpers for the capabilities.
       class Guest
         # This method is called when the machine is booted and has communication
         # capabilities in order to detect whether this guest operating system

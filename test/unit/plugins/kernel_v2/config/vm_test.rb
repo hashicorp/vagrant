@@ -385,7 +385,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(r[1].run).to eql(:always)
     end
 
-    it "allows provisioner settings to be overriden" do
+    it "allows provisioner settings to be overridden" do
       subject.provision("s", path: "foo", type: "shell") { |s| s.inline = "foo" }
       subject.provision("s", inline: "bar", type: "shell") { |s| s.args = "bar" }
       subject.finalize!

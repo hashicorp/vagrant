@@ -250,7 +250,7 @@ Creates a new token for the given user.
 #### Arguments
 
 * `token`
-    * `desription` (Optional) - A description of the token.
+    * `description` (Optional) - A description of the token.
 * `two_factor`
     * `code` - A two-factor authentication code. Required to use this API method if 2FA is enabled. See [Request a 2FA code](#request-a-2fa-code) if not using a TOTP application.
 * `user`
@@ -1315,7 +1315,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
       "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
-    response = api.delete("/api/v1/box/myuser/test/verison/1.2.3/provider/virtualbox")
+    response = api.delete("/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox")
 
     if response.status.success?
       # Success, the response attributes are available here.

@@ -12,7 +12,7 @@ describe Vagrant::Action::Builtin::GracefulHalt do
   end
   let(:machine_config) do
     double("machine_config").tap do |top_config|
-      vm_config = double("machien_vm_config")
+      vm_config = double("machine_vm_config")
       allow(vm_config).to receive(:graceful_halt_timeout).and_return(10)
       allow(top_config).to receive(:vm).and_return(vm_config)
     end

@@ -307,7 +307,7 @@ module Vagrant
 
       # Install all remote gems into plugin path. Set the installer to ignore dependencies
       # as we know the dependencies are satisfied and it will attempt to validate a gem's
-      # dependencies are satisified by gems in the install directory (which will likely not
+      # dependencies are satisfied by gems in the install directory (which will likely not
       # be true)
       result = request_set.install_into(plugin_gem_path.to_s, true,
         ignore_dependencies: true,

@@ -446,7 +446,7 @@ module Vagrant
         temp_dir_root: tmp_path)
     end
 
-    # Returns the {Config::Loader} that can be used to load Vagrantflies
+    # Returns the {Config::Loader} that can be used to load Vagrantfiles
     # given the settings of this environment.
     #
     # @return [Config::Loader]

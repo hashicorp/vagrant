@@ -15,7 +15,7 @@ module Vagrant
   # Max number of seconds to wait for joining an active thread.
   #
   # @return [Integer]
-  # @note This is not the maxium time for a thread to complete.
+  # @note This is not the maximum time for a thread to complete.
   THREAD_MAX_JOIN_TIMEOUT = 60
 
   # This holds a global lock for the duration of the block. This should
@@ -93,7 +93,7 @@ module Vagrant
   #
   # @return [Pathname]
   def self.user_data_path
-    # Use user spcified env var if available
+    # Use user specified env var if available
     path = ENV["VAGRANT_HOME"]
 
     # On Windows, we default to the USERPROFILE directory if it

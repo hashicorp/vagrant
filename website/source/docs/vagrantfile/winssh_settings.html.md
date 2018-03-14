@@ -158,7 +158,7 @@ config.winssh.export_command_template = '$env:%ENV_KEY%="%ENV_VALUE%"'
 ```
 
 `config.winssh.sudo_command` - The command to use when executing a command
-with `sudo`. This defaults to `%c` (assumes vagrant user is an administator
+with `sudo`. This defaults to `%c` (assumes vagrant user is an administrator
 and needs no escalation). The `%c` will be replaced by the command that is
 being executed.
 

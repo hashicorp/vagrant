@@ -456,7 +456,7 @@ module Vagrant
       info[:password] = @config.ssh.password if @config.ssh.password
       info[:extra_args] = @config.ssh.extra_args if @config.ssh.extra_args
 
-      # We also set some fields that are purely controlled by Varant
+      # We also set some fields that are purely controlled by Vagrant
       info[:forward_agent] = @config.ssh.forward_agent
       info[:forward_x11]   = @config.ssh.forward_x11
       info[:forward_env]   = @config.ssh.forward_env
