@@ -28,7 +28,9 @@ module VagrantPlugins
             error_key: :rename_computer_failed)
 
           # Don't continue until the machine has shutdown and rebooted
-          machine.guest.capability(:wait_for_reboot)
+	  if machine.guest.capability?(:wait_for_reboot)
+            machine.guest.capability(:wait_for_reboot)
+	  end
         end
       end
     end
