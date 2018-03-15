@@ -64,7 +64,6 @@ module Vagrant
         def validate(machine)
           # Go through each of the configuration keys and validate
           errors = {}
-          binding.pry
           @keys.each do |_key, instance|
             if instance.respond_to?(:validate)
               # Validate this single item, and if we have errors then

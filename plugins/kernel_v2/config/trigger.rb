@@ -105,13 +105,22 @@ module VagrantPlugins
       # Solve the mystery of disappearing state??
       def merge(other)
         super.tap do |result|
+          new_before_triggers = []
+          new_after_triggers = []
           other_defined_before_triggers = other.instance_variable_get(:@_before_triggers)
           other_defined_after_triggers = other.instance_variable_get(:@_after_triggers)
 
-          #overrides???
+          # TODO: Is this the right solution?
+          # If a guest in a Vagrantfile exists beyond the default, this check
+          # will properly set up the defined triggers and validate them.
+          # overrides??? check for duplicate ids?
+          if other_defined_before_triggers.empty? && !@_before_triggers.empty?
+            result.instance_variable_set(:@_before_triggers, @_before_triggers)
+          end
 
-          result.instance_variable_set(:@_before_triggers, other_defined_before_triggers)
-          result.instance_variable_set(:@_after_triggers, other_defined_after_triggers)
+          if other_defined_before_triggers.empty? && !@_after_triggers.empty?
+            result.instance_variable_set(:@_after_triggers, @_after_triggers)
+          end
         end
       end
 
@@ -130,7 +139,6 @@ module VagrantPlugins
       # Validate Trigger settings
       # TODO: Validate not called if there are guests defined in vagrantfile
       def validate(machine)
-        binding.pry
         errors = _detected_errors
         @_before_triggers.each do |bt|
           error = bt.validate(machine)
