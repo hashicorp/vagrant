@@ -4,10 +4,10 @@ module VagrantPlugins
       module ChangeHostName
 
         def self.change_host_name(machine, name)
-          change_host_name_and_wait(machine, name, machine.config.vm.graceful_halt_timeout)
+          change_host_name_and_wait(machine, name)
         end
 
-        def self.change_host_name_and_wait(machine, name, sleep_timeout)
+        def self.change_host_name_and_wait(machine, name)
           # If the configured name matches the current name, then bail
           # We cannot use %ComputerName% because it truncates at 15 chars
           return if machine.communicate.test("if ([System.Net.Dns]::GetHostName() -eq '#{name}') { exit 0 } exit 1")
@@ -28,7 +28,7 @@ module VagrantPlugins
             error_key: :rename_computer_failed)
 
           # Don't continue until the machine has shutdown and rebooted
-          sleep(sleep_timeout)
+          machine.guest.capability(:wait_for_reboot)
         end
       end
     end
