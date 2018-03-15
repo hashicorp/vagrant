@@ -1,0 +1,8 @@
+cli:
+  project: github.com/hashicorp/vagrant
+
+analyze:
+  modules:
+    - name: vagrant
+      path: .
+      type: rubygem
