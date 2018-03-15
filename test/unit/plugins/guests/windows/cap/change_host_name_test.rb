@@ -34,7 +34,7 @@ describe "VagrantPlugins::GuestWindows::Cap::ChangeHostName" do
         'if (!([System.Net.Dns]::GetHostName() -eq \'newhostname\')) { exit 0 } exit 1',
         exit_code: 0)
       communicator.stub_command(rename_script, exit_code: 0)
-      described_class.change_host_name_and_wait(machine, 'newhostname', 0)
+      described_class.change_host_name_and_wait(machine, 'newhostname')
     end
 
   end
