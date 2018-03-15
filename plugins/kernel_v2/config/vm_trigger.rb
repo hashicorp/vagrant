@@ -1,5 +1,6 @@
 require 'log4r'
 require 'pry'
+require Vagrant.source_root.join('plugins/provisioners/shell/config')
 
 module VagrantPlugins
   module Kernel_V2
@@ -109,9 +110,17 @@ module VagrantPlugins
 
         # Convert @run and @run_remote to be a "Shell provisioner"
         if @run
+          new_run = VagrantPlugins::Shell::Config.new()
+          new_run.set_options(@run)
+          new_run.finalize!
+          @run = new_run
         end
 
         if @run_remote
+          new_run = VagrantPlugins::Shell::Config.new()
+          new_run.set_options(@run_remote)
+          new_run.finalize!
+          @run_remote = new_run
         end
 
       end
@@ -127,27 +136,6 @@ module VagrantPlugins
         if !commands.include?(@command)
           machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
                                 cmd: @command))
-        end
-
-        if !@run.nil?
-          if !@run.is_a?(Hash)
-            # Run must be a hash
-            errors << I18n.t("vagrant.config.triggers.run.bad_type", cmd: @command)
-          end
-
-          if !@run.key?(:inline) && !@run.key?(:file)
-            errors << I18n.t("vagrant.config.triggers.run.missing_context", cmd: @command)
-          end
-        end
-
-        if !@run_remote.nil?
-          if !@run_remote.is_a?(Hash)
-            errors << I18n.t("vagrant.config.triggers.run_remote.bad_type", cmd: @command)
-          end
-
-          if !@run_remote.key?(:inline) && !@run_remote.key?(:file)
-            errors << I18n.t("vagrant.config.triggers.run_remote.missing_context", cmd: @command)
-          end
         end
 
         if !@name.nil? && !@name.is_a?(String)

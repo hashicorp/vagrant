@@ -1687,18 +1687,12 @@ en:
           only be `:halt` (default) or `:continue`.
         run:
           bad_type: |-
-            Invalid type set for `run` on trigger for command '%{cmd}'. `run` must be a
-            Hash with either key `:inline` or `:file`
-          missing_context: |-
-            Missing key for trigger config setting `run` for command '%{cmd}'. `run` is expected
-            to be given either an `:inline` or `:file` setting.
+            Invalid type set for `run` on trigger for command '%{cmd}'. `run`
+            must be a Hash.
         run_remote:
           bad_type: |-
-            Invalid type set for `run_remote` on trigger for command '%{cmd}'. `run` must be a
-            Hash with either key `:inline` or `:file`
-          missing_context: |-
-            Missing key for trigger config setting `run` for command '%{cmd}'. `run_remote` is expected
-            to be given either an `:inline` or `:file` setting.
+            Invalid type set for `run` on trigger for command '%{cmd}'. `run`
+            must be a Hash.
 
       vm:
         bad_version: |-
