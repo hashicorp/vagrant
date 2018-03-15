@@ -53,7 +53,7 @@ module VagrantPlugins
 
       # If set, will only run trigger for guests that match keys for this parameter.
       #
-      # @return [String, Array]
+      # @return [String, Regex, Array]
       attr_accessor :only_on
 
       # A local inline or file script to execute for the trigger
@@ -167,7 +167,7 @@ module VagrantPlugins
       #
       # @return [String]
       def to_s
-        "Trigger Config"
+        "trigger config"
       end
     end
   end
