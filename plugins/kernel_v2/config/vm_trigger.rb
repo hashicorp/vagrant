@@ -111,14 +111,14 @@ module VagrantPlugins
         end
 
         # Convert @run and @run_remote to be a "Shell provisioner" config
-        if @run
+        if @run && @run.is_a?(Hash)
           new_run = VagrantPlugins::Shell::Config.new()
           new_run.set_options(@run)
           new_run.finalize!
           @run = new_run
         end
 
-        if @run_remote
+        if @run_remote && @run_remote.is_a?(Hash)
           new_run = VagrantPlugins::Shell::Config.new()
           new_run.set_options(@run_remote)
           new_run.finalize!
@@ -133,6 +133,18 @@ module VagrantPlugins
         commands = []
         Vagrant.plugin("2").manager.commands.each do |key,data|
           commands.push(key)
+        end
+
+        # TODO: Does it make sense to strip out the "shell provisioner" error key here?
+        #       We could add more context around triggers?
+        if @run
+          errorz = @run.validate(machine)
+          errors.concat errorz["shell provisioner"] if !errorz.empty?
+        end
+
+        if @run_remote
+          errorz = @run_remote.validate(machine)
+          errors.concat errorz["shell provisioner"] if !errorz.empty?
         end
 
         if !commands.include?(@command)
