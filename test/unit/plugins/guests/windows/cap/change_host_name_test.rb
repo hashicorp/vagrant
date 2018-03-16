@@ -37,7 +37,7 @@ describe "VagrantPlugins::GuestWindows::Cap::ChangeHostName" do
       allow(machine).to receive(:guest)
       allow(machine.guest).to receive(:capability)
       allow(machine.guest).to receive(:capability?)
-      described_class.change_host_name_and_wait(machine, 'newhostname')
+      described_class.change_host_name_and_wait(machine, 'newhostname', 0)
     end
 
   end
