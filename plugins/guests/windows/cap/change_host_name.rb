@@ -28,7 +28,12 @@ module VagrantPlugins
             error_key: :rename_computer_failed)
 
           # Don't continue until the machine has shutdown and rebooted
-          sleep(sleep_timeout)
+	  if machine.guest.capability?(:wait_for_reboot)
+            machine.guest.capability(:wait_for_reboot)
+          else
+            # use graceful_halt_timeout only if guest cannot wait for reboot
+            sleep(sleep_timeout)
+	  end
         end
       end
     end
