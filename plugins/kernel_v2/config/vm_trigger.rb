@@ -127,6 +127,7 @@ module VagrantPlugins
 
       end
 
+      # @return [Array] array of strings of error messages from config option validation
       def validate(machine)
         errors = _detected_errors
 
