@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
+
 BUG FIXES:
 
 ## 2.0.3 (March 15, 2018)
