@@ -135,4 +135,21 @@ describe VagrantPlugins::Kernel_V2::TriggerConfig do
       expect(af_trigger.size).to eq(3)
     end
   end
+
+  describe "#create_trigger" do
+    let(:command) { :up }
+    let(:hash_block) { {info: "hi", run: {inline: "echo 'hi'"}} }
+
+    it "returns a new VagrantConfigTrigger object if given a hash" do
+      trigger = subject.create_trigger(command, hash_block)
+      expect(trigger).to be_a(VagrantPlugins::Kernel_V2::VagrantConfigTrigger)
+    end
+
+    it "returns a new VagrantConfigTrigger object if given a block" do
+      block = Proc.new { |b| b.info = "test"}
+
+      trigger = subject.create_trigger(command, block)
+      expect(trigger).to be_a(VagrantPlugins::Kernel_V2::VagrantConfigTrigger)
+    end
+  end
 end
