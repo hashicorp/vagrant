@@ -42,7 +42,13 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
     end
 
     it "sets a command" do
+      subject.finalize!
       expect(subject.command).to eq(command)
+    end
+
+    it "uses default error behavior" do
+      subject.finalize!
+      expect(subject.on_error).to eq(:halt)
     end
   end
 
