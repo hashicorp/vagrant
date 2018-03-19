@@ -35,8 +35,15 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
     subject.name = "foo"
   end
 
-  it "is valid with test defaults" do
-    subject.finalize!
-    assert_valid
+  describe "with defaults" do
+    it "is valid with test defaults" do
+      subject.finalize!
+      assert_valid
+    end
+
+    it "sets a command" do
+      expect(subject.command).to eq(command)
+    end
   end
+
 end
