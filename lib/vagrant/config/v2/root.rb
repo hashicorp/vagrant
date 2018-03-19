@@ -1,5 +1,4 @@
 require "set"
-require 'pry'
 
 require "vagrant/config/v2/util"
 

@@ -1,5 +1,4 @@
 require "vagrant"
-require 'pry'
 
 require_relative "ssh_connect"
 

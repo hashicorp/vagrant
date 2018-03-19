@@ -5,20 +5,22 @@ require Vagrant.source_root.join("plugins/kernel_v2/config/vm_trigger")
 describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
   include_context "unit"
 
-  subject { described_class.new }
+  let(:command) { :up }
+
+  subject { described_class.new(command) }
 
   let(:machine) { double("machine") }
 
   def assert_invalid
     errors = subject.validate(machine)
-    if !errors.values.any? { |v| !v.empty? }
+    if !errors.empty? { |v| !v.empty? }
       raise "No errors: #{errors.inspect}"
     end
   end
 
   def assert_valid
     errors = subject.validate(machine)
-    if !errors.values.all? { |v| v.empty? }
+    if !errors.empty? { |v| v.empty? }
       raise "Errors: #{errors.inspect}"
     end
   end

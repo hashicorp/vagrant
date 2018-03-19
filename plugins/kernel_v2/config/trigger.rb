@@ -1,5 +1,4 @@
 require "vagrant"
-require 'pry'
 
 require File.expand_path("../vm_trigger", __FILE__)
 

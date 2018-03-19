@@ -1,5 +1,5 @@
 require 'log4r'
-require 'pry'
+
 require Vagrant.source_root.join('plugins/provisioners/shell/config')
 
 module VagrantPlugins
