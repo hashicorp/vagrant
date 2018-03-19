@@ -136,6 +136,11 @@ module VagrantPlugins
           commands.push(key)
         end
 
+        if !commands.include?(@command)
+          machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
+                                cmd: @command))
+        end
+
         # TODO: Does it make sense to strip out the "shell provisioner" error key here?
         #       We could add more context around triggers?
         if @run
@@ -146,11 +151,6 @@ module VagrantPlugins
         if @run_remote
           errorz = @run_remote.validate(machine)
           errors.concat errorz["shell provisioner"] if !errorz.empty?
-        end
-
-        if !commands.include?(@command)
-          machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
-                                cmd: @command))
         end
 
         if !@name.nil? && !@name.is_a?(String)
