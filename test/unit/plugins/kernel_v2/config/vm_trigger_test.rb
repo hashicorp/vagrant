@@ -107,6 +107,8 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       cfg.on_error = :continue
       cfg.ignore = :up
       cfg.only_on = "guest"
+      cfg.run = {inline: "apt-get update"}
+      cfg.run_remote = {inline: "apt-get update", env: {"VAR"=>"VAL"}}
     end
 
     it "sets the options" do
@@ -116,6 +118,8 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       expect(cfg.on_error).to eq(:continue)
       expect(cfg.ignore).to eq([:up])
       expect(cfg.only_on).to eq(["guest"])
+      expect(cfg.run).to be_a(VagrantPlugins::Shell::Config)
+      expect(cfg.run_remote).to be_a(VagrantPlugins::Shell::Config)
     end
   end
 
