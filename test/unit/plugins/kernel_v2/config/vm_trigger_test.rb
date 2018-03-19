@@ -46,4 +46,71 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
     end
   end
 
+  describe "defining a new config that needs to match internal restraints" do
+    let(:cmd) { :destroy }
+    let(:cfg) { described_class.new(cmd) }
+    let(:arr_cfg) { described_class.new(cmd) }
+
+    before do
+      cfg.only_on = :guest
+      cfg.ignore = "up"
+      arr_cfg.only_on = [:guest, :other]
+      arr_cfg.ignore = ["up", "destroy"]
+    end
+
+    it "ensures only_on is an array of strings" do
+      cfg.finalize!
+      arr_cfg.finalize!
+
+      expect(cfg.only_on).to be_a(Array)
+      expect(arr_cfg.only_on).to be_a(Array)
+
+      cfg.only_on.each do |a|
+        expect(a).to be_a(String)
+      end
+
+      arr_cfg.only_on.each do |a|
+        expect(a).to be_a(String)
+      end
+    end
+
+    it "ensures ignore is an array of symbols" do
+      cfg.finalize!
+      arr_cfg.finalize!
+
+      expect(cfg.ignore).to be_a(Array)
+      expect(arr_cfg.ignore).to be_a(Array)
+
+      cfg.ignore.each do |a|
+        expect(a).to be_a(Symbol)
+      end
+
+      arr_cfg.ignore.each do |a|
+        expect(a).to be_a(Symbol)
+      end
+    end
+  end
+
+  describe "defining a basic trigger config" do
+    let(:cmd) { :up }
+    let(:cfg) { described_class.new(cmd) }
+
+    before do
+      cfg.info = "Hello there"
+      cfg.warn = "Warning!!"
+      cfg.on_error = :continue
+      cfg.ignore = :up
+      cfg.only_on = "guest"
+    end
+
+    it "sets the options" do
+      cfg.finalize!
+      expect(cfg.info).to eq("Hello there")
+      expect(cfg.warn).to eq("Warning!!")
+      expect(cfg.on_error).to eq(:continue)
+      expect(cfg.ignore).to eq([:up])
+      expect(cfg.only_on).to eq(["guest"])
+    end
+  end
+
 end
