@@ -101,7 +101,6 @@ module VagrantPlugins
         return trigger
       end
 
-      # Solve the mystery of disappearing state??
       def merge(other)
         super.tap do |result|
           new_before_triggers = []
@@ -109,17 +108,43 @@ module VagrantPlugins
           other_defined_before_triggers = other.instance_variable_get(:@_before_triggers)
           other_defined_after_triggers = other.instance_variable_get(:@_after_triggers)
 
-          # TODO: Is this the right solution?
-          # If a guest in a Vagrantfile exists beyond the default, this check
-          # will properly set up the defined triggers and validate them.
-          # overrides??? check for duplicate ids?
-          if other_defined_before_triggers.empty? && !@_before_triggers.empty?
-            result.instance_variable_set(:@_before_triggers, @_before_triggers)
+          @_before_triggers.each do |bt|
+            other_bft = other_defined_before_triggers.find { |o| bt.id == o.id }
+            if other_bft
+              # Override, take it
+              other_bft = bt.merge(other_bft)
+
+              # Preserve order, always
+              bt = other_bft
+              other_defined_before_triggers.delete(other_bft)
+            end
+
+            new_before_triggers << bt.dup
           end
 
-          if other_defined_before_triggers.empty? && !@_after_triggers.empty?
-            result.instance_variable_set(:@_after_triggers, @_after_triggers)
+          other_defined_before_triggers.each do |obt|
+            new_before_triggers << obt.dup
           end
+          result.instance_variable_set(:@_before_triggers, new_before_triggers)
+
+          @_after_triggers.each do |at|
+            other_aft = other_defined_after_triggers.find { |o| at.id == o.id }
+            if other_aft
+              # Override, take it
+              other_aft = at.merge(other_aft)
+
+              # Preserve order, always
+              at = other_aft
+              other_defined_after_triggers.delete(other_aft)
+            end
+
+            new_after_triggers << at.dup
+          end
+
+          other_defined_after_triggers.each do |oat|
+            new_after_triggers << oat.dup
+          end
+          result.instance_variable_set(:@_after_triggers, new_after_triggers)
         end
       end
 

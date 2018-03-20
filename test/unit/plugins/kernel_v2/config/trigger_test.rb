@@ -152,4 +152,43 @@ describe VagrantPlugins::Kernel_V2::TriggerConfig do
       expect(trigger).to be_a(VagrantPlugins::Kernel_V2::VagrantConfigTrigger)
     end
   end
+
+  describe "#merge" do
+    it "merges defined triggers" do
+      a = described_class.new()
+      b = described_class.new()
+
+      a.before(splat, hash_block)
+      a.after(arr, hash_block)
+      b.before(splat, hash_block)
+      b.after(arr, hash_block)
+
+      result = a.merge(b)
+      bf_trigger = result.instance_variable_get(:@_before_triggers)
+      af_trigger = result.instance_variable_get(:@_after_triggers)
+
+      expect(bf_trigger).to be_a(Array)
+      expect(af_trigger).to be_a(Array)
+      expect(bf_trigger.size).to eq(6)
+      expect(af_trigger.size).to eq(6)
+    end
+
+    it "merges the other triggers if a class is empty" do
+      a = described_class.new()
+      b = described_class.new()
+
+      a.before(splat, hash_block)
+      a.after(arr, hash_block)
+
+      b_bf_trigger = b.instance_variable_get(:@_before_triggers)
+      b_af_trigger = b.instance_variable_get(:@_after_triggers)
+
+      result = a.merge(b)
+      bf_trigger = result.instance_variable_get(:@_before_triggers)
+      af_trigger = result.instance_variable_get(:@_after_triggers)
+
+      expect(bf_trigger.size).to eq(3)
+      expect(af_trigger.size).to eq(3)
+    end
+  end
 end
