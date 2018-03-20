@@ -33,6 +33,12 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
     allow(machine).to receive(:provider_options).and_return({})
 
     subject.name = "foo"
+    subject.info = "Hello there"
+    subject.warn = "Warning!!"
+    subject.ignore = :up
+    subject.only_on = "guest"
+    subject.run = {inline: "apt-get update"}
+    subject.run_remote = {inline: "apt-get update", env: {"VAR"=>"VAL"}}
   end
 
   describe "with defaults" do
