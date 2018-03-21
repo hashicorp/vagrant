@@ -107,7 +107,7 @@ Combined with a little bit more Ruby, this makes it very easy to embed
 your shell scripts directly within your Vagrantfile. Another example below:
 
 ```ruby
-$script = <<SCRIPT
+$script = <<-SCRIPT
 echo I am provisioning...
 date > /etc/vagrant_provisioned_at
 SCRIPT
