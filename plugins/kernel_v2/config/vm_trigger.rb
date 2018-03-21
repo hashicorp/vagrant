@@ -1,11 +1,11 @@
 require 'log4r'
-
 require Vagrant.source_root.join('plugins/provisioners/shell/config')
 
 module VagrantPlugins
   module Kernel_V2
     # Represents a single configured provisioner for a VM.
     class VagrantConfigTrigger < Vagrant.plugin("2", :config)
+      # Defaults
       DEFAULT_ON_ERROR = :halt
 
       #-------------------------------------------------------------------
@@ -68,7 +68,6 @@ module VagrantPlugins
 
       def initialize(command)
         @logger = Log4r::Logger.new("vagrant::config::vm::trigger::config")
-        #@logger.debug("Trigger defined: #{name}")
 
         @name = UNSET_VALUE
         @info = UNSET_VALUE
@@ -82,10 +81,13 @@ module VagrantPlugins
         # Internal options
         @id = SecureRandom.uuid
         @command = command.to_sym
+
+        @logger.debug("Trigger defined for command: #{command}")
       end
 
       def finalize!
-        # Ensure all config options are set to nil if untouched by user
+        # Ensure all config options are set to nil or default value if untouched
+        # by user
         @name = nil if @name == UNSET_VALUE
         @info = nil if @info == UNSET_VALUE
         @warn = nil if @warn == UNSET_VALUE

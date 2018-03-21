@@ -1,5 +1,4 @@
 require "vagrant"
-
 require File.expand_path("../vm_trigger", __FILE__)
 
 module VagrantPlugins
@@ -48,6 +47,7 @@ module VagrantPlugins
           # and the rest are commands for the trigger
           blk = command.pop
         else
+          # TODO:
           # No config block given at all, validation step should throw error?
         end
 
@@ -71,6 +71,7 @@ module VagrantPlugins
           # and the rest are commands for the trigger
           blk = command.pop
         else
+          # TODO:
           # No config block given at all, validation step should throw error?
         end
 
@@ -148,9 +149,8 @@ module VagrantPlugins
         end
       end
 
+      # Iterates over all defined triggers and finalizes their config objects
       def finalize!
-        # read through configured settings blocks and set their values
-        # and then set up action hooks here?
         if !@_before_triggers.empty?
           @_before_triggers.map { |t| t.finalize! }
         end
