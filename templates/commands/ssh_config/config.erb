@@ -18,6 +18,7 @@ Host <%= host_key %>
 <% end -%>
 <% if keys_only -%>
   IdentitiesOnly yes
+  PreferredAuthentications gssapi-keyex,gssapi-with-mic,publickey,keyboard-interactive
 <% end -%>
 <% if log_level -%>
   LogLevel <%= log_level %>
