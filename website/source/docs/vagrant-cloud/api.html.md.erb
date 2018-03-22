@@ -234,7 +234,10 @@ In order to create a usable box on Vagrant Cloud, perform the following steps:
     upload_path = response.parse['upload_path']
 
     # Upload the box image
-    HTTP.post upload_path, body: File.open("virtualbox-1.2.3.box")
+    HTTP.put upload_path, body: File.open("virtualbox-1.2.3.box")
+    
+    # Release the version
+    api.put("/api/v1/box/myuser/test/version/1.2.3/release")
     ```
   </div>
 </div>
