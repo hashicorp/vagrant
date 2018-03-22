@@ -9,7 +9,7 @@ description: |-
 
 # Up
 
-**Command: `vagrant up [name|id]`**
+**Command: `vagrant up [id]`**
 
 This command creates and configures guest machines according to your
 [Vagrantfile](/docs/vagrantfile/).
