@@ -285,7 +285,7 @@ module VagrantPlugins
 
         scp_connect do |scp|
           if File.directory?(from)
-            # Recurisvely upload directories
+            # Recursively upload directories
             scp.upload!(from, to, recursive: true)
           else
             # Open file read only to fix issue [GH-1036]

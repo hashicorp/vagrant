@@ -5,7 +5,7 @@ Param(
     [string]$password
 )
 # If we are in this script, we know basic winrm is working
-# If the user is not using a domain acount and chances are
+# If the user is not using a domain account and chances are
 # they are not, PS Remoting will not work if the guest is not
 # listed in the trusted hosts.
 

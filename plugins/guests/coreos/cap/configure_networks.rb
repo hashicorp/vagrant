@@ -48,7 +48,7 @@ module VagrantPlugins
             commands << "systemctl stop etcd"
 
             # Configure interfaces
-            # FIXME: fix matching of interfaces with IP adresses
+            # FIXME: fix matching of interfaces with IP addresses
             networks.each do |network|
               iface = interfaces[network[:interface].to_i]
               commands << "ifconfig #{iface} #{network[:ip]} netmask #{network[:netmask]}".squeeze(" ")

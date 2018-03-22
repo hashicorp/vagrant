@@ -155,7 +155,7 @@ Some of these options are for advanced usage only and should not be used unless 
 
     <div class="alert alert-warn">
       <strong>Attention:</strong>
-      The `ansible` provisioner does not support whitespace characters in `raw_arguments` elements. Therefore **don't write** something like `["-c paramiko"]`, which will result with an invalid `" parmiko"` parameter value.
+      The `ansible` provisioner does not support whitespace characters in `raw_arguments` elements. Therefore **don't write** something like `["-c paramiko"]`, which will result with an invalid `" paramiko"` parameter value.
     </div>
 
 - `skip_tags` (string or array of strings) - Only plays, roles and tasks that [*do not match* these values will be executed](https://docs.ansible.com/playbooks_tags.html).

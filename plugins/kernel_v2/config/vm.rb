@@ -535,7 +535,7 @@ module VagrantPlugins
         @__finalized = true
       end
 
-      # This returns the compiled provider-specific configurationf or the
+      # This returns the compiled provider-specific configuration for the
       # given provider.
       #
       # @param [Symbol] name Name of the provider.

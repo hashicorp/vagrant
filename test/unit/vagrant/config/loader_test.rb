@@ -8,7 +8,7 @@ describe Vagrant::Config::Loader do
   # This is the current version of configuration for the tests.
   let(:current_version) { version_order.last }
 
-  # This is just a dummy implementation of a configuraiton loader which
+  # This is just a dummy implementation of a configuration loader which
   # simply acts on hashes.
   let(:test_loader) do
     Class.new(Vagrant::Config::VersionBase) do

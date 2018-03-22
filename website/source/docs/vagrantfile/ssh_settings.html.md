@@ -127,7 +127,7 @@ really only exposed for cases where it is absolutely necessary. If you can find
 a way to not use a pty, that is recommended instead.
 
 When pty is enabled, it is important to note that command output will _not_ be
-streamed to the UI. Instead, the output will be delievered in full to the UI
+streamed to the UI. Instead, the output will be delivered in full to the UI
 once the command has completed.
 
 <hr>

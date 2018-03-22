@@ -74,7 +74,7 @@ module VagrantPlugins
             rescue Errors::NoRoute
               message = "Host unreachable."
             rescue Errors::TransientError => e
-              # Any other retriable errors
+              # Any other retryable errors
               message = e.message
             end
 
@@ -127,7 +127,7 @@ module VagrantPlugins
       end
 
       def execute(command, opts={}, &block)
-        # If this is a *nix command with no Windows equivilant, don't run it
+        # If this is a *nix command with no Windows equivalent, don't run it
         command = @cmd_filter.filter(command)
         return 0 if command.empty?
 
@@ -152,7 +152,7 @@ module VagrantPlugins
 
       def test(command, opts=nil)
         # If this is a *nix command (which we know about) with no Windows
-        # equivilant, assume failure
+        # equivalent, assume failure
         command = @cmd_filter.filter(command)
         return false if command.empty?
 

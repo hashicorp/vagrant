@@ -21,7 +21,7 @@ module Vagrant
           nil
         end
 
-        # This method is called if the underying machine ID changes. Providers
+        # This method is called if the underlying machine ID changes. Providers
         # can use this method to load in new data for the actual backing
         # machine or to realize that the machine is now gone (the ID can
         # become `nil`). No parameters are given, since the underlying machine

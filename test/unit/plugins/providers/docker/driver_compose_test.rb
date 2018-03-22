@@ -56,7 +56,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
 
   describe '#create' do
     let(:params) { {
-      image:      'jimi/hendrix:eletric-ladyland',
+      image:      'jimi/hendrix:electric-ladyland',
       cmd:        ['play', 'voodoo-chile'],
       ports:      '8080:80',
       volumes:    '/host/path:guest/path',

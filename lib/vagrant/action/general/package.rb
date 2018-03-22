@@ -121,7 +121,7 @@ module Vagrant
             @env[:ui].info I18n.t("vagrant.actions.general.package.packaging", file: from)
             FileUtils.mkdir_p(to.parent)
 
-            # Copy direcotry contents recursively.
+            # Copy directory contents recursively.
             if File.directory?(from)
               FileUtils.cp_r(Dir.glob(from), to.parent, preserve: true)
             else

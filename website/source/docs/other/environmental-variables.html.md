@@ -195,7 +195,7 @@ As of Vagrant 1.7.3, Vagrant tries to intelligently detect if it is running in
 the installer or running via Bundler. Although not officially supported, Vagrant
 tries its best to work when executed via Bundler. When Vagrant detects that you
 have spawned a subprocess that lives outside of Vagrant's installer, Vagrant
-will do its best to reset the preserved environment dring the subprocess
+will do its best to reset the preserved environment during the subprocess
 execution.
 
 If Vagrant detects it is running outside of the officially installer, the
@@ -215,7 +215,7 @@ different configurations.
 ## `VAGRANT_DISABLE_VBOXSYMLINKCREATE`
 
 If set, this will disable the ability to create symlinks with all virtualbox
-shared folders. Defaults to true if the option is not set. This can be overriden
+shared folders. Defaults to true if the option is not set. This can be overridden
 on a per-folder basis within your Vagrantfile config by settings the
 `SharedFoldersEnableSymlinksCreate` option to true.
 

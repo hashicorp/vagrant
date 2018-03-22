@@ -67,5 +67,5 @@ $ vagrant init my-company-box https://boxes.company.com/my-company.box
 Create a Vagrantfile, locking the box to a version constraint:
 
 ```sh
-$ vagrant init --box-version '> 0.1.5' hashcorp/precise64
+$ vagrant init --box-version '> 0.1.5' hashicorp/precise64
 ```

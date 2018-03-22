@@ -9,7 +9,7 @@ Signal.trap("INT") { abort }
 argv = ARGV.dup
 argv_extra = []
 
-# These will be the options that are passed to initialze the Vagrant
+# These will be the options that are passed to initialize the Vagrant
 # environment.
 opts = {}
 

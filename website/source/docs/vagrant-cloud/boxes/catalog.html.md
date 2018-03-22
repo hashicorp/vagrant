@@ -36,7 +36,7 @@ are some things to note when you're choosing a box:
 - __The username of the user__. If it's `bento` or `canonical`, you can likely
 trust the box more than an anonymous user
 - __The number of downloads of the box__. Heavily downloaded boxes
-are likely vetted more often by other members of the community. Hashicorp
+are likely vetted more often by other members of the community. HashiCorp
 responds to reports of malicious software distributed via Vagrant Cloud
 and takes down boxes
 - __The latest release date__. More up-to-date boxes contain up-to-date

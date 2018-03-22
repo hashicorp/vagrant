@@ -10,7 +10,7 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Action
       # This middleware works around a bug in VirtualBox where booting
-      # a VM with an IPv6 host-only network will someties lose the
+      # a VM with an IPv6 host-only network will sometimes lose the
       # route to that machine.
       class NetworkFixIPv6
         include Vagrant::Util::Presence

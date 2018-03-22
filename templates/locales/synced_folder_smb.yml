@@ -20,10 +20,10 @@ en:
 
     uac:
       prune_warning: |-
-        Vagrant requires administator access for pruning SMB shares and
+        Vagrant requires administrator access for pruning SMB shares and
         may request access to complete removal of stale shares.
       create_warning: |-
-        Vagrant requires administator access to create SMB shares and
+        Vagrant requires administrator access to create SMB shares and
         may request access to complete setup of configured shares.
     errors:
       start_failed: |-

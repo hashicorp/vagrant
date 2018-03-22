@@ -404,7 +404,7 @@ module Vagrant
       end
 
       # Returns boolean true if this entry appears to be valid.
-      # The critera for being valid:
+      # The criteria for being valid:
       #
       #   * Vagrantfile directory exists
       #   * Vagrant environment contains a machine with this

@@ -119,7 +119,7 @@ describe Vagrant do
       end
     end
 
-    it "prefers VAGRANT_HOME over USERPOFILE if both are set" do
+    it "prefers VAGRANT_HOME over USERPROFILE if both are set" do
       env = {
         "USERPROFILE" => "/bar",
         "VAGRANT_HOME" => "/foo",

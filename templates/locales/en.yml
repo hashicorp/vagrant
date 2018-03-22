@@ -775,7 +775,7 @@ en:
         checksum!
 
         File source:         %{source}
-        Checsum type:        %{type}
+        Checksum type:       %{type}
         Expected checksum:   %{expected_checksum}
         Calculated checksum: %{actual_checksum}
       env_inval: |-
@@ -928,7 +928,7 @@ en:
         Vagrant was instructed to configure the %{device} network device to
         be managed by NetworkManager. However, the configured guest VM does
         not have NetworkManager installed. To fix this error please remove
-        the `nm_controlled` setting from local Vagantfile. If NetworkManager
+        the `nm_controlled` setting from local Vagrantfile. If NetworkManager
         is required to manage the network devices, please use a box with
         NetworkManager installed.
       nfs_bad_exports: |-
@@ -1625,7 +1625,7 @@ en:
         Vagrant is unable to use the VirtualBox provider from the Windows Subsystem for
         Linux without access to the Windows environment. Enabling this access must be
         done with caution and an understanding of the implications. For more information
-        on enabing Windows access and using VirtualBox from the Windows Subsystem for
+        on enabling Windows access and using VirtualBox from the Windows Subsystem for
         Linux, please refer to the Vagrant documentation:
 
           https://www.vagrantup.com/docs/other/wsl.html
@@ -1838,7 +1838,7 @@ en:
           have to destroy and restart the virtual machine.
         gurumeditation: |-
           The VM is in the "guru meditation" state. This is a rare case which means
-          that an internal error in VitualBox caused the VM to fail. This is always
+          that an internal error in VirtualBox caused the VM to fail. This is always
           the sign of a bug in VirtualBox. You can try to bring your VM back online
           with a `vagrant up`.
         inaccessible: |-

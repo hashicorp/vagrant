@@ -2,7 +2,7 @@ en:
   vagrant_ps:
     detecting: |-
       Detecting if a remote PowerShell connection can be made with the guest...
-    reseting: |-
+    resetting: |-
       Resetting WinRM TrustedHosts to their original value.
 
     errors:

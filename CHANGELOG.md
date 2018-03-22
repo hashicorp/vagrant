@@ -316,7 +316,7 @@ BUG FIXES:
   - core/bundler: Check if source is local path and prevent addition to remote sources [GH-8401]
   - core/ui: Prevent deadlock detection errors [GH-8414, GH-8125]
   - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
-  - guests/linux: Fix SMB mount capbability [GH-8410, GH-8404]
+  - guests/linux: Fix SMB mount capability [GH-8410, GH-8404]
   - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
   - hosts/windows: Fix UNC path generation when UNC path is provided [GH-8504]
   - provisioners/salt: Allow Salt version to match 2 digit month [GH-8428]
@@ -534,7 +534,7 @@ BUG FIXES:
   - guests/redhat: Use `/sbin/ip` to list and configure networks for
       compatability with older versions of CentOS [GH-7482]
   - guests/redhat: Ensure newline when inserting public key [GH-7598, GH-7605]
-  - guests/ubuntu: Use /etc/os-release to detech [GH-7524]
+  - guests/ubuntu: Use /etc/os-release to detect [GH-7524]
   - guests/ubuntu: Use short hostname [GH-7488, GH-7605]
   - providers/hyperv: Fix version check and catch statement [GH-7447, GH-7487]
 
@@ -668,7 +668,7 @@ BUG FIXES:
   - providers/virtualbox: Set maximum network adapters to 36 [GH-7293, GH-7286]
   - providers/virtualbox: Do not fail when master VM from linked clone is
       missing [GH-7126, GH-6742]
-  - providers/virtualbox: Use scoped overrides in preparring NFS
+  - providers/virtualbox: Use scoped overrides in preparing NFS
       [GH-7387, GH-7386]
   - provisioners/ansible: Fix a race condition in the concurrent generations of
       the ansible inventory file, while running `vagrant up --parallel`
@@ -1024,7 +1024,7 @@ BUG FIXES:
   - provisioners/ansible: disable color if Vagrant is not colored [GH-5531, GH-5532]
   - provisioners/ansible: only show ansible-playbook command when `verbose` option is enabled [GH-5803]
   - provisioners/ansible: fix a race condition in the inventory file generation [GH-5551]
-  - provisioners/docker: use `service` to restart Docker instad of upstart [GH-5245, GH-5577]
+  - provisioners/docker: use `service` to restart Docker instead of upstart [GH-5245, GH-5577]
   - provisioners/docker: Only add docker user to group if exists. [GH-5315]
   - provisioners/docker: Use https for repo [GH-5749]
   - provisioners/docker: `apt-get update` before installing linux kernel
@@ -1259,7 +1259,7 @@ IMPROVEMENTS:
       deleted by default. [GH-4327]
   - commands/plugin: Better error output is shown when plugin installation
       fails.
-  - commands/reload: show post up messsage [GH-4168]
+  - commands/reload: show post up message [GH-4168]
   - commands/rsync-auto: Add `--poll` flag. [GH-4392]
   - communicators/winrm: Show stdout/stderr if command fails. [GH-4094]
   - guests/nixos: Added better NFS support. [GH-3983]
@@ -1547,7 +1547,7 @@ BUG FIXES:
       already for 127.0.1.1 [GH-3271]
   - guests/linux: For `read_ip_address` capability, set `LANG=en` so
       it works on international systems. [GH-3029]
-  - providers/virtualbox: VirtalBox detection works properly again on
+  - providers/virtualbox: VirtualBox detection works properly again on
       Windows when the `VBOX_INSTALL_PATH` has multiple elements. [GH-3549]
   - providers/virtualbox: Forcing MAC address on private network works
       properly again. [GH-3588]
@@ -1724,7 +1724,7 @@ BUG FIXES:
   - core: Assume a box isn't metadata if it exceeds 20 MB. [GH-3107]
   - core: Asking for input works even in consoles that don't support
     hiding input. [GH-3119]
-  - core: Adding a box by path in Cygwin on Windos works. [GH-3132]
+  - core: Adding a box by path in Cygwin on Windows works. [GH-3132]
   - core: PowerShell scripts work when they're in a directory with
     spaces. [GH-3100]
   - core: If you add a box path that doesn't exist, error earlier. [GH-3091]
@@ -2040,7 +2040,7 @@ BUG FIXES:
   - core: Don't load Vagrantfile on `vagrant plugin` commands, allowing
     Vagrantfiles that use plugins to work. [GH-2388]
   - core: global flags are ignored past the "--" on the CLI. [GH-2491]
-  - core: provisoining will properly happen if `up` failed. [GH-2488]
+  - core: provisioning will properly happen if `up` failed. [GH-2488]
   - guests/freebsd: Mounting NFS folders works. [GH-2400]
   - guests/freebsd: Uses `sh` by default for shell. [GH-2485]
   - guests/linux: upstart events listening for `vagrant-mounted` won't
@@ -3046,7 +3046,7 @@ IMPROVEMENTS / BUG FIXES:
     the behavior seems different/wrong.
   - Give a nice error if `:vagrant` is used as a JSON key, since Vagrant
     uses this. [GH-661]
-  - If there is only one bridgable interface, use that without asking
+  - If there is only one bridgeable interface, use that without asking
     the user. [GH-655]
   - The shell will have color output if ANSICON is installed on Windows. [GH-666]
 
@@ -3097,7 +3097,7 @@ IMPROVEMENTS / BUG FIXES:
     port of the virtual machine.
   - If a shared folder now has a `:create` flag set to `true`, the path on the
     host will be created if it doesn't exist.
-  - Added `--force` flag to `box add`, which will overwite any existing boxes
+  - Added `--force` flag to `box add`, which will overwrite any existing boxes
     if they exist. [GH-631]
   - Added `--provision-with` to `up` which configures what provisioners run,
     by shortcut. [GH-367]

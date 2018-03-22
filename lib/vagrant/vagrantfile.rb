@@ -18,7 +18,7 @@ module Vagrant
     # Initializes by loading a Vagrantfile.
     #
     # @param [Config::Loader] loader Configuration loader that should
-    #   already be configured with the proper Vagrantflie locations.
+    #   already be configured with the proper Vagrantfile locations.
     #   This usually comes from {Vagrant::Environment}
     # @param [Array<Symbol>] keys The Vagrantfiles to load and the
     #   order to load them in (keys within the loader).

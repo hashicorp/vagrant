@@ -385,7 +385,7 @@ describe Vagrant::UI::Prefixed do
       subject.output("foo\nbar")
     end
 
-    it "doesn't prefix if requestsed" do
+    it "doesn't prefix if requested" do
       expect(ui).to receive(:output).with("foo", prefix: false, bold: true, target: prefix)
       subject.output("foo", prefix: false)
     end
