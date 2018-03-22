@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
 - guests/coreos: Identify operating systems closely related to CoreOS [GH-9600]
+- guests/photon: Less specific string grep to fix PhotonOS 2.0 detection [GH-9528]
 
 BUG FIXES:
 
