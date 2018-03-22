@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
+- guests/coreos: Identify operating systems closely related to CoreOS [GH-9600]
 
 BUG FIXES:
 
