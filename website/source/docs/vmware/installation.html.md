@@ -9,6 +9,10 @@ description: |-
 
 # Installation
 
+If you are upgrading from the Vagrant VMware Workstation or Vagrant
+VMware Fusion plugins, please halt or destroy all VMware VMs currently
+being managed by Vagrant. Then continue with the instructions below.
+
 Installation of the Vagrant VMware provider requires two steps. First the
 Vagrant VMware Utility must be installed. This can be done by downloading
 and installing the correct system package from the [Vagrant VMware Utility
