@@ -28,7 +28,7 @@ var HashiVMware = function() {
 
     var productId = "";
     if (selectedProduct == "desktop") {
-      productId = "549797756979";
+      productId = "7255390650419";
     } else {
       alert("Unknown product selected. Please refresh and try again.");
       return;
