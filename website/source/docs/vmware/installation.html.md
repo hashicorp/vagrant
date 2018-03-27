@@ -61,6 +61,31 @@ $ vagrant
 
 If the license is not installed correctly, you will see an error message.
 
+## Upgrading to v1.x
+
+It is **extremely important** that the VMware plugin is upgraded to 1.0.0 or
+above. This release resolved critical security vulnerabilities. To learn more,
+please [read our release announcement](https://www.hashicorp.com/blog/introducing-the-vagrant-vmware-desktop-plugin).
+
+After upgrading, please verify that the following paths are empty. The upgrade
+process should remove these for you, but for security reasons it is important
+to double check. If you're a new user or installing the VMware provider on a
+new machine, you may skip this step.
+
+Specifically, the path `~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}`
+should no longer exist. The gem `vagrant-vmware-desktop` will exist since this
+is the name of the new plugin. If the old directories exist, remove them. An
+example for a Unix-like shell is shown below:
+
+```shell
+# Check if they exist and verify that they're the correct paths as shown below.
+$ ls ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
+...
+
+# Remove them
+$ rm -rf ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
+```
+
 ## Frequently Asked Questions
 
 **Q: I purchased a Vagrant VMware plugin license, but I did not receive an email?**<br>
