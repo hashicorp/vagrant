@@ -70,10 +70,11 @@ please [read our release announcement](https://www.hashicorp.com/blog/introducin
 After upgrading, please verify that the following paths are empty. The upgrade
 process should remove these for you, but for security reasons it is important
 to double check. If you're a new user or installing the VMware provider on a
-new machine, you may skip this step.
+new machine, you may skip this step. If you're a Windows user, you may skip this
+step as well.
 
-Specifically, the path `~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}`
-should no longer exist. The gem `vagrant-vmware-desktop` will exist since this
+The path `~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}`
+should no longer exist. The gem `vagrant-vmware-desktop` may exist since this
 is the name of the new plugin. If the old directories exist, remove them. An
 example for a Unix-like shell is shown below:
 
