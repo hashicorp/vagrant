@@ -45,7 +45,7 @@ module Vagrant
         def parse_options(opts=nil)
           # make sure optparse doesn't use POSIXLY_CORRECT parsing
           ENV["POSIXLY_CORRECT"] = nil
-          
+
           # Creating a shallow copy of the arguments so the OptionParser
           # doesn't destroy the originals.
           argv = @argv.dup

@@ -110,6 +110,7 @@ module Vagrant
       @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
       @ui_mutex        = Mutex.new
       @state_mutex     = Mutex.new
+      @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @ui, @config.trigger)
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -159,6 +160,7 @@ module Vagrant
     #   as extra data set on the environment hash for the middleware
     #   runner.
     def action(name, opts=nil)
+      @triggers.fire_before_triggers(name, @name)
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
       opts ||= {}
@@ -203,6 +205,8 @@ module Vagrant
         ui.machine("action", name.to_s, "end")
         action_result
       end
+
+      @triggers.fire_after_triggers(name, @name)
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
         action: name,

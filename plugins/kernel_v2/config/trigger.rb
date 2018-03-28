@@ -176,6 +176,16 @@ module VagrantPlugins
         {"trigger" => errors}
       end
 
+      # return [Array]
+      def before_triggers
+        @_before_triggers
+      end
+
+      # return [Array]
+      def after_triggers
+        @_after_triggers
+      end
+
       # The String representation of this Trigger.
       #
       # @return [String]
