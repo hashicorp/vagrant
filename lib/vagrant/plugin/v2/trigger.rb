@@ -30,11 +30,9 @@ module Vagrant
         # @param [String] guest_name The guest that invoked firing the triggers
         def fire_before_triggers(action, guest_name)
           # get all triggers matching action
-          triggers = []
-          triggers << config.before_triggers.map do |trigger|
-            trigger if trigger.command == action
-          end.compact
-          triggers = triggers.first
+          triggers = config.before_triggers.select do |trigger|
+            trigger.command == action
+          end
           triggers = filter_triggers(triggers, guest_name)
 
           binding.pry
@@ -51,12 +49,10 @@ module Vagrant
         # @param [Symbol] action Vagrant command to fire trigger on
         # @param [String] guest_name The guest that invoked firing the triggers
         def fire_after_triggers(action, guest_name)
-          # get all triggers matching action
           triggers = []
-          triggers << config.after_triggers.map do |trigger|
-            trigger if trigger.command == action
-          end.compact
-          triggers = triggers.first
+          triggers = config.after_triggers.select do |trigger|
+            trigger.command == action
+          end
           triggers = filter_triggers(triggers, guest_name)
 
           binding.pry
@@ -110,12 +106,15 @@ module Vagrant
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run(config)
+          @logger.info("Running script on the host...")
         end
 
         # Runs a script on the host
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run_remote(config)
+          @logger.info("Running script on the guest...")
+          # make sure guest actually exists, if not, display a WARNING
         end
       end
     end
