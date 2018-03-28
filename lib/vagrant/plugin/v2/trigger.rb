@@ -30,9 +30,7 @@ module Vagrant
         # @param [String] guest_name The guest that invoked firing the triggers
         def fire_before_triggers(action, guest_name)
           # get all triggers matching action
-          triggers = config.before_triggers.select do |trigger|
-            trigger.command == action
-          end
+          triggers = config.before_triggers.select { |t| t.command == action }
           triggers = filter_triggers(triggers, guest_name)
 
           binding.pry
@@ -49,10 +47,8 @@ module Vagrant
         # @param [Symbol] action Vagrant command to fire trigger on
         # @param [String] guest_name The guest that invoked firing the triggers
         def fire_after_triggers(action, guest_name)
-          triggers = []
-          triggers = config.after_triggers.select do |trigger|
-            trigger.command == action
-          end
+          # get all triggers matching action
+          triggers = config.after_triggers.select { |t| t.command == action }
           triggers = filter_triggers(triggers, guest_name)
 
           binding.pry
