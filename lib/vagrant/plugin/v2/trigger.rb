@@ -81,7 +81,7 @@ module Vagrant
         # Fires off all triggers in the given array
         #
         # @param [Array] triggers An array of triggers to be fired
-        def fire(triggers)
+        def fire(triggers, guest_name)
           # ensure on_error is respected by exiting or continuing
 
           triggers.each do |trigger|
