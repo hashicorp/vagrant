@@ -87,6 +87,16 @@ $ ls ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
 $ rm -rf ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
 ```
 
+## Updating the Vagrant VMware Desktop plugin
+
+The Vagrant VMware Desktop plugin can be updated directly from Vagrant. Run the
+following command to update Vagrant to the latest version of the Vagrant VMware
+Desktop plugin:
+
+```shell
+$ vagrant plugin update vagrant-vmware-desktop
+```
+
 ## Frequently Asked Questions
 
 **Q: I purchased a Vagrant VMware plugin license, but I did not receive an email?**<br>
