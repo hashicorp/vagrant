@@ -71,6 +71,8 @@ module Vagrant
         # @param [Array] triggers An array of triggers to be filtered
         # @return [Array] The filtered array of triggers
         def filter_triggers(triggers, guest_name)
+          binding.pry
+          # look for only_on triggers and if it doesn't match guest name, throw it away
           return triggers
         end
 

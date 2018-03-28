@@ -160,7 +160,7 @@ module Vagrant
     #   as extra data set on the environment hash for the middleware
     #   runner.
     def action(name, opts=nil)
-      @triggers.fire_before_triggers(name, @name)
+      @triggers.fire_before_triggers(name, @name.to_s)
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
       opts ||= {}
@@ -206,7 +206,7 @@ module Vagrant
         action_result
       end
 
-      @triggers.fire_after_triggers(name, @name)
+      @triggers.fire_after_triggers(name, @name.to_s)
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
         action: name,
