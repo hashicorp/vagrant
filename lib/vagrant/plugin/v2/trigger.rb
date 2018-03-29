@@ -1,7 +1,7 @@
 require 'log4r'
 require "vagrant/util/subprocess"
 
-require 'pry'
+#require 'pry'
 
 module Vagrant
   module Plugin
@@ -148,6 +148,7 @@ module Vagrant
             if on_error == :halt
               raise Error
             end
+            @logger.debug("Trigger run encountered an error. Continuing on anyway...")
           end
         end
 
@@ -163,6 +164,7 @@ module Vagrant
             if on_error == :halt
               raise Error
             end
+            @logger.debug("Trigger run_remote encountered an error. Continuing on anyway...")
           end
         end
       end
