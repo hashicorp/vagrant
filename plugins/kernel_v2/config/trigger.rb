@@ -4,6 +4,9 @@ require File.expand_path("../vm_trigger", __FILE__)
 module VagrantPlugins
   module Kernel_V2
     class TriggerConfig < Vagrant.plugin("2", :config)
+      # The TriggerConfig class is what gets called when a user
+      # defines a new trigger in their Vagrantfile. The two entry points are
+      # either `config.trigger.before` or `config.trigger.after`.
 
       def initialize
         @logger = Log4r::Logger.new("vagrant::config::trigger")

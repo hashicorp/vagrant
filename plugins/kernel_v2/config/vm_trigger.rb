@@ -103,7 +103,6 @@ module VagrantPlugins
         # Guests are stored internally as strings
         if !@only_on.nil?
           @only_on = Array(@only_on)
-          @only_on.map! { |o| o.to_s }
         end
 
         # Commands must be stored internally as symbols
