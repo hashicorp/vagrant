@@ -66,24 +66,16 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
     before do
       cfg.only_on = :guest
       cfg.ignore = "up"
-      arr_cfg.only_on = [:guest, :other]
+      arr_cfg.only_on = ["guest", /other/]
       arr_cfg.ignore = ["up", "destroy"]
     end
 
-    it "ensures only_on is an array of strings" do
+    it "ensures only_on is an array" do
       cfg.finalize!
       arr_cfg.finalize!
 
       expect(cfg.only_on).to be_a(Array)
       expect(arr_cfg.only_on).to be_a(Array)
-
-      cfg.only_on.each do |a|
-        expect(a).to be_a(String)
-      end
-
-      arr_cfg.only_on.each do |a|
-        expect(a).to be_a(String)
-      end
     end
 
     it "ensures ignore is an array of symbols" do
