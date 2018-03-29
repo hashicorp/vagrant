@@ -23,36 +23,31 @@ module Vagrant
           @logger = Log4r::Logger.new("vagrant::trigger::#{self.class.to_s.downcase}")
         end
 
-        # Fires all before triggers, if any are defined for the action and guest
+        # Fires all triggers, if any are defined for the action and guest
         #
         # @param [Symbol] action Vagrant command to fire trigger on
+        # @param [Symbol] stage :before or :after
         # @param [String] guest_name The guest that invoked firing the triggers
-        def fire_before_triggers(action, guest_name)
+        def fire_triggers(action, stage, guest_name)
           # get all triggers matching action
-          triggers = config.before_triggers.select { |t| t.command == action }
+          triggers = []
+          if stage == :before
+            triggers = config.before_triggers.select { |t| t.command == action }
+          elsif stage == :after
+            triggers = config.after_triggers.select { |t| t.command == action }
+          else
+            # raise error, stage was not given
+            # This is an internal error
+            # TODO: Make sure this error exist
+            raise Errors::Triggers::NoStageGiven
+          end
+
           triggers = filter_triggers(triggers, guest_name)
 
           unless triggers.empty?
             @logger.info("Firing trigger for action #{action} on guest #{guest_name}")
             # TODO I18N me
-            @machine_ui.info("Running triggers before #{action}...")
-            fire(triggers, guest_name)
-          end
-        end
-
-        # Fires all after triggers, if any are defined for the action and guest
-        #
-        # @param [Symbol] action Vagrant command to fire trigger on
-        # @param [String] guest_name The guest that invoked firing the triggers
-        def fire_after_triggers(action, guest_name)
-          # get all triggers matching action
-          triggers = config.after_triggers.select { |t| t.command == action }
-          triggers = filter_triggers(triggers, guest_name)
-
-          unless triggers.empty?
-            @logger.info("Firing triggers for action #{action} on guest #{guest_name}")
-            # TODO I18N me
-            @machine_ui.info("Running triggers after #{action}...")
+            @machine_ui.info("Running triggers #{stage} #{action}...")
             fire(triggers, guest_name)
           end
         end
