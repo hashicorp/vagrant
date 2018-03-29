@@ -1,4 +1,5 @@
 require 'log4r'
+require "vagrant/util/subprocess"
 
 require 'pry'
 
@@ -13,12 +14,12 @@ module Vagrant
         # defined inside a Vagrantfile.
         #
         # @param [Object] env Vagrant environment
-        # @param [Object] ui Machines ui object
         # @param [Object] config Trigger configuration
-        def initialize(env, ui, config)
-          @env = env
-          @machine_ui = ui
-          @config  = config
+        # @param [Object] machine Active Machine
+        def initialize(env, config, machine)
+          @env        = env
+          @config     = config
+          @machine    = machine
 
           @logger = Log4r::Logger.new("vagrant::trigger::#{self.class.to_s.downcase}")
         end
@@ -50,7 +51,7 @@ module Vagrant
           unless triggers.empty?
             @logger.info("Firing trigger for action #{action} on guest #{guest_name}")
             # TODO I18N me
-            @machine_ui.info("Running triggers #{stage} #{action}...")
+            @machine.ui.info("Running triggers #{stage} #{action}...")
             fire(triggers, guest_name)
           end
         end
@@ -97,9 +98,9 @@ module Vagrant
 
             # TODO: I18n me
             if !trigger.name.nil?
-              @machine_ui.info("Running trigger: #{trigger.name}...")
+              @machine.ui.info("Running trigger: #{trigger.name}...")
             else
-              @machine_ui.info("Running trigger...")
+              @machine.ui.info("Running trigger...")
             end
 
             if !trigger.info.nil?
@@ -128,20 +129,26 @@ module Vagrant
         #
         # @param [String] message The string to be printed
         def info(message)
-          @machine_ui.info(message)
+          @machine.ui.info(message)
         end
 
         # Prints the given message at warn level for a trigger
         #
         # @param [String] message The string to be printed
         def warn(message)
-          @machine_ui.warn(message)
+          @machine.ui.warn(message)
         end
 
         # Runs a script on a guest
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run(config, on_error)
+          begin
+          rescue Error
+            if on_error == :halt
+              raise Error
+            end
+          end
         end
 
         # Runs a script on the host
@@ -149,6 +156,14 @@ module Vagrant
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run_remote(config, on_error, guest_name)
           # make sure guest actually exists, if not, display a WARNING
+          #
+          # get machine, and run shell provisioner on it
+          begin
+          rescue Error
+            if on_error == :halt
+              raise Error
+            end
+          end
         end
       end
     end
