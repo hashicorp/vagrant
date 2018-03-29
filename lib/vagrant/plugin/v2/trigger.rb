@@ -77,7 +77,11 @@ module Vagrant
           filter.each do |trigger|
             index = nil
             if !trigger.only_on.nil?
-              index = trigger.only_on.index { |i| i.match?(guest_name) }
+              trigger.only_on.each do |o|
+                if o.match?(guest_name)
+                  index = triggers.index(trigger)
+                end
+              end
             end
 
             if !index.nil?
