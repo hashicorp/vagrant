@@ -170,16 +170,17 @@ module Vagrant
                 @machine.ui.error(data)
               end
             end
-
           rescue Exception => e
+            # TODO: I18n me and write better message
+            @machine.ui.error("Trigger run failed:")
+            @machine.ui.error(e.message)
+
             if on_error == :halt
               @logger.debug("Trigger run encountered an error. Halting on error...")
+              # Raise proper Vagrant error to avoid ugly stacktrace
               raise e
             else
               @logger.debug("Trigger run encountered an error. Continuing on anyway...")
-              # TODO: I18n me and write better message
-              @machine.ui.error("Trigger run failed:")
-              @machine.ui.error(e.message)
             end
           end
         end
