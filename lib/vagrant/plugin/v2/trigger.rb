@@ -39,7 +39,10 @@ module Vagrant
             # raise error, stage was not given
             # This is an internal error
             # TODO: Make sure this error exist
-            raise Errors::Triggers::NoStageGiven
+            raise Errors::Triggers::NoStageGiven,
+              action: action,
+              stage: stage,
+              guest_name: guest_name
           end
 
           triggers = filter_triggers(triggers, guest_name)
