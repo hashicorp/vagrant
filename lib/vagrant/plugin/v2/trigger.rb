@@ -1,4 +1,6 @@
 require 'log4r'
+require 'shellwords'
+
 require "vagrant/util/subprocess"
 
 #require 'pry'
@@ -143,12 +145,33 @@ module Vagrant
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run(config, on_error)
+          if !config.inline.nil?
+            cmd = Shellwords.split(config.inline)
+            @machine.ui.info("Running local: Inline script")
+          else
+            @machine.ui.info("Running local: File script #{config.path}")
+          end
+
           begin
-          rescue Error
-            if on_error == :halt
-              raise Error
+            result = Vagrant::Util::Subprocess.execute(*cmd, :notify => [:stdout, :stderr]) do |type,data|
+              case type
+              when :stdout
+                @machine.ui.info(data)
+              when :stderr
+                @machine.ui.warn(data)
+              end
             end
-            @logger.debug("Trigger run encountered an error. Continuing on anyway...")
+
+          rescue Exception => e
+            #binding.pry
+            if on_error == :halt
+              @logger.debug("Trigger run encountered an error. Halting on error...")
+              raise e
+            else
+              @logger.debug("Trigger run encountered an error. Continuing on anyway...")
+              @machine.ui.warn("Trigger run failed:")
+              @machine.ui.warn(e.message)
+            end
           end
         end
 
