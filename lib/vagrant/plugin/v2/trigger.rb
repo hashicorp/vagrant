@@ -116,7 +116,7 @@ module Vagrant
 
             if !trigger.warn.nil?
               @logger.debug("Executing trigger warn message...")
-              self.warn(trigger.info)
+              self.warn(trigger.warn)
             end
 
             if !trigger.run.nil?
