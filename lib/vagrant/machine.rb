@@ -188,7 +188,7 @@ module Vagrant
       locker = @env.method(:lock) if lock && !name.to_s.start_with?("ssh")
 
       # Lock this machine for the duration of this action
-      locker.call("machine-action-#{id}") do
+      return_env = locker.call("machine-action-#{id}") do
         # Get the callable from the provider.
         callable = @provider.action(name)
 
@@ -208,6 +208,8 @@ module Vagrant
       end
 
       @triggers.fire_triggers(name, :after, @name.to_s)
+      # preserve returning environment after machine action runs
+      return return_env
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
         action: name,
