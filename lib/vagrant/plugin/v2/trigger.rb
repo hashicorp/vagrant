@@ -1,5 +1,6 @@
 require 'log4r'
 require 'shellwords'
+require 'fileutils'
 
 require "vagrant/util/subprocess"
 
@@ -126,7 +127,7 @@ module Vagrant
 
             if !trigger.run_remote.nil?
               @logger.debug("Executing trigger run_remote script on #{guest_name}...")
-              self.run_remote(trigger.run, trigger.on_error, guest_name)
+              self.run_remote(trigger.run, trigger.on_error)
             end
           end
         end
@@ -149,32 +150,36 @@ module Vagrant
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run(config, on_error)
+          # TODO: I18n me
           if !config.inline.nil?
             cmd = Shellwords.split(config.inline)
-            @machine.ui.info("Running local: Inline script")
+            @machine.ui.info("Executing local: Inline script")
           else
-            @machine.ui.info("Running local: File script #{config.path}")
+            cmd = File.expand_path(config.path, @env.root_path)
+            FileUtils.chmod("+x", cmd) # TODO: what about windows
+            @machine.ui.info("Executing local: File script #{config.path}")
           end
 
           begin
+            # TODO: should we check config or command for sudo? And if so, WARN the user?
             result = Vagrant::Util::Subprocess.execute(*cmd, :notify => [:stdout, :stderr]) do |type,data|
               case type
               when :stdout
-                @machine.ui.info(data)
+                @machine.ui.detail(data)
               when :stderr
-                @machine.ui.warn(data)
+                @machine.ui.error(data)
               end
             end
 
           rescue Exception => e
-            #binding.pry
             if on_error == :halt
               @logger.debug("Trigger run encountered an error. Halting on error...")
               raise e
             else
               @logger.debug("Trigger run encountered an error. Continuing on anyway...")
-              @machine.ui.warn("Trigger run failed:")
-              @machine.ui.warn(e.message)
+              # TODO: I18n me and write better message
+              @machine.ui.error("Trigger run failed:")
+              @machine.ui.error(e.message)
             end
           end
         end
@@ -182,16 +187,21 @@ module Vagrant
         # Runs a script on the host
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
-        def run_remote(config, on_error, guest_name)
+        def run_remote(config, on_error)
           # make sure guest actually exists, if not, display a WARNING
           #
           # get machine, and run shell provisioner on it
           begin
-          rescue Error
+          rescue Exception => e
             if on_error == :halt
-              raise Error
+              @logger.debug("Trigger run encountered an error. Halting on error...")
+              raise e
+            else
+              @logger.debug("Trigger run encountered an error. Continuing on anyway...")
+              # TODO: I18n me and write better message
+              @machine.ui.error("Trigger run failed:")
+              @machine.ui.error(e.message)
             end
-            @logger.debug("Trigger run_remote encountered an error. Continuing on anyway...")
           end
         end
       end
