@@ -115,6 +115,8 @@ module VagrantPlugins
         if @run && @run.is_a?(Hash)
           new_run = VagrantPlugins::Shell::Config.new()
           new_run.set_options(@run)
+          # don't run local commands as sudo by default
+          new_run.privileged = false
           new_run.finalize!
           @run = new_run
         end
