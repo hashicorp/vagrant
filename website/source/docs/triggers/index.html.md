@@ -8,3 +8,4 @@ description: |-
 
 # Vagrant Triggers
 
+Some interesting information introducing triggers.

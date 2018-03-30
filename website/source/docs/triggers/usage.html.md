@@ -6,5 +6,5 @@ description: |-
   Description goes here
 ---
 
-# Vagrant Triggers Usage
+# Usage
 
