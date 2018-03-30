@@ -169,12 +169,15 @@ module Vagrant
           begin
             # TODO: should we check config or command for sudo? And if so, WARN the user?
             result = Vagrant::Util::Subprocess.execute(*cmd, :notify => [:stdout, :stderr]) do |type,data|
+              options = {}
               case type
               when :stdout
-                @machine.ui.detail(data)
+                options[:color] = :green if !config.keep_color
               when :stderr
-                @machine.ui.error(data)
+                options[:color] = :red if !config.keep_color
               end
+
+              @machine.ui.detail(data, options)
             end
           rescue Exception => e
             # TODO: I18n me and write better message
