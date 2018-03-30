@@ -20,19 +20,20 @@ describe Vagrant::Plugin::V2::Trigger do
 
   let(:subject) { described_class.new(env, config, machine) }
 
-  context "firing before triggers" do
+  context "#fire_triggers" do
+    it "raises an error if an inproper stage is given" do
+      expect{ subject.fire_triggers(:up, :not_real, "guest") }.
+       to raise_error(Vagrant::Errors::TriggersNoStageGiven)
+    end
   end
 
-  context "firing after triggers" do
+  context "#filter_triggers" do
   end
 
-  context "filtering triggers" do
+  context "#fire" do
   end
 
-  context "firing triggers" do
-  end
-
-  context "executing info" do
+  context "#info" do
     let(:message) { "Printing some info" }
 
     it "prints messages at INFO" do
@@ -46,7 +47,7 @@ describe Vagrant::Plugin::V2::Trigger do
     end
   end
 
-  context "executing warn" do
+  context "#warn" do
     let(:message) { "Printing some warnings" }
 
     it "prints messages at WARN" do
@@ -60,9 +61,9 @@ describe Vagrant::Plugin::V2::Trigger do
     end
   end
 
-  context "executing run" do
+  context "#run" do
   end
 
-  context "executing run_remote" do
+  context "#run_remote" do
   end
 end
