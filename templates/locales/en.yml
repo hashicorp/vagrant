@@ -279,6 +279,23 @@ en:
       up some disk space.
 
       Press the Enter or Return key to continue.
+
+    trigger:
+      on_error_continue: |-
+        Trigger configured to continue on error...
+      start: |-
+        Running triggers %{stage} %{action} ...
+      fire_with_name: |-
+        Running trigger: %{name}...
+      fire: |-
+        Running trigger...
+      run:
+        inline: |-
+          Running local: Inline script
+        script: |-
+          Running local script: %{path}
+
+
     version_current: |-
       Installed Version: %{version}
     version_latest: |-
@@ -1392,6 +1409,19 @@ en:
         The synced folder type '%{type}' is reporting as unusable for
         your current setup. Please verify you have all the proper
         prerequisites for using this shared folder type and try again.
+
+      triggers_run_fail: |-
+        Trigger run failed
+      triggers_guest_not_running: |-
+        Could not run remote script on %{machine_name} because its state is %{state}
+      triggers_no_stage_given: |-
+        The incorrect stage was given to the trigger plugin:
+        Guest: %{guest_name}
+        Action: %{action}
+        Stage: %{stage}
+
+        This is an internal error that should be reported as a bug.
+
       ui_expects_tty: |-
         Vagrant is attempting to interface with the UI in a way that requires
         a TTY. Most actions in Vagrant that require a TTY have configuration

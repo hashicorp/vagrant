@@ -5,8 +5,6 @@ require 'fileutils'
 require "vagrant/util/subprocess"
 require Vagrant.source_root.join("plugins/provisioners/shell/provisioner")
 
-require 'pry'
-
 module Vagrant
   module Plugin
     module V2
@@ -41,10 +39,7 @@ module Vagrant
           elsif stage == :after
             triggers = config.after_triggers.select { |t| t.command == action }
           else
-            # raise error, stage was not given
-            # This is an internal error
-            # TODO: Make sure this error exist
-            raise Errors::Triggers::NoStageGiven,
+            raise Errors::TriggersNoStageGiven,
               action: action,
               stage: stage,
               guest_name: guest_name
@@ -54,8 +49,7 @@ module Vagrant
 
           unless triggers.empty?
             @logger.info("Firing trigger for action #{action} on guest #{guest_name}")
-            # TODO I18N me
-            @machine.ui.info("Running triggers #{stage} #{action}...")
+            @machine.ui.info(I18n.t("vagrant.trigger.start", stage: stage, action: action))
             fire(triggers, guest_name)
           end
         end
@@ -111,9 +105,10 @@ module Vagrant
 
             # TODO: I18n me
             if !trigger.name.nil?
-              @machine.ui.info("Running trigger: #{trigger.name}...")
+              @machine.ui.info(I18n.t("vagrant.trigger.fire_with_name",
+                                      name: trigger.name))
             else
-              @machine.ui.info("Running trigger...")
+              @machine.ui.info(I18n.t("vagrant.trigger.fire"))
             end
 
             if !trigger.info.nil?
@@ -156,14 +151,13 @@ module Vagrant
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run(config, on_error)
-          # TODO: I18n me
           if !config.inline.nil?
             cmd = Shellwords.split(config.inline)
-            @machine.ui.detail("Running local: Inline script")
+            @machine.ui.detail(I18n.t("vagrant.trigger.run.inline"))
           else
             cmd = File.expand_path(config.path, @env.root_path)
             FileUtils.chmod("+x", cmd) # TODO: what about windows
-            @machine.ui.detail("Running local script: #{config.path}")
+            @machine.ui.detail(I18n.t("vagrant.trigger.run.script", path: config.path))
           end
 
           begin
@@ -180,8 +174,7 @@ module Vagrant
               @machine.ui.detail(data, options)
             end
           rescue Exception => e
-            # TODO: I18n me and write better message
-            @machine.ui.error("Trigger run failed:")
+            @machine.ui.error(I18n.t("vagrant.errors.triggers.run_fail"))
             @machine.ui.error(e.message)
 
             if on_error == :halt
@@ -190,7 +183,7 @@ module Vagrant
               raise e
             else
               @logger.debug("Trigger run encountered an error. Continuing on anyway...")
-              @machine.ui.warn("Trigger configured to continue on error....")
+              @machine.ui.warn(I18n.t("vagrant.trigger.on_error_continue"))
             end
           end
         end
@@ -200,13 +193,15 @@ module Vagrant
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run_remote(config, on_error)
           unless @machine.state.id == :running
-            # TODO: I18n me, improve message, etc
-            @machine.ui.error("Could not run remote script on #{@machine.name} because its state is #{@machine.state.id}")
             if on_error == :halt
-              # TODO: Make sure I exist
-              raise Errors::Triggers::RunRemoteGuestNotExist
+              raise Errors::TriggersGuestNotRunning,
+                machine_name: @machine.name,
+                state: @machine.state.id
             else
-              @machine.ui.warn("Trigger configured to continue on error....")
+              @machine.ui.error(I18n.t("vagrant.errors.triggers_guest_not_running",
+                                        machine_name: @machine.name,
+                                        state: @machine.state.id))
+              @machine.ui.warn(I18n.t("vagrant.trigger.on_error_continue"))
               return
             end
           end
@@ -221,8 +216,7 @@ module Vagrant
               raise e
             else
               @logger.debug("Trigger run encountered an error. Continuing on anyway...")
-              # TODO: I18n me and write better message
-              @machine.ui.error("Trigger run failed:")
+              @machine.ui.error(I18n.t("vagrant.errors.triggers.run_fail"))
               @machine.ui.error(e.message)
             end
           end
