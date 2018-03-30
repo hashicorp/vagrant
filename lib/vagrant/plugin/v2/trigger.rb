@@ -159,11 +159,11 @@ module Vagrant
           # TODO: I18n me
           if !config.inline.nil?
             cmd = Shellwords.split(config.inline)
-            @machine.ui.info("Executing local: Inline script")
+            @machine.ui.detail("Running local: Inline script")
           else
             cmd = File.expand_path(config.path, @env.root_path)
             FileUtils.chmod("+x", cmd) # TODO: what about windows
-            @machine.ui.info("Executing local: File script #{config.path}")
+            @machine.ui.detail("Running local script: #{config.path}")
           end
 
           begin
@@ -195,7 +195,7 @@ module Vagrant
           end
         end
 
-        # Runs a script on the host
+        # Runs a script on the guest
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run_remote(config, on_error)
