@@ -5,7 +5,7 @@ require 'fileutils'
 require "vagrant/util/subprocess"
 require Vagrant.source_root.join("plugins/provisioners/shell/provisioner")
 
-#require 'pry'
+require 'pry'
 
 module Vagrant
   module Plugin
@@ -78,12 +78,17 @@ module Vagrant
 
           filter.each do |trigger|
             index = nil
+            match = false
             if !trigger.only_on.nil?
               trigger.only_on.each do |o|
                 if o.match?(guest_name)
-                  index = triggers.index(trigger)
+                  # trigger matches on current guest, so we're fine to use it
+                  match = true
+                  break
                 end
               end
+              # no matches found, so don't use trigger for guest
+              index = triggers.index(trigger) unless match == true
             end
 
             if !index.nil?
@@ -182,6 +187,7 @@ module Vagrant
               raise e
             else
               @logger.debug("Trigger run encountered an error. Continuing on anyway...")
+              @machine.ui.warn("Trigger configured to continue on error....")
             end
           end
         end
@@ -194,6 +200,7 @@ module Vagrant
             # TODO: I18n me, improve message, etc
             @machine.ui.error("Could not run remote script on #{@machine.name} because its state is #{@machine.state.id}")
             if on_error == :halt
+              # TODO: Make sure I exist
               raise Errors::Triggers::RunRemoteGuestNotExist
             else
               @machine.ui.warn("Trigger configured to continue on error....")
