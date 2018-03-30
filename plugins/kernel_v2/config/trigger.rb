@@ -49,9 +49,6 @@ module VagrantPlugins
           # so the last element should be the "config block"
           # and the rest are commands for the trigger
           blk = command.pop
-        else
-          # TODO:
-          # No config block given at all, validation step should throw error?
         end
 
         command.each do |cmd|
@@ -68,14 +65,12 @@ module VagrantPlugins
       def after(*command, &block)
         command.flatten!
         blk = block
+
         if !block_given? && command.last.is_a?(Hash)
           # We were given a hash rather than a block,
           # so the last element should be the "config block"
           # and the rest are commands for the trigger
           blk = command.pop
-        else
-          # TODO:
-          # No config block given at all, validation step should throw error?
         end
 
         command.each do |cmd|

@@ -17,7 +17,7 @@ module VagrantPlugins
       # Note: This is for internal use only.
       #
       # @return [String]
-      attr_accessor :id
+      attr_reader :id
 
       # Name for the given Trigger. Defaults to nil.
       #
