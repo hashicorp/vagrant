@@ -3,6 +3,7 @@ require 'shellwords'
 require 'fileutils'
 
 require "vagrant/util/subprocess"
+require Vagrant.source_root.join("plugins/provisioners/shell/provisioner")
 
 #require 'pry'
 
@@ -127,7 +128,7 @@ module Vagrant
 
             if !trigger.run_remote.nil?
               @logger.debug("Executing trigger run_remote script on #{guest_name}...")
-              self.run_remote(trigger.run, trigger.on_error)
+              self.run_remote(trigger.run_remote, trigger.on_error)
             end
           end
         end
@@ -189,10 +190,21 @@ module Vagrant
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run_remote(config, on_error)
-          # make sure guest actually exists, if not, display a WARNING
-          #
-          # get machine, and run shell provisioner on it
+          unless @machine.state.id == :running
+            # TODO: I18n me, improve message, etc
+            @machine.ui.error("Could not run remote script on #{@machine.name} because its state is #{@machine.state.id}")
+            if on_error == :halt
+              raise Errors::Triggers::RunRemoteGuestNotExist
+            else
+              @machine.ui.warn("Trigger configured to continue on error....")
+              return
+            end
+          end
+
+          prov = VagrantPlugins::Shell::Provisioner.new(@machine, config)
+
           begin
+            prov.provision
           rescue Exception => e
             if on_error == :halt
               @logger.debug("Trigger run encountered an error. Halting on error...")
