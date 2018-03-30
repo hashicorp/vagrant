@@ -170,13 +170,15 @@ module VagrantPlugins
 
         if @on_error != :halt
           if @on_error != :continue
-            # must be :halt or :continue
             errors << I18n.t("vagrant.config.triggers.on_error_bad_type", cmd: @command)
           end
         end
 
-        # @ignore validations?
-        # @only_on validations?
+        if !@only_on.nil?
+          if @only_on.all? { |o| !o.is_a?(String) || !o.is_a?(Regexp) }
+              errors << I18n.t("vagrant.config.triggers.only_on_bad_type")
+          end
+        end
 
         errors
       end

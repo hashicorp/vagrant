@@ -1715,6 +1715,8 @@ en:
         on_error_bad_type: |-
           Invalid type set for `on_error` on trigger for command '%{cmd}'. `on_error` can
           only be `:halt` (default) or `:continue`.
+        only_on_bad_type: |-
+          Invalid type found for `only_on`. All values must be a `String` or `Regexp`.
         run:
           bad_type: |-
             Invalid type set for `run` on trigger for command '%{cmd}'. `run`
