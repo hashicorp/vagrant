@@ -92,7 +92,7 @@ module VagrantPlugins
         @info = nil if @info == UNSET_VALUE
         @warn = nil if @warn == UNSET_VALUE
         @on_error = DEFAULT_ON_ERROR if @on_error == UNSET_VALUE
-        @ignore = nil if @ignore == UNSET_VALUE
+        @ignore = [] if @ignore == UNSET_VALUE
         @run = nil if @run == UNSET_VALUE
         @run_remote = nil if @run_remote == UNSET_VALUE
         @only_on = nil if @only_on == UNSET_VALUE
@@ -139,7 +139,7 @@ module VagrantPlugins
           commands.push(key)
         end
 
-        if !commands.include?(@command)
+        if !commands.include?(@command) && @command != :all
           machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
                                 cmd: @command))
         end
