@@ -180,9 +180,10 @@ module VagrantPlugins
         end
 
         if !@only_on.nil?
-          if @only_on.all? { |o| !o.is_a?(String) || !o.is_a?(Regexp) }
-              errors << I18n.t("vagrant.config.triggers.only_on_bad_type")
-          end
+          # this check isn't quite right...
+          #if @only_on.all? { |o| !o.is_a?(String) || !o.is_a?(Regexp) }
+          #    errors << I18n.t("vagrant.config.triggers.only_on_bad_type")
+          #end
         end
 
         errors

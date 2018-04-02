@@ -1,9 +1,9 @@
+require 'fileutils'
 require 'log4r'
 require 'shellwords'
-require 'fileutils'
 
-require "vagrant/util/subprocess"
 require Vagrant.source_root.join("plugins/provisioners/shell/provisioner")
+require "vagrant/util/subprocess"
 
 module Vagrant
   module Plugin
