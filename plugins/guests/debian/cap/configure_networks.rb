@@ -61,7 +61,7 @@ module VagrantPlugins
             "renderer" => NETPLAN_DEFAULT_RENDERER, "ethernets" => ethernets}}
 
           remote_path = upload_tmp_file(comm, np_config.to_yaml)
-          dest_path = "#{NETPLAN_DIRECTORY}/99-vagrant.yaml"
+          dest_path = "#{NETPLAN_DIRECTORY}/50-vagrant.yaml"
           comm.sudo(["mv -f '#{remote_path}' '#{dest_path}'",
             "chown root:root '#{dest_path}'",
             "chmod 0644 '#{dest_path}'",
