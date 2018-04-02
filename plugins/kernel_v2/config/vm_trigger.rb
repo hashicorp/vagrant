@@ -149,6 +149,11 @@ module VagrantPlugins
         if @run
           errorz = @run.validate(machine)
           errors.concat errorz["shell provisioner"] if !errorz.empty?
+
+          if @run.privileged == true
+            machine.ui.warn(I18n.t("vagrant.config.triggers.privileged_ignored",
+                                  command: @command))
+          end
         end
 
         if @run_remote
