@@ -16,11 +16,13 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       guest_port: 5986,
       pty: false,
       keep_alive: false,
-      insert_key: false,
+      insert_key: insert_ssh_key,
       export_command_template: export_command_template,
       shell: 'bash -l'
     )
   end
+  # Do not insert public key by default
+  let(:insert_ssh_key){ false }
   # Configuration mock
   let(:config) { double("config", ssh: ssh) }
   # Provider mock
@@ -35,6 +37,8 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       ui: ui
     )
   end
+  # SSH information of the machine
+  let(:machine_ssh_info){ {host: '10.1.2.3', port: 22} }
   # Subject instance to test
   let(:communicator){ @communicator ||= described_class.new(machine) }
   # Underlying net-ssh connection mock
@@ -60,12 +64,14 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   # Mock for net-ssh scp
   let(:scp) { double("scp") }
 
+
   # Setup for commands using the net-ssh connection. This can be reused where needed
   # by providing to `before`
   connection_setup = proc do
     allow(connection).to receive(:closed?).and_return false
     allow(connection).to receive(:open_channel).
       and_yield(channel).and_return(channel)
+    allow(connection).to receive(:close)
     allow(channel).to receive(:wait).and_return true
     allow(channel).to receive(:close)
     allow(command_channel).to receive(:send_data)
@@ -74,10 +80,10 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       and_yield(nil, command_stdout_data)
     allow(command_channel).to receive(:on_extended_data).
       and_yield(nil, nil, command_stderr_data)
-    allow(machine).to receive(:ssh_info).and_return(host: '10.1.2.3', port: 22)
-    expect(channel).to receive(:exec).with(core_shell_cmd).
+    allow(machine).to receive(:ssh_info).and_return(machine_ssh_info)
+    allow(channel).to receive(:exec).with(core_shell_cmd).
       and_yield(command_channel, '').and_return channel
-    expect(command_channel).to receive(:on_request).with('exit-status').
+    allow(command_channel).to receive(:on_request).with('exit-status').
       and_yield(nil, exit_data)
     # Return mocked net-ssh connection during setup
     allow(communicator).to receive(:retryable).and_return(connection)
@@ -119,6 +125,120 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
 
       it "returns raises SSHInvalidShell error" do
         expect{ communicator.ready? }.to raise_error Vagrant::Errors::SSHInvalidShell
+      end
+    end
+
+    context "with insert key enabled" do
+      before do
+        allow(machine).to receive(:guest).and_return(guest)
+        allow(guest).to receive(:capability?).with(:insert_public_key).
+          and_return(has_insert_cap)
+        allow(guest).to receive(:capability?).with(:remove_public_key).
+          and_return(has_remove_cap)
+        allow(communicator).to receive(:insecure_key?).with("KEY_PATH").and_return(true)
+        allow(ui).to receive(:detail)
+      end
+
+      let(:insert_ssh_key){ true }
+      let(:has_insert_cap){ false }
+      let(:has_remove_cap){ false }
+      let(:machine_ssh_info){
+        {host: '10.1.2.3', port: 22, private_key_path: ["KEY_PATH"]}
+      }
+      let(:guest){ double("guest") }
+
+      context "without guest insert_ssh_key or remove_ssh_key capabilities" do
+        it "should raise an error" do
+          expect{ communicator.ready? }.to raise_error(Vagrant::Errors::SSHInsertKeyUnsupported)
+        end
+      end
+
+      context "without guest insert_ssh_key capability" do
+        let(:has_remove_cap){ true }
+
+        it "should raise an error" do
+          expect{ communicator.ready? }.to raise_error(Vagrant::Errors::SSHInsertKeyUnsupported)
+        end
+      end
+
+      context "without guest remove_ssh_key capability" do
+        let(:has_insert_cap){ true }
+
+        it "should raise an error" do
+          expect{ communicator.ready? }.to raise_error(Vagrant::Errors::SSHInsertKeyUnsupported)
+        end
+      end
+
+      context "with guest insert_ssh_key capability and remove_ssh_key capability" do
+        let(:has_insert_cap){ true }
+        let(:has_remove_cap){ true }
+        let(:new_public_key){ :new_public_key }
+        let(:new_private_key){ :new_private_key }
+        let(:openssh){ :openssh }
+        let(:private_key_file){ double("private_key_file") }
+        let(:path_joiner){ double("path_joiner") }
+
+        before do
+          allow(ui).to receive(:info)
+          allow(Vagrant::Util::Keypair).to receive(:create).
+            and_return([new_public_key, new_private_key, openssh])
+          allow(private_key_file).to receive(:open).and_yield(private_key_file)
+          allow(private_key_file).to receive(:write)
+          allow(private_key_file).to receive(:chmod)
+          allow(guest).to receive(:capability)
+          allow(File).to receive(:chmod)
+          allow(machine).to receive(:data_dir).and_return(path_joiner)
+          allow(path_joiner).to receive(:join).and_return(private_key_file)
+          allow(guest).to receive(:capability).with(:insert_public_key)
+          allow(guest).to receive(:capability).with(:remove_public_key)
+        end
+
+        after{ communicator.ready? }
+
+        it "should create a new key pair" do
+          expect(Vagrant::Util::Keypair).to receive(:create).
+            and_return([new_public_key, new_private_key, openssh])
+        end
+
+        it "should call the insert_public_key guest capability" do
+          expect(guest).to receive(:capability).with(:insert_public_key, openssh)
+        end
+
+        it "should write the new private key" do
+          expect(private_key_file).to receive(:write).with(new_private_key)
+        end
+
+        it "should set private key file as user readable only" do
+          expect(private_key_file).to receive(:chmod).with(0600)
+        end
+
+        it "should remove the default public key" do
+          expect(guest).to receive(:capability).with(:remove_public_key, any_args)
+        end
+
+        context "on windows platform" do
+          let(:owner){ "owner" }
+
+          before do
+            allow(private_key_file).to receive(:to_s).and_return("PRIVATE_KEY_PATH")
+            allow(File).to receive(:set_permissions)
+            allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+            allow(Etc).to receive(:getlogin).and_return(owner)
+            stub_const('File::FULL', :full)
+          end
+
+          it "should get set new permissions on private key file" do
+            expect(File).to receive(:set_permissions).with("PRIVATE_KEY_PATH", any_args)
+          end
+
+          context "with multiple permissions on file" do
+
+            it "should delete all non-owner permissions" do
+              expect(File).to receive(:set_permissions).with("PRIVATE_KEY_PATH",
+                owner => :full)
+            end
+          end
+        end
       end
     end
   end

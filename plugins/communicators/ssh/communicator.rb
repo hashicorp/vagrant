@@ -1,3 +1,4 @@
+require 'etc'
 require 'logger'
 require 'pathname'
 require 'stringio'
@@ -191,6 +192,14 @@ module VagrantPlugins
           # machine automatically picks it up.
           @machine.data_dir.join("private_key").open("w+") do |f|
             f.write(priv)
+          end
+
+          # Adjust private key file permissions
+          if Vagrant::Util::Platform.windows?
+            priv_path = @machine.data_dir.join("private_key").to_s
+            File.set_permissions(priv_path, Etc.getlogin => File::FULL)
+          else
+            @machine.data_dir.join("private_key").chmod(0600)
           end
 
           # Remove the old key if it exists
