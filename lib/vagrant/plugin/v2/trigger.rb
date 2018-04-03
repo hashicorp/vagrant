@@ -36,11 +36,11 @@ module Vagrant
           triggers = []
           if stage == :before
             triggers = config.before_triggers.select do |t|
-              t.command == action || (t.command == :all && !t.ignore.any?(action))
+              t.command == action || (t.command == :all && !t.ignore.include?(action))
             end
           elsif stage == :after
             triggers = config.after_triggers.select do |t|
-              t.command == action || (t.command == :all && !t.ignore.any?(action))
+              t.command == action || (t.command == :all && !t.ignore.include?(action))
             end
           else
             raise Errors::TriggersNoStageGiven,
