@@ -65,6 +65,12 @@ require 'i18n'
 # there are issues with ciphers not being properly loaded.
 require 'openssl'
 
+# If we are on Windows, load in File helpers
+if Vagrant::Util::Platform.windows?
+  require "win32/file"
+  require "win32/file/security"
+end
+
 # Always make the version available
 require 'vagrant/version'
 global_logger = Log4r::Logger.new("vagrant::global")

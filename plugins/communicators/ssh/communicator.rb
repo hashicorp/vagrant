@@ -193,6 +193,21 @@ module VagrantPlugins
             f.write(priv)
           end
 
+          # Adjust private key file permissions
+          if Vagrant::Util::Platform.windows?
+            priv_path = @machine.data_dir.join("private_key").to_s
+            priv_owner = File.owner(priv_path)
+            new_perms = File.get_permissions(priv_path).map do |p_user, perm|
+              if p_user != priv_owner
+                perm = File::DELETE
+              end
+              [p_user, perm]
+            end
+            File.set_permissions(priv_path, Hash[new_perms])
+          else
+            @machine.data_dir.join("private_key").chmod(0600)
+          end
+
           # Remove the old key if it exists
           @machine.ui.detail(I18n.t("vagrant.inserting_remove_key"))
           @machine.guest.capability(
