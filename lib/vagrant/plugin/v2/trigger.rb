@@ -178,7 +178,7 @@ module Vagrant
               @machine.ui.detail(data, options)
             end
           rescue Exception => e
-            @machine.ui.error(I18n.t("vagrant.errors.triggers.run_fail"))
+            @machine.ui.error(I18n.t("vagrant.errors.triggers_run_fail"))
             @machine.ui.error(e.message)
 
             if on_error == :halt
