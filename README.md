@@ -4,6 +4,7 @@
 * Source: [https://github.com/hashicorp/vagrant](https://github.com/hashicorp/vagrant)
 * [![Gitter chat](https://badges.gitter.im/mitchellh/vagrant.png)](https://gitter.im/mitchellh/vagrant)
 * Mailing list: [Google Groups](https://groups.google.com/group/vagrant-up)
+* IRC: #vagrant on freenode.org
 
 Vagrant is a tool for building and distributing development environments.
 
