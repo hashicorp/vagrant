@@ -227,12 +227,13 @@ module Vagrant
           begin
             prov.provision
           rescue Exception => e
+            @machine.ui.error(I18n.t("vagrant.errors.triggers_run_fail"))
+
             if on_error == :halt
               @logger.debug("Trigger run encountered an error. Halting on error...")
               raise e
             else
               @logger.debug("Trigger run encountered an error. Continuing on anyway...")
-              @machine.ui.error(I18n.t("vagrant.errors.triggers_run_fail"))
               @machine.ui.error(e.message)
             end
           end
