@@ -162,4 +162,18 @@ describe Vagrant do
       end
     end
   end
+
+  describe "#global_logger" do
+    after{ subject.global_logger = nil }
+
+    it "should return a logger when none have been provided" do
+      expect(subject.global_logger).not_to be_nil
+    end
+
+    it "should return previously set logger" do
+      logger = double("logger")
+      expect(subject.global_logger = logger).to eq(logger)
+      expect(subject.global_logger).to eq(logger)
+    end
+  end
 end

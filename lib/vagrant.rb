@@ -68,6 +68,7 @@ require 'openssl'
 # Always make the version available
 require 'vagrant/version'
 global_logger = Log4r::Logger.new("vagrant::global")
+Vagrant.global_logger = global_logger
 global_logger.info("Vagrant version: #{Vagrant::VERSION}")
 global_logger.info("Ruby version: #{RUBY_VERSION}")
 global_logger.info("RubyGems version: #{Gem::VERSION}")
