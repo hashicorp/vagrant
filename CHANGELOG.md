@@ -6,9 +6,10 @@ IMPROVEMENTS:
 
 - core: Make resolv-replace usage opt-in instead of opt-out [GH-9644]
 - core: Suppress error messages from checkpoint runs [GH-9645]
-- guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
 - guests/coreos: Identify operating systems closely related to CoreOS [GH-9600]
+- guests/debian: Adjust network configuration file prefix to 50- [GH-9646]
 - guests/photon: Less specific string grep to fix PhotonOS 2.0 detection [GH-9528]
+- guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
 
 BUG FIXES:
 
