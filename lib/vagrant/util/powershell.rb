@@ -11,6 +11,8 @@ module Vagrant
     class PowerShell
       # NOTE: Version checks are only on Major
       MINIMUM_REQUIRED_VERSION = 3
+      # Number of seconds to wait while attempting to get powershell version
+      DEFAULT_VERSION_DETECTION_TIMEOUT = 30
       LOGGER = Log4r::Logger.new("vagrant::util::powershell")
 
       # @return [String|nil] a powershell executable, depending on environment
@@ -101,8 +103,15 @@ module Vagrant
           ].flatten
 
           version = nil
+          timeout = ENV["VAGRANT_POWERSHELL_VERSION_DETECTION_TIMEOUT"].to_i
+          if timeout < 1
+            timeout = DEFAULT_VERSION_DETECTION_TIMEOUT
+          end
           begin
-            r = Subprocess.execute(*command, notify: [:stdout, :stderr], timeout: 10) {|io_name,data| version = data}
+            r = Subprocess.execute(*command,
+              notify: [:stdout, :stderr],
+              timeout: timeout,
+            ) {|io_name,data| version = data}
           rescue Vagrant::Util::Subprocess::TimeoutExceeded
             LOGGER.debug("Timeout exceeded while attempting to determine version of Powershell.")
           end
@@ -182,6 +191,13 @@ module Vagrant
           end
           Subprocess::Result.new(code, r_stdout, r_stderr)
         end
+      end
+
+      # @private
+      # Reset the cached values for platform. This is not considered a public
+      # API and should only be used for testing.
+      def self.reset!
+        instance_variables.each(&method(:remove_instance_variable))
       end
     end
   end
