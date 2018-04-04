@@ -227,3 +227,11 @@ Use the Ruby Resolv library in place of the libc resolver.
 
 Vagrant can optionally use the Ruby Resolv library in place of the libc resolver.
 This can be disabled setting this environment variable.
+
+## `VAGRANT_POWERSHELL_VERSION_DETECTION_TIMEOUT`
+
+Vagrant will use a default timeout when checking for the installed version
+of PowerShell. Occasionally the default can be too low and Vagrant will report
+being unable to detect the installed version of PowerShell. This environment
+variable can be used to extend the timeout used during PowerShell version
+detection.
