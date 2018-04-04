@@ -219,8 +219,11 @@ shared folders. Defaults to true if the option is not set. This can be overridde
 on a per-folder basis within your Vagrantfile config by settings the
 `SharedFoldersEnableSymlinksCreate` option to true.
 
+## `VAGRANT_ENABLE_RESOLV_REPLACE`
+
+Use the Ruby Resolv library in place of the libc resolver.
+
 ## `VAGRANT_DISABLE_RESOLV_REPLACE`
 
-Vagrant will automatically load `resolv-replace` to use Ruby's Resolv library
-in place of the libc resolver. This behavior can be disabled by setting this
-environment variable.
+Vagrant can optionally use the Ruby Resolv library in place of the libc resolver.
+This can be disabled setting this environment variable.

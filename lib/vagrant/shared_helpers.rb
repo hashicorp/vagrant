@@ -134,15 +134,17 @@ module Vagrant
   #
   # @return [boolean] enabled or not
   def self.enable_resolv_replace
-    if !ENV["VAGRANT_DISABLE_RESOLV_REPLACE"]
-      begin
-        require "resolv-replace"
-        true
-      rescue
+    if ENV["VAGRANT_ENABLE_RESOLV_REPLACE"]
+      if !ENV["VAGRANT_DISABLE_RESOLV_REPLACE"]
+        begin
+          require "resolv-replace"
+          true
+        rescue
+          false
+        end
+      else
         false
       end
-    else
-      false
     end
   end
 end
