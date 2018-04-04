@@ -4,6 +4,8 @@ require 'shellwords'
 
 require Vagrant.source_root.join("plugins/provisioners/shell/provisioner")
 require "vagrant/util/subprocess"
+require "vagrant/util/platform"
+require "vagrant/util/powershell"
 
 module Vagrant
   module Plugin
@@ -157,15 +159,27 @@ module Vagrant
         def run(config, on_error)
           if !config.inline.nil?
             cmd = Shellwords.split(config.inline)
+
+            if Vagrant::Util::Platform.windows?
+              powershell_exe = Vagrant::Util::PowerShell.executable
+              cmd = Shellwords.split("#{powershell_exe} #{config.powershell_args} '#{cmd.join(' ')}'")
+            end
+
             @machine.ui.detail(I18n.t("vagrant.trigger.run.inline"))
           else
             cmd = File.expand_path(config.path, @env.root_path)
-            FileUtils.chmod("+x", cmd) # TODO: what about windows
+            FileUtils.chmod("+x", cmd)
+
+            if Vagrant::Util::Platform.windows?
+              powershell_exe = Vagrant::Util::PowerShell.executable
+              cmd = Shellwords.split("#{powershell_exe} #{config.powershell_args} #{cmd}")
+            end
+
             @machine.ui.detail(I18n.t("vagrant.trigger.run.script", path: config.path))
           end
 
+
           begin
-            # TODO: should we check config or command for sudo? And if so, WARN the user?
             result = Vagrant::Util::Subprocess.execute(*cmd, :notify => [:stdout, :stderr]) do |type,data|
               options = {}
               case type
@@ -220,7 +234,7 @@ module Vagrant
               raise e
             else
               @logger.debug("Trigger run encountered an error. Continuing on anyway...")
-              @machine.ui.error(I18n.t("vagrant.errors.triggers.run_fail"))
+              @machine.ui.error(I18n.t("vagrant.errors.triggers_run_fail"))
               @machine.ui.error(e.message)
             end
           end
