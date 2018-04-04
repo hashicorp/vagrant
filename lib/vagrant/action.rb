@@ -36,7 +36,9 @@ module Vagrant
     end
 
     module General
-      autoload :Package,  'vagrant/action/general/package'
+      autoload :Package, 'vagrant/action/general/package'
+      autoload :PackageSetupFiles, 'vagrant/action/general/package_setup_files'
+      autoload :PackageSetupFolders, 'vagrant/action/general/package_setup_folders'
     end
 
     # This is the action that will add a box from a URL. This middleware
