@@ -10,6 +10,7 @@ IMPROVEMENTS:
 - guests/debian: Adjust network configuration file prefix to 50- [GH-9646]
 - guests/photon: Less specific string grep to fix PhotonOS 2.0 detection [GH-9528]
 - guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
+- hosts/windows: Make powershell version detection timeout configurable [GH-9506]
 - util/platform: Warn on ArgumentError exceptions from encoding [GH-9506]
 
 BUG FIXES:
