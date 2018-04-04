@@ -144,8 +144,6 @@ module VagrantPlugins
                                 cmd: @command))
         end
 
-        # TODO: Does it make sense to strip out the "shell provisioner" error key here?
-        #       We could add more context around triggers?
         if @run
           errorz = @run.validate(machine)
           errors.concat errorz["shell provisioner"] if !errorz.empty?
@@ -177,13 +175,6 @@ module VagrantPlugins
           if @on_error != :continue
             errors << I18n.t("vagrant.config.triggers.on_error_bad_type", cmd: @command)
           end
-        end
-
-        if !@only_on.nil?
-          # this check isn't quite right...
-          #if @only_on.all? { |o| !o.is_a?(String) || !o.is_a?(Regexp) }
-          #    errors << I18n.t("vagrant.config.triggers.only_on_bad_type")
-          #end
         end
 
         errors

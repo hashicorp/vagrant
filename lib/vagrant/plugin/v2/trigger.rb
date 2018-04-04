@@ -109,7 +109,6 @@ module Vagrant
           triggers.each do |trigger|
             @logger.debug("Running trigger #{trigger.id}...")
 
-            # TODO: I18n me
             if !trigger.name.nil?
               @machine.ui.info(I18n.t("vagrant.trigger.fire_with_name",
                                       name: trigger.name))
