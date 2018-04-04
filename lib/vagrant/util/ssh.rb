@@ -68,7 +68,10 @@ module Vagrant
         # include ssh, notably git, mingw and cygwin, but make sure ssh is in the path!
 
         # First try using the original path provided
-        ssh_path = Which.which("ssh", original_path: true)
+        if ENV["VAGRANT_PREFER_SYSTEM_BIN"] != "0"
+          ssh_path = Which.which("ssh", original_path: true)
+        end
+
         # If we didn't find an ssh executable, see if we shipped one
         if !ssh_path
           ssh_path = Which.which("ssh")
