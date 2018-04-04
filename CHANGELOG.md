@@ -13,6 +13,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- hosts/windows: Properly respect the VAGRANT_PREFER_SYSTEM_BIN environment variable [GH-9503]
+
 ## 2.0.3 (March 15, 2018)
 
 IMPROVEMENTS:
