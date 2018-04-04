@@ -3,9 +3,94 @@ layout: "docs"
 page_title: "Vagrant Triggers"
 sidebar_current: "triggers"
 description: |-
-  Description goes here
+  Introduction to Vagrant Triggers
 ---
 
 # Vagrant Triggers
 
-Some interesting information introducing triggers.
+As of version 2.1.0, Vagrant is capable of executing machine triggers _before_ or
+_after_ Vagrant commands.
+
+Each trigger is expected to be given a command key for when it should be fired
+during the Vagrant command life cycle. These could be defined as a single key or
+an array which acts like a _whitelist_ for the defined trigger.
+
+
+```ruby
+# single command trigger
+config.trigger.after :up do |trigger|
+...
+end
+
+# multiple commands for this trigger
+config.trigger.before [:up, :destroy, :halt, :package] do |trigger|
+...
+end
+
+# or defined as a splat list
+config.trigger.before :up, :destroy, :halt, :package do |trigger|
+...
+end
+```
+
+Alternatively, the key `:all` could be given which would run the trigger for every
+Vagrant command. This trigger will run before or after every Vagrant command.
+This must include the ability to blacklist a command so that the trigger isn’t
+run. The blacklist will be defined within the `:all` config block.
+
+```ruby
+# single command trigger
+config.trigger.before :all do |trigger|
+  trigger.info = "Running a before trigger!"
+  trigger.ignore = [:destroy, :package]
+end
+```
+
+__Note:__ _If a trigger is defined on a command that does not exist, a warning
+will be displayed._
+
+Triggers can be defined as a block or hash in a Vagrantfile. The example below
+will result in the same trigger:
+
+
+```ruby
+config.trigger.after :up do |trigger|
+  trigger.name = "Finished Message"
+  trigger.info = "Machine is up!"
+end
+
+config.trigger.after :up,
+  name: "Finished Message",
+  info: "Machine is up!"
+```
+
+Triggers can also be defined within the scope of guests in a Vagrantfile. These
+triggers will only run on the configured guest. An example of a guest only trigger:
+
+```ruby
+config.vm.define "ubuntu" do |ubuntu|
+  ubuntu.vm.box = "ubuntu"
+  ubuntu.trigger.before :destroy do |trigger|
+    trigger.warn "Dumping database to /vagrant/outfile"
+    trigger.run_remote "pg_dump dbname > /vagrant/outfile"
+  end
+end
+```
+
+Global and machine scopped triggers will execute in the order that they are
+defined within a Vagrantfile. Take for example an abstracted Vagrantfile:
+
+```
+Vagrantfile
+  global trigger 1
+  global trigger 2
+  machine defined
+    machine trigger 3
+  global trigger 4
+end
+```
+
+In this generic case, the triggers would fire in the order: 1 -> 2 -> 3 -> 4
+
+For more information about what options are available for triggers, see the
+[configuration section](/docs/triggers/configuration.html).
