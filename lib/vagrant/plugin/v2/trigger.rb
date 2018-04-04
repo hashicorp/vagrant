@@ -196,7 +196,6 @@ module Vagrant
 
             if on_error == :halt
               @logger.debug("Trigger run encountered an error. Halting on error...")
-              # Raise proper Vagrant error to avoid ugly stacktrace
               raise e
             else
               @logger.debug("Trigger run encountered an error. Continuing on anyway...")
