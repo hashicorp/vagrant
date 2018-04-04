@@ -780,6 +780,10 @@ module Vagrant
       error_key(:triggers_guest_not_running)
     end
 
+    class TriggersNoBlockGiven < VagrantError
+      error_key(:triggers_no_block_given)
+    end
+
     class TriggersNoStageGiven < VagrantError
       error_key(:triggers_no_stage_given)
     end

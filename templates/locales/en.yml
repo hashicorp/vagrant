@@ -1414,6 +1414,9 @@ en:
         Trigger run failed
       triggers_guest_not_running: |-
         Could not run remote script on %{machine_name} because its state is %{state}
+      triggers_no_block_given: |-
+        There was an error parsing the Vagrantfile:
+        No config was given for the trigger(s) %{command}.
       triggers_no_stage_given: |-
         The incorrect stage was given to the trigger plugin:
         Guest: %{guest_name}

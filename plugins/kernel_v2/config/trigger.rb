@@ -49,6 +49,9 @@ module VagrantPlugins
           # so the last element should be the "config block"
           # and the rest are commands for the trigger
           blk = command.pop
+        elsif !block_given?
+          raise Vagrant::Errors::TriggersNoBlockGiven,
+            command: command
         end
 
         command.each do |cmd|
@@ -71,6 +74,9 @@ module VagrantPlugins
           # so the last element should be the "config block"
           # and the rest are commands for the trigger
           blk = command.pop
+        elsif !block_given?
+          raise Vagrant::Errors::TriggersNoBlockGiven,
+            command: command
         end
 
         command.each do |cmd|
