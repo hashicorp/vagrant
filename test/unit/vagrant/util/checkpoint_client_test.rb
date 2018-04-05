@@ -23,7 +23,8 @@ describe Vagrant::Util::CheckpointClient do
   end
 
   describe "#setup" do
-    before{ subject.setup(env) }
+    let(:environment){ {} }
+    before{ with_temp_env(environment){ subject.setup(env) } }
 
     it "should enable after setup" do
       expect(subject.enabled).to be(true)
@@ -31,6 +32,14 @@ describe Vagrant::Util::CheckpointClient do
 
     it "should generate required paths" do
       expect(subject.files).not_to be_empty
+    end
+
+    context "with VAGRANT_CHECKPOINT_DISABLE set" do
+      let(:environment){ {"VAGRANT_CHECKPOINT_DISABLE" => "1"} }
+
+      it "should not be enabled after setup" do
+        expect(subject.enabled).to be(false)
+      end
     end
   end
 

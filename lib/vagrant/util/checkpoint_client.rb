@@ -39,6 +39,10 @@ module Vagrant
         rescue LoadError
           @logger.warn("checkpoint library not found. disabling.")
         end
+        if ENV["VAGRANT_CHECKPOINT_DISABLE"]
+          @logger.debug("checkpoint disabled via explicit user request")
+          @enabled = false
+        end
         @files = {
           signature: env.data_dir.join("checkpoint_signature"),
           cache: env.data_dir.join("checkpoint_cache")
