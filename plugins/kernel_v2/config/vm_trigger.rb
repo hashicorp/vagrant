@@ -113,7 +113,7 @@ module VagrantPlugins
 
         # Convert @run and @run_remote to be a "Shell provisioner" config
         if @run && @run.is_a?(Hash)
-          new_run = VagrantPlugins::Shell::Config.new()
+          new_run = VagrantPlugins::Shell::Config.new
           new_run.set_options(@run)
           # don't run local commands as sudo by default
           new_run.privileged = false
@@ -122,7 +122,7 @@ module VagrantPlugins
         end
 
         if @run_remote && @run_remote.is_a?(Hash)
-          new_run = VagrantPlugins::Shell::Config.new()
+          new_run = VagrantPlugins::Shell::Config.new
           new_run.set_options(@run_remote)
           new_run.finalize!
           @run_remote = new_run

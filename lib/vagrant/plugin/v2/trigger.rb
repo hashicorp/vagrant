@@ -11,7 +11,7 @@ module Vagrant
   module Plugin
     module V2
       class Trigger
-        # @return [Kernel_V2/Config/Trigger]
+        # @return [Kernel_V2::Config::Trigger]
         attr_reader :config
 
         # This class is responsible for setting up basic triggers that were
@@ -53,7 +53,7 @@ module Vagrant
 
           triggers = filter_triggers(triggers, guest_name)
 
-          unless triggers.empty?
+          if !triggers.empty?
             @logger.info("Firing trigger for action #{action} on guest #{guest_name}")
             @machine.ui.info(I18n.t("vagrant.trigger.start", stage: stage, action: action))
             fire(triggers, guest_name)
@@ -79,7 +79,7 @@ module Vagrant
           filter.each do |trigger|
             index = nil
             match = false
-            if !trigger.only_on.nil?
+            if trigger.only_on
               trigger.only_on.each do |o|
                 if o.match?(guest_name)
                   # trigger matches on current guest, so we're fine to use it
@@ -116,24 +116,20 @@ module Vagrant
               @machine.ui.info(I18n.t("vagrant.trigger.fire"))
             end
 
-            if !trigger.info.nil?
-              @logger.debug("Executing trigger info message...")
-              self.info(trigger.info)
+            if trigger.info
+              info(trigger.info)
             end
 
-            if !trigger.warn.nil?
-              @logger.debug("Executing trigger warn message...")
-              self.warn(trigger.warn)
+            if trigger.warn
+              warn(trigger.warn)
             end
 
-            if !trigger.run.nil?
-              @logger.debug("Executing trigger run script...")
-              self.run(trigger.run, trigger.on_error)
+            if trigger.run
+              run(trigger.run, trigger.on_error)
             end
 
-            if !trigger.run_remote.nil?
-              @logger.debug("Executing trigger run_remote script on #{guest_name}...")
-              self.run_remote(trigger.run_remote, trigger.on_error)
+            if trigger.run_remote
+              run_remote(trigger.run_remote, trigger.on_error)
             end
           end
         end
@@ -154,7 +150,7 @@ module Vagrant
 
         # Runs a script on a guest
         #
-        # @param [ShellProvisioner/Config] config A Shell provisioner config
+        # @param [Provisioners::Shell::Config] config A Shell provisioner config
         def run(config, on_error)
           if !config.inline.nil?
             cmd = Shellwords.split(config.inline)
@@ -164,10 +160,9 @@ module Vagrant
               cmd = Shellwords.split("#{powershell_exe} #{config.powershell_args} '#{cmd.join(' ')}'")
             end
 
-            @machine.ui.detail(I18n.t("vagrant.trigger.run.inline"))
+            @machine.ui.detail(I18n.t("vagrant.trigger.run.inline", command: config.inline))
           else
             cmd = File.expand_path(config.path, @env.root_path)
-            FileUtils.chmod("+x", cmd)
 
             cmd << " #{config.args.join(' ' )}" if config.args
 
@@ -194,7 +189,7 @@ module Vagrant
 
               @machine.ui.detail(data, options)
             end
-          rescue Exception => e
+          rescue => e
             @machine.ui.error(I18n.t("vagrant.errors.triggers_run_fail"))
             @machine.ui.error(e.message)
 
@@ -230,7 +225,7 @@ module Vagrant
 
           begin
             prov.provision
-          rescue Exception => e
+          rescue => e
             @machine.ui.error(I18n.t("vagrant.errors.triggers_run_fail"))
 
             if on_error == :halt

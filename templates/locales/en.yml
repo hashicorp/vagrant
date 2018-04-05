@@ -292,6 +292,7 @@ en:
       run:
         inline: |-
           Running local: Inline script
+          %{command}
         script: |-
           Running local script: %{path}
 
