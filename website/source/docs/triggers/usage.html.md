@@ -12,6 +12,29 @@ Below are some very simple examples of how to use Vagrant Triggers.
 
 ## Examples
 
+The following is a basic example of two global triggers. One that runs _before_
+the `:up` command and one that runs _after_ the `:up` command:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.trigger.before :up do |trigger|
+    trigger.name = "Hello world"
+    trigger.info = "I am running before vagrant up!!"
+  end
+
+  config.trigger.before :up do |trigger|
+    trigger.name = "Hello world"
+    trigger.info = "I am running after vagrant up!!"
+  end
+
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu"
+  end
+end
+```
+
+These will run before and after each defined guest in the Vagrantfile.
+
 Running a remote script to save a database on your host before __destroy__ing a
 guest:
 
