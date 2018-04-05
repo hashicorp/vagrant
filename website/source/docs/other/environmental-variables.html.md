@@ -185,8 +185,6 @@ required.
 
 ## `VAGRANT_PREFER_SYSTEM_BIN`
 
-This currently only applies to Windows systems.
-
 If this is set, Vagrant will prefer using utility executables (like `ssh` and `rsync`)
 from the local system instead of those vendored within the Vagrant installation.
 
