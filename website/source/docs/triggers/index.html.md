@@ -34,9 +34,9 @@ end
 ```
 
 Alternatively, the key `:all` could be given which would run the trigger for every
-Vagrant command. This trigger will run before or after every Vagrant command.
-This must include the ability to blacklist a command so that the trigger isn’t
-run. The blacklist will be defined within the `:all` config block.
+Vagrant command. This trigger will run before or after every Vagrant command. If
+there is a command you don't want the trigger to run on, you can ignore that
+command with the `ignore` option.
 
 ```ruby
 # single command trigger

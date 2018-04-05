@@ -15,8 +15,7 @@ trigger should behave.
 
 The trigger class takes various options.
 
-* `action` (symbol) - The first argument that comes after either __before__ or __after__ when defining a new trigger (For example when the action is `:up` : `config.trigger.before :up`).
-Can be any valid Vagrant command. It also accepts a special value `:all` which will make the trigger fire for every action. An action can be ignored with the `ignore` setting if desired.
+* `action` (symbol, array) - Expected to be a single symbol value, an array of symbols, or a _splat_ of symbols. The first argument that comes after either __before__ or __after__ when defining a new trigger. Can be any valid Vagrant command. It also accepts a special value `:all` which will make the trigger fire for every action. An action can be ignored with the `ignore` setting if desired.
 
 * `ignore` (symbol, array) - Symbol or array of symbols corresponding to the action that a trigger should not fire on.
 
