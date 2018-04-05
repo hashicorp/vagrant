@@ -169,9 +169,13 @@ module Vagrant
             cmd = File.expand_path(config.path, @env.root_path)
             FileUtils.chmod("+x", cmd)
 
+            cmd << " #{config.args.join(' ' )}" if config.args
+
             if Vagrant::Util::Platform.windows?
               powershell_exe = Vagrant::Util::PowerShell.executable
               cmd = Shellwords.split("#{powershell_exe} #{config.powershell_args} #{cmd}")
+            else
+              cmd = Shellwords.split(cmd)
             end
 
             @machine.ui.detail(I18n.t("vagrant.trigger.run.script", path: config.path))

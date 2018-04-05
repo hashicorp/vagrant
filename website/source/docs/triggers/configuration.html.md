@@ -30,6 +30,10 @@ Can be any valid Vagrant command. It also accepts a special value `:all` which w
 
 * `run_remote` (hash) - A collection of settings to run a inline or remote script with on the guest. These settings correspond to the [shell provosioner](/docs/provisioning/shell.html).
 
-* `run` (hash) - A collection of settings to run a inline or remote script with on the host. These settings correspond to the [shell provosioner](/docs/provisioning/shell.html).
+* `run` (hash) - A collection of settings to run a inline or remote script with on the host. These settings correspond to the [shell provosioner](/docs/provisioning/shell.html). However, at the moment the only settings `run` takes advantage of are:
+  + `args`
+  + `inline`
+  + `path`
+  + `powershell_args`
 
 * `warn` (string) - A warning message that will be printed at the beginning of a trigger.
