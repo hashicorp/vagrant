@@ -108,6 +108,10 @@ module Vagrant
       error_key(:active_machine_with_different_provider)
     end
 
+    class AliasInvalidError < VagrantError
+      error_key(:alias_invalid_error)
+    end
+
     class BatchMultiError < VagrantError
       error_key(:batch_multi_error)
     end

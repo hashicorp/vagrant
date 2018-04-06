@@ -14,6 +14,11 @@ Vagrant has a set of environmental variables that can be used to
 configure and control it in a global way. This page lists those environmental
 variables.
 
+## `VAGRANT_ALIAS_FILE`
+
+`VAGRANT_ALIAS_FILE` can be set to change the file where Vagrant aliases are
+defined. By default, this is set to `~/.vagrant.d/aliases`.
+
 ## `VAGRANT_DEBUG_LAUNCHER`
 
 For performance reasons, especially for Windows users, Vagrant uses a static
