@@ -87,6 +87,27 @@ module Vagrant
         return r.stdout.chomp
       end
 
+      # Execute a powershell command and return a result
+      #
+      # @param [String] command PowerShell command to execute.
+      # @param [Hash] opts A collection of options for subprocess::execute
+      # @param [Block] block Ruby block
+      def self.execute_inline(*command, **opts, &block)
+        validate_install!
+        c = [
+          executable,
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-ExecutionPolicy", "Bypass",
+          "-Command",
+          command
+        ].flatten.compact
+        c << opts
+
+        Subprocess.execute(*c, &block)
+      end
+
       # Returns the version of PowerShell that is installed.
       #
       # @return [String]

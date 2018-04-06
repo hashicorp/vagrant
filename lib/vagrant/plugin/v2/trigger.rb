@@ -152,33 +152,32 @@ module Vagrant
         #
         # @param [Provisioners::Shell::Config] config A Shell provisioner config
         def run(config, on_error)
-          if !config.inline.nil?
+          if config.inline
             cmd = Shellwords.split(config.inline)
-
-            if Vagrant::Util::Platform.windows?
-              powershell_exe = Vagrant::Util::PowerShell.executable
-              cmd = Shellwords.split("#{powershell_exe} #{config.powershell_args} '#{cmd.join(' ')}'")
-            end
 
             @machine.ui.detail(I18n.t("vagrant.trigger.run.inline", command: config.inline))
           else
             cmd = File.expand_path(config.path, @env.root_path)
-
             cmd << " #{config.args.join(' ' )}" if config.args
-
-            if Vagrant::Util::Platform.windows?
-              powershell_exe = Vagrant::Util::PowerShell.executable
-              cmd = Shellwords.split("#{powershell_exe} #{config.powershell_args} #{cmd}")
-            else
-              cmd = Shellwords.split(cmd)
-            end
+            cmd = Shellwords.split(cmd)
 
             @machine.ui.detail(I18n.t("vagrant.trigger.run.script", path: config.path))
           end
 
+          # Pick an execution method to run the script or inline string with
+          # Default to Subprocess::Execute
+          exec_method = Vagrant::Util::Subprocess.method(:execute)
+
+          if Vagrant::Util::Platform.windows?
+            if config.inline
+              exec_method = Vagrant::Util::PowerShell.method(:execute_inline)
+            else
+              exec_method = Vagrant::Util::PowerShell.method(:execute)
+            end
+          end
 
           begin
-            result = Vagrant::Util::Subprocess.execute(*cmd, :notify => [:stdout, :stderr]) do |type,data|
+            result = exec_method.call(*cmd, :notify => [:stdout, :stderr]) do |type,data|
               options = {}
               case type
               when :stdout
