@@ -33,16 +33,15 @@ config.trigger.before :up, :destroy, :halt, :package do |trigger|
 end
 ```
 
-Alternatively, the key `:all` could be given which would run the trigger for every
-Vagrant command. This trigger will run before or after every Vagrant command. If
-there is a command you don't want the trigger to run on, you can ignore that
-command with the `ignore` option.
+Alternatively, the key `:all` could be given which would run the trigger before
+or after every Vagrant command. If there is a command you don't want the trigger
+to run on, you can ignore that command with the `ignore` option.
 
 ```ruby
 # single command trigger
 config.trigger.before :all do |trigger|
   trigger.info = "Running a before trigger!"
-  trigger.ignore = [:destroy, :package]
+  trigger.ignore = [:destroy, :halt]
 end
 ```
 
