@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- core: Vagrant aliases [GH-9504]
+
 IMPROVEMENTS:
 
 - core: Make resolv-replace usage opt-in instead of opt-out [GH-9644]
