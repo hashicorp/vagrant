@@ -131,6 +131,10 @@ describe Vagrant::Plugin::V2::Trigger do
                          run: {path: "script.sh", env: {"KEY"=>"VALUE"}},
                          on_error: :continue} }
 
+    let(:path_block_ps1) { {warn: "bye",
+                         run: {path: "script.ps1", env: {"KEY"=>"VALUE"}},
+                         on_error: :continue} }
+
     let(:exit_code) { 0 }
     let(:options) { {:notify=>[:stdout, :stderr]} }
 
@@ -144,7 +148,37 @@ describe Vagrant::Plugin::V2::Trigger do
     before do
       trigger_run.after(:up, shell_block)
       trigger_run.before(:destroy, path_block)
+      trigger_run.before(:destroy, path_block_ps1)
       trigger_run.finalize!
+    end
+
+    it "executes an inline script with powershell if windows" do
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+      allow(Vagrant::Util::PowerShell).to receive(:execute_inline).
+        and_return(subprocess_result)
+
+      trigger = trigger_run.after_triggers.first
+      shell_config = trigger.run
+      on_error = trigger.on_error
+
+      expect(Vagrant::Util::PowerShell).to receive(:execute_inline).
+        with("echo", "hi", options)
+      subject.send(:run, shell_config, on_error)
+    end
+
+    it "executes an path script with powershell if windows" do
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+      allow(Vagrant::Util::PowerShell).to receive(:execute).
+        and_return(subprocess_result)
+      allow(env).to receive(:root_path).and_return("/vagrant/home")
+
+      trigger = trigger_run.before_triggers[1]
+      shell_config = trigger.run
+      on_error = trigger.on_error
+
+      expect(Vagrant::Util::PowerShell).to receive(:execute).
+        with("/vagrant/home/script.ps1", options)
+      subject.send(:run, shell_config, on_error)
     end
 
     it "executes an inline script" do
