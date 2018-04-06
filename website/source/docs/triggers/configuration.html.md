@@ -33,6 +33,5 @@ The trigger class takes various options.
   + `args`
   + `inline`
   + `path`
-  + `powershell_args`
 
 * `warn` (string) - A warning message that will be printed at the beginning of a trigger.

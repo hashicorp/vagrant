@@ -113,10 +113,19 @@ module VagrantPlugins
 
         # Convert @run and @run_remote to be a "Shell provisioner" config
         if @run && @run.is_a?(Hash)
+          # Powershell args and privileged for run commands is currently not supported
+          # so by default use empty string or false if unset. This helps the validate
+          # function determine if the setting was purposefully set, to print a warning
+          if !@run.key?(:powershell_args)
+            @run[:powershell_args] = ""
+          end
+
+          if !@run.key?(:privileged)
+            @run[:privileged] = false
+          end
+
           new_run = VagrantPlugins::Shell::Config.new
           new_run.set_options(@run)
-          # don't run local commands as sudo by default
-          new_run.privileged = false
           new_run.finalize!
           @run = new_run
         end
@@ -151,6 +160,10 @@ module VagrantPlugins
           if @run.privileged == true
             machine.ui.warn(I18n.t("vagrant.config.triggers.privileged_ignored",
                                   command: @command))
+          end
+
+          if @run.powershell_args != ""
+            machine.ui.warn(I18n.t("vagrant.config.triggers.powershell_args_ignored"))
           end
         end
 

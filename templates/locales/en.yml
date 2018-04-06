@@ -1723,6 +1723,8 @@ en:
           Invalid type found for `only_on`. All values must be a `String` or `Regexp`.
         privileged_ignored: |-
           The `privileged` setting for option `run` for trigger command '%{command}' will be ignored and set to false.
+        powershell_args_ignored: |-
+          The setting `powershell_args` is not supported for the trigger option `run` and will be ignored.
         run:
           bad_type: |-
             Invalid type set for `run` on trigger for command '%{cmd}'. `run`
