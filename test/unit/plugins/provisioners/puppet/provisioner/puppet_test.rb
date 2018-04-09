@@ -39,6 +39,7 @@ describe VagrantPlugins::Puppet::Provisioner::Puppet do
       allow(config).to receive(:environment_variables).and_return(nil)
       allow(config).to receive(:working_directory).and_return(false)
       allow(config).to receive(:manifest_file).and_return(manifest_file)
+      allow(config).to receive(:structured_facts).and_return(double("structured_facts"))
 
       allow_message_expectations_on_nil
       allow(@module_paths).to receive(:map) { module_paths }
