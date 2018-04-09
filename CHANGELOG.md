@@ -13,6 +13,7 @@ IMPROVEMENTS:
 - guests/photon: Less specific string grep to fix PhotonOS 2.0 detection [GH-9528]
 - guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
 - hosts/windows: Make powershell version detection timeout configurable [GH-9506]
+- provisioner/puppet: Puppet structured facts toyaml on provisioner [GH-9670]
 - util/platform: Warn on ArgumentError exceptions from encoding [GH-9506]
 
 BUG FIXES:
