@@ -1,3 +1,5 @@
+require "shellwords"
+
 module VagrantPlugins
   module CommunicatorWinRM
     module CommandFilters
@@ -9,7 +11,7 @@ module VagrantPlugins
           # test -L /somelink
           # test -x /tmp/some.exe
 
-          cmd_parts = command.strip.split(/\s+/)
+          cmd_parts = Shellwords.split(command.strip)
           flag = cmd_parts[1]
           path = cmd_parts[2]
 
