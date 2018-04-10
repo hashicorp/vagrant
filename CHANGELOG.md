@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- communicators/ssh: Update file permissions when generating new key pairs [GH-9676]
 - core: Make resolv-replace usage opt-in instead of opt-out [GH-9644]
 - core: Suppress error messages from checkpoint runs [GH-9645]
 - guests/coreos: Identify operating systems closely related to CoreOS [GH-9600]
