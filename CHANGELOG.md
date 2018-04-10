@@ -19,6 +19,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - commands/package: Fix uninitialized constant error [GH-9654]
+- communicators/winrm: Fix command filter to properly parse commands [GH-9673]
 - hosts/windows: Properly respect the VAGRANT_PREFER_SYSTEM_BIN environment variable [GH-9503]
 - hosts/windows: Fix virtualbox shared folders path for windows guests [GH-8099]
 - util/checkpoint_client: Respect VAGRANT_CHECKPOINT_DISABLE environment variable [GH-9659]
