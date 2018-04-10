@@ -185,8 +185,8 @@ describe Vagrant::Util::Platform do
 
     before do
       allow(Vagrant::Util::Which).to receive(:which).and_return(true)
-      allow(Vagrant::Util::Subprocess).to receive(:execute).with("vagrant.exe", "version").
-        and_return(double(exit_code: 0, stdout: "Installed Version: #{exe_version}"))
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("vagrant.exe", "--version").
+        and_return(double(exit_code: 0, stdout: "Vagrant #{exe_version}"))
     end
 
     it "should not raise an error" do
