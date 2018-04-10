@@ -6,7 +6,7 @@ module VagrantPlugins
     module Cap
       class MountSharedFolder
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)
-          mount_shared_folder(machine, name, guestpath, "\\\\vboxsrv\\")
+          mount_shared_folder(machine, name, guestpath, "\\\\vboxsvr\\")
         end
 
         def self.mount_vmware_shared_folder(machine, name, guestpath, options)
