@@ -2076,6 +2076,9 @@ en:
             This will cause your specified IP to be inaccessible. Please change
             the IP or name of your host only network so that it no longer matches that of
             a bridged or non-hostonly network.
+
+            Bridged Network Address: '%{netaddr}'
+            Host-only Network '%{interface_name}': '%{that_netaddr}'
           creating: "Creating new host only network for environment..."
           enabling: "Enabling host only network..."
           not_found: |-
