@@ -63,8 +63,14 @@ describe "VagrantPlugins::GuestLinux::Cap::Rsync" do
 
     it "chowns files within the guest directory" do
       comm.expect_command(
-        "find #{guest_directory} '!' -type l -a '(' ! -user #{owner} -or " \
-          "! -group #{group} ')' -exec chown #{owner}:#{group} '{}' +"
+        "find #{guest_directory} " \
+          "'!' -type l -a " \
+          "'(' ! -user #{owner} ')' -exec " \
+          "chown #{owner}:#{group} '{}' + && " \
+          "find #{guest_directory} " \
+            "'!' -type l -a " \
+            "'(' ! -group #{group} ')' -exec " \
+            "chown #{owner}:#{group} '{}' +"
       )
       cap.rsync_post(machine, options)
     end
