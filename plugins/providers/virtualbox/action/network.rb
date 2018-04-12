@@ -280,8 +280,12 @@ module VagrantPlugins
             # interface.
             @env[:machine].provider.driver.read_bridged_interfaces.each do |interface|
               that_netaddr = network_address(interface[:ip], interface[:netmask])
-              raise Vagrant::Errors::NetworkCollision if \
-                netaddr == that_netaddr && interface[:status] != "Down"
+              if netaddr == that_netaddr && interface[:status] != "Down"
+                raise Vagrant::Errors::NetworkCollision,
+                  netaddr: netaddr,
+                  that_netaddr: that_netaddr,
+                  interface_name: interface[:name]
+              end
             end
 
             # Split the IP address into its components
