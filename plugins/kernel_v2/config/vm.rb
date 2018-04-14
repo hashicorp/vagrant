@@ -218,7 +218,7 @@ module VagrantPlugins
           synced_folder_name = guestpath
         end
 
-        options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
+        options[:guestpath] = guestpath.to_s.gsub(/\/$/, '') if guestpath
         options[:hostpath]  = hostpath
         options[:disabled]  = false if !options.key?(:disabled)
         options = (@__synced_folders[options[:guestpath]] || {}).
@@ -641,7 +641,9 @@ module VagrantPlugins
           guestpath = Pathname.new(options[:guestpath]) if options[:guestpath]
           hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
-          if guestpath.to_s != ""
+          if guestpath.to_s == "" && id.to_s == ""
+            errors << I18n.t("vagrant.config.vm.shared_folder_requires_guestpath_or_name")
+          elsif guestpath.to_s != ""
             if guestpath.relative? && guestpath.to_s !~ /^\w+:/
               errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
                                path: options[:guestpath])

@@ -1789,6 +1789,8 @@ en:
         shared_folder_mount_options_array: |-
           Shared folder mount options specified by 'mount_options' must
           be an array of options.
+        shared_folder_requires_guestpath_or_name: |-
+          Shared folder options must include a guestpath and/or name.
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`

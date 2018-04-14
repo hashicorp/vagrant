@@ -557,8 +557,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(sf["/vagrant"][:foo]).to eq(:bar)
     end
 
-    it "is not an error if guest path is empty" do
-      subject.synced_folder(".", "")
+    it "is not an error if guest path is empty but name is not" do
+      subject.synced_folder(".", "", name: "my-vagrant-folder")
       subject.finalize!
       assert_valid
     end
@@ -576,6 +576,18 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       sf = subject.synced_folders
       expect(sf).to have_key("my-vagrant-folder")
       expect(sf["my-vagrant-folder"][:hostpath]).to eq(".")
+    end
+
+    it "requires either guest path or name" do
+      subject.synced_folder(".", name: nil, guestpath: nil)
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "keeps nil guest path if not provided" do
+      subject.synced_folder(".", name: "my-vagrant-folder")
+      sf = subject.synced_folders
+      expect(sf["my-vagrant-folder"][:guestpath]).to be_nil
     end
   end
 
