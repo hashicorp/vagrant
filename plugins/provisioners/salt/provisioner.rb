@@ -89,7 +89,7 @@ module VagrantPlugins
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config or @config.version
+        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config or @config.version or @config.minion_json_config or @config.master_json_config
       end
 
       def need_install
@@ -115,6 +115,16 @@ module VagrantPlugins
         # Any extra options passed to bootstrap
         if @config.bootstrap_options
           options = "%s %s" % [options, @config.bootstrap_options]
+        end
+
+        if @config.master_json_config && @machine.config.vm.communicator != :winrm
+          config = @config.master_json_config
+          options = "%s -J '#{config}'" % [options]
+        end
+
+        if @config.minion_json_config && @machine.config.vm.communicator != :winrm
+          config = @config.minion_json_config
+          options = "%s -j '#{config}'" % [options]
         end
 
         if configure && @machine.config.vm.communicator != :winrm
