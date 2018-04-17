@@ -1716,6 +1716,10 @@ en:
           The command '%{cmd}' was not found for this trigger.
         name_bad_type: |-
           Invalid type set for `name` on trigger for command '%{cmd}'. `name` should be a String.
+        info_bad_type: |-
+          Invalid type set for `info` on trigger for command '%{cmd}'. `info` should be a String.
+        warn_bad_type: |-
+          Invalid type set for `warn` on trigger for command '%{cmd}'. `warn` should be a String.
         on_error_bad_type: |-
           Invalid type set for `on_error` on trigger for command '%{cmd}'. `on_error` can
           only be `:halt` (default) or `:continue`.
