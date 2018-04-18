@@ -62,11 +62,11 @@ module VagrantPlugins
             local_mode: true,
           )
 
-          still_active = 259 #provisioner has asked chef to reboot 
-          
+          still_active = 259 #provisioner has asked chef to reboot
+
           @config.attempts.times do |attempt|
             exit_status = 0
-            while exit_status == 0 || exit_status == still_active 
+            while exit_status == 0 || exit_status == still_active
               if @machine.guest.capability?(:wait_for_reboot)
                 @machine.guest.capability(:wait_for_reboot)
               elsif attempt > 0

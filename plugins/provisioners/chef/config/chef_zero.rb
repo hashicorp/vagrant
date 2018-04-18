@@ -120,7 +120,7 @@ module VagrantPlugins
 
           # Make sure all the paths are in the proper format
           config.map do |path|
-            path = [:host, path] if !path.is_a?(Array)
+            path = [:host, File.expand_path(path)] if !path.is_a?(Array)
             path
           end
         end
