@@ -67,7 +67,7 @@ require 'openssl'
 
 # If we are on Windows, load in File helpers
 if Vagrant::Util::Platform.windows?
-  require "win32-ffi-extensions"
+  require "ffi-win32-extensions"
   require "win32/file/security"
 end
 
