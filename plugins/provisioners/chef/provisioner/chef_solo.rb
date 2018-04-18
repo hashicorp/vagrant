@@ -5,6 +5,7 @@ require "set"
 require "log4r"
 
 require "vagrant/util/counter"
+require "vagrant/action/builtin/mixin_synced_folders"
 
 require_relative "base"
 
@@ -95,13 +96,12 @@ module VagrantPlugins
             else
               # Path already exists on the virtual machine. Expand it
               # relative to where we're provisioning.
-              remote_path = File.expand_path(path, guest_provisioning_path)
 
               # Remove drive letter if running on a windows host. This is a bit
               # of a hack but is the most portable way I can think of at the moment
               # to achieve this. Otherwise, Vagrant attempts to share at some crazy
               # path like /home/vagrant/c:/foo/bar
-              remote_path = remote_path.gsub(/^[a-zA-Z]:/, "")
+              remote_path = File.expand_path(path.gsub(/^[a-zA-Z]:\//, "/"), guest_provisioning_path.gsub(/^[a-zA-Z]:\//, "/"))
             end
 
             # If we have specified a folder name to append then append it
