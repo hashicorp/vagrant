@@ -15,6 +15,7 @@ IMPROVEMENTS:
 - guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
 - hosts/windows: Make powershell version detection timeout configurable [GH-9506]
 - providers/virtualbox: Improve network collision error message [GH-9685]
+- provisioner/chef_solo: Improve Windows drive letter removal hack for remote paths[GH-9490]
 - provisioner/puppet: Puppet structured facts toyaml on provisioner [GH-9670]
 - provisioner/salt: Add master_json_config & minion_json_config options [GH-9420]
 - util/platform: Warn on ArgumentError exceptions from encoding [GH-9506]
