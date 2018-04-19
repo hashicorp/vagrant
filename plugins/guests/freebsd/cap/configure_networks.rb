@@ -16,7 +16,7 @@ module VagrantPlugins
           interfaces = []
 
           # Remove any previous network additions to the configuration file.
-          commands << "sed -i'' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf"
+          commands << "sed -i '' -e '/^#VAGRANT-BEGIN/,/^#VAGRANT-END/ d' /etc/rc.conf"
 
           comm.sudo("ifconfig -a | grep -o '^[0-9a-z]*' | grep -v '^lo'", options) do |_, stdout|
             interfaces = stdout.split("\n")
