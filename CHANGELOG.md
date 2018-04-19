@@ -27,6 +27,7 @@ BUG FIXES:
 - communicators/winrm: Fix command filter to properly parse commands [GH-9673]
 - hosts/windows: Properly respect the VAGRANT_PREFER_SYSTEM_BIN environment variable [GH-9503]
 - hosts/windows: Fix virtualbox shared folders path for windows guests [GH-8099]
+- guests/freebsd: Fix typo in command that manages configuring networks [GH-9705]
 - util/checkpoint_client: Respect VAGRANT_CHECKPOINT_DISABLE environment variable [GH-9659]
 - util/platform: Use `--version` instead of `version` for WSL validation [GH-9674]
 
