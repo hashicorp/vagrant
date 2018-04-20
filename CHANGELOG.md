@@ -1,4 +1,4 @@
-## Next version (Unreleased)
+## 2.0.4 (April 20, 2018)
 
 FEATURES:
 
