@@ -81,7 +81,7 @@ module Vagrant
             match = false
             if trigger.only_on
               trigger.only_on.each do |o|
-                if o.match?(guest_name)
+                if o.match(guest_name)
                   # trigger matches on current guest, so we're fine to use it
                   match = true
                   break
