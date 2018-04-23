@@ -49,4 +49,59 @@ describe VagrantPlugins::Puppet::Provisioner::Puppet do
       subject.run_puppet_apply()
     end
   end
+
+  describe "#provision" do
+    let(:options) { double("options") }
+    let(:binary_path) { "/opt/puppetlabs/bin" }
+    let(:manifest_file) { "default.pp" }
+    let(:module_paths) { ["etc/puppet/modules"] } # make this something real
+    let(:environment_paths) { ["/etc/puppet/environment"] }
+
+    it "builds structured facts if set" do
+      allow(machine).to receive(:guest).and_return(true)
+      allow(machine.guest).to receive(:capability?).and_return(false)
+      allow(config).to receive(:environment_path).and_return(environment_paths)
+      allow(config).to receive(:environment).and_return("production")
+      allow(config).to receive(:manifests_path).and_return(manifest_file)
+      allow(config).to receive(:temp_dir).and_return("/tmp")
+      allow(config).to receive(:hiera_config_path).and_return(false)
+      allow(subject).to receive(:parse_environment_metadata).and_return(true)
+      allow(subject).to receive(:verify_binary).and_return(true)
+      allow(subject).to receive(:run_puppet_apply).and_return(true)
+
+      allow_message_expectations_on_nil
+      allow(@module_paths).to receive(:each) { module_paths }
+
+      allow(config).to receive(:facter).and_return({"coolfacts"=>"here they are"})
+      allow(config).to receive(:structured_facts).and_return(true)
+
+      expect(machine.communicate).to receive(:upload).with(anything, "/tmp/vagrant_facts.yaml")
+      expect(machine.communicate).to receive(:sudo).with("mkdir -p /tmp; chmod 0777 /tmp", {})
+      expect(machine.communicate).to receive(:sudo).with("cp /tmp/vagrant_facts.yaml /etc/puppetlabs/facter/facts.d/vagrant_facts.yaml")
+      subject.provision()
+    end
+
+    it "does not build structured facts if not set" do
+      allow(machine).to receive(:guest).and_return(true)
+      allow(machine.guest).to receive(:capability?).and_return(false)
+      allow(config).to receive(:environment_path).and_return(environment_paths)
+      allow(config).to receive(:environment).and_return("production")
+      allow(config).to receive(:manifests_path).and_return(manifest_file)
+      allow(config).to receive(:temp_dir).and_return("/tmp")
+      allow(config).to receive(:hiera_config_path).and_return(false)
+      allow(subject).to receive(:parse_environment_metadata).and_return(true)
+      allow(subject).to receive(:verify_binary).and_return(true)
+      allow(subject).to receive(:run_puppet_apply).and_return(true)
+
+      allow_message_expectations_on_nil
+      allow(@module_paths).to receive(:each) { module_paths }
+
+      allow(config).to receive(:facter).and_return({"coolfacts"=>"here they are"})
+      allow(config).to receive(:structured_facts).and_return(nil)
+
+      expect(machine.communicate).not_to receive(:upload).with(anything, "/tmp/vagrant_facts.yaml")
+      expect(machine.communicate).not_to receive(:sudo).with("cp /tmp/vagrant_facts.yaml /etc/puppetlabs/facter/facts.d/vagrant_facts.yaml")
+      subject.provision()
+    end
+  end
 end
