@@ -12,7 +12,7 @@ As of version 2.1.0, Vagrant is capable of executing machine triggers _before_ o
 _after_ Vagrant commands.
 
 Each trigger is expected to be given a command key for when it should be fired
-during the Vagrant command life cycle. These could be defined as a single key or
+during the Vagrant command lifecycle. These could be defined as a single key or
 an array which acts like a _whitelist_ for the defined trigger.
 
 
@@ -76,7 +76,7 @@ config.vm.define "ubuntu" do |ubuntu|
 end
 ```
 
-Global and machine scopped triggers will execute in the order that they are
+Global and machine-scoped triggers will execute in the order that they are
 defined within a Vagrantfile. Take for example an abstracted Vagrantfile:
 
 ```
