@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- core: Integrate vagrant-triggers plugin functionality into core Vagrant [GH-9713]
+
 IMPROVEMENTS:
 
 BUG FIXES:
