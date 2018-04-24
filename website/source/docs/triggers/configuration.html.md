@@ -14,7 +14,14 @@ Vagrant Triggers has a few options to define trigger behavior.
 
 The trigger class takes various options.
 
-* `action` (symbol, array) - Expected to be a single symbol value, an array of symbols, or a _splat_ of symbols. The first argument that comes after either __before__ or __after__ when defining a new trigger. Can be any valid Vagrant command. It also accepts a special value `:all` which will make the trigger fire for every action. An action can be ignored with the `ignore` setting if desired. A list of valid core commands can be found [here](/docs/cli).
+* `action` (symbol, array) - Expected to be a single symbol value, an array of symbols, or a _splat_ of symbols. The first argument that comes after either __before__ or __after__ when defining a new trigger. Can be any valid Vagrant command. It also accepts a special value `:all` which will make the trigger fire for every action. An action can be ignored with the `ignore` setting if desired. These are the valid action commands for triggers:
+
+  - `destroy`
+  - `halt`
+  - `provision`
+  - `reload`
+  - `resume`
+  - `up`
 
 * `ignore` (symbol, array) - Symbol or array of symbols corresponding to the action that a trigger should not fire on.
 
