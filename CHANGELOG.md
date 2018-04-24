@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provisioner/puppet: Properly finalize structured_facts config option [GH-9720]
+
 ## 2.0.4 (April 20, 2018)
 
 FEATURES:
