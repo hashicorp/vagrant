@@ -19,6 +19,7 @@ module Vagrant
       autoload :Push, "vagrant/plugin/v2/push"
       autoload :Provisioner, "vagrant/plugin/v2/provisioner"
       autoload :SyncedFolder, "vagrant/plugin/v2/synced_folder"
+      autoload :Trigger, "vagrant/plugin/v2/trigger"
     end
   end
 end

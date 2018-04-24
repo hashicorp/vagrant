@@ -39,6 +39,11 @@ module VagrantPlugins
         require File.expand_path("../config/vm", __FILE__)
         VMConfig
       end
+
+      config("trigger") do
+        require File.expand_path("../config/trigger", __FILE__)
+        TriggerConfig
+      end
     end
   end
 end

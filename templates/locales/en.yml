@@ -279,6 +279,24 @@ en:
       up some disk space.
 
       Press the Enter or Return key to continue.
+
+    trigger:
+      on_error_continue: |-
+        Trigger configured to continue on error...
+      start: |-
+        Running triggers %{stage} %{action} ...
+      fire_with_name: |-
+        Running trigger: %{name}...
+      fire: |-
+        Running trigger...
+      run:
+        inline: |-
+          Running local: Inline script
+          %{command}
+        script: |-
+          Running local script: %{path}
+
+
     version_current: |-
       Installed Version: %{version}
     version_latest: |-
@@ -1392,6 +1410,22 @@ en:
         The synced folder type '%{type}' is reporting as unusable for
         your current setup. Please verify you have all the proper
         prerequisites for using this shared folder type and try again.
+
+      triggers_run_fail: |-
+        Trigger run failed
+      triggers_guest_not_running: |-
+        Could not run remote script on %{machine_name} because its state is %{state}
+      triggers_no_block_given: |-
+        There was an error parsing the Vagrantfile:
+        No config was given for the trigger(s) %{command}.
+      triggers_no_stage_given: |-
+        The incorrect stage was given to the trigger plugin:
+        Guest: %{guest_name}
+        Action: %{action}
+        Stage: %{stage}
+
+        This is an internal error that should be reported as a bug.
+
       ui_expects_tty: |-
         Vagrant is attempting to interface with the UI in a way that requires
         a TTY. Most actions in Vagrant that require a TTY have configuration
@@ -1677,6 +1711,33 @@ en:
         paranoid_deprecated: |-
           The key `paranoid` is deprecated. Please use `verify_host_key`. Supported
           values are exactly the same, only the name of the option has changed.
+      triggers:
+        bad_command_warning: |-
+          The command '%{cmd}' was not found for this trigger.
+        name_bad_type: |-
+          Invalid type set for `name` on trigger for command '%{cmd}'. `name` should be a String.
+        info_bad_type: |-
+          Invalid type set for `info` on trigger for command '%{cmd}'. `info` should be a String.
+        warn_bad_type: |-
+          Invalid type set for `warn` on trigger for command '%{cmd}'. `warn` should be a String.
+        on_error_bad_type: |-
+          Invalid type set for `on_error` on trigger for command '%{cmd}'. `on_error` can
+          only be `:halt` (default) or `:continue`.
+        only_on_bad_type: |-
+          Invalid type found for `only_on`. All values must be a `String` or `Regexp`.
+        privileged_ignored: |-
+          The `privileged` setting for option `run` for trigger command '%{command}' will be ignored and set to false.
+        powershell_args_ignored: |-
+          The setting `powershell_args` is not supported for the trigger option `run` and will be ignored.
+        run:
+          bad_type: |-
+            Invalid type set for `run` on trigger for command '%{cmd}'. `run`
+            must be a Hash.
+        run_remote:
+          bad_type: |-
+            Invalid type set for `run` on trigger for command '%{cmd}'. `run`
+            must be a Hash.
+
       vm:
         bad_version: |-
           Invalid box version constraints: %{version}

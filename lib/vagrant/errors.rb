@@ -776,6 +776,18 @@ module Vagrant
       error_key(:synced_folder_unusable)
     end
 
+    class TriggersGuestNotRunning < VagrantError
+      error_key(:triggers_guest_not_running)
+    end
+
+    class TriggersNoBlockGiven < VagrantError
+      error_key(:triggers_no_block_given)
+    end
+
+    class TriggersNoStageGiven < VagrantError
+      error_key(:triggers_no_stage_given)
+    end
+
     class UIExpectsTTY < VagrantError
       error_key(:ui_expects_tty)
     end

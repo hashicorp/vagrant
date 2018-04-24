@@ -149,6 +149,8 @@ module Vagrant
       # Output a bunch of information about this machine in
       # machine-readable format in case someone is listening.
       @ui.machine("metadata", "provider", provider_name)
+
+      @triggers = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self)
     end
 
     # This calls an action on the provider. The provider may or may not
@@ -159,6 +161,7 @@ module Vagrant
     #   as extra data set on the environment hash for the middleware
     #   runner.
     def action(name, opts=nil)
+      @triggers.fire_triggers(name, :before, @name.to_s)
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
       opts ||= {}
@@ -185,7 +188,7 @@ module Vagrant
       locker = @env.method(:lock) if lock && !name.to_s.start_with?("ssh")
 
       # Lock this machine for the duration of this action
-      locker.call("machine-action-#{id}") do
+      return_env = locker.call("machine-action-#{id}") do
         # Get the callable from the provider.
         callable = @provider.action(name)
 
@@ -203,6 +206,10 @@ module Vagrant
         ui.machine("action", name.to_s, "end")
         action_result
       end
+
+      @triggers.fire_triggers(name, :after, @name.to_s)
+      # preserve returning environment after machine action runs
+      return return_env
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
         action: name,
