@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- provisioner/chef_zero: Support arrays for data_bags_path [GH-9669]
+
 BUG FIXES:
 
 - provisioner/puppet: Properly finalize structured_facts config option [GH-9720]
