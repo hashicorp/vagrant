@@ -101,12 +101,12 @@ module VagrantPlugins
         # but can be set as a single String or Symbol
         #
         # Guests are stored internally as strings
-        if !@only_on.nil?
+        if @only_on
           @only_on = Array(@only_on)
         end
 
         # Commands must be stored internally as symbols
-        if !@ignore.nil?
+        if @ignore
           @ignore = Array(@ignore)
           @ignore.map! { |i| i.to_sym }
         end
@@ -172,15 +172,15 @@ module VagrantPlugins
           errors.concat errorz["shell provisioner"] if !errorz.empty?
         end
 
-        if !@name.nil? && !@name.is_a?(String)
+        if @name && !@name.is_a?(String)
           errors << I18n.t("vagrant.config.triggers.name_bad_type", cmd: @command)
         end
 
-        if !@info.nil? && !@info.is_a?(String)
+        if @info && !@info.is_a?(String)
           errors << I18n.t("vagrant.config.triggers.info_bad_type", cmd: @command)
         end
 
-        if !@warn.nil? && !@warn.is_a?(String)
+        if @warn && !@warn.is_a?(String)
           errors << I18n.t("vagrant.config.triggers.warn_bad_type", cmd: @command)
         end
 

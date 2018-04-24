@@ -17,9 +17,9 @@ module Vagrant
         # This class is responsible for setting up basic triggers that were
         # defined inside a Vagrantfile.
         #
-        # @param [Object] env Vagrant environment
-        # @param [Object] config Trigger configuration
-        # @param [Object] machine Active Machine
+        # @param [Vagrant::Environment] env Vagrant environment
+        # @param [Kernel_V2::TriggerConfig] config Trigger configuration
+        # @param [Vagrant::Machine] machine Active Machine
         def initialize(env, config, machine)
           @env        = env
           @config     = config
@@ -91,7 +91,7 @@ module Vagrant
               index = triggers.index(trigger) unless match == true
             end
 
-            if !index.nil?
+            if index
               @logger.debug("Trigger #{trigger.id} will be ignored for #{guest_name}")
               triggers.delete_at(index)
             end
@@ -109,7 +109,7 @@ module Vagrant
           triggers.each do |trigger|
             @logger.debug("Running trigger #{trigger.id}...")
 
-            if !trigger.name.nil?
+            if trigger.name
               @machine.ui.info(I18n.t("vagrant.trigger.fire_with_name",
                                       name: trigger.name))
             else
