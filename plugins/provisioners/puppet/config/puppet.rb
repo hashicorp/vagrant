@@ -38,7 +38,7 @@ module VagrantPlugins
           @synced_folder_type    = UNSET_VALUE
           @temp_dir              = UNSET_VALUE
           @working_directory     = UNSET_VALUE
-          @structured_facts   = UNSET_VALUE
+          @structured_facts   = false
         end
 
         def nfs=(value)
