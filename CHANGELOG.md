@@ -7,6 +7,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - provisioner/chef_zero: Support arrays for data_bags_path [GH-9669]
+- util/downloader: Don't raise error if response is HTTP 416 [GH-9729]
 
 BUG FIXES:
 
