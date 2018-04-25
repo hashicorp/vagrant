@@ -292,11 +292,21 @@ module Vagrant
         # show an error message.
         if result.exit_code != 0
           @logger.warn("Downloader exit code: #{result.exit_code}")
-          parts    = result.stderr.split(/\n*curl:\s+\(\d+\)\s*/, 2)
-          parts[1] ||= ""
-          raise Errors::DownloaderError,
-            code: result.exit_code,
-            message: parts[1].chomp
+          check = result.stderr.match(/\n*curl:\s+\((?<code>\d+)\)\s*(?<error>.*)$/)
+          if check && check[:code] == "416"
+            # All good actually. 416 means there is no more bytes to download
+            @logger.warn("Downloader got a 416, but is likely fine. Continuing on...")
+          else
+            if !check
+              err_msg = result.stderr
+            else
+              err_msg = check[:error]
+            end
+
+            raise Errors::DownloaderError,
+              code: result.exit_code,
+              message: err_msg
+          end
         end
 
         result

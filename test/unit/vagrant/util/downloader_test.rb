@@ -41,6 +41,20 @@ describe Vagrant::Util::Downloader do
 
     context "with a bad exit status" do
       let(:exit_code) { 1 }
+      let(:subprocess_result_416) do
+        double("subprocess_result").tap do |result|
+          allow(result).to receive(:exit_code).and_return(exit_code)
+          allow(result).to receive(:stderr).and_return("curl: (416) The download is fine")
+        end
+      end
+
+      it "continues on if a 416 was received" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).
+          with("curl", *curl_options).
+          and_return(subprocess_result_416)
+
+        expect(subject.download!).to be(true)
+      end
 
       it "raises an exception" do
         expect(Vagrant::Util::Subprocess).to receive(:execute).
