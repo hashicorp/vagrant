@@ -34,6 +34,14 @@ Description : Not Vagrant Owned
     allow(subject).to receive(:sleep)
   end
 
+  describe ".smb_mount_options" do
+    it "should provide smb version of at least 2" do
+      result = subject.smb_mount_options(nil)
+      ver = result.detect{|i| i.start_with?("vers") }.to_s.split("=", 2).last.to_s.to_i
+      expect(ver).to be >= 2
+    end
+  end
+
   describe ".smb_installed" do
     context "when powershell version is greater than 2" do
       it "is valid installation" do

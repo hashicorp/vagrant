@@ -17,6 +17,12 @@ module VagrantPlugins
           true
         end
 
+        # Required options for mounting a share hosted on Windows
+        # NOTE: Windows deprecated smb 1.0 so a minimum of 2.0 must be enabled
+        def self.smb_mount_options(env)
+          ["vers=2.0"]
+        end
+
         def self.smb_validate_password(env, machine, username, password)
           script_path = File.expand_path("../../scripts/check_credentials.ps1", __FILE__)
           args = []
