@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Improve messaging around not finding requested provider [GH-9735]
 - provisioner/chef_zero: Support arrays for data_bags_path [GH-9669]
 - util/downloader: Don't raise error if response is HTTP 416 [GH-9729]
 
