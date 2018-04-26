@@ -125,6 +125,15 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
       end
     end
 
+    it "ignores urls that it cannot parse" do
+      bad_url = "this is not a valid url"
+      # Ensure the bad URL does cause an exception
+      expect{ URI.parse(bad_url) }.to raise_error URI::Error
+      env[:box_urls] = [bad_url]
+      subject.call(env)
+      expect(env[:box_urls].first).to eq(bad_url)
+    end
+
     it "returns original urls when not modified" do
       to_persist = "file:////path/to/box.box"
       to_change = VagrantPlugins::LoginCommand::AddAuthentication::
