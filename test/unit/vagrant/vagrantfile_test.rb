@@ -329,6 +329,13 @@ describe Vagrant::Vagrantfile do
         to raise_error(Vagrant::Errors::ProviderNotFound)
     end
 
+    it "raises an error if the provider is not found but gives suggestion" do
+      register_provider("foo")
+
+      expect { subject.machine_config(:default, :Foo, boxes) }.
+        to raise_error(Vagrant::Errors::ProviderNotFoundSuggestion)
+    end
+
     it "raises an error if the provider is not usable" do
       register_provider("foo", nil, unusable: true)
 

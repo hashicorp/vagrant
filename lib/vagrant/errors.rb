@@ -580,6 +580,10 @@ module Vagrant
       error_key(:provider_not_found)
     end
 
+    class ProviderNotFoundSuggestion < VagrantError
+      error_key(:provider_not_found_suggestion)
+    end
+
     class ProviderNotUsable < VagrantError
       error_key(:provider_not_usable)
     end

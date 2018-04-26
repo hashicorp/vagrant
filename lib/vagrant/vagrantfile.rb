@@ -125,8 +125,21 @@ module Vagrant
       if provider != nil
         provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
         if !provider_plugin
+          providers  = Vagrant.plugin("2").manager.providers.to_hash.keys
+          if providers
+            providers_str = providers.join(', ')
+          else
+            providers_str = "N/A"
+          end
+
+          if providers.include? provider.downcase
+            raise Errors::ProviderNotFoundSuggestion,
+              machine: name, provider: provider,
+              suggestion: provider.downcase, providers: providers_str
+          end
+
           raise Errors::ProviderNotFound,
-            machine: name, provider: provider
+            machine: name, provider: provider, providers: providers_str
         end
 
         provider_cls     = provider_plugin[0]
