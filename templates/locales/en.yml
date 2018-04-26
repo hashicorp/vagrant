@@ -1172,6 +1172,15 @@ en:
       provider_not_found: |-
         The provider '%{provider}' could not be found, but was requested to
         back the machine '%{machine}'. Please use a provider that exists.
+
+        Vagrant knows about the following providers: %{providers}
+      provider_not_found_suggestion: |-
+        The provider '%{provider}' could not be found, but was requested to
+        back the machine '%{machine}'. Please use a provider that exists.
+
+        Did you mean '%{suggestion}'?
+
+        Vagrant knows about the following providers: %{providers}
       provider_not_usable: |-
         The provider '%{provider}' that was requested to back the machine
         '%{machine}' is reporting that it isn't usable on this system. The
