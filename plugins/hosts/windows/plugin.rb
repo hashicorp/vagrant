@@ -46,7 +46,7 @@ module VagrantPlugins
         Cap::SMB
       end
 
-      host_capability("windows", "smb_cleanup") do
+      host_capability("windows", "smb_mount_options") do
         require_relative "cap/smb"
         Cap::SMB
       end
