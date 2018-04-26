@@ -12,6 +12,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- middleware/authentication: Prevent URL modification when no changes are required [GH-9730]
 - provisioner/puppet: Properly finalize structured_facts config option [GH-9720]
 
 ## 2.0.4 (April 20, 2018)
