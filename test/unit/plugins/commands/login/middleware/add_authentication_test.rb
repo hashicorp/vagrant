@@ -125,6 +125,22 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
       end
     end
 
+    it "returns original urls when not modified" do
+      to_persist = "file:////path/to/box.box"
+      to_change = VagrantPlugins::LoginCommand::AddAuthentication::
+        REPLACEMENT_HOSTS.map{ |h| "http://#{h}/box.box" }.first
+      expected = "http://#{VagrantPlugins::LoginCommand::AddAuthentication::TARGET_HOST}/box.box"
+      env[:box_urls] = [to_persist, to_change]
+      subject.call(env)
+      check_persist, check_change = env[:box_urls]
+      expect(check_change).to eq(expected)
+      expect(check_persist).to eq(to_persist)
+      # NOTE: The behavior of URI.parse changes on Ruby 2.5 to produce
+      # the same string value. To make the test worthwhile in checking
+      # for the same value, check that the object IDs are still the same.
+      expect(check_persist.object_id).to eq(to_persist.object_id)
+    end
+
     it "does not append multiple access_tokens" do
       token = "foobarbaz"
       VagrantPlugins::LoginCommand::Client.new(iso_env).store_token(token)

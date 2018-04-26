@@ -38,8 +38,10 @@ module VagrantPlugins
           u = URI.parse(url)
           if u.host != TARGET_HOST && REPLACEMENT_HOSTS.include?(u.host)
             u.host = TARGET_HOST
+            u.to_s
+          else
+            url
           end
-          u.to_s
         end
 
         server_uri = URI.parse(Vagrant.server_url.to_s)
