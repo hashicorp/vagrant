@@ -8,7 +8,7 @@
     [Parameter(Mandatory=$true)]
     [string]$data_path,
 
-    [string]$switchname=$null,
+    [string]$switchid=$null,
     [string]$memory=$null,
     [string]$maxmemory=$null,
     [string]$cpus=$null,
@@ -83,8 +83,10 @@ if (!$memory) {
     }
 }
 
-if (!$switchname) {
+if (!$switchid) {
     $switchname = (Hyper-V\Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
+} else {
+    $switchname = $(Hyper-V\Get-VMSwitch -Id $switchid).Name
 }
 
 # Enable nested virtualization if configured
