@@ -396,7 +396,7 @@ module Vagrant
               root_path = wsl_rootfs
               # lxrun splits home separate so we need to account
               # for it's specialness here when we build the path
-              if root_path.end_with?("lxss") && parts.first != "home"
+              if root_path.end_with?("lxss") && !(["root", "home"].include?(parts.first))
                 root_path = "#{root_path}\\rootfs"
               end
               [root_path, *parts].join("\\")
