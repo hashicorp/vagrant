@@ -54,20 +54,22 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
 
     it 'filters out rm recurse commands' do
       expect(subject.filter('rm -Rf /some/dir')).to eq(
-        "rm \"/some/dir\" -recurse -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force -recurse}")
       expect(subject.filter('rm -fr /some/dir')).to eq(
-        "rm \"/some/dir\" -recurse -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force -recurse}")
       expect(subject.filter('rm -r /some/dir')).to eq(
-        "rm \"/some/dir\" -recurse -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force -recurse}")
       expect(subject.filter('rm -r "/some/dir"')).to eq(
-        "rm \"/some/dir\" -recurse -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force -recurse}")
     end
 
     it 'filters out rm commands' do
       expect(subject.filter('rm /some/dir')).to eq(
-                                                  "if (Test-Path /some/dir) {Remove-Item /some/dir -force}")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force}")
       expect(subject.filter('rm -f /some/dir')).to eq(
-                                                     "if (Test-Path /some/dir) {Remove-Item /some/dir -force}")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force}")
+      expect(subject.filter('rm -f "/some/dir"')).to eq(
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force}")
     end
 
     it 'filters out mkdir commands' do
