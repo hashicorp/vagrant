@@ -22,6 +22,20 @@ foreach ($network in $networks) {
         break
       }
     }
+  } else {
+    # Try to discover the IP address from the neighbor cache entries
+    try {
+      $mac = (Get-VMNetworkAdapter -VM $vm).MacAddress
+      $macaddr = ($mac -replace "(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})", '$1-$2-$3-$4-$5-$6')
+      $ip_address = (Get-NetNeighbor -LinkLayerAddress $macaddr).IPAddress
+      if (-Not ([string]::IsNullOrEmpty($ip_address))) {
+        # It's our lucky day
+        $ip4_address = $ip_address
+        break
+      }
+    } catch {
+      $ip_address = ""
+    }
   }
 }
 
