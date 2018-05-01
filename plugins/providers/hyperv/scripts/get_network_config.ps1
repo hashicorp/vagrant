@@ -27,12 +27,14 @@ if (([string]::IsNullOrEmpty($ip4_address)) -And ([string]::IsNullOrEmpty($ip6_a
     $macaddresses = $vm | select -ExpandProperty NetworkAdapters | select MacAddress
     foreach ($macaddr in $macaddresses) {
         $macaddress = $macaddr.MacAddress -replace '(.{2})(?!$)', '${1}-'
-        $addr = Get-NetNeighbor -LinkLayerAddress $macaddress | select IPAddress
-        $ip_address = $addr.IPAddress
-        if ($ip_address.Contains(".")) {
-            $ip4_address = $ip_address
-        } elseif ($ip_address.Contains(":")) {
-            $ip6_address = $ip_address
+        $addr = Get-NetNeighbor -LinkLayerAddress $macaddress -ErrorAction SilentlyContinue | select IPAddress
+        if ($ip_address) {
+            $ip_address = $addr.IPAddress
+            if ($ip_address.Contains(".")) {
+                $ip4_address = $ip_address
+            } elseif ($ip_address.Contains(":")) {
+                $ip6_address = $ip_address
+            }
         }
     }
 }
