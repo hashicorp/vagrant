@@ -1,3 +1,5 @@
+require 'vagrant/util/safe_exec'
+
 module VagrantPlugins
   module DockerProvider
     module Command
@@ -86,7 +88,7 @@ module VagrantPlugins
           exec_options = options
 
           if options[:pty]
-            Kernel.system(*exec_cmd)
+            Vagrant::Util::SafeExec.exec(exec_cmd[0], *exec_cmd[1..-1])
           else
             output = ""
             machine.provider.driver.execute(*exec_cmd, exec_options) do |type, data|
