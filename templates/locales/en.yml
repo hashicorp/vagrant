@@ -40,6 +40,9 @@ en:
       URL: %{url}
     box_loading_metadata: |-
       Loading metadata for box '%{name}'
+    box_malformed_continue_on_update: |-
+      Could not determine box updates because box metadata was malformed.
+      Vagrant will continue on...
     box_outdated: |-
       * '%{name}' for '%{provider}' is outdated! Current: %{current}. Latest: %{latest}
     box_outdated_checking_with_refresh: |-
