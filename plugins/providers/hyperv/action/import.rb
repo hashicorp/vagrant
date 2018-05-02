@@ -88,9 +88,9 @@ module VagrantPlugins
             switchToFind = opts[:bridge]
 
             if switchToFind
-              puts "Looking for switch with name: #{switchToFind}"
-              switch = switches.find { |s| s["Name"].downcase == switchToFind.downcase }["Name"]
-              puts "Found switch: #{switch}"
+              @logger.debug("Looking for switch with name: #{switchToFind}")
+              switch = switches.find { |s| s["Name"].downcase == switchToFind.downcase }["Id"]
+              @logger.debug("Found switch: #{switch}")
             end
           end
 
@@ -110,9 +110,9 @@ module VagrantPlugins
                 switch = switch.to_i - 1
                 switch = nil if switch < 0 || switch >= switches.length
               end
-              switch = switches[switch]["Name"]
+              switch = switches[switch]["Id"]
             else
-              switch = switches[0]["Name"]
+              switch = switches[0]["Id"]
             end
           end
 

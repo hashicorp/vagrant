@@ -8,5 +8,5 @@ $Dir = Split-Path $script:MyInvocation.MyCommand.Path
 . ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 $Switches = @(Hyper-V\Get-VMSwitch `
-    | Select-Object Name,SwitchType,NetAdapterInterfaceDescription)
+    | Select-Object Name,SwitchType,NetAdapterInterfaceDescription,Id)
 Write-Output-Message $(ConvertTo-JSON $Switches)
