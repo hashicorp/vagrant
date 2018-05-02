@@ -17,6 +17,7 @@ BUG FIXES:
 
 - middleware/authentication: Prevent URL modification when no changes are required [GH-9730]
 - middleware/authentication: Ignore URLs which cannot be parsed [GH-9739]
+- provider/hyperv: Reference switches by ID instead of name [GH-9747]
 - provisioner/puppet: Properly finalize structured_facts config option [GH-9720]
 - util/platform: Fix original WSL to Windows path for "root" directory [GH-9696]
 
