@@ -17,6 +17,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- communicators/ssh: Log error and proceed on Windows private key permissions [GH-9769]
 - middleware/authentication: Prevent URL modification when no changes are required [GH-9730]
 - middleware/authentication: Ignore URLs which cannot be parsed [GH-9739]
 - provider/hyperv: Reference switches by ID instead of name [GH-9747]
