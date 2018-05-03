@@ -196,8 +196,13 @@ module VagrantPlugins
 
           # Adjust private key file permissions
           if Vagrant::Util::Platform.windows?
-            priv_path = @machine.data_dir.join("private_key").to_s
-            File.set_permissions(priv_path, Etc.getlogin => File::FULL)
+            begin
+              priv_path = @machine.data_dir.join("private_key").to_s
+              File.set_permissions(priv_path, Etc.getlogin => File::FULL)
+            rescue => e
+              @logger.warn("Error encountered during private key permissions set - " \
+                "#{e.class}: #{e.message}")
+            end
           else
             @machine.data_dir.join("private_key").chmod(0600)
           end

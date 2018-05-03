@@ -231,6 +231,10 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
             expect(File).to receive(:set_permissions).with("PRIVATE_KEY_PATH", any_args)
           end
 
+          it "should proceed when error is encountered" do
+            expect(File).to receive(:set_permissions).and_raise(StandardError)
+          end
+
           context "with multiple permissions on file" do
 
             it "should delete all non-owner permissions" do
