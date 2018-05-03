@@ -12,6 +12,7 @@ IMPROVEMENTS:
 - hosts/linux: Support RDP capability within WSL [GH-9758]
 - hosts/windows: Add SMB default mount options capability and set default version to 2.0 [GH-9734]
 - provider/hyperv: Include neighbor check for MAC on guest IP detection [GH-9737]
+- provider/virtualbox: Do not require VirtualBox availability within WSL [GH-9759]
 - provisioner/chef_zero: Support arrays for data_bags_path [GH-9669]
 - util/downloader: Don't raise error if response is HTTP 416 [GH-9729]
 - util/platform: Update Hyper-V enabled check [GH-9746]
