@@ -13,7 +13,11 @@ module VagrantPlugins
             elsif Vagrant::Util::Which.which("rdesktop")
               "rdesktop"
             else
-              raise Vagrant::Errors::LinuxRDPClientNotFound
+              if Vagrant::Util::Platform.wsl?
+                "mstsc.exe"
+              else
+                raise Vagrant::Errors::LinuxRDPClientNotFound
+              end
             end
 
           args = []
@@ -30,6 +34,17 @@ module VagrantPlugins
             args << "-p" << rdp_info[:password] if rdp_info[:password]
             args += rdp_info[:extra_args] if rdp_info[:extra_args]
             args << "#{rdp_info[:host]}:#{rdp_info[:port]}"
+          when "mstsc.exe"
+            # Setup password
+            cmdKeyArgs = [
+              "/add:#{rdp_info[:host]}:#{rdp_info[:port]}",
+              "/user:#{rdp_info[:username]}",
+              "/pass:#{rdp_info[:password]}",
+            ]
+            Vagrant::Util::Subprocess.execute("cmdkey.exe", *cmdKeyArgs)
+
+            args = ["/v:#{rdp_info[:host]}:#{rdp_info[:port]}"]
+            args += rdp_info[:extra_args] if rdp_info[:extra_args]
           end
 
           # Finally, run the client.
