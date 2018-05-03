@@ -23,12 +23,22 @@ describe VagrantPlugins::Chef::Provisioner::ChefSolo do
   end
 
   describe "#expanded_folders" do
+    before { allow(subject).to receive(:windows?).and_return(true) }
+
     it "handles the default Windows provisioning path" do
       allow(config).to receive(:provisioning_path).and_return(nil)
-      allow(subject).to receive(:windows?).and_return(true)
       remote_path = subject.expanded_folders([[:vm, "cookbooks-1"]])[0][2]
       expect(remote_path).to eq("/vagrant-chef/cookbooks-1")
     end
+
+    it "removes drive letter prefix from path" do
+      allow(config).to receive(:provisioning_path).and_return(nil)
+      expect(File).to receive(:expand_path).and_return("C:/vagrant-chef/cookbooks-1")
+      result = subject.expanded_folders([[:vm, "cookbooks-1"]])
+      remote_path = result[0][2]
+      expect(remote_path).to eq("/vagrant-chef/cookbooks-1")
+    end
+
   end
 
   describe "#expanded_folders" do

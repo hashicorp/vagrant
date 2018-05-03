@@ -101,7 +101,8 @@ module VagrantPlugins
               # of a hack but is the most portable way I can think of at the moment
               # to achieve this. Otherwise, Vagrant attempts to share at some crazy
               # path like /home/vagrant/c:/foo/bar
-              remote_path = File.expand_path(path.gsub(/^[a-zA-Z]:\//, "/"), guest_provisioning_path.gsub(/^[a-zA-Z]:\//, "/"))
+              remote_path = File.expand_path(path.sub(/^[a-zA-Z]:\//, "/"), guest_provisioning_path.sub(/^[a-zA-Z]:\//, "/"))
+              remote_path.sub!(/^[a-zA-Z]:\//, "/")
             end
 
             # If we have specified a folder name to append then append it
@@ -183,10 +184,10 @@ module VagrantPlugins
           )
 
           still_active = 259 #provisioner has asked chef to reboot
-          
+
           @config.attempts.times do |attempt|
             exit_status = 0
-            while exit_status == 0 || exit_status == still_active 
+            while exit_status == 0 || exit_status == still_active
               if @machine.guest.capability?(:wait_for_reboot)
                 @machine.guest.capability(:wait_for_reboot)
               elsif attempt > 0
