@@ -71,7 +71,7 @@ config.vm.define "ubuntu" do |ubuntu|
   ubuntu.vm.box = "ubuntu"
   ubuntu.trigger.before :destroy do |trigger|
     trigger.warn = "Dumping database to /vagrant/outfile"
-    trigger.run_remote {inline: "pg_dump dbname > /vagrant/outfile"}
+    trigger.run_remote = {inline: "pg_dump dbname > /vagrant/outfile"}
   end
 end
 ```
