@@ -117,9 +117,21 @@ module VagrantPlugins
         #
         # @return [Hash]
         def self.existing_shares
+          shares = get_smbshares || get_netshares
+          if shares.nil?
+            raise SyncedFolderSMB::Errors::SMBListFailed
+          end
+          @@logger.debug("local share listing: #{shares}")
+          shares
+        end
+
+        # Get current SMB share list using Get-SmbShare
+        #
+        # @return [Hash]
+        def self.get_smbshares
           result = Vagrant::Util::PowerShell.execute_cmd("Get-SmbShare|Format-List")
           if result.nil?
-            raise SyncedFolderSMB::Errors::SMBListFailed
+            return nil
           end
           shares = {}
           name = nil
@@ -132,7 +144,33 @@ module VagrantPlugins
             next if name.nil? || key.to_s.empty?
             shares[name][key] = value
           end
-          @@logger.debug("local share listing: #{shares}")
+          shares
+        end
+
+        # Get current SMB share list using net.exe
+        #
+        # @return [Hash]
+        def self.get_netshares
+          result = Vagrant::Util::PowerShell.execute_cmd("net share")
+          if result.nil?
+            return nil
+          end
+          result.sub!(/^.+?\-+/m, "")
+          share_names = result.strip.split("\n").map do |line|
+            line.strip.split(/\s+/).first
+          end
+          shares = {}
+          share_names.each do |share_name|
+            shares[share_name] = {}
+            result = Vagrant::Util::PowerShell.execute_cmd("net share #{share_name}")
+            next if result.nil?
+            result.each_line do |line|
+              key, value = line.strip.split(/\s+/, 2)
+              next if key == "Share name"
+              key = "Description" if key == "Remark"
+              shares[share_name][key] = value
+            end
+          end
           shares
         end
 

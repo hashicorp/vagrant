@@ -24,6 +24,34 @@ Description : Not Vagrant Owned
 
     EOF
   }
+  let(:netsharelist){ <<-EOF
+
+Share name        Resource     Remark
+-----------------------------------------------
+vgt-CUSTOM_ID-1   /a/path      vgt-CUSTOM_ID-1
+vgt-CUSTOM_ID-2   /other/path  vgt-CUSTOM_ID-2
+my-share          /my/path     Not Vagran...
+
+    EOF
+  }
+  let(:netshare1){ <<-EOF
+Share name vgt-CUSTOM_ID-1
+Path       /a/path
+Remark     vgt-CUSTOM_ID-1
+    EOF
+  }
+  let(:netshare2){ <<-EOF
+Share name vgt-CUSTOM_ID-2
+Path       /other/path
+Remark     vgt-CUSTOM_ID-2
+    EOF
+  }
+  let(:netshare_my){ <<-EOF
+Share name my-share
+Path       /my/path
+Remark     Not Vagrant Owned
+    EOF
+  }
 
 
   before do
@@ -62,6 +90,10 @@ Description : Not Vagrant Owned
     before do
       allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/Get-SmbShare/).
         and_return(smblist)
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share/).and_return(netsharelist)
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share vgt-CUSTOM_ID-1/).and_return(netshare1)
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share vgt-CUSTOM_ID-2/).and_return(netshare2)
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share my/).and_return(netshare_my)
       allow(Vagrant::Util::PowerShell).to receive(:execute).and_return(result.new(0, "", ""))
     end
     after{ subject.smb_cleanup(env, machine, options) }
@@ -69,6 +101,21 @@ Description : Not Vagrant Owned
     it "should pause after warning user" do
       expect(machine.env.ui).to receive(:warn)
       expect(subject).to receive(:sleep)
+    end
+
+    it "should remove owned shares" do
+      expect(Vagrant::Util::PowerShell).to receive(:execute) do |*args|
+        expect(args).to include("vgt-CUSTOM_ID-1")
+        expect(args).to include("vgt-CUSTOM_ID-2")
+        result.new(0, "", "")
+      end
+    end
+
+    it "should not remove owned shares" do
+      expect(Vagrant::Util::PowerShell).to receive(:execute) do |*args|
+        expect(args).not_to include("my-share")
+        result.new(0, "", "")
+      end
     end
 
     it "should remove all shares in single call" do
@@ -87,6 +134,31 @@ Description : Not Vagrant Owned
 
       it "should not warn user" do
         expect(machine.env.ui).not_to receive(:warn)
+      end
+    end
+
+    context "when Get-SmbShare is not available" do
+      before do
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/Get-SmbShare/).and_return(nil)
+      end
+
+      it "should fetch list using net.exe" do
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share/).and_return("")
+      end
+
+      it "should remove owned shares" do
+        expect(Vagrant::Util::PowerShell).to receive(:execute) do |*args|
+          expect(args).to include("vgt-CUSTOM_ID-1")
+          expect(args).to include("vgt-CUSTOM_ID-2")
+          result.new(0, "", "")
+        end
+      end
+
+      it "should not remove owned shares" do
+        expect(Vagrant::Util::PowerShell).to receive(:execute) do |*args|
+          expect(args).not_to include("my-share")
+          result.new(0, "", "")
+        end
       end
     end
   end
