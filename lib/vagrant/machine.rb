@@ -110,6 +110,7 @@ module Vagrant
       @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
       @ui_mutex        = Mutex.new
       @state_mutex     = Mutex.new
+      @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self)
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -149,8 +150,6 @@ module Vagrant
       # Output a bunch of information about this machine in
       # machine-readable format in case someone is listening.
       @ui.machine("metadata", "provider", provider_name)
-
-      @triggers = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self)
     end
 
     # This calls an action on the provider. The provider may or may not
