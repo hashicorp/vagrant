@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
     trigger.info = "I am running before vagrant up!!"
   end
 
-  config.trigger.before :up do |trigger|
+  config.trigger.after :up do |trigger|
     trigger.name = "Hello world"
     trigger.info = "I am running after vagrant up!!"
   end
