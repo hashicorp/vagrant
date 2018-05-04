@@ -50,7 +50,8 @@ describe Vagrant::Machine do
 
   def new_provider_mock
     double("provider").tap do |obj|
-      allow(obj).to receive(:_initialize).and_return(nil)
+      allow(obj).to receive(:_initialize)
+        .with(provider_name, anything).and_return(nil)
       allow(obj).to receive(:machine_id_changed).and_return(nil)
       allow(obj).to receive(:state).and_return(Vagrant::MachineState.new(
         :created, "", ""))
@@ -74,6 +75,24 @@ describe Vagrant::Machine do
       subject = new_instance
       expect(subject.state.id).to eq(Vagrant::MachineState::NOT_CREATED_ID)
       expect(subject.id).to be_nil
+    end
+
+    context "setting up triggers" do
+      before do
+        expect(provider).to receive(:_initialize) do |*args|
+          machine = args.last
+          @trigger_instance = machine.instance_variable_get(:@triggers)
+          true
+        end
+      end
+
+      it "should initialize the trigger object" do
+        subject = new_instance
+        expect(subject.instance_variable_get(:@triggers))
+          .to be_a(Vagrant::Plugin::V2::Trigger)
+        expect(subject.instance_variable_get(:@triggers))
+          .to eq(@trigger_instance)
+      end
     end
 
     describe "as a base" do
