@@ -37,7 +37,7 @@ module VagrantPlugins
         end
         "find #{guest_path} #{exclusions}" \
           "'!' -type l -a " \
-          "'(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -exec " \
+          "'(' ! -user #{opts[:owner]} -o ! -group #{opts[:group]} ')' -exec " \
           "chown #{opts[:owner]}:#{opts[:group]} '{}' +"
       end
     end
