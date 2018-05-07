@@ -160,7 +160,11 @@ module Vagrant
     #   as extra data set on the environment hash for the middleware
     #   runner.
     def action(name, opts=nil)
-      @triggers.fire_triggers(name, :before, @name.to_s)
+      plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+      if !plugins.keys.include?("vagrant-triggers")
+        @triggers.fire_triggers(name, :before, @name.to_s)
+      end
+
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
       opts ||= {}
@@ -206,7 +210,9 @@ module Vagrant
         action_result
       end
 
-      @triggers.fire_triggers(name, :after, @name.to_s)
+      if !plugins.keys.include?("vagrant-triggers")
+        @triggers.fire_triggers(name, :after, @name.to_s)
+      end
       # preserve returning environment after machine action runs
       return return_env
     rescue Errors::EnvironmentLockedError
