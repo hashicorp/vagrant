@@ -140,7 +140,7 @@ module VagrantPlugins
               dest_path:      dest_path,
               data_path:      env[:machine].data_dir.to_s.gsub("/", "\\")
           }
-          options[:switchname] = switch if switch
+          options[:switchid] = switch if switch
           options[:memory] = memory if memory
           options[:maxmemory] = maxmemory if maxmemory
           options[:cpus] = cpus if cpus
