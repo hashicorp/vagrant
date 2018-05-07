@@ -192,6 +192,20 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
         end
       end
     end
+
+    context "with guest builtin vboxsf module" do
+      let(:vbox_stderr){ <<-EOF
+mount.vboxsf cannot be used with mainline vboxsf; instead use:
+
+    mount -cit vboxsf NAME MOUNTPOINT
+EOF
+      }
+      it "should perform guest mount using builtin module" do
+        expect(comm).to receive(:sudo).with(/mount -t vboxsf/, any_args).and_yield(:stderr, vbox_stderr).and_return(1)
+        expect(comm).to receive(:sudo).with(/mount -cit/, any_args)
+        cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+      end
+    end
   end
 
   describe ".unmount_virtualbox_shared_folder" do
