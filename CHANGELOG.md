@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/linux: Support builtin vboxsf module for shared folders [GH-9800]
 - host/windows: Update SMB capability to work without Get-SmbShare cmdlet [GH-9785]
 
 BUG FIXES:
