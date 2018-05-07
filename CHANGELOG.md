@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core/triggers: Initialize internal trigger object for machine before initializing provider [GH-9784]
+- provider/hyperv: Call import script with switchid instead of switchname [GH-9781]
 
 ## 2.1.0 (May 3, 2018)
 
