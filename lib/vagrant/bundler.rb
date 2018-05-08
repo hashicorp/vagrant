@@ -303,6 +303,15 @@ module Vagrant
       solution = request_set.resolve(installer_set)
       activate_solution(solution)
 
+      # Remove gems which are already installed
+      request_set.sorted_requests.delete_if do |activation_req|
+        rs_spec = activation_req.spec
+        if vagrant_internal_specs.detect{|ispec| ispec.name == rs_spec.name && ispec.version == rs_spec.version }
+          @logger.debug("Removing activation request from install. Already installed. (#{rs_spec.spec.full_name})")
+          true
+        end
+      end
+
       @logger.debug("Installing required gems.")
 
       # Install all remote gems into plugin path. Set the installer to ignore dependencies
