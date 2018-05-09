@@ -288,7 +288,7 @@ end
 if Vagrant.plugins_init?
   begin
     Vagrant::Bundler.instance.init!(plugins)
-  rescue Exception => e
+  rescue StandardError, ScriptError => e
     global_logger.error("Plugin initialization error - #{e.class}: #{e}")
     e.backtrace.each do |backtrace_line|
       global_logger.debug(backtrace_line)
@@ -334,18 +334,16 @@ if Vagrant.plugins_enabled?
     plugins.each do |plugin_name, plugin_info|
       if plugin_info["require"].to_s.empty?
         begin
-          global_logger.debug("Loading plugin `#{plugin_name}` with default require: `#{plugin_name}`")
+          global_logger.info("Loading plugin `#{plugin_name}` with default require: `#{plugin_name}`")
           require plugin_name
-        rescue LoadError, Gem::LoadError => load_error
+        rescue LoadError => err
           if plugin_name.include?("-")
-            begin
-              plugin_slash = plugin_name.gsub("-", "/")
-              global_logger.debug("Failed to load plugin `#{plugin_name}` with default require.")
-              global_logger.debug("Loading plugin `#{plugin_name}` with slash require: `#{plugin_slash}`")
-              require plugin_slash
-            rescue LoadError, Gem::LoadError
-              global_logger.warn("Failed to load plugin `#{plugin_name}`. Assuming library and moving on.")
-            end
+            plugin_slash = plugin_name.gsub("-", "/")
+            global_logger.error("Failed to load plugin `#{plugin_name}` with default require. - #{err.class}: #{err}")
+            global_logger.info("Loading plugin `#{plugin_name}` with slash require: `#{plugin_slash}`")
+            require plugin_slash
+          else
+            raise
           end
         end
       else
@@ -358,12 +356,12 @@ if Vagrant.plugins_enabled?
       global_logger.debug("Bundler detected in use. Loading `:plugins` group.")
       ::Bundler.require(:plugins)
     end
-  rescue Exception => e
-    global_logger.error("Plugin loading error: #{e.class} - #{e}")
-    e.backtrace.each do |backtrace_line|
+  rescue ScriptError, StandardError => err
+    global_logger.error("Plugin loading error: #{err.class} - #{err}")
+    err.backtrace.each do |backtrace_line|
       global_logger.debug(backtrace_line)
     end
-    raise Vagrant::Errors::PluginLoadError, message: e.to_s
+    raise Vagrant::Errors::PluginLoadError, message: err.to_s
   end
 else
   global_logger.debug("Plugin loading is currently disabled.")
