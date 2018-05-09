@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Ensure guestpath or name is set with synced_folder option and dont set guestpath if not provided [GH-9692]
+
 ## 2.1.1 (May 7, 2018)
 
 IMPROVEMENTS:
