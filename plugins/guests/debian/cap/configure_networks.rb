@@ -57,8 +57,20 @@ module VagrantPlugins
               e_nets[interfaces[network[:interface]]] = e_config
             end
           end
+
+          # By default, netplan expects the renderer to be systemd-networkd,
+          # but if any device is managed by NetworkManager, then we use that renderer
+          # ref: https://netplan.io/reference
+          renderer = NETPLAN_DEFAULT_RENDERER
+          ethernets.keys.each do |k|
+            if nm_controlled?(comm, k)
+              renderer = "NetworkManager"
+              break
+            end
+          end
+
           np_config = {"network" => {"version" => NETPLAN_DEFAULT_VERSION,
-            "renderer" => NETPLAN_DEFAULT_RENDERER, "ethernets" => ethernets}}
+            "renderer" => renderer, "ethernets" => ethernets}}
 
           remote_path = upload_tmp_file(comm, np_config.to_yaml)
           dest_path = "#{NETPLAN_DIRECTORY}/50-vagrant.yaml"
