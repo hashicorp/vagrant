@@ -15,7 +15,7 @@ module VagrantPlugins
                                name: env[:plugin_name]))
 
           manager = Vagrant::Plugin::Manager.instance
-          manager.uninstall_plugin(env[:plugin_name])
+          manager.uninstall_plugin(env[:plugin_name], local: env[:local])
 
           @app.call(env)
         end

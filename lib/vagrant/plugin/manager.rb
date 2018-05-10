@@ -27,13 +27,68 @@ module Vagrant
         @instance ||= self.new(user_plugins_file)
       end
 
+      attr_reader :user_file
+      attr_reader :system_file
+      attr_reader :local_file
+
       # @param [Pathname] user_file
       def initialize(user_file)
+        @logger = Log4r::Logger.new("vagrant::plugin::manager")
         @user_file   = StateFile.new(user_file)
 
         system_path  = self.class.system_plugins_file
         @system_file = nil
         @system_file = StateFile.new(system_path) if system_path && system_path.file?
+
+        @local_file = nil
+      end
+
+      def globalize!
+        @logger.debug("Enabling globalized plugins")
+        if !Vagrant.plugins_init?
+          @logger.warn("Plugin initialization is disabled")
+          return {}
+        end
+
+        plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+        bundler_init(plugins)
+        plugins
+      end
+
+      # @param [Environment] env Vagrant environment
+      def localize!(env)
+        if env.local_data_path
+          @logger.debug("Enabling localized plugins")
+          @local_file = StateFile.new(env.local_data_path.join("plugins.json"))
+          Vagrant::Bundler.instance.environment_path = env.local_data_path
+          plugins = local_file.installed_plugins
+          bundler_init(plugins)
+          plugins
+        end
+      end
+
+      def bundler_init(plugins)
+        @logger.info("Plugins:")
+        plugins.each do |plugin_name, plugin_info|
+          installed_version = plugin_info["installed_gem_version"]
+          version_constraint = plugin_info["gem_version"]
+          installed_version = 'undefined' if installed_version.to_s.empty?
+          version_constraint = '> 0' if version_constraint.to_s.empty?
+          @logger.info(
+            "  - #{plugin_name} = [installed: " \
+              "#{installed_version} constraint: " \
+              "#{version_constraint}]"
+          )
+        end
+        begin
+          Vagrant::Bundler.instance.init!(plugins)
+        rescue StandardError, ScriptError => err
+          @logger.error("Plugin initialization error - #{err.class}: #{err}")
+          err.backtrace.each do |backtrace_line|
+            @logger.debug(backtrace_line)
+          end
+          raise Vagrant::Errors::PluginInitError, message: err.to_s
+        end
       end
 
       # Installs another plugin into our gem directory.
@@ -41,7 +96,10 @@ module Vagrant
       # @param [String] name Name of the plugin (gem)
       # @return [Gem::Specification]
       def install_plugin(name, **opts)
-        local = false
+        if opts[:local] && @local_file.nil?
+          raise Errors::PluginNoLocalError
+        end
+
         if name =~ /\.gem$/
           # If this is a gem file, then we install that gem locally.
           local_spec = Vagrant::Bundler.instance.install_local(name, opts)
@@ -59,7 +117,7 @@ module Vagrant
         if local_spec.nil?
           result = nil
           install_lambda = lambda do
-            Vagrant::Bundler.instance.install(plugins, local).each do |spec|
+            Vagrant::Bundler.instance.install(plugins, opts[:local]).each do |spec|
               next if spec.name != name
               next if result && result.version >= spec.version
               result = spec
@@ -75,18 +133,20 @@ module Vagrant
           result = local_spec
         end
         # Add the plugin to the state file
-        @user_file.add_plugin(
+        plugin_file = opts[:local] ? @local_file : @user_file
+        plugin_file.add_plugin(
           result.name,
           version: opts[:version],
           require: opts[:require],
           sources: opts[:sources],
+          local:   !!opts[:local],
           installed_gem_version: result.version.to_s
         )
 
         # After install clean plugin gems to remove any cruft. This is useful
         # for removing outdated dependencies or other versions of an installed
         # plugin if the plugin is upgraded/downgraded
-        Vagrant::Bundler.instance.clean(installed_plugins)
+        Vagrant::Bundler.instance.clean(installed_plugins, local: !!opts[:local])
         result
       rescue Gem::GemNotFoundException
         raise Errors::PluginGemNotFound, name: name
@@ -97,7 +157,7 @@ module Vagrant
       # Uninstalls the plugin with the given name.
       #
       # @param [String] name
-      def uninstall_plugin(name)
+      def uninstall_plugin(name, **opts)
         if @system_file
           if !@user_file.has_plugin?(name) && @system_file.has_plugin?(name)
             raise Errors::PluginUninstallSystem,
@@ -105,7 +165,18 @@ module Vagrant
           end
         end
 
-        @user_file.remove_plugin(name)
+        if opts[:local] && @local_file.nil?
+          raise Errors::PluginNoLocalError
+        end
+
+        plugin_file = opts[:local] ? @local_file : @user_file
+
+        if !plugin_file.has_plugin?(name)
+          raise Errors::PluginNotInstalled,
+            name: name
+        end
+
+        plugin_file.remove_plugin(name)
 
         # Clean the environment, removing any old plugins
         Vagrant::Bundler.instance.clean(installed_plugins)
@@ -114,9 +185,15 @@ module Vagrant
       end
 
       # Updates all or a specific set of plugins.
-      def update_plugins(specific)
-        result = Vagrant::Bundler.instance.update(installed_plugins, specific)
-        installed_plugins.each do |name, info|
+      def update_plugins(specific, **opts)
+        if opts[:local] && @local_file.nil?
+          raise Errors::PluginNoLocalError
+        end
+
+        plugin_file = opts[:local] ? @local_file : @user_file
+
+        result = Vagrant::Bundler.instance.update(plugin_list.installed_plugins, specific)
+        plugin_list.installed_plugins.each do |name, info|
           matching_spec = result.detect{|s| s.name == name}
           info = Hash[
             info.map do |key, value|
@@ -124,7 +201,7 @@ module Vagrant
             end
           ]
           if matching_spec
-            @user_file.add_plugin(name, **info.merge(
+            plugin_file.add_plugin(name, **info.merge(
               version: "> 0",
               installed_gem_version: matching_spec.version.to_s
             ))
@@ -147,6 +224,11 @@ module Vagrant
           end
         end
         plugin_list = Util::DeepMerge.deep_merge(system, @user_file.installed_plugins)
+
+        if @local_file
+          plugin_list = Util::DeepMerge.deep_merge(plugin_list,
+            @local_file.installed_plugins)
+        end
 
         # Sort plugins by name
         Hash[
@@ -190,6 +272,48 @@ module Vagrant
         end
 
         installed_map.values
+      end
+
+      def load_plugins(plugins)
+        if !Vagrant.plugins_enabled?
+          @logger.warn("Plugin loading is disabled")
+          return
+        end
+
+        begin
+          @logger.info("Loading plugins...")
+          plugins.each do |plugin_name, plugin_info|
+            if plugin_info["require"].to_s.empty?
+              begin
+                @logger.info("Loading plugin `#{plugin_name}` with default require: `#{plugin_name}`")
+                require plugin_name
+              rescue LoadError => err
+                if plugin_name.include?("-")
+                  plugin_slash = plugin_name.gsub("-", "/")
+                  @logger.error("Failed to load plugin `#{plugin_name}` with default require. - #{err.class}: #{err}")
+                  @logger.info("Loading plugin `#{plugin_name}` with slash require: `#{plugin_slash}`")
+                  require plugin_slash
+                else
+                  raise
+                end
+              end
+            else
+              @logger.debug("Loading plugin `#{plugin_name}` with custom require: `#{plugin_info["require"]}`")
+              require plugin_info["require"]
+            end
+            @logger.debug("Successfully loaded plugin `#{plugin_name}`.")
+          end
+          if defined?(::Bundler)
+            @logger.debug("Bundler detected in use. Loading `:plugins` group.")
+            ::Bundler.require(:plugins)
+          end
+        rescue ScriptError, StandardError => err
+          @logger.error("Plugin loading error: #{err.class} - #{err}")
+          err.backtrace.each do |backtrace_line|
+            @logger.debug(backtrace_line)
+          end
+          raise Vagrant::Errors::PluginLoadError, message: err.to_s
+        end
       end
     end
   end

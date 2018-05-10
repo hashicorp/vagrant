@@ -146,6 +146,7 @@ module Vagrant
       if opts[:local_data_path]
         @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
       end
+
       @logger.debug("Effective local data path: #{@local_data_path}")
 
       # If we have a root path, load the ".vagrantplugins" file.
@@ -162,6 +163,19 @@ module Vagrant
       # Setup the default private key
       @default_private_key_path = @home_path.join("insecure_private_key")
       copy_insecure_private_key
+
+      # Initialize localized plugins
+      plugins = Vagrant::Plugin::Manager.instance.localize!(self)
+
+      if !vagrantfile.config.vagrant.plugins.empty?
+        plugins = process_configured_plugins
+      end
+
+      # Load any local plugins
+      Vagrant::Plugin::Manager.instance.load_plugins(plugins)
+
+      plugins = Vagrant::Plugin::Manager.instance.globalize!
+      Vagrant::Plugin::Manager.instance.load_plugins(plugins)
 
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
@@ -897,6 +911,55 @@ module Vagrant
     end
 
     protected
+
+    # Check for any local plugins defined within the Vagrantfile. If
+    # found, validate they are available. If they are not available,
+    # request to install them, or raise an exception
+    #
+    # @return [Hash] plugin list for loading
+    def process_configured_plugins
+      return if !Vagrant.plugins_enabled?
+      errors = vagrantfile.config.vagrant.validate(nil)
+      if !errors["vagrant"].empty?
+        raise Errors::ConfigInvalid,
+          errors: Util::TemplateRenderer.render(
+            "config/validation_failed",
+            errors: errors)
+      end
+      # Check if defined plugins are installed
+      installed = Plugin::Manager.instance.installed_plugins
+      needs_install = []
+      config_plugins = vagrantfile.config.vagrant.plugins
+      config_plugins.each do |name, info|
+        if !installed[name]
+          needs_install << name
+        end
+      end
+      if !needs_install.empty?
+        ui.warn(I18n.t("vagrant.plugins.local.uninstalled_plugins",
+          plugins: needs_install.sort.join(", ")))
+        answer = nil
+        until ["y", "n"].include?(answer)
+          answer = ui.ask(I18n.t("vagrant.plugins.local.request_plugin_install") + ": ")
+          answer.strip.downcase!
+        end
+        if answer == "n"
+          raise Errors::PluginMissingLocalError,
+            plugins: needs_install.sort.join(", ")
+        end
+        needs_install.each do |name|
+          ui.info(I18n.t("vagrant.commands.plugin.installing", name: name))
+          spec = Plugin::Manager.instance.install_plugin(name,
+            {sources: Vagrant::Bundler::DEFAULT_GEM_SOURCES.dup}.merge(
+              config_plugins[name]).merge(local: true))
+          ui.info(I18n.t("vagrant.commands.plugin.installed",
+            name: spec.name, version: spec.version.to_s))
+        end
+        ui.info("\n")
+        Vagrant::Plugin::Manager.instance.localize!(self)
+      end
+      Vagrant::Plugin::Manager.instance.local_file.installed_plugins
+    end
 
     # This method copies the private key into the home directory if it
     # doesn't already exist.

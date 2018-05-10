@@ -640,6 +640,14 @@ module Vagrant
       error_key(:plugin_source_error)
     end
 
+    class PluginNoLocalError < VagrantError
+      error_key(:plugin_no_local_error)
+    end
+
+    class PluginMissingLocalError < VagrantError
+      error_key(:plugin_missing_local_error)
+    end
+
     class PushesNotDefined < VagrantError
       error_key(:pushes_not_defined)
     end
