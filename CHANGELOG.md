@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- commands/suspend: Introduce flag for suspending all machines [GH-9829]
+
 BUG FIXES:
 
 - core: Display plugin commands in help [GH-9808]
