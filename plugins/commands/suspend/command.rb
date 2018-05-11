@@ -24,6 +24,10 @@ module VagrantPlugins
         @logger.debug("'suspend' each target VM...")
         target = []
         if options[:all]
+          if argv.size > 0
+            raise Vagrant::Errors::CommandSuspendAllArgs
+          end
+
           m = @env.machine_index.each { |m| m }
           target = m.keys
         else

@@ -99,5 +99,13 @@ describe VagrantPlugins::CommandSuspend::Command do
 
       expect(subject.execute).to eq(0)
     end
+
+    context "with an argument is used" do
+      let(:argv){ ["machine", "--all-global"] }
+
+      it "errors out" do
+        expect{subject.execute}.to raise_error(Vagrant::Errors::CommandSuspendAllArgs)
+      end
+    end
   end
 end
