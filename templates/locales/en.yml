@@ -727,6 +727,8 @@ en:
       command_deprecated: |-
         The command 'vagrant %{name}' has been deprecated and is no longer functional
         within Vagrant.
+      command_suspend_all_arguments: |-
+        The suspend command with the `--all-global` flag does not take any arguments.
       command_unavailable: |-
         The executable '%{file}' Vagrant is trying to run was not
         found in the PATH variable. This is an error. Please verify

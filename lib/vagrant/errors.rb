@@ -300,6 +300,10 @@ module Vagrant
       error_key(:command_deprecated)
     end
 
+    class CommandSuspendAllArgs < VagrantError
+      error_key(:command_suspend_all_arguments)
+    end
+
     class CommandUnavailable < VagrantError
       error_key(:command_unavailable)
     end
