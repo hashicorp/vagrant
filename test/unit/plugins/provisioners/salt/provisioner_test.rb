@@ -55,7 +55,6 @@ describe VagrantPlugins::Salt::Provisioner do
       it "passes along extra cli flags" do
         allow(config).to receive(:run_highstate).and_return(true)
         allow(config).to receive(:verbose).and_return(true)
-        allow(config).to receive(:masterless?).and_return(false)
         allow(config).to receive(:masterless).and_return(false)
         allow(config).to receive(:minion_id).and_return(nil)
         allow(config).to receive(:log_level).and_return(nil)
@@ -74,7 +73,6 @@ describe VagrantPlugins::Salt::Provisioner do
       it "has no additional cli flags if not included" do
         allow(config).to receive(:run_highstate).and_return(true)
         allow(config).to receive(:verbose).and_return(true)
-        allow(config).to receive(:masterless?).and_return(false)
         allow(config).to receive(:masterless).and_return(false)
         allow(config).to receive(:minion_id).and_return(nil)
         allow(config).to receive(:log_level).and_return(nil)
@@ -95,7 +93,6 @@ describe VagrantPlugins::Salt::Provisioner do
       it "passes along extra cli flags" do
         allow(config).to receive(:run_highstate).and_return(true)
         allow(config).to receive(:verbose).and_return(true)
-        allow(config).to receive(:masterless?).and_return(true)
         allow(config).to receive(:masterless).and_return(true)
         allow(config).to receive(:minion_id).and_return(nil)
         allow(config).to receive(:log_level).and_return(nil)
@@ -115,7 +112,6 @@ describe VagrantPlugins::Salt::Provisioner do
       it "has no additional cli flags if not included" do
         allow(config).to receive(:run_highstate).and_return(true)
         allow(config).to receive(:verbose).and_return(true)
-        allow(config).to receive(:masterless?).and_return(true)
         allow(config).to receive(:masterless).and_return(true)
         allow(config).to receive(:minion_id).and_return(nil)
         allow(config).to receive(:log_level).and_return(nil)

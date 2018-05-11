@@ -385,7 +385,7 @@ module VagrantPlugins
 
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
-            unless @config.masterless?
+            unless @config.masterless
               @machine.communicate.sudo("salt '*' saltutil.sync_all")
             end
             options = "#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}#{get_salt_args}"
@@ -397,7 +397,7 @@ module VagrantPlugins
           else
             if @machine.config.vm.communicator == :winrm
               opts = { elevated: true }
-              unless @config.masterless?
+              unless @config.masterless
                 @machine.communicate.execute("C:\\salt\\salt-call.bat saltutil.sync_all", opts)
               end
               # TODO: something equivalent to { error_key: :ssh_bad_exit_status_muted }?
@@ -408,7 +408,7 @@ module VagrantPlugins
                 end
               end
             else
-              unless @config.masterless?
+              unless @config.masterless
                 @machine.communicate.sudo("salt-call saltutil.sync_all")
               end
               options = "#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}#{get_call_args}"
