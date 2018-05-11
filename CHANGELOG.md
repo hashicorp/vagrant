@@ -8,6 +8,7 @@ BUG FIXES:
 
 - core: Display plugin commands in help [GH-9808]
 - core: Ensure guestpath or name is set with synced_folder option and dont set guestpath if not provided [GH-9692]
+- guest/ubuntu: Update netplan config generation to detect NetworkManager [GH-9824]
 
 ## 2.1.1 (May 7, 2018)
 
