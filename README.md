@@ -43,25 +43,22 @@ the box doesn't already exist on your system.
 To learn how to build a fully functional development environment, follow the
 [getting started guide](https://www.vagrantup.com/docs/getting-started/index.html).
 
-## Installing the Gem from Git
+## Installing from Source
 
 If you want the bleeding edge version of Vagrant, we try to keep master pretty stable
 and you're welcome to give it a shot. Please review the installation page [here](https://www.vagrantup.com/docs/installation/source.html).
 
 ## Contributing to Vagrant
 
-To install Vagrant from source, please [follow the guide in the Wiki](https://github.com/hashicorp/vagrant/wiki/Installing-Vagrant-from-Source).
-
-You can run the test suite with:
+Once your Vagrant bundle is installed from Git repository, you can run the test suite with:
 
     bundle exec rake
 
-This will run the unit test suite, which should come back all green! Then you're good to go!
+This will run the unit test suite, which should come back all green!
 
-If you want to run Vagrant without having to install the gem, you may use `bundle exec`,
-like so:
+Please take time to read the [HashiCorp Community Guidelines](https://www.hashicorp.com/community-guidelines) and the [Vagrant Contributing Guide](https://github.com/hashicorp/vagrant/blob/master/.github/CONTRIBUTING.md).
 
-    bundle exec vagrant help
+Then you're good to go!
 
 ### Acceptance Tests
 
