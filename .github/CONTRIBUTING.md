@@ -24,7 +24,7 @@ Before opening a new issue or pull request, we do appreciate if you take some ti
 
 Thank you for contributing! Here you'll find information on what to include in your Pull Request (“PR” for short) to ensure it is reviewed quickly, and possibly accepted.
 
-Before starting work on a new feature or anything besides a minor bug fix, it is highly recommended to first initiate a discussion with the Vagrant community (either via a GitHub issue, the [mailing list], IRC freenode `#vagrant` or [Gitter](https://gitter.im/mitchellh/vagrant)). This will save you from wasting days implementing a feature that could be rejected in the end.
+Before starting work on a new feature or anything besides a minor bug fix, it is highly recommended to first initiate a discussion with the Vagrant community (either via a GitHub issue, the [mailing list](https://groups.google.com/forum/#!forum/vagrant-up), IRC freenode `#vagrant` or [Gitter](https://gitter.im/mitchellh/vagrant)). This will save you from wasting days implementing a feature that could be rejected in the end.
 
 No pull request template is provided on GitHub. The expected changes are often already described and validated in an existing issue, that obviously should be referenced. The Pull Request thread should be mainly used for the code review.
 
