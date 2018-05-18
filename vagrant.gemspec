@@ -2,7 +2,7 @@ $:.unshift File.expand_path("../lib", __FILE__)
 require "vagrant/version"
 
 Gem::Specification.new do |s|
-  s.name          = "vagrant"
+  s.name          = "crashlytics-vagrant"
   s.version       = Vagrant::VERSION
   s.platform      = Gem::Platform::RUBY
   s.authors       = ["Mitchell Hashimoto", "John Bender"]
@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version     = "~> 2.2", "< 2.6"
   s.required_rubygems_version = ">= 1.3.6"
-  s.rubyforge_project         = "vagrant"
+  s.rubyforge_project         = "crashlytics-vagrant"
 
   s.add_dependency "childprocess", "~> 0.6.0"
   s.add_dependency "erubis", "~> 2.7.0"
@@ -47,6 +47,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec-its", "~> 1.2.0"
   s.add_development_dependency "webmock", "~> 2.3.1"
   s.add_development_dependency "fake_ftp", "~> 0.1.1"
+  s.add_development_dependency 'gemfury'
 
   # The following block of code determines the files that should be included
   # in the gem. It does this by reading all the files in the directory where
