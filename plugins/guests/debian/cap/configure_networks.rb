@@ -37,7 +37,9 @@ module VagrantPlugins
           ethernets = {}.tap do |e_nets|
             networks.each do |network|
               e_config = {}.tap do |entry|
-                if network[:ip]
+                if network[:type] == :dhcp
+                  entry["dhcp4"] = true
+                else
                   mask = network[:netmask]
                   if mask && IPAddr.new(network[:ip]).ipv4?
                     begin
@@ -47,8 +49,6 @@ module VagrantPlugins
                     end
                   end
                   entry["addresses"] = [[network[:ip], mask].compact.join("/")]
-                else
-                  entry["dhcp4"] = true
                 end
                 if network[:gateway]
                   entry["gateway4"] = network[:gateway]
