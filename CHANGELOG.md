@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - commands/suspend: Introduce flag for suspending all machines [GH-9829]
+- commands/global-status: Improve message about removing stale entries [GH-9856]
 
 BUG FIXES:
 
