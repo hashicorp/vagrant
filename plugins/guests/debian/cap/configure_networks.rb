@@ -37,7 +37,7 @@ module VagrantPlugins
           ethernets = {}.tap do |e_nets|
             networks.each do |network|
               e_config = {}.tap do |entry|
-                if network[:type] == :dhcp || network[:type] == "dhcp"
+                if network[:type].to_s == "dhcp"
                   entry["dhcp4"] = true
                 else
                   mask = network[:netmask]
