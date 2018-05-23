@@ -45,6 +45,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake", "~> 12.0.0"
   s.add_development_dependency "rspec", "~> 3.5.0"
   s.add_development_dependency "rspec-its", "~> 1.2.0"
+  s.add_development_dependency "rubocop", "~> 0.56.0"
   s.add_development_dependency "webmock", "~> 2.3.1"
   s.add_development_dependency "fake_ftp", "~> 0.1.1"
 
