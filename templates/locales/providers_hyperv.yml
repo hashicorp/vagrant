@@ -11,6 +11,30 @@ en:
     message_not_running: |-
       Hyper-V machine isn't running. Can't SSH in!
 
+    config:
+      invalid_auto_start_action: |-
+        The requested auto start action for the Hyper-V VM is not a
+        valid action. Please provide a valid action and run the command
+        again.
+
+          Received: %{action}
+          Allowed: %{allowed_actions}
+      invalid_auto_stop_action: |-
+        The requested auto stop action for the Hyper-V VM is not a
+        valid action. Please provide a valid action and run the command
+        again.
+
+          Received: %{action}
+          Allowed: %{allowed_actions}
+      invalid_integration_services_type: |-
+        Invalid type provided for `vm_integration_services`. Type received
+        is `%{received}` but `Hash` was expected.
+      invalid_integration_services_entry: |-
+        The `%{entry_name}` entry in the `vm_integration_services` is set
+        to an unexpected value.
+
+          Received: %{entry_value}
+          Allowed: true, false
     errors:
       admin_required: |-
         The Hyper-V provider requires that Vagrant be run with
