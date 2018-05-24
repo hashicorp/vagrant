@@ -1,8 +1,6 @@
-# Include the following modules
-$Dir = Split-Path $script:MyInvocation.MyCommand.Path
-. ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
+#Requires -Modules VagrantMessages
 
-$check = $(-Not (-Not (Get-Command "Hyper-V\Get-VMSwitch" -errorAction SilentlyContinue)))
+$check = $(-Not (-Not (Get-Command "Hyper-V\Get-VMSwitch" -ErrorAction SilentlyContinue)))
 $result = @{
     result = $check
 }

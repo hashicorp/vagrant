@@ -1,11 +1,9 @@
-Param(
+#Requires -Modules VagrantMessages
+
+param(
     [Parameter(Mandatory=$true)]
     [string]$VmId
 )
-
-# Include the following modules
-$Dir = Split-Path $script:MyInvocation.MyCommand.Path
-. ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 # Make sure the exception type is loaded
 try
@@ -37,7 +35,7 @@ try {
         $State = "not_created"
         $Status = $State
     }
-    else 
+    else
     {
         throw;
     }

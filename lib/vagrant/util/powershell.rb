@@ -47,13 +47,17 @@ module Vagrant
         if opts.delete(:sudo) || opts.delete(:runas)
           powerup_command(path, args, opts)
         else
+          env = opts.delete(:env)
+          if env
+            env = env.map{|k,v| "$env:#{k}=#{v}"}.join(";") + "; "
+          end
           command = [
             executable,
             "-NoLogo",
             "-NoProfile",
             "-NonInteractive",
             "-ExecutionPolicy", "Bypass",
-            "&('#{path}')",
+            "#{env}&('#{path}')",
             args
           ].flatten
 

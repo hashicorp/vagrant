@@ -1,7 +1,11 @@
+#Requires -Modules VagrantMessages
+
 param (
-    [string]$VmId = $(throw "-VmId is required."),
-    [int]$VlanId = $(throw "-VlanId ")
- )
+    [parameter (Mandatory=$true)]
+    [string]$VmId,
+    [parameter (Mandatory=$true)]
+    [int]$VlanId
+)
 
 # Include the following modules
 $presentDir = Split-Path -parent $PSCommandPath

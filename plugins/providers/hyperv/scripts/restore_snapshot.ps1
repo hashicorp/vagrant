@@ -1,8 +1,17 @@
-Param(
+#Requires -Modules VagrantMessages
+
+param(
     [Parameter(Mandatory=$true)]
     [string]$VmId,
     [string]$SnapName
 )
 
-$VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
-Hyper-V\Restore-VMSnapshot $VM -Name $SnapName -Confirm:$false
+$ErrorActionPreference = "Stop"
+
+try {
+    $VM = Hyper-V\Get-VM -Id $VmId
+    Hyper-V\Restore-VMSnapshot $VM -Name $SnapName -Confirm:$false
+} catch {
+    Write-Error-Message "Failed to restore snapshot: ${PSItem}"
+    exit 1
+}

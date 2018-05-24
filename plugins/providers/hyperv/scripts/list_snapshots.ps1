@@ -1,12 +1,19 @@
-Param(
+#Requires -Modules VagrantMessages
+
+param(
     [Parameter(Mandatory=$true)]
     [string]$VmId
 )
 
-$VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
-$Snapshots = @(Hyper-V\Get-VMSnapshot $VM | Select-Object Name)
-$result = ConvertTo-json $Snapshots
+$ErrorActionPreference = "Stop"
 
-Write-Host "===Begin-Output==="
-Write-Host $result
-Write-Host "===End-Output==="
+try {
+    $VM = Hyper-V\Get-VM -Id $VmId
+    $Snapshots = @(Hyper-V\Get-VMSnapshot $VM | Select-Object Name)
+} catch {
+    Write-Error-Message "Failed to get snapshot list: ${PSItem}"
+    exit 1
+}
+
+$result = ConvertTo-json $Snapshots
+Write-Output-Message $result
