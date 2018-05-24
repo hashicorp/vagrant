@@ -61,14 +61,7 @@ module VagrantPlugins
         @auto_stop_action = UNSET_VALUE
         @enable_virtualization_extensions = UNSET_VALUE
         @enable_checkpoints = UNSET_VALUE
-        @vm_integration_services = {
-            guest_service_interface: UNSET_VALUE,
-            heartbeat: UNSET_VALUE,
-            key_value_pair_exchange: UNSET_VALUE,
-            shutdown: UNSET_VALUE,
-            time_synchronization: UNSET_VALUE,
-            vss: UNSET_VALUE
-        }
+        @vm_integration_services = {}
       end
 
       def finalize!
@@ -94,20 +87,30 @@ module VagrantPlugins
         else
           @enable_checkpoints = !!@enable_checkpoints
         end
-        @vm_integration_services.delete_if{|_, v| v == UNSET_VALUE }
-        @vm_integration_services = nil if @vm_integration_services.empty?
       end
 
       def validate(machine)
         errors = _detected_errors
 
+        if !vm_integration_services.is_a?(Hash)
+          errors << I18n.t("vagrant_hyperv.config.invalid_integration_services_type",
+            received: vm_integration_services.class)
+        else
+          vm_integration_services.each do |key, value|
+            if ![true, false].include?(value)
+              errors << I18n.t("vagrant_hyperv.config.invalid_integration_services_entry",
+                entry_name: name, entry_value: value)
+            end
+          end
+        end
+
         if !ALLOWED_AUTO_START_ACTIONS.include?(auto_start_action)
-          errors << I18n.t("vagrant.hyperv.config.invalid_auto_start_action", action: auto_start_action,
+          errors << I18n.t("vagrant_hyperv.config.invalid_auto_start_action", action: auto_start_action,
             allowed_actions: ALLOWED_AUTO_START_ACTIONS.join(", "))
         end
 
         if !ALLOWED_AUTO_STOP_ACTIONS.include?(auto_stop_action)
-          errors << I18n.t("vagrant.hyperv.config.invalid_auto_stop_action", action: auto_stop_action,
+          errors << I18n.t("vagrant_hyperv.config.invalid_auto_stop_action", action: auto_stop_action,
             allowed_actions: ALLOWED_AUTO_STOP_ACTIONS.join(", "))
         end
 
