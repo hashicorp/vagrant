@@ -24,8 +24,8 @@ module VagrantPlugins
             if opts[:bridge]
               @logger.debug("Looking for switch with name or ID: #{opts[:bridge]}")
               switch = switches.find{ |s|
-                s["Name"].downcase == opts[:bridge] ||
-                  s["Id"].downcase == opts[:bridge]
+                s["Name"].downcase == opts[:bridge].to_s.downcase ||
+                  s["Id"].downcase == opts[:bridge].to_s.downcase
               }
               if switch
                 @logger.debug("Found switch - Name: #{switch["Name"]} ID: #{switch["Id"]}")
@@ -78,11 +78,13 @@ module VagrantPlugins
           env[:machine].provider.driver.execute(:configure_vm, options)
 
           # Create the sentinel
-          sentinel.open("w") do |f|
-            f.write(Time.now.to_i.to_s)
+          if !sentinel.file?
+            sentinel.open("w") do |f|
+              f.write(Time.now.to_i.to_s)
+            end
           end
 
-          if env[:machine].provider_config.vm_integration_services
+          if !env[:machine].provider_config.vm_integration_services.empty?
             env[:ui].detail("Setting VM Integration Services")
 
             env[:machine].provider_config.vm_integration_services.each do |key, value|
