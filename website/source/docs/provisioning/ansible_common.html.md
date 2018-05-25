@@ -80,31 +80,19 @@ Some of these options are for advanced usage only and should not be used unless 
 
     `ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force`
 
-    Example: 
-    
-    ```ruby
-    Vagrant.configure(2) do |config|
-      config.vm.box = "centos/7"
-      config.vm.provision "ansible_local" do |ansible|        
-        ansible.playbook = "/vagrant/playbook.yml"
-        ansible.galaxy_role_file = "/vagrant/requirements.yml"
-        ansible.galaxy_role_path = "/etc/ansible/roles"
-        ansible.galaxy_command = "sudo ansible-galaxy install --force --ignore-certs --role-file=%{role_file} --roles-path=%{roles_path}"
-      end
-    end
-    ```
-
 - `galaxy_role_file` (string) - The path to the Ansible Galaxy role file.
 
     By default, this option is set to `nil` and Galaxy support is then disabled.
 
     Note: if an absolute path is given, the `ansible_local` provisioner will assume that it corresponds to the exact location on the guest system.
- 
+
+    ```ruby
+    ansible.galaxy_role_file = "requirements.yml"
+    ```
+
 - `galaxy_roles_path` (string) - The path to the directory where Ansible Galaxy roles must be installed
 
     By default, this option is set to `nil`, which means that the Galaxy roles will be installed in a `roles` subdirectory located in the parent directory of the `playbook` file.
-
-    Be careful that `ansible-galaxy` command is by default run as vagrant user. Setting `galaxy_roles_path` to a folder like `/etc/ansible/roles` will fail silently : unable to write there, `ansible-galaxy` will extract the role a second time in a `/home/vagrant/.ansible/roles/`. Then if your playbook uses become: true user: root, it will fail with a "role was not found". To work around that, use `ansible.galaxy_command` to include a `sudo ansible-galaxy ...`.
 
 - `groups` (hash) - Set of inventory groups to be included in the [auto-generated inventory file](/docs/provisioning/ansible_intro.html).
 

@@ -143,6 +143,29 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
 ## Tips and Tricks
 
+### Install Galaxy Roles in a path owned by root
+
+ <div class="alert alert-warning">
+    <strong>Disclaimer:</strong> This tip is not a recommendation to install galaxy roles out of the vagrant user space, especially if you rely on ssh agent forwarding to fetch the roles.
+</div>
+
+Be careful that `ansible-galaxy` command is executed by default as vagrant user. Setting `galaxy_roles_path` to a folder like `/etc/ansible/roles` will fail, and `ansible-galaxy` will extract the role a second time in `/home/vagrant/.ansible/roles/`. Then if your playbook uses `become` to run as `root`, it will fail with a _"role was not found"_ error.
+
+To work around that, you can use `ansible.galaxy_command` to prepend the command with `sudo`, as illustrated in the example below:
+
+```ruby
+Vagrant.configure(2) do |config|
+  config.vm.box = "centos/7"
+  config.vm.provision "ansible_local" do |ansible|
+    ansible.become = true
+    ansible.playbook = "playbook.yml"
+    ansible.galaxy_role_file = "requirements.yml"
+    ansible.galaxy_roles_path = "/etc/ansible/roles"
+    ansible.galaxy_command = "sudo ansible-galaxy install --role-file=%{role_file} --roles-path=%{roles_path} --force"
+  end
+end
+```
+
 ### Ansible Parallel Execution from a Guest
 
 With the following configuration pattern, you can install and execute Ansible only on a single guest machine (the `"controller"`) to provision all your machines.
