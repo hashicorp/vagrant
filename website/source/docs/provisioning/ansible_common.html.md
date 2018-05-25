@@ -86,6 +86,10 @@ Some of these options are for advanced usage only and should not be used unless 
 
     Note: if an absolute path is given, the `ansible_local` provisioner will assume that it corresponds to the exact location on the guest system.
 
+    ```ruby
+    ansible.galaxy_role_file = "requirements.yml"
+    ```
+
 - `galaxy_roles_path` (string) - The path to the directory where Ansible Galaxy roles must be installed
 
     By default, this option is set to `nil`, which means that the Galaxy roles will be installed in a `roles` subdirectory located in the parent directory of the `playbook` file.
