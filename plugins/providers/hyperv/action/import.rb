@@ -19,7 +19,7 @@ module VagrantPlugins
 
           if !vm_dir.directory? || !hd_dir.directory?
             @logger.error("Required virtual machine directory not found!")
-            raise Errors::BoxInvalid
+            raise Errors::BoxInvalid, name: env[:machine].name
           end
 
           valid_config_ext = [".xml"]
@@ -37,7 +37,7 @@ module VagrantPlugins
 
           if !config_path
             @logger.error("Failed to locate box configuration path")
-            raise Errors::BoxInvalid
+            raise Errors::BoxInvalid, name: env[:machine].name
           else
             @logger.info("Found box configuration path: #{config_path}")
           end
@@ -52,7 +52,7 @@ module VagrantPlugins
 
           if !image_path
             @logger.error("Failed to locate box image path")
-            raise Errors::BoxInvalid
+            raise Errors::BoxInvalid, name: env[:machine].name
           else
             @logger.info("Found box image path: #{image_path}")
           end

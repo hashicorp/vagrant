@@ -8,7 +8,7 @@ describe VagrantPlugins::HyperV::Action::Import do
   let(:ui){ double("ui") }
   let(:provider){ double("provider", driver: driver) }
   let(:driver){ double("driver") }
-  let(:machine){ double("machine", provider: provider, provider_config: provider_config, box: box, data_dir: data_dir) }
+  let(:machine){ double("machine", provider: provider, provider_config: provider_config, box: box, data_dir: data_dir, name: "machname") }
   let(:provider_config){
     double("provider_config",
       linked_clone: false,
