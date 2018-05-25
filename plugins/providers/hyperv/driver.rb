@@ -77,14 +77,14 @@ module VagrantPlugins
       #
       # @return [Hash<state, status>]
       def get_current_state
-        execute(:get_vm_status, { VmId: vm_id })
+        execute(:get_vm_status, VmId: vm_id)
       end
 
       # Delete the VM
       #
       # @return [nil]
       def delete_vm
-        execute(:delete_vm, { VmId: vm_id })
+        execute(:delete_vm, VmId: vm_id)
       end
 
       # Export the VM to the given path
@@ -92,49 +92,49 @@ module VagrantPlugins
       # @param [String] path Path for export
       # @return [nil]
       def export(path)
-        execute(:export_vm, {VmId: vm_id, Path: path})
+        execute(:export_vm, VmId: vm_id, Path: path)
       end
 
       # Get the IP address of the VM
       #
       # @return [Hash<ip>]
       def read_guest_ip
-        execute(:get_network_config, { VmId: vm_id })
+        execute(:get_network_config, VmId: vm_id)
       end
 
       # Get the MAC address of the VM
       #
       # @return [Hash<mac>]
       def read_mac_address
-        execute(:get_network_mac, { VmId: vm_id })
+        execute(:get_network_mac, VmId: vm_id)
       end
 
       # Resume the VM from suspension
       #
       # @return [nil]
       def resume
-        execute(:resume_vm, { VmId: vm_id })
+        execute(:resume_vm, VmId: vm_id)
       end
 
       # Start the VM
       #
       # @return [nil]
       def start
-        execute(:start_vm, { VmId: vm_id })
+        execute(:start_vm, VmId: vm_id )
       end
 
       # Stop the VM
       #
       # @return [nil]
       def stop
-        execute(:stop_vm, { VmId: vm_id })
+        execute(:stop_vm, VmId: vm_id)
       end
 
       # Suspend the VM
       #
       # @return [nil]
       def suspend
-        execute(:suspend_vm, { VmId: vm_id })
+        execute(:suspend_vm, VmId: vm_id)
       end
 
       # Import a new VM
@@ -150,7 +150,7 @@ module VagrantPlugins
       # @param [String] vlan_id VLAN ID
       # @return [nil]
       def net_set_vlan(vlan_id)
-        execute(:set_network_vlan, { VmId: vm_id, VlanId: vlan_id })
+        execute(:set_network_vlan, VmId: vm_id, VlanId: vlan_id)
       end
 
       # Set the VM adapter MAC address
@@ -158,7 +158,7 @@ module VagrantPlugins
       # @param [String] mac_addr MAC address
       # @return [nil]
       def net_set_mac(mac_addr)
-        execute(:set_network_mac, { VmId: vm_id, Mac: mac_addr })
+        execute(:set_network_mac, VmId: vm_id, Mac: mac_addr)
       end
 
       # Create a new snapshot with the given name
@@ -166,7 +166,7 @@ module VagrantPlugins
       # @param [String] snapshot_name Name of the new snapshot
       # @return [nil]
       def create_snapshot(snapshot_name)
-        execute(:create_snapshot, { VmId: vm_id, SnapName: (snapshot_name) } )
+        execute(:create_snapshot, VmId: vm_id, SnapName: snapshot_name)
       end
 
       # Restore the given snapshot
@@ -174,14 +174,14 @@ module VagrantPlugins
       # @param [String] snapshot_name Name of snapshot to restore
       # @return [nil]
       def restore_snapshot(snapshot_name)
-        execute(:restore_snapshot, { VmId: vm_id,  SnapName: (snapshot_name) } )
+        execute(:restore_snapshot, VmId: vm_id,  SnapName: snapshot_name)
       end
 
       # Get list of current snapshots
       #
       # @return [Array<String>] snapshot names
       def list_snapshots
-        snaps = execute(:list_snapshots, { VmID: vm_id } )
+        snaps = execute(:list_snapshots, VmID: vm_id)
         snaps.map { |s| s['Name'] }
       end
 
@@ -190,7 +190,7 @@ module VagrantPlugins
       # @param [String] snapshot_name Name of snapshot to delete
       # @return [nil]
       def delete_snapshot(snapshot_name)
-        execute(:delete_snapshot, {VmID: vm_id, SnapName: snapshot_name})
+        execute(:delete_snapshot, VmID: vm_id, SnapName: snapshot_name)
       end
 
       # Enable or disable VM integration services
@@ -203,8 +203,8 @@ module VagrantPlugins
       #       to configurable even if Vagrant is not aware of them.
       def set_vm_integration_services(config)
         config.each_pair do |srv_name, srv_enable|
-          args = {VMID: vm_id, Name: INTEGRATION_SERVICES_MAP.fetch(srv_name.to_sym, srv_name)}
-          args[:Name] = true if srv_enable
+          args = {VMID: vm_id, Name: INTEGRATION_SERVICES_MAP.fetch(srv_name.to_sym, srv_name).to_s}
+          args[:Enable] = true if srv_enable
           execute(:set_vm_integration_services, args)
         end
       end
