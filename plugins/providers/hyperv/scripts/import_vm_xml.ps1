@@ -4,7 +4,7 @@ Param(
     [Parameter(Mandatory=$true)]
     [string]$dest_path,
 
-    [string]$switchname=$null,
+    [string]$switchid=$null,
     [string]$memory=$null,
     [string]$maxmemory=$null,
     [string]$cpus=$null,
@@ -78,10 +78,10 @@ else {
     }
 }
 
-
-if (!$switchname) {
-    # Get the name of the virtual switch
-    $switchname = (Select-Xml -xml $vmconfig -XPath "//AltSwitchName").node."#text"
+if (!$switchid) {
+    $switchname = (Hyper-V\Get-VMNetworkAdapter -VM $vmConfig.VM).SwitchName
+} else {
+    $switchname = $(Hyper-V\Get-VMSwitch -Id $switchid).Name
 }
 
 if ($generation -eq 1) {
