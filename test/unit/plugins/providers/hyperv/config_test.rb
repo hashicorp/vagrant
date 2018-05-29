@@ -4,7 +4,8 @@ require Vagrant.source_root.join("plugins/providers/hyperv/config")
 
 describe VagrantPlugins::HyperV::Config do
 
-  let(:machine){ double("machine") }
+  let(:machine){ double("machine", ui: ui) }
+  let(:ui){ double("ui") }
 
   describe "#ip_address_timeout" do
     it "can be set" do
@@ -91,6 +92,13 @@ describe VagrantPlugins::HyperV::Config do
       subject.finalize!
       expect(subject.differencing_disk).to eq(true)
       expect(subject.linked_clone).to eq(true)
+    end
+
+    it "should provide a deprecation warning when set" do
+      expect(ui).to receive(:warn)
+      subject.differencing_disk = true
+      subject.finalize!
+      subject.validate(machine)
     end
   end
 
