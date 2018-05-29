@@ -19,7 +19,7 @@ you may set. A complete reference is shown below:
 * `enable_virtualization_extensions` (boolean) - Enable virtualization extensions for the virtual CPUs. Default: false
 * `enable_checkpoints` (boolean) Enable automatic checkpoints of the VM. Default: false
 * `ip_address_timeout` (integer) - Number of seconds to wait for the VM to report an IP address. Default: 120.
-* `linked_clone` (boolean) - **Deprecated** Use differencing disk instead of cloning entire VHD. Default: false
+* `linked_clone` (boolean) - Use differencing disk instead of cloning entire VHD. Default: false
 * `mac` (string) - MAC address for the guest network interface
 * `maxmemory` (integer) - Maximum number of megabytes allowed to be allocated for the VM. When set Dynamic Memory Allocation will be enabled.
 * `memory` (integer) - Number of megabytes allocated to VM at startup. If `maxmemory` is set, this will be amount of memory allocated at startup.
