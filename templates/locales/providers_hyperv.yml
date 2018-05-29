@@ -35,6 +35,10 @@ en:
 
           Received: %{entry_value}
           Allowed: true, false
+      differencing_disk_deprecation: |-
+        The `differencing_disk` configuration option is deprecated and should
+        no longer be used. The `linked_clone` configuration option should
+        be used instead.
     errors:
       admin_required: |-
         The Hyper-V provider requires that Vagrant be run with

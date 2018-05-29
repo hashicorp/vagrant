@@ -65,6 +65,9 @@ module VagrantPlugins
       end
 
       def finalize!
+        if @differencing_disk != UNSET_VALUE
+          @_differencing_disk_deprecation = true
+        end
         @linked_clone = false if @linked_clone == UNSET_VALUE
         @differencing_disk = false if @differencing_disk == UNSET_VALUE
         @linked_clone ||= @differencing_disk
@@ -91,6 +94,10 @@ module VagrantPlugins
 
       def validate(machine)
         errors = _detected_errors
+
+        if @_differencing_disk_deprecation && machine
+          machine.ui.warn I18n.t("vagrant_hyperv.config.differencing_disk_deprecation")
+        end
 
         if !vm_integration_services.is_a?(Hash)
           errors << I18n.t("vagrant_hyperv.config.invalid_integration_services_type",
