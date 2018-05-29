@@ -73,7 +73,7 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 - `install_mode` (`:default`, `:pip`, or `:pip_args_only`) - Select the way to automatically install Ansible on the guest system.
 
   - `:default`: Ansible is installed from the operating system package manager. This mode doesn't support `version` selection. For many platforms (e.g Debian, FreeBSD, OpenSUSE) the official package repository is used, except for the following Linux distributions:
-      - On Ubuntu-like systems, the latest Ansible release is installed from the `ppa:ansible/ansible` repository.
+      - On Ubuntu-like systems, the latest Ansible release is installed from the `ppa:ansible/ansible` repository. The compatibility is maintained only for active long-term support (LTS) versions.
       - On RedHat-like systems, the latest Ansible release is installed from the [EPEL](http://fedoraproject.org/wiki/EPEL) repository.
 
   - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). With the `:pip` mode you can optionally install a specific Ansible release by setting the [`version`](/docs/provisioning/ansible_common.html#version) option.
