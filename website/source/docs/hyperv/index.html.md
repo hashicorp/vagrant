@@ -24,7 +24,7 @@ To enable Hyper-V, go to "Programs and Features", click on "Turn Windows
 features on or off" and check the box next to "Hyper-V".  Or install via
 PowerShell with:
 
-<code>Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All</code>.
+<code>Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All</code>
 
 See official documentation [here](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v).
 
