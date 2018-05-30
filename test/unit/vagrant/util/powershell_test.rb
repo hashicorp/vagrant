@@ -114,7 +114,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should include command to execute" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("custom-command")
       end
       described_class.execute("custom-command")
@@ -122,7 +122,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should automatically include console resize" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("BufferSize")
       end
       described_class.execute("custom-command")
@@ -130,7 +130,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should accept custom environment" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("$env:TEST_KEY=test-value")
       end
       described_class.execute("custom-command", env: {"TEST_KEY" => "test-value"})
@@ -158,7 +158,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should include command to execute" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("custom-command")
         result
       end
@@ -167,7 +167,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should automatically include console resize" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("BufferSize")
         result
       end
@@ -176,7 +176,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should accept custom environment" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("$env:TEST_KEY=test-value")
         result
       end
@@ -221,7 +221,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should include command to execute" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("custom-command")
         result
       end
@@ -230,7 +230,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should automatically include console resize" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("BufferSize")
         result
       end
@@ -239,7 +239,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should accept custom environment" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.include?("custom-command") }
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("$env:TEST_KEY=test-value")
         result
       end
