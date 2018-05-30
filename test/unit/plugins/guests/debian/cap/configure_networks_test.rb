@@ -111,7 +111,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
           expect(comm.received_commands[0]).to match("mv -f '/tmp/vagrant-network-entry.*' '/etc/systemd/network/.*network'")
           expect(comm.received_commands[0]).to match("chown")
           expect(comm.received_commands[0]).to match("chmod")
-          expect(comm.received_commands[0]).to match("systemctl restart")
+          expect(comm.received_commands[2]).to match("systemctl restart")
         end
       end
 
