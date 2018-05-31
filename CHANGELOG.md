@@ -6,12 +6,16 @@ IMPROVEMENTS:
 
 - commands/suspend: Introduce flag for suspending all machines [GH-9829]
 - commands/global-status: Improve message about removing stale entries [GH-9856]
+- provisioners/ansible_local: Improve installation from PPA on Ubuntu guests.
+    The compatibility is maintained only for active long-term support (LTS) versions,
+    i.e. Ubuntu 12.04 (Precise Pangolin) is no longer supported. [GH-9879]
 
 BUG FIXES:
 
 - core: Display plugin commands in help [GH-9808]
 - core: Ensure guestpath or name is set with synced_folder option and dont set guestpath if not provided [GH-9692]
 - guest/ubuntu: Update netplan config generation to detect NetworkManager [GH-9824]
+- guest/ubuntu: Fix failing Ansible installation from PPA on Bionic Beaver (18.04 LTS) [GH-9796]
 
 ## 2.1.1 (May 7, 2018)
 
