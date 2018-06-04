@@ -1,22 +1,23 @@
+#Requires -Modules VagrantMessages
 #-------------------------------------------------------------------------
 # Copyright (c) Microsoft Open Technologies, Inc.
 # All Rights Reserved. Licensed under the MIT License.
 #--------------------------------------------------------------------------
 
 param (
-    [string]$vm_id = $(throw "-vm_id is required."),
-    [string]$guest_ip = $(throw "-guest_ip is required."),
-    [string]$username = $(throw "-guest_username is required."),
-    [string]$password = $(throw "-guest_password is required."),
-    [string]$host_path = $(throw "-host_path is required."),
-    [string]$guest_path = $(throw "-guest_path is required.")
- )
-
-# Include the following modules
-$presentDir = Split-Path -parent $PSCommandPath
-$modules = @()
-$modules += $presentDir + "\utils\write_messages.ps1"
-forEach ($module in $modules) { . $module }
+    [parameter (Mandatory=$true)]
+    [string]$vm_id,
+    [parameter (Mandatory=$true)]
+    [string]$guest_ip,
+    [parameter (Mandatory=$true)]
+    [string]$username,
+    [parameter (Mandatory=$true)]
+    [string]$password,
+    [parameter (Mandatory=$true)]
+    [string]$host_path,
+    [parameter (Mandatory=$true)]
+    [string]$guest_path
+)
 
 function Get-file-hash($source_path, $delimiter) {
     $source_files = @()
@@ -120,4 +121,3 @@ $resultHash = @{
 }
 $result = ConvertTo-Json $resultHash
 Write-Output-Message $result
-

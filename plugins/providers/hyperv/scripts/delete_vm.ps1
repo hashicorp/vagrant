@@ -1,7 +1,16 @@
-Param(
+#Requires -Modules VagrantMessages
+
+param(
     [Parameter(Mandatory=$true)]
     [string]$VmId
 )
 
-$VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
-Hyper-V\Remove-VM $VM -Force
+$ErrorActionPreference = "Stop"
+
+try {
+    $VM = Hyper-V\Get-VM -Id $VmId
+    Hyper-V\Remove-VM $VM -Force
+} catch {
+    Write-Error-Message "Failed to delete VM: ${PSItem}"
+    exit 1
+}

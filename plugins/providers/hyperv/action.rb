@@ -140,6 +140,8 @@ module VagrantPlugins
               end
 
               b2.use Provision
+              b2.use Configure
+              b2.use SetName
               b2.use NetSetVLan
               b2.use NetSetMac
               b2.use StartInstance
@@ -288,6 +290,7 @@ module VagrantPlugins
       autoload :Export, action_root.join("export")
 
       autoload :CheckEnabled, action_root.join("check_enabled")
+      autoload :Configure, action_root.join("configure")
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :Import, action_root.join("import")
       autoload :Package, action_root.join("package")
@@ -304,6 +307,7 @@ module VagrantPlugins
       autoload :SnapshotDelete, action_root.join("snapshot_delete")
       autoload :SnapshotRestore, action_root.join("snapshot_restore")
       autoload :SnapshotSave, action_root.join("snapshot_save")
+      autoload :SetName, action_root.join("set_name")
     end
   end
 end
