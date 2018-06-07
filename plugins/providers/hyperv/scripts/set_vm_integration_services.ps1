@@ -19,9 +19,9 @@ try {
 }
 
 try {
-    Set-VagrantVMService -VM $VM -Name $Name -Enable $enabled
+    Set-VagrantVMService -VM $VM -Name $Name -Enable $Enable
 } catch {
-    if($enabled){ $action = "enable" } else { $action = "disable" }
+    if($Enable){ $action = "enable" } else { $action = "disable" }
     Write-Error-Message "Failed to ${action} VM integration service ${Name}: ${PSItem}"
     exit 1
 }
