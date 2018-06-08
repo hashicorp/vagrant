@@ -19,6 +19,7 @@ BUG FIXES:
 - guest/debain: Update priority of network configuration file when using networkd [GH-9867]
 - guest/ubuntu: Update netplan config generation to detect NetworkManager [GH-9824]
 - guest/ubuntu: Fix failing Ansible installation from PPA on Bionic Beaver (18.04 LTS) [GH-9796]
+- provisioner/salt: Remove usage of masterless? config attribute [GH-9833]
 
 ## 2.1.1 (May 7, 2018)
 
