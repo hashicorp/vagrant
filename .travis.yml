@@ -22,4 +22,6 @@ env:
   global:
     - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 
-script: bundle exec rake test:unit
+script:
+  - bundle exec rubocop 
+  - bundle exec rake test:unit
