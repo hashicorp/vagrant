@@ -16,6 +16,7 @@ BUG FIXES:
 - core: Display plugin commands in help [GH-9808]
 - core: Ensure guestpath or name is set with synced_folder option and dont set guestpath if not provided [GH-9692]
 - guest/debian: Fix netplan generation when using DHCP [GH-9855]
+- guest/debain: Update priority of network configuration file when using networkd [GH-9867]
 - guest/ubuntu: Update netplan config generation to detect NetworkManager [GH-9824]
 - guest/ubuntu: Fix failing Ansible installation from PPA on Bionic Beaver (18.04 LTS) [GH-9796]
 
