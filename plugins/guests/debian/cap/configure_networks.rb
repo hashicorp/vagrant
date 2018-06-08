@@ -109,7 +109,7 @@ module VagrantPlugins
           end
 
           remote_path = upload_tmp_file(comm, net_conf.join("\n"))
-          dest_path = "#{NETWORKD_DIRECTORY}/99-vagrant.network"
+          dest_path = "#{NETWORKD_DIRECTORY}/50-vagrant.network"
           comm.sudo(["mkdir -p #{NETWORKD_DIRECTORY}",
             "mv -f '#{remote_path}' '#{dest_path}'",
             "chown root:root '#{dest_path}'",
