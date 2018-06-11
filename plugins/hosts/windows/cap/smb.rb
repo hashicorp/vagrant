@@ -38,7 +38,7 @@ module VagrantPlugins
 
           m_id = machine_id(machine)
           prune_shares = existing_shares.map do |share_name, share_info|
-            if share_info["Description"].start_with?("vgt-#{m_id}-")
+            if share_info["Description"].to_s.start_with?("vgt-#{m_id}-")
               @@logger.info("removing smb share name=#{share_name} id=#{m_id}")
               share_name
             else
@@ -159,6 +159,8 @@ module VagrantPlugins
           share_names = result.strip.split("\n").map do |line|
             line.strip.split(/\s+/).first
           end
+          # Last item is command completion notification so remove it
+          share_names.pop
           shares = {}
           share_names.each do |share_name|
             shares[share_name] = {}
