@@ -39,15 +39,20 @@ describe VagrantPlugins::Chef::Provisioner::Base do
 
     it "defaults to hostname if given" do
       machine.config.vm.hostname = "by.hostname"
-      instance = described_class.new(machine, OpenStruct.new)
+      instance = described_class.new(machine, OpenStruct.new(node_name: nil))
       expect(instance.config.node_name).to eq("by.hostname")
     end
 
     it "generates a random name if no hostname or node_name is given" do
-      config = OpenStruct.new(node_name: nil)
       machine.config.vm.hostname = nil
-      instance = described_class.new(machine, OpenStruct.new)
+      instance = described_class.new(machine, OpenStruct.new(node_name: nil))
       expect(instance.config.node_name).to match(/vagrant\-.+/)
+    end
+
+    it "does not set node_name if configuration does not define it" do
+      expect(config).to receive(:respond_to?).with(:node_name).and_return(false)
+      expect(config).not_to receive(:node_name)
+      described_class.new(machine, config)
     end
   end
 
