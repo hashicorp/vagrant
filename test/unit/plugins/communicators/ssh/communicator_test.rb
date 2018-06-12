@@ -34,9 +34,12 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
     double("machine",
       config: config,
       provider: provider,
-      ui: ui
+      ui: ui,
+      env: env
     )
   end
+  let(:env){ double("env", host: host) }
+  let(:host){ double("host") }
   # SSH information of the machine
   let(:machine_ssh_info){ {host: '10.1.2.3', port: 22} }
   # Subject instance to test
@@ -87,6 +90,10 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       and_yield(nil, exit_data)
     # Return mocked net-ssh connection during setup
     allow(communicator).to receive(:retryable).and_return(connection)
+  end
+
+  before do
+    allow(host).to receive(:has_capability?).and_return(false)
   end
 
   describe ".wait_for_ready" do
@@ -208,40 +215,13 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           expect(private_key_file).to receive(:write).with(new_private_key)
         end
 
-        it "should set private key file as user readable only" do
-          expect(private_key_file).to receive(:chmod).with(0600)
+        it "should call the set_ssh_key_permissions host capability" do
+          expect(host).to receive(:has_capability?).with(:set_ssh_key_permissions).and_return(true)
+          expect(host).to receive(:capability).with(:set_ssh_key_permissions, private_key_file)
         end
 
         it "should remove the default public key" do
           expect(guest).to receive(:capability).with(:remove_public_key, any_args)
-        end
-
-        context "on windows platform" do
-          let(:owner){ "owner" }
-
-          before do
-            allow(private_key_file).to receive(:to_s).and_return("PRIVATE_KEY_PATH")
-            allow(File).to receive(:set_permissions)
-            allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
-            allow(Etc).to receive(:getlogin).and_return(owner)
-            stub_const('File::FULL', :full)
-          end
-
-          it "should get set new permissions on private key file" do
-            expect(File).to receive(:set_permissions).with("PRIVATE_KEY_PATH", any_args)
-          end
-
-          it "should proceed when error is encountered" do
-            expect(File).to receive(:set_permissions).and_raise(StandardError)
-          end
-
-          context "with multiple permissions on file" do
-
-            it "should delete all non-owner permissions" do
-              expect(File).to receive(:set_permissions).with("PRIVATE_KEY_PATH",
-                owner => :full)
-            end
-          end
         end
       end
     end
