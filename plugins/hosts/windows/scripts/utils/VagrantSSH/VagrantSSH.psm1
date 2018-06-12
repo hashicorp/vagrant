@@ -15,8 +15,10 @@ function Set-SSHKeyPermissions {
     # Create the new ACL we want to apply
     $NewAccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
         $Principal, "FullControl", "None", "None", "Allow")
-    # Scrub all existing ACLs from the file
     $ACL = Get-ACL "${SSHKeyPath}"
+    # Disable inherited rules
+    $ACL.SetAccessRuleProtection($true, $false)
+    # Scrub all existing ACLs from the file
     $ACL.Access | %{$ACL.RemoveAccessRule($_)}
     # Apply the new ACL
     $ACL.SetAccessRule($NewAccessRule)
