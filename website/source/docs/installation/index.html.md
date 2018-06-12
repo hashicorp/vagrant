@@ -36,3 +36,35 @@ necessary sometimes for Windows).
   install via your system's package manager, it is very likely that you will
   experience issues. Please use the official installers on the downloads page.
 </div>
+
+## If You're Running Other Virtualizers on Linux
+
+On some systems you may get the following error when running Vagrant
+commands:
+
+    There was an error while executing `VBoxManage`, a CLI used by Vagrant for controlling VirtualBox. The command and stderr is shown below.
+
+    Command: ["startvm", <ID of the VM>, "--type", "headless"]
+
+    Stderr: VBoxManage: error: VT-x is being used by another hypervisor (VERR_VMX_IN_VMX_ROOT_MODE).
+    VBoxManage: error: VirtualBox can't operate in VMX root mode. Please disable the KVM kernel extension, recompile your kernel and reboot
+    (VERR_VMX_IN_VMX_ROOT_MODE)
+    VBoxManage: error: Details: code NS_ERROR_FAILURE (0x80004005), component ConsoleWrap, interface IConsole
+
+This is because another virtualizer (like KVM) are in use. We must blacklist
+these in order for VirtualBox to run correctly.
+
+First find out the name of the virtualizer:
+
+    $ lsmod | grep kvm
+    kvm_intel             204800  6
+    kvm                   593920  1 kvm_intel
+    irqbypass              16384  1 kvm
+
+The one we're interested in is `kvm_intel`. You might have another.
+
+Blacklist the virtualizer (run the following as root):
+
+    # echo 'blacklist kvm-intel' >> /etc/modprobe.d/blacklist.conf
+
+Restart your machine and try running vagrant again.
