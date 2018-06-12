@@ -18,7 +18,7 @@ describe VagrantPlugins::HostWindows::Cap::SSH do
 
   it "should execute PowerShell script" do
     expect(Vagrant::Util::PowerShell).to receive(:execute).with(
-      /set_ssh_key_permissions.ps1/, key_path.to_s, any_args
+      /set_ssh_key_permissions.ps1/, "-KeyPath", key_path.to_s, any_args
     ).and_return(result)
     subject.set_ssh_key_permissions(env, key_path)
   end
