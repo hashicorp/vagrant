@@ -93,7 +93,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   end
 
   before do
-    allow(host).to receive(:has_capability?).and_return(false)
+    allow(host).to receive(:capability?).and_return(false)
   end
 
   describe ".wait_for_ready" do
@@ -216,7 +216,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         end
 
         it "should call the set_ssh_key_permissions host capability" do
-          expect(host).to receive(:has_capability?).with(:set_ssh_key_permissions).and_return(true)
+          expect(host).to receive(:capability?).with(:set_ssh_key_permissions).and_return(true)
           expect(host).to receive(:capability).with(:set_ssh_key_permissions, private_key_file)
         end
 

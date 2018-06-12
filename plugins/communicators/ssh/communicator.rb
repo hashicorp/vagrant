@@ -195,7 +195,7 @@ module VagrantPlugins
           end
 
           # Adjust private key file permissions if host provides capability
-          if @machine.env.host.has_capability?(:set_ssh_key_permissions)
+          if @machine.env.host.capability?(:set_ssh_key_permissions)
             @machine.env.host.capability(:set_ssh_key_permissions, @machine.data_dir.join("private_key"))
           end
 
