@@ -11,7 +11,7 @@ module VagrantPlugins
 
       # @return [Pathname] Path to scripts directory
       def self.scripts_path
-        Pathname.new(File.expand_path("..", __FILE__))
+        Pathname.new(File.expand_path("../scripts", __FILE__))
       end
 
       # @return [Pathname] Path to modules directory
