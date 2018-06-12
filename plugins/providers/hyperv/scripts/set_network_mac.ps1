@@ -13,6 +13,6 @@ try {
     $vm = Hyper-V\Get-VM -Id $VmId
     Hyper-V\Set-VMNetworkAdapter $vm -StaticMacAddress $Mac
 } catch {
-    Write-Error-Message "Failed to set VM MAC address: ${PSItem}"
+    Write-ErrorMessage "Failed to set VM MAC address: ${PSItem}"
     exit 1
 }

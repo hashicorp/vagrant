@@ -19,8 +19,8 @@ try {
         name = "$name"
     }
     $result = ConvertTo-Json $resultHash
-    Write-Output-Message $result
+    Write-OutputMessage $result
 } catch {
-    Write-Error-Message "Failed to start VM ${PSItem}"
+    Write-ErrorMessage "Failed to start VM ${PSItem}"
     exit 1
 }

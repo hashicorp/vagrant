@@ -5,4 +5,4 @@ $result = @{
     result = $check
 }
 
-Write-Output-Message $(ConvertTo-Json $result)
+Write-OutputMessage $(ConvertTo-Json $result)

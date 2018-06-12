@@ -18,5 +18,5 @@ try {
   Hyper-V\Set-VMNetworkAdapterVlan $vm -Access -Vlanid $VlanId
 }
 catch {
-  Write-Error-Message "Failed to set VM's Vlan ID $_"
+  Write-ErrorMessage "Failed to set VM's Vlan ID $_"
 }

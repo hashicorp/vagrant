@@ -12,6 +12,6 @@ try {
     $VM = Hyper-V\Get-VM -Id $VmId
     Hyper-V\Restore-VMSnapshot $VM -Name $SnapName -Confirm:$false
 } catch {
-    Write-Error-Message "Failed to restore snapshot: ${PSItem}"
+    Write-ErrorMessage "Failed to restore snapshot: ${PSItem}"
     exit 1
 }

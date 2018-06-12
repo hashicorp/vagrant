@@ -12,6 +12,6 @@ try{
     $VM = Hyper-V\Get-VM -Id $VmId
     Hyper-V\Stop-VM $VM -Force
 } catch {
-    Write-Error-Message "Failed to stop VM: ${PSItem}"
+    Write-ErrorMessage "Failed to stop VM: ${PSItem}"
     exit 1
 }

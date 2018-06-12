@@ -11,6 +11,6 @@ try{
     $VM = Hyper-V\Get-VM -Id $VmId
     Hyper-V\Suspend-VM $VM
 } catch {
-    Write-Error-Message "Failed to suspend VM: ${PSItem}"
+    Write-ErrorMessage "Failed to suspend VM: ${PSItem}"
     exit 1
 }

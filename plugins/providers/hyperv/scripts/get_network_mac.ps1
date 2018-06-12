@@ -25,8 +25,8 @@ try {
         mac = "$mac_address"
     }
     $result = ConvertTo-Json $resultHash
-    Write-Output-Message $result
+    Write-OutputMessage $result
 } catch {
-    Write-Error-Message "Unexpected error while fetching MAC: ${PSItem}"
+    Write-ErrorMessage "Unexpected error while fetching MAC: ${PSItem}"
     exit 1
 }

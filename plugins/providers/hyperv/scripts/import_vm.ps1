@@ -30,8 +30,8 @@ try {
     $Result = @{
         id = $VM.Id.Guid;
     }
-    Write-Output-Message (ConvertTo-Json $Result)
+    Write-OutputMessage (ConvertTo-Json $Result)
 } catch {
-    Write-Error-Message "${PSItem}"
+    Write-ErrorMessage "${PSItem}"
     exit 1
 }

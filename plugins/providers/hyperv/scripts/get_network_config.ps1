@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 try {
     $vm = Hyper-V\Get-VM -Id $VmId
 } catch {
-    Write-Error-Message "Failed to locate VM: ${PSItem}"
+    Write-ErrorMessage "Failed to locate VM: ${PSItem}"
     exit 1
 }
 
@@ -57,12 +57,12 @@ try {
             ip = $guest_ipaddress
         }
         $result = ConvertTo-Json $resultHash
-        Write-Output-Message $result
+        Write-OutputMessage $result
     } else {
-        Write-Error-Message "Failed to determine IP address"
+        Write-ErrorMessage "Failed to determine IP address"
         exit 1
     }
 } catch {
-    Write-Error-Message "Unexpected error while detecting network configuration: ${PSItem}"
+    Write-ErrorMessage "Unexpected error while detecting network configuration: ${PSItem}"
     exit 1
 }

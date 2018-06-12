@@ -13,6 +13,6 @@ $ErrorActionPreference = "Stop"
 try {
     Hyper-V\New-VHD -Path $Destination -ParentPath $Source
 } catch {
-    Write-Error-Message "Failed to clone drive: ${PSItem}"
+    Write-ErrorMessage "Failed to clone drive: ${PSItem}"
     exit 1
 }

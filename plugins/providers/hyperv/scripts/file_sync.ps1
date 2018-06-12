@@ -120,4 +120,4 @@ $resultHash = @{
   message = "OK"
 }
 $result = ConvertTo-Json $resultHash
-Write-Output-Message $result
+Write-OutputMessage $result

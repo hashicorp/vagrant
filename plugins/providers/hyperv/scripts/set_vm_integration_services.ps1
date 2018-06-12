@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 try {
     $VM = Hyper-V\Get-VM -Id $VMID
 } catch {
-    Write-Error-Message "Failed to locate VM: ${PSItem}"
+    Write-ErrorMessage "Failed to locate VM: ${PSItem}"
     exit 1
 }
 
@@ -22,6 +22,6 @@ try {
     Set-VagrantVMService -VM $VM -Name $Name -Enable $Enable
 } catch {
     if($Enable){ $action = "enable" } else { $action = "disable" }
-    Write-Error-Message "Failed to ${action} VM integration service ${Name}: ${PSItem}"
+    Write-ErrorMessage "Failed to ${action} VM integration service ${Name}: ${PSItem}"
     exit 1
 }

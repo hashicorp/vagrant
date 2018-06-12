@@ -12,5 +12,5 @@ try {
     $VM = Hyper-V\Get-VM -Id $VmId
     Hyper-V\Remove-VMSnapshot $VM -Name $SnapName
 } catch {
-    Write-Error-Message "Failed to delete snapshot: ${PSItem}"
+    Write-ErrorMessage "Failed to delete snapshot: ${PSItem}"
 }

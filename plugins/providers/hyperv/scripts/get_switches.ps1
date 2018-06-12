@@ -7,4 +7,4 @@
 
 $Switches = @(Hyper-V\Get-VMSwitch `
     | Select-Object Name,SwitchType,NetAdapterInterfaceDescription,Id)
-Write-Output-Message $(ConvertTo-JSON $Switches)
+Write-OutputMessage $(ConvertTo-JSON $Switches)
