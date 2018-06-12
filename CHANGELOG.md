@@ -13,6 +13,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- communicator/ssh: Update ssh private key file permission handling on Windows [GH-9923, GH-9900]
 - core: Display plugin commands in help [GH-9808]
 - core: Ensure guestpath or name is set with synced_folder option and dont set guestpath if not provided [GH-9692]
 - guest/debian: Fix netplan generation when using DHCP [GH-9855]
