@@ -135,6 +135,14 @@ describe Vagrant::Util::PowerShell do
       end
       described_class.execute("custom-command", env: {"TEST_KEY" => "test-value"})
     end
+
+    it "should define a custom module path" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
+        expect(comm.to_s).to include("$env:PSModulePath+';C:\\My-Path'")
+      end
+      described_class.execute("custom-command", module_path: "C:\\My-Path")
+    end
   end
 
   describe ".execute_cmd" do
@@ -181,6 +189,15 @@ describe Vagrant::Util::PowerShell do
         result
       end
       described_class.execute_cmd("custom-command", env: {"TEST_KEY" => "test-value"})
+    end
+
+    it "should define a custom module path" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
+        expect(comm.to_s).to include("$env:PSModulePath+';C:\\My-Path'")
+        result
+      end
+      described_class.execute_cmd("custom-command", module_path: "C:\\My-Path")
     end
 
     context "with command output" do
@@ -244,6 +261,15 @@ describe Vagrant::Util::PowerShell do
         result
       end
       described_class.execute_inline("custom-command", env: {"TEST_KEY" => "test-value"})
+    end
+
+    it "should define a custom module path" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
+        comm = args.detect{|s| s.to_s.include?("custom-command") }
+        expect(comm.to_s).to include("$env:PSModulePath+';C:\\My-Path'")
+        result
+      end
+      described_class.execute_inline("custom-command", module_path: "C:\\My-Path")
     end
 
     it "should return a result instance" do

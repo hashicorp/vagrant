@@ -54,8 +54,12 @@ module Vagrant
         if opts.delete(:sudo) || opts.delete(:runas)
           powerup_command(path, args, opts)
         else
-          env = opts.delete(:env)
-          if env
+          if mpath = opts.delete(:module_path)
+            m_env = opts.fetch(:env, {})
+            m_env["PSModulePath"] = "$env:PSModulePath+';#{mpath}'"
+            opts[:env] = m_env
+          end
+          if env = opts.delete(:env)
             env = env.map{|k,v| "$env:#{k}=#{v}"}.join(";") + "; "
           end
           command = [
@@ -85,8 +89,12 @@ module Vagrant
       #   Returns stdout string if exit code is zero.
       def self.execute_cmd(command, **opts)
         validate_install!
-        env = opts.delete(:env)
-        if env
+        if mpath = opts.delete(:module_path)
+          m_env = opts.fetch(:env, {})
+          m_env["PSModulePath"] = "$env:PSModulePath+';#{mpath}'"
+          opts[:env] = m_env
+        end
+        if env = opts.delete(:env)
           env = env.map{|k,v| "$env:#{k}=#{v}"}.join(";") + "; "
         end
         c = [
@@ -112,8 +120,12 @@ module Vagrant
       # @param [Block] block Ruby block
       def self.execute_inline(*command, **opts, &block)
         validate_install!
-        env = opts.delete(:env)
-        if env
+        if mpath = opts.delete(:module_path)
+          m_env = opts.fetch(:env, {})
+          m_env["PSModulePath"] = "$env:PSModulePath+';#{mpath}'"
+          opts[:env] = m_env
+        end
+        if env = opts.delete(:env)
           env = env.map{|k,v| "$env:#{k}=#{v}"}.join(";") + "; "
         end
         c = [

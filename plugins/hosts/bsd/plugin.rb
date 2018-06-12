@@ -35,6 +35,11 @@ module VagrantPlugins
         require_relative "cap/nfs"
         Cap::NFS
       end
+
+      host_capability("bsd", "set_ssh_key_permissions") do
+        require_relative "cap/ssh"
+        Cap::SSH
+      end
     end
   end
 end
