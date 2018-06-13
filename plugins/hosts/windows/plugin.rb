@@ -55,6 +55,11 @@ module VagrantPlugins
         require_relative "cap/configured_ip_addresses"
         Cap::ConfiguredIPAddresses
       end
+
+      host_capability("windows", "set_ssh_key_permissions") do
+        require_relative "cap/ssh"
+        Cap::SSH
+      end
     end
   end
 end

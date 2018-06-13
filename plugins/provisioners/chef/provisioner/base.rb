@@ -24,7 +24,7 @@ module VagrantPlugins
 
           @logger = Log4r::Logger.new("vagrant::provisioners::chef")
 
-          if !present?(@config.node_name)
+          if @config.respond_to?(:node_name) && !present?(@config.node_name)
             # First attempt to get the node name from the hostname, and if that
             # is not present, generate/retrieve a random hostname.
             hostname = @machine.config.vm.hostname

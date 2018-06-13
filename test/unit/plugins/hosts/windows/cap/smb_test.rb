@@ -31,7 +31,7 @@ Share name        Resource     Remark
 vgt-CUSTOM_ID-1   /a/path      vgt-CUSTOM_ID-1
 vgt-CUSTOM_ID-2   /other/path  vgt-CUSTOM_ID-2
 my-share          /my/path     Not Vagran...
-
+The command completed successfully.
     EOF
   }
   let(:netshare1){ <<-EOF

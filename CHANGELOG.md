@@ -6,12 +6,23 @@ IMPROVEMENTS:
 
 - commands/suspend: Introduce flag for suspending all machines [GH-9829]
 - commands/global-status: Improve message about removing stale entries [GH-9856]
+- provider/hyper-v: Update implementation. Include support for modifications on reload [GH-9872]
+- provisioners/ansible_local: Improve installation from PPA on Ubuntu guests.
+    The compatibility is maintained only for active long-term support (LTS) versions,
+    i.e. Ubuntu 12.04 (Precise Pangolin) is no longer supported. [GH-9879]
 
 BUG FIXES:
 
+- communicator/ssh: Update ssh private key file permission handling on Windows [GH-9923, GH-9900]
 - core: Display plugin commands in help [GH-9808]
 - core: Ensure guestpath or name is set with synced_folder option and dont set guestpath if not provided [GH-9692]
+- guest/debian: Fix netplan generation when using DHCP [GH-9855]
+- guest/debain: Update priority of network configuration file when using networkd [GH-9867]
 - guest/ubuntu: Update netplan config generation to detect NetworkManager [GH-9824]
+- guest/ubuntu: Fix failing Ansible installation from PPA on Bionic Beaver (18.04 LTS) [GH-9796]
+- host/windows: Prevent processing of last SMB line when using net share [GH-9917]
+- provisioner/chef: Prevent node_name set on configuration with chef_apply [GH-9916]
+- provisioner/salt: Remove usage of masterless? config attribute [GH-9833]
 
 ## 2.1.1 (May 7, 2018)
 

@@ -12,41 +12,45 @@ description: |-
 The Vagrant Hyper-V provider has some provider-specific configuration options
 you may set. A complete reference is shown below:
 
-  * `vmname` (string) - Name of virtual machine as shown in Hyper-V manager.
-    Defaults is taken from box image XML.
-  * `cpus` (integer) - Number of virtual CPU given to machine.
-    Defaults is taken from box image XML.
-  * `memory` (integer) - Number of MegaBytes allocated to VM at startup.
-    Defaults is taken from box image XML.
-  * `maxmemory` (integer) - Number of MegaBytes maximal allowed to allocate for VM
-    This parameter is switch on Dynamic Allocation of memory.
-    Defaults is taken from box image XML.
-  * `vlan_id` (integer) - Number of Vlan ID for your guest network interface
-    Defaults is not defined, vlan configuration will be untouched if not set.
-  * `mac` (string) - MAC address for your guest network interface
-    Default is not defined, MAC address will be dynamically assigned by Hyper-V if not set.
-  * `ip_address_timeout` (integer) - The time in seconds to wait for the
-    virtual machine to report an IP address. This defaults to 120 seconds.
-    This may have to be increased if your VM takes longer to boot.
-  * `differencing_disk` (boolean) - Switch to use differencing disk instead of cloning whole VHD.
-  * `enable_virtualization_extensions` (boolean) - Enable virtualization extensions for the virtual CPUs.
-    This allows Hyper-V to be nested and run inside another Hyper-VM VM. It requires Windows 10  - 1511 (build 10586) or newer.
-    Default is not defined. This will be disabled if not set.
-  * `auto_start_action` (Nothing, StartIfRunning, Start) - Action on automatic start of VM when booting OS
-  * `auto_stop_action` (ShutDown, TurnOff, Save) - Action on automatic stop of VM when shutting down OS.    
-  * `vm_integration_services` (Hash) - Hash to set the state of integration services.
-     
-    Example: 
-        
-    ```ruby
-    config.vm.provider "hyperv" do |h|
-      h.vm_integration_services = {
-          guest_service_interface: true,
-          heartbeat: true,
-          key_value_pair_exchange: true,
-          shutdown: true,
-          time_synchronization: true,
-          vss: true
-      }
-    end
-    ```
+* `auto_start_action` (Nothing, StartIfRunning, Start) - Automatic start action for VM on host startup. Default: Nothing.
+* `auto_stop_action` (ShutDown, TurnOff, Save) - Automatic stop action for VM on host shutdown. Default: ShutDown.
+* `cpus` (integer) - Number of virtual CPUs allocated to VM at startup.
+* `differencing_disk` (boolean) - **Deprecated** Use differencing disk instead of cloning entire VHD (use `linked_clone` instead) Default: false.
+* `enable_virtualization_extensions` (boolean) - Enable virtualization extensions for the virtual CPUs. Default: false
+* `enable_checkpoints` (boolean) Enable automatic checkpoints of the VM. Default: false
+* `ip_address_timeout` (integer) - Number of seconds to wait for the VM to report an IP address. Default: 120.
+* `linked_clone` (boolean) - Use differencing disk instead of cloning entire VHD. Default: false
+* `mac` (string) - MAC address for the guest network interface
+* `maxmemory` (integer) - Maximum number of megabytes allowed to be allocated for the VM. When set Dynamic Memory Allocation will be enabled.
+* `memory` (integer) - Number of megabytes allocated to VM at startup. If `maxmemory` is set, this will be amount of memory allocated at startup.
+* `vlan_id` (integer) - VLAN ID for the guest network interface.
+* `vmname` (string) - Name of virtual machine as shown in Hyper-V manager. Default: Generated name.
+* `vm_integration_services` (Hash) - Hash to set the state of integration services. (Note: Unknown key values will be passed directly.)
+  * `guest_service_interface` (boolean)
+  * `heartbeat` (boolean)
+  * `key_value_pair_exchange` (boolean)
+  * `shutdown` (boolean)
+  * `time_synchronization` (boolean)
+  * `vss` (boolean)
+
+## VM Integration Services
+
+The `vm_integration_services` configuration option consists of a simple Hash. The key values are the
+names of VM integration services to enable or disable for the VM. Vagrant includes an internal
+mapping of known services which allows them to be provided in a "snake case" format. When a provided
+key is unknown, the key value is used "as-is" without any modifications.
+
+For example, if a new `CustomVMSRV` VM integration service was added and Vagrant is not aware of this
+new service name, it can be provided as the key value explicitly:
+
+```ruby
+config.vm.provider "hyperv" do |h|
+  h.vm_integration_services = {
+    guest_service_interface: true,
+    CustomVMSRV: true
+  }
+end
+```
+
+This example would enable the `GuestServiceInterface` (which Vagrant is aware) and `CustomVMSRV` (which
+Vagrant is _not_ aware) VM integration services.

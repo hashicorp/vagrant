@@ -37,7 +37,9 @@ module VagrantPlugins
           ethernets = {}.tap do |e_nets|
             networks.each do |network|
               e_config = {}.tap do |entry|
-                if network[:ip]
+                if network[:type].to_s == "dhcp"
+                  entry["dhcp4"] = true
+                else
                   mask = network[:netmask]
                   if mask && IPAddr.new(network[:ip]).ipv4?
                     begin
@@ -47,8 +49,6 @@ module VagrantPlugins
                     end
                   end
                   entry["addresses"] = [[network[:ip], mask].compact.join("/")]
-                else
-                  entry["dhcp4"] = true
                 end
                 if network[:gateway]
                   entry["gateway4"] = network[:gateway]
@@ -107,7 +107,7 @@ module VagrantPlugins
             end
 
             remote_path = upload_tmp_file(comm, net_conf.join("\n"))
-            dest_path = "#{NETWORKD_DIRECTORY}/10-vagrant-#{dev_name}.network"
+            dest_path = "#{NETWORKD_DIRECTORY}/50-vagrant-#{dev_name}.network"
             comm.sudo(["mkdir -p #{NETWORKD_DIRECTORY}",
               "mv -f '#{remote_path}' '#{dest_path}'",
               "chown root:root '#{dest_path}'",
