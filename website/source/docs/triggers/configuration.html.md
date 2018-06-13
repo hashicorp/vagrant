@@ -21,6 +21,7 @@ The trigger class takes various options.
   - `provision`
   - `reload`
   - `resume`
+  - `suspend`
   - `up`
 
 * `ignore` (symbol, array) - Symbol or array of symbols corresponding to the action that a trigger should not fire on.
