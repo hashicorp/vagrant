@@ -11,9 +11,9 @@ try {
     $VM = Hyper-V\Get-VM -Id $VmId
     $Snapshots = @(Hyper-V\Get-VMSnapshot $VM | Select-Object Name)
 } catch {
-    Write-Error-Message "Failed to get snapshot list: ${PSItem}"
+    Write-ErrorMessage "Failed to get snapshot list: ${PSItem}"
     exit 1
 }
 
 $result = ConvertTo-json $Snapshots
-Write-Output-Message $result
+Write-OutputMessage $result

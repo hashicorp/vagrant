@@ -120,14 +120,6 @@ describe Vagrant::Util::PowerShell do
       described_class.execute("custom-command")
     end
 
-    it "should automatically include console resize" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.to_s.include?("custom-command") }
-        expect(comm.to_s).to include("BufferSize")
-      end
-      described_class.execute("custom-command")
-    end
-
     it "should accept custom environment" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
         comm = args.detect{|s| s.to_s.include?("custom-command") }
@@ -168,15 +160,6 @@ describe Vagrant::Util::PowerShell do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
         comm = args.detect{|s| s.to_s.include?("custom-command") }
         expect(comm.to_s).to include("custom-command")
-        result
-      end
-      described_class.execute_cmd("custom-command")
-    end
-
-    it "should automatically include console resize" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.to_s.include?("custom-command") }
-        expect(comm.to_s).to include("BufferSize")
         result
       end
       described_class.execute_cmd("custom-command")
@@ -245,15 +228,6 @@ describe Vagrant::Util::PowerShell do
       described_class.execute_inline("custom-command")
     end
 
-    it "should automatically include console resize" do
-      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
-        comm = args.detect{|s| s.to_s.include?("custom-command") }
-        expect(comm.to_s).to include("BufferSize")
-        result
-      end
-      described_class.execute_inline("custom-command")
-    end
-
     it "should accept custom environment" do
       expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
         comm = args.detect{|s| s.to_s.include?("custom-command") }
@@ -298,17 +272,5 @@ describe Vagrant::Util::PowerShell do
       end
     end
 
-  end
-
-  describe ".resize_console" do
-    it "should return command string" do
-      expect(described_class.resize_console).to include("BufferSize")
-    end
-
-    it "should return empty string when disabled" do
-      with_temp_env("VAGRANT_POWERSHELL_RESIZE_DISABLE" => "1") do
-        expect(described_class.resize_console).to be_empty
-      end
-    end
   end
 end

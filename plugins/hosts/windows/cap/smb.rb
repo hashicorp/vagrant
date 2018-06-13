@@ -129,7 +129,7 @@ module VagrantPlugins
         #
         # @return [Hash]
         def self.get_smbshares
-          result = Vagrant::Util::PowerShell.execute_cmd("Get-SmbShare|Format-List")
+          result = Vagrant::Util::PowerShell.execute_cmd("Get-SmbShare|Format-List|Out-String -Width 4096")
           if result.nil?
             return nil
           end
@@ -151,7 +151,7 @@ module VagrantPlugins
         #
         # @return [Hash]
         def self.get_netshares
-          result = Vagrant::Util::PowerShell.execute_cmd("net share")
+          result = Vagrant::Util::PowerShell.execute_cmd("net share | Out-String -Width 4096")
           if result.nil?
             return nil
           end
@@ -164,7 +164,7 @@ module VagrantPlugins
           shares = {}
           share_names.each do |share_name|
             shares[share_name] = {}
-            result = Vagrant::Util::PowerShell.execute_cmd("net share #{share_name}")
+            result = Vagrant::Util::PowerShell.execute_cmd("net share #{share_name} |  Out-String -Width 4096")
             next if result.nil?
             result.each_line do |line|
               key, value = line.strip.split(/\s+/, 2)

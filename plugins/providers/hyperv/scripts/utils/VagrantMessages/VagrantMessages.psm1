@@ -3,7 +3,7 @@
 # All Rights Reserved. Licensed under the MIT License.
 #--------------------------------------------------------------------------
 
-function Write-Error-Message {
+function Write-ErrorMessage {
     param (
         [parameter (Mandatory=$true,Position=0)]
         [string] $Message
@@ -16,7 +16,7 @@ function Write-Error-Message {
     Write-Host "===End-Error==="
 }
 
-function Write-Output-Message {
+function Write-OutputMessage {
     param (
         [parameter (Mandatory=$true,Position=0)]
         [string] $Message

@@ -12,6 +12,6 @@ try {
     $VM = Hyper-V\Get-VM -Id $VmId
     Hyper-V\Checkpoint-VM $VM -SnapshotName $SnapName
 } catch {
-    Write-Error-Message "Failed to create snapshot: ${PSItem}"
+    Write-ErrorMessage "Failed to create snapshot: ${PSItem}"
     exit 1
 }

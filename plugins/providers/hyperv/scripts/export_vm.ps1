@@ -13,7 +13,7 @@ try {
     $vm = Hyper-V\Get-VM -Id $VmId
     $vm | Hyper-V\Export-VM -Path $Path
 } catch {
-    Write-Error-Message "Failed to export VM: ${PSItem}"
+    Write-ErrorMessage "Failed to export VM: ${PSItem}"
     exit 1
 }
 
@@ -24,6 +24,6 @@ try {
     Remove-Item -Path $Path/Snapshots -Force -Recurse
     Remove-Item -Path $Path/$name -Force
 } catch {
-    Write-Error-Message "Failed to format exported box: ${PSItem}"
+    Write-ErrorMessage "Failed to format exported box: ${PSItem}"
     exit 1
 }
