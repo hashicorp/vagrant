@@ -44,7 +44,7 @@ module Vagrant
         #
         # @return [Boolean]
         def nmcli?(comm)
-          comm.test("nmcli")
+          comm.test("nmcli -t")
         end
 
         # NetworkManager currently controls device
@@ -53,8 +53,8 @@ module Vagrant
         # @param device_name [String]
         # @return [Boolean]
         def nm_controlled?(comm, device_name)
-          comm.test("nmcli d show #{device_name}") &&
-            !comm.test("nmcli d show #{device_name} | grep unmanaged")
+          comm.test("nmcli -t d show #{device_name}") &&
+            !comm.test("nmcli -t d show #{device_name} | grep unmanaged")
         end
 
       end
