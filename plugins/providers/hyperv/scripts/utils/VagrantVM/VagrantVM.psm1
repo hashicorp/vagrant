@@ -368,6 +368,12 @@ function Set-VagrantVMMemory {
     }
 
     if($DynamicMemory) {
+        if($MemoryMaximumBytes < $MemoryMinimumBytes) {
+            throw "Maximum memory value is less than required minimum memory value."
+        } else if ($MemoryMaximumBytes < $MemoryStartupBytes) {
+            throw "Maximum memory value is less than configured startup memory value."
+        }
+
         Hyper-V\Set-VM -VM $VM -DynamicMemory
         Hyper-V\Set-VM -VM $VM -MemoryMinimumBytes $MemoryMinimumBytes -MemoryMaximumBytes `
           $MemoryMaximumBytes -MemoryStartupBytes $MemoryStartupBytes
