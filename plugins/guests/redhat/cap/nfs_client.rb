@@ -5,7 +5,7 @@ module VagrantPlugins
         def self.nfs_client_install(machine)
           machine.communicate.sudo <<-EOH.gsub(/^ {12}/, '')
             if command -v dnf; then
-              dnf -y install nfs-utils nfs-utils-lib portmap
+              dnf -y install nfs-utils libnfs-utils portmap
             else
               yum -y install nfs-utils nfs-utils-lib portmap
             fi
