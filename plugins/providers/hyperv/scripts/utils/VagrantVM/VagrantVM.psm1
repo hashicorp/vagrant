@@ -96,6 +96,9 @@ function New-VagrantVMVMCX {
         Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot (Hyper-V\Get-VMFirmware -VM $VM).SecureBoot
     }
 
+    # Disconnect adapters from switches
+    Hyper-V\Get-VMNetworkAdapter -VM $VM | Hyper-V\Disconnect-VMNetworkAdapter
+
     # Verify new VM
     $Report = Hyper-V\Compare-VM -CompatibilityReport $VMConfig
     if($Report.Incompatibilities.Length -gt 0){
