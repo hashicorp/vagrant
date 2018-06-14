@@ -27,7 +27,11 @@ module Vagrant
               @_powershell_executable += ".exe"
 
               if Which.which(@_powershell_executable).nil?
-                @_powershell_executable = nil
+                @_powershell_executable = "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+
+                if Which.which(@_powershell_executable).nil?
+                  @_powershell_executable = nil
+                end
               end
             else
               @_powershell_executable = nil
