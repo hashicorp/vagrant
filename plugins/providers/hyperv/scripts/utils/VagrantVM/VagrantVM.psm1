@@ -83,6 +83,13 @@ function New-VagrantVMVMCX {
         VirtualMachinePath = $DataPath;
     }
     $VMConfig = (Hyper-V\Compare-VM -Copy -GenerateNewID @NewVMConfig)
+
+    # If the config is empty it means the import failed. Attempt to provide
+    # context for failure
+    if($VMConfig -eq $null) {
+        Error-VagrantVMImport -VMConfigFile $VMConfigFile
+    }
+
     $VM = $VMConfig.VM
     $Gen = $VM.Generation
 
@@ -338,6 +345,68 @@ VirtualMachine. The cloned Hyper-V VM.
 #>
 }
 
+function Error-VagrantVMImport {
+    param (
+        [parameter(Mandatory=$true)]
+        [string] $VMConfigFile
+    )
+
+    $ManagementService = Get-WmiObject -Namespace 'root\virtualization\v2' -Class 'Msvm_VirtualSystemManagementService'
+    $Result = $ManagementService.ImportSystemDefinition($VMConfigFile, $null, $true)
+    if($Result.ReturnValue -eq 0) {
+        throw "Unknown error encountered while importing VM"
+    } elseif($Result.ReturnValue -eq 4096) {
+        $job = Get-WmiObject -Namespace 'root\virtualization\v2' -Query 'select * from Msvm_ConcreteJob' | Where {$_.__PATH -eq $Result.Job}
+        while($job.JobState -eq 3 -or $job.JobState -eq 4) {
+            start-sleep 1
+            $job = Get-WmiObject -Namespace 'root\virtualization\v2' -Query 'select * from Msvm_ConcreteJob' | Where {$_.__PATH -eq $Result.Job}
+        }
+        $ErrorMsg = $job.ErrorDescription + "`n`n"
+        $ErrorMsg = $ErrorMsg + "Error Code: " + $job.ErrorCode + "`n"
+        $cause = "Unknown"
+        switch($job.ErrorCode) {
+            32768 { $cause = "Failed" }
+            32769 { $cause = "Access Denied" }
+            32770 { $cause = "Not Supported" }
+            32771 { $cause = "Status is unknown" }
+            32772 { $cause = "Timeout" }
+            32773 { $cause = "Invalid parameter" }
+            32774 { $cause = "System is in use" }
+            32775 { $cause = "Invalid state for this operation" }
+            32776 { $cause = "Incorrect data type" }
+            32777 { $cause = "System is not available" }
+            32778 { $cause = "Out of memory" }
+            32779 { $cause = "File in Use" }
+            32784 { $cause = "VM version is unsupported" }
+        }
+        $ErrorMsg = $ErrorMsg + "Cause: ${cause}"
+        throw $ErrorMsg
+    } else {
+        throw "Failed to run VM import job. Error value: ${Result.ReturnValue}"
+    }
+<#
+.SYNOPSIS
+
+Determines cause of error for VM import.
+
+.DESCRIPTION
+
+Runs a local import of the VM configuration and attempts to determine
+the underlying cause of the import failure.
+
+.PARAMETER VMConfigFile
+Path to the Hyper-V VM configuration file.
+
+.INPUTS
+
+None.
+
+.OUTPUTS
+
+None.
+#>
+}
+
 # Vagrant VM configuration functions
 
 function Set-VagrantVMMemory {
@@ -368,9 +437,10 @@ function Set-VagrantVMMemory {
     }
 
     if($DynamicMemory) {
-        if($MemoryMaximumBytes < $MemoryMinimumBytes) {
+        if($MemoryMaximumBytes -lt $MemoryMinimumBytes) {
             throw "Maximum memory value is less than required minimum memory value."
-        } else if ($MemoryMaximumBytes < $MemoryStartupBytes) {
+        }
+        if ($MemoryMaximumBytes -lt $MemoryStartupBytes) {
             throw "Maximum memory value is less than configured startup memory value."
         }
 
