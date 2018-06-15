@@ -352,7 +352,13 @@ function Error-VagrantVMImport {
     )
 
     $ManagementService = Get-WmiObject -Namespace 'root\virtualization\v2' -Class 'Msvm_VirtualSystemManagementService'
-    $Result = $ManagementService.ImportSystemDefinition($VMConfigFile, $null, $true)
+
+    # Relative path names will fail when attempting to import a system
+    # definition so always ensure we are using the full path to the
+    # configuration file.
+    $FullPathFile = (Resolve-Path $VMConfigFile).Path
+
+    $Result = $ManagementService.ImportSystemDefinition($FullPathFile, $null, $true)
     if($Result.ReturnValue -eq 0) {
         throw "Unknown error encountered while importing VM"
     } elseif($Result.ReturnValue -eq 4096) {
