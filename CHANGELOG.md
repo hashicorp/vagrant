@@ -6,8 +6,9 @@ IMPROVEMENTS:
 
 - commands/suspend: Introduce flag for suspending all machines [GH-9829]
 - commands/global-status: Improve message about removing stale entries [GH-9856]
-- provider/hyper-v: Update implementation. Include support for modifications on reload [GH-9872]
-- provider/hyper-v: Validate maxmemory configuration setting [GH-9932]
+- provider/hyperv: Attempt to determine import failure cause [GH-9936]
+- provider/hyperv: Update implementation. Include support for modifications on reload [GH-9872]
+- provider/hyperv: Validate maxmemory configuration setting [GH-9932]
 - provisioners/ansible_local: Improve installation from PPA on Ubuntu guests.
     The compatibility is maintained only for active long-term support (LTS) versions,
     i.e. Ubuntu 12.04 (Precise Pangolin) is no longer supported. [GH-9879]
