@@ -392,6 +392,7 @@ module Vagrant
         # @param [String, Pathname] path Path to convert
         # @return [String]
         def wsl_to_windows_path(path)
+          path = path.to_s
           if wsl? && wsl_windows_access? && !path.match(/^[a-zA-Z]:/)
             if wsl_path?(path)
               parts = path.split("/")

@@ -221,8 +221,8 @@ module VagrantPlugins
 
       def execute_powershell(path, options, &block)
         lib_path = Pathname.new(File.expand_path("../scripts", __FILE__))
-        mod_path = lib_path.join("utils").to_s.gsub("/", "\\")
-        path = lib_path.join(path).to_s.gsub("/", "\\")
+        mod_path = Vagrant::Util::Platform.wsl_to_windows_path(lib_path.join("utils")).gsub("/", "\\")
+        path = Vagrant::Util::Platform.wsl_to_windows_path(lib_path.join(path)).gsub("/", "\\")
         options = options || {}
         ps_options = []
         options.each do |key, value|
@@ -239,8 +239,9 @@ module VagrantPlugins
         # Include our module path so we can nicely load helper modules
         opts = {
           notify: [:stdout, :stderr, :stdin],
-          env: {"PSModulePath" => "$env:PSModulePath+';#{mod_path}'"}
+          module_path: Vagrant::Util::Platform.wsl_to_windows_path(mod_path)
         }
+
         Vagrant::Util::PowerShell.execute(path, *ps_options, **opts, &block)
       end
     end
