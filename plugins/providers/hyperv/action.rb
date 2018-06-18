@@ -158,6 +158,7 @@ module VagrantPlugins
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckEnabled
+          b.use CheckAccess
           b.use HandleBox
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env1, b1|
@@ -290,6 +291,7 @@ module VagrantPlugins
       autoload :Export, action_root.join("export")
 
       autoload :CheckEnabled, action_root.join("check_enabled")
+      autoload :CheckAccess, action_root.join("check_access")
       autoload :Configure, action_root.join("configure")
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :Import, action_root.join("import")

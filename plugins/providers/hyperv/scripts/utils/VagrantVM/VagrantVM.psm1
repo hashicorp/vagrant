@@ -90,7 +90,7 @@ function New-VagrantVMVMCX {
     # If the config is empty it means the import failed. Attempt to provide
     # context for failure
     if($VMConfig -eq $null) {
-        Error-VagrantVMImport -VMConfigFile $VMConfigFile
+        Report-ErrorVagrantVMImport -VMConfigFile $VMConfigFile
     }
 
     $VM = $VMConfig.VM
@@ -125,7 +125,7 @@ function New-VagrantVMVMCX {
                 if([System.IO.Path]::GetFileName($Drive.Path) -eq [System.IO.Path]::GetFileName($SourcePath)) {
                     $Path = $Drive.Path
                     Hyper-V\Remove-VMHardDiskDrive $Drive
-                    Hyper-V\New-VHD -Path $DestinationPath -ParentPath $SourcePath
+                    Hyper-V\New-VHD -Path $DestinationPath -ParentPath $SourcePath -Differencing
                     Hyper-V\Add-VMHardDiskDrive -VM $VM -Path $DestinationPath
                     break
                 }
@@ -348,7 +348,7 @@ VirtualMachine. The cloned Hyper-V VM.
 #>
 }
 
-function Error-VagrantVMImport {
+function Report-ErrorVagrantVMImport {
     param (
         [parameter(Mandatory=$true)]
         [string] $VMConfigFile
@@ -700,5 +700,35 @@ Name of the VMSwitch.
 .OUTPUT
 
 VirtualMachine.
+#>
+}
+
+function Check-VagrantHyperVAccess {
+    param (
+        [parameter (Mandatory=$true)]
+        [string] $Path
+    )
+    $acl = Get-ACL -Path $Path
+    $systemACL = $acl.Access | where {$_.IdentityReference -eq "NT AUTHORITY\System" -and $_.FileSystemRights -eq "FullControl" -and $_.AccessControlType -eq "Allow" -and $_.IsInherited -eq $true}
+    if($systemACL) {
+        return $true
+    }
+    return $false
+<#
+.SYNOPSIS
+
+Check Hyper-V access at given path.
+
+.DESCRIPTION
+
+Checks that the given path has the correct access rules for Hyper-V
+
+.PARAMETER PATH
+
+Path to check
+
+.OUTPUT
+
+Boolean
 #>
 }
