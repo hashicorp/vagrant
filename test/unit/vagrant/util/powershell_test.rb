@@ -63,7 +63,10 @@ describe Vagrant::Util::PowerShell do
       end
 
       context "when within WSL" do
-        before{ expect(Vagrant::Util::Platform).to receive(:wsl?).and_return(true) }
+        before do
+          allow(Vagrant::Util::Which).to receive(:which).with(/powershell/).and_return(nil)
+          expect(Vagrant::Util::Platform).to receive(:wsl?).and_return(true)
+        end
 
         it "should check PATH with .exe extension" do
           expect(Vagrant::Util::Which).to receive(:which).with("powershell.exe")
@@ -76,8 +79,12 @@ describe Vagrant::Util::PowerShell do
         end
 
         it "should return nil when not found" do
-          expect(Vagrant::Util::Which).to receive(:which).with("powershell.exe").and_return(nil)
           expect(described_class.executable).to be_nil
+        end
+
+        it "should check for powershell with full path" do
+          expect(Vagrant::Util::Which).to receive(:which).with(/Windows\/System32.+powershell.exe/)
+          described_class.executable
         end
       end
     end
