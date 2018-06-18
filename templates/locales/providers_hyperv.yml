@@ -99,3 +99,10 @@ en:
       windows_required: |-
         The Hyper-V provider only works on Windows. Please try to
         use another provider.
+      system_access_required: |-
+        Hyper-V access check has failed for the configured destination. This
+        is usually caused by running on a non-system drive which is missing
+        required permissions. Running the following command may resolve the
+        problem:
+
+          icacls.exe %{root_dir} /T /Q /grant "NT AUTHORITY\SYSTEM:(IO)(CI)(F)"
