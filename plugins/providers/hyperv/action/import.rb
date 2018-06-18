@@ -61,11 +61,11 @@ module VagrantPlugins
           dest_path = env[:machine].data_dir.join("Virtual Hard Disks").join(image_path.basename).to_s
 
           options = {
-            "VMConfigFile" => config_path.to_s.gsub("/", "\\"),
-            "DestinationPath" => dest_path.to_s.gsub("/", "\\"),
-            "DataPath" => env[:machine].data_dir.to_s.gsub("/", "\\"),
+            "VMConfigFile" => Vagrant::Util::Platform.wsl_to_windows_path(config_path).gsub("/", "\\"),
+            "DestinationPath" => Vagrant::Util::Platform.wsl_to_windows_path(dest_path).gsub("/", "\\"),
+            "DataPath" => Vagrant::Util::Platform.wsl_to_windows_path(env[:machine].data_dir).gsub("/", "\\"),
             "LinkedClone" => !!env[:machine].provider_config.linked_clone,
-            "SourcePath" => image_path.to_s.gsub("/", "\\"),
+            "SourcePath" => Vagrant::Util::Platform.wsl_to_windows_path(image_path).gsub("/", "\\"),
             "VMName" => env[:machine].provider_config.vmname,
           }
 

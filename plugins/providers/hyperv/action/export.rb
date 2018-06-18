@@ -23,7 +23,8 @@ module VagrantPlugins
 
         def export
           @env[:ui].info I18n.t("vagrant.actions.vm.export.exporting")
-          @env[:machine].provider.driver.export(@env["export.temp_dir"]) do |progress|
+          export_tmp_dir = Vagrant::Util::Platform.wsl_to_windows_path(@env["export.temp_dir"])
+          @env[:machine].provider.driver.export(export_tmp_dir) do |progress|
             @env[:ui].clear_line
             @env[:ui].report_progress(progress.percent, 100, false)
           end

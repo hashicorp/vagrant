@@ -393,6 +393,7 @@ module Vagrant
         # @return [String]
         def wsl_to_windows_path(path)
           if wsl? && wsl_windows_access? && !path.match(/^[a-zA-Z]:/)
+            path = File.expand_path(path.to_s)
             if wsl_path?(path)
               parts = path.split("/")
               parts.delete_if(&:empty?)
@@ -402,17 +403,15 @@ module Vagrant
               if root_path.end_with?("lxss") && !(["root", "home"].include?(parts.first))
                 root_path = "#{root_path}\\rootfs"
               end
-              [root_path, *parts].join("\\")
+              path = [root_path, *parts].join("\\")
             else
               path = path.to_s.sub("/mnt/", "")
               parts = path.split("/")
               parts.first << ":"
               path = parts.join("\\")
-              path
             end
-          else
-            path
           end
+          path.to_s
         end
 
         # Takes a windows path and formats it to the

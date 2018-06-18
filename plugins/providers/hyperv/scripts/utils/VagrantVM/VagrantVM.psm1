@@ -1,3 +1,6 @@
+# Always stop when errors are encountered unless instructed not to
+$ErrorActionPreference = "Stop"
+
 # Vagrant VM creation functions
 
 function New-VagrantVM {
@@ -123,7 +126,7 @@ function New-VagrantVMVMCX {
                     $Path = $Drive.Path
                     Hyper-V\Remove-VMHardDiskDrive $Drive
                     Hyper-V\New-VHD -Path $DestinationPath -ParentPath $SourcePath
-                    Hyper-V\AddVMHardDiskDrive -VM $VM -Path $DestinationPath
+                    Hyper-V\Add-VMHardDiskDrive -VM $VM -Path $DestinationPath
                     break
                 }
             }
