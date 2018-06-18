@@ -411,7 +411,7 @@ module Vagrant
               path = parts.join("\\")
             end
           end
-          path
+          path.to_s
         end
 
         # Takes a windows path and formats it to the
