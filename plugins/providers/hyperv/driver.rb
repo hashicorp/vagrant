@@ -239,7 +239,7 @@ module VagrantPlugins
         # Include our module path so we can nicely load helper modules
         opts = {
           notify: [:stdout, :stderr, :stdin],
-          module_path: Vagrant::Util::Platform.wsl_to_windows_path(mod_path)
+          module_path: mod_path
         }
 
         Vagrant::Util::PowerShell.execute(path, *ps_options, **opts, &block)
