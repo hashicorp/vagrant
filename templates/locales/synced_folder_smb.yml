@@ -1,10 +1,5 @@
 en:
   vagrant_sf_smb:
-    not_supported: |-
-      It appears your machine doesn't support SMB, has not been
-      properly configured for SMB, or there is not an adapter to
-      enable SMB on this machine for Vagrant. Ensure SMB host
-      functionality is available on this machine and try again.
     mounting: |-
       Mounting SMB shared folders...
     mounting_single: |-
@@ -26,6 +21,11 @@ en:
         Vagrant requires administrator access to create SMB shares and
         may request access to complete setup of configured shares.
     errors:
+      not_supported: |-
+        It appears your machine doesn't support SMB, has not been
+        properly configured for SMB, or there is not an adapter to
+        enable SMB on this machine for Vagrant. Ensure SMB host
+        functionality is available on this machine and try again.
       start_failed: |-
         Vagrant failed to automatically start the SMB service. Ensure the
         required services can be started and try again.
