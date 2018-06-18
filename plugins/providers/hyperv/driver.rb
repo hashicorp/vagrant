@@ -221,8 +221,8 @@ module VagrantPlugins
 
       def execute_powershell(path, options, &block)
         lib_path = Pathname.new(File.expand_path("../scripts", __FILE__))
-        mod_path = Vagrant::Util::Platform.wsl_to_windows_path(lib_path.join("utils")).gsub("/", "\\")
-        path = Vagrant::Util::Platform.wsl_to_windows_path(lib_path.join(path)).gsub("/", "\\")
+        mod_path = Vagrant::Util::Platform.wsl_to_windows_path(lib_path.join("utils")).to_s.gsub("/", "\\")
+        path = Vagrant::Util::Platform.wsl_to_windows_path(lib_path.join(path)).to_s.gsub("/", "\\")
         options = options || {}
         ps_options = []
         options.each do |key, value|
