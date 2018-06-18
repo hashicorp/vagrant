@@ -144,8 +144,7 @@ describe VagrantPlugins::HyperV::Driver do
     it "should automatically include module path" do
       expect(Vagrant::Util::PowerShell).to receive(:execute) do |path, *args|
         opts = args.detect{|i| i.is_a?(Hash)}
-        expect(opts[:env]).not_to be_nil
-        expect(opts[:env]["PSModulePath"]).to include("$env:PSModulePath+")
+        expect(opts[:module_path]).not_to be_nil
       end
       subject.send(:execute_powershell, "path", {})
     end
