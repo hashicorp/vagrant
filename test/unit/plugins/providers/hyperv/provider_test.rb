@@ -14,6 +14,7 @@ describe VagrantPlugins::HyperV::Provider do
     stub_const("Vagrant::Util::PowerShell", powershell)
     allow(machine).to receive(:id).and_return("foo")
     allow(platform).to receive(:windows?).and_return(true)
+    allow(platform).to receive(:wsl?).and_return(false)
     allow(platform).to receive(:windows_admin?).and_return(true)
     allow(platform).to receive(:windows_hyperv_admin?).and_return(true)
     allow(powershell).to receive(:available?).and_return(true)
@@ -25,6 +26,12 @@ describe VagrantPlugins::HyperV::Provider do
     it "returns false if not windows" do
       allow(platform).to receive(:windows?).and_return(false)
       expect(subject).to_not be_usable
+    end
+
+    it "returns true if within WSL" do
+      expect(platform).to receive(:windows?).and_return(false)
+      expect(platform).to receive(:wsl?).and_return(true)
+      expect(subject).to be_usable
     end
 
     it "returns false if neither an admin nor a hyper-v admin" do
