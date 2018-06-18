@@ -116,7 +116,7 @@ module Vagrant
           # Extract the box into a temporary directory.
           @logger.debug("Unpacking box into temporary directory: #{temp_dir}")
           result = Util::Subprocess.execute(
-            "bsdtar", "-v", "-x", "-m", "-C", temp_dir.to_s, "-f", path.to_s)
+            "bsdtar", "-v", "-x", "-m", "-s", "|\\\\\|/|", "-C", temp_dir.to_s, "-f", path.to_s)
           if result.exit_code != 0
             raise Errors::BoxUnpackageFailure,
               output: result.stderr.to_s
