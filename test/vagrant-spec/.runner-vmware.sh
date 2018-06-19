@@ -15,7 +15,8 @@ then
     mv "${GEM_PATH}" vagrant-spec.gem
 fi
 
-vagrant status --debug
+vagrant box update
+vagrant box prune
 
 guests=$(vagrant status | grep vmware | awk '{print $1}')
 
