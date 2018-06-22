@@ -5,21 +5,28 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
   let(:home_path){ '/fake/file/path/.vagrant.d' }
   let(:gems_path){ "#{home_path}/gems" }
   let(:force){ true }
+  let(:local){ false }
   let(:env) {{
     ui: Vagrant::UI::Silent.new,
     home_path: home_path,
     gems_path: gems_path,
-    force: force
+    force: force,
+    local: local
   }}
 
-  let(:manager) { double("manager") }
+  let(:user_file) { double("user_file", exist?: true, delete: true) }
+  let(:local_file) { nil }
+  let(:bundler) { double("bundler", plugin_gem_path: plugin_gem_path,
+    env_plugin_gem_path: env_plugin_gem_path) }
+  let(:plugin_gem_path) { double("plugin_gem_path", exist?: true, rmtree: true) }
+  let(:env_plugin_gem_path) { nil }
+
+  let(:manager) { double("manager", user_file: user_file, local_file: local_file) }
 
   let(:expect_to_receive) do
     lambda do
       allow(File).to receive(:exist?).with(File.join(home_path, 'plugins.json')).and_return(true)
       allow(File).to receive(:directory?).with(gems_path).and_return(true)
-      expect(FileUtils).to receive(:rm).with(File.join(home_path, 'plugins.json'))
-      expect(FileUtils).to receive(:rm_rf).with(gems_path)
       expect(app).to receive(:call).with(env).once
     end
   end
@@ -28,6 +35,7 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
 
   before do
     allow(Vagrant::Plugin::Manager).to receive(:instance).and_return(manager)
+    allow(Vagrant::Bundler).to receive(:instance).and_return(bundler)
   end
 
   describe "#call" do
@@ -36,6 +44,8 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
     end
 
     it "should delete all plugins" do
+      expect(user_file).to receive(:delete)
+      expect(plugin_gem_path).to receive(:rmtree)
       subject.call(env)
     end
 
@@ -56,6 +66,45 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
 
         it "should not delete all plugins" do
           expect(env[:ui]).to receive(:ask).and_return("N\n")
+          subject.call(env)
+        end
+      end
+    end
+
+    context "when local option is set" do
+      let(:local) { true }
+
+      it "should not delete plugins" do
+        expect(user_file).not_to receive(:delete)
+        expect(plugin_gem_path).not_to receive(:rmtree)
+        subject.call(env)
+      end
+    end
+
+    context "when local plugins exist" do
+      let(:local_file) { double("local_file", exist?: true, delete: true) }
+      let(:env_plugin_gem_path) { double("env_plugin_gem_path", exist?: true, rmtree: true) }
+
+      it "should delete user and local plugins" do
+        expect(user_file).to receive(:delete)
+        expect(local_file).to receive(:delete)
+        expect(plugin_gem_path).to receive(:rmtree)
+        expect(env_plugin_gem_path).to receive(:rmtree)
+        subject.call(env)
+      end
+
+      context "when local option is set" do
+        let(:local) { true }
+
+        it "should delete local plugins" do
+          expect(local_file).to receive(:delete)
+          expect(env_plugin_gem_path).to receive(:rmtree)
+          subject.call(env)
+        end
+
+        it "should not delete user plugins" do
+          expect(user_file).not_to receive(:delete)
+          expect(plugin_gem_path).not_to receive(:rmtree)
           subject.call(env)
         end
       end

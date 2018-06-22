@@ -32,7 +32,7 @@ describe Vagrant::Plugin::Manager do
       specs[3].name = "foo"
       expect(bundler).to receive(:install).once.with(any_args) { |plugins, local|
         expect(plugins).to have_key("foo")
-        expect(local).to be(false)
+        expect(local).to be_falsey
       }.and_return(specs)
       expect(bundler).to receive(:clean)
 
@@ -95,7 +95,7 @@ describe Vagrant::Plugin::Manager do
         expect(bundler).to receive(:install).once.with(any_args) { |plugins, local|
           expect(plugins).to have_key("foo")
           expect(plugins["foo"]["gem_version"]).to eql(">= 0.1.0")
-          expect(local).to be(false)
+          expect(local).to be_falsey
         }.and_return(specs)
         expect(bundler).to receive(:clean)
 
@@ -110,7 +110,7 @@ describe Vagrant::Plugin::Manager do
         expect(bundler).to receive(:install).once.with(any_args) { |plugins, local|
           expect(plugins).to have_key("foo")
           expect(plugins["foo"]["gem_version"]).to eql("0.1.0")
-          expect(local).to be(false)
+          expect(local).to be_falsey
         }.and_return(specs)
         expect(bundler).to receive(:clean)
 
@@ -140,6 +140,8 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "masks bundler errors with our own error" do
+      sf = Vagrant::Plugin::StateFile.new(path)
+      sf.add_plugin("foo")
       expect(bundler).to receive(:clean).and_raise(Gem::InstallError)
 
       expect { subject.uninstall_plugin("foo") }.

@@ -161,6 +161,12 @@ may be desirable to ignore inaccessible sources and continue with the
 plugin installation. Enabling this value will cause Vagrant to simply log
 the plugin source error and continue.
 
+## `VAGRANT_INSTALL_LOCAL_PLUGINS`
+
+If this is set to any value, Vagrant will not prompt for confirmation
+prior to installing local plugins which have been defined within the
+local Vagrantfile.
+
 ## `VAGRANT_NO_PARALLEL`
 
 If this is set, Vagrant will not perform any parallel operations (such as

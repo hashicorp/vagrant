@@ -398,7 +398,13 @@ describe Vagrant::Machine do
         callable    = lambda { |_env| }
 
         allow(provider).to receive(:action).with(action_name).and_return(callable)
-        allow(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
+
+        # The first call here is to allow the environment to setup with attempting
+        # to load a plugin that does not exist
+        expect(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
+          .and_return({})
+
+        expect(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
           .and_return({"vagrant-triggers"=>"stuff"})
 
         expect(instance.instance_variable_get(:@triggers)).not_to receive(:fire_triggers)

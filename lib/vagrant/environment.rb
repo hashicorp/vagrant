@@ -938,14 +938,16 @@ module Vagrant
       if !needs_install.empty?
         ui.warn(I18n.t("vagrant.plugins.local.uninstalled_plugins",
           plugins: needs_install.sort.join(", ")))
-        answer = nil
-        until ["y", "n"].include?(answer)
-          answer = ui.ask(I18n.t("vagrant.plugins.local.request_plugin_install") + ": ")
-          answer.strip.downcase!
-        end
-        if answer == "n"
-          raise Errors::PluginMissingLocalError,
-            plugins: needs_install.sort.join(", ")
+        if !Vagrant.auto_install_local_plugins?
+          answer = nil
+          until ["y", "n"].include?(answer)
+            answer = ui.ask(I18n.t("vagrant.plugins.local.request_plugin_install") + ": ")
+            answer.strip.downcase!
+          end
+          if answer == "n"
+            raise Errors::PluginMissingLocalError,
+              plugins: needs_install.sort.join(", ")
+          end
         end
         needs_install.each do |name|
           ui.info(I18n.t("vagrant.commands.plugin.installing", name: name))

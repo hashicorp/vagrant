@@ -41,7 +41,7 @@ module Vagrant
           "require"               => opts[:require] || "",
           "sources"               => opts[:sources] || [],
           "installed_gem_version" => opts[:installed_gem_version],
-          "local"                 => opts[:local]
+          "local"                 => !!opts[:local]
         }
 
         save!

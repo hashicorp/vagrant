@@ -192,8 +192,8 @@ module Vagrant
 
         plugin_file = opts[:local] ? @local_file : @user_file
 
-        result = Vagrant::Bundler.instance.update(plugin_list.installed_plugins, specific)
-        plugin_list.installed_plugins.each do |name, info|
+        result = Vagrant::Bundler.instance.update(plugin_file.installed_plugins, specific)
+        plugin_file.installed_plugins.each do |name, info|
           matching_spec = result.detect{|s| s.name == name}
           info = Hash[
             info.map do |key, value|
@@ -277,6 +277,11 @@ module Vagrant
       def load_plugins(plugins)
         if !Vagrant.plugins_enabled?
           @logger.warn("Plugin loading is disabled")
+          return
+        end
+
+        if plugins.nil?
+          @logger.debug("No plugins provided for loading")
           return
         end
 
