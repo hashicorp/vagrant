@@ -1,0 +1,119 @@
+require 'optparse'
+
+module VagrantPlugins
+  module CloudCommand
+    module Command
+      class Publish < Vagrant.plugin("2", :command)
+        def execute
+          options = {}
+
+          opts = OptionParser.new do |o|
+            o.banner = "Usage: vagrant cloud publish [options] organization/box-name version provider-name [provider-file]"
+            o.separator ""
+            o.separator "A Start-To-Finish command for creating and releasing a new Vagrant Box on Vagrant Cloud"
+            o.separator ""
+            o.separator "Options:"
+            o.separator ""
+
+            o.on("--box-version VERSION", String, "Version of box to create") do |v|
+              options[:box_version] = v
+            end
+            o.on("--url", String, "Valid remote URL to download this provider") do |u|
+              options[:url] = u
+            end
+            o.on("-d", "--description DESCRIPTION", String, "Longer description of box") do |d|
+              options[:description] = d
+            end
+            o.on("--version-description DESCRIPTION", String, "Description of the version to create") do |v|
+              options[:version_description] = v
+            end
+            o.on("-f", "--force", "Disables confirmation to create or update box") do |f|
+              options[:force] = f
+            end
+            o.on("-p", "--private", "Makes box private") do |p|
+              options[:private] = p
+            end
+            o.on("-r", "--release", "Releases box") do |p|
+              options[:release] = p
+            end
+            o.on("-s", "--short-description DESCRIPTION", String, "Short description of the box") do |s|
+              options[:short_description] = s
+            end
+            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |t|
+              options[:username] = u
+            end
+          end
+
+          # Parse the options
+          argv = parse_options(opts)
+          return if !argv
+          if argv.empty? || argv.length > 4 || argv.length < 4
+            raise Vagrant::Errors::CLIInvalidUsage,
+              help: opts.help.chomp
+          end
+
+          @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
+
+          box = argv.first.split('/')
+          org = box[0]
+          box_name = box[1]
+          version = argv[1]
+          provider_name = argv[2]
+          box_file = argv[3]
+          publish_box(org, box_name, version, provider_name, box_file, options, @client.token)
+        end
+
+        def publish_box(org, box_name, version, provider_name, box_file, options, access_token)
+          server_url = VagrantPlugins::CloudCommand::Util.api_server_url
+
+          @env.ui.warn("You are about to create a box on Vagrant Cloud with the following options:\n")
+          box_opts = "  #{org}/#{box_name} (#{version}) for #{provider_name}\n"
+          box_opts << "  Private:               true\n" if options[:private]
+          box_opts << "  Automatic Release:     true\n" if options[:release]
+          box_opts << "  Remote Box file:       true\n" if options[:url]
+          box_opts << "  Box Description:       #{options[:description]}\n" if options[:description]
+          box_opts << "  Box Short Description: #{options[:short_description]}\n" if options[:short_description]
+          box_opts << "  Version Description:   #{options[:version_description]}\n" if options[:version_description]
+
+          @env.ui.info(box_opts)
+
+          if !options[:force]
+            continue = @env.ui.ask(I18n.t("cloud_command.continue"))
+            return 1 if continue.downcase != "y"
+          end
+
+          account = VagrantPlugins::CloudCommand::Util.account?(org, access_token, server_url)
+          box = VagrantCloud::Box.new(account, box_name, nil, options[:short_description], options[:description], access_token)
+          cloud_version = VagrantCloud::Version.new(box, version, nil, options[:version_description], access_token)
+          provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, options[:url], org, box_name, access_token)
+
+          begin
+            @env.ui.info(I18n.t("cloud_command.publish.box_create"))
+            box.create
+            @env.ui.info(I18n.t("cloud_command.publish.version_create"))
+            cloud_version.create_version
+            @env.ui.info(I18n.t("cloud_command.publish.provider_create"))
+            provider.create_provider
+            if !options[:url]
+              @env.ui.info(I18n.t("cloud_command.publish.upload_provider", file: box_file))
+              provider.upload_file(box_file)
+            end
+            if options[:release]
+              @env.ui.info(I18n.t("cloud_command.publish.release"))
+              cloud_version.release
+            end
+            @env.ui.success(I18n.t("cloud_command.publish.complete", org: org, box_name: box_name))
+            success = box.read(org, box_name)
+            VagrantPlugins::CloudCommand::Util.format_box_results(success.compact, @env)
+            return 0
+          rescue VagrantCloud::ClientError => e
+            @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
+            @env.ui.error(e)
+            return 1
+          end
+          return 1
+        end
+      end
+    end
+  end
+end
