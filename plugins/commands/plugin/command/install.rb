@@ -20,7 +20,7 @@ module VagrantPlugins
             build_install_opts(o, options)
 
             o.on("--local", "Install plugin for local project only") do |l|
-              options[:local] = l
+              options[:env_local] = l
             end
 
             o.on("--verbose", "Enable verbose output for plugin installation") do |v|
@@ -33,7 +33,7 @@ module VagrantPlugins
           return if !argv
 
           if argv.length < 1
-            raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp if !options[:local]
+            raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp if !options[:env_local]
 
             errors = @env.vagrantfile.config.vagrant.validate(nil)
             if !errors["vagrant"].empty?
@@ -61,7 +61,7 @@ module VagrantPlugins
                 plugin_version:     info[:version],
                 plugin_sources:     info[:sources] || Vagrant::Bundler::DEFAULT_GEM_SOURCES.dup,
                 plugin_name:        name,
-                plugin_local:       true
+                plugin_env_local:   true
               )
             end
           else
@@ -73,7 +73,7 @@ module VagrantPlugins
                 plugin_sources:     options[:plugin_sources],
                 plugin_name:        name,
                 plugin_verbose:     options[:verbose],
-                plugin_local:       options[:local]
+                plugin_env_local:   options[:env_local]
               )
             end
           end

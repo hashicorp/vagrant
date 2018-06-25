@@ -121,9 +121,10 @@ module Vagrant
     # Installs the list of plugins.
     #
     # @param [Hash] plugins
+    # @param [Boolean] env_local Environment local plugin install
     # @return [Array<Gem::Specification>]
-    def install(plugins, local=false)
-      internal_install(plugins, nil, local: local)
+    def install(plugins, env_local=false)
+      internal_install(plugins, nil, env_local: env_local)
     end
 
     # Installs a local '*.gem' file so that Bundler can find it.
@@ -140,7 +141,7 @@ module Vagrant
         }
       }
       @logger.debug("Installing local plugin - #{plugin_info}")
-      internal_install(plugin_info, nil, local: opts[:local])
+      internal_install(plugin_info, nil, env_local: opts[:env_local])
       plugin_source.spec
     end
 
@@ -206,7 +207,7 @@ module Vagrant
       if env_plugin_gem_path
         # If we are cleaning locally, remove any global specs. If
         # not, remove any local specs
-        if opts[:local]
+        if opts[:env_local]
           @logger.debug("Removing specifications that are not environment local")
           plugin_specs.delete_if do |spec|
             spec.full_gem_path.to_s.include?(plugin_gem_path.realpath.to_s)
@@ -361,7 +362,7 @@ module Vagrant
       # as we know the dependencies are satisfied and it will attempt to validate a gem's
       # dependencies are satisfied by gems in the install directory (which will likely not
       # be true)
-      install_path = extra[:local] ? env_plugin_gem_path : plugin_gem_path
+      install_path = extra[:env_local] ? env_plugin_gem_path : plugin_gem_path
       result = request_set.install_into(install_path.to_s, true,
         ignore_dependencies: true,
         prerelease: Vagrant.prerelease?,

@@ -46,7 +46,7 @@ module VagrantPlugins
             dirs = []
 
             # Do not include global paths if local only
-            if !env[:local]
+            if !env[:env_local]
               files << Vagrant::Plugin::Manager.instance.user_file
               dirs << Vagrant::Bundler.instance.plugin_gem_path
             end

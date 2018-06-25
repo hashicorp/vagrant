@@ -17,7 +17,7 @@ module VagrantPlugins
             end
 
             o.on("--local", "Remove local project plugins only") do |l|
-              options[:local] = l
+              options[:env_local] = l
             end
 
             o.on("--reinstall", "Reinstall current plugins after expunge") do |reinstall|
