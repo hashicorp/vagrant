@@ -73,6 +73,11 @@ describe VagrantPlugins::FTPPush::Push do
       subject.push
       expect(server.files).to eq(%w(Gemfile data.txt))
     end
+
+    it "raises informative exception when too many files to process" do
+      expect(subject).to receive(:all_files).and_raise(SystemStackError)
+      expect{ subject.push }.to raise_error(VagrantPlugins::FTPPush::Errors::TooManyFiles)
+    end
   end
 
   describe "#connect" do
