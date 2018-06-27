@@ -106,6 +106,7 @@ Vagrant Cloud may respond with the following response codes, depending on the st
 
 ##### **200** OK
 ##### **201** Created
+##### **204** No Content
 
 #### Client Errors
 
@@ -349,6 +350,48 @@ Responds [`200 OK`](#200-ok) if the authentication request was successful, other
     )
 
     response = api.get("/api/v1/authenticate")
+
+    if response.status.success?
+      # Success, the response attributes are available here.
+      p response.parse
+    else
+      # Error, inspect the `errors` key for more information.
+      p response.code, response.body
+    end
+    ```
+  </div>
+</div>
+
+### Delete a token
+
+`DELETE /api/v1/authenticate`
+
+Responds [`204 OK`](#204-no-content) if the deletion request was successful, otherwise responds [`401 Unauthorized`](#401-unauthorized).
+
+#### Example Request
+
+<div class="examples">
+  <ul class="examples-header">
+    <li class="examples-menu examples-menu-shell"><a onclick="setExampleLanguage('shell');">cURL</a></li>
+    <li class="examples-menu examples-menu-ruby"><a onclick="setExampleLanguage('ruby');">Ruby</a></li>
+  </ul>
+  <div class="examples-body">
+    ```shell
+    curl \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+      --request DELETE \
+      https://app.vagrantup.com/api/v1/authenticate
+    ```
+
+    ```ruby
+    # gem install http, or add `gem "http"` to your Gemfile
+    require "http"
+
+    api = HTTP.persistent("https://app.vagrantup.com").headers(
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+    )
+
+    response = api.delete("/api/v1/authenticate")
 
     if response.status.success?
       # Success, the response attributes are available here.
