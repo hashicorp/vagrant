@@ -17,7 +17,7 @@ module Vagrant
       # are properly tracked.
       #
       #     Vagrant/1.7.4 (+https://www.vagrantup.com; ruby2.1.0)
-      USER_AGENT = "Vagrant/#{VERSION} (+https://www.vagrantup.com; #{RUBY_ENGINE}#{RUBY_VERSION})".freeze
+      USER_AGENT = "Vagrant/#{VERSION} (+https://www.vagrantup.com; #{RUBY_ENGINE}#{RUBY_VERSION}) #{ENV['VAGRANT_USER_AGENT_PROVISIONAL_STRING']}".freeze
 
       # Supported file checksum
       CHECKSUM_MAP = {
