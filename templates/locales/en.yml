@@ -311,7 +311,7 @@ en:
       Vagrant was unable to check for the latest version of Vagrant.
       Please check manually at https://www.vagrantup.com
     version_upgrade_available: |-
-      A new version of Vagrant is available: %{latest_version} (installed version: ${installed_version})!
+      A new version of Vagrant is available: %{latest_version} (installed version: %{installed_version})!
       To upgrade visit: https://www.vagrantup.com/downloads.html
 
     version_upgrade_howto: |-
