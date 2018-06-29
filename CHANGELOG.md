@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- core: Show installed version of Vagrant when displaying version check [GH-9968]
+
 BUG FIXES:
 
 ## 2.1.2 (June 26, 2018)
