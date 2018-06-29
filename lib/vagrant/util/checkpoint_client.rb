@@ -162,7 +162,7 @@ module Vagrant
         ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
         if latest_version > installed_version
           @logger.info("new version of Vagrant available - #{latest_version}")
-          ui.info(I18n.t("vagrant.version_upgrade_available", latest_version: latest_version))
+          ui.info(I18n.t("vagrant.version_upgrade_available", latest_version: latest_version, installed_version: installed_version))
           env.ui.info("")
         else
           @logger.debug("vagrant is currently up to date")
