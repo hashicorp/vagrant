@@ -3,6 +3,7 @@ require "securerandom"
 require "set"
 
 require "vagrant"
+require "vagrant/action/builtin/mixin_synced_folders"
 require "vagrant/config/v2/util"
 require "vagrant/util/platform"
 require "vagrant/util/presence"
@@ -753,6 +754,33 @@ module VagrantPlugins
             provisioner_errors = vm_provisioner.config.validate(machine)
             if provisioner_errors
               errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
+            end
+          end
+        end
+
+        # If running from the Windows Subsystem for Linux, validate that configured
+        # hostpaths for synced folders are on DrvFs file systems, or the synced
+        # folder implementation explicitly supports non-DrvFs file system types
+        # within the WSL
+        if Vagrant::Util::Platform.wsl?
+          # Create a helper that will with the synced folders mixin
+          # from the builtin action to get the correct implementation
+          # to be used for each folder
+          sf_helper = Class.new do
+            include Vagrant::Action::Builtin::MixinSyncedFolders
+          end.new
+          folders = sf_helper.synced_folders(machine, config: self)
+          folders.each do |impl_name, data|
+            data.each do |_, fs|
+              hostpath = File.expand_path(fs[:hostpath], machine.env.root_path)
+              if !Vagrant::Util::Platform.wsl_drvfs_path?(hostpath)
+                sf_klass = sf_helper.plugins[impl_name.to_sym].first
+                if sf_klass.respond_to?(:wsl_allow_non_drvfs?) && sf_klass.wsl_allow_non_drvfs?
+                  next
+                end
+                errors["vm"] << I18n.t("vagrant.config.vm.shared_folder_wsl_not_drvfs",
+                  path: fs[:hostpath])
+              end
             end
           end
         end
