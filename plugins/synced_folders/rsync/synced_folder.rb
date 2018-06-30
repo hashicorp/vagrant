@@ -48,6 +48,12 @@ module VagrantPlugins
           RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
         end
       end
+
+      # Enable rsync synced folders within WSL when in use
+      # on non-DrvFs file systems
+      def self.wsl_allow_non_drvfs?
+        true
+      end
     end
   end
 end
