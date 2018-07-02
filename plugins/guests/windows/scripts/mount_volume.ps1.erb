@@ -17,7 +17,7 @@ if( (Test-Path "$MountPoint") -and (Test-ReparsePoint "$MountPoint") )
 {
   Write-Debug "Junction already exists, so I will delete it"
   # Powershell refuses to delete junctions, oh well use cmd
-  cmd /c rd "$MountPoint"
+  cmd.exe /c rd "$MountPoint"
 
   if ( $LASTEXITCODE -ne 0 )
   {
@@ -40,7 +40,7 @@ if (-not (Test-Path $BaseDirectory))
   New-Item $BaseDirectory -Type Directory -Force | Out-Null
 }
 
-cmd /c mklink /D "$MountPoint" "$VmProviderUncPath" | out-null
+cmd.exe /c mklink /D "$MountPoint" "$VmProviderUncPath" | out-null
 
 if ( $LASTEXITCODE -ne 0 )
 {
