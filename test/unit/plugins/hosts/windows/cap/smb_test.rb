@@ -14,9 +14,9 @@ Name        : vgt-CUSTOM_ID-1
 Path        : /a/path
 Description : vgt-CUSTOM_ID-1
 
-Name        : vgt-CUSTOM_ID-2
+Name        : vgt-CUSTOM_ID-1234
 Path        : /other/path
-Description : vgt-CUSTOM_ID-2
+Description : vgt-CUSTOM_ID-1234
 
 Name        : my-share
 Path        : /my/path
@@ -29,27 +29,10 @@ Description : Not Vagrant Owned
 Share name        Resource     Remark
 -----------------------------------------------
 vgt-CUSTOM_ID-1   /a/path      vgt-CUSTOM_ID-1
-vgt-CUSTOM_ID-2   /other/path  vgt-CUSTOM_ID-2
+vgt-CUSTOM_ID-1234
+                  /other/path  vgt-CUSTOM_ID-1234
 my-share          /my/path     Not Vagran...
 The command completed successfully.
-    EOF
-  }
-  let(:netshare1){ <<-EOF
-Share name vgt-CUSTOM_ID-1
-Path       /a/path
-Remark     vgt-CUSTOM_ID-1
-    EOF
-  }
-  let(:netshare2){ <<-EOF
-Share name vgt-CUSTOM_ID-2
-Path       /other/path
-Remark     vgt-CUSTOM_ID-2
-    EOF
-  }
-  let(:netshare_my){ <<-EOF
-Share name my-share
-Path       /my/path
-Remark     Not Vagrant Owned
     EOF
   }
 
@@ -91,9 +74,6 @@ Remark     Not Vagrant Owned
       allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/Get-SmbShare/).
         and_return(smblist)
       allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share/).and_return(netsharelist)
-      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share vgt-CUSTOM_ID-1/).and_return(netshare1)
-      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share vgt-CUSTOM_ID-2/).and_return(netshare2)
-      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share my/).and_return(netshare_my)
       allow(Vagrant::Util::PowerShell).to receive(:execute).and_return(result.new(0, "", ""))
     end
     after{ subject.smb_cleanup(env, machine, options) }
@@ -106,7 +86,7 @@ Remark     Not Vagrant Owned
     it "should remove owned shares" do
       expect(Vagrant::Util::PowerShell).to receive(:execute) do |*args|
         expect(args).to include("vgt-CUSTOM_ID-1")
-        expect(args).to include("vgt-CUSTOM_ID-2")
+        expect(args).to include("vgt-CUSTOM_ID-1234")
         result.new(0, "", "")
       end
     end
@@ -143,13 +123,13 @@ Remark     Not Vagrant Owned
       end
 
       it "should fetch list using net.exe" do
-        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share/).and_return("")
+        expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share/).and_return(netsharelist)
       end
 
       it "should remove owned shares" do
         expect(Vagrant::Util::PowerShell).to receive(:execute) do |*args|
           expect(args).to include("vgt-CUSTOM_ID-1")
-          expect(args).to include("vgt-CUSTOM_ID-2")
+          expect(args).to include("vgt-CUSTOM_ID-1234")
           result.new(0, "", "")
         end
       end
@@ -223,6 +203,30 @@ Remark     Not Vagrant Owned
       it "should not warn user" do
         expect(machine.env.ui).not_to receive(:warn)
       end
+    end
+  end
+
+  describe ".get_netshares" do
+    before do
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).with(/net share/).and_return(netsharelist)
+    end
+
+    it "should interpret net share table correctly" do
+      result = subject.get_netshares()
+      expect(result).to be == {
+        "vgt-CUSTOM_ID-1" => {
+          "Path" => "/a/path",
+          "Description" => "vgt-CUSTOM_ID-1"
+        },
+        "vgt-CUSTOM_ID-1234" => {
+          "Path" => "/other/path",
+          "Description" => "vgt-CUSTOM_ID-1234"
+        },
+        "my-share" => {
+          "Path" => "/my/path",
+          "Description" => "Not Vagran..."
+        }
+      }
     end
   end
 end
