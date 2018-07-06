@@ -7,7 +7,7 @@ param(
 
 $check = Check-VagrantHyperVAccess -Path $Path
 $result = @{
-    root_dir = ($Path -split '\\')[0,2] -join '\';
+    root_dir = ($Path -split '\\')[0,1] -join '\';
     result = $check
 }
 
