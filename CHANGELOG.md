@@ -8,6 +8,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- push/ftp: Custom error when attempting to push too many files [GH-9952]
+
 ## 2.1.2 (June 26, 2018)
 
 IMPROVEMENTS:
