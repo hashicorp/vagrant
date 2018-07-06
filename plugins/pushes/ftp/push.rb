@@ -2,6 +2,7 @@ require "net/ftp"
 require "pathname"
 
 require_relative "adapter"
+require_relative "errors"
 
 module VagrantPlugins
   module FTPPush
@@ -17,12 +18,17 @@ module VagrantPlugins
       def push
         # Grab files early so if there's an exception or issue, we don't have to
         # wait and close the (S)FTP connection as well
-        files = Hash[*all_files.flat_map do |file|
-          relative_path = relative_path_for(file, config.dir)
-          destination = File.join(config.destination, relative_path)
-          file = File.expand_path(file, env.root_path)
-          [file, destination]
-        end]
+        files = nil
+        begin
+          files = Hash[*all_files.flat_map do |file|
+              relative_path = relative_path_for(file, config.dir)
+              destination = File.join(config.destination, relative_path)
+              file = File.expand_path(file, env.root_path)
+              [file, destination]
+            end]
+        rescue SystemStackError
+          raise Errors::TooManyFiles
+        end
 
         ftp = "#{config.username}@#{config.host}:#{config.destination}"
         env.ui.info "Uploading #{env.root_path} to #{ftp}"

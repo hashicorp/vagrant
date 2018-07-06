@@ -9,3 +9,8 @@ en:
             config.push.define "ftp" do |push|
               push.%{attribute} = "..."
             end
+      too_many_files: |-
+        The configured directory for Vagrant FTP push contains too many files
+        to successfully complete the command. This can be resolved by either
+        removing extraneous files from the configured directory, or updating
+        the `dir` configuration option to a subdirectory.
