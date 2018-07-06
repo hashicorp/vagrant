@@ -337,7 +337,7 @@ if Vagrant.plugins_enabled?
             global_logger.info("Loading plugin `#{plugin_name}` with slash require: `#{plugin_slash}`")
             require plugin_slash
           else
-            raise
+            global_logger.warn("Failed to load plugin `#{plugin_name}`. Assuming library and moving on.")
           end
         end
       else
