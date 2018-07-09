@@ -784,6 +784,10 @@ module Vagrant
       error_key(:synced_folder_unusable)
     end
 
+    class TriggersBadExitCodes < VagrantError
+      error_key(:triggers_bad_exit_codes)
+    end
+
     class TriggersGuestNotRunning < VagrantError
       error_key(:triggers_guest_not_running)
     end

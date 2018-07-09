@@ -42,3 +42,5 @@ The trigger class takes various options.
   + `path`
 
 * `warn` (string) - A warning message that will be printed at the beginning of a trigger.
+
+* `exit_codes` (integer, array) - A set of acceptable exit codes to continue on. Defaults to `0` if option is absent. For now only valid with the `run` option.

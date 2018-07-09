@@ -125,11 +125,11 @@ module Vagrant
             end
 
             if trigger.run
-              run(trigger.run, trigger.on_error)
+              run(trigger.run, trigger.on_error, trigger.exit_codes)
             end
 
             if trigger.run_remote
-              run_remote(trigger.run_remote, trigger.on_error)
+              run_remote(trigger.run_remote, trigger.on_error, trigger.exit_codes)
             end
           end
         end
@@ -151,7 +151,7 @@ module Vagrant
         # Runs a script on a guest
         #
         # @param [Provisioners::Shell::Config] config A Shell provisioner config
-        def run(config, on_error)
+        def run(config, on_error, exit_codes)
           if config.inline
             cmd = Shellwords.split(config.inline)
 
@@ -188,6 +188,10 @@ module Vagrant
 
               @machine.ui.detail(data, options)
             end
+            if !exit_codes.include?(result.exit_code)
+              raise Errors::TriggersBadExitCodes,
+                code: result.exit_code
+            end
           rescue => e
             @machine.ui.error(I18n.t("vagrant.errors.triggers_run_fail"))
             @machine.ui.error(e.message)
@@ -205,7 +209,7 @@ module Vagrant
         # Runs a script on the guest
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
-        def run_remote(config, on_error)
+        def run_remote(config, on_error, exit_codes)
           unless @machine.state.id == :running
             if on_error == :halt
               raise Errors::TriggersGuestNotRunning,

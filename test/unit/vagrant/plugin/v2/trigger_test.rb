@@ -127,6 +127,9 @@ describe Vagrant::Plugin::V2::Trigger do
   context "#run" do
     let(:trigger_run) { VagrantPlugins::Kernel_V2::TriggerConfig.new }
     let(:shell_block) { {info: "hi", run: {inline: "echo 'hi'", env: {"KEY"=>"VALUE"}}} }
+    let(:shell_block_exit_codes) {
+      {info: "hi", run: {inline: "echo 'hi'", env: {"KEY"=>"VALUE"}},
+       exit_codes: [0,50]} }
     let(:path_block) { {warn: "bye",
                          run: {path: "script.sh", env: {"KEY"=>"VALUE"}},
                          on_error: :continue} }
@@ -145,8 +148,23 @@ describe Vagrant::Plugin::V2::Trigger do
       end
     end
 
+    let(:subprocess_result_failure) do
+      double("subprocess_result_failure").tap do |result|
+        allow(result).to receive(:exit_code).and_return(1)
+        allow(result).to receive(:stderr).and_return("")
+      end
+    end
+
+    let(:subprocess_result_custom) do
+      double("subprocess_result_custom").tap do |result|
+        allow(result).to receive(:exit_code).and_return(50)
+        allow(result).to receive(:stderr).and_return("")
+      end
+    end
+
     before do
       trigger_run.after(:up, shell_block)
+      trigger_run.after(:up, shell_block_exit_codes)
       trigger_run.before(:destroy, path_block)
       trigger_run.before(:destroy, path_block_ps1)
       trigger_run.finalize!
@@ -160,10 +178,11 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.after_triggers.first
       shell_config = trigger.run
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::PowerShell).to receive(:execute_inline).
         with("echo", "hi", options)
-      subject.send(:run, shell_config, on_error)
+      subject.send(:run, shell_config, on_error, exit_codes)
     end
 
     it "executes an path script with powershell if windows" do
@@ -175,10 +194,11 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.before_triggers[1]
       shell_config = trigger.run
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::PowerShell).to receive(:execute).
         with("/vagrant/home/script.ps1", options)
-      subject.send(:run, shell_config, on_error)
+      subject.send(:run, shell_config, on_error, exit_codes)
     end
 
     it "executes an inline script" do
@@ -188,10 +208,11 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.after_triggers.first
       shell_config = trigger.run
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).
         with("echo", "hi", options)
-      subject.send(:run, shell_config, on_error)
+      subject.send(:run, shell_config, on_error, exit_codes)
     end
 
     it "executes an path script" do
@@ -203,10 +224,11 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.before_triggers.first
       shell_config = trigger.run
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).
         with("/vagrant/home/script.sh", options)
-      subject.send(:run, shell_config, on_error)
+      subject.send(:run, shell_config, on_error, exit_codes)
     end
 
     it "continues on error" do
@@ -218,10 +240,11 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.before_triggers.first
       shell_config = trigger.run
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).
         with("/vagrant/home/script.sh", options)
-      subject.send(:run, shell_config, on_error)
+      subject.send(:run, shell_config, on_error, exit_codes)
     end
 
     it "halts on error" do
@@ -231,10 +254,39 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.after_triggers.first
       shell_config = trigger.run
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).
         with("echo", "hi", options)
-      expect { subject.send(:run, shell_config, on_error) }.to raise_error("Fail!")
+      expect { subject.send(:run, shell_config, on_error, exit_codes) }.to raise_error("Fail!")
+    end
+
+    it "allows for acceptable exit codes" do
+      allow(Vagrant::Util::Subprocess).to receive(:execute).
+        and_return(subprocess_result_custom)
+
+      trigger = trigger_run.after_triggers[1]
+      shell_config = trigger.run
+      on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
+
+      expect(Vagrant::Util::Subprocess).to receive(:execute).
+        with("echo", "hi", options)
+      subject.send(:run, shell_config, on_error, exit_codes)
+    end
+
+    it "exits if given a bad exit code" do
+      allow(Vagrant::Util::Subprocess).to receive(:execute).
+        and_return(subprocess_result_custom)
+
+      trigger = trigger_run.after_triggers.first
+      shell_config = trigger.run
+      on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
+
+      expect(Vagrant::Util::Subprocess).to receive(:execute).
+        with("echo", "hi", options)
+      expect { subject.send(:run, shell_config, on_error, exit_codes) }.to raise_error(Vagrant::Errors::TriggersBadExitCodes)
     end
   end
 
@@ -258,8 +310,9 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.after_triggers.first
       shell_config = trigger.run_remote
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
-      expect { subject.send(:run_remote, shell_config, on_error) }.
+      expect { subject.send(:run_remote, shell_config, on_error, exit_codes) }.
         to raise_error(Vagrant::Errors::TriggersGuestNotRunning)
     end
 
@@ -272,8 +325,9 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.before_triggers.first
       shell_config = trigger.run_remote
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
-      subject.send(:run_remote, shell_config, on_error)
+      subject.send(:run_remote, shell_config, on_error, exit_codes)
     end
 
     it "calls the provision function on the shell provisioner" do
@@ -285,8 +339,9 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.after_triggers.first
       shell_config = trigger.run_remote
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
-      subject.send(:run_remote, shell_config, on_error)
+      subject.send(:run_remote, shell_config, on_error, exit_codes)
     end
 
     it "continues on if provision fails" do
@@ -298,8 +353,9 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.before_triggers.first
       shell_config = trigger.run_remote
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
-      subject.send(:run_remote, shell_config, on_error)
+      subject.send(:run_remote, shell_config, on_error, exit_codes)
     end
 
     it "fails if it encounters an error" do
@@ -311,8 +367,9 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger = trigger_run.after_triggers.first
       shell_config = trigger.run_remote
       on_error = trigger.on_error
+      exit_codes = trigger.exit_codes
 
-      expect { subject.send(:run_remote, shell_config, on_error) }.
+      expect { subject.send(:run_remote, shell_config, on_error, exit_codes) }.
         to raise_error("Nope!")
     end
   end
