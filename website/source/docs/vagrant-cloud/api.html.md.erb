@@ -530,6 +530,101 @@ Sends a 2FA code to the requested delivery method.
 }
 ```
 
+## Search
+
+### Search for boxes
+
+`GET /api/v1/search`
+
+#### Arguments
+
+* `q` - (Optional) The search query. Results will match the `username`, `name`, or `short_description` fields for a box. If omitted, the top boxes based on `sort` and `order` will be returned (defaults to "downloads desc").
+* `provider` - (Optional) Filter results to boxes supporting for a specific provider.
+* `sort` - (Optional, default: `"downloads"`) The field to sort results on. Can be one of `"downloads"`, `"created"`, or `"updated"`.
+* `order` - (Optional, default: `"desc"`) The order to return the sorted field in. Can be `"desc"` os `"asc"`.
+* `limit` - (Optional, default: `10`) The number of results to return (max of 100).
+* `page` - (Optional, default: `1`)
+
+#### Example Request
+
+<div class="examples">
+  <ul class="examples-header">
+    <li class="examples-menu examples-menu-shell"><a onclick="setExampleLanguage('shell');">cURL</a></li>
+    <li class="examples-menu examples-menu-ruby"><a onclick="setExampleLanguage('ruby');">Ruby</a></li>
+  </ul>
+  <div class="examples-body">
+    ```shell
+    curl \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+      https://app.vagrantup.com/api/v1/search?q=test&provider=virtualbox
+    ```
+
+    ```ruby
+    # gem install http, or add `gem "http"` to your Gemfile
+    require "http"
+
+    api = HTTP.persistent("https://app.vagrantup.com").headers(
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+    )
+
+    response = api.get("/api/v1/search", params: {
+      q: "test",
+      provider: "virtualbox"
+    })
+
+    if response.status.success?
+      # Success, the response attributes are available here.
+      p response.parse
+    else
+      # Error, inspect the `errors` key for more information.
+      p response.code, response.body
+    end
+    ```
+  </div>
+</div>
+
+#### Example Response
+
+```json
+{
+  "boxes": [
+    {
+      "created_at": "2017-10-20T14:19:59.842Z",
+      "updated_at": "2017-10-20T15:23:53.363Z",
+      "tag": "myuser/test",
+      "name": "test",
+      "short_description": "My dev box",
+      "description_html": "<p>My development Vagrant box</p>\n",
+      "username": "myuser",
+      "description_markdown": "My development Vagrant box",
+      "private": true,
+      "current_version": {
+        "version": "1.2.3",
+        "status": "active",
+        "description_html": "<p>A new version</p>\n",
+        "description_markdown": "A new version",
+        "created_at": "2017-10-20T15:23:17.184Z",
+        "updated_at": "2017-10-20T15:23:53.355Z",
+        "number": "1.2.3",
+        "release_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release",
+        "revoke_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke",
+        "providers": [
+          {
+            "name": "virtualbox",
+            "hosted": false,
+            "hosted_token": null,
+            "original_url": "https://example.com/virtualbox-1.2.3.box",
+            "created_at": "2017-10-20T15:23:35.718Z",
+            "updated_at": "2017-10-20T15:23:35.718Z",
+            "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
 ## Boxes
 
 ### Read a box
