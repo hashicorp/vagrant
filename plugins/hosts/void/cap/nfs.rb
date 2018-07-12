@@ -7,7 +7,11 @@ module VagrantPlugins
         end
 
         def self.nfs_start_command(env)
-          "/usr/bin/sv up nfs-server "
+          <<-EOF
+            /usr/bin/ln -s /etc/sv/statd      /var/service/ && \
+            /usr/bin/ln -s /etc/sv/rpcbind    /var/service/ && \
+            /usr/bin/ln -s /etc/sv/nfs-server /var/service/
+          EOF
         end
 
         def self.nfs_installed(env)
