@@ -7,6 +7,7 @@ module VagrantPlugins
     class VagrantConfigTrigger < Vagrant.plugin("2", :config)
       # Defaults
       DEFAULT_ON_ERROR = :halt
+      DEFAULT_EXIT_CODE = 0
 
       #-------------------------------------------------------------------
       # Config class for a given Trigger
@@ -50,7 +51,6 @@ module VagrantPlugins
       # @return [Symbol, Array]
       attr_accessor :ignore
 
-
       # If set, will only run trigger for guests that match keys for this parameter.
       #
       # @return [String, Regex, Array]
@@ -66,6 +66,11 @@ module VagrantPlugins
       # @return [Hash]
       attr_accessor :run_remote
 
+      # If set, will not run trigger for the configured Vagrant commands.
+      #
+      # @return [Integer, Array]
+      attr_accessor :exit_codes
+
       def initialize(command)
         @logger = Log4r::Logger.new("vagrant::config::vm::trigger::config")
 
@@ -77,6 +82,7 @@ module VagrantPlugins
         @only_on = UNSET_VALUE
         @run = UNSET_VALUE
         @run_remote = UNSET_VALUE
+        @exit_codes = UNSET_VALUE
 
         # Internal options
         @id = SecureRandom.uuid
@@ -96,6 +102,7 @@ module VagrantPlugins
         @run = nil if @run == UNSET_VALUE
         @run_remote = nil if @run_remote == UNSET_VALUE
         @only_on = nil if @only_on == UNSET_VALUE
+        @exit_codes = DEFAULT_EXIT_CODE if @exit_codes == UNSET_VALUE
 
         # these values are expected to always be an Array internally,
         # but can be set as a single String or Symbol
@@ -109,6 +116,10 @@ module VagrantPlugins
         if @ignore
           @ignore = Array(@ignore)
           @ignore.map! { |i| i.to_sym }
+        end
+
+        if @exit_codes
+          @exit_codes = Array(@exit_codes)
         end
 
         # Convert @run and @run_remote to be a "Shell provisioner" config
@@ -187,6 +198,12 @@ module VagrantPlugins
         if @on_error != :halt
           if @on_error != :continue
             errors << I18n.t("vagrant.config.triggers.on_error_bad_type", cmd: @command)
+          end
+        end
+
+        if @exit_codes
+          if !@exit_codes.all? {|i| i.is_a?(Integer)}
+            errors << I18n.t("vagrant.config.triggers.exit_codes_bad_type", cmd: @command)
           end
         end
 

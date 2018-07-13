@@ -1430,6 +1430,8 @@ en:
         Trigger run failed
       triggers_guest_not_running: |-
         Could not run remote script on %{machine_name} because its state is %{state}
+      triggers_bad_exit_codes: |-
+        A script exited with an unacceptable exit code %{code}.
       triggers_no_block_given: |-
         There was an error parsing the Vagrantfile:
         No config was given for the trigger(s) %{command}.
@@ -1728,6 +1730,9 @@ en:
         on_error_bad_type: |-
           Invalid type set for `on_error` on trigger for command '%{cmd}'. `on_error` can
           only be `:halt` (default) or `:continue`.
+        exit_codes_bad_type: |-
+          Invalid type set for `exit_codes` on trigger for command '%{cmd}'. `exit_codes` can
+          only be a single integer or an array of integers.
         only_on_bad_type: |-
           Invalid type found for `only_on`. All values must be a `String` or `Regexp`.
         privileged_ignored: |-
