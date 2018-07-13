@@ -40,8 +40,10 @@ module VagrantPlugins
       attr_accessor :auto_start_action
       # @return [String] Automatic action on stop of host. Default: ShutDown (ShutDown, TurnOff, Save)
       attr_accessor :auto_stop_action
-      # @return [Boolean] Enable automatic checkpoints. Default: false
+      # @return [Boolean] Enable checkpoints. Default: true
       attr_accessor :enable_checkpoints
+      # @return [Boolean] Enable automatic checkpoints. Default: false
+      attr_accessor :enable_automatic_checkpoints
       # @return [Boolean] Enable virtualization extensions
       attr_accessor :enable_virtualization_extensions
       # @return [Hash] Options for VMServiceIntegration
@@ -60,6 +62,7 @@ module VagrantPlugins
         @auto_start_action = UNSET_VALUE
         @auto_stop_action = UNSET_VALUE
         @enable_virtualization_extensions = UNSET_VALUE
+        @enable_automatic_checkpoints = UNSET_VALUE
         @enable_checkpoints = UNSET_VALUE
         @vm_integration_services = {}
       end
@@ -85,11 +88,20 @@ module VagrantPlugins
         @auto_start_action = "Nothing" if @auto_start_action == UNSET_VALUE
         @auto_stop_action = "ShutDown" if @auto_stop_action == UNSET_VALUE
         @enable_virtualization_extensions = false if @enable_virtualization_extensions == UNSET_VALUE
+
+        if @enable_automatic_checkpoints == UNSET_VALUE
+          @enable_automatic_checkpoints = false
+        else
+          @enable_automatic_checkpoints = !!@enable_automatic_checkpoints
+        end
         if @enable_checkpoints == UNSET_VALUE
-          @enable_checkpoints = false
+          @enable_checkpoints = true
         else
           @enable_checkpoints = !!@enable_checkpoints
         end
+
+        # If automatic checkpoints are enabled, checkpoints will automatically be enabled
+        @enable_checkpoints ||= @enable_automatic_checkpoints
       end
 
       def validate(machine)

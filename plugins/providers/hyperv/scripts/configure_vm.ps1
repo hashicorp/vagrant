@@ -18,7 +18,9 @@ param(
     [parameter (Mandatory=$false)]
     [switch] $VirtualizationExtensions,
     [parameter (Mandatory=$false)]
-    [switch] $EnableCheckpoints
+    [switch] $EnableCheckpoints,
+    [parameter (Mandatory=$false)]
+    [switch] $EnableAutomaticCheckpoints
 )
 
 $ErrorActionPreference = "Stop"
@@ -76,6 +78,7 @@ if($SwitchID) {
         Set-VagrantVMSwitch -VM $VM -SwitchName $SwitchName
     } catch {
         Write-ErrorMessage "Failed to configure network adapter: ${PSItem}"
+        exit 1
     }
 }
 
@@ -91,5 +94,20 @@ try {
     Hyper-V\Set-VM -VM $VM -CheckpointType $checkpoints
 } catch {
     Write-ErrorMessage "Failed to ${CheckpointAction} checkpoints on VM: ${PSItem}"
+    exit 1
+}
+
+if($EnableAutomaticCheckpoints) {
+    $autochecks = 1
+    $AutoAction = "enabled"
+} else {
+    $autochecks = 0
+    $AutoAction = "disable"
+}
+
+try {
+    Hyper-V\Set-VM -VM $VM -AutomaticCheckpointsEnabled $autochecks
+} catch {
+    Write-ErrorMessage "Failed to ${AutoAction} automatic checkpoints on VM: ${PSItem}"
     exit 1
 }

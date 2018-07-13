@@ -26,6 +26,7 @@ describe VagrantPlugins::HyperV::Action::Configure do
       auto_start_action: "Nothing",
       auto_stop_action: "Save",
       enable_checkpoints: false,
+      enable_automatic_checkpoints: true,
       enable_virtualization_extensions: false,
       vm_integration_services: vm_integration_services
     )

@@ -70,6 +70,7 @@ module VagrantPlugins
             "AutoStartAction" => env[:machine].provider_config.auto_start_action,
             "AutoStopAction" => env[:machine].provider_config.auto_stop_action,
             "EnableCheckpoints" => env[:machine].provider_config.enable_checkpoints,
+            "EnableAutomaticCheckpoints" => env[:machine].provider_config.enable_automatic_checkpoints,
             "VirtualizationExtensions" => !!env[:machine].provider_config.enable_virtualization_extensions,
           }
           options.delete_if{|_,v| v.nil? }
