@@ -3,7 +3,7 @@ module VagrantPlugins
     module Cap
       class NFS
         def self.nfs_check_command(env)
-          "/usr/bin/sv status nfs-server"
+          "sudo /usr/bin/sv status nfs-server"
         end
 
         def self.nfs_start_command(env)
