@@ -8,7 +8,6 @@ describe Vagrant::Bundler do
 
   let(:iso_env) { isolated_environment }
   let(:env) { iso_env.create_vagrant_env }
-  let(:subject) { Vagrant::Bundler.instance }
 
   before do
     @tmpdir = Dir.mktmpdir("vagrant-bundler-test")
