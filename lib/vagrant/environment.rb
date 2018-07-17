@@ -171,7 +171,7 @@ module Vagrant
         plugins = process_configured_plugins
       end
 
-      # Load any local plugins
+      # Load any environment local plugins
       Vagrant::Plugin::Manager.instance.load_plugins(plugins)
 
       plugins = Vagrant::Plugin::Manager.instance.globalize!

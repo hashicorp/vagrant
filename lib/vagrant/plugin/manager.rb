@@ -43,6 +43,9 @@ module Vagrant
         @local_file = nil
       end
 
+      # Enable global plugins
+      #
+      # @return [Hash] list of plugins
       def globalize!
         @logger.debug("Enabling globalized plugins")
         if !Vagrant.plugins_init?
@@ -55,7 +58,10 @@ module Vagrant
         plugins
       end
 
+      # Enable environment local plugins
+      #
       # @param [Environment] env Vagrant environment
+      # @return [Hash] list of plugins
       def localize!(env)
         if env.local_data_path
           @logger.debug("Enabling localized plugins")
@@ -67,6 +73,10 @@ module Vagrant
         end
       end
 
+      # Initialize bundler with given plugins
+      #
+      # @param [Hash] plugins List of plugins
+      # @return [nil]
       def bundler_init(plugins)
         @logger.info("Plugins:")
         plugins.each do |plugin_name, plugin_info|
@@ -96,7 +106,7 @@ module Vagrant
       # @param [String] name Name of the plugin (gem)
       # @return [Gem::Specification]
       def install_plugin(name, **opts)
-        if opts[:local] && @local_file.nil?
+        if opts[:env_local] && @local_file.nil?
           raise Errors::PluginNoLocalError
         end
 
@@ -117,7 +127,7 @@ module Vagrant
         if local_spec.nil?
           result = nil
           install_lambda = lambda do
-            Vagrant::Bundler.instance.install(plugins, opts[:local]).each do |spec|
+            Vagrant::Bundler.instance.install(plugins, opts[:env_local]).each do |spec|
               next if spec.name != name
               next if result && result.version >= spec.version
               result = spec
@@ -133,13 +143,13 @@ module Vagrant
           result = local_spec
         end
         # Add the plugin to the state file
-        plugin_file = opts[:local] ? @local_file : @user_file
+        plugin_file = opts[:env_local] ? @local_file : @user_file
         plugin_file.add_plugin(
           result.name,
           version: opts[:version],
           require: opts[:require],
           sources: opts[:sources],
-          local:   !!opts[:local],
+          env_local: !!opts[:env_local],
           installed_gem_version: result.version.to_s
         )
 
@@ -165,11 +175,11 @@ module Vagrant
           end
         end
 
-        if opts[:local] && @local_file.nil?
+        if opts[:env_local] && @local_file.nil?
           raise Errors::PluginNoLocalError
         end
 
-        plugin_file = opts[:local] ? @local_file : @user_file
+        plugin_file = opts[:env_local] ? @local_file : @user_file
 
         if !plugin_file.has_plugin?(name)
           raise Errors::PluginNotInstalled,
@@ -186,11 +196,11 @@ module Vagrant
 
       # Updates all or a specific set of plugins.
       def update_plugins(specific, **opts)
-        if opts[:local] && @local_file.nil?
+        if opts[:env_local] && @local_file.nil?
           raise Errors::PluginNoLocalError
         end
 
-        plugin_file = opts[:local] ? @local_file : @user_file
+        plugin_file = opts[:env_local] ? @local_file : @user_file
 
         result = Vagrant::Bundler.instance.update(plugin_file.installed_plugins, specific)
         plugin_file.installed_plugins.each do |name, info|
@@ -274,6 +284,10 @@ module Vagrant
         installed_map.values
       end
 
+      # Loads the requested plugins into the Vagrant runtime
+      #
+      # @param [Hash] plugins List of plugins to load
+      # @return [nil]
       def load_plugins(plugins)
         if !Vagrant.plugins_enabled?
           @logger.warn("Plugin loading is disabled")
@@ -319,6 +333,7 @@ module Vagrant
           end
           raise Vagrant::Errors::PluginLoadError, message: err.to_s
         end
+        nil
       end
     end
   end

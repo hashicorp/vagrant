@@ -111,6 +111,7 @@ module Vagrant
       end
 
       Gem::Specification.reset
+      nil
     end
 
     # Removes any temporary files created by init

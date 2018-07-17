@@ -38,7 +38,7 @@ module VagrantPlugins
             meta = ", global"
             if plugin
               meta = ", system" if plugin["system"]
-              meta = ", local" if plugin["local"]
+              meta = ", local" if plugin["env_local"]
             end
             env[:ui].info "#{spec.name} (#{spec.version}#{meta})"
             env[:ui].machine("plugin-name", spec.name)

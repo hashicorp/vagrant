@@ -5,13 +5,13 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
   let(:home_path){ '/fake/file/path/.vagrant.d' }
   let(:gems_path){ "#{home_path}/gems" }
   let(:force){ true }
-  let(:local){ false }
+  let(:env_local){ false }
   let(:env) {{
     ui: Vagrant::UI::Silent.new,
     home_path: home_path,
     gems_path: gems_path,
     force: force,
-    local: local
+    env_local: env_local
   }}
 
   let(:user_file) { double("user_file", exist?: true, delete: true) }
@@ -72,7 +72,7 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
     end
 
     context "when local option is set" do
-      let(:local) { true }
+      let(:env_local) { true }
 
       it "should not delete plugins" do
         expect(user_file).not_to receive(:delete)
@@ -94,7 +94,7 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
       end
 
       context "when local option is set" do
-        let(:local) { true }
+        let(:env_local) { true }
 
         it "should delete local plugins" do
           expect(local_file).to receive(:delete)
