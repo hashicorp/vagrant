@@ -14,7 +14,7 @@ param(
     [parameter (Mandatory=$false)]
     [string] $VMName=$null,
     [parameter (Mandatory=$false)]
-	 [string] $disks_config=$null
+	 [string] $DisksConfig=$null
 )
 
 $ErrorActionPreference = "Stop"
@@ -74,8 +74,8 @@ function AddDisks($vm, $controller) {
     }          
 }
 
-if ($disks_config) {   
-    $parsed_disks_config = $disks_config | ConvertFrom-Json
-    $parsed_disks_config | ForEach-Object { AddDisks -vm $VMName -controller $_ }
+if ($DisksConfig) {   
+    $ParsedDisksConfig = $DisksConfig | ConvertFrom-Json
+    $ParsedDisksConfig | ForEach-Object { AddDisks -vm $VMName -controller $_ }
 }
 

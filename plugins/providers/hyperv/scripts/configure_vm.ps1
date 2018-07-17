@@ -20,7 +20,7 @@ param(
     [parameter (Mandatory=$false)]
     [switch] $EnableCheckpoints,
     [parameter (Mandatory=$false)]
-    [string] $disks_config=$null
+    [string] $DisksConfig=$null
 )
 
 $ErrorActionPreference = "Stop"
