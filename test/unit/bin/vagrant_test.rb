@@ -143,5 +143,14 @@ describe "vagrant bin" do
         expect(ENV).not_to receive(:[]=).with("VAGRANT_DISABLE_PLUGIN_INIT", "1")
       end
     end
+
+    context "--local" do
+      let(:argv) { ["plugin", "install", "--local"] }
+
+      it "should not unset vagrantfile" do
+        expect(Vagrant::Environment).to receive(:new).
+          with(hash_excluding(vagrantfile_name: "")).and_return(env)
+      end
+    end
   end
 end
