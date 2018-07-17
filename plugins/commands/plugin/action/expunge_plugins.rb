@@ -47,13 +47,13 @@ module VagrantPlugins
 
             # Do not include global paths if local only
             if !env[:env_local]
-              files << Vagrant::Plugin::Manager.instance.user_file
+              files << Vagrant::Plugin::Manager.instance.user_file.path
               dirs << Vagrant::Bundler.instance.plugin_gem_path
             end
 
             # Add local paths if they exist
             if Vagrant::Plugin::Manager.instance.local_file
-              files << Vagrant::Plugin::Manager.instance.local_file
+              files << Vagrant::Plugin::Manager.instance.local_file.path
               dirs << Vagrant::Bundler.instance.env_plugin_gem_path
             end
 

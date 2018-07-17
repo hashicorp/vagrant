@@ -14,7 +14,8 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
     env_local: env_local
   }}
 
-  let(:user_file) { double("user_file", exist?: true, delete: true) }
+  let(:user_file) { double("user_file", path: user_file_pathname) }
+  let(:user_file_pathname) { double("user_file_pathname", exist?: true, delete: true) }
   let(:local_file) { nil }
   let(:bundler) { double("bundler", plugin_gem_path: plugin_gem_path,
     env_plugin_gem_path: env_plugin_gem_path) }
@@ -44,7 +45,7 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
     end
 
     it "should delete all plugins" do
-      expect(user_file).to receive(:delete)
+      expect(user_file_pathname).to receive(:delete)
       expect(plugin_gem_path).to receive(:rmtree)
       subject.call(env)
     end
@@ -75,19 +76,20 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
       let(:env_local) { true }
 
       it "should not delete plugins" do
-        expect(user_file).not_to receive(:delete)
+        expect(user_file_pathname).not_to receive(:delete)
         expect(plugin_gem_path).not_to receive(:rmtree)
         subject.call(env)
       end
     end
 
     context "when local plugins exist" do
-      let(:local_file) { double("local_file", exist?: true, delete: true) }
+      let(:local_file) { double("local_file", path: local_file_pathname) }
+      let(:local_file_pathname) { double("local_file_pathname", exist?: true, delete: true) }
       let(:env_plugin_gem_path) { double("env_plugin_gem_path", exist?: true, rmtree: true) }
 
       it "should delete user and local plugins" do
-        expect(user_file).to receive(:delete)
-        expect(local_file).to receive(:delete)
+        expect(user_file_pathname).to receive(:delete)
+        expect(local_file_pathname).to receive(:delete)
         expect(plugin_gem_path).to receive(:rmtree)
         expect(env_plugin_gem_path).to receive(:rmtree)
         subject.call(env)
@@ -97,13 +99,13 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
         let(:env_local) { true }
 
         it "should delete local plugins" do
-          expect(local_file).to receive(:delete)
+          expect(local_file_pathname).to receive(:delete)
           expect(env_plugin_gem_path).to receive(:rmtree)
           subject.call(env)
         end
 
         it "should not delete user plugins" do
-          expect(user_file).not_to receive(:delete)
+          expect(user_file_pathname).not_to receive(:delete)
           expect(plugin_gem_path).not_to receive(:rmtree)
           subject.call(env)
         end
