@@ -10,6 +10,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - push/ftp: Custom error when attempting to push too many files [GH-9952]
+- util/downloader: Prevent errors when Location header contains relative path [GH-10017]
 
 ## 2.1.2 (June 26, 2018)
 
