@@ -46,6 +46,8 @@ module VagrantPlugins
       attr_accessor :enable_virtualization_extensions
       # @return [Hash] Options for VMServiceIntegration
       attr_accessor :vm_integration_services
+      # @return [Hash] Config of disks and controllers
+      attr_accessor :disks_config
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -62,6 +64,7 @@ module VagrantPlugins
         @enable_virtualization_extensions = UNSET_VALUE
         @enable_checkpoints = UNSET_VALUE
         @vm_integration_services = {}
+        @disks_config = UNSET_VALUE
       end
 
       def finalize!
@@ -90,6 +93,7 @@ module VagrantPlugins
         else
           @enable_checkpoints = !!@enable_checkpoints
         end
+        @disks_config = nil if @disks_config == UNSET_VALUE
       end
 
       def validate(machine)

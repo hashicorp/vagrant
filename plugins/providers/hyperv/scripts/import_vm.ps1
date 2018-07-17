@@ -12,7 +12,9 @@ param(
     [parameter (Mandatory=$false)]
     [switch] $LinkedClone,
     [parameter (Mandatory=$false)]
-    [string] $VMName=$null
+    [string] $VMName=$null,
+    [parameter (Mandatory=$false)]
+	 [string] $disks_config=$null
 )
 
 $ErrorActionPreference = "Stop"
@@ -35,3 +37,45 @@ try {
     Write-ErrorMessage "${PSItem}"
     exit 1
 }
+
+
+#controller -  path (for existent)
+#              path,
+#              sizeGB, name (for new)
+function AddDisks($vm, $controller) {
+    #get controller    
+	 
+	 $contNumber =  ($vm | Add-VMScsiController -PassThru).ControllerNumber
+    foreach($disk in $controller) {
+        #get vhd
+        $vhd = $null
+        if($disk.Path) {
+            if (Test-Path -Path $disk.Path) {
+                $vhd = Resolve-Path -Path $disk.Path
+            }   
+        }
+        else {
+            $vhd = $disk.Name
+            if (!(Test-Path -Path $vhd)) {
+                New-VHD -Path $vhd -SizeBytes ([UInt64]$disk.Size * 1GB) -Dynamic            
+            }
+        }
+        if (!(Test-Path -Path $vhd)) {
+            Write-Error "There is error in virtual disk (VHD) configuration"
+            break
+            }
+
+        $driveParam = @{
+            ControllerNumber = $contNumber
+            Path = $vhd
+            ControllerType = "SCSI"
+        }
+        $vm | Add-VMHardDiskDrive @driveParam     
+    }          
+}
+
+if ($disks_config) {   
+    $parsed_disks_config = $disks_config | ConvertFrom-Json
+    $parsed_disks_config | ForEach-Object { AddDisks -vm $VMName -controller $_ }
+}
+

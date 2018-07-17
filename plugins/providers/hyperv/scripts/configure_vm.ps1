@@ -18,7 +18,9 @@ param(
     [parameter (Mandatory=$false)]
     [switch] $VirtualizationExtensions,
     [parameter (Mandatory=$false)]
-    [switch] $EnableCheckpoints
+    [switch] $EnableCheckpoints,
+    [parameter (Mandatory=$false)]
+    [string] $disks_config=$null
 )
 
 $ErrorActionPreference = "Stop"

@@ -1,5 +1,6 @@
 require "fileutils"
 require "log4r"
+require "json"
 
 module VagrantPlugins
   module HyperV
@@ -16,7 +17,7 @@ module VagrantPlugins
         def call(env)
           vm_dir = env[:machine].box.directory.join("Virtual Machines")
           hd_dir = env[:machine].box.directory.join("Virtual Hard Disks")
-
+          disks_config = env[:machine].provider_config.disks_config
           if !vm_dir.directory? || !hd_dir.directory?
             @logger.error("Required virtual machine directory not found!")
             raise Errors::BoxInvalid, name: env[:machine].name
@@ -68,6 +69,7 @@ module VagrantPlugins
             "SourcePath" => Vagrant::Util::Platform.wsl_to_windows_path(image_path).gsub("/", "\\"),
             "VMName" => env[:machine].provider_config.vmname,
           }
+          options[:disks_config] = add_abs_path(disks_config, env[:machine].data_dir).to_json.to_s.gsub('"', '"""')  if disks_config
 
 
           env[:ui].detail("Creating and registering the VM...")
@@ -77,7 +79,12 @@ module VagrantPlugins
           env[:machine].id = server["id"]
           @app.call(env)
         end
+
+        private
+        def add_abs_path(disks_config, data_dir)
+          disks_config.each {|controller| controller.each {|disk| disk['name'] = data_dir.join("#{disk['name']}.vhdx").to_s.gsub("/", "\\") if disk['name'] }}
       end
     end
   end
+end
 end
