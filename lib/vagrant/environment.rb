@@ -953,7 +953,7 @@ module Vagrant
           ui.info(I18n.t("vagrant.commands.plugin.installing", name: name))
           spec = Plugin::Manager.instance.install_plugin(name,
             {sources: Vagrant::Bundler::DEFAULT_GEM_SOURCES.dup}.merge(
-              config_plugins[name]).merge(local: true))
+              config_plugins[name]).merge(env_local: true))
           ui.info(I18n.t("vagrant.commands.plugin.installed",
             name: spec.name, version: spec.version.to_s))
         end
