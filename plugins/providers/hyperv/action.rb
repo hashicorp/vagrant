@@ -139,17 +139,23 @@ module VagrantPlugins
                 next
               end
 
-              b2.use Provision
-              b2.use Configure
-              b2.use SetName
-              b2.use NetSetVLan
-              b2.use NetSetMac
-              b2.use StartInstance
-              b2.use WaitForIPAddress
-              b2.use WaitForCommunicator, [:running]
-              b2.use SyncedFolderCleanup
-              b2.use SyncedFolders
-              b2.use SetHostname
+              b2.use Call, IsState, :saved do |env3, b3|
+                # When state is `:saved` it is a snapshot being restored
+                if !env3[:result]
+                  b3.use Provision
+                  b3.use Configure
+                  b3.use SetName
+                  b3.use NetSetVLan
+                  b3.use NetSetMac
+                end
+
+                b3.use StartInstance
+                b3.use WaitForIPAddress
+                b3.use WaitForCommunicator, [:running]
+                b3.use SyncedFolderCleanup
+                b3.use SyncedFolders
+                b3.use SetHostname
+              end
             end
           end
         end

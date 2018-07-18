@@ -163,9 +163,29 @@ describe VagrantPlugins::HyperV::Config do
   end
 
   describe "#enable_checkpoints" do
-    it "is false by default" do
+    it "is true by default" do
+      subject.finalize!
+      expect(subject.enable_checkpoints).to eq(true)
+    end
+
+    it "can be set" do
+      subject.enable_checkpoints = false
       subject.finalize!
       expect(subject.enable_checkpoints).to eq(false)
+    end
+
+    it "is enabled automatically when enable_automatic_checkpoints is enabled" do
+      subject.enable_checkpoints = false
+      subject.enable_automatic_checkpoints = true
+      subject.finalize!
+      expect(subject.enable_checkpoints).to eq(true)
+    end
+  end
+
+  describe "#enable_automatic_checkpoints" do
+    it "is false by default" do
+      subject.finalize!
+      expect(subject.enable_automatic_checkpoints).to eq(false)
     end
 
     it "can be set" do
