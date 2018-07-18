@@ -44,7 +44,7 @@ argv.each_index do |i|
 
     # Do not load plugins when performing plugin operations
     if arg == "plugin"
-      if argv.none?{|a| a == "--local" }
+      if argv.none?{|a| a == "--local" } && !ENV["VAGRANT_LOCAL_PLUGINS_LOAD"]
         opts[:vagrantfile_name] = ""
       end
       ENV['VAGRANT_NO_PLUGINS'] = "1"
