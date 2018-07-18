@@ -248,3 +248,7 @@ detection.
 
 Vagrant will not display the warning about disabling the core trigger feature if
 the community plugin is installed.
+
+## `VAGRANT_USER_AGENT_PROVISIONAL_STRING`
+
+Vagrant will append the contents of this variable to the default user agent header.
