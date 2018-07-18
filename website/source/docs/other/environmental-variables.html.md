@@ -167,6 +167,13 @@ If this is set to any value, Vagrant will not prompt for confirmation
 prior to installing local plugins which have been defined within the
 local Vagrantfile.
 
+## `VAGRANT_LOCAL_PLUGINS_LOAD`
+
+If this is set Vagrant will not stub the Vagrantfile when running
+`vagrant plugin` commands. When this environment variable is set the
+`--local` flag will not be required by `vagrant plugin` commands to
+enable local project plugins.
+
 ## `VAGRANT_NO_PARALLEL`
 
 If this is set, Vagrant will not perform any parallel operations (such as
