@@ -361,5 +361,53 @@ describe Vagrant::Util::Platform do
         end
       end
     end
+
+    describe ".wsl_drvfs_mounts" do
+      let(:mount_output) { <<-EOF
+rootfs on / type lxfs (rw,noatime)
+sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,noatime)
+proc on /proc type proc (rw,nosuid,nodev,noexec,noatime)
+none on /dev type tmpfs (rw,noatime,mode=755)
+devpts on /dev/pts type devpts (rw,nosuid,noexec,noatime)
+none on /run type tmpfs (rw,nosuid,noexec,noatime,mode=755)
+none on /run/lock type tmpfs (rw,nosuid,nodev,noexec,noatime)
+none on /run/shm type tmpfs (rw,nosuid,nodev,noatime)
+none on /run/user type tmpfs (rw,nosuid,nodev,noexec,noatime,mode=755)
+binfmt_misc on /proc/sys/fs/binfmt_misc type binfmt_misc (rw,noatime)
+C: on /mnt/c type drvfs (rw,noatime)
+EOF
+      }
+
+      before do
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with("mount").
+          and_return(Vagrant::Util::Subprocess::Result.new(0, mount_output, ""))
+      end
+
+      it "should locate DrvFs mount path" do
+        expect(subject.wsl_drvfs_mounts).to eq(["/mnt/c"])
+      end
+
+      context "when no DrvFs mounts exist" do
+        let(:mount_output){ "" }
+
+        it "should locate no paths" do
+          expect(subject.wsl_drvfs_mounts).to eq([])
+        end
+      end
+    end
+
+    describe ".wsl_drvfs_path?" do
+      before do
+        expect(subject).to receive(:wsl_drvfs_mounts).and_return(["/mnt/c"])
+      end
+
+      it "should return true when path prefix is found" do
+        expect(subject.wsl_drvfs_path?("/mnt/c/some/path")).to be_truthy
+      end
+
+      it "should return false when path prefix is not found" do
+        expect(subject.wsl_drvfs_path?("/home/vagrant/some/path")).to be_falsey
+      end
+    end
   end
 end

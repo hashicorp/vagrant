@@ -484,6 +484,41 @@ module Vagrant
             path.to_s.start_with?(wsl_windows_accessible_path.to_s)
         end
 
+        # Mount pattern for extracting local mount information
+        MOUNT_PATTERN = /^(?<device>.+?) on (?<mount>.+?) type (?<type>.+?) \((?<options>.+)\)/.freeze
+
+        # Get list of local mount paths that are DrvFs file systems
+        #
+        # @return [Array<String>]
+        def wsl_drvfs_mounts
+          if !defined?(@_wsl_drvfs_mounts)
+            @_wsl_drvfs_mounts = []
+            if wsl?
+              result = Util::Subprocess.execute("mount")
+              result.stdout.each_line do |line|
+                info = line.match(MOUNT_PATTERN)
+                if info && info[:type] == "drvfs"
+                  @_wsl_drvfs_mounts << info[:mount]
+                end
+              end
+            end
+          end
+          @_wsl_drvfs_mounts
+        end
+
+        # Check if given path is located on DrvFs file system
+        #
+        # @param [String, Pathname] path Path to check
+        # @return [Boolean]
+        def wsl_drvfs_path?(path)
+          if wsl?
+            wsl_drvfs_mounts.each do |mount_path|
+              return true if path.to_s.start_with?(mount_path)
+            end
+          end
+          false
+        end
+
         # If running within the Windows Subsystem for Linux, this will provide
         # simple setup to allow sharing of the user's VAGRANT_HOME directory
         # within the subsystem

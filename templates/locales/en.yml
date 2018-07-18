@@ -1799,6 +1799,10 @@ en:
           be an array of options.
         shared_folder_requires_guestpath_or_name: |-
           Shared folder options must include a guestpath and/or name.
+        shared_folder_wsl_not_drvfs: |-
+          The host path of the shared folder is not supported from WSL. Host
+          path of the shared folder must be located on a file system with
+          DrvFs type. Host path: %{path}
 
 #-------------------------------------------------------------------------------
 # Translations for commands. e.g. `vagrant x`

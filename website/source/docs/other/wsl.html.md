@@ -9,10 +9,10 @@ description: |-
 
 # Vagrant and Windows Subsystem for Linux
 
-Windows has recently introduced a new feature called the Windows Subsystem
-for Linux (WSL). This is a beta feature available in developer mode on recent
-releases of Windows 10. It is important to note that this feature is still
-in _beta_ on Windows, and Vagrant support should be considered _alpha_.
+Recent versions of Windows 10 now include Windows Subsystem for Linux (WSL) as
+an optional Windows feature. The WSL supports running a Linux environment
+within Windows. Vagrant support for WSL is still in development and should
+be considered _beta_.
 
 <div class="alert alert-warning">
   <strong>Warning: Advanced Topic!</strong> Using Vagrant within the Windows
@@ -21,42 +21,37 @@ in _beta_ on Windows, and Vagrant support should be considered _alpha_.
 </div>
 
 
-# Installation
-
-Installation requires WSL, Ubuntu on Windows, and Vagrant. Read on for installation
-instructions for each item.
-
-## Windows Subsystem for Linux and Ubuntu on Windows
-
-First install the Windows Subsystem for Linux, followed by Ubuntu on Windows. This guide
-from Microsoft walks through the process:
-
-* https://msdn.microsoft.com/en-us/commandline/wsl/install_guide
-
 ## Vagrant Installation
 
-Vagrant _must_ be installed within Ubuntu on Windows. Even though the `vagrant.exe`
-file can be executed from within the WSL, it will not function as expected. To
-install Vagrant into the WSL, follow these steps:
+Vagrant _must_ be installed within the Linux distribution used with WSL. While
+the `vagrant.exe` executable provided by the Vagrant Windows installation is
+accessible from within the WSL, it will not function as expected.
 
-* Download the 64-bit Debian package from the downloads page.
-* Open a `cmd` or `powershell` window
-* Enter the command: `bash`
-* Install vagrant: `sudo dpkg -i vagrant_VERSION_x86_64.deb`
+Download the installer package for the Linux distribution from the releases
+page and install Vagrant.
 
-```
-C:\Users\vagrant> bash
-vagrant@vagrant-10:/mnt/c/Users/vagrant$ sudo dpkg -i vagrant_VERSION_x86_64.deb
-[sudo] password for vagrant:
-(Reading database ... 31885 files and directories currently installed.)
-Preparing to unpack vagrant_VERSION_x86_64.deb ...
-Unpacking vagrant (1:VERSION) ...
-Setting up vagrant (1:VERSION) ...
-vagrant@vagrant-10:/mnt/c/Users/vagrant$ vagrant help
-Usage: vagrant [options] <command> [<args>]
-```
+__NOTE: When Vagrant is installed on the Windows system the version installed
+within the Linux distribution *must* match._
 
 # Vagrant Usage
+
+## Windows Access
+
+By default Vagrant will not access features available on the Windows system
+from within the WSL. This means the VirtualBox and Hyper-V providers will
+not be available. To enable Windows access, which will also enable the
+VirtualBox and Hyper-V providers, set the `VAGRANT_WSL_ENABLE_WINDOWS_ACCESS`
+environment variable:
+
+````
+$ export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
+```
+
+When Windows access is enabled Vagrant will automatically adjust `VAGRANT_HOME`
+to be located on the Windows host. This is required to ensure `VAGRANT_HOME`
+is located on a DrvFs file system.
+
+## PATH modifications
 
 Vagrant will detect when it is being run within the WSL and adjust how it
 locates and executes third party executables. For example, when using the
@@ -70,6 +65,15 @@ For example, when using the VirtualBox provider:
 ```
 export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
 ```
+
+## Synced Folders
+
+Support for synced folders within the WSL is implementation dependent. In
+most cases synced folders will not be supported when running Vagrant within
+WSL on a VolFs file system. Synced folder implementations must "opt-in" to
+supporting usage from VolFs file systems. To use synced folders from within
+the WSL that do not support VolFs file systems, move the Vagrant project
+directory to a DrvFs file system location (/mnt/c/ prefixed path for example).
 
 ## Windows Access
 

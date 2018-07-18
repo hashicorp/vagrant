@@ -589,6 +589,79 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       sf = subject.synced_folders
       expect(sf["my-vagrant-folder"][:guestpath]).to be_nil
     end
+
+    context "WSL host paths" do
+      let(:valid_path){ "/mnt/c/path" }
+      let(:invalid_path){ "/home/vagrant/path" }
+      let(:synced_folder_impl){ double("synced_folder_impl", new: double("synced_folder_inst", usable?: true)) }
+      let(:fs_config){ double("fs_config", vm: double("fs_vm", allowed_synced_folder_types: nil)) }
+      let(:plugin){ double("plugin", manager: manager) }
+      let(:manager){ double("manager", synced_folders: {sf_impl: [synced_folder_impl, 1]}) }
+
+      let(:stub_pathname){ double("stub_pathname", directory?: true, relative?: false) }
+
+      before do
+        allow(Pathname).to receive(:new).and_return(stub_pathname)
+        allow(stub_pathname).to receive(:expand_path).and_return(stub_pathname)
+        allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(true)
+        allow(Vagrant::Util::Platform).to receive(:wsl_drvfs_path?).with(valid_path).and_return(true)
+        allow(Vagrant::Util::Platform).to receive(:wsl_drvfs_path?).with(invalid_path).and_return(false)
+        allow(machine).to receive(:config).and_return(fs_config)
+        allow(Vagrant).to receive(:plugin).with("2").and_return(plugin)
+        subject.synced_folder(".", "/vagrant", disabled: true)
+      end
+
+      it "is valid when located on DrvFs" do
+        subject.synced_folder(valid_path, "/guest/path")
+        subject.finalize!
+        assert_valid
+      end
+
+      it "is invalid when not located on DrvFs" do
+        subject.synced_folder(invalid_path, "/guest/path")
+        subject.finalize!
+        assert_invalid
+      end
+
+      context "when synced folder defines support for non-DrvFs" do
+        let(:support_nondrvfs){ true }
+
+        before do
+          allow(synced_folder_impl).to receive(:respond_to?).with(:wsl_allow_non_drvfs?).and_return(true)
+          allow(synced_folder_impl).to receive(:wsl_allow_non_drvfs?).and_return(support_nondrvfs)
+        end
+
+        context "and is supported" do
+          it "is valid when located on DrvFs" do
+            subject.synced_folder(valid_path, "/guest/path")
+            subject.finalize!
+            assert_valid
+          end
+
+          it "is valid when not located on DrvFs" do
+            subject.synced_folder(invalid_path, "/guest/path")
+            subject.finalize!
+            assert_valid
+          end
+        end
+
+        context "and is not supported" do
+          let(:support_nondrvfs){ false }
+
+          it "is valid when located on DrvFs" do
+            subject.synced_folder(valid_path, "/guest/path")
+            subject.finalize!
+            assert_valid
+          end
+
+          it "is invalid when not located on DrvFs" do
+            subject.synced_folder(invalid_path, "/guest/path")
+            subject.finalize!
+            assert_invalid
+          end
+        end
+      end
+    end
   end
 
   describe "#usable_port_range" do
