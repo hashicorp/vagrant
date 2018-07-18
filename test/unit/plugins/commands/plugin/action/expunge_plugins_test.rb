@@ -6,12 +6,16 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
   let(:gems_path){ "#{home_path}/gems" }
   let(:force){ true }
   let(:env_local){ false }
+  let(:env_local_only){ nil }
+  let(:global_only){ nil }
   let(:env) {{
     ui: Vagrant::UI::Silent.new,
     home_path: home_path,
     gems_path: gems_path,
     force: force,
-    env_local: env_local
+    env_local: env_local,
+    env_local_only: env_local_only,
+    global_only: global_only
   }}
 
   let(:user_file) { double("user_file", path: user_file_pathname) }
@@ -75,9 +79,9 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
     context "when local option is set" do
       let(:env_local) { true }
 
-      it "should not delete plugins" do
-        expect(user_file_pathname).not_to receive(:delete)
-        expect(plugin_gem_path).not_to receive(:rmtree)
+      it "should delete plugins" do
+        expect(user_file_pathname).to receive(:delete)
+        expect(plugin_gem_path).to receive(:rmtree)
         subject.call(env)
       end
     end
@@ -104,10 +108,59 @@ describe VagrantPlugins::CommandPlugin::Action::ExpungePlugins do
           subject.call(env)
         end
 
-        it "should not delete user plugins" do
-          expect(user_file_pathname).not_to receive(:delete)
-          expect(plugin_gem_path).not_to receive(:rmtree)
+        it "should delete user plugins" do
+          expect(user_file_pathname).to receive(:delete)
+          expect(plugin_gem_path).to receive(:rmtree)
           subject.call(env)
+        end
+
+        context "when local only option is set" do
+          let(:env_local_only) { true }
+
+          it "should delete local plugins" do
+            expect(local_file_pathname).to receive(:delete)
+            expect(env_plugin_gem_path).to receive(:rmtree)
+            subject.call(env)
+          end
+
+          it "should not delete user plugins" do
+            expect(user_file_pathname).not_to receive(:delete)
+            expect(plugin_gem_path).not_to receive(:rmtree)
+            subject.call(env)
+          end
+        end
+
+        context "when global only option is set" do
+          let(:global_only) { true }
+
+          it "should not delete local plugins" do
+            expect(local_file_pathname).not_to receive(:delete)
+            expect(env_plugin_gem_path).not_to receive(:rmtree)
+            subject.call(env)
+          end
+
+          it "should delete user plugins" do
+            expect(user_file_pathname).to receive(:delete)
+            expect(plugin_gem_path).to receive(:rmtree)
+            subject.call(env)
+          end
+        end
+
+        context "when global and local only options are set" do
+          let(:env_local_only) { true }
+          let(:global_only) { true }
+
+          it "should delete local plugins" do
+            expect(local_file_pathname).to receive(:delete)
+            expect(env_plugin_gem_path).to receive(:rmtree)
+            subject.call(env)
+          end
+
+          it "should delete user plugins" do
+            expect(user_file_pathname).to receive(:delete)
+            expect(plugin_gem_path).to receive(:rmtree)
+            subject.call(env)
+          end
         end
       end
     end
