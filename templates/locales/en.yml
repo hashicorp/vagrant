@@ -1920,9 +1920,13 @@ en:
 
           %{message}
         repairing: |-
-          Repairing currently installed plugins. This may take a few minutes...
+          Repairing currently installed global plugins. This may take a few minutes...
+        repairing_local: |-
+          Repairing currently installed local project plugins. This may take a few minutes...
         repair_complete: |-
           Installed plugins successfully repaired!
+        repair_local_complete: |-
+          Local project plugins successfully repaired!
         repair_failed: |-
           Failed to automatically repair installed Vagrant plugins. To fix this
           problem remove all user installed plugins and reinstall. Vagrant can

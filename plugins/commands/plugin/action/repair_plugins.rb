@@ -44,6 +44,7 @@ module VagrantPlugins
         end
 
         def call(env)
+          env[:ui].info(I18n.t("vagrant.commands.plugin.repairing_local"))
           Vagrant::Plugin::Manager.instance.localize!(env[:env]).each_pair do |pname, pinfo|
             env[:env].action_runner.run(Action.action_install,
               plugin_name: pname,
@@ -53,6 +54,7 @@ module VagrantPlugins
               plugin_env_local: true
             )
           end
+          env[:ui].info(I18n.t("vagrant.commands.plugin.repair_local_complete"))
           # Continue
           @app.call(env)
         end
