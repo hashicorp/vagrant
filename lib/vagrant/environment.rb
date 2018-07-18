@@ -8,6 +8,7 @@ require 'log4r'
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
+require 'vagrant/util/hash_with_indifferent_access'
 require "vagrant/util/silence_warnings"
 require "vagrant/vagrantfile"
 require "vagrant/version"
@@ -950,10 +951,16 @@ module Vagrant
           end
         end
         needs_install.each do |name|
+          pconfig = Util::HashWithIndifferentAccess.new(config_plugins[name])
           ui.info(I18n.t("vagrant.commands.plugin.installing", name: name))
-          spec = Plugin::Manager.instance.install_plugin(name,
-            {sources: Vagrant::Bundler::DEFAULT_GEM_SOURCES.dup}.merge(
-              config_plugins[name]).merge(env_local: true))
+
+          options = {sources: Vagrant::Bundler::DEFAULT_GEM_SOURCES.dup, env_local: true}
+          options[:sources] = pconfig[:sources] if pconfig[:sources]
+          options[:require] = pconfig[:entry_point] if pconfig[:entry_point]
+          options[:version] = pconfig[:version] if pconfig[:version]
+
+          spec = Plugin::Manager.instance.install_plugin(name, options)
+
           ui.info(I18n.t("vagrant.commands.plugin.installed",
             name: spec.name, version: spec.version.to_s))
         end
