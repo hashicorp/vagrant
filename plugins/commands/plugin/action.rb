@@ -41,6 +41,13 @@ module VagrantPlugins
         end
       end
 
+      # This middleware sequence will repair installed local plugins.
+      def self.action_repair_local
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use RepairPluginsLocal
+        end
+      end
+
       # This middleware sequence will uninstall a plugin.
       def self.action_uninstall
         Vagrant::Action::Builder.new.tap do |b|
@@ -64,6 +71,7 @@ module VagrantPlugins
       autoload :ListPlugins, action_root.join("list_plugins")
       autoload :PluginExistsCheck, action_root.join("plugin_exists_check")
       autoload :RepairPlugins, action_root.join("repair_plugins")
+      autoload :RepairPluginsLocal, action_root.join("repair_plugins")
       autoload :UninstallPlugin, action_root.join("uninstall_plugin")
       autoload :UpdateGems, action_root.join("update_gems")
     end
