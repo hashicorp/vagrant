@@ -22,7 +22,7 @@ module VagrantPlugins
           return if !argv
           raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp if argv.length > 0
 
-          if options[:env_local]
+          if Vagrant::Plugin::Manager.instance.local_file
             action(Action.action_repair_local, env: @env)
           end
 
