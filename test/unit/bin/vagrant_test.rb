@@ -121,7 +121,10 @@ describe "vagrant bin" do
   context "plugin commands" do
     let(:argv) { ["plugin"] }
 
-    before { allow(ENV).to receive(:[]=) }
+    before do
+      allow(ENV).to receive(:[]=)
+      allow(ENV).to receive(:[])
+    end
 
     it "should unset vagrantfile" do
       expect(Vagrant::Environment).to receive(:new).
@@ -146,6 +149,15 @@ describe "vagrant bin" do
 
     context "--local" do
       let(:argv) { ["plugin", "install", "--local"] }
+
+      it "should not unset vagrantfile" do
+        expect(Vagrant::Environment).to receive(:new).
+          with(hash_excluding(vagrantfile_name: "")).and_return(env)
+      end
+    end
+
+    context "with VAGRANT_LOCAL_PLUGINS_LOAD enabled" do
+      before { expect(ENV).to receive(:[]).with("VAGRANT_LOCAL_PLUGINS_LOAD").and_return("1") }
 
       it "should not unset vagrantfile" do
         expect(Vagrant::Environment).to receive(:new).
