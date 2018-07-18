@@ -353,6 +353,10 @@ describe Vagrant::Util::Platform do
             it "should include rootfs when accessing non-home path" do
               expect(subject.wsl_to_windows_path("/tmp/test")).to include("rootfs")
             end
+
+            it "should properly handle Pathname" do
+              expect(subject.wsl_to_windows_path(Pathname.new("/tmp/test"))).to include("rootfs")
+            end
           end
         end
       end
