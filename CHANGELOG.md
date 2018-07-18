@@ -12,6 +12,7 @@ BUG FIXES:
 - core: Disable Vagrantfile loading with plugin commands [GH-10030]
 - push/ftp: Custom error when attempting to push too many files [GH-9952]
 - util/downloader: Prevent errors when Location header contains relative path [GH-10017]
+- util/platform: Always force string type conversion on path [GH-9998]
 
 ## 2.1.2 (June 26, 2018)
 
