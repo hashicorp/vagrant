@@ -48,12 +48,7 @@ module Vagrant
       # @return [Hash] list of plugins
       def globalize!
         @logger.debug("Enabling globalized plugins")
-        if !Vagrant.plugins_init?
-          @logger.warn("Plugin initialization is disabled")
-          return {}
-        end
-
-        plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+        plugins = installed_plugins
         bundler_init(plugins)
         plugins
       end
@@ -78,6 +73,11 @@ module Vagrant
       # @param [Hash] plugins List of plugins
       # @return [nil]
       def bundler_init(plugins)
+        if !Vagrant.plugins_init?
+          @logger.warn("Plugin initialization is disabled")
+          return nil
+        end
+
         @logger.info("Plugins:")
         plugins.each do |plugin_name, plugin_info|
           installed_version = plugin_info["installed_gem_version"]
