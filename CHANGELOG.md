@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - core: Show installed version of Vagrant when displaying version check [GH-9968]
 - core/triggers: Catch and allow for non-standard exit codes with triggers `run` options [GH-10005]
+- provider/hyperv: Disable synced folders on non-DrvFs file systems by default [GH-10001]
 
 BUG FIXES:
 
