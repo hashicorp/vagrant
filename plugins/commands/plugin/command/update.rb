@@ -15,7 +15,7 @@ module VagrantPlugins
             o.banner = "Usage: vagrant plugin update [names...] [-h]"
             o.separator ""
 
-            o.on("--local", "Remove plugin from local project") do |l|
+            o.on("--local", "Update plugin in local project") do |l|
               options[:env_local] = l
             end
           end

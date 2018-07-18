@@ -16,7 +16,7 @@ module VagrantPlugins
               options[:force] = force
             end
 
-            o.on("--local", "Include local project plugins for expunge") do |l|
+            o.on("--local", "Include plugins from local project for expunge") do |l|
               options[:env_local] = l
             end
 

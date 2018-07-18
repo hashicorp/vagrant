@@ -12,7 +12,7 @@ module VagrantPlugins
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant plugin repair [-h]"
 
-            o.on("--local", "Install plugin for local project only") do |l|
+            o.on("--local", "Repair plugins in local project") do |l|
               options[:env_local] = l
             end
           end
