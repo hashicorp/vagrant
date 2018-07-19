@@ -82,11 +82,10 @@ module VagrantPlugins
 
         # Configure guest networking using networkd
         def self.configure_networkd(machine, interfaces, comm, networks)
-          net_conf = []
-
           root_device = interfaces.first
           networks.each do |network|
             dev_name = interfaces[network[:interface]]
+            net_conf = []
             net_conf << "[Match]"
             net_conf << "Name=#{dev_name}"
             net_conf << "[Network]"
@@ -106,15 +105,16 @@ module VagrantPlugins
             else
               net_conf << "DHCP=yes"
             end
+
+            remote_path = upload_tmp_file(comm, net_conf.join("\n"))
+            dest_path = "#{NETWORKD_DIRECTORY}/50-vagrant-#{dev_name}.network"
+            comm.sudo(["mkdir -p #{NETWORKD_DIRECTORY}",
+              "mv -f '#{remote_path}' '#{dest_path}'",
+              "chown root:root '#{dest_path}'",
+              "chmod 0644 '#{dest_path}'"].join("\n"))
           end
 
-          remote_path = upload_tmp_file(comm, net_conf.join("\n"))
-          dest_path = "#{NETWORKD_DIRECTORY}/50-vagrant.network"
-          comm.sudo(["mkdir -p #{NETWORKD_DIRECTORY}",
-            "mv -f '#{remote_path}' '#{dest_path}'",
-            "chown root:root '#{dest_path}'",
-            "chmod 0644 '#{dest_path}'",
-            "systemctl restart systemd-networkd.service"].join("\n"))
+          comm.sudo(["systemctl restart systemd-networkd.service"].join("\n"))
         end
 
         # Configure guest networking using net-tools
