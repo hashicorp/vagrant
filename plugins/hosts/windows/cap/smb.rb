@@ -133,16 +133,22 @@ module VagrantPlugins
           if result.nil?
             return nil
           end
+          share_data = result.strip.lines
           shares = {}
           name = nil
-          result.lines.each do |line|
-            key, value = line.split(":", 2).map(&:strip)
-            if key == "Name"
-              name = value
-              shares[name] = {}
+          until share_data.empty?
+            content = share_data.take_while{|line| !line.strip.empty? }
+            if content.size != 3
+              @@logger.warn("expected SMB data check to be size 3 but was size #{content.size}")
+              @@logger.debug("unprocessed SMB data: #{content.inspect}")
+              next
             end
-            next if name.nil? || key.to_s.empty?
-            shares[name][key] = value
+            share_name = content[0].strip.split(":", 2).last.strip
+            shares[share_name] = {
+              "Path" => content[1].strip.split(":", 2).last.strip,
+              "Description" => content[2].strip.split(":", 2).last.strip
+            }
+            share_data.slice!(0, content.length + 1)
           end
           shares
         end
@@ -155,23 +161,24 @@ module VagrantPlugins
           if result.nil?
             return nil
           end
-          result.sub!(/^.+?\-+/m, "")
-          share_names = result.strip.split("\n").map do |line|
-            line.strip.split(/\s+/).first
+          share_data = result.strip.lines
+          # Remove header information
+          share_data.slice!(0, 2)
+          # Remove footer information
+          share_data.slice!(share_data.size - 1, share_data.size)
+          share_names = share_data.map do |line|
+            line.strip.split(/\s+/).first.strip
           end
-          # Last item is command completion notification so remove it
-          share_names.pop
           shares = {}
           share_names.each do |share_name|
-            shares[share_name] = {}
             result = Vagrant::Util::PowerShell.execute_cmd("net share #{share_name} |  Out-String -Width 4096")
             next if result.nil?
-            result.each_line do |line|
-              key, value = line.strip.split(/\s+/, 2)
-              next if key == "Share name"
-              key = "Description" if key == "Remark"
-              shares[share_name][key] = value
-            end
+            result.strip!
+            share_info = result.lines
+            shares[share_name] = {
+              "Path" => share_info[1].split(/\s+/, 2).last.strip,
+              "Description" => share_info[2].split(/\s+/, 2).last.strip
+            }
           end
           shares
         end
