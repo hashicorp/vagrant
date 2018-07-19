@@ -17,7 +17,7 @@ module VagrantPlugins
         def call(env)
           vm_dir = env[:machine].box.directory.join("Virtual Machines")
           hd_dir = env[:machine].box.directory.join("Virtual Hard Disks")
-          disks_config = env[:machine].provider_config.disks_config
+          controller = env[:machine].provider_config.controller
           if !vm_dir.directory? || !hd_dir.directory?
             @logger.error("Required virtual machine directory not found!")
             raise Errors::BoxInvalid, name: env[:machine].name
@@ -69,7 +69,7 @@ module VagrantPlugins
             "SourcePath" => Vagrant::Util::Platform.wsl_to_windows_path(image_path).gsub("/", "\\"),
             "VMName" => env[:machine].provider_config.vmname,
           }
-          options[:DisksConfig] = add_abs_path(disks_config, env[:machine].data_dir).to_json.to_s.gsub('"', '"""') if disks_config
+          #options[:DisksConfig] = add_abs_path(controller, env[:machine].data_dir).to_json.to_s.gsub('"', '"""') if controller 
 
 
           env[:ui].detail("Creating and registering the VM...")

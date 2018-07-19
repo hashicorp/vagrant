@@ -20,7 +20,7 @@ param(
     [parameter (Mandatory=$false)]
     [switch] $EnableCheckpoints,
     [parameter (Mandatory=$false)]
-    [string] $DisksConfig=$null
+    [string] $DisksToCreate=$null
 )
 
 $ErrorActionPreference = "Stop"
@@ -94,4 +94,50 @@ try {
 } catch {
     Write-ErrorMessage "Failed to ${CheckpointAction} checkpoints on VM: ${PSItem}"
     exit 1
+}
+
+
+#controller -  path (for existent)
+#              path,
+#              sizeMB, name (for new)
+function AddDisks($vm, $controller) {
+    #get controller    
+
+    $contNumber = ($vm | Add-VMScsiController -PassThru).ControllerNumber
+    foreach($disk in $controller) {
+        #get vhd
+        $vhd = $null
+        if($disk.Path) {
+            if (Test-Path -Path $disk.Path) {
+                $vhd = Resolve-Path -Path $disk.Path
+            }
+        }
+        else {
+            $vhd = "$($disk.Name).vhdx"
+            Add-Content "c:/ps_debug.log" -value "vhd: $vhd"
+            if (!(Test-Path -Path $vhd)) {
+                New-VHD -Path $vhd -SizeBytes ([UInt64]$disk.Size * 1MB) -Dynamic
+            }
+        }
+        if (!(Test-Path -Path $vhd)) {
+            Write-Error "There is error in virtual disk (VHD) configuration"
+            break
+        }
+
+        $driveParam = @{
+            ControllerNumber = $contNumber
+            Path = $vhd
+            ControllerType = "SCSI"
+        }
+        Add-Content "c:/ps_debug.log" -value "$vm | Add-VMHardDiskDrive @driveParam"
+        Add-Content "c:/ps_debug.log" -value "vhd: $vhd"
+        $vm | Add-VMHardDiskDrive @driveParam
+    }
+}
+
+if ($DisksToCreate) {
+    Add-Content "c:/ps_debug.log" -value "DisksToCreate: $DisksToCreate"
+    $ParsedDisksToCreate = $DisksToCreate | ConvertFrom-Json
+    Add-Content "c:/ps_debug.log" -value "ParsedDisksToCreate: $ParsedDisksToCreate"
+    $ParsedDisksToCreate | ForEach-Object { AddDisks -vm $VM -controller $_ }
 }

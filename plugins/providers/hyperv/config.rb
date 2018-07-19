@@ -46,9 +46,9 @@ module VagrantPlugins
       attr_accessor :enable_virtualization_extensions
       # @return [Hash] Options for VMServiceIntegration
       attr_accessor :vm_integration_services
-      # @return [Hash] Config of disks and controllers
-      attr_accessor :disks_config
-
+      # @return [Array] Config of disks and controllers
+      attr_accessor :controllers
+      
       def initialize
         @ip_address_timeout = UNSET_VALUE
         @memory = UNSET_VALUE
@@ -64,7 +64,12 @@ module VagrantPlugins
         @enable_virtualization_extensions = UNSET_VALUE
         @enable_checkpoints = UNSET_VALUE
         @vm_integration_services = {}
-        @disks_config = UNSET_VALUE
+        @controllers = []
+      end
+
+      def controller(controller={})
+        #puts "hej: controller called in config.rb"  
+        @controllers << controller
       end
 
       def finalize!
@@ -93,7 +98,6 @@ module VagrantPlugins
         else
           @enable_checkpoints = !!@enable_checkpoints
         end
-        @disks_config = nil if @disks_config == UNSET_VALUE
       end
 
       def validate(machine)
@@ -124,6 +128,55 @@ module VagrantPlugins
           errors << I18n.t("vagrant_hyperv.config.invalid_auto_stop_action", action: auto_stop_action,
             allowed_actions: ALLOWED_AUTO_STOP_ACTIONS.join(", "))
         end
+
+        # This can happen when creating new on up.
+        controllers.delete_if &:empty?
+        
+        controllers.each { |controller|
+          #puts "controller: #{controller}"
+          
+          if ![:ide, :scsi].include?(controller[:type])
+            errors << I18n.t("vagrant_hyperv.config.invalid_controller_type",
+              type: controller[:type])
+          end
+       
+          if [:ide].include?(controller[:type])
+            errors << I18n.t("vagrant_hyperv.config.invalid_controller_type_ide_not_implemeented_yet",
+              type: controller[:type])
+          end
+
+          if !controller[:disks].is_a?(Array)
+            errors << I18n.t("vagrant_hyperv.config.invalid_controller_disks_is_not_an_array",
+              disks: controller[:disks])
+            next
+          end
+        
+          next_is_size = false
+          controller[:disks].each { |i|
+            if !next_is_size
+              if i.is_a?(String)
+                if File.file?(i)
+                  next_is_size = false
+                
+                  # TODO: This part not implemented yet.
+                  errors << I18n.t("vagrant_hyperv.config.invalid_controller_disks_attaching_disks_not_implemented_yet",
+                    element: i)
+                else
+                  next_is_size = true
+                end
+              else
+                errors << I18n.t("vagrant_hyperv.config.invalid_controller_disks_element_is_not_a_string",
+                  element: i)
+              end
+            else
+              #puts "next_is_size: true"
+              if !i.is_a?(Integer)
+                errors << I18n.t("vagrant_hyperv.config.invalid_controller_disks_element_is_not_an_integer",
+                  element: i)
+              end
+            end
+          }
+        }
 
         {"Hyper-V" => errors}
       end

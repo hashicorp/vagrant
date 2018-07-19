@@ -32,6 +32,7 @@ you may set. A complete reference is shown below:
   * `shutdown` (boolean)
   * `time_synchronization` (boolean)
   * `vss` (boolean)
+* `controller` (hash) Config of disks and controllers.
 
 ## VM Integration Services
 

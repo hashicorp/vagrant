@@ -14,7 +14,7 @@ param(
     [parameter (Mandatory=$false)]
     [string] $VMName=$null,
     [parameter (Mandatory=$false)]
-	 [string] $DisksConfig=$null
+	[string] $DisksConfig=$null
 )
 
 $ErrorActionPreference = "Stop"
@@ -37,45 +37,3 @@ try {
     Write-ErrorMessage "${PSItem}"
     exit 1
 }
-
-
-#controller -  path (for existent)
-#              path,
-#              sizeGB, name (for new)
-function AddDisks($vm, $controller) {
-    #get controller    
-	 
-	 $contNumber =  ($vm | Add-VMScsiController -PassThru).ControllerNumber
-    foreach($disk in $controller) {
-        #get vhd
-        $vhd = $null
-        if($disk.Path) {
-            if (Test-Path -Path $disk.Path) {
-                $vhd = Resolve-Path -Path $disk.Path
-            }   
-        }
-        else {
-            $vhd = $disk.Name
-            if (!(Test-Path -Path $vhd)) {
-                New-VHD -Path $vhd -SizeBytes ([UInt64]$disk.Size * 1GB) -Dynamic            
-            }
-        }
-        if (!(Test-Path -Path $vhd)) {
-            Write-Error "There is error in virtual disk (VHD) configuration"
-            break
-            }
-
-        $driveParam = @{
-            ControllerNumber = $contNumber
-            Path = $vhd
-            ControllerType = "SCSI"
-        }
-        $vm | Add-VMHardDiskDrive @driveParam     
-    }          
-}
-
-if ($DisksConfig) {   
-    $ParsedDisksConfig = $DisksConfig | ConvertFrom-Json
-    $ParsedDisksConfig | ForEach-Object { AddDisks -vm $VMName -controller $_ }
-}
-
