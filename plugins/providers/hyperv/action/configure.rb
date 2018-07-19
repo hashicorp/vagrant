@@ -35,57 +35,6 @@ module VagrantPlugins
             end
           end
           
-          
-          # TODO: Should be controllers as we want to be able to have several lines.
-          #if !env[:machine].provider_config.controllers.empty?
-          #  puts "hej: controller not empty"
-          #  #env[:ui].detail("Controllers set")
-          #  #controller.each do [key, value]
-          #  #  puts "key: #{id} value: #{value}"
-          #  #  if [type].include?(key)
-          #  #    puts "key matches type"
-          #  #  end
-          #  #end
-          #  
-          #  env[:machine].provider_config.controller.each do |key, value|
-          #    env[:ui].output("#{key} is #{value}")
-          #  end
-          #
-          #  #env[:machine].provider.driver.set_vm_integration_services(
-          #  #  env[:machine].provider_config.vm_integration_services)
-          #end
-
-          disks_to_create = []
-          env[:machine].provider_config.controllers.each { |controller|
-            #puts "configure.rb: controller: #{controller}"
-            
-            next_is_size = false
-            disk_name = ''
-            controller[:disks].each { |i|
-              #puts "configure.rb: i: #{i} disk_name: #{disk_name}"
-              if !next_is_size
-                if File.file?(i)
-                  create_disk = false 
-                  filename_for_disk = i
-                  next_is_size = false
-                
-                  @logger.error("Attaching disks is not implemented yet")
-                else
-                  create_disk = true
-                  disk_name = i
-                  next_is_size = true
-                  #puts "configure.rb: disk_name set to: #{disk_name}"
-                end
-              else
-                #puts "configure.rb: Adding disk to create. name: #{disk_name}"
-                disks_to_create << { name: "\"#{disk_name}\"", size: i}
-              end
-            }
-          }
-          #puts "configure.rb: disks_to_create:#{disks_to_create}"
-          disks_to_create_json = disks_to_create.to_json
-          puts "configure.rb: json: #{disks_to_create_json}"
-
           # If we already configured previously don't prompt for switch
           sentinel = env[:machine].data_dir.join("action_configure")
 
@@ -122,7 +71,6 @@ module VagrantPlugins
             "AutoStopAction" => env[:machine].provider_config.auto_stop_action,
             "EnableCheckpoints" => env[:machine].provider_config.enable_checkpoints,
             "VirtualizationExtensions" => !!env[:machine].provider_config.enable_virtualization_extensions,
-            "DisksToCreate" => disks_to_create_json
           }
           options.delete_if{|_,v| v.nil? }
 

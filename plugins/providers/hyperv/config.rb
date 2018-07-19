@@ -68,7 +68,6 @@ module VagrantPlugins
       end
 
       def controller(controller={})
-        #puts "hej: controller called in config.rb"  
         @controllers << controller
       end
 
@@ -133,7 +132,6 @@ module VagrantPlugins
         controllers.delete_if &:empty?
         
         controllers.each { |controller|
-          #puts "controller: #{controller}"
           
           if ![:ide, :scsi].include?(controller[:type])
             errors << I18n.t("vagrant_hyperv.config.invalid_controller_type",
@@ -141,13 +139,12 @@ module VagrantPlugins
           end
        
           if [:ide].include?(controller[:type])
-            errors << I18n.t("vagrant_hyperv.config.invalid_controller_type_ide_not_implemeented_yet",
-              type: controller[:type])
+            errors << I18n.t("vagrant_hyperv.config.invalid_controller_type_ide_not_implemeented_yet")
           end
 
           if !controller[:disks].is_a?(Array)
             errors << I18n.t("vagrant_hyperv.config.invalid_controller_disks_is_not_an_array",
-              disks: controller[:disks])
+             received: controller[:disks].class)
             next
           end
         
@@ -166,13 +163,12 @@ module VagrantPlugins
                 end
               else
                 errors << I18n.t("vagrant_hyperv.config.invalid_controller_disks_element_is_not_a_string",
-                  element: i)
+                  element: i, element_class: i.class)
               end
             else
-              #puts "next_is_size: true"
               if !i.is_a?(Integer)
                 errors << I18n.t("vagrant_hyperv.config.invalid_controller_disks_element_is_not_an_integer",
-                  element: i)
+                  element: i, element_class: i.class)
               end
             end
           }

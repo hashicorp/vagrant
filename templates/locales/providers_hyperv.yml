@@ -39,6 +39,25 @@ en:
         The `differencing_disk` configuration option is deprecated and should
         no longer be used. The `linked_clone` configuration option should
         be used instead.
+      invalid_controller_type: |-
+        Invalid controller type provided for :type. Type receiver is
+        `%{type}` but `:ide` or `:scsi` was expected.
+
+          Received: %{type}
+          Allowed: :ide, :scsi
+      invalid_controller_type_ide_not_implemeented_yet: |-
+        Controller type IDE is not implemented yet.
+      invalid_controller_disks_is_not_an_array: |-
+        Invalid type provided for `disks` in controller. Type received
+        is `%{received}` but `Array` was expected.
+      invalid_controller_disks_attaching_disks_not_implemented_yet: |-
+        Attaching existing disks is not implemented yet.
+      invalid_controller_disks_element_is_not_a_string: |-
+        Invalid type provided for element `%{element}`. Type received is
+        `%{element_class}` but `String` was expected.
+      invalid_controller_disks_element_is_not_an_integer: |-
+        Invalid type provided for element `%{element}`. Type received is
+        `%{element_class}` but `Integer` was expected.
     errors:
       admin_required: |-
         The Hyper-V provider requires that Vagrant be run with

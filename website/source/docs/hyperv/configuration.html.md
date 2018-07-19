@@ -32,7 +32,9 @@ you may set. A complete reference is shown below:
   * `shutdown` (boolean)
   * `time_synchronization` (boolean)
   * `vss` (boolean)
-* `controller` (hash) Config of disks and controllers.
+* `controller` (hash) - Config of disks and controllers.
+  * `type` (:scsi) - Determines type of controller. Only supports SCSI right now. IDE is to be implemented.
+  * `disks` (array) - Disks to be created on the controller. First element is a string specifying name of disk, example d1. Second is size of disk in MB, example 10 * 1024 is 10 GB. Name of disk comes first and size after on every disk.
 
 ## VM Integration Services
 
@@ -55,3 +57,21 @@ end
 
 This example would enable the `GuestServiceInterface` (which Vagrant is aware) and `CustomVMSRV` (which
 Vagrant is _not_ aware) VM integration services.
+
+## Attaching extra controllers and disks
+
+The `controller` configuration option is a simple hash that describes what kind of controller it is.
+Such as `:scsi` or `:ide`. Right now only `:scsi` is supported. After this the disks that will be
+created is specified in the `disks` array. This is an array where several disks to create can be
+specified. First comes the name of the disk, for example d1, and after that followes the size of the
+disk specified in MB, for example 10 * 1024 for a 10 GB disk. Repeat this for the number of disks you
+want to attach on the controller. To attach existing vhd- or vhdx-files is not implemented yet.
+
+```ruby
+config.vm.provider "hyperv" do |h|
+  h.controller type: :scsi, disks: [ "d1", 10 * 1024 ]
+end
+```
+
+This example would create a SCSI controller and also create a d1.vhdx file and attach it as a dynamic
+disk that is 10 * 1024 MB big, in other words 10 GB.
