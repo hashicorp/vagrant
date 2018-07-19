@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - core: Show installed version of Vagrant when displaying version check [GH-9968]
 - core/triggers: Catch and allow for non-standard exit codes with triggers `run` options [GH-10005]
+- guest/debian: Isolate network interface configuration to individual files for systemd [GH-9889]
 - provider/hyperv: Disable synced folders on non-DrvFs file systems by default [GH-10001]
 - util/downloader: Support custom suffix on user agent string [GH-9966]
 
