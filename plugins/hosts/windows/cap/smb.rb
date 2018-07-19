@@ -155,24 +155,47 @@ module VagrantPlugins
           if result.nil?
             return nil
           end
-          result.sub!(/^.+?\-+/m, "")
-          share_names = result.strip.split("\n").map do |line|
-            line.strip.split(/\s+/).first
+          columns = []
+          columnsline = result.strip.split("\n").first
+          columnsline.split(/[ ]{2,}/).each do |colname|
+            columns.push(columnsline.index(colname))
           end
-          # Last item is command completion notification so remove it
-          share_names.pop
+
+          result.sub!(/^.+?\-+/m, "")
+
           shares = {}
-          share_names.each do |share_name|
-            shares[share_name] = {}
-            result = Vagrant::Util::PowerShell.execute_cmd("net share #{share_name} |  Out-String -Width 4096")
-            next if result.nil?
-            result.each_line do |line|
-              key, value = line.strip.split(/\s+/, 2)
-              next if key == "Share name"
-              key = "Description" if key == "Remark"
-              shares[share_name][key] = value
+          tempshare = nil
+
+          # Evaluate the "net share" table and take care of
+          # overlapping cells with long content
+          result.split("\n")[1..-2].each do |line|
+            columns.each_with_index do |col, index|
+              next if line[col] == " "
+
+              nextcol = columns[index+1]
+              if !nextcol or line[nextcol - 1] != " "
+                endpos = -1
+                jumpline = true
+              else
+                endpos = nextcol - 2
+              end
+
+              value = line[col..endpos].strip
+
+              case index
+              when 0
+                tempshare = value
+                shares[tempshare] = {}
+              when 1
+                shares[tempshare]["Path"] = value
+              when 2
+                shares[tempshare]["Description"] = value
+              end
+
+              break if jumpline
             end
           end
+
           shares
         end
 
