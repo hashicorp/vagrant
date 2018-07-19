@@ -69,10 +69,9 @@ Provider-specific guides for creating base boxes are linked below:
 ### Packer and Vagrant Cloud
 
 We strongly recommend using [Packer](https://www.packer.io) to create reproducible
-builds for your base boxes, as well as automating the builds with
-[Atlas](https://atlas.hashicorp.com). Read more about
-[Creating Vagrant Boxes with Packer](https://www.terraform.io/docs/enterprise/packer/artifacts/creating-vagrant-boxes.html)
-in the Atlas documentation.
+builds for your base boxes, as well as automating the builds. Read more about
+[automating Vagrant box creation with Packer](https://www.packer.io/guides/packer-on-cicd/build-image-in-cicd.html)
+in the Packer documentation.
 
 ### Disk Space
 
