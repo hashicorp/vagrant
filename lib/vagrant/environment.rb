@@ -942,8 +942,9 @@ module Vagrant
         if !Vagrant.auto_install_local_plugins?
           answer = nil
           until ["y", "n"].include?(answer)
-            answer = ui.ask(I18n.t("vagrant.plugins.local.request_plugin_install") + ": ")
-            answer.strip.downcase!
+            answer = ui.ask(I18n.t("vagrant.plugins.local.request_plugin_install") + " [N]: ")
+            answer.strip!.downcase!
+            answer = "n" if answer.to_s.empty?
           end
           if answer == "n"
             raise Errors::PluginMissingLocalError,
