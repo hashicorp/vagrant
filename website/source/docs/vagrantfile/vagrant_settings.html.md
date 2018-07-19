@@ -30,13 +30,13 @@ them into the local project. When requiring a single plugin, a string can
 be provided:
 
 ```ruby
-config.vagrant.plugins "vagrant-plugin"
+config.vagrant.plugins = "vagrant-plugin"
 ```
 
 If multiple plugins are required, they can be provided as an array:
 
 ```ruby
-config.vagrant.plugins ["vagrant-plugin", "vagrant-other-plugin"]
+config.vagrant.plugins = ["vagrant-plugin", "vagrant-other-plugin"]
 ```
 
 Plugins can also be defined as a Hash, which supports setting extra options
@@ -45,7 +45,7 @@ the value is a Hash of options for the plugin. For example, to set an explicit
 version of a plugin to install:
 
 ```ruby
-config.vagrant.plugins {"vagrant-scp" => {"version" => "1.0.0"}}
+config.vagrant.plugins = {"vagrant-scp" => {"version" => "1.0.0"}}
 ```
 
 Supported options are:
