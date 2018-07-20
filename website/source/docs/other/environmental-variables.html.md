@@ -244,6 +244,9 @@ being unable to detect the installed version of PowerShell. This environment
 variable can be used to extend the timeout used during PowerShell version
 detection.
 
+When setting this environment variable, its value will be in seconds. By default,
+it will use 30 seconds as a timeout.
+
 ## `VAGRANT_USE_VAGRANT_TRIGGERS`
 
 Vagrant will not display the warning about disabling the core trigger feature if
