@@ -100,6 +100,7 @@ module VagrantPlugins
             "DisksToCreate" => disks_to_create_json,
           }
 
+
           env[:ui].detail("Creating and registering the VM...")
           server = env[:machine].provider.driver.import(options)
 
@@ -107,7 +108,6 @@ module VagrantPlugins
           env[:machine].id = server["id"]
           @app.call(env)
         end
-
       end
     end
   end

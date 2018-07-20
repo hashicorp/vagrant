@@ -48,7 +48,7 @@ module VagrantPlugins
       attr_accessor :vm_integration_services
       # @return [Array] Config of disks and controllers
       attr_accessor :controllers
-      
+
       def initialize
         @ip_address_timeout = UNSET_VALUE
         @memory = UNSET_VALUE

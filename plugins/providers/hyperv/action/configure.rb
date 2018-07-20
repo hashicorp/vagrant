@@ -34,7 +34,7 @@ module VagrantPlugins
               end
             end
           end
-          
+
           # If we already configured previously don't prompt for switch
           sentinel = env[:machine].data_dir.join("action_configure")
 

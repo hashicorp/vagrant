@@ -241,8 +241,7 @@ module VagrantPlugins
           notify: [:stdout, :stderr, :stdin],
           module_path: mod_path
         }
-        
-        #puts "execute_powershell: options: #{ps_options}"
+
         Vagrant::Util::PowerShell.execute(path, *ps_options, **opts, &block)
       end
     end

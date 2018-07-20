@@ -79,6 +79,3 @@ if ($DisksToCreate) {
     $ParsedDisksToCreate | ForEach-Object { AddDisks -vm $VMName -controller $_ }
 }
 
-
-
-
