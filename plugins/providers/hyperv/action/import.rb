@@ -17,7 +17,7 @@ module VagrantPlugins
         def call(env)
           vm_dir = env[:machine].box.directory.join("Virtual Machines")
           hd_dir = env[:machine].box.directory.join("Virtual Hard Disks")
-          controllers = env[:machine].provider_config.controllers
+
           if !vm_dir.directory? || !hd_dir.directory?
             @logger.error("Required virtual machine directory not found!")
             raise Errors::BoxInvalid, name: env[:machine].name
@@ -61,34 +61,37 @@ module VagrantPlugins
           env[:ui].output("Importing a Hyper-V instance")
           dest_path = env[:machine].data_dir.join("Virtual Hard Disks").join(image_path.basename).to_s
 
-          disks_to_create = []
-          data_dir = env[:machine].data_dir
-          # This can happen when creating new on up.
-          controllers.delete_if &:empty?
-          
-          controllers.each { |controller|
-            next_is_size = false
-            disk_name = ''
-            controller[:disks].each { |i|
-              if !next_is_size
-                if File.file?(i)
-                  create_disk = false 
-                  filename_for_disk = i
-                  next_is_size = false
-                
-                  @logger.error("Attaching disks is not implemented yet")
+          if defined? env[:machine].provider_config.controllers
+            controllers = env[:machine].provider_config.controllers
+            disks_to_create = []
+            data_dir = env[:machine].data_dir
+            # This can happen when creating new on up.
+            controllers.delete_if &:empty?
+            
+            controllers.each { |controller|
+              next_is_size = false
+              disk_name = ''
+              controller[:disks].each { |i|
+                if !next_is_size
+                  if File.file?(i)
+                    create_disk = false 
+                    filename_for_disk = i
+                    next_is_size = false
+                  
+                    @logger.error("Attaching disks is not implemented yet")
+                  else
+                    create_disk = true
+                    disk_name = i
+                    disk_name = data_dir.join("#{disk_name}.vhdx").to_s.gsub("/", "\\")
+                    next_is_size = true
+                  end
                 else
-                  create_disk = true
-                  disk_name = i
-                  disk_name = data_dir.join("#{disk_name}.vhdx").to_s.gsub("/", "\\")
-                  next_is_size = true
+                  disks_to_create << { name: disk_name, size: i}
                 end
-              else
-                disks_to_create << { name: disk_name, size: i}
-              end
+              }
             }
-          }
-          disks_to_create_json = disks_to_create.to_json.to_s.gsub('"', '"""')
+            disks_to_create_json = disks_to_create.to_json.to_s.gsub('"', '"""')
+          end
 
           options = {
             "VMConfigFile" => Vagrant::Util::Platform.wsl_to_windows_path(config_path).gsub("/", "\\"),
