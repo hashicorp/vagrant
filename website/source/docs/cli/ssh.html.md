@@ -25,7 +25,9 @@ Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
 $ logout
 Connection to 127.0.0.1 closed.
 ```
+
 Or you could use the name:
+
 ```bash
 $ vagrant ssh default
 
@@ -78,8 +80,7 @@ on this machine. This data is cached and may not be completely
 up-to-date (use "vagrant global-status --prune" to prune invalid
 entries). To interact with any of the machines, you can go to that
 directory and run Vagrant, or you can use the ID directly with
-Vagrant commands from any directory. For example:
-"vagrant destroy 1a2b3c4d"
+Vagrant commands from any directory.
 $ vagrant ssh 13759ff
 
 Welcome to your Vagrant-built virtual machine.
