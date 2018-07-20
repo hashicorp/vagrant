@@ -13,6 +13,82 @@ description: |-
 
 This will SSH into a running Vagrant machine and give you access to a shell.
 
+On a simple vagrant project, the instance created will be named default.
+
+Vagrant will ssh into this instance without the instance name:
+
+```bash
+$ vagrant ssh
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+$ logout
+Connection to 127.0.0.1 closed.
+```
+Or you could use the name:
+```bash
+$ vagrant ssh default
+
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Jul 20 15:09:52 2018 from 10.0.2.2
+$ logout
+Connection to 127.0.0.1 closed.
+$ 
+```
+
+On multi-machine setups, you can login to each vm using the name as displayed
+on `vagrant status`
+
+```bash
+ $ vagrant status
+Current machine states:
+
+node1                     running (virtualbox)
+node2                     running (virtualbox)
+
+This environment represents multiple VMs. The VMs are all listed
+above with their current state. 
+$ vagrant ssh node1
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+vagrant@precise64:~$ logout
+Connection to 127.0.0.1 closed.
+$ vagrant ssh node2
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+vagrant@precise64:~$ logout
+Connection to 127.0.0.1 closed.
+$ 
+```
+
+On a system with machines running from different projects, you could use the id
+as listed in `vagrant global-status`
+
+```bash
+$ vagrant global-status 
+id       name   provider   state   directory                           
+-----------------------------------------------------------------------
+13759ff  node1  virtualbox running /Users/user/vagrant/folder         
+ 
+The above shows information about all known Vagrant environments
+on this machine. This data is cached and may not be completely
+up-to-date (use "vagrant global-status --prune" to prune invalid
+entries). To interact with any of the machines, you can go to that
+directory and run Vagrant, or you can use the ID directly with
+Vagrant commands from any directory. For example:
+"vagrant destroy 1a2b3c4d"
+$ vagrant ssh 13759ff
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Jul 20 15:19:36 2018 from 10.0.2.2
+vagrant@precise64:~$ logout
+Connection to 127.0.0.1 closed.
+$ 
+```
+
 If a `--` (two hyphens) are found on the command line, any arguments after
 this are passed directly into the `ssh` executable. This allows you to pass
 any arbitrary commands to do things such as reverse tunneling down into the
