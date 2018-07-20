@@ -45,7 +45,7 @@ try {
 function AddDisks($vm, $controller) {
     #get controller
 
-	$contNumber =  ($vm | Add-VMScsiController -PassThru).ControllerNumber
+    $contNumber =  ($vm | Add-VMScsiController -PassThru).ControllerNumber
     foreach($disk in $controller) {
         #get vhd
         $vhd = $null
