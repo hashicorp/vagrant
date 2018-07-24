@@ -15,9 +15,9 @@ module VagrantPlugins
       # "kernel_v1", none of these configuration classes are upgradable.
       # This is by design, since we can't be sure if they're upgradable
       # until another version is available.
-      config("ssh") do
-        require File.expand_path("../config/ssh", __FILE__)
-        SSHConfig
+      config("cloud_init") do
+        require File.expand_path("../config/cloud_init", __FILE__)
+        CloudInit
       end
 
       config("package") do
@@ -28,6 +28,11 @@ module VagrantPlugins
       config("push") do
         require File.expand_path("../config/push", __FILE__)
         PushConfig
+      end
+
+      config("ssh") do
+        require File.expand_path("../config/ssh", __FILE__)
+        SSHConfig
       end
 
       config("vagrant") do

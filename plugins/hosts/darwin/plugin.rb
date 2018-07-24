@@ -11,6 +11,16 @@ module VagrantPlugins
         Host
       end
 
+      host_capability("darwin", "iso_available") do
+        require_relative "cap/fs_iso"
+        Cap::FsISO
+      end
+
+      host_capability("darwin", "create_iso") do
+        require_relative "cap/fs_iso"
+        Cap::FsISO
+      end
+
       host_capability("darwin", "provider_install_virtualbox") do
         require_relative "cap/provider_install_virtualbox"
         Cap::ProviderInstallVirtualBox
