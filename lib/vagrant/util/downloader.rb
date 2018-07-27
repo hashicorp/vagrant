@@ -105,15 +105,15 @@ module Vagrant
               # from the original host, notify the user that the target host has
               # changed from the source.
               if progress_data.include?("Location")
-                location = progress_data.scan(/Location: (.+?)$/m).flatten.compact.first.to_s.strip
+                location = progress_data.scan(/(^|[^\w-])Location: (.+?)$/m).flatten.compact.last.to_s.strip
                 if !location.empty?
                   location_uri = URI.parse(location)
 
                   unless location_uri.host.nil?
                     @logger.info("download redirected to #{location}")
                     source_uri = URI.parse(source)
-                    source_host = source_uri.host.split(".", 2).last
-                    location_host = location_uri.host.split(".", 2).last
+                    source_host = source_uri.host.to_s.split(".", 2).last
+                    location_host = location_uri.host.to_s.split(".", 2).last
                     if !@redirect_notify && location_host != source_host && !SILENCED_HOSTS.include?(location_host)
                       @ui.clear_line
                       @ui.detail "Download redirected to host: #{location_uri.host}"
