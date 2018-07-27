@@ -21,7 +21,10 @@ module VagrantPlugins
 
           host_path  = data[:hostpath]
           guest_path = data[:guestpath]
-          machine.provider_config.volumes << "#{host_path}:#{guest_path}"
+          # Append consistency option if it exists, otherwise let it nil out
+          consistency = data[:docker_consistency]
+          consistency &&= ":" + consistency
+          machine.provider_config.volumes << "#{host_path}:#{guest_path}#{consistency}"
         end
       end
     end
