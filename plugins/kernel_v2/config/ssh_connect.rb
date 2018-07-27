@@ -38,7 +38,7 @@ module VagrantPlugins
         @insert_key       = true if @insert_key == UNSET_VALUE
         @keys_only        = true if @keys_only == UNSET_VALUE
         @paranoid         = false if @paranoid == UNSET_VALUE
-        @verify_host_key  = false if @verify_host_key == UNSET_VALUE
+        @verify_host_key  = :never if @verify_host_key == UNSET_VALUE
         @compression      = true if @compression == UNSET_VALUE
         @dsa_authentication = true if @dsa_authentication == UNSET_VALUE
         @extra_args       = nil if @extra_args == UNSET_VALUE
@@ -51,6 +51,18 @@ module VagrantPlugins
           @verify_host_key = @paranoid
         end
 
+        # Values for verify_host_key changed in 5.0.0 of net-ssh. If old value
+        # detected, update with new value
+        case @verify_host_key
+        when true
+          @verify_host_key = :accepts_new_or_local_tunnel
+        when false
+          @verify_host_key = :never
+        when :very
+          @verify_host_key = :accept_new
+        when :secure
+          @verify_host_key = :always
+        end
       end
 
       # NOTE: This is _not_ a valid config validation method, since it

@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency "listen", "~> 3.1.5"
   s.add_dependency "hashicorp-checkpoint", "~> 0.1.5"
   s.add_dependency "log4r", "~> 1.1.9", "< 1.1.11"
-  s.add_dependency "net-ssh", "~> 4.2.0"
+  s.add_dependency "net-ssh", "~> 5.0.0"
   s.add_dependency "net-sftp", "~> 2.1"
   s.add_dependency "net-scp", "~> 1.2.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
