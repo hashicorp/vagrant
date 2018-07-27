@@ -7,8 +7,14 @@ module VagrantPlugins
     module Command
       class Repair < Base
         def execute
+          options = {}
+
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant plugin repair [-h]"
+
+            o.on("--local", "Repair plugins in local project") do |l|
+              options[:env_local] = l
+            end
           end
 
           # Parse the options
@@ -16,8 +22,12 @@ module VagrantPlugins
           return if !argv
           raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp if argv.length > 0
 
+          if Vagrant::Plugin::Manager.instance.local_file
+            action(Action.action_repair_local, env: @env)
+          end
+
           # Attempt to repair installed plugins
-          action(Action.action_repair)
+          action(Action.action_repair, options)
 
           # Success, exit status 0
           0

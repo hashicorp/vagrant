@@ -18,7 +18,7 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
     it "should install the plugin" do
       spec = Gem::Specification.new
       expect(manager).to receive(:install_plugin).with(
-        "foo", version: nil, require: nil, sources: nil, verbose: false).once.and_return(spec)
+        "foo", version: nil, require: nil, sources: nil, verbose: false, env_local: nil).once.and_return(spec)
 
       expect(app).to receive(:call).with(env).once
 
@@ -29,7 +29,7 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
     it "should specify the version if given" do
       spec = Gem::Specification.new
       expect(manager).to receive(:install_plugin).with(
-        "foo", version: "bar", require: nil, sources: nil, verbose: false).once.and_return(spec)
+        "foo", version: "bar", require: nil, sources: nil, verbose: false, env_local: nil).once.and_return(spec)
 
       expect(app).to receive(:call).with(env).once
 
@@ -41,7 +41,7 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
     it "should specify the entrypoint if given" do
       spec = Gem::Specification.new
       expect(manager).to receive(:install_plugin).with(
-        "foo", version: "bar", require: "baz", sources: nil, verbose: false).once.and_return(spec)
+        "foo", version: "bar", require: "baz", sources: nil, verbose: false, env_local: nil).once.and_return(spec)
 
       expect(app).to receive(:call).with(env).once
 
@@ -54,7 +54,7 @@ describe VagrantPlugins::CommandPlugin::Action::InstallGem do
     it "should specify the sources if given" do
       spec = Gem::Specification.new
       expect(manager).to receive(:install_plugin).with(
-        "foo", version: nil, require: nil, sources: ["foo"], verbose: false).once.and_return(spec)
+        "foo", version: nil, require: nil, sources: ["foo"], verbose: false, env_local: nil).once.and_return(spec)
 
       expect(app).to receive(:call).with(env).once
 

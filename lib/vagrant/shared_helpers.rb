@@ -130,6 +130,18 @@ module Vagrant
     end
   end
 
+  # Automatically install locally defined plugins instead of
+  # waiting for user confirmation.
+  #
+  # @return [Boolean]
+  def self.auto_install_local_plugins?
+    if ENV["VAGRANT_INSTALL_LOCAL_PLUGINS"]
+      true
+    else
+      false
+    end
+  end
+
   # Use Ruby Resolv in place of libc
   #
   # @return [boolean] enabled or not

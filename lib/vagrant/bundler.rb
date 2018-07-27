@@ -32,22 +32,42 @@ module Vagrant
       @bundler ||= self.new
     end
 
+    # @return [Pathname] Global plugin path
     attr_reader :plugin_gem_path
+    # @return [Pathname] Vagrant environment specific plugin path
+    attr_reader :env_plugin_gem_path
 
     def initialize
       @plugin_gem_path = Vagrant.user_data_path.join("gems", RUBY_VERSION).freeze
       @logger = Log4r::Logger.new("vagrant::bundler")
     end
 
+    # Enable Vagrant environment specific plugins at given data path
+    #
+    # @param [Pathname] Path to Vagrant::Environment data directory
+    # @return [Pathname] Path to environment specific gem directory
+    def environment_path=(env_data_path)
+      @env_plugin_gem_path = env_data_path.join("plugins", "gems", RUBY_VERSION).freeze
+    end
+
     # Initializes Bundler and the various gem paths so that we can begin
-    # loading gems. This must only be called once.
+    # loading gems.
     def init!(plugins, repair=false)
+      if !@initial_specifications
+        @initial_specifications = Gem::Specification.find_all{true}
+      else
+        Gem::Specification.all = @initial_specifications
+        Gem::Specification.reset
+      end
+
       # Add HashiCorp RubyGems source
-      Gem.sources << HASHICORP_GEMSTORE
+      if !Gem.sources.include?(HASHICORP_GEMSTORE)
+        Gem.sources << HASHICORP_GEMSTORE
+      end
 
       # Generate dependencies for all registered plugins
       plugin_deps = plugins.map do |name, info|
-        Gem::Dependency.new(name, info['gem_version'].to_s.empty? ? '> 0' : info['gem_version'])
+        Gem::Dependency.new(name, info['installed_gem_version'].to_s.empty? ? '> 0' : info['installed_gem_version'])
       end
 
       @logger.debug("Current generated plugin dependency list: #{plugin_deps}")
@@ -78,7 +98,7 @@ module Vagrant
       # Activate the gems
       activate_solution(solution)
 
-      full_vagrant_spec_list = Gem::Specification.find_all{true} +
+      full_vagrant_spec_list = @initial_specifications +
         solution.map(&:full_spec)
 
       if(defined?(::Bundler))
@@ -91,6 +111,7 @@ module Vagrant
       end
 
       Gem::Specification.reset
+      nil
     end
 
     # Removes any temporary files created by init
@@ -101,9 +122,10 @@ module Vagrant
     # Installs the list of plugins.
     #
     # @param [Hash] plugins
+    # @param [Boolean] env_local Environment local plugin install
     # @return [Array<Gem::Specification>]
-    def install(plugins, local=false)
-      internal_install(plugins, nil, local: local)
+    def install(plugins, env_local=false)
+      internal_install(plugins, nil, env_local: env_local)
     end
 
     # Installs a local '*.gem' file so that Bundler can find it.
@@ -120,7 +142,7 @@ module Vagrant
         }
       }
       @logger.debug("Installing local plugin - #{plugin_info}")
-      internal_install(plugin_info, {})
+      internal_install(plugin_info, nil, env_local: opts[:env_local])
       plugin_source.spec
     end
 
@@ -129,14 +151,14 @@ module Vagrant
     # @param [Hash] plugins
     # @param [Array<String>] specific Specific plugin names to update. If
     #   empty or nil, all plugins will be updated.
-    def update(plugins, specific)
+    def update(plugins, specific, **opts)
       specific ||= []
-      update = {gems: specific.empty? ? true : specific}
+      update = opts.merge({gems: specific.empty? ? true : specific})
       internal_install(plugins, update)
     end
 
     # Clean removes any unused gems.
-    def clean(plugins)
+    def clean(plugins, **opts)
       @logger.debug("Cleaning Vagrant plugins of stale gems.")
       # Generate dependencies for all registered plugins
       plugin_deps = plugins.map do |name, info|
@@ -163,6 +185,13 @@ module Vagrant
         Gem::Specification.load(spec_path)
       end
 
+      # Include environment specific specification if enabled
+      if env_plugin_gem_path
+        plugin_specs += Dir.glob(env_plugin_gem_path.join('specifications/*.gemspec').to_s).map do |spec_path|
+          Gem::Specification.load(spec_path)
+        end
+      end
+
       @logger.debug("Generating current plugin state solution set.")
 
       # Resolve the request set to ensure proper activation order
@@ -171,9 +200,25 @@ module Vagrant
       solution_full_names = solution_specs.map(&:full_name)
 
       # Find all specs installed to plugins directory that are not
-      # found within the solution set
+      # found within the solution set.
       plugin_specs.delete_if do |spec|
         solution_full_names.include?(spec.full_name)
+      end
+
+      if env_plugin_gem_path
+        # If we are cleaning locally, remove any global specs. If
+        # not, remove any local specs
+        if opts[:env_local]
+          @logger.debug("Removing specifications that are not environment local")
+          plugin_specs.delete_if do |spec|
+            spec.full_gem_path.to_s.include?(plugin_gem_path.realpath.to_s)
+          end
+        else
+          @logger.debug("Removing specifications that are environment local")
+          plugin_specs.delete_if do |spec|
+            spec.full_gem_path.to_s.include?(env_plugin_gem_path.realpath.to_s)
+          end
+        end
       end
 
       @logger.debug("Specifications to be removed - #{plugin_specs.map(&:full_name)}")
@@ -318,18 +363,37 @@ module Vagrant
       # as we know the dependencies are satisfied and it will attempt to validate a gem's
       # dependencies are satisfied by gems in the install directory (which will likely not
       # be true)
-      result = request_set.install_into(plugin_gem_path.to_s, true,
+      install_path = extra[:env_local] ? env_plugin_gem_path : plugin_gem_path
+      result = request_set.install_into(install_path.to_s, true,
         ignore_dependencies: true,
         prerelease: Vagrant.prerelease?,
         wrappers: true
       )
       result = result.map(&:full_spec)
+      result.each do |spec|
+        existing_paths = $LOAD_PATH.find_all{|s| s.include?(spec.full_name) }
+        if !existing_paths.empty?
+          @logger.debug("Removing existing LOAD_PATHs for #{spec.full_name} - " +
+            existing_paths.join(", "))
+          existing_paths.each{|s| $LOAD_PATH.delete(s) }
+        end
+        spec.full_require_paths.each do |r_path|
+          if !$LOAD_PATH.include?(r_path)
+            @logger.debug("Adding path to LOAD_PATH - #{r_path}")
+            $LOAD_PATH.unshift(r_path)
+          end
+        end
+      end
       result
     end
 
     # Generate the composite resolver set totally all of vagrant (builtin + plugin set)
     def generate_vagrant_set
-      Gem::Resolver.compose_sets(generate_builtin_set, generate_plugin_set)
+      sets = [generate_builtin_set, generate_plugin_set]
+      if env_plugin_gem_path && env_plugin_gem_path.exist?
+        sets << generate_plugin_set(env_plugin_gem_path)
+      end
+      Gem::Resolver.compose_sets(*sets)
     end
 
     # @return [Array<[Gem::Specification, String]>] spec and directory pairs
@@ -387,10 +451,16 @@ module Vagrant
 
     # Generate the plugin resolver set. Optionally provide specification names (short or
     # full) that should be ignored
-    def generate_plugin_set(skip=[])
+    #
+    # @param [Pathname] path to plugins
+    # @param [Array<String>] gems to skip
+    # @return [PluginSet]
+    def generate_plugin_set(*args)
+      plugin_path = args.detect{|i| i.is_a?(Pathname) } || plugin_gem_path
+      skip = args.detect{|i| i.is_a?(Array) } || []
       plugin_set = PluginSet.new
       @logger.debug("Generating new plugin set instance. Skip gems - #{skip}")
-      Dir.glob(plugin_gem_path.join('specifications/*.gemspec').to_s).each do |spec_path|
+      Dir.glob(plugin_path.join('specifications/*.gemspec').to_s).each do |spec_path|
         spec = Gem::Specification.load(spec_path)
         desired_spec_path = File.join(spec.gem_dir, "#{spec.name}.gemspec")
         # Vendor set requires the spec to be within the gem directory. Some gems will package their

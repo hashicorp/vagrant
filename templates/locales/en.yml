@@ -410,6 +410,23 @@ en:
 
         Backup: %{backup_path}
 
+    plugins:
+      local:
+        uninstalled_plugins: |-
+          Vagrant has detected project local plugins configured for this
+          project which are not installed.
+
+            %{plugins}
+        request_plugin_install: |-
+          Install local plugins (Y/N)
+
+        install_all: |-
+          Vagrant will now install the following plugins to the local project
+          which have been defined in current Vagrantfile:
+
+            %{plugins}
+
+          Press ctrl-c to cancel...
 #-------------------------------------------------------------------------------
 # Translations for exception classes
 #-------------------------------------------------------------------------------
@@ -1092,7 +1109,7 @@ en:
 
         %{message}
       plugin_not_installed: |-
-        The plugin '%{name}' is not installed. Please install it first.
+        The plugin '%{name}' is not currently installed.
       plugin_state_file_not_parsable: |-
         Failed to parse the state file "%{path}":
         %{message}
@@ -1117,6 +1134,20 @@ en:
           %{error_msg}
 
         Source: %{source}
+      plugin_no_local_error: |-
+        Vagrant is not currently working within a Vagrant project directory. Local
+        plugins are only supported within a Vagrant project directory.
+      plugin_missing_local_error: |-
+        Vagrant is missing plugins required by the currently loaded Vagrantfile.
+        Please install the configured plugins and run this command again. The
+        following plugins are currently missing:
+
+          %{plugins}
+
+        To install the plugins configured in the current Vagrantfile run the
+        following command:
+
+          vagrant plugin install --local
       powershell_not_found: |-
         Failed to locate the powershell executable on the available PATH. Please
         ensure powershell is installed and available on the local PATH, then
@@ -1711,6 +1742,10 @@ en:
         sensitive_bad_type: |-
           Invalid type provided for `sensitive`. The sensitive option expects a string
           or an array of strings.
+        plugins_bad_key: |-
+          Invalid plugin configuration detected for `%{plugin_name}` plugin.
+
+            Unknown keys: %{plugin_key}
         bad_key: |-
           Unknown configuration section '%{key}'.
       ssh:
@@ -1889,9 +1924,13 @@ en:
 
           %{message}
         repairing: |-
-          Repairing currently installed plugins. This may take a few minutes...
+          Repairing currently installed global plugins. This may take a few minutes...
+        repairing_local: |-
+          Repairing currently installed local project plugins. This may take a few minutes...
         repair_complete: |-
           Installed plugins successfully repaired!
+        repair_local_complete: |-
+          Local project plugins successfully repaired!
         repair_failed: |-
           Failed to automatically repair installed Vagrant plugins. To fix this
           problem remove all user installed plugins and reinstall. Vagrant can

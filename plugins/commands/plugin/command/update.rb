@@ -10,9 +10,14 @@ module VagrantPlugins
         include MixinInstallOpts
 
         def execute
+          options = {}
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant plugin update [names...] [-h]"
             o.separator ""
+
+            o.on("--local", "Update plugin in local project") do |l|
+              options[:env_local] = l
+            end
           end
 
           # Parse the options
@@ -22,6 +27,7 @@ module VagrantPlugins
           # Update the gem
           action(Action.action_update, {
             plugin_name:        argv,
+            env_local:          options[:env_local]
           })
 
           # Success, exit status 0

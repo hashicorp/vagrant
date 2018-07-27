@@ -18,6 +18,7 @@ module VagrantPlugins
           plugin_name = env[:plugin_name]
           sources     = env[:plugin_sources]
           version     = env[:plugin_version]
+          env_local   = env[:plugin_env_local]
 
           # Install the gem
           plugin_name_label = plugin_name
@@ -28,10 +29,11 @@ module VagrantPlugins
           manager = Vagrant::Plugin::Manager.instance
           plugin_spec = manager.install_plugin(
             plugin_name,
-            version: version,
-            require: entrypoint,
-            sources: sources,
-            verbose: !!env[:plugin_verbose],
+            version:   version,
+            require:   entrypoint,
+            sources:   sources,
+            verbose:   !!env[:plugin_verbose],
+            env_local: env_local
           )
 
           # Record it so we can uninstall if something goes wrong

@@ -9,6 +9,9 @@ module VagrantPlugins
         def execute
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant plugin list [-h]"
+
+            # Stub option to allow Vagrantfile loading
+            o.on("--local", "Include local project plugins"){|_|}
           end
 
           # Parse the options
