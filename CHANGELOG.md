@@ -9,6 +9,7 @@ IMPROVEMENTS:
 - guest/debian: Isolate network interface configuration to individual files for systemd [GH-9889]
 - provider/hyperv: Disable synced folders on non-DrvFs file systems by default [GH-10001]
 - util/downloader: Support custom suffix on user agent string [GH-9966]
+- util/downloader: Prevent false positive matches on Location header [GH-10041]
 
 BUG FIXES:
 
