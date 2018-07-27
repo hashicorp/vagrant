@@ -65,7 +65,7 @@ _vagrant() {
     then
         case "$prev" in
             "init")
-              local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+              local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sed -e 's/-VAGRANTSLASH-/\//')
               COMPREPLY=($(compgen -W "${box_list}" -- ${cur}))
               return 0
             ;;
@@ -132,7 +132,7 @@ _vagrant() {
         "box")
           case "$prev" in
             "remove"|"repackage")
-              local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+              local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sed -e 's/-VAGRANTSLASH-/\//')
               COMPREPLY=($(compgen -W "${box_list}" -- ${cur}))
               return 0
               ;;
