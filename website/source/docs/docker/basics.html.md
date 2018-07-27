@@ -77,10 +77,10 @@ Private and public networks are not currently supported.
 
 ### Volume Consistency
 
-Docker's [volume consistency](https://github.com/moby/moby/pull/31047) setting can be specified using the `docker_consistency` option when defining a synced folder. This can
+Docker's [volume consistency](https://docs.docker.com/v17.09/engine/admin/volumes/bind-mounts/) setting can be specified using the `docker_consistency` option when defining a synced folder. This can
 [greatly improve performance on macOS](https://docs.docker.com/docker-for-mac/osxfs-caching). An example is shown using the `cached` and `delegated` settings:
 
-```
+```ruby
 config.vm.synced_folder "/host/dir1", "/guest/dir1", docker_consistency: "cached"
 config.vm.synced_folder "/host/dir2", "/guest/dir2", docker_consistency: "delegated"
 ```
