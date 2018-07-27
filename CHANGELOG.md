@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- core: Support for project specific plugins [GH-10037]
+
 IMPROVEMENTS:
 
 - core: Show installed version of Vagrant when displaying version check [GH-9968]
