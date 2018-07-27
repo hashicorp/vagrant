@@ -23,7 +23,6 @@ describe "VagrantPlugins::GuestRedHat::Cap:NFSClient" do
 
     it "installs rsync" do
       cap.nfs_client_install(machine)
-      expect(comm.received_commands[0]).to match(/install nfs-utils nfs-utils-lib portmap/)
       expect(comm.received_commands[0]).to match(/\/bin\/systemctl restart rpcbind nfs/)
     end
   end
