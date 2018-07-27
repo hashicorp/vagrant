@@ -1,5 +1,6 @@
-require 'log4r'
-require Vagrant.source_root.join('plugins/provisioners/shell/config')
+require "log4r"
+require "securerandom"
+require Vagrant.source_root.join("plugins/provisioners/shell/config")
 
 module VagrantPlugins
   module Kernel_V2
