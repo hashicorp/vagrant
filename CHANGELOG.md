@@ -18,6 +18,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core: Disable Vagrantfile loading with plugin commands [GH-10030]
+- host/windows: Remove localization dependency from SMB list generation [GH-10043]
 - provider/hyperv: Fix checkpoint configuration and properly disable automatic checkpoints by default [GH-9999]
 - provider/hyperv: Remove localization dependency from access check [GH-10000]
 - push/ftp: Custom error when attempting to push too many files [GH-9952]
