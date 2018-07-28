@@ -136,13 +136,13 @@ If you really need to use this connection mode though, it is possible to enable 
 
 With auto-generated inventory:
 
-```
+```ruby
 ansible.raw_arguments = ["--connection=paramiko"]
 ```
 
 With a custom inventory, the private key must be specified (e.g. via an `ansible.cfg` configuration file, `--private-key` argument, or as part of your inventory file):
 
-```
+```ruby
 ansible.inventory_path = "./my-inventory"
 ansible.raw_arguments  = [
   "--connection=paramiko",

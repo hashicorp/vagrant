@@ -99,7 +99,7 @@ Within the definition, a plugin advertises what components it adds to
 Vagrant. An example is shown below where a command and provisioner are
 added:
 
-```
+```ruby
 class MyPlugin < Vagrant.plugin("2")
   name "My Plugin"
 

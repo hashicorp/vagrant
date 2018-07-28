@@ -58,7 +58,7 @@ Communication channels to the machine are guaranteed to be running at this
 point, so the most common way to detect the operating system is to do
 some basic testing:
 
-```
+```ruby
 class MyGuest < Vagrant.plugin("2", "guest")
   def detect?(machine)
     machine.communicate.test("cat /etc/myos-release")
