@@ -19,11 +19,13 @@ File provisioning is a simple way to, for example, replicate your local
 you will not have to run `git config --global` every time you provision a
 new VM.
 
-    Vagrant.configure("2") do |config|
-      # ... other configuration
+```ruby
+Vagrant.configure("2") do |config|
+  # ... other configuration
 
-      config.vm.provision "file", source: "~/.gitconfig", destination: ".gitconfig"
-    end
+  config.vm.provision "file", source: "~/.gitconfig", destination: ".gitconfig"
+end
+```
 
 If you want to upload a folder to your guest system, it can be accomplished by
 using a file provisioner seen below. When copied, the resulting folder on the guest will
@@ -31,11 +33,13 @@ replace `folder` as `newfolder` and place its on the guest machine. Note that if
 you'd like the same folder name on your guest machine, make sure that the destination
 path has the same name as the folder on your host.
 
-    Vagrant.configure("2") do |config|
-      # ... other configuration
+```ruby
+Vagrant.configure("2") do |config|
+  # ... other configuration
 
-      config.vm.provision "file", source: "~/path/to/host/folder", destination: "$HOME/remote/newfolder"
-    end
+  config.vm.provision "file", source: "~/path/to/host/folder", destination: "$HOME/remote/newfolder"
+end
+```
 
 Prior to copying `~/path/to/host/folder` to the guest machine:
 
@@ -93,7 +97,9 @@ lead to some confusing results due to the underlying tool used to copy files and
 folders between the host and guests. For example, if you have a source and
 destination with a trailing slash defined below:
 
-      config.vm.provision "file", source: "~/pathfolder", destination: "/remote/newlocation/"
+```ruby
+config.vm.provision "file", source: "~/pathfolder", destination: "/remote/newlocation/"
+```
 
 You are telling vagrant to upload `~/pathfolder` under the remote dir `/remote/newlocation`,
 which will look like:
@@ -106,15 +112,21 @@ which will look like:
 
 This behavior can also be achieved by defining your file provisioner below:
 
-      config.vm.provision "file", source: "~/pathfolder", destination: "/remote/newlocation/pathfolder"
+```ruby
+config.vm.provision "file", source: "~/pathfolder", destination: "/remote/newlocation/pathfolder"
+```
 
 Another example is using globing on the host machine to grab all files within a
 folder, but not the top level folder itself:
 
-      config.vm.provision "file", source: "~/otherfolder/.", destination: "/remote/otherlocation"
+```ruby
+config.vm.provision "file", source: "~/otherfolder/.", destination: "/remote/otherlocation"
+```
 
 The file provisioner is defined to include all files under `~/otherfolder`
 to the new location `/remote/otherlocation`. This idea can be achieved by simply
 having your destination folder differ from the source folder:
 
-      config.vm.provision "file", source: "/otherfolder", destination: "/remote/otherlocation"
+```ruby
+config.vm.provision "file", source: "/otherfolder", destination: "/remote/otherlocation"
+```

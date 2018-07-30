@@ -176,7 +176,7 @@ Provider-specific configuration is a special case of a normal
 configuration component, name the configuration the same as the provider,
 and as a second parameter, specify `:provider`, like so:
 
-```
+```ruby
 config("my_cloud", :provider) do
   require_relative "config"
   Config
@@ -188,7 +188,7 @@ parameter is given, Vagrant will automatically expose this as provider-specific
 configuration for your provider. Users can now do the following in their
 Vagrantfiles:
 
-```
+```ruby
 config.vm.provider :my_cloud do |config|
   # Your specific configuration!
 end

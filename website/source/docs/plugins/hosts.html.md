@@ -55,7 +55,7 @@ process to determine if the OS that Vagrant is running on is this host.
 If you detect that it is your operating system, return `true` from `detect?`.
 Otherwise, return `false`.
 
-```
+```ruby
 class MyHost < Vagrant.plugin("2", "host")
   def detect?(environment)
     File.file?("/etc/arch-release")
