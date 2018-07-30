@@ -10,7 +10,7 @@ description: |-
 # Vagrant vs. Docker
 
 Vagrant is a tool focused on providing a consistent development environment
-workflow across multiple operation systems. Docker is a container management
+workflow across multiple operating systems. Docker is a container management
 that can consistently run software as long as a containerization system exists.
 
 Containers are generally more lightweight than virtual machines, so starting
