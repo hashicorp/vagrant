@@ -265,6 +265,10 @@ it will use 30 seconds as a timeout.
 Vagrant will not display the warning about disabling the core trigger feature if
 the community plugin is installed.
 
+## `VAGRANT_IGNORE_WINRM_PLUGIN`
+
+Vagrant will not display warning when `vagrant-winrm` plugin is installed.
+
 ## `VAGRANT_USER_AGENT_PROVISIONAL_STRING`
 
 Vagrant will append the contents of this variable to the default user agent header.
