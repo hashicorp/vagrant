@@ -56,10 +56,10 @@ EOF
       end
 
       # @private
-      # Reset the cached values. This is not considered a public
+      # Reset the cached init value. This is not considered a public
       # API and should only be used for testing.
       def self.reset!
-        instance_variables.each(&method(:remove_instance_variable))
+        send(:remove_instance_variable, :@_init)
       end
     end
   end
