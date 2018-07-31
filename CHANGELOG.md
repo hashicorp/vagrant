@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- communicator/winrm: Display warning if vagrant-winrm plugin is detected [GH-10076]
 - contrib/bash: Replace -VAGRANTSLASH- with literal slash in completion [GH-9987]
 - core: Show installed version of Vagrant when displaying version check [GH-9968]
 - core: Update net-ssh dependency constraint to ~> 5.0.0 [GH-10066]
