@@ -535,6 +535,15 @@ function Set-VagrantVMVirtExtensions {
         [bool] $Enabled=$false
     )
 
+    # Check that this option is available
+    if((Get-Command Hyper-V\Set-VMProcessor).Parameters["ExposeVirtualizationExtensions"] -eq $null) {
+        if($Enabled) {
+            throw "ExposeVirtualizationExtensions is not available"
+        } else {
+            return $VM
+        }
+    }
+
     Hyper-V\Set-VMProcessor -VM $VM -ExposeVirtualizationExtensions $Enabled
     return $VM
 <#
