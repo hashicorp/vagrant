@@ -1509,6 +1509,16 @@ en:
         the source location for upload an try again.
 
           Source Path: %{source}
+      uploader_error: |-
+        An error occurred while uploading the file. The error
+        message, if any, is reproduced below. Please fix this error and try
+        again.
+
+        exit code: %{exit_code}
+        %{message}
+      uploader_interrupted: |-
+        The upload was interrupted by an external signal. It did not
+        complete.
       vagrantfile_exists: |-
         `Vagrantfile` already exists in this directory. Remove it before
         running `vagrant init`.

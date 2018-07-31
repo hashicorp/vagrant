@@ -1,4 +1,5 @@
 require 'optparse'
+require "vagrant/util/uploader"
 
 module VagrantPlugins
   module CloudCommand
@@ -36,7 +37,7 @@ module VagrantPlugins
             box_name = box[1]
             provider_name = argv[1]
             version = argv[2]
-            file = argv[3]
+            file = argv[3] # path expand
 
             upload_provider(org, box_name, provider_name, version, file, @client.token, options)
           end
@@ -50,12 +51,18 @@ module VagrantPlugins
             cloud_version = VagrantCloud::Version.new(box, version, nil, nil, access_token)
             provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, nil, org, box_name, access_token)
 
+            ul = Vagrant::Util::Uploader.new(provider.upload_url, file, ui: @env.ui)
+            ui = Vagrant::UI::Prefixed.new(@env.ui, "cloud")
+
             begin
-              @env.ui.info(I18n.t("cloud_command.provider.upload", provider_file: file))
-              success = provider.upload_file(file)
-              @env.ui.success(I18n.t("cloud_command.provider.upload_success", provider: provider_name, org: org, box_name: box_name, version: version))
+              ui.output(I18n.t("cloud_command.provider.upload", org: org, box_name: box_name, version: version, provider: provider_name))
+              ui.info("Upload File: #{file}")
+
+              ul.upload!
+
+              ui.success("Successfully uploaded box '#{org}/#{box_name}' (v#{version}) for '#{provider_name}'")
               return 0
-            rescue VagrantCloud::ClientError => e
+            rescue Vagrant::Errors::UploaderError, VagrantCloud::ClientError => e
               @env.ui.error(I18n.t("cloud_command.errors.provider.upload_fail", provider: provider_name, org: org, box_name: box_name, version: version))
               @env.ui.error(e)
               return 1

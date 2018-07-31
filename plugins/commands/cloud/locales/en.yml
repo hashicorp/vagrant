@@ -28,14 +28,14 @@ en:
         Updated box %{org}/%{box_name}
     search:
       no_results: |-
-        No results found for %{query}
+        No results found for `%{query}`
     upload:
       no_url: |-
         No URL was provided to upload the provider
         You will need to run the `vagrant cloud provider upload` command to provide a box
     provider:
       upload: |-
-        Uploading provider %{provider_file} ...
+        Uploading box file for '%{org}/%{box_name}' v(%{version}) for provider: '%{provider}'
       upload_success: |-
         Uploaded provider %{provider} on %{org}/%{box_name} for version %{version}
       delete_warn: |-

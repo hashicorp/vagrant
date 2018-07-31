@@ -21,6 +21,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
   let(:box) { double("box") }
   let(:version) { double("version") }
   let(:provider) { double("provider") }
+  let(:uploader) { double("uploader") }
 
   before do
     allow(iso_env).to receive(:action_runner).and_return(action_runner)
@@ -50,10 +51,13 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
       allow(VagrantCloud::Provider).to receive(:new).
         with(version, "virtualbox", nil, nil, "vagrant", "box-name", client.token).
         and_return(provider)
+      allow(provider).to receive(:upload_url).
+        and_return("http://upload.here/there")
+      allow(Vagrant::Util::Uploader).to receive(:new).
+        with("http://upload.here/there", "path/to/box.box", {ui: anything}).
+        and_return(uploader)
 
-      expect(provider).to receive(:upload_file).
-        with("path/to/box.box").
-        and_return({})
+      expect(uploader).to receive(:upload!)
       expect(subject.execute).to eq(0)
     end
 
@@ -61,9 +65,14 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
       allow(VagrantCloud::Provider).to receive(:new).
         with(version, "virtualbox", nil, nil, "vagrant", "box-name", client.token).
         and_return(provider)
+      allow(provider).to receive(:upload_url).
+        and_return("http://upload.here/there")
+      allow(Vagrant::Util::Uploader).to receive(:new).
+        with("http://upload.here/there", "path/to/box.box", {ui: anything}).
+        and_return(uploader)
 
-      allow(provider).to receive(:upload_file).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+      allow(uploader).to receive(:upload!).
+        and_raise(Vagrant::Errors::UploaderError.new(exit_code: 1, message: "Error"))
       expect(subject.execute).to eq(1)
     end
   end
