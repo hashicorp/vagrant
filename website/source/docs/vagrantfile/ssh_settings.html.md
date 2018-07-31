@@ -68,7 +68,7 @@ any keys stored in ssh-agent). The default value is `true`.
 <hr>
 
 `config.ssh.verify_host_key` - Perform strict host-key verification. The default
-value is `false`.
+value is `:never`.
 
 <hr>
 

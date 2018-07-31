@@ -846,7 +846,7 @@ describe Vagrant::Machine do
           expect(instance.ssh_info[:keys_only]).to be(true)
         end
         it "verify_host_key should be default" do
-          expect(instance.ssh_info[:verify_host_key]).to be(false)
+          expect(instance.ssh_info[:verify_host_key]).to be(:never)
         end
         it "extra_args should be nil" do
           expect(instance.ssh_info[:extra_args]).to be(nil)
