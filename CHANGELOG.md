@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 - contrib/bash: Replace -VAGRANTSLASH- with literal slash in completion [GH-9987]
 - core: Show installed version of Vagrant when displaying version check [GH-9968]
+- core: Update net-ssh dependency constraint to ~> 5.0.0 [GH-10066]
 - core/triggers: Catch and allow for non-standard exit codes with triggers `run` options [GH-10005]
 - guest/debian: Isolate network interface configuration to individual files for systemd [GH-9889]
 - guest/redhat: Use libnfs-utils package if available [GH-9878]
