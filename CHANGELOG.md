@@ -17,6 +17,7 @@ IMPROVEMENTS:
 - provider/hyperv: Disable synced folders on non-DrvFs file systems by default [GH-10001]
 - util/downloader: Support custom suffix on user agent string [GH-9966]
 - util/downloader: Prevent false positive matches on Location header [GH-10041]
+- util/subprocess: Force system library paths for executables external to AppImage [GH-10078]
 
 BUG FIXES:
 
