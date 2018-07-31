@@ -93,7 +93,7 @@ module Vagrant
 
         # Special installer-related things
         if Vagrant.in_installer?
-          installer_dir = ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"].to_s.downcase
+          installer_dir = Vagrant.installer_embedded_dir.to_s.downcase
 
           # If we're in an installer on Mac and we're executing a command
           # in the installer context, then force DYLD_LIBRARY_PATH to look
@@ -122,6 +122,18 @@ module Vagrant
           if !internal
             @logger.info("Command not in installer, restoring original environment...")
             jailbreak(process.environment)
+          end
+
+          # If running within an AppImage and calling external executable. When
+          # executable is external set the LD_LIBRARY_PATH to host values.
+          if ENV["VAGRANT_APPIMAGE"]
+            embed_path = Pathname.new(Vagrant.installer_embedded_dir).expand_path.to_s
+            exec_path = Pathname.new(@command[0]).expand_path.to_s
+            if !exec_path.start_with?(embed_path) && ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"]
+              @logger.info("Detected AppImage environment and request to external binary. Updating library path.")
+              @logger.debug("Setting LD_LIBRARY_PATH to #{ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"]}")
+              process.environment["LD_LIBRARY_PATH"] = ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"].to_s
+            end
           end
         else
           @logger.info("Vagrant not running in installer, restoring original environment...")

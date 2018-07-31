@@ -46,6 +46,58 @@ describe Vagrant::Util::Subprocess do
       # we should see our data as the output from `cat`
       expect(result.stdout).to eq(data)
     end
+
+    context "running within AppImage" do
+      let(:appimage_ld_path) { nil }
+      let(:exec_path) { "/exec/path" }
+      let(:appimage_path) { "/appimage" }
+      let(:process) { double("process", io: process_io, environment: process_env) }
+      let(:process_io) { double("process_io") }
+      let(:process_env) { double("process_env") }
+      let(:subject) { described_class.new(exec_path) }
+
+      before do
+        allow(process).to receive(:start)
+        allow(process).to receive(:duplex=)
+        allow(process).to receive(:alive?).and_return(false)
+        allow(process).to receive(:exited?).and_return(true)
+        allow(process).to receive(:poll_for_exit).and_return(0)
+        allow(process).to receive(:exit_code).and_return(0)
+        allow(process_io).to receive(:stdout=)
+        allow(process_io).to receive(:stderr=)
+        allow(process_io).to receive(:stdin).and_return(double("io_stdin", "sync=" => true))
+        allow(process_env).to receive(:[]=)
+        allow(ENV).to receive(:[]).with("VAGRANT_INSTALLER_ENV").and_return("1")
+        allow(ENV).to receive(:[]).with("VAGRANT_APPIMAGE").and_return("1")
+        allow(ENV).to receive(:[]).with("VAGRANT_APPIMAGE_LD_LIBRARY_PATH").and_return(appimage_ld_path)
+        allow(File).to receive(:file?).with(exec_path).and_return(true)
+        allow(ChildProcess).to receive(:build).and_return(process)
+        allow(Vagrant).to receive(:installer_embedded_dir).and_return(appimage_path)
+        allow(Vagrant).to receive(:user_data_path).and_return("")
+      end
+
+      after { subject.execute }
+
+      it "should not update LD_LIBRARY_PATH when environment variable is not set" do
+        expect(process_env).not_to receive(:[]=).with("LD_LIBRARY_PATH", anything)
+      end
+
+      context "when APPIMAGE_LD_LIBRARY_PATH environment variable is set" do
+        let(:appimage_ld_path) { "APPIMAGE_SYSTEM_LIBS" }
+
+        it "should set LD_LIBRARY_PATH when executable is not within appimage" do
+          expect(process_env).to receive(:[]=).with("LD_LIBRARY_PATH", appimage_ld_path)
+        end
+
+        context "when executable is located within AppImage" do
+          let(:exec_path) { "#{appimage_path}/exec/path" }
+
+          it "should not set LD_LIBRARY_PATH" do
+            expect(process_env).not_to receive(:[]=).with("LD_LIBRARY_PATH", anything)
+          end
+        end
+      end
+    end
   end
 
   describe "#running?" do
