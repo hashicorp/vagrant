@@ -25,6 +25,7 @@ BUG FIXES:
 - host/windows: Remove localization dependency from SMB list generation [GH-10043]
 - provider/hyperv: Fix checkpoint configuration and properly disable automatic checkpoints by default [GH-9999]
 - provider/hyperv: Remove localization dependency from access check [GH-10000]
+- provider/virtualbox: Skip link-local when fixing IPv6 route [GH-9639, GH-10077]
 - push/ftp: Custom error when attempting to push too many files [GH-9952]
 - util/downloader: Prevent errors when Location header contains relative path [GH-10017]
 - util/guest_inspection: Prevent nmcli check from hanging when pty is enabled [GH-9926]
