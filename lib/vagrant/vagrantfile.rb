@@ -107,6 +107,7 @@ module Vagrant
     #   be backed by (required for provider overrides).
     # @param [BoxCollection] boxes BoxCollection to look up the
     #   box Vagrantfile.
+    # @param [Pathname] data_path Machine data path
     # @return [Hash<Symbol, Object>] Various configuration parameters for a
     #   machine. See the main documentation body for more info.
     def machine_config(name, provider, boxes, data_path=nil)
@@ -179,7 +180,7 @@ module Vagrant
         if meta_file.file?
           box_meta = JSON.parse(meta_file.read)
           config.vm.box = box_meta["name"]
-          config.vm.box_version = box_meta["box_version"]
+          config.vm.box_version = box_meta["version"]
         end
       end
 
