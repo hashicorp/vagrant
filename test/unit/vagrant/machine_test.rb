@@ -270,50 +270,50 @@ describe Vagrant::Machine do
     end
 
     it "should be able to run an action that exists" do
-      action_name = :up
+      action_name = :destroy
       called      = false
       callable    = lambda { |_env| called = true }
 
       expect(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up)
+      instance.action(action_name)
       expect(called).to be
     end
 
     it "should provide the machine in the environment" do
-      action_name = :up
+      action_name = :destroy
       machine     = nil
       callable    = lambda { |env| machine = env[:machine] }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up)
+      instance.action(action_name)
 
       expect(machine).to eql(instance)
     end
 
     it "should pass any extra options to the environment" do
-      action_name = :up
+      action_name = :destroy
       foo         = nil
       callable    = lambda { |env| foo = env[:foo] }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up, foo: :bar)
+      instance.action(action_name, foo: :bar)
 
       expect(foo).to eq(:bar)
     end
 
     it "should pass any extra options to the environment as strings" do
-      action_name = :up
+      action_name = :destroy
       foo         = nil
       callable    = lambda { |env| foo = env["foo"] }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up, "foo" => :bar)
+      instance.action(action_name, "foo" => :bar)
 
       expect(foo).to eq(:bar)
     end
 
     it "should return the environment as a result" do
-      action_name = :up
+      action_name = :destroy
       callable    = lambda { |env| env[:result] = "FOO" }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
@@ -323,7 +323,7 @@ describe Vagrant::Machine do
     end
 
     it "should raise an exception if the action is not implemented" do
-      action_name = :up
+      action_name = :destroy
 
       allow(provider).to receive(:action).with(action_name).and_return(nil)
 
@@ -332,7 +332,7 @@ describe Vagrant::Machine do
     end
 
     it 'should not warn if the machines cwd has not changed' do
-      initial_action_name  = :up
+      initial_action_name  = :destroy
       second_action_name  = :reload
       callable     = lambda { |_env| }
       original_cwd = env.cwd.to_s
@@ -349,7 +349,7 @@ describe Vagrant::Machine do
     end
 
     it 'should warn if the machine was last run under a different directory' do
-      action_name  = :up
+      action_name  = :destroy
       callable     = lambda { |_env| }
       original_cwd = env.cwd.to_s
 
@@ -374,7 +374,7 @@ describe Vagrant::Machine do
       let (:data_dir) { env.cwd }
 
       it 'should not warn if vagrant is run in subdirectory' do
-        action_name  = :up
+        action_name  = :destroy
         callable     = lambda { |_env| }
         original_cwd = env.cwd.to_s
 
@@ -394,7 +394,7 @@ describe Vagrant::Machine do
 
     context "with the vagrant-triggers community plugin" do
       it "should not call the internal trigger functions if installed" do
-        action_name = :up
+        action_name = :destroy
         callable    = lambda { |_env| }
 
         allow(provider).to receive(:action).with(action_name).and_return(callable)
@@ -412,7 +412,7 @@ describe Vagrant::Machine do
       end
 
       it "should call the internal trigger functions if not installed" do
-        action_name = :up
+        action_name = :destroy
         callable    = lambda { |_env| }
 
         allow(provider).to receive(:action).with(action_name).and_return(callable)

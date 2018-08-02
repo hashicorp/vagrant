@@ -42,7 +42,7 @@ module Vagrant
     # @return [Machine]
     def machine(name, provider, boxes, data_path, env)
       # Load the configuration for the machine
-      results = machine_config(name, provider, boxes)
+      results = machine_config(name, provider, boxes, data_path)
       box             = results[:box]
       config          = results[:config]
       config_errors   = results[:config_errors]
@@ -109,7 +109,7 @@ module Vagrant
     #   box Vagrantfile.
     # @return [Hash<Symbol, Object>] Various configuration parameters for a
     #   machine. See the main documentation body for more info.
-    def machine_config(name, provider, boxes)
+    def machine_config(name, provider, boxes, data_path=nil)
       keys = @keys.dup
 
       sub_machine = @config.vm.defined_vms[name]
@@ -170,6 +170,19 @@ module Vagrant
       original_box = config.vm.box
       original_version = config.vm.box_version
 
+      # Check if this machine has a local box metadata file
+      # describing the existing guest. If so, load it and
+      # set the box name and version to allow the actual
+      # box in use to be discovered.
+      if data_path
+        meta_file = data_path.join("box_meta")
+        if meta_file.file?
+          box_meta = JSON.parse(meta_file.read)
+          config.vm.box = box_meta["name"]
+          config.vm.box_version = box_meta["box_version"]
+        end
+      end
+
       # The proc below loads the box and provider overrides. This is
       # in a proc because it may have to recurse if the provider override
       # changes the box.
@@ -213,6 +226,11 @@ module Vagrant
 
       # Load the box and provider overrides
       load_box_proc.call
+
+      # Ensure box attributes are set to original values in
+      # case they were modified by the local box metadata
+      config.vm.box = original_box
+      config.vm.box_version = original_version
 
       return {
         box: box,
