@@ -113,7 +113,8 @@ will output information about any collisions detections and auto corrections
 made, so you can take notice and act accordingly.
 
 You can define allowed port range assignable by Vagrant when port collision is
-detected via `config.vm.usable_port_range` property.
+detected via [config.vm.usable_port_range](/docs/vagrantfile/machine_settings.html) property.
+
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.usable_port_range = 8000..8999
