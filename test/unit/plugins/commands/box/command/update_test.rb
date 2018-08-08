@@ -307,6 +307,35 @@ describe VagrantPlugins::CommandBox::Command::Update do
           subject.execute
         end
 
+        context "when box version is updated but previous box exists" do
+
+          let(:collection) { double("collection") }
+
+          it "updates the box" do
+            # First call gets nil result to for lookup
+            expect(machine).to receive(:box).and_return(nil)
+            expect(Vagrant::BoxCollection).to receive(:new).and_return(collection)
+            expect(collection).to receive(:find).and_return(box)
+
+            expect(box).to receive(:has_update?).
+              with(machine.config.vm.box_version,
+              {download_options:
+                {ca_cert: nil, ca_path: nil, client_cert: nil,
+                  insecure: false}}).
+              and_return([md, md.version("1.1"), md.version("1.1").provider("virtualbox")])
+
+            expect(action_runner).to receive(:run).with(any_args) { |action, opts|
+              expect(opts[:box_url]).to eq(box.metadata_url)
+              expect(opts[:box_provider]).to eq("virtualbox")
+              expect(opts[:box_version]).to eq("1.1")
+              expect(opts[:ui]).to equal(machine.ui)
+              true
+            }
+
+            subject.execute
+          end
+        end
+
         context "machine has download options" do
           before do
             machine.config.vm.box_download_ca_cert = "oof"
