@@ -173,15 +173,13 @@ module VagrantPlugins
         def self.nfs_write_exports(new_exports_content)
           if(nfs_exports_content != new_exports_content.strip)
             begin
+              exports_path = Pathname.new(NFS_EXPORTS_PATH)
+
               # Write contents out to temporary file
               new_exports_file = Tempfile.create('vagrant')
               new_exports_file.puts(new_exports_content)
               new_exports_file.close
               new_exports_path = new_exports_file.path
-
-              # Only use "sudo" if we can't write to /etc/exports directly
-              sudo_command = ""
-              sudo_command = "sudo " if !File.writable?(NFS_EXPORTS_PATH)
 
               # Ensure new file mode and uid/gid match existing file to replace
               existing_stat = File.stat(NFS_EXPORTS_PATH)
@@ -190,7 +188,7 @@ module VagrantPlugins
                 File.chmod(existing_stat.mode, new_exports_path)
               end
               if existing_stat.uid != new_stat.uid || existing_stat.gid != new_stat.gid
-                chown_cmd = "#{sudo_command}chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}"
+                chown_cmd = "sudo chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}"
                 result = Vagrant::Util::Subprocess.execute(*Shellwords.split(chown_cmd))
                 if result.exit_code != 0
                   raise Vagrant::Errors::NFSExportsFailed,
@@ -200,6 +198,7 @@ module VagrantPlugins
                 end
               end
               # Always force move the file to prevent overwrite prompting
+              sudo_command = "sudo " if !exports_path.writable? || !exports_path.dirname.writable?
               mv_cmd = "#{sudo_command}mv -f #{new_exports_path} #{NFS_EXPORTS_PATH}"
               result = Vagrant::Util::Subprocess.execute(*Shellwords.split(mv_cmd))
               if result.exit_code != 0

@@ -269,14 +269,72 @@ EOH
       expect{ described_class.nfs_write_exports("new content") }.to raise_error(Vagrant::Errors::NFSExportsFailed)
     end
 
-    it "should retain existing file owner and group IDs" do
-      pending("investigate using a simulated FS to test")
-      test_with_simulated_fs
-    end
+    context "exports file modification" do
+      let(:tmp_stat) { double("tmp_stat", uid: 100, gid: 100, mode: tmp_mode) }
+      let(:tmp_mode) { 0 }
+      let(:exports_stat) { double("stat", uid: exports_uid, gid: exports_gid, mode: exports_mode) }
+      let(:exports_uid) { -1 }
+      let(:exports_gid) { -1 }
+      let(:exports_mode) { 0 }
+      let(:new_exports_file) { double("new_exports_file", path: "/dev/null/exports") }
 
-    it "should raise custom exception when chown fails" do
-      pending("investigate using a simulated FS to test")
-      test_with_simulated_fs
+      before do
+        allow(File).to receive(:stat).with(new_exports_file.path).and_return(tmp_stat)
+        allow(File).to receive(:stat).with(tmp_exports_path.to_s).and_return(exports_stat)
+        allow(new_exports_file).to receive(:puts)
+        allow(new_exports_file).to receive(:close)
+        allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
+        allow(Tempfile).to receive(:create).with("vagrant").and_return(new_exports_file)
+      end
+
+      it "should retain existing file owner and group IDs" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+          expect(args).to include("sudo")
+          expect(args).to include("chown")
+        }.and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
+        described_class.nfs_write_exports("new content")
+      end
+
+      it "should raise custom exception when chown fails" do
+        expect(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+          expect(args).to include("sudo")
+          expect(args).to include("chown")
+        }.and_return(Vagrant::Util::Subprocess::Result.new(1, "", ""))
+        expect { described_class.nfs_write_exports("new content") }.to raise_error(Vagrant::Errors::NFSExportsFailed)
+      end
+
+      context "when user has write access to exports file" do
+        let(:file_writable?) { true }
+        let(:dir_writable?) { false }
+        let(:exports_pathname) { double("exports_pathname", writable?: file_writable?, dirname: exports_dir_pathname) }
+        let(:exports_dir_pathname) { double("exports_dir_pathname", writable?: dir_writable?) }
+
+        before do
+          allow(File).to receive(:stat).and_return(exports_stat)
+          allow(File).to receive(:exist?).and_return(false)
+          allow(Pathname).to receive(:new).with(tmp_exports_path.to_s).and_return(exports_pathname)
+        end
+
+        it "should use sudo when moving new file" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+            expect(args).to include("sudo")
+            expect(args).to include("mv")
+          }.and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
+          described_class.nfs_write_exports("new content")
+        end
+
+        context "and write access to exports parent directory" do
+          let(:dir_writable?) { true }
+
+          it "should not use sudo when moving new file" do
+            expect(Vagrant::Util::Subprocess).to receive(:execute) { |*args|
+              expect(args).not_to include("sudo")
+              expect(args).to include("mv")
+            }.and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
+            described_class.nfs_write_exports("new content")
+          end
+        end
+      end
     end
   end
 end
