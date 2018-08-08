@@ -55,14 +55,14 @@ module VagrantPlugins
               host, colon, guest = v.rpartition(":")
               host = "//" + host[0].downcase + host[2..-1]
               v = [host, guest].join(":")
-            else 
+            else
               host, guest = v.split(":", 2)
-                  host = Vagrant::Util::Platform.windows_path(host)
-                  # NOTE: Docker does not support UNC style paths (which also
-                  # means that there's no long path support). Hopefully this
-                  # will be fixed someday and the gsub below can be removed.
-                  host.gsub!(/^[^A-Za-z]+/, "")
-                  v = [host, guest].join(":")
+              host = Vagrant::Util::Platform.windows_path(host)
+              # NOTE: Docker does not support UNC style paths (which also
+              # means that there's no long path support). Hopefully this
+              # will be fixed someday and the gsub below can be removed.
+              host.gsub!(/^[^A-Za-z]+/, "")
+              v = [host, guest].join(":")
             end
           end
 
