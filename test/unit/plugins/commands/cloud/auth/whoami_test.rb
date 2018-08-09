@@ -47,7 +47,7 @@ describe VagrantPlugins::CloudCommand::AuthCommand::Command::Whoami do
 
     it "returns 1 if encountering an error making request" do
       allow(account).to receive(:validate_token).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 404))
       expect(subject.execute).to eq(1)
     end
   end

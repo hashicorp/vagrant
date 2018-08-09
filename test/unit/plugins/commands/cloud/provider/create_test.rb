@@ -63,7 +63,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Create do
         and_return(provider)
 
       allow(provider).to receive(:create_provider).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 422))
       expect(subject.execute).to eq(1)
     end
   end

@@ -56,7 +56,7 @@ describe VagrantPlugins::CloudCommand::BoxCommand::Command::Show do
         .and_return(box)
 
       allow(box).to receive(:read).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 404))
       expect(subject.execute).to eq(1)
     end
   end

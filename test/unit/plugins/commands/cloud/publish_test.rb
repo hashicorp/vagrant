@@ -67,8 +67,20 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
         and_return(uploader)
       allow(uploader).to receive(:upload!)
       allow(box).to receive(:create).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 404))
       expect(subject.execute).to eq(1)
+    end
+
+    it "calls update if entity already exists" do
+      allow(provider).to receive(:upload_url).and_return("http://upload.here/there")
+      allow(Vagrant::Util::Uploader).to receive(:new).
+        with("http://upload.here/there", "/full/path/to/the/virtualbox.box", {ui: anything}).
+        and_return(uploader)
+      allow(uploader).to receive(:upload!)
+      allow(box).to receive(:create).
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 422))
+      expect(box).to receive(:update)
+      expect(subject.execute).to eq(0)
     end
   end
 

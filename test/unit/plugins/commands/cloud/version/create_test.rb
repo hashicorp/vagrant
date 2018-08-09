@@ -58,7 +58,7 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Create do
         and_return(version)
 
       allow(version).to receive(:create_version).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 422))
       expect(subject.execute).to eq(1)
     end
   end

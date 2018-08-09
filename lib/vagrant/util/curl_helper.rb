@@ -34,6 +34,7 @@ module Vagrant
                   redirect_notify = false
                   logger.info("download redirected to #{location}")
                   source_uri = URI.parse(source)
+                  # TODO: shouldn't this be....`.first`?
                   source_host = source_uri.host.to_s.split(".", 2).last
                   location_host = location_uri.host.to_s.split(".", 2).last
                   if !redirect_notify && location_host != source_host && !SILENCED_HOSTS.include?(location_host)

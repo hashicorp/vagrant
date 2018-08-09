@@ -59,7 +59,7 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Delete do
         and_return(version)
 
       allow(version).to receive(:delete).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 404))
       expect(subject.execute).to eq(1)
     end
   end

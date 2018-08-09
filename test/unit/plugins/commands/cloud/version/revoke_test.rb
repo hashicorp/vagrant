@@ -59,7 +59,7 @@ describe VagrantPlugins::CloudCommand::VersionCommand::Command::Revoke do
         and_return(version)
 
       expect(version).to receive(:revoke).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 404))
       expect(subject.execute).to eq(1)
     end
   end

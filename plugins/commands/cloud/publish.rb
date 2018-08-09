@@ -67,7 +67,7 @@ module VagrantPlugins
         def publish_box(org, box_name, version, provider_name, box_file, options, access_token)
           server_url = VagrantPlugins::CloudCommand::Util.api_server_url
 
-          @env.ui.warn("You are about to create a box on Vagrant Cloud with the following options:\n")
+          @env.ui.warn("You are about to publish a box on Vagrant Cloud with the following options:\n")
           box_opts = "  #{org}/#{box_name}:   (v#{version}) for provider '#{provider_name}'\n"
           box_opts << "  Private:               true\n" if options[:private]
           box_opts << "  Automatic Release:     true\n" if options[:release]
@@ -89,13 +89,50 @@ module VagrantPlugins
           provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, options[:url], org, box_name, access_token)
 
           ui = Vagrant::UI::Prefixed.new(@env.ui, "cloud")
+
           begin
             ui.info(I18n.t("cloud_command.publish.box_create"))
             box.create
+          rescue VagrantCloud::ClientError => e
+            if e.error_code == 422
+              ui.warn("Box already exists, updating instead...")
+              box.update(options)
+            else
+              @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
+              @env.ui.error(e)
+              return 1
+            end
+          end
+
+          begin
             ui.info(I18n.t("cloud_command.publish.version_create"))
             cloud_version.create_version
+          rescue VagrantCloud::ClientError => e
+            if e.error_code == 422
+              ui.warn("Version already exists, updating instead...")
+              cloud_version.update
+            else
+              @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
+              @env.ui.error(e)
+              return 1
+            end
+          end
+
+          begin
             ui.info(I18n.t("cloud_command.publish.provider_create"))
             provider.create_provider
+          rescue VagrantCloud::ClientError => e
+            if e.error_code == 422
+              ui.warn("Provider already exists, updating instead...")
+              provider.update
+            else
+              @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
+              @env.ui.error(e)
+              return 1
+            end
+          end
+
+          begin
             if !options[:url]
               box_file = File.absolute_path(box_file)
               ui.info(I18n.t("cloud_command.publish.upload_provider", file: box_file))

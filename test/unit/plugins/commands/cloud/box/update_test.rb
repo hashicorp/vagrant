@@ -57,7 +57,7 @@ describe VagrantPlugins::CloudCommand::BoxCommand::Command::Update do
 
       allow(box).to receive(:update).
         with(organization: "vagrant", name: "box-name", description: "update", short_description: "short").
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 404))
       expect(subject.execute).to eq(1)
     end
   end

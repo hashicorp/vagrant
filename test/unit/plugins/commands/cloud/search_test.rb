@@ -45,7 +45,7 @@ describe VagrantPlugins::CloudCommand::Command::Search do
       allow(VagrantCloud::Search).to receive(:new).
         and_return(search)
       allow(search).to receive(:search).
-        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message"))
+        and_raise(VagrantCloud::ClientError.new("Fail Message", "Message", 404))
 
       expect(subject.execute).to eq(1)
     end
