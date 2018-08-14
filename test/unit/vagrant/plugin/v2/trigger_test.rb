@@ -197,7 +197,7 @@ describe Vagrant::Plugin::V2::Trigger do
       exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::PowerShell).to receive(:execute).
-        with("/vagrant/home/script.ps1", options)
+        with("/vagrant/home/script.ps1", "HELLO", "THERE", options)
       subject.send(:run, shell_config, on_error, exit_codes)
     end
 
@@ -227,7 +227,7 @@ describe Vagrant::Plugin::V2::Trigger do
       exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).
-        with("/vagrant/home/script.sh", options)
+        with("/vagrant/home/script.sh", "HELLO", options)
       subject.send(:run, shell_config, on_error, exit_codes)
     end
 
@@ -243,7 +243,7 @@ describe Vagrant::Plugin::V2::Trigger do
       exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).
-        with("/vagrant/home/script.sh", options)
+        with("/vagrant/home/script.sh", "HELLO", options)
       subject.send(:run, shell_config, on_error, exit_codes)
     end
 
