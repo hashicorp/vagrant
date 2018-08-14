@@ -131,7 +131,7 @@ describe Vagrant::Plugin::V2::Trigger do
       {info: "hi", run: {inline: "echo 'hi'", env: {"KEY"=>"VALUE"}},
        exit_codes: [0,50]} }
     let(:path_block) { {warn: "bye",
-                         run: {path: "script.sh", args: "HELLO", env: {"KEY"=>"VALUE"}},
+                         run: {path: "path/to the/script.sh", args: "HELLO", env: {"KEY"=>"VALUE"}},
                          on_error: :continue} }
 
     let(:path_block_ps1) { {warn: "bye",
@@ -227,7 +227,7 @@ describe Vagrant::Plugin::V2::Trigger do
       exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).
-        with("/vagrant/home/script.sh", "HELLO", options)
+        with("/vagrant/home/path/to the/script.sh", "HELLO", options)
       subject.send(:run, shell_config, on_error, exit_codes)
     end
 
@@ -243,7 +243,7 @@ describe Vagrant::Plugin::V2::Trigger do
       exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::Subprocess).to receive(:execute).
-        with("/vagrant/home/script.sh", "HELLO", options)
+        with("/vagrant/home/path/to the/script.sh", "HELLO", options)
       subject.send(:run, shell_config, on_error, exit_codes)
     end
 
