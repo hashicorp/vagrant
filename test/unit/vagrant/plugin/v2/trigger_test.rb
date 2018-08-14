@@ -131,11 +131,11 @@ describe Vagrant::Plugin::V2::Trigger do
       {info: "hi", run: {inline: "echo 'hi'", env: {"KEY"=>"VALUE"}},
        exit_codes: [0,50]} }
     let(:path_block) { {warn: "bye",
-                         run: {path: "script.sh", env: {"KEY"=>"VALUE"}},
+                         run: {path: "script.sh", args: "HELLO", env: {"KEY"=>"VALUE"}},
                          on_error: :continue} }
 
     let(:path_block_ps1) { {warn: "bye",
-                         run: {path: "script.ps1", env: {"KEY"=>"VALUE"}},
+                         run: {path: "script.ps1", args: ["HELLO", "THERE"], env: {"KEY"=>"VALUE"}},
                          on_error: :continue} }
 
     let(:exit_code) { 0 }
