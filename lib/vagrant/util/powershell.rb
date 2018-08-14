@@ -132,6 +132,9 @@ module Vagrant
         if env = opts.delete(:env)
           env = env.map{|k,v| "$env:#{k}=#{v}"}.join(";") + "; "
         end
+
+        command = command.join(' ')
+
         c = [
           executable,
           "-NoLogo",
