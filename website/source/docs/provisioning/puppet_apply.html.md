@@ -44,7 +44,7 @@ available below this section.
 * `manifests_path` (string) - The path to the directory which contains the
   manifest files. This defaults to "manifests"
 
-* `module_path` (string) - Path, on the host, to the directory which
+* `module_path` (string or array of strings) - Path or paths, on the host, to the directory which
   contains Puppet modules, if any.
 
 * `environment` (string) - Name of the Puppet environment.
