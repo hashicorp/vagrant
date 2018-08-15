@@ -12,7 +12,7 @@ description: |-
 **Command: `vagrant login`**
 
 The login command is used to authenticate with the
-[HashiCorp's Vagrant Cloud](/docs/vagrant-cloud) server. Logging is only
+[HashiCorp's Vagrant Cloud](/docs/vagrant-cloud) server. Logging in is only
 necessary if you are accessing protected boxes or using
 [Vagrant Share](/docs/share/).
 
