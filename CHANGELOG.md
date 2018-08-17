@@ -14,6 +14,7 @@ IMPROVEMENTS:
 - core: Only write box info if provider supports box objects [GH-10126]
 - core: Update net-ssh dependency constraint to ~> 5.0.0 [GH-10066]
 - core/triggers: Catch and allow for non-standard exit codes with triggers `run` options [GH-10005]
+- core/triggers: Allow for spaces in `path` for trigger run option [GH-10118]
 - guest/debian: Isolate network interface configuration to individual files for systemd [GH-9889]
 - guest/redhat: Use libnfs-utils package if available [GH-9878]
 - provider/docker: Support Docker volume consistency for synced folders [GH-9811]
