@@ -215,6 +215,7 @@ describe Vagrant::Util::PowerShell do
     let(:exit_code){ 0 }
     let(:stdout){ "" }
     let(:stderr){ "" }
+    let(:command) { ["run", "--this", "custom-command"] }
 
     before do
       allow(described_class).to receive(:validate_install!)
@@ -223,7 +224,7 @@ describe Vagrant::Util::PowerShell do
 
     it "should validate installation before use" do
       expect(described_class).to receive(:validate_install!)
-      described_class.execute_inline("command")
+      described_class.execute_inline(command)
     end
 
     it "should include command to execute" do
@@ -232,7 +233,7 @@ describe Vagrant::Util::PowerShell do
         expect(comm.to_s).to include("custom-command")
         result
       end
-      described_class.execute_inline("custom-command")
+      described_class.execute_inline(command)
     end
 
     it "should accept custom environment" do
@@ -241,7 +242,7 @@ describe Vagrant::Util::PowerShell do
         expect(comm.to_s).to include("$env:TEST_KEY=test-value")
         result
       end
-      described_class.execute_inline("custom-command", env: {"TEST_KEY" => "test-value"})
+      described_class.execute_inline(command, env: {"TEST_KEY" => "test-value"})
     end
 
     it "should define a custom module path" do
@@ -250,11 +251,11 @@ describe Vagrant::Util::PowerShell do
         expect(comm.to_s).to include("$env:PSModulePath+';C:\\My-Path'")
         result
       end
-      described_class.execute_inline("custom-command", module_path: "C:\\My-Path")
+      described_class.execute_inline(command, module_path: "C:\\My-Path")
     end
 
     it "should return a result instance" do
-      expect(described_class.execute_inline("cmd")).to eq(result)
+      expect(described_class.execute_inline(command)).to eq(result)
     end
   end
 
