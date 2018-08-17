@@ -157,7 +157,7 @@ module Vagrant
 
             @machine.ui.detail(I18n.t("vagrant.trigger.run.inline", command: config.inline))
           else
-            cmd = File.expand_path(config.path, @env.root_path)
+            cmd = File.expand_path(config.path, @env.root_path).shellescape
             args = Array(config.args)
             cmd << " #{args.join(' ')}" if !args.empty?
             cmd = Shellwords.split(cmd)
