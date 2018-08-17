@@ -74,6 +74,7 @@ describe Vagrant::Util::Subprocess do
         allow(ChildProcess).to receive(:build).and_return(process)
         allow(Vagrant).to receive(:installer_embedded_dir).and_return(appimage_path)
         allow(Vagrant).to receive(:user_data_path).and_return("")
+        allow(Vagrant::Util::Platform).to receive(:darwin?).and_return(false)
       end
 
       after { subject.execute }
