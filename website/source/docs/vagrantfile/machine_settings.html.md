@@ -133,7 +133,8 @@ networks.
 
 `config.vm.hostname` - The hostname the machine should have. Defaults
 to nil. If nil, Vagrant will not manage the hostname. If set to a string,
-the hostname will be set on boot.
+the hostname will be set on boot. If set, Vagrant will update `/etc/hosts`
+on the guest with the configured hostname.
 
 <hr>
 
