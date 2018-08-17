@@ -25,6 +25,8 @@ BUG FIXES:
 
 - core: Disable Vagrantfile loading with plugin commands [GH-10030]
 - core: Ensure the SecureRandom library is loaded for the trigger class [GH-10063]
+- core/triggers: Allow trigger run args option to be a single string [GH-10116]
+- util/powershell: Properly `join` commands from passed in array [GH-10115]
 - guest/solaris: Add back guest detection check for Solaris derived guests [GH-10081]
 - guest/windows: Be more explicit when invoking cmd.exe with mount_volume script [GH-9976]
 - host/linux: Fix sudo usage in NFS capability when modifying exports file [GH-10084]
