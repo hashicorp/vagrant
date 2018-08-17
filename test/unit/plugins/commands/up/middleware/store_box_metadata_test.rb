@@ -26,6 +26,21 @@ describe VagrantPlugins::CommandUp::StoreBoxMetadata do
   let(:subject) { described_class.new(app, env) }
 
   describe "#call" do
+    context "with no box file" do
+      let(:machine) { double("machine", name: "guest", provider_name: "provider") }
+      let(:env) { {machine: machine} }
+
+      before do
+        allow(machine).to receive(:box).and_return(nil)
+        expect(app).to receive(:call).with(env)
+      end
+
+
+      it "does not write the metadata file" do
+        expect(File).to_not receive(:open)
+        subject.call(env)
+      end
+    end
 
     let(:meta_file) { double("meta_file") }
 
