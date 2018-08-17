@@ -29,6 +29,7 @@ BUG FIXES:
 - guest/windows: Be more explicit when invoking cmd.exe with mount_volume script [GH-9976]
 - host/linux: Fix sudo usage in NFS capability when modifying exports file [GH-10084]
 - host/windows: Remove localization dependency from SMB list generation [GH-10043]
+- provider/docker: Convert windows paths for volume mounts on docker driver [GH-10100]
 - provider/hyperv: Fix checkpoint configuration and properly disable automatic checkpoints by default [GH-9999]
 - provider/hyperv: Remove localization dependency from access check [GH-10000]
 - provider/hyperv: Enable ExposeVirtualizationExtensions only when available [GH-10079]
