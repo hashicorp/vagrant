@@ -23,6 +23,9 @@ module VagrantPlugins
           o.banner = "Usage: vagrant reload [vm-name]"
           o.separator ""
           build_start_options(o, options)
+          o.on("-f", "--force", "Force shut down (equivalent of pulling power)") do |f|
+            options[:force_halt] = f
+          end
         end
 
         # Parse the options
