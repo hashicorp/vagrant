@@ -21,7 +21,7 @@ module VagrantPlugins
             options[:force] = f
           end
 
-          o.on("-a", "--all-global", "Force shut down all running vms globally.") do |a|
+          o.on("-a", "--all-global", "Shut down all running vms globally.") do |a|
             options[:all] = true
           end
 
