@@ -20,6 +20,11 @@ module VagrantPlugins
           o.on("-f", "--force", "Force shut down (equivalent of pulling power)") do |f|
             options[:force] = f
           end
+
+          o.on("-a", "--all-global", "Force shut down all running vms globally.") do |a|
+            options[:all] = true
+          end
+
         end
 
         # Parse the options
@@ -27,7 +32,19 @@ module VagrantPlugins
         return if !argv
 
         @logger.debug("Halt command: #{argv.inspect} #{options.inspect}")
-        with_target_vms(argv, reverse: true) do |vm|
+        target = []
+        if options[:all]
+          if argv.size > 0
+            raise Vagrant::Errors::CommandHaltAllArgs
+          end
+
+          m = @env.machine_index.each { |m| m }
+          target = m.keys
+        else
+          target = argv
+        end
+
+        with_target_vms(target, reverse: true) do |vm|
           vm.action(:halt, force_halt: options[:force])
         end
 
