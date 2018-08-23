@@ -125,7 +125,7 @@ module VagrantPlugins
           inventory_basedir = File.join(config.tmp_path, "inventory")
           inventory_path = File.join(inventory_basedir, "vagrant_ansible_local_inventory")
 
-          @machine.communciate.sudo("mkdir -p #{inventory_path}")
+          @machine.communicate.sudo("mkdir -p #{inventory_path}")
           @machine.communicate.sudo("chown -R -h #{@machine.ssh_info[:username]} #{config.tmp_path}")
           @machine.communicate.sudo("rm -f #{inventory_path}", error_check: false)
 
