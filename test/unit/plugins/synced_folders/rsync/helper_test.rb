@@ -263,6 +263,26 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       subject.rsync_single(machine, ssh_info, opts)
     end
 
+    it "includes StrictHostKeyChecking, and UserKnownHostsFile when verify_host_key is false" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(args[9]).to include('StrictHostKeyChecking')
+        expect(args[9]).to include('UserKnownHostsFile')
+      }.and_return(result)
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "includes StrictHostKeyChecking, and UserKnownHostsFile when verify_host_key is :never" do
+      ssh_info[:verify_host_key] = :never
+
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(args[9]).to include('StrictHostKeyChecking')
+        expect(args[9]).to include('UserKnownHostsFile')
+      }.and_return(result)
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
     it "omits IdentitiesOnly with keys_only = false" do
       ssh_info[:keys_only] = false
 
