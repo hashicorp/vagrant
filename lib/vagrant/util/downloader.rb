@@ -118,7 +118,8 @@ module Vagrant
           # If its any error other than 33, it is an error.
           raise if e.extra_data[:code].to_i != 33
 
-          # Exit code 33 means that the server doesn't support ranges.  # In this case, try again without resume.
+          # Exit code 33 means that the server doesn't support ranges.
+          # In this case, try again without resume.
           @logger.error("Error is server doesn't support byte ranges. Retrying from scratch.")
           @continue = false
           retried = true
