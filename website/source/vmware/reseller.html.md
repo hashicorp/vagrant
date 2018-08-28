@@ -22,7 +22,7 @@ qualify.
 ## Volume Pricing
 
 We offer volume pricing when purchasing 1 or more sets of 150 licenses. If you
-or your organization plans to purchase 1 or more sets of 150 license, please
+or your organization plans to purchase 1 or more sets of 150 licenses, please
 contact sales@hashicorp.com to learn more about volume discounts before making your
 purchase.
 
