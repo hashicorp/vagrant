@@ -943,7 +943,7 @@ module Vagrant
           answer = nil
           until ["y", "n"].include?(answer)
             answer = ui.ask(I18n.t("vagrant.plugins.local.request_plugin_install") + " [N]: ")
-            answer.strip!.downcase!
+            answer = answer.strip.downcase
             answer = "n" if answer.to_s.empty?
           end
           if answer == "n"
