@@ -138,15 +138,10 @@ module VagrantPlugins
           name = nil
           until share_data.empty?
             content = share_data.take_while{|line| !line.strip.empty? }
-            if content.size != 3
-              @@logger.warn("expected SMB data check to be size 3 but was size #{content.size}")
-              @@logger.debug("unprocessed SMB data: #{content.inspect}")
-              next
-            end
             share_name = content[0].strip.split(":", 2).last.strip
             shares[share_name] = {
-              "Path" => content[1].strip.split(":", 2).last.strip,
-              "Description" => content[2].strip.split(":", 2).last.strip
+              "Path" => content[-2].strip.split(":", 2).last.strip,
+              "Description" => content[-1].strip.split(":", 2).last.strip
             }
             share_data.slice!(0, content.length + 1)
           end

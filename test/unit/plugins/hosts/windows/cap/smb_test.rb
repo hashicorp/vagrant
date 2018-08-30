@@ -22,6 +22,10 @@ Name        : my-share
 Path        : /my/path
 Description : Not Vagrant Owned
 
+Name        : scoped-share
+Scope       : *
+Path        : /scoped/path
+Description : Scoped Path
     EOF
   }
   let(:netsharelist){ <<-EOF
@@ -223,6 +227,28 @@ Remark     Not Vagrant Owned
       it "should not warn user" do
         expect(machine.env.ui).not_to receive(:warn)
       end
+    end
+  end
+
+  describe ".get_smbshares" do
+    before { expect(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_return(smblist) }
+
+    it "should return a Hash of share information" do
+      expect(subject.get_smbshares).to be_a(Hash)
+    end
+
+    it "should provide name and description for share" do
+      shares = subject.get_smbshares
+      expect(shares["vgt-CUSTOM_ID-1"]).to be_a(Hash)
+      expect(shares["vgt-CUSTOM_ID-1"]["Path"]).to eq("/a/path")
+      expect(shares["vgt-CUSTOM_ID-1"]["Description"]).to eq("vgt-CUSTOM_ID-1")
+    end
+
+    it "should properly handle share with scope information" do
+      shares = subject.get_smbshares
+      expect(shares["scoped-share"]).to be_a(Hash)
+      expect(shares["scoped-share"]["Path"]).to eq("/scoped/path")
+      expect(shares["scoped-share"]["Description"]).to eq("Scoped Path")
     end
   end
 end
