@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Fix local plugin installation prompt answer parsing [GH-10154]
+
 ## 2.1.3 (August 29, 2018)
 
 FEATURES:
