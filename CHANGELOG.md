@@ -1,8 +1,4 @@
-## Next version (Unreleased)
-
-FEATURES:
-
-IMPROVEMENTS:
+## Next version (August 30, 2018)
 
 BUG FIXES:
 
