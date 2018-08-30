@@ -25,6 +25,13 @@ describe Vagrant::Environment do
   let(:instance)  { env.create_vagrant_env }
   subject { instance }
 
+  describe "#initialize" do
+    it "should do an internal reset after plugin loading" do
+      expect_any_instance_of(described_class).to receive(:post_plugins_reset!)
+      instance
+    end
+  end
+
   describe "#can_install_provider?" do
     let(:plugin_hosts) { {} }
     let(:plugin_host_caps) { {} }
