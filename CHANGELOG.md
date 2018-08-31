@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/openbsd: Add IPv6 network template for OpenBSD machines [GH-8912]
+
 BUG FIXES:
 
 - guest/liunux: Filter out empty strings and loopback interfaces when constructing list of network interfaces [GH-10092]
