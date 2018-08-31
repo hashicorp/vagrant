@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- guest/liunux: Filter out empty strings and loopback interfaces when constructing list of network interfaces [GH-10092]
+
 ## 2.1.4 (August 30, 2018)
 
 BUG FIXES:
