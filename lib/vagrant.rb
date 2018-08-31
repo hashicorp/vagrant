@@ -151,16 +151,9 @@ module Vagrant
       return true if plugin("2").manager.registered.any? { |p| p.name == name }
     end
 
-    # Make the requirement object
-    version = Gem::Requirement.new([version]) if version
-
     # Now check the plugin gem names
     require "vagrant/plugin/manager"
-    Plugin::Manager.instance.installed_specs.any? do |s|
-      match = s.name == name
-      next match if !version
-      next match && version.satisfied_by?(s.version)
-    end
+    Plugin::Manager.instance.plugin_installed?(name, version)
   end
 
   # Returns a superclass to use when creating a plugin for Vagrant.
