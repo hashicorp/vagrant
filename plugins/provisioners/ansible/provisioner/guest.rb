@@ -125,7 +125,8 @@ module VagrantPlugins
           inventory_basedir = File.join(config.tmp_path, "inventory")
           inventory_path = File.join(inventory_basedir, "vagrant_ansible_local_inventory")
 
-          create_and_chown_remote_folder(inventory_basedir)
+          @machine.communicate.sudo("mkdir -p #{inventory_path}")
+          @machine.communicate.sudo("chown -R -h #{@machine.ssh_info[:username]} #{config.tmp_path}")
           @machine.communicate.sudo("rm -f #{inventory_path}", error_check: false)
 
           Tempfile.open("vagrant-ansible-local-inventory-#{@machine.name}") do |f|
@@ -157,13 +158,6 @@ module VagrantPlugins
           end
 
           return machines
-        end
-
-        def create_and_chown_remote_folder(path)
-          @machine.communicate.tap do |comm|
-            comm.sudo("mkdir -p #{path}")
-            comm.sudo("chown -h #{@machine.ssh_info[:username]} #{path}")
-          end
         end
 
         def check_path(path, test_args, option_name)
