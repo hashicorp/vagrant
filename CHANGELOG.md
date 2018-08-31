@@ -6,7 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-## Next version (August 30, 2018)
+## 2.1.4 (August 30, 2018)
 
 BUG FIXES:
 
