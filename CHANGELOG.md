@@ -17,6 +17,8 @@ BUG FIXES:
 - core: Fix local plugin installation prompt answer parsing [GH-10154]
 - core: Reset internal environment after plugin loading [GH-10155]
 - host/windows: Fix SMB list parsing when extra fields are included [GH-10156]
+- provisioners/ansible_local: Fix umask setting permission bug [GH-10140]
+
 
 ## 2.1.3 (August 29, 2018)
 
