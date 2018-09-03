@@ -79,7 +79,7 @@ _vagrant() {
               COMPREPLY=($(compgen -W "${up_commands} ${vm_list}" -- ${cur}))
               return 0
             ;;
-            "ssh"|"provision"|"reload"|"halt"|"suspend"|"resume"|"ssh-config")
+            "destroy"|"ssh"|"provision"|"reload"|"halt"|"suspend"|"resume"|"ssh-config")
               vagrant_state_file=$(__vagrantinvestigate) || return 1
               if [[ -f "${vagrant_state_file}" ]]
               then
