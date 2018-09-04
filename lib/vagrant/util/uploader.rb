@@ -13,12 +13,15 @@ module Vagrant
     # a hand-rolled Ruby library, so we defer to its expertise.
     class Uploader
 
+      # @param [String] destination - valid URL to upload file to
+      # @param [String] file - location of file to upload on disk
+      # @param [Hash]   options
       def initialize(destination, file, options=nil)
         options ||= {}
-        @logger = Log4r::Logger.new("vagrant::util::uploader")
+        @logger         = Log4r::Logger.new("vagrant::util::uploader")
         @destination    = destination.to_s
-        @file   = file.to_s
-        @ui     = options[:ui]
+        @file           = file.to_s
+        @ui             = options[:ui]
         @request_method = options[:method]
 
         if !@request_method
@@ -68,7 +71,7 @@ module Vagrant
           Subprocess.execute("curl", *options, &data_proc)
         end
 
-        # If the download was interrupted, then raise a specific error
+        # If the upload was interrupted, then raise a specific error
         raise Errors::UploaderInterrupted if interrupted
 
         # If it didn't exit successfully, we need to parse the data and
@@ -76,20 +79,15 @@ module Vagrant
         if result.exit_code != 0
           @logger.warn("Uploader exit code: #{result.exit_code}")
           check = result.stderr.match(/\n*curl:\s+\((?<code>\d+)\)\s*(?<error>.*)$/)
-          if check && check[:code] == "416"
-            # All good actually. 416 means there is no more bytes to download
-            @logger.warn("Uploader got a 416, but is likely fine. Continuing on...")
+          if !check
+            err_msg = result.stderr
           else
-            if !check
-              err_msg = result.stderr
-            else
-              err_msg = check[:error]
-            end
-
-            raise Errors::UploaderError,
-              exit_code: result.exit_code,
-              message: err_msg
+            err_msg = check[:error]
           end
+
+          raise Errors::UploaderError,
+            exit_code: result.exit_code,
+            message: err_msg
         end
 
         if @ui

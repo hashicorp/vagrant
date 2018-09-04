@@ -87,7 +87,7 @@ describe VagrantPlugins::CloudCommand::Client do
     }
     let(:response) {
       {
-        token: "baz"
+        token: "mysecrettoken"
       }
     }
 
@@ -99,7 +99,7 @@ describe VagrantPlugins::CloudCommand::Client do
       client.username_or_email = login
       client.password = password
 
-      expect(client.login(description: "Token description")).to eq("baz")
+      expect(client.login(description: "Token description")).to eq("mysecrettoken")
     end
 
     context "when 2fa is required" do

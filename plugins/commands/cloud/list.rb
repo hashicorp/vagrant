@@ -35,7 +35,7 @@ module VagrantPlugins
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          if argv.length > 2
+          if argv.length > 1
             raise Vagrant::Errors::CLIInvalidUsage,
               help: opts.help.chomp
           end

@@ -33,14 +33,14 @@ module VagrantPlugins
             # Parse the options
             argv = parse_options(opts)
             return if !argv
-            if argv.empty? || argv.length > 2
+            if argv.empty? || argv.length > 1
               raise Vagrant::Errors::CLIInvalidUsage,
                 help: opts.help.chomp
             end
 
             @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
 
-            box = argv.first.split('/')
+            box = argv.first.split('/', 2)
             org = box[0]
             box_name = box[1]
             create_box(org, box_name, options, @client.token)
@@ -51,7 +51,7 @@ module VagrantPlugins
           # @param [Hash] - options
           def create_box(org, box_name, options, access_token)
             server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account?(org, access_token, server_url)
+            account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
             box = VagrantCloud::Box.new(account, box_name, nil, options[:short], options[:description], access_token)
 
             begin

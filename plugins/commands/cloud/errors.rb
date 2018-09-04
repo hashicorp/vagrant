@@ -17,6 +17,10 @@ module VagrantPlugins
         error_key(:unauthorized)
       end
 
+      class Unexpected < Error
+        error_key(:unexpected_error)
+      end
+
       class TwoFactorRequired < Error
       end
     end

@@ -32,7 +32,7 @@ module VagrantPlugins
 
             @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
 
-            box = argv.first.split('/')
+            box = argv.first.split('/', 2)
             org = box[0]
             box_name = box[1]
             provider_name = argv[1]
@@ -46,7 +46,7 @@ module VagrantPlugins
             org = options[:username] if options[:username]
 
             server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account?(org, access_token, server_url)
+            account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
             box = VagrantCloud::Box.new(account, box_name, nil, nil, nil, access_token)
             cloud_version = VagrantCloud::Version.new(box, version, nil, nil, access_token)
             provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, nil, org, box_name, access_token)

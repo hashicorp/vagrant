@@ -48,14 +48,14 @@ module VagrantPlugins
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          if argv.empty? || argv.length > 5 || argv.length < 3
+          if argv.empty? || argv.length > 4 || argv.length < 3
             raise Vagrant::Errors::CLIInvalidUsage,
               help: opts.help.chomp
           end
 
           @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
 
-          box = argv.first.split('/')
+          box = argv.first.split('/', 2)
           org = box[0]
           box_name = box[1]
           version = argv[1]
@@ -67,23 +67,27 @@ module VagrantPlugins
         def publish_box(org, box_name, version, provider_name, box_file, options, access_token)
           server_url = VagrantPlugins::CloudCommand::Util.api_server_url
 
-          @env.ui.warn("You are about to publish a box on Vagrant Cloud with the following options:\n")
-          box_opts = "  #{org}/#{box_name}:   (v#{version}) for provider '#{provider_name}'\n"
-          box_opts << "  Private:               true\n" if options[:private]
-          box_opts << "  Automatic Release:     true\n" if options[:release]
-          box_opts << "  Remote Box file:       true\n" if options[:url]
-          box_opts << "  Box Description:       #{options[:description]}\n" if options[:description]
-          box_opts << "  Box Short Description: #{options[:short_description]}\n" if options[:short_description]
-          box_opts << "  Version Description:   #{options[:version_description]}\n" if options[:version_description]
+          @env.ui.warn(I18n.t("cloud_command.publish.confirm.warn"))
 
-          @env.ui.info(box_opts)
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.box", org: org,
+                              box_name: box_name, version: version, provider_name: provider_name))
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.private")) if options[:private]
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.release")) if options[:release]
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.box_url",
+                             url: options[:url])) if options[:url]
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.box_description",
+                             description: options[:description])) if options[:description]
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.box_short_desc",
+                             short_description: options[:short_description])) if options[:short_description]
+          @env.ui.info(I18n.t("cloud_command.publish.confirm.version_desc",
+                             version_description: options[:version_description])) if options[:version_description]
 
           if !options[:force]
-            continue = @env.ui.ask(I18n.t("cloud_command.continue"))
-            return 1 if continue.downcase != "y"
+            cont = @env.ui.ask(I18n.t("cloud_command.continue"))
+            return 1 if cont.strip.downcase != "y"
           end
 
-          account = VagrantPlugins::CloudCommand::Util.account?(org, access_token, server_url)
+          account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
           box = VagrantCloud::Box.new(account, box_name, nil, options[:short_description], options[:description], access_token)
           cloud_version = VagrantCloud::Version.new(box, version, nil, options[:version_description], access_token)
           provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, options[:url], org, box_name, access_token)
@@ -95,7 +99,7 @@ module VagrantPlugins
             box.create
           rescue VagrantCloud::ClientError => e
             if e.error_code == 422
-              ui.warn("Box already exists, updating instead...")
+              ui.warn(I18n.t("cloud_command.publish.update_continue", obj: "Box"))
               box.update(options)
             else
               @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
@@ -109,7 +113,7 @@ module VagrantPlugins
             cloud_version.create_version
           rescue VagrantCloud::ClientError => e
             if e.error_code == 422
-              ui.warn("Version already exists, updating instead...")
+              ui.warn(I18n.t("cloud_command.publish.update_continue", obj: "Version"))
               cloud_version.update
             else
               @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
@@ -123,7 +127,7 @@ module VagrantPlugins
             provider.create_provider
           rescue VagrantCloud::ClientError => e
             if e.error_code == 422
-              ui.warn("Provider already exists, updating instead...")
+              ui.warn(I18n.t("cloud_command.publish.update_continue", obj: "Provider"))
               provider.update
             else
               @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))

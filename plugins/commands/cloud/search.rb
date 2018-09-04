@@ -44,7 +44,7 @@ module VagrantPlugins
           # Parse the options
           argv = parse_options(opts)
           return if !argv
-          if argv.length > 2
+          if argv.length > 1
             raise Vagrant::Errors::CLIInvalidUsage,
               help: opts.help.chomp
           end
@@ -52,7 +52,7 @@ module VagrantPlugins
           @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
           query = argv.first
 
-          options[:limit] = 25 if !options[:limit]
+          options[:limit] = 25 if !(options[:limit].to_i < 1) && !options[:limit]
 
           search(query, options, @client.token)
         end

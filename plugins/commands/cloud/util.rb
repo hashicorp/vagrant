@@ -2,7 +2,11 @@ module VagrantPlugins
   module CloudCommand
     class Util
       class << self
-        def account?(username, access_token, vagrant_cloud_server)
+        # @param [String] username - Vagrant Cloud username
+        # @param [String] access_token - Vagrant Cloud Token used to authenticate
+        # @param [String] vagrant_cloud_server - Vagrant Cloud server to make API request
+        # @return [VagrantCloud::Account]
+        def account(username, access_token, vagrant_cloud_server)
           if !defined?(@_account)
             @_account = VagrantCloud::Account.new(username, access_token, vagrant_cloud_server)
           end
@@ -17,6 +21,9 @@ module VagrantPlugins
           end
         end
 
+        # @param [Vagrant::Environment] env
+        # @param [Hash] options
+        # @returns [VagrantPlugins::CloudCommand::Client]
         def client_login(env, options)
           if !defined?(@_client)
             @_client = Client.new(env)

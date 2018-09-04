@@ -29,15 +29,15 @@ module VagrantPlugins
                 help: opts.help.chomp
             end
 
-            box = argv.first.split('/')
+            box = argv.first.split('/', 2)
             org = box[0]
             box_name = box[1]
             provider_name = argv[1]
             version = argv[2]
 
             @env.ui.warn(I18n.t("cloud_command.provider.delete_warn", provider: provider_name, version:version, box: argv.first))
-            continue = @env.ui.ask(I18n.t("cloud_command.continue"))
-            return 1 if continue.downcase != "y"
+            cont = @env.ui.ask(I18n.t("cloud_command.continue"))
+            return 1 if cont.strip.downcase != "y"
 
             @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
 
@@ -48,7 +48,7 @@ module VagrantPlugins
             org = options[:username] if options[:username]
 
             server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account?(org, access_token, server_url)
+            account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
             box = VagrantCloud::Box.new(account, box_name, nil, nil, nil, access_token)
             cloud_version = VagrantCloud::Version.new(box, version, nil, nil, access_token)
             provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, nil, nil, nil, access_token)

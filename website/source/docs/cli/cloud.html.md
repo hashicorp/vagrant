@@ -26,8 +26,6 @@ The main functionality of this command is exposed via even more subcommands:
 
 **Command: `vagrant cloud auth`**
 
-Information about this subcommand goes here
-
 * [`login`](#cloud-auth-login)
 * [`logout`](#cloud-auth-logout)
 * [`who`](#cloud-auth-who)

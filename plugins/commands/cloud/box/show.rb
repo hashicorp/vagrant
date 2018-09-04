@@ -27,13 +27,13 @@ module VagrantPlugins
             # Parse the options
             argv = parse_options(opts)
             return if !argv
-            if argv.empty? || argv.length > 2
+            if argv.empty? || argv.length > 1
               raise Vagrant::Errors::CLIInvalidUsage,
                 help: opts.help.chomp
             end
 
             @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
-            box = argv.first.split('/')
+            box = argv.first.split('/', 2)
 
             show_box(box[0], box[1], options, @client.token)
           end
@@ -42,7 +42,7 @@ module VagrantPlugins
             username = options[:username]
 
             server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account?(username, access_token, server_url)
+            account = VagrantPlugins::CloudCommand::Util.account(username, access_token, server_url)
             box = VagrantCloud::Box.new(account, box_name, nil, nil, nil, access_token)
 
             begin
@@ -52,7 +52,7 @@ module VagrantPlugins
                 # show *this* version only
                 results = success["versions"].select{ |v| v if v["version"] == options[:version] }.first
                 if !results
-                  @env.ui.warn(I18n.t("cloud_command.box.show_filter_empty", version: options[:version], org: org,box_name:box_name))
+                  @env.ui.warn(I18n.t("cloud_command.box.show_filter_empty", version: options[:version], org: org, box_name: box_name))
                   return 0
                 end
               else

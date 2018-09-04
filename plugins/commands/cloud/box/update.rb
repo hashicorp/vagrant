@@ -16,8 +16,7 @@ module VagrantPlugins
               o.separator "Options:"
               o.separator ""
 
-
-              o.on("-d", "--description DESCRIPTION", "Longer desscription of the box") do |d|
+              o.on("-d", "--description DESCRIPTION", "Longer description of the box") do |d|
                 options[:description] = d
               end
               o.on("-u", "--username", "The username of the organization that will own the box") do |u|
@@ -34,20 +33,20 @@ module VagrantPlugins
             # Parse the options
             argv = parse_options(opts)
             return if !argv
-            if argv.empty? || argv.length > 2 || options.length == 0
+            if argv.empty? || argv.length > 1 || options.length == 0
               raise Vagrant::Errors::CLIInvalidUsage,
                 help: opts.help.chomp
             end
 
             @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
-            box = argv.first.split('/')
+            box = argv.first.split('/', 2)
 
             update_box(box[0], box[1], options, @client.token)
           end
 
           def update_box(org, box_name, options, access_token)
             server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account?(options[:username], access_token, server_url)
+            account = VagrantPlugins::CloudCommand::Util.account(options[:username], access_token, server_url)
             box = VagrantCloud::Box.new(account, box_name, nil, nil, nil, access_token)
 
             options[:organization] = org

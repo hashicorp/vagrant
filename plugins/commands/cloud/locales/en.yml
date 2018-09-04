@@ -1,6 +1,8 @@
 en:
   cloud_command:
     publish:
+      update_continue: |-
+        %{obj} already exists, updating instead...
       box_create:
         Creating a box entry...
       version_create:
@@ -13,6 +15,23 @@ en:
         Releasing box...
       complete:
         Complete! Published %{org}/%{box_name}
+      confirm:
+        warn: |-
+          You are about to publish a box on Vagrant Cloud with the following options:
+        box: |-
+          %{org}/%{box_name}:   (v%{version}) for provider '%{provider_name}'
+        private: |-
+            Private:               true
+        release: |-
+            Automatic Release:     true
+        box_url: |-
+            Remote Box file:       %{url}
+        box_description: |-
+            Box Description:       %{description}
+        box_short_desc: |-
+            Box Short Description: %{short_description}
+        version_desc: |-
+            Version Description:   %{version_description}
     continue: |-
       Do you wish to continue? [y/N] 
     box:
@@ -112,6 +131,8 @@ en:
 
       unauthorized: |-
         Invalid username or password. Please try again.
+      unexpected_error: |-
+        An unexpected error occured: %{error}
 
     check_logged_in: |-
       You are already logged in.

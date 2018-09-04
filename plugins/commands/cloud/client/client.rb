@@ -75,6 +75,7 @@ module VagrantPlugins
           }
         )
 
+        Vagrant::Util::CredentialScrubber.sensitive(response["token"])
         response["token"]
       end
 
@@ -217,7 +218,9 @@ EOH
           raise Errors::ServerError, errors: errors
         rescue JSON::ParserError; end
 
-        raise "An unexpected error occurred: #{e.inspect}"
+        @logger.debug("Got an unexpected error:")
+        @logger.debug(e.inspect)
+        raise Errors::Unexpected, error: e.inspect
       rescue SocketError
         @logger.info("Socket error")
         raise Errors::ServerUnreachable, url: Vagrant.server_url.to_s

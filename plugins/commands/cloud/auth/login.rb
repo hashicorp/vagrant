@@ -33,7 +33,6 @@ module VagrantPlugins
                 options[:login] = l
               end
             end
-            # TODO: Should be an alias for the existing login command
 
             # Parse the options
             argv = parse_options(opts)
