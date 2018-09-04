@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Fix Vagrant.has_plugin? behavior before plugins are initialized [GH-10165]
 - guest/liunux: Filter out empty strings and loopback interfaces when constructing list of network interfaces [GH-10092]
 
 ## 2.1.4 (August 30, 2018)
