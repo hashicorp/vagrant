@@ -14,7 +14,7 @@ module VagrantPlugins
           force: false,
           minimal: false,
           output: "Vagrantfile",
-          template: nil
+          template: ENV["VAGRANT_DEFAULT_TEMPLATE"]
         }
 
         opts = OptionParser.new do |o|
