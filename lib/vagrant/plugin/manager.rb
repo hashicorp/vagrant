@@ -41,12 +41,14 @@ module Vagrant
         @system_file = StateFile.new(system_path) if system_path && system_path.file?
 
         @local_file = nil
+        @globalized = @localized = false
       end
 
       # Enable global plugins
       #
       # @return [Hash] list of plugins
       def globalize!
+        @globalized = true
         @logger.debug("Enabling globalized plugins")
         plugins = installed_plugins
         bundler_init(plugins)
@@ -56,8 +58,9 @@ module Vagrant
       # Enable environment local plugins
       #
       # @param [Environment] env Vagrant environment
-      # @return [Hash] list of plugins
+      # @return [Hash, nil] list of plugins
       def localize!(env)
+        @localized = true
         if env.local_data_path
           @logger.debug("Enabling localized plugins")
           @local_file = StateFile.new(env.local_data_path.join("plugins.json"))
@@ -66,6 +69,11 @@ module Vagrant
           bundler_init(plugins)
           plugins
         end
+      end
+
+      # @return [Boolean] local and global plugins are loaded
+      def ready?
+        @globalized && @localized
       end
 
       # Initialize bundler with given plugins
@@ -334,6 +342,32 @@ module Vagrant
           raise Vagrant::Errors::PluginLoadError, message: err.to_s
         end
         nil
+      end
+
+      # Check if the requested plugin is installed
+      #
+      # @param [String] name Name of plugin
+      # @param [String] version Specific version of the plugin
+      # @return [Boolean]
+      def plugin_installed?(name, version=nil)
+        # Make the requirement object
+        version = Gem::Requirement.new([version.to_s]) if version
+
+        # If plugins are loaded, check for match in loaded specs
+        if ready?
+          return installed_specs.any? do |s|
+            match = s.name == name
+            next match if !version
+            next match && version.satisfied_by?(s.version)
+          end
+        end
+
+        # Plugins are not loaded yet so check installed plugin data
+        plugin_info = installed_plugins[name]
+        return false if !plugin_info
+        return !!plugin_info if version.nil? || plugin_info["installed_gem_version"].nil?
+        installed_version = Gem::Version.new(plugin_info["installed_gem_version"])
+        version.satisfied_by?(installed_version)
       end
     end
   end

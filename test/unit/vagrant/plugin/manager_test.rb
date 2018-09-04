@@ -80,6 +80,35 @@ describe Vagrant::Plugin::Manager do
     end
   end
 
+  describe "#ready?" do
+    let(:plugins) { double("plugins") }
+    let(:env) { double("env", local_data_path: nil) }
+
+    before do
+      allow(subject).to receive(:bundler_init)
+    end
+
+    it "should be false by default" do
+      expect(subject.ready?).to be_falsey
+    end
+
+    it "should be false when only globalize! has been called" do
+      subject.globalize!
+      expect(subject.ready?).to be_falsey
+    end
+
+    it "should be false when only localize! has been called" do
+      subject.localize!(env)
+      expect(subject.ready?).to be_falsey
+    end
+
+    it "should be true when both localize! and globalize! have been called" do
+      subject.globalize!
+      subject.localize!(env)
+      expect(subject.ready?).to be_truthy
+    end
+  end
+
   describe "#bundler_init" do
     let(:plugins) { {"plugin_name" => {}} }
 
@@ -107,6 +136,77 @@ describe Vagrant::Plugin::Manager do
       it "should not init the bundler instance" do
         expect(bundler).not_to receive(:init!).with(plugins)
         subject.bundler_init(plugins)
+      end
+    end
+  end
+
+  describe "#plugin_installed?" do
+    let(:ready) { true }
+    let(:specs) { [] }
+
+    before do
+      allow(subject).to receive(:ready?).and_return(ready)
+      allow(subject).to receive(:installed_specs).and_return(specs)
+    end
+
+    context "when manager is ready" do
+      it "should return false when plugin is not found" do
+        expect(subject.plugin_installed?("vagrant-plugin")).to be_falsey
+      end
+
+      context "when plugin is installed" do
+        let(:specs) { [Gem::Specification.new("vagrant-plugin", "1.2.3")] }
+
+        it "should return true" do
+          expect(subject.plugin_installed?("vagrant-plugin")).to be_truthy
+        end
+
+        it "should return true when version matches installed version" do
+          expect(subject.plugin_installed?("vagrant-plugin", "1.2.3")).to be_truthy
+        end
+
+        it "should return true when version requirement is satisified by version" do
+          expect(subject.plugin_installed?("vagrant-plugin", "> 1.0")).to be_truthy
+        end
+
+        it "should return false when version requirement is not satisified by version" do
+          expect(subject.plugin_installed?("vagrant-plugin", "2.0")).to be_falsey
+        end
+      end
+    end
+
+    context "when manager is not ready" do
+      let(:ready) { false }
+      let(:plugins) { {} }
+      before { allow(subject).to receive(:installed_plugins).and_return(plugins) }
+
+      it "should check installed plugin data" do
+        expect(subject).to receive(:installed_plugins).and_return(plugins)
+        subject.plugin_installed?("vagrant-plugin")
+      end
+
+      it "should return false when plugin is not found" do
+        expect(subject.plugin_installed?("vagrant-plugin")).to be_falsey
+      end
+
+      context "when plugin is installed" do
+        let(:plugins) { {"vagrant-plugin" => {"installed_gem_version" => "1.2.3"}} }
+
+        it "should return true" do
+          expect(subject.plugin_installed?("vagrant-plugin")).to be_truthy
+        end
+
+        it "should return true when version matches installed version" do
+          expect(subject.plugin_installed?("vagrant-plugin", "1.2.3")).to be_truthy
+        end
+
+        it "should return true when version requirement is satisified by version" do
+          expect(subject.plugin_installed?("vagrant-plugin", "> 1.0")).to be_truthy
+        end
+
+        it "should return false when version requirement is not satisified by version" do
+          expect(subject.plugin_installed?("vagrant-plugin", "2.0")).to be_falsey
+        end
       end
     end
   end
