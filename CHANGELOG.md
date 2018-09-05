@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - guest/openbsd: Add IPv6 network template for OpenBSD machines [GH-8912]
+- command/powershell: Improve doc help string and fix winrm locales error [GH-10189]
 
 BUG FIXES:
 
