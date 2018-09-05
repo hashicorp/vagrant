@@ -17,6 +17,9 @@ module VagrantPlugins
           o.banner = "Usage: vagrant powershell [-- extra powershell args]"
 
           o.separator ""
+          o.separator "Opens a remote PowerShell session to the machine if it"
+          o.separator "supports powershell remoting."
+          o.separator ""
           o.separator "Options:"
           o.separator ""
 
