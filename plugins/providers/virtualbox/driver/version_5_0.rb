@@ -635,6 +635,7 @@ module VagrantPlugins
         end
 
         def set_mac_address(mac)
+          mac = "auto" if !mac
           execute("modifyvm", @uuid, "--macaddress1", mac, retryable: true)
         end
 

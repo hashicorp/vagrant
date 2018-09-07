@@ -2177,6 +2177,7 @@ en:
             manually for more verbose error output.
         match_mac:
           matching: Matching MAC address for NAT networking...
+          generating: Generating MAC address for NAT networking...
           no_base_mac: |-
             No base MAC address was specified. This is required for the NAT networking
             to work properly (and hence port forwarding, SSH, etc.). Specifying this
