@@ -53,7 +53,8 @@ The rsync synced folder type accepts the following options:
   to `rsync`. By default this is `["--verbose", "--archive", "--delete", "-z", "--copy-links"]`.
 
 * `rsync__auto` (boolean) - If false, then `rsync-auto` will not
-  watch and automatically sync this folder. By default, this is true.
+  watch and automatically sync this folder. By default, this is true. __Note__: This
+  option will not automatically invoke the `rsync-auto` subcommand.
 
 * `rsync__chown` (boolean) - If false, then the
   [`owner` and `group`](/docs/synced-folders/basic_usage.html)
