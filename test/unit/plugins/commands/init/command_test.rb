@@ -55,6 +55,22 @@ describe VagrantPlugins::CommandInit::Command do
       expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
     end
 
+    it "creates a custom Vagrant file using a template provided from the environment" do
+      with_temp_env("VAGRANT_DEFAULT_TEMPLATE" => "test/unit/templates/commands/init/Vagrantfile") do
+        described_class.new([], env).execute
+      end
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
+    end
+
+    it "ignores the environmentally-set default template when a template is explicitly set" do
+      with_temp_env("VAGRANT_DEFAULT_TEMPLATE" => "/this_file_does_not_exist") do
+        described_class.new(["--template", "test/unit/templates/commands/init/Vagrantfile"], env).execute
+      end
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
+    end
+
     it "ignores the -m option when using a provided template" do
       described_class.new(["-m", "--template", ::Vagrant.source_root.join("test/unit/templates/commands/init/Vagrantfile").to_s], env).execute
       contents = File.read(vagrantfile_path)

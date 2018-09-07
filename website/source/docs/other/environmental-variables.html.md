@@ -37,6 +37,11 @@ Vagrant to use this provider for any _new_ Vagrant environments. Existing
 Vagrant environments will continue to use the provider they came `up` with.
 Once you `vagrant destroy` existing environments, this will take effect.
 
+## `VAGRANT_DEFAULT_TEMPLATE`
+
+This configures the template used by `vagrant init` when the `--template` option
+is not provided.
+
 ## `VAGRANT_PREFERRED_PROVIDERS`
 
 This configures providers that Vagrant should prefer.
