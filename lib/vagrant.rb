@@ -195,6 +195,17 @@ module Vagrant
     puts "be removed in the next version of Vagrant."
   end
 
+  # This checks if Vagrant is installed in a specific version.
+  #
+  # Example:
+  #
+  #    Vagrant.version?(">= 2.1.0")
+  #
+  def self.version?(*requirements)
+    req = Gem::Requirement.new(*requirements)
+    req.satisfied_by?(Gem::Version.new(VERSION))
+  end
+
   # This allows a Vagrantfile to specify the version of Vagrant that is
   # required. You can specify a list of requirements which will all be checked
   # against the running Vagrant version.
@@ -211,8 +222,7 @@ module Vagrant
     logger = Log4r::Logger.new("vagrant::root")
     logger.info("Version requirements from Vagrantfile: #{requirements.inspect}")
 
-    req = Gem::Requirement.new(*requirements)
-    if req.satisfied_by?(Gem::Version.new(VERSION))
+    if version?(*requirements)
       logger.info("  - Version requirements satisfied!")
       return
     end

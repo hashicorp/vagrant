@@ -101,6 +101,16 @@ describe Vagrant do
     end
   end
 
+  describe "version?" do
+    it "should succeed if valid range" do
+      expect(described_class.version?(Vagrant::VERSION)).to be(true)
+    end
+
+    it "should not succeed if bad range" do
+      expect(described_class.version?("> #{Vagrant::VERSION}")).to be(false)
+    end
+  end
+
   describe "original_env" do
     before do
       ENV["VAGRANT_OLD_ENV_foo"] = "test"
