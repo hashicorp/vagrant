@@ -4,8 +4,9 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- guest/openbsd: Add IPv6 network template for OpenBSD machines [GH-8912]
+- core: Add `Vagrant.version?` helper method [GH-10191]
 - command/powershell: Improve doc help string and fix winrm locales error [GH-10189]
+- guest/openbsd: Add IPv6 network template for OpenBSD machines [GH-8912]
 
 BUG FIXES:
 
@@ -20,7 +21,6 @@ BUG FIXES:
 - core: Reset internal environment after plugin loading [GH-10155]
 - host/windows: Fix SMB list parsing when extra fields are included [GH-10156]
 - provisioners/ansible_local: Fix umask setting permission bug [GH-10140]
-
 
 ## 2.1.3 (August 29, 2018)
 
