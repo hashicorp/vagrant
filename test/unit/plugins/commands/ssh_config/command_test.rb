@@ -151,5 +151,19 @@ Host #{machine.name}
       subject.execute
       expect(output).to include('IdentityFile /home/vagrant/home.key')
     end
+
+    it "handles verify_host_key :never value" do
+      allow(machine).to receive(:ssh_info) { ssh_info.merge(verify_host_key: :never) }
+
+      output = ""
+      allow(subject).to receive(:safe_puts) do |data|
+        output += data if data
+      end
+
+      subject.execute
+
+      expect(output).to include('StrictHostKeyChecking ')
+      expect(output).to include('UserKnownHostsFile ')
+    end
   end
 end

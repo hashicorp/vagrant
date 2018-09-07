@@ -2,7 +2,7 @@ Host <%= host_key %>
   HostName <%= ssh_host %>
   User <%= ssh_user %>
   Port <%= ssh_port %>
-<% if ! verify_host_key -%>
+<% if ! verify_host_key || verify_host_key == :never -%>
   UserKnownHostsFile /dev/null
   StrictHostKeyChecking no
 <% end -%>
