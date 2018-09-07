@@ -7,6 +7,7 @@ IMPROVEMENTS:
 - core: Add `Vagrant.version?` helper method [GH-10191]
 - command/init: Support VAGRANT_DEFAULT_TEMPLATE env var [GH-10171]
 - command/powershell: Improve doc help string and fix winrm locales error [GH-10189]
+- contrib/bash: autocomplete running VM names for destroy subcommand [GH-10168]
 - guest/openbsd: Add IPv6 network template for OpenBSD machines [GH-8912]
 
 BUG FIXES:
