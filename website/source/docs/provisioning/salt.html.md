@@ -75,7 +75,7 @@ distribution's stable package manager, git tree-ish, daily ppa, or testing repos
 * `bootstrap_options` (string) - Additional command-line options to
   pass to the bootstrap script.
 
-* `version`  (string, default: "2017.7.1") - Version of minion to be installed. Only supported on Windows guest machines.
+* `version`  (string, default: "2017.7.1") - Version of minion to be installed.
 
 * `python_version`  (string, default: "2") - Major Python version of minion to be installed. Only valid for minion versions >= 2017.7.0. Only supported on Windows guest machines.
 
