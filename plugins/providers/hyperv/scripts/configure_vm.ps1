@@ -106,6 +106,11 @@ if($EnableAutomaticCheckpoints) {
 }
 
 try {
+    if($autochecks -eq 1 -and (Get-Command Hyper-V\Set-VM).Parameters["AutomaticCheckpointsEnabled"] -eq $null) {
+        Write-ErrorMessage "AutomaticCheckpointsEnabled is not available"
+        exit 1
+    }
+
     Hyper-V\Set-VM -VM $VM -AutomaticCheckpointsEnabled $autochecks
 } catch {
     Write-ErrorMessage "Failed to ${AutoAction} automatic checkpoints on VM: ${PSItem}"
