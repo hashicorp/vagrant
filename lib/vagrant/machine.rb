@@ -4,7 +4,6 @@ require "digest/md5"
 require "thread"
 
 require "log4r"
-require "vagrant/util/platform"
 
 module Vagrant
   # This represents a machine that Vagrant manages. This provides a singular
