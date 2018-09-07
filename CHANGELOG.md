@@ -11,6 +11,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core: Fix Vagrant.has_plugin? behavior before plugins are initialized [GH-10165]
+- core: Check verify_host_key for falsey or :never values when generating ssh config [GH-10182]
 - guest/liunux: Filter out empty strings and loopback interfaces when constructing list of network interfaces [GH-10092]
 
 ## 2.1.4 (August 30, 2018)
