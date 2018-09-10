@@ -8,6 +8,7 @@ IMPROVEMENTS:
 - command/init: Support VAGRANT_DEFAULT_TEMPLATE env var [GH-10171]
 - command/powershell: Improve doc help string and fix winrm locales error [GH-10189]
 - contrib/bash: autocomplete running VM names for destroy subcommand [GH-10168]
+- guest/debian: Use `sudo` to determine if systemd is in use for hardened systems [GH-10198]
 - guest/openbsd: Add IPv6 network template for OpenBSD machines [GH-8912]
 
 BUG FIXES:
