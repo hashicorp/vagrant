@@ -10,6 +10,7 @@ IMPROVEMENTS:
 - contrib/bash: autocomplete running VM names for destroy subcommand [GH-10168]
 - guest/debian: Use `sudo` to determine if systemd is in use for hardened systems [GH-10198]
 - guest/openbsd: Add IPv6 network template for OpenBSD machines [GH-8912]
+- provisioners/salt: Allow non-windows hosts to pass along version [GH-10194]
 
 BUG FIXES:
 
