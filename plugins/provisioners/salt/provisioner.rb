@@ -304,6 +304,9 @@ module VagrantPlugins
             end
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.ps1")
           else
+            if @config.version
+              options += " %s" % @config.version
+            end
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
           end
 
