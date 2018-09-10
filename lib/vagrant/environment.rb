@@ -167,20 +167,17 @@ module Vagrant
 
       # Initialize localized plugins
       plugins = Vagrant::Plugin::Manager.instance.localize!(self)
+      # Load any environment local plugins
+      Vagrant::Plugin::Manager.instance.load_plugins(plugins)
+
+      # Initialize globalize plugins
+      plugins = Vagrant::Plugin::Manager.instance.globalize!
+      # Load any global plugins
+      Vagrant::Plugin::Manager.instance.load_plugins(plugins)
 
       if !vagrantfile.config.vagrant.plugins.empty?
         plugins = process_configured_plugins
       end
-
-      # Load any environment local plugins
-      Vagrant::Plugin::Manager.instance.load_plugins(plugins)
-
-      plugins = Vagrant::Plugin::Manager.instance.globalize!
-      Vagrant::Plugin::Manager.instance.load_plugins(plugins)
-
-      # Reset so Vagrantfile will be reloaded with expected support for
-      # any new plugins provided
-      post_plugins_reset!
 
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
@@ -917,18 +914,6 @@ module Vagrant
 
     protected
 
-    # Unsets the internal vagrantfile and config_loader
-    # to force them to be regenerated. This is used after
-    # plugins have been loaded so that newly discovered
-    # plugin configurations are properly available
-    #
-    # @return [nil]
-    def post_plugins_reset!
-      @vagrantfile = nil
-      @config_loader = nil
-      nil
-    end
-
     # Check for any local plugins defined within the Vagrantfile. If
     # found, validate they are available. If they are not available,
     # request to install them, or raise an exception
@@ -982,7 +967,10 @@ module Vagrant
             name: spec.name, version: spec.version.to_s))
         end
         ui.info("\n")
-        Vagrant::Plugin::Manager.instance.localize!(self)
+        # Force halt after installation and require command to be run again. This
+        # will proper load any new locally installed plugins which are now available.
+        ui.warn(I18n.t("vagrant.plugins.local.install_rerun_command"))
+        exit(-1)
       end
       Vagrant::Plugin::Manager.instance.local_file.installed_plugins
     end
