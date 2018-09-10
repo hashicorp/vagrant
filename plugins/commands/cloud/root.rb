@@ -48,7 +48,7 @@ module VagrantPlugins
             require File.expand_path("../publish", __FILE__)
             Publish
           end
-          @subcommand_helptext[:publish] = "A start-to-finish solution for creating or updating a new box on Vagrant Cloud"
+          @subcommand_helptext[:publish] = "A complete solution for creating or updating a new box on Vagrant Cloud"
 
           @subcommands.register(:version) do
             require File.expand_path("../version/root", __FILE__)

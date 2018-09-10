@@ -24,7 +24,7 @@ describe VagrantPlugins::CloudCommand::AuthCommand::Command::Whoami do
     allow(iso_env).to receive(:action_runner).and_return(action_runner)
     allow(VagrantPlugins::CloudCommand::Util).to receive(:client_login).
       and_return(client)
-    allow(VagrantPlugins::CloudCommand::Util).to receive(:account?).
+    allow(VagrantPlugins::CloudCommand::Util).to receive(:account).
       and_return(account)
   end
 

@@ -11,11 +11,11 @@ module VagrantPlugins
             opts = OptionParser.new do |o|
               o.banner = "Usage: vagrant cloud auth logout [options]"
               o.separator ""
-              o.separator "Logs you out if you're logged in locally."
+              o.separator "Log out of Vagrant Cloud"
               o.separator ""
               o.separator "Options:"
               o.separator ""
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |l|
+              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |l|
                 options[:login] = l
               end
             end

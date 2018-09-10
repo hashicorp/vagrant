@@ -6,7 +6,7 @@ module VagrantPlugins
       class Plugin < Vagrant.plugin("2")
         name "vagrant cloud box"
         description <<-DESC
-        Provider CRUD commands for Vagrant Cloud
+        Provider life cycle commands for Vagrant Cloud
         DESC
 
         command(:provider) do

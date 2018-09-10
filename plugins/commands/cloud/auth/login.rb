@@ -13,15 +13,15 @@ module VagrantPlugins
               o.separator ""
               o.separator "Options:"
               o.separator ""
-              o.on("-c", "--check", "Only checks if you're logged in") do |c|
+              o.on("-c", "--check", "Checks if currently logged in") do |c|
                 options[:check] = c
               end
 
-              o.on("-d", "--description DESCRIPTION", String, "Description for the Vagrant Cloud token") do |d|
+              o.on("-d", "--description DESCRIPTION", String, "Set description for the Vagrant Cloud token") do |d|
                 options[:description] = d
               end
 
-              o.on("-k", "--logout", "Logs you out if you're logged in") do |k|
+              o.on("-k", "--logout", "Logout from Vagrant Cloud") do |k|
                 options[:logout] = k
               end
 
@@ -29,7 +29,7 @@ module VagrantPlugins
                 options[:token] = t
               end
 
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |l|
+              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |l|
                 options[:login] = l
               end
             end

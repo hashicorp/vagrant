@@ -16,7 +16,7 @@ module VagrantPlugins
               o.separator "Options:"
               o.separator ""
 
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |u|
+              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
                 options[:username] = u
               end
               o.on("--versions VERSION", String, "Display box information for a specific version") do |v|

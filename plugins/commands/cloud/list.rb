@@ -10,7 +10,7 @@ module VagrantPlugins
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant cloud list [options] organization"
             o.separator ""
-            o.separator "Search for boxes managed by a specific user"
+            o.separator "Search for boxes managed by a specific user/organization"
             o.separator ""
             o.separator "Options:"
             o.separator ""
@@ -21,13 +21,13 @@ module VagrantPlugins
             o.on("-l", "--limit", Integer, "Max number of search results (default is 25)") do |l|
               options[:check] = l
             end
-            o.on("-p", "--provider", "Comma separated list of providers to filter search on. Defaults to all.") do |p|
+            o.on("-p", "--provider", "Comma separated list of providers to filter search. Defaults to all.") do |p|
               options[:check] = p
             end
             o.on("-s", "--sort-by", "Column to sort list (created, downloads, updated)") do |s|
               options[:check] = s
             end
-            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |t|
+            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
               options[:username] = u
             end
           end

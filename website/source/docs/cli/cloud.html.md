@@ -13,7 +13,7 @@ description: |-
 
 This is the command used to manage anything related to [Vagrant Cloud](https://vagrantcloud.com)
 
-The main functionality of this command is exposed via even more subcommands:
+The main functionality of this command is exposed via subcommands:
 
 * [`auth`](#cloud-auth)
 * [`box`](#cloud-box)
@@ -34,14 +34,12 @@ The main functionality of this command is exposed via even more subcommands:
 
 **Command: `vagrant cloud auth login`**
 
-The login command is used to authenticate with the
-[HashiCorp's Vagrant Cloud](/docs/vagrant-cloud) server. Logging is only
-necessary if you are accessing protected boxes or using
-[Vagrant Share](/docs/share/).
+The login command is used to authenticate with [HashiCorp's Vagrant Cloud](/docs/vagrant-cloud)
+server. Logging in is only necessary if you are accessing protected boxes.
 
 **Logging in is not a requirement to use Vagrant.** The vast majority
 of Vagrant does _not_ require a login. Only certain features such as protected
-boxes or [Vagrant Share](/docs/share/) require a login.
+boxes.
 
 The reference of available command-line flags to this command
 is available below.
@@ -49,8 +47,8 @@ is available below.
 ### Options
 
 * `--check` - This will check if you are logged in. In addition to outputting
-  whether you are logged in or not, the command will have exit status 0 if you are
-  logged in, and exit status 1 if you are not.
+  whether you are logged in or not, the command exit status will be 0 if you are
+  logged in, or 1 if you are not.
 
 * `--logout` - This will log you out if you are logged in. If you are already
   logged out, this command will do nothing. It is not an error to call this
@@ -104,8 +102,8 @@ of the token stored stored on disk.
 
 **Command: `vagrant cloud box`**
 
-The `cloud box` command is used to manage CRUD operations for all `box` entities on
-Vagrant Cloud.
+The `cloud box` command is used to manage life cycle operations for all `box`
+entities on Vagrant Cloud.
 
 * [`create`](#cloud-box-create)
 * [`delete`](#cloud-box-delete)
@@ -120,7 +118,7 @@ The box create command is used to create a new box entry on Vagrant Cloud.
 
 ### Options
 
-* `--description DESCRIPTION` - A longer description of the box. Can be
+* `--description DESCRIPTION` - A full description of the box. Can be
   formatted with Markdown.
 * `--short-description DESCRIPTION` - A short summary of the box.
 * `--private` - Will make the new box private (Public by default)
@@ -146,7 +144,7 @@ The box update command will update an already created box on Vagrant Cloud with 
 
 ### Options
 
-* `--description DESCRIPTION` - A longer description of the box. Can be
+* `--description DESCRIPTION` - A full description of the box. Can be
   formatted with Markdown.
 * `--short-description DESCRIPTION` - A short summary of the box.
 * `--private` - Will make the new box private (Public by default)
@@ -155,8 +153,8 @@ The box update command will update an already created box on Vagrant Cloud with 
 
 **Command: `vagrant cloud provider`**
 
-The `cloud provider` command is used to manage CRUD operations for all `provider` entities on
-Vagrant Cloud.
+The `cloud provider` command is used to manage the life cycle operations for all
+`provider` entities on Vagrant Cloud.
 
 * [`create`](#cloud-provider-create)
 * [`delete`](#cloud-provider-delete)
@@ -169,7 +167,7 @@ Vagrant Cloud.
 
 
 The provider create command is used to create a new provider entry on Vagrant Cloud.
-The `url` argument is expected to be a valid remote URL that Vagrant Cloud can use
+The `url` argument is expected to be a remote URL that Vagrant Cloud can use
 to download the provider. If no `url` is specified, the provider entry can be updated
 later with a url or the [upload](#cloud-provider-upload) command can be used to
 upload a Vagrant [box file](/docs/boxes.html).
@@ -199,15 +197,15 @@ the specified version and provider.
 
 **Command: `vagrant cloud publish ORGANIZATION/BOX-NAME VERSION PROVIDER-NAME [PROVIDER-FILE]`**
 
-The publish command is a start-to-finish solution for creating and updating a
+The publish command is a complete solution for creating and updating a
 Vagrant box on Vagrant Cloud. Instead of having to create each attribute of a Vagrant
-box with separate commands, the publish command instead askes you to provide all
-the information you need up front to create or update a new box.
+box with separate commands, the publish command instead asks you to provide all
+the information required before creating or updating a new box.
 
 ## Options
 
 * `--box-version VERSION` - Version to create for the box
-* `--description DESCRIPTION` - A longer description of the box. Can be
+* `--description DESCRIPTION` - A full description of the box. Can be
   formatted with Markdown.
 * `--force` - Disables confirmation when creating or updating a box.
 * `--short-description DESCRIPTION` - A short summary of the box.

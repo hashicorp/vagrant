@@ -16,10 +16,10 @@ module VagrantPlugins
               o.separator "Options:"
               o.separator ""
 
-              o.on("-d", "--description DESCRIPTION", String, "Longer description of the box") do |d|
+              o.on("-d", "--description DESCRIPTION", String, "Full description of the box") do |d|
                 options[:description] = d
               end
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |t|
+              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
                 options[:username] = u
               end
               o.on("-s", "--short-description DESCRIPTION", String, "Short description of the box") do |s|

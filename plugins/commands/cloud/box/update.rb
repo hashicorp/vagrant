@@ -16,7 +16,7 @@ module VagrantPlugins
               o.separator "Options:"
               o.separator ""
 
-              o.on("-d", "--description DESCRIPTION", "Longer description of the box") do |d|
+              o.on("-d", "--description DESCRIPTION", "Full description of the box") do |d|
                 options[:description] = d
               end
               o.on("-u", "--username", "The username of the organization that will own the box") do |u|

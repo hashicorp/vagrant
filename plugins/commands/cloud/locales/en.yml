@@ -54,7 +54,7 @@ en:
         You will need to run the `vagrant cloud provider upload` command to provide a box
     provider:
       upload: |-
-        Uploading box file for '%{org}/%{box_name}' v(%{version}) for provider: '%{provider}'
+        Uploading box file for '%{org}/%{box_name}' (v%{version}) for provider: '%{provider}'
       upload_success: |-
         Uploaded provider %{provider} on %{org}/%{box_name} for version %{version}
       delete_warn: |-

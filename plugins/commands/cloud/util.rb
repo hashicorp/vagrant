@@ -38,25 +38,23 @@ module VagrantPlugins
             end
 
             # Ask for the username
-            if @_client.username_or_email
+            if options[:login]
+              @_client.username_or_email = options[:login]
               env.ui.output("Vagrant Cloud username or email: #{@_client.username_or_email}")
-            end
-            until @_client.username_or_email
+            else
               @_client.username_or_email = env.ui.ask("Vagrant Cloud username or email: ")
             end
 
-            until @_client.password
-              @_client.password = env.ui.ask("Password (will be hidden): ", echo: false)
+            @_client.password = env.ui.ask("Password (will be hidden): ", echo: false)
+
+            description_default = "Vagrant login from #{Socket.gethostname}"
+            if !options[:description]
+              description = env.ui.ask("Token description (Defaults to #{description_default.inspect}): ")
+            else
+              description = options[:description]
+              env.ui.output("Token description: #{description}")
             end
 
-            if options
-              description = options[:description]
-            end
-            description_default = "Vagrant login from #{Socket.gethostname}"
-            until description
-              description =
-                env.ui.ask("Token description (Defaults to #{description_default.inspect}): ")
-            end
             description = description_default if description.empty?
 
             code = nil

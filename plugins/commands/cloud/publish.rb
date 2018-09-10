@@ -11,7 +11,7 @@ module VagrantPlugins
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant cloud publish [options] organization/box-name version provider-name [provider-file]"
             o.separator ""
-            o.separator "A Start-To-Finish command for creating and releasing a new Vagrant Box on Vagrant Cloud"
+            o.separator "Create and release a new Vagrant Box on Vagrant Cloud"
             o.separator ""
             o.separator "Options:"
             o.separator ""
@@ -19,10 +19,10 @@ module VagrantPlugins
             o.on("--box-version VERSION", String, "Version of box to create") do |v|
               options[:box_version] = v
             end
-            o.on("--url URL", String, "Valid remote URL to download this provider") do |u|
+            o.on("--url URL", String, "Remote URL to download this provider") do |u|
               options[:url] = u
             end
-            o.on("-d", "--description DESCRIPTION", String, "Longer description of box") do |d|
+            o.on("-d", "--description DESCRIPTION", String, "Full description of box") do |d|
               options[:description] = d
             end
             o.on("--version-description DESCRIPTION", String, "Description of the version to create") do |v|
@@ -40,7 +40,7 @@ module VagrantPlugins
             o.on("-s", "--short-description DESCRIPTION", String, "Short description of the box") do |s|
               options[:short_description] = s
             end
-            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |t|
+            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
               options[:username] = u
             end
           end

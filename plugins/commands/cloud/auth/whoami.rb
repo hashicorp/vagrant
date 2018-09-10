@@ -11,11 +11,11 @@ module VagrantPlugins
             opts = OptionParser.new do |o|
               o.banner = "Usage: vagrant cloud auth whoami [options] [token]"
               o.separator ""
-              o.separator "Determine who you are logged in as"
+              o.separator "Display currently logged in user"
               o.separator ""
               o.separator "Options:"
               o.separator ""
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |l|
+              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |l|
                 options[:login] = l
               end
             end
@@ -28,7 +28,7 @@ module VagrantPlugins
                 help: opts.help.chomp
             end
 
-            @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
+            @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:login])
 
             if argv.first
               token = argv.first
@@ -41,7 +41,7 @@ module VagrantPlugins
 
           def whoami(access_token, username)
             server_url = VagrantPlugins::CloudCommand::Util.api_server_url
-            account = VagrantPlugins::CloudCommand::Util.account?(username, access_token, server_url)
+            account = VagrantPlugins::CloudCommand::Util.account(username, access_token, server_url)
 
             begin
               success = account.validate_token

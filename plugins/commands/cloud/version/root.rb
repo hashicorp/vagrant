@@ -55,7 +55,7 @@ module VagrantPlugins
             opts = OptionParser.new do |opts|
               opts.banner = "Usage: vagrant cloud version <subcommand> [<args>]"
               opts.separator ""
-              opts.separator "For taking various actions against a Vagrant boxes version attribute on Vagrant Cloud"
+              opts.separator "For taking various actions against a Vagrant box's version attribute on Vagrant Cloud"
               opts.separator ""
               opts.separator "Available subcommands:"
 

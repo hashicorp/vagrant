@@ -10,7 +10,8 @@ module VagrantPlugins
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant cloud search [options] query"
             o.separator ""
-            o.separator "Search for a box on Vagrant Cloud"
+            o.separator "Search for boxes managed by a specific"
+            o.separator "user/organization on Vagrant Cloud"
             o.separator ""
             o.separator "Options:"
             o.separator ""
@@ -36,7 +37,7 @@ module VagrantPlugins
             o.on("--sort-by SORT", "Field to sort results on (created, downloads, updated) Default: downloads") do |s|
               options[:sort] = s
             end
-            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Specify your Vagrant Cloud username or email address") do |t|
+            o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
               options[:username] = u
             end
           end

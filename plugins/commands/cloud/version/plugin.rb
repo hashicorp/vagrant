@@ -6,7 +6,7 @@ module VagrantPlugins
       class Plugin < Vagrant.plugin("2")
         name "vagrant cloud version"
         description <<-DESC
-        Version CRUD commands for Vagrant Cloud
+        Version life cycle commands for Vagrant Cloud
         DESC
 
         command(:version) do

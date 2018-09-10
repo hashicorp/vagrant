@@ -4,7 +4,7 @@ module VagrantPlugins
       module Command
         class Root < Vagrant.plugin("2", :command)
           def self.synopsis
-            "Manages everything authorization related to Vagrant Cloud"
+            "Manages Vagrant Cloud authorization related to Vagrant Cloud"
           end
 
           def initialize(argv, env)
@@ -47,7 +47,7 @@ module VagrantPlugins
             opts = OptionParser.new do |opts|
               opts.banner = "Usage: vagrant cloud auth <subcommand> [<args>]"
               opts.separator ""
-              opts.separator "Helper commands for authorization  with Vagrant Cloud"
+              opts.separator "Authorization with Vagrant Cloud"
               opts.separator ""
               opts.separator "Available subcommands:"
 
