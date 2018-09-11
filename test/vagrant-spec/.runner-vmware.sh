@@ -27,7 +27,7 @@ declare -A pids
 for guest in ${guests}
 do
     vagrant provision ${guest} &
-    pids[guest]=$!
+    pids[$guest]=$!
     sleep 60
 done
 
@@ -36,7 +36,7 @@ set +e
 
 for guest in ${guests}
 do
-    wait ${pids[guest]}
+    wait ${pids[$guest]}
     if [ $? -ne 0 ]
     then
         echo "Provision failure for: ${guest}"
