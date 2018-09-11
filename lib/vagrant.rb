@@ -1,7 +1,16 @@
-require "vagrant/shared_helpers"
-
-require "rubygems"
 require "log4r"
+require "vagrant/util/credential_scrubber"
+# Update the default formatter within the log4r library to ensure
+# sensitive values are being properly scrubbed from logger data
+class Log4r::BasicFormatter
+  alias_method :vagrant_format_object, :format_object
+  def format_object(obj)
+    Vagrant::Util::CredentialScrubber.desensitize(vagrant_format_object(obj))
+  end
+end
+
+require "vagrant/shared_helpers"
+require "rubygems"
 require "vagrant/util"
 require "vagrant/plugin/manager"
 
