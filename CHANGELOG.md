@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Add `Vagrant.version?` helper method [GH-10191]
+- core: Scrub sensitive values from logger output [GH-10200]
 - command/init: Support VAGRANT_DEFAULT_TEMPLATE env var [GH-10171]
 - command/powershell: Improve doc help string and fix winrm locales error [GH-10189]
 - contrib/bash: autocomplete running VM names for destroy subcommand [GH-10168]
