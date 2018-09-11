@@ -25,13 +25,6 @@ describe Vagrant::Environment do
   let(:instance)  { env.create_vagrant_env }
   subject { instance }
 
-  describe "#initialize" do
-    it "should do an internal reset after plugin loading" do
-      expect_any_instance_of(described_class).to receive(:post_plugins_reset!)
-      instance
-    end
-  end
-
   describe "#can_install_provider?" do
     let(:plugin_hosts) { {} }
     let(:plugin_host_caps) { {} }
@@ -1495,6 +1488,8 @@ VF
 
       context "without plugin installed" do
 
+        before { allow(instance).to receive(:exit) }
+
         it "should prompt user before installation" do
           expect(instance.ui).to receive(:ask).and_return("n")
           expect(plugin_manager).to receive(:installed_plugins).and_return({})
@@ -1505,6 +1500,14 @@ VF
           expect(instance.ui).to receive(:ask).and_return("y")
           expect(plugin_manager).to receive(:installed_plugins).and_return({})
           expect(plugin_manager).to receive(:install_plugin).and_return(double("spec", "name" => "vagrant", "version" => "1"))
+          instance.send(:process_configured_plugins)
+        end
+
+        it "should exit after install" do
+          expect(instance.ui).to receive(:ask).and_return("y")
+          expect(plugin_manager).to receive(:installed_plugins).and_return({})
+          expect(plugin_manager).to receive(:install_plugin).and_return(double("spec", "name" => "vagrant", "version" => "1"))
+          expect(instance).to receive(:exit)
           instance.send(:process_configured_plugins)
         end
       end

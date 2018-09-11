@@ -419,6 +419,9 @@ en:
             %{plugins}
         request_plugin_install: |-
           Install local plugins (Y/N)
+        install_rerun_command: |-
+          Vagrant has completed installing local plugins for the current Vagrant
+          project directory. Please run the requested command again.
 
         install_all: |-
           Vagrant will now install the following plugins to the local project
