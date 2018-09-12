@@ -40,6 +40,7 @@ module VagrantPlugins
       def logged_in?
         token = self.token
         return false if !token
+        Vagrant::Util::CredentialScrubber.sensitive(token)
 
         with_error_handling do
           url = "#{Vagrant.server_url}/api/v1/authenticate" +

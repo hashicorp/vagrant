@@ -37,6 +37,7 @@ module VagrantPlugins
               env.ui.output("Vagrant Cloud URL: #{Vagrant.server_url}")
             end
 
+            options = {} if !options
             # Ask for the username
             if options[:login]
               @_client.username_or_email = options[:login]
@@ -75,6 +76,7 @@ module VagrantPlugins
             end
 
             @_client.store_token(token)
+            Vagrant::Util::CredentialScrubber.sensitive(token)
             env.ui.success(I18n.t("cloud_command.logged_in"))
             @_client
           end
