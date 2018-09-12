@@ -13,7 +13,7 @@ module VagrantPlugins
               hostname -F /etc/hostname
 
               if command -v hostnamectl; then
-                hostnamectl set-hostname '#{basename}'
+                hostnamectl set-hostname '#{basename}' || true
               fi
 
               # Prepend ourselves to /etc/hosts
