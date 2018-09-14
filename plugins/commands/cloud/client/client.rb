@@ -61,6 +61,7 @@ module VagrantPlugins
       def login(description: nil, code: nil)
         @logger.info("Logging in '#{username_or_email}'")
 
+        Vagrant::Util::CredentialScrubber.sensitive(password)
         response = post(
           "/api/v1/authenticate", {
             user: {
@@ -85,6 +86,7 @@ module VagrantPlugins
       def request_code(delivery_method)
         @env.ui.warn("Requesting 2FA code via #{delivery_method.upcase}...")
 
+        Vagrant::Util::CredentialScrubber.sensitive(password)
         response = post(
           "/api/v1/two-factor/request-code", {
             user: {

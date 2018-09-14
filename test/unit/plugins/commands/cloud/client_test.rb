@@ -76,7 +76,7 @@ describe VagrantPlugins::CloudCommand::Client do
     }
 
     let(:login) { "foo" }
-    let(:password) { "bar" }
+    let(:password) { "supersecretpassword" }
     let(:description) { "Token description" }
 
     let(:headers) {
@@ -182,7 +182,7 @@ describe VagrantPlugins::CloudCommand::Client do
     }
 
     let(:login) { "foo" }
-    let(:password) { "bar" }
+    let(:password) { "supersecretpassword" }
     let(:delivery_method) { "sms" }
 
     let(:headers) {
