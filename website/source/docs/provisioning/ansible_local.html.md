@@ -141,6 +141,12 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
     The default value is `/tmp/vagrant-ansible`
 
+- `become` (boolean) - When set to true runs ansible as root. 
+
+    The default value is `false`.
+    
+    For more fine grained control, `become` can be set at the role level in the playbook. An example on how to do this can be found in  the [ansible documentation](https://docs.ansible.com/ansible/latest/user_guide/become.html).
+    
 ## Tips and Tricks
 
 ### Install Galaxy Roles in a path owned by root
