@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- provisioners/salt: bootstrap-salt.sh: use -s with curl [GH-9432]
+
 BUG FIXES:
 
 ## 2.1.5 (September 12, 2018)
