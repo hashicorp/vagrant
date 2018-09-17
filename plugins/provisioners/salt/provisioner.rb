@@ -176,7 +176,19 @@ module VagrantPlugins
       ## Actions
       # Get pillar string to pass with the salt command
       def get_pillar
-        " pillar='#{@config.pillar_data.to_json}'" if !@config.pillar_data.empty?
+        if !@config.pillar_data.empty?
+          if @machine.config.vm.communicator == :winrm
+            # ' doesn't have any special behavior on the command prompt,
+            # so '{"x":"y"}' becomes '{x:y}' with literal single quotes.
+            # However, """ will become " , and \\""" will become \" .
+            # Use \\"" instead of \\""" for literal inner-value quotes
+            # to avoid issue with odd number of quotes.
+            # --% disables special PowerShell parsing on the rest of the line.
+            " --% pillar=#{@config.pillar_data.to_json.gsub(/(?<!\\)\"/, '"""').gsub(/\\\"/, %q(\\\\\""))}"
+          else
+            " pillar='#{@config.pillar_data.to_json}'"
+          end
+        end
       end
 
       # Get colorization option string to pass with the salt command
