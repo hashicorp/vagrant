@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- contrib/bash: Add completion for snapshot names for vagrant snapshot restore|delete [GH-9054]
 - provisioners/salt: bootstrap-salt.sh: use -s with curl [GH-9432]
 - provisioners/salt: remove leading space with bootstrap_options [GH-9431]
 
