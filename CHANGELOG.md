@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - provisioners/salt: bootstrap-salt.sh: use -s with curl [GH-9432]
+- provisioners/salt: remove leading space with bootstrap_options [GH-9431]
 
 BUG FIXES:
 
