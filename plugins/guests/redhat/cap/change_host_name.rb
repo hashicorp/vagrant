@@ -29,7 +29,13 @@ module VagrantPlugins
               }
 
               # Restart network
-              service network restart
+              if (test -f /etc/init.d/network && /etc/init.d/network status &> /dev/null ); then
+                service network restart
+              elif (test -f /usr/lib/systemd/system/NetworkManager.service && systemctl is-enabled NetworkManager.service &> /dev/null ); then
+                systemctl restart NetworkManager.service
+              else
+                printf "Could not restart the network to set the new hostname!\n"
+              fi
             EOH
           end
         end
