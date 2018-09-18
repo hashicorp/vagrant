@@ -35,6 +35,7 @@ module VagrantPlugins
                 service network restart
               else
                 printf "Could not restart the network to set the new hostname!\n"
+                exit 1
               fi
             EOH
           end
