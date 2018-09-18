@@ -370,6 +370,26 @@ describe Vagrant::Machine do
       end
     end
 
+    it 'should not warn if dirs are same but different cases' do
+      action_name  = :destroy
+      callable     = lambda { |_env| }
+      original_cwd = env.cwd.to_s
+
+      allow(provider).to receive(:action).with(action_name).and_return(callable)
+      allow(subject.ui).to receive(:warn)
+
+      instance.action(action_name)
+
+      expect(subject.ui).to_not have_received(:warn)
+
+      # In cygwin or other windows shell, it might have a path like
+      # c:/path and C:/path
+      # which are the same.
+      allow(env).to receive(:root_path).and_return(original_cwd.upcase)
+      expect(subject.ui).to_not have_received(:warn)
+      instance.action(action_name)
+    end
+
     context "if in a subdir" do
       let (:data_dir) { env.cwd }
 
