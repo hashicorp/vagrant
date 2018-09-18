@@ -31,7 +31,7 @@ describe "VagrantPlugins::GuestRedHat::Cap::ChangeHostName" do
       expect(comm.received_commands[1]).to match(/\/etc\/sysconfig\/network-scripts\/ifcfg/)
       expect(comm.received_commands[1]).to match(/hostnamectl set-hostname --static '#{name}'/)
       expect(comm.received_commands[1]).to match(/hostnamectl set-hostname --transient '#{name}'/)
-      expect(comm.received_commands[1]).to match(/service network restart/)
+      expect(comm.received_commands[1]).to match(/service network restart|systemctl restart NetworkManager.service/)
     end
 
     it "does not change the hostname if already set" do
