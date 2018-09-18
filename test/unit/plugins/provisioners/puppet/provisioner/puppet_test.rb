@@ -27,7 +27,7 @@ describe VagrantPlugins::Puppet::Provisioner::Puppet do
   end
 
   describe "#run_puppet_apply" do
-    let(:options) { double("options") }
+    let(:options) { "--environment production" }
     let(:binary_path) { "/opt/puppetlabs/bin" }
     let(:manifest_file) { "default.pp" }
 
@@ -36,7 +36,7 @@ describe VagrantPlugins::Puppet::Provisioner::Puppet do
       allow(config).to receive(:environment_path).and_return(false)
       allow(config).to receive(:facter).and_return(facts)
       allow(config).to receive(:binary_path).and_return(binary_path)
-      allow(config).to receive(:environment_variables).and_return(nil)
+      allow(config).to receive(:environment_variables).and_return({hello: "there", test: "test"})
       allow(config).to receive(:working_directory).and_return(false)
       allow(config).to receive(:manifest_file).and_return(manifest_file)
       allow(config).to receive(:structured_facts).and_return(double("structured_facts"))
@@ -46,6 +46,29 @@ describe VagrantPlugins::Puppet::Provisioner::Puppet do
       allow(@module_paths).to receive(:empty?).and_return(true)
 
       expect(machine).to receive(:communicate).and_return(comm)
+      expect(machine.communicate).to receive(:sudo).with("hello=\"there\" test=\"test\" /opt/puppetlabs/bin/puppet apply --environment production --color=false --detailed-exitcodes ", anything)
+
+      subject.run_puppet_apply()
+    end
+
+    it "properly sets env variables on windows" do
+      allow(config).to receive(:options).and_return(options)
+      allow(config).to receive(:environment_path).and_return(false)
+      allow(config).to receive(:facter).and_return(facts)
+      allow(config).to receive(:binary_path).and_return(binary_path)
+      allow(config).to receive(:environment_variables).and_return({hello: "there", test: "test"})
+      allow(config).to receive(:working_directory).and_return(false)
+      allow(config).to receive(:manifest_file).and_return(manifest_file)
+      allow(config).to receive(:structured_facts).and_return(double("structured_facts"))
+      allow(subject).to receive(:windows?).and_return(true)
+
+      allow_message_expectations_on_nil
+      allow(@module_paths).to receive(:map) { module_paths }
+      allow(@module_paths).to receive(:empty?).and_return(true)
+
+      expect(machine).to receive(:communicate).and_return(comm)
+      expect(machine.communicate).to receive(:sudo).with("$env:hello=\"there\"; $env:test=\"test\"; /opt/puppetlabs/bin/puppet apply --environment production --color=false --detailed-exitcodes ", anything)
+
       subject.run_puppet_apply()
     end
   end

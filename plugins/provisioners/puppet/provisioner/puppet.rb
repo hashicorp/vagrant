@@ -259,9 +259,11 @@ module VagrantPlugins
               env_vars.map! do |env_var_string|
                 "$env:#{env_var_string}"
               end
+              env_vars = env_vars.join("; ")
+              env_vars << ";"
+            else
+              env_vars = env_vars.join(" ")
             end
-
-            env_vars = env_vars.join(" ")
           end
 
           command = [
