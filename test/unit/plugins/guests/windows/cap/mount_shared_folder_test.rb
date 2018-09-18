@@ -98,6 +98,7 @@ describe "VagrantPlugins::GuestWindows::Cap::MountSharedFolder" do
               share_name: "name",
               vm_provider_unc_path: "\\\\host\\name",
             })
+        expect(machine.communicate).to receive(:execute).with("cmdkey /add:host /user:user /pass:\"pass\"", {:shell=>:powershell, :elevated=>true})
         described_class.mount_smb_shared_folder(machine, 'name', 'guestpath', {:smb_username => "user", :smb_password => "pass", :smb_host => "host"})
       end
     end
