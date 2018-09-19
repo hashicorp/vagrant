@@ -593,7 +593,7 @@ module Vagrant
                       ).chomp
                     end
 
-      if vagrant_cwd != @env.root_path.to_s
+      if !File.identical?(vagrant_cwd.to_s, @env.root_path.to_s)
         if vagrant_cwd
           ui.warn(I18n.t(
             'vagrant.moved_cwd',
