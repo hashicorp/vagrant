@@ -12,6 +12,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - guest/windows: Allow special characters in SMB password field [GH-10219]
+- provisioners/puppet: Properly set env variables for puppet provisioner on windows [GH-10218]
 
 ## 2.1.5 (September 12, 2018)
 
