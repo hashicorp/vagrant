@@ -17,15 +17,14 @@ you may set. A complete reference is shown below.
 One of the following settings is required when using the Docker provider:
 
   * `build_dir` (string) - The path to a directory containing a Dockerfile.
-    One of this, `image` or `git_repo` is required.
 
   * `image` (string) - The image to launch, specified by the image ID or a name
-    such as `ubuntu:12.04`. One of this, `git_repo` or `build_dir` is required.
+    such as `ubuntu:12.04`.
 
   * `git_repo` (string) - The URL of a git repository to build the image from.
     Supports pulling specific tags, branches and revision, consult the
     [docker documenation](https://docs.docker.com/engine/reference/commandline/build/#/git-repositories)
-    for more information. One of this, `image` or `build_dir` is required.
+    for more information.
 
 ### Optional
 
