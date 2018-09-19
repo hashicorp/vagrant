@@ -11,6 +11,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- guest/windows: Allow special characters in SMB password field [GH-10219]
+
 ## 2.1.5 (September 12, 2018)
 
 IMPROVEMENTS:
