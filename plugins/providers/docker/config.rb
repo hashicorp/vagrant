@@ -14,12 +14,12 @@ module VagrantPlugins
       attr_accessor :build_args
 
       # The directory with a Dockerfile to build and use as the basis
-      # for this container. If this is set, neither "image" nor "git_repo" 
+      # for this container. If this is set, neither "image" nor "git_repo"
       # should be set.
       #
       # @return [String]
       attr_accessor :build_dir
-      
+
       # The URL for a git repository with a Dockerfile to build and use
       # as the basis for this container. If this is set, neither "image"
       # nor "build_dir" should be set.
@@ -197,7 +197,7 @@ module VagrantPlugins
           has_image     = (other.image != UNSET_VALUE)
           has_build_dir = (other.build_dir != UNSET_VALUE)
           has_git_repo  = (other.git_repo != UNSET_VALUE)
-          
+
           if (has_image ^ has_build_dir ^ has_git_repo) && !(has_image && has_build_dir && has_git_repo)
             # image
             if has_image
@@ -208,7 +208,7 @@ module VagrantPlugins
                 result.git_repo = nil
               end
             end
-            
+
             # build_dir
             if has_build_dir
               if @image != UNSET_VALUE
@@ -218,7 +218,7 @@ module VagrantPlugins
                 result.git_repo = nil
               end
             end
-            
+
             # git_repo
             if has_git_repo
               if @build_dir != UNSET_VALUE
@@ -296,10 +296,9 @@ module VagrantPlugins
 
       def validate(machine)
         errors = _detected_errors
-        
-        # FIXME: is there a more ruby-elegant way to write this?
-        if (@build_dir? 1 : 0) + (@git_repo? 1 : 0) + (@image? 1 : 0) > 1 
-          errors << I18n.t("docker_provider.errors.config.both_build_and_image")
+
+        if [@build_dir, @git_repo, @image].compact.size > 1
+          errors << I18n.t("docker_provider.errors.config.both_build_and_image_and_git")
         end
 
         if !@build_dir && !@git_repo && !@image
@@ -312,7 +311,7 @@ module VagrantPlugins
             errors << I18n.t("docker_provider.errors.config.build_dir_invalid")
           end
         end
-        
+
         # Comparison logic taken directly from docker's urlutil.go
         if @git_repo && !( @git_repo =~ /^http(?:s)?:\/\/.*.git(?:#.+)?$/ || @git_repo =~ /^git(?:hub\.com|@|:\/\/)/)
           errors << I18n.t("docker_provider.errors.config.git_repo_invalid")
