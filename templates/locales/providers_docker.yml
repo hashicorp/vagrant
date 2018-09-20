@@ -12,8 +12,12 @@ en:
       Build image no longer exists. Rebuilding...
     building: |-
       Building the container from a Dockerfile...
+    building_git_repo: |-
+      Building the container from the git repository: %{repo}...
     building_named_dockerfile: |-
       Building the container from the named Dockerfile: %{file}...
+    building_git_repo_named_dockerfile: |-
+      Building the container from the named Dockerfile: %{file} in the git repository: %{repo}...
     creating: |-
       Creating the container...
     created: |-
@@ -137,16 +141,20 @@ en:
         and notify them to not use this communicator for anything except the
         "docker" provider.
       config:
-        both_build_and_image: |-
-          Only one of "build_dir" or "image" can be set
+        both_build_and_image_and_git: |-
+          Only one of "build_dir", "git_repo" or "image" can be set
         build_dir_invalid: |-
           "build_dir" must exist and contain a Dockerfile
+        git_repo_invalid: |-
+          "git_repo" must be a valid repository URL
         build_dir_or_image: |-
-          One of "build_dir" or "image" must be set
+          One of "build_dir", "git_repo" or "image" must be set
         compose_configuration_hash: |-
           "compose_configuration" must be a hash
         compose_force_vm: |-
           Docker compose is not currently supported from within proxy VM.
+        git_repo_invalid: |-
+          "git_repo" must be a valid git URL
         create_args_array: |-
           "create_args" must be an array
         invalid_link: |-

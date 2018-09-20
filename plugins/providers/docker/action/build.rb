@@ -17,9 +17,11 @@ module VagrantPlugins
           machine   = env[:machine]
           build_dir = env[:build_dir]
           build_dir ||= machine.provider_config.build_dir
-
+          git_repo  = env[:git_repo]
+          git_repo  ||= machine.provider_config.git_repo
+          
           # If we're not building a container, then just skip this step
-          return @app.call(env) if !build_dir
+          return @app.call(env) if (!build_dir && !git_repo)
 
           # Try to read the image ID from the cache file if we've
           # already built it.
@@ -41,18 +43,31 @@ module VagrantPlugins
             args = machine.provider_config.build_args.clone
             if machine.provider_config.dockerfile
               dockerfile      = machine.provider_config.dockerfile
-              dockerfile_path = File.join(build_dir, dockerfile)
+              dockerfile_path = build_dir ? File.join(build_dir, dockerfile) : dockerfile
 
               args.push("--file").push(dockerfile_path)
-              machine.ui.output(
-                I18n.t("docker_provider.building_named_dockerfile",
-                file: machine.provider_config.dockerfile))
+              if build_dir
+                machine.ui.output(
+                  I18n.t("docker_provider.building_named_dockerfile",
+                  file: machine.provider_config.dockerfile))
+              else
+                machine.ui.output(
+                  I18n.t("docker_provider.building_git_repo_named_dockerfile",
+                  file: machine.provider_config.dockerfile,
+                  repo: git_repo))
+              end
             else
-              machine.ui.output(I18n.t("docker_provider.building"))
+              if build_dir
+                machine.ui.output(I18n.t("docker_provider.building"))
+              else
+                machine.ui.output(
+                  I18n.t("docker_provider.building_git_repo",
+                  repo: git_repo))
+              end
             end
 
             image = machine.provider.driver.build(
-              build_dir,
+              build_dir || git_repo,
               extra_args: args) do |type, data|
               data = remove_ansi_escape_codes(data.chomp).chomp
               env[:ui].detail(data) if data != ""
