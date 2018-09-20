@@ -183,6 +183,8 @@ times. The data passed in should only be hashes and lists. Here is an example::
       end
 ```
 
+On Windows guests, this requires PowerShell 3.0 or higher.
+
 ## Preseeding Keys
 
 Preseeding keys is the recommended way to handle provisioning

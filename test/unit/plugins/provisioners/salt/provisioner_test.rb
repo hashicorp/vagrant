@@ -50,6 +50,32 @@ describe VagrantPlugins::Salt::Provisioner do
     end
   end
 
+  describe "#get_pillar" do
+    context "windows" do
+      it "escapes pillar data for powershell and returns as json" do
+        allow(machine.config.vm).to receive(:communicator).and_return(:winrm)
+        allow(config).to receive(:pillar_data).and_return({"cat"=>"qubit"})
+
+        expect(subject.get_pillar).to eq(" --% pillar={\"\"\"cat\"\"\":\"\"\"qubit\"\"\"}")
+      end
+    end
+
+    context "linux" do
+      it "returns pillar data as json" do
+        allow(machine.config.vm).to receive(:communicator).and_return(:false)
+        allow(config).to receive(:pillar_data).and_return({"cat"=>"shimi"})
+        expect(subject.get_pillar).to eq(" pillar='{\"cat\":\"shimi\"}'")
+      end
+    end
+
+    context "empty data" do
+      it "returns nothing if pillar data is empty" do
+        allow(config).to receive(:pillar_data).and_return({})
+        expect(subject.get_pillar).to eq(nil)
+      end
+    end
+  end
+
   describe "#call_highstate" do
     context "master" do
       it "passes along extra cli flags" do
