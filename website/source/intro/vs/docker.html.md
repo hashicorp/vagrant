@@ -14,9 +14,9 @@ workflow across multiple operating systems. Docker is a container management
 that can consistently run software as long as a containerization system exists.
 
 Containers are generally more lightweight than virtual machines, so starting
-and stopping containers is extremely fast. Most common development machines
-don't have a containerization system built-in, and Docker uses a virtual machine
-with Linux installed to provide that.
+and stopping containers is extremely fast. Docker uses the native
+containerization functionality on macOS, Linux, and Windows.
+
 
 Currently, Docker lacks support for certain operating systems (such as
 BSD). If your target deployment is one of these operating systems,
