@@ -47,7 +47,7 @@ module Vagrant
         # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @return [Boolean]
         def netplan?(comm)
-          comm.test("netplan -h")
+          comm.test("command -v netplan")
         end
 
         ## nmcli helpers
@@ -57,7 +57,7 @@ module Vagrant
         # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @return [Boolean]
         def nmcli?(comm)
-          comm.test("nmcli -t")
+          comm.test("command -v nmcli")
         end
 
         # NetworkManager currently controls device
