@@ -124,6 +124,10 @@ module Vagrant
               warn(trigger.warn)
             end
 
+            if trigger.abort
+              trigger_abort(trigger.abort)
+            end
+
             if trigger.run
               run(trigger.run, trigger.on_error, trigger.exit_codes)
             end
@@ -240,6 +244,14 @@ module Vagrant
               @machine.ui.error(e.message)
             end
           end
+        end
+
+        # Exits Vagrant immediately
+        #
+        # @param [Integer] code Code to exit Vagrant on
+        def trigger_abort(exit_code)
+          @machine.ui.warn(I18n.t("vagrant.trigger.abort"))
+          exit(exit_code)
         end
       end
     end

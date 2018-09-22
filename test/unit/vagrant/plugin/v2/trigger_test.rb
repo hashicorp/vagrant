@@ -373,4 +373,16 @@ describe Vagrant::Plugin::V2::Trigger do
         to raise_error("Nope!")
     end
   end
+
+  context "#trigger_abort" do
+
+    it "system exits when called" do
+      output = ""
+      allow(machine.ui).to receive(:warn) do |data|
+        output << data
+      end
+
+      expect { subject.send(:trigger_abort, 3) }.to raise_error(SystemExit)
+    end
+  end
 end
