@@ -14,6 +14,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - contrib/sudoers/osx: Fix missing comma and add remove export alias [GH-10235]
+- guest/redhat: Update restart logic in redhat change_host_name cap [GH-10223]
 - guest/windows: Allow special characters in SMB password field [GH-10219]
 - provisioners/puppet: Properly set env variables for puppet provisioner on windows [GH-10218]
 - provisioners/salt: Properly set salt pillar variables for windows guests [GH-10215]
