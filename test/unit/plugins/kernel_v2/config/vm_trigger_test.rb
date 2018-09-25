@@ -66,6 +66,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
     before do
       cfg.only_on = :guest
       cfg.ignore = "up"
+      cfg.abort = true
       arr_cfg.only_on = ["guest", /other/]
       arr_cfg.ignore = ["up", "destroy"]
     end
@@ -93,6 +94,12 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
         expect(a).to be_a(Symbol)
       end
     end
+
+    it "converts aborts true to exit code 0" do
+      cfg.finalize!
+
+      expect(cfg.abort).to eq(1)
+    end
   end
 
   describe "defining a basic trigger config" do
@@ -104,6 +111,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       cfg.warn = "Warning!!"
       cfg.on_error = :continue
       cfg.ignore = :up
+      cfg.abort = 3
       cfg.only_on = "guest"
       cfg.run = {inline: "apt-get update"}
       cfg.run_remote = {inline: "apt-get update", env: {"VAR"=>"VAL"}}
@@ -118,6 +126,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       expect(cfg.only_on).to eq(["guest"])
       expect(cfg.run).to be_a(VagrantPlugins::Shell::Config)
       expect(cfg.run_remote).to be_a(VagrantPlugins::Shell::Config)
+      expect(cfg.abort).to eq(3)
     end
   end
 

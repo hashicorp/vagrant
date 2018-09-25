@@ -287,6 +287,8 @@ en:
     trigger:
       on_error_continue: |-
         Trigger configured to continue on error...
+      abort: |-
+        Vagrant has been configured to abort. Terminating now...
       start: |-
         Running triggers %{stage} %{action} ...
       fire_with_name: |-
@@ -1768,6 +1770,12 @@ en:
         on_error_bad_type: |-
           Invalid type set for `on_error` on trigger for command '%{cmd}'. `on_error` can
           only be `:halt` (default) or `:continue`.
+        abort_bad_type: |-
+          Trigger option `abort` for command '%{cmd}' must be either set to
+          `true` (defaults to exit code 1) or an integer to use as an exit code.
+        abort_false_type: |-
+          `false` is not a valid option for the `abort` option for a trigger. This
+          will be ignored...
         exit_codes_bad_type: |-
           Invalid type set for `exit_codes` on trigger for command '%{cmd}'. `exit_codes` can
           only be a single integer or an array of integers.

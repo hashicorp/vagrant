@@ -72,6 +72,12 @@ module VagrantPlugins
       # @return [Integer, Array]
       attr_accessor :exit_codes
 
+      # If set to true, trigger will halt Vagrant immediately and exit 0
+      # Can also be configured to have a custom exit code
+      #
+      # @return [Integer]
+      attr_accessor :abort
+
       def initialize(command)
         @logger = Log4r::Logger.new("vagrant::config::vm::trigger::config")
 
@@ -84,6 +90,7 @@ module VagrantPlugins
         @run = UNSET_VALUE
         @run_remote = UNSET_VALUE
         @exit_codes = UNSET_VALUE
+        @abort = UNSET_VALUE
 
         # Internal options
         @id = SecureRandom.uuid
@@ -104,6 +111,7 @@ module VagrantPlugins
         @run_remote = nil if @run_remote == UNSET_VALUE
         @only_on = nil if @only_on == UNSET_VALUE
         @exit_codes = DEFAULT_EXIT_CODE if @exit_codes == UNSET_VALUE
+        @abort = nil if @abort == UNSET_VALUE
 
         # these values are expected to always be an Array internally,
         # but can be set as a single String or Symbol
@@ -149,6 +157,9 @@ module VagrantPlugins
           @run_remote = new_run
         end
 
+        if @abort == true
+          @abort = 1
+        end
       end
 
       # @return [Array] array of strings of error messages from config option validation
@@ -206,6 +217,12 @@ module VagrantPlugins
           if !@exit_codes.all? {|i| i.is_a?(Integer)}
             errors << I18n.t("vagrant.config.triggers.exit_codes_bad_type", cmd: @command)
           end
+        end
+
+        if @abort && !@abort.is_a?(Integer)
+          errors << I18n.t("vagrant.config.triggers.abort_bad_type", cmd: @command)
+        elsif @abort == false
+          machine.ui.warn(I18n.t("vagrant.config.triggers.abort_false_type"))
         end
 
         errors
