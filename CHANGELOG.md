@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Ensure file paths are identical when checking for cwd [GH-10220]
+- core/triggers: Add abort option to core triggers [GH-10232]
 - contrib/bash: Add completion for snapshot names for vagrant snapshot restore|delete [GH-9054]
 - provider/docker: Build docker from git repo [GH-10221]
 - provisioners/salt: bootstrap-salt.sh: use -s with curl [GH-9432]
