@@ -67,9 +67,9 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
     before do
       allow(comm).to receive(:test).with("nmcli -t d show eth1").and_return(false)
       allow(comm).to receive(:test).with("nmcli -t d show eth2").and_return(false)
-      allow(comm).to receive(:test).with("sudo ps -o comm= 1 | grep systemd").and_return(false)
-      allow(comm).to receive(:test).with("sudo systemctl status systemd-networkd.service").and_return(false)
-      allow(comm).to receive(:test).with("netplan -h").and_return(false)
+      allow(comm).to receive(:test).with("ps -o comm= 1 | grep systemd").and_return(false)
+      allow(comm).to receive(:test).with("systemctl -q is-active systemd-networkd.service", anything).and_return(false)
+      allow(comm).to receive(:test).with("command -v netplan").and_return(false)
     end
 
     it "creates and starts the networks using net-tools" do
@@ -85,8 +85,8 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
 
     context "with systemd" do
       before do
-        expect(comm).to receive(:test).with("sudo ps -o comm= 1 | grep systemd").and_return(true)
-        allow(comm).to receive(:test).with("netplan -h").and_return(false)
+        expect(comm).to receive(:test).with("ps -o comm= 1 | grep systemd").and_return(true)
+        allow(comm).to receive(:test).with("command -v netplan").and_return(false)
       end
 
       it "creates and starts the networks using net-tools" do
@@ -102,7 +102,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
 
       context "with systemd-networkd" do
         before do
-          expect(comm).to receive(:test).with("sudo systemctl status systemd-networkd.service").and_return(true)
+          expect(comm).to receive(:test).with("systemctl -q is-active systemd-networkd.service", anything).and_return(true)
         end
 
         it "creates and starts the networks using systemd-networkd" do
@@ -117,7 +117,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
 
       context "with netplan" do
         before do
-          expect(comm).to receive(:test).with("netplan -h").and_return(true)
+          expect(comm).to receive(:test).with("command -v netplan").and_return(true)
         end
 
         let(:nm_yml) { "---\nnetwork:\n  version: 2\n  renderer: NetworkManager\n  ethernets:\n    eth1:\n      dhcp4: true\n    eth2:\n      addresses:\n      - 33.33.33.10/16\n      gateway4: 33.33.0.1\n" }

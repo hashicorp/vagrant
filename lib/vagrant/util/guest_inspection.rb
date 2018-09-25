@@ -12,44 +12,57 @@ module Vagrant
         #
         # @return [Boolean]
         def systemd?(comm)
-          comm.test("sudo ps -o comm= 1 | grep systemd")
+          comm.test("ps -o comm= 1 | grep systemd")
         end
 
         # systemd-networkd.service is in use
         #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @return [Boolean]
         def systemd_networkd?(comm)
-          comm.test("sudo systemctl status systemd-networkd.service")
+          comm.test("systemctl -q is-active systemd-networkd.service", sudo: true)
+        end
+
+        # Check if given service is controlled by systemd
+        #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
+        # @param [String] service_name Name of the service to check
+        # @return [Boolean]
+        def systemd_controlled?(comm, service_name)
+          comm.test("systemctl -q is-active #{service_name}", sudo: true)
         end
 
         # systemd hostname set is via hostnamectl
         #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @return [Boolean]
         def hostnamectl?(comm)
-          comm.test("hostnamectl")
+          comm.test("command -v hostnamectl")
         end
 
         ## netplan helpers
 
         # netplan is installed
         #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @return [Boolean]
         def netplan?(comm)
-          comm.test("netplan -h")
+          comm.test("command -v netplan")
         end
 
         ## nmcli helpers
 
         # nmcli is installed
         #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @return [Boolean]
         def nmcli?(comm)
-          comm.test("nmcli -t")
+          comm.test("command -v nmcli")
         end
 
         # NetworkManager currently controls device
         #
-        # @param comm [Communicator]
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @param device_name [String]
         # @return [Boolean]
         def nm_controlled?(comm, device_name)
