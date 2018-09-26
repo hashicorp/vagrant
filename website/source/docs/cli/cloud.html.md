@@ -11,7 +11,7 @@ description: |-
 
 **Command: `vagrant cloud`**
 
-This is the command used to manage anything related to [Vagrant Cloud](https://vagrantcloud.com)
+This is the command used to manage anything related to [Vagrant Cloud](https://vagrantcloud.com).
 
 The main functionality of this command is exposed via subcommands:
 
@@ -26,9 +26,12 @@ The main functionality of this command is exposed via subcommands:
 
 **Command: `vagrant cloud auth`**
 
+The `cloud auth` command is for handling all things related to authorization with
+Vagrant Cloud.
+
 * [`login`](#cloud-auth-login)
 * [`logout`](#cloud-auth-logout)
-* [`who`](#cloud-auth-who)
+* [`whoami`](#cloud-auth-whoami)
 
 ## Cloud Auth Login
 
@@ -216,23 +219,21 @@ the information required before creating or updating a new box.
 
 ## Examples
 
-Creating a new box on Vagrant Cloud
+Creating a new box on Vagrant Cloud:
 
 ```text
 $ vagrant cloud publish briancain/supertest 1.0.0 virtualbox boxes/my/virtualbox.box -d "A really cool box to download and use" --version-description "A cool version" --release --short-description "Donwload me!"
 You are about to create a box on Vagrant Cloud with the following options:
-
-  briancain/supertest (1.0.0) for virtualbox
-  Automatic Release:     true
-  Box Description:       A really cool box to download and use
-  Box Short Description: Download me!
-  Version Description:   A cool version
-
+briancain/supertest (1.0.0) for virtualbox
+Automatic Release:     true
+Box Description:       A really cool box to download and use
+Box Short Description: Download me!
+Version Description:   A cool version
 Do you wish to continue? [y/N] y
 Creating a box entry...
 Creating a version entry...
 Creating a provider entry...
-Uploading provider with file boxes/my/virtualbox.box
+Uploading provider with file /Users/vagrant/boxes/my/virtualbox.box
 Releasing box...
 Complete! Published briancain/supertest
 tag:                  briancain/supertest
@@ -286,6 +287,9 @@ vagrant cloud search hashicorp --limit 5
 # Cloud Version
 
 **Command: `vagrant cloud version`**
+
+The `cloud version` command is used to manage life cycle operations for all `version`
+entities for a box on Vagrant Cloud.
 
 * [`create`](#cloud-version-create)
 * [`delete`](#cloud-version-delete)
