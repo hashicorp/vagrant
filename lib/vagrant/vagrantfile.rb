@@ -195,7 +195,7 @@ module Vagrant
           box = boxes.find(config.vm.box, box_formats, config.vm.box_version)
           if box
             box_vagrantfile = find_vagrantfile(box.directory)
-            if box_vagrantfile && !config.vm.box_ignore_box_vagrantfile
+            if box_vagrantfile && !config.vm.ignore_box_vagrantfile
               box_config_key =
                 "#{boxes.object_id}_#{box.name}_#{box.provider}".to_sym
               @loader.set(box_config_key, box_vagrantfile)
