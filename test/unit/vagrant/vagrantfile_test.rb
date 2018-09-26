@@ -208,6 +208,31 @@ describe Vagrant::Vagrantfile do
       expect(box.name).to eq("base")
     end
 
+    it "does not configure box configuration if set to ignore" do
+      register_provider("foo")
+
+      configure do |config|
+        config.vm.box = "base"
+        config.vm.ignore_box_vagrantfile = true
+      end
+
+      iso_env.box3("base", "1.0", :foo, vagrantfile: <<-VF)
+      Vagrant.configure("2") do |config|
+        config.ssh.port = 123
+        config.vm.hostname = "hello"
+      end
+      VF
+
+      results = subject.machine_config(:default, :foo, boxes)
+      box     = results[:box]
+      config  = results[:config]
+      expect(config.vm.box).to eq("base")
+      expect(config.ssh.port).to eq(nil)
+      expect(config.vm.hostname).to eq(nil)
+      expect(box).to_not be_nil
+      expect(box.name).to eq("base")
+    end
+
     it "configures with the proper box version" do
       register_provider("foo")
 
