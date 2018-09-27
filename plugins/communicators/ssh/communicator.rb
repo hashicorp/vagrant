@@ -376,7 +376,7 @@ module VagrantPlugins
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
           auth_methods:          auth_methods,
-          config:                ssh_info[:config],
+          config:                false,
           forward_agent:         ssh_info[:forward_agent],
           send_env:              ssh_info[:forward_env],
           keys_only:             ssh_info[:keys_only],
@@ -412,6 +412,10 @@ module VagrantPlugins
 
                 if ssh_info[:proxy_command]
                   connect_opts[:proxy] = Net::SSH::Proxy::Command.new(ssh_info[:proxy_command])
+                end
+
+                if ssh_info[:config]
+                  connect_opts[:config] = ssh_info[:config]
                 end
 
                 @logger.info("Attempting to connect to SSH...")

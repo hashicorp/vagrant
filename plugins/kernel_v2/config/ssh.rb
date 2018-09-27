@@ -5,7 +5,6 @@ require_relative "ssh_connect"
 module VagrantPlugins
   module Kernel_V2
     class SSHConfig < SSHConnectConfig
-      attr_accessor :config
       attr_accessor :forward_agent
       attr_accessor :forward_x11
       attr_accessor :forward_env
@@ -23,7 +22,6 @@ module VagrantPlugins
       def initialize
         super
 
-        @config                  = UNSET_VALUE
         @forward_agent           = UNSET_VALUE
         @forward_x11             = UNSET_VALUE
         @forward_env             = UNSET_VALUE
@@ -48,7 +46,6 @@ module VagrantPlugins
       def finalize!
         super
 
-        @config = false if @config == UNSET_VALUE
         @forward_agent = false if @forward_agent == UNSET_VALUE
         @forward_x11   = false if @forward_x11 == UNSET_VALUE
         @forward_env   = false if @forward_env == UNSET_VALUE
