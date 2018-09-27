@@ -55,6 +55,8 @@ module VagrantPlugins
             proxy_command: ssh_info[:proxy_command],
             ssh_command:   ssh_info[:ssh_command],
             forward_env:   ssh_info[:forward_env],
+            config:        ssh_info[:config],
+            remote_user:   ssh_info[:remote_user],
           }
 
           # Render the template and output directly to STDOUT

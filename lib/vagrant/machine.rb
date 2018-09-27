@@ -452,9 +452,11 @@ module Vagrant
       info[:keys_only] ||= @config.ssh.default.keys_only
       info[:verify_host_key] ||= @config.ssh.default.verify_host_key
       info[:username] ||= @config.ssh.default.username
+      info[:remote_user] ||= @config.ssh.default.remote_user
       info[:compression] ||= @config.ssh.default.compression
       info[:dsa_authentication] ||= @config.ssh.default.dsa_authentication
       info[:extra_args] ||= @config.ssh.default.extra_args
+      info[:config] ||= @config.ssh.default.config
 
       # We set overrides if they are set. These take precedence over
       # provider-returned data.
@@ -466,7 +468,9 @@ module Vagrant
       info[:dsa_authentication] = @config.ssh.dsa_authentication
       info[:username] = @config.ssh.username if @config.ssh.username
       info[:password] = @config.ssh.password if @config.ssh.password
+      info[:remote_user] = @config.ssh.remote_user if @config.ssh.remote_user
       info[:extra_args] = @config.ssh.extra_args if @config.ssh.extra_args
+      info[:config] = @config.ssh.config if @config.ssh.config
 
       # We also set some fields that are purely controlled by Vagrant
       info[:forward_agent] = @config.ssh.forward_agent
