@@ -418,6 +418,10 @@ module VagrantPlugins
                   connect_opts[:config] = ssh_info[:config]
                 end
 
+                if ssh_info[:remote_user]
+                  connect_opts[:remote_user] = ssh_info[:remote_user]
+                end
+
                 @logger.info("Attempting to connect to SSH...")
                 @logger.info("  - Host: #{ssh_info[:host]}")
                 @logger.info("  - Port: #{ssh_info[:port]}")
