@@ -43,7 +43,7 @@ description: |-
           <h2 class="os-name"><%= pretty_os(os) %></h2>
           <ul>
             <% arches.each do |arch, url| %>
-              <li><a href="<%= url %>"><%= pretty_arch(arch) %></a></li>
+              <li><a data-os="<%= os %>" data-arch="<%= arch%>" data-version="<%= latest_version %>" href="<%= url %>"><%= pretty_arch(arch) %></a></li>
             <% end %>
           </ul>
           <div class="clearfix"></div>
