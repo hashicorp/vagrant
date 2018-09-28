@@ -2,14 +2,16 @@ document.addEventListener('turbolinks:load', function() {
   analytics.page()
 
   track('.downloads .download .details li a', function(el) {
-    var m = el.href.match(/vagrant_(.*?)_(.*?)_(.*?)\.zip/)
+    var version = el.dataset.version
+    var os = el.dataset.os
+    var arch = el.dataset.arch
     return {
       event: 'Download',
       category: 'Button',
-      label: 'Vagrant | v' + m[1] + ' | ' + m[2] + ' | ' + m[3],
-      version: m[1],
-      os: m[2],
-      architecture: m[3],
+      label: 'Vagrant | v' + version + ' | ' + os + ' | ' + arch,
+      version: version,
+      os: os,
+      architecture: arch,
       product: 'vagrant'
     }
   })
