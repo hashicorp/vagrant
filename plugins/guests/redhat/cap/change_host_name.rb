@@ -3,7 +3,7 @@ module VagrantPlugins
     module Cap
       class ChangeHostName
 
-        extend Vagrant::Util::GuestInspection
+        extend Vagrant::Util::GuestInspection::Linux
 
         def self.change_host_name(machine, name)
           comm = machine.communicate
