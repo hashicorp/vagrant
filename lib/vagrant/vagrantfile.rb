@@ -1,4 +1,5 @@
 require "vagrant/util/template_renderer"
+require "log4r"
 
 module Vagrant
   # This class provides a way to load and access the contents
@@ -26,6 +27,7 @@ module Vagrant
       @keys   = keys
       @loader = loader
       @config, _ = loader.load(keys)
+      @logger = Log4r::Logger.new("vagrant::vagrantfile")
     end
 
     # Returns a {Machine} for the given name and provider that
@@ -201,6 +203,8 @@ module Vagrant
               @loader.set(box_config_key, box_vagrantfile)
               local_keys.unshift(box_config_key)
               config, config_warnings, config_errors = @loader.load(local_keys)
+            else
+              @logger.warn("Ignoring #{box.name} provided Vagrantfile inside box")
             end
           end
         end
