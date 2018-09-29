@@ -203,7 +203,7 @@ module Vagrant
               @loader.set(box_config_key, box_vagrantfile)
               local_keys.unshift(box_config_key)
               config, config_warnings, config_errors = @loader.load(local_keys)
-            else
+            elsif box_vagrantfile && config.vm.ignore_box_vagrantfile
               @logger.warn("Ignoring #{box.name} provided Vagrantfile inside box")
             end
           end
