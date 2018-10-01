@@ -22,6 +22,7 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :boot_timeout
       attr_accessor :box
+      attr_accessor :ignore_box_vagrantfile
       attr_accessor :box_check_update
       attr_accessor :box_url
       attr_accessor :box_server_url
@@ -51,6 +52,7 @@ module VagrantPlugins
         @base_mac                      = UNSET_VALUE
         @boot_timeout                  = UNSET_VALUE
         @box                           = UNSET_VALUE
+        @ignore_box_vagrantfile        = UNSET_VALUE
         @box_check_update              = UNSET_VALUE
         @box_download_ca_cert          = UNSET_VALUE
         @box_download_ca_path          = UNSET_VALUE
@@ -377,6 +379,7 @@ module VagrantPlugins
         @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box = nil if @box == UNSET_VALUE
+        @ignore_box_vagrantfile = false if @ignore_box_vagrantfile == UNSET_VALUE
 
         if @box_check_update == UNSET_VALUE
           @box_check_update = !present?(ENV["VAGRANT_BOX_UPDATE_CHECK_DISABLE"])

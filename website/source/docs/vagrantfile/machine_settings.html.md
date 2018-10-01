@@ -138,6 +138,11 @@ on the guest with the configured hostname.
 
 <hr>
 
+`config.vm.ignore_box_vagrantfile` - If true, Vagrant will not load the the
+settings found inside a boxes Vagrantfile, if present. Defaults to `false`.
+
+<hr>
+
 `config.vm.network` - Configures [networks](/docs/networking/) on
 the machine. Please see the networking page for more information.
 
