@@ -31,7 +31,7 @@ module VagrantPlugins
 
             restart_command = "service network restart"
 
-            if systemd?
+            if systemd?(comm)
               if systemd_networkd?(comm)
                 restart_command = "systemctl restart systemd-networkd.service"
               elsif systemd_controlled?(comm, "NetworkManager.service")
