@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Ensure file paths are identical when checking for cwd [GH-10220]
+- core: Add config option `ignore_box_vagrantfile` for ignoring vagrantfile inside box [GH-10242]
 - core/triggers: Add abort option to core triggers [GH-10232]
 - contrib/bash: Add completion for snapshot names for vagrant snapshot restore|delete [GH-9054]
 - provider/docker: Build docker from git repo [GH-10221]
