@@ -5,7 +5,7 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
 
   let(:vbox_version) { "5.0.0" }
 
-  subject { VagrantPlugins::ProviderVirtualBox::Driver::Meta.new(uuid) }
+  subject { VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0.new(uuid) }
 
   it_behaves_like "a version 4.x virtualbox driver"
 
