@@ -125,9 +125,9 @@ Defaults to 60 seconds.
 
 `config.vm.guest` - The guest OS that will be running within this
 machine. This defaults to `:linux`, and Vagrant will auto-detect the
-proper distro. Vagrant needs to know this information to perform some
-guest OS-specific things such as mounting folders and configuring
-networks.
+proper distro. However, this should be changed to `:windows` for Windows guests. 
+Vagrant needs to know this information to perform some guest OS-specific things 
+such as mounting folders and configuring networks.
 
 <hr>
 
