@@ -1781,6 +1781,9 @@ en:
           only be a single integer or an array of integers.
         only_on_bad_type: |-
           Invalid type found for `only_on`. All values must be a `String` or `Regexp`.
+        ruby_bad_type: |-
+          Invalid type for `ruby` option on trigger for command '%{cmd}'. Only `proc`
+          types are allowed.
         privileged_ignored: |-
           The `privileged` setting for option `run` for trigger command '%{command}' will be ignored and set to false.
         powershell_args_ignored: |-

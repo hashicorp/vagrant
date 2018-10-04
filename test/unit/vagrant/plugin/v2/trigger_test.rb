@@ -375,7 +375,6 @@ describe Vagrant::Plugin::V2::Trigger do
   end
 
   context "#trigger_abort" do
-
     it "system exits when called" do
       output = ""
       allow(machine.ui).to receive(:warn) do |data|
@@ -383,6 +382,22 @@ describe Vagrant::Plugin::V2::Trigger do
       end
 
       expect { subject.send(:trigger_abort, 3) }.to raise_error(SystemExit)
+    end
+  end
+
+  context "#ruby" do
+    let(:trigger_run) { VagrantPlugins::Kernel_V2::TriggerConfig.new }
+    let(:block) { proc{var = 1+1} }
+    let(:ruby_trigger) { {info: "hi", ruby: block} }
+
+    before do
+      trigger_run.after(:up, ruby_trigger)
+      trigger_run.finalize!
+    end
+
+    it "executes a ruby block" do
+      expect(block).to receive(:call)
+      subject.send(:execute_ruby, block)
     end
   end
 end

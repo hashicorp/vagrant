@@ -93,3 +93,41 @@ end
 
 Running `vagrant up` would fire the before trigger to start tinyproxy, where as
 running either `vagrant destroy` or `vagrant halt` would stop tinyproxy.
+
+### Ruby Option
+
+Triggers can also be defined to run Ruby, rather than bash or powershell. An
+example of this might be using a Ruby option to get more information from the `VBoxManage`
+tool. In this case, we are printing the `ostype` defined for thte  guest after
+it has been brought up.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu"
+
+    ubuntu.trigger.after :up do |trigger|
+      trigger.info = "More information with ruby magic"
+      trigger.ruby do |env,machine|
+        puts `VBoxManage showvminfo #{machine.id} --machinereadable | grep ostype`
+      end
+    end
+  end
+end
+```
+
+If you are defining your triggers using the hash syntax, you must use the `Proc`
+type for defining a ruby trigger.
+
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu"
+
+    ubuntu.trigger.after :up,
+      info: "More information with ruby magic",
+      ruby: proc{|env,machine| puts `VBoxManage showvminfo #{machine.id} --machinereadable | grep ostype`}
+  end
+end
+```
