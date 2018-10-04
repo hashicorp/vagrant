@@ -26,9 +26,12 @@ describe VagrantPlugins::CommandWinRMConfig::Command do
   let(:config) {
     double("config",
       winrm: double("winrm-config", username: "vagrant", password: "vagrant"),
-      rdp: double("rdp-config", port: 9876)
+      rdp: rdp_config,
+      vm: double("vm-config", communicator: :winrm)
     )
   }
+
+  let(:rdp_config) { double("rdp-config", port: 9876) }
 
   subject { described_class.new(argv, iso_env) }
 
@@ -53,7 +56,10 @@ Host #{machine.name}
   User vagrant
   Password vagrant
   Port 1234
+  RDPHostName testhost.vagrant.dev
   RDPPort 9876
+  RDPUser vagrant
+  RDPPassword vagrant
       WINRMCONFIG
     end
 
@@ -74,8 +80,63 @@ Host my-host
   User vagrant
   Password vagrant
   Port 1234
+  RDPHostName testhost.vagrant.dev
   RDPPort 9876
+  RDPUser vagrant
+  RDPPassword vagrant
       WINRMCONFIG
+      end
+    end
+
+    context "when no RDP port is configured" do
+      let(:rdp_config) {  double("rdp-config", port: nil) }
+
+      it "should not include any RDP configuration information" do
+        output = ""
+        allow(subject).to receive(:safe_puts) do |data|
+          output += data if data
+        end
+
+        subject.execute
+        expect(output).not_to include("RDP")
+      end
+    end
+
+    context "when provider has rdp_info capability" do
+      let(:rdp_info) {
+        {host: "provider-host", port: 9999, username: "pvagrant", password: "pvagrant"}
+      }
+
+      before do
+        allow(machine.provider).to receive(:capability?).with(:rdp_info).and_return(true)
+        allow(machine.provider).to receive(:capability).with(:rdp_info).and_return(rdp_info)
+      end
+
+      it "should use provider RDP information" do
+        output = ""
+        allow(subject).to receive(:safe_puts) do |data|
+          output += data if data
+        end
+
+        subject.execute
+        expect(output).to include("RDPPort 9999")
+        expect(output).to include("RDPHostName provider-host")
+        expect(output).to include("RDPUser pvagrant")
+        expect(output).to include("RDPPassword pvagrant")
+      end
+
+      context "when provider rdp_info does not include host" do
+        before { rdp_info[:host] = nil }
+
+        it "should use winrm host" do
+          output = ""
+          allow(subject).to receive(:safe_puts) do |data|
+            output += data if data
+          end
+
+          subject.execute
+          expect(output).to include("RDPHostName testhost.vagrant.dev")
+        end
       end
     end
   end
