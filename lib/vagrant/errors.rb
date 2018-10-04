@@ -816,6 +816,22 @@ module Vagrant
       error_key(:unimplemented_provider_action)
     end
 
+    class UploadInvalidCompressionType < VagrantError
+      error_key(:upload_invalid_compression_type)
+    end
+
+    class UploadMissingExtractCapability < VagrantError
+      error_key(:upload_missing_extract_capability)
+    end
+
+    class UploadMissingTempCapability < VagrantError
+      error_key(:upload_missing_temp_capability)
+    end
+
+    class UploadSourceMissing < VagrantError
+      error_key(:upload_source_missing)
+    end
+
     class VagrantInterrupt < VagrantError
       error_key(:interrupted)
     end
@@ -966,6 +982,10 @@ module Vagrant
 
     class VMPowerOffToPackage < VagrantError
       error_key(:power_off, "vagrant.actions.vm.export")
+    end
+
+    class WinRMInvalidCommunicator < VagrantError
+      error_key(:winrm_invalid_communicator)
     end
 
     class WSLVagrantVersionMismatch < VagrantError
