@@ -5,7 +5,7 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
 
   let(:vbox_version) { "5.0.0" }
 
-  subject { VagrantPlugins::ProviderVirtualBox::Driver::Meta.new(uuid) }
+  subject { VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0.new(uuid) }
 
   it_behaves_like "a version 4.x virtualbox driver"
 
@@ -38,6 +38,26 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
         and_return(subprocess_result(exit_code: 0))
       subject.share_folders(folders_disabled)
 
+    end
+  end
+
+  describe "#set_mac_address" do
+    let(:mac) { "00:00:00:00:00:00" }
+
+    after { subject.set_mac_address(mac) }
+
+    it "should modify vm and set mac address" do
+      expect(subprocess).to receive(:execute).with("VBoxManage", "modifyvm", anything, "--macaddress1", mac, anything).
+        and_return(subprocess_result(exit_code: 0))
+    end
+
+    context "when mac address is falsey" do
+      let(:mac) { nil }
+
+      it "should modify vm and set mac address to automatic value" do
+        expect(subprocess).to receive(:execute).with("VBoxManage", "modifyvm", anything, "--macaddress1", "auto", anything).
+          and_return(subprocess_result(exit_code: 0))
+      end
     end
   end
 end
