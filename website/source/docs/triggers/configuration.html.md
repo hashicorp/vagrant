@@ -34,7 +34,7 @@ The trigger class takes various options.
 
 * `only_on` (string, regex, array) - Limit the trigger to these guests. Values can be a string or regex that matches a guest name.
 
-* `ruby` (block) - A block of Ruby code to be executed. Can only be a `Proc` type. Two optional arguments may be passed into the given block: `env` and `machine`. These options correspond to the environment used, and the machine that the  trigger is firing on. If no options are provided to the block, then they will not be available to be used with your Ruby code.
+* `ruby` (block) - A block of Ruby code to be executed on the host. The block accepts two arguments that can be used with your Ruby code: `env` and `machine`. These options correspond to the Vagrant environment used (note: these are not your shell's environment variables), and the Vagrant guest machine that the trigger is firing on. This option can only be a `Proc` type, which must be explicitly called out when using the hash syntax for a trigger.
 
     ```ruby
     ubuntu.trigger.after :up do |trigger|
