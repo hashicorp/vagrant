@@ -55,6 +55,7 @@ Host #{machine.name}
   PasswordAuthentication no
   IdentityFile /home/vagrant/.private/keys.key
   IdentitiesOnly yes
+  PreferredAuthentications gssapi-keyex,gssapi-with-mic,publickey,keyboard-interactive
   LogLevel FATAL
       SSHCONFIG
     end
