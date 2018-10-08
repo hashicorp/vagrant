@@ -47,7 +47,6 @@ module VagrantPlugins
           else
             destination = argv[1]
           end
-          destination ||= File.basename(source)
         else
           raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp
         end
@@ -56,6 +55,7 @@ module VagrantPlugins
         # because the final separater acts to escape the quote and ends up
         # in the source value.
         source = source.sub(/["']$/, "")
+        destination ||= File.basename(source)
 
         if File.file?(source)
           type = :file
