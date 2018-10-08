@@ -79,24 +79,49 @@ module Vagrant
           return @_windows_admin
         end
 
-        # Checks if the user running Vagrant on Windows is a member of the
-        # "Hyper-V Administrators" group.
+        # Checks if Hyper-V is accessible to the local user. It will check
+        # if user is in the "Hyper-V Administrators" group, is a Domain
+        # administrator, and finally will run a manual interaction with
+        # Hyper-V to determine if Hyper-V is usable for the current user.
         #
         # From: https://support.microsoft.com/en-us/kb/243330
         # SID: S-1-5-32-578
         # Name: BUILTIN\Hyper-V Administrators
+        # SID: S-1-5-21DOMAIN-512
+        # Name: Domain Admins
         #
         # @return [Boolean]
         def windows_hyperv_admin?
           return @_windows_hyperv_admin if defined?(@_windows_hyperv_admin)
 
-          @_windows_hyperv_admin = -> {
-            ps_cmd = "[System.Security.Principal.WindowsIdentity]::GetCurrent().Groups | ForEach-Object { if ($_.Value -eq 'S-1-5-32-578'){ Write-Host 'true'; break }}"
-            output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
-            return output == 'true'
-          }.call
+          if ENV["VAGRANT_IS_HYPERV_ADMIN"]
+            return @_windows_hyperv_admin = true
+          end
 
-          return @_windows_hyperv_admin
+          ps_cmd = "Write-Output ([System.Security.Principal.WindowsIdentity]::GetCurrent().Groups | " \
+            "Select-Object Value | ConvertTo-JSON)"
+          output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+          if output
+            groups = begin
+                       JSON.load(output)
+                     rescue JSON::ParserError
+                       []
+                     end
+            admin_group = groups.detect do |g|
+              g["Value"].to_s == "S-1-5-32-578" ||
+                (g["Value"].start_with?("S-1-5-21") && g["Value"].to_s.end_with?("-512"))
+            end
+
+            if admin_group
+              return @_windows_hyperv_admin = true
+            end
+          end
+
+          ps_cmd = "$x = (Get-VMHost).Name; if($x -eq [System.Net.Dns]::GetHostName()){ Write-Output 'true'}"
+          output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+          result = output == "true"
+
+          return @_windows_hyperv_admin = result
         end
 
         # Checks if Hyper-V is enabled on the host system and returns true
