@@ -135,6 +135,10 @@ module Vagrant
             if trigger.run_remote
               run_remote(trigger.run_remote, trigger.on_error, trigger.exit_codes)
             end
+
+            if trigger.ruby_block
+              execute_ruby(trigger.ruby_block)
+            end
           end
         end
 
@@ -252,6 +256,13 @@ module Vagrant
         def trigger_abort(exit_code)
           @machine.ui.warn(I18n.t("vagrant.trigger.abort"))
           exit(exit_code)
+        end
+
+        # Calls the given ruby block for execution
+        #
+        # @param [Proc] ruby_block
+        def execute_ruby(ruby_block)
+          ruby_block.call(@env, @machine)
         end
       end
     end

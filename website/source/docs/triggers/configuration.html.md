@@ -34,6 +34,18 @@ The trigger class takes various options.
 
 * `only_on` (string, regex, array) - Limit the trigger to these guests. Values can be a string or regex that matches a guest name.
 
+* `ruby` (block) - A block of Ruby code to be executed. Can only be a `Proc` type. Two optional arguments may be passed into the given block: `env` and `machine`. These options correspond to the environment used, and the machine that the  trigger is firing on. If no options are provided to the block, then they will not be available to be used with your Ruby code.
+
+    ```ruby
+    ubuntu.trigger.after :up do |trigger|
+      trigger.info = "More information"
+      trigger.ruby do |env,machine|
+        greetings = "hello there #{machine.id}!"
+        puts greetings
+      end
+    end
+    ```
+
 * `run_remote` (hash) - A collection of settings to run a inline or remote script with on the guest. These settings correspond to the [shell provisioner](/docs/provisioning/shell.html).
 
 * `run` (hash) - A collection of settings to run a inline or remote script on the host. These settings correspond to the [shell provisioner](/docs/provisioning/shell.html). However, at the moment the only settings `run` takes advantage of are:

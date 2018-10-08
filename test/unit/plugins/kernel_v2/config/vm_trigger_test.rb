@@ -37,6 +37,10 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
     subject.warn = "Warning!!"
     subject.ignore = :up
     subject.only_on = "guest"
+    subject.ruby do |env,machine|
+      var = 'test'
+      math = 1+1
+    end
     subject.run = {inline: "apt-get update"}
     subject.run_remote = {inline: "apt-get update", env: {"VAR"=>"VAL"}}
   end
@@ -67,6 +71,9 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       cfg.only_on = :guest
       cfg.ignore = "up"
       cfg.abort = true
+      cfg.ruby do
+        var = 1+1
+      end
       arr_cfg.only_on = ["guest", /other/]
       arr_cfg.ignore = ["up", "destroy"]
     end
@@ -95,6 +102,11 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       end
     end
 
+    it "ensures ruby is a proc" do
+      cfg.finalize!
+      expect(cfg.ruby_block).to be_a(Proc)
+    end
+
     it "converts aborts true to exit code 0" do
       cfg.finalize!
 
@@ -113,6 +125,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       cfg.ignore = :up
       cfg.abort = 3
       cfg.only_on = "guest"
+      cfg.ruby = proc{ var = 1+1 }
       cfg.run = {inline: "apt-get update"}
       cfg.run_remote = {inline: "apt-get update", env: {"VAR"=>"VAL"}}
     end
@@ -127,7 +140,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       expect(cfg.run).to be_a(VagrantPlugins::Shell::Config)
       expect(cfg.run_remote).to be_a(VagrantPlugins::Shell::Config)
       expect(cfg.abort).to eq(3)
+      expect(cfg.ruby_block).to be_a(Proc)
     end
   end
-
 end

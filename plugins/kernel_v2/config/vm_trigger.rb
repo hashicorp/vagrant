@@ -78,6 +78,17 @@ module VagrantPlugins
       # @return [Integer]
       attr_accessor :abort
 
+      # Internal reader for the internal variable ruby_block
+      #
+      # @return [Proc]
+      attr_reader :ruby_block
+
+      # Variable used to store ruby proc when defining a ruby trigger
+      # with the "hash" syntax
+      #
+      # @return [Proc]
+      attr_accessor :ruby
+
       def initialize(command)
         @logger = Log4r::Logger.new("vagrant::config::vm::trigger::config")
 
@@ -91,12 +102,24 @@ module VagrantPlugins
         @run_remote = UNSET_VALUE
         @exit_codes = UNSET_VALUE
         @abort = UNSET_VALUE
+        @ruby = UNSET_VALUE
 
         # Internal options
         @id = SecureRandom.uuid
         @command = command.to_sym
+        @ruby_block = UNSET_VALUE
 
         @logger.debug("Trigger defined for command: #{command}")
+      end
+
+      # Config option `ruby` for a trigger which reads in a ruby block and sets
+      # it to be evaluated when the configured trigger fires. This method is only
+      # invoked when the regular "block" syntax is used. Otherwise the proc is
+      # set through the attr_accessor if the hash syntax is used.
+      #
+      # @param [Proc] block
+      def ruby(&block)
+        @ruby_block = block
       end
 
       def finalize!
@@ -113,7 +136,11 @@ module VagrantPlugins
         @exit_codes = DEFAULT_EXIT_CODE if @exit_codes == UNSET_VALUE
         @abort = nil if @abort == UNSET_VALUE
 
-        # these values are expected to always be an Array internally,
+        @ruby_block = nil if @ruby_block == UNSET_VALUE
+        @ruby = nil if @ruby == UNSET_VALUE
+        @ruby_block = @ruby if @ruby
+
+        # These values are expected to always be an Array internally,
         # but can be set as a single String or Symbol
         #
         # Guests are stored internally as strings
@@ -223,6 +250,10 @@ module VagrantPlugins
           errors << I18n.t("vagrant.config.triggers.abort_bad_type", cmd: @command)
         elsif @abort == false
           machine.ui.warn(I18n.t("vagrant.config.triggers.abort_false_type"))
+        end
+
+        if @ruby_block && !ruby_block.is_a?(Proc)
+          errors << I18n.t("vagrant.config.triggers.ruby_bad_type", cmd: @command)
         end
 
         errors
