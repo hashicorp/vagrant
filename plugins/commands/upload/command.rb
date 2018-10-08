@@ -42,7 +42,7 @@ module VagrantPlugins
           source, destination, guest = argv
         when 2, 1
           source = argv[0]
-          if @env.active_machines.map(&:first).include?(argv[1])
+          if @env.active_machines.map(&:first).map(&:to_s).include?(argv[1])
             guest = argv[1]
           else
             destination = argv[1]
