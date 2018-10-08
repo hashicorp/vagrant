@@ -52,6 +52,11 @@ module VagrantPlugins
           raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp
         end
 
+        # NOTE: We do this to handle paths on Windows like: "..\space dir\"
+        # because the final separater acts to escape the quote and ends up
+        # in the source value.
+        source = source.sub(/["']$/, "")
+
         if File.file?(source)
           type = :file
         elsif File.directory?(source)

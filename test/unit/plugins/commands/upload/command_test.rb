@@ -101,6 +101,24 @@ describe VagrantPlugins::CommandUpload::Command do
       expect { subject.execute }.to raise_error(Vagrant::Errors::UploadSourceMissing)
     end
 
+    context "when source path ends with double quote" do
+      let(:argv) { [".\\item\""] }
+
+      it "should remove trailing quote" do
+        expect(File).to receive(:file?).with(".\\item").and_return(true)
+        subject.execute
+      end
+    end
+
+    context "when source path ends with single quote" do
+      let(:argv) { ['.\item\''] }
+
+      it "should remove trailing quote" do
+        expect(File).to receive(:file?).with(".\\item").and_return(true)
+        subject.execute
+      end
+    end
+
     context "when source is a directory" do
       before do
         allow(File).to receive(:file?).with("item").and_return(false)
