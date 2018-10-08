@@ -41,8 +41,7 @@ module VagrantPlugins
 
         with_target_vms(argv, single_target: true) do |machine|
           if machine.config.vm.communicator != :winrm
-            raise Vagrant::Errors::WinRMInvalidCommunicator,
-              communicator: machine.config.vm.communicator
+            raise Vagrant::Errors::WinRMInvalidCommunicator
           end
 
           opts = {

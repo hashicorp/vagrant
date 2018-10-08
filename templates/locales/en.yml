@@ -1707,8 +1707,7 @@ en:
         to start the virtual machine.
       winrm_invalid_communicator: |-
         The winrm command requires a WinRM communicator to be used when connecting
-        to the guest. The guest is currently using a %{communicator} communicator.
-        Please update your configuration and try the command again.
+        to the guest. Please update your configuration and try the command again.
       wsl_vagrant_version_mismatch: |-
         Vagrant cannot currently enable access to manage machines within the Windows
         environment because the version of Vagrant installed on Windows does not
