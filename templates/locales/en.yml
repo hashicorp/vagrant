@@ -1462,6 +1462,8 @@ en:
         your current setup. Please verify you have all the proper
         prerequisites for using this shared folder type and try again.
 
+      test_key: |-
+        test value
       triggers_run_fail: |-
         Trigger run failed
       triggers_guest_not_running: |-
@@ -1489,6 +1491,24 @@ en:
         '%{provider}', but this provider doesn't support this action. This
         is probably a bug in either the provider or the plugin calling this
         action, and should be reported.
+      upload_invalid_compression_type: |-
+        The compression type requested for upload (`%{type}`) is not a
+        supported value. Try uploading again using a valid compression
+        type.
+
+          Supported types: %{valid_types}
+      upload_missing_extract_capability: |-
+        The guest does not provide extraction capability for the requested
+        compression type (`%{type}`). Try a different compression type or
+        upload without compression.
+      upload_missing_temp_capability: |-
+        The guest does not provide temporary path capabilities. Please
+        try the upload again without requesting a temporary path.
+      upload_source_missing: |-
+        The source path provided for upload cannot be found. Please validate
+        the source location for upload an try again.
+
+          Source Path: %{source}
       vagrantfile_exists: |-
         `Vagrantfile` already exists in this directory. Remove it before
         running `vagrant init`.
@@ -1685,7 +1705,9 @@ en:
       vm_not_running: |-
         VM must be running to open SSH connection. Run `vagrant up`
         to start the virtual machine.
-      test_key: "test value"
+      winrm_invalid_communicator: |-
+        The winrm command requires a WinRM communicator to be used when connecting
+        to the guest. Please update your configuration and try the command again.
       wsl_vagrant_version_mismatch: |-
         Vagrant cannot currently enable access to manage machines within the Windows
         environment because the version of Vagrant installed on Windows does not
@@ -2025,6 +2047,18 @@ en:
       up:
         upping: |-
           Bringing machine '%{name}' up with '%{provider}' provider...
+      upload:
+        compress: |-
+          Compressing %{source} to %{type} for upload...
+        complete: |-
+          Upload has completed successfully!
+
+            Source: %{source}
+            Destination: %{destination}
+        decompress: |-
+          Decompressing %{type} upload to %{destination}...
+        start: |-
+          Uploading %{source} to %{destination}
       validate:
         success: |-
           Vagrantfile validated successfully.

@@ -16,6 +16,21 @@ module VagrantPlugins
         Cap::ChooseAddressableIPAddr
       end
 
+      guest_capability(:linux, :create_tmp_path) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
+      guest_capability(:linux, :decompress_tgz) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
+      guest_capability(:linux, :decompress_zip) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
       guest_capability(:linux, :halt) do
         require_relative "cap/halt"
         Cap::Halt

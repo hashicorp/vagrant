@@ -16,6 +16,21 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability(:solaris, :create_tmp_path) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
+      guest_capability(:solaris, :decompress_tgz) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
+      guest_capability(:solaris, :decompress_zip) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
       guest_capability(:solaris, :change_host_name) do
         require_relative "cap/change_host_name"
         Cap::ChangeHostName

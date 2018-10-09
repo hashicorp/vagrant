@@ -11,6 +11,21 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability(:bsd, :create_tmp_path) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
+      guest_capability(:bsd, :decompress_tgz) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
+      guest_capability(:bsd, :decompress_zip) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
       guest_capability(:bsd, :halt) do
         require_relative "cap/halt"
         Cap::Halt
