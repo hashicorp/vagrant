@@ -1,0 +1,10 @@
+[Unit]
+Description=Clustered etcd2
+#After=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/etcd2 -c 2379 -s 2380 -h <%= options[:my_ip] %> <% if options[:connection_string] %>-C <%= options[:connection_string] %><% end %> -d /home/core/etcd2
+
+[Install]
+WantedBy=local.target

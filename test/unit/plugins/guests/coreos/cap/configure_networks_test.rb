@@ -49,11 +49,11 @@ describe "VagrantPlugins::GuestCoreOS::Cap::ConfigureNetworks" do
 
     it "creates and starts the networks" do
       described_class.configure_networks(machine, [network_1, network_2])
-      expect(comm.received_commands[1]).to match(/systemctl stop etcd/)
+      expect(comm.received_commands[1]).to match(/systemctl stop etcd2/)
       expect(comm.received_commands[1]).to match(/ifconfig eth1 netmask/)
       expect(comm.received_commands[1]).to match(/ifconfig eth2 33.33.33.10 netmask 255.255.0.0/)
       expect(comm.received_commands[1]).to match(/systemctl restart local-enable.service/)
-      expect(comm.received_commands[1]).to match(/systemctl start etcd/)
+      expect(comm.received_commands[1]).to match(/systemctl start etcd2/)
     end
   end
 end
