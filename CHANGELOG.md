@@ -2,6 +2,10 @@
 
 FEATURES:
 
+- command/upload: Add command for uploading files to guest [GH-10263]
+- command/winrm: Add command for executing guest commands via WinRM [GH-10263]
+- command/winrm-config: Add command for providing WinRM configuration [GH-10263]
+
 IMPROVEMENTS:
 
 - core: Ensure file paths are identical when checking for cwd [GH-10220]
