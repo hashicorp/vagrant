@@ -91,7 +91,14 @@ if($EnableCheckpoints) {
 }
 
 try {
-    Hyper-V\Set-VM -VM $VM -CheckpointType $checkpoints
+    if((Get-Command Hyper-V\Set-VM).Parameters["CheckpointType"] -eq $null) {
+        if($CheckpointAction -eq "enable") {
+            Write-ErrorMessage "CheckpointType is not available. Cannot enable checkpoints."
+            exit 1
+        }
+    } else {
+        Hyper-V\Set-VM -VM $VM -CheckpointType $checkpoints
+    }
 } catch {
     Write-ErrorMessage "Failed to ${CheckpointAction} checkpoints on VM: ${PSItem}"
     exit 1
