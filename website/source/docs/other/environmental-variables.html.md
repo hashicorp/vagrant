@@ -277,3 +277,10 @@ Vagrant will not display warning when `vagrant-winrm` plugin is installed.
 ## `VAGRANT_USER_AGENT_PROVISIONAL_STRING`
 
 Vagrant will append the contents of this variable to the default user agent header.
+
+## `VAGRANT_IS_HYPERV_ADMIN`
+
+Disable Vagrant's check for Hyper-V admin privileges and allow Vagrant to assume
+the current user has full access to Hyper-V. This is useful if the internal
+privilege check incorrectly determines the current user does not have access
+to Hyper-V.
