@@ -1513,4 +1513,21 @@ VF
       end
     end
   end
+
+  describe "#setup_local_data_path" do
+    before do
+      allow(FileUtils).to receive(:mkdir_p).and_call_original
+      allow(FileUtils).to receive(:cp).and_call_original
+    end
+
+    it "should create an rgloader path" do
+      expect(FileUtils).to receive(:mkdir_p).with(/(?!home)rgloader/)
+      instance
+    end
+
+    it "should write the rgloader file" do
+      expect(FileUtils).to receive(:cp).with(anything, /(?!home)rgloader.*rb$/)
+      instance
+    end
+  end
 end

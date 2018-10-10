@@ -910,7 +910,7 @@ module Vagrant
         loader_file = @local_data_path.join("rgloader", "loader.rb")
         if !loader_file.file?
           source_loader = Vagrant.source_root.join("templates/rgloader.rb")
-          FileUtils.mkdir_p(@local_data_path.join("rgloader"))
+          FileUtils.mkdir_p(@local_data_path.join("rgloader").to_s)
           FileUtils.cp(source_loader.to_s, loader_file.to_s)
         end
       rescue Errno::EACCES
