@@ -21,6 +21,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core/environment: Provide rgloader for local plugin installations [GH-10279]
 - contrib/sudoers/osx: Fix missing comma and add remove export alias [GH-10235]
 - guest/redhat: Update restart logic in redhat change_host_name cap [GH-10223]
 - guest/windows: Allow special characters in SMB password field [GH-10219]
