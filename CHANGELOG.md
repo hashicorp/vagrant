@@ -29,6 +29,7 @@ BUG FIXES:
 - providers/hyperv: Only use CheckpointType when available [GH-10265]
 - provisioners/puppet: Properly set env variables for puppet provisioner on windows [GH-10218]
 - provisioners/salt: Properly set salt pillar variables for windows guests [GH-10215]
+- synced_folders/rsync: Ensure unique tmp dirs for ControlPath with rsync [GH-10291]
 
 ## 2.1.5 (September 12, 2018)
 
