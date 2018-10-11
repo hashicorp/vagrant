@@ -1,5 +1,6 @@
 require "ipaddr"
 require "shellwords"
+require "tmpdir"
 
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"
@@ -81,7 +82,7 @@ module VagrantPlugins
         # too long for unix domain sockets.
         control_options = ""
         unless Vagrant::Util::Platform.windows?
-          controlpath = File.join(Dir.tmpdir, "ssh.#{rand(1000)}")
+          controlpath = Dir.mktmpdir("vagrant-rsync-")
           control_options = "-o ControlMaster=auto -o ControlPath=#{controlpath} -o ControlPersist=10m "
         end
 
