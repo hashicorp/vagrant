@@ -212,6 +212,20 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
+
+    context "control sockets" do
+      it "creates a tmp dir" do
+        allow(Vagrant::Util::Platform).to receive(:windows?).and_return(false)
+        allow(Dir).to receive(:mktmpdir).with("vagrant-rsync-").
+          and_return("/tmp/vagrant-rsync-12345")
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+          expect(args[9]).to include("ControlPath=/tmp/vagrant-rsync-12345")
+        }.and_return(result)
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+    end
   end
 
   describe "#rsync_single with custom ssh_info" do
