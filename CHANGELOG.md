@@ -27,6 +27,7 @@ BUG FIXES:
 - guest/windows: Allow special characters in SMB password field [GH-10219]
 - providers/hyperv: Only use AutomaticCheckpointsEnabled when available [GH-10264]
 - providers/hyperv: Only use CheckpointType when available [GH-10265]
+- provisioners/ansible: Fix remote directory creation [GH-10259, GH-10258]
 - provisioners/puppet: Properly set env variables for puppet provisioner on windows [GH-10218]
 - provisioners/salt: Properly set salt pillar variables for windows guests [GH-10215]
 - synced_folders/rsync: Ensure unique tmp dirs for ControlPath with rsync [GH-10291]
