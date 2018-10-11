@@ -1,5 +1,6 @@
 require "ipaddr"
 require "shellwords"
+require "tmpdir"
 
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"
