@@ -830,6 +830,7 @@ module Vagrant
 
     class UploadSourceMissing < VagrantError
       error_key(:upload_source_missing)
+    end
 
     class UploaderError < VagrantError
       error_key(:uploader_error)
