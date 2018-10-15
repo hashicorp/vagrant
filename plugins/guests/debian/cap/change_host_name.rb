@@ -38,7 +38,21 @@ module VagrantPlugins
               fi
               if test -x /sbin/dhclient ; then
                 /sbin/dhclient -r
-                /sbin/dhclient -nw
+                /sbin/dhclient -v -nw 2>&1 > /dev/null | grep -q "No broadcast interfaces found"
+                if [ $? -eq 0 ]; then
+                  # Below is a work around for older versions of dhclient that
+                  # will not properly identify interfaces on which to
+                  # broadcast DHCP requests.
+                  BROADCAST_ADDRESSES=""
+                  for intf in $(ls /sys/class/net); do
+                    # Check to see if bit 0x2, the broadcast flag, is set.
+                    if grep -q "^0x[0-9a-f]*[2367aAbBeEfF]$" /sys/class/net/${intf}/flags; then
+                      BROADCAST_ADDRESSES="${intf} ${BROADCAST_ADDRESSES}"
+                    fi
+                  done
+                  /sbin/dhclient -x
+                  eval "/sbin/dhclient -nw ${BROADCAST_ADDRESSES}"
+                fi
               fi
             EOH
           end
