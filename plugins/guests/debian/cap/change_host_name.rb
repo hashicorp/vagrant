@@ -2,6 +2,9 @@ module VagrantPlugins
   module GuestDebian
     module Cap
       class ChangeHostName
+
+        extend Vagrant::Util::GuestInspection::Linux
+
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
@@ -10,11 +13,6 @@ module VagrantPlugins
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
               echo '#{basename}' > /etc/hostname
-              hostname -F /etc/hostname
-
-              if command -v hostnamectl; then
-                hostnamectl set-hostname '#{basename}'
-              fi
 
               # Prepend ourselves to /etc/hosts
               grep -w '#{name}' /etc/hosts || {
@@ -28,6 +26,13 @@ module VagrantPlugins
               # Update mailname
               echo '#{name}' > /etc/mailname
 
+            EOH
+
+            if hostnamectl?(comm)
+              comm.sudo("hostnamectl set-hostname '#{basename}'")
+            else
+              comm.sudo <<-EOH.gsub(/^ {14}/, '')
+              hostname -F /etc/hostname
               # Restart hostname services
               if test -f /etc/init.d/hostname; then
                 /etc/init.d/hostname start || true
@@ -36,11 +41,19 @@ module VagrantPlugins
               if test -f /etc/init.d/hostname.sh; then
                 /etc/init.d/hostname.sh start || true
               fi
-              if test -x /sbin/dhclient ; then
-                /sbin/dhclient -r
-                /sbin/dhclient -nw
-              fi
-            EOH
+              EOH
+            end
+
+            restart_command = "/etc/init.d/networking restart"
+
+            if systemd?(comm)
+              if systemd_networkd?(comm)
+                restart_command = "systemctl restart systemd-networkd.service"
+              elsif systemd_controlled?(comm, "NetworkManager.service")
+                restart_command = "systemctl restart NetworkManager.service"
+              end
+            end
+            comm.sudo(restart_command)
           end
         end
       end
