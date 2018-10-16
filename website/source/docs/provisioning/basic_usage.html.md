@@ -90,7 +90,7 @@ run the shell one, you can do `vagrant provision --provision-with shell`.
 The arguments to `--provision-with` can be the provisioner type (such as
 "shell") or the provisioner name (such as "bootstrap" from above).
 
-## Run Once or Always
+## Run Once, Always or Never
 
 By default, provisioners are only run once, during the first `vagrant up`
 since the last `vagrant destroy`, unless the `--provision` flag is set,
@@ -118,7 +118,7 @@ of the block, as shown below:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.provision "shell", run: "always" do |s|
+  config.vm.provision "bootstrap", type: "shell", run: "never" do |s|
     s.inline = "echo hello"
   end
 end
