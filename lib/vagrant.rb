@@ -49,7 +49,16 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   # Set the logging level on all "vagrant" namespaced
   # logs as long as we have a valid level.
   if level
-    logger = Log4r::Logger.new("vagrant")
+    # NOTE: We must do this little hack to allow
+    # rest-client to write using the `<<` operator.
+    # See https://github.com/rest-client/rest-client/issues/34#issuecomment-290858
+    # for more information
+    class VagrantLogger < Log4r::Logger
+      def << (msg)
+        debug(msg.strip)
+      end
+    end
+    logger = VagrantLogger.new("vagrant")
     logger.outputters = Log4r::Outputter.stderr
     logger.level = level
     base_formatter = Log4r::BasicFormatter.new
@@ -59,6 +68,11 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
         date_pattern: "%F %T"
       )
     end
+    # Vagrant Cloud gem uses RestClient to make HTTP requests, so
+    # log them if debug is enabled and use Vagrants logger
+    require 'rest_client'
+    RestClient.log = logger
+
     Log4r::Outputter.stderr.formatter = Vagrant::Util::LoggingFormatter.new(base_formatter)
     logger = nil
   end

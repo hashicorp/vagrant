@@ -1,0 +1,159 @@
+en:
+  cloud_command:
+    publish:
+      update_continue: |-
+        %{obj} already exists, updating instead...
+      box_create:
+        Creating a box entry...
+      version_create:
+        Creating a version entry...
+      provider_create:
+        Creating a provider entry...
+      upload_provider:
+        Uploading provider with file %{file}
+      release:
+        Releasing box...
+      complete:
+        Complete! Published %{org}/%{box_name}
+      confirm:
+        warn: |-
+          You are about to publish a box on Vagrant Cloud with the following options:
+        box: |-
+          %{org}/%{box_name}:   (v%{version}) for provider '%{provider_name}'
+        private: |-
+            Private:               true
+        release: |-
+            Automatic Release:     true
+        box_url: |-
+            Remote Box file:       %{url}
+        box_description: |-
+            Box Description:       %{description}
+        box_short_desc: |-
+            Box Short Description: %{short_description}
+        version_desc: |-
+            Version Description:   %{version_description}
+    continue: |-
+      Do you wish to continue? [y/N] 
+    box:
+      show_filter_empty: |-
+        No version matched %{version} for %{org}/%{box_name}
+      create_success: |-
+        Created box %{org}/%{box_name}
+      delete_success: |-
+        Deleted box %{org}/%{box_name}
+      delete_warn: |-
+        This will completely remove %{box} from Vagrant Cloud. This cannot be undone.
+      update_success: |-
+        Updated box %{org}/%{box_name}
+    search:
+      no_results: |-
+        No results found for `%{query}`
+    upload:
+      no_url: |-
+        No URL was provided to upload the provider
+        You will need to run the `vagrant cloud provider upload` command to provide a box
+    provider:
+      upload: |-
+        Uploading box file for '%{org}/%{box_name}' (v%{version}) for provider: '%{provider}'
+      upload_success: |-
+        Uploaded provider %{provider} on %{org}/%{box_name} for version %{version}
+      delete_warn: |-
+        This will completely remove provider %{provider} on version %{version} from %{box} on Vagrant Cloud. This cannot be undone.
+      create_success: |-
+        Created provider %{provider} on %{org}/%{box_name} for version %{version}
+      delete_success: |-
+        Deleted provider %{provider} on %{org}/%{box_name} for version %{version}
+      update_success: |-
+        Updated provider %{provider} on %{org}/%{box_name} for version %{version}
+    version:
+      create_success: |-
+        Created version %{version} on %{org}/%{box_name} for version %{version}
+      delete_success: |-
+        Deleted version %{version} on %{org}/%{box_name}
+      release_success: |-
+        Released version %{version} on %{org}/%{box_name}
+      revoke_success: |-
+        Revoked version %{version} on %{org}/%{box_name}
+      update_success: |-
+        Updated version %{version} on %{org}/%{box_name}
+      revoke_warn: |-
+        This will revoke version %{version} from %{box} from Vagrant Cloud. This cannot be undone.
+      release_warn: |-
+        This will release version %{version} from %{box} to Vagrant Cloud and be available to download.
+      delete_warn: |-
+        This will completely remove version %{version} from %{box} from Vagrant Cloud. This cannot be undone.
+    errors:
+      search:
+        fail: |-
+          Could not complete search request
+      publish:
+        fail: |-
+          Failed to create box %{org}/%{box_name}
+      box:
+        create_fail: |-
+          Failed to create box %{org}/%{box_name}
+        delete_fail: |-
+          Failed to delete box %{org}/%{box_name}
+        show_fail: |-
+          Could not get information about box %{org}/%{box_name}
+        update_fail: |-
+          Failed to update box %{org}/%{box_name}
+      whoami:
+        read_error: |-
+          Failed to read organization %{org}
+      provider:
+        create_fail: |-
+          Failed to create provider %{provider} on box %{org}/%{box_name} for version %{version}
+        update_fail: |-
+          Failed to update provider %{provider} on box %{org}/%{box_name} for version %{version}
+        delete_fail: |-
+          Failed to delete provider %{provider} on box %{org}/%{box_name} for version %{version}
+        upload_fail: |-
+          Failed to upload provider %{provider} on box %{org}/%{box_name} for version %{version}
+      version:
+        create_fail: |-
+          Failed to create version %{version} on box %{org}/%{box_name}
+        delete_fail: |-
+          Failed to delete version %{version} on box %{org}/%{box_name}
+        release_fail: |-
+          Failed to release version %{version} on box %{org}/%{box_name}
+        revoke_fail: |-
+          Failed to revoke version %{version} on box %{org}/%{box_name}
+        update_fail: |-
+          Failed to update version %{version} on box %{org}/%{box_name}
+      server_error: |-
+        The Vagrant Cloud server responded with a not-OK response:
+
+        %{errors}
+      server_unreachable: |-
+        The Vagrant Cloud server is not currently accepting connections. Please check
+        your network connection and try again later.
+
+      unauthorized: |-
+        Invalid username or password. Please try again.
+      unexpected_error: |-
+        An unexpected error occured: %{error}
+
+    check_logged_in: |-
+      You are already logged in.
+    check_not_logged_in: |-
+      You are not currently logged in. Please run `vagrant login` and provide
+      your login information to authenticate.
+    command_header: |-
+      In a moment we will ask for your username and password to HashiCorp's
+      Vagrant Cloud. After authenticating, we will store an access token locally on
+      disk. Your login details will be transmitted over a secure connection, and
+      are never stored on disk locally.
+
+      If you do not have an Vagrant Cloud account, sign up at
+      https://www.vagrantcloud.com
+    invalid_login: |-
+      Invalid username or password. Please try again.
+    invalid_token: |-
+      Invalid token. Please try again.
+    logged_in: |-
+      You are now logged in.
+    logged_out: |-
+      You are logged out.
+    token_saved: |-
+      The token was successfully saved.

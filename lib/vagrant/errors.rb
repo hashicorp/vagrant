@@ -832,6 +832,14 @@ module Vagrant
       error_key(:upload_source_missing)
     end
 
+    class UploaderError < VagrantError
+      error_key(:uploader_error)
+    end
+
+    class UploaderInterrupted < UploaderError
+      error_key(:uploader_interrupted)
+    end
+
     class VagrantInterrupt < VagrantError
       error_key(:interrupted)
     end

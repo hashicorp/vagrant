@@ -12,9 +12,10 @@ module VagrantPlugins
       DESC
 
       command(:login) do
-        require_relative "command"
+        require File.expand_path("../../cloud/auth/login", __FILE__)
         init!
-        Command
+        $stderr.puts "WARNING: This command has been deprecated in favor of `vagrant cloud auth login`"
+        VagrantPlugins::CloudCommand::AuthCommand::Command::Login
       end
 
       action_hook(:cloud_authenticated_boxes, :authenticate_box_url) do |hook|
@@ -26,7 +27,7 @@ module VagrantPlugins
 
       def self.init!
         return if defined?(@_init)
-        I18n.load_path << File.expand_path("../locales/en.yml", __FILE__)
+        I18n.load_path << File.expand_path("../../cloud/locales/en.yml", __FILE__)
         I18n.reload!
         @_init = true
       end
