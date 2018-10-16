@@ -58,7 +58,8 @@ module VagrantPlugins
               else
                 results = success
               end
-              VagrantPlugins::CloudCommand::Util.format_box_results(results.compact, @env)
+              results = results.delete_if { |_, v| v.nil? }
+              VagrantPlugins::CloudCommand::Util.format_box_results(results, @env)
               return 0
             rescue VagrantCloud::ClientError => e
               @env.ui.error(I18n.t("cloud_command.errors.box.show_fail", org: org,box_name:box_name))

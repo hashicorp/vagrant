@@ -149,7 +149,8 @@ module VagrantPlugins
             end
             @env.ui.success(I18n.t("cloud_command.publish.complete", org: org, box_name: box_name))
             success = box.read(org, box_name)
-            VagrantPlugins::CloudCommand::Util.format_box_results(success.compact, @env)
+            success = success.delete_if{|_, v|v.nil?}
+            VagrantPlugins::CloudCommand::Util.format_box_results(success, @env)
             return 0
           rescue Vagrant::Errors::UploaderError, VagrantCloud::ClientError => e
             @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))

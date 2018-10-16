@@ -52,7 +52,8 @@ module VagrantPlugins
             begin
               success = version.release
               @env.ui.success(I18n.t("cloud_command.version.release_success", version: version, org: org, box_name: box_name))
-              VagrantPlugins::CloudCommand::Util.format_box_results(success.compact, @env)
+              success = success.delete_if{|_, v|v.nil?}
+              VagrantPlugins::CloudCommand::Util.format_box_results(success, @env)
               return 0
             rescue VagrantCloud::ClientError => e
               @env.ui.error(I18n.t("cloud_command.errors.version.release_fail", version: version, org: org, box_name: box_name))

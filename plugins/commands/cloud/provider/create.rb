@@ -57,7 +57,8 @@ module VagrantPlugins
             begin
               success = provider.create_provider
               @env.ui.success(I18n.t("cloud_command.provider.create_success", provider:provider_name, org: org, box_name: box_name, version: version))
-              VagrantPlugins::CloudCommand::Util.format_box_results(success.compact, @env)
+              success = success.delete_if{|_, v|v.nil?}
+              VagrantPlugins::CloudCommand::Util.format_box_results(success, @env)
               return 0
             rescue VagrantCloud::ClientError => e
               @env.ui.error(I18n.t("cloud_command.errors.provider.create_fail", provider:provider_name, org: org, box_name: box_name, version: version))
