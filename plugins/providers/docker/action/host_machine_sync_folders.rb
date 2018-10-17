@@ -109,8 +109,7 @@ module VagrantPlugins
 
               # If we specify exact then we know what we're doing
               if !data[:docker__exact]
-                data[:guestpath] =
-                  "/var/lib/docker/docker_#{Time.now.to_i}_#{rand(100000)}"
+                data[:guestpath] = "/var/lib/docker/docker_#{id}"
               end
 
               # Add this synced folder onto the new config if we haven't
