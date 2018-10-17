@@ -193,5 +193,5 @@ On a machine with salt installed, run
 `salt-key --gen-keys=[minion_id]` to generate the necessary
 .pub and .pem files
 
-For a an example of a more advanced setup, look at the original
+For an example of a more advanced setup, look at the original
 [plugin](https://github.com/saltstack/salty-vagrant/tree/develop/example).
