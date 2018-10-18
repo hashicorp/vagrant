@@ -12,7 +12,7 @@ addons:
 rvm:
   - 2.3.8
   - 2.4.5
-  - 2.5.2
+  - 2.5.3
 
 branches:
   only:
