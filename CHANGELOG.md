@@ -1,3 +1,13 @@
+## Next version (Unreleased)
+
+FEATURES:
+
+IMPROVEMENTS:
+
+BUG FIXES:
+
+- guest/debian: Fix halting issue when setting hostname [GH-10301]
+
 ## 2.2.0 (October 16, 2018)
 
 FEATURES:
