@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- synced_folders/smb: Allow for 'default' smb_username in prompt if set [GH-10319]
+
 BUG FIXES:
 
 - guest/debian: Fix halting issue when setting hostname [GH-10301]
