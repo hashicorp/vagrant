@@ -4,6 +4,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- communicators/ssh: Prevent overly verbose output waiting for connection [GH-10321]
 - synced_folders/smb: Allow for 'default' smb_username in prompt if set [GH-10319]
 
 BUG FIXES:
