@@ -69,6 +69,36 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
   describe ".prepare" do
     let(:host_caps){ [:smb_start, :smb_prepare] }
 
+    context "with username credentials provided" do
+      let(:folders){ {'/first/path' => {smb_username: 'smbuser'}} }
+
+      it "should prompt for credentials" do
+        expect(machine.env.ui).to receive(:ask).with(/name/, any_args).and_return('username').at_least(1)
+        expect(machine.env.ui).to receive(:ask).with(/word/, any_args).and_return('password').at_least(1)
+
+        subject.prepare(machine, folders, options)
+      end
+
+      it "should set credential information into all folder options and override username" do
+        expect(machine.env.ui).to receive(:ask).with(/name/, any_args).and_return('username').at_least(1)
+        expect(machine.env.ui).to receive(:ask).with(/word/, any_args).and_return('password').at_least(1)
+
+        subject.prepare(machine, folders, options)
+        expect(folders['/first/path'][:smb_username]).to eq('username')
+        expect(folders['/first/path'][:smb_password]).to eq('password')
+      end
+
+
+      it "will use configured default with no input" do
+        expect(machine.env.ui).to receive(:ask).with(/name/, any_args).and_return('').at_least(1)
+        expect(machine.env.ui).to receive(:ask).with(/word/, any_args).and_return('password').at_least(1)
+
+        subject.prepare(machine, folders, options)
+        expect(folders['/first/path'][:smb_username]).to eq('smbuser')
+        expect(folders['/first/path'][:smb_password]).to eq('password')
+      end
+    end
+
     context "without credentials provided" do
       before do
         expect(machine.env.ui).to receive(:ask).with(/name/, any_args).and_return('username').at_least(1)

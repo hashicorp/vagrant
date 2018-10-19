@@ -39,19 +39,27 @@ module VagrantPlugins
         # If we need auth information, then ask the user.
         have_auth = false
         folders.each do |id, data|
-          if data[:smb_username] && data[:smb_password]
-            smb_username = data[:smb_username]
-            smb_password = data[:smb_password]
+          smb_username = data[:smb_username] if data[:smb_username]
+          smb_password = data[:smb_password] if data[:smb_password]
+          if smb_username && smb_password
             have_auth = true
             break
           end
         end
 
+        modify_username = false
         if !have_auth
           machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
           retries = 0
           while retries < CREDENTIAL_RETRY_MAX do
-            smb_username = machine.ui.ask("Username: ")
+            if smb_username
+              username = machine.ui.ask("Username (#{smb_username}): ")
+              smb_username = username if username != ""
+              modify_username = true
+            else
+              smb_username = machine.ui.ask("Username: ")
+            end
+
             smb_password = machine.ui.ask("Password (will be hidden): ", echo: false)
             auth_success = true
 
@@ -77,7 +85,12 @@ module VagrantPlugins
         end
 
         folders.each do |id, data|
-          data[:smb_username] ||= smb_username
+          if modify_username
+            # Only override original username if user requests to
+            data[:smb_username] = smb_username
+          else
+            data[:smb_username] ||= smb_username
+          end
           data[:smb_password] ||= smb_password
 
           # Register password as sensitive
