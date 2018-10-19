@@ -116,6 +116,49 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           expect(communicator.wait_for_ready(0.6)).to eq(true)
         end
       end
+
+      context "when printing message to the user" do
+        before do
+          allow(machine).to receive(:ssh_info).
+            and_return(host: '10.1.2.3', port: 22).ordered
+          allow(communicator).to receive(:connect)
+          allow(communicator).to receive(:ready?).and_return(true)
+        end
+
+        it "should print message" do
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(ui).to receive(:detail).with(/timeout/)
+          communicator.wait_for_ready(0.5)
+        end
+
+        it "should not print the same message twice" do
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(ui).to receive(:detail).with(/timeout/)
+          expect(ui).not_to receive(:detail).with(/timeout/)
+          communicator.wait_for_ready(0.5)
+        end
+
+        it "should print different messages" do
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
+          expect(ui).to receive(:detail).with(/timeout/)
+          expect(ui).to receive(:detail).with(/disconnect/)
+          communicator.wait_for_ready(0.5)
+        end
+
+        it "should not print different messages twice" do
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
+          expect(ui).to receive(:detail).with(/timeout/)
+          expect(ui).to receive(:detail).with(/disconnect/)
+          expect(ui).not_to receive(:detail).with(/timeout/)
+          expect(ui).not_to receive(:detail).with(/disconnect/)
+          communicator.wait_for_ready(0.5)
+        end
+      end
     end
   end
 

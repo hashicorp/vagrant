@@ -75,8 +75,7 @@ module VagrantPlugins
           ssh_auth_type = "password" if ssh_info[:password]
           @machine.ui.detail("SSH auth method: #{ssh_auth_type}")
 
-          last_message = nil
-          last_message_repeat_at = 0
+          previous_messages = {}
           while true
             message  = nil
             begin
@@ -123,14 +122,13 @@ module VagrantPlugins
             if message
               message_at   = Time.now.to_f
               show_message = true
-              if last_message == message
-                show_message = (message_at - last_message_repeat_at) > 10.0
+              if previous_messages[message]
+                show_message = (message_at - previous_messages[message]) > 10.0
               end
 
               if show_message
                 @machine.ui.detail("Warning: #{message} Retrying...")
-                last_message = message
-                last_message_repeat_at = message_at
+                previous_messages[message] = message_at
               end
             end
           end
