@@ -124,8 +124,10 @@ module VagrantPlugins
               name: os_friendly_id(id),
               hostpath: hostpath.to_s,
               transient: transient,
-              SharedFoldersEnableSymlinksCreate: enable_symlink_create
-            }
+              SharedFoldersEnableSymlinksCreate: enable_symlink_create,
+              automount: data[:automount]
+            }.delete_if { |_,v| v.nil?}
+
           end
         end
 

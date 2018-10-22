@@ -53,6 +53,15 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
                                  :disabled=>false,
                                  :__vagrantfile=>true}} }
 
+
+    let(:folders_automount) { {"/folder"=>
+                                {:SharedFoldersEnableSymlinksCreate=>true,
+                                 :guestpath=>"/folder",
+                                 :hostpath=>"/Users/brian/vagrant-folder",
+                                 :disabled=>false,
+                                 :automount=>true,
+                                 :__vagrantfile=>true}} }
+
     let(:folders_nosymvar) { {"/folder"=>
                                 {:guestpath=>"/folder",
                                  :hostpath=>"/Users/brian/vagrant-folder",
@@ -87,6 +96,11 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
 
       expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>true}])
       subject.prepare(machine, folders, nil)
+    end
+
+    it "should prepare and share the folders with automount enabled" do
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>true, :automount=>true}])
+      subject.prepare(machine, folders_automount, nil)
     end
   end
 
