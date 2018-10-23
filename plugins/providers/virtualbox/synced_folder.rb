@@ -125,9 +125,8 @@ module VagrantPlugins
               hostpath: hostpath.to_s,
               transient: transient,
               SharedFoldersEnableSymlinksCreate: enable_symlink_create,
-              automount: data[:automount]
-            }.delete_if { |_,v| v.nil?}
-
+              automount: !!data[:automount]
+            }
           end
         end
 
