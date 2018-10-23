@@ -80,10 +80,17 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
       context "when networkd and NetworkManager are not in use" do
         let(:networkd) { false }
         let(:network_manager) { false }
+        let(:systemd) { true }
 
-        it "restarts the network using service" do
+        it "restarts the network using systemctl" do
           cap.change_host_name(machine, name)
-          expect(comm.received_commands[3]).to match(/networking restart/)
+          expect(comm.received_commands[3]).to match(/systemctl stop ifup/)
+        end
+
+        it "restarts networking with networking init script" do
+          comm.stub_command("systemctl stop ifup@eth0.service && systemctl start ifup@eth0.service", exit_code: 1)
+          cap.change_host_name(machine, name)
+          expect(comm.received_commands[4]).to match(/networking restart/)
         end
       end
 
@@ -91,8 +98,17 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
         let(:systemd) { false }
 
         it "restarts the network using service" do
+          comm.stub_command("systemctl stop ifup@eth0.service && systemctl start ifup@eth0.service", exit_code: 1)
           cap.change_host_name(machine, name)
-          expect(comm.received_commands[3]).to match(/networking restart/)
+          expect(comm.received_commands[4]).to match(/networking restart/)
+        end
+
+        it "restarts the network using ifdown/ifup" do
+          comm.stub_command("systemctl stop ifup@eth0.service && systemctl start ifup@eth0.service", exit_code: 1)
+          comm.stub_command("/etc/init.d/networking restart", exit_code: 1)
+          cap.change_host_name(machine, name)
+          expect(comm.received_commands[4]).to match(/ifdown/)
+          expect(comm.received_commands[4]).to match(/ifup/)
         end
       end
     end

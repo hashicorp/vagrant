@@ -1,3 +1,5 @@
+require "log4r"
+
 module VagrantPlugins
   module GuestDebian
     module Cap
@@ -6,6 +8,7 @@ module VagrantPlugins
         extend Vagrant::Util::GuestInspection::Linux
 
         def self.change_host_name(machine, name)
+          @logger = Log4r::Logger.new("vagrant::guest::debian::changehostname")
           comm = machine.communicate
 
           if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
@@ -44,16 +47,30 @@ module VagrantPlugins
               EOH
             end
 
-            restart_command = "/etc/init.d/networking restart"
+            init_restart_command = "/etc/init.d/networking restart"
+            ifdownup_restart_command = "ifdown --exclude=lo -a && ifup --exclude=lo -a"
+            systemctl_restart_command = "systemctl stop ifup@eth0.service && systemctl start ifup@eth0.service"
 
+            restart_command = ifdownup_restart_command
             if systemd?(comm)
               if systemd_networkd?(comm)
+                @logger.debug("Attempting to restart networking with systemd-networkd")
                 restart_command = "systemctl restart systemd-networkd.service"
               elsif systemd_controlled?(comm, "NetworkManager.service")
+                @logger.debug("Attempting to restart networking with NetworkManager")
                 restart_command = "systemctl restart NetworkManager.service"
+              else
+                @logger.debug("Attempting to restart networking with ifup@.service")
+                restart_command = systemctl_restart_command
               end
+            else
+              @logger.debug("Attempting to restart networking with ifdown/ifup net tools")
             end
-            comm.sudo(restart_command)
+
+            if !comm.test(restart_command, sudo: true)
+              @logger.debug("Attempting to restart networking with init networking service")
+              comm.sudo(init_restart_command)
+            end
           end
         end
       end
