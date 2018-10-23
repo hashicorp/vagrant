@@ -18,6 +18,10 @@ the guest to the host and vice versa.
 
 ## Options
 
+* `automount` (boolean) - If true, the `--automount` flag will be used when
+using the VirtualBox tools to share the folder with the guest vm. Defaults to false
+if not present.
+
 * `SharedFoldersEnableSymlinksCreate` (boolean) - If false, will disable the
 ability to create symlinks with the given virtualbox shared folder. Defaults to
 true if the option is not present.

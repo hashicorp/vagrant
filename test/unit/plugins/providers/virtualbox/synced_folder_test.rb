@@ -43,6 +43,7 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
                       {:SharedFoldersEnableSymlinksCreate=>true,
                        :guestpath=>"/folder",
                        :hostpath=>"/Users/brian/vagrant-folder",
+                       :automount=>false,
                        :disabled=>false,
                        :__vagrantfile=>true}} }
 
@@ -50,12 +51,23 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
                                 {:SharedFoldersEnableSymlinksCreate=>false,
                                  :guestpath=>"/folder",
                                  :hostpath=>"/Users/brian/vagrant-folder",
+                                 :automount=>false,
                                  :disabled=>false,
+                                 :__vagrantfile=>true}} }
+
+
+    let(:folders_automount) { {"/folder"=>
+                                {:SharedFoldersEnableSymlinksCreate=>true,
+                                 :guestpath=>"/folder",
+                                 :hostpath=>"/Users/brian/vagrant-folder",
+                                 :disabled=>false,
+                                 :automount=>true,
                                  :__vagrantfile=>true}} }
 
     let(:folders_nosymvar) { {"/folder"=>
                                 {:guestpath=>"/folder",
                                  :hostpath=>"/Users/brian/vagrant-folder",
+                                 :automount=>false,
                                  :disabled=>false,
                                  :__vagrantfile=>true}} }
 
@@ -66,27 +78,32 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
     end
 
     it "should prepare and share the folders" do
-      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>true}])
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :automount=>false, :SharedFoldersEnableSymlinksCreate=>true}])
       subject.prepare(machine, folders, nil)
     end
 
     it "should prepare and share the folders without symlinks enabled" do
-      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>false}])
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :automount=>false, :SharedFoldersEnableSymlinksCreate=>false}])
       subject.prepare(machine, folders_disabled, nil)
     end
 
     it "should prepare and share the folders without symlinks enabled with env var set" do
       stub_env('VAGRANT_DISABLE_VBOXSYMLINKCREATE'=>'1')
 
-      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>false}])
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :automount=>false, :SharedFoldersEnableSymlinksCreate=>false}])
       subject.prepare(machine, folders_nosymvar, nil)
     end
 
     it "should prepare and share the folders and override symlink setting" do
       stub_env('VAGRANT_DISABLE_VBOXSYMLINKCREATE'=>'1')
 
-      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>true}])
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :automount=>false, :SharedFoldersEnableSymlinksCreate=>true}])
       subject.prepare(machine, folders, nil)
+    end
+
+    it "should prepare and share the folders with automount enabled" do
+      expect(driver).to receive(:share_folders).with([{:name=>"folder", :hostpath=>"/Users/brian/vagrant-folder", :transient=>false, :SharedFoldersEnableSymlinksCreate=>true, :automount=>true}])
+      subject.prepare(machine, folders_automount, nil)
     end
   end
 

@@ -15,6 +15,12 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
                      :transient=>false,
                      :SharedFoldersEnableSymlinksCreate=>true}]}
 
+    let(:folders_automount) { [{:name=>"folder",
+                     :hostpath=>"/Users/brian/vagrant-folder",
+                     :transient=>false,
+                     :automount=>true,
+                     :SharedFoldersEnableSymlinksCreate=>true}]}
+
     let(:folders_disabled) { [{:name=>"folder",
                      :hostpath=>"/Users/brian/vagrant-folder",
                      :transient=>false,
@@ -31,6 +37,19 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
       subject.share_folders(folders)
 
     end
+
+    it "enables automount if option is true" do
+      expect(subprocess).to receive(:execute).
+        with("VBoxManage", "setextradata", anything, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/folder", "1", {:notify=>[:stdout, :stderr]}).
+        and_return(subprocess_result(exit_code: 0))
+
+      expect(subprocess).to receive(:execute).
+        with("VBoxManage", "sharedfolder", "add", anything, "--name", "folder", "--hostpath", "/Users/brian/vagrant-folder", "--automount", {:notify=>[:stdout, :stderr]}).
+        and_return(subprocess_result(exit_code: 0))
+      subject.share_folders(folders_automount)
+
+    end
+
 
     it "disables SharedFoldersEnableSymlinksCreate if false" do
       expect(subprocess).to receive(:execute).
