@@ -1,4 +1,5 @@
 require "log4r"
+require_relative "../../linux/cap/network_interfaces"
 
 module VagrantPlugins
   module GuestDebian
@@ -47,11 +48,7 @@ module VagrantPlugins
               EOH
             end
 
-            init_restart_command = "/etc/init.d/networking restart"
-            ifdownup_restart_command = "ifdown --exclude=lo -a && ifup --exclude=lo -a"
-            systemctl_restart_command = "systemctl stop ifup@eth0.service && systemctl start ifup@eth0.service"
-
-            restart_command = ifdownup_restart_command
+            restart_command = nil
             if systemd?(comm)
               if systemd_networkd?(comm)
                 @logger.debug("Attempting to restart networking with systemd-networkd")
@@ -59,18 +56,47 @@ module VagrantPlugins
               elsif systemd_controlled?(comm, "NetworkManager.service")
                 @logger.debug("Attempting to restart networking with NetworkManager")
                 restart_command = "systemctl restart NetworkManager.service"
-              else
-                @logger.debug("Attempting to restart networking with ifup@.service")
-                restart_command = systemctl_restart_command
               end
-            else
-              @logger.debug("Attempting to restart networking with ifdown/ifup net tools")
             end
 
-            if !comm.test(restart_command, sudo: true)
-              @logger.debug("Attempting to restart networking with init networking service")
-              comm.sudo(init_restart_command)
+            if restart_command
+              comm.sudo(restart_command)
+            else
+              restart_each_interface(machine, @logger)
             end
+          end
+        end
+
+        protected
+
+        # Due to how most Debian systems and older Ubuntu systems handle restarting
+        # networking, we cannot simply run the networking init script or use the ifup/down
+        # tools to restart all interfaces to renew the machines DHCP lease when setting
+        # its hostname. This method is a workaround for those older systems that
+        # cannoy reliably restart networking. It restarts each individual interface
+        # on its own instead.
+        #
+        # @param [Vagrant::Machine] machine
+        # @param [Log4r::Logger] logger
+        def self.restart_each_interface(machine, logger)
+          comm = machine.communicate
+          interfaces = VagrantPlugins::GuestLinux::Cap::NetworkInterfaces.network_interfaces(machine)
+          nettools = true
+          if systemd?(comm)
+            @logger.debug("Attempting to restart networking with systemctl")
+            nettools = false
+          else
+            @logger.debug("Attempting to restart networking with ifup/down nettools")
+          end
+
+          interfaces.each do |iface|
+            logger.debug("Restarting interface #{iface} on guest #{machine.name}")
+            if nettools
+             restart_command = "ifdown #{iface} && ifup #{iface}"
+            else
+             restart_command = "systemctl stop ifup@#{iface}.service && systemctl start ifup@#{iface}.service"
+            end
+            comm.sudo(restart_command)
           end
         end
       end
