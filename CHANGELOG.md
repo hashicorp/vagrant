@@ -11,6 +11,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - guest/debian: Fix halting issue when setting hostname by restarting networking on guest [GH-10301, GH-10330]
+- providers/docker: Deterministic host VM synced folder location for Docker VM [GH-10311]
 
 ## 2.2.0 (October 16, 2018)
 
