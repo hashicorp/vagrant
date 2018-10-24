@@ -136,18 +136,18 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
 
       it "restarts every interface" do
         cap.send(:restart_each_interface, machine, logger)
-        expect(comm.received_commands[0]).to match(/ifdown eth0 && ifup eth0/)
-        expect(comm.received_commands[1]).to match(/ifdown eth1 && ifup eth1/)
-        expect(comm.received_commands[2]).to match(/ifdown eth2 && ifup eth2/)
+        expect(comm.received_commands[0]).to match(/ifdown eth0;ifup eth0/)
+        expect(comm.received_commands[1]).to match(/ifdown eth1;ifup eth1/)
+        expect(comm.received_commands[2]).to match(/ifdown eth2;ifup eth2/)
       end
     end
 
     context "with systemctl" do
       it "restarts every interface" do
         cap.send(:restart_each_interface, machine, logger)
-        expect(comm.received_commands[0]).to match(/systemctl stop ifup@eth0.service && systemctl start ifup@eth0.service/)
-        expect(comm.received_commands[1]).to match(/systemctl stop ifup@eth1.service && systemctl start ifup@eth1.service/)
-        expect(comm.received_commands[2]).to match(/systemctl stop ifup@eth2.service && systemctl start ifup@eth2.service/)
+        expect(comm.received_commands[0]).to match(/systemctl stop ifup@eth0.service;systemctl start ifup@eth0.service/)
+        expect(comm.received_commands[1]).to match(/systemctl stop ifup@eth1.service;systemctl start ifup@eth1.service/)
+        expect(comm.received_commands[2]).to match(/systemctl stop ifup@eth2.service;systemctl start ifup@eth2.service/)
       end
     end
   end
