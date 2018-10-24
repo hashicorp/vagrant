@@ -7,7 +7,8 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
       .guest_capabilities[:debian]
   end
 
-  let(:machine) { double("machine") }
+  let(:machine) { double("machine", name: "guestname") }
+  let(:logger) { double("logger", debug: true) }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
 
   before do
@@ -80,10 +81,18 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
       context "when networkd and NetworkManager are not in use" do
         let(:networkd) { false }
         let(:network_manager) { false }
+        let(:systemd) { true }
 
-        it "restarts the network using service" do
+        it "restarts the network using systemctl" do
+          expect(cap).to receive(:restart_each_interface).
+            with(machine, anything)
           cap.change_host_name(machine, name)
-          expect(comm.received_commands[3]).to match(/networking restart/)
+        end
+
+        it "restarts networking with networking init script" do
+          expect(cap).to receive(:restart_each_interface).
+            with(machine, anything)
+          cap.change_host_name(machine, name)
         end
       end
 
@@ -91,8 +100,15 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
         let(:systemd) { false }
 
         it "restarts the network using service" do
+          expect(cap).to receive(:restart_each_interface).
+            with(machine, anything)
           cap.change_host_name(machine, name)
-          expect(comm.received_commands[3]).to match(/networking restart/)
+        end
+
+        it "restarts the network using ifdown/ifup" do
+          expect(cap).to receive(:restart_each_interface).
+            with(machine, anything)
+          cap.change_host_name(machine, name)
         end
       end
     end
@@ -101,6 +117,38 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
       comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
       cap.change_host_name(machine, name)
       expect(comm.received_commands.size).to eq(1)
+    end
+  end
+
+  describe ".restart_each_interface" do
+    let(:cap) { caps.get(:change_host_name) }
+    let(:systemd) { true }
+    let(:interfaces) { ["eth0", "eth1", "eth2"] }
+
+    before do
+      allow(cap).to receive(:systemd?).and_return(systemd)
+      allow(VagrantPlugins::GuestLinux::Cap::NetworkInterfaces).to receive(:network_interfaces).
+        and_return(interfaces)
+    end
+
+    context "with nettools" do
+      let(:systemd) { false }
+
+      it "restarts every interface" do
+        cap.send(:restart_each_interface, machine, logger)
+        expect(comm.received_commands[0]).to match(/ifdown eth0;ifup eth0/)
+        expect(comm.received_commands[1]).to match(/ifdown eth1;ifup eth1/)
+        expect(comm.received_commands[2]).to match(/ifdown eth2;ifup eth2/)
+      end
+    end
+
+    context "with systemctl" do
+      it "restarts every interface" do
+        cap.send(:restart_each_interface, machine, logger)
+        expect(comm.received_commands[0]).to match(/systemctl stop ifup@eth0.service;systemctl start ifup@eth0.service/)
+        expect(comm.received_commands[1]).to match(/systemctl stop ifup@eth1.service;systemctl start ifup@eth1.service/)
+        expect(comm.received_commands[2]).to match(/systemctl stop ifup@eth2.service;systemctl start ifup@eth2.service/)
+      end
     end
   end
 end
