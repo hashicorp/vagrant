@@ -262,6 +262,13 @@ describe Vagrant::Util::Platform do
 
       expect(Vagrant::Util::Platform.windows_hyperv_enabled?).to be_falsey
     end
+
+    it "should return false if PowerShell cannot be validated" do
+      allow_any_instance_of(Vagrant::Errors::PowerShellInvalidVersion).to receive(:translate_error)
+      allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).and_raise(Vagrant::Errors::PowerShellInvalidVersion)
+
+      expect(Vagrant::Util::Platform.windows_hyperv_enabled?).to be_falsey
+    end
   end
 
   context "within the WSL" do
