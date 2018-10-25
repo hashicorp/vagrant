@@ -13,6 +13,14 @@ module Vagrant
     # This class just contains some platform checking code.
     class Platform
       class << self
+
+        def logger
+          if !defined?(@_logger)
+            @_logger = Log4r::Logger.new("vagrant::util::platform")
+          end
+          @_logger
+        end
+
         def cygwin?
           if !defined?(@_cygwin)
             @_cygwin = ENV["VAGRANT_DETECTED_OS"].to_s.downcase.include?("cygwin") ||
@@ -134,8 +142,13 @@ module Vagrant
           @_windows_hyperv_enabled = -> {
             ["Get-WindowsOptionalFeature", "Get-WindowsFeature"].each do |cmd_name|
               ps_cmd = "$(#{cmd_name} -FeatureName Microsoft-Hyper-V-Hypervisor).State"
-              output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
-              return true if output == "Enabled"
+              begin
+                output = Vagrant::Util::PowerShell.execute_cmd(ps_cmd)
+                return true if output == "Enabled"
+              rescue Errors::PowerShellInvalidVersion
+                logger.warn("Invalid PowerShell version detected during Hyper-V enable check")
+                return false
+              end
             end
             return false
           }.call
