@@ -1,7 +1,10 @@
+require "log4r"
+
 module VagrantPlugins
   module GuestWindows
     module Cap
       module ChangeHostName
+        MAX_REBOOT_DURATION = 120
 
         def self.change_host_name(machine, name)
           change_host_name_and_wait(machine, name, machine.config.vm.graceful_halt_timeout)
@@ -11,7 +14,8 @@ module VagrantPlugins
           # If the configured name matches the current name, then bail
           # We cannot use %ComputerName% because it truncates at 15 chars
           return if machine.communicate.test("if ([System.Net.Dns]::GetHostName() -eq '#{name}') { exit 0 } exit 1")
-          
+          @logger = Log4r::Logger.new("vagrant::windows::change_host_name")
+
           # Rename and reboot host if rename succeeded
           script = <<-EOH
             $computer = Get-WmiObject -Class Win32_ComputerSystem
@@ -27,13 +31,24 @@ module VagrantPlugins
             error_class: Errors::RenameComputerFailed,
             error_key: :rename_computer_failed)
 
-          # Don't continue until the machine has shutdown and rebooted
-	  if machine.guest.capability?(:wait_for_reboot)
-            machine.guest.capability(:wait_for_reboot)
-          else
-            # use graceful_halt_timeout only if guest cannot wait for reboot
-            sleep(sleep_timeout)
-	  end
+
+          wait_remaining = MAX_REBOOT_DURATION
+          begin
+            # Don't continue until the machine has shutdown and rebooted
+            if machine.guest.capability?(:wait_for_reboot)
+              machine.guest.capability(:wait_for_reboot)
+            else
+              @logger.debug("No wait_for_reboot capability, sleeping for #{sleep_timeout} instead...")
+              # use graceful_halt_timeout only if guest cannot wait for reboot
+              sleep(sleep_timeout)
+            end
+          rescue Vagrant::Errors::MachineGuestNotReady => e
+            raise if wait_remaining < 0
+            @logger.warn("Machine not ready, cannot wait for reboot yet. Trying again")
+            sleep(5)
+            wait_remaining -= 5
+            retry
+          end
         end
       end
     end

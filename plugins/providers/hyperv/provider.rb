@@ -38,6 +38,7 @@ module VagrantPlugins
         # This method will load in our driver, so we call it now to
         # initialize it.
         machine_id_changed
+        @logger = Log4r::Logger.new("vagrant::hyperv::provider")
       end
 
       def action(name)
@@ -83,16 +84,27 @@ module VagrantPlugins
         "Hyper-V (#{id})"
       end
 
+      # @return [Hash]
       def ssh_info
         # We can only SSH into a running machine
         return nil if state.id != :running
 
         # Read the IP of the machine using Hyper-V APIs
-        network = @driver.read_guest_ip
-        return nil if !network["ip"]
+        guest_ip = nil
+
+        begin
+          network_info = @driver.read_guest_ip
+          guest_ip = network_info["ip"]
+        rescue Errors::PowerShellError
+          @logger.warn("Failed to read guest IP.")
+        end
+
+        return nil if !guest_ip
+
+        @logger.debug("IP: #{guest_ip}")
 
         {
-          host: network["ip"],
+          host: guest_ip,
           port: 22,
         }
       end
