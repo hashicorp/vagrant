@@ -13,7 +13,7 @@ miss out on several [important features](/docs/vagrant-cloud/boxes).
 There are __three ways to create and upload Vagrant Boxes to Vagrant Cloud__. All
 three options are outlined below.
 
-We recommend using Packer, as is it is fully repeatable and keeps a strong
+We recommend using Packer, as it is fully repeatable and keeps a strong
 history of changes within Vagrant Cloud. However, for some situations, including
 legacy workflows, the Web UI or API will work well.
 
