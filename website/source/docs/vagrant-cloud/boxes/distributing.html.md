@@ -37,7 +37,7 @@ To add a collaborator:
 
 1. Go to the "Access" page of a box via the sidebar
 2. Enter the username or team name and submit the form
-3. You'll now see an the user or team in the list of collaborators,
+3. You'll now see the user or team in the list of collaborators,
 and if necessary a collaborator can be removed
 
 ### Vagrant Login
