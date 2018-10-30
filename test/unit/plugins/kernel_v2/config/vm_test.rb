@@ -368,6 +368,20 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect { subject.finalize! }.
         to raise_error(Vagrant::Errors::VagrantfileLoadError)
     end
+
+    it "ignores providers entirely if flag is provided" do
+      subject.provider "virtualbox" do |vb|
+        vb.nope = true
+      end
+
+      subject.provider "virtualbox" do |vb|
+        vb.not_real = "foo"
+      end
+
+      subject.finalize!
+      errors = subject.validate(machine, true)
+      expect(errors).to eq({"vm"=>[]})
+    end
   end
 
   describe "#provision" do
