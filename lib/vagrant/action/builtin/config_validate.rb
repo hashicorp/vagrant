@@ -12,7 +12,7 @@ module Vagrant
 
         def call(env)
           if !env.key?(:config_validate) || env[:config_validate]
-            errors = env[:machine].config.validate(env[:machine])
+            errors = env[:machine].config.validate(env[:machine], env[:ignore_provider])
 
             if errors && !errors.empty?
               raise Errors::ConfigInvalid,

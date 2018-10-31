@@ -582,7 +582,7 @@ module VagrantPlugins
         @__synced_folders
       end
 
-      def validate(machine)
+      def validate(machine, ignore_provider=nil)
         errors = _detected_errors
 
         if !box && !clone && !machine.provider_options[:box_optional]
@@ -737,9 +737,13 @@ module VagrantPlugins
 
         # Validate only the _active_ provider
         if machine.provider_config
-          provider_errors = machine.provider_config.validate(machine)
-          if provider_errors
-            errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
+          if !ignore_provider
+            provider_errors = machine.provider_config.validate(machine)
+            if provider_errors
+              errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
+            end
+          else
+            machine.ui.warn(I18n.t("vagrant.config.vm.ignore_provider_config"))
           end
         end
 
