@@ -54,6 +54,10 @@ masterless setup.
 
 ## Install Options
 
+The Salt provosioner uses the [Salt bootstrap script](https://github.com/saltstack/salt-bootstrap)
+for installing Salt on your guest. These options build up the arguments used to
+for the bootstrap script.
+
 * `install_master`  (boolean) - Should vagrant install the salt-master
 on this machine. Not supported on Windows guest machines.
 
@@ -75,7 +79,7 @@ distribution's stable package manager, git tree-ish, daily ppa, or testing repos
 * `bootstrap_options` (string) - Additional command-line options to
   pass to the bootstrap script.
 
-* `version`  (string, default: "2017.7.1") - Version of minion to be installed.
+* `version`  (string) - Version of minion to be installed. Defaults to latest version.
 
 * `python_version`  (string, default: "2") - Major Python version of minion to be installed. Only valid for minion versions >= 2017.7.0. Only supported on Windows guest machines.
 
