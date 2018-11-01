@@ -195,6 +195,28 @@ describe Vagrant::Box, :skip_windows do
     end
   end
 
+  context "#automatic_update_check_allowed?" do
+    it "should return true on intial check" do
+      expect(subject.automatic_update_check_allowed?).to be_truthy
+    end
+
+    it "should return false on second check" do
+      expect(subject.automatic_update_check_allowed?).to be_truthy
+      expect(subject.automatic_update_check_allowed?).to be_falsey
+    end
+
+    it "should use a file to mark last check time" do
+      expect(FileUtils).to receive(:touch)
+      subject.automatic_update_check_allowed?
+    end
+
+    it "should return true when time since last check is greater than check interval" do
+      subject.automatic_update_check_allowed?
+      stub_const("Vagrant::Box::BOX_UPDATE_CHECK_INTERVAL", -1)
+      expect(subject.automatic_update_check_allowed?).to be_truthy
+    end
+  end
+
   context "#in_use?" do
     let(:index) { [] }
 
