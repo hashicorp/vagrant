@@ -95,10 +95,8 @@ by adding a Vagrantfile to the box with the following content:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  ["vmware_workstation", "vmware_fusion"].each do |vmware_provider|
-    config.vm.provider(vmware_provider) do |vmware|
-      vmware.whitelist_verified = true
-    end
+  config.vm.provider "vmware_desktop" do |vmware|
+    vmware.whitelist_verified = true
   end
 end
 ```
