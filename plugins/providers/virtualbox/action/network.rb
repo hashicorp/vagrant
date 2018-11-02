@@ -276,7 +276,8 @@ module VagrantPlugins
             netaddr = IPAddr.new("#{options[:ip]}/#{options[:netmask]}")
           rescue IPAddr::Error => e
             raise Vagrant::Errors::NetworkAddressInvalid,
-                  options: options, error: e.message
+              address: options[:ip], mask: options[:netmask],
+              error: e.message
           end
 
           if ip.ipv4?
