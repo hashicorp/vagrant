@@ -261,16 +261,26 @@ module VagrantPlugins
 
           begin
             ip = IPAddr.new(options[:ip])
-          rescue IPAddr::InvalidAddressError => e
-            raise Vagrant::Errors::NetworkAddressInvalid, :ip => options[:ip], :error_msg => e.message
+            if ip.ipv4?
+              options[:netmask] ||= "255.255.255.0"
+            elsif ip.ipv6?
+              options[:netmask] ||= 64
+
+              # Append a 6 to the end of the type
+              options[:type] = "#{options[:type]}6".to_sym
+            else
+              raise IPAddr::AddressFamilyError, 'unknown address family'
+            end
+
+            # Calculate our network address for the given IP/netmask
+            netaddr = IPAddr.new("#{options[:ip]}/#{options[:netmask]}")
+          rescue IPAddr::Error => e
+            raise Vagrant::Errors::NetworkAddressInvalid,
+              address: options[:ip], mask: options[:netmask],
+              error: e.message
           end
 
           if ip.ipv4?
-            options[:netmask] ||= "255.255.255.0"
-
-            # Calculate our network address for the given IP/netmask
-            netaddr  = network_address(options[:ip], options[:netmask])
-
             # Verify that a host-only network subnet would not collide
             # with a bridged networking interface.
             #
@@ -287,44 +297,24 @@ module VagrantPlugins
                   interface_name: interface[:name]
               end
             end
-
-            # Split the IP address into its components
-            ip_parts = netaddr.split(".").map { |i| i.to_i }
-
-            # Calculate the adapter IP, which we assume is the IP ".1" at
-            # the end usually.
-            adapter_ip    = ip_parts.dup
-            adapter_ip[3] += 1
-            options[:adapter_ip] ||= adapter_ip.join(".")
-          elsif ip.ipv6?
-            # Default subnet prefix length
-            options[:netmask] ||= 64
-
-            # Set adapter IP to <prefix>::1
-            options[:adapter_ip] ||= (ip.mask(options[:netmask].to_i) | 1).to_s
-
-            # Append a 6 to the end of the type
-            options[:type] = "#{options[:type]}6".to_sym
-          else
-            raise "BUG: Unknown IP type: #{ip.inspect}"
           end
+
+          # Calculate the adapter IP which is the network address with
+          # the final bit + 1. Usually it is "x.x.x.1" for IPv4 and
+          # "<prefix>::1" for IPv6
+          options[:adapter_ip] ||= (netaddr | 1).to_s
 
           dhcp_options = {}
           if options[:type] == :dhcp
-            # Calculate the DHCP server IP, which is the network address
-            # with the final octet + 2. So "172.28.0.0" turns into "172.28.0.2"
-            dhcp_ip    = ip_parts.dup
-            dhcp_ip[3] += 2
-            dhcp_options[:dhcp_ip] = options[:dhcp_ip] || dhcp_ip.join(".")
-
-            # Calculate the lower and upper bound for the DHCP server
-            dhcp_lower    = ip_parts.dup
-            dhcp_lower[3] += 3
-            dhcp_options[:dhcp_lower] = options[:dhcp_lower] || dhcp_lower.join(".")
-
-            dhcp_upper    = ip_parts.dup
-            dhcp_upper[3] = 254
-            dhcp_options[:dhcp_upper] = options[:dhcp_upper] || dhcp_upper.join(".")
+            # Calculate the DHCP server IP and lower & upper bound
+            # Example: for "192.168.22.64/26" network range those are:
+            # dhcp_ip: "192.168.22.66",
+            # dhcp_lower: "192.168.22.67"
+            # dhcp_upper: "192.168.22.126"
+            ip_range = netaddr.to_range
+            dhcp_options[:dhcp_ip] = options[:dhcp_ip] || (ip_range.first | 2).to_s
+            dhcp_options[:dhcp_lower] = options[:dhcp_lower] || (ip_range.first | 3).to_s
+            dhcp_options[:dhcp_upper] = options[:dhcp_upper] || (ip_range.last(2).first).to_s
           end
 
           return {

@@ -972,10 +972,13 @@ en:
       network_type_not_supported: |-
         The %{type} network type is not supported for this box or guest.
       network_address_invalid: |-
-        The IP address '%{ip}' is not valid. Please review the error message
-        below to help resolve the issue:
+        Network settings specified in your Vagrantfile define an invalid
+        IP address. Please review the error message below and update your
+        Vagrantfile network settings:
 
-          %{error_msg}
+          Address: %{address}
+          Netmask: %{mask}
+          Error: %{error}
       network_manager_not_installed: |-
         Vagrant was instructed to configure the %{device} network device to
         be managed by NetworkManager. However, the configured guest VM does
