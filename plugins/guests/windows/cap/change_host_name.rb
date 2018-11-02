@@ -4,8 +4,6 @@ module VagrantPlugins
   module GuestWindows
     module Cap
       module ChangeHostName
-        MAX_REBOOT_DURATION = 120
-
         def self.change_host_name(machine, name)
           change_host_name_and_wait(machine, name, machine.config.vm.graceful_halt_timeout)
         end
@@ -20,9 +18,6 @@ module VagrantPlugins
           script = <<-EOH
             $computer = Get-WmiObject -Class Win32_ComputerSystem
             $retval = $computer.rename("#{name}").returnvalue
-            if ($retval -eq 0) {
-              shutdown /r /t 5 /f /d p:4:1 /c "Vagrant Rename Computer"
-            }
             exit $retval
           EOH
 
@@ -31,24 +26,7 @@ module VagrantPlugins
             error_class: Errors::RenameComputerFailed,
             error_key: :rename_computer_failed)
 
-
-          wait_remaining = MAX_REBOOT_DURATION
-          begin
-            # Don't continue until the machine has shutdown and rebooted
-            if machine.guest.capability?(:wait_for_reboot)
-              machine.guest.capability(:wait_for_reboot)
-            else
-              @logger.debug("No wait_for_reboot capability, sleeping for #{sleep_timeout} instead...")
-              # use graceful_halt_timeout only if guest cannot wait for reboot
-              sleep(sleep_timeout)
-            end
-          rescue Vagrant::Errors::MachineGuestNotReady => e
-            raise if wait_remaining < 0
-            @logger.warn("Machine not ready, cannot wait for reboot yet. Trying again")
-            sleep(5)
-            wait_remaining -= 5
-            retry
-          end
+          machine.guest.capability(:reboot)
         end
       end
     end

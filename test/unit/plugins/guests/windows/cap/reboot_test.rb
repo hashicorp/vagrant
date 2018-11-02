@@ -17,6 +17,12 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
     allow(config).to receive(:vm).and_return(vm)
   end
 
+  describe ".reboot" do
+    before do
+      allow(vm).to receive(:communicator).and_return(:winrm)
+    end
+  end
+
   describe "winrm communicator" do
     before do
       allow(vm).to receive(:communicator).and_return(:winrm)
@@ -24,15 +30,15 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
 
     describe ".wait_for_reboot" do
       it "runs reboot detect script" do
-        expect(communicator).to receive(:execute).with(/# Function/, { error_check: false }).and_return(0)
+        expect(communicator).to receive(:execute).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
         allow(communicator).to receive(:execute)
 
         described_class.wait_for_reboot(machine)
       end
-      
+
       it "fixes symlinks to network shares" do
         allow(communicator).to receive(:execute).and_return(0)
-        expect(communicator).to receive(:execute).with('net use', { error_check: false })
+        expect(communicator).to receive(:execute).with('net use', { error_check: false, shell: :powershell })
 
         described_class.wait_for_reboot(machine)
       end
@@ -45,8 +51,9 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
     end
 
     describe ".wait_for_reboot" do
-      it "does not execute Windows reboot detect script" do
-        expect(communicator).to_not receive(:execute)
+      it "does execute Windows reboot detect script" do
+        expect(communicator).to receive(:execute).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+        expect(communicator).to receive(:execute).with('net use', { error_check: false, shell: :powershell })
         described_class.wait_for_reboot(machine)
       end
     end
