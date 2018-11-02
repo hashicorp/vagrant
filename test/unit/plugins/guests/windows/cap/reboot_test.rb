@@ -9,10 +9,13 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
   let(:vm) { double("vm") }
   let(:config) { double("config") }
   let(:machine) { double("machine") }
+  let(:guest) { double("guest") }
   let(:communicator) { double("communicator") }
 
   before do
     allow(machine).to receive(:communicate).and_return(communicator)
+    allow(machine).to receive(:guest).and_return(guest)
+    allow(machine.guest).to receive(:ready?).and_return(true)
     allow(machine).to receive(:config).and_return(config)
     allow(config).to receive(:vm).and_return(vm)
   end
@@ -20,6 +23,16 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
   describe ".reboot" do
     before do
       allow(vm).to receive(:communicator).and_return(:winrm)
+    end
+
+    it "reboots the vm" do
+        allow(communicator).to receive(:execute)
+
+        expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+        expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+        expect(described_class).to receive(:wait_for_reboot)
+
+        described_class.reboot(machine)
     end
   end
 
