@@ -38,7 +38,8 @@ module VagrantPlugins
         def self.wait_for_reboot(machine)
           script  = File.expand_path("../../scripts/reboot_detect.ps1", __FILE__)
           script  = File.read(script)
-          while machine.communicate.execute(script, error_check: false, shell: :powershell) != 0
+
+          while machine.guest.ready? && machine.communicate.execute(script, error_check: false, shell: :powershell) != 0
             sleep 10
           end
 
