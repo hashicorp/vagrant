@@ -57,7 +57,7 @@ the [help page dedicated to box lifecycle](/docs/vagrant-cloud/boxes/lifecycle.h
 ## Creating Boxes with the API
 
 This example uses the API to upload boxes with `curl`. To get started, you'll
-need to get an [access token](https://vagrantcloud.com/settings/tokens).
+need to get an [access token](https://vagrantcloud.com/settings/security).
 
 Then, prepare the upload:
 
