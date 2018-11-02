@@ -34,6 +34,31 @@ describe Vagrant::Bundler do
     end
   end
 
+  describe "DEFAULT_GEM_SOURCES" do
+    it "should list hashicorp gemstore first" do
+      expect(described_class.const_get(:DEFAULT_GEM_SOURCES).first).to eq(
+        described_class.const_get(:HASHICORP_GEMSTORE))
+    end
+  end
+
+  describe "#init!" do
+    context "Gem.sources" do
+      before {
+        Gem.sources.clear
+        Gem.sources << "https://rubygems.org/" }
+
+      it "should add hashicorp gem store" do
+        subject.init!([])
+        expect(Gem.sources).to include(described_class.const_get(:HASHICORP_GEMSTORE))
+      end
+
+      it "should add hashicorp gem store to start of sources list" do
+        subject.init!([])
+        expect(Gem.sources.sources.first.uri.to_s).to eq(described_class.const_get(:HASHICORP_GEMSTORE))
+      end
+    end
+  end
+
   describe "#install" do
     let(:plugins){ {"my-plugin" => {"gem_version" => "> 0"}} }
 

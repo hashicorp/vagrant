@@ -24,8 +24,8 @@ module Vagrant
 
     # Default gem repositories
     DEFAULT_GEM_SOURCES = [
-      "https://rubygems.org/".freeze,
-      HASHICORP_GEMSTORE
+      HASHICORP_GEMSTORE,
+      "https://rubygems.org/".freeze
     ].freeze
 
     def self.instance
@@ -62,7 +62,12 @@ module Vagrant
 
       # Add HashiCorp RubyGems source
       if !Gem.sources.include?(HASHICORP_GEMSTORE)
+        current_sources = Gem.sources.sources.dup
+        Gem.sources.clear
         Gem.sources << HASHICORP_GEMSTORE
+        current_sources.each do |src|
+          Gem.sources << src
+        end
       end
 
       # Generate dependencies for all registered plugins
