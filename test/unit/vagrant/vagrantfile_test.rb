@@ -367,6 +367,58 @@ describe Vagrant::Vagrantfile do
       expect { subject.machine_config(:default, :foo, boxes) }.
         to raise_error(Vagrant::Errors::ProviderNotUsable)
     end
+
+    context "local box metadata file" do
+      let(:data_path) { double(:data_path) }
+      let(:meta_file) { double(:meta_file) }
+      let(:box_version) { "2.0" }
+
+      before do
+        register_provider("foo")
+        iso_env.box3("base", "1.0", :foo)
+        allow(data_path).to receive(:join).with("box_meta").
+          and_return(meta_file)
+        allow(meta_file).to receive(:file?).and_return(false)
+        configure do |config|
+          config.vm.box = "base"
+          config.vm.box_version = box_version
+        end
+      end
+
+      it "checks for local box metadata file" do
+        expect(meta_file).to receive(:file?).and_return(false)
+        subject.machine_config(:default, :foo, boxes, data_path)
+      end
+
+      context "file exists" do
+        let(:meta_file_content) { '{"name":"base","version":"1.0"}' }
+
+        before do
+          allow(meta_file).to receive(:file?).and_return(true)
+          allow(meta_file).to receive(:read).and_return(meta_file_content)
+        end
+
+        it "reads the local box metadata file" do
+          expect(meta_file).to receive(:read).and_return(meta_file_content)
+          subject.machine_config(:default, :foo, boxes, data_path)
+        end
+
+        it "properly loads the box defined in metadata" do
+          result = subject.machine_config(:default, :foo, boxes, data_path)
+          expect(result[:box]).not_to be_nil
+        end
+
+        context "with invalid box version" do
+          let(:box_version) { "1.0" }
+          let(:meta_file_content) { '{"name":"base","version":"2.0"}' }
+
+          it "loads box base on Vagrantfile information" do
+            result = subject.machine_config(:default, :foo, boxes, data_path)
+            expect(result[:box]).not_to be_nil
+          end
+        end
+      end
+    end
   end
 
   describe "#machine_names" do
