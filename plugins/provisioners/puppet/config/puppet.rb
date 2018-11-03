@@ -17,8 +17,7 @@ module VagrantPlugins
         attr_accessor :environment_variables
         attr_accessor :module_path
         attr_accessor :options
-        attr_accessor :synced_folder_type
-        attr_accessor :synced_folder_args
+        attr_accessor :synced_folder_opts
         attr_accessor :temp_dir
         attr_accessor :working_directory
 
@@ -35,22 +34,30 @@ module VagrantPlugins
           @module_path           = UNSET_VALUE
           @options               = []
           @facter                = {}
-          @synced_folder_type    = UNSET_VALUE
+          @synced_folder_opts    = {}
           @temp_dir              = UNSET_VALUE
           @working_directory     = UNSET_VALUE
           @structured_facts   = UNSET_VALUE
         end
 
-        def nfs=(value)
-          puts "DEPRECATION: The 'nfs' setting for the Puppet provisioner is"
-          puts "deprecated. Please use the 'synced_folder_type' setting instead."
-          puts "The 'nfs' setting will be removed in the next version of Vagrant."
+        def synced_folder_type=(value)
+          puts "DEPRECATION: The 'synced_folder_type' setting for the Puppet provisioner is"
+          puts "deprecated. Please use the 'synced_folder_opts' setting instead."
+          puts "The 'synced_folder_type' setting will be removed in the next version of Vagrant."
 
-          if value
-            @synced_folder_type = "nfs"
-          else
-            @synced_folder_type = nil
-          end
+          @synced_folder_type = value
+        end
+
+        def synced_folder_args=(value)
+          puts "DEPRECATION: The 'synced_folder_args' setting for the Puppet provisioner is"
+          puts "deprecated. Please use the 'synced_folder_opts' setting instead."
+          puts "The 'synced_folder_args' setting will be removed in the next version of Vagrant."
+
+          @synced_folder_args = value
+        end
+
+        def synced_folder_opts(**opts)
+          @synced_folder_opts = @synced_folder_opts.merge!(opts)
         end
 
         def merge(other)
@@ -95,10 +102,15 @@ module VagrantPlugins
             @environment_variables = {}
           end
 
+          if @synced_folder_opts.eql?({})
+            @synced_folder_opts[:type] = @synced_folder_type if @synced_folder_type
+            @synced_folder_opts[:owner] = "root" if !@synced_folder_type
+            @synced_folder_opts[:args] = @synced_folder_args if @synced_folder_args
+            @synced_folder_opts[:nfs__quiet] = true
+          end
+
           @binary_path        = nil     if @binary_path == UNSET_VALUE
           @module_path        = nil     if @module_path == UNSET_VALUE
-          @synced_folder_type = nil     if @synced_folder_type == UNSET_VALUE
-          @synced_folder_args = nil if @synced_folder_args == UNSET_VALUE
           @temp_dir           = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
           @working_directory  = nil     if @working_directory == UNSET_VALUE
           @structured_facts   = nil     if @structured_facts == UNSET_VALUE

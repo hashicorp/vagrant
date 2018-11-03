@@ -58,14 +58,19 @@ available below this section.
 * `options` (array of strings) - Additionally options to pass to the
   Puppet executable when running Puppet.
 
-* `synced_folder_type` (string) - The type of synced folders to use when
-  sharing the data required for the provisioner to work properly. By default
-  this will use the default synced folder type. For example, you can set this
-  to "nfs" to use NFS synced folders.
+* `synced_folder_type` (string) - **Deprecated**  (use `synced_folder_opts` instead) 
+  The type of synced folders to use when sharing the data required for the provisioner 
+  to work properly. By default this will use the default synced folder type.
+  For example, you can set this to "nfs" to use NFS synced folders.
 
-* `synced_folder_args` (array) - Arguments that are passed to the folder sync.
-  For example ['-a', '--delete', '--exclude=fixtures'] for the rsync sync
-  command.
+* `synced_folder_args` (array) - **Deprecated**  (use `synced_folder_opts` instead)
+  Arguments that are passed to the folder sync. 
+  For example ['-a', '--delete', '--exclude=fixtures'] for the rsync sync command.
+
+* `synced_folder_opts` (hash) - Options to apply when creating synced folders required
+  for the provisioner to work properly.  If not specified, this will use the default 
+  synced folder options. All [synced folder types](/synced-folders/basic_usage.html)
+  and their relevant options are supported.
 
 * `temp_dir` (string) - The directory where all the data associated with
   the Puppet run (manifest files, modules, etc.) will be stored on the
