@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - command/validate: Allow validation of config while ignoring provider [GH-10351]
 - communicators/ssh: Prevent overly verbose output waiting for connection [GH-10321]
+- core: Limit number of automatic box update checks [GH-10359]
 - providers/virtualbox: Add `automount` flag if specified with synced_folder [GH-10326]
 - providers/virtualbox: Refactor host only network settings [GH-7699]
 - synced_folders/smb: Allow for 'default' smb_username in prompt if set [GH-10319]
