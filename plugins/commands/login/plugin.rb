@@ -14,7 +14,6 @@ module VagrantPlugins
       command(:login) do
         require File.expand_path("../../cloud/auth/login", __FILE__)
         init!
-        $stderr.puts "WARNING: This command has been deprecated in favor of `vagrant cloud auth login`"
         VagrantPlugins::CloudCommand::AuthCommand::Command::Login
       end
 

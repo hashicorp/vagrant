@@ -23,6 +23,10 @@ module Vagrant
         return 0
       end
 
+      if @sub_command == "login"
+        $stderr.puts "WARNING: This command has been deprecated and aliased to `vagrant cloud auth login`"
+      end
+
       # If we reached this far then we must have a subcommand. If not,
       # then we also just print the help and exit.
       command_plugin = nil
