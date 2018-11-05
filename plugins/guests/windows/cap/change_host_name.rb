@@ -12,7 +12,6 @@ module VagrantPlugins
           # If the configured name matches the current name, then bail
           # We cannot use %ComputerName% because it truncates at 15 chars
           return if machine.communicate.test("if ([System.Net.Dns]::GetHostName() -eq '#{name}') { exit 0 } exit 1")
-          @logger = Log4r::Logger.new("vagrant::windows::change_host_name")
 
           # Rename and reboot host if rename succeeded
           script = <<-EOH
