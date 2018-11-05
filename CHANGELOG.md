@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - command/validate: Allow validation of config while ignoring provider [GH-10351]
 - communicators/ssh: Prevent overly verbose output waiting for connection [GH-10321]
+- communicators/ssh: Support ed25519 keys [GH-10365]
 - core: Limit number of automatic box update checks [GH-10359]
 - providers/virtualbox: Add `automount` flag if specified with synced_folder [GH-10326]
 - providers/virtualbox: Refactor host only network settings [GH-7699]
