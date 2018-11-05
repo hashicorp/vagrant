@@ -16,7 +16,9 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "vagrant"
 
+  s.add_dependency "bcrypt_pbkdf", "~> 1.0.0"
   s.add_dependency "childprocess", "~> 0.6.0"
+  s.add_dependency "ed25519", "~> 1.2.4"
   s.add_dependency "erubis", "~> 2.7.0"
   s.add_dependency "i18n", ">= 0.6.0", "<= 0.8.0"
   s.add_dependency "listen", "~> 3.1.5"
