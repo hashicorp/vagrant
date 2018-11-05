@@ -16,6 +16,9 @@ module Vagrant
   class Box
     include Comparable
 
+    # Number of seconds to wait between checks for box updates
+    BOX_UPDATE_CHECK_INTERVAL = 3600
+
     # The box name. This is the logical name used when adding the box.
     #
     # @return [String]
@@ -154,6 +157,11 @@ module Vagrant
         raise Errors::BoxUpdateNoMetadata, name: @name
       end
 
+      if download_options.delete(:automatic_check) && !automatic_update_check_allowed?
+        @logger.info("Skipping box update check")
+        return
+      end
+
       version += ", " if version
       version ||= ""
       version += "> #{@version}"
@@ -162,6 +170,25 @@ module Vagrant
       return nil if !newer
 
       [md, newer, newer.provider(@provider)]
+    end
+
+    # Check if a box update check is allowed. Uses a file
+    # in the box data directory to track when the last auto
+    # update check was performed and returns true if the
+    # BOX_UPDATE_CHECK_INTERVAL has passed.
+    #
+    # @return [Boolean]
+    def automatic_update_check_allowed?
+      check_path = directory.join("box_update_check")
+      if check_path.exist?
+        last_check_span = Time.now.to_i - check_path.mtime.to_i
+        if last_check_span < BOX_UPDATE_CHECK_INTERVAL
+          @logger.info("box update check is under the interval threshold")
+          return false
+        end
+      end
+      FileUtils.touch(check_path)
+      true
     end
 
     # This repackages this box and outputs it to the given path.
