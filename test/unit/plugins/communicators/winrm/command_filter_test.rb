@@ -21,7 +21,7 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
 
     it 'filters out which commands' do
       expect(subject.filter('which ruby')).to include(
-        '[Array](Get-Command ruby -errorAction SilentlyContinue)')
+        '[Array](Get-Command "ruby" -errorAction SilentlyContinue)')
     end
 
     it 'filters out test -d commands' do
@@ -54,25 +54,31 @@ describe VagrantPlugins::CommunicatorWinRM::CommandFilter, unit: true do
 
     it 'filters out rm recurse commands' do
       expect(subject.filter('rm -Rf /some/dir')).to eq(
-        "rm /some/dir -recurse -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force -recurse}")
       expect(subject.filter('rm -fr /some/dir')).to eq(
-        "rm /some/dir -recurse -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force -recurse}")
       expect(subject.filter('rm -r /some/dir')).to eq(
-        "rm /some/dir -recurse -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force -recurse}")
+      expect(subject.filter('rm -r "/some/dir"')).to eq(
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force -recurse}")
     end
 
     it 'filters out rm commands' do
       expect(subject.filter('rm /some/dir')).to eq(
-        "rm /some/dir -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force}")
       expect(subject.filter('rm -f /some/dir')).to eq(
-        "rm /some/dir -force")
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force}")
+      expect(subject.filter('rm -f "/some/dir"')).to eq(
+        "if (Test-Path \"/some/dir\") {Remove-Item \"/some/dir\" -force}")
     end
 
     it 'filters out mkdir commands' do
       expect(subject.filter('mkdir /some/dir')).to eq(
-        "mkdir /some/dir -force")
+        "mkdir \"/some/dir\" -force")
       expect(subject.filter('mkdir -p /some/dir')).to eq(
-        "mkdir /some/dir -force")
+        "mkdir \"/some/dir\" -force")
+      expect(subject.filter('mkdir "/some/dir"')).to eq(
+        "mkdir \"/some/dir\" -force")
     end
 
     it 'filters out chown commands' do

@@ -22,7 +22,7 @@ module VagrantPlugins
         @env.ui.machine("version-installed", Vagrant::VERSION)
 
         # Load the latest information
-        cp = @env.checkpoint
+        cp = Vagrant::Util::CheckpointClient.instance.result
         if !cp
           @env.ui.output("\n"+I18n.t(
             "vagrant.version_no_checkpoint"))

@@ -1,4 +1,5 @@
 require "vagrant/util/template_renderer"
+require "log4r"
 
 module Vagrant
   # This class provides a way to load and access the contents
@@ -18,7 +19,7 @@ module Vagrant
     # Initializes by loading a Vagrantfile.
     #
     # @param [Config::Loader] loader Configuration loader that should
-    #   already be configured with the proper Vagrantflie locations.
+    #   already be configured with the proper Vagrantfile locations.
     #   This usually comes from {Vagrant::Environment}
     # @param [Array<Symbol>] keys The Vagrantfiles to load and the
     #   order to load them in (keys within the loader).
@@ -26,6 +27,7 @@ module Vagrant
       @keys   = keys
       @loader = loader
       @config, _ = loader.load(keys)
+      @logger = Log4r::Logger.new("vagrant::vagrantfile")
     end
 
     # Returns a {Machine} for the given name and provider that
@@ -42,7 +44,7 @@ module Vagrant
     # @return [Machine]
     def machine(name, provider, boxes, data_path, env)
       # Load the configuration for the machine
-      results = machine_config(name, provider, boxes)
+      results = machine_config(name, provider, boxes, data_path)
       box             = results[:box]
       config          = results[:config]
       config_errors   = results[:config_errors]
@@ -107,9 +109,10 @@ module Vagrant
     #   be backed by (required for provider overrides).
     # @param [BoxCollection] boxes BoxCollection to look up the
     #   box Vagrantfile.
+    # @param [Pathname] data_path Machine data path
     # @return [Hash<Symbol, Object>] Various configuration parameters for a
     #   machine. See the main documentation body for more info.
-    def machine_config(name, provider, boxes)
+    def machine_config(name, provider, boxes, data_path=nil)
       keys = @keys.dup
 
       sub_machine = @config.vm.defined_vms[name]
@@ -125,8 +128,21 @@ module Vagrant
       if provider != nil
         provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
         if !provider_plugin
+          providers  = Vagrant.plugin("2").manager.providers.to_hash.keys
+          if providers
+            providers_str = providers.join(', ')
+          else
+            providers_str = "N/A"
+          end
+
+          if providers.include? provider.downcase
+            raise Errors::ProviderNotFoundSuggestion,
+              machine: name, provider: provider,
+              suggestion: provider.downcase, providers: providers_str
+          end
+
           raise Errors::ProviderNotFound,
-            machine: name, provider: provider
+            machine: name, provider: provider, providers: providers_str
         end
 
         provider_cls     = provider_plugin[0]
@@ -155,6 +171,20 @@ module Vagrant
       # Track the original box so we know if we changed
       box = nil
       original_box = config.vm.box
+      original_version = config.vm.box_version
+
+      # Check if this machine has a local box metadata file
+      # describing the existing guest. If so, load it and
+      # set the box name and version to allow the actual
+      # box in use to be discovered.
+      if data_path
+        meta_file = data_path.join("box_meta")
+        if meta_file.file?
+          box_meta = JSON.parse(meta_file.read)
+          config.vm.box = box_meta["name"]
+          config.vm.box_version = box_meta["version"]
+        end
+      end
 
       # The proc below loads the box and provider overrides. This is
       # in a proc because it may have to recurse if the provider override
@@ -167,12 +197,14 @@ module Vagrant
           box = boxes.find(config.vm.box, box_formats, config.vm.box_version)
           if box
             box_vagrantfile = find_vagrantfile(box.directory)
-            if box_vagrantfile
+            if box_vagrantfile && !config.vm.ignore_box_vagrantfile
               box_config_key =
                 "#{boxes.object_id}_#{box.name}_#{box.provider}".to_sym
               @loader.set(box_config_key, box_vagrantfile)
               local_keys.unshift(box_config_key)
               config, config_warnings, config_errors = @loader.load(local_keys)
+            elsif box_vagrantfile && config.vm.ignore_box_vagrantfile
+              @logger.warn("Ignoring #{box.name} provided Vagrantfile inside box")
             end
           end
         end
@@ -188,16 +220,22 @@ module Vagrant
         end
 
         # If the box changed, then we need to reload
-        if original_box != config.vm.box
+        if original_box != config.vm.box || original_version != config.vm.box_version
           # TODO: infinite loop protection?
 
           original_box = config.vm.box
+          original_version = config.vm.box_version
           load_box_proc.call
         end
       end
 
       # Load the box and provider overrides
       load_box_proc.call
+
+      # Ensure box attributes are set to original values in
+      # case they were modified by the local box metadata
+      config.vm.box = original_box
+      config.vm.box_version = original_version
 
       return {
         box: box,

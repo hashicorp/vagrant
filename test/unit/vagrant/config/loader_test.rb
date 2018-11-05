@@ -8,7 +8,7 @@ describe Vagrant::Config::Loader do
   # This is the current version of configuration for the tests.
   let(:current_version) { version_order.last }
 
-  # This is just a dummy implementation of a configuraiton loader which
+  # This is just a dummy implementation of a configuration loader which
   # simply acts on hashes.
   let(:test_loader) do
     Class.new(Vagrant::Config::VersionBase) do
@@ -86,6 +86,20 @@ describe Vagrant::Config::Loader do
       expect(config[:foo]).to eq("yep")
       expect(warnings).to eq([])
       expect(errors).to eq([])
+    end
+
+    it "should throw a NameError exception if invalid or undefined variable is used" do
+      vagrantfile = <<-VF
+      Vagrant.configure("2") do |config|
+        config.ssh.port = variable
+      end
+      VF
+
+      instance.set(:foo, temporary_file(vagrantfile))
+
+      expect {
+        instance.load([:foo])
+      }.to raise_error(Vagrant::Errors::VagrantfileNameError, /invalid or undefined variable/)
     end
   end
 

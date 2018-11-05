@@ -7,7 +7,7 @@ module VagrantPlugins
         end
 
         def call(env)
-          env[:result] = !!env[:machine].provider_config.build_dir
+          env[:result] = (!!env[:machine].provider_config.build_dir || !!env[:machine].provider_config.git_repo)
           @app.call(env)
         end
       end

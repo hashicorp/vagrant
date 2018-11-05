@@ -14,6 +14,7 @@ module VagrantPlugins
           force: false,
           minimal: false,
           output: "Vagrantfile",
+          template: ENV["VAGRANT_DEFAULT_TEMPLATE"]
         }
 
         opts = OptionParser.new do |o|
@@ -30,13 +31,17 @@ module VagrantPlugins
             options[:force] = f
           end
 
-          o.on("-m", "--minimal", "Create minimal Vagrantfile (no help comments)") do |m|
+          o.on("-m", "--minimal", "Use minimal Vagrantfile template (no help comments). Ignored with --template") do |m|
             options[:minimal] = m
           end
 
           o.on("--output FILE", String,
                "Output path for the box. '-' for stdout") do |output|
             options[:output] = output
+          end
+
+          o.on("--template FILE", String, "Path to custom Vagrantfile template") do |template|
+            options[:template] = template
           end
         end
 
@@ -51,16 +56,32 @@ module VagrantPlugins
           raise Vagrant::Errors::VagrantfileExistsError if save_path.exist?
         end
 
-        template = "templates/commands/init/Vagrantfile"
-        if options[:minimal]
-          template = "templates/commands/init/Vagrantfile.min"
+        # Determine the template and template root to use
+        template_root = ""
+        if options[:template].nil?
+          options[:template] = "Vagrantfile"
+
+          if options[:minimal]
+            options[:template] = "Vagrantfile.min"
+          end
+
+          template_root = ::Vagrant.source_root.join("templates/commands/init")
         end
 
-        template_path = ::Vagrant.source_root.join(template)
-        contents = Vagrant::Util::TemplateRenderer.render(template_path,
+        # Strip the .erb extension off the template if the user passes it in
+        options[:template] = options[:template].chomp(".erb")
+
+        # Make sure the template actually exists
+        full_template_path = Vagrant::Util::TemplateRenderer.new(options[:template], template_root: template_root).full_template_path
+        if !File.file?(full_template_path)
+          raise Vagrant::Errors::VagrantfileTemplateNotFoundError, path: full_template_path
+        end
+
+        contents = Vagrant::Util::TemplateRenderer.render(options[:template],
           box_name: argv[0] || "base",
           box_url: argv[1],
           box_version: options[:box_version],
+          template_root: template_root
         )
 
         if save_path

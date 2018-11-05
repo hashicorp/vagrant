@@ -14,6 +14,11 @@ Vagrant has a set of environmental variables that can be used to
 configure and control it in a global way. This page lists those environmental
 variables.
 
+## `VAGRANT_ALIAS_FILE`
+
+`VAGRANT_ALIAS_FILE` can be set to change the file where Vagrant aliases are
+defined. By default, this is set to `~/.vagrant.d/aliases`.
+
 ## `VAGRANT_DEBUG_LAUNCHER`
 
 For performance reasons, especially for Windows users, Vagrant uses a static
@@ -31,6 +36,11 @@ about how to detect the default provider. By setting this, you will force
 Vagrant to use this provider for any _new_ Vagrant environments. Existing
 Vagrant environments will continue to use the provider they came `up` with.
 Once you `vagrant destroy` existing environments, this will take effect.
+
+## `VAGRANT_DEFAULT_TEMPLATE`
+
+This configures the template used by `vagrant init` when the `--template` option
+is not provided.
 
 ## `VAGRANT_PREFERRED_PROVIDERS`
 
@@ -156,6 +166,19 @@ may be desirable to ignore inaccessible sources and continue with the
 plugin installation. Enabling this value will cause Vagrant to simply log
 the plugin source error and continue.
 
+## `VAGRANT_INSTALL_LOCAL_PLUGINS`
+
+If this is set to any value, Vagrant will not prompt for confirmation
+prior to installing local plugins which have been defined within the
+local Vagrantfile.
+
+## `VAGRANT_LOCAL_PLUGINS_LOAD`
+
+If this is set Vagrant will not stub the Vagrantfile when running
+`vagrant plugin` commands. When this environment variable is set the
+`--local` flag will not be required by `vagrant plugin` commands to
+enable local project plugins.
+
 ## `VAGRANT_NO_PARALLEL`
 
 If this is set, Vagrant will not perform any parallel operations (such as
@@ -187,7 +210,10 @@ required.
 
 If this is set, Vagrant will prefer using utility executables (like `ssh` and `rsync`)
 from the local system instead of those vendored within the Vagrant installation.
-This currently only applies to Windows systems.
+
+Vagrant will default to using a system provided `ssh` on Windows. This
+environment variable can also be used to disable that behavior to force Vagrant to
+use the embedded `ssh` executable by setting it to `0`.
 
 ## `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`
 
@@ -195,7 +221,7 @@ As of Vagrant 1.7.3, Vagrant tries to intelligently detect if it is running in
 the installer or running via Bundler. Although not officially supported, Vagrant
 tries its best to work when executed via Bundler. When Vagrant detects that you
 have spawned a subprocess that lives outside of Vagrant's installer, Vagrant
-will do its best to reset the preserved environment dring the subprocess
+will do its best to reset the preserved environment during the subprocess
 execution.
 
 If Vagrant detects it is running outside of the officially installer, the
@@ -211,3 +237,50 @@ but just a filename.
 This environmental variable is commonly used in scripting environments
 where a single folder may contain multiple Vagrantfiles representing
 different configurations.
+
+## `VAGRANT_DISABLE_VBOXSYMLINKCREATE`
+
+If set, this will disable the ability to create symlinks with all virtualbox
+shared folders. Defaults to true if the option is not set. This can be overridden
+on a per-folder basis within your Vagrantfile config by settings the
+`SharedFoldersEnableSymlinksCreate` option to true.
+
+## `VAGRANT_ENABLE_RESOLV_REPLACE`
+
+Use the Ruby Resolv library in place of the libc resolver.
+
+## `VAGRANT_DISABLE_RESOLV_REPLACE`
+
+Vagrant can optionally use the Ruby Resolv library in place of the libc resolver.
+This can be disabled setting this environment variable.
+
+## `VAGRANT_POWERSHELL_VERSION_DETECTION_TIMEOUT`
+
+Vagrant will use a default timeout when checking for the installed version
+of PowerShell. Occasionally the default can be too low and Vagrant will report
+being unable to detect the installed version of PowerShell. This environment
+variable can be used to extend the timeout used during PowerShell version
+detection.
+
+When setting this environment variable, its value will be in seconds. By default,
+it will use 30 seconds as a timeout.
+
+## `VAGRANT_USE_VAGRANT_TRIGGERS`
+
+Vagrant will not display the warning about disabling the core trigger feature if
+the community plugin is installed.
+
+## `VAGRANT_IGNORE_WINRM_PLUGIN`
+
+Vagrant will not display warning when `vagrant-winrm` plugin is installed.
+
+## `VAGRANT_USER_AGENT_PROVISIONAL_STRING`
+
+Vagrant will append the contents of this variable to the default user agent header.
+
+## `VAGRANT_IS_HYPERV_ADMIN`
+
+Disable Vagrant's check for Hyper-V admin privileges and allow Vagrant to assume
+the current user has full access to Hyper-V. This is useful if the internal
+privilege check incorrectly determines the current user does not have access
+to Hyper-V.

@@ -36,6 +36,8 @@ setting in the created Vagrantfile.
 * `--output FILE` - This will output the Vagrantfile to the given file.
   If this is "-", the Vagrantfile will be sent to stdout.
 
+* `--template FILE` - Provide a custom ERB template for generating the Vagrantfile.
+
 ## Examples
 
 Create a base Vagrantfile:
@@ -65,5 +67,5 @@ $ vagrant init my-company-box https://boxes.company.com/my-company.box
 Create a Vagrantfile, locking the box to a version constraint:
 
 ```sh
-$ vagrant init --box-version '> 0.1.5' hashcorp/precise64
+$ vagrant init --box-version '> 0.1.5' hashicorp/precise64
 ```

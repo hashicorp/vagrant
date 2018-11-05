@@ -38,4 +38,14 @@ The details of each are covered in their specific section in the sidebar
 to the left. We also have a section where we go into detail about the
 security implications of this feature.
 
+## Installation
+
+Vagrant Share is a Vagrant plugin that must be installed. It is not
+included with Vagrant system packages. To install the Vagrant Share
+plugin, run the following command:
+
+```shell
+$ vagrant plugin install vagrant-share
+```
+
 Vagrant Share requires [ngrok](https://ngrok.com) to be used.

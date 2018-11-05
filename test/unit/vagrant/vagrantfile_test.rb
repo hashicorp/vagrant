@@ -208,6 +208,31 @@ describe Vagrant::Vagrantfile do
       expect(box.name).to eq("base")
     end
 
+    it "does not configure box configuration if set to ignore" do
+      register_provider("foo")
+
+      configure do |config|
+        config.vm.box = "base"
+        config.vm.ignore_box_vagrantfile = true
+      end
+
+      iso_env.box3("base", "1.0", :foo, vagrantfile: <<-VF)
+      Vagrant.configure("2") do |config|
+        config.ssh.port = 123
+        config.vm.hostname = "hello"
+      end
+      VF
+
+      results = subject.machine_config(:default, :foo, boxes)
+      box     = results[:box]
+      config  = results[:config]
+      expect(config.vm.box).to eq("base")
+      expect(config.ssh.port).to eq(nil)
+      expect(config.vm.hostname).to eq(nil)
+      expect(box).to_not be_nil
+      expect(box.name).to eq("base")
+    end
+
     it "configures with the proper box version" do
       register_provider("foo")
 
@@ -288,9 +313,11 @@ describe Vagrant::Vagrantfile do
 
       configure do |config|
         config.vm.box = "base"
+        config.vm.box_version = "1.0"
 
         config.vm.provider "foo" do |_, c|
           c.vm.box = "foobox"
+          c.vm.box_version = "2.0"
         end
       end
 
@@ -300,7 +327,7 @@ describe Vagrant::Vagrantfile do
       end
       VF
 
-      iso_env.box3("foobox", "1.0", :foo, vagrantfile: <<-VF)
+      iso_env.box3("foobox", "2.0", :foo, vagrantfile: <<-VF)
       Vagrant.configure("2") do |config|
         config.ssh.port = 234
       end
@@ -311,8 +338,10 @@ describe Vagrant::Vagrantfile do
       box     = results[:box]
       expect(config.vm.box).to eq("foobox")
       expect(config.ssh.port).to eq(234)
+      expect(config.vm.box_version).to eq("2.0")
       expect(box).to_not be_nil
       expect(box.name).to eq("foobox")
+      expect(box.version).to eq("2.0")
     end
 
     it "raises an error if the machine is not found" do
@@ -323,6 +352,13 @@ describe Vagrant::Vagrantfile do
     it "raises an error if the provider is not found" do
       expect { subject.machine_config(:default, :foo, boxes) }.
         to raise_error(Vagrant::Errors::ProviderNotFound)
+    end
+
+    it "raises an error if the provider is not found but gives suggestion" do
+      register_provider("foo")
+
+      expect { subject.machine_config(:default, :Foo, boxes) }.
+        to raise_error(Vagrant::Errors::ProviderNotFoundSuggestion)
     end
 
     it "raises an error if the provider is not usable" do

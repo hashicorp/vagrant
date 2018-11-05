@@ -50,7 +50,7 @@ module Vagrant
         end
       end
 
-      # Renders the template using the class intance as the binding. Because the
+      # Renders the template using the class instance as the binding. Because the
       # renderer inherits from `OpenStruct`, additional view variables can be
       # added like normal accessors.
       #
@@ -76,7 +76,7 @@ module Vagrant
         Erubis::Eruby.new(template, trim: true).result(binding)
       end
 
-      # Returns the full path to the template, taking into accoun the gem directory
+      # Returns the full path to the template, taking into account the gem directory
       # and adding the `.erb` extension to the end.
       #
       # @return [String]

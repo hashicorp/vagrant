@@ -22,6 +22,7 @@ module VagrantPlugins
       def self.init!
         return if defined?(@_init)
         I18n.load_path << File.expand_path("templates/locales/command_ps.yml", Vagrant.source_root)
+        I18n.load_path << File.expand_path("templates/locales/comm_winrm.yml", Vagrant.source_root)
         I18n.reload!
         @_init = true
       end

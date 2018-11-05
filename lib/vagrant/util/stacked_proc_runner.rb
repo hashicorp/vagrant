@@ -23,7 +23,7 @@ module Vagrant
       end
 
       # Executes all the procs on the stack, passing in the given arguments.
-      # The stack is not cleared afterwords. It is up to the user of this
+      # The stack is not cleared afterwards. It is up to the user of this
       # mixin to clear the stack by calling `proc_stack.clear`.
       def run_procs!(*args)
         proc_stack.each do |proc|

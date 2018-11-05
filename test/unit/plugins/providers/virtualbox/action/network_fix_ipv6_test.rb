@@ -123,6 +123,23 @@ describe VagrantPlugins::ProviderVirtualBox::Action::NetworkFixIPv6 do
       expect(socket).to_not have_received(:connect)
     end
 
+    it "should ignore interfaces with link-local IPv6 address" do
+      all_networks = [{name: "vboxnet0",
+        ipv6: "fe80::ffff:ffff:ffff:ffff",
+        ipv6_prefix: 64,
+        status: 'Up'
+      }
+      ]
+      ifaces = { 1 => {type: :hostonly, hostonly: "vboxnet0"}
+      }
+      allow(machine.provider.driver).to receive(:read_network_interfaces)
+        .and_return(ifaces)
+      allow(machine.provider.driver).to receive(:read_host_only_interfaces)
+        .and_return(all_networks)
+      subject.call(env)
+      expect(socket).to_not have_received(:connect)
+    end
+
     it "should ignore nat interfaces" do
       all_networks = [{name: "vboxnet0",
                        ipv6: "",

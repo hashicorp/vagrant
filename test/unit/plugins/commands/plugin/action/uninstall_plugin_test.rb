@@ -15,7 +15,7 @@ describe VagrantPlugins::CommandPlugin::Action::UninstallPlugin do
   end
 
   it "uninstalls the specified plugin" do
-    expect(manager).to receive(:uninstall_plugin).with("bar").ordered
+    expect(manager).to receive(:uninstall_plugin).with("bar", any_args).ordered
     expect(app).to receive(:call).ordered
 
     env[:plugin_name] = "bar"

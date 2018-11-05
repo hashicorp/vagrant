@@ -12,7 +12,7 @@ describe VagrantPlugins::DockerProvider::Driver do
 
   describe '#create' do
     let(:params) { {
-      image:      'jimi/hendrix:eletric-ladyland',
+      image:      'jimi/hendrix:electric-ladyland',
       cmd:        ['play', 'voodoo-chile'],
       ports:      '8080:80',
       volumes:    '/host/path:guest/path',
@@ -64,6 +64,33 @@ describe VagrantPlugins::DockerProvider::Driver do
       expect(cmd_executed).to match(/#{Regexp.escape params[:image]} #{Regexp.escape params[:cmd].join(' ')}/)
     end
   end
+
+  describe '#create windows' do
+    let(:params) { {
+      image:      'jimi/hendrix:eletric-ladyland',
+      cmd:        ['play', 'voodoo-chile'],
+      ports:      '8080:80',
+      volumes:    'C:/Users/BobDylan/AllAlong:/The/Watchtower',
+      detach:     true,
+      links:      [[:janis, 'joplin'], [:janis, 'janis']],
+      env:        {key: 'value'},
+      name:       cid,
+      hostname:   'jimi-hendrix',
+      privileged: true
+    } }
+
+    let(:translated_path) { "//c/Users/BobDylan/AllAlong:/The/Watchtower" }
+
+    before do
+      allow(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+      subject.create(params)
+    end
+
+    it 'shares folders' do
+      expect(cmd_executed).to match(/-v #{translated_path} .+ #{Regexp.escape params[:image]}/)
+    end
+  end
+
 
   describe '#created?' do
     let(:result) { subject.created?(cid) }

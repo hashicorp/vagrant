@@ -20,6 +20,11 @@ on a day-to-day basis.
 
 ## Options
 
+* `name` - Name of machine defined in [Vagrantfile](/docs/vagrantfile/)
+
+* `id` - Machine id found with `vagrant global-status`. Using `id` allows
+  you to call `vagrant up id` from any directory.
+
 * `--[no-]destroy-on-error` - Destroy the newly created machine if a fatal,
   unexpected error occurs. This will only happen on the first `vagrant up`.
   By default this is set.

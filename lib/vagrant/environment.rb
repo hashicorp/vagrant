@@ -4,11 +4,11 @@ require 'pathname'
 require 'set'
 require 'thread'
 
-require "checkpoint"
 require 'log4r'
 
 require 'vagrant/util/file_mode'
 require 'vagrant/util/platform'
+require 'vagrant/util/hash_with_indifferent_access'
 require "vagrant/util/silence_warnings"
 require "vagrant/vagrantfile"
 require "vagrant/version"
@@ -56,6 +56,9 @@ module Vagrant
 
     # The directory where temporary files for Vagrant go.
     attr_reader :tmp_path
+
+    # File where command line aliases go.
+    attr_reader :aliases_path
 
     # The directory where boxes are stored.
     attr_reader :boxes_path
@@ -125,36 +128,11 @@ module Vagrant
       @tmp_path   = @home_path.join("tmp")
       @machine_index_dir = @data_dir.join("machine-index")
 
+      @aliases_path = Pathname.new(ENV["VAGRANT_ALIAS_FILE"]).expand_path if ENV.key?("VAGRANT_ALIAS_FILE")
+      @aliases_path ||= @home_path.join("aliases")
+
       # Prepare the directories
       setup_home_path
-
-      # Run checkpoint in a background thread on every environment
-      # initialization. The cache file will cause this to mostly be a no-op
-      # most of the time.
-      @checkpoint_thr = Thread.new do
-        Thread.current[:result] = nil
-
-        # If we disabled checkpoint via env var, don't run this
-        if ENV["VAGRANT_CHECKPOINT_DISABLE"].to_s != ""
-          @logger.info("checkpoint: disabled from env var")
-          next
-        end
-
-        # If we disabled state and knowing what alerts we've seen, then
-        # disable the signature file.
-        signature_file = @data_dir.join("checkpoint_signature")
-        if ENV["VAGRANT_CHECKPOINT_NO_STATE"].to_s != ""
-          @logger.info("checkpoint: will not store state")
-          signature_file = nil
-        end
-
-        Thread.current[:result] = Checkpoint.check(
-          product: "vagrant",
-          version: VERSION,
-          signature_file: signature_file,
-          cache_file: @data_dir.join("checkpoint_cache"),
-        )
-      end
 
       # Setup the local data directory. If a configuration path is given,
       # it is expanded relative to the root path. Otherwise, we use the
@@ -169,6 +147,7 @@ module Vagrant
       if opts[:local_data_path]
         @local_data_path = Pathname.new(File.expand_path(opts[:local_data_path], @cwd))
       end
+
       @logger.debug("Effective local data path: #{@local_data_path}")
 
       # If we have a root path, load the ".vagrantplugins" file.
@@ -185,6 +164,20 @@ module Vagrant
       # Setup the default private key
       @default_private_key_path = @home_path.join("insecure_private_key")
       copy_insecure_private_key
+
+      # Initialize localized plugins
+      plugins = Vagrant::Plugin::Manager.instance.localize!(self)
+      # Load any environment local plugins
+      Vagrant::Plugin::Manager.instance.load_plugins(plugins)
+
+      # Initialize globalize plugins
+      plugins = Vagrant::Plugin::Manager.instance.globalize!
+      # Load any global plugins
+      Vagrant::Plugin::Manager.instance.load_plugins(plugins)
+
+      if !vagrantfile.config.vagrant.plugins.empty?
+        plugins = process_configured_plugins
+      end
 
       # Call the hooks that does not require configurations to be loaded
       # by using a "clean" action runner
@@ -289,16 +282,6 @@ module Vagrant
       end
     end
 
-    # Checkpoint returns the checkpoint result data. If checkpoint is
-    # disabled, this will return nil. See the hashicorp-checkpoint gem
-    # for more documentation on the return value.
-    #
-    # @return [Hash]
-    def checkpoint
-      @checkpoint_thr.join(THREAD_MAX_JOIN_TIMEOUT)
-      return @checkpoint_thr[:result]
-    end
-
     # Makes a call to the CLI with the given arguments as if they
     # came from the real command line (sometimes they do!). An example:
     #
@@ -352,7 +335,7 @@ module Vagrant
       # then look there.
       root_config = vagrantfile.config
       if opts[:machine]
-        machine_info = vagrantfile.machine_config(opts[:machine], nil, nil)
+        machine_info = vagrantfile.machine_config(opts[:machine], nil, nil, nil)
         root_config = machine_info[:config]
       end
 
@@ -485,7 +468,7 @@ module Vagrant
         temp_dir_root: tmp_path)
     end
 
-    # Returns the {Config::Loader} that can be used to load Vagrantflies
+    # Returns the {Config::Loader} that can be used to load Vagrantfiles
     # given the settings of this environment.
     #
     # @return [Config::Loader]
@@ -923,6 +906,13 @@ module Vagrant
       begin
         @logger.debug("Creating: #{@local_data_path}")
         FileUtils.mkdir_p(@local_data_path)
+        # Create the rgloader/loader file so we can use encoded files.
+        loader_file = @local_data_path.join("rgloader", "loader.rb")
+        if !loader_file.file?
+          source_loader = Vagrant.source_root.join("templates/rgloader.rb")
+          FileUtils.mkdir_p(@local_data_path.join("rgloader").to_s)
+          FileUtils.cp(source_loader.to_s, loader_file.to_s)
+        end
       rescue Errno::EACCES
         raise Errors::LocalDataDirectoryNotAccessible,
           local_data_path: @local_data_path.to_s
@@ -930,6 +920,67 @@ module Vagrant
     end
 
     protected
+
+    # Check for any local plugins defined within the Vagrantfile. If
+    # found, validate they are available. If they are not available,
+    # request to install them, or raise an exception
+    #
+    # @return [Hash] plugin list for loading
+    def process_configured_plugins
+      return if !Vagrant.plugins_enabled?
+      errors = vagrantfile.config.vagrant.validate(nil)
+      if !errors["vagrant"].empty?
+        raise Errors::ConfigInvalid,
+          errors: Util::TemplateRenderer.render(
+            "config/validation_failed",
+            errors: errors)
+      end
+      # Check if defined plugins are installed
+      installed = Plugin::Manager.instance.installed_plugins
+      needs_install = []
+      config_plugins = vagrantfile.config.vagrant.plugins
+      config_plugins.each do |name, info|
+        if !installed[name]
+          needs_install << name
+        end
+      end
+      if !needs_install.empty?
+        ui.warn(I18n.t("vagrant.plugins.local.uninstalled_plugins",
+          plugins: needs_install.sort.join(", ")))
+        if !Vagrant.auto_install_local_plugins?
+          answer = nil
+          until ["y", "n"].include?(answer)
+            answer = ui.ask(I18n.t("vagrant.plugins.local.request_plugin_install") + " [N]: ")
+            answer = answer.strip.downcase
+            answer = "n" if answer.to_s.empty?
+          end
+          if answer == "n"
+            raise Errors::PluginMissingLocalError,
+              plugins: needs_install.sort.join(", ")
+          end
+        end
+        needs_install.each do |name|
+          pconfig = Util::HashWithIndifferentAccess.new(config_plugins[name])
+          ui.info(I18n.t("vagrant.commands.plugin.installing", name: name))
+
+          options = {sources: Vagrant::Bundler::DEFAULT_GEM_SOURCES.dup, env_local: true}
+          options[:sources] = pconfig[:sources] if pconfig[:sources]
+          options[:require] = pconfig[:entry_point] if pconfig[:entry_point]
+          options[:version] = pconfig[:version] if pconfig[:version]
+
+          spec = Plugin::Manager.instance.install_plugin(name, options)
+
+          ui.info(I18n.t("vagrant.commands.plugin.installed",
+            name: spec.name, version: spec.version.to_s))
+        end
+        ui.info("\n")
+        # Force halt after installation and require command to be run again. This
+        # will proper load any new locally installed plugins which are now available.
+        ui.warn(I18n.t("vagrant.plugins.local.install_rerun_command"))
+        exit(-1)
+      end
+      Vagrant::Plugin::Manager.instance.local_file.installed_plugins
+    end
 
     # This method copies the private key into the home directory if it
     # doesn't already exist.

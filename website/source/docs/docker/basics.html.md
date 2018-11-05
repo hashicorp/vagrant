@@ -75,12 +75,22 @@ on folders synced with a docker container.
 
 Private and public networks are not currently supported.
 
+### Volume Consistency
+
+Docker's [volume consistency](https://docs.docker.com/v17.09/engine/admin/volumes/bind-mounts/) setting can be specified using the `docker_consistency` option when defining a synced folder. This can
+[greatly improve performance on macOS](https://docs.docker.com/docker-for-mac/osxfs-caching). An example is shown using the `cached` and `delegated` settings:
+
+```ruby
+config.vm.synced_folder "/host/dir1", "/guest/dir1", docker_consistency: "cached"
+config.vm.synced_folder "/host/dir2", "/guest/dir2", docker_consistency: "delegated"
+```
+
 ## Host VM
 
-On systems that cannot run Linux containers natively, such as Mac OS X
-or Windows, Vagrant automatically spins up a "host VM" to run Docker.
-This allows your Docker-based Vagrant environments to remain portable,
-without inconsistencies depending on the platform they are running on.
+If the system cannot run Linux containers natively, Vagrant automatically spins
+up a "host VM" to run Docker. This allows your Docker-based Vagrant environments
+to remain portable, without inconsistencies depending on the platform they are
+running on.
 
 Vagrant will spin up a single instance of a host VM and run multiple
 containers on this one VM. This means that with the Docker provider,
@@ -88,7 +98,7 @@ you only have the overhead of one virtual machine, and only if it is
 absolutely necessary.
 
 By default, the host VM Vagrant spins up is
-[backed by boot2docker](https://github.com/mitchellh/vagrant/blob/master/plugins/providers/docker/hostmachine/Vagrantfile),
+[backed by boot2docker](https://github.com/hashicorp/vagrant/blob/master/plugins/providers/docker/hostmachine/Vagrantfile),
 because it launches quickly and uses little resources. But the host VM
 can be customized to point to _any_ Vagrantfile. This allows the host VM
 to more closely match production by running a VM running Ubuntu, RHEL,

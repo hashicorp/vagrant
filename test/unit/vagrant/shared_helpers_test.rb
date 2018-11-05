@@ -119,7 +119,7 @@ describe Vagrant do
       end
     end
 
-    it "prefers VAGRANT_HOME over USERPOFILE if both are set" do
+    it "prefers VAGRANT_HOME over USERPROFILE if both are set" do
       env = {
         "USERPROFILE" => "/bar",
         "VAGRANT_HOME" => "/foo",
@@ -141,6 +141,39 @@ describe Vagrant do
     it "should return false when Vagrant version is release" do
       stub_const("Vagrant::VERSION", "1.0.0")
       expect(subject.prerelease?).to be(false)
+    end
+  end
+
+  describe "#enable_resolv_replace" do
+    it "should not attempt to require resolv-replace by default" do
+      expect(subject).not_to receive(:require).with("resolv-replace")
+      subject.enable_resolv_replace
+    end
+
+    it "should require resolv-replace when VAGRANT_ENABLE_RESOLV_REPLACE is set" do
+      expect(subject).to receive(:require).with("resolv-replace")
+      with_temp_env("VAGRANT_ENABLE_RESOLV_REPLACE" => "1"){ subject.enable_resolv_replace }
+    end
+
+    it "should not require resolv-replace when VAGRANT_DISABLE_RESOLV_REPLACE is set" do
+      expect(subject).not_to receive(:require).with("resolv-replace")
+      with_temp_env("VAGRANT_ENABLE_RESOLV_REPLACE" => "1", "VAGRANT_DISABLE_RESOLV_REPLACE" => "1") do
+        subject.enable_resolv_replace
+      end
+    end
+  end
+
+  describe "#global_logger" do
+    after{ subject.global_logger = nil }
+
+    it "should return a logger when none have been provided" do
+      expect(subject.global_logger).not_to be_nil
+    end
+
+    it "should return previously set logger" do
+      logger = double("logger")
+      expect(subject.global_logger = logger).to eq(logger)
+      expect(subject.global_logger).to eq(logger)
     end
   end
 end

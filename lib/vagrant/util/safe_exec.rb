@@ -1,6 +1,6 @@
 module Vagrant
   module Util
-    # This module provies a `safe_exec` method which is a drop-in
+    # This module provides a `safe_exec` method which is a drop-in
     # replacement for `Kernel.exec` which addresses a specific issue
     # which manifests on OS X 10.5 (GH-51) and perhaps other operating systems.
     # This issue causes `exec` to fail if there is more than one system

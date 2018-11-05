@@ -23,8 +23,7 @@ as the providers differ. So you can have both a VirtualBox and VMware Fusion
 Installing boxes has not changed at all:
 
 ```
-$ vagrant box add \
-  precise64 https://files.hashicorp.com/precise64.box
+$ vagrant box add hashicorp/precise64
 ```
 
 Vagrant now automatically detects what provider a box is for. This is

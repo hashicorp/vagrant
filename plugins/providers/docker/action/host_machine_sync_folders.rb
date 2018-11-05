@@ -45,7 +45,7 @@ module VagrantPlugins
 
         def setup_synced_folders(host_machine, env)
           # Write the host machine SFID if we have one
-          id_path   = env[:machine].data_dir.join("host_machine_sfid")
+          id_path = env[:machine].data_dir.join("host_machine_sfid")
           if !id_path.file?
             host_sfid = SecureRandom.uuid
             id_path.open("w") do |f|
@@ -109,8 +109,7 @@ module VagrantPlugins
 
               # If we specify exact then we know what we're doing
               if !data[:docker__exact]
-                data[:guestpath] =
-                  "/var/lib/docker/docker_#{Time.now.to_i}_#{rand(100000)}"
+                data[:guestpath] = "/var/lib/docker/docker_#{id}"
               end
 
               # Add this synced folder onto the new config if we haven't

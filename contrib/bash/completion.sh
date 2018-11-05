@@ -53,7 +53,7 @@ __vagrantinvestigate() {
 _vagrant() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    commands="box connect destroy docker-exec docker-logs docker-run global-status halt help init list-commands login package plugin provision push rdp reload resume rsync rsync-auto share snapshot ssh ssh-config status suspend up version"
+    commands="box cloud connect destroy docker-exec docker-logs docker-run global-status halt help init list-commands login package plugin provision push rdp reload resume rsync rsync-auto share snapshot ssh ssh-config status suspend up version"
 
     if [ $COMP_CWORD == 1 ]
     then
@@ -65,7 +65,7 @@ _vagrant() {
     then
         case "$prev" in
             "init")
-              local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+              local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sed -e 's/-VAGRANTSLASH-/\//')
               COMPREPLY=($(compgen -W "${box_list}" -- ${cur}))
               return 0
             ;;
@@ -79,7 +79,7 @@ _vagrant() {
               COMPREPLY=($(compgen -W "${up_commands} ${vm_list}" -- ${cur}))
               return 0
             ;;
-            "ssh"|"provision"|"reload"|"halt"|"suspend"|"resume"|"ssh-config")
+            "destroy"|"ssh"|"provision"|"reload"|"halt"|"suspend"|"resume"|"ssh-config")
               vagrant_state_file=$(__vagrantinvestigate) || return 1
               if [[ -f "${vagrant_state_file}" ]]
               then
@@ -93,6 +93,11 @@ _vagrant() {
             "box")
               box_commands="add help list outdated prune remove repackage update"
               COMPREPLY=($(compgen -W "${box_commands}" -- ${cur}))
+              return 0
+            ;;
+            "cloud")
+              cloud_commands="auth box search provider publish version"
+              COMPREPLY=($(compgen -W "${cloud_commands}" -- ${cur}))
               return 0
             ;;
             "plugin")
@@ -132,12 +137,21 @@ _vagrant() {
         "box")
           case "$prev" in
             "remove"|"repackage")
-              local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+              local box_list=$(find "${VAGRANT_HOME:-${HOME}/.vagrant.d}/boxes" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sed -e 's/-VAGRANTSLASH-/\//')
               COMPREPLY=($(compgen -W "${box_list}" -- ${cur}))
               return 0
               ;;
             *)
               ;;
+          esac
+          ;;
+        "snapshot")
+          case "$prev" in
+            "restore"|"delete")
+              local snapshot_list=$(vagrant snapshot list)
+              COMPREPLY=($(compgen -W "${snapshot_list}" -- ${cur}))
+              return 0
+            ;;
           esac
           ;;
         *)

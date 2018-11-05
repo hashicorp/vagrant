@@ -63,7 +63,7 @@ Vagrant plugin development:
 source "https://rubygems.org"
 
 group :development do
-  gem "vagrant", git: "https://github.com/mitchellh/vagrant.git"
+  gem "vagrant", git: "https://github.com/hashicorp/vagrant.git"
 end
 
 group :plugins do
@@ -106,7 +106,7 @@ To manually test your plugin during development, use
 (thanks to the Gemfile setup we did earlier).
 
 For automated testing, the
-[vagrant-spec](https://github.com/mitchellh/vagrant-spec)
+[vagrant-spec](https://github.com/hashicorp/vagrant-spec)
 project provides helpers for both unit and acceptance testing
 plugins. See the giant README for that project for a detailed
 description of how to integrate vagrant-spec into your project.

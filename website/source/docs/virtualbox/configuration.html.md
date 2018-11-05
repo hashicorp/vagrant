@@ -22,7 +22,7 @@ you want to have a UI. Common use cases include wanting to see a browser
 that may be running in the machine, or debugging a strange boot issue.
 You can easily tell the VirtualBox provider to boot with a GUI:
 
-```
+```ruby
 config.vm.provider "virtualbox" do |v|
   v.gui = true
 end

@@ -3,7 +3,7 @@ set -xe
 
 curl -Lo /etc/yum.repos.d/virtualbox.repo http://download.virtualbox.org/virtualbox/rpm/rhel/virtualbox.repo
 yum groupinstall -y "Development Tools"
-yum install -y kernel-devel
+yum install -y kernel-devel-$(uname -r)
 yum install -y VirtualBox-${VAGRANT_CENTOS_VIRTUALBOX_VERSION:-5.1}
 
 pushd /vagrant

@@ -37,7 +37,7 @@ it provides, there may be information lacking in the documentation.
 Vagrant Cloud documentation is open source.
 If you'd like to improve or correct the documentation,
 please submit a pull-request to the
-[Vagrant project on GitHub](https://github.com/mitchellh/vagrant/tree/master/website/source/docs/vagrant-cloud/).
+[Vagrant project on GitHub](https://github.com/hashicorp/vagrant/tree/master/website/source/docs/vagrant-cloud/).
 The Vagrant Cloud documentation can be found in the `/website/source/vagrant-cloud/` directory.
 
 Otherwise, to make a suggestion or report an error in documentation, please

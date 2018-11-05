@@ -6,8 +6,36 @@ module VagrantPlugins
         error_namespace("vagrant_sf_smb.errors")
       end
 
+      class SMBNotSupported < SMBError
+        error_key(:not_supported)
+      end
+
+      class SMBStartFailed < SMBError
+        error_key(:start_failed)
+      end
+
+      class SMBCredentialsMissing < SMBError
+        error_key(:credentials_missing)
+      end
+
+      class SMBListFailed < SMBError
+        error_key(:list_failed)
+      end
+
+      class SMBNameError < SMBError
+        error_key(:name_error)
+      end
+
+      class CredentialsRequestError < SMBError
+        error_key(:credentials_request_error)
+      end
+
       class DefineShareFailed < SMBError
         error_key(:define_share_failed)
+      end
+
+      class PruneShareFailed < SMBError
+        error_key(:prune_share_failed)
       end
 
       class NoHostIPAddr < SMBError

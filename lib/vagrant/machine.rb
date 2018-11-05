@@ -110,6 +110,7 @@ module Vagrant
       @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
       @ui_mutex        = Mutex.new
       @state_mutex     = Mutex.new
+      @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self)
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -159,6 +160,11 @@ module Vagrant
     #   as extra data set on the environment hash for the middleware
     #   runner.
     def action(name, opts=nil)
+      plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+      if !plugins.keys.include?("vagrant-triggers")
+        @triggers.fire_triggers(name, :before, @name.to_s)
+      end
+
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
       opts ||= {}
@@ -185,7 +191,7 @@ module Vagrant
       locker = @env.method(:lock) if lock && !name.to_s.start_with?("ssh")
 
       # Lock this machine for the duration of this action
-      locker.call("machine-action-#{id}") do
+      return_env = locker.call("machine-action-#{id}") do
         # Get the callable from the provider.
         callable = @provider.action(name)
 
@@ -203,6 +209,12 @@ module Vagrant
         ui.machine("action", name.to_s, "end")
         action_result
       end
+
+      if !plugins.keys.include?("vagrant-triggers")
+        @triggers.fire_triggers(name, :after, @name.to_s)
+      end
+      # preserve returning environment after machine action runs
+      return return_env
     rescue Errors::EnvironmentLockedError
       raise Errors::MachineActionLockedError,
         action: name,
@@ -438,7 +450,7 @@ module Vagrant
       info[:port] ||= @config.ssh.default.port
       info[:private_key_path] ||= @config.ssh.default.private_key_path
       info[:keys_only] ||= @config.ssh.default.keys_only
-      info[:paranoid] ||= @config.ssh.default.paranoid
+      info[:verify_host_key] ||= @config.ssh.default.verify_host_key
       info[:username] ||= @config.ssh.default.username
       info[:compression] ||= @config.ssh.default.compression
       info[:dsa_authentication] ||= @config.ssh.default.dsa_authentication
@@ -449,14 +461,14 @@ module Vagrant
       info[:host] = @config.ssh.host if @config.ssh.host
       info[:port] = @config.ssh.port if @config.ssh.port
       info[:keys_only] = @config.ssh.keys_only
-      info[:paranoid] = @config.ssh.paranoid
+      info[:verify_host_key] = @config.ssh.verify_host_key
       info[:compression] = @config.ssh.compression
       info[:dsa_authentication] = @config.ssh.dsa_authentication
       info[:username] = @config.ssh.username if @config.ssh.username
       info[:password] = @config.ssh.password if @config.ssh.password
       info[:extra_args] = @config.ssh.extra_args if @config.ssh.extra_args
 
-      # We also set some fields that are purely controlled by Varant
+      # We also set some fields that are purely controlled by Vagrant
       info[:forward_agent] = @config.ssh.forward_agent
       info[:forward_x11]   = @config.ssh.forward_x11
       info[:forward_env]   = @config.ssh.forward_env
@@ -581,7 +593,7 @@ module Vagrant
                       ).chomp
                     end
 
-      if vagrant_cwd != @env.root_path.to_s
+      if !File.identical?(vagrant_cwd.to_s, @env.root_path.to_s)
         if vagrant_cwd
           ui.warn(I18n.t(
             'vagrant.moved_cwd',

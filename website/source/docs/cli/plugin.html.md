@@ -45,6 +45,9 @@ $ vagrant plugin expunge --reinstall
 This command accepts optional command-line flags:
 
 * `--force` - Do not prompt for confirmation prior to removal
+* `--global-only` - Only expunge global plugins
+* `--local` - Include plugins in local project
+* `--local-only` - Only expunge local project plugins
 * `--reinstall` - Attempt to reinstall plugins after removal
 
 # Plugin Install
@@ -79,6 +82,8 @@ This command accepts optional command-line flags:
   Most of the time, this is correct. If the plugin you are installing has
   another entrypoint, this flag can be used to specify it.
 
+* `--local` - Install plugin to the local Vagrant project only.
+
 * `--plugin-clean-sources` - Clears all sources that have been defined so
   far. This is an advanced feature. The use case is primarily for corporate
   firewalls that prevent access to RubyGems.org.
@@ -111,15 +116,23 @@ If a version constraint was specified for a plugin when installing it, the
 constraint will be listed as well. Other plugin-specific information may
 be shown, too.
 
+This command accepts optional command-line flags:
+
+* `--local` - Include local project plugins.
+
 # Plugin Repair
 
 Vagrant may fail to properly initialize user installed custom plugins. This can
-be caused my improper plugin installation/removal, or by manual manipluation of
+be caused my improper plugin installation/removal, or by manual manipulation of
 plugin related files like the `plugins.json` data file. Vagrant can attempt
 to automatically repair the problem.
 
 If automatic repair is not successful, refer to the [expunge](#plugin-expunge)
 command
+
+This command accepts optional command-line flags:
+
+* `--local` - Repair local project plugins.
 
 # Plugin Uninstall
 
@@ -129,6 +142,10 @@ This uninstalls the plugin with the given name. Any dependencies of the
 plugin will also be uninstalled assuming no other plugin needs them.
 
 If multiple plugins are given, multiple plugins will be uninstalled.
+
+This command accepts optional command-line flags:
+
+* `--local` - Uninstall plugin from local project.
 
 # Plugin Update
 
@@ -142,3 +159,7 @@ the plugin using `vagrant plugin install`.
 If a name is specified, only that single plugin will be updated. If a
 name is specified of a plugin that is not installed, this command will not
 install it.
+
+This command accepts optional command-line flags:
+
+* `--local` - Update plugin from local project.

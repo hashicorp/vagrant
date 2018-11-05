@@ -13,7 +13,7 @@ miss out on several [important features](/docs/vagrant-cloud/boxes).
 There are __three ways to create and upload Vagrant Boxes to Vagrant Cloud__. All
 three options are outlined below.
 
-We recommend using Packer, as is it is fully repeatable and keeps a strong
+We recommend using Packer, as it is fully repeatable and keeps a strong
 history of changes within Vagrant Cloud. However, for some situations, including
 legacy workflows, the Web UI or API will work well.
 
@@ -57,7 +57,7 @@ the [help page dedicated to box lifecycle](/docs/vagrant-cloud/boxes/lifecycle.h
 ## Creating Boxes with the API
 
 This example uses the API to upload boxes with `curl`. To get started, you'll
-need to get an [access token](https://vagrantcloud.com/settings/tokens).
+need to get an [access token](https://vagrantcloud.com/settings/security).
 
 Then, prepare the upload:
 

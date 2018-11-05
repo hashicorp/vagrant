@@ -83,6 +83,9 @@ The remainder of the available options are optional:
 
 * `sha1` (string) - SHA1 checksum used to validate remotely downloaded shell files.
 
+* `sensitive` (boolean) - Marks the Hash values used in the `env` option as sensitive
+  and hides them from output. By default this is "false".
+
 <a name="inline-scripts"></a>
 ## Inline Scripts
 
@@ -104,7 +107,7 @@ Combined with a little bit more Ruby, this makes it very easy to embed
 your shell scripts directly within your Vagrantfile. Another example below:
 
 ```ruby
-$script = <<SCRIPT
+$script = <<-SCRIPT
 echo I am provisioning...
 date > /etc/vagrant_provisioned_at
 SCRIPT

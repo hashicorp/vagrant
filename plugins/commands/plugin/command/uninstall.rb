@@ -7,8 +7,13 @@ module VagrantPlugins
     module Command
       class Uninstall < Base
         def execute
+          options = {}
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant plugin uninstall <name> [<name2> <name3> ...] [-h]"
+
+            o.on("--local", "Remove plugin from local project") do |l|
+              options[:env_local] = l
+            end
           end
 
           # Parse the options
@@ -18,7 +23,7 @@ module VagrantPlugins
 
           # Uninstall the gems
           argv.each do |gem|
-            action(Action.action_uninstall, plugin_name: gem)
+            action(Action.action_uninstall, plugin_name: gem, env_local: options[:env_local])
           end
 
           # Success, exit status 0

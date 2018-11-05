@@ -41,6 +41,7 @@ module VagrantPlugins
               b2.use ProvisionerCleanup, :before
               b2.use StopInstance
               b2.use DeleteVM
+              b2.use SyncedFolderCleanup
             end
           end
         end
@@ -138,14 +139,23 @@ module VagrantPlugins
                 next
               end
 
-              b2.use Provision
-              b2.use NetSetVLan
-              b2.use NetSetMac
-              b2.use StartInstance
-              b2.use WaitForIPAddress
-              b2.use WaitForCommunicator, [:running]
-              b2.use SyncedFolders
-              b2.use SetHostname
+              b2.use Call, IsState, :saved do |env3, b3|
+                # When state is `:saved` it is a snapshot being restored
+                if !env3[:result]
+                  b3.use Provision
+                  b3.use Configure
+                  b3.use SetName
+                  b3.use NetSetVLan
+                  b3.use NetSetMac
+                end
+
+                b3.use StartInstance
+                b3.use WaitForIPAddress
+                b3.use WaitForCommunicator, [:running]
+                b3.use SyncedFolderCleanup
+                b3.use SyncedFolders
+                b3.use SetHostname
+              end
             end
           end
         end
@@ -154,6 +164,7 @@ module VagrantPlugins
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckEnabled
+          b.use CheckAccess
           b.use HandleBox
           b.use ConfigValidate
           b.use Call, IsState, :not_created do |env1, b1|
@@ -286,6 +297,8 @@ module VagrantPlugins
       autoload :Export, action_root.join("export")
 
       autoload :CheckEnabled, action_root.join("check_enabled")
+      autoload :CheckAccess, action_root.join("check_access")
+      autoload :Configure, action_root.join("configure")
       autoload :DeleteVM, action_root.join("delete_vm")
       autoload :Import, action_root.join("import")
       autoload :Package, action_root.join("package")
@@ -302,6 +315,7 @@ module VagrantPlugins
       autoload :SnapshotDelete, action_root.join("snapshot_delete")
       autoload :SnapshotRestore, action_root.join("snapshot_restore")
       autoload :SnapshotSave, action_root.join("snapshot_save")
+      autoload :SetName, action_root.join("set_name")
     end
   end
 end

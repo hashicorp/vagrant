@@ -3,7 +3,7 @@ module Vagrant
     module V1
       # The base class for a guest. A guest represents an installed system
       # within a machine that Vagrant manages. There are some portions of
-      # Vagrant which are OS-specific such as mountaing shared folders and
+      # Vagrant which are OS-specific such as mounting shared folders and
       # halting the machine, and this abstraction allows the implementation
       # for these to be separate from the core of Vagrant.
       class Guest

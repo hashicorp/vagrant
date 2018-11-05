@@ -63,7 +63,8 @@ stdout using `&>`:
 $ vagrant up --debug &> vagrant.log
 ```
 
-On Windows:
+On Windows in PowerShell (outputs to log and screen):
+
 ```
-$ vagrant up --debug > vagrant.log 2>&1
+$ vagrant up --debug 2>&1 | Tee-Object -FilePath ".\vagrant.log"
 ```

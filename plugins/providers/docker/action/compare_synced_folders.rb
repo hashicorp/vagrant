@@ -26,7 +26,7 @@ module VagrantPlugins
           end
 
           # Remove the matching folders, and build up non-matching or
-          # new syncedf olders.
+          # new synced folders.
           invalids = {}
           fresh.each do |_, fs|
             fs.each do |_, data|

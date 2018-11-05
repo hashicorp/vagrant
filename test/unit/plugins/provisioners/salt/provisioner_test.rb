@@ -40,10 +40,38 @@ describe VagrantPlugins::Salt::Provisioner do
         allow(config).to receive(:install_type).and_return('stable')
         allow(config).to receive(:install_args).and_return('develop')
         allow(config).to receive(:verbose).and_return(true)
+        allow(config).to receive(:master_json_config).and_return(true)
+        allow(config).to receive(:minion_json_config).and_return(true)
         allow(machine.config.vm).to receive(:communicator).and_return(:winrm)
         allow(config).to receive(:bootstrap_options).and_return(additional_windows_options)
         result = subject.bootstrap_options(true, true, "C:\\salttmp")
         expect(result.strip).to eq(additional_windows_options)
+      end
+    end
+  end
+
+  describe "#get_pillar" do
+    context "windows" do
+      it "escapes pillar data for powershell and returns as json" do
+        allow(machine.config.vm).to receive(:communicator).and_return(:winrm)
+        allow(config).to receive(:pillar_data).and_return({"cat"=>"qubit"})
+
+        expect(subject.get_pillar).to eq(" --% pillar={\"\"\"cat\"\"\":\"\"\"qubit\"\"\"}")
+      end
+    end
+
+    context "linux" do
+      it "returns pillar data as json" do
+        allow(machine.config.vm).to receive(:communicator).and_return(:false)
+        allow(config).to receive(:pillar_data).and_return({"cat"=>"shimi"})
+        expect(subject.get_pillar).to eq(" pillar='{\"cat\":\"shimi\"}'")
+      end
+    end
+
+    context "empty data" do
+      it "returns nothing if pillar data is empty" do
+        allow(config).to receive(:pillar_data).and_return({})
+        expect(subject.get_pillar).to eq(nil)
       end
     end
   end
@@ -53,7 +81,6 @@ describe VagrantPlugins::Salt::Provisioner do
       it "passes along extra cli flags" do
         allow(config).to receive(:run_highstate).and_return(true)
         allow(config).to receive(:verbose).and_return(true)
-        allow(config).to receive(:masterless?).and_return(false)
         allow(config).to receive(:masterless).and_return(false)
         allow(config).to receive(:minion_id).and_return(nil)
         allow(config).to receive(:log_level).and_return(nil)
@@ -72,7 +99,6 @@ describe VagrantPlugins::Salt::Provisioner do
       it "has no additional cli flags if not included" do
         allow(config).to receive(:run_highstate).and_return(true)
         allow(config).to receive(:verbose).and_return(true)
-        allow(config).to receive(:masterless?).and_return(false)
         allow(config).to receive(:masterless).and_return(false)
         allow(config).to receive(:minion_id).and_return(nil)
         allow(config).to receive(:log_level).and_return(nil)
@@ -93,7 +119,6 @@ describe VagrantPlugins::Salt::Provisioner do
       it "passes along extra cli flags" do
         allow(config).to receive(:run_highstate).and_return(true)
         allow(config).to receive(:verbose).and_return(true)
-        allow(config).to receive(:masterless?).and_return(true)
         allow(config).to receive(:masterless).and_return(true)
         allow(config).to receive(:minion_id).and_return(nil)
         allow(config).to receive(:log_level).and_return(nil)
@@ -113,7 +138,6 @@ describe VagrantPlugins::Salt::Provisioner do
       it "has no additional cli flags if not included" do
         allow(config).to receive(:run_highstate).and_return(true)
         allow(config).to receive(:verbose).and_return(true)
-        allow(config).to receive(:masterless?).and_return(true)
         allow(config).to receive(:masterless).and_return(true)
         allow(config).to receive(:minion_id).and_return(nil)
         allow(config).to receive(:log_level).and_return(nil)

@@ -12,11 +12,12 @@ module VagrantPlugins
       attr_reader :driver
 
       def self.usable?(raise_error=false)
-        if !Vagrant::Util::Platform.windows?
+        if !Vagrant::Util::Platform.windows? &&
+            !Vagrant::Util::Platform.wsl?
           raise Errors::WindowsRequired
         end
 
-        if !Vagrant::Util::Platform.windows_admin? and
+        if !Vagrant::Util::Platform.windows_admin? &&
            !Vagrant::Util::Platform.windows_hyperv_admin?
             raise Errors::AdminRequired
         end

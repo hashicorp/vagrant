@@ -16,11 +16,13 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       guest_port: 5986,
       pty: false,
       keep_alive: false,
-      insert_key: false,
+      insert_key: insert_ssh_key,
       export_command_template: export_command_template,
       shell: 'bash -l'
     )
   end
+  # Do not insert public key by default
+  let(:insert_ssh_key){ false }
   # Configuration mock
   let(:config) { double("config", ssh: ssh) }
   # Provider mock
@@ -32,9 +34,14 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
     double("machine",
       config: config,
       provider: provider,
-      ui: ui
+      ui: ui,
+      env: env
     )
   end
+  let(:env){ double("env", host: host) }
+  let(:host){ double("host") }
+  # SSH information of the machine
+  let(:machine_ssh_info){ {host: '10.1.2.3', port: 22} }
   # Subject instance to test
   let(:communicator){ @communicator ||= described_class.new(machine) }
   # Underlying net-ssh connection mock
@@ -60,12 +67,14 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   # Mock for net-ssh scp
   let(:scp) { double("scp") }
 
+
   # Setup for commands using the net-ssh connection. This can be reused where needed
   # by providing to `before`
   connection_setup = proc do
     allow(connection).to receive(:closed?).and_return false
     allow(connection).to receive(:open_channel).
       and_yield(channel).and_return(channel)
+    allow(connection).to receive(:close)
     allow(channel).to receive(:wait).and_return true
     allow(channel).to receive(:close)
     allow(command_channel).to receive(:send_data)
@@ -74,13 +83,17 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       and_yield(nil, command_stdout_data)
     allow(command_channel).to receive(:on_extended_data).
       and_yield(nil, nil, command_stderr_data)
-    allow(machine).to receive(:ssh_info).and_return(host: '10.1.2.3', port: 22)
-    expect(channel).to receive(:exec).with(core_shell_cmd).
+    allow(machine).to receive(:ssh_info).and_return(machine_ssh_info)
+    allow(channel).to receive(:exec).with(core_shell_cmd).
       and_yield(command_channel, '').and_return channel
-    expect(command_channel).to receive(:on_request).with('exit-status').
+    allow(command_channel).to receive(:on_request).with('exit-status').
       and_yield(nil, exit_data)
     # Return mocked net-ssh connection during setup
     allow(communicator).to receive(:retryable).and_return(connection)
+  end
+
+  before do
+    allow(host).to receive(:capability?).and_return(false)
   end
 
   describe ".wait_for_ready" do
@@ -103,6 +116,49 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           expect(communicator.wait_for_ready(0.6)).to eq(true)
         end
       end
+
+      context "when printing message to the user" do
+        before do
+          allow(machine).to receive(:ssh_info).
+            and_return(host: '10.1.2.3', port: 22).ordered
+          allow(communicator).to receive(:connect)
+          allow(communicator).to receive(:ready?).and_return(true)
+        end
+
+        it "should print message" do
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(ui).to receive(:detail).with(/timeout/)
+          communicator.wait_for_ready(0.5)
+        end
+
+        it "should not print the same message twice" do
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(ui).to receive(:detail).with(/timeout/)
+          expect(ui).not_to receive(:detail).with(/timeout/)
+          communicator.wait_for_ready(0.5)
+        end
+
+        it "should print different messages" do
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
+          expect(ui).to receive(:detail).with(/timeout/)
+          expect(ui).to receive(:detail).with(/disconnect/)
+          communicator.wait_for_ready(0.5)
+        end
+
+        it "should not print different messages twice" do
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHConnectionTimeout)
+          expect(communicator).to receive(:connect).and_raise(Vagrant::Errors::SSHDisconnected)
+          expect(ui).to receive(:detail).with(/timeout/)
+          expect(ui).to receive(:detail).with(/disconnect/)
+          expect(ui).not_to receive(:detail).with(/timeout/)
+          expect(ui).not_to receive(:detail).with(/disconnect/)
+          communicator.wait_for_ready(0.5)
+        end
+      end
     end
   end
 
@@ -119,6 +175,97 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
 
       it "returns raises SSHInvalidShell error" do
         expect{ communicator.ready? }.to raise_error Vagrant::Errors::SSHInvalidShell
+      end
+    end
+
+    context "with insert key enabled" do
+      before do
+        allow(machine).to receive(:guest).and_return(guest)
+        allow(guest).to receive(:capability?).with(:insert_public_key).
+          and_return(has_insert_cap)
+        allow(guest).to receive(:capability?).with(:remove_public_key).
+          and_return(has_remove_cap)
+        allow(communicator).to receive(:insecure_key?).with("KEY_PATH").and_return(true)
+        allow(ui).to receive(:detail)
+      end
+
+      let(:insert_ssh_key){ true }
+      let(:has_insert_cap){ false }
+      let(:has_remove_cap){ false }
+      let(:machine_ssh_info){
+        {host: '10.1.2.3', port: 22, private_key_path: ["KEY_PATH"]}
+      }
+      let(:guest){ double("guest") }
+
+      context "without guest insert_ssh_key or remove_ssh_key capabilities" do
+        it "should raise an error" do
+          expect{ communicator.ready? }.to raise_error(Vagrant::Errors::SSHInsertKeyUnsupported)
+        end
+      end
+
+      context "without guest insert_ssh_key capability" do
+        let(:has_remove_cap){ true }
+
+        it "should raise an error" do
+          expect{ communicator.ready? }.to raise_error(Vagrant::Errors::SSHInsertKeyUnsupported)
+        end
+      end
+
+      context "without guest remove_ssh_key capability" do
+        let(:has_insert_cap){ true }
+
+        it "should raise an error" do
+          expect{ communicator.ready? }.to raise_error(Vagrant::Errors::SSHInsertKeyUnsupported)
+        end
+      end
+
+      context "with guest insert_ssh_key capability and remove_ssh_key capability" do
+        let(:has_insert_cap){ true }
+        let(:has_remove_cap){ true }
+        let(:new_public_key){ :new_public_key }
+        let(:new_private_key){ :new_private_key }
+        let(:openssh){ :openssh }
+        let(:private_key_file){ double("private_key_file") }
+        let(:path_joiner){ double("path_joiner") }
+
+        before do
+          allow(ui).to receive(:info)
+          allow(Vagrant::Util::Keypair).to receive(:create).
+            and_return([new_public_key, new_private_key, openssh])
+          allow(private_key_file).to receive(:open).and_yield(private_key_file)
+          allow(private_key_file).to receive(:write)
+          allow(private_key_file).to receive(:chmod)
+          allow(guest).to receive(:capability)
+          allow(File).to receive(:chmod)
+          allow(machine).to receive(:data_dir).and_return(path_joiner)
+          allow(path_joiner).to receive(:join).and_return(private_key_file)
+          allow(guest).to receive(:capability).with(:insert_public_key)
+          allow(guest).to receive(:capability).with(:remove_public_key)
+        end
+
+        after{ communicator.ready? }
+
+        it "should create a new key pair" do
+          expect(Vagrant::Util::Keypair).to receive(:create).
+            and_return([new_public_key, new_private_key, openssh])
+        end
+
+        it "should call the insert_public_key guest capability" do
+          expect(guest).to receive(:capability).with(:insert_public_key, openssh)
+        end
+
+        it "should write the new private key" do
+          expect(private_key_file).to receive(:write).with(new_private_key)
+        end
+
+        it "should call the set_ssh_key_permissions host capability" do
+          expect(host).to receive(:capability?).with(:set_ssh_key_permissions).and_return(true)
+          expect(host).to receive(:capability).with(:set_ssh_key_permissions, private_key_file)
+        end
+
+        it "should remove the default public key" do
+          expect(guest).to receive(:capability).with(:remove_public_key, any_args)
+        end
       end
     end
   end
@@ -357,7 +504,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           username: nil,
           password: nil,
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
@@ -370,10 +517,10 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         communicator.send(:connect)
       end
 
-      it "has paranoid disabled" do
+      it "has verify_host_key disabled" do
         expect(Net::SSH).to receive(:start).with(
           nil, nil, hash_including(
-            paranoid: false
+            verify_host_key: false
           )
         ).and_return(true)
         communicator.send(:connect)
@@ -412,7 +559,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
     end
 
-    context "with keys_only disabled and paranoid enabled" do
+    context "with keys_only disabled and verify_host_key enabled" do
 
       before do
         expect(machine).to receive(:ssh_info).and_return(
@@ -422,7 +569,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           username: nil,
           password: nil,
           keys_only: false,
-          paranoid: true
+          verify_host_key: true
         )
       end
 
@@ -435,10 +582,10 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         communicator.send(:connect)
       end
 
-      it "has paranoid disabled" do
+      it "has verify_host_key disabled" do
         expect(Net::SSH).to receive(:start).with(
           nil, nil, hash_including(
-            paranoid: true
+            verify_host_key: true
           )
         ).and_return(true)
         communicator.send(:connect)
@@ -455,7 +602,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           username: nil,
           password: nil,
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
@@ -479,7 +626,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           username: nil,
           password: nil,
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
@@ -512,7 +659,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           username: 'vagrant',
           password: 'vagrant',
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 
@@ -550,7 +697,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           username: 'vagrant',
           password: 'vagrant',
           keys_only: true,
-          paranoid: false
+          verify_host_key: false
         )
       end
 

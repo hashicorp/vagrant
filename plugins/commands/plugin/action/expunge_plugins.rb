@@ -42,16 +42,24 @@ module VagrantPlugins
           end
 
           if !abort_action
-            plugins_json = File.join(env[:home_path], "plugins.json")
-            plugins_gems = env[:gems_path]
+            files = []
+            dirs = []
 
-            if File.exist?(plugins_json)
-              FileUtils.rm(plugins_json)
+            # Do not include global paths if local only
+            if !env[:env_local_only] || env[:global_only]
+              files << Vagrant::Plugin::Manager.instance.user_file.path
+              dirs << Vagrant::Bundler.instance.plugin_gem_path
             end
 
-            if File.directory?(plugins_gems)
-              FileUtils.rm_rf(plugins_gems)
+            # Add local paths if they exist
+            if Vagrant::Plugin::Manager.instance.local_file && (env[:env_local_only] || !env[:global_only])
+              files << Vagrant::Plugin::Manager.instance.local_file.path
+              dirs << Vagrant::Bundler.instance.env_plugin_gem_path
             end
+
+            # Expunge files and directories
+            files.find_all(&:exist?).map(&:delete)
+            dirs.find_all(&:exist?).map(&:rmtree)
 
             env[:ui].info(I18n.t("vagrant.commands.plugin.expunge_complete"))
 

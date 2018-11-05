@@ -11,10 +11,11 @@ description: |-
 
 **Command: `vagrant powershell`**
 
-This will open a PowerShell prompt into a running Vagrant machine.
+This will open a PowerShell prompt on the host into a running Vagrant guest machine.
 
-This command will only work if the machine supports PowerShell. Not every
-environment will support PowerShell.
+This command will only work if the machines supports PowerShell. Not every
+environment will support PowerShell. At the moment, only Windows is supported
+with this command.
 
 ## Options
 

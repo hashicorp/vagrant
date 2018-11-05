@@ -17,6 +17,9 @@ module VagrantPlugins
           o.banner = "Usage: vagrant powershell [-- extra powershell args]"
 
           o.separator ""
+          o.separator "Opens a PowerShell session on the host to the guest"
+          o.separator "machine if both support powershell remoting."
+          o.separator ""
           o.separator "Options:"
           o.separator ""
 
@@ -55,7 +58,7 @@ module VagrantPlugins
               machine.ui.detail(data) if type == :stdout
             end
             if out_code == 0
-              machine.ui.success("Command: #{options[:command]} executed succesfully with output code #{out_code}.")
+              machine.ui.success("Command: #{options[:command]} executed successfully with output code #{out_code}.")
             end
             next
           end
@@ -103,7 +106,7 @@ module VagrantPlugins
       end
 
       def reset_ps_remoting_for(machine, ps_info)
-        machine.ui.output(I18n.t("vagrant_ps.reseting"))
+        machine.ui.output(I18n.t("vagrant_ps.resetting"))
         script_path = File.expand_path("../scripts/reset_trustedhosts.ps1", __FILE__)
         args = []
         args << "-hostname" << ps_info[:host]

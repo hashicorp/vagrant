@@ -170,7 +170,7 @@ to Chef Solo. This is done by setting the `json` property with a Ruby
 hash (dictionary-like object), which is converted to JSON and passed
 in to Chef:
 
-```
+```ruby
 Vagrant.configure("2") do |config|
   config.vm.provision "chef_solo" do |chef|
     # ...

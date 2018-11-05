@@ -1,11 +1,9 @@
-Param(
+#Requires -Modules VagrantMessages
+
+param(
     [Parameter(Mandatory=$true)]
     [string]$VmId
 )
-
-# Include the following modules
-$Dir = Split-Path $script:MyInvocation.MyCommand.Path
-. ([System.IO.Path]::Combine($Dir, "utils\write_messages.ps1"))
 
 # Make sure the exception type is loaded
 try
@@ -28,7 +26,7 @@ if($HyperVVersion -lt ([version]'10.0')) {
   $ExceptionType = [Microsoft.HyperV.PowerShell.VirtualizationException]
 }
 try {
-    $VM = Get-VM -Id $VmId -ErrorAction "Stop"
+    $VM = Hyper-V\Get-VM -Id $VmId -ErrorAction "Stop"
     $State = $VM.state
     $Status = $VM.status
 } catch [Exception] {
@@ -37,7 +35,7 @@ try {
         $State = "not_created"
         $Status = $State
     }
-    else 
+    else
     {
         throw;
     }
@@ -48,4 +46,4 @@ $resultHash = @{
     status = "$Status"
 }
 $result = ConvertTo-Json $resultHash
-Write-Output-Message $result
+Write-OutputMessage $result

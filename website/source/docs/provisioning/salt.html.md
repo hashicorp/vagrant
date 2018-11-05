@@ -54,6 +54,10 @@ masterless setup.
 
 ## Install Options
 
+The Salt provosioner uses the [Salt bootstrap script](https://github.com/saltstack/salt-bootstrap)
+for installing Salt on your guest. These options build up the arguments used to
+for the bootstrap script.
+
 * `install_master`  (boolean) - Should vagrant install the salt-master
 on this machine. Not supported on Windows guest machines.
 
@@ -75,7 +79,7 @@ distribution's stable package manager, git tree-ish, daily ppa, or testing repos
 * `bootstrap_options` (string) - Additional command-line options to
   pass to the bootstrap script.
 
-* `version`  (string, default: "2017.7.1") - Version of minion to be installed. Only supported on Windows guest machines.
+* `version`  (string) - Version of minion to be installed. Defaults to latest version. When specifying `version` you must also specify a `install_type`.
 
 * `python_version`  (string, default: "2") - Major Python version of minion to be installed. Only valid for minion versions >= 2017.7.0. Only supported on Windows guest machines.
 
@@ -96,6 +100,9 @@ public key
 
 * `masterless`  (boolean) - Calls state.highstate in local mode. Uses `minion_id` and `pillar_data` when provided.
 
+* `minion_json_config` (string) - Valid json for configuring the salt minion
+(`-j` in bootstrap-salt.sh). Not supported on Windows.
+
 * `salt_call_args` (array) - An array of additional command line flag arguments to be passed to the `salt-call` command when provisioning with masterless.
 
 ## Master Options
@@ -110,6 +117,9 @@ These only make sense when `install_master` is `true`. Not supported on Windows 
 
 * `seed_master`  (dictionary) - Upload keys to master, thereby
 pre-seeding it before use. Example: `{minion_name:/path/to/key.pub}`
+
+* `master_json_config` (string) - Valid json for configuring the salt master
+(`-J` in bootstrap-salt.sh). Not supported on Windows.
 
 * `salt_args` (array) - An array of additional command line flag arguments to be passed to the `salt` command when provisioning with masterless.
 
@@ -177,6 +187,8 @@ times. The data passed in should only be hashes and lists. Here is an example::
       end
 ```
 
+On Windows guests, this requires PowerShell 3.0 or higher.
+
 ## Preseeding Keys
 
 Preseeding keys is the recommended way to handle provisioning
@@ -185,5 +197,5 @@ On a machine with salt installed, run
 `salt-key --gen-keys=[minion_id]` to generate the necessary
 .pub and .pem files
 
-For a an example of a more advanced setup, look at the original
+For an example of a more advanced setup, look at the original
 [plugin](https://github.com/saltstack/salty-vagrant/tree/develop/example).

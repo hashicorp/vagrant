@@ -283,47 +283,43 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows do
     context "with a box name accidentally set as a URL" do
       it "displays a warning to the user" do
         box_path = iso_env.box2_file(:virtualbox)
-        with_web_server(box_path) do |port|
+        port = 9999
 
-          box_url_name = "http://127.0.0.1:#{port}/#{box_path.basename}"
-          env[:box_name] = box_url_name
+        box_url_name = "http://127.0.0.1:#{port}/#{box_path.basename}"
+        env[:box_name] = box_url_name
 
-          expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
-            expect(name).to eq(box_url_name)
-            expect(version).to eq("0")
-            expect(opts[:metadata_url]).to be_nil
-            true
-          }.and_return(box)
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
+          expect(name).to eq(box_url_name)
+          expect(version).to eq("0")
+          expect(opts[:metadata_url]).to be_nil
+          true
+        }.and_return(box)
 
-          expect(app).to receive(:call).with(env)
+        expect(app).to receive(:call).with(env)
 
-          expect(env[:ui]).to receive(:warn)
-            .with(/It looks like you attempted to add a box with a URL for the name/)
+        expect(env[:ui]).to receive(:warn)
+          .with(/It looks like you attempted to add a box with a URL for the name/)
 
-          subject.call(env)
-        end
+        subject.call(env)
       end
     end
 
     context "with a box name containing invalid URI characters" do
       it "should not raise an error" do
         box_path = iso_env.box2_file(:virtualbox)
-        with_web_server(box_path) do |port|
+        box_url_name = "box name with spaces"
+        env[:box_name] = box_url_name
 
-          box_url_name = "box name with spaces"
-          env[:box_name] = box_url_name
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
+          expect(name).to eq(box_url_name)
+          expect(version).to eq("0")
+          expect(opts[:metadata_url]).to be_nil
+          true
+        }.and_return(box)
 
-          expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
-            expect(name).to eq(box_url_name)
-            expect(version).to eq("0")
-            expect(opts[:metadata_url]).to be_nil
-            true
-          }.and_return(box)
+        expect(app).to receive(:call).with(env)
 
-          expect(app).to receive(:call).with(env)
-
-          subject.call(env)
-        end
+        subject.call(env)
       end
     end
 

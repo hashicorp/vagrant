@@ -6,9 +6,11 @@ module VagrantPlugins
     class Config < Vagrant.plugin("2", :config)
       ## salty-vagrant options
       attr_accessor :minion_config
+      attr_accessor :minion_json_config
       attr_accessor :minion_key
       attr_accessor :minion_pub
       attr_accessor :master_config
+      attr_accessor :master_json_config
       attr_accessor :master_key
       attr_accessor :master_pub
       attr_accessor :grains_config
@@ -42,9 +44,11 @@ module VagrantPlugins
 
       def initialize
         @minion_config = UNSET_VALUE
+        @minion_json_config = UNSET_VALUE
         @minion_key = UNSET_VALUE
         @minion_pub = UNSET_VALUE
         @master_config = UNSET_VALUE
+        @master_json_config = UNSET_VALUE
         @master_key = UNSET_VALUE
         @master_pub = UNSET_VALUE
         @grains_config = UNSET_VALUE
@@ -100,6 +104,8 @@ module VagrantPlugins
         @master_id          = nil if @master_id == UNSET_VALUE
         @salt_call_args     = nil if @salt_call_args == UNSET_VALUE
         @salt_args          = nil if @salt_args == UNSET_VALUE
+        @minion_json_config = nil if @minion_json_config == UNSET_VALUE
+        @master_json_config = nil if @master_json_config == UNSET_VALUE
 
         # NOTE: Optimistic defaults are set in the provisioner. UNSET_VALUEs
         # are converted there to allow proper detection of unset values.

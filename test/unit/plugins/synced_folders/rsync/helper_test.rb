@@ -212,6 +212,20 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
+
+    context "control sockets" do
+      it "creates a tmp dir" do
+        allow(Vagrant::Util::Platform).to receive(:windows?).and_return(false)
+        allow(Dir).to receive(:mktmpdir).with("vagrant-rsync-").
+          and_return("/tmp/vagrant-rsync-12345")
+
+        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+          expect(args[9]).to include("ControlPath=/tmp/vagrant-rsync-12345")
+        }.and_return(result)
+
+        subject.rsync_single(machine, ssh_info, opts)
+      end
+    end
   end
 
   describe "#rsync_single with custom ssh_info" do
@@ -220,7 +234,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
     let(:ssh_info) {{
       :private_key_path => ['/path/to/key'],
       :keys_only        => true,
-      :paranoid         => false,
+      :verify_host_key  => false,
     }}
     let(:opts)      {{
       hostpath: "/foo",
@@ -258,6 +272,26 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         expect(args[9]).to include('StrictHostKeyChecking')
         expect(args[9]).to include('UserKnownHostsFile')
         expect(args[9]).to include("-i '/path/to/key'")
+      }.and_return(result)
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "includes StrictHostKeyChecking, and UserKnownHostsFile when verify_host_key is false" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(args[9]).to include('StrictHostKeyChecking')
+        expect(args[9]).to include('UserKnownHostsFile')
+      }.and_return(result)
+
+      subject.rsync_single(machine, ssh_info, opts)
+    end
+
+    it "includes StrictHostKeyChecking, and UserKnownHostsFile when verify_host_key is :never" do
+      ssh_info[:verify_host_key] = :never
+
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+        expect(args[9]).to include('StrictHostKeyChecking')
+        expect(args[9]).to include('UserKnownHostsFile')
       }.and_return(result)
 
       subject.rsync_single(machine, ssh_info, opts)

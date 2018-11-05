@@ -1,5 +1,17 @@
 en:
   login_command:
+    middleware:
+      authentication:
+        different_target: |-
+          Vagrant has detected a custom Vagrant server in use for downloading
+          box files. An authentication token is currently set which will be
+          added to the box request. If the custom Vagrant server should not
+          be receiving the authentication token, please unset it.
+
+            Known Vagrant server:  %{known_host}
+            Custom Vagrant server: %{custom_host}
+
+          Press ctrl-c to cancel...
     errors:
       server_error: |-
         The Vagrant Cloud server responded with a not-OK response:

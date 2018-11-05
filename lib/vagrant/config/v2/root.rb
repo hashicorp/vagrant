@@ -16,6 +16,7 @@ module Vagrant
           @keys              = keys || {}
           @config_map        = config_map
           @missing_key_calls = Set.new
+          @logger            = Log4r::Logger.new("vagrant::config")
         end
 
         # We use method_missing as a way to get the configuration that is
@@ -30,6 +31,7 @@ module Vagrant
             @keys[name] = config_klass.new
             return @keys[name]
           else
+            @logger.debug("missing key request name=#{name} loc=#{caller.first}")
             # Record access to a missing key as an error
             @missing_key_calls.add(name.to_s)
             return DummyConfig.new
@@ -58,14 +60,18 @@ module Vagrant
         #
         # @param [Environment] env
         # @return [Hash]
-        def validate(machine)
+        def validate(machine, ignore_provider=nil)
           # Go through each of the configuration keys and validate
           errors = {}
           @keys.each do |_key, instance|
             if instance.respond_to?(:validate)
               # Validate this single item, and if we have errors then
               # we merge them into our total errors list.
-              result = instance.validate(machine)
+              if _key == :vm
+                result = instance.validate(machine, ignore_provider)
+              else
+                result = instance.validate(machine)
+              end
               if result && !result.empty?
                 errors = Util.merge_errors(errors, result)
               end

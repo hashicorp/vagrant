@@ -69,10 +69,9 @@ Provider-specific guides for creating base boxes are linked below:
 ### Packer and Vagrant Cloud
 
 We strongly recommend using [Packer](https://www.packer.io) to create reproducible
-builds for your base boxes, as well as automating the builds with
-[Atlas](https://atlas.hashicorp.com). Read more about
-[Creating Vagrant Boxes with Packer](https://www.terraform.io/docs/enterprise/packer/artifacts/creating-vagrant-boxes.html)
-in the Atlas documentation.
+builds for your base boxes, as well as automating the builds. Read more about
+[automating Vagrant box creation with Packer](https://www.packer.io/guides/packer-on-cicd/build-image-in-cicd.html)
+in the Packer documentation.
 
 ### Disk Space
 
@@ -119,7 +118,7 @@ users, passwords, private keys, etc.).
 
 By default, Vagrant expects a "vagrant" user to SSH into the machine as.
 This user should be setup with the
-[insecure keypair](https://github.com/mitchellh/vagrant/tree/master/keys)
+[insecure keypair](https://github.com/hashicorp/vagrant/tree/master/keys)
 that Vagrant uses as a default to attempt to SSH. Also, even though
 Vagrant uses key-based authentication by default, it is a general convention
 to set the password for the "vagrant" user to "vagrant". This lets people
@@ -274,7 +273,7 @@ You can upload both public and private boxes to this service.
 To test the box, pretend you are a new user of Vagrant and give it a shot:
 
 ```
-$ vagrant box add my-box /path/to/the/new.box
+$ vagrant box add --name my-box /path/to/the/new.box
 ...
 $ vagrant init my-box
 ...

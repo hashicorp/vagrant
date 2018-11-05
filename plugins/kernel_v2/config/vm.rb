@@ -3,6 +3,7 @@ require "securerandom"
 require "set"
 
 require "vagrant"
+require "vagrant/action/builtin/mixin_synced_folders"
 require "vagrant/config/v2/util"
 require "vagrant/util/platform"
 require "vagrant/util/presence"
@@ -21,6 +22,7 @@ module VagrantPlugins
       attr_accessor :base_mac
       attr_accessor :boot_timeout
       attr_accessor :box
+      attr_accessor :ignore_box_vagrantfile
       attr_accessor :box_check_update
       attr_accessor :box_url
       attr_accessor :box_server_url
@@ -50,6 +52,7 @@ module VagrantPlugins
         @base_mac                      = UNSET_VALUE
         @boot_timeout                  = UNSET_VALUE
         @box                           = UNSET_VALUE
+        @ignore_box_vagrantfile        = UNSET_VALUE
         @box_check_update              = UNSET_VALUE
         @box_download_ca_cert          = UNSET_VALUE
         @box_download_ca_path          = UNSET_VALUE
@@ -218,7 +221,7 @@ module VagrantPlugins
           synced_folder_name = guestpath
         end
 
-        options[:guestpath] = guestpath.to_s.gsub(/\/$/, '')
+        options[:guestpath] = guestpath.to_s.gsub(/\/$/, '') if guestpath
         options[:hostpath]  = hostpath
         options[:disabled]  = false if !options.key?(:disabled)
         options = (@__synced_folders[options[:guestpath]] || {}).
@@ -376,6 +379,7 @@ module VagrantPlugins
         @base_mac = nil if @base_mac == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
         @box = nil if @box == UNSET_VALUE
+        @ignore_box_vagrantfile = false if @ignore_box_vagrantfile == UNSET_VALUE
 
         if @box_check_update == UNSET_VALUE
           @box_check_update = !present?(ENV["VAGRANT_BOX_UPDATE_CHECK_DISABLE"])
@@ -535,7 +539,7 @@ module VagrantPlugins
         @__finalized = true
       end
 
-      # This returns the compiled provider-specific configurationf or the
+      # This returns the compiled provider-specific configuration for the
       # given provider.
       #
       # @param [Symbol] name Name of the provider.
@@ -578,7 +582,7 @@ module VagrantPlugins
         @__synced_folders
       end
 
-      def validate(machine)
+      def validate(machine, ignore_provider=nil)
         errors = _detected_errors
 
         if !box && !clone && !machine.provider_options[:box_optional]
@@ -641,7 +645,9 @@ module VagrantPlugins
           guestpath = Pathname.new(options[:guestpath]) if options[:guestpath]
           hostpath  = Pathname.new(options[:hostpath]).expand_path(machine.env.root_path)
 
-          if guestpath.to_s != ""
+          if guestpath.to_s == "" && id.to_s == ""
+            errors << I18n.t("vagrant.config.vm.shared_folder_requires_guestpath_or_name")
+          elsif guestpath.to_s != ""
             if guestpath.relative? && guestpath.to_s !~ /^\w+:/
               errors << I18n.t("vagrant.config.vm.shared_folder_guestpath_relative",
                                path: options[:guestpath])
@@ -731,9 +737,13 @@ module VagrantPlugins
 
         # Validate only the _active_ provider
         if machine.provider_config
-          provider_errors = machine.provider_config.validate(machine)
-          if provider_errors
-            errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
+          if !ignore_provider
+            provider_errors = machine.provider_config.validate(machine)
+            if provider_errors
+              errors = Vagrant::Config::V2::Util.merge_errors(errors, provider_errors)
+            end
+          else
+            machine.ui.warn(I18n.t("vagrant.config.vm.ignore_provider_config"))
           end
         end
 
@@ -751,6 +761,33 @@ module VagrantPlugins
             provisioner_errors = vm_provisioner.config.validate(machine)
             if provisioner_errors
               errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
+            end
+          end
+        end
+
+        # If running from the Windows Subsystem for Linux, validate that configured
+        # hostpaths for synced folders are on DrvFs file systems, or the synced
+        # folder implementation explicitly supports non-DrvFs file system types
+        # within the WSL
+        if Vagrant::Util::Platform.wsl?
+          # Create a helper that will with the synced folders mixin
+          # from the builtin action to get the correct implementation
+          # to be used for each folder
+          sf_helper = Class.new do
+            include Vagrant::Action::Builtin::MixinSyncedFolders
+          end.new
+          folders = sf_helper.synced_folders(machine, config: self)
+          folders.each do |impl_name, data|
+            data.each do |_, fs|
+              hostpath = File.expand_path(fs[:hostpath], machine.env.root_path)
+              if !Vagrant::Util::Platform.wsl_drvfs_path?(hostpath)
+                sf_klass = sf_helper.plugins[impl_name.to_sym].first
+                if sf_klass.respond_to?(:wsl_allow_non_drvfs?) && sf_klass.wsl_allow_non_drvfs?
+                  next
+                end
+                errors["vm"] << I18n.t("vagrant.config.vm.shared_folder_wsl_not_drvfs",
+                  path: fs[:hostpath])
+              end
             end
           end
         end

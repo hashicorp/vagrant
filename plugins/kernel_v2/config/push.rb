@@ -35,7 +35,7 @@ module VagrantPlugins
 
           begin
             tuples.each do |s, b|
-              # Update the strategy if it has changed, reseting the current
+              # Update the strategy if it has changed, resetting the current
               # config object.
               if s != strategy
                 @logger.warn("duplicate strategy defined, overwriting config")

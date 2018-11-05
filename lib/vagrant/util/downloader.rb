@@ -6,6 +6,7 @@ require "digest/sha1"
 require "vagrant/util/busy"
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"
+require "vagrant/util/curl_helper"
 
 module Vagrant
   module Util
@@ -17,13 +18,19 @@ module Vagrant
       # are properly tracked.
       #
       #     Vagrant/1.7.4 (+https://www.vagrantup.com; ruby2.1.0)
-      USER_AGENT = "Vagrant/#{VERSION} (+https://www.vagrantup.com; #{RUBY_ENGINE}#{RUBY_VERSION})".freeze
+      USER_AGENT = "Vagrant/#{VERSION} (+https://www.vagrantup.com; #{RUBY_ENGINE}#{RUBY_VERSION}) #{ENV['VAGRANT_USER_AGENT_PROVISIONAL_STRING']}".freeze
 
       # Supported file checksum
       CHECKSUM_MAP = {
         :md5 => Digest::MD5,
         :sha1 => Digest::SHA1
       }.freeze
+
+      # Hosts that do not require notification on redirect
+      SILENCED_HOSTS = [
+        "vagrantcloud.com".freeze,
+        "vagrantup.com".freeze
+      ].freeze
 
       attr_reader :source
       attr_reader :destination
@@ -82,50 +89,7 @@ module Vagrant
           # tell us output so we can parse it out.
           extra_subprocess_opts[:notify] = :stderr
 
-          progress_data = ""
-          progress_regexp = /(\r(.+?))\r/
-
-          # Setup the proc that'll receive the real-time data from
-          # the downloader.
-          data_proc = Proc.new do |type, data|
-            # Type will always be "stderr" because that is the only
-            # type of data we're subscribed for notifications.
-
-            # Accumulate progress_data
-            progress_data << data
-
-            while true
-              # If we have a full amount of column data (two "\r") then
-              # we report new progress reports. Otherwise, just keep
-              # accumulating.
-              match = progress_regexp.match(progress_data)
-              break if !match
-              data = match[2]
-              progress_data.gsub!(match[1], "")
-
-              # Ignore the first \r and split by whitespace to grab the columns
-              columns = data.strip.split(/\s+/)
-
-              # COLUMN DATA:
-              #
-              # 0 - % total
-              # 1 - Total size
-              # 2 - % received
-              # 3 - Received size
-              # 4 - % transferred
-              # 5 - Transferred size
-              # 6 - Average download speed
-              # 7 - Average upload speed
-              # 9 - Total time
-              # 9 - Time spent
-              # 10 - Time left
-              # 11 - Current speed
-
-              output = "Progress: #{columns[0]}% (Rate: #{columns[11]}/s, Estimated time remaining: #{columns[10]})"
-              @ui.clear_line
-              @ui.detail(output, new_line: false)
-            end
-          end
+          data_proc = Vagrant::Util::CurlHelper.capture_output_proc(@logger, @ui, @source)
         end
 
         @logger.info("Downloader starting download: ")
@@ -254,17 +218,27 @@ module Vagrant
         # show an error message.
         if result.exit_code != 0
           @logger.warn("Downloader exit code: #{result.exit_code}")
-          parts    = result.stderr.split(/\n*curl:\s+\(\d+\)\s*/, 2)
-          parts[1] ||= ""
-          raise Errors::DownloaderError,
-            code: result.exit_code,
-            message: parts[1].chomp
+          check = result.stderr.match(/\n*curl:\s+\((?<code>\d+)\)\s*(?<error>.*)$/)
+          if check && check[:code] == "416"
+            # All good actually. 416 means there is no more bytes to download
+            @logger.warn("Downloader got a 416, but is likely fine. Continuing on...")
+          else
+            if !check
+              err_msg = result.stderr
+            else
+              err_msg = check[:error]
+            end
+
+            raise Errors::DownloaderError,
+              code: result.exit_code,
+              message: err_msg
+          end
         end
 
         result
       end
 
-      # Returns the varoius cURL and subprocess options.
+      # Returns the various cURL and subprocess options.
       #
       # @return [Array<Array, Hash>]
       def options
@@ -273,7 +247,7 @@ module Vagrant
           "-q",
           "--fail",
           "--location",
-          "--max-redirs", "10",
+          "--max-redirs", "10", "--verbose",
           "--user-agent", USER_AGENT,
         ]
 
@@ -297,8 +271,7 @@ module Vagrant
         # If we're in Vagrant, then we use the packaged CA bundle
         if Vagrant.in_installer?
           subprocess_options[:env] ||= {}
-          subprocess_options[:env]["CURL_CA_BUNDLE"] =
-            File.expand_path("cacert.pem", ENV["VAGRANT_INSTALLER_EMBEDDED_DIR"])
+          subprocess_options[:env]["CURL_CA_BUNDLE"] = ENV["CURL_CA_BUNDLE"]
         end
 
         return [options, subprocess_options]

@@ -9,23 +9,26 @@ description: |-
 
 # Installation
 
-The Vagrant VMware provider can be installed using the standard plugin
-installation procedure. VMware Fusion users should run:
+If you are upgrading from the Vagrant VMware Workstation or Vagrant
+VMware Fusion plugins, please halt or destroy all VMware VMs currently
+being managed by Vagrant. Then continue with the instructions below.
 
-```text
-$ vagrant plugin install vagrant-vmware-fusion
-```
+Installation of the Vagrant VMware provider requires two steps. First the
+Vagrant VMware Utility must be installed. This can be done by downloading
+and installing the correct system package from the [Vagrant VMware Utility
+downloads page](/vmware/downloads.html).
 
-VMware Workstation users should run:
+Next, install the Vagrant VMware provider plugin using the standard plugin
+installation procedure:
 
-```text
-$ vagrant plugin install vagrant-vmware-workstation
+```shell
+$ vagrant plugin install vagrant-vmware-desktop
 ```
 
 For more information on plugin installation, please see the
 [Vagrant plugin usage documentation](/docs/plugins/usage.html).
 
-The Vagrant VMware plugins are commercial products provided by
+The Vagrant VMware plugin is a commercial product provided by
 [HashiCorp](https://www.hashicorp.com) and **require the purchase of a license**
 to operate. To purchase a license, please visit the
 [Vagrant VMware provider](/vmware#buy-now) page. Upon
@@ -38,17 +41,11 @@ this file and save it to a temporary location on your computer.
   requiring their own license.
 </div>
 
-After installing the correct Vagrant VMware product plugin for your system, you
-will need to install the license. For VMware Fusion users:
+After installing the Vagrant VMware Desktop plugin for your system, you
+will need to install the license:
 
-```text
-$ vagrant plugin license vagrant-vmware-fusion ~/license.lic
-```
-
-For VMware Workstation users:
-
-```text
-$ vagrant plugin license vagrant-vmware-workstation ~/license.lic
+```shell
+$ vagrant plugin license vagrant-vmware-desktop ~/license.lic
 ```
 
 The first parameter is the name of the plugin, and the second parameter is the
@@ -58,12 +55,47 @@ After you have installed the plugin license, you may remove the temporary file.
 
 To verify the license installation, run:
 
-```text
-$ vagrant plugin list
+```shell
+$ vagrant
 ```
 
 If the license is not installed correctly, you will see an error message.
 
+## Upgrading to v1.x
+
+It is **extremely important** that the VMware plugin is upgraded to 1.0.0 or
+above. This release resolved critical security vulnerabilities. To learn more,
+please [read our release announcement](https://www.hashicorp.com/blog/introducing-the-vagrant-vmware-desktop-plugin).
+
+After upgrading, please verify that the following paths are empty. The upgrade
+process should remove these for you, but for security reasons it is important
+to double check. If you're a new user or installing the VMware provider on a
+new machine, you may skip this step. If you're a Windows user, you may skip this
+step as well.
+
+The path `~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}`
+should no longer exist. The gem `vagrant-vmware-desktop` may exist since this
+is the name of the new plugin. If the old directories exist, remove them. An
+example for a Unix-like shell is shown below:
+
+```shell
+# Check if they exist and verify that they're the correct paths as shown below.
+$ ls ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
+...
+
+# Remove them
+$ rm -rf ~/.vagrant.d/gems/*/vagrant-vmware-{fusion,workstation}
+```
+
+## Updating the Vagrant VMware Desktop plugin
+
+The Vagrant VMware Desktop plugin can be updated directly from Vagrant. Run the
+following command to update Vagrant to the latest version of the Vagrant VMware
+Desktop plugin:
+
+```shell
+$ vagrant plugin update vagrant-vmware-desktop
+```
 
 ## Frequently Asked Questions
 
@@ -90,7 +122,7 @@ versions at the time of purchase. When new versions of VMware products are
 released, significant changes to the plugin code are often required to support
 this new version. For this reason, you may need to upgrade your current license
 to work with the new version of the VMware product. Customers can check their
-license upgrade eligibility by visiting the [License Upgrade Center](https://license.hashicorp.com/upgrade/vmware2015)
+license upgrade eligibility by visiting the [License Upgrade Center](https://license.hashicorp.com/upgrade/vmware)
 and entering the email address with which they made the original purchase.
 
 Your existing license will continue to work with all previous versions of the
@@ -102,26 +134,13 @@ The Vagrant VMware Fusion and Vagrant VMware Workstation plugins are not
 compatible with trial versions of the VMware products. We apologize for the
 inconvenience.
 
-**Q: I accidentally bought the wrong Vagrant VMware plugin, can I switch?**<br>
-Sure! Even though the Vagrant VMware Fusion plugin and the Vagrant VMware
-Workstation plugin are different products, they are the same price and fall
-under the same EULA. As such, we can transfer the license for you. Please
-[contact support](mailto:support@hashicorp.com?subject=Transfer License).
-
 **Q: How do I upgrade my currently installed Vagrant VMware plugin?**<br>
 You can update the Vagrant VMware plugin to the latest version by re-running the
-install command. For VMware Fusion:
+install command:
 
-```text
-$ vagrant plugin install vagrant-vmware-fusion
+```shell
+$ vagrant plugin install vagrant-vmware-desktop
 ```
-
-For VMWare Workstation:
-
-```text
-$ vagrant plugin install vagrant-vmware-workstation
-```
-
 
 ## Support
 If you have any issues purchasing, installing, or using the Vagrant VMware

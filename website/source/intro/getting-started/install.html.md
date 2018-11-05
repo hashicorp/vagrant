@@ -14,7 +14,7 @@ Vagrant must first be installed on the machine you want to run it on. To make
 installation easy, Vagrant is distributed as a [binary package](/downloads.html)
 for all supported platforms and architectures. This page will not cover how to
 compile Vagrant from source, as that is covered in the
-[README](https://github.com/mitchellh/vagrant/blob/master/README.md) and is only
+[README](https://github.com/hashicorp/vagrant/blob/master/README.md) and is only
 recommended for advanced users.
 
 ## Installing Vagrant

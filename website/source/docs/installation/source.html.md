@@ -30,7 +30,7 @@ Clone Vagrant's repository from GitHub into the directory where you keep code on
 
 
 ```shell
-$ git clone https://github.com/mitchellh/vagrant.git
+$ git clone https://github.com/hashicorp/vagrant.git
 ```
 
 Next, `cd` into that path. All commands will be run from this path:

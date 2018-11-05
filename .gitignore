@@ -12,6 +12,7 @@ boxes/*
 /website/.vagrant
 /website/build
 /vagrant-spec.config.rb
+test/vagrant-spec/.vagrant/
 
 # Bundler/Rubygems
 *.gem
@@ -22,6 +23,7 @@ tags
 test/tmp/
 vendor/
 /exec
+.ruby-bundle
 
 # Documentation
 _site/*

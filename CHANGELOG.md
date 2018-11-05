@@ -2,11 +2,319 @@
 
 FEATURES:
 
+IMPROVEMENTS:
+
+- command/validate: Allow validation of config while ignoring provider [GH-10351]
+- communicators/ssh: Prevent overly verbose output waiting for connection [GH-10321]
+- providers/virtualbox: Add `automount` flag if specified with synced_folder [GH-10326]
+- providers/virtualbox: Refactor host only network settings [GH-7699]
+- synced_folders/smb: Allow for 'default' smb_username in prompt if set [GH-10319]
+- util/network_ip: Simplify `network_address` helper [GH-7693]
+- util/platform: Prevent hard failure during hyper-v enabled check [GH-10332]
+
+BUG FIXES:
+
+- guest/debian: Fix halting issue when setting hostname by restarting networking on guest [GH-10301, GH-10330]
+- providers/docker: Deterministic host VM synced folder location for Docker VM [GH-10311]
+
+## 2.2.0 (October 16, 2018)
+
+FEATURES:
+
+- command/cloud: Introduce `vagrant cloud` subcommand to Vagrant [GH-10148]
+- command/upload: Add command for uploading files to guest [GH-10263]
+- command/winrm: Add command for executing guest commands via WinRM [GH-10263]
+- command/winrm-config: Add command for providing WinRM configuration [GH-10263]
+
+IMPROVEMENTS:
+
+- core: Ensure file paths are identical when checking for cwd [GH-10220]
+- core: Add config option `ignore_box_vagrantfile` for ignoring vagrantfile inside box [GH-10242]
+- core/triggers: Add abort option to core triggers [GH-10232]
+- core/triggers: Introduce `ruby` option for trigger [GH-10267]
+- contrib/bash: Add completion for snapshot names for vagrant snapshot restore|delete [GH-9054]
+- providers/docker: Build docker from git repo [GH-10221]
+- providers/hyperv: Update Hyper-V admin check and allow override via ENV variable [GH-10275]
+- providers/virtualbox: Allow base_mac to be optional [GH-10255]
+- provisioners/salt: bootstrap-salt.sh: use -s with curl [GH-9432]
+- provisioners/salt: remove leading space with bootstrap_options [GH-9431]
+
+BUG FIXES:
+
+- core/environment: Provide rgloader for local plugin installations [GH-10279]
+- contrib/sudoers/osx: Fix missing comma and add remove export alias [GH-10235]
+- guest/redhat: Update restart logic in redhat change_host_name cap [GH-10223]
+- guest/windows: Allow special characters in SMB password field [GH-10219]
+- providers/hyperv: Only use AutomaticCheckpointsEnabled when available [GH-10264]
+- providers/hyperv: Only use CheckpointType when available [GH-10265]
+- provisioners/ansible: Fix remote directory creation [GH-10259, GH-10258]
+- provisioners/puppet: Properly set env variables for puppet provisioner on windows [GH-10218]
+- provisioners/salt: Properly set salt pillar variables for windows guests [GH-10215]
+- synced_folders/rsync: Ensure unique tmp dirs for ControlPath with rsync [GH-10291]
+
+## 2.1.5 (September 12, 2018)
+
+IMPROVEMENTS:
+
+- core: Add `Vagrant.version?` helper method [GH-10191]
+- core: Scrub sensitive values from logger output [GH-10200]
+- core: Prevent multiple evaluations of Vagrantfile [GH-10199]
+- command/init: Support VAGRANT_DEFAULT_TEMPLATE env var [GH-10171]
+- command/powershell: Improve doc help string and fix winrm locales error [GH-10189]
+- contrib/bash: autocomplete running VM names for destroy subcommand [GH-10168]
+- guest/debian: Use `sudo` to determine if systemd is in use for hardened systems [GH-10198]
+- guest/openbsd: Add IPv6 network template for OpenBSD machines [GH-8912]
+- provisioners/salt: Allow non-windows hosts to pass along version [GH-10194]
+
+BUG FIXES:
+
+- core: Fix Vagrant.has_plugin? behavior before plugins are initialized [GH-10165]
+- core: Check verify_host_key for falsey or :never values when generating ssh config [GH-10182]
+- guest/linux: Filter out empty strings and loopback interfaces when constructing list of network interfaces [GH-10092]
+- provider/hyper-v: Check for automatic checkpoint support before configuring [GH-10181]
+
+## 2.1.4 (August 30, 2018)
+
+BUG FIXES:
+
+- core: Fix local plugin installation prompt answer parsing [GH-10154]
+- core: Reset internal environment after plugin loading [GH-10155]
+- host/windows: Fix SMB list parsing when extra fields are included [GH-10156]
+- provisioners/ansible_local: Fix umask setting permission bug [GH-10140]
+
+## 2.1.3 (August 29, 2018)
+
+FEATURES:
+
+- core: Support for project specific plugins [GH-10037]
+
+IMPROVEMENTS:
+
+- command/reload: Add `--force` flag to reload command [GH-10123]
+- communicator/winrm: Display warning if vagrant-winrm plugin is detected [GH-10076]
+- contrib/bash: Replace -VAGRANTSLASH- with literal slash in completion [GH-9987]
+- core: Show installed version of Vagrant when displaying version check [GH-9968]
+- core: Retain information of original box backing active guest [GH-10083]
+- core: Only write box info if provider supports box objects [GH-10126]
+- core: Update net-ssh dependency constraint to ~> 5.0.0 [GH-10066]
+- core/triggers: Catch and allow for non-standard exit codes with triggers `run` options [GH-10005]
+- core/triggers: Allow for spaces in `path` for trigger run option [GH-10118]
+- guest/debian: Isolate network interface configuration to individual files for systemd [GH-9889]
+- guest/redhat: Use libnfs-utils package if available [GH-9878]
+- provider/docker: Support Docker volume consistency for synced folders [GH-9811]
+- provider/hyperv: Disable synced folders on non-DrvFs file systems by default [GH-10001]
+- util/downloader: Support custom suffix on user agent string [GH-9966]
+- util/downloader: Prevent false positive matches on Location header [GH-10041]
+- util/subprocess: Force system library paths for executables external to AppImage [GH-10078]
+
+BUG FIXES:
+
+- core: Disable Vagrantfile loading with plugin commands [GH-10030]
+- core: Ensure the SecureRandom library is loaded for the trigger class [GH-10063]
+- core/triggers: Allow trigger run args option to be a single string [GH-10116]
+- util/powershell: Properly `join` commands from passed in array [GH-10115]
+- guest/solaris: Add back guest detection check for Solaris derived guests [GH-10081]
+- guest/windows: Be more explicit when invoking cmd.exe with mount_volume script [GH-9976]
+- host/linux: Fix sudo usage in NFS capability when modifying exports file [GH-10084]
+- host/windows: Remove localization dependency from SMB list generation [GH-10043]
+- provider/docker: Convert windows paths for volume mounts on docker driver [GH-10100]
+- provider/hyperv: Fix checkpoint configuration and properly disable automatic checkpoints by default [GH-9999]
+- provider/hyperv: Remove localization dependency from access check [GH-10000]
+- provider/hyperv: Enable ExposeVirtualizationExtensions only when available [GH-10079]
+- provider/virtualbox: Skip link-local when fixing IPv6 route [GH-9639, GH-10077]
+- push/ftp: Custom error when attempting to push too many files [GH-9952]
+- util/downloader: Prevent errors when Location header contains relative path [GH-10017]
+- util/guest_inspection: Prevent nmcli check from hanging when pty is enabled [GH-9926]
+- util/platform: Always force string type conversion on path [GH-9998]
+
+## 2.1.2 (June 26, 2018)
+
+IMPROVEMENTS:
+
+- commands/suspend: Introduce flag for suspending all machines [GH-9829]
+- commands/global-status: Improve message about removing stale entries [GH-9856]
+- provider/hyperv: Attempt to determine import failure cause [GH-9936]
+- provider/hyperv: Update implementation. Include support for modifications on reload [GH-9872]
+- provider/hyperv: Validate maxmemory configuration setting [GH-9932]
+- provider/hyperv: Enable provider within WSL [GH-9943]
+- provider/hyperv: Add Hyper-V accessibility check on data directory path [GH-9944]
+- provisioners/ansible_local: Improve installation from PPA on Ubuntu guests.
+    The compatibility is maintained only for active long-term support (LTS) versions,
+    i.e. Ubuntu 12.04 (Precise Pangolin) is no longer supported. [GH-9879]
+
+BUG FIXES:
+
+- communicator/ssh: Update ssh private key file permission handling on Windows [GH-9923, GH-9900]
+- core: Display plugin commands in help [GH-9808]
+- core: Ensure guestpath or name is set with synced_folder option and dont set guestpath if not provided [GH-9692]
+- guest/debian: Fix netplan generation when using DHCP [GH-9855]
+- guest/debain: Update priority of network configuration file when using networkd [GH-9867]
+- guest/ubuntu: Update netplan config generation to detect NetworkManager [GH-9824]
+- guest/ubuntu: Fix failing Ansible installation from PPA on Bionic Beaver (18.04 LTS) [GH-9796]
+- host/windows: Prevent processing of last SMB line when using net share [GH-9917]
+- provisioner/chef: Prevent node_name set on configuration with chef_apply [GH-9916]
+- provisioner/salt: Remove usage of masterless? config attribute [GH-9833]
+
+## 2.1.1 (May 7, 2018)
+
+IMPROVEMENTS:
+
+- guest/linux: Support builtin vboxsf module for shared folders [GH-9800]
+- host/windows: Update SMB capability to work without Get-SmbShare cmdlet [GH-9785]
+
+BUG FIXES:
+
+- core/triggers: Initialize internal trigger object for machine before initializing provider [GH-9784]
+- core/triggers: Ensure internal trigger fire does not get called if plugin installed [GH-9799]
+- provider/hyperv: Call import script with switchid instead of switchname [GH-9781]
+
+## 2.1.0 (May 3, 2018)
+
+FEATURES:
+
+- core: Integrate vagrant-triggers plugin functionality into core Vagrant [GH-9713]
+
+IMPROVEMENTS:
+
+- core: Improve messaging around not finding requested provider [GH-9735]
+- core: Disable exception reports by default [GH-9738]
+- core: Continue on if vagrant fails to parse metadata box for update [GH-9760]
+- hosts/linux: Support RDP capability within WSL [GH-9758]
+- hosts/windows: Add SMB default mount options capability and set default version to 2.0 [GH-9734]
+- provider/hyperv: Include neighbor check for MAC on guest IP detection [GH-9737]
+- provider/virtualbox: Do not require VirtualBox availability within WSL [GH-9759]
+- provisioner/chef_zero: Support arrays for data_bags_path [GH-9669]
+- util/downloader: Don't raise error if response is HTTP 416 [GH-9729]
+- util/platform: Update Hyper-V enabled check [GH-9746]
+
+BUG FIXES:
+
+- communicators/ssh: Log error and proceed on Windows private key permissions [GH-9769]
+- middleware/authentication: Prevent URL modification when no changes are required [GH-9730]
+- middleware/authentication: Ignore URLs which cannot be parsed [GH-9739]
+- provider/hyperv: Reference switches by ID instead of name [GH-9747]
+- provider/docker: Use Util::SafeExec if docker-exec is run with `-t` option [GH-9761]
+- provisioner/chef: Trim drive letter from path on Windows [GH-9766]
+- provisioner/puppet: Properly finalize structured_facts config option [GH-9720]
+- util/platform: Fix original WSL to Windows path for "root" directory [GH-9696]
+
+## 2.0.4 (April 20, 2018)
+
+FEATURES:
+
+- core: Vagrant aliases [GH-9504]
+
+IMPROVEMENTS:
+
+- communicators/ssh: Update file permissions when generating new key pairs [GH-9676]
+- core: Make resolv-replace usage opt-in instead of opt-out [GH-9644]
+- core: Suppress error messages from checkpoint runs [GH-9645]
+- guests/coreos: Identify operating systems closely related to CoreOS [GH-9600]
+- guests/debian: Adjust network configuration file prefix to 50- [GH-9646]
+- guests/photon: Less specific string grep to fix PhotonOS 2.0 detection [GH-9528]
+- guests/windows: Fix slow timeout when updating windows hostname [GH-9578]
+- hosts/windows: Make powershell version detection timeout configurable [GH-9506]
+- providers/virtualbox: Improve network collision error message [GH-9685]
+- provisioner/chef_solo: Improve Windows drive letter removal hack for remote paths[GH-9490]
+- provisioner/chef_zero: File path expand all chef_zero config path options [GH-9690]
+- provisioner/puppet: Puppet structured facts toyaml on provisioner [GH-9670]
+- provisioner/salt: Add master_json_config & minion_json_config options [GH-9420]
+- util/platform: Warn on ArgumentError exceptions from encoding [GH-9506]
+
+BUG FIXES:
+
+- commands/package: Fix uninitialized constant error [GH-9654]
+- communicators/winrm: Fix command filter to properly parse commands [GH-9673]
+- hosts/windows: Properly respect the VAGRANT_PREFER_SYSTEM_BIN environment variable [GH-9503]
+- hosts/windows: Fix virtualbox shared folders path for windows guests [GH-8099]
+- guests/freebsd: Fix typo in command that manages configuring networks [GH-9705]
+- util/checkpoint_client: Respect VAGRANT_CHECKPOINT_DISABLE environment variable [GH-9659]
+- util/platform: Use `--version` instead of `version` for WSL validation [GH-9674]
+
+## 2.0.3 (March 15, 2018)
+
+IMPROVEMENTS:
+
+  - guests/solaris: More explicit Solaris 11 and inherit SmartOS from Solaris [GH-9398]
+  - hosts/windows: Add support for latest WSL release [GH-9525, GH-9300]
+  - plugins/login: Update middleware to re-map hosts and warn on custom server [GH-9499]
+  - providers/hyper-v: Exit if Hyper-V is enabled and VirtualBox provider is used [GH-9456]
+  - provisioners/salt: Change to a temporary directory before downloading script files [GH-9351]
+  - sycned_folders/nfs: Default udp to false when using version 4 [GH-8828]
+  - util/downloader: Notify on host redirect [GH-9344]
+
+BUG FIXES:
+
+  - core: Use provider override when specifying box_version [GH-9502]
+  - guests/debian: Renew DHCP lease on hostname change [GH-9405]
+  - guests/debian: Point hostname to 127.0.1.1 in /etc/hosts [GH-9404]
+  - guests/debian: Update systemd? check for guest inspection [GH-9459]
+  - guests/debian: Use ip route in dhcp template [GH-8730]
+  - guests/gentoo: Disable if/netplugd when setting up a static ip on a gentoo guest using openrc [GH-9261]
+  - guests/openbsd: Atomically apply new hostname.if(5) [GH-9265]
+  - hosts/windows: Fix halt problem when determining powershell version on old powershells [GH-9470]
+  - hosts/windows: Convert to windows path if on WSL during vbox export [GH-9518]
+  - providers/virtualbox: Fix hostonly matching not respecting :name argument [GH-9302]
+  - util/credential_scrubber: Ignore empty strings [GH-9472, GH-9462]
+
+## 2.0.2 (January 29, 2018)
+
+FEATURES:
+
+  - core: Provide mechanism for removing sensitive data from output [GH-9276]
+  - core: Relax Ruby constraints to include 2.5 [GH-9363]
+  - core: Hide sensitive values in output [GH-9369]
+  - command/init: Support custom Vagrantfile templates [GH-9202]
+  - guests: Add support for the Haiku operating system [GH-7805, GH-9245]
+  - synced_folders/smb: Add support for macOS hosts [GH-9294]
+  - vagrant-spec: Update vagrant-spec to include Windows platforms and updated linux boxes [GH-9183]
+
+IMPROVEMENTS:
+
+  - config/ssh: Deprecate :paranoid in favor of :verify_host_key [GH-9341]
+  - core: Add optional timestamp prefix on log output [GH-9269]
+  - core: Print more helpful error message for NameEror exceptions in Vagrantfiles [GH-9252]
+  - core: Update checkpoint implementation to announce updates and support notifications [GH-9380]
+  - core: Use Ruby's Resolv by default [GH-9394]
+  - docs: Include virtualbox 5.2.x as supported in docs [GH-9237]
+  - docs: Improve how to pipe debug log on powershell [GH-9330]
+  - guests/amazon: Improve guest detection [GH-9307]
+  - guests/debian: Update guest configure networks [GH-9338]
+  - guests/dragonflybsd: Base guest on FreeBSD to inherit more functionality [GH-9205]
+  - guests/linux: Improve NFS service name detection and interactions [GH-9274]
+  - guests/linux: Support mount option overrides for SMB mounts [GH-9366]
+  - guests/linux: Use `ip` for reading guest address if available [GH-9315]
+  - guests/solaris: Improve guest detection for alternatives [GH-9295]
+  - hosts/windows: Check credentials during SMB prepare [GH-9365]
+  - providers/hyper-v: Ensure Hyper-V cmdlets are fully qualified [GH-8863]
+  - middleware/authentication: Add app.vagrantup.com to allowed hosts [GH-9145]
+  - provisioners/shell: Support hiding environment variable values in output [GH-9367]
+  - providers/virtualbox: Add a clean error message for invalid IP addresses [GH-9275]
+  - providers/virtualbox: Introduce flag for SharedFoldersEnableSymlinksCreate setting [GH-9354]
+  - providers/virtualbox: Provide warning for SharedFoldersEnableSymlinksCreate setting [GH-9389]
+  - provisioners/salt: Fixes timeout issue in salt bootstrapping for windows [GH-8992]
+  - synced_folders/smb: Update Windows implementation [GH-9294]
+  - util/ssh: Attempt to locate local ssh client before attempting installer provided [GH-9400]
+
+BUG FIXES:
+
+  - commands/box: Show all box providers with `update outdated --global` [GH-9347]
+  - commands/destroy: Exit 0 if vagrant destroy finds no running vms [GH-9251]
+  - commands/package: Fix --output path with specified folder [GH-9131]
+  - guests/suse: Do not use full name when setting hostname [GH-9212]
+  - providers/hyper-v: Fix enable virtualization extensions on import [GH-9255]
+  - provisioners/ansible(both): Fix broken 'ask_sudo_pass' option [GH-9173]
+
+## 2.0.1 (November 2, 2017)
+
+FEATURES:
+
   - core: Introduce Ruby 2.4 to Vagrant [GH-9102]
   - providers/virtualbox: Virtualbox 5.2 support [GH-8955]
 
 IMPROVEMENTS:
 
+  - command/destroy: Introduce parallel destroy for certain providers [GH-9127]
   - communicators/winrm: Include APIPA check within ready check [GH-8997]
   - core: Clear POSIXLY_CORRECT when using optparse [GH-8685]
   - docs: Add auto_start_action and auto_stop_action to docs. [GH-9029]
@@ -15,6 +323,7 @@ IMPROVEMENTS:
   - providers/salt: Support Windows Salt Minions greater than 2016.x.x [GH-8926]
   - provisioners/salt: Add wget to bootstrap_salt options when fetching installer file [GH-9112]
   - provisioners/shell: Use ui.detail for displaying output [GH-8983]
+  - util/downloader: Use CURL_CA_BUNDLE environment variable [GH-9135]
 
 BUG FIXES:
 
@@ -24,6 +333,7 @@ BUG FIXES:
   - guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
   - guests/windows: Specify expected shell when executing on guest (fixes winssh communicator usage) [GH-9012]
   - guests/windows: Include WinSSH Communicator when using insert_public_key [GH-9105]
+  - hosts/windows: Check for vagrant.exe when validating versions within WSL [GH-9107, GH-8962]
   - providers/docker: Isolate windows check within executor to handle running through VM [GH-8921]
   - providers/hyper-v: Properly invoke Auto stop action [GH-9000]
   - provisioners/puppet: Fix winssh communicator support in puppet provisioner [GH-9014]
@@ -229,7 +539,7 @@ BUG FIXES:
   - core/bundler: Check if source is local path and prevent addition to remote sources [GH-8401]
   - core/ui: Prevent deadlock detection errors [GH-8414, GH-8125]
   - guests/debian: Remove hardcoded device name in interface template [GH-8336, GH-7960]
-  - guests/linux: Fix SMB mount capbability [GH-8410, GH-8404]
+  - guests/linux: Fix SMB mount capability [GH-8410, GH-8404]
   - hosts/windows: Fix issues with Windows encoding [GH-8385, GH-8380, GH-8212, GH-8207, GH-7516]
   - hosts/windows: Fix UNC path generation when UNC path is provided [GH-8504]
   - provisioners/salt: Allow Salt version to match 2 digit month [GH-8428]
@@ -447,7 +757,7 @@ BUG FIXES:
   - guests/redhat: Use `/sbin/ip` to list and configure networks for
       compatability with older versions of CentOS [GH-7482]
   - guests/redhat: Ensure newline when inserting public key [GH-7598, GH-7605]
-  - guests/ubuntu: Use /etc/os-release to detech [GH-7524]
+  - guests/ubuntu: Use /etc/os-release to detect [GH-7524]
   - guests/ubuntu: Use short hostname [GH-7488, GH-7605]
   - providers/hyperv: Fix version check and catch statement [GH-7447, GH-7487]
 
@@ -581,7 +891,7 @@ BUG FIXES:
   - providers/virtualbox: Set maximum network adapters to 36 [GH-7293, GH-7286]
   - providers/virtualbox: Do not fail when master VM from linked clone is
       missing [GH-7126, GH-6742]
-  - providers/virtualbox: Use scoped overrides in preparring NFS
+  - providers/virtualbox: Use scoped overrides in preparing NFS
       [GH-7387, GH-7386]
   - provisioners/ansible: Fix a race condition in the concurrent generations of
       the ansible inventory file, while running `vagrant up --parallel`
@@ -937,7 +1247,7 @@ BUG FIXES:
   - provisioners/ansible: disable color if Vagrant is not colored [GH-5531, GH-5532]
   - provisioners/ansible: only show ansible-playbook command when `verbose` option is enabled [GH-5803]
   - provisioners/ansible: fix a race condition in the inventory file generation [GH-5551]
-  - provisioners/docker: use `service` to restart Docker instad of upstart [GH-5245, GH-5577]
+  - provisioners/docker: use `service` to restart Docker instead of upstart [GH-5245, GH-5577]
   - provisioners/docker: Only add docker user to group if exists. [GH-5315]
   - provisioners/docker: Use https for repo [GH-5749]
   - provisioners/docker: `apt-get update` before installing linux kernel
@@ -1172,7 +1482,7 @@ IMPROVEMENTS:
       deleted by default. [GH-4327]
   - commands/plugin: Better error output is shown when plugin installation
       fails.
-  - commands/reload: show post up messsage [GH-4168]
+  - commands/reload: show post up message [GH-4168]
   - commands/rsync-auto: Add `--poll` flag. [GH-4392]
   - communicators/winrm: Show stdout/stderr if command fails. [GH-4094]
   - guests/nixos: Added better NFS support. [GH-3983]
@@ -1460,7 +1770,7 @@ BUG FIXES:
       already for 127.0.1.1 [GH-3271]
   - guests/linux: For `read_ip_address` capability, set `LANG=en` so
       it works on international systems. [GH-3029]
-  - providers/virtualbox: VirtalBox detection works properly again on
+  - providers/virtualbox: VirtualBox detection works properly again on
       Windows when the `VBOX_INSTALL_PATH` has multiple elements. [GH-3549]
   - providers/virtualbox: Forcing MAC address on private network works
       properly again. [GH-3588]
@@ -1637,7 +1947,7 @@ BUG FIXES:
   - core: Assume a box isn't metadata if it exceeds 20 MB. [GH-3107]
   - core: Asking for input works even in consoles that don't support
     hiding input. [GH-3119]
-  - core: Adding a box by path in Cygwin on Windos works. [GH-3132]
+  - core: Adding a box by path in Cygwin on Windows works. [GH-3132]
   - core: PowerShell scripts work when they're in a directory with
     spaces. [GH-3100]
   - core: If you add a box path that doesn't exist, error earlier. [GH-3091]
@@ -1953,7 +2263,7 @@ BUG FIXES:
   - core: Don't load Vagrantfile on `vagrant plugin` commands, allowing
     Vagrantfiles that use plugins to work. [GH-2388]
   - core: global flags are ignored past the "--" on the CLI. [GH-2491]
-  - core: provisoining will properly happen if `up` failed. [GH-2488]
+  - core: provisioning will properly happen if `up` failed. [GH-2488]
   - guests/freebsd: Mounting NFS folders works. [GH-2400]
   - guests/freebsd: Uses `sh` by default for shell. [GH-2485]
   - guests/linux: upstart events listening for `vagrant-mounted` won't
@@ -2387,7 +2697,7 @@ BUG FIXES:
   - Ignore "guest not ready" errors when attempting to graceful halt and
     carry on checks whether the halt succeeded. [GH-1679]
   - Handle the case where a roles path for Chef solo isn't properly
-	defined. [GH-1665]
+    defined. [GH-1665]
   - Finding V1 boxes now works properly again to avoid "box not found"
     errors. [GH-1691]
   - Setting hostname on SLES 11 works again. [GH-1781]
@@ -2959,7 +3269,7 @@ IMPROVEMENTS / BUG FIXES:
     the behavior seems different/wrong.
   - Give a nice error if `:vagrant` is used as a JSON key, since Vagrant
     uses this. [GH-661]
-  - If there is only one bridgable interface, use that without asking
+  - If there is only one bridgeable interface, use that without asking
     the user. [GH-655]
   - The shell will have color output if ANSICON is installed on Windows. [GH-666]
 
@@ -3010,7 +3320,7 @@ IMPROVEMENTS / BUG FIXES:
     port of the virtual machine.
   - If a shared folder now has a `:create` flag set to `true`, the path on the
     host will be created if it doesn't exist.
-  - Added `--force` flag to `box add`, which will overwite any existing boxes
+  - Added `--force` flag to `box add`, which will overwrite any existing boxes
     if they exist. [GH-631]
   - Added `--provision-with` to `up` which configures what provisioners run,
     by shortcut. [GH-367]

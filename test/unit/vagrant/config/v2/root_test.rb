@@ -91,6 +91,24 @@ describe Vagrant::Config::V2::Root do
       expect(instance.validate(env)).to eq(errors)
     end
 
+    context "with vms and ignoring provider validations" do
+      let(:instance) do
+        map = { vm: Object, bar: Object }
+        described_class.new(map)
+      end
+
+      it "should pass along the ignore_provider flag for ignoring validations" do
+        errors = { "vm" => ["errors!"] }
+        env    = { "errors" => errors }
+        vm     = instance.vm
+        def vm.validate(env, param)
+          env["errors"]
+        end
+
+        expect(instance.validate({}, true)).to eq({})
+      end
+    end
+
     it "should merge errors via array concat if matching keys" do
       errors = { "foo" => ["errors!"] }
       env    = { "errors" => errors }

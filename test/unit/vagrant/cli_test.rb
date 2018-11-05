@@ -1,6 +1,7 @@
 require_relative "../base"
 
 require "vagrant/cli"
+require "vagrant/util"
 
 describe Vagrant::CLI do
   include_context "unit"
@@ -9,9 +10,21 @@ describe Vagrant::CLI do
   let(:commands) { {} }
   let(:iso_env) { isolated_environment }
   let(:env)     { iso_env.create_vagrant_env }
+  let(:checkpoint) { double("checkpoint") }
 
   before do
     allow(Vagrant.plugin("2").manager).to receive(:commands).and_return(commands)
+    allow(Vagrant::Util::CheckpointClient).to receive(:instance).and_return(checkpoint)
+    allow(checkpoint).to receive(:setup).and_return(checkpoint)
+    allow(checkpoint).to receive(:check)
+    allow(checkpoint).to receive(:display)
+  end
+
+  describe "#initialize" do
+    it "should setup checkpoint" do
+      expect(checkpoint).to receive(:check)
+      described_class.new(["destroy"], env)
+    end
   end
 
   describe "#execute" do
@@ -34,6 +47,12 @@ describe Vagrant::CLI do
 
       subject = described_class.new(["destroy"], env)
       expect(subject.execute).to eql(1)
+    end
+
+    it "displays any checkpoint information" do
+      commands[:destroy] = [command_lambda("destroy", 42), {}]
+      expect(checkpoint).to receive(:display)
+      described_class.new(["destroy"], env).execute
     end
   end
 

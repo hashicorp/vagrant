@@ -1,22 +1,23 @@
+#Requires -Modules VagrantMessages
 #-------------------------------------------------------------------------
 # Copyright (c) Microsoft Open Technologies, Inc.
 # All Rights Reserved. Licensed under the MIT License.
 #--------------------------------------------------------------------------
 
 param (
-    [string]$vm_id = $(throw "-vm_id is required."),
-    [string]$guest_ip = $(throw "-guest_ip is required."),
-    [string]$username = $(throw "-guest_username is required."),
-    [string]$password = $(throw "-guest_password is required."),
-    [string]$host_path = $(throw "-host_path is required."),
-    [string]$guest_path = $(throw "-guest_path is required.")
- )
-
-# Include the following modules
-$presentDir = Split-Path -parent $PSCommandPath
-$modules = @()
-$modules += $presentDir + "\utils\write_messages.ps1"
-forEach ($module in $modules) { . $module }
+    [parameter (Mandatory=$true)]
+    [string]$vm_id,
+    [parameter (Mandatory=$true)]
+    [string]$guest_ip,
+    [parameter (Mandatory=$true)]
+    [string]$username,
+    [parameter (Mandatory=$true)]
+    [string]$password,
+    [parameter (Mandatory=$true)]
+    [string]$host_path,
+    [parameter (Mandatory=$true)]
+    [string]$guest_path
+)
 
 function Get-file-hash($source_path, $delimiter) {
     $source_files = @()
@@ -45,7 +46,7 @@ function Sync-Remote-Machine($machine, $remove_files, $copy_files, $host_path, $
       $from = $host_path + $item
       $to = $guest_path + $item
       # Copy VM can also take a VM object
-      Copy-VMFile  -VM $machine -SourcePath $from -DestinationPath $to -CreateFullPath -FileSource Host -Force
+      Hyper-V\Copy-VMFile  -VM $machine -SourcePath $from -DestinationPath $to -CreateFullPath -FileSource Host -Force
     }
 }
 
@@ -67,7 +68,7 @@ function Get-Empty-folders-From-Source($host_path) {
 
 $delimiter = " || "
 
-$machine = Get-VM -Id $vm_id
+$machine = Hyper-V\Get-VM -Id $vm_id
 
 # FIXME: PowerShell guys please fix this.
 # The below script checks for all VMIntegrationService which are not enabled
@@ -75,7 +76,7 @@ $machine = Get-VM -Id $vm_id
 # When when all the services are enabled this throws an error.
 # Enable VMIntegrationService to true
 try {
-  Get-VM -Id $vm_id | Get-VMIntegrationService -Name "Guest Service Interface" | Enable-VMIntegrationService -Passthru
+  Hyper-V\Get-VM -Id $vm_id | Hyper-V\Get-VMIntegrationService -Name "Guest Service Interface" | Hyper-V\Enable-VMIntegrationService -Passthru
   }
   catch { }
 
@@ -119,5 +120,4 @@ $resultHash = @{
   message = "OK"
 }
 $result = ConvertTo-Json $resultHash
-Write-Output-Message $result
-
+Write-OutputMessage $result

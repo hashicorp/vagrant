@@ -35,13 +35,16 @@ module VagrantPlugins
             spec = specs[plugin_name]
             next if spec.nil?
 
-            system = ""
-            system = ", system" if plugin && plugin["system"]
-            env[:ui].info "#{spec.name} (#{spec.version}#{system})"
+            meta = ", global"
+            if plugin
+              meta = ", system" if plugin["system"]
+              meta = ", local" if plugin["env_local"]
+            end
+            env[:ui].info "#{spec.name} (#{spec.version}#{meta})"
             env[:ui].machine("plugin-name", spec.name)
             env[:ui].machine(
               "plugin-version",
-              "#{spec.version}#{system}",
+              "#{spec.version}#{meta}",
               target: spec.name)
 
             if plugin["gem_version"] && plugin["gem_version"] != ""

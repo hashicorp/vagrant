@@ -46,7 +46,7 @@ module VagrantPlugins
             cookbooks_path: guest_paths(@cookbook_folders),
             nodes_path: guest_paths(@node_folders),
             roles_path: guest_paths(@role_folders),
-            data_bags_path: guest_paths(@data_bags_folders).first,
+            data_bags_path: guest_paths(@data_bags_folders),
             environments_path: guest_paths(@environments_folders).first,
           })
         end
@@ -62,11 +62,11 @@ module VagrantPlugins
             local_mode: true,
           )
 
-          still_active = 259 #provisioner has asked chef to reboot 
-          
+          still_active = 259 #provisioner has asked chef to reboot
+
           @config.attempts.times do |attempt|
             exit_status = 0
-            while exit_status == 0 || exit_status == still_active 
+            while exit_status == 0 || exit_status == still_active
               if @machine.guest.capability?(:wait_for_reboot)
                 @machine.guest.capability(:wait_for_reboot)
               elsif attempt > 0

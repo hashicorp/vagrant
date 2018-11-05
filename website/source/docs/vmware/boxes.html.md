@@ -95,10 +95,8 @@ by adding a Vagrantfile to the box with the following content:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  ["vmware_workstation", "vmware_fusion"].each do |vmware_provider|
-    config.vm.provider(vmware_provider) do |vmware|
-      vmware.whitelist_verified = true
-    end
+  config.vm.provider "vmware_desktop" do |vmware|
+    vmware.whitelist_verified = true
   end
 end
 ```
@@ -113,7 +111,7 @@ a bare minimum:
 
 * SSH server with key-based authentication setup. If you want the box to
   work with default Vagrant settings, the SSH user must be set to accept
-  the [insecure keypair](https://github.com/mitchellh/vagrant/blob/master/keys/vagrant.pub)
+  the [insecure keypair](https://github.com/hashicorp/vagrant/blob/master/keys/vagrant.pub)
   that ships with Vagrant.
 
 * [VMware Tools](https://kb.vmware.com/kb/340) so that things such as shared

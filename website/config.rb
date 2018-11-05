@@ -1,13 +1,26 @@
 set :base_url, "https://www.vagrantup.com/"
 
+set :vmware_utility_name, "vagrant-vmware-utility"
+set :vmware_utility_version, "1.0.5"
+
 activate :hashicorp do |h|
   h.name         = "vagrant"
-  h.version      = "2.0.0"
-  h.github_slug  = "mitchellh/vagrant"
+  h.version      = "2.2.0"
+  h.github_slug  = "hashicorp/vagrant"
   h.website_root = "website"
 end
 
 helpers do
+  # Returns a segment tracking ID such that local development is not
+  # tracked to production systems.
+  def segmentId()
+    if (ENV['ENV'] == 'production')
+      'wFMyBE4PJCZttWfu0pNhYdWr7ygW0io4'
+    else
+      '0EXTgkNx0Ydje2PGXVbRhpKKoe5wtzcE'
+    end
+  end
+
   # Returns the FQDN of the image URL.
   #
   # @param [String] path

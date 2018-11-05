@@ -8,6 +8,10 @@ module VagrantPlugins
   module GuestSolaris11
     class Guest < Vagrant.plugin("2", :guest)
       def detect?(machine)
+        success = machine.communicate.test("grep 'Solaris 11' /etc/release")
+        return success if success
+
+        # for solaris derived guests like openindiana
         machine.communicate.test("uname -sr | grep 'SunOS 5.11'")
       end
     end

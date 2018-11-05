@@ -32,7 +32,7 @@ module VagrantPlugins
       end
 
       # Linux-specific helpers we need to determine paths that can
-      # be overriden.
+      # be overridden.
       host_capability("linux", "nfs_apply_command") do
         require_relative "cap/nfs"
         Cap::NFS
@@ -46,6 +46,11 @@ module VagrantPlugins
       host_capability("linux", "nfs_start_command") do
         require_relative "cap/nfs"
         Cap::NFS
+      end
+
+      host_capability("linux", "set_ssh_key_permissions") do
+        require_relative "cap/ssh"
+        Cap::SSH
       end
     end
   end

@@ -20,6 +20,9 @@ module VagrantPlugins
           end
 
           smb_password = Shellwords.shellescape(options[:smb_password])
+          # Ensure password is scrubbed
+          Vagrant::Util::CredentialScrubber.sensitive(smb_password)
+
           mount_options = options[:mount_options];
           mount_command = "mount -t smbfs " +
             (mount_options ? "-o '#{mount_options.join(",")}' " : "") +

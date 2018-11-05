@@ -1,7 +1,7 @@
 require "vagrant/capability_host"
 
 module Vagrant
-  # This class handles host-OS specific interations. It is responsible for
+  # This class handles host-OS specific interactions. It is responsible for
   # detecting the proper host OS implementation and delegating capabilities
   # to plugins.
   #

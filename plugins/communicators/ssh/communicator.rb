@@ -1,3 +1,4 @@
+require 'etc'
 require 'logger'
 require 'pathname'
 require 'stringio'
@@ -74,8 +75,7 @@ module VagrantPlugins
           ssh_auth_type = "password" if ssh_info[:password]
           @machine.ui.detail("SSH auth method: #{ssh_auth_type}")
 
-          last_message = nil
-          last_message_repeat_at = 0
+          previous_messages = {}
           while true
             message  = nil
             begin
@@ -122,14 +122,13 @@ module VagrantPlugins
             if message
               message_at   = Time.now.to_f
               show_message = true
-              if last_message == message
-                show_message = (message_at - last_message_repeat_at) > 10.0
+              if previous_messages[message]
+                show_message = (message_at - previous_messages[message]) > 10.0
               end
 
               if show_message
                 @machine.ui.detail("Warning: #{message} Retrying...")
-                last_message = message
-                last_message_repeat_at = message_at
+                previous_messages[message] = message_at
               end
             end
           end
@@ -191,6 +190,11 @@ module VagrantPlugins
           # machine automatically picks it up.
           @machine.data_dir.join("private_key").open("w+") do |f|
             f.write(priv)
+          end
+
+          # Adjust private key file permissions if host provides capability
+          if @machine.env.host.capability?(:set_ssh_key_permissions)
+            @machine.env.host.capability(:set_ssh_key_permissions, @machine.data_dir.join("private_key"))
           end
 
           # Remove the old key if it exists
@@ -285,7 +289,7 @@ module VagrantPlugins
 
         scp_connect do |scp|
           if File.directory?(from)
-            # Recurisvely upload directories
+            # Recursively upload directories
             scp.upload!(from, to, recursive: true)
           else
             # Open file read only to fix issue [GH-1036]
@@ -364,7 +368,7 @@ module VagrantPlugins
           forward_agent:         ssh_info[:forward_agent],
           send_env:              ssh_info[:forward_env],
           keys_only:             ssh_info[:keys_only],
-          paranoid:              ssh_info[:paranoid],
+          verify_host_key:       ssh_info[:verify_host_key],
           password:              ssh_info[:password],
           port:                  ssh_info[:port],
           timeout:               15,

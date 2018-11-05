@@ -248,7 +248,7 @@ module Vagrant
       end
 
       def format_message(type, message, **opts)
-        message
+        Util::CredentialScrubber.desensitize(message)
       end
     end
 
@@ -319,6 +319,8 @@ module Vagrant
           prefix = " " * OUTPUT_PREFIX.length if \
             type == :detail || type == :ask || opts[:prefix_spaces]
         end
+
+        message = Util::CredentialScrubber.desensitize(message)
 
         # Fast-path if there is no prefix
         return message if prefix.empty?

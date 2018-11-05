@@ -100,10 +100,14 @@ module VagrantPlugins
             end
 
             if !machine.box
-              machine.ui.output(I18n.t(
-                "vagrant.errors.box_update_no_box",
-                name: machine.config.vm.box))
-              next
+              collection = Vagrant::BoxCollection.new(@env.boxes_path)
+              machine.box = collection.find(machine.config.vm.box, provider || machine.provider_name || @env.default_provider, "> 0")
+              if !machine.box
+                machine.ui.output(I18n.t(
+                  "vagrant.errors.box_update_no_box",
+                  name: machine.config.vm.box))
+                next
+              end
             end
 
             name     = machine.box.name

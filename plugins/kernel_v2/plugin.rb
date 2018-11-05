@@ -39,6 +39,30 @@ module VagrantPlugins
         require File.expand_path("../config/vm", __FILE__)
         VMConfig
       end
+
+      plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+      if !plugins.keys.include?("vagrant-triggers")
+        config("trigger") do
+          require File.expand_path("../config/trigger", __FILE__)
+          TriggerConfig
+        end
+      else
+        if !ENV["VAGRANT_USE_VAGRANT_TRIGGERS"]
+        $stderr.puts <<-EOF
+WARNING: Vagrant has detected the `vagrant-triggers` plugin. This plugin conflicts
+with the internal triggers implementation. Please uninstall the `vagrant-triggers`
+plugin and run the command again if you wish to use the core trigger feature. To
+uninstall the plugin, run the command shown below:
+
+  vagrant plugin uninstall vagrant-triggers
+
+Note that the community plugin `vagrant-triggers` and the core trigger feature
+in Vagrant do not have compatible syntax.
+
+To disable this warning, set the environment variable `VAGRANT_USE_VAGRANT_TRIGGERS`.
+EOF
+        end
+      end
     end
   end
 end

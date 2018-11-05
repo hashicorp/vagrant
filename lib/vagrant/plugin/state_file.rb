@@ -7,6 +7,10 @@ module Vagrant
     # This is a helper to deal with the plugin state file that Vagrant
     # uses to track what plugins are installed and activated and such.
     class StateFile
+
+      # @return [Pathname] path to file
+      attr_reader :path
+
       def initialize(path)
         @path = path
 
@@ -36,7 +40,8 @@ module Vagrant
           "gem_version"           => opts[:version] || "",
           "require"               => opts[:require] || "",
           "sources"               => opts[:sources] || [],
-          "installed_gem_version" => opts[:installed_gem_version]
+          "installed_gem_version" => opts[:installed_gem_version],
+          "env_local"             => !!opts[:env_local]
         }
 
         save!

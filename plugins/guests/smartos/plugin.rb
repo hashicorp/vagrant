@@ -11,7 +11,7 @@ module VagrantPlugins
         Config
       end
 
-      guest(:smartos)  do
+      guest(:smartos, :solaris)  do
         require_relative "guest"
         Guest
       end

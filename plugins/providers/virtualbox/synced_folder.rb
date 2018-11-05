@@ -1,3 +1,4 @@
+require "fileutils"
 require "vagrant/util/platform"
 
 module VagrantPlugins
@@ -97,11 +98,25 @@ module VagrantPlugins
       # transient.
       def share_folders(machine, folders, transient)
         defs = []
+        warn_user_symlink = false
+
         folders.each do |id, data|
           hostpath = data[:hostpath]
           if !data[:hostpath_exact]
             hostpath = Vagrant::Util::Platform.cygwin_windows_path(hostpath)
           end
+
+          enable_symlink_create = true
+
+          if ENV['VAGRANT_DISABLE_VBOXSYMLINKCREATE']
+            enable_symlink_create = false
+          end
+
+          unless data[:SharedFoldersEnableSymlinksCreate].nil?
+            enable_symlink_create = data[:SharedFoldersEnableSymlinksCreate]
+          end
+
+          warn_user_symlink ||= enable_symlink_create
 
           # Only setup the shared folders that match our transient level
           if (!!data[:transient]) == transient
@@ -109,11 +124,25 @@ module VagrantPlugins
               name: os_friendly_id(id),
               hostpath: hostpath.to_s,
               transient: transient,
+              SharedFoldersEnableSymlinksCreate: enable_symlink_create,
+              automount: !!data[:automount]
             }
           end
         end
 
+        if warn_user_symlink
+          display_symlink_create_warning(machine.env)
+        end
+
         driver(machine).share_folders(defs)
+      end
+
+      def display_symlink_create_warning(env)
+        d_file = env.data_dir.join("vbox_symlink_create_warning")
+        if !d_file.exist?
+          FileUtils.touch(d_file.to_path)
+          env.ui.warn(I18n.t("vagrant.virtualbox.warning.shared_folder_symlink_create"))
+        end
       end
     end
   end

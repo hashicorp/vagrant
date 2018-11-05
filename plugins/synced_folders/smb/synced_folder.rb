@@ -6,83 +6,101 @@ require "log4r"
 require "vagrant/util/platform"
 require "vagrant/util/powershell"
 
+require_relative "errors"
+
 module VagrantPlugins
   module SyncedFolderSMB
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
+
+      # Maximum number of times to retry requesting username/password
+      CREDENTIAL_RETRY_MAX = 5
+
       def initialize(*args)
         super
 
         @logger = Log4r::Logger.new("vagrant::synced_folders::smb")
-        @creds  = {}
       end
 
       def usable?(machine, raise_error=false)
-        if !Vagrant::Util::Platform.windows?
-          raise Errors::WindowsHostRequired if raise_error
-          return false
-        end
-
-        if !Vagrant::Util::Platform.windows_admin?
-          raise Errors::WindowsAdminRequired if raise_error
-          return false
-        end
-
-        psv = Vagrant::Util::PowerShell.version.to_i
-        if psv < 3
-          if raise_error
-            raise Errors::PowershellVersion,
-              version: psv.to_s
-          end
-          return false
-        end
-
-        true
+        # If the machine explicitly states SMB is not supported, then
+        # believe it
+        return false if !machine.config.smb.functional
+        return true if machine.env.host.capability?(:smb_installed) &&
+          machine.env.host.capability(:smb_installed)
+        return false if !raise_error
+        raise Errors::SMBNotSupported
       end
 
       def prepare(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.preparing"))
 
-        script_path = File.expand_path("../scripts/set_share.ps1", __FILE__)
+        smb_username = smb_password = nil
 
         # If we need auth information, then ask the user.
         have_auth = false
         folders.each do |id, data|
-          if data[:smb_username] && data[:smb_password]
-            @creds[:username] = data[:smb_username]
-            @creds[:password] = data[:smb_password]
+          smb_username = data[:smb_username] if data[:smb_username]
+          smb_password = data[:smb_password] if data[:smb_password]
+          if smb_username && smb_password
             have_auth = true
             break
           end
         end
 
+        modify_username = false
         if !have_auth
           machine.ui.detail(I18n.t("vagrant_sf_smb.warning_password") + "\n ")
-          @creds[:username] = machine.ui.ask("Username: ")
-          @creds[:password] = machine.ui.ask("Password (will be hidden): ", echo: false)
+          retries = 0
+          while retries < CREDENTIAL_RETRY_MAX do
+            if smb_username
+              username = machine.ui.ask("Username (#{smb_username}): ")
+              smb_username = username if username != ""
+              modify_username = true
+            else
+              smb_username = machine.ui.ask("Username: ")
+            end
+
+            smb_password = machine.ui.ask("Password (will be hidden): ", echo: false)
+            auth_success = true
+
+            if machine.env.host.capability?(:smb_validate_password)
+              Vagrant::Util::CredentialScrubber.sensitive(smb_password)
+              auth_success = machine.env.host.capability(:smb_validate_password,
+                smb_username, smb_password)
+            end
+
+            break if auth_success
+            machine.ui.output(I18n.t("vagrant_sf_smb.incorrect_credentials") + "\n ")
+            retries += 1
+          end
+
+          if retries >= CREDENTIAL_RETRY_MAX
+            raise Errors::CredentialsRequestError
+          end
+        end
+
+        # Check if this host can start and SMB service
+        if machine.env.host.capability?(:smb_start)
+          machine.env.host.capability(:smb_start)
         end
 
         folders.each do |id, data|
-          hostpath = data[:hostpath]
-
-          data[:smb_id] ||= Digest::MD5.hexdigest(
-            "#{machine.id}-#{id.gsub("/", "-")}")
-
-          args = []
-          args << "-path" << "\"#{hostpath.gsub("/", "\\")}\""
-          args << "-share_name" << data[:smb_id]
-          #args << "-host_share_username" << @creds[:username]
-
-          r = Vagrant::Util::PowerShell.execute(script_path, *args)
-          if r.exit_code != 0
-            raise Errors::DefineShareFailed,
-              host: hostpath.to_s,
-              stderr: r.stderr,
-              stdout: r.stdout
+          if modify_username
+            # Only override original username if user requests to
+            data[:smb_username] = smb_username
+          else
+            data[:smb_username] ||= smb_username
           end
+          data[:smb_password] ||= smb_password
+
+          # Register password as sensitive
+          Vagrant::Util::CredentialScrubber.sensitive(data[:smb_password])
         end
+
+        machine.env.host.capability(:smb_prepare, machine, folders, opts)
       end
 
-      def enable(machine, folders, nfsopts)
+      def enable(machine, folders, opts)
         machine.ui.output(I18n.t("vagrant_sf_smb.mounting"))
 
         # Make sure that this machine knows this dance
@@ -109,7 +127,7 @@ module VagrantPlugins
         end
 
         if need_host_ip
-          candidate_ips = load_host_ips
+          candidate_ips = machine.env.host.capability(:configured_ip_addresses)
           @logger.debug("Potential host IPs: #{candidate_ips.inspect}")
           host_ip = machine.guest.capability(
             :choose_addressable_ip_addr, candidate_ips)
@@ -122,10 +140,7 @@ module VagrantPlugins
         ssh_info = machine.ssh_info
 
         folders.each do |id, data|
-          data = data.dup
           data[:smb_host] ||= host_ip
-          data[:smb_username] ||= @creds[:username]
-          data[:smb_password] ||= @creds[:password]
 
           # Default the owner/group of the folder to the SSH user
           data[:owner] ||= ssh_info[:username]
@@ -141,25 +156,8 @@ module VagrantPlugins
       end
 
       def cleanup(machine, opts)
-
-      end
-
-      protected
-
-      def load_host_ips
-        script_path = File.expand_path("../scripts/host_info.ps1", __FILE__)
-        r = Vagrant::Util::PowerShell.execute(script_path)
-        if r.exit_code != 0
-          raise Errors::PowershellError,
-            script: script_path,
-            stderr: r.stderr
-        end
-
-        res = JSON.parse(r.stdout)["ip_addresses"]
-        if res.instance_of? String
-          [ res ]
-        else
-          res
+        if machine.env.host.capability?(:smb_cleanup)
+          machine.env.host.capability(:smb_cleanup, machine, opts)
         end
       end
     end

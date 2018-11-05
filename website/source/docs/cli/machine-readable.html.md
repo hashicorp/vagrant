@@ -35,13 +35,13 @@ of the commands. It is likely that what you may want to achieve with
 the machine-readable output is not possible due to missing information.
 
 In this case, we ask that you please
-[open an issue](https://github.com/mitchellh/vagrant/issues)
+[open an issue](https://github.com/hashicorp/vagrant/issues)
 requesting that certain information become available. We will most likely add
 it!
 
 ## Format
 
-The machine readable format is a line-oriented, comma-delimeted text format.
+The machine readable format is a line-oriented, comma-delimited text format.
 This makes it extremely easy to parse using standard Unix tools such as awk or
 grep in addition to full programming languages like Ruby or Python.
 

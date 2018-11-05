@@ -1,4 +1,6 @@
-Param(
+#Requires -Modules VagrantMessages
+
+param(
     [Parameter(Mandatory=$true)]
     [string]$Source,
 
@@ -6,4 +8,11 @@ Param(
     [string]$Destination
 )
 
-New-VHD -Path $Destination -ParentPath $Source -ErrorAction Stop
+$ErrorActionPreference = "Stop"
+
+try {
+    Hyper-V\New-VHD -Path $Destination -ParentPath $Source
+} catch {
+    Write-ErrorMessage "Failed to clone drive: ${PSItem}"
+    exit 1
+}

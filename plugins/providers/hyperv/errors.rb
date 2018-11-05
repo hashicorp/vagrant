@@ -37,6 +37,10 @@ module VagrantPlugins
       class WindowsRequired < HyperVError
         error_key(:windows_required)
       end
+
+      class SystemAccessRequired < HyperVError
+        error_key(:system_access_required)
+      end
     end
   end
 end

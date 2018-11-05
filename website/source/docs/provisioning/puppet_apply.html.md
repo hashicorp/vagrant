@@ -44,7 +44,7 @@ available below this section.
 * `manifests_path` (string) - The path to the directory which contains the
   manifest files. This defaults to "manifests"
 
-* `module_path` (string) - Path, on the host, to the directory which
+* `module_path` (string or array of strings) - Path or paths, on the host, to the directory which
   contains Puppet modules, if any.
 
 * `environment` (string) - Name of the Puppet environment.
@@ -164,7 +164,7 @@ The default manifest is the environment's `manifests` directory.
 If the environment has an `environment.conf` the manifest path is parsed
 from there. Relative paths are assumed to be relative to the directory of
 the environment. If the manifest setting in `environment.conf` use
-the Puppet variables `$codedir` or `$environment` they are resoled to
+the Puppet variables `$codedir` or `$environment` they are resolved to
 the parent directory of `environment_path` and `environment` respectively.
 
 ## Modules

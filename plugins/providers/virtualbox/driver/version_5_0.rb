@@ -635,6 +635,7 @@ module VagrantPlugins
         end
 
         def set_mac_address(mac)
+          mac = "auto" if !mac
           execute("modifyvm", @uuid, "--macaddress1", mac, retryable: true)
         end
 
@@ -673,8 +674,12 @@ module VagrantPlugins
               hostpath]
             args << "--transient" if folder.key?(:transient) && folder[:transient]
 
-            # Enable symlinks on the shared folder
-            execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1", retryable: true)
+            args << "--automount" if folder.key?(:automount) && folder[:automount]
+
+            if folder[:SharedFoldersEnableSymlinksCreate]
+              # Enable symlinks on the shared folder
+              execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1", retryable: true)
+            end
 
             # Add the shared folder
             execute("sharedfolder", "add", @uuid, *args, retryable: true)

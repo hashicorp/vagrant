@@ -1,6 +1,7 @@
-Please note that the Vagrant issue tracker is reserved for bug reports and
-enhancements. For general usage questions, please use the Vagrant mailing list:
+Please note that the Vagrant issue tracker is in priority reserved for bug reports and enhancements. For general usage questions, please use the Vagrant mailing list:
 https://groups.google.com/forum/#!forum/vagrant-up. Thank you!
+
+**Tip:** Before submitting your issue, don't hesitate to remove the above introductory text, possible empty sections (e.g. References), and this tip.
 
 ### Vagrant version
 Run `vagrant -v` to show the version. If you are not running the latest version
@@ -14,7 +15,7 @@ This is the operating system you run in the virtual machine.
 
 ### Vagrantfile
 ```ruby
-# Copy-paste your Vagrantfile here
+# Copy-paste your Vagrantfile here (but don't include sensitive information such as passwords, authentication tokens, or email addresses)
 ```
 
 Please note, if you are using Homestead or a different Vagrantfile format, we

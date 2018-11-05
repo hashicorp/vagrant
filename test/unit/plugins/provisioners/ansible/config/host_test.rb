@@ -78,6 +78,7 @@ describe VagrantPlugins::Ansible::Config::Host, :skip_windows => true do
       allow($stdout).to receive(:puts)
     end
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_sudo_pass, false
+    it_behaves_like "any deprecated option", :ask_sudo_pass, :ask_become_pass, true
   end
   describe "ask_vault_pass option" do
     it_behaves_like "any VagrantConfigProvisioner strict boolean attribute", :ask_vault_pass, false

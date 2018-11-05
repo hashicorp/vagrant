@@ -1,7 +1,18 @@
-require "vagrant/shared_helpers"
+require "log4r"
+require "vagrant/util/credential_scrubber"
+# Update the default formatter within the log4r library to ensure
+# sensitive values are being properly scrubbed from logger data
+class Log4r::BasicFormatter
+  alias_method :vagrant_format_object, :format_object
+  def format_object(obj)
+    Vagrant::Util::CredentialScrubber.desensitize(vagrant_format_object(obj))
+  end
+end
 
-require 'rubygems'
-require 'log4r'
+require "vagrant/shared_helpers"
+require "rubygems"
+require "vagrant/util"
+require "vagrant/plugin/manager"
 
 # Enable logging if it is requested. We do this before
 # anything else so that we can setup the output before
@@ -38,9 +49,31 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
   # Set the logging level on all "vagrant" namespaced
   # logs as long as we have a valid level.
   if level
-    logger = Log4r::Logger.new("vagrant")
+    # NOTE: We must do this little hack to allow
+    # rest-client to write using the `<<` operator.
+    # See https://github.com/rest-client/rest-client/issues/34#issuecomment-290858
+    # for more information
+    class VagrantLogger < Log4r::Logger
+      def << (msg)
+        debug(msg.strip)
+      end
+    end
+    logger = VagrantLogger.new("vagrant")
     logger.outputters = Log4r::Outputter.stderr
     logger.level = level
+    base_formatter = Log4r::BasicFormatter.new
+    if ENV["VAGRANT_LOG_TIMESTAMP"]
+      base_formatter = Log4r::PatternFormatter.new(
+        pattern: "%d [%5l] %m",
+        date_pattern: "%F %T"
+      )
+    end
+    # Vagrant Cloud gem uses RestClient to make HTTP requests, so
+    # log them if debug is enabled and use Vagrants logger
+    require 'rest_client'
+    RestClient.log = logger
+
+    Log4r::Outputter.stderr.formatter = Vagrant::Util::LoggingFormatter.new(base_formatter)
     logger = nil
   end
 end
@@ -59,11 +92,13 @@ require 'openssl'
 # Always make the version available
 require 'vagrant/version'
 global_logger = Log4r::Logger.new("vagrant::global")
+Vagrant.global_logger = global_logger
 global_logger.info("Vagrant version: #{Vagrant::VERSION}")
 global_logger.info("Ruby version: #{RUBY_VERSION}")
 global_logger.info("RubyGems version: #{Gem::VERSION}")
 ENV.each do |k, v|
-  global_logger.info("#{k}=#{v.inspect}") if k =~ /^VAGRANT_/
+  next if k.start_with?("VAGRANT_OLD")
+  global_logger.info("#{k}=#{v.inspect}") if k.start_with?("VAGRANT_")
 end
 
 # We need these components always so instead of an autoload we
@@ -73,6 +108,7 @@ require "vagrant/registry"
 
 module Vagrant
   autoload :Action,        'vagrant/action'
+  autoload :Alias,         'vagrant/alias'
   autoload :BatchAction,   'vagrant/batch_action'
   autoload :Box,           'vagrant/box'
   autoload :BoxCollection, 'vagrant/box_collection'
@@ -138,16 +174,9 @@ module Vagrant
       return true if plugin("2").manager.registered.any? { |p| p.name == name }
     end
 
-    # Make the requirement object
-    version = Gem::Requirement.new([version]) if version
-
     # Now check the plugin gem names
     require "vagrant/plugin/manager"
-    Plugin::Manager.instance.installed_specs.any? do |s|
-      match = s.name == name
-      next match if !version
-      next match && version.satisfied_by?(s.version)
-    end
+    Plugin::Manager.instance.plugin_installed?(name, version)
   end
 
   # Returns a superclass to use when creating a plugin for Vagrant.
@@ -189,6 +218,17 @@ module Vagrant
     puts "be removed in the next version of Vagrant."
   end
 
+  # This checks if Vagrant is installed in a specific version.
+  #
+  # Example:
+  #
+  #    Vagrant.version?(">= 2.1.0")
+  #
+  def self.version?(*requirements)
+    req = Gem::Requirement.new(*requirements)
+    req.satisfied_by?(Gem::Version.new(VERSION))
+  end
+
   # This allows a Vagrantfile to specify the version of Vagrant that is
   # required. You can specify a list of requirements which will all be checked
   # against the running Vagrant version.
@@ -205,8 +245,7 @@ module Vagrant
     logger = Log4r::Logger.new("vagrant::root")
     logger.info("Version requirements from Vagrantfile: #{requirements.inspect}")
 
-    req = Gem::Requirement.new(*requirements)
-    if req.satisfied_by?(Gem::Version.new(VERSION))
+    if version?(*requirements)
       logger.info("  - Version requirements satisfied!")
       return
     end
@@ -244,33 +283,10 @@ if I18n.config.respond_to?(:enforce_available_locales=)
   I18n.config.enforce_available_locales = true
 end
 
-# Setup the plugin manager and load any defined plugins
-require_relative "vagrant/plugin/manager"
-plugins = Vagrant::Plugin::Manager.instance.installed_plugins
-
-global_logger.info("Plugins:")
-plugins.each do |plugin_name, plugin_info|
-  installed_version = plugin_info["installed_gem_version"]
-  version_constraint = plugin_info["gem_version"]
-  installed_version = 'undefined' if installed_version.to_s.empty?
-  version_constraint = '> 0' if version_constraint.to_s.empty?
-  global_logger.info(
-    "  - #{plugin_name} = [installed: " \
-      "#{installed_version} constraint: " \
-      "#{version_constraint}]"
-  )
-end
-
-if Vagrant.plugins_init?
-  begin
-    Vagrant::Bundler.instance.init!(plugins)
-  rescue Exception => e
-    global_logger.error("Plugin initialization error - #{e.class}: #{e}")
-    e.backtrace.each do |backtrace_line|
-      global_logger.debug(backtrace_line)
-    end
-    raise Vagrant::Errors::PluginInitError, message: e.to_s
-  end
+if Vagrant.enable_resolv_replace
+  global_logger.info("resolv replacement has been enabled!")
+else
+  global_logger.warn("resolv replacement has not been enabled!")
 end
 
 # A lambda that knows how to load plugins from a single directory.
@@ -301,46 +317,4 @@ Vagrant.source_root.join("plugins").children(true).each do |directory|
 
   # Otherwise, attempt to load from sub-directories
   directory.children(true).each(&plugin_load_proc)
-end
-
-# If we have plugins enabled, then load those
-if Vagrant.plugins_enabled?
-  begin
-    global_logger.info("Loading plugins!")
-    plugins.each do |plugin_name, plugin_info|
-      if plugin_info["require"].to_s.empty?
-        begin
-          global_logger.debug("Loading plugin `#{plugin_name}` with default require: `#{plugin_name}`")
-          require plugin_name
-        rescue LoadError, Gem::LoadError => load_error
-          if plugin_name.include?("-")
-            begin
-              plugin_slash = plugin_name.gsub("-", "/")
-              global_logger.debug("Failed to load plugin `#{plugin_name}` with default require.")
-              global_logger.debug("Loading plugin `#{plugin_name}` with slash require: `#{plugin_slash}`")
-              require plugin_slash
-            rescue LoadError, Gem::LoadError
-              global_logger.warn("Failed to load plugin `#{plugin_name}`. Assuming library and moving on.")
-            end
-          end
-        end
-      else
-        global_logger.debug("Loading plugin `#{plugin_name}` with custom require: `#{plugin_info["require"]}`")
-        require plugin_info["require"]
-      end
-      global_logger.debug("Successfully loaded plugin `#{plugin_name}`.")
-    end
-    if defined?(::Bundler)
-      global_logger.debug("Bundler detected in use. Loading `:plugins` group.")
-      ::Bundler.require(:plugins)
-    end
-  rescue Exception => e
-    global_logger.error("Plugin loading error: #{e.class} - #{e}")
-    e.backtrace.each do |backtrace_line|
-      global_logger.debug(backtrace_line)
-    end
-    raise Vagrant::Errors::PluginLoadError, message: e.to_s
-  end
-else
-  global_logger.debug("Plugin loading is currently disabled.")
 end

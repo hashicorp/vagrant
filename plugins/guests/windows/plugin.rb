@@ -34,6 +34,16 @@ module VagrantPlugins
         Cap::Halt
       end
 
+      guest_capability(:windows, :create_tmp_path) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
+      guest_capability(:windows, :decompress_zip) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
       guest_capability(:windows, :mount_virtualbox_shared_folder) do
         require_relative "cap/mount_shared_folder"
         Cap::MountSharedFolder

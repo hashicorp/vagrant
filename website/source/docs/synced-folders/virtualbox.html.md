@@ -16,6 +16,16 @@ VirtualBox shared folders are the default synced folder type. These synced
 folders use the VirtualBox shared folder system to sync file changes from
 the guest to the host and vice versa.
 
+## Options
+
+* `automount` (boolean) - If true, the `--automount` flag will be used when
+using the VirtualBox tools to share the folder with the guest vm. Defaults to false
+if not present.
+
+* `SharedFoldersEnableSymlinksCreate` (boolean) - If false, will disable the
+ability to create symlinks with the given virtualbox shared folder. Defaults to
+true if the option is not present.
+
 ## Caveats
 
 There is a [VirtualBox bug][sendfile bug] related to `sendfile` which can result
@@ -30,4 +40,4 @@ In Apache:
 
     EnableSendfile Off
 
-[sendfile bug]: https://github.com/mitchellh/vagrant/issues/351#issuecomment-1339640
+[sendfile bug]: https://github.com/hashicorp/vagrant/issues/351#issuecomment-1339640

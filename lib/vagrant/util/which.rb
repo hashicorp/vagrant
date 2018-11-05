@@ -11,8 +11,10 @@ module Vagrant
       #   http://stackoverflow.com/questions/2108727/which-in-ruby-checking-if-program-exists-in-path-from-ruby
       #
       # @param [String] cmd The command to search for in the PATH.
+      # @param [Hash] opts Optional flags
+      #   @option [Boolean] :original_path Search within original path if available
       # @return [String] The full path to the executable or `nil` if not found.
-      def self.which(cmd)
+      def self.which(cmd, **opts)
         exts = nil
 
         if !Platform.windows? || ENV['PATHEXT'].nil?
@@ -29,8 +31,14 @@ module Vagrant
           exts = ENV['PATHEXT'].split(';')
         end
 
+        if opts[:original_path]
+          search_path = ENV.fetch('VAGRANT_OLD_ENV_PATH', ENV['PATH'])
+        else
+          search_path = ENV['PATH']
+        end
+
         SilenceWarnings.silence! do
-          ENV['PATH'].encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').split(File::PATH_SEPARATOR).each do |path|
+          search_path.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '').split(File::PATH_SEPARATOR).each do |path|
             exts.each do |ext|
               exe = "#{path}#{File::SEPARATOR}#{cmd}#{ext}"
               return exe if File.executable? exe

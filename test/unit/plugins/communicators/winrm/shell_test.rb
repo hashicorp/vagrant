@@ -129,7 +129,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
         # Note: The initialize for WinRMAuthorizationError may require a status_code as
         # the second argument in a future WinRM release. Currently it doesn't track the
         # status code.
-        WinRM::WinRMAuthorizationError.new("Oh no!! Unauthrorized")
+        WinRM::WinRMAuthorizationError.new("Oh no!! Unauthorized")
       )
       expect { subject.wql("select * from Win32_OperatingSystem") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::AuthenticationFailed)

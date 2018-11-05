@@ -27,10 +27,8 @@ var HashiVMware = function() {
     }
 
     var productId = "";
-    if (selectedProduct == "fusion") {
-      productId = "279661674";
-    } else if (selectedProduct == "workstation") {
-      productId = "302167489";
+    if (selectedProduct == "desktop") {
+      productId = "7255390650419";
     } else {
       alert("Unknown product selected. Please refresh and try again.");
       return;

@@ -12,6 +12,11 @@ module VagrantPlugins
         require File.expand_path("../command", __FILE__)
         Command
       end
+
+      action_hook(:store_box_metadata, :machine_action_up) do |hook|
+        require_relative "middleware/store_box_metadata"
+        hook.append(StoreBoxMetadata)
+      end
     end
   end
 end

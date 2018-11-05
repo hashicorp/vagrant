@@ -6,7 +6,7 @@ module VagrantPlugins
       name "DragonFly BSD guest"
       description "DragonFly BSD guest support."
 
-      guest(:dragonflybsd, :bsd) do
+      guest(:dragonflybsd, :freebsd) do
         require_relative "guest"
         Guest
       end

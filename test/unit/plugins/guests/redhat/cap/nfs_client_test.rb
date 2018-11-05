@@ -21,9 +21,9 @@ describe "VagrantPlugins::GuestRedHat::Cap:NFSClient" do
   describe ".nfs_client_install" do
     let(:cap) { caps.get(:nfs_client_install) }
 
-    it "installs rsync" do
+    it "installs nfs client" do
       cap.nfs_client_install(machine)
-      expect(comm.received_commands[0]).to match(/install nfs-utils nfs-utils-lib portmap/)
+      expect(comm.received_commands[0]).to match(/install nfs-utils/)
       expect(comm.received_commands[0]).to match(/\/bin\/systemctl restart rpcbind nfs/)
     end
   end

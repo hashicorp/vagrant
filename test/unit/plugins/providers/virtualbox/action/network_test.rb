@@ -70,6 +70,20 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     }])
   end
 
+  it "raises the appropriate error when provided with an invalid IP address" do
+    guest = double("guest")
+    machine.config.vm.network 'private_network', { ip: '192.168.33.06' }
+
+    expect{ subject.call(env) }.to raise_error(Vagrant::Errors::NetworkAddressInvalid)
+  end
+
+  it "raises no invalid network error when provided with a valid IP address" do
+    guest = double("guest")
+    machine.config.vm.network 'private_network', { ip: '192.168.33.6' }
+
+    expect{ subject.call(env) }.not_to raise_error(Vagrant::Errors::NetworkAddressInvalid)
+  end
+
   context "with a dhcp private network" do
     let(:bridgedifs)  { [] }
     let(:hostonlyifs) { [] }
@@ -163,6 +177,65 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
           subject.call(env)
 
           expect(driver).not_to have_received(:remove_dhcp_server).with('HostInterfaceNetworking-vboxnet0')
+        end
+      end
+    end
+  end
+
+  context 'with invalid settings' do
+    [
+      { ip: 'foo'},
+      { ip: '1.2.3'},
+      { ip: 'dead::beef::'},
+      { ip: '172.28.128.3', netmask: 64},
+      { ip: '172.28.128.3', netmask: 'ffff:ffff::'},
+      { ip: 'dead:beef::', netmask: 'foo:bar::'},
+      { ip: 'dead:beef::', netmask: '255.255.255.0'}
+    ].each do |args|
+      it 'raises an exception' do
+        machine.config.vm.network 'private_network', **args
+        expect { subject.call(env) }.
+          to raise_error(Vagrant::Errors::NetworkAddressInvalid)
+      end
+    end
+  end
+
+  describe "#hostonly_find_matching_network" do
+    let(:ip){ "192.168.55.2" }
+    let(:config){ {ip: ip, netmask: "255.255.255.0"} }
+    let(:interfaces){ [] }
+
+    before do
+      allow(driver).to receive(:read_host_only_interfaces).and_return(interfaces)
+      subject.instance_variable_set(:@env, env)
+    end
+
+    context "with no defined host interfaces" do
+      it "should return nil" do
+        expect(subject.hostonly_find_matching_network(config)).to be_nil
+      end
+    end
+
+    context "with matching host interface" do
+      let(:interfaces){ [{ip: "192.168.55.1", netmask: "255.255.255.0", name: "vnet"}] }
+
+      it "should return matching interface" do
+        expect(subject.hostonly_find_matching_network(config)).to eq(interfaces.first)
+      end
+
+      context "with matching name" do
+        let(:config){ {ip: ip, netmask: "255.255.255.0", name: "vnet"} }
+
+        it "should return matching interface" do
+          expect(subject.hostonly_find_matching_network(config)).to eq(interfaces.first)
+        end
+      end
+
+      context "with non-matching name" do
+        let(:config){ {ip: ip, netmask: "255.255.255.0", name: "unknown"} }
+
+        it "should return nil" do
+          expect(subject.hostonly_find_matching_network(config)).to be_nil
         end
       end
     end

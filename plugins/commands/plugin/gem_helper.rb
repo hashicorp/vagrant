@@ -64,7 +64,7 @@ module VagrantPlugins
         Gem.sources = old_sources.to_a
       end
 
-      # This is pretty hacky but it is a custom implementatin of
+      # This is pretty hacky but it is a custom implementation of
       # Gem::ConfigFile so that we don't load any gemrc files.
       class NilGemConfig < Gem::ConfigFile
         def initialize

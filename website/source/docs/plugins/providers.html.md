@@ -62,7 +62,7 @@ The provider class should subclass and implement
 return the proper parent class.
 
 This class and the methods that need to be implemented are
-[very well documented](https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/plugin/v2/provider.rb). The documentation done on the class in the comments should be
+[very well documented](https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/plugin/v2/provider.rb). The documentation done on the class in the comments should be
 enough to understand what needs to be done.
 
 Viewing the [AWS provider class](https://github.com/mitchellh/vagrant-aws/blob/master/lib/vagrant-aws/provider.rb) as well as the
@@ -128,12 +128,12 @@ a friendly error, so do not worry if you miss any, things will not explode
 or crash spectacularly.
 
 Take a look at how the VirtualBox provider
-[uses actions to build up complicated multi-step processes](https://github.com/mitchellh/vagrant/blob/master/plugins/providers/virtualbox/action.rb#L287). The AWS provider [uses a similar process](https://github.com/mitchellh/vagrant-aws/blob/master/lib/vagrant-aws/action.rb).
+[uses actions to build up complicated multi-step processes](https://github.com/hashicorp/vagrant/blob/master/plugins/providers/virtualbox/action.rb#L287). The AWS provider [uses a similar process](https://github.com/mitchellh/vagrant-aws/blob/master/lib/vagrant-aws/action.rb).
 
 ## Built-in Middleware
 
 To assist with common tasks, Vagrant ships with a set of
-[built-in middleware](https://github.com/mitchellh/vagrant/tree/master/lib/vagrant/action/builtin). Each of the middleware is well commented on the behavior and options
+[built-in middleware](https://github.com/hashicorp/vagrant/tree/master/lib/vagrant/action/builtin). Each of the middleware is well commented on the behavior and options
 for each, and using these built-in middleware is critical to building
 a well-behaved provider.
 
@@ -176,7 +176,7 @@ Provider-specific configuration is a special case of a normal
 configuration component, name the configuration the same as the provider,
 and as a second parameter, specify `:provider`, like so:
 
-```
+```ruby
 config("my_cloud", :provider) do
   require_relative "config"
   Config
@@ -188,7 +188,7 @@ parameter is given, Vagrant will automatically expose this as provider-specific
 configuration for your provider. Users can now do the following in their
 Vagrantfiles:
 
-```
+```ruby
 config.vm.provider :my_cloud do |config|
   # Your specific configuration!
 end

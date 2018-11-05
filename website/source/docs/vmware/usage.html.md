@@ -9,11 +9,12 @@ description: |-
 
 # Usage
 
-The Vagrant VMware providers are used just like any other provider. Please
+The Vagrant VMware provider is used just like any other provider. Please
 read the general [basic usage](/docs/providers/basic_usage.html) page for
 providers.
 
-The value to use for the `--provider` flag is `vmware_fusion` for VMware
+The value to use for the `--provider` flag is `vmware_desktop`. For compatibility
+with older versions of the plugin, `vmware_fusion` can be used for VMware
 Fusion, and `vmware_workstation` for VMware Workstation.
 
 The Vagrant VMware provider does not support parallel execution at this time.
@@ -28,24 +29,11 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-VMware Fusion users should then run:
+Then run:
 
 ```shell
-$ vagrant up --provider vmware_fusion
-```
-
-VMware Workstation users should then run:
-
-```shell
-$ vagrant up --provider vmware_workstation
+$ vagrant up --provider vmware_desktop
 ```
 
 This will download and bring up a new VMware Fusion/Workstation virtual machine
 in Vagrant.
-
-<div class="alert alert-info">
-  <strong>Note:</strong> At some point in the future, the providers
-  will probably be merged into a single `vagrant-vmware` plugin. For now,
-  the Workstation and Fusion codebases are different enough that they
-  are separate plugins.
-</div>

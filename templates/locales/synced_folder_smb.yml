@@ -9,9 +9,39 @@ en:
     warning_password: |-
       You will be asked for the username and password to use for the SMB
       folders shortly. Please use the proper username/password of your
-      Windows account.
+      account.
+    incorrect_credentials: |-
+      Credentials incorrect. Please try again.
 
+    uac:
+      prune_warning: |-
+        Vagrant requires administrator access for pruning SMB shares and
+        may request access to complete removal of stale shares.
+      create_warning: |-
+        Vagrant requires administrator access to create SMB shares and
+        may request access to complete setup of configured shares.
     errors:
+      not_supported: |-
+        It appears your machine doesn't support SMB, has not been
+        properly configured for SMB, or there is not an adapter to
+        enable SMB on this machine for Vagrant. Ensure SMB host
+        functionality is available on this machine and try again.
+      start_failed: |-
+        Vagrant failed to automatically start the SMB service. Ensure the
+        required services can be started and try again.
+
+        Command: %{command}
+
+        Stderr: %{stderr}
+
+        Stdout: %{stdout}
+      credentials_missing: |-
+        Vagrant SMB synced folders require the account password to be stored
+        in an NT compatible format. Please update your sharing settings to
+        enable a Windows compatible password and try again.
+      credentials_request_error: |-
+        Vagrant failed to receive credential information required for preparing
+        an SMB share.
       define_share_failed: |-
         Exporting an SMB share failed! Details about the failure are shown
         below. Please inspect the error message and correct any problems.
@@ -21,6 +51,27 @@ en:
         Stderr: %{stderr}
 
         Stdout: %{stdout}
+      prune_share_failed: |-
+        Pruning an SMB share failed! Details about the failure are shown
+        below. Please inspect the error message and correct any problems.
+
+        Share name: %{name}
+
+        Stderr: %{stderr}
+
+        Stdout: %{stdout}
+      name_error: |-
+        Vagrant is unable to setup a requested SMB share. An SMB share already
+        exists with the given name.
+
+        Share name: %{name}
+
+        Current path: %{existing_path}
+
+        Requested path: %{path}
+      list_failed: |-
+        Vagrant failed to generate a list of local SMB shares. Please try
+        running the command again.
       no_routable_host_addr: |-
         We couldn't detect an IP address that was routable to this
         machine from the guest machine! Please verify networking is properly
@@ -29,16 +80,6 @@ en:
 
         As another option, you can manually specify an IP for the machine
         to mount from using the `smb_host` option to the synced folder.
-      powershell_error: |-
-        An error occurred while executing a PowerShell script. This error
-        is shown below. Please read the error message and see if this is
-        a configuration error with your system. If it is not, then please
-        report a bug.
-
-        Script: %{script}
-        Error:
-
-        %{stderr}
       powershell_version: |-
         PowerShell version 3 or later is required for SMB synced folders
         to work on Windows. You have version: '%{version}'. Please update

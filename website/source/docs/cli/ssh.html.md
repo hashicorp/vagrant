@@ -13,6 +13,83 @@ description: |-
 
 This will SSH into a running Vagrant machine and give you access to a shell.
 
+On a simple vagrant project, the instance created will be named default.
+
+Vagrant will ssh into this instance without the instance name:
+
+```bash
+$ vagrant ssh
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+$ logout
+Connection to 127.0.0.1 closed.
+```
+
+Or you could use the name:
+
+```bash
+$ vagrant ssh default
+
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Jul 20 15:09:52 2018 from 10.0.2.2
+$ logout
+Connection to 127.0.0.1 closed.
+$
+```
+
+On multi-machine setups, you can login to each vm using the name as displayed
+on `vagrant status`
+
+```bash
+ $ vagrant status
+Current machine states:
+
+node1                     running (virtualbox)
+node2                     running (virtualbox)
+
+This environment represents multiple VMs. The VMs are all listed
+above with their current state.
+$ vagrant ssh node1
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+vagrant@precise64:~$ logout
+Connection to 127.0.0.1 closed.
+$ vagrant ssh node2
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
+vagrant@precise64:~$ logout
+Connection to 127.0.0.1 closed.
+$
+```
+
+On a system with machines running from different projects, you could use the id
+as listed in `vagrant global-status`
+
+```bash
+$ vagrant global-status
+id       name   provider   state   directory
+-----------------------------------------------------------------------
+13759ff  node1  virtualbox running /Users/user/vagrant/folder
+
+The above shows information about all known Vagrant environments
+on this machine. This data is cached and may not be completely
+up-to-date (use "vagrant global-status --prune" to prune invalid
+entries). To interact with any of the machines, you can go to that
+directory and run Vagrant, or you can use the ID directly with
+Vagrant commands from any directory.
+$ vagrant ssh 13759ff
+
+Welcome to your Vagrant-built virtual machine.
+Last login: Fri Jul 20 15:19:36 2018 from 10.0.2.2
+vagrant@precise64:~$ logout
+Connection to 127.0.0.1 closed.
+$
+```
+
 If a `--` (two hyphens) are found on the command line, any arguments after
 this are passed directly into the `ssh` executable. This allows you to pass
 any arbitrary commands to do things such as reverse tunneling down into the
@@ -26,6 +103,19 @@ any arbitrary commands to do things such as reverse tunneling down into the
 * `-p` or `--plain` - This does an SSH without authentication, leaving
   authentication up to the user.
 
+## SSH client usage
+
+Vagrant will attempt to use the local SSH client installed on the host machine. On
+POSIX machines, an SSH client must be installed and available on the PATH.
+
+For Windows installations, an SSH client is provided within the installer
+image. If no SSH client is found on the current PATH, Vagrant will use the
+SSH client it provided. Depending on the local environment used for running
+Vagrant, the installer provided SSH client may not work correctly. For example,
+when using a cygwin or msys2 shell the SSH client will fail to work as expected
+when run interactively. Installing the SSH package built for the current working
+environment will resolve this issue.
+
 ## Background Execution
 
 If the command you specify runs in the background (such as appending a `&` to
@@ -36,3 +126,15 @@ shell, and when the shell exits, all of the child processes also exit.
 To avoid this, you will need to detach the process from the shell. Please
 Google to learn how to do this for your shell. One method of doing this is
 the `nohup` command.
+
+## Pageant on Windows
+
+The SSH executable will not be able to access Pageant on Windows. While
+Vagrant is capable of accessing Pageant via internal libraries, the
+SSH executable does not have support for Pageant. This means keys
+from Pageant will not be available for forwarding when using the
+`vagrant ssh` command.
+
+Third party programs exist to allow the SSH executable to access Pageant
+by creating a unix socket for the SSH executable to read. For more information
+please see [ssh-pageant](https://github.com/cuviper/ssh-pageant).

@@ -19,6 +19,7 @@ module VagrantPlugins
           machine.communicate.sudo("#{path} -o -0 addr | grep -v LOOPBACK | awk '{print $2}' | sed 's/://'") do |type, data|
             s << data if type == :stdout
           end
+
           # In some cases net devices may be added to the guest and will not
           # properly show up when using `ip`. This pulls any device information
           # that can be found in /proc and adds it to the list of interfaces
@@ -26,7 +27,17 @@ module VagrantPlugins
           machine.communicate.sudo("cat /proc/net/dev | grep -E '^[a-z0-9 ]+:' | awk '{print $1}' | sed 's/://'", error_check: false) do |type, data|
             s << data if type == :stdout
           end
-          ifaces = s.split("\n")
+
+          # Collect all loopback interfaces
+          los = ""
+          machine.communicate.sudo("#{path} -o -0 addr | grep LOOPBACK | awk '{print $2}' | sed 's/://'") do |type, data|
+            los << data if type == :stdout
+          end
+          loifaces = los.split("\n")
+          @@logger.debug("loopback interfaces: #{loifaces.inspect}")
+
+          ifaces = s.split("\n").reject { |x| x.empty? or loifaces.include?(x) }
+
           @@logger.debug("Unsorted list: #{ifaces.inspect}")
           # Break out integers from strings and sort the arrays to provide
           # a natural sort for the interface names
@@ -34,7 +45,7 @@ module VagrantPlugins
           #  as expected. This is generally seen with veth* devices, and proper ordering
           #  is currently not required
           ifaces = ifaces.map do |iface|
-            iface.scan(/(.+?)(\d+)/).flatten.map do |iface_part|
+            iface.scan(/(.+?)(\d+)?/).flatten.map do |iface_part|
               if iface_part.to_i.to_s == iface_part
                 iface_part.to_i
               else

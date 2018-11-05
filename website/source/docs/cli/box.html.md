@@ -130,7 +130,7 @@ a box. This generally requires an internet connection.
 
 **Command: `vagrant box prune`**
 
-This command removes old versions of installed boxes. If the box in currently in use vagrant will ask you if you to confirm.
+This command removes old versions of installed boxes. If the box is currently in use vagrant will ask for confirmation.
 
 ## Options
 
@@ -187,9 +187,9 @@ This command updates the box for the current Vagrant environment if there
 are updates available. The command can also update a specific box (outside
 of an active Vagrant environment), by specifying the `--box` flag.
 
-Note that updating the box will not update an already-running Vagrant
+<small><i>Note that updating the box will not update an already-running Vagrant
 machine. To reflect the changes in the box, you will have to destroy and
-bring back up the Vagrant machine.
+bring back up the Vagrant machine.</i></small>
 
 If you just want to check if there are updates available, use the
 `vagrant box outdated` command.

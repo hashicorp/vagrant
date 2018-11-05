@@ -1,7 +1,7 @@
 module Vagrant
   module Config
     # This is the base class for any configuration versions, and includes
-    # the stub methods that configuaration versions must implement. Vagrant
+    # the stub methods that configuration versions must implement. Vagrant
     # supports configuration versioning so that backwards compatibility can be
     # maintained for past Vagrantfiles while newer configurations are added.
     # Vagrant only introduces new configuration versions for major versions

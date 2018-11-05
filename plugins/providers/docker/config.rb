@@ -14,10 +14,18 @@ module VagrantPlugins
       attr_accessor :build_args
 
       # The directory with a Dockerfile to build and use as the basis
-      # for this container. If this is set, "image" should not be set.
+      # for this container. If this is set, neither "image" nor "git_repo"
+      # should be set.
       #
       # @return [String]
       attr_accessor :build_dir
+
+      # The URL for a git repository with a Dockerfile to build and use
+      # as the basis for this container. If this is set, neither "image"
+      # nor "build_dir" should be set.
+      #
+      # @return [String]
+      attr_accessor :git_repo
 
       # Use docker-compose to manage the lifecycle and environment for
       # containers instead of using docker directly.
@@ -149,6 +157,7 @@ module VagrantPlugins
       def initialize
         @build_args = []
         @build_dir  = UNSET_VALUE
+        @git_repo   = UNSET_VALUE
         @cmd        = UNSET_VALUE
         @compose    = UNSET_VALUE
         @compose_configuration = {}
@@ -185,14 +194,39 @@ module VagrantPlugins
         super.tap do |result|
           # This is a bit confusing. The tests explain the purpose of this
           # better than the code lets on, I believe.
-          if (other.image != UNSET_VALUE || other.build_dir != UNSET_VALUE) &&
-            (other.image == UNSET_VALUE || other.build_dir == UNSET_VALUE)
-            if other.image != UNSET_VALUE && @build_dir != UNSET_VALUE
-              result.build_dir = nil
+          has_image     = (other.image != UNSET_VALUE)
+          has_build_dir = (other.build_dir != UNSET_VALUE)
+          has_git_repo  = (other.git_repo != UNSET_VALUE)
+
+          if (has_image ^ has_build_dir ^ has_git_repo) && !(has_image && has_build_dir && has_git_repo)
+            # image
+            if has_image
+              if @build_dir != UNSET_VALUE
+                result.build_dir = nil
+              end
+              if @git_repo != UNSET_VALUE
+                result.git_repo = nil
+              end
             end
 
-            if other.build_dir != UNSET_VALUE && @image != UNSET_VALUE
-              result.image = nil
+            # build_dir
+            if has_build_dir
+              if @image != UNSET_VALUE
+                result.image = nil
+              end
+              if @git_repo != UNSET_VALUE
+                result.git_repo = nil
+              end
+            end
+
+            # git_repo
+            if has_git_repo
+              if @build_dir != UNSET_VALUE
+                result.build_dir = nil
+              end
+              if @image != UNSET_VALUE
+                result.image = nil
+              end
             end
           end
 
@@ -214,6 +248,7 @@ module VagrantPlugins
       def finalize!
         @build_args = [] if @build_args == UNSET_VALUE
         @build_dir  = nil if @build_dir == UNSET_VALUE
+        @git_repo   = nil if @git_repo == UNSET_VALUE
         @cmd        = [] if @cmd == UNSET_VALUE
         @compose    = false if @compose == UNSET_VALUE
         @create_args = [] if @create_args == UNSET_VALUE
@@ -262,11 +297,11 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
-        if @build_dir && @image
-          errors << I18n.t("docker_provider.errors.config.both_build_and_image")
+        if [@build_dir, @git_repo, @image].compact.size > 1
+          errors << I18n.t("docker_provider.errors.config.both_build_and_image_and_git")
         end
 
-        if !@build_dir && !@image
+        if !@build_dir && !@git_repo && !@image
           errors << I18n.t("docker_provider.errors.config.build_dir_or_image")
         end
 
@@ -275,6 +310,11 @@ module VagrantPlugins
           if !build_dir_pn.directory?
             errors << I18n.t("docker_provider.errors.config.build_dir_invalid")
           end
+        end
+
+        # Comparison logic taken directly from docker's urlutil.go
+        if @git_repo && !( @git_repo =~ /^http(?:s)?:\/\/.*.git(?:#.+)?$/ || @git_repo =~ /^git(?:hub\.com|@|:\/\/)/)
+          errors << I18n.t("docker_provider.errors.config.git_repo_invalid")
         end
 
         if !@compose_configuration.is_a?(Hash)

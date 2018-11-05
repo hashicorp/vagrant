@@ -96,6 +96,20 @@ describe Vagrant::UI::Basic do
       subject.detail("foo")
     end
   end
+
+  context "with sensitive data" do
+    let(:password){ "my-birthday" }
+    let(:output){ "You're password is: #{password}" }
+
+    before{ Vagrant::Util::CredentialScrubber.sensitive(password) }
+
+    it "should remove sensitive information from the output" do
+      expect(subject).to receive(:safe_puts).with(any_args) do |message, **opts|
+        expect(message).not_to include(password)
+      end
+      subject.detail(output)
+    end
+  end
 end
 
 describe Vagrant::UI::Colored do
@@ -371,7 +385,7 @@ describe Vagrant::UI::Prefixed do
       subject.output("foo\nbar")
     end
 
-    it "doesn't prefix if requestsed" do
+    it "doesn't prefix if requested" do
       expect(ui).to receive(:output).with("foo", prefix: false, bold: true, target: prefix)
       subject.output("foo", prefix: false)
     end

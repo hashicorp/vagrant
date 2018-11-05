@@ -8,6 +8,7 @@ module VagrantPlugins
         attr_accessor :binary_path
 
         attr_accessor :facter
+        attr_accessor :structured_facts
         attr_accessor :hiera_config_path
         attr_accessor :manifest_file
         attr_accessor :manifests_path
@@ -37,6 +38,7 @@ module VagrantPlugins
           @synced_folder_type    = UNSET_VALUE
           @temp_dir              = UNSET_VALUE
           @working_directory     = UNSET_VALUE
+          @structured_facts   = UNSET_VALUE
         end
 
         def nfs=(value)
@@ -99,6 +101,7 @@ module VagrantPlugins
           @synced_folder_args = nil if @synced_folder_args == UNSET_VALUE
           @temp_dir           = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
           @working_directory  = nil     if @working_directory == UNSET_VALUE
+          @structured_facts   = nil     if @structured_facts == UNSET_VALUE
         end
 
         # Returns the module paths as an array of paths expanded relative to the

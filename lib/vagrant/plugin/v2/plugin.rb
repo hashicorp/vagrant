@@ -53,7 +53,7 @@ module Vagrant
           result
         end
 
-        # Sets a human-friendly descrition of the plugin.
+        # Sets a human-friendly description of the plugin.
         #
         # @param [String] value Description of the plugin.
         # @return [String] Description of the plugin.

@@ -1430,4 +1430,104 @@ VF
       expect(env.machine_names).to eq([:foo, :bar])
     end
   end
+
+  describe "#process_configured_plugins" do
+    let(:env) do
+      isolated_environment.tap do |e|
+        e.box3("base", "1.0", :virtualbox)
+        e.vagrantfile(vagrantfile)
+      end
+    end
+
+    let(:vagrantfile) do
+      'Vagrant.configure("2"){ |config| config.vm.box = "base" }'
+    end
+
+    let(:plugin_manager) {
+      double("plugin_manager", installed_plugins: installed_plugins, local_file: local_file)
+    }
+
+    let(:installed_plugins) { {} }
+    let(:local_file) { double("local_file", installed_plugins: local_installed_plugins) }
+    let(:local_installed_plugins) { {} }
+
+    before do
+      allow(Vagrant::Plugin::Manager).to receive(:instance).and_return(plugin_manager)
+      allow(plugin_manager).to receive(:globalize!)
+      allow(plugin_manager).to receive(:localize!)
+      allow(plugin_manager).to receive(:load_plugins)
+    end
+
+    context "plugins are disabled" do
+      before{ allow(Vagrant).to receive(:plugins_enabled?).and_return(false) }
+
+      it "should return nil" do
+        expect(instance.send(:process_configured_plugins)).to be_nil
+      end
+    end
+
+    context "when vagrant is invalid" do
+      let(:vagrantfile) { 'Vagrant.configure("2"){ |config| config.vagrant.bad_key = true }' }
+
+      it "should raise a configuration error" do
+        expect { instance.send(:process_configured_plugins) }.to raise_error(Vagrant::Errors::ConfigInvalid)
+      end
+    end
+
+    context "with local plugins defined" do
+      let(:vagrantfile) { 'Vagrant.configure("2"){ |config| config.vagrant.plugins = "vagrant" }' }
+      let(:installed_plugins) { {"vagrant" => true} }
+
+      context "with plugin already installed" do
+
+        it "should not attempt to install a plugin" do
+          expect(plugin_manager).not_to receive(:install_plugin)
+          expect(instance.send(:process_configured_plugins)).to eq(local_installed_plugins)
+        end
+      end
+
+      context "without plugin installed" do
+
+        before { allow(instance).to receive(:exit) }
+
+        it "should prompt user before installation" do
+          expect(instance.ui).to receive(:ask).and_return("n")
+          expect(plugin_manager).to receive(:installed_plugins).and_return({})
+          expect { instance.send(:process_configured_plugins) }.to raise_error(Vagrant::Errors::PluginMissingLocalError)
+        end
+
+        it "should install plugin" do
+          expect(instance.ui).to receive(:ask).and_return("y")
+          expect(plugin_manager).to receive(:installed_plugins).and_return({})
+          expect(plugin_manager).to receive(:install_plugin).and_return(double("spec", "name" => "vagrant", "version" => "1"))
+          instance.send(:process_configured_plugins)
+        end
+
+        it "should exit after install" do
+          expect(instance.ui).to receive(:ask).and_return("y")
+          expect(plugin_manager).to receive(:installed_plugins).and_return({})
+          expect(plugin_manager).to receive(:install_plugin).and_return(double("spec", "name" => "vagrant", "version" => "1"))
+          expect(instance).to receive(:exit)
+          instance.send(:process_configured_plugins)
+        end
+      end
+    end
+  end
+
+  describe "#setup_local_data_path" do
+    before do
+      allow(FileUtils).to receive(:mkdir_p).and_call_original
+      allow(FileUtils).to receive(:cp).and_call_original
+    end
+
+    it "should create an rgloader path" do
+      expect(FileUtils).to receive(:mkdir_p).with(/(?!home)rgloader/)
+      instance
+    end
+
+    it "should write the rgloader file" do
+      expect(FileUtils).to receive(:cp).with(anything, /(?!home)rgloader.*rb$/)
+      instance
+    end
+  end
 end

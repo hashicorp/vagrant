@@ -19,5 +19,5 @@ en:
         specified a FQDN instead of just a host name.
 
         Ensure the new guest name is properly formatted. Standard names may
-        contain letters (a-z, A-Z), numbers (0-9), and hypens (-), but no
+        contain letters (a-z, A-Z), numbers (0-9), and hyphens (-), but no
         spaces or periods (.). The name may not consist entirely of digits.

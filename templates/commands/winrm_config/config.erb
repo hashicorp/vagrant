@@ -1,0 +1,11 @@
+Host <%= host_key %>
+  HostName <%= winrm_host %>
+  User <%= winrm_user %>
+  Password <%= winrm_password %>
+  Port <%= winrm_port %>
+  <% if rdp_port -%>
+  RDPHostName <%= rdp_host %>
+  RDPPort <%= rdp_port %>
+  RDPUser <%= rdp_user %>
+  RDPPassword <%= rdp_pass %>
+  <% end -%>

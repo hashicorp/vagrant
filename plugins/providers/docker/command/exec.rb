@@ -1,3 +1,5 @@
+require 'vagrant/util/safe_exec'
+
 module VagrantPlugins
   module DockerProvider
     module Command
@@ -84,18 +86,21 @@ module VagrantPlugins
 
           # Run this interactively if asked.
           exec_options = options
-          exec_options[:stdin] = true if options[:pty]
 
-          output = ""
-          machine.provider.driver.execute(*exec_cmd, exec_options) do |type, data|
-            output += data
-          end
+          if options[:pty]
+            Vagrant::Util::SafeExec.exec(exec_cmd[0], *exec_cmd[1..-1])
+          else
+            output = ""
+            machine.provider.driver.execute(*exec_cmd, exec_options) do |type, data|
+              output += data
+            end
 
-          output_options = {}
-          output_options[:prefix] = false if !options[:prefix]
+            output_options = {}
+            output_options[:prefix] = false if !options[:prefix]
 
-          if !output.empty?
-            machine.ui.output(output.chomp, **output_options)
+            if !output.empty?
+              machine.ui.output(output.chomp, **output_options)
+            end
           end
         end
       end

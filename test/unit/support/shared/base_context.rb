@@ -79,7 +79,7 @@ shared_context "unit" do
   # @return [Pathname]
   def temporary_dir
     # Create a temporary directory and append it to the instance
-    # variabe so that it isn't garbage collected and deleted
+    # variable so that it isn't garbage collected and deleted
     d = Dir.mktmpdir("vagrant-temporary-dir")
     @_temp_files ||= []
     @_temp_files << d

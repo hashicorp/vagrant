@@ -50,7 +50,8 @@ describe Vagrant::Machine do
 
   def new_provider_mock
     double("provider").tap do |obj|
-      allow(obj).to receive(:_initialize).and_return(nil)
+      allow(obj).to receive(:_initialize)
+        .with(provider_name, anything).and_return(nil)
       allow(obj).to receive(:machine_id_changed).and_return(nil)
       allow(obj).to receive(:state).and_return(Vagrant::MachineState.new(
         :created, "", ""))
@@ -74,6 +75,24 @@ describe Vagrant::Machine do
       subject = new_instance
       expect(subject.state.id).to eq(Vagrant::MachineState::NOT_CREATED_ID)
       expect(subject.id).to be_nil
+    end
+
+    context "setting up triggers" do
+      before do
+        expect(provider).to receive(:_initialize) do |*args|
+          machine = args.last
+          @trigger_instance = machine.instance_variable_get(:@triggers)
+          true
+        end
+      end
+
+      it "should initialize the trigger object" do
+        subject = new_instance
+        expect(subject.instance_variable_get(:@triggers))
+          .to be_a(Vagrant::Plugin::V2::Trigger)
+        expect(subject.instance_variable_get(:@triggers))
+          .to eq(@trigger_instance)
+      end
     end
 
     describe "as a base" do
@@ -246,51 +265,55 @@ describe Vagrant::Machine do
   end
 
   describe "#action" do
+    before do
+      allow(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins).and_return({})
+    end
+
     it "should be able to run an action that exists" do
-      action_name = :up
+      action_name = :destroy
       called      = false
       callable    = lambda { |_env| called = true }
 
       expect(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up)
+      instance.action(action_name)
       expect(called).to be
     end
 
     it "should provide the machine in the environment" do
-      action_name = :up
+      action_name = :destroy
       machine     = nil
       callable    = lambda { |env| machine = env[:machine] }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up)
+      instance.action(action_name)
 
       expect(machine).to eql(instance)
     end
 
     it "should pass any extra options to the environment" do
-      action_name = :up
+      action_name = :destroy
       foo         = nil
       callable    = lambda { |env| foo = env[:foo] }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up, foo: :bar)
+      instance.action(action_name, foo: :bar)
 
       expect(foo).to eq(:bar)
     end
 
     it "should pass any extra options to the environment as strings" do
-      action_name = :up
+      action_name = :destroy
       foo         = nil
       callable    = lambda { |env| foo = env["foo"] }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
-      instance.action(:up, "foo" => :bar)
+      instance.action(action_name, "foo" => :bar)
 
       expect(foo).to eq(:bar)
     end
 
     it "should return the environment as a result" do
-      action_name = :up
+      action_name = :destroy
       callable    = lambda { |env| env[:result] = "FOO" }
 
       allow(provider).to receive(:action).with(action_name).and_return(callable)
@@ -300,7 +323,7 @@ describe Vagrant::Machine do
     end
 
     it "should raise an exception if the action is not implemented" do
-      action_name = :up
+      action_name = :destroy
 
       allow(provider).to receive(:action).with(action_name).and_return(nil)
 
@@ -309,7 +332,7 @@ describe Vagrant::Machine do
     end
 
     it 'should not warn if the machines cwd has not changed' do
-      initial_action_name  = :up
+      initial_action_name  = :destroy
       second_action_name  = :reload
       callable     = lambda { |_env| }
       original_cwd = env.cwd.to_s
@@ -326,7 +349,7 @@ describe Vagrant::Machine do
     end
 
     it 'should warn if the machine was last run under a different directory' do
-      action_name  = :up
+      action_name  = :destroy
       callable     = lambda { |_env| }
       original_cwd = env.cwd.to_s
 
@@ -347,11 +370,31 @@ describe Vagrant::Machine do
       end
     end
 
+    it 'should not warn if dirs are same but different cases' do
+      action_name  = :destroy
+      callable     = lambda { |_env| }
+      original_cwd = env.cwd.to_s
+
+      allow(provider).to receive(:action).with(action_name).and_return(callable)
+      allow(subject.ui).to receive(:warn)
+
+      instance.action(action_name)
+
+      expect(subject.ui).to_not have_received(:warn)
+
+      # In cygwin or other windows shell, it might have a path like
+      # c:/path and C:/path
+      # which are the same.
+      allow(env).to receive(:root_path).and_return(original_cwd.upcase)
+      expect(subject.ui).to_not have_received(:warn)
+      instance.action(action_name)
+    end
+
     context "if in a subdir" do
       let (:data_dir) { env.cwd }
 
       it 'should not warn if vagrant is run in subdirectory' do
-        action_name  = :up
+        action_name  = :destroy
         callable     = lambda { |_env| }
         original_cwd = env.cwd.to_s
 
@@ -366,6 +409,38 @@ describe Vagrant::Machine do
 
         instance.action(action_name)
         expect(subject.ui).to_not have_received(:warn)
+      end
+    end
+
+    context "with the vagrant-triggers community plugin" do
+      it "should not call the internal trigger functions if installed" do
+        action_name = :destroy
+        callable    = lambda { |_env| }
+
+        allow(provider).to receive(:action).with(action_name).and_return(callable)
+
+        # The first call here is to allow the environment to setup with attempting
+        # to load a plugin that does not exist
+        expect(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
+          .and_return({})
+
+        expect(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
+          .and_return({"vagrant-triggers"=>"stuff"})
+
+        expect(instance.instance_variable_get(:@triggers)).not_to receive(:fire_triggers)
+        instance.action(action_name)
+      end
+
+      it "should call the internal trigger functions if not installed" do
+        action_name = :destroy
+        callable    = lambda { |_env| }
+
+        allow(provider).to receive(:action).with(action_name).and_return(callable)
+        allow(Vagrant::Plugin::Manager.instance).to receive(:installed_plugins)
+          .and_return({})
+
+        expect(instance.instance_variable_get(:@triggers)).to receive(:fire_triggers).twice
+        instance.action(action_name)
       end
     end
   end
@@ -790,8 +865,8 @@ describe Vagrant::Machine do
         it "keys_only should be default" do
           expect(instance.ssh_info[:keys_only]).to be(true)
         end
-        it "paranoid should be default" do
-          expect(instance.ssh_info[:paranoid]).to be(false)
+        it "verify_host_key should be default" do
+          expect(instance.ssh_info[:verify_host_key]).to be(:never)
         end
         it "extra_args should be nil" do
           expect(instance.ssh_info[:extra_args]).to be(nil)
@@ -808,9 +883,9 @@ describe Vagrant::Machine do
           instance.config.ssh.keys_only = false
           expect(instance.ssh_info[:keys_only]).to be(false)
         end
-        it "paranoid should be overridden" do
-          instance.config.ssh.paranoid = true
-          expect(instance.ssh_info[:paranoid]).to be(true)
+        it "verify_host_key should be overridden" do
+          instance.config.ssh.verify_host_key = true
+          expect(instance.ssh_info[:verify_host_key]).to be(true)
         end
       end
     end

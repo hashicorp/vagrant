@@ -24,6 +24,48 @@ module Vagrant
           uri.to_s
         end
       end
+
+      # Remove sensitive information from string
+      #
+      # @param [String] string
+      # @return [String]
+      def self.desensitize(string)
+        string = string.to_s.dup
+        sensitive_strings.each do |remove|
+          string.gsub!(remove, REPLACEMENT_TEXT)
+        end
+        string
+      end
+
+      # Register a sensitive string to be scrubbed
+      def self.sensitive(string)
+        string = string.to_s.dup
+        if string.length > 0
+          sensitive_strings.push(string).uniq!
+        end
+        nil
+      end
+
+      # Deregister a sensitive string and allow output
+      def self.unsensitive(string)
+        sensitive_strings.delete(string)
+        nil
+      end
+
+      # @return [Array<string>]
+      def self.sensitive_strings
+        if !defined?(@_sensitive_strings)
+          @_sensitive_strings = []
+        end
+        @_sensitive_strings
+      end
+
+      # @private
+      # Reset the cached values for scrubber. This is not considered a public
+      # API and should only be used for testing.
+      def self.reset!
+        instance_variables.each(&method(:remove_instance_variable))
+      end
     end
   end
 end

@@ -9,7 +9,35 @@ module VagrantPlugins
       class NFS
 
         NFS_EXPORTS_PATH = "/etc/exports".freeze
+        NFS_DEFAULT_NAME_SYSTEMD = "nfs-server.service".freeze
+        NFS_DEFAULT_NAME_SYSV = "nfs-kernel-server".freeze
         extend Vagrant::Util::Retryable
+
+        def self.nfs_service_name_systemd
+          if !defined?(@_nfs_systemd)
+            result = Vagrant::Util::Subprocess.execute("systemctl", "list-units",
+              "*nfs*server*", "--no-pager", "--no-legend")
+            if result.exit_code == 0
+              @_nfs_systemd = result.stdout.to_s.split(/\s+/).first
+            end
+            if @_nfs_systemd.to_s.empty?
+              @_nfs_systemd = NFS_DEFAULT_NAME_SYSTEMD
+            end
+          end
+          @_nfs_systemd
+        end
+
+        def self.nfs_service_name_sysv
+          if !defined?(@_nfs_sysv)
+            @_nfs_sysv = Dir.glob("/etc/init.d/*nfs*server*").first.to_s
+            if @_nfs_sysv.empty?
+              @_nfs_sysv = NFS_DEFAULT_NAME_SYSV
+            else
+              @_nfs_sysv = File.basename(@_nfs_sysv)
+            end
+          end
+          @_nfs_sysv
+        end
 
         def self.nfs_apply_command(env)
           "exportfs -ar"
@@ -17,17 +45,17 @@ module VagrantPlugins
 
         def self.nfs_check_command(env)
           if Vagrant::Util::Platform.systemd?
-            "systemctl status --no-pager nfs-server.service"
+            "systemctl status --no-pager #{nfs_service_name_systemd}"
           else
-            "/etc/init.d/nfs-kernel-server status"
+            "/etc/init.d/#{nfs_service_name_sysv} status"
           end
         end
 
         def self.nfs_start_command(env)
           if Vagrant::Util::Platform.systemd?
-            "systemctl start nfs-server.service"
+            "systemctl start #{nfs_service_name_systemd}"
           else
-            "/etc/init.d/nfs-kernel-server start"
+            "/etc/init.d/#{nfs_service_name_sysv} start"
           end
         end
 
@@ -63,7 +91,7 @@ module VagrantPlugins
           if Vagrant::Util::Platform.systemd?
             Vagrant::Util::Subprocess.execute("/bin/sh", "-c",
               "systemctl --no-pager --no-legend --plain list-unit-files --all --type=service " \
-                "| grep nfs-server.service").exit_code == 0
+                "| grep #{nfs_service_name_systemd}").exit_code == 0
           else
             Vagrant::Util::Subprocess.execute("modinfo", "nfsd").exit_code == 0 ||
               Vagrant::Util::Subprocess.execute("grep", "nfsd", "/proc/filesystems").exit_code == 0
@@ -145,15 +173,13 @@ module VagrantPlugins
         def self.nfs_write_exports(new_exports_content)
           if(nfs_exports_content != new_exports_content.strip)
             begin
+              exports_path = Pathname.new(NFS_EXPORTS_PATH)
+
               # Write contents out to temporary file
               new_exports_file = Tempfile.create('vagrant')
               new_exports_file.puts(new_exports_content)
               new_exports_file.close
               new_exports_path = new_exports_file.path
-
-              # Only use "sudo" if we can't write to /etc/exports directly
-              sudo_command = ""
-              sudo_command = "sudo " if !File.writable?(NFS_EXPORTS_PATH)
 
               # Ensure new file mode and uid/gid match existing file to replace
               existing_stat = File.stat(NFS_EXPORTS_PATH)
@@ -162,7 +188,7 @@ module VagrantPlugins
                 File.chmod(existing_stat.mode, new_exports_path)
               end
               if existing_stat.uid != new_stat.uid || existing_stat.gid != new_stat.gid
-                chown_cmd = "#{sudo_command}chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}"
+                chown_cmd = "sudo chown #{existing_stat.uid}:#{existing_stat.gid} #{new_exports_path}"
                 result = Vagrant::Util::Subprocess.execute(*Shellwords.split(chown_cmd))
                 if result.exit_code != 0
                   raise Vagrant::Errors::NFSExportsFailed,
@@ -172,6 +198,7 @@ module VagrantPlugins
                 end
               end
               # Always force move the file to prevent overwrite prompting
+              sudo_command = "sudo " if !exports_path.writable? || !exports_path.dirname.writable?
               mv_cmd = "#{sudo_command}mv -f #{new_exports_path} #{NFS_EXPORTS_PATH}"
               result = Vagrant::Util::Subprocess.execute(*Shellwords.split(mv_cmd))
               if result.exit_code != 0
@@ -232,6 +259,13 @@ module VagrantPlugins
 
         def self.nfs_running?(check_command)
           Vagrant::Util::Subprocess.execute(*Shellwords.split(check_command)).exit_code == 0
+        end
+
+        # @private
+        # Reset the cached values for capability. This is not considered a public
+        # API and should only be used for testing.
+        def self.reset!
+          instance_variables.each(&method(:remove_instance_variable))
         end
       end
     end

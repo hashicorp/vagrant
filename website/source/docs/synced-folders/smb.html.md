@@ -19,17 +19,50 @@ SMB is built-in to Windows machines and provides a higher performance
 alternative to some other mechanisms such as VirtualBox shared folders.
 
 <div class="alert alert-info">
-  <strong>Windows only!</strong> SMB is currently only supported
-  when the host machine is Windows. The guest machine can be Windows
-  or Linux.
+  SMB is currently only supported when the host machine is Windows or
+  macOS. The guest machine can be Windows, Linux, or macOS.
 </div>
 
 ## Prerequisites
 
-To use the SMB synced folder type, the machine running Vagrant must be
-a Windows machine with PowerShell version 3 or later installed. In addition to this, the command prompt executing Vagrant
-must have administrative privileges. Vagrant requires these privileges in
-order to create new network folder shares.
+### Windows Host
+
+To use the SMB synced folder type on a Windows host, the machine must have
+PowerShell version 3 or later installed. In addition, when Vagrant attempts
+to create new SMB shares, or remove existing SMB shares, Administrator
+privileges will be required. Vagrant will request these privileges using UAC.
+
+### macOS Host
+
+To use the SMB synced folder type on a macOS host, file sharing must be enabled
+for the local account. Enable SMB file sharing by following the instructions
+below:
+
+* Open "System Preferences"
+* Click "Sharing"
+* Check the "On" checkbox next to "File Sharing"
+* Click "Options"
+* Check "Share files and folders using SMB"
+* Check the "On" checkbox next to your username within "Windows File Sharing"
+* Click "Done"
+
+When Vagrant attempts to create new SMB shares, or remove existing SMB shares,
+root access will be required. Vagrant will request these privileges using
+`sudo` to run the `/usr/sbin/sharing` command. Adding the following to
+the system's `sudoers` configuration will allow Vagrant to manage SMB shares
+without requiring a password each time:
+
+```
+Cmnd_Alias VAGRANT_SMB_ADD = /usr/sbin/sharing -a * -S * -s * -g * -n *
+Cmnd_Alias VAGRANT_SMB_REMOVE = /usr/sbin/sharing -r *
+Cmnd_Alias VAGRANT_SMB_LIST = /usr/sbin/sharing -l
+Cmnd_Alias VAGRANT_SMB_PLOAD = /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.smb.preferences.plist
+Cmnd_Alias VAGRANT_SMB_DLOAD = /bin/launchctl load -w /System/Library/LaunchDaemons/com.apple.smbd.plist
+Cmnd_Alias VAGRANT_SMB_DSTART = /bin/launchctl start com.apple.smbd
+%admin ALL=(root) NOPASSWD: VAGRANT_SMB_ADD, VAGRANT_SMB_REMOVE, VAGRANT_SMB_LIST, VAGRANT_SMB_PLOAD, VAGRANT_SMB_DLOAD, VAGRANT_SMB_DSTART
+```
+
+### Guests
 
 The destination machine must be able to mount SMB filesystems. On Linux
 the package to do this is usually called `smbfs` or `cifs`. Vagrant knows
@@ -74,18 +107,6 @@ shell. Note that you should research if this is the right option for you.
 ```
 net config server /autodisconnect:-1
 ```
-
-## Limitations
-
-Because SMB is a relatively new synced folder type in Vagrant, it still
-has some rough edges. Hopefully, future versions of Vagrant will address
-these.
-
-The primary limitation of SMB synced folders at the moment is that they are
-never pruned or cleaned up. Once the folder share is defined, Vagrant never
-removes it. To clean up SMB synced folder shares, periodically run
-`net share` in a command prompt, find the shares you do not want, then
-run `net share NAME /delete` for each, where NAME is the name of the share.
 
 ## Common Issues
 

@@ -32,6 +32,7 @@ describe Vagrant::Plugin::StateFile do
         "require"               => "",
         "sources"               => [],
         "installed_gem_version" => nil,
+        "env_local"             => false,
       })
     end
 

@@ -57,6 +57,18 @@ describe VagrantPlugins::CommandPackage::Command do
           expect{ package_command.execute }.to raise_error(Vagrant::Errors::MachineNotFound)
         end
       end
+
+      context "with --output option" do
+
+        let(:argv){ ['--output', 'package-output-folder/default'] }
+
+        it "packages default machine inside specified folder" do
+          expect(package_command).to receive(:package_vm).with(
+            a_machine_named('default'), :output => "package-output-folder/default"
+          )
+          package_command.execute
+        end
+      end
     end
 
     context "with multiple arguments" do

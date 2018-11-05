@@ -70,6 +70,7 @@ describe Vagrant do
       specs = [Gem::Specification.new]
       specs[0].name = "foo"
       allow(Vagrant::Plugin::Manager.instance).to receive(:installed_specs).and_return(specs)
+      allow(Vagrant::Plugin::Manager.instance).to receive(:ready?).and_return(true)
 
       expect(described_class.has_plugin?("foo")).to be(true)
       expect(described_class.has_plugin?("bar")).to be(false)
@@ -79,6 +80,7 @@ describe Vagrant do
       specs = [Gem::Specification.new]
       specs[0].name = "foo"
       specs[0].version = "1.2.3"
+      allow(Vagrant::Plugin::Manager.instance).to receive(:ready?).and_return(true)
       allow(Vagrant::Plugin::Manager.instance).to receive(:installed_specs).and_return(specs)
 
       expect(described_class.has_plugin?("foo", "~> 1.2.0")).to be(true)
@@ -96,6 +98,16 @@ describe Vagrant do
     it "should not succeed if bad range" do
       expect { described_class.require_version("> #{Vagrant::VERSION}") }.
         to raise_error(Vagrant::Errors::VagrantVersionBad)
+    end
+  end
+
+  describe "version?" do
+    it "should succeed if valid range" do
+      expect(described_class.version?(Vagrant::VERSION)).to be(true)
+    end
+
+    it "should not succeed if bad range" do
+      expect(described_class.version?("> #{Vagrant::VERSION}")).to be(false)
     end
   end
 

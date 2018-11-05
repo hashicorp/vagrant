@@ -1,7 +1,16 @@
-Param(
+#Requires -Modules VagrantMessages
+
+param(
     [Parameter(Mandatory=$true)]
     [string]$VmId
 )
 
-$VM = Get-VM -Id $VmId -ErrorAction "Stop"
-Suspend-VM $VM
+$ErrorActionPreference = "Stop"
+
+try{
+    $VM = Hyper-V\Get-VM -Id $VmId
+    Hyper-V\Suspend-VM $VM
+} catch {
+    Write-ErrorMessage "Failed to suspend VM: ${PSItem}"
+    exit 1
+}

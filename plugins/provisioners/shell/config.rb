@@ -14,6 +14,7 @@ module VagrantPlugins
       attr_accessor :binary
       attr_accessor :keep_color
       attr_accessor :name
+      attr_accessor :sensitive
       attr_accessor :powershell_args
       attr_accessor :powershell_elevated_interactive
 
@@ -29,6 +30,7 @@ module VagrantPlugins
         @binary                = UNSET_VALUE
         @keep_color            = UNSET_VALUE
         @name                  = UNSET_VALUE
+        @sensitive             = UNSET_VALUE
         @powershell_args       = UNSET_VALUE
         @powershell_elevated_interactive  = UNSET_VALUE
       end
@@ -45,11 +47,18 @@ module VagrantPlugins
         @binary               = false if @binary == UNSET_VALUE
         @keep_color           = false if @keep_color == UNSET_VALUE
         @name                 = nil if @name == UNSET_VALUE
+        @sensitive            = false if @sensitive == UNSET_VALUE
         @powershell_args      = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
         @powershell_elevated_interactive = false if @powershell_elevated_interactive == UNSET_VALUE
 
         if @args && args_valid?
           @args = @args.is_a?(Array) ? @args.map { |a| a.to_s } : @args.to_s
+        end
+
+        if @sensitive
+          @env.each do |_, v|
+            Vagrant::Util::CredentialScrubber.sensitive(v)
+          end
         end
       end
 

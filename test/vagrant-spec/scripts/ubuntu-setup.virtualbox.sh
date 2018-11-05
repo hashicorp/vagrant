@@ -2,6 +2,7 @@
 set -xe
 
 apt-get update -q
+apt-get install -qy linux-headers-$(uname -r)
 apt-get install -qy virtualbox
 
 pushd /vagrant

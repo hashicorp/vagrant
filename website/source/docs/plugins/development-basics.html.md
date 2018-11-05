@@ -45,7 +45,7 @@ Vagrant plugin development:
 source "https://rubygems.org"
 
 group :development do
-  gem "vagrant", git: "https://github.com/mitchellh/vagrant.git"
+  gem "vagrant", git: "https://github.com/hashicorp/vagrant.git"
 end
 
 group :plugins do
@@ -99,7 +99,7 @@ Within the definition, a plugin advertises what components it adds to
 Vagrant. An example is shown below where a command and provisioner are
 added:
 
-```
+```ruby
 class MyPlugin < Vagrant.plugin("2")
   name "My Plugin"
 
@@ -165,7 +165,7 @@ should be considered bugs.
 
 Therefore, to fit into Vagrant's error handling mechanisms, subclass
 `VagrantError` and set a proper message on your exception. To see
-examples of this, look at Vagrant's [built-in errors](https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/errors.rb).
+examples of this, look at Vagrant's [built-in errors](https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/errors.rb).
 
 ## Console Input and Output
 
@@ -177,5 +177,5 @@ pipes are closed, there is no input pipe, etc.
 
 A UI object is available on every `Vagrant::Environment` via the `ui` property
 and is exposed within every middleware environment via the `:ui` key. UI
-objects have [decent documentation](https://github.com/mitchellh/vagrant/blob/master/lib/vagrant/ui.rb)
+objects have [decent documentation](https://github.com/hashicorp/vagrant/blob/master/lib/vagrant/ui.rb)
 within the comments of their source.

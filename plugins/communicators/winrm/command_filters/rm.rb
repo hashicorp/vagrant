@@ -1,3 +1,5 @@
+require "shellwords"
+
 module VagrantPlugins
   module CommunicatorWinRM
     module CommandFilters
@@ -9,7 +11,7 @@ module VagrantPlugins
           # rm -R -f /some/dir
           # rm -f /some/dir
           # rm /some/dir
-          cmd_parts = command.strip.split(/\s+/)
+          cmd_parts = Shellwords.split(command.strip)
 
           # Figure out if we need to do this recursively
           recurse = false
@@ -29,9 +31,9 @@ module VagrantPlugins
 
           ret_cmd = ''
           if recurse
-            ret_cmd = "rm #{dir} -recurse -force"
+            ret_cmd = "if (Test-Path \"#{dir}\") {Remove-Item \"#{dir}\" -force -recurse}"
           else
-            ret_cmd = "rm #{dir} -force"
+            ret_cmd = "if (Test-Path \"#{dir}\") {Remove-Item \"#{dir}\" -force}"
           end
           return ret_cmd
         end

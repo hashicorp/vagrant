@@ -50,7 +50,7 @@ that this list is not exhaustive and additional hooks can be added via plugins.
   virtual machine is down.
 
 
-- `machine_action_halt` - called after the hypervision has moved the machine
+- `machine_action_halt` - called after the hypervisor has moved the machine
   into a halted state (usually "stopped" but not "terminated").
 
 

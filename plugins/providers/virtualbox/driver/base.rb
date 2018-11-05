@@ -74,7 +74,18 @@ module VagrantPlugins
             @logger.debug("Linux platform detected but executing within WSL. Locating VBoxManage.")
             @vboxmanage_path = Vagrant::Util::Which.which("VBoxManage") || Vagrant::Util::Which.which("VBoxManage.exe")
             if !@vboxmanage_path
-              raise Vagrant::Errors::VBoxManageNotFoundWSLError
+              # If we still don't have one, try to find it using common locations
+              drive = "/mnt/c"
+              [
+                "#{drive}/Program Files/Oracle/VirtualBox",
+                "#{drive}/Program Files (x86)/Oracle/VirtualBox"
+              ].each do |maybe|
+                path = File.join(maybe, "VBoxManage.exe")
+                if File.file?(path)
+                  @vboxmanage_path = path
+                  break
+                end
+              end
             end
           end
 

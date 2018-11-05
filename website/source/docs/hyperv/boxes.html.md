@@ -100,4 +100,4 @@ There is also some less structured help available from the experience of
 other users. These are not official documentation but if you are running
 into trouble they may help you:
 
-  * [Ubuntu 14.04.2 without secure boot](https://github.com/mitchellh/vagrant/issues/5419#issuecomment-86235427)
+  * [Ubuntu 14.04.2 without secure boot](https://github.com/hashicorp/vagrant/issues/5419#issuecomment-86235427)

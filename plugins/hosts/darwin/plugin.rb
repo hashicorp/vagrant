@@ -20,6 +20,36 @@ module VagrantPlugins
         require_relative "cap/rdp"
         Cap::RDP
       end
+
+      host_capability("darwin", "smb_installed") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
+      host_capability("darwin", "smb_prepare") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
+      host_capability("darwin", "smb_mount_options") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
+      host_capability("darwin", "smb_cleanup") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
+      host_capability("darwin", "smb_start") do
+        require_relative "cap/smb"
+        Cap::SMB
+      end
+
+      host_capability("darwin", "configured_ip_addresses") do
+        require_relative "cap/configured_ip_addresses"
+        Cap::ConfiguredIPAddresses
+      end
     end
   end
 end

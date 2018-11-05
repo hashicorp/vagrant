@@ -89,7 +89,7 @@ module VagrantPlugins
       end
 
       def need_configure
-        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config or @config.version
+        @config.minion_config or @config.minion_key or @config.master_config or @config.master_key or @config.grains_config or @config.version or @config.minion_json_config or @config.master_json_config
       end
 
       def need_install
@@ -110,11 +110,21 @@ module VagrantPlugins
 
       # Generates option string for bootstrap script
       def bootstrap_options(install, configure, config_dir)
-        options = ""
-
         # Any extra options passed to bootstrap
         if @config.bootstrap_options
-          options = "%s %s" % [options, @config.bootstrap_options]
+          options = @config.bootstrap_options
+        else
+          options = ""
+        end
+
+        if @config.master_json_config && @machine.config.vm.communicator != :winrm
+          config = @config.master_json_config
+          options = "%s -J '#{config}'" % [options]
+        end
+
+        if @config.minion_json_config && @machine.config.vm.communicator != :winrm
+          config = @config.minion_json_config
+          options = "%s -j '#{config}'" % [options]
         end
 
         if configure && @machine.config.vm.communicator != :winrm
@@ -166,7 +176,19 @@ module VagrantPlugins
       ## Actions
       # Get pillar string to pass with the salt command
       def get_pillar
-        " pillar='#{@config.pillar_data.to_json}'" if !@config.pillar_data.empty?
+        if !@config.pillar_data.empty?
+          if @machine.config.vm.communicator == :winrm
+            # ' doesn't have any special behavior on the command prompt,
+            # so '{"x":"y"}' becomes '{x:y}' with literal single quotes.
+            # However, """ will become " , and \\""" will become \" .
+            # Use \\"" instead of \\""" for literal inner-value quotes
+            # to avoid issue with odd number of quotes.
+            # --% disables special PowerShell parsing on the rest of the line.
+            " --% pillar=#{@config.pillar_data.to_json.gsub(/(?<!\\)\"/, '"""').gsub(/\\\"/, %q(\\\\\""))}"
+          else
+            " pillar='#{@config.pillar_data.to_json}'"
+          end
+        end
       end
 
       # Get colorization option string to pass with the salt command
@@ -294,6 +316,9 @@ module VagrantPlugins
             end
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.ps1")
           else
+            if @config.version
+              options += " %s" % @config.version
+            end
             bootstrap_destination = File.join(config_dir, "bootstrap_salt.sh")
           end
 
@@ -303,7 +328,7 @@ module VagrantPlugins
           @machine.communicate.upload(bootstrap_path.to_s, bootstrap_destination)
           @machine.communicate.sudo("chmod +x %s" % bootstrap_destination)
           if @machine.config.vm.communicator == :winrm
-            bootstrap = @machine.communicate.sudo("powershell.exe -executionpolicy bypass -file %s %s" % [bootstrap_destination, options]) do |type, data|
+            bootstrap = @machine.communicate.sudo("powershell.exe -NonInteractive -NoProfile -executionpolicy bypass -file %s %s" % [bootstrap_destination, options]) do |type, data|
               if data[0] == "\n"
                 # Remove any leading newline but not whitespace. If we wanted to
                 # remove newlines and whitespace we would have used data.lstrip
@@ -375,7 +400,7 @@ module VagrantPlugins
 
           @machine.env.ui.info "Calling state.highstate... (this may take a while)"
           if @config.install_master
-            unless @config.masterless?
+            unless @config.masterless
               @machine.communicate.sudo("salt '*' saltutil.sync_all")
             end
             options = "#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}#{get_salt_args}"
@@ -387,7 +412,7 @@ module VagrantPlugins
           else
             if @machine.config.vm.communicator == :winrm
               opts = { elevated: true }
-              unless @config.masterless?
+              unless @config.masterless
                 @machine.communicate.execute("C:\\salt\\salt-call.bat saltutil.sync_all", opts)
               end
               # TODO: something equivalent to { error_key: :ssh_bad_exit_status_muted }?
@@ -398,7 +423,7 @@ module VagrantPlugins
                 end
               end
             else
-              unless @config.masterless?
+              unless @config.masterless
                 @machine.communicate.sudo("salt-call saltutil.sync_all")
               end
               options = "#{get_masterless}#{get_loglevel}#{get_colorize}#{get_pillar}#{get_call_args}"

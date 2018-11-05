@@ -27,7 +27,8 @@ The first parameter is a path to a directory on the host machine. If
 the path is relative, it is relative to the project root. The second
 parameter must be an absolute path of where to share the folder within
 the guest machine. This folder will be created (recursively, if it must)
-if it does not exist.
+if it does not exist. By default, Vagrant mounts the synced folders with
+the owner/group set to the SSH user and any parent folders set to root.
 
 ## Options
 
@@ -91,9 +92,10 @@ config.vm.synced_folder ".", "/vagrant", disabled: true
 
 ## Modifying the Owner/Group
 
-By default, Vagrant mounts the synced folders with the owner/group set
-to the SSH user. Sometimes it is preferable to mount folders with a different
-owner and group. It is possible to set these options:
+Sometimes it is preferable to mount folders with a different owner/group than
+the default SSH user. Keep in mind that these options will only affect the
+synced folder itself. If you want to modify the owner/group of the synced
+folder's parent folders use a script. It is possible to set these options:
 
 ```ruby
 config.vm.synced_folder "src/", "/srv/website",

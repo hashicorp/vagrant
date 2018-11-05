@@ -1,6 +1,7 @@
 module Vagrant
   module Util
     autoload :Busy,                      'vagrant/util/busy'
+    autoload :CheckpointClient,          'vagrant/util/checkpoint_client'
     autoload :CommandDeprecation,        'vagrant/util/command_deprecation'
     autoload :Counter,                   'vagrant/util/counter'
     autoload :CredentialScrubber,        'vagrant/util/credential_scrubber'
@@ -8,6 +9,7 @@ module Vagrant
     autoload :Env,                       'vagrant/util/env'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
+    autoload :LoggingFormatter,          'vagrant/util/logging_formatter'
     autoload :Platform,                  'vagrant/util/platform'
     autoload :Retryable,                 'vagrant/util/retryable'
     autoload :SafeExec,                  'vagrant/util/safe_exec'

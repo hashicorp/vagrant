@@ -10,12 +10,12 @@ module Vagrant
   # of Vagrant that may require remote access.
   #
   # @return [String]
-  DEFAULT_SERVER_URL = "https://vagrantcloud.com"
+  DEFAULT_SERVER_URL = "https://vagrantcloud.com".freeze
 
   # Max number of seconds to wait for joining an active thread.
   #
   # @return [Integer]
-  # @note This is not the maxium time for a thread to complete.
+  # @note This is not the maximum time for a thread to complete.
   THREAD_MAX_JOIN_TIMEOUT = 60
 
   # This holds a global lock for the duration of the block. This should
@@ -93,7 +93,7 @@ module Vagrant
   #
   # @return [Pathname]
   def self.user_data_path
-    # Use user spcified env var if available
+    # Use user specified env var if available
     path = ENV["VAGRANT_HOME"]
 
     # On Windows, we default to the USERPROFILE directory if it
@@ -128,5 +128,54 @@ module Vagrant
     else
       true
     end
+  end
+
+  # Automatically install locally defined plugins instead of
+  # waiting for user confirmation.
+  #
+  # @return [Boolean]
+  def self.auto_install_local_plugins?
+    if ENV["VAGRANT_INSTALL_LOCAL_PLUGINS"]
+      true
+    else
+      false
+    end
+  end
+
+  # Use Ruby Resolv in place of libc
+  #
+  # @return [boolean] enabled or not
+  def self.enable_resolv_replace
+    if ENV["VAGRANT_ENABLE_RESOLV_REPLACE"]
+      if !ENV["VAGRANT_DISABLE_RESOLV_REPLACE"]
+        begin
+          require "resolv-replace"
+          true
+        rescue
+          false
+        end
+      else
+        false
+      end
+    end
+  end
+
+  # Set the global logger
+  #
+  # @param log Logger
+  # @return [Logger]
+  def self.global_logger=(log)
+    @_global_logger = log
+  end
+
+  # Get the global logger instance
+  #
+  # @return [Logger]
+  def self.global_logger
+    if @_global_logger.nil?
+      require "log4r"
+      @_global_logger = Log4r::Logger.new("vagrant::global")
+    end
+    @_global_logger
   end
 end

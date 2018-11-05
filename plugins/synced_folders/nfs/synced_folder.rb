@@ -127,9 +127,10 @@ module VagrantPlugins
       def prepare_folder(machine, opts)
         opts[:map_uid] = prepare_permission(machine, :uid, opts)
         opts[:map_gid] = prepare_permission(machine, :gid, opts)
-        opts[:nfs_udp] = true if !opts.key?(:nfs_udp)
         opts[:nfs_version] ||= 3
-
+        if !opts.key?(:nfs_udp)
+          opts[:nfs_udp] = !opts[:nfs_version].to_s.start_with?('4')
+        end
 
         if opts[:nfs_version].to_s.start_with?('4') && opts[:nfs_udp]
           machine.ui.info I18n.t("vagrant.actions.vm.nfs.v4_with_udp_warning")

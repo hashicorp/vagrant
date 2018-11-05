@@ -37,6 +37,52 @@ describe VagrantPlugins::CommandInit::Command do
       expect(contents).to_not match(/provision/)
     end
 
+    it "creates a custom Vagrantfile using a relative template path" do
+      described_class.new(["--template", "test/unit/templates/commands/init/Vagrantfile"], env).execute
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
+    end
+
+    it "creates a custom Vagrantfile using an absolute template path" do
+      described_class.new(["--template", ::Vagrant.source_root.join("test/unit/templates/commands/init/Vagrantfile").to_s], env).execute
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
+    end
+
+    it "creates a custom Vagrantfile using a provided template with the extension included" do
+      described_class.new(["--template", ::Vagrant.source_root.join("test/unit/templates/commands/init/Vagrantfile.erb").to_s], env).execute
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
+    end
+
+    it "creates a custom Vagrant file using a template provided from the environment" do
+      with_temp_env("VAGRANT_DEFAULT_TEMPLATE" => "test/unit/templates/commands/init/Vagrantfile") do
+        described_class.new([], env).execute
+      end
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
+    end
+
+    it "ignores the environmentally-set default template when a template is explicitly set" do
+      with_temp_env("VAGRANT_DEFAULT_TEMPLATE" => "/this_file_does_not_exist") do
+        described_class.new(["--template", "test/unit/templates/commands/init/Vagrantfile"], env).execute
+      end
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
+    end
+
+    it "ignores the -m option when using a provided template" do
+      described_class.new(["-m", "--template", ::Vagrant.source_root.join("test/unit/templates/commands/init/Vagrantfile").to_s], env).execute
+      contents = File.read(vagrantfile_path)
+      expect(contents).to match(/config.vm.hostname = "vagrant.dev"/)
+    end
+
+    it "raises an appropriate exception when the template file can't be found" do
+      expect {
+      described_class.new(["--template", "./a/b/c/template"], env).execute
+      }.to raise_error(Vagrant::Errors::VagrantfileTemplateNotFoundError)
+    end
+
     it "does not overwrite an existing Vagrantfile" do
       # Create an existing Vagrantfile
       File.open(File.join(env.cwd, "Vagrantfile"), "w+") { |f| f.write("") }

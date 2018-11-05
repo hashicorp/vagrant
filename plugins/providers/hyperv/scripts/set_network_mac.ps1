@@ -1,18 +1,18 @@
-param (
-    [string]$VmId = $(throw "-VmId is required."),
-    [string]$Mac = $(throw "-Mac ")
- )
+#Requires -Modules VagrantMessages
 
-# Include the following modules
-$presentDir = Split-Path -parent $PSCommandPath
-$modules = @()
-$modules += $presentDir + "\utils\write_messages.ps1"
-forEach ($module in $modules) { . $module }
+param (
+    [parameter (Mandatory=$true)]
+    [string]$VmId,
+    [parameter (Mandatory=$true)]
+    [string]$Mac
+)
+
+$ErrorActionPreference = "Stop"
 
 try {
-  $vm = Get-VM -Id $VmId -ErrorAction "stop"
-  Set-VMNetworkAdapter $vm -StaticMacAddress $Mac -ErrorAction "stop"
-}
-catch {
-  Write-Error-Message "Failed to set VM's MAC address $_"
+    $vm = Hyper-V\Get-VM -Id $VmId
+    Hyper-V\Set-VMNetworkAdapter $vm -StaticMacAddress $Mac
+} catch {
+    Write-ErrorMessage "Failed to set VM MAC address: ${PSItem}"
+    exit 1
 }

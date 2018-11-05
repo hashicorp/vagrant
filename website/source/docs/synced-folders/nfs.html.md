@@ -91,7 +91,7 @@ specify alternate NFS arguments when mounting the NFS share by using the
 
 ```ruby
 config.vm.synced_folder ".", "/vagrant",
-  nfs: true,
+  type: "nfs",
   mount_options: ['actimeo=2']
 ```
 
@@ -109,7 +109,7 @@ NFS share asynchronous:
 
 ```ruby
 config.vm.synced_folder ".", "/vagrant",
-  nfs: true,
+  type: "nfs",
   linux__nfs_options: ['rw','no_subtree_check','all_squash','async']
 ```
 
@@ -144,7 +144,7 @@ For \*nix users, make sure to edit your `/etc/sudoers` file with `visudo`. It pr
 All of the snippets below require Vagrant version 1.7.3 or higher.
 
 <div class="alert alert-warning" role="alert">
-  <strong>Use the appropiate group for your user</strong> Depending on how your machine is
+  <strong>Use the appropriate group for your user</strong> Depending on how your machine is
    configured, you might need to use a different group than the ones listed in the examples below.
 </div>
 
@@ -208,7 +208,7 @@ When using NFSv4, ensure the `nfs_udp` option is set to false. For example:
 
 ```ruby
 config.vm.synced_folder ".", "/vagrant",
-  nfs: true,
+  type: "nfs",
   nfs_version: 4,
   nfs_udp: false
 ```

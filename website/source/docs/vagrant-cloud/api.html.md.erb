@@ -13,9 +13,9 @@ sidebar_current: "vagrant-cloud-api"
       $(".examples pre.highlight." + language).show();
     }
 
-    $(document).ready(function() {
-      setExampleLanguage("shell"); }
-    );
+    $(document).on('ready turbolinks:load', function() {
+      setExampleLanguage("shell");
+    });
   </script>
 
   <style>
@@ -106,6 +106,7 @@ Vagrant Cloud may respond with the following response codes, depending on the st
 
 ##### **200** OK
 ##### **201** Created
+##### **204** No Content
 
 #### Client Errors
 
@@ -234,7 +235,10 @@ In order to create a usable box on Vagrant Cloud, perform the following steps:
     upload_path = response.parse['upload_path']
 
     # Upload the box image
-    HTTP.post upload_path, body: File.open("virtualbox-1.2.3.box")
+    HTTP.put upload_path, body: File.open("virtualbox-1.2.3.box")
+    
+    # Release the version
+    api.put("/api/v1/box/myuser/test/version/1.2.3/release")
     ```
   </div>
 </div>
@@ -250,7 +254,7 @@ Creates a new token for the given user.
 #### Arguments
 
 * `token`
-    * `desription` (Optional) - A description of the token.
+    * `description` (Optional) - A description of the token.
 * `two_factor`
     * `code` - A two-factor authentication code. Required to use this API method if 2FA is enabled. See [Request a 2FA code](#request-a-2fa-code) if not using a TOTP application.
 * `user`
@@ -346,6 +350,48 @@ Responds [`200 OK`](#200-ok) if the authentication request was successful, other
     )
 
     response = api.get("/api/v1/authenticate")
+
+    if response.status.success?
+      # Success, the response attributes are available here.
+      p response.parse
+    else
+      # Error, inspect the `errors` key for more information.
+      p response.code, response.body
+    end
+    ```
+  </div>
+</div>
+
+### Delete a token
+
+`DELETE /api/v1/authenticate`
+
+Responds [`204 OK`](#204-no-content) if the deletion request was successful, otherwise responds [`401 Unauthorized`](#401-unauthorized).
+
+#### Example Request
+
+<div class="examples">
+  <ul class="examples-header">
+    <li class="examples-menu examples-menu-shell"><a onclick="setExampleLanguage('shell');">cURL</a></li>
+    <li class="examples-menu examples-menu-ruby"><a onclick="setExampleLanguage('ruby');">Ruby</a></li>
+  </ul>
+  <div class="examples-body">
+    ```shell
+    curl \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+      --request DELETE \
+      https://app.vagrantup.com/api/v1/authenticate
+    ```
+
+    ```ruby
+    # gem install http, or add `gem "http"` to your Gemfile
+    require "http"
+
+    api = HTTP.persistent("https://app.vagrantup.com").headers(
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+    )
+
+    response = api.delete("/api/v1/authenticate")
 
     if response.status.success?
       # Success, the response attributes are available here.
@@ -484,6 +530,102 @@ Sends a 2FA code to the requested delivery method.
 }
 ```
 
+## Search
+
+### Search for boxes
+
+`GET /api/v1/search`
+
+#### Arguments
+
+* `q` - (Optional) The search query. Results will match the `username`, `name`, or `short_description` fields for a box. If omitted, the top boxes based on `sort` and `order` will be returned (defaults to "downloads desc").
+* `provider` - (Optional) Filter results to boxes supporting for a specific provider.
+* `sort` - (Optional, default: `"downloads"`) The field to sort results on. Can be one of `"downloads"`, `"created"`, or `"updated"`.
+* `order` - (Optional, default: `"desc"`) The order to return the sorted field in. Can be `"desc"` os `"asc"`.
+* `limit` - (Optional, default: `10`) The number of results to return (max of 100).
+* `page` - (Optional, default: `1`)
+
+#### Example Request
+
+<div class="examples">
+  <ul class="examples-header">
+    <li class="examples-menu examples-menu-shell"><a onclick="setExampleLanguage('shell');">cURL</a></li>
+    <li class="examples-menu examples-menu-ruby"><a onclick="setExampleLanguage('ruby');">Ruby</a></li>
+  </ul>
+  <div class="examples-body">
+    ```shell
+    curl \
+      --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
+      https://app.vagrantup.com/api/v1/search?q=test&provider=virtualbox
+    ```
+
+    ```ruby
+    # gem install http, or add `gem "http"` to your Gemfile
+    require "http"
+
+    api = HTTP.persistent("https://app.vagrantup.com").headers(
+      "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
+    )
+
+    response = api.get("/api/v1/search", params: {
+      q: "test",
+      provider: "virtualbox"
+    })
+
+    if response.status.success?
+      # Success, the response attributes are available here.
+      p response.parse
+    else
+      # Error, inspect the `errors` key for more information.
+      p response.code, response.body
+    end
+    ```
+  </div>
+</div>
+
+#### Example Response
+
+```json
+{
+  "boxes": [
+    {
+      "created_at": "2017-10-20T14:19:59.842Z",
+      "updated_at": "2017-10-20T15:23:53.363Z",
+      "tag": "myuser/test",
+      "name": "test",
+      "short_description": "My dev box",
+      "description_html": "<p>My development Vagrant box</p>\n",
+      "username": "myuser",
+      "description_markdown": "My development Vagrant box",
+      "private": true,
+      "downloads": 123,
+      "current_version": {
+        "version": "1.2.3",
+        "status": "active",
+        "description_html": "<p>A new version</p>\n",
+        "description_markdown": "A new version",
+        "created_at": "2017-10-20T15:23:17.184Z",
+        "updated_at": "2017-10-20T15:23:53.355Z",
+        "number": "1.2.3",
+        "release_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release",
+        "revoke_url": "https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/revoke",
+        "providers": [
+          {
+            "name": "virtualbox",
+            "hosted": false,
+            "hosted_token": null,
+            "original_url": "https://example.com/virtualbox-1.2.3.box",
+            "created_at": "2017-10-20T15:23:35.718Z",
+            "updated_at": "2017-10-20T15:23:35.718Z",
+            "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box"
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
 ## Boxes
 
 ### Read a box
@@ -538,6 +680,7 @@ Sends a 2FA code to the requested delivery method.
   "username": "myuser",
   "description_markdown": "My development Vagrant box",
   "private": true,
+  "downloads": 123,
   "current_version": {
     "version": "1.2.3",
     "status": "active",
@@ -1231,7 +1374,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
 
 * `provider`
     * `name` - The name of the provider.
-    * `url` - A valid URL to download this provider. If omitted, you must [upload](#TODO) the Vagrant box image for this provider to Vagrant Cloud before the provider can be used.
+    * `url` - A valid URL to download this provider. If omitted, you must [upload](#upload-a-provider) the Vagrant box image for this provider to Vagrant Cloud before the provider can be used.
 
 #### Example Request
 
@@ -1245,7 +1388,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
     curl \
       --header "Content-Type: application/json" \
       --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-      https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/virtualbox \
+      https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox \
       --request PUT \
       --data '
         {
@@ -1266,7 +1409,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
       "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
-    response = api.put("/api/v1/box/myuser/test/version/1.2.3/virtualbox", json: {
+    response = api.put("/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox", json: {
       provider: {
         name: "virtualbox",
         url: "https://example.com/virtualbox-1.2.3.box"
@@ -1315,7 +1458,7 @@ Response body is identical to [Reading a provider](#read-a-provider).
       "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
-    response = api.delete("/api/v1/box/myuser/test/verison/1.2.3/provider/virtualbox")
+    response = api.delete("/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox")
 
     if response.status.success?
       # Success, the response attributes are available here.
@@ -1351,7 +1494,7 @@ Prepares the provider for upload, and returns a JSON blob containing an `upload_
     ```shell
     response=$(curl \
       --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
-      https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/virtualbox/upload)
+      https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload)
 
     # Requires the jq command
     upload_path=$(echo "$response" | jq .upload_path)
@@ -1370,7 +1513,7 @@ Prepares the provider for upload, and returns a JSON blob containing an `upload_
       "Authorization" => "Bearer #{ENV['VAGRANT_CLOUD_TOKEN']}"
     )
 
-    response = api.get("/api/v1/box/myuser/test/version/1.2.3/virtualbox/upload")
+    response = api.get("/api/v1/box/myuser/test/version/1.2.3/provider/virtualbox/upload")
 
     if response.status.success?
       # Success, you can now upload the box image to the returned URL

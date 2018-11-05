@@ -11,6 +11,34 @@ en:
     message_not_running: |-
       Hyper-V machine isn't running. Can't SSH in!
 
+    config:
+      invalid_auto_start_action: |-
+        The requested auto start action for the Hyper-V VM is not a
+        valid action. Please provide a valid action and run the command
+        again.
+
+          Received: %{action}
+          Allowed: %{allowed_actions}
+      invalid_auto_stop_action: |-
+        The requested auto stop action for the Hyper-V VM is not a
+        valid action. Please provide a valid action and run the command
+        again.
+
+          Received: %{action}
+          Allowed: %{allowed_actions}
+      invalid_integration_services_type: |-
+        Invalid type provided for `vm_integration_services`. Type received
+        is `%{received}` but `Hash` was expected.
+      invalid_integration_services_entry: |-
+        The `%{entry_name}` entry in the `vm_integration_services` is set
+        to an unexpected value.
+
+          Received: %{entry_value}
+          Allowed: true, false
+      differencing_disk_deprecation: |-
+        The `differencing_disk` configuration option is deprecated and should
+        no longer be used. The `linked_clone` configuration option should
+        be used instead.
     errors:
       admin_required: |-
         The Hyper-V provider requires that Vagrant be run with
@@ -71,3 +99,10 @@ en:
       windows_required: |-
         The Hyper-V provider only works on Windows. Please try to
         use another provider.
+      system_access_required: |-
+        Hyper-V access check has failed for the configured destination. This
+        is usually caused by running on a non-system drive which is missing
+        required permissions. Running the following command may resolve the
+        problem:
+
+          icacls.exe %{root_dir} /T /Q /grant "NT AUTHORITY\SYSTEM:(IO)(CI)(F)"
