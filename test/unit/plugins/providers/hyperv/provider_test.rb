@@ -3,7 +3,12 @@ require_relative "../../../base"
 require Vagrant.source_root.join("plugins/providers/hyperv/provider")
 
 describe VagrantPlugins::HyperV::Provider do
-  let(:machine) { double("machine") }
+  let(:driver){ double("driver") }
+  let(:provider){ double("provider", driver: driver) }
+  let(:provider_config){ double("provider_config", ip_address_timeout: ip_address_timeout) }
+  let(:ip_address_timeout){ 1 }
+  let(:machine){ double("machine", provider: provider, provider_config: provider_config) }
+
   let(:platform)   { double("platform") }
   let(:powershell) { double("powershell") }
 
@@ -101,6 +106,30 @@ describe VagrantPlugins::HyperV::Provider do
         and_return({ machine_state_id: :bar })
 
       expect(subject.state.id).to eq(:bar)
+    end
+  end
+
+  describe "#ssh_info" do
+    let(:result) { "127.0.0.1" }
+    let(:exit_code) { 0 }
+    let(:ssh_info) {{:host=>result,:port=>22}}
+
+    before do
+      allow(VagrantPlugins::HyperV::Driver).to receive(:new).and_return(driver)
+      allow(machine).to receive(:action).with(:read_state).and_return(machine_state_id: :running)
+    end
+
+    it "returns nil if a PowerShellError is returned from the driver" do
+      allow(driver).to receive(:read_guest_ip)
+        .and_raise(VagrantPlugins::HyperV::Errors::PowerShellError, script: anything, stderr: anything)
+      expect(subject.ssh_info).to eq(nil)
+    end
+
+    it "should receive a valid address" do
+      allow(driver).to receive(:execute).with(:get_network_config).and_return(result)
+
+      allow(driver).to receive(:read_guest_ip).and_return({"ip" => "127.0.0.1"})
+      expect(subject.ssh_info).to eq(ssh_info)
     end
   end
 end

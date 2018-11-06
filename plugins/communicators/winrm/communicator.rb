@@ -109,7 +109,7 @@ module VagrantPlugins
 
         @logger.info("WinRM is ready!")
         return true
-      rescue Errors::TransientError => e
+      rescue Errors::TransientError, VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady => e
         # We catch a `TransientError` which would signal that something went
         # that might work if we wait and retry.
         @logger.info("WinRM not up: #{e.inspect}")

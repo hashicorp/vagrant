@@ -64,6 +64,11 @@ module VagrantPlugins
         Cap::Reboot
       end
 
+      guest_capability(:windows, :reboot) do
+        require_relative "cap/reboot"
+        Cap::Reboot
+      end
+
       guest_capability(:windows, :choose_addressable_ip_addr) do
         require_relative "cap/choose_addressable_ip_addr"
         Cap::ChooseAddressableIPAddr

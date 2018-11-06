@@ -13,7 +13,7 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
   let(:shell) { double("shell") }
   let(:good_output) { WinRM::Output.new.tap { |out| out.exitcode = 0 } }
   let(:bad_output) { WinRM::Output.new.tap { |out| out.exitcode = 1 } }
-  
+
   subject do
     described_class.new(machine).tap do |comm|
       allow(comm).to receive(:create_shell).and_return(shell)
@@ -65,6 +65,11 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
 
     it "returns false if hostname command fails with a transient error" do
       expect(shell).to receive(:cmd).with("hostname").and_raise(VagrantPlugins::CommunicatorWinRM::Errors::TransientError)
+      expect(subject.ready?).to be(false)
+    end
+
+    it "returns false if hostname command fails with a WinRMNotReady error" do
+      expect(shell).to receive(:cmd).with("hostname").and_raise(VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady)
       expect(subject.ready?).to be(false)
     end
 
