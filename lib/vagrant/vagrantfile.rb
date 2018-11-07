@@ -170,8 +170,8 @@ module Vagrant
 
       # Track the original box so we know if we changed
       box = nil
-      original_box = config.vm.box
-      original_version = config.vm.box_version
+      initial_box = original_box = config.vm.box
+      initial_version = original_version = config.vm.box_version
 
       # Check if this machine has a local box metadata file
       # describing the existing guest. If so, load it and
@@ -231,6 +231,17 @@ module Vagrant
 
       # Load the box and provider overrides
       load_box_proc.call
+
+      # NOTE: In cases where the box_meta file contains stale information
+      #       and the reference box no longer exists, fall back to initial
+      #       configuration and attempt to load that
+      if box.nil?
+        @logger.warn("Failed to locate #{config.vm.box} with version #{config.vm.box_version}")
+        @logger.warn("Performing lookup with inital values #{initial_box} with version #{initial_version}")
+        config.vm.box = original_box = initial_box
+        config.vm.box_version = original_box = initial_version
+        load_box_proc.call
+      end
 
       # Ensure box attributes are set to original values in
       # case they were modified by the local box metadata
