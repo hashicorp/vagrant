@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- providers/virtualbox: Add support for VirtualBox 6.0 [GH-10379]
+
 IMPROVEMENTS:
 
 - command/validate: Allow validation of config while ignoring provider [GH-10351]
