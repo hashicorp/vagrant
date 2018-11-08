@@ -37,12 +37,19 @@ module VagrantPlugins
             available_slots.delete(slot)
           end
 
+          default_nic_type = env[:machine].provider_config.default_nic_type
+
           @logger.debug("Available slots for high-level adapters: #{available_slots.inspect}")
           @logger.info("Determining network adapters required for high-level configuration...")
           available_slots = available_slots.to_a.sort
           env[:machine].config.vm.networks.each do |type, options|
             # We only handle private and public networks
             next if type != :private_network && type != :public_network
+
+            if default_nic_type && !options.key?(:nic_type) && !options.key?(:virtualbox__nic_type)
+              @logger.info("Setting default nic type (`#{default_nic_type}`) for `#{type}` - `#{options}`")
+              options[:virtualbox__nic_type] = default_nic_type
+            end
 
             options = scoped_hash_override(options, :virtualbox)
 
@@ -403,15 +410,16 @@ module VagrantPlugins
         end
 
         def nat_config(options)
-          return {
+          return options.merge(
             auto_config: false
-          }
+          )
         end
 
         def nat_adapter(config)
           return {
             adapter: config[:adapter],
             type:    :nat,
+            nic_type: config[:nic_type],
           }
         end
 

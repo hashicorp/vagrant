@@ -41,6 +41,27 @@ config.vm.provider "virtualbox" do |v|
 end
 ```
 
+## Default NIC Type
+
+By default Vagrant will set the NIC type for all network interfaces to
+`"virtio"`. If you would rather a different NIC type be used as the
+default for guests:
+
+```ruby
+config.vm.provider "virtualbox" do |v|
+  v.default_nic_type = "82543GC"
+end
+```
+
+or if you would like to disable the default type so VirtualBox's default
+is applied you can set the value to `nil`:
+
+```ruby
+config.vm.provider "virtualbox" do |v|
+  v.default_nic_type = nil
+end
+```
+
 ## Linked Clones
 
 By default new machines are created by importing the base box. For large

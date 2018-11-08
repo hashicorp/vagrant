@@ -84,6 +84,42 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
     expect{ subject.call(env) }.not_to raise_error(Vagrant::Errors::NetworkAddressInvalid)
   end
 
+  describe "setting nic type" do
+    before do
+      guest = double("guest")
+      allow(driver).to receive(:read_bridged_interfaces) { [] }
+      allow(driver).to receive(:read_host_only_interfaces) { [] }
+      allow(driver).to receive(:create_host_only_network) { {} }
+      allow(driver).to receive(:read_dhcp_servers) { [] }
+      allow(driver).to receive(:create_dhcp_server)
+      allow(machine).to receive(:guest) { guest }
+      allow(guest).to receive(:capability)
+    end
+
+    it "sets default nic type when unset" do
+      machine.config.vm.network 'private_network', { type: 'dhcp' }
+      subject.call(env)
+      _, net_config = machine.config.vm.networks.detect { |type, _| type == :private_network }
+      expect(net_config[:virtualbox__nic_type]).to eq("virtio")
+    end
+
+    it "does not set nic type when already set" do
+      machine.config.vm.network 'private_network', { type: 'dhcp', nic_type: "custom" }
+      subject.call(env)
+      _, net_config = machine.config.vm.networks.detect { |type, _| type == :private_network }
+      expect(net_config[:nic_type]).to eq("custom")
+      expect(net_config[:virtualbox__nic_type]).to be_nil
+    end
+
+    it "does not set nic type when namespaced option is set" do
+      machine.config.vm.network 'private_network', { type: 'dhcp', virtualbox__nic_type: "custom" }
+      subject.call(env)
+      _, net_config = machine.config.vm.networks.detect { |type, _| type == :private_network }
+      expect(net_config[:nic_type]).to be_nil
+      expect(net_config[:virtualbox__nic_type]).to eq("custom")
+    end
+  end
+
   context "with a dhcp private network" do
     let(:bridgedifs)  { [] }
     let(:hostonlyifs) { [] }
@@ -118,7 +154,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
         mac: nil,
         name: nil,
         netmask: "255.255.255.0",
-        nic_type: nil,
+        nic_type: "virtio",
         type: :dhcp,
         dhcp_ip: "172.28.128.2",
         dhcp_lower: "172.28.128.3",

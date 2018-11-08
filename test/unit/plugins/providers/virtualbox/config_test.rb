@@ -43,11 +43,39 @@ describe VagrantPlugins::ProviderVirtualBox::Config do
     it { expect(subject.gui).to be(false) }
     it { expect(subject.name).to be_nil }
     it { expect(subject.functional_vboxsf).to be(true) }
+    it { expect(subject.default_nic_type).to eq("virtio") }
 
     it "should have one NAT adapter" do
       expect(subject.network_adapters).to eql({
-        1 => [:nat, {}],
+        1 => [:nat, {nic_type: "virtio"}],
       })
+    end
+  end
+
+  describe "#default_nic_type" do
+    let(:nic_type) { "custom" }
+
+    before do
+      subject.default_nic_type = nic_type
+      subject.finalize!
+    end
+
+    it { expect(subject.default_nic_type).to eq(nic_type) }
+
+    it "should set NAT adapter nic type" do
+      expect(subject.network_adapters.values.first.last[:nic_type]).
+        to eq(nic_type)
+    end
+
+    context "when set to nil" do
+      let(:nic_type) { nil }
+
+      it { expect(subject.default_nic_type).to be_nil }
+
+      it "should not set NAT adapter nic type" do
+        expect(subject.network_adapters.values.first.last[:nic_type]).
+          to be_nil
+      end
     end
   end
 
