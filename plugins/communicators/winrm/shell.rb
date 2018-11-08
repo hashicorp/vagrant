@@ -71,7 +71,13 @@ module VagrantPlugins
       def elevated(command, opts = {}, &block)
         connection.shell(:elevated) do |shell|
           shell.interactive_logon = opts[:interactive] || false
-          execute_with_rescue(shell, command, &block)
+          uname = shell.username
+          begin
+            shell.username = elevated_username
+            execute_with_rescue(shell, command, &block)
+          ensure
+            shell.username = uname
+          end
         end
       end
 
@@ -215,6 +221,24 @@ module VagrantPlugins
           no_ssl_peer_verification: !@config.ssl_peer_verification,
           retry_delay: @config.retry_delay,
           retry_limit: @config.max_tries }
+      end
+
+      def elevated_username
+        if @elevated_username
+          return @elevated_username
+        end
+        if username.include?("\\")
+          return @elevated_username = username
+        end
+        computername = ""
+        powershell("Write-Output $env:computername") do |type, data|
+          computername << data if type == :stdout
+        end
+        computername.strip!
+        if computername.empty?
+          return @elevated_username = username
+        end
+        @elevated_username = "#{computername}\\#{username}"
       end
     end #WinShell class
   end
