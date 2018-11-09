@@ -86,6 +86,28 @@ describe Vagrant::Util::SSH do
         .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-i", ssh_info[:private_key_path][0])
     end
 
+    context "when using '%' in a private_key_path" do
+      let(:private_key_path) { "/tmp/percent%folder" }
+      let(:ssh_info) {{
+        host: "localhost",
+        port: 2222,
+        username: "vagrant",
+        private_key_path: [private_key_path],
+        compression: true,
+        dsa_authentication: true
+      }}
+
+      let(:ssh_path) { "/usr/bin/ssh" }
+
+      it "uses the IdentityFile argument and escapes the '%' character" do
+        allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
+        described_class.exec(ssh_info)
+
+        expect(Vagrant::Util::SafeExec).to have_received(:exec)
+          .with(ssh_path, "vagrant@localhost", "-p", "2222", "-o", "LogLevel=FATAL","-o", "Compression=yes", "-o", "DSAAuthentication=yes", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "-o", "IdentityFile=\"/tmp/percent%%folder\"")
+      end
+    end
+
     context "when disabling compression or dsa_authentication flags" do
       let(:ssh_info) {{
         host: "localhost",
