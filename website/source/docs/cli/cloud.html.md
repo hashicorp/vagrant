@@ -168,7 +168,6 @@ The `cloud provider` command is used to manage the life cycle operations for all
 
 **Command: `vagrant cloud provider create ORGANIZATION/BOX-NAME PROVIDER-NAME VERSION [URL]`**
 
-
 The provider create command is used to create a new provider entry on Vagrant Cloud.
 The `url` argument is expected to be a remote URL that Vagrant Cloud can use
 to download the provider. If no `url` is specified, the provider entry can be updated
@@ -222,7 +221,7 @@ the information required before creating or updating a new box.
 Creating a new box on Vagrant Cloud:
 
 ```text
-$ vagrant cloud publish briancain/supertest 1.0.0 virtualbox boxes/my/virtualbox.box -d "A really cool box to download and use" --version-description "A cool version" --release --short-description "Donwload me!"
+$ vagrant cloud publish briancain/supertest 1.0.0 virtualbox boxes/my/virtualbox.box -d "A really cool box to download and use" --version-description "A cool version" --release --short-description "Download me!"
 You are about to create a box on Vagrant Cloud with the following options:
 briancain/supertest (1.0.0) for virtualbox
 Automatic Release:     true
@@ -244,7 +243,7 @@ downloads:            0
 created_at:           2018-07-25T17:53:04.340Z
 updated_at:           2018-07-25T18:01:10.665Z
 short_description:    Download me!
-description_markdown: A reall cool box to download and use
+description_markdown: A really cool box to download and use
 current_version:      1.0.0
 providers:            virtualbox
 ```
