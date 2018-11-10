@@ -75,6 +75,14 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
   end
 
   describe ".elevated" do
+    let(:username) { double("username") }
+
+    before do
+      allow(subject).to receive(:elevated_username).and_return(username)
+      allow(shell).to receive(:username).and_return(username)
+      allow(shell).to receive(:username=)
+    end
+
     it "should call winrm elevated" do
       expect(shell).to receive(:run).with("dir").and_return(output)
       expect(shell).to receive(:interactive_logon=).with(false)
@@ -92,6 +100,13 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
         StandardError.new("Oh no! a 500 SOAP error!"))
       expect { subject.powershell("dir") }.to raise_error(
         VagrantPlugins::CommunicatorWinRM::Errors::ExecutionError)
+    end
+
+    it "should use elevated username" do
+      expect(subject).to receive(:elevated_username).and_return(username)
+      expect(shell).to receive(:run).with("dir").and_return(output)
+      expect(shell).to receive(:interactive_logon=).with(false)
+      expect(subject.elevated("dir").exitcode).to eq(0)
     end
   end
 
@@ -178,4 +193,41 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     end
   end
 
+  describe "#elevated_username" do
+    let(:username) { "username" }
+
+    before do
+      allow(subject).to receive(:username).and_return(username)
+      allow(subject).to receive(:powershell)
+    end
+
+    it "should return username" do
+      expect(subject.send(:elevated_username)).to eq(username)
+    end
+
+    it "should attempt to get computer name" do
+      expect(subject).to receive(:powershell).with(/computername/)
+      subject.send(:elevated_username)
+    end
+
+    it "should prepend computer name when available" do
+      expect(subject).to receive(:powershell).with(/computername/).and_yield(:stdout, "COMPUTERNAME")
+      expect(subject.send(:elevated_username)).to eq("COMPUTERNAME\\#{username}")
+    end
+
+    it "should only compute elevated username once" do
+      expect(subject).to receive(:powershell).once.with(/computername/).and_yield(:stdout, "COMPUTERNAME")
+      expect(subject.send(:elevated_username)).to eq("COMPUTERNAME\\#{username}")
+      expect(subject.send(:elevated_username)).to eq("COMPUTERNAME\\#{username}")
+    end
+
+    context "when username includes computer/domain name" do
+      let(:username) { "machine\\username" }
+
+      it "should not attempt to get computer name" do
+        expect(subject).not_to receive(:powershell)
+        expect(subject.send(:elevated_username)).to eq(username)
+      end
+    end
+  end
 end
