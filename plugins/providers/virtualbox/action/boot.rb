@@ -15,6 +15,9 @@ module VagrantPlugins
           env[:ui].info I18n.t("vagrant.actions.vm.boot.booting")
           env[:machine].provider.driver.start(boot_mode)
 
+          # Delay for comunicator start while os booting
+          sleep(env[:machine].config.vm.booting_wait)
+
           @app.call(env)
         end
       end
