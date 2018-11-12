@@ -150,11 +150,24 @@ module Vagrant
         if !plain_mode && options[:private_key_path]
           options[:private_key_path].each do |path|
 
-            # Use '-o' instead of '-i' because '-i' does not call
-            # percent_expand in misc.c, but '-o' does. when passing the path,
-            # replace '%' in the path with '%%' to escape the '%'
-            path = path.to_s.gsub('%', '%%')
-            command_options += ["-o", "IdentityFile=\"#{path}\""]
+            private_key_arr = []
+
+            if path.include?('%')
+              if path.include?(' ') && Platform.windows?
+                LOGGER.warn("Paths with spaces and % on windows is not supported and will fail to read the file")
+              end
+              # Use '-o' instead of '-i' because '-i' does not call
+              # percent_expand in misc.c, but '-o' does. when passing the path,
+              # replace '%' in the path with '%%' to escape the '%'
+              path = path.to_s.gsub('%', '%%')
+              private_key_arr = ["-o", "IdentityFile=\"#{path}\""]
+            else
+              # Pass private key file directly with '-i', which properly supports
+              # paths with spaces on Windows guests
+              private_key_arr = ["-i", path]
+            end
+
+            command_options += private_key_arr
           end
         end
 
