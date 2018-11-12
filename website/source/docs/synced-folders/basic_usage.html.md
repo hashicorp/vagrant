@@ -19,7 +19,7 @@ is very simple:
 Vagrant.configure("2") do |config|
   # other config here
 
-  config.vm.synced_folder "src/", "/srv/website"
+  config.vm.synced_folder "src/", "/src/website"
 end
 ```
 
@@ -80,7 +80,7 @@ any definition:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.synced_folder "src/", "/srv/website", disabled: true
+  config.vm.synced_folder "src/", "/src/website", disabled: true
 end
 ```
 
@@ -98,7 +98,7 @@ synced folder itself. If you want to modify the owner/group of the synced
 folder's parent folders use a script. It is possible to set these options:
 
 ```ruby
-config.vm.synced_folder "src/", "/srv/website",
+config.vm.synced_folder "src/", "/src/website",
   owner: "root", group: "root"
 ```
 
