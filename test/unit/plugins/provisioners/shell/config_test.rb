@@ -109,6 +109,31 @@ describe "VagrantPlugins::Shell::Config" do
         I18n.t("vagrant.provisioners.shell.env_must_be_a_hash")
       )
     end
+
+    it "returns an error if file and script are unset" do
+      subject.finalize!
+      result = subject.validate(machine)
+      expect(result["shell provisioner"]).to include(
+        I18n.t("vagrant.provisioners.shell.no_path_or_inline")
+      )
+    end
+
+    it "returns an error if inline and path are both set" do
+      subject.inline = "script"
+      subject.path = "script"
+      result = subject.validate(machine)
+      expect(result["shell provisioner"]).to include(
+        I18n.t("vagrant.provisioners.shell.path_and_inline_set")
+      )
+    end
+
+    it "returns no error when inline and path are unset but reset is true" do
+      subject.reset = true
+      subject.finalize!
+
+      result = subject.validate(machine)
+      expect(result["shell provisioner"]).to be_empty
+    end
   end
 
   describe 'finalize!' do

@@ -57,6 +57,13 @@ describe VagrantPlugins::CommunicatorWinRM::Communicator do
     end
   end
 
+  describe ".reset!" do
+    it "should create a new shell" do
+      expect(subject).to receive(:shell).with(true)
+      subject.reset!
+    end
+  end
+
   describe ".ready?" do
     it "returns true if hostname command executes without error" do
       expect(shell).to receive(:cmd).with("hostname").and_return({ exitcode: 0 })
