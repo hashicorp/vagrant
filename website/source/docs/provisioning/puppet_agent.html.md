@@ -19,7 +19,7 @@ the set of modules and manifests from there.
 
 <div class="alert alert-warning">
   <strong>Warning:</strong> If you are not familiar with Puppet and Vagrant already,
-  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
+  it is recommended to start with the <a href="/docs/provisioning/shell.html">shell
   provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
   is the best way to learn Puppet.
 </div>

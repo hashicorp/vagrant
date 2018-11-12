@@ -23,7 +23,7 @@ provisioner.
 
 <div class="alert alert-warning">
   <strong>Warning:</strong> If you are not familiar with Chef and Vagrant already,
-  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
+  it is recommended to start with the <a href="/docs/provisioning/shell.html">shell
   provisioner</a>.
 </div>
 
