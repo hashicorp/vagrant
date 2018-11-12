@@ -17,6 +17,7 @@ module VagrantPlugins
       attr_accessor :sensitive
       attr_accessor :powershell_args
       attr_accessor :powershell_elevated_interactive
+      attr_accessor :reset
 
       def initialize
         @args                  = UNSET_VALUE
@@ -31,6 +32,7 @@ module VagrantPlugins
         @keep_color            = UNSET_VALUE
         @name                  = UNSET_VALUE
         @sensitive             = UNSET_VALUE
+        @reset                 = UNSET_VALUE
         @powershell_args       = UNSET_VALUE
         @powershell_elevated_interactive  = UNSET_VALUE
       end
@@ -48,6 +50,7 @@ module VagrantPlugins
         @keep_color           = false if @keep_color == UNSET_VALUE
         @name                 = nil if @name == UNSET_VALUE
         @sensitive            = false if @sensitive == UNSET_VALUE
+        @reset                = false if @reset == UNSET_VALUE
         @powershell_args      = "-ExecutionPolicy Bypass" if @powershell_args == UNSET_VALUE
         @powershell_elevated_interactive = false if @powershell_elevated_interactive == UNSET_VALUE
 
@@ -68,7 +71,7 @@ module VagrantPlugins
         # Validate that the parameters are properly set
         if path && inline
           errors << I18n.t("vagrant.provisioners.shell.path_and_inline_set")
-        elsif !path && !inline
+        elsif !path && !inline && !reset
           errors << I18n.t("vagrant.provisioners.shell.no_path_or_inline")
         end
 
