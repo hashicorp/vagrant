@@ -26,6 +26,7 @@ BUG FIXES:
 - guest/debian: Fix halting issue when setting hostname by restarting networking on guest [GH-10301, GH-10330]
 - guest/windows: Add reboot capability to fix hostname race condition [GH-10347]
 - guest/windows: Allow for reading key paths with spaces [GH-10389]
+- host/windows: Fix powershell to properly handle paths with spaces [GH-10390]
 - providers/docker: Deterministic host VM synced folder location for Docker VM [GH-10311]
 - providers/hyperv: Fix network vlan configuration script [GH-10366]
 
