@@ -117,6 +117,13 @@ module Vagrant
         # @see #execute
         def test(command, opts=nil)
         end
+
+        # Reset the communicator. For communicators which establish
+        # a persistent connection to the remote machine, this connection
+        # should be terminated and re-established. The communicator
+        # instance should be in a "fresh" state after calling this method.
+        def reset!
+        end
       end
     end
   end
