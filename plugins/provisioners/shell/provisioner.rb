@@ -18,6 +18,10 @@ module VagrantPlugins
           args = " #{args.join(" ")}"
         end
 
+        # In cases where the connection is just being reset
+        # bail out before attempting to do any actual provisioning
+        return if !config.path && !config.inline
+
         case @machine.config.vm.communicator
         when :winrm
           provision_winrm(args)
@@ -26,6 +30,8 @@ module VagrantPlugins
         else
           provision_ssh(args)
         end
+      ensure
+        @machine.communicate.reset! if config.reset
       end
 
       protected

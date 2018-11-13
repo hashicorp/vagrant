@@ -69,11 +69,14 @@ module VagrantPlugins
           end
 
           # Got it! Let the user know what we're connecting to.
-          @machine.ui.detail("SSH address: #{ssh_info[:host]}:#{ssh_info[:port]}")
-          @machine.ui.detail("SSH username: #{ssh_info[:username]}")
-          ssh_auth_type = "private key"
-          ssh_auth_type = "password" if ssh_info[:password]
-          @machine.ui.detail("SSH auth method: #{ssh_auth_type}")
+          if !@ssh_info_notification
+            @machine.ui.detail("SSH address: #{ssh_info[:host]}:#{ssh_info[:port]}")
+            @machine.ui.detail("SSH username: #{ssh_info[:username]}")
+            ssh_auth_type = "private key"
+            ssh_auth_type = "password" if ssh_info[:password]
+            @machine.ui.detail("SSH auth method: #{ssh_auth_type}")
+            @ssh_info_notification = true
+          end
 
           previous_messages = {}
           while true
@@ -307,6 +310,15 @@ module VagrantPlugins
         raise Vagrant::Errors::SCPPermissionDenied,
           from: from.to_s,
           to: to.to_s
+      end
+
+      def reset!
+        if @connection
+          @connection.close
+          @connection = nil
+        end
+        @ssh_info_notification = true # suppress ssh info output
+        wait_for_ready(5)
       end
 
       protected

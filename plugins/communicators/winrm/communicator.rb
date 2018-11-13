@@ -121,6 +121,10 @@ module VagrantPlugins
         return false
       end
 
+      def reset!
+        shell(true)
+      end
+
       def shell(reload=false)
         @shell = nil if reload
         @shell ||= create_shell

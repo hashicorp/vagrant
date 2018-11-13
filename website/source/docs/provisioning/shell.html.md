@@ -43,30 +43,21 @@ The remainder of the available options are optional:
   etc. as needed. You may also pass the arguments in using an array. In this
   case, Vagrant will handle quoting for you.
 
-* `env` (hash) - List of key-value pairs to pass in as environment variables to
-  the script. Vagrant will handle quoting for environment variable values, but
-  the keys remain untouched.
-
 * `binary` (boolean) - Vagrant automatically replaces Windows line endings with
   Unix line endings. If this is false, then Vagrant will not do this. By default
   this is "false". If the shell provisioner is communicating over WinRM, this
   defaults to "true".
 
-* `privileged` (boolean) - Specifies whether to execute the shell script
-  as a privileged user or not (`sudo`). By default this is "true". Windows
-  guests use a scheduled task to run as a true administrator without the
-  WinRM limitations.
-
-* `upload_path` (string) - Is the remote path where the shell script will
-  be uploaded to. The script is uploaded as the SSH user over SCP, so this
-  location must be writable to that user. By default this is
-  "/tmp/vagrant-shell". On Windows, this will default to
-  "C:\tmp\vagrant-shell".
+* `env` (hash) - List of key-value pairs to pass in as environment variables to
+  the script. Vagrant will handle quoting for environment variable values, but
+  the keys remain untouched.
 
 * `keep_color` (boolean) - Vagrant automatically colors output in green and
   red depending on whether the output is from stdout or stderr. If this is
   true, Vagrant will not do this, allowing the native colors from the script
   to be outputted.
+
+* `md5` (string) - MD5 checksum used to validate remotely downloaded shell files.
 
 * `name` (string) - This value will be displayed in the output so that
   identification by the user is easier when many shell provisioners are present.
@@ -79,12 +70,24 @@ The remainder of the available options are optional:
   enable auto-login for Windows as the user must be logged in for interactive
   mode to work.
 
-* `md5` (string) - MD5 checksum used to validate remotely downloaded shell files.
+* `privileged` (boolean) - Specifies whether to execute the shell script
+  as a privileged user or not (`sudo`). By default this is "true". Windows
+  guests use a scheduled task to run as a true administrator without the
+  WinRM limitations.
+
+* `reset` (boolean) - Reset the communicator to the machine after completion. This
+  is useful when a shell may need to be reloaded.
 
 * `sha1` (string) - SHA1 checksum used to validate remotely downloaded shell files.
 
 * `sensitive` (boolean) - Marks the Hash values used in the `env` option as sensitive
   and hides them from output. By default this is "false".
+
+* `upload_path` (string) - Is the remote path where the shell script will
+  be uploaded to. The script is uploaded as the SSH user over SCP, so this
+  location must be writable to that user. By default this is
+  "/tmp/vagrant-shell". On Windows, this will default to
+  "C:\tmp\vagrant-shell".
 
 <a name="inline-scripts"></a>
 ## Inline Scripts

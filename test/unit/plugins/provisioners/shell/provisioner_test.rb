@@ -16,6 +16,52 @@ describe "Vagrant::Shell::Provisioner" do
     allow(env).to receive(:tmp_path).and_return(Pathname.new("/dev/null"))
   end
 
+  context "when reset is enabled" do
+    let(:path) { nil }
+    let(:inline) { "" }
+    let(:communicator) { double("communicator") }
+
+    let(:config) {
+      double(
+        :config,
+        :args        => "doesn't matter",
+        :env         => {},
+        :upload_path => "arbitrary",
+        :remote?     => false,
+        :path        => path,
+        :inline      => inline,
+        :binary      => false,
+        :reset       => true
+      )
+    }
+
+    let(:vsp) {
+      VagrantPlugins::Shell::Provisioner.new(machine, config)
+    }
+
+    before {
+      allow(machine).to receive(:communicate).and_return(communicator)
+      allow(vsp).to receive(:provision_ssh)
+    }
+
+    it "should provision and then reset the connection" do
+      expect(vsp).to receive(:provision_ssh)
+      expect(communicator).to receive(:reset!)
+      vsp.provision
+    end
+
+    context "when path and inline are not set" do
+      let(:path) { nil }
+      let(:inline) { nil }
+
+      it "should reset the connection and not provision" do
+        expect(vsp).not_to receive(:provision_ssh)
+        expect(communicator).to receive(:reset!)
+        vsp.provision
+      end
+    end
+  end
+
   context "with a script that contains invalid us-ascii byte sequences" do
     let(:config) {
       double(
@@ -27,6 +73,7 @@ describe "Vagrant::Shell::Provisioner" do
         :path        => nil,
         :inline      => script_that_is_incorrectly_us_ascii_encoded,
         :binary      => false,
+        :reset       => false
       )
     }
 
@@ -59,6 +106,7 @@ describe "Vagrant::Shell::Provisioner" do
         :path        => nil,
         :inline      => script,
         :binary      => false,
+        :reset       => false
       )
     }
 
@@ -87,7 +135,8 @@ describe "Vagrant::Shell::Provisioner" do
           :path        => "http://example.com/script.sh",
           :binary      => false,
           :md5         => nil,
-          :sha1        => 'EXPECTED_VALUE'
+          :sha1        => 'EXPECTED_VALUE',
+          :reset       => false
         )
       }
 
@@ -117,7 +166,8 @@ describe "Vagrant::Shell::Provisioner" do
           :path        => "http://example.com/script.sh",
           :binary      => false,
           :md5         => 'EXPECTED_VALUE',
-          :sha1        => nil
+          :sha1        => nil,
+          :reset       => false
         )
       }
 

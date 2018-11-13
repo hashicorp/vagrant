@@ -162,6 +162,26 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
     end
   end
 
+  describe "reset!" do
+    let(:connection) { double("connection") }
+
+    before do
+      allow(communicator).to receive(:wait_for_ready)
+      allow(connection).to receive(:close)
+      communicator.send(:instance_variable_set, :@connection, connection)
+    end
+
+    it "should close existing connection" do
+      expect(connection).to receive(:close)
+      communicator.reset!
+    end
+
+    it "should call wait_for_ready to re-enable the connection" do
+      expect(communicator).to receive(:wait_for_ready)
+      communicator.reset!
+    end
+  end
+
   describe ".ready?" do
     before(&connection_setup)
     it "returns true if shell test is successful" do

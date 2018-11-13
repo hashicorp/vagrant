@@ -9,6 +9,7 @@ module VagrantPlugins
             machine.communicate.tap do |comm|
               if comm.test("getent group docker") && !comm.test("id -Gn | grep docker")
                 comm.sudo("usermod -a -G docker #{ssh_info[:username]}")
+                comm.reset!
               end
             end
           end
