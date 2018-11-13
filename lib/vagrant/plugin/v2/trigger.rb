@@ -161,7 +161,11 @@ module Vagrant
         # @param [Provisioners::Shell::Config] config A Shell provisioner config
         def run(config, on_error, exit_codes)
           if config.inline
-            cmd = Shellwords.split(config.inline)
+            if Vagrant::Util::Platform.windows?
+              cmd = config.inline
+            else
+              cmd = Shellwords.split(config.inline)
+            end
 
             @machine.ui.detail(I18n.t("vagrant.trigger.run.inline", command: config.inline))
           else

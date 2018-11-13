@@ -181,7 +181,7 @@ describe Vagrant::Plugin::V2::Trigger do
       exit_codes = trigger.exit_codes
 
       expect(Vagrant::Util::PowerShell).to receive(:execute_inline).
-        with("echo", "hi", options)
+        with("echo 'hi'", options)
       subject.send(:run, shell_config, on_error, exit_codes)
     end
 
