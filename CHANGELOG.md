@@ -10,6 +10,7 @@ IMPROVEMENTS:
 - communicators/ssh: Prevent overly verbose output waiting for connection [GH-10321]
 - communicators/ssh: Support ed25519 keys [GH-10365]
 - core: Limit number of automatic box update checks [GH-10359]
+- host/windows: Remove PATH check in WSL detection [GH-10313]
 - providers/virtualbox: Add `automount` flag if specified with synced_folder [GH-10326]
 - providers/virtualbox: Refactor host only network settings [GH-7699]
 - providers/virtualbox: Support setting default NIC type for network adapters [GH-10383]
