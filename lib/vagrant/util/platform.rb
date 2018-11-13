@@ -43,11 +43,10 @@ module Vagrant
           if !defined?(@_wsl)
             @_wsl = false
             SilenceWarnings.silence! do
-              # Use PATH values to check for `/mnt/c` path indicative of WSL
-              if ENV.fetch("PATH", "").downcase.include?("/mnt/c")
-                # Validate WSL via uname output
-                uname = Subprocess.execute("uname", "-r")
-                if uname.exit_code == 0 && uname.stdout.downcase.include?("microsoft")
+              # Find 'microsoft' in /proc/version indicative of WSL
+              if File.file?('/proc/version')
+                osversion = File.open('/proc/version', &:gets)
+                if osversion.downcase.include?("microsoft")
                   @_wsl = true
                 end
               end
