@@ -85,7 +85,7 @@ function New-VagrantVMVMCX {
         VhdDestinationPath = Join-Path $DataPath "Virtual Hard Disks";
         VirtualMachinePath = $DataPath;
     }
-    $VMConfig = (Hyper-V\Compare-VM -Copy -GenerateNewID @NewVMConfig)
+    $VMConfig = (Hyper-V\Compare-VM -Copy -GenerateNewID @NewVMConfig -ErrorAction SilentlyContinue)
 
     # If the config is empty it means the import failed. Attempt to provide
     # context for failure
