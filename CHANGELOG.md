@@ -38,6 +38,7 @@ BUG FIXES:
 - providers/docker: Deterministic host VM synced folder location for Docker VM [GH-10311]
 - providers/hyperv: Fix network vlan configuration script [GH-10366]
 - providers/hyperv: Properly output error message on failed guest import [GH-10404]
+- providers/hyperv: Fix typo in network configuration detection script [GH-10410]
 
 ## 2.2.0 (October 16, 2018)
 
