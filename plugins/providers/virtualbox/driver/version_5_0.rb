@@ -689,12 +689,21 @@ module VagrantPlugins
         def ssh_port(expected_port)
           @logger.debug("Searching for SSH port: #{expected_port.inspect}")
 
-          # Look for the forwarded port only by comparing the guest port
-          read_forwarded_ports.each do |_, _, hostport, guestport|
-            return hostport if guestport == expected_port
-          end
+          # Look for the forwarded port. Valid based on the guest port, but will do
+          # scoring based matching to determine best value when multiple results are
+          # available.
+          matches = read_forwarded_ports.map do |_, name, hostport, guestport, host_ip|
+            next if guestport != expected_port
+            match = [0, hostport]
+            match[0] += 1 if name == "ssh"
+            match[0] += 1 if name.downcase == "ssh"
+            match[0] += 1 if host_ip == "127.0.0.1"
+            match
+          end.compact
 
-          nil
+          result = matches.sort_by(&:first).last
+
+          result.last if result
         end
 
         def resume

@@ -79,4 +79,57 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
       end
     end
   end
+
+  describe "#ssh_port" do
+    let(:forwards) {
+      [[1, "ssh", 2222, 22, "127.0.0.1"],
+        [1, "ssh", 8080, 80, ""]]
+    }
+
+    before { allow(subject).to receive(:read_forwarded_ports).and_return(forwards) }
+
+    it "should return the host port" do
+      expect(subject.ssh_port(22)).to eq(2222)
+    end
+
+    context "when multiple matches are available" do
+      let(:forwards) {
+        [[1, "ssh", 2222, 22, "127.0.0.1"],
+          [1, "", 2221, 22, ""]]
+      }
+
+      it "should choose localhost port forward" do
+        expect(subject.ssh_port(22)).to eq(2222)
+      end
+
+      context "when multiple named matches are available" do
+        let(:forwards) {
+          [[1, "ssh", 2222, 22, "127.0.0.1"],
+            [1, "SSH", 2221, 22, "127.0.0.1"]]
+        }
+
+        it "should choose lowercased name forward" do
+          expect(subject.ssh_port(22)).to eq(2222)
+        end
+      end
+    end
+
+    context "when only ports are defined" do
+      let(:forwards) {
+        [[1, "", 2222, 22, ""]]
+      }
+
+      it "should return the host port" do
+        expect(subject.ssh_port(22)).to eq(2222)
+      end
+    end
+
+    context "when no matches are available" do
+      let(:forwards) { [] }
+
+      it "should return nil" do
+        expect(subject.ssh_port(22)).to be_nil
+      end
+    end
+  end
 end
