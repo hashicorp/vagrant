@@ -18,6 +18,7 @@ IMPROVEMENTS:
 - providers/virtualbox: Add `automount` flag if specified with synced_folder [GH-10326]
 - providers/virtualbox: Refactor host only network settings [GH-7699]
 - providers/virtualbox: Support setting default NIC type for network adapters [GH-10383]
+- providers/virtualbox: Update ssh_port helper to handle multiple matches [GH-10409]
 - provisioners/shell: Add :reset option to allow communicator reset [GH-10399]
 - synced_folders/smb: Allow for 'default' smb_username in prompt if set [GH-10319]
 - util/network_ip: Simplify `network_address` helper [GH-7693]
