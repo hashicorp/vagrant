@@ -35,7 +35,7 @@ try {
         foreach ($macaddr in $macaddresses) {
             $macaddress = $macaddr.MacAddress -replace '(.{2})(?!$)', '${1}-'
             $addr = Get-NetNeighbor -LinkLayerAddress $macaddress -ErrorAction SilentlyContinue | select IPAddress
-            if ($ip_address) {
+            if ($addr) {
                 $ip_address = $addr.IPAddress
                 if ($ip_address.Contains(".")) {
                     $ip4_address = $ip_address
