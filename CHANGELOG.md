@@ -2,6 +2,7 @@
 
 FEATURES:
 
+- core/plugins: Add reset! method to communicator [GH-10399]
 - providers/virtualbox: Add support for VirtualBox 6.0 [GH-10379]
 
 IMPROVEMENTS:
@@ -9,11 +10,14 @@ IMPROVEMENTS:
 - command/validate: Allow validation of config while ignoring provider [GH-10351]
 - communicators/ssh: Prevent overly verbose output waiting for connection [GH-10321]
 - communicators/ssh: Support ed25519 keys [GH-10365]
+- communicators/ssh: Add reset! implementation [GH-10399]
+- communicators/winrm: Add reset! implementation [GH-10399]
 - core: Limit number of automatic box update checks [GH-10359]
 - host/windows: Remove PATH check in WSL detection [GH-10313]
 - providers/virtualbox: Add `automount` flag if specified with synced_folder [GH-10326]
 - providers/virtualbox: Refactor host only network settings [GH-7699]
 - providers/virtualbox: Support setting default NIC type for network adapters [GH-10383]
+- provisioners/shell: Add :reset option to allow communicator reset [GH-10399]
 - synced_folders/smb: Allow for 'default' smb_username in prompt if set [GH-10319]
 - util/network_ip: Simplify `network_address` helper [GH-7693]
 - util/platform: Prevent hard failure during hyper-v enabled check [GH-10332]
@@ -25,6 +29,7 @@ BUG FIXES:
 - core/bundler: Update source ordering to properly resolve with new RubyGems [GH-10364]
 - communicator/winrm: Prepend computer name to username when running elevated commands [GH-10387]
 - guest/debian: Fix halting issue when setting hostname by restarting networking on guest [GH-10301, GH-10330]
+- guest/linux: Fix vagrant user access to docker after install [GH-10399]
 - guest/windows: Add reboot capability to fix hostname race condition [GH-10347]
 - guest/windows: Allow for reading key paths with spaces [GH-10389]
 - host/windows: Fix powershell to properly handle paths with spaces [GH-10390]
