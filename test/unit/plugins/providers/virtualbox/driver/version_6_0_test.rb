@@ -1,12 +1,12 @@
 require "pathname"
 require_relative "../base"
 
-describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
+describe VagrantPlugins::ProviderVirtualBox::Driver::Version_6_0 do
   include_context "virtualbox"
 
-  let(:vbox_version) { "5.0.0" }
+  let(:vbox_version) { "6.0.0" }
 
-  subject { VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0.new(uuid) }
+  subject { VagrantPlugins::ProviderVirtualBox::Driver::Version_6_0.new(uuid) }
 
   it_behaves_like "a version 4.x virtualbox driver"
   it_behaves_like "a version 5.x virtualbox driver"
@@ -19,29 +19,35 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
 Interpreting /home/user/.vagrant.d/boxes/hashicorp-VAGRANTSLASH-precise64/1.1.0/virtualbox/box.ovf...
 OK.
 Disks:
-   vmdisk1       85899345920     -1      http://www.vmware.com/interfaces/specifications/vmdk.html#streamOptimized       box-disk1.vmdk  -1      -1
+  vmdisk1       85899345920     -1      http://www.vmware.com/interfaces/specifications/vmdk.html#streamOptimized       box-disk1.vmdk  -1      -1
 
 Virtual system 0:
  0: Suggested OS type: "Ubuntu_64"
     (change with "--vsys 0 --ostype <type>"; use "list ostypes" to list all possible values)
  1: Suggested VM name "precise64"
     (change with "--vsys 0 --vmname <name>")
- 2: Number of CPUs: 2
+ 2: Suggested VM group "/"
+    (change with "--vsys 0 --group <group>")
+ 3: Suggested VM settings file name "/home/user/VirtualBox VMs/precise64/precise64.vbox"
+    (change with "--vsys 0 --settingsfile <filename>")
+ 4: Suggested VM base folder "/home/vagrant/VirtualBox VMs"
+    (change with "--vsys 0 --basefolder <path>")
+ 5: Number of CPUs: 2
     (change with "--vsys 0 --cpus <n>")
- 3: Guest memory: 384 MB
+ 6: Guest memory: 384 MB
     (change with "--vsys 0 --memory <MB>")
- 4: Network adapter: orig NAT, config 3, extra slot=0;type=NAT
- 5: CD-ROM
-    (disable with "--vsys 0 --unit 5 --ignore")
- 6: IDE controller, type PIIX4
-    (disable with "--vsys 0 --unit 6 --ignore")
- 7: IDE controller, type PIIX4
-   (disable with "--vsys 0 --unit 7 --ignore")
- 8: SATA controller, type AHCI
+ 7: Network adapter: orig NAT, config 3, extra slot=0;type=NAT
+ 8: CD-ROM
     (disable with "--vsys 0 --unit 8 --ignore")
- 9: Hard disk image: source image=box-disk1.vmdk, target path=/home/user/VirtualBox VMs/precise64/box-disk1.vmdk, controller=8;channel=0
-    (change target path with "--vsys 0 --unit 9 --disk path";
-    disable with "--vsys 0 --unit 9 --ignore")
+ 9: IDE controller, type PIIX4
+    (disable with "--vsys 0 --unit 9 --ignore")
+10: IDE controller, type PIIX4
+    (disable with "--vsys 0 --unit 10 --ignore")
+11: SATA controller, type AHCI
+    (disable with "--vsys 0 --unit 11 --ignore")
+12: Hard disk image: source image=box-disk1.vmdk, target path=box-disk1.vmdk, controller=11;channel=0
+    (change target path with "--vsys 0 --unit 12 --disk path";
+    disable with "--vsys 0 --unit 12 --ignore")
 OUTPUT
     }
 
