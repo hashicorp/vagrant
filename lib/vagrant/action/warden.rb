@@ -1,4 +1,7 @@
 require "log4r"
+require 'vagrant/util/experimental'
+require 'vagrant/action/builtin/before_trigger'
+require 'vagrant/action/builtin/after_trigger'
 
 module Vagrant
   module Action
@@ -16,8 +19,19 @@ module Vagrant
       attr_accessor :actions, :stack
 
       def initialize(actions, env)
+        if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+          if env[:trigger_env]
+            @env = env[:trigger_env]
+          else
+            @env = env[:env]
+          end
+
+          ui = Vagrant::UI::Prefixed.new(@env.ui, "vargant")
+          @triggers = Vagrant::Plugin::V2::Trigger.new(@env, @env.vagrantfile.config.trigger, nil, ui)
+        end
+
         @stack      = []
-        @actions    = actions.map { |m| finalize_action(m, env) }
+        @actions    = actions.map { |m| finalize_action(m, env) }.flatten
         @logger     = Log4r::Logger.new("vagrant::action::warden")
         @last_error = nil
       end
@@ -87,7 +101,28 @@ module Vagrant
         if klass.is_a?(Class)
           # A action klass which is to be instantiated with the
           # app, env, and any arguments given
-          klass.new(self, env, *args, &block)
+
+          # TODO: This wraps EVERY action in a proc, which means the recover method
+          # is never called EVER.
+          #
+          # Maybe instead of a lambda, make a new Action class for triggers, where
+          # the class has a "namespace" param so it knows when to properly
+          # fire before or after the action it is wrapped around
+          #
+          #lambda { |e|
+          #  @triggers.fire_triggers(klass.name.to_sym, :before, nil, :action) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers");
+          #  klass.new(self, env, *args, &block).call(e);
+          #  @triggers.fire_triggers(klass.name.to_sym, :after, nil, :action) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+          #}
+          klass_name = klass.class.name.to_sym
+          [Vagrant::Action::Builtin::BeforeTriggerAction.new(self, env,
+                                                             klass_name,
+                                                             @triggers),
+           klass.new(self, env, *args, &block),
+           Vagrant::Action::Builtin::AfterTriggerAction.new(self, env,
+                                                            klass_name,
+                                                            @triggers)]
+          #klass.new(self, env, *args, &block)
         elsif klass.respond_to?(:call)
           # Make it a lambda which calls the item then forwards
           # up the chain

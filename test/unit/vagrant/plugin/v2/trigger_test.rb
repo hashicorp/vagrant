@@ -17,9 +17,10 @@ describe Vagrant::Plugin::V2::Trigger do
       allow(m).to receive(:state).and_return(state)
     end
   end
+  let(:ui) { Vagrant::UI::Silent.new }
   let(:env) { {
     machine: machine,
-    ui: Vagrant::UI::Silent.new,
+    ui: ui,
   } }
 
   let(:triggers) { VagrantPlugins::Kernel_V2::TriggerConfig.new }
@@ -36,19 +37,33 @@ describe Vagrant::Plugin::V2::Trigger do
   end
 
 
-  let(:subject) { described_class.new(env, triggers, machine) }
+  let(:subject) { described_class.new(env, triggers, machine, ui) }
 
   context "#fire_triggers" do
     it "raises an error if an inproper stage is given" do
-      expect{ subject.fire_triggers(:up, :not_real, "guest") }.
+      expect{ subject.fire_triggers(:up, :not_real, "guest", :action) }.
        to raise_error(Vagrant::Errors::TriggersNoStageGiven)
+    end
+
+    it "does not fire triggers if community plugin is detected" do
+      allow(subject).to receive(:community_plugin_detected?).and_return(true)
+
+      expect(subject).not_to receive(:fire)
+      subject.fire_triggers(:up, :before, "guest", :action)
+    end
+
+    it "does fire triggers if community plugin is not detected" do
+      allow(subject).to receive(:community_plugin_detected?).and_return(false)
+
+      expect(subject).to receive(:fire)
+      subject.fire_triggers(:up, :before, "guest", :action)
     end
   end
 
   context "#filter_triggers" do
     it "returns all triggers if no constraints" do
       before_triggers = triggers.before_triggers
-      filtered_triggers = subject.send(:filter_triggers, before_triggers, "guest")
+      filtered_triggers = subject.send(:filter_triggers, before_triggers, "guest", :action)
       expect(filtered_triggers).to eq(before_triggers)
     end
 
@@ -59,7 +74,7 @@ describe Vagrant::Plugin::V2::Trigger do
 
       after_triggers = triggers.after_triggers
       expect(after_triggers.size).to eq(3)
-      subject.send(:filter_triggers, after_triggers, "ubuntu")
+      subject.send(:filter_triggers, after_triggers, "ubuntu", :action)
       expect(after_triggers.size).to eq(2)
     end
 
@@ -70,7 +85,7 @@ describe Vagrant::Plugin::V2::Trigger do
 
       after_triggers = triggers.after_triggers
       expect(after_triggers.size).to eq(3)
-      subject.send(:filter_triggers, after_triggers, "ubuntu-guest")
+      subject.send(:filter_triggers, after_triggers, "ubuntu-guest", :action)
       expect(after_triggers.size).to eq(3)
     end
 
@@ -81,7 +96,7 @@ describe Vagrant::Plugin::V2::Trigger do
 
       after_triggers = triggers.after_triggers
       expect(after_triggers.size).to eq(3)
-      subject.send(:filter_triggers, after_triggers, "ubuntu-guest")
+      subject.send(:filter_triggers, after_triggers, "ubuntu-guest", :action)
       expect(after_triggers.size).to eq(3)
     end
   end
@@ -101,7 +116,7 @@ describe Vagrant::Plugin::V2::Trigger do
 
     it "prints messages at INFO" do
       output = ""
-      allow(machine.ui).to receive(:info) do |data|
+      allow(ui).to receive(:info) do |data|
         output << data
       end
 
@@ -115,7 +130,7 @@ describe Vagrant::Plugin::V2::Trigger do
 
     it "prints messages at WARN" do
       output = ""
-      allow(machine.ui).to receive(:warn) do |data|
+      allow(ui).to receive(:warn) do |data|
         output << data
       end
 

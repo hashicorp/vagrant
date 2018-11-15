@@ -110,7 +110,7 @@ module Vagrant
       @ui              = Vagrant::UI::Prefixed.new(@env.ui, @name)
       @ui_mutex        = Mutex.new
       @state_mutex     = Mutex.new
-      @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self)
+      @triggers        = Vagrant::Plugin::V2::Trigger.new(@env, @config.trigger, self, @ui)
 
       # Read the ID, which is usually in local storage
       @id = nil
@@ -160,10 +160,7 @@ module Vagrant
     #   as extra data set on the environment hash for the middleware
     #   runner.
     def action(name, opts=nil)
-      plugins = Vagrant::Plugin::Manager.instance.installed_plugins
-      if !plugins.keys.include?("vagrant-triggers")
-        @triggers.fire_triggers(name, :before, @name.to_s)
-      end
+      @triggers.fire_triggers(name, :before, @name.to_s, :action)
 
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
@@ -175,6 +172,10 @@ module Vagrant
 
       # Extra env keys are the remaining opts
       extra_env = opts.dup
+      # An environment is required for triggers to function properly. This is
+      # passed in specifically for the `#Action::Warden` class triggers. We call it
+      # `:trigger_env` instead of `env` in case it collides with an existing environment
+      extra_env[:trigger_env] = @env
 
       check_cwd # Warns the UI if the machine was last used on a different dir
 
@@ -210,9 +211,7 @@ module Vagrant
         action_result
       end
 
-      if !plugins.keys.include?("vagrant-triggers")
-        @triggers.fire_triggers(name, :after, @name.to_s)
-      end
+      @triggers.fire_triggers(name, :after, @name.to_s, :action)
       # preserve returning environment after machine action runs
       return return_env
     rescue Errors::EnvironmentLockedError

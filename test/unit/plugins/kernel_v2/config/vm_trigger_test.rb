@@ -71,6 +71,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       cfg.only_on = :guest
       cfg.ignore = "up"
       cfg.abort = true
+      cfg.type = "action"
       cfg.ruby do
         var = 1+1
       end
@@ -111,6 +112,11 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
       cfg.finalize!
 
       expect(cfg.abort).to eq(1)
+    end
+
+    it "converts types to symbols" do
+      cfg.finalize!
+      expect(cfg.type).to eq(:action)
     end
   end
 
