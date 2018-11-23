@@ -6,9 +6,9 @@ module VagrantPlugins
           machine.communicate.sudo <<-EOH.gsub(/^ {12}/, '')
             if command -v dnf; then
               if `dnf info -q libnfs-utils > /dev/null 2>&1` ; then 
-                dnf -y install nfs-utils libnfs-utils portmap
-              else
                 dnf -y install nfs-utils nfs-utils-lib portmap
+              else
+                dnf -y install nfs-utils libnfs-utils portmap
               fi
             else
               yum -y install nfs-utils nfs-utils-lib portmap
