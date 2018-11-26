@@ -43,22 +43,14 @@ end
 
 ## Default NIC Type
 
-By default Vagrant will set the NIC type for all network interfaces to
-`"virtio"`. If you would rather a different NIC type be used as the
-default for guests:
+By default Vagrant will not set the NIC type for network interfaces. This
+allows VirtualBox to apply the default NIC type for the guest. If you would
+like to use a specific NIC type by default for guests, set the `default_nic_type`
+option:
 
 ```ruby
 config.vm.provider "virtualbox" do |v|
   v.default_nic_type = "82543GC"
-end
-```
-
-or if you would like to disable the default type so VirtualBox's default
-is applied you can set the value to `nil`:
-
-```ruby
-config.vm.provider "virtualbox" do |v|
-  v.default_nic_type = nil
 end
 ```
 

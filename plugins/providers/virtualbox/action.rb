@@ -42,6 +42,7 @@ module VagrantPlugins
       autoload :PrepareForwardedPortCollisionParams, File.expand_path("../action/prepare_forwarded_port_collision_params", __FILE__)
       autoload :Resume, File.expand_path("../action/resume", __FILE__)
       autoload :SaneDefaults, File.expand_path("../action/sane_defaults", __FILE__)
+      autoload :SetDefaultNICType, File.expand_path("../action/set_default_nic_type", __FILE__)
       autoload :SetName, File.expand_path("../action/set_name", __FILE__)
       autoload :SnapshotDelete, File.expand_path("../action/snapshot_delete", __FILE__)
       autoload :SnapshotRestore, File.expand_path("../action/snapshot_restore", __FILE__)
@@ -71,6 +72,7 @@ module VagrantPlugins
           b.use SyncedFolderCleanup
           b.use SyncedFolders
           b.use PrepareNFSSettings
+          b.use SetDefaultNICType
           b.use ClearNetworkInterfaces
           b.use Network
           b.use NetworkFixIPv6
