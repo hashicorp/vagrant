@@ -2300,6 +2300,17 @@ en:
           mounting: Mounting shared folders...
           mounting_entry: "%{guestpath} => %{hostpath}"
           nomount_entry: "Automounting disabled: %{hostpath}"
+        set_default_nic_type:
+          e1000_warning: |-
+            Vagrant has detected a configuration issue which exposes a
+            vulnerability with the installed version of VirtualBox. The
+            current guest is configured to use an E1000 NIC type for a
+            network adapter which is vulnerable in this version of VirtualBox.
+            Ensure the guest is trusted to use this configuration or update
+            the NIC type using one of the methods below:
+
+              https://www.vagrantup.com/docs/virtualbox/configuration.html#default-nic-type
+              https://www.vagrantup.com/docs/virtualbox/networking.html#virtualbox-nic-type
         set_name:
           setting_name: |-
             Setting the name of the VM: %{name}

@@ -20,8 +20,8 @@ module VagrantPlugins
       attr_reader :customizations
 
       # Set the default type of NIC hardware to be used for network
-      # devices. By default this is "virtio". If it is set to `nil`
-      # no type will be set and VirtualBox's default will be used.
+      # devices. By default this is `nil` and VirtualBox's default
+      # will be used.
       #
       # @return [String]
       attr_accessor :default_nic_type
@@ -167,8 +167,7 @@ module VagrantPlugins
         # The default name is just nothing, and we default it
         @name = nil if @name == UNSET_VALUE
 
-        @default_nic_type = "virtio" if @default_nic_type == UNSET_VALUE
-        set_default_nic_type! if @default_nic_type
+        @default_nic_type = nil if @default_nic_type == UNSET_VALUE
       end
 
       def validate(machine)
@@ -199,15 +198,6 @@ module VagrantPlugins
         end
 
         { "VirtualBox Provider" => errors }
-      end
-
-      def set_default_nic_type!
-        network_adapters.each do |_, args|
-          _, opts = args
-          if opts && !opts.key?(:nic_type)
-            opts[:nic_type] = @default_nic_type
-          end
-        end
       end
 
       def to_s
