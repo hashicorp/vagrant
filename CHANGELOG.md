@@ -1,4 +1,4 @@
-## Next version (Unreleased)
+## 2.2.2 (November 27, 2018)
 
 BUG FIXES:
 
