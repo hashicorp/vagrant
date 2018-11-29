@@ -1,10 +1,8 @@
-## Next version (Unreleased)
-
-FEATURES:
-
-IMPROVEMENTS:
+## 2.2.2 (November 27, 2018)
 
 BUG FIXES:
+
+- providers/virtualbox: Update default_nic_type implementation and add warning [GH-10450]
 
 ## 2.2.1 (November 15, 2018)
 

@@ -1,11 +1,11 @@
 set :base_url, "https://www.vagrantup.com/"
 
 set :vmware_utility_name, "vagrant-vmware-utility"
-set :vmware_utility_version, "1.0.5"
+set :vmware_utility_version, "1.0.6"
 
 activate :hashicorp do |h|
   h.name         = "vagrant"
-  h.version      = "2.2.1"
+  h.version      = "2.2.2"
   h.github_slug  = "hashicorp/vagrant"
   h.website_root = "website"
 end
