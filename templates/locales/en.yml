@@ -568,6 +568,11 @@ en:
         a new box. This box, in turn, specified a different box. This isn't
         allowed, as it could lead to infinite recursion of Vagrant configuration
         loading. Please fix this.
+      box_file_not_exist: |-
+        The file you are attempting to upload does not exist. Please recheck
+        that the file exists and was passed in correctly.
+
+        File: %{file}
       box_metadata_corrupted: |-
         The metadata associated with the box '%{name}' appears corrupted.
         This is most often caused by a disk issue or system crash. Please
