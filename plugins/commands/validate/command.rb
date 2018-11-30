@@ -72,7 +72,6 @@ module VagrantPlugins
         Vagrant.plugin("2").manager.providers.each do |key, data|
           data[0].class_eval do
             def initialize(machine)
-              @machine = machine
             end
 
             def machine_id_changed
