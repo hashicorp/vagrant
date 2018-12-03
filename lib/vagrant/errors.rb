@@ -160,6 +160,10 @@ module Vagrant
       error_key(:box_config_changing_box)
     end
 
+    class BoxFileNotExist < VagrantError
+      error_key(:box_file_not_exist)
+    end
+
     class BoxMetadataCorrupted < VagrantError
       error_key(:box_metadata_corrupted)
     end

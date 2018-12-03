@@ -9,7 +9,7 @@ module VagrantPlugins
           options = {}
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant cloud publish [options] organization/box-name version provider-name [provider-file]"
+            o.banner = "Usage: vagrant cloud publish [options] organization/box-name version provider-name provider-file"
             o.separator ""
             o.separator "Create and release a new Vagrant Box on Vagrant Cloud"
             o.separator ""
@@ -48,19 +48,26 @@ module VagrantPlugins
           # Parse the options
           argv = parse_options(opts)
           return if !argv
+
           if argv.empty? || argv.length > 4 || argv.length < 3
             raise Vagrant::Errors::CLIInvalidUsage,
               help: opts.help.chomp
           end
-
-          @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
 
           box = argv.first.split('/', 2)
           org = box[0]
           box_name = box[1]
           version = argv[1]
           provider_name = argv[2]
-          box_file = argv[3] # path expand
+          box_file = argv[3]
+
+          if !options[:url] && !File.file?(box_file)
+            raise Vagrant::Errors::BoxFileNotExist,
+              file: box_file
+          end
+
+          @client = VagrantPlugins::CloudCommand::Util.client_login(@env, options[:username])
+
           publish_box(org, box_name, version, provider_name, box_file, options, @client.token)
         end
 
