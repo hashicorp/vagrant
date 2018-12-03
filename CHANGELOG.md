@@ -3,6 +3,7 @@
 BUG FIXES:
 
 - providers/virtualbox: Update default_nic_type implementation and add warning [GH-10450]
+- command/validate: Bypass install checks for validating configs with the `--ignore-provider` flag [GH-10467]
 
 ## 2.2.1 (November 15, 2018)
 
