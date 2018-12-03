@@ -177,6 +177,10 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.salt.python_version")
         end
 
+        if @version && !@install_type
+          errors << I18n.t("vagrant.provisioners.salt.version_type_missing")
+        end
+
         return {"salt provisioner" => errors}
       end
     end
