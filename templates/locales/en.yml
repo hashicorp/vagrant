@@ -2706,9 +2706,11 @@ en:
         must_accept_keys: |-
           You must accept keys when running highstate with master!
         args_array: |-
-          You must set this value as an array.
+          You must set `args_array` value as an array.
         python_version: |-
-          You must set this as an integer or string that represents an integer.
+          You must set `python_version` as an integer or string that represents an integer.
+        version_type_missing: |-
+          You must set the option `install_type` when specifying a `version`.
 
     pushes:
       file:
