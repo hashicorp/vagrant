@@ -30,7 +30,7 @@ module VagrantPlugins
         action_env = {}
         if options[:ignore_provider]
           action_env[:ignore_provider] = true
-          mockup_providers!
+          tmp_data_dir = mockup_providers!
         end
 
         # Validate the configuration of all machines
@@ -42,6 +42,8 @@ module VagrantPlugins
 
         # Success, exit status 0
         0
+      ensure
+        FileUtils.remove_entry tmp_data_dir if tmp_data_dir
       end
 
       protected
@@ -51,6 +53,8 @@ module VagrantPlugins
       # It essentially ignores that there are no installed or usable prodivers so
       # that Vagrant can go along and validate the rest of the Vagrantfile and ignore
       # any provider blocks.
+      #
+      # return [String] tmp_data_dir - Temporary dir used to store guest metadata during validation
       def mockup_providers!
         require 'log4r'
         logger = Log4r::Logger.new("vagrant::validate")
@@ -93,6 +97,7 @@ module VagrantPlugins
             end
           end
         end
+        tmp_data_dir
       end
     end
   end
