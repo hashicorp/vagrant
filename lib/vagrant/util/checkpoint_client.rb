@@ -159,11 +159,11 @@ module Vagrant
       def version_check
         latest_version = Gem::Version.new(result["current_version"])
         installed_version = Gem::Version.new(VERSION)
-        ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
+        ui = Vagrant::UI::Prefixed.new(Vagrant::UI::Basic.new, "vagrant")
         if latest_version > installed_version
           @logger.info("new version of Vagrant available - #{latest_version}")
-          ui.info(I18n.t("vagrant.version_upgrade_available", latest_version: latest_version, installed_version: installed_version))
-          env.ui.info("")
+          ui.error(I18n.t("vagrant.version_upgrade_available", latest_version: latest_version, installed_version: installed_version))
+          env.ui.error("")
         else
           @logger.debug("vagrant is currently up to date")
         end
