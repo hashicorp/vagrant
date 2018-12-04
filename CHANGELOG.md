@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - providers/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
+- command/snapshot: Raise error for bad subcommand [GH-10470]
 
 BUG FIXES:
 
