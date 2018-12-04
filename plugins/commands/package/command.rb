@@ -87,7 +87,10 @@ module VagrantPlugins
           acc
         end
 
-        vm.action(:package, opts)
+        env = vm.action(:package, opts)
+        temp_dir = env["export.temp_dir"]
+      ensure
+        FileUtils.rm_rf(temp_dir) if temp_dir
       end
     end
   end
