@@ -37,7 +37,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ChangeHostName" do
     it "sets the hostname if not set" do
       comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
       cap.change_host_name(machine, name)
-      expect(comm.received_commands[1]).to match(/echo 'banana-rama' > \/etc\/hostname/)
+      expect(comm.received_commands[1]).to match(/echo 'banana-rama' >| \/etc\/hostname/)
     end
 
     context "when hostnamectl is in use" do

@@ -9,7 +9,7 @@ module VagrantPlugins
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
-              echo '#{name}' > /etc/hostname
+              echo '#{name}' >| /etc/hostname
               hostname '#{name}'
 
               # Prepend ourselves to /etc/hosts

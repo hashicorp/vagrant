@@ -27,7 +27,7 @@ module VagrantPlugins
 install_backports_if_wheezy_release = <<INLINE_CRIPT
 CODENAME=`lsb_release -cs`
 if [ x$CODENAME == 'xwheezy' ]; then
-  echo 'deb http://http.debian.net/debian wheezy-backports main' > /etc/apt/sources.list.d/wheezy-backports.list
+  echo 'deb http://http.debian.net/debian wheezy-backports main' >| /etc/apt/sources.list.d/wheezy-backports.list
 fi
 INLINE_CRIPT
 

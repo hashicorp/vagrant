@@ -62,8 +62,8 @@ module VagrantPlugins
 
           machine.communicate.tap do |comm|
             comm.sudo("networksetup -detectnewhardware")
-            comm.sudo("networksetup -listnetworkserviceorder > /tmp/vagrant.interfaces")
-            comm.sudo("networksetup -listallhardwareports > /tmp/vagrant.hardware")
+            comm.sudo("networksetup -listnetworkserviceorder >| /tmp/vagrant.interfaces")
+            comm.sudo("networksetup -listallhardwareports >| /tmp/vagrant.hardware")
             comm.download("/tmp/vagrant.interfaces", tmp_ints)
             comm.download("/tmp/vagrant.hardware", tmp_hw)
           end

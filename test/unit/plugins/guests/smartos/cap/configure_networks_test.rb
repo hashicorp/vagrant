@@ -52,7 +52,7 @@ describe "VagrantPlugins::VagrantPlugins::Cap::ConfigureNetworks" do
       end
 
       it "starts writes out a hostname file" do
-        communicator.expect_command(%Q(pfexec sh -c "echo '1.1.1.1' > /etc/hostname.#{device}"))
+        communicator.expect_command(%Q(pfexec sh -c "echo '1.1.1.1' >| /etc/hostname.#{device}"))
         plugin.configure_networks(machine, [network])
       end
     end

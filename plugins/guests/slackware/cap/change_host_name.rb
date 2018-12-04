@@ -10,7 +10,7 @@ module VagrantPlugins
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
               # Set the hostname
               chmod o+w /etc/hostname
-              echo '#{name}' > /etc/hostname
+              echo '#{name}' >| /etc/hostname
               chmod o-w /etc/hostname
               hostname -F /etc/hostname
 

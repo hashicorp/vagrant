@@ -32,7 +32,7 @@ describe "VagrantPlugins::GuestSmartos::Cap::ChangeHostName" do
       expect(comm.received_commands[0]).to match(/if \[ -d \/usbkey \] && \[ "\$\(zonename\)" == "global" \] ; then/)
       expect(comm.received_commands[0]).to match(/pfexec sed -i '' 's\/hostname=\.\*\/hostname=testhost\/' \/usbkey\/config/)
       expect(comm.received_commands[0]).to match(/fi/)
-      expect(comm.received_commands[0]).to match(/pfexec echo 'testhost' > \/etc\/nodename/)
+      expect(comm.received_commands[0]).to match(/pfexec echo 'testhost' >| \/etc\/nodename/)
       expect(comm.received_commands[0]).to match(/pfexec hostname testhost/)
     end
   end

@@ -27,7 +27,7 @@ describe "VagrantPlugins::GuestSlackware::Cap::ChangeHostName" do
       comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
 
       cap.change_host_name(machine, name)
-      expect(comm.received_commands[1]).to match(/echo '#{name}' > \/etc\/hostname/)
+      expect(comm.received_commands[1]).to match(/echo '#{name}' >| \/etc\/hostname/)
       expect(comm.received_commands[1]).to match(/hostname -F \/etc\/hostname/)
     end
 

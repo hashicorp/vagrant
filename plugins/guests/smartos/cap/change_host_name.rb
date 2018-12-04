@@ -15,7 +15,7 @@ module VagrantPlugins
                 #{sudo} sed -i '' 's/hostname=.*/hostname=#{name}/' /usbkey/config
               fi
 
-              #{sudo} echo '#{name}' > /etc/nodename
+              #{sudo} echo '#{name}' >| /etc/nodename
               #{sudo} hostname #{name}
             EOH
           end

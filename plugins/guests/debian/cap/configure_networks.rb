@@ -146,13 +146,13 @@ module VagrantPlugins
           # Reconfigure /etc/network/interfaces.
           commands << <<-EOH.gsub(/^ {12}/, "")
             # Remove any previous network modifications from the interfaces file
-            sed -e '/^#VAGRANT-BEGIN/,$ d' /etc/network/interfaces > /tmp/vagrant-network-interfaces.pre
-            sed -ne '/^#VAGRANT-END/,$ p' /etc/network/interfaces | tac | sed -e '/^#VAGRANT-END/,$ d' | tac > /tmp/vagrant-network-interfaces.post
+            sed -e '/^#VAGRANT-BEGIN/,$ d' /etc/network/interfaces >| /tmp/vagrant-network-interfaces.pre
+            sed -ne '/^#VAGRANT-END/,$ p' /etc/network/interfaces | tac | sed -e '/^#VAGRANT-END/,$ d' | tac >| /tmp/vagrant-network-interfaces.post
             cat \\
               /tmp/vagrant-network-interfaces.pre \\
               /tmp/vagrant-network-entry \\
               /tmp/vagrant-network-interfaces.post \\
-              > /etc/network/interfaces
+              >| /etc/network/interfaces
             rm -f /tmp/vagrant-network-interfaces.pre
             rm -f /tmp/vagrant-network-entry
             rm -f /tmp/vagrant-network-interfaces.post

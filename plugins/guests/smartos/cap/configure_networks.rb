@@ -14,7 +14,7 @@ module VagrantPlugins
             if network[:type].to_sym == :static
               machine.communicate.execute("#{ifconfig_cmd} inet #{network[:ip]} netmask #{network[:netmask]}")
               machine.communicate.execute("#{ifconfig_cmd} up")
-              machine.communicate.execute("#{su_cmd} sh -c \"echo '#{network[:ip]}' > /etc/hostname.#{device}\"")
+              machine.communicate.execute("#{su_cmd} sh -c \"echo '#{network[:ip]}' >| /etc/hostname.#{device}\"")
             elsif network[:type].to_sym == :dhcp
               machine.communicate.execute("#{ifconfig_cmd} dhcp start")
             end

@@ -15,12 +15,12 @@ module VagrantPlugins
                 systemctl set-hostname '#{name}'
               else
                 hostname '#{basename}'
-                echo "hostname=#{basename}" > /etc/conf.d/hostname
+                echo "hostname=#{basename}" >| /etc/conf.d/hostname
               fi
 
               # Prepend ourselves to /etc/hosts
               grep -w '#{name}' /etc/hosts || {
-                echo -e '127.0.0.1\\t#{name}\\t#{basename}' | cat - /etc/hosts > /tmp/tmp-hosts &&
+                echo -e '127.0.0.1\\t#{name}\\t#{basename}' | cat - /etc/hosts >| /tmp/tmp-hosts &&
                   mv /tmp/tmp-hosts /etc/hosts
               }
             EOH

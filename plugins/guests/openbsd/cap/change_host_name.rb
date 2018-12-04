@@ -11,11 +11,11 @@ module VagrantPlugins
               # Set the hostname
               hostname '#{name}'
               sed -i'' 's/^hostname=.*$/hostname=\"#{name}\"/' /etc/rc.conf
-              echo '#{name}' > /etc/myname
+              echo '#{name}' >| /etc/myname
 
               # Prepend ourselves to /etc/hosts
               grep -w '#{name}' /etc/hosts || {
-                echo -e '127.0.0.1\\t#{name}\\t#{basename}' | cat - /etc/hosts > /tmp/tmp-hosts
+                echo -e '127.0.0.1\\t#{name}\\t#{basename}' | cat - /etc/hosts >| /tmp/tmp-hosts
                 mv /tmp/tmp-hosts /etc/hosts
               }
             EOH
