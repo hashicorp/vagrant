@@ -1,5 +1,11 @@
 ## 2.2.2 (November 27, 2018)
 
+FEATURES:
+
+IMPROVEMENTS:
+
+- providers/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
+
 BUG FIXES:
 
 - providers/virtualbox: Update default_nic_type implementation and add warning [GH-10450]
