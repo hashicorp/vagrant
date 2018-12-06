@@ -1,0 +1,40 @@
+syntax = "proto3";
+package vagrant.folder;
+
+import "github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common/common.proto";
+import "github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_io/io.proto";
+import "github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_caps/capabilities.proto";
+
+message Request {
+  string machine = 1;
+  string folders = 2;
+  string options = 3;
+}
+
+message CleanupRequest {
+  string machine = 1;
+  string options = 2;
+}
+
+message InfoResponse {
+  string description = 1;
+  int64 priority = 2;
+}
+
+service SyncedFolder {
+  rpc Cleanup(CleanupRequest) returns (vagrant.common.EmptyResponse);
+  rpc Disable(Request) returns (vagrant.common.EmptyResponse);
+  rpc Enable(Request) returns (vagrant.common.EmptyResponse);
+  rpc Info(vagrant.common.NullRequest) returns (InfoResponse);
+  rpc IsUsable(vagrant.common.EmptyRequest) returns (vagrant.common.IsResponse);
+  rpc Name(vagrant.common.NullRequest) returns (vagrant.common.NameResponse);
+  rpc Prepare(Request) returns (vagrant.common.EmptyResponse);
+  // These are IO helpers for streaming
+  rpc Read(vagrant.io.ReadRequest) returns (vagrant.io.ReadResponse);
+  rpc Write(vagrant.io.WriteRequest) returns (vagrant.io.WriteResponse);
+  // Capabilities
+  rpc GuestCapabilities(vagrant.common.NullRequest) returns (vagrant.caps.CapabilitiesResponse);
+  rpc GuestCapability(vagrant.caps.GuestCapabilityRequest) returns (vagrant.caps.GuestCapabilityResponse);
+  rpc HostCapabilities(vagrant.common.NullRequest) returns (vagrant.caps.CapabilitiesResponse);
+  rpc HostCapability(vagrant.caps.HostCapabilityRequest) returns (vagrant.caps.HostCapabilityResponse);
+}

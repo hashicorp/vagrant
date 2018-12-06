@@ -9,6 +9,7 @@ module Vagrant
     autoload :Env,                       'vagrant/util/env'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
+    autoload :Logger,                    'vagrant/util/logger'
     autoload :LoggingFormatter,          'vagrant/util/logging_formatter'
     autoload :Platform,                  'vagrant/util/platform'
     autoload :Retryable,                 'vagrant/util/retryable'

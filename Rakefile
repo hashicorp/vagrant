@@ -1,5 +1,10 @@
 require 'rubygems'
 require 'bundler/setup'
+require 'rake/extensiontask'
+
+Rake::ExtensionTask.new "go-plugin" do |ext|
+  ext.lib_dir = "lib/vagrant/go_plugin"
+end
 
 # Immediately sync all stdout so that tools like buildbot can
 # immediately load in the output.

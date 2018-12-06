@@ -54,3 +54,7 @@ Enabling this feature allows all provisioners to specify `before` and `after`
 options. These options allow provisioners to be configured to run before or after
 any given "root" provisioner. more information about these options can be found
 on the [base provisioner documentation page](/docs/provisioning/basic_usage.html)
+
+### `go_plugin`
+
+Enabling this feature turns on support for [go-plugin](https://github.com/hashicorp/go-plugin) based plugin for Vagrant.

@@ -14,6 +14,10 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  config.vm.provider :vmware_desktop do |v, override|
+    v.foobar = 'hi'
+  end
+
   config.vm.provision "shell", inline: $shell
 
   config.push.define "www", strategy: "local-exec" do |push|

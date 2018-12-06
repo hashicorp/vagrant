@@ -175,6 +175,15 @@ module Vagrant
       # Load any global plugins
       Vagrant::Plugin::Manager.instance.load_plugins(plugins)
 
+      # Load any available go-plugins
+      Util::Experimental.guard_with(:go_plugin) do
+        begin
+          Vagrant::GoPlugin::Manager.instance.globalize!
+        rescue LoadError => err
+          @logger.warn("go plugin support is not available: #{err}")
+        end
+      end
+
       plugins = process_configured_plugins
 
       # Call the hooks that does not require configurations to be loaded

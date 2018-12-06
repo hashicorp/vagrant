@@ -1,0 +1,26 @@
+syntax = "proto3";
+package vagrant.io;
+
+message ReadRequest {
+  string target = 1;
+}
+
+message ReadResponse {
+  string content = 1;
+  string error = 2;
+}
+
+message WriteRequest {
+  string content = 1;
+  string target = 2;
+}
+
+message WriteResponse {
+  int32 length = 1;
+  string error = 2;
+}
+
+service IO {
+  rpc Read(ReadRequest) returns (ReadResponse);
+  rpc Write(WriteRequest) returns (WriteResponse);
+}

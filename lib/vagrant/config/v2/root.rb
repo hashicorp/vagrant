@@ -112,6 +112,14 @@ module Vagrant
           @keys              = state["keys"] if state.key?("keys")
           @missing_key_calls = state["missing_key_calls"] if state.key?("missing_key_calls")
         end
+
+        def to_json(*args)
+          Hash[
+            @keys.find_all { |k,v|
+              !k.to_s.start_with?("_")
+            }
+          ].to_json(*args)
+        end
       end
     end
   end

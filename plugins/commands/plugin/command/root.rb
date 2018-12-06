@@ -48,6 +48,18 @@ module VagrantPlugins
             require_relative "uninstall"
             Uninstall
           end
+
+          Vagrant::Util::Experimental.guard_with(:go_plugin) do
+            @subcommands.register(:goinstall) do
+              require_relative "go_install"
+              GoInstall
+            end
+
+            @subcommands.register(:gouninstall) do
+              require_relative "go_uninstall"
+              GoUninstall
+            end
+          end
         end
 
         def execute

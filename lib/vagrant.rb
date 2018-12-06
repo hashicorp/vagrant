@@ -1,4 +1,5 @@
 require "log4r"
+require "log4r/logger"
 require "vagrant/util/credential_scrubber"
 # Update the default formatter within the log4r library to ensure
 # sensitive values are being properly scrubbed from logger data
@@ -53,6 +54,8 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     # rest-client to write using the `<<` operator.
     # See https://github.com/rest-client/rest-client/issues/34#issuecomment-290858
     # for more information
+    Log4r::PatternFormatter::DirectiveTable["l"] =
+      '"[" + ' + Log4r::PatternFormatter::DirectiveTable["l"] + ' + "]"'
     class VagrantLogger < Log4r::Logger
       def << (msg)
         debug(msg.strip)
@@ -61,13 +64,10 @@ if ENV["VAGRANT_LOG"] && ENV["VAGRANT_LOG"] != ""
     logger = VagrantLogger.new("vagrant")
     logger.outputters = Log4r::Outputter.stderr
     logger.level = level
-    base_formatter = Log4r::BasicFormatter.new
-    if ENV["VAGRANT_LOG_TIMESTAMP"]
-      base_formatter = Log4r::PatternFormatter.new(
-        pattern: "%d [%5l] %m",
-        date_pattern: "%F %T"
-      )
-    end
+    base_formatter = Log4r::PatternFormatter.new(
+      pattern: "%d %-7l %C: %m",
+      date_pattern: ENV["VAGRANT_LOG_TIMESTAMP"] ? "%FT%T.%L%z" : " "
+    )
     # Vagrant Cloud gem uses RestClient to make HTTP requests, so
     # log them if debug is enabled and use Vagrants logger
     require 'rest_client'
@@ -118,6 +118,7 @@ module Vagrant
   autoload :Driver,        'vagrant/driver'
   autoload :Environment,   'vagrant/environment'
   autoload :Errors,        'vagrant/errors'
+  autoload :GoPlugin,      'vagrant/go_plugin'
   autoload :Guest,         'vagrant/guest'
   autoload :Host,          'vagrant/host'
   autoload :Machine,       'vagrant/machine'

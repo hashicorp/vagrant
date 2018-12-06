@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+echo -n "Parsing proto files and generating go output... "
+
+for i in *
+do
+    if [ -d "${i}" ]; then
+        protoc --proto_path=/home/spox/.go/src --proto_path=. --go_out=plugins=grpc:. "${i}"/*.proto;
+    fi
+done
+
+echo "done!"

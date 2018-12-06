@@ -1,0 +1,44 @@
+syntax = "proto3";
+package vagrant.config;
+
+import "github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common/common.proto";
+
+message AttributesResponse {
+  repeated string attributes = 1;
+  string error = 2;
+}
+
+message LoadRequest {
+  string data = 1;
+}
+
+message LoadResponse {
+  string data = 1;
+  string error = 2;
+}
+
+message ValidateRequest {
+  string data = 1;
+  string machine = 2;
+}
+
+message ValidateResponse {
+  repeated string errors = 1;
+  string error = 2;
+}
+
+message FinalizeRequest {
+  string data = 1;
+}
+
+message FinalizeResponse {
+  string data = 1;
+  string error = 2;
+}
+
+service Config {
+  rpc ConfigAttributes(vagrant.common.NullRequest) returns (AttributesResponse);
+  rpc ConfigLoad(LoadRequest) returns (LoadResponse);
+  rpc ConfigValidate(ValidateRequest) returns (ValidateResponse);
+  rpc ConfigFinalize(FinalizeRequest) returns (FinalizeResponse);
+}

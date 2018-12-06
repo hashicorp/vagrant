@@ -24,17 +24,53 @@ module Vagrant
           end
 
           upgrade_v0! if !@data["version"]
+          upgrade_v1! if @data["version"].to_s == "1"
         end
 
-        @data["version"] ||= "1"
-        @data["installed"] ||= {}
+        @data["version"] ||= "2"
+        @data["ruby"] ||= {"installed" => {}}
+        @data["go_plugin"] ||= {}
+      end
+
+      # Add a go plugin that is installed to the state file.
+      #
+      # @param [String] name The name of the plugin
+      def add_go_plugin(name, **opts)
+        @data["go_plugin"][name] = {
+          "source" => opts[:source]
+        }
+
+        save!
+      end
+
+      # Remove a plugin that is installed from the state file.
+      #
+      # @param [String] name The name of the plugin
+      def remove_go_plugin(name)
+        @data["go_plugin"].delete(name)
+
+        save!
+      end
+
+      # @return [Boolean] go plugin is present in this state file
+      def has_go_plugin?(name)
+        @data["go_plugin"].key?(name)
+      end
+
+      # This returns a hash of installed go plugins according to the state
+      # file. Note that this may _not_ directly match over to actually
+      # installed plugins.
+      #
+      # @return [Hash]
+      def installed_go_plugins
+        @data["go_plugin"]
       end
 
       # Add a plugin that is installed to the state file.
       #
       # @param [String] name The name of the plugin
       def add_plugin(name, **opts)
-        @data["installed"][name] = {
+        @data["ruby"]["installed"][name] = {
           "ruby_version"          => RUBY_VERSION,
           "vagrant_version"       => Vagrant::VERSION,
           "gem_version"           => opts[:version] || "",
@@ -51,8 +87,8 @@ module Vagrant
       #
       # @param [String] url URL of the source.
       def add_source(url)
-        @data["sources"] ||= []
-        @data["sources"] << url if !@data["sources"].include?(url)
+        @data["ruby"]["sources"] ||= []
+        @data["ruby"]["sources"] |= [url]
         save!
       end
 
@@ -62,21 +98,21 @@ module Vagrant
       #
       # @return [Hash]
       def installed_plugins
-        @data["installed"]
+        @data["ruby"]["installed"]
       end
 
       # Returns true/false if the plugin is present in this state file.
       #
       # @return [Boolean]
       def has_plugin?(name)
-        @data["installed"].key?(name)
+        @data["ruby"]["installed"].key?(name)
       end
 
       # Remove a plugin that is installed from the state file.
       #
       # @param [String] name The name of the plugin.
       def remove_plugin(name)
-        @data["installed"].delete(name)
+        @data["ruby"]["installed"].delete(name)
         save!
       end
 
@@ -84,8 +120,8 @@ module Vagrant
       #
       # @param [String] url URL of the source
       def remove_source(url)
-        @data["sources"] ||= []
-        @data["sources"].delete(url)
+        @data["ruby"]["sources"] ||= []
+        @data["ruby"]["sources"].delete(url)
         save!
       end
 
@@ -94,7 +130,7 @@ module Vagrant
       #
       # @return [Array<String>]
       def sources
-        @data["sources"] || []
+        @data["ruby"]["sources"] || []
       end
 
       # This saves the state back into the state file.
@@ -125,6 +161,18 @@ module Vagrant
         end
 
         @data["installed"] = new_installed
+
+        save!
+      end
+
+      # This upgrades the internal data representation from V1 to V2
+      def upgrade_v1!
+        @data.delete("version")
+        new_data = {
+          "version" => "2",
+          "ruby" => @data,
+          "go_plugin" => {}
+        }
 
         save!
       end

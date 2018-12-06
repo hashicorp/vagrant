@@ -1,0 +1,19 @@
+syntax = "proto3";
+package vagrant.common;
+
+message NullRequest {}
+
+message EmptyRequest {
+  string machine = 1;
+}
+
+message EmptyResponse {
+  string error = 1;
+}
+
+message IsResponse {
+  bool result = 1;
+  string error = 2;
+}
+
+message NameResponse { string name = 1; }

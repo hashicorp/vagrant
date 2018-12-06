@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.description   = "Vagrant is a tool for building and distributing virtualized development environments."
 
   s.required_ruby_version     = "~> 2.2", "< 2.7"
+
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "vagrant"
 
@@ -49,6 +50,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec-its", "~> 1.2.0"
   s.add_development_dependency "webmock", "~> 2.3.1"
   s.add_development_dependency "fake_ftp", "~> 0.1.1"
+  s.add_development_dependency "rake-compiler"
 
   # The following block of code determines the files that should be included
   # in the gem. It does this by reading all the files in the directory where
