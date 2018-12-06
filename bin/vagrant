@@ -159,6 +159,31 @@ begin
     env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n", prefix: false)
   end
 
+  # Acceptable experimental flag values include:
+  #
+  # Unset  - Disables experimental features
+  # 0      - Disables experimental features
+  # 1      - Enables all features
+  # String - Enables one or more features, separated by commas
+  if ENV["VAGRANT_EXPERIMENTAL"]
+    experimental = ENV["VAGRANT_EXPERIMENTAL"].to_s
+    if experimental == "0"
+      logger.debug("Experimental flag is set but disabled")
+    else
+      ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
+      if experimental != "1"
+        logger.debug("Experimental flag is enabled")
+        features = experimental.split(',')
+        ui.warn(I18n.t("vagrant.general.experimental.features", features: features.join(", ")), bold: true, prefix: true, channel: :error)
+      elsif experimental == "1"
+        logger.debug("Experimental flag is enabled")
+        ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
+      else
+        logger.warn("Experimental flag is set to an unsupported value")
+      end
+    end
+  end
+
   begin
     # Execute the CLI interface, and exit with the proper error code
     exit_status = env.cli(argv)
