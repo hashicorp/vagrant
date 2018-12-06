@@ -91,7 +91,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::SetDefaultNICType do
     end
 
     context "when virtualbox version is has susceptible E1000" do
-      let(:virtualbox_version) { "5.2.22" }
+      let(:virtualbox_version) { "5.2.21" }
 
       it "should output a warning" do
         expect(machine.ui).to receive(:warn)

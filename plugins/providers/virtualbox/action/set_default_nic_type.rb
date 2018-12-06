@@ -11,7 +11,7 @@ module VagrantPlugins
       class SetDefaultNICType
         # Defines versions of VirtualBox with susceptible implementation
         # of the E1000 devices.
-        E1000_SUSCEPTIBLE = Gem::Requirement.new("<= 5.2.22").freeze
+        E1000_SUSCEPTIBLE = Gem::Requirement.new("< 5.2.22").freeze
 
         def initialize(app, env)
           @logger = Log4r::Logger.new("vagrant::plugins::virtualbox::set_default_nic_type")
