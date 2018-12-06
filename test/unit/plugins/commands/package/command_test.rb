@@ -109,6 +109,24 @@ describe VagrantPlugins::CommandPackage::Command do
         end
       end
     end
+  end
 
+  describe "#package_vm" do
+    context "calling the package action" do
+      let(:options) { {output: "test.box"} }
+      let(:expected_options) { {"package.output"=>"test.box"} }
+      let(:machine) { double("machine") }
+      let(:tmp_dir) { "/home/user/.vagrant.d/tmp/vagrant-package" }
+      let(:env) { {"export.temp_dir"=>tmp_dir} }
+
+      it "ensures that the package tmp dir is cleaned up" do
+        allow(FileUtils).to receive(:rm_rf).and_return(true)
+        allow(machine).to receive(:action).with(:package, expected_options).
+          and_return(env)
+
+        expect(FileUtils).to receive(:rm_rf).with(tmp_dir)
+        package_command.send(:package_vm, machine, options)
+      end
+    end
   end
 end
