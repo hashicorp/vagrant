@@ -1,7 +1,7 @@
 module Vagrant
   module Util
     class Experimental
-      VALID_FEATURES = [].freeze
+      VALID_FEATURES = []
       class << self
 
         # A method for determining if the experimental flag has been enabled
