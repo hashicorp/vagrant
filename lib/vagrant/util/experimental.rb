@@ -22,18 +22,36 @@ module Vagrant
         # A method for Vagrant internals to determine if a given feature
         # has been abled and can be used.
         #
-        # @param [String] - An array of strings of features to check against
+        # @param [String] feature
         # @return [Boolean] - A hash containing the original array and if it is valid
         def feature_enabled?(feature)
-          experimental = ENV["VAGRANT_EXPERIMENTAL"].to_s.downcase
-          if experimental == "1"
+          experimental = features_requested
+          if experimental.size == 1 && experimental.first == "1"
             return true
           elsif VALID_FEATURES.include?(feature) &&
-                experimental.split(',').include?(feature)
+                experimental.include?(feature)
             return true
           else
             return false
           end
+        end
+
+        # Returns the features requested for the experimental flag
+        #
+        # @return [Array] - Returns an array of requested experimental features
+        def features_requested
+          if !defined?(@_requested_features)
+            @_requested_features = ENV["VAGRANT_EXPERIMENTAL"].to_s.downcase.split(',')
+          end
+          @_requested_features
+        end
+
+        # A function to guard experimental blocks of code from being executed
+        #
+        # @param [Array] features - Array of features to guard a method with
+        # @param [Block] block - Block of ruby code to be guarded against
+        def guard_with(*features, &block)
+          yield if block_given? && features.any? {|f| feature_enabled?(f)}
         end
 
         # @private

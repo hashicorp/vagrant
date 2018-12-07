@@ -64,4 +64,27 @@ describe Vagrant::Util::Experimental do
       expect(subject.feature_enabled?("anything")).to eq(false)
     end
   end
+
+  describe "#features_requested" do
+    it "returns an array of requested features" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("secret_feature,other_secret")
+      expect(subject.features_requested).to eq(["secret_feature","other_secret"])
+    end
+  end
+
+  describe "#guard_with" do
+    before(:each) do
+      stub_const("Vagrant::Util::Experimental::VALID_FEATURES", ["secret_feature"])
+    end
+
+    it "does not execute the block if the feature is not requested" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return(nil)
+      expect{|b| subject.guard_with("secret_feature", &b) }.not_to yield_control
+    end
+
+    it "executes the block if the feature is valid and requested" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("secret_feature,other_secret")
+      expect{|b| subject.guard_with("secret_feature", &b) }.to yield_control
+    end
+  end
 end
