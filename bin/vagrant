@@ -166,7 +166,7 @@ begin
   # 0      - Disables experimental features
   # 1      - Enables all features
   # String - Enables one or more features, separated by commas
-  if Vagrant::Util::Experimental.enabled?
+  if Vagrant::Util::Experimental.global_enabled?
     experimental = Vagrant::Util::Experimental.features_requested
     ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
     logger.debug("Experimental flag is enabled")

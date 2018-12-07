@@ -7,25 +7,25 @@ describe Vagrant::Util::Experimental do
   before(:each) { described_class.reset! }
   subject { described_class }
 
-  describe "#enabled?" do
+  describe "#global_enabled?" do
     it "returns true if enabled with '1'" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("1")
-      expect(subject.enabled?).to eq(true)
+      expect(subject.global_enabled?).to eq(true)
     end
 
     it "returns true if enabled with a list of features" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("list,of,features")
-      expect(subject.enabled?).to eq(true)
+      expect(subject.global_enabled?).to eq(true)
     end
 
     it "returns false if disabled" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("0")
-      expect(subject.enabled?).to eq(false)
+      expect(subject.global_enabled?).to eq(false)
     end
 
     it "returns false if not set" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return(nil)
-      expect(subject.enabled?).to eq(false)
+      expect(subject.global_enabled?).to eq(false)
     end
   end
 

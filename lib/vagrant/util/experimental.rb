@@ -7,7 +7,7 @@ module Vagrant
         # A method for determining if the experimental flag has been enabled
         #
         # @return [Boolean]
-        def enabled?
+        def global_enabled?
           if !defined?(@_experimental)
             experimental = ENV["VAGRANT_EXPERIMENTAL"].to_s
             if experimental != "0" && !experimental.empty?
