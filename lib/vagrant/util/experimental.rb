@@ -9,8 +9,8 @@ module Vagrant
         # @return [Boolean]
         def global_enabled?
           if !defined?(@_experimental)
-            experimental = ENV["VAGRANT_EXPERIMENTAL"].to_s
-            if experimental != "0" && !experimental.empty?
+            experimental = features_requested
+            if experimental.size >= 1 && experimental.first != "0"
               @_experimental = true
             else
               @_experimental = false
