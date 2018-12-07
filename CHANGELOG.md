@@ -1,4 +1,4 @@
-## 2.2.2 (November 27, 2018)
+## Next version (Unreleased)
 
 FEATURES:
 
@@ -11,9 +11,15 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-- providers/virtualbox: Update default_nic_type implementation and add warning [GH-10450]
 - command/validate: Bypass install checks for validating configs with the `--ignore-provider` flag [GH-10467]
 - command/cloud publish: Ensure box file exists before path expanding [GH-10468]
+- providers/virtualbox: Adjust version requirement for NIC warning [GH-10486]
+
+## 2.2.2 (November 27, 2018)
+
+BUG FIXES:
+
+- providers/virtualbox: Update default_nic_type implementation and add warning [GH-10450]
 
 ## 2.2.1 (November 15, 2018)
 
