@@ -405,10 +405,6 @@ en:
 
           Please use with caution, as some of the features may not be fully
           functional yet.
-        unknown_features: |-
-          Requested unknown feature flags will be ignored:
-
-          Unknown:   %{unknown}
       not_in_installer: |-
         You appear to be running Vagrant outside of the official installers.
         Note that the installers are what ensure that Vagrant has all required

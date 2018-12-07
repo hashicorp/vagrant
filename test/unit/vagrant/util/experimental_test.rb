@@ -40,12 +40,6 @@ describe Vagrant::Util::Experimental do
       expect(subject.global_enabled?).to eq(false)
     end
 
-    it "returns true if enabled with a complete list of features" do
-      stub_const("Vagrant::Util::Experimental::VALID_FEATURES", ["list","of","features"])
-      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("list,of,features")
-      expect(subject.global_enabled?).to eq(true)
-    end
-
     it "returns false if disabled" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("0")
       expect(subject.global_enabled?).to eq(false)
@@ -58,10 +52,6 @@ describe Vagrant::Util::Experimental do
   end
 
   describe "#feature_enabled?" do
-    before(:each) do
-      stub_const("Vagrant::Util::Experimental::VALID_FEATURES", ["secret_feature"])
-    end
-
     it "returns true if flag set to 1" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("1")
       expect(subject.feature_enabled?("anything")).to eq(true)
@@ -98,22 +88,6 @@ describe Vagrant::Util::Experimental do
     end
   end
 
-  describe "#features_valid" do
-    before(:each) do
-      stub_const("Vagrant::Util::Experimental::VALID_FEATURES", ["cool_feature", "other_feature", "secret_feature"])
-    end
-
-    it "returns an empty array if no diffs found" do
-      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("cool_feature,other_feature")
-      expect(subject.features_valid?).to eq([])
-    end
-
-    it "returns the invalid flag if found" do
-      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("fake_feature")
-      expect(subject.features_valid?).to eq(["fake_feature"])
-    end
-  end
-
   describe "#features_requested" do
     it "returns an array of requested features" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("secret_feature,other_secret")
@@ -122,10 +96,6 @@ describe Vagrant::Util::Experimental do
   end
 
   describe "#guard_with" do
-    before(:each) do
-      stub_const("Vagrant::Util::Experimental::VALID_FEATURES", ["secret_feature"])
-    end
-
     it "does not execute the block if the feature is not requested" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return(nil)
       expect{|b| subject.guard_with("secret_feature", &b) }.not_to yield_control

@@ -1,9 +1,7 @@
 module Vagrant
   module Util
     class Experimental
-      VALID_FEATURES = []
       class << self
-
         # A method for determining if the experimental flag has been enabled with
         # any features
         #
@@ -27,7 +25,7 @@ module Vagrant
         def global_enabled?
           if !defined?(@_global_enabled)
             experimental = features_requested
-            if experimental.size == 1 && experimental.first == "1" || (experimental.size > 0 && experimental.sort == VALID_FEATURES.sort)
+            if experimental.size == 1 && experimental.first == "1"
               @_global_enabled = true
             else
               @_global_enabled = false
@@ -45,19 +43,7 @@ module Vagrant
           experimental = features_requested
           feature = feature.to_s
 
-          return global_enabled? || (VALID_FEATURES.include?(feature) && experimental.include?(feature))
-        end
-
-        # Determines if there are any unrecognized requested features
-        #
-        # @return [Array]
-        def features_valid?
-          if !defined?(@_features_diff)
-            @_features_diff = []
-            features = features_requested
-            features.each { |f| @_features_diff << f if !VALID_FEATURES.include?(f) }
-          end
-          @_features_diff
+          return global_enabled? || experimental.include?(feature)
         end
 
         # Returns the features requested for the experimental flag
