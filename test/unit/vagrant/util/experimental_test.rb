@@ -44,6 +44,11 @@ describe Vagrant::Util::Experimental do
       expect(subject.feature_enabled?("secret_feature")).to eq(true)
     end
 
+    it "returns true if flag contains feature requested and the request is a symbol" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("secret_feature")
+      expect(subject.feature_enabled?(:secret_feature)).to eq(true)
+    end
+
     it "returns true if flag contains feature requested with other features 'enabled'" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("secret_feature,other_secret")
       expect(subject.feature_enabled?("secret_feature")).to eq(true)

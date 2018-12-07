@@ -26,6 +26,8 @@ module Vagrant
         # @return [Boolean] - A hash containing the original array and if it is valid
         def feature_enabled?(feature)
           experimental = features_requested
+          feature = feature.to_s
+
           if experimental.size == 1 && experimental.first == "1"
             return true
           elsif VALID_FEATURES.include?(feature) &&
