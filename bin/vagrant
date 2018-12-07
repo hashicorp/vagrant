@@ -166,13 +166,11 @@ begin
   # 0      - Disables experimental features
   # 1      - Enables all features
   # String - Enables one or more features, separated by commas
-  if Vagrant::Util::Experimental.global_enabled?
+  if Vagrant::Util::Experimental.enabled?
     experimental = Vagrant::Util::Experimental.features_requested
     ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
     logger.debug("Experimental flag is enabled")
-    if experimental.size >= 1 && experimental.first != "1"
-      ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true, channel: :error)
-    else
+    if Vagrant::Util::Experimental.global_enabled?
       ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
     end
   end

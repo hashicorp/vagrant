@@ -4,10 +4,11 @@ module Vagrant
       VALID_FEATURES = []
       class << self
 
-        # A method for determining if the experimental flag has been enabled
+        # A method for determining if the experimental flag has been enabled with
+        # any features
         #
         # @return [Boolean]
-        def global_enabled?
+        def enabled?
           if !defined?(@_experimental)
             experimental = features_requested
             if experimental.size >= 1 && experimental.first != "0"
@@ -19,8 +20,24 @@ module Vagrant
           @_experimental
         end
 
+        # A method for determining if all experimental features have been enabled
+        # by either a global enabled value "1" or all features explicitly enabled.
+        #
+        # @return [Boolean]
+        def global_enabled?
+          if !defined?(@_global_enabled)
+            experimental = features_requested
+            if experimental.size == 1 && experimental.first == "1" || (experimental.size > 0 && experimental.sort == VALID_FEATURES.sort)
+              @_global_enabled = true
+            else
+              @_global_enabled = false
+            end
+          end
+          @_global_enabled
+        end
+
         # A method for Vagrant internals to determine if a given feature
-        # has been abled and can be used.
+        # has been abled by the user, is a valid feature flag and can be used.
         #
         # @param [String] feature
         # @return [Boolean] - A hash containing the original array and if it is valid

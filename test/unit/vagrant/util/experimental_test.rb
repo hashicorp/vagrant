@@ -7,13 +7,41 @@ describe Vagrant::Util::Experimental do
   before(:each) { described_class.reset! }
   subject { described_class }
 
+  describe "#enabled?" do
+    it "returns true if enabled with '1'" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("1")
+      expect(subject.enabled?).to eq(true)
+    end
+
+    it "returns true if enabled with a list of features" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("list,of,features")
+      expect(subject.enabled?).to eq(true)
+    end
+
+    it "returns false if disabled" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("0")
+      expect(subject.enabled?).to eq(false)
+    end
+
+    it "returns false if not set" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return(nil)
+      expect(subject.enabled?).to eq(false)
+    end
+  end
+
   describe "#global_enabled?" do
     it "returns true if enabled with '1'" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("1")
       expect(subject.global_enabled?).to eq(true)
     end
 
-    it "returns true if enabled with a list of features" do
+    it "returns false if enabled with a partial list of features" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("list,of,features")
+      expect(subject.global_enabled?).to eq(false)
+    end
+
+    it "returns true if enabled with a complete list of features" do
+      stub_const("Vagrant::Util::Experimental::VALID_FEATURES", ["list","of","features"])
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("list,of,features")
       expect(subject.global_enabled?).to eq(true)
     end
@@ -54,9 +82,9 @@ describe Vagrant::Util::Experimental do
       expect(subject.feature_enabled?("secret_feature")).to eq(true)
     end
 
-    it "returns false if flag does not contain feature requested" do
-      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("secret_feature")
-      expect(subject.feature_enabled?("anything")).to eq(false)
+    it "returns false if flag is set but does not contain feature requested" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("fake_feature")
+      expect(subject.feature_enabled?("secret_feature")).to eq(false)
     end
 
     it "returns false if flag set to 0" do
