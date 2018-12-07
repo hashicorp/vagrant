@@ -89,6 +89,7 @@ begin
   require 'vagrant/bundler'
   require 'vagrant/cli'
   require 'vagrant/util/platform'
+  require 'vagrant/util/experimental'
 
   # Schedule the cleanup of things
   at_exit(&Vagrant::Bundler.instance.method(:deinit))
@@ -165,22 +166,14 @@ begin
   # 0      - Disables experimental features
   # 1      - Enables all features
   # String - Enables one or more features, separated by commas
-  if ENV["VAGRANT_EXPERIMENTAL"]
-    experimental = ENV["VAGRANT_EXPERIMENTAL"].to_s
-    if experimental == "0"
-      logger.debug("Experimental flag is set but disabled")
+  if Vagrant::Util::Experimental.enabled?
+    experimental = Vagrant::Util::Experimental.features_requested
+    ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
+    logger.debug("Experimental flag is enabled")
+    if experimental.size >= 1 && experimental.first != "1"
+      ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true, channel: :error)
     else
-      ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
-      if experimental != "1"
-        logger.debug("Experimental flag is enabled")
-        features = experimental.split(',')
-        ui.warn(I18n.t("vagrant.general.experimental.features", features: features.join(", ")), bold: true, prefix: true, channel: :error)
-      elsif experimental == "1"
-        logger.debug("Experimental flag is enabled")
-        ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
-      else
-        logger.warn("Experimental flag is set to an unsupported value")
-      end
+      ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
     end
   end
 
