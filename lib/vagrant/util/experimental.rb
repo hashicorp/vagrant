@@ -45,14 +45,19 @@ module Vagrant
           experimental = features_requested
           feature = feature.to_s
 
-          if experimental.size == 1 && experimental.first == "1"
-            return true
-          elsif VALID_FEATURES.include?(feature) &&
-                experimental.include?(feature)
-            return true
-          else
-            return false
+          return global_enabled? || (VALID_FEATURES.include?(feature) && experimental.include?(feature))
+        end
+
+        # Determines if there are any unrecognized requested features
+        #
+        # @return [Array]
+        def features_valid?
+          if !defined?(@_features_diff)
+            @_features_diff = []
+            features = features_requested
+            features.each { |f| @_features_diff << f if !VALID_FEATURES.include?(f) }
           end
+          @_features_diff
         end
 
         # Returns the features requested for the experimental flag

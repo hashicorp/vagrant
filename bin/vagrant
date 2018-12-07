@@ -172,6 +172,13 @@ begin
     logger.debug("Experimental flag is enabled")
     if Vagrant::Util::Experimental.global_enabled?
       ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
+    else
+      ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true, channel: :error)
+
+      diff = Vagrant::Util::Experimental.features_valid?
+      if !diff.empty?
+        ui.error(I18n.t("vagrant.general.experimental.unknown_features", unknown: diff.join(", ")), bold: true, prefix: true, channel: :error)
+      end
     end
   end
 

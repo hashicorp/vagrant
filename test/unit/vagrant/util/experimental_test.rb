@@ -98,6 +98,22 @@ describe Vagrant::Util::Experimental do
     end
   end
 
+  describe "#features_valid" do
+    before(:each) do
+      stub_const("Vagrant::Util::Experimental::VALID_FEATURES", ["cool_feature", "other_feature", "secret_feature"])
+    end
+
+    it "returns an empty array if no diffs found" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("cool_feature,other_feature")
+      expect(subject.features_valid?).to eq([])
+    end
+
+    it "returns the invalid flag if found" do
+      allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("fake_feature")
+      expect(subject.features_valid?).to eq(["fake_feature"])
+    end
+  end
+
   describe "#features_requested" do
     it "returns an array of requested features" do
       allow(ENV).to receive(:[]).with("VAGRANT_EXPERIMENTAL").and_return("secret_feature,other_secret")
