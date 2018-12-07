@@ -228,6 +228,18 @@ Remark     Not Vagrant Owned
         expect(machine.env.ui).not_to receive(:warn)
       end
     end
+
+    context "when more than 10 shares are defined" do
+      let(:folders) {
+        Hash[12.times.map{|i| ["/path#{i}", {hostpath: "/host#{i}"}]}]
+      }
+
+      after{ subject.smb_prepare(env, machine, folders, options) }
+
+      it "should execute multiple powershell commands" do
+        expect(Vagrant::Util::PowerShell).to receive(:execute).twice.with(any_args, sudo: true)
+      end
+    end
   end
 
   describe ".get_smbshares" do
