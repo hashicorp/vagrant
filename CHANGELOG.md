@@ -15,6 +15,7 @@ BUG FIXES:
 - command/validate: Bypass install checks for validating configs with the `--ignore-provider` flag [GH-10467]
 - command/cloud publish: Ensure box file exists before path expanding [GH-10468]
 - providers/virtualbox: Adjust version requirement for NIC warning [GH-10486]
+- util/powershell: Use correct Base64 encoding for encoded commands [GH-10487]
 
 ## 2.2.2 (November 27, 2018)
 
