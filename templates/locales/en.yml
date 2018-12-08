@@ -393,6 +393,18 @@ en:
         shown below.
 
         %{output}
+      experimental:
+        all: |-
+          You have enabled the experimental flag with all features enabled.
+          Please use with caution, as some of the features may not be fully
+          functional yet.
+        features: |-
+          You have requested to enabled the experimental flag with the following features:
+
+          Features:  %{features}
+
+          Please use with caution, as some of the features may not be fully
+          functional yet.
       not_in_installer: |-
         You appear to be running Vagrant outside of the official installers.
         Note that the installers are what ensure that Vagrant has all required

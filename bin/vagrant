@@ -89,6 +89,7 @@ begin
   require 'vagrant/bundler'
   require 'vagrant/cli'
   require 'vagrant/util/platform'
+  require 'vagrant/util/experimental'
 
   # Schedule the cleanup of things
   at_exit(&Vagrant::Bundler.instance.method(:deinit))
@@ -157,6 +158,23 @@ begin
   if !Vagrant.in_installer? && !Vagrant.very_quiet?
     # If we're not in the installer, warn.
     env.ui.warn(I18n.t("vagrant.general.not_in_installer") + "\n", prefix: false)
+  end
+
+  # Acceptable experimental flag values include:
+  #
+  # Unset  - Disables experimental features
+  # 0      - Disables experimental features
+  # 1      - Enables all features
+  # String - Enables one or more features, separated by commas
+  if Vagrant::Util::Experimental.enabled?
+    experimental = Vagrant::Util::Experimental.features_requested
+    ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
+    logger.debug("Experimental flag is enabled")
+    if Vagrant::Util::Experimental.global_enabled?
+      ui.warn(I18n.t("vagrant.general.experimental.all"), bold: true, prefix: true, channel: :error)
+    else
+      ui.warn(I18n.t("vagrant.general.experimental.features", features: experimental.join(", ")), bold: true, prefix: true, channel: :error)
+    end
   end
 
   begin
