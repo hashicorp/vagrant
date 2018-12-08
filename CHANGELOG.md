@@ -8,6 +8,7 @@ IMPROVEMENTS:
 - command/snapshot: Raise error for bad subcommand [GH-10470]
 - command/package: Ensure temp dir for package command is cleaned up [GH-10479]
 - core: Display version update on stderr instead of stdout [GH-10482]
+- core: Add experimental feature flag [GH-10485]
 
 BUG FIXES:
 
