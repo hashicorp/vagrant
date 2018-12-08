@@ -217,14 +217,14 @@ module Vagrant
           stderr = File.join(dpath, "stderr.txt")
 
           script = "& #{arg_list} ; exit $LASTEXITCODE;"
-          script_content = Base64.urlsafe_encode64(script.encode("UTF-16LE", "UTF-8"))
+          script_content = Base64.strict_encode64(script.encode("UTF-16LE", "UTF-8"))
 
           # Wrap so we can redirect output to read later
           wrapper = "$p = Start-Process -FilePath powershell -ArgumentList @('-NoLogo', '-NoProfile', " \
             "'-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', '#{script_content}') " \
             "-PassThru -WindowStyle Hidden -Wait -RedirectStandardOutput '#{stdout}' -RedirectStandardError '#{stderr}'; " \
             "if($p){ exit $p.ExitCode; }else{ exit 1 }"
-          wrapper_content = Base64.urlsafe_encode64(wrapper.encode("UTF-16LE", "UTF-8"))
+          wrapper_content = Base64.strict_encode64(wrapper.encode("UTF-16LE", "UTF-8"))
 
           powerup = "$p = Start-Process -FilePath powershell -ArgumentList @('-NoLogo', '-NoProfile', " \
             "'-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', '#{wrapper_content}') " \
