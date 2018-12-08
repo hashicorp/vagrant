@@ -13,12 +13,18 @@ module VagrantPlugins
 
         def execute
           options = {}
+          options[:provision_ignore_sentinel] = false
+          options[:snapshot_start] = true
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant snapshot restore [options] [vm-name] <name>"
             o.separator ""
             build_start_options(o, options)
             o.separator "Restore a snapshot taken previously with snapshot save."
+
+            o.on("--no-start", "Don't start the snapshot after the restore") do
+              options[:snapshot_start] = false
+            end
           end
 
           # Parse the options

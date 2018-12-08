@@ -267,7 +267,11 @@ module VagrantPlugins
               end
             end
 
-            b2.use action_start
+            b2.use Call, IsEnvSet, :snapshot_start do |env2, b3|
+              if env2[:result]
+                b3.use action_start
+              end
+            end
           end
         end
       end

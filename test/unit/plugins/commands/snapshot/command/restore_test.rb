@@ -12,6 +12,7 @@ describe VagrantPlugins::CommandSnapshot::Command::Restore do
     env.create_vagrant_env
   end
 
+  let(:snapshot_name) { "snapshot_name" }
   let(:guest)   { double("guest") }
   let(:host)    { double("host") }
   let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
@@ -31,6 +32,11 @@ describe VagrantPlugins::CommandSnapshot::Command::Restore do
   end
 
   describe "execute" do
+    before do
+      allow(machine.provider).to receive(:capability).
+        with(:snapshot_list).and_return([snapshot_name])
+    end
+
     context "with no arguments" do
       it "shows help" do
         expect { subject.execute }.
@@ -91,6 +97,33 @@ describe VagrantPlugins::CommandSnapshot::Command::Restore do
         expect(machine).to_not receive(:action)
         expect { subject.execute }.
           to raise_error(Vagrant::Errors::SnapshotNotFound)
+      end
+    end
+
+    it "should disable ignoring sentinel file for provisioning" do
+      argv << snapshot_name
+      expect(machine).to receive(:action) do |_, opts|
+        expect(opts[:provision_ignore_sentinel]).to eq(false)
+      end
+      subject.execute
+    end
+
+    it "should start the snapshot" do
+      argv << snapshot_name
+      expect(machine).to receive(:action) do |_, opts|
+        expect(opts[:snapshot_start]).to eq(true)
+      end
+      subject.execute
+    end
+
+    context "when --no-start flag is provided" do
+      let(:argv) { [snapshot_name, "--no-start"] }
+
+      it "should not start the snapshot" do
+        expect(machine).to receive(:action) do |_, opts|
+          expect(opts[:snapshot_start]).to eq(false)
+        end
+        subject.execute
       end
     end
   end
