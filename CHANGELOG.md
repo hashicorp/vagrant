@@ -4,11 +4,12 @@ FEATURES:
 
 IMPROVEMENTS:
 
-- providers/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
 - command/snapshot: Raise error for bad subcommand [GH-10470]
 - command/package: Ensure temp dir for package command is cleaned up [GH-10479]
 - core: Display version update on stderr instead of stdout [GH-10482]
 - core: Add experimental feature flag [GH-10485]
+- host/windows: Prevent SMB setup commands from becoming too long [GH-10489]
+- providers/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
 
 BUG FIXES:
 
