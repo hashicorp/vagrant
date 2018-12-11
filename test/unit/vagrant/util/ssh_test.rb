@@ -236,6 +236,26 @@ describe Vagrant::Util::SSH do
       end
     end
 
+    context "when config is provided" do
+      let(:ssh_info) {{
+        host: "localhost",
+        port: 2222,
+        username: "vagrant",
+        config: "/path/to/config"
+      }}
+
+      it "enables ssh config loading" do
+        allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
+        expect(Vagrant::Util::SafeExec).to receive(:exec) do |exe_path, *args|
+          expect(exe_path).to eq(ssh_path)
+          config_options = ["-F", "/path/to/config"]
+          expect(args & config_options).to eq(config_options)
+        end
+
+        expect(described_class.exec(ssh_info)).to eq(nil)
+      end
+    end
+
     context "with subprocess enabled" do
       let(:ssh_info) {{
         host: "localhost",

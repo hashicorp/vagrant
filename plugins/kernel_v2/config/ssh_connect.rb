@@ -46,18 +46,23 @@ module VagrantPlugins
         @compression      = true if @compression == UNSET_VALUE
         @dsa_authentication = true if @dsa_authentication == UNSET_VALUE
         @extra_args       = nil if @extra_args == UNSET_VALUE
-        @remote_user      = nil if @remote_user == UNSET_VALUE
+        @config           = nil if @config == UNSET_VALUE
 
         if @private_key_path && !@private_key_path.is_a?(Array)
           @private_key_path = [@private_key_path]
         end
 
+        if @remote_user == UNSET_VALUE
+          if @username
+            @remote_user = @username
+          else
+            @remote_user = nil
+          end
+        end
+
         if @paranoid
           @verify_host_key = @paranoid
         end
-
-        # Default to not loading system ssh_config file
-        @config = false if @config == UNSET_VALUE
 
         # Values for verify_host_key changed in 5.0.0 of net-ssh. If old value
         # detected, update with new value
@@ -89,6 +94,15 @@ module VagrantPlugins
                 "vagrant.config.ssh.private_key_missing",
                 path: raw_path)
             end
+          end
+        end
+
+        if @config
+          config_path = File.expand_path(@config, machine.env.root_path)
+          if !File.file?(config_path)
+            errors << I18n.t(
+              "vagrant.config.ssh.ssh_config_missing",
+              path: @config)
           end
         end
 

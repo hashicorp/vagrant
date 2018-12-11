@@ -1810,6 +1810,7 @@ en:
         paranoid_deprecated: |-
           The key `paranoid` is deprecated. Please use `verify_host_key`. Supported
           values are exactly the same, only the name of the option has changed.
+        ssh_config_missing: "`config` file must exist: %{path}"
       triggers:
         bad_command_warning: |-
           The command '%{cmd}' was not found for this trigger.
