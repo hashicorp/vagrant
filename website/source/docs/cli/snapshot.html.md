@@ -56,6 +56,8 @@ the pushed state.
 * `--no-delete` - Prevents deletion of the snapshot after restoring
     (so that you can restore to the same point again later).
 
+* `--no-start` - Prevents the guest from being started after restore
+
 # Snapshot Save
 
 **Command: `vagrant snapshot save [vm-name] NAME`**
@@ -71,6 +73,8 @@ This command restores the named snapshot.
 
 * `--[no-]provision` - Force the provisioners to run (or prevent them
     from doing so).
+
+* `--no-start` - Prevents the guest from being started after restore
 
 # Snapshot List
 
