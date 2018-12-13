@@ -38,7 +38,7 @@ targeted at Vagrant core members who have the ability to cut a release.
 
 1. Update `website/config.rb` to point to the latest version, commit, and push.
 
-1. Tell HashiBot to deploy in ``#deploys`
+1. Tell HashiBot to deploy in `#deploys`
 
     ```
     hashibot deploy vagrant
