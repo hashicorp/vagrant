@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 - command/snapshot: Raise error for bad subcommand [GH-10470]
 - command/package: Ensure temp dir for package command is cleaned up [GH-10479]
+- communicator/ssh: Add `config` and `remote_user` options [GH-10496]
 - core: Display version update on stderr instead of stdout [GH-10482]
 - core: Add experimental feature flag [GH-10485]
 - guest/windows: Modify elevated username only on username failure [GH-10488]
@@ -14,8 +15,9 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-- command/validate: Bypass install checks for validating configs with the `--ignore-provider` flag [GH-10467]
 - command/cloud publish: Ensure box file exists before path expanding [GH-10468]
+- command/snapshot: Retain consistent provisioning behavior across all commands [GH-10490]
+- command/validate: Bypass install checks for validating configs with the `--ignore-provider` flag [GH-10467]
 - providers/virtualbox: Adjust version requirement for NIC warning [GH-10486]
 - util/powershell: Use correct Base64 encoding for encoded commands [GH-10487]
 
