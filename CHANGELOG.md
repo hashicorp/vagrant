@@ -8,6 +8,7 @@ IMPROVEMENTS:
 - command/package: Ensure temp dir for package command is cleaned up [GH-10479]
 - core: Display version update on stderr instead of stdout [GH-10482]
 - core: Add experimental feature flag [GH-10485]
+- guest/windows: Modify elevated username only on username failure [GH-10488]
 - host/windows: Prevent SMB setup commands from becoming too long [GH-10489]
 - providers/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
 
