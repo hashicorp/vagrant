@@ -3,6 +3,7 @@ module VagrantPlugins
     class SSHConnectConfig < Vagrant.plugin("2", :config)
       attr_accessor :host
       attr_accessor :port
+      attr_accessor :config
       attr_accessor :private_key_path
       attr_accessor :username
       attr_accessor :password
@@ -13,10 +14,12 @@ module VagrantPlugins
       attr_accessor :compression
       attr_accessor :dsa_authentication
       attr_accessor :extra_args
+      attr_accessor :remote_user
 
       def initialize
         @host             = UNSET_VALUE
         @port             = UNSET_VALUE
+        @config           = UNSET_VALUE
         @private_key_path = UNSET_VALUE
         @username         = UNSET_VALUE
         @password         = UNSET_VALUE
@@ -27,6 +30,7 @@ module VagrantPlugins
         @compression      = UNSET_VALUE
         @dsa_authentication = UNSET_VALUE
         @extra_args       = UNSET_VALUE
+        @remote_user      = UNSET_VALUE
       end
 
       def finalize!
@@ -42,9 +46,18 @@ module VagrantPlugins
         @compression      = true if @compression == UNSET_VALUE
         @dsa_authentication = true if @dsa_authentication == UNSET_VALUE
         @extra_args       = nil if @extra_args == UNSET_VALUE
+        @config           = nil if @config == UNSET_VALUE
 
         if @private_key_path && !@private_key_path.is_a?(Array)
           @private_key_path = [@private_key_path]
+        end
+
+        if @remote_user == UNSET_VALUE
+          if @username
+            @remote_user = @username
+          else
+            @remote_user = nil
+          end
         end
 
         if @paranoid
@@ -81,6 +94,15 @@ module VagrantPlugins
                 "vagrant.config.ssh.private_key_missing",
                 path: raw_path)
             end
+          end
+        end
+
+        if @config
+          config_path = File.expand_path(@config, machine.env.root_path)
+          if !File.file?(config_path)
+            errors << I18n.t(
+              "vagrant.config.ssh.ssh_config_missing",
+              path: @config)
           end
         end
 

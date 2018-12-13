@@ -1,4 +1,7 @@
 Host <%= host_key %>
+<% if config -%>
+  Include <%= config %>
+<% end -%>
   HostName <%= ssh_host %>
   User <%= ssh_user %>
   Port <%= ssh_port %>

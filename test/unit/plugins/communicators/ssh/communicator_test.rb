@@ -748,6 +748,48 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         communicator.send(:connect)
       end
     end
+
+    context "with config configured" do
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          config: './ssh_config',
+          keys_only: true,
+          verify_host_key: false
+        )
+      end
+
+      it "has config defined" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            config: './ssh_config'
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with remote_user configured" do
+      let(:remote_user) { double("remote_user") }
+
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          remote_user: remote_user
+        )
+      end
+
+      it "has remote_user defined" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            remote_user: remote_user
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
   end
 
   describe ".generate_environment_export" do

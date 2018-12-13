@@ -319,5 +319,15 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
 
       subject.rsync_single(machine, ssh_info, opts)
     end
+
+    it "includes custom ssh config when set" do
+      ssh_info[:config] = "/path/to/ssh/config"
+      expect(Vagrant::Util::Subprocess).to receive(:execute) do |*args|
+        ssh_config_args = "-F /path/to/ssh/config"
+        expect(args.any?{|a| a.include?(ssh_config_args)}).to be_truthy
+        result
+      end
+      subject.rsync_single(machine, ssh_info, opts)
+    end
   end
 end

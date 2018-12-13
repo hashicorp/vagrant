@@ -77,6 +77,11 @@ module VagrantPlugins
           proxy_command = "-o ProxyCommand='#{ssh_info[:proxy_command]}' "
         end
 
+        ssh_config_file = ""
+        if ssh_info[:config]
+          ssh_config_file = "-F #{ssh_info[:config]}"
+        end
+
         # Create the path for the control sockets. We used to do this
         # in the machine data dir but this can result in paths that are
         # too long for unix domain sockets.
@@ -91,6 +96,7 @@ module VagrantPlugins
           "ssh", "-p", "#{ssh_info[:port]}",
           "-o", "LogLevel=#{log_level}",
           proxy_command,
+          ssh_config_file,
           control_options,
         ]
 

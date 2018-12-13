@@ -847,6 +847,16 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:private_key_path]).to eql([path])
       end
 
+      it "should return the remote_user when set" do
+        instance.config.ssh.remote_user = "remote-user"
+        expect(instance.ssh_info[:remote_user]).to eq("remote-user")
+      end
+
+      it "should return the config when set" do
+        instance.config.ssh.config = "/path/to/ssh_config"
+        expect(instance.ssh_info[:config]).to eq("/path/to/ssh_config")
+      end
+
       context "with no data dir" do
         let(:base)     { true }
         let(:data_dir) { nil }
