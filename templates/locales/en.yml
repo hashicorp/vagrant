@@ -235,6 +235,10 @@ en:
       repeats, then please fix the issue:
 
       %{message}
+    rsync_chown_command_error: |-
+      There was an error while executing find and chown command, when file missing.
+      This may not be critical since rsync chown command sometimes fails, but if this message
+      repeats, then please fix the issue.
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communicate with it. Verify that this machine is properly running.
