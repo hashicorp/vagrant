@@ -23,7 +23,13 @@ module VagrantPlugins
         if opts.key?(:chown) && !opts[:chown]
           return
         end
-        machine.communicate.sudo(build_rsync_chown(opts))
+
+        error_opts = {
+          error_class: Vagrant::Errors::RsyncChownCommandError,
+          error_key: :rsync_chown_command_error
+        }
+
+        machine.communicate.sudo(build_rsync_chown(opts), error_opts)
       end
 
       def build_rsync_chown(opts)
@@ -38,7 +44,7 @@ module VagrantPlugins
         "find #{guest_path} #{exclusions}" \
           "'!' -type l -a " \
           "'(' ! -user #{opts[:owner]} -or ! -group #{opts[:group]} ')' -exec " \
-          "chown #{opts[:owner]}:#{opts[:group]} '{}' + || :"
+          "chown #{opts[:owner]}:#{opts[:group]} '{}' +"
       end
     end
   end
