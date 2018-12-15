@@ -154,6 +154,21 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
       subject.rsync_single(machine, ssh_info, opts)
     end
 
+    context "with rsync_post capability" do
+      before do
+        allow(guest).to receive(:capability?).with(:rsync_post).and_return(true)
+        allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(result)
+      end
+
+      it "should raise custom error when capability errors" do
+        expect(guest).to receive(:capability).with(:rsync_post, opts).
+          and_raise(Vagrant::Errors::VagrantError)
+
+        expect { subject.rsync_single(machine, ssh_info, opts) }.
+          to raise_error(Vagrant::Errors::RSyncPostCommandError)
+      end
+    end
+
     context "excluding files" do
       it "excludes files if given as a string" do
         opts[:exclude] = "foo"

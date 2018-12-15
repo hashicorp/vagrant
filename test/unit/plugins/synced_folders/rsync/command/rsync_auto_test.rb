@@ -217,5 +217,50 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       expect { subject.callback(paths, m, a, r) }.
         to_not raise_error
     end
+
+    context "on failure" do
+      let(:machine) { machine_stub("m1") }
+      let(:opts) { double("opts_m1") }
+      let(:paths) { {"/foo" => [machine: machine, opts: opts]} }
+      let(:args) { [paths, ["/foo/bar"], [], []] }
+
+      before do
+        allow_any_instance_of(Vagrant::Errors::VagrantError).
+          to receive(:translate_error)
+        allow(machine.ui).to receive(:error)
+      end
+
+      context "when rsync command fails" do
+        before do
+          expect(helper_class).to receive(:rsync_single).with(machine, machine.ssh_info, opts).
+            and_raise(Vagrant::Errors::RSyncError)
+        end
+
+        it "should notify on error" do
+          expect(machine.ui).to receive(:error)
+          subject.callback(*args)
+        end
+
+        it "should not raise error" do
+          expect { subject.callback(*args) }.not_to raise_error
+        end
+      end
+
+      context "when rsync post command capability fails" do
+        before do
+          expect(helper_class).to receive(:rsync_single).with(machine, machine.ssh_info, opts).
+            and_raise(Vagrant::Errors::RSyncPostCommandError)
+        end
+
+        it "should notify on error" do
+          expect(machine.ui).to receive(:error)
+          subject.callback(*args)
+        end
+
+        it "should not raise error" do
+          expect { subject.callback(*args) }.not_to raise_error
+        end
+      end
+    end
   end
 end

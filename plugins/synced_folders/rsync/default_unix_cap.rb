@@ -24,12 +24,7 @@ module VagrantPlugins
           return
         end
 
-        error_opts = {
-          error_class: Vagrant::Errors::RsyncChownCommandError,
-          error_key: :rsync_chown_command_error
-        }
-
-        machine.communicate.sudo(build_rsync_chown(opts), error_opts)
+        machine.communicate.sudo(build_rsync_chown(opts))
       end
 
       def build_rsync_chown(opts)
