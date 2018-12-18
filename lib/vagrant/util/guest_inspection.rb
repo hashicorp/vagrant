@@ -36,8 +36,12 @@ module Vagrant
         #
         # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
         # @return [Boolean]
+        # NOTE: This test includes actually calling `hostnamectl` to verify
+        # that it is in working order. This prevents attempts to use the
+        # hostnamectl command when it is available, but dbus is not which
+        # renders the command useless
         def hostnamectl?(comm)
-          comm.test("command -v hostnamectl")
+          comm.test("command -v hostnamectl && hostnamectl")
         end
 
         ## netplan helpers
