@@ -235,6 +235,12 @@ en:
       repeats, then please fix the issue:
 
       %{message}
+    rsync_auto_post_command_error: |-
+      There was an error while executing the rsync post command. This error is
+      shown below. This may not be critical but if this message repeats please
+      fix the issue:
+
+      %{message}
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communicate with it. Verify that this machine is properly running.
@@ -1271,6 +1277,14 @@ en:
         Guest path: %{guestpath}
         Command: %{command}
         Error: %{stderr}
+      rsync_post_command_error: |-
+        There was an error while attempting to run the post rsync
+        command for a synced folder. Please inspect the error message
+        below for more info.
+
+        Host path: %{hostpath}
+        Guest path: %{guestpath}
+        Error: %{message}
       rsync_guest_install_error: |-
         Installation of rsync into the guest has failed! The stdout
         and stderr are shown below. Please read the error output, resolve

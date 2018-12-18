@@ -217,6 +217,10 @@ module VagrantPlugins
                 # halt is happening. Just notify the user but don't fail out.
                 opts[:machine].ui.error(I18n.t(
                   "vagrant.rsync_communicator_not_ready_callback"))
+              rescue Vagrant::Errors::RSyncPostCommandError => e
+                # Error executing rsync chown command
+                opts[:machine].ui.error(I18n.t(
+                  "vagrant.rsync_auto_post_command_error", message: e.to_s))
               rescue Vagrant::Errors::RSyncError => e
                 # Error executing rsync, so show an error
                 opts[:machine].ui.error(I18n.t(

@@ -23,6 +23,7 @@ module VagrantPlugins
         if opts.key?(:chown) && !opts[:chown]
           return
         end
+
         machine.communicate.sudo(build_rsync_chown(opts))
       end
 

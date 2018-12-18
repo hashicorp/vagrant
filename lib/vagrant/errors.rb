@@ -668,6 +668,10 @@ module Vagrant
       error_key(:push_strategy_not_provided)
     end
 
+    class RSyncPostCommandError < VagrantError
+      error_key(:rsync_post_command_error)
+    end
+
     class RSyncError < VagrantError
       error_key(:rsync_error)
     end

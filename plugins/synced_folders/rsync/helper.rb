@@ -213,7 +213,14 @@ module VagrantPlugins
 
         # If we have tasks to do after rsyncing, do those.
         if machine.guest.capability?(:rsync_post)
-          machine.guest.capability(:rsync_post, opts)
+          begin
+            machine.guest.capability(:rsync_post, opts)
+          rescue Vagrant::Errors::VagrantError => err
+            raise Vagrant::Errors::RSyncPostCommandError,
+              guestpath: guestpath,
+              hostpath: hostpath,
+              message: err.to_s
+          end
         end
       end
     end
