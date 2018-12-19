@@ -54,18 +54,21 @@ Once you're confident that your upcoming changes will be accepted:
 ### Pull Request Lifecycle
 
 1. You are welcome to submit your PR for commentary or review before it is fully completed. Please prefix the title of your PR with "[WIP]" to indicate this. It's also a good idea to include specific questions or items you'd like feedback on.
-2. The PR is categorized by Vagrant collaborator(s), applying GitHub tags similarly to issues triage.
-3. Once you believe your PR is ready to be merged, you can remove any
+2. Sign the [HashiCorp CLA](#hashicorp-cla). If you haven't signed the CLA yet, a bot will ask you to do so. You only need to sign the CLA once. If you've already signed the CLA, the CLA status will be green automatically.
+3. The PR is categorized by Vagrant collaborator(s), applying GitHub tags similarly to issues triage.
+4. Once you believe your PR is ready to be merged, you can remove any
   "[WIP]" prefix from the title and a Vagrant collaborator will review.
-4. One of Vagrant collaborator will look over your contribution and either provide comments letting you know if there is anything left to do. We do our best to provide feedback in a timely manner, but it may take some time for us to respond.
-5. Once all outstanding comments have been addressed, your contribution will be merged! Merged PRs will be included in the next Vagrant release. The Vagrant contributors will take care of updating the CHANGELOG as they merge.
-6. We might decide that a PR should be closed. We'll make sure to provide clear reasoning when this happens.
+5. One of the Vagrant collaborators will look over your contribution and either provide comments letting you know if there is anything left to do. We do our best to provide feedback in a timely manner, but it may take some time for us to respond.
+6. Once all outstanding comments have been addressed, your contribution will be merged! Merged PRs will be included in the next Vagrant release. The Vagrant contributors will take care of updating the CHANGELOG as they merge.
+7. We might decide that a PR should be closed. We'll make sure to provide clear reasoning when this happens.
 
 ## HashiCorp CLA
 
 We require all contributors to sign the [HashiCorp CLA](https://www.hashicorp.com/cla).
 
 In simple terms, the CLA affirms that the work you're contributing is original, that you grant HashiCorp permission to use that work (including license to any patents necessary), and that HashiCorp may relicense your work for our commercial products if necessary. Note that this description is a summary and the specific legal terms should be read directly in the [CLA](https://www.hashicorp.com/cla).
+
+The CLA does not change the terms of the standard open source license used by our software such as MPL2 or MIT. You are still free to use our projects within your own projects or businesses, republish modified source, and more. Please reference the appropriate license of this project to learn more.
 
 To sign the CLA, open a pull request as usual. If you haven't signed the CLA yet, a bot will respond with a link asking you to sign the CLA. We cannot merge any pull request until the CLA is signed. You only need to sign the CLA once. If you've signed the CLA before, the bot will not respond to your PR and your PR will be allowed to merge.
 
