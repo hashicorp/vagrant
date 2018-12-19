@@ -61,6 +61,14 @@ Once you're confident that your upcoming changes will be accepted:
 5. Once all outstanding comments have been addressed, your contribution will be merged! Merged PRs will be included in the next Vagrant release. The Vagrant contributors will take care of updating the CHANGELOG as they merge.
 6. We might decide that a PR should be closed. We'll make sure to provide clear reasoning when this happens.
 
+## HashiCorp CLA
+
+We require all contributors to sign the [HashiCorp CLA](https://www.hashicorp.com/cla).
+
+In simple terms, the CLA affirms that the work you're contributing is original, that you grant HashiCorp permission to use that work (including license to any patents necessary), and that HashiCorp may relicense your work for our commercial products if necessary. Note that this description is a summary and the specific legal terms should be read directly in the [CLA](https://www.hashicorp.com/cla).
+
+To sign the CLA, open a pull request as usual. If you haven't signed the CLA yet, a bot will respond with a link asking you to sign the CLA. We cannot merge any pull request until the CLA is signed. You only need to sign the CLA once. If you've signed the CLA before, the bot will not respond to your PR and your PR will be allowed to merge.
+
 # Additional Resources
 
 * [HashiCorp Community Guidelines](https://www.hashicorp.com/community-guidelines)
