@@ -60,6 +60,8 @@ Please take time to read the [HashiCorp Community Guidelines](https://www.hashic
 
 Then you're good to go!
 
+When you open your first PR, you will be prompted to sign the [HashiCorp Contributor License Agreement](https://www.hashicorp.com/cla). This is a one-time step for all HashiCorp projects.
+
 ### Acceptance Tests
 
 Vagrant also comes with an acceptance test suite that does black-box
