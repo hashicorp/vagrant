@@ -15,7 +15,8 @@ module VagrantPlugins
         end
 
         def self.nfs_installed(env)
-          Kernel.system("/usr/bin/xbps-query nfs-utils", [:out, :err] => "/dev/null")
+          result = Vagrant::Util::Subprocess.execute("/usr/bin/xbps-query nfs-utils")
+          result.exit_code == 0
         end
       end
     end
