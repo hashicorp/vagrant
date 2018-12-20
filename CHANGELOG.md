@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- host/void: Add host support for void linux [GH-10012]
+
 IMPROVEMENTS:
 
 - command/rsync-auto: Prevent crash on post-rsync command failure [GH-10515]
