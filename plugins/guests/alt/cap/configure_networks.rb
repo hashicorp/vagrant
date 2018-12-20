@@ -19,9 +19,12 @@ module VagrantPlugins
 
           # Check if NetworkManager is installed on the system
           nmcli_installed = nmcli?(comm)
+          net_configs = machine.config.vm.networks.map do |type, opts|
+            opts if type.to_s.end_with?("_network")
+          end.compact
           networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
-            extra_opts = machine.config.vm.networks[i].last.dup
+            extra_opts = net_configs[i].dup || {}
 
             if nmcli_installed
               # Now check if the device is actively being managed by NetworkManager
@@ -46,7 +49,7 @@ module VagrantPlugins
             end
 
             # Render a new configuration
-            template_options = network.merge(extra_opts)
+            template_options = extra_opts.merge(network)
 
             # ALT expects netmasks to be in the CIDR notation, but users may
             # specify IPV4 netmasks like "255.255.255.0". This magic converts
