@@ -24,7 +24,7 @@ module VagrantPlugins
           end.compact
           networks.each.with_index do |network, i|
             network[:device] = interfaces[network[:interface]]
-            extra_opts = net_configs[i].dup || {}
+            extra_opts = net_configs[i] ? net_configs[i].dup : {}
 
             if nmcli_installed
               # Now check if the device is actively being managed by NetworkManager
