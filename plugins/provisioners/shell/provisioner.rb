@@ -31,7 +31,11 @@ module VagrantPlugins
           provision_ssh(args)
         end
       ensure
-        @machine.communicate.reset! if config.reset
+        if config.reboot
+          @machine.guest.capability(:reboot)
+        else
+          @machine.communicate.reset! if config.reset
+        end
       end
 
       protected

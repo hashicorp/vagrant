@@ -31,7 +31,8 @@ describe "Vagrant::Shell::Provisioner" do
         :path        => path,
         :inline      => inline,
         :binary      => false,
-        :reset       => true
+        :reset       => true,
+        :reboot      => false,
       )
     }
 
@@ -62,6 +63,55 @@ describe "Vagrant::Shell::Provisioner" do
     end
   end
 
+  context "when reboot is enabled" do
+    let(:path) { nil }
+    let(:inline) { "" }
+    let(:communicator) { double("communicator") }
+    let(:guest) { double("guest") }
+
+    let(:config) {
+      double(
+        :config,
+        :args        => "doesn't matter",
+        :env         => {},
+        :upload_path => "arbitrary",
+        :remote?     => false,
+        :path        => path,
+        :inline      => inline,
+        :binary      => false,
+        :reset       => false,
+        :reboot      => true
+      )
+    }
+
+    let(:vsp) {
+      VagrantPlugins::Shell::Provisioner.new(machine, config)
+    }
+
+    before {
+      allow(machine).to receive(:communicate).and_return(communicator)
+      allow(machine).to receive(:guest).and_return(guest)
+      allow(vsp).to receive(:provision_ssh)
+    }
+
+    it "should provision and then reboot the guest" do
+      expect(vsp).to receive(:provision_ssh)
+      expect(guest).to receive(:capability).with(:reboot)
+      vsp.provision
+    end
+
+    context "when path and inline are not set" do
+      let(:path) { nil }
+      let(:inline) { nil }
+
+      it "should reboot the guest and not provision" do
+        expect(vsp).not_to receive(:provision_ssh)
+        expect(guest).to receive(:capability).with(:reboot)
+        vsp.provision
+      end
+    end
+  end
+
   context "with a script that contains invalid us-ascii byte sequences" do
     let(:config) {
       double(
@@ -73,7 +123,8 @@ describe "Vagrant::Shell::Provisioner" do
         :path        => nil,
         :inline      => script_that_is_incorrectly_us_ascii_encoded,
         :binary      => false,
-        :reset       => false
+        :reset       => false,
+        :reboot      => false
       )
     }
 
@@ -106,7 +157,8 @@ describe "Vagrant::Shell::Provisioner" do
         :path        => nil,
         :inline      => script,
         :binary      => false,
-        :reset       => false
+        :reset       => false,
+        :reboot      => false
       )
     }
 
@@ -136,7 +188,8 @@ describe "Vagrant::Shell::Provisioner" do
           :binary      => false,
           :md5         => nil,
           :sha1        => 'EXPECTED_VALUE',
-          :reset       => false
+          :reset       => false,
+          :reboot      => false
         )
       }
 
@@ -167,7 +220,8 @@ describe "Vagrant::Shell::Provisioner" do
           :binary      => false,
           :md5         => 'EXPECTED_VALUE',
           :sha1        => nil,
-          :reset       => false
+          :reset       => false,
+          :reboot      => false
         )
       }
 

@@ -75,6 +75,9 @@ The remainder of the available options are optional:
   guests use a scheduled task to run as a true administrator without the
   WinRM limitations.
 
+* `reboot` (boolean) - Reboot the guest. This requires the guest to have a
+  reboot capability implemented.
+
 * `reset` (boolean) - Reset the communicator to the machine after completion. This
   is useful when a shell may need to be reloaded.
 
