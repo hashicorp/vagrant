@@ -16,3 +16,9 @@ This command forces a re-sync of any
 Note that if you change any settings within the rsync synced folders such
 as exclude paths, you will need to `vagrant reload` before this command will
 pick up those changes.
+
+## Options
+
+* `--[no-]rsync-chown` - Use rsync to modify ownership of transferred files. Enabling
+    this option can result in faster completion due to a secondary process not being
+    required to update ownership. By default this is disabled.

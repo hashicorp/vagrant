@@ -15,17 +15,17 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
 
   let(:synced_folders_empty) { {} }
   let(:synced_folders_dupe) { {"1234":
-                               {type: "rsync",
-                                exclude: false,
-                                hostpath: "/Users/brian/code/vagrant-sandbox"},
-                               "5678":
-                               {type: "rsync",
-                                exclude: false,
-                                hostpath: "/Not/The/Same/Path"},
-                               "0912":
-                               {type: "rsync",
-                                exclude: false,
-                                hostpath: "/Users/brian/code/relative-dir"}}}
+    {type: "rsync",
+      exclude: false,
+      hostpath: "/Users/brian/code/vagrant-sandbox"},
+    "5678":
+    {type: "rsync",
+      exclude: false,
+      hostpath: "/Not/The/Same/Path"},
+    "0912":
+    {type: "rsync",
+      exclude: false,
+      hostpath: "/Users/brian/code/relative-dir"}}}
 
   let(:helper_class) { VagrantPlugins::SyncedFolderRSync::RsyncHelper }
 
@@ -65,23 +65,20 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
     # For reference:
     # https://github.com/hashicorp/vagrant/blob/9c1b014536e61b332cfaa00774a87a240cce8ed9/lib/vagrant/action/builtin/synced_folders.rb#L45-L46
     let(:config_synced_folders)  { {"/vagrant":
-                                   {type: "rsync",
-                                    exclude: false,
-                                    hostpath: "/Users/brian/code/vagrant-sandbox"},
-                                  "/vagrant/other-dir":
-                                   {type: "rsync",
-                                    exclude: false,
-                                    hostpath: "/Users/brian/code/vagrant-sandbox/other-dir"},
-                                  "/vagrant/relative-dir":
-                                   {type: "rsync",
-                                    exclude: false,
-                                    hostpath: "/Users/brian/code/relative-dir"}}}
+      {type: "rsync",
+        exclude: false,
+        hostpath: "/Users/brian/code/vagrant-sandbox"},
+      "/vagrant/other-dir":
+      {type: "rsync",
+        exclude: false,
+        hostpath: "/Users/brian/code/vagrant-sandbox/other-dir"},
+      "/vagrant/relative-dir":
+      {type: "rsync",
+        exclude: false,
+        hostpath: "/Users/brian/code/relative-dir"}}}
 
     before do
-        allow(subject).to receive(:with_target_vms) { |&block| block.call machine }
-    end
-
-    it "does not sync folders outside of the cwd" do
+      allow(subject).to receive(:with_target_vms) { |&block| block.call machine }
       allow(machine.ui).to receive(:info)
       allow(machine.state).to receive(:id).and_return(:created)
       allow(machine.env).to receive(:cwd).
@@ -95,8 +92,9 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
       allow(helper_class).to receive(:rsync_single).and_return(true)
       allow(Vagrant::Util::Busy).to receive(:busy).and_return(true)
       allow(Listen).to receive(:to).and_return(true)
+    end
 
-
+    it "does not sync folders outside of the cwd" do
       expect(machine.ui).to receive(:info).
         with("Not syncing /Not/The/Same/Path as it is not part of the current working directory.")
       expect(machine.ui).to receive(:info).
@@ -105,7 +103,17 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
         with("Watching: /Users/brian/code/relative-dir")
       expect(helper_class).to receive(:rsync_single)
 
-      subject.execute()
+      subject.execute
+    end
+
+    context "with --rsync-chown option" do
+      let(:argv) { ["--rsync-chown"] }
+
+      it "should enable rsync_ownership on folder options" do
+        expect(helper_class).to receive(:rsync_single).
+          with(anything, anything, hash_including(rsync_ownership: true))
+        subject.execute
+      end
     end
   end
 

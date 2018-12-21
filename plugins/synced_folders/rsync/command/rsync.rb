@@ -15,6 +15,7 @@ module VagrantPlugins
         end
 
         def execute
+          options = {}
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant rsync [vm-name]"
             o.separator ""
@@ -23,6 +24,9 @@ module VagrantPlugins
             o.separator ""
             o.separator "Options:"
             o.separator ""
+            o.on("--[no-]rsync-chown", "Use rsync to modify ownership") do |chown|
+              options[:rsync_chown] = chown
+            end
           end
 
           # Parse the options and return if we don't have any target.
@@ -59,6 +63,9 @@ module VagrantPlugins
 
             # Sync them!
             folders.each do |id, folder_opts|
+              if options.has_key?(:rsync_chown)
+                folder_opts = folder_opts.merge(rsync_ownership: options[:rsync_chown])
+              end
               RsyncHelper.rsync_single(machine, ssh_info, folder_opts)
             end
           end
