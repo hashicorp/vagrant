@@ -75,9 +75,10 @@ module VagrantPlugins
         end
 
         found = true
+        binary_check = @machine.config.vm.communicator == :winrm ? "dir" : "which"
         for binary in desired_binaries
           @machine.env.ui.info "Checking if %s is installed" % binary
-          if !@machine.communicate.test("which %s" % binary)
+          if !@machine.communicate.test("%s %s" % [binary_check, binary])
             @machine.env.ui.info "%s was not found." % binary
             found = false
           else
