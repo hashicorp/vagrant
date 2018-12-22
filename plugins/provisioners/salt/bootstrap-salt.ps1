@@ -12,7 +12,7 @@ $startupType = "Manual"
 
 # Version to install - default to latest if there is an issue
 If ($version -notmatch "2\d{3}\.\d{1,2}\.\d+(\-\d{1})?"){
-  $version = '2017.7.1'
+  $version = '2018.3.3'
 }
 
 If ($pythonVersion -notmatch "\d+") {
