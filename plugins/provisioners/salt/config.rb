@@ -177,8 +177,11 @@ module VagrantPlugins
           errors << I18n.t("vagrant.provisioners.salt.python_version")
         end
 
-        if @version && !@install_type
-          errors << I18n.t("vagrant.provisioners.salt.version_type_missing")
+        # install_type is not supported in a Windows environment
+        if machine.config.vm.communicator != :winrm
+          if @version && !@install_type
+            errors << I18n.t("vagrant.provisioners.salt.version_type_missing")
+          end
         end
 
         return {"salt provisioner" => errors}
