@@ -18,6 +18,7 @@ IMPROVEMENTS:
 - provisioners/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
 - provisioners/salt: Update default install version [GH-10537]
 - provisioners/shell: Add `reboot` option for rebooting supported guest [GH-10532]
+- synced_folders/rsync: Support using rsync `--chown` option [GH-10529]
 - util/guest_inspection: Validate hostnamectl command works when detected [GH-10512]
 
 BUG FIXES:
