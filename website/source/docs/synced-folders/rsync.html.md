@@ -69,6 +69,10 @@ The rsync synced folder type accepts the following options:
   pattern. By default, the ".vagrant/" directory is excluded. We recommend
   excluding revision control directories such as ".git/" as well.
 
+* `rsync__rsync_ownership` (boolean) - If true, and rsync executables in use
+  are >= 3.1.0, then rsync will be used to set the owner and group instead
+  of a separate call to modify ownership. By default, this is false.
+
 * `rsync__rsync_path` (string) - The path on the remote host where rsync
   is and how it is executed. This is platform specific but defaults to
   "sudo rsync" for many guests.

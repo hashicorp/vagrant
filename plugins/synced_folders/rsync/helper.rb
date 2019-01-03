@@ -10,6 +10,9 @@ module VagrantPlugins
     # This is a helper that abstracts out the functionality of rsyncing
     # folders so that it can be called from anywhere.
     class RsyncHelper
+      # rsync version requirement to support chown argument
+      RSYNC_CHOWN_REQUIREMENT = Gem::Requirement.new(">= 3.1.0").freeze
+
       # This converts an rsync exclude pattern to a regular expression
       # we can send to Listen.
       def self.exclude_to_regexp(path, exclude)
@@ -24,7 +27,7 @@ module VagrantPlugins
         regexp = "^#{Regexp.escape(path)}"
         regexp += ".*" if !start_anchor
 
-        # This is REALLY ghetto, but its a start. We can improve and
+        # This is not an ideal solution, but it's a start. We can improve and
         # keep unit tests passing in the future.
         exclude = exclude.gsub("**", "|||GLOBAL|||")
         exclude = exclude.gsub("*", "|||PATH|||")
@@ -140,11 +143,18 @@ module VagrantPlugins
           args << "--no-perms" if args.include?("--archive") || args.include?("-a")
         end
 
-        # Disable rsync's owner/group preservation (implied by --archive) unless
-        # specifically requested, since we adjust owner/group to match shared
-        # folder setting ourselves.
-        args << "--no-owner" unless args.include?("--owner") || args.include?("-o")
-        args << "--no-group" unless args.include?("--group") || args.include?("-g")
+        if opts[:rsync_ownership] && rsync_chown_support?(machine)
+          # Allow rsync to map ownership
+          args << "--chown=#{opts[:owner]}:#{opts[:group]}"
+          # Notify rsync post capability not to chown
+          opts[:chown] = false
+        else
+          # Disable rsync's owner/group preservation (implied by --archive) unless
+          # specifically requested, since we adjust owner/group to match shared
+          # folder setting ourselves.
+          args << "--no-owner" unless args.include?("--owner") || args.include?("-o")
+          args << "--no-group" unless args.include?("--group") || args.include?("-g")
+        end
 
         # Tell local rsync how to invoke remote rsync with sudo
         rsync_path = opts[:rsync_path]
@@ -222,6 +232,55 @@ module VagrantPlugins
               message: err.to_s
           end
         end
+      end
+
+      # Check if rsync versions support using chown option
+      #
+      # @param [Vagrant::Machine] machine The remote machine
+      # @return [Boolean]
+      def self.rsync_chown_support?(machine)
+        if !RSYNC_CHOWN_REQUIREMENT.satisfied_by?(Gem::Version.new(local_rsync_version))
+          return false
+        end
+        mrv = machine_rsync_version(machine)
+        if mrv && !RSYNC_CHOWN_REQUIREMENT.satisfied_by?(Gem::Version.new(mrv))
+          return false
+        end
+        true
+      end
+
+      # @return [String, nil] version of remote rsync
+      def self.machine_rsync_version(machine)
+        if machine.guest.capability?(:rsync_command)
+          rsync_path = machine.guest.capability(:rsync_command)
+        else
+          rsync_path = "rsync"
+        end
+        output = ""
+        machine.communicate.execute(rsync_path + " --version") { |_, data| output << data }
+        vmatch = output.match(/version\s+(?<version>[\d.]+)\s/)
+        if vmatch
+          vmatch[:version]
+        end
+      end
+
+      # @return [String, nil] version of local rsync
+      def self.local_rsync_version
+        if !@_rsync_version
+          r = Vagrant::Util::Subprocess.execute("rsync", "--version")
+          vmatch = r.stdout.to_s.match(/version\s+(?<version>[\d.]+)\s/)
+          if vmatch
+            @_rsync_version = vmatch[:version]
+          end
+        end
+        @_rsync_version
+      end
+
+      # @private
+      # Reset the cached values for helper. This is not considered a public
+      # API and should only be used for testing.
+      def self.reset!
+        instance_variables.each(&method(:remove_instance_variable))
       end
     end
   end

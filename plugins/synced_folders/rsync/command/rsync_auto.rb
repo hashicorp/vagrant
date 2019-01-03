@@ -8,11 +8,6 @@ require "vagrant/util/platform"
 
 require_relative "../helper"
 
-# This is to avoid a bug in nio 1.0.0. Remove around nio 1.0.1
-if Vagrant::Util::Platform.windows?
-  ENV["NIO4R_PURE"] = "1"
-end
-
 require "listen"
 
 module VagrantPlugins
@@ -37,6 +32,10 @@ module VagrantPlugins
 
             o.on("--[no-]poll", "Force polling filesystem (slow)") do |poll|
               options[:poll] = poll
+            end
+
+            o.on("--[no-]rsync-chown", "Use rsync to modify ownership") do |chown|
+              options[:rsync_chown] = chown
             end
           end
 
@@ -88,6 +87,9 @@ module VagrantPlugins
                 machine.ui.info(I18n.t("vagrant.rsync_auto_remove_folder",
                                     folder: folder_opts[:hostpath]))
               else
+                if options.has_key?(:rsync_chown)
+                  folder_opts = folder_opts.merge(rsync_ownership: options[:rsync_chown])
+                end
                 sync_folders[id] = folder_opts
               end
             end

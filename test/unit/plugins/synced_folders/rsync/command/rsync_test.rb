@@ -67,6 +67,20 @@ describe VagrantPlugins::SyncedFolderRSync::Command::Rsync do
 
         expect(subject.execute).to eql(0)
       end
+
+      context "with --rsync-chown option" do
+        let(:argv) { ["--rsync-chown"] }
+
+        it "should enable rsync_ownership on folder options" do
+          synced_folders[:rsync].each do |_, opts|
+            expect(helper_class).to receive(:rsync_single).
+              with(machine, ssh_info, hash_including(rsync_ownership: true)).
+              ordered
+          end
+
+          subject.execute
+        end
+      end
     end
   end
 end

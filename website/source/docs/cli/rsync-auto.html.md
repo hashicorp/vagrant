@@ -22,6 +22,10 @@ for filesystem changes, and does not simply poll the directory.
 
 ## Options
 
+* `--[no-]rsync-chown` - Use rsync to modify ownership of transferred files. Enabling
+    this option can result in faster completion due to a secondary process not being
+    required to update ownership. By default this is disabled.
+
 * `--[no-]poll` - Force Vagrant to watch for changes using filesystem
     polling instead of filesystem events. This is required for some filesystems
     that do not support events. Warning: enabling this will make `rsync-auto`
