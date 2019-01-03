@@ -6,13 +6,18 @@ en:
       Resetting WinRM TrustedHosts to their original value.
 
     errors:
+      elevated_no_command: |-
+        A command must be provided when the --elevated flag is provided for
+        the powershell command. Please provide a command when using the
+        --elevated flag and try again.
+
       host_unsupported: |-
         Your host does not support PowerShell. A remote PowerShell connection
         can only be made from a windows host.
 
       ps_remoting_undetected: |-
-        Unable to establish a remote PowerShell connection with the guest. 
-        Check if the firewall rules on the guest allow connections to the 
+        Unable to establish a remote PowerShell connection with the guest.
+        Check if the firewall rules on the guest allow connections to the
         Windows remote management service.
 
       powershell_error: |-

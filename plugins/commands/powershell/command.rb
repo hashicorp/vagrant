@@ -26,6 +26,10 @@ module VagrantPlugins
           o.on("-c", "--command COMMAND", "Execute a powershell command directly") do |c|
             options[:command] = c
           end
+
+          o.on("-e", "--elevated", "Execute a powershell command with elevated permissions") do |c|
+            options[:elevated] = true
+          end
         end
 
         # Parse out the extra args to send to the ps session, which
@@ -40,8 +44,8 @@ module VagrantPlugins
         argv = parse_options(opts)
         return if !argv
 
-        # Check if the host even supports ps remoting
-        raise Errors::HostUnsupported if !@env.host.capability?(:ps_client)
+        # Elevated option enabled means we can only execute commands
+        raise Errors::ElevatedNoCommand if !options[:command] && options[:elevated]
 
         # Execute ps session if we can
         with_target_vms(argv, single_target: true) do |machine|
@@ -49,12 +53,12 @@ module VagrantPlugins
             raise Vagrant::Errors::VMNotCreatedError
           end
 
-          if machine.config.vm.communicator != :winrm
-            raise VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady
-          end
+          if options[:command]
+            if machine.config.vm.communicator != :winrm
+              raise VagrantPlugins::CommunicatorWinRM::Errors::WinRMNotReady
+            end
 
-          if !options[:command].nil?
-            out_code = machine.communicate.execute(options[:command].dup) do |type,data|
+            out_code = machine.communicate.execute(options[:command].dup, elevated: options[:elevated]) do |type,data|
               machine.ui.detail(data) if type == :stdout
             end
             if out_code == 0
@@ -62,6 +66,9 @@ module VagrantPlugins
             end
             next
           end
+
+          # Check if the host even supports ps remoting
+          raise Errors::HostUnsupported if !@env.host.capability?(:ps_client)
 
           ps_info = VagrantPlugins::CommunicatorWinRM::Helper.winrm_info(machine)
           ps_info[:username] = machine.config.winrm.username
@@ -78,7 +85,7 @@ module VagrantPlugins
           begin
             @env.host.capability(:ps_client, ps_info)
           ensure
-            if !result["PreviousTrustedHosts"].nil?
+            if result["PreviousTrustedHosts"]
               reset_ps_remoting_for(machine, ps_info)
             end
           end
