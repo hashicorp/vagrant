@@ -17,6 +17,7 @@ IMPROVEMENTS:
 - host/windows: Automatically answer yes when pruning SMB shares [GH-10524]
 - provisioners/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
 - provisioners/salt: Update default install version [GH-10537]
+- provisioners/shell: Add `reboot` option for rebooting supported guest [GH-10532]
 - util/guest_inspection: Validate hostnamectl command works when detected [GH-10512]
 
 BUG FIXES:
