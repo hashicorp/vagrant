@@ -15,7 +15,8 @@ IMPROVEMENTS:
 - guest/windows: Modify elevated username only on username failure [GH-10488]
 - host/windows: Prevent SMB setup commands from becoming too long [GH-10489]
 - host/windows: Automatically answer yes when pruning SMB shares [GH-10524]
-- providers/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
+- provisioners/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
+- provisioners/salt: Update default install version [GH-10537]
 - util/guest_inspection: Validate hostnamectl command works when detected [GH-10512]
 
 BUG FIXES:
