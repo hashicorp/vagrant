@@ -8,14 +8,13 @@ describe Vagrant::Util::CheckpointClient do
   let(:iso_env) { isolated_environment }
   let(:env)     { iso_env.create_vagrant_env }
   let(:result) { {} }
-  let(:prefixed_ui) { double("prefixed_ui") }
 
   subject{ Vagrant::Util::CheckpointClient.instance }
 
   after{ subject.reset! }
+
   before do
     allow(subject).to receive(:result).and_return(result)
-    allow(Vagrant::UI::Prefixed).to receive(:new).and_return(prefixed_ui)
   end
 
   it "should not be enabled by default" do
@@ -102,7 +101,7 @@ describe Vagrant::Util::CheckpointClient do
 
     context "with no alerts" do
       it "should not display alerts" do
-        expect(prefixed_ui).not_to receive(:info)
+        expect(env.ui).not_to receive(:info)
         subject.alerts_check
       end
     end
@@ -111,7 +110,7 @@ describe Vagrant::Util::CheckpointClient do
       let(:result) { {"alerts" => critical} }
 
       it "should display critical alert" do
-        expect(prefixed_ui).to receive(:error)
+        expect(env.ui).to receive(:error)
         subject.alerts_check
       end
     end
@@ -120,7 +119,7 @@ describe Vagrant::Util::CheckpointClient do
       let(:result) { {"alerts" => warn} }
 
       it "should display warn alerts" do
-        expect(prefixed_ui).to receive(:warn)
+        expect(env.ui).to receive(:warn)
         subject.alerts_check
       end
     end
@@ -129,7 +128,7 @@ describe Vagrant::Util::CheckpointClient do
       let(:result) { {"alerts" => info} }
 
       it "should display info alerts" do
-        expect(prefixed_ui).to receive(:info)
+        expect(env.ui).to receive(:info).at_least(:once)
         subject.alerts_check
       end
     end
@@ -138,9 +137,9 @@ describe Vagrant::Util::CheckpointClient do
       let(:result) { {"alerts" => info + warn + critical} }
 
       it "should display all alert types" do
-        expect(prefixed_ui).to receive(:info)
-        expect(prefixed_ui).to receive(:warn)
-        expect(prefixed_ui).to receive(:error)
+        expect(env.ui).to receive(:info).at_least(:once)
+        expect(env.ui).to receive(:warn).at_least(:once)
+        expect(env.ui).to receive(:error).at_least(:once)
 
         subject.alerts_check
       end
@@ -157,7 +156,7 @@ describe Vagrant::Util::CheckpointClient do
       let(:result) { {"current_version" => Vagrant::VERSION } }
 
       it "should not display upgrade information" do
-        expect(prefixed_ui).not_to receive(:info)
+        expect(env.ui).not_to receive(:info)
         subject.version_check
       end
     end
@@ -166,7 +165,7 @@ describe Vagrant::Util::CheckpointClient do
       let(:result) { {"current_version" => old_version} }
 
       it "should not display upgrade information" do
-        expect(prefixed_ui).not_to receive(:info)
+        expect(env.ui).not_to receive(:info)
         subject.version_check
       end
     end
@@ -174,8 +173,13 @@ describe Vagrant::Util::CheckpointClient do
     context "latest version is newer than current version" do
       let(:result) { {"current_version" => new_version} }
 
-      it "should not display upgrade information" do
-        expect(prefixed_ui).not_to receive(:info).at_least(:once)
+      it "should display upgrade information" do
+        expect(env.ui).to receive(:info).at_least(:once)
+        subject.version_check
+      end
+
+      it "should display upgrade information on error channel" do
+        expect(env.ui).to receive(:info).with(any_args, hash_including(channel: :error)).at_least(:once)
         subject.version_check
       end
     end
