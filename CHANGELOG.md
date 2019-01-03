@@ -9,6 +9,7 @@ IMPROVEMENTS:
 - command/rsync-auto: Prevent crash on post-rsync command failure [GH-10515]
 - command/snapshot: Raise error for bad subcommand [GH-10470]
 - command/package: Ensure temp dir for package command is cleaned up [GH-10479]
+- command/powershell: Support running elevated commands [GH-10528]
 - communicator/ssh: Add `config` and `remote_user` options [GH-10496]
 - core: Display version update on stderr instead of stdout [GH-10482]
 - core: Add experimental feature flag [GH-10485]
