@@ -174,8 +174,8 @@ describe Vagrant::Util::CheckpointClient do
     context "latest version is newer than current version" do
       let(:result) { {"current_version" => new_version} }
 
-      it "should not display upgrade information" do
-        expect(prefixed_ui).not_to receive(:info).at_least(:once)
+      it "should display upgrade information" do
+        expect(prefixed_ui).to receive(:info).at_least(:once)
         subject.version_check
       end
     end
