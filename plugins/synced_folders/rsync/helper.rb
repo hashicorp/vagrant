@@ -67,6 +67,11 @@ module VagrantPlugins
         # Folder options
         opts[:owner] ||= ssh_info[:username]
         opts[:group] ||= ssh_info[:username]
+        
+        # On freebsd the root user belongs to the wheel group
+        if machine.guest.name == :freebsd && ssh_info[:username] == 'root'
+          opts[:group] = 'wheel'
+        end
 
         # set log level
         log_level = ssh_info[:log_level] || "FATAL"
