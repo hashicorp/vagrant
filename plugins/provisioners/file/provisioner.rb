@@ -38,6 +38,8 @@ module VagrantPlugins
           end
           comm.execute(command)
 
+          @machine.ui.detail(I18n.t("vagrant.actions.vm.provision.file.locations",
+                                   src: source, dst: destination))
           # now upload the file
           comm.upload(source, destination)
         end
