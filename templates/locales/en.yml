@@ -2323,6 +2323,8 @@ en:
           disabled_by_sentinel: |-
             Machine already provisioned. Run `vagrant provision` or use the `--provision`
             flag to force provisioning. Provisioners marked to run always will still run.
+          file:
+            locations: "%{src} => %{dst}"
         resume:
           resuming: Resuming suspended VM...
           unpausing: |-
