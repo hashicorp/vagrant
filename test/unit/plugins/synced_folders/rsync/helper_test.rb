@@ -284,13 +284,20 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
 
     context "control sockets" do
       it "creates a tmp dir" do
-        allow(Vagrant::Util::Platform).to receive(:windows?).and_return(false)
         allow(Dir).to receive(:mktmpdir).with("vagrant-rsync-").
           and_return("/tmp/vagrant-rsync-12345")
 
-        expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
-          expect(args[9]).to include("ControlPath=/tmp/vagrant-rsync-12345")
-        }.and_return(result)
+        if Vagrant::Util::Platform.windows?
+          #Windows does not use a ControlPath
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+            expect(args[9]).not_to include("ControlPath=/tmp/vagrant-rsync-12345")
+          }.and_return(result)
+        else
+          FileUtils.mkdir("/tmp/vagrant-rsync-12345")
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with(any_args) { |*args|
+            expect(args[9]).to include("ControlPath=/tmp/vagrant-rsync-12345")
+          }.and_return(result)
+        end
 
         subject.rsync_single(machine, ssh_info, opts)
       end
