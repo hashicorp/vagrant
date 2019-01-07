@@ -300,6 +300,10 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
         end
 
         subject.rsync_single(machine, ssh_info, opts)
+
+        unless Vagrant::Util::Platform.windows?
+          expect(File.exist?("/tmp/vagrant-rsync-12345")).to be_falsey
+        end
       end
     end
   end
