@@ -16,6 +16,7 @@ IMPROVEMENTS:
 - guest/windows: Modify elevated username only on username failure [GH-10488]
 - host/windows: Prevent SMB setup commands from becoming too long [GH-10489]
 - host/windows: Automatically answer yes when pruning SMB shares [GH-10524]
+- provisioners/file: Show source and destination locations with file provisioner [GH-10570]
 - provisioners/salt: Validate that `install_type` is set if `version` is specified [GH-10474]
 - provisioners/salt: Update default install version [GH-10537]
 - provisioners/shell: Add `reboot` option for rebooting supported guest [GH-10532]
