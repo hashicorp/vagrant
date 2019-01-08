@@ -573,14 +573,14 @@ module VagrantPlugins
                 stderr_data_buffer << data
                 marker_index = stderr_data_buffer.index(CMD_GARBAGE_MARKER)
                 if marker_index
-                  marker_found = true
+                  stderr_marker_found = true
                   stderr_data_buffer.slice!(0, marker_index + CMD_GARBAGE_MARKER.size)
                   data.replace(stderr_data_buffer)
-                  data_buffer = nil
+                  stderr_data_buffer = nil
                 end
               end
 
-              if block_given? && marker_found && !data.empty?
+              if block_given? && stderr_marker_found && !data.empty?
                 yield :stderr, data
               end
             end

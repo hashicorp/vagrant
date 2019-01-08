@@ -321,6 +321,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       let(:command_stdout_data) do
         "Line of garbage\nMore garbage\n#{command_garbage_marker}bin\ntmp\n"
       end
+      let(:command_stderr_data) { "some data" }
 
       it "removes any garbage output prepended to command output" do
         stdout = ''
@@ -333,12 +334,23 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         ).to eq(0)
         expect(stdout).to eq("bin\ntmp\n")
       end
+
+      it "should not receive any stderr data" do
+        stderr = ''
+        communicator.execute("ls /") do |type, data|
+          if type == :stderr
+            stderr << data
+          end
+        end
+        expect(stderr).to be_empty
+      end
     end
 
     context "with no command output" do
       let(:command_stdout_data) do
         "#{command_garbage_marker}"
       end
+      let(:command_stderr_data) { "some data" }
 
       it "does not send empty stdout data string" do
         empty = true
@@ -351,12 +363,23 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         ).to eq(0)
         expect(empty).to be(true)
       end
+
+      it "should not receive any stderr data" do
+        stderr = ''
+        communicator.execute("ls /") do |type, data|
+          if type == :stderr
+            stderr << data
+          end
+        end
+        expect(stderr).to be_empty
+      end
     end
 
     context "with garbage content prepended to command stderr output" do
       let(:command_stderr_data) do
         "Line of garbage\nMore garbage\n#{command_garbage_marker}bin\ntmp\n"
       end
+      let(:command_stdout_data) { "some data" }
 
       it "removes any garbage output prepended to command stderr output" do
         stderr = ''
@@ -369,12 +392,23 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         ).to eq(0)
         expect(stderr).to eq("bin\ntmp\n")
       end
+
+      it "should not receive any stdout data" do
+        stdout = ''
+        communicator.execute("ls /") do |type, data|
+          if type == :stdout
+            stdout << data
+          end
+        end
+        expect(stdout).to be_empty
+      end
     end
 
     context "with no command output on stderr" do
       let(:command_stderr_data) do
         "#{command_garbage_marker}"
       end
+      let(:command_std_data) { "some data" }
 
       it "does not send empty stderr data string" do
         empty = true
@@ -386,6 +420,16 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
           end
         ).to eq(0)
         expect(empty).to be(true)
+      end
+
+      it "should not receive any stdout data" do
+        stdout = ''
+        communicator.execute("ls /") do |type, data|
+          if type == :stdout
+            stdout << data
+          end
+        end
+        expect(stdout).to be_empty
       end
     end
 
