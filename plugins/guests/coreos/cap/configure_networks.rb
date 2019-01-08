@@ -12,7 +12,7 @@ module VagrantPlugins
           machine.communicate.tap do |comm|
             # Read network interface names
             interfaces = []
-            comm.sudo("ifconfig | grep '(e[n,t][h,s,p][[:digit:]]([a-z][[:digit:]])?' | cut -f1 -d:") do |_, result|
+            comm.sudo("ifconfig | grep -E '(e[n,t][h,s,p][[:digit:]]([a-z][[:digit:]])?)' | cut -f1 -d:") do |_, result|
               interfaces = result.split("\n")
             end
 

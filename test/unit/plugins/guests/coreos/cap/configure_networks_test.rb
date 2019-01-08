@@ -21,7 +21,7 @@ describe "VagrantPlugins::GuestCoreOS::Cap::ConfigureNetworks" do
 
     allow(described_class).to receive(:get_ip).and_return("1.2.3.4")
 
-    comm.stub_command("ifconfig | grep '(e[n,t][h,s,p][[:digit:]]([a-z][[:digit:]])?' | cut -f1 -d:",
+    comm.stub_command("ifconfig | grep -E '(e[n,t][h,s,p][[:digit:]]([a-z][[:digit:]])?)' | cut -f1 -d:",
       stdout: "eth1\neth2")
   end
 
