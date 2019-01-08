@@ -99,6 +99,11 @@ $ vagrant plugin update vagrant-vmware-desktop
 
 ## Frequently Asked Questions
 
+**Q: Can Vagrant VMWare Plugin work without internet?**<br>
+No, Vagrant VMWare plugin requires a new license every 6 weeks. Vagrant will try to renew the
+license automatically. If you are on an environment without internet, after 4 weeks Vagrant will emit a warning, 
+and after 6 weeks, the VMWare plugin will stop working. You can install a new license to reactive vagrant. 
+
 **Q: I purchased a Vagrant VMware plugin license, but I did not receive an email?**<br>
 First, please check your JUNK or SPAM folders. Since the license comes from an
 automated system, it might have been flagged as spam by your email provider. If
