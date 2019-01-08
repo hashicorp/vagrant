@@ -46,7 +46,9 @@ module VagrantPlugins
             @logger.warn("Failed to locate base path for disks. Using current working directory.")
             base_path = "."
           else
-            base_path = File.dirname(result[:settings_path])
+            settings_path = result[:settings_path]
+            settings_path = settings_path.gsub("\\", "/") if Vagrant::Util::Platform.wsl?
+            base_path = File.dirname(settings_path)
           end
 
           @logger.info("Base path for disk import: #{base_path}")
@@ -67,7 +69,9 @@ module VagrantPlugins
               # specified_name were "abc123", then "\\abc123\\".reverse would be "\\321cba\\", and the \3 would be treated as a back reference by the sub
               disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse) { "\\#{specified_name}\\".reverse }.reverse # Replace only last occurrence
             else
-              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence
+              disk_path = path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence
+              disk_path = disk_path.to_s.gsub("/", "\\") if Vagrant::Util::Platform.wsl?
+              disk_params << disk_path
             end
           end
 

@@ -95,5 +95,21 @@ OUTPUT
         expect { subject.import(ovf) }.to raise_error(Vagrant::Errors::VirtualBoxNoName)
       end
     end
+
+    context "within the WSL" do
+      before do
+        allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(true)
+      end
+      it "should start with 'VirtualBox VMs' for disk image" do
+        output.sub!(/.*Suggested VM settings file name.*/,
+          " 3: Suggested VM settings file name \"C:\\Users\\user\\VirtualBox VMs\\precise64\\precise64.vbox\"")
+        expect(subject).to receive(:execute).with("import", "-n", ovf).and_return(output)
+        expect(subject).to receive(:execute) do |*args|
+          diskpath = args[3, args.size].detect { |a| a.include?("disk1.vmdk") }
+          expect(diskpath).to start_with("C:\\Users\\user\\VirtualBox VMs\\")
+        end
+        expect(subject.import(ovf)).to eq(machine_id)
+      end
+    end
   end
 end
