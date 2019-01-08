@@ -28,6 +28,7 @@ BUG FIXES:
 - command/cloud publish: Ensure box file exists before path expanding [GH-10468]
 - command/snapshot: Retain consistent provisioning behavior across all commands [GH-10490]
 - command/validate: Bypass install checks for validating configs with the `--ignore-provider` flag [GH-10467]
+- communicator/ssh: Fix garbage output detection [GH-10571]
 - guest/alt: Fix network configuration errors [GH-10527]
 - guest/freebsd: Fix defaultrouter rcvar in static network template [GH-10469]
 - guest/redhat: Fix network configuration errors [GH-10527]
