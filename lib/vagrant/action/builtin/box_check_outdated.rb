@@ -51,7 +51,8 @@ module Vagrant
 
           env[:ui].output(I18n.t(
             "vagrant.box_outdated_checking_with_refresh",
-            name: box.name))
+            name: box.name,
+            version: box.version))
           update = nil
           begin
             update = box.has_update?(constraints, download_options: download_options)
