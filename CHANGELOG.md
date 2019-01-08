@@ -13,6 +13,7 @@ IMPROVEMENTS:
 - communicator/ssh: Add `config` and `remote_user` options [GH-10496]
 - core: Display version update on stderr instead of stdout [GH-10482]
 - core: Add experimental feature flag [GH-10485]
+- core: Show box version during box outdated check [GH-10573]
 - guest/windows: Modify elevated username only on username failure [GH-10488]
 - host/windows: Prevent SMB setup commands from becoming too long [GH-10489]
 - host/windows: Automatically answer yes when pruning SMB shares [GH-10524]
