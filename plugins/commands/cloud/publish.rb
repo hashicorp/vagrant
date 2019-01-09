@@ -127,6 +127,10 @@ module VagrantPlugins
               @env.ui.error(e)
               return 1
             end
+          rescue VagrantCloud::InvalidVersion => e
+            @env.ui.error(I18n.t("cloud_command.errors.publish.fail", org: org, box_name: box_name))
+            @env.ui.error(e)
+            return 1
           end
 
           begin
