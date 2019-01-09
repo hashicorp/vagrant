@@ -28,6 +28,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - command/cloud publish: Ensure box file exists before path expanding [GH-10468]
+- command/cloud publish: Catch InvalidVersion errors from vagrant_cloud client [GH-10513]
 - command/snapshot: Retain consistent provisioning behavior across all commands [GH-10490]
 - command/validate: Bypass install checks for validating configs with the `--ignore-provider` flag [GH-10467]
 - communicator/ssh: Fix garbage output detection [GH-10571]
