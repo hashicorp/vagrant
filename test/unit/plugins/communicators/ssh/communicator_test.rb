@@ -609,11 +609,13 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
 
       it "includes the default cipher array for encryption" do
-        cipher_array = %w(aes128-cbc 3des-cbc blowfish-cbc cast128-cbc
-                         aes192-cbc aes256-cbc rijndael-cbc@lysator.liu.se
-                         idea-cbc arcfour128 arcfour256 arcfour
-                         aes128-ctr aes192-ctr aes256-ctr
-                         cast128-ctr blowfish-ctr 3des-ctr none)
+        cipher_array = %w(aes256-ctr aes192-ctr aes128-ctr 
+                          aes256-cbc aes192-cbc aes128-cbc
+                          rijndael-cbc@lysator.liu.se blowfish-ctr
+                          blowfish-cbc cast128-ctr cast128-cbc
+                          3des-ctr 3des-cbc idea-cbc arcfour256
+                          arcfour128 arcfour none)
+
         expect(Net::SSH).to receive(:start).with(
           nil, nil, hash_including(
             encryption: cipher_array
