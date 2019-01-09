@@ -344,6 +344,33 @@ describe Vagrant::Util::Platform do
           end
         end
       end
+
+      context "when wslpath command success" do
+        it "should check path returned by command" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(double("process", exit_code: 0, stdout: "/c/Custom/Path"))
+          expect(Dir).to receive(:open).with(/^\/c\/Custom\/Path\//).and_yield(double("path", path: appdata_path))
+          expect(File).to receive(:exist?).and_return(true)
+          expect(subject.wsl_rootfs).to include(appdata_path)
+        end
+      end
+
+      context "when wslpath command failed" do
+        it "should check fallback path" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(double("process", exit_code: 1))
+          expect(Dir).to receive(:open).with(/\/mnt\//).and_yield(double("path", path: appdata_path))
+          expect(File).to receive(:exist?).and_return(true)
+          expect(subject.wsl_rootfs).to include(appdata_path)
+        end
+      end
+
+      context "when wslpath command raise error" do
+        it "should check fallback path" do
+          expect(Vagrant::Util::Subprocess).to receive(:execute).and_raise(Vagrant::Errors::CommandUnavailable, file: "wslpath")
+          expect(Dir).to receive(:open).with(/\/mnt\//).and_yield(double("path", path: appdata_path))
+          expect(File).to receive(:exist?).and_return(true)
+          expect(subject.wsl_rootfs).to include(appdata_path)
+        end
+      end
     end
 
     describe ".wsl_to_windows_path" do
@@ -402,6 +429,58 @@ describe Vagrant::Util::Platform do
             it "should properly handle Pathname" do
               expect(subject.wsl_to_windows_path(Pathname.new("/tmp/test"))).to include("rootfs")
             end
+          end
+
+          context "when wslpath command success" do
+            it "should return path returned by command" do
+              expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(double("process", exit_code: 0, stdout: "C:\\Custom\\Path"))
+              expect(subject.wsl_to_windows_path(path)).to eq("C:\\Custom\\Path")
+            end
+          end
+
+          context "when wslpath command failed" do
+            it "should return path by fallback" do
+              expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(double("process", exit_code: 1))
+              expect(subject.wsl_to_windows_path(path)).to eq("#{rootfs_path}#{path.gsub("/", "\\")}")
+            end
+          end
+
+          context "when wslpath command raise error" do
+            it "should return path by fallback" do
+              expect(Vagrant::Util::Subprocess).to receive(:execute).and_raise(Vagrant::Errors::CommandUnavailable, file: "wslpath")
+              expect(subject.wsl_to_windows_path(path)).to eq("#{rootfs_path}#{path.gsub("/", "\\")}")
+            end
+          end
+        end
+      end
+    end
+
+    describe ".wsl_windows_accessible_path" do
+      context "when within WSL" do
+        before do
+          allow(subject).to receive(:wsl?).and_return(true)
+          allow(subject).to receive(:wsl_windows_home).and_return("C:\\Users\\vagrant")
+          allow(ENV).to receive(:[]).with("VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH").and_return(nil)
+        end
+
+        context "when wslpath command success" do
+          it "should return path returned by command" do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(double("process", exit_code: 0, stdout: "/d/vagrant"))
+            expect(subject.wsl_windows_accessible_path.to_s).to eq("/d/vagrant")
+          end
+        end
+
+        context "when wslpath command failed" do
+          it "should return path by fallback" do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).and_return(double("process", exit_code: 1))
+            expect(subject.wsl_windows_accessible_path.to_s).to eq("/mnt/c/Users/vagrant")
+          end
+        end
+
+        context "when wslpath command raise error" do
+          it "should return path by fallback" do
+            expect(Vagrant::Util::Subprocess).to receive(:execute).and_raise(Vagrant::Errors::CommandUnavailable, file: "wslpath")
+            expect(subject.wsl_windows_accessible_path.to_s).to eq("/mnt/c/Users/vagrant")
           end
         end
       end

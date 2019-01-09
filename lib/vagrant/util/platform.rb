@@ -366,6 +366,12 @@ module Vagrant
               # Lowercase the drive letter, skip the next symbol (which is a
               # colon from a Windows path) and convert path to UNIX style.
               check_path = "/mnt/#{path[0, 1].downcase}#{path[2..-1].tr('\\', '/')}/rootfs"
+              begin
+                process = Subprocess.execute("wslpath", "-u", "-a", path)
+                check_path = "#{process.stdout.chomp}/rootfs" if process.exit_code == 0
+              rescue Errors::CommandUnavailable => e
+                # pass
+              end
 
               logger.debug("checking `#{path}` for current WSL instance")
               begin
@@ -432,6 +438,12 @@ module Vagrant
           path = path.to_s
           if wsl? && wsl_windows_access? && !path.match(/^[a-zA-Z]:/)
             path = File.expand_path(path)
+            begin
+              process = Subprocess.execute("wslpath", "-w", "-a", path)
+              return process.stdout.chomp if process.exit_code == 0
+            rescue Errors::CommandUnavailable => e
+              # pass
+            end
             if wsl_path?(path)
               parts = path.split("/")
               parts.delete_if(&:empty?)
@@ -502,6 +514,14 @@ module Vagrant
         def wsl_windows_accessible_path
           if !defined?(@_wsl_windows_accessible_path)
             access_path = ENV["VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH"]
+            if access_path.to_s.empty?
+              begin
+                process = Subprocess.execute("wslpath", "-u", "-a", wsl_windows_home)
+                access_path = process.stdout.chomp if process.exit_code == 0
+              rescue Errors::CommandUnavailable => e
+                # pass
+              end
+            end
             if access_path.to_s.empty?
               access_path = wsl_windows_home.gsub("\\", "/").sub(":", "")
               access_path[0] = access_path[0].downcase
