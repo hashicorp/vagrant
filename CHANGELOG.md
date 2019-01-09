@@ -23,6 +23,7 @@ IMPROVEMENTS:
 - provisioners/shell: Add `reboot` option for rebooting supported guest [GH-10532]
 - synced_folders/rsync: Support using rsync `--chown` option [GH-10529]
 - util/guest_inspection: Validate hostnamectl command works when detected [GH-10512]
+- util/platform: Use wslpath command for customized root on WSL [GH-10574]
 
 BUG FIXES:
 
