@@ -89,7 +89,9 @@ module VagrantPlugins
             net_conf << "[Match]"
             net_conf << "Name=#{dev_name}"
             net_conf << "[Network]"
-            if network[:ip]
+            if network[:type].to_s == "dhcp"
+              net_conf << "DHCP=yes"
+            else
               mask = network[:netmask]
               if mask && IPAddr.new(network[:ip]).ipv4?
                 begin
@@ -102,8 +104,6 @@ module VagrantPlugins
               net_conf << "DHCP=no"
               net_conf << "Address=#{address}"
               net_conf << "Gateway=#{network[:gateway]}" if network[:gateway]
-            else
-              net_conf << "DHCP=yes"
             end
 
             remote_path = upload_tmp_file(comm, net_conf.join("\n"))
