@@ -101,6 +101,9 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
       end
 
       context "with systemd-networkd" do
+        let(:net_conf_dhcp) { "[Match]\nName=eth1\n[Network]\nDHCP=yes" }
+        let(:net_conf_static) { "[Match]\nName=eth2\n[Network]\nDHCP=no\nAddress=33.33.33.10/16\nGateway=33.33.0.1" }
+
         before do
           expect(comm).to receive(:test).with("systemctl -q is-active systemd-networkd.service", anything).and_return(true)
         end
@@ -111,6 +114,19 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
           expect(comm.received_commands[0]).to match("mv -f '/tmp/vagrant-network-entry.*' '/etc/systemd/network/.*network'")
           expect(comm.received_commands[0]).to match("chown")
           expect(comm.received_commands[0]).to match("chmod")
+          expect(comm.received_commands[2]).to match("systemctl restart")
+        end
+
+        it "properly configures DHCP and static IPs if defined" do
+          expect(cap).to receive(:upload_tmp_file).with(comm, net_conf_dhcp)
+          expect(cap).to receive(:upload_tmp_file).with(comm, net_conf_static)
+
+          cap.configure_networks(machine, [network_0, network_1])
+
+          expect(comm.received_commands[0]).to match("mkdir -p /etc/systemd/network")
+          expect(comm.received_commands[0]).to match("mv -f '' '/etc/systemd/network/50-vagrant-eth1.network'")
+          expect(comm.received_commands[0]).to match("chown root:root '/etc/systemd/network/50-vagrant-eth1.network'")
+          expect(comm.received_commands[0]).to match("chmod 0644 '/etc/systemd/network/50-vagrant-eth1.network'")
           expect(comm.received_commands[2]).to match("systemctl restart")
         end
       end
