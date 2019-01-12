@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- guest/debian: Properly set DHCP for systemd-networkd ips [GH-10586]
+
 ## 2.2.3 (January 9, 2019)
 
 FEATURES:
