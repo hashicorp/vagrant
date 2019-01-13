@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency "net-sftp", "~> 2.1"
   s.add_dependency "net-scp", "~> 1.2.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
+  s.add_dependency "rb-readline", "~ 0.5.5"
   s.add_dependency "rest-client", ">= 1.6.0", "< 3.0"
   s.add_dependency "rubyzip", "~> 1.2.2"
   s.add_dependency "wdm", "~> 0.1.0"
