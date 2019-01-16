@@ -290,9 +290,6 @@ module Vagrant
 
         # Calls the given ruby block for execution
         #
-        # TODO: Need to see what, if anything, we should do when
-        # @machine is nil (i.e. a command trigger)
-        #
         # @param [Proc] ruby_block
         def execute_ruby(ruby_block)
           ruby_block.call(@env, @machine)
