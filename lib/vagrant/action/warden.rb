@@ -102,18 +102,8 @@ module Vagrant
           # A action klass which is to be instantiated with the
           # app, env, and any arguments given
 
-          # TODO: This wraps EVERY action in a proc, which means the recover method
-          # is never called EVER.
-          #
-          # Maybe instead of a lambda, make a new Action class for triggers, where
-          # the class has a "namespace" param so it knows when to properly
-          # fire before or after the action it is wrapped around
-          #
-          #lambda { |e|
-          #  @triggers.fire_triggers(klass.name.to_sym, :before, nil, :action) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers");
-          #  klass.new(self, env, *args, &block).call(e);
-          #  @triggers.fire_triggers(klass.name.to_sym, :after, nil, :action) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
-          #}
+          # We wrap the action class in two Trigger method calls so that
+          # action triggers can fire before and after each given action in the stack.
           klass_name = klass.class.name.to_sym
           [Vagrant::Action::Builtin::BeforeTriggerAction.new(self, env,
                                                              klass_name,
@@ -122,7 +112,6 @@ module Vagrant
            Vagrant::Action::Builtin::AfterTriggerAction.new(self, env,
                                                             klass_name,
                                                             @triggers)]
-          #klass.new(self, env, *args, &block)
         elsif klass.respond_to?(:call)
           # Make it a lambda which calls the item then forwards
           # up the chain
