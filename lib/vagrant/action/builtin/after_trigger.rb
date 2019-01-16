@@ -1,9 +1,14 @@
 module Vagrant
   module Action
     module Builtin
-      # After Trigger
+      # This class is intended to be used by the Action::Warden class for executing
+      # action triggers before any given action.
+      #
+      # @param [Symbol] action_name - name to fire trigger on
+      # @param [Vagrant::Plugin::V2::Triger] triggers - trigger object
       class AfterTriggerAction
-        # @param [Symbol] action_name - The action class name to fire on
+        # @param [Symbol] action_name - The action class name to fire trigger on
+        # @param [Vagrant::Plugin::V2::Triger] triggers - trigger object
         def initialize(app, env, action_name, triggers)
           @app         = app
           @env         = env
