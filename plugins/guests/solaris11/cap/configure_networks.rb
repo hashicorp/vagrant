@@ -14,11 +14,11 @@ module VagrantPlugins
             cidr = mask.split(".").map { |e| e.to_i.to_s(2).rjust(8, "0") }.join.count("1").to_s
 
             if network[:type].to_sym == :static
-              if machine.communicate.test("ipadm | grep #{device}/v4")
-                machine.communicate.execute("#{su_cmd} ipadm delete-addr #{device}/v4")
-              end
               unless machine.communicate.test("ipadm show-if #{device}")
                 machine.communicate.execute("#{su_cmd} ipadm create-ip #{device}")
+              end
+              if machine.communicate.test("ipadm | grep #{device}/v4")
+                machine.communicate.execute("#{su_cmd} ipadm delete-addr #{device}/v4")
               end
               machine.communicate.execute("#{su_cmd} ipadm create-addr -T static -a #{network[:ip]}/#{cidr} #{device}/v4")
             elsif network[:type].to_sym == :dhcp
