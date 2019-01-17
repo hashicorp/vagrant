@@ -17,6 +17,9 @@ module VagrantPlugins
               if machine.communicate.test("ipadm | grep #{device}/v4")
                 machine.communicate.execute("#{su_cmd} ipadm delete-addr #{device}/v4")
               end
+              unless machine.communicate.test("ipadm show-if #{device}")
+                machine.communicate.execute("#{su_cmd} ipadm create-ip #{device}")
+              end
               machine.communicate.execute("#{su_cmd} ipadm create-addr -T static -a #{network[:ip]}/#{cidr} #{device}/v4")
             elsif network[:type].to_sym == :dhcp
               if machine.communicate.test("ipadm show-if -o all | grep #{device} | tr -s ' ' | cut -d ' ' -f 6  | grep '4\|6'")
