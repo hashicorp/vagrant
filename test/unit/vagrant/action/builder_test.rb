@@ -22,6 +22,10 @@ describe Vagrant::Action::Builder do
         @app = app
       end
 
+      def self.name
+        "TestAction"
+      end
+
       define_method(:call) do |env|
         env[:data] << "#{data}_in"
         @app.call(env)
@@ -147,6 +151,10 @@ describe Vagrant::Action::Builder do
             @app = app
           end
 
+          def self.name
+            "TestAction"
+          end
+
           define_method(:call) do |env|
             env[:data] << "#{letter}1"
             @app.call(env)
@@ -264,6 +272,10 @@ describe Vagrant::Action::Builder do
       wrapper = Class.new do
         def initialize(app, env)
           @app = app
+        end
+
+        def self.name
+          "TestAction"
         end
 
         define_method(:call) do |env|

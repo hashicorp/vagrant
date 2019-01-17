@@ -28,6 +28,10 @@ describe Vagrant::Action::Runner do
       def initialize(app, env)
       end
 
+      def self.name
+        "TestAction"
+      end
+
       def call(env)
         raise Exception, "BOOM"
       end
