@@ -104,7 +104,7 @@ module Vagrant
 
           # We wrap the action class in two Trigger method calls so that
           # action triggers can fire before and after each given action in the stack.
-          klass_name = klass.class.name.to_sym
+          klass_name = klass.name.to_sym
           [Vagrant::Action::Builtin::BeforeTriggerAction.new(self, env,
                                                              klass_name,
                                                              @triggers),
