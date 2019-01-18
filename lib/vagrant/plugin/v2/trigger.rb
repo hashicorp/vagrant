@@ -249,7 +249,16 @@ module Vagrant
         #
         # @param [ShellProvisioner/Config] config A Shell provisioner config
         def run_remote(config, on_error, exit_codes)
-          unless @machine.state.id == :running
+          if !@machine
+            # machine doesn't even exist.
+            if on_error == :halt
+              raise Errors::TriggersGuestNotExist
+            else
+              @ui.warn(I18n.t("vagrant.errors.triggers_guest_not_exist"))
+              @ui.warn(I18n.t("vagrant.trigger.on_error_continue"))
+              return
+            end
+          elsif @machine.state.id != :running
             if on_error == :halt
               raise Errors::TriggersGuestNotRunning,
                 machine_name: @machine.name,

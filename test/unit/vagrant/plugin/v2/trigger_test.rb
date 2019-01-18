@@ -319,6 +319,29 @@ describe Vagrant::Plugin::V2::Trigger do
       trigger_run.finalize!
     end
 
+    context "with no machine existing" do
+      let(:machine) { nil }
+
+      it "raises an error and halts if guest does not exist" do
+        trigger = trigger_run.after_triggers.first
+        shell_config = trigger.run_remote
+        on_error = trigger.on_error
+        exit_codes = trigger.exit_codes
+
+        expect { subject.send(:run_remote, shell_config, on_error, exit_codes) }.
+          to raise_error(Vagrant::Errors::TriggersGuestNotExist)
+      end
+
+      it "continues on if guest does not exist but is configured to continue on error" do
+        trigger = trigger_run.before_triggers.first
+        shell_config = trigger.run_remote
+        on_error = trigger.on_error
+        exit_codes = trigger.exit_codes
+
+        subject.send(:run_remote, shell_config, on_error, exit_codes)
+      end
+    end
+
     it "raises an error and halts if guest is not running" do
       allow(machine.state).to receive(:id).and_return(:not_running)
 

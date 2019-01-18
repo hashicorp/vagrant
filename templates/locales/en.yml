@@ -1502,6 +1502,8 @@ en:
         Trigger run failed
       triggers_guest_not_running: |-
         Could not run remote script on %{machine_name} because its state is %{state}
+      triggers_guest_not_exist: |-
+        Could not run remote script on guest because it does not yet exist.
       triggers_bad_exit_codes: |-
         A script exited with an unacceptable exit code %{code}.
       triggers_no_block_given: |-
