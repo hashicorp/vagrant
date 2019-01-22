@@ -13,7 +13,7 @@ description: |-
 ## VirtualBox Internal Network
 
 The Vagrant VirtualBox provider supports using the private network as a
-VirtualBox [internal network](https://www.virtualbox.org/manual/ch07.html#network_internal).
+VirtualBox [internal network](https://www.virtualbox.org/manual/ch06.html#network_internal).
 By default, private networks are host-only networks, because those are the
 easiest to work with. However, internal networks can be enabled as well.
 
