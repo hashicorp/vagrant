@@ -11,7 +11,7 @@ description: |-
 Some features that aren't ready for release can be enabled through this feature
 flag. There are a couple of different ways of going about enabling these features:
 
-If you wish to enale every single experimental feature, you can set the flag
+If you wish to enable every single experimental feature, you can set the flag
 to "on" by setting it to `1` like below:
 
 ```shell
