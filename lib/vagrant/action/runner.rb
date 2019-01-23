@@ -40,8 +40,11 @@ module Vagrant
           # the `env` is coming from, we can wait until they're merged into a single
           # hash above.
           env = environment[:env]
+          machine = environment[:machine]
+          machine_name = machine.name if machine
+
           ui = Vagrant::UI::Prefixed.new(env.ui, "vargant")
-          triggers = Vagrant::Plugin::V2::Trigger.new(env, env.vagrantfile.config.trigger, nil, ui)
+          triggers = Vagrant::Plugin::V2::Trigger.new(env, env.vagrantfile.config.trigger, machine, ui)
         end
 
         # Setup the action hooks
@@ -73,13 +76,14 @@ module Vagrant
         end
 
         action_name = environment[:action_name]
-        triggers.fire_triggers(action_name, :before, nil, :action) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+
+        triggers.fire_triggers(action_name, :before, machine_name, :hook) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
 
         # We place a process lock around every action that is called
         @logger.info("Running action: #{environment[:action_name]} #{callable_id}")
         Util::Busy.busy(int_callback) { callable.call(environment) }
 
-        triggers.fire_triggers(action_name, :after, nil, :action) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+        triggers.fire_triggers(action_name, :after, machine_name, :hook) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
 
         # Return the environment in case there are things in there that
         # the caller wants to use.

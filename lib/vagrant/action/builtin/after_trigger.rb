@@ -17,7 +17,10 @@ module Vagrant
         end
 
         def call(env)
-          @triggers.fire_triggers(@action_name, :after, nil, :action) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers");
+          machine = env[:machine]
+          machine_name = machine.name if machine
+
+          @triggers.fire_triggers(@action_name, :after, machine_name, :action) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers");
 
           # Carry on
           @app.call(env)

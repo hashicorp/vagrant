@@ -26,8 +26,10 @@ module Vagrant
             @env = env[:env]
           end
 
+          machine = env[:machine]
+          machine_name = machine.name if machine
           ui = Vagrant::UI::Prefixed.new(@env.ui, "vargant")
-          @triggers = Vagrant::Plugin::V2::Trigger.new(@env, @env.vagrantfile.config.trigger, nil, ui)
+          @triggers = Vagrant::Plugin::V2::Trigger.new(@env, @env.vagrantfile.config.trigger, machine, ui)
         end
 
         @stack      = []

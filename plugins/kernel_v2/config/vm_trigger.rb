@@ -9,7 +9,7 @@ module VagrantPlugins
       # Defaults
       DEFAULT_ON_ERROR = :halt
       DEFAULT_EXIT_CODE = 0
-      VALID_TRIGGER_TYPES = [:command, :action].freeze
+      VALID_TRIGGER_TYPES = [:command, :action, :hook].freeze
 
       #-------------------------------------------------------------------
       # Config class for a given Trigger
@@ -227,7 +227,12 @@ module VagrantPlugins
 
         if @type == :action
           actions = []
-          # Get every registered action hook and check if it includes the command defined
+          # TODO: Get every registered action and check if it includes the command defined
+        end
+
+        if @type == :hook
+          actions = []
+          # TODO: Get every registered hook and check if it includes the command defined
         end
 
         if @run
