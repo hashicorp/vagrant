@@ -131,3 +131,11 @@ Vagrant.configure("2") do |config|
   end
 end
 ```
+
+### Typed Triggers
+
+Show some examples that use:
+
+* actions
+* hooks
+* commands

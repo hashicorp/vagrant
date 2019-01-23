@@ -27,7 +27,7 @@ config.trigger.before :up do |t|
 end
 ```
 
-Triggers can be used with [_actions_](#actions) or [_commands_](#commands) as well,
+Triggers can be used with [_actions_](#actions), [_hooks_](#hooks), or [_commands_](#commands),
 but by default will be defined to run before or after a Vagrant guest.
 
 ## Trigger Options
@@ -124,6 +124,8 @@ __Note:__ Triggers _without_ the type option will run before or after a
 Vagrant guest. These most similarly align with the `:action` type, and by default
 are classified internally as an action.
 
+TODO: ADD INFO ABOUT GUARDING TYPE OPTION WITH VAGRANT VERSION CHECK IN VAGRANTFILE FOR OLDER CLIENTS
+
 ### Commands
 
 Command typed triggers can be defined for any valid Vagrant subcommand. They will always
@@ -138,6 +140,14 @@ end
 The difference between this and the default behavior is that these triggers are
 not attached to any specific guest, and will always run before or after the given
 command.
+
+### Hooks
+
+<div class="alert alert-warning">
+  <strong>Advanced topic!</strong> This is an advanced topic for use only if
+  you want to execute triggers around Vagrant hooks. If you are just getting
+  started with Vagrant and triggers, you may safely skip this section.
+</div>
 
 ### Actions
 
