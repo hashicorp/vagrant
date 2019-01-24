@@ -18,7 +18,7 @@ should fire:
 * `before`
 * `after`
 
-These define _how_ the trigger behaves and determines when it should fire off during
+These define _how_ the trigger behaves and when it should fire off during
 the Vagrant life cycle. A simple example of a _before_ operation could look like:
 
 ```ruby
@@ -27,8 +27,9 @@ config.trigger.before :up do |t|
 end
 ```
 
-Triggers can be used with [_actions_](#actions), [_hooks_](#hooks), or [_commands_](#commands),
-but by default will be defined to run before or after a Vagrant guest.
+Triggers can also be used with [_actions_](#actions), [_hooks_](#hooks), or [_commands_](#commands),
+but by default will be defined to run before or after a Vagrant guest. For more
+detailed examples of how to use triggers, check out the [usage section](/docs/triggers/usage.html).
 
 ## Trigger Options
 
@@ -81,28 +82,23 @@ The trigger class takes various options.
 
 ## Trigger Types
 
-Optionally, it is possible to define a trigger that executes around Vagrant subcommands
-and actions.
+Optionally, it is possible to define a trigger that executes around Vagrant subcommands,
+hooks, and actions.
 
 <div class="alert alert-warning">
   <strong>Warning!</strong> This feature is still experimental and may break or
   change in between releases. Use at your own risk.
 
-  This feature was introduced at TODO FIX ME!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  and currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+  This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
 
   ```
   VAGRANT_EXPERIMENTAL="typed_triggers"
   ```
 
-  TODO ADD DOCS PAGE!!!11
-  `VAGRANT_EXPERIMENTAL` is an environment variable. For more information about this flag
-  please visit the docs page for more info.
-
-  Without this flag enabled, triggers with the `:type` option will be ignored.
-
-  Vagrantfiles with the `:type` option for triggers will result in an error if
-  used by older Vagrant versions.
+  Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
+  information about this flag visit the [Experimental docs page](/docs/experimental/)
+  for more info. Without this flag enabled, triggers with the `:type` option
+  will be ignored.
 </div>
 
 
@@ -120,11 +116,21 @@ config.trigger.after :destroy, type: :command do |t|
 end
 ```
 
-__Note:__ Triggers _without_ the type option will run before or after a
-Vagrant guest. These most similarly align with the `:action` type, and by default
-are classified internally as an action.
+#### Quick Note
 
-TODO: ADD INFO ABOUT GUARDING TYPE OPTION WITH VAGRANT VERSION CHECK IN VAGRANTFILE FOR OLDER CLIENTS
+Triggers _without_ the type option will run before or after a Vagrant guest.
+
+Older Vagrant versions will unfortunetly not be able to properly parse the new
+`:type` option. To prevent older clients from failing to parse your Vagrantfile,
+you can guard the new trigger based on the version of Vagrant:
+
+```ruby
+if Vagrant.version?(">= 2.3.0")
+  config.trigger.before :status, type: :command do |t|
+    t.info = "before action!!!!!!!"
+  end
+end
+```
 
 ### Commands
 
@@ -143,13 +149,27 @@ command.
 
 ### Hooks
 
+TODO: This still needs to be filled in.
+
 <div class="alert alert-warning">
   <strong>Advanced topic!</strong> This is an advanced topic for use only if
   you want to execute triggers around Vagrant hooks. If you are just getting
   started with Vagrant and triggers, you may safely skip this section.
 </div>
 
+
+For example, you could write up a Vagrant trigger that runs before
+and after each provisioner:
+
+```ruby
+config.trigger.before :provisioner_run, type: :action do |t|
+  t.info = "Before the provision of the guest!!!"
+end
+```
+
 ### Actions
+
+TODO: This still needs to be filled in.
 
 <div class="alert alert-warning">
   <strong>Advanced topic!</strong> This is an advanced topic for use only if
@@ -158,13 +178,4 @@ command.
 </div>
 
 Actions in this case refer to the Vagrant class `#Action`, which is used internally
-and in Vagrant plugins. These function similar to [action hooks](/docs/plugins/action-hooks.html)
-and give the user the ability to run triggers any where within the life cycle of
-a Vagrant run. For example, you could write up a Vagrant trigger that runs before
-and after the provision action:
-
-```ruby
-config.trigger.before :provisioner_run, type: :action do |t|
-  t.info = "Before the provision of the guest!!!"
-end
-```
+to Vagrant and in every Vagrant plugin.
