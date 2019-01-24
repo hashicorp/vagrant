@@ -9,10 +9,18 @@ description: |-
 
 # Reseller Information
 
-We are happy to work with resellers for the Vagrant VMware provider.
-
 This page is intended to answer questions commonly needed by resellers. If you
 are a reseller all required information should be on this page.
+
+## Quote
+
+Each license is a one-time cost of $79 USD per seat. All orders must be placed
+using US currency.
+
+## Self-serve purchase
+
+Licenses can be purchased in our [self service portal](http://www.vagrantup.com/vmware#buy-now)
+with a credit card.
 
 ## Reseller Discounts
 
@@ -25,16 +33,6 @@ We offer volume pricing when purchasing 1 or more sets of 150 licenses. If you
 or your organization plans to purchase 1 or more sets of 150 licenses, please
 contact sales@hashicorp.com to learn more about volume discounts before making your
 purchase.
-
-## Quote
-
-Each license is a one-time cost of $79 USD per seat. All orders must be placed
-using US currency.
-
-## Self-serve purchase
-
-Licenses can be purchased in our [self service portal](http://www.vagrantup.com/vmware#buy-now)
-with a credit card.
 
 ## Purchase Orders
 
@@ -85,5 +83,5 @@ Business website and support:
 
 Our current registered business address is:
 
-    101 2nd Street #575
+    101 2nd Street #700
     San Francisco, CA 94105
