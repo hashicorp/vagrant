@@ -18,9 +18,9 @@ module VagrantPlugins
             machine.communicate.sudo "pip install #{args_array.join(' ')}"
           end
 
-          def self.get_pip(machine)
+          def self.get_pip(machine, pip_install_cmd="curl https://bootstrap.pypa.io/get-pip.py | sudo python")
             machine.ui.detail I18n.t("vagrant.provisioners.ansible.installing_pip")
-            machine.communicate.execute "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+            machine.communicate.execute pip_install_cmd
           end
 
         end
