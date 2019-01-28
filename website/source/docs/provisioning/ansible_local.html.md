@@ -93,6 +93,31 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
         sudo pip install --upgrade ansible==2.2.1.0
         ```
 
+    As-is `pip` is installed if needed via a default command which looks like
+
+        ```shell
+        curl https://bootstrap.pypa.io/get-pip.py | sudo python
+        ```
+
+    This can be problematic in certain scenarios, for example, when behind a proxy. It is possible to override this default command by providing an explicit command to run as part of the config using `pip_install_cmd`. For example:
+        
+        ```ruby
+        config.vm.provision "ansible_local" do |ansible|
+          ansible.playbook = "playbook.yml"
+          ansible.install_mode = "pip"
+          ansible.pip_install_cmd = "https_proxy=http://your.proxy.server:port curl -s https://bootstrap.pypa.io/get-pip.py | sudo https_proxy=http://your.proxy.server:port python"
+          ansible.version = "2.2.1.0"
+        end
+        ```
+        
+    In this case case `pip` will be installed via the command:
+
+        ```shell
+        https_proxy=http://your.proxy.server:port curl -s https://bootstrap.pypa.io/get-pip.py | sudo https_proxy=http://your.proxy.server:port python
+        ```
+
+    If `pip_install_cmd` is not provided in the config, then `pip` is installed via the default command.
+
   - `:pip_args_only`: This mode is very similar to the `:pip` mode, with the difference that in this case no pip arguments will be automatically set by Vagrant.
 
         Example:
