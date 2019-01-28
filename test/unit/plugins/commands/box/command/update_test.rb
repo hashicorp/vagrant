@@ -100,7 +100,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
             expect(opts[:box_version]).to eq("1.1")
             expect(opts[:box_download_ca_path]).to be_nil
             expect(opts[:box_download_ca_cert]).to be_nil
-            expect(opts[:box_client_cert]).to be_nil
+            expect(opts[:box_download_client_cert]).to be_nil
             expect(opts[:box_download_insecure]).to be_nil
           end
 
@@ -206,7 +206,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
               action_called = true
               expect(opts[:box_download_ca_cert]).to eq("foo")
               expect(opts[:box_download_ca_path]).to eq("bar")
-              expect(opts[:box_client_cert]).to eq("baz")
+              expect(opts[:box_download_client_cert]).to eq("baz")
               expect(opts[:box_download_insecure]).to be(true)
             end
 
@@ -355,7 +355,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
             expect(action_runner).to receive(:run).with(any_args) { |action, opts|
               expect(opts[:box_download_ca_cert]).to eq("oof")
               expect(opts[:box_download_ca_path]).to eq("rab")
-              expect(opts[:box_client_cert]).to eq("zab")
+              expect(opts[:box_download_client_cert]).to eq("zab")
               expect(opts[:box_download_insecure]).to be(false)
               true
             }
@@ -378,7 +378,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
               expect(action_runner).to receive(:run).with(any_args) { |action, opts|
                 expect(opts[:box_download_ca_cert]).to eq("foo")
                 expect(opts[:box_download_ca_path]).to eq("bar")
-                expect(opts[:box_client_cert]).to eq("baz")
+                expect(opts[:box_download_client_cert]).to eq("baz")
                 expect(opts[:box_download_insecure]).to be(true)
                 true
               }
