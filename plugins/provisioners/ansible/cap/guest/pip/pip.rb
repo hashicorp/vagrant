@@ -25,9 +25,10 @@ module VagrantPlugins
             # The objective here is to get pip either by default
             # or by the argument passed in. The objective is not 
             # to circumvent the pip setup by passing in nothing.
-            # Thus, we stick with the default on an empty string.
+            # Thus, we stick with the default on an empty string
+            # or if it is an UNSET_VALUE.
 
-            if pip_install_cmd.empty?
+            if pip_install_cmd == Vagrant.plugin("2", :config)::UNSET_VALUE || pip_install_cmd.empty?
               pip_install_cmd=DEFAULT_PIP_INSTALL_CMD
             end
 

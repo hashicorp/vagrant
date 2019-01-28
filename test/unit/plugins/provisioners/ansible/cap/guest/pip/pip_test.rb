@@ -41,7 +41,12 @@ describe VagrantPlugins::Ansible::Cap::Guest::Pip do
             pip_install_command = ""
             expect(communicator).to receive(:execute).with("curl https://bootstrap.pypa.io/get-pip.py | sudo python")
             subject.get_pip(machine,pip_install_command)
-        end        
+        end 
+        
+        it "installs pip using the default command if the argument is UNSET_VALUE" do
+            expect(communicator).to receive(:execute).with("curl https://bootstrap.pypa.io/get-pip.py | sudo python")
+            subject.get_pip(machine, Vagrant.plugin("2", :config)::UNSET_VALUE)
+        end         
     end    
   end
 end
