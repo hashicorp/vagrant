@@ -225,16 +225,6 @@ module VagrantPlugins
           end
         end
 
-        if @type == :action
-          actions = []
-          # TODO: Get every registered action and check if it includes the command defined
-        end
-
-        if @type == :hook
-          actions = []
-          # TODO: Get every registered hook and check if it includes the command defined
-        end
-
         if @run
           errorz = @run.validate(machine)
           errors.concat errorz["shell provisioner"] if !errorz.empty?
