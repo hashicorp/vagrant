@@ -28,6 +28,8 @@ describe Vagrant::CLI do
   end
 
   describe "#execute" do
+    let(:triggers) { double("triggers") }
+
     it "invokes help and exits with 1 if invalid command" do
       subject = described_class.new(["i-dont-exist"], env)
       expect(subject).to receive(:help).once
@@ -53,6 +55,37 @@ describe Vagrant::CLI do
       commands[:destroy] = [command_lambda("destroy", 42), {}]
       expect(checkpoint).to receive(:display)
       described_class.new(["destroy"], env).execute
+    end
+
+    it "fires triggers, if enabled" do
+      allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
+        with("typed_triggers").and_return("true")
+      allow(triggers).to receive(:fire_triggers)
+
+      commands[:destroy] = [command_lambda("destroy", 42), {}]
+
+      allow(Vagrant::Plugin::V2::Trigger).to receive(:new).and_return(triggers)
+
+      subject = described_class.new(["destroy"], env)
+
+      expect(triggers).to receive(:fire_triggers).twice
+
+      expect(subject).not_to receive(:help)
+      expect(subject.execute).to eql(42)
+    end
+
+    it "does not fire triggers if disabled" do
+      allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
+        with("typed_triggers").and_return("false")
+
+      commands[:destroy] = [command_lambda("destroy", 42), {}]
+
+      subject = described_class.new(["destroy"], env)
+
+      expect(triggers).not_to receive(:fire_triggers)
+
+      expect(subject).not_to receive(:help)
+      expect(subject.execute).to eql(42)
     end
   end
 

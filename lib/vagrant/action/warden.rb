@@ -100,6 +100,7 @@ module Vagrant
         # a `nil` args will actually pass `nil` into the class.
         args ||= []
 
+
         if klass.is_a?(Class)
           # A action klass which is to be instantiated with the
           # app, env, and any arguments given
