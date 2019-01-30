@@ -44,13 +44,15 @@ module VagrantPlugins
         command.flatten!
         blk = block
 
-        if block_given? && command.last.is_a?(Hash)
-          extra_cfg = command.pop
-        elsif !block_given? && command.last.is_a?(Hash)
-          # We were given a hash rather than a block,
-          # so the last element should be the "config block"
-          # and the rest are commands for the trigger
-          blk = command.pop
+        if command.last.is_a?(Hash)
+          if block_given?
+            extra_cfg = command.pop
+          else
+            # We were given a hash rather than a block,
+            # so the last element should be the "config block"
+            # and the rest are commands for the trigger
+            blk = command.pop
+          end
         elsif !block_given?
           raise Vagrant::Errors::TriggersNoBlockGiven,
             command: command
@@ -71,13 +73,15 @@ module VagrantPlugins
         command.flatten!
         blk = block
 
-        if block_given? && command.last.is_a?(Hash)
-          extra_cfg = command.pop
-        elsif !block_given? && command.last.is_a?(Hash)
-          # We were given a hash rather than a block,
-          # so the last element should be the "config block"
-          # and the rest are commands for the trigger
-          blk = command.pop
+        if command.last.is_a?(Hash)
+          if block_given?
+            extra_cfg = command.pop
+          else
+            # We were given a hash rather than a block,
+            # so the last element should be the "config block"
+            # and the rest are commands for the trigger
+            blk = command.pop
+          end
         elsif !block_given?
           raise Vagrant::Errors::TriggersNoBlockGiven,
             command: command
