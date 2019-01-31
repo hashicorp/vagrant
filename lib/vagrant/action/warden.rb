@@ -100,14 +100,13 @@ module Vagrant
         # a `nil` args will actually pass `nil` into the class.
         args ||= []
 
-
         if klass.is_a?(Class)
           # A action klass which is to be instantiated with the
           # app, env, and any arguments given
 
           # We wrap the action class in two Trigger method calls so that
           # action triggers can fire before and after each given action in the stack.
-          klass_name = klass.name.to_sym
+          klass_name = klass.name
           [Vagrant::Action::Builtin::BeforeTriggerAction.new(self, env,
                                                              klass_name,
                                                              @triggers),

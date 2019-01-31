@@ -42,6 +42,13 @@ module Vagrant
             return
           end
 
+          if !action
+            @logger.warn("Action given is nil, no triggers will fire")
+            return
+          else
+            action = action.to_sym
+          end
+
           # get all triggers matching action
           triggers = []
           if stage == :before
