@@ -40,6 +40,19 @@ describe Vagrant::Action::Runner do
     expect { instance.run(callable) }.to raise_error(Exception, "BOOM")
   end
 
+  it "should be able to use a Class as a callable with no name attribute" do
+    callable = Class.new do
+      def initialize(app, env)
+      end
+
+      def call(env)
+        raise Exception, "BOOM"
+      end
+    end
+
+    expect { instance.run(callable) }.to raise_error(Exception, "BOOM")
+  end
+
   it "should return the resulting environment" do
     callable = lambda do |env|
       env[:data] = "value"
