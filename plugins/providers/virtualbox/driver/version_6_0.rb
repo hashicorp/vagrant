@@ -46,7 +46,11 @@ module VagrantPlugins
             @logger.warn("Failed to locate base path for disks. Using current working directory.")
             base_path = "."
           else
-            base_path = File.dirname(result[:settings_path])
+            base_path = result[:settings_path]
+            if Vagrant::Util::Platform.windows? || Vagrant::Util::Platform.wsl?
+              base_path.gsub!('\\', '/')
+            end
+            base_path = File.dirname(base_path)
           end
 
           @logger.info("Base path for disk import: #{base_path}")
@@ -61,14 +65,7 @@ module VagrantPlugins
             disk_params << "--unit"
             disk_params << unit_num
             disk_params << "--disk"
-            if Vagrant::Util::Platform.windows?
-              # we use the block form of sub here to ensure that if the specified_name happens to end with a number (which is fairly likely) then
-              # we won't end up having the character sequence of a \ followed by a number be interpreted as a back reference.  For example, if
-              # specified_name were "abc123", then "\\abc123\\".reverse would be "\\321cba\\", and the \3 would be treated as a back reference by the sub
-              disk_params << path.reverse.sub("\\#{suggested_name}\\".reverse) { "\\#{specified_name}\\".reverse }.reverse # Replace only last occurrence
-            else
-              disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence
-            end
+            disk_params << path.reverse.sub("/#{suggested_name}/".reverse, "/#{specified_name}/".reverse).reverse # Replace only last occurrence
           end
 
           execute("import", ovf , *name_params, *disk_params, retryable: true) do |type, data|
