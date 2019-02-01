@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - guest/debian: Properly set DHCP for systemd-networkd ips [GH-10586]
+- providers/virtualbox: Fix import paths on Windows with VirtualBox 6 [GH-10629]
 
 ## 2.2.3 (January 9, 2019)
 
