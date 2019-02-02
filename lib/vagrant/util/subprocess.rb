@@ -129,10 +129,10 @@ module Vagrant
           if ENV["VAGRANT_APPIMAGE"]
             embed_path = Pathname.new(Vagrant.installer_embedded_dir).expand_path.to_s
             exec_path = Pathname.new(@command[0]).expand_path.to_s
-            if !exec_path.start_with?(embed_path) && ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"]
+            if !exec_path.start_with?(embed_path) && ENV["VAGRANT_APPIMAGE_HOST_LD_LIBRARY_PATH"]
               @logger.info("Detected AppImage environment and request to external binary. Updating library path.")
-              @logger.debug("Setting LD_LIBRARY_PATH to #{ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"]}")
-              process.environment["LD_LIBRARY_PATH"] = ENV["VAGRANT_APPIMAGE_LD_LIBRARY_PATH"].to_s
+              @logger.debug("Setting LD_LIBRARY_PATH to #{ENV["VAGRANT_APPIMAGE_HOST_LD_LIBRARY_PATH"]}")
+              process.environment["LD_LIBRARY_PATH"] = ENV["VAGRANT_APPIMAGE_HOST_LD_LIBRARY_PATH"].to_s
             end
           end
         else
