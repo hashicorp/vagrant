@@ -52,6 +52,13 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#base_address" do
+    it "defaults properly" do
+      subject.finalize!
+      expect(subject.base_address).to be_nil
+    end
+  end
+
   describe "#box" do
     it "is required" do
       subject.box = nil
