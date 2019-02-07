@@ -19,16 +19,12 @@ module VagrantPlugins
             # Build a list of commands
             commands = []
 
-            # Stop default systemd
-            #commands << "systemctl stop etcd"
-
             # Configure interfaces
             # FIXME: fix matching of interfaces with IP addresses
             networks.each do |network|
               iface = interfaces[network[:interface].to_i]
               commands << "ifconfig #{iface} #{network[:ip]} netmask #{network[:netmask]}".squeeze(" ")
             end
-
 
             # Run all network configuration commands in one communicator session.
             comm.sudo(commands.join("\n"))
