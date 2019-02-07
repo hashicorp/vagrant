@@ -9,10 +9,12 @@ description: |-
 # Experimental Feature Flag
 
 Some features that aren't ready for release can be enabled through this feature
-flag. There are a couple of different ways of going about enabling these features:
+flag. There are a couple of different ways of going about enabling these features.
+It is also worth noting that Vagrant will not validate the existance of a feature
+flag.
 
-For example if you are on Linux or Mac, and you you wish to enable every single experimental feature, you can set the flag
-to "on" by setting it to `1` like below:
+For example if you are on Linux or Mac, and you wish to enable every single experimental feature, you can set the flag
+to "on" by setting it to `1`:
 
 ```shell
 export VAGRANT_EXPERIMENTAL="1"
@@ -31,16 +33,13 @@ export VAGRANT_EXPERIMENTAL="feature_one"
 export VAGRANT_EXPERIMENTAL="feature_one,feature_two"
 ```
 
+## Valid experimental features
+
 <div class="alert alert-warning">
   <strong>Advanced topic!</strong> This is an advanced topic for use only if
-  you want to use new Vagrant features.. If you are just getting
+  you want to use new Vagrant features. If you are just getting
   started with Vagrant, you may safely skip this section.
-
-  It is also worth noting that Vagrant will not validate the existance of a
-  feature flag.
 </div>
-
-## Valid experimental features
 
 This is a list of all the valid experimental features that Vagrant recognizes:
 
