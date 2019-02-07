@@ -27,8 +27,8 @@ config.trigger.before :up do |t|
 end
 ```
 
-Triggers can also be used with [_actions_](#actions), [_hooks_](#hooks), or [_commands_](#commands),
-but by default will be defined to run before or after a Vagrant guest. For more
+Triggers can also be used with [_commands_](#commands), [_actions_](#actions), or [_hooks_](#hooks).
+By default triggers will be defined to run before or after a Vagrant guest. For more
 detailed examples of how to use triggers, check out the [usage section](/docs/triggers/usage.html).
 
 ## Trigger Options
