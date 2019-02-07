@@ -82,7 +82,7 @@ The trigger class takes various options.
 
 ## Trigger Types
 
-Optionally, it is possible to define a trigger that executes around Vagrant subcommands,
+Optionally, it is possible to define a trigger that executes around Vagrant commands,
 hooks, and actions.
 
 <div class="alert alert-warning">
@@ -106,7 +106,7 @@ A trigger can be one of three types:
 
 * `type` (symbol) - Optional
   - `:action` - Action triggers run before or after a Vagrant action
-  - `:command` - Command triggers run before or after a Vagrant subcommand
+  - `:command` - Command triggers run before or after a Vagrant command
   - `:hook` - Action hook triggers run before or after a Vagrant hook
 
 These types determine when and where a defined trigger will execute.
@@ -135,8 +135,8 @@ end
 
 ### Commands
 
-Command typed triggers can be defined for any valid Vagrant subcommand. They will always
-run before or after the subcommand.
+Command typed triggers can be defined for any valid Vagrant command. They will always
+run before or after the command.
 
 The difference between this and the default behavior is that these triggers are
 not attached to any specific guest, and will always run before or after the given
