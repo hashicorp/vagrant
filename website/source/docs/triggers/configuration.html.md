@@ -102,11 +102,12 @@ hooks, and actions.
 </div>
 
 
-A trigger can be one of two types:
+A trigger can be one of three types:
 
 * `type` (symbol) - Optional
   - `:action` - Action triggers run before or after a Vagrant action
   - `:command` - Command triggers run before or after a Vagrant subcommand
+  - `:hook` - Action hook triggers run before or after a Vagrant hook
 
 These types determine when and where a defined trigger will execute.
 
@@ -121,7 +122,7 @@ end
 Triggers _without_ the type option will run before or after a Vagrant guest.
 
 Older Vagrant versions will unfortunetly not be able to properly parse the new
-`:type` option. To prevent older clients from failing to parse your Vagrantfile,
+`:type` option. If you are worried about older clients failing to parse your Vagrantfile,
 you can guard the new trigger based on the version of Vagrant:
 
 ```ruby
@@ -137,19 +138,21 @@ end
 Command typed triggers can be defined for any valid Vagrant subcommand. They will always
 run before or after the subcommand.
 
+The difference between this and the default behavior is that these triggers are
+not attached to any specific guest, and will always run before or after the given
+command. A simple example might be running a trigger before the up command to give
+a simple message to the user:
+
 ```ruby
-config.trigger.before :status, type: :command do |t|
-  t.info = "Getting the status of your guests..."
+config.trigger.before :up, type: :command do |t|
+  t.info = "Before command!"
 end
 ```
 
-The difference between this and the default behavior is that these triggers are
-not attached to any specific guest, and will always run before or after the given
-command.
+For a more detailed example, please check out the [examples](/docs/triggers/usage.html#commands)
+page for more.
 
 ### Hooks
-
-TODO: This still needs to be filled in.
 
 <div class="alert alert-warning">
   <strong>Advanced topic!</strong> This is an advanced topic for use only if
@@ -157,19 +160,20 @@ TODO: This still needs to be filled in.
   started with Vagrant and triggers, you may safely skip this section.
 </div>
 
+Hook typed triggers can be defined for any valid Vagrant action hook that is defined.
 
-For example, you could write up a Vagrant trigger that runs before
-and after each provisioner:
+A simple example would be running a trigger on a given hook called `action_hook_name`.
 
 ```ruby
-config.trigger.before :provisioner_run, type: :action do |t|
-  t.info = "Before the provision of the guest!!!"
+config.trigger.after :action_hook_name, type: :hook do |t|
+  t.info = "After action hook!"
 end
 ```
 
-### Actions
+For a more detailed example, please check out the [examples](/docs/triggers/usage.html#hooks)
+page for more.
 
-TODO: This still needs to be filled in.
+### Actions
 
 <div class="alert alert-warning">
   <strong>Advanced topic!</strong> This is an advanced topic for use only if
@@ -177,5 +181,15 @@ TODO: This still needs to be filled in.
   started with Vagrant and triggers, you may safely skip this section.
 </div>
 
-Actions in this case refer to the Vagrant class `#Action`, which is used internally
-to Vagrant and in every Vagrant plugin.
+Action typed triggers can be defined for any valid Vagrant action class. Actions
+in this case refer to the Vagrant class `#Action`, which is used internally to
+Vagrant and in every Vagrant plugin.
+
+```ruby
+config.trigger.before :"Action::Class::Name", type: :action do |t|
+  t.info = "Before action class!
+end
+```
+
+For a more detailed example, please check out the [examples](/docs/triggers/usage.html#actions)
+page for more.
