@@ -7,7 +7,8 @@ module VagrantPlugins
       attr_accessor :sensitive
       attr_accessor :plugins
 
-      VALID_PLUGIN_KEYS = [:sources, :version, :entry_point].freeze
+      VALID_PLUGIN_KEYS = ["sources", "version", "entry_point"].map(&:freeze).freeze
+      INVALID_PLUGIN_FORMAT = :invalid_plugin_format
 
       def initialize
         @host = UNSET_VALUE
@@ -43,13 +44,21 @@ module VagrantPlugins
           errors << I18n.t("vagrant.config.root.sensitive_bad_type")
         end
 
-        @plugins.each do |plugin_name, plugin_info|
-          invalid_keys = plugin_info.keys - VALID_PLUGIN_KEYS
-          if !invalid_keys.empty?
-            errors << I18n.t("vagrant.config.root.plugins_bad_key",
-              plugin_name: plugin_name,
-              plugin_key: invalid_keys.join(", ")
-            )
+        if @plugins == INVALID_PLUGIN_FORMAT
+          errors << I18n.t("vagrant.config.root.plugins_invalid_format")
+        else
+          @plugins.each do |plugin_name, plugin_info|
+            if plugin_info.is_a?(Hash)
+              invalid_keys = plugin_info.keys - VALID_PLUGIN_KEYS
+              if !invalid_keys.empty?
+                errors << I18n.t("vagrant.config.root.plugins_bad_key",
+                  plugin_name: plugin_name,
+                  plugin_key: invalid_keys.join(", ")
+                )
+              end
+            else
+              errors << I18n.t("vagrant.config.root.plugins_invalid_format")
+            end
           end
         end
 
@@ -61,18 +70,26 @@ module VagrantPlugins
       end
 
       def format_plugins(val)
-        result = case val
-                 when String
-                   {val => {}}
-                 when Array
-                   Hash[val.map{|item| [item.to_s, {}]}]
-                 else
-                   val
-                 end
-        result.keys.each do |key|
-          result[key] = Hash[result[key].map{|k,v| [k.to_sym, v]}]
+        case val
+        when String
+          {val => Vagrant::Util::HashWithIndifferentAccess.new}
+        when Array
+          val.inject(Vagrant::Util::HashWithIndifferentAccess.new) { |memo, item|
+            memo.merge(format_plugins(item))
+          }
+        when Hash
+          Vagrant::Util::HashWithIndifferentAccess.new.tap { |h|
+            val.each_pair { |k, v|
+              if v.is_a?(Hash)
+                h[k] = Vagrant::Util::HashWithIndifferentAccess.new(v)
+              else
+                h[k] = v
+              end
+            }
+          }
+        else
+          INVALID_PLUGIN_FORMAT
         end
-        result
       end
     end
   end
