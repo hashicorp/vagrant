@@ -10,7 +10,28 @@ description: |-
 
 Vagrant Triggers has a few options to define trigger behavior.
 
-## Options
+## Execution Order
+
+The trigger config block takes two different operations that determine when a trigger
+should fire:
+
+* `before`
+* `after`
+
+These define _how_ the trigger behaves and when it should fire off during
+the Vagrant life cycle. A simple example of a _before_ operation could look like:
+
+```ruby
+config.trigger.before :up do |t|
+  t.info = "Bringing up your Vagrant guest machine!"
+end
+```
+
+Triggers can also be used with [_commands_](#commands), [_actions_](#actions), or [_hooks_](#hooks).
+By default triggers will be defined to run before or after a Vagrant guest. For more
+detailed examples of how to use triggers, check out the [usage section](/docs/triggers/usage.html).
+
+## Trigger Options
 
 The trigger class takes various options.
 
@@ -58,3 +79,117 @@ The trigger class takes various options.
 * `exit_codes` (integer, array) - A set of acceptable exit codes to continue on. Defaults to `0` if option is absent. For now only valid with the `run` option.
 
 * `abort` (integer,boolean) - An option that will exit the running Vagrant process once the trigger fires. If set to `true`, Vagrant will use exit code 1. Otherwise, an integer can be provided and Vagrant will it as its exit code when aborting.
+
+## Trigger Types
+
+Optionally, it is possible to define a trigger that executes around Vagrant commands,
+hooks, and actions.
+
+<div class="alert alert-warning">
+  <strong>Warning!</strong> This feature is still experimental and may break or
+  change in between releases. Use at your own risk.
+
+  This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+
+  ```
+  VAGRANT_EXPERIMENTAL="typed_triggers"
+  ```
+
+  Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
+  information about this flag visit the [Experimental docs page](/docs/experimental/)
+  for more info. Without this flag enabled, triggers with the `:type` option
+  will be ignored.
+</div>
+
+
+A trigger can be one of three types:
+
+* `type` (symbol) - Optional
+  - `:action` - Action triggers run before or after a Vagrant action
+  - `:command` - Command triggers run before or after a Vagrant command
+  - `:hook` - Action hook triggers run before or after a Vagrant hook
+
+These types determine when and where a defined trigger will execute.
+
+```ruby
+config.trigger.after :destroy, type: :command do |t|
+  t.warn = "Destroy command completed"
+end
+```
+
+#### Quick Note
+
+Triggers _without_ the type option will run before or after a Vagrant guest.
+
+Older Vagrant versions will unfortunetly not be able to properly parse the new
+`:type` option. If you are worried about older clients failing to parse your Vagrantfile,
+you can guard the new trigger based on the version of Vagrant:
+
+```ruby
+if Vagrant.version?(">= 2.3.0")
+  config.trigger.before :status, type: :command do |t|
+    t.info = "before action!!!!!!!"
+  end
+end
+```
+
+### Commands
+
+Command typed triggers can be defined for any valid Vagrant command. They will always
+run before or after the command.
+
+The difference between this and the default behavior is that these triggers are
+not attached to any specific guest, and will always run before or after the given
+command. A simple example might be running a trigger before the up command to give
+a simple message to the user:
+
+```ruby
+config.trigger.before :up, type: :command do |t|
+  t.info = "Before command!"
+end
+```
+
+For a more detailed example, please check out the [examples](/docs/triggers/usage.html#commands)
+page for more.
+
+### Hooks
+
+<div class="alert alert-warning">
+  <strong>Advanced topic!</strong> This is an advanced topic for use only if
+  you want to execute triggers around Vagrant hooks. If you are just getting
+  started with Vagrant and triggers, you may safely skip this section.
+</div>
+
+Hook typed triggers can be defined for any valid Vagrant action hook that is defined.
+
+A simple example would be running a trigger on a given hook called `action_hook_name`.
+
+```ruby
+config.trigger.after :action_hook_name, type: :hook do |t|
+  t.info = "After action hook!"
+end
+```
+
+For a more detailed example, please check out the [examples](/docs/triggers/usage.html#hooks)
+page for more.
+
+### Actions
+
+<div class="alert alert-warning">
+  <strong>Advanced topic!</strong> This is an advanced topic for use only if
+  you want to execute triggers around Vagrant actions. If you are just getting
+  started with Vagrant and triggers, you may safely skip this section.
+</div>
+
+Action typed triggers can be defined for any valid Vagrant action class. Actions
+in this case refer to the Vagrant class `#Action`, which is used internally to
+Vagrant and in every Vagrant plugin.
+
+```ruby
+config.trigger.before :"Action::Class::Name", type: :action do |t|
+  t.info = "Before action class!
+end
+```
+
+For a more detailed example, please check out the [examples](/docs/triggers/usage.html#actions)
+page for more.

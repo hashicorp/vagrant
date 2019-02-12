@@ -10,6 +10,10 @@ describe Vagrant::Action::Builtin::Call do
         @app = app
       end
 
+      def self.name
+        "TestAction"
+      end
+
       define_method(:call) do |env|
         env[:data] << "#{data}_in"
         @app.call(env)
@@ -103,6 +107,10 @@ describe Vagrant::Action::Builtin::Call do
         env[:arg] = arg
       end
 
+      def self.name
+        "TestAction"
+      end
+
       def call(env); end
     end
 
@@ -126,6 +134,10 @@ describe Vagrant::Action::Builtin::Call do
         @env = env
       end
 
+      def self.name
+        "TestAction"
+      end
+
       def call(env)
         @app.call(env)
       end
@@ -137,6 +149,10 @@ describe Vagrant::Action::Builtin::Call do
         super
       end
 
+      def self.name
+        "TestAction"
+      end
+
       def recover(env)
         env[:steps] << :recover_A
       end
@@ -146,6 +162,10 @@ describe Vagrant::Action::Builtin::Call do
       def call(env)
         env[:steps] << :call_B
         super
+      end
+
+      def self.name
+        "TestAction"
       end
 
       def recover(env)

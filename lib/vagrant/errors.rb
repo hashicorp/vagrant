@@ -804,6 +804,10 @@ module Vagrant
       error_key(:triggers_bad_exit_codes)
     end
 
+    class TriggersGuestNotExist < VagrantError
+      error_key(:triggers_guest_not_exist)
+    end
+
     class TriggersGuestNotRunning < VagrantError
       error_key(:triggers_guest_not_running)
     end

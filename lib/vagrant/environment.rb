@@ -210,7 +210,8 @@ module Vagrant
           home_path:      home_path,
           root_path:      root_path,
           tmp_path:       tmp_path,
-          ui:             @ui
+          ui:             @ui,
+          env:            self
         }
       end
     end

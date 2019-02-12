@@ -9,6 +9,7 @@ module VagrantPlugins
       # Defaults
       DEFAULT_ON_ERROR = :halt
       DEFAULT_EXIT_CODE = 0
+      VALID_TRIGGER_TYPES = [:command, :action, :hook].freeze
 
       #-------------------------------------------------------------------
       # Config class for a given Trigger
@@ -89,6 +90,12 @@ module VagrantPlugins
       # @return [Proc]
       attr_accessor :ruby
 
+      # The type of trigger, which defines where it will fire. If not defined,
+      # the option will default to `:action`
+      #
+      # @return [Symbol]
+      attr_accessor :type
+
       def initialize(command)
         @logger = Log4r::Logger.new("vagrant::config::vm::trigger::config")
 
@@ -103,6 +110,7 @@ module VagrantPlugins
         @exit_codes = UNSET_VALUE
         @abort = UNSET_VALUE
         @ruby = UNSET_VALUE
+        @type = UNSET_VALUE
 
         # Internal options
         @id = SecureRandom.uuid
@@ -135,6 +143,7 @@ module VagrantPlugins
         @only_on = nil if @only_on == UNSET_VALUE
         @exit_codes = DEFAULT_EXIT_CODE if @exit_codes == UNSET_VALUE
         @abort = nil if @abort == UNSET_VALUE
+        @type = :action if @type == UNSET_VALUE
 
         @ruby_block = nil if @ruby_block == UNSET_VALUE
         @ruby = nil if @ruby == UNSET_VALUE
@@ -187,20 +196,33 @@ module VagrantPlugins
         if @abort == true
           @abort = 1
         end
+
+        if @type
+          @type = @type.to_sym
+        end
       end
 
       # @return [Array] array of strings of error messages from config option validation
       def validate(machine)
         errors = _detected_errors
 
-        commands = []
-        Vagrant.plugin("2").manager.commands.each do |key,data|
-          commands.push(key)
+        if @type && !VALID_TRIGGER_TYPES.include?(@type)
+          errors << I18n.t("vagrant.config.triggers.bad_trigger_type",
+                           type: @type,
+                           trigger: @command,
+                           types: VALID_TRIGGER_TYPES.join(', '))
         end
 
-        if !commands.include?(@command) && @command != :all
-          machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
-                                cmd: @command))
+        if @type == :command || !@type
+          commands = []
+          Vagrant.plugin("2").manager.commands.each do |key,data|
+            commands.push(key)
+          end
+
+          if !commands.include?(@command) && @command != :all
+            machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",
+                                  cmd: @command))
+          end
         end
 
         if @run

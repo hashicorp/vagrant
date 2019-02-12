@@ -131,3 +131,70 @@ Vagrant.configure("2") do |config|
   end
 end
 ```
+
+### Typed Triggers
+
+Below are some basic examples of using `:type` triggers. They cover commands, hooks,
+and actions.
+
+It is important to note that while `command` triggers will be a fairly common use case,
+both `action` and `hook` triggers are more complicated and are a more advanced use case.
+
+#### Commands
+
+The most common use case for typed triggers are with `command`. These kinds of
+triggers allow you to run something before or after a subcommand in Vagrant.
+
+```ruby
+config.trigger.after :status, type: :command do |t|
+  t.info = "Showing status of all VMs!"
+end
+```
+
+Because they are specifically for subcommands, they do not work with any guest
+operations like `run_remote` or if you define the trigger as a guest trigger.
+
+#### Hooks
+
+Below is an example of a Vagrant trigger that runs before and after each defined
+provisioner:
+
+```ruby
+config.trigger.before :provisioner_run, type: :hook do |t|
+  t.info = "Before the provision!"
+end
+
+config.vm.provision "file", source: "scripts/script.sh", destination: "/test/script.sh"
+
+config.vm.provision "shell", inline: <<-SHELL
+echo "Provision the guest!"
+SHELL
+
+```
+
+Notice how this trigger runs before _each_ provisioner defined for the guest:
+
+```shell
+==> guest: Running provisioner: Sandbox (file)...
+==> vargant: Running hook triggers before provisioner_run ...
+==> vargant: Running trigger...
+==> vargant: Before the provision!
+    guest: /home/hashicorp/vagrant-sandbox/scripts/script.sh => /home/vagrant/test/script.sh
+==> guest: Running provisioner: shell...
+==> vargant: Running hook triggers before provisioner_run ...
+==> vargant: Running trigger...
+==> vargant: Before the provision!
+    guest: Running: inline script
+    guest: Provision the guest!
+```
+#### Actions
+
+With action typed triggers, you can fire off triggers before or after certain
+Action classes. A simple example of this might be warning the user when Vagrant
+invokes the `GracefulHalt` action.
+
+```ruby
+config.trigger.before :"Vagrant::Action::Builtin::GracefulHalt", type: :action do |t|
+  t.warn = "Vagrant is halting your guest..."
+end
+```

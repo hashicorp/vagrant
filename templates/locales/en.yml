@@ -296,7 +296,7 @@ en:
       abort: |-
         Vagrant has been configured to abort. Terminating now...
       start: |-
-        Running triggers %{stage} %{action} ...
+        Running %{type} triggers %{stage} %{action} ...
       fire_with_name: |-
         Running trigger: %{name}...
       fire: |-
@@ -1502,6 +1502,8 @@ en:
         Trigger run failed
       triggers_guest_not_running: |-
         Could not run remote script on %{machine_name} because its state is %{state}
+      triggers_guest_not_exist: |-
+        Could not run remote script on guest because it does not exist.
       triggers_bad_exit_codes: |-
         A script exited with an unacceptable exit code %{code}.
       triggers_no_block_given: |-
@@ -1826,6 +1828,8 @@ en:
           values are exactly the same, only the name of the option has changed.
         ssh_config_missing: "`config` file must exist: %{path}"
       triggers:
+        bad_trigger_type: |-
+          The type '%{type}' defined for trigger '%{trigger}' is not valid. Must be one of the following types: '%{types}'
         bad_command_warning: |-
           The command '%{cmd}' was not found for this trigger.
         name_bad_type: |-
