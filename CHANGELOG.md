@@ -10,10 +10,11 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Fix format finalization of plugins in Vagrantfile [GH-10664]
 - guest/debian: Properly set DHCP for systemd-networkd ips [GH-10586]
+- installers/appimage: Use ld path with appimage libs on suffix [GH-10647]
 - providers/docker: Expand paths when comparing synced folders on reload [GH-10645]
 - providers/virtualbox: Fix import paths on Windows with VirtualBox 6 [GH-10629]
-- installers/appimage: Use ld path with appimage libs on suffix [GH-10647]
 
 ## 2.2.3 (January 9, 2019)
 
