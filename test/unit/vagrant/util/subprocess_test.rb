@@ -69,7 +69,7 @@ describe Vagrant::Util::Subprocess do
         allow(process_env).to receive(:[]=)
         allow(ENV).to receive(:[]).with("VAGRANT_INSTALLER_ENV").and_return("1")
         allow(ENV).to receive(:[]).with("VAGRANT_APPIMAGE").and_return("1")
-        allow(ENV).to receive(:[]).with("VAGRANT_APPIMAGE_LD_LIBRARY_PATH").and_return(appimage_ld_path)
+        allow(ENV).to receive(:[]).with("VAGRANT_APPIMAGE_HOST_LD_LIBRARY_PATH").and_return(appimage_ld_path)
         allow(File).to receive(:file?).with(exec_path).and_return(true)
         allow(ChildProcess).to receive(:build).and_return(process)
         allow(Vagrant).to receive(:installer_embedded_dir).and_return(appimage_path)
