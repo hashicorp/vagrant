@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/windows: Add reboot output to guest capability [GH-10638]
+
 BUG FIXES:
 
 - guest/debian: Properly set DHCP for systemd-networkd ips [GH-10586]
