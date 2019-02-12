@@ -1815,6 +1815,8 @@ en:
         sensitive_bad_type: |-
           Invalid type provided for `sensitive`. The sensitive option expects a string
           or an array of strings.
+        plugins_invalid_format: |-
+          Invalid type provided for `plugins`.
         plugins_bad_key: |-
           Invalid plugin configuration detected for `%{plugin_name}` plugin.
 
