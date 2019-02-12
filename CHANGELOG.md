@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- core/triggers: Introduce new option `:type` for actions, hooks, and commands [GH-10615]
+
 IMPROVEMENTS:
 
 BUG FIXES:
