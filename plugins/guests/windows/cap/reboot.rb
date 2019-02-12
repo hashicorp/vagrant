@@ -21,6 +21,8 @@ module VagrantPlugins
             @logger.debug("A reboot is already in progress")
           end
 
+          machine.ui.info(I18n.t("vagrant.guests.capabilities.rebooting"))
+
           @logger.debug("Waiting for machine to finish rebooting")
 
           wait_remaining = MAX_REBOOT_RETRY_DURATION

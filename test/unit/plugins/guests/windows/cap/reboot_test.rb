@@ -8,9 +8,10 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
   end
   let(:vm) { double("vm") }
   let(:config) { double("config") }
-  let(:machine) { double("machine") }
+  let(:machine) { double("machine", ui: ui) }
   let(:guest) { double("guest") }
   let(:communicator) { double("communicator") }
+  let(:ui) { double("ui") }
 
   before do
     allow(machine).to receive(:communicate).and_return(communicator)
@@ -18,6 +19,7 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
     allow(machine.guest).to receive(:ready?).and_return(true)
     allow(machine).to receive(:config).and_return(config)
     allow(config).to receive(:vm).and_return(vm)
+    allow(ui).to receive(:info)
   end
 
   describe ".reboot" do
@@ -26,13 +28,27 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
     end
 
     it "reboots the vm" do
+      allow(communicator).to receive(:execute)
+
+      expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+      expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+      expect(described_class).to receive(:wait_for_reboot)
+
+      described_class.reboot(machine)
+    end
+
+    context "user output" do
+      before do
         allow(communicator).to receive(:execute)
+        allow(described_class).to receive(:wait_for_reboot)
+      end
 
-        expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
-        expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
-        expect(described_class).to receive(:wait_for_reboot)
+      after { described_class.reboot(machine) }
 
-        described_class.reboot(machine)
+      it "sends message to user that guest is rebooting" do
+        expect(communicator).to receive(:test).and_return(true)
+        expect(ui).to receive(:info)
+      end
     end
   end
 
