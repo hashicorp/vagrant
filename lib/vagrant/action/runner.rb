@@ -66,11 +66,29 @@ module Vagrant
         ui = environment[:ui] if environment.key?(:ui)
         int_callback = lambda do
           if environment[:interrupted]
-            ui.error I18n.t("vagrant.actions.runner.exit_immediately") if ui
+            if ui
+              begin
+                ui.error I18n.t("vagrant.actions.runner.exit_immediately")
+              rescue ThreadError
+                # We're being called in a trap-context. Wrap in a thread.
+                Thread.new {
+                  ui.error I18n.t("vagrant.actions.runner.exit_immediately")
+                }.join(THREAD_MAX_JOIN_TIMEOUT)
+              end
+            end
             abort
           end
 
-          ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup") if ui && !@@reported_interrupt
+          if ui && !@@reported_interrupt
+            begin
+              ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup")
+            rescue ThreadError
+              # We're being called in a trap-context. Wrap in a thread.
+              Thread.new {
+                ui.warn I18n.t("vagrant.actions.runner.waiting_cleanup")
+              }.join(THREAD_MAX_JOIN_TIMEOUT)
+            end
+          end
           environment[:interrupted] = true
           @@reported_interrupt = true
         end
