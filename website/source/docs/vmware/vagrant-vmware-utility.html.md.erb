@@ -29,15 +29,15 @@ Next create a directory for the executable and unpack the executable as
 root.
 
 ```shell
-sudo mkdir /opt/vagrant-vmware-utility/bin
-sudo unzip -d /opt/vagrant-vmware-utility/bin vagrant-vmware-utility_1.0.0_x86_64.zip
+sudo mkdir /opt/vagrant-vmware-desktop/bin
+sudo unzip -d /opt/vagrant-vmware-desktop/bin vagrant-vmware-utility_1.0.0_x86_64.zip
 ```
 
 After the executable has been installed, the utility setup tasks must be run. First,
 generate the required certificates:
 
 ```shell
-sudo /opt/vagrant-vmware-utility/bin/vagrant-vmware-utility certificate generate
+sudo /opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility certificate generate
 ```
 
 The path provided from this command can be used to set the [`utility_certificate_path`]
@@ -47,7 +47,7 @@ configuration if installing to a non-standard path.
 Finally, install the service. This will also enable the service.
 
 ```shell
-sudo /usr/local/vagrant-vmware-utility/vagrant-vmware-utility service install
+sudo /usr/local/vagrant-vmware-desktop/vagrant-vmware-utility service install
 ```
 
 # Usage
