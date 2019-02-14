@@ -16,6 +16,8 @@ describe Vagrant::BoxCollection, :skip_windows do
   end
 
   describe "#all" do
+    let(:ui) { double("ui", warn: true) }
+
     it "should return an empty array when no boxes are there" do
       expect(subject.all).to eq([])
     end
@@ -32,6 +34,27 @@ describe Vagrant::BoxCollection, :skip_windows do
       results = subject.all
       expect(results.length).to eq(5)
       expect(results.include?(["foo", "1.0", :virtualbox])).to be
+      expect(results.include?(["foo", "1.0", :vmware])).to be
+      expect(results.include?(["bar", "0", :ec2])).to be
+      expect(results.include?(["foo/bar", "1.0", :virtualbox])).to be
+      expect(results.include?(["foo:colon", "1.0", :virtualbox])).to be
+    end
+
+    it "should return the boxes and their providers even if box has wrong version" do
+      allow(Vagrant::UI::Prefixed).to receive(:new).and_return(ui)
+      # Create some boxes
+      environment.box3("foo", "fake-invalid-version", :virtualbox)
+      environment.box3("foo", "1.0", :vmware)
+      environment.box3("bar", "0", :ec2)
+      environment.box3("foo-VAGRANTSLASH-bar", "1.0", :virtualbox)
+      environment.box3("foo-VAGRANTCOLON-colon", "1.0", :virtualbox)
+
+      expect(ui).to receive(:warn).once
+
+      # Verify some output
+      results = subject.all
+      expect(results.length).to eq(4)
+      expect(results.include?(["foo", "1.0", :virtualbox])).not_to be
       expect(results.include?(["foo", "1.0", :vmware])).to be
       expect(results.include?(["bar", "0", :ec2])).to be
       expect(results.include?(["foo/bar", "1.0", :virtualbox])).to be
