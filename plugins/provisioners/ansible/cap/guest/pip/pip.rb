@@ -5,7 +5,7 @@ module VagrantPlugins
       module Guest
         module Pip
 
-          DEFAULT_PIP_INSTALL_CMD = "curl https://bootstrap.pypa.io/get-pip.py | sudo python"
+          DEFAULT_PIP_INSTALL_CMD = "curl https://bootstrap.pypa.io/get-pip.py | sudo python".freeze
 
           def self.pip_install(machine, package = "", version = "", pip_args = "", upgrade = true)
             upgrade_arg = "--upgrade" if upgrade
@@ -25,10 +25,10 @@ module VagrantPlugins
             # The objective here is to get pip either by default
             # or by the argument passed in. The objective is not 
             # to circumvent the pip setup by passing in nothing.
-            # Thus, we stick with the default on an empty string
-            # or if it is an UNSET_VALUE.
+            # Thus, we stick with the default on an empty string.
+            # Typecast added in the check for safety.
 
-            if pip_install_cmd == Vagrant.plugin("2", :config)::UNSET_VALUE || pip_install_cmd.empty?
+            if pip_install_cmd == pip_install_cmd.to_s.empty?
               pip_install_cmd=DEFAULT_PIP_INSTALL_CMD
             end
 
