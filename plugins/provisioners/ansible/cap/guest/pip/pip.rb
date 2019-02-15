@@ -28,7 +28,7 @@ module VagrantPlugins
             # Thus, we stick with the default on an empty string.
             # Typecast added in the check for safety.
 
-            if pip_install_cmd == pip_install_cmd.to_s.empty?
+            if pip_install_cmd.to_s.empty?
               pip_install_cmd=DEFAULT_PIP_INSTALL_CMD
             end
 
