@@ -11,7 +11,7 @@ module VagrantPlugins
         "atlas.hashicorp.com".freeze
       ].freeze
       TARGET_HOST = "vagrantcloud.com".freeze
-      CUSTOM_HOST_NOTIFY_WAIT = 5
+      CUSTOM_HOST_NOTIFY_WAIT = if !ENV["CUSTOM_HOST_NOTIFY_WAIT"].to_s.empty? then ENV["CUSTOM_HOST_NOTIFY_WAIT"].to_i else 5 end
 
       def self.custom_host_notified!
         @_host_notify = true
