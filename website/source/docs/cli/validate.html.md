@@ -12,6 +12,10 @@ description: |-
 
 This command validates your [Vagrantfile](/docs/vagrantfile/).
 
+## Options
+
+* `--ignore-provider` - Ignores provider config options.
+
 ## Examples
 
 ```sh
