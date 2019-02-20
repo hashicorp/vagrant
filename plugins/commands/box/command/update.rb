@@ -158,7 +158,7 @@ module VagrantPlugins
             box_version: update[1].version,
             ui: ui,
             box_force: force,
-            box_client_cert: download_options[:client_cert],
+            box_download_client_cert: download_options[:client_cert],
             box_download_ca_cert: download_options[:ca_cert],
             box_download_ca_path: download_options[:ca_path],
             box_download_insecure: download_options[:insecure]
