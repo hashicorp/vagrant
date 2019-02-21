@@ -17,6 +17,11 @@ module VagrantPlugins
         Command::Root
       end
 
+      action_hook(:cloud_authenticated_boxes, :authenticate_box_url) do |hook|
+        require_relative "auth/middleware/add_authentication"
+        hook.prepend(AddAuthentication)
+      end
+
       protected
 
       def self.init!
