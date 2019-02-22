@@ -1,10 +1,10 @@
 require "cgi"
 require "uri"
 
-require_relative "../client"
+require Vagrant.source_root.join("plugins/commands/cloud/client/client")
 
 module VagrantPlugins
-  module LoginCommand
+  module CloudCommand
     class AddAuthentication
       REPLACEMENT_HOSTS = [
         "app.vagrantup.com".freeze,
@@ -27,7 +27,7 @@ module VagrantPlugins
 
       def initialize(app, env)
         @app = app
-        LoginCommand::Plugin.init!
+        CloudCommand::Plugin.init!
       end
 
       def call(env)
@@ -56,7 +56,7 @@ module VagrantPlugins
 
             if u.host == server_uri.host
               if server_uri.host != TARGET_HOST && !self.class.custom_host_notified?
-                env[:ui].warn(I18n.t("login_command.middleware.authentication.different_target",
+                env[:ui].warn(I18n.t("cloud_command.middleware.authentication.different_target",
                   custom_host: server_uri.host, known_host: TARGET_HOST) + "\n")
                 sleep CUSTOM_HOST_NOTIFY_WAIT
                 self.class.custom_host_notified!

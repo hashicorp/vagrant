@@ -1,8 +1,8 @@
-require File.expand_path("../../../../../base", __FILE__)
+require File.expand_path("../../../../../../base", __FILE__)
 
-require Vagrant.source_root.join("plugins/commands/login/middleware/add_authentication")
+require Vagrant.source_root.join("plugins/commands/cloud/auth/middleware/add_authentication")
 
-describe VagrantPlugins::LoginCommand::AddAuthentication do
+describe VagrantPlugins::CloudCommand::AddAuthentication do
   include_context "unit"
 
   let(:app) { lambda { |env| } }
@@ -26,7 +26,7 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
   describe "#call" do
     it "does nothing if we have no server set" do
       allow(Vagrant).to receive(:server_url).and_return(nil)
-      VagrantPlugins::LoginCommand::Client.new(iso_env).store_token("foo")
+      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token("foo")
 
       original = ["foo", "#{server_url}/bar"]
       env[:box_urls] = original.dup
@@ -47,7 +47,7 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
 
     it "appends the access token to the URL of server URLs" do
       token = "foobarbaz"
-      VagrantPlugins::LoginCommand::Client.new(iso_env).store_token(token)
+      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
 
       original = [
         "http://google.com/box.box",
@@ -71,7 +71,7 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
       allow(subject).to receive(:sleep)
 
       token = "foobarbaz"
-      VagrantPlugins::LoginCommand::Client.new(iso_env).store_token(token)
+      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
 
       original = [
         "http://google.com/box.box",
@@ -92,7 +92,7 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
       allow(Vagrant).to receive(:server_url).and_return(server_url)
 
       token = "foobarbaz"
-      VagrantPlugins::LoginCommand::Client.new(iso_env).store_token(token)
+      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
 
       original = [
         "http://google.com/box.box",
@@ -115,9 +115,9 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
     end
 
     it "modifies host URL to target if authorized host" do
-      originals = VagrantPlugins::LoginCommand::AddAuthentication::
+      originals = VagrantPlugins::CloudCommand::AddAuthentication::
         REPLACEMENT_HOSTS.map{ |h| "http://#{h}/box.box" }
-      expected = "http://#{VagrantPlugins::LoginCommand::AddAuthentication::TARGET_HOST}/box.box"
+      expected = "http://#{VagrantPlugins::CloudCommand::AddAuthentication::TARGET_HOST}/box.box"
       env[:box_urls] = originals
       subject.call(env)
       env[:box_urls].each do |url|
@@ -136,9 +136,9 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
 
     it "returns original urls when not modified" do
       to_persist = "file:////path/to/box.box"
-      to_change = VagrantPlugins::LoginCommand::AddAuthentication::
+      to_change = VagrantPlugins::CloudCommand::AddAuthentication::
         REPLACEMENT_HOSTS.map{ |h| "http://#{h}/box.box" }.first
-      expected = "http://#{VagrantPlugins::LoginCommand::AddAuthentication::TARGET_HOST}/box.box"
+      expected = "http://#{VagrantPlugins::CloudCommand::AddAuthentication::TARGET_HOST}/box.box"
       env[:box_urls] = [to_persist, to_change]
       subject.call(env)
       check_persist, check_change = env[:box_urls]
@@ -152,7 +152,7 @@ describe VagrantPlugins::LoginCommand::AddAuthentication do
 
     it "does not append multiple access_tokens" do
       token = "foobarbaz"
-      VagrantPlugins::LoginCommand::Client.new(iso_env).store_token(token)
+      VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
 
       original = [
         "#{server_url}/foo.box?access_token=existing",
