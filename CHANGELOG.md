@@ -13,6 +13,7 @@ BUG FIXES:
 - core: Fix format finalization of plugins in Vagrantfile [GH-10664]
 - core: Fix SIGINT behavior and prevent backtrace [GH-10666]
 - core: Change remaining box_client_cert refs to box_download_client_cert [GH-10622]
+- core: Move over AddAuthentication middleware and hooks  out of deprecated class [GH-10686]
 - guest/debian: Properly set DHCP for systemd-networkd ips [GH-10586]
 - installers/appimage: Use ld path with appimage libs on suffix [GH-10647]
 - providers/docker: Expand paths when comparing synced folders on reload [GH-10645]
