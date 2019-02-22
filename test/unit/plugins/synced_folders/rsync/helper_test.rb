@@ -292,11 +292,8 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
           expect(args[9]).to include("ControlPath=/tmp/vagrant-rsync-12345")
         }.and_return(result)
 
+        expect(FileUtils).to receive(:remove_entry_secure).with("/tmp/vagrant-rsync-12345").and_return(true)
         subject.rsync_single(machine, ssh_info, opts)
-
-        unless Vagrant::Util::Platform.windows?
-          expect(File.exist?("/tmp/vagrant-rsync-12345")).to be_falsey
-        end
       end
     end
   end
