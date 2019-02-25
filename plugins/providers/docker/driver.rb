@@ -209,13 +209,13 @@ module VagrantPlugins
       end
 
       # @param[Array] opts - An array of flags used for listing networks
-      def prune_network(opts)
+      def prune_network(opts=nil)
         output = execute('docker', 'network', 'prune', '--force', opts)
       end
 
       # @param[String] network - name of network to remove
       # @param[Array]  opts - An array of flags used for listing networks
-      def rm_network(networks, opts)
+      def rm_network(networks, opts=nil)
         output = execute('docker', 'network', 'rm', network, opts)
       end
 
