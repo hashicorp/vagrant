@@ -28,6 +28,7 @@ module VagrantPlugins
 
           b.use ConfigValidate
           b.use HostMachine
+          b.use Network
 
           # Yeah, this is supposed to be here twice (once more above). This
           # catches the case when the container was supposed to be created,
@@ -311,6 +312,7 @@ module VagrantPlugins
       autoload :Pull, action_root.join("pull")
       autoload :PrepareSSH, action_root.join("prepare_ssh")
       autoload :Stop, action_root.join("stop")
+      autoload :Network, action_root.join("network")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")
       autoload :Start, action_root.join("start")
