@@ -177,6 +177,49 @@ module VagrantPlugins
         end
       end
 
+      # @param[String] network - name of network to connect conatiner to
+      # @param[String] cid - container id
+      # @param[Array]  opts - An array of flags used for listing networks
+      def connect_network(network, cid, opts=nil)
+        output = execute('docker', 'network', 'connect', network, cid, opts)
+      end
+
+      # @param[String] network - name of network to create
+      # @param[Array] opts - An array of flags used for listing networks
+      def create_network(network, opts=nil)
+        output = execute('docker', 'network', 'create', network, opts)
+      end
+
+      # @param[String] network - name of network to disconnect container from
+      # @param[String] cid - container id
+      # @param[Array] opts - An array of flags used for listing networks
+      def disconnect_network(network, cid, opts=nil)
+        output = execute('docker', 'network', 'disconnect', network, cid, opts)
+      end
+
+      # @param[Array]  networks - list of networks to inspect
+      # @param[Array]  opts - An array of flags used for listing networks
+      def inspect_network(networks, opts=nil)
+        output = execute('docker', 'network', 'inspect', networks, opts)
+      end
+
+      # @param[Array] opts - An array of flags used for listing networks
+      def list_network(opts=nil)
+        output = execute('docker', 'network', 'ls', opts)
+      end
+
+      # @param[Array] opts - An array of flags used for listing networks
+      def prune_network(opts)
+        output = execute('docker', 'network', 'prune', '--force', opts)
+      end
+
+      # @param[String] network - name of network to remove
+      # @param[Array]  opts - An array of flags used for listing networks
+      def rm_network(networks, opts)
+        output = execute('docker', 'network', 'rm', network, opts)
+      end
+
+      # @param[Array] opts - An array of flags used for listing networks
       def execute(*cmd, **opts, &block)
         @executor.execute(*cmd, **opts, &block)
       end
