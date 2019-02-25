@@ -33,13 +33,17 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
 
   describe "#upload" do
     let(:fm) { double("file_manager") }
+
+    before do
+      allow(WinRM::FS::FileManager).to receive(:new).with(connection)
+        .and_return(fm)
+    end
+
     it "should call file_manager.upload for each passed in path" do
       from = ["/path", "/path/folder", "/path/folder/file.py"]
       to = "/destination"
       size = 80
 
-      allow(WinRM::FS::FileManager).to receive(:new).with(connection)
-        .and_return(fm)
       allow(fm).to receive(:upload).and_return(size)
 
       expect(fm).to receive(:upload).exactly(from.size).times
@@ -51,12 +55,33 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
       to = "/destination"
       size = 80
 
-      allow(WinRM::FS::FileManager).to receive(:new).with(connection)
-        .and_return(fm)
       allow(fm).to receive(:upload).and_return(size)
 
       expect(fm).to receive(:upload).exactly(1).times
       expect(subject.upload(from, to)).to eq(size)
+    end
+
+    context "when source is a directory" do
+      let(:source) { "path/sourcedir" }
+
+      before do
+        allow(File).to receive(:directory?).with(/#{Regexp.escape(source)}/).and_return(true)
+      end
+
+      it "should add source directory name to destination" do
+        expect(fm).to receive(:upload) do |from, to|
+          expect(to).to include("sourcedir")
+        end
+        subject.upload(source, "/dest")
+      end
+
+      it "should not add source directory name to destination when source ends with '.'" do
+        source << "/."
+        expect(fm).to receive(:upload) do |from, to|
+          expect(to).to eq("/dest")
+        end
+        subject.upload(source, "/dest")
+      end
     end
   end
 

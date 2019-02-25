@@ -108,6 +108,13 @@ module VagrantPlugins
       # @return [FixNum] Total size transfered from host to guest
       def upload(from, to)
         file_manager = WinRM::FS::FileManager.new(connection)
+        if from.is_a?(String) && File.directory?(from)
+          if from.end_with?(".")
+            from = from[0, from.length - 1]
+          else
+            to = File.join(to, File.basename(File.expand_path(from)))
+          end
+        end
         if from.is_a?(Array)
           # Preserve return FixNum of bytes transfered
           return_bytes = 0

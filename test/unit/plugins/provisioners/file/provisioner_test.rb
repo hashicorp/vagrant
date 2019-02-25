@@ -34,8 +34,6 @@ describe VagrantPlugins::FileUpload::Provisioner do
       allow(config).to receive(:source).and_return("/source")
       allow(config).to receive(:destination).and_return("/foo/bar")
 
-      expect(communicator).to receive(:execute).with("mkdir -p \"/foo\"")
-
       subject.provision
     end
 
@@ -43,16 +41,12 @@ describe VagrantPlugins::FileUpload::Provisioner do
       allow(config).to receive(:source).and_return("/source")
       allow(config).to receive(:destination).and_return("/foo bar/bar")
 
-      expect(communicator).to receive(:execute).with("mkdir -p \"/foo bar\"")
-
       subject.provision
     end
 
     it "creates the destination directory above file" do
       allow(config).to receive(:source).and_return("/source/file.sh")
       allow(config).to receive(:destination).and_return("/foo/bar/file.sh")
-
-      expect(communicator).to receive(:execute).with("mkdir -p \"/foo/bar\"")
 
       subject.provision
     end
@@ -105,21 +99,12 @@ describe VagrantPlugins::FileUpload::Provisioner do
       subject.provision
     end
 
-    it "sends an array of files and folders if winrm and destination doesn't end with file separator" do
-      files = ["/source/file.py", "/source/folder"]
-      allow(Dir).to receive(:[]).and_return(files)
-      allow(config).to receive(:source).and_return("/source")
-      allow(config).to receive(:destination).and_return("/foo/bar")
+    it "appends a '/.' to expanded source if defined in original source" do
+      allow(config).to receive(:source).and_return("/source/.")
       allow(File).to receive(:directory?).with("/source").and_return(true)
-      allow(machine.config.vm).to receive(:communicator).and_return(:winrm)
+      allow(config).to receive(:destination).and_return("/foo/bar")
 
-      expect(guest).to receive(:capability?).
-        with(:shell_expand_guest_path).and_return(true)
-      expect(guest).to receive(:capability).
-        with(:shell_expand_guest_path, "/foo/bar").and_return("/foo/bar")
-
-      expect(communicator).to receive(:upload)
-        .with(files, "/foo/bar")
+      expect(communicator).to receive(:upload).with("/source/.", "/foo/bar")
 
       subject.provision
     end
