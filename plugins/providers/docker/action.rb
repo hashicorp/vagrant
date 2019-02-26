@@ -28,7 +28,6 @@ module VagrantPlugins
 
           b.use ConfigValidate
           b.use HostMachine
-          b.use Network
 
           # Yeah, this is supposed to be here twice (once more above). This
           # catches the case when the container was supposed to be created,
@@ -267,6 +266,7 @@ module VagrantPlugins
                 end
               end
 
+              b2.use Network
               b2.use Start
               b2.use WaitForRunning
 
