@@ -317,10 +317,11 @@ module VagrantPlugins
               else
                 dest = to
                 if to.end_with?(File::SEPARATOR)
-                  create_remote_directory(dest)
                   dest = File.join(to, File.basename(path))
                 end
               end
+              @logger.debug("Ensuring remote directory exists for destination upload")
+              create_remote_directory(File.dirname(dest))
               @logger.debug("Uploading file #{path} to remote #{dest}")
               upload_file = File.open(path, "rb")
               begin

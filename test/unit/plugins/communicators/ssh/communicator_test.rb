@@ -547,8 +547,19 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       file = Tempfile.new('vagrant-test')
       begin
         expect(scp).to receive(:upload!).with(instance_of(File), "/destination/dir/#{File.basename(file.path)}")
-        expect(communicator).to receive(:create_remote_directory).with("/destination/dir/")
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir")
         communicator.upload(file.path, "/destination/dir/")
+      ensure
+        file.delete
+      end
+    end
+
+    it "creates remote directory path to destination on upload" do
+      file = Tempfile.new('vagrant-test')
+      begin
+        expect(scp).to receive(:upload!).with(instance_of(File), "/destination/dir/file.txt")
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir")
+        communicator.upload(file.path, "/destination/dir/file.txt")
       ensure
         file.delete
       end
