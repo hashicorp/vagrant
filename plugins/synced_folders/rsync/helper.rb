@@ -234,7 +234,7 @@ module VagrantPlugins
           end
         end
       ensure
-        FileUtils.remove_entry_secure(controlpath) if controlpath
+        FileUtils.remove_entry_secure(controlpath, true) if controlpath
       end
 
       # Check if rsync versions support using chown option

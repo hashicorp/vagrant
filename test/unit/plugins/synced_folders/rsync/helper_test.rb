@@ -292,7 +292,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
           expect(args[9]).to include("ControlPath=/tmp/vagrant-rsync-12345")
         }.and_return(result)
 
-        expect(FileUtils).to receive(:remove_entry_secure).with("/tmp/vagrant-rsync-12345").and_return(true)
+        expect(FileUtils).to receive(:remove_entry_secure).with("/tmp/vagrant-rsync-12345", true).and_return(true)
         subject.rsync_single(machine, ssh_info, opts)
       end
 
@@ -305,7 +305,7 @@ describe VagrantPlugins::SyncedFolderRSync::RsyncHelper do
           expect(args).not_to include("ControlPath=/tmp/vagrant-rsync-12345")
         }.and_return(result)
 
-        expect(FileUtils).not_to receive(:remove_entry_secure).with("/tmp/vagrant-rsync-12345")
+        expect(FileUtils).not_to receive(:remove_entry_secure).with("/tmp/vagrant-rsync-12345", true)
         subject.rsync_single(machine, ssh_info, opts)
       end
     end
