@@ -162,6 +162,7 @@ module VagrantPlugins
                   b4.use action_halt
                   b4.use HostMachineSyncFoldersDisable
                   b4.use Destroy
+                  b4.use DestroyNetwork
                   b4.use DestroyBuildImage
                 else
                   b4.use Message,
@@ -296,6 +297,7 @@ module VagrantPlugins
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
       autoload :DestroyBuildImage, action_root.join("destroy_build_image")
+      autoload :DestroyNetwork, action_root.join("destroy_network")
       autoload :ForwardedPorts, action_root.join("forwarded_ports")
       autoload :HasSSH, action_root.join("has_ssh")
       autoload :HostMachine, action_root.join("host_machine")
