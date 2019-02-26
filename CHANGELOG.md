@@ -18,6 +18,7 @@ BUG FIXES:
 - installers/appimage: Use ld path with appimage libs on suffix [GH-10647]
 - providers/docker: Expand paths when comparing synced folders on reload [GH-10645]
 - providers/virtualbox: Fix import paths on Windows with VirtualBox 6 [GH-10629]
+- synced_folders/rsync: Properly clean up tmp folder created during rsync [GH-10690]
 
 ## 2.2.3 (January 9, 2019)
 
