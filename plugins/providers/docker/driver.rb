@@ -205,8 +205,8 @@ module VagrantPlugins
 
       # @param[Array]  networks - list of networks to inspect
       # @param[Array]  opts - An array of flags used for listing networks
-      def inspect_network(networks, *opts)
-        command = ['docker', 'network', 'inspect', networks].concat(*opts)
+      def inspect_network(network, *opts)
+        command = ['docker', 'network', 'inspect', network].concat(*opts)
         output = execute(*command)
         output
       end
@@ -227,10 +227,29 @@ module VagrantPlugins
 
       # @param[String] network - name of network to remove
       # @param[Array]  opts - An array of flags used for listing networks
-      def rm_network(networks, *opts)
+      def rm_network(network, *opts)
         command = ['docker', 'network', 'rm', network].concat(*opts)
         output = execute(*command)
         output
+      end
+
+      # Docker network helpers
+
+      # @param[String] network - name of network to look for
+      def existing_network?(network)
+        result = list_network(["--format='{{json .Name}}'"])
+        result.include?(network)
+      end
+
+      # @param[String] network - name of network to look for
+      def network_used?(network)
+        result = inspect_network(network)
+        begin
+          result = JSON.parse(result)
+          return result.first["Containers"].size > 0
+        rescue JSON::ParserError => e
+          # Could not parse result of network inspection
+        end
       end
 
       # @param[Array] opts - An array of flags used for listing networks
