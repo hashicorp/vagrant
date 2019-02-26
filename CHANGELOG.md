@@ -18,6 +18,7 @@ BUG FIXES:
 - core: Change remaining box_client_cert refs to box_download_client_cert [GH-10622]
 - core: Move over AddAuthentication middleware and hooks  out of deprecated class [GH-10686]
 - guest/debian: Properly set DHCP for systemd-networkd ips [GH-10586]
+- guest/solaris11: Create interface if required before configuration [GH-10595]
 - installers/appimage: Use ld path with appimage libs on suffix [GH-10647]
 - providers/docker: Expand paths when comparing synced folders on reload [GH-10645]
 - providers/virtualbox: Fix import paths on Windows with VirtualBox 6 [GH-10629]
