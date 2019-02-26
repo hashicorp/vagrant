@@ -6,7 +6,10 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- communicator/ssh: Update `#upload` behavior to work properly with new sshd path checks [GH-10698]
+- communicator/winrm: Update `#upload` behavior to match ssh communicator upload behavior [GH-10698]
 - guest/windows: Add reboot output to guest capability [GH-10638]
+- provisioner/file: Refactor path modification rules and allow communicator to handle details [GH-10698]
 
 BUG FIXES:
 
