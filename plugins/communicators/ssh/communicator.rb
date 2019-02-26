@@ -9,6 +9,7 @@ require 'log4r'
 require 'net/ssh'
 require 'net/ssh/proxy/command'
 require 'net/scp'
+require 'net/sftp'
 
 require 'vagrant/util/ansi_escape_code_remover'
 require 'vagrant/util/file_mode'
@@ -290,14 +291,47 @@ module VagrantPlugins
       def upload(from, to)
         @logger.debug("Uploading: #{from} to #{to}")
 
-        scp_connect do |scp|
-          if File.directory?(from)
-            # Recursively upload directories
-            scp.upload!(from, to, recursive: true)
+        if File.directory?(from)
+          if from.end_with?(".")
+            @logger.debug("Uploading directory contents of: #{from}")
+            from = from.sub(/\.$/, "")
           else
-            # Open file read only to fix issue [GH-1036]
-            scp.upload!(File.open(from, "r"), to)
+            @logger.debug("Uploading full directory container of: #{from}")
+            to = File.join(to, File.basename(File.expand_path(from)))
           end
+        end
+
+        scp_connect do |scp|
+          uploader = lambda do |path, remote_dest=nil|
+            if File.directory?(path)
+              Dir.new(path).each do |entry|
+                next if entry == "." || entry == ".."
+                full_path = File.join(path, entry)
+                dest = File.join(to, path.sub(/^#{Regexp.escape(from)}/, ""))
+                create_remote_directory(dest)
+                uploader.call(full_path, dest)
+              end
+            else
+              if remote_dest
+                dest = File.join(remote_dest, File.basename(path))
+              else
+                dest = to
+                if to.end_with?(File::SEPARATOR)
+                  dest = File.join(to, File.basename(path))
+                end
+              end
+              @logger.debug("Ensuring remote directory exists for destination upload")
+              create_remote_directory(File.dirname(dest))
+              @logger.debug("Uploading file #{path} to remote #{dest}")
+              upload_file = File.open(path, "rb")
+              begin
+                scp.upload!(upload_file, dest)
+              ensure
+                upload_file.close
+              end
+            end
+          end
+          uploader.call(from)
         end
       rescue RuntimeError => e
         # Net::SCP raises a runtime error for this so the only way we have
@@ -729,6 +763,10 @@ module VagrantPlugins
       def generate_environment_export(env_key, env_value)
         template = machine_config_ssh.export_command_template
         template.sub("%ENV_KEY%", env_key).sub("%ENV_VALUE%", env_value) + "\n"
+      end
+
+      def create_remote_directory(dir)
+        execute("mkdir -p \"#{dir}\"")
       end
 
       def machine_config_ssh

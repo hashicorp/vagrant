@@ -6,40 +6,23 @@ module VagrantPlugins
           source = File.expand_path(config.source)
           destination = expand_guest_path(config.destination)
 
-          # if source is a directory, make it then trim destination with dirname
-          # Make sure the remote path exists
+          # If the source is a directory determine if any path modifications
+          # need to be applied to the source for upload behavior. If the original
+          # source value ends with a "." or if the original source does not end
+          # with a "." but the original destination ends with a file separator
+          # then append a "." character to the new source. This ensures that
+          # the contents of the directory are uploaded to the destination and
+          # not folder itself.
           if File.directory?(source)
-            # We need to make sure the actual destination folder
-            # also exists before uploading, otherwise
-            # you will get nested folders
-            #
-            # https://serverfault.com/questions/538368/make-scp-always-overwrite-or-create-directory
-            # https://unix.stackexchange.com/questions/292641/get-scp-path-behave-like-rsync-path/292732
-            command = "mkdir -p \"%s\"" % destination
-            if !destination.end_with?(File::SEPARATOR) &&
-                !source.end_with?("#{File::SEPARATOR}.")
-              # We also need to append a '/.' to the source folder so we copy
-              # the contents rather than the folder itself, in case a users
-              # destination folder differs from its source
-              #
-              # If source is set as `source/` it will lose the trailing
-              # slash due to how `File.expand_path` works, so we don't need
-              # a conditional for that case.
-              if @machine.config.vm.communicator == :winrm
-                # windows needs an array of paths because of the
-                # winrm-fs function Vagrant is using to upload file/folder.
-                source = Dir["#{source}#{File::SEPARATOR}*"]
-              else
-                source << "#{File::SEPARATOR}."
-              end
+            if config.source.end_with?(".") ||
+                (!config.destination.end_with?(File::SEPARATOR) &&
+                !config.source.end_with?("#{File::SEPARATOR}."))
+              source = File.join(source, ".")
             end
-          else
-            command = "mkdir -p \"%s\"" % File.dirname(destination)
           end
-          comm.execute(command)
 
           @machine.ui.detail(I18n.t("vagrant.actions.vm.provision.file.locations",
-                                   src: source, dst: destination))
+                                   src: config.source, dst: config.destination))
           # now upload the file
           comm.upload(source, destination)
         end

@@ -497,12 +497,39 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
   describe ".upload" do
     before do
       expect(communicator).to receive(:scp_connect).and_yield(scp)
+      allow(communicator).to receive(:create_remote_directory)
     end
 
-    it "uploads a directory if local path is a directory" do
-      Dir.mktmpdir('vagrant-test') do |dir|
-        expect(scp).to receive(:upload!).with(dir, '/destination', recursive: true)
-        communicator.upload(dir, '/destination')
+    context "directory uploads" do
+      let(:test_dir) { @dir }
+      let(:test_file) { File.join(test_dir, "test-file") }
+      let(:dir_name) { File.basename(test_dir) }
+      let(:file_name) { File.basename(test_file) }
+
+      before do
+        @dir = Dir.mktmpdir("vagrant-test")
+        FileUtils.touch(test_file)
+      end
+
+      after { FileUtils.rm_rf(test_dir) }
+
+      it "uploads directory when directory path provided" do
+        expect(scp).to receive(:upload!).with(instance_of(File),
+          File.join("", "destination", dir_name, file_name))
+        communicator.upload(test_dir, "/destination")
+      end
+
+      it "uploads contents of directory when dot suffix provided on directory" do
+        expect(scp).to receive(:upload!).with(instance_of(File),
+          File.join("", "destination", file_name))
+        communicator.upload(File.join(test_dir, "."), "/destination")
+      end
+
+      it "creates directories before upload" do
+        expect(communicator).to receive(:create_remote_directory).with(
+          /#{Regexp.escape(File.join("", "destination", dir_name))}/)
+        allow(scp).to receive(:upload!)
+        communicator.upload(test_dir, "/destination")
       end
     end
 
@@ -511,6 +538,28 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       begin
         expect(scp).to receive(:upload!).with(instance_of(File), '/destination/file')
         communicator.upload(file.path, '/destination/file')
+      ensure
+        file.delete
+      end
+    end
+
+    it "uploads file to directory if destination ends with file separator" do
+      file = Tempfile.new('vagrant-test')
+      begin
+        expect(scp).to receive(:upload!).with(instance_of(File), "/destination/dir/#{File.basename(file.path)}")
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir")
+        communicator.upload(file.path, "/destination/dir/")
+      ensure
+        file.delete
+      end
+    end
+
+    it "creates remote directory path to destination on upload" do
+      file = Tempfile.new('vagrant-test')
+      begin
+        expect(scp).to receive(:upload!).with(instance_of(File), "/destination/dir/file.txt")
+        expect(communicator).to receive(:create_remote_directory).with("/destination/dir")
+        communicator.upload(file.path, "/destination/dir/file.txt")
       ensure
         file.delete
       end
@@ -609,7 +658,7 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
 
       it "includes the default cipher array for encryption" do
-        cipher_array = %w(aes256-ctr aes192-ctr aes128-ctr 
+        cipher_array = %w(aes256-ctr aes192-ctr aes128-ctr
                           aes256-cbc aes192-cbc aes128-cbc
                           rijndael-cbc@lysator.liu.se blowfish-ctr
                           blowfish-cbc cast128-ctr cast128-cbc

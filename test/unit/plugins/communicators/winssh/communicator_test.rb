@@ -226,12 +226,14 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
 
   describe ".upload" do
     before do
+      allow(communicator).to receive(:create_remote_directory)
       expect(communicator).to receive(:scp_connect).and_yield(scp)
     end
 
     it "uploads a directory if local path is a directory" do
       Dir.mktmpdir('vagrant-test') do |dir|
-        expect(scp).to receive(:upload!).with(dir, 'C:\destination', recursive: true)
+        FileUtils.touch(File.join(dir, "test-file"))
+        expect(scp).to receive(:upload!).with(an_instance_of(File), /test-file/)
         communicator.upload(dir, 'C:\destination')
       end
     end
