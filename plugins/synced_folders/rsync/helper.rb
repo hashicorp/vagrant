@@ -1,3 +1,4 @@
+require "fileutils"
 require "ipaddr"
 require "shellwords"
 require "tmpdir"
@@ -232,6 +233,8 @@ module VagrantPlugins
               message: err.to_s
           end
         end
+      ensure
+        FileUtils.remove_entry_secure(controlpath, true) if controlpath
       end
 
       # Check if rsync versions support using chown option
