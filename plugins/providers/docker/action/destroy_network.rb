@@ -1,0 +1,33 @@
+require 'log4r'
+
+module VagrantPlugins
+  module DockerProvider
+    module Action
+      class DestroyNetwork
+        def initialize(app, env)
+          @app = app
+          @logger = Log4r::Logger.new('vagrant::plugins::docker::network')
+        end
+
+        def call(env)
+          # If we are using a host VM, then don't worry about it
+          machine = env[:machine]
+          if machine.provider.host_vm?
+            @logger.debug("Not setting up networks because docker host_vm is in use")
+            return @app.call(env)
+          end
+
+          machine.config.vm.networks.each do |type, options|
+            # We only handle private and public networks
+            next if type != :private_network && type != :public_network
+
+            # If network is defined in machines config as isolated single container network, then delete
+            # If it's custom and or default, check if other containers are using it, and if not, delete
+          end
+
+          @app.call(env)
+        end
+      end
+    end
+  end
+end
