@@ -233,11 +233,14 @@ module VagrantPlugins
         output
       end
 
+      # ######################
       # Docker network helpers
+      # ######################
 
       # @param[String] network - name of network to look for
       def existing_network?(network)
         result = list_network(["--format='{{json .Name}}'"])
+        #TODO: we should be more explicit here if we can
         result.include?(network)
       end
 
