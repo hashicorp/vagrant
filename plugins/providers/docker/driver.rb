@@ -180,43 +180,57 @@ module VagrantPlugins
       # @param[String] network - name of network to connect conatiner to
       # @param[String] cid - container id
       # @param[Array]  opts - An array of flags used for listing networks
-      def connect_network(network, cid, opts=nil)
-        output = execute('docker', 'network', 'connect', network, cid, opts)
+      def connect_network(network, cid, *opts)
+        command = ['docker', 'network', 'connect', network, cid].concat(*opts)
+        output = execute(*command)
+        output
       end
 
       # @param[String] network - name of network to create
-      # @param[Array] opts - An array of flags used for listing networks
-      def create_network(network, opts=nil)
-        output = execute('docker', 'network', 'create', network, opts)
+      # @param[Array]  opts - An array of flags used for listing networks
+      def create_network(network, *opts)
+        command = ['docker', 'network', 'create', network].concat(*opts)
+        output = execute(*command)
+        output
       end
 
       # @param[String] network - name of network to disconnect container from
       # @param[String] cid - container id
-      # @param[Array] opts - An array of flags used for listing networks
-      def disconnect_network(network, cid, opts=nil)
-        output = execute('docker', 'network', 'disconnect', network, cid, opts)
+      # @param[Array]  opts - An array of flags used for listing networks
+      def disconnect_network(network, cid, *opts)
+        command = ['docker', 'network', 'disconnect', network, cid].concat(*opts)
+        output = execute(*command)
+        output
       end
 
       # @param[Array]  networks - list of networks to inspect
       # @param[Array]  opts - An array of flags used for listing networks
-      def inspect_network(networks, opts=nil)
-        output = execute('docker', 'network', 'inspect', networks, opts)
+      def inspect_network(networks, *opts)
+        command = ['docker', 'network', 'inspect', networks].concat(*opts)
+        output = execute(*command)
+        output
       end
 
       # @param[Array] opts - An array of flags used for listing networks
-      def list_network(opts=nil)
-        output = execute('docker', 'network', 'ls', opts)
+      def list_network(*opts)
+        command = ['docker', 'network', 'ls'].concat(*opts)
+        output = execute(*command)
+        output
       end
 
       # @param[Array] opts - An array of flags used for listing networks
-      def prune_network(opts=nil)
-        output = execute('docker', 'network', 'prune', '--force', opts)
+      def prune_network(*opts)
+        command = ['docker', 'network', 'prune', '--force'].concat(*opts)
+        output = execute(*command)
+        output
       end
 
       # @param[String] network - name of network to remove
       # @param[Array]  opts - An array of flags used for listing networks
-      def rm_network(networks, opts=nil)
-        output = execute('docker', 'network', 'rm', network, opts)
+      def rm_network(networks, *opts)
+        command = ['docker', 'network', 'rm', network].concat(*opts)
+        output = execute(*command)
+        output
       end
 
       # @param[Array] opts - An array of flags used for listing networks
