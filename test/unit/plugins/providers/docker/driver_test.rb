@@ -251,4 +251,48 @@ describe VagrantPlugins::DockerProvider::Driver do
       expect(subject.docker_bridge_ip).to eq('123.456.789.012')
     end
   end
+
+  describe '#docker_connect_network' do
+    let(:opts) { ["--ip", "172.20.128.2"] }
+    it 'connects a network to a container' do
+      expect(subject).to receive(:execute).with("docker", "network", "connect", "vagrant_network", cid, "--ip", "172.20.128.2")
+      subject.connect_network("vagrant_network", cid, opts)
+    end
+  end
+
+  describe '#docker_create_network' do
+    let(:opts) { ["--subnet", "172.20.0.0/16"] }
+    it 'creates a network' do
+      expect(subject).to receive(:execute).with("docker", "network", "create", "vagrant_network", "--subnet", "172.20.0.0/16")
+      subject.create_network("vagrant_network", opts)
+    end
+  end
+
+  describe '#docker_disconnet_network' do
+    it 'disconnects a network from a container' do
+      expect(subject).to receive(:execute).with("docker", "network", "disconnect", "vagrant_network", cid, "--force")
+      subject.disconnect_network("vagrant_network", cid)
+    end
+  end
+
+  describe '#docker_inspect_network' do
+    it 'gets info about a network' do
+      expect(subject).to receive(:execute).with("docker", "network", "inspect", "vagrant_network")
+      subject.inspect_network("vagrant_network")
+    end
+  end
+
+  describe '#docker_list_network' do
+    it 'lists docker networks' do
+      expect(subject).to receive(:execute).with("docker", "network", "ls")
+      subject.list_network()
+    end
+  end
+
+  describe '#docker_rm_network' do
+    it 'deletes a docker network' do
+      expect(subject).to receive(:execute).with("docker", "network", "rm", "vagrant_network")
+      subject.rm_network("vagrant_network")
+    end
+  end
 end
