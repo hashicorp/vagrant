@@ -177,74 +177,86 @@ module VagrantPlugins
         end
       end
 
-      # @param[String] network - name of network to connect conatiner to
-      # @param[String] cid - container id
-      # @param[Array]  opts - An array of flags used for listing networks
+      # @param [String] network - name of network to connect conatiner to
+      # @param [String] cid - container id
+      # @param [Array]  opts - An array of flags used for listing networks
       def connect_network(network, cid, *opts)
         command = ['docker', 'network', 'connect', network, cid].concat(*opts)
         output = execute(*command)
         output
       end
 
-      # @param[String] network - name of network to create
-      # @param[Array]  opts - An array of flags used for listing networks
+      # @param [String] network - name of network to create
+      # @param [Array]  opts - An array of flags used for listing networks
       def create_network(network, *opts)
         command = ['docker', 'network', 'create', network].concat(*opts)
         output = execute(*command)
         output
       end
 
-      # @param[String] network - name of network to disconnect container from
-      # @param[String] cid - container id
-      # @param[Array]  opts - An array of flags used for listing networks
+      # @param [String] network - name of network to disconnect container from
+      # @param [String] cid - container id
       def disconnect_network(network, cid, *opts)
-        command = ['docker', 'network', 'disconnect', network, cid].concat(*opts)
+        command = ['docker', 'network', 'disconnect', network, cid, "--force"]
         output = execute(*command)
         output
       end
 
-      # @param[Array]  networks - list of networks to inspect
-      # @param[Array]  opts - An array of flags used for listing networks
+      # @param [Array]  networks - list of networks to inspect
+      # @param [Array]  opts - An array of flags used for listing networks
       def inspect_network(network, *opts)
         command = ['docker', 'network', 'inspect', network].concat(*opts)
         output = execute(*command)
         output
       end
 
-      # @param[Array] opts - An array of flags used for listing networks
+      # @param [Array] opts - An array of flags used for listing networks
       def list_network(*opts)
         command = ['docker', 'network', 'ls'].concat(*opts)
         output = execute(*command)
         output
       end
 
-      # @param[Array] opts - An array of flags used for listing networks
+      # Will delete _all_ defined but unused networks in the docker engine. Even
+      # networks not created by Vagrant.
+      #
+      # @param [Array] opts - An array of flags used for listing networks
       def prune_network(*opts)
         command = ['docker', 'network', 'prune', '--force'].concat(*opts)
         output = execute(*command)
         output
       end
 
-      # @param[String] network - name of network to remove
-      # @param[Array]  opts - An array of flags used for listing networks
-      def rm_network(network, *opts)
-        command = ['docker', 'network', 'rm', network].concat(*opts)
+      # TODO: Note...cli can optionally take a list of networks to delete.
+      # We might need this later, but for now our helper takes 1 network at a time
+      #
+      # @param [String] network - name of network to remove
+      def rm_network(network)
+        command = ['docker', 'network', 'rm', network]
         output = execute(*command)
         output
+      end
+
+      # @param [Array] opts - An array of flags used for listing networks
+      def execute(*cmd, **opts, &block)
+        @executor.execute(*cmd, **opts, &block)
       end
 
       # ######################
       # Docker network helpers
       # ######################
 
-      # @param[String] network - name of network to look for
+      # @param [String] network - name of network to look for
       def existing_network?(network)
         result = list_network(["--format='{{json .Name}}'"])
         #TODO: we should be more explicit here if we can
         result.include?(network)
       end
 
-      # @param[String] network - name of network to look for
+      # Looks to see if a docker network has already been defined
+      #
+      # @param [String] network - name of network to look for
+      # @return [Bool]
       def network_used?(network)
         result = inspect_network(network)
         begin
@@ -252,13 +264,10 @@ module VagrantPlugins
           return result.first["Containers"].size > 0
         rescue JSON::ParserError => e
           # Could not parse result of network inspection
+          # Handle this some how, maybe log error but not raise?
         end
       end
 
-      # @param[Array] opts - An array of flags used for listing networks
-      def execute(*cmd, **opts, &block)
-        @executor.execute(*cmd, **opts, &block)
-      end
     end
   end
 end
