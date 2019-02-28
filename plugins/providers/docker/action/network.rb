@@ -51,6 +51,8 @@ module VagrantPlugins
               vals = opt.to_s.split("__")
               if vals[0] == "docker" && vals.size == 3
                 cli_opts[vals[1].to_sym].concat(["--#{vals[2]}", value])
+              else
+                @logger.debug("Unsupported network option encountered: #{opt}. Ignoring...")
               end
             end
           end
