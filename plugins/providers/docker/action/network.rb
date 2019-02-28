@@ -45,16 +45,16 @@ module VagrantPlugins
         def parse_cli_arguments(options)
           cli_opts = {create: [], connect: []}
 
-          # make this a function that generates the proper flags
+          # Splits the networking options to generate the proper CLI flags for docker
           if options[:type] != "dhcp"
-            if options[:docker__subnet]
-              cli_opts[:create].concat(["--subnet", options[:docker__subnet]])
-            end
-
-            if options[:docker__ip]
-              cli_opts[:connect].concat(["--ip", options[:docker__ip]])
+            options.each do |opt, value|
+              vals = opt.to_s.split("__")
+              if vals[0] == "docker" && vals.size == 3
+                cli_opts[vals[1].to_sym].concat(["--#{vals[2]}", value])
+              end
             end
           end
+
           return cli_opts
         end
 
