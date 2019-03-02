@@ -246,15 +246,15 @@ module VagrantPlugins
       # Docker network helpers
       # ######################
 
+      # Looks to see if a docker network has already been defined
+      #
       # @param [String] network - name of network to look for
       def existing_network?(network)
         result = list_network(["--format='{{json .Name}}'"])
         #TODO: we should be more explicit here if we can
-        result.include?(network)
+        result.match?(/\"#{network}\"/)
       end
 
-      # Looks to see if a docker network has already been defined
-      #
       # @param [String] network - name of network to look for
       # @return [Bool]
       def network_used?(network)

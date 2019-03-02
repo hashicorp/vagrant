@@ -9,51 +9,20 @@ module VagrantPlugins
           @logger = Log4r::Logger.new('vagrant::plugins::docker::network')
         end
 
-        # TODO: This is not ideal, but not enitrely sure a good way
-        # around this without either having separate config options (which is worse for the user)
-        # or forcing them to care about options for each separate docker network command (which is also
-        # not great for the user). Basically a user wants to say:
-        #
-        # config.vm.network :private_network, <config options>
-        #
-        # We could limit the options to be name spaced simply `docker__option` like
-        #
-        # config.vm.network :private_network, docker__ip: "ip here"
-        #
-        # But then we will need this method to split out each option for creating and connecting networks
-        #
-        # Alternatively we could do
-        #
-        # - `docker__create__option`
-        # - `docker__connect__option`
-        # - ...etc...
-        #
-        # config.vm.network :private_network, docker__connect__ip: "ip here",
-        #                                     docker__create__subnet: "subnet"
-        #
-        # But this will force users to care about what options are for which commands,
-        # but maybe they will have to care about it anyway, and it isn't that big of
-        # a deal for the extra namespacing?
-        #
-        # Extra namespacing puts more effort on the user side, but would allow us
-        # to be 'smarter' about how we set options in code by seeing essnetially
-        # what command the flag/option is intended for, rather than us trying to keep
-        # track of the commands/flags manually in this function.
-        #
         # @param[Hash] options - options from the network config
-        # @returns[Hash] cli_opts - an array of strings used for the network commnad
+        # @returns[Array] cli_opts - an array of strings used for the network commnad
         def parse_cli_arguments(options)
-          cli_opts = {create: [], connect: []}
+          cli_opts = []
 
           # Splits the networking options to generate the proper CLI flags for docker
-          if options[:type] != "dhcp"
-            options.each do |opt, value|
-              vals = opt.to_s.split("__")
-              if vals[0] == "docker" && vals.size == 3
-                cli_opts[vals[1].to_sym].concat(["--#{vals[2]}", value])
-              else
-                @logger.debug("Unsupported network option encountered: #{opt}. Ignoring...")
-              end
+          options.each do |opt, value|
+            opt = opt.to_s
+            if opt == "ip" || (opt == "type" && value = "dhcp") ||
+                opt == "protocol" || opt == "id"
+              # `docker network create` doesn't care about these options
+              next
+            else
+              cli_opts.concat(["--#{opt}", value])
             end
           end
 
@@ -76,18 +45,29 @@ module VagrantPlugins
 
             cli_opts = parse_cli_arguments(options)
 
-            network_name = "#{env[:root_path].basename.to_s}_network_#{machine.name}"
+            if options[:subnet]
+              network_name = "vagrant_network_#{options[:subnet]}"
+            elsif options[:type] == "dhcp"
+              network_name = "vagrant_network"
+            else
+              # TODO: Make this an error class
+              raise "Must specify a `subnet` or use `dhcp`"
+            end
             container_id = machine.id
 
             if !machine.provider.driver.existing_network?(network_name)
               @logger.debug("Creating network #{network_name}")
-              machine.provider.driver.create_network(network_name, cli_opts[:create])
+              machine.provider.driver.create_network(network_name, cli_opts)
             else
               @logger.debug("Network #{network_name} already created")
             end
 
             @logger.debug("Connecting network #{network_name} to container guest #{machine.name}")
-            machine.provider.driver.connect_network(network_name, container_id, cli_opts[:connect])
+            connect_opts = []
+            if options[:ip]
+              connect_opts = ["--ip", options[:ip]]
+            end
+            machine.provider.driver.connect_network(network_name, container_id, connect_opts)
           end
 
           @app.call(env)
