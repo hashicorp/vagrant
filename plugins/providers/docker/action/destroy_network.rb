@@ -18,8 +18,8 @@ module VagrantPlugins
           end
 
           machine.config.vm.networks.each do |type, options|
-            # We only handle private and public networks
-            next if type != :private_network && type != :public_network
+            # We only handle private networks
+            next if type != :private_network
 
             if options[:subnet]
               network_name = "vagrant_network_#{options[:subnet]}"

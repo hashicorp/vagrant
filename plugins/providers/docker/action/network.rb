@@ -40,8 +40,8 @@ module VagrantPlugins
           env[:ui].info("Configuring and enabling network interfaces...")
 
           machine.config.vm.networks.each do |type, options|
-            # We only handle private and public networks
-            next if type != :private_network && type != :public_network
+            # We only handle private networks
+            next if type != :private_network
 
             cli_opts = parse_cli_arguments(options)
 
