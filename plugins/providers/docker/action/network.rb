@@ -66,6 +66,8 @@ module VagrantPlugins
             connect_opts = []
             if options[:ip]
               connect_opts = ["--ip", options[:ip]]
+            elsif options[:ip6]
+              connect_opts = ["--ip6", options[:ip6]]
             end
             machine.provider.driver.connect_network(network_name, container_id, connect_opts)
           end
