@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+* core: Use consistent settings when unpacking boxes as root [GH-10707]
+
 BUG FIXES:
 
 ## 2.2.4 (February 27, 2019)
