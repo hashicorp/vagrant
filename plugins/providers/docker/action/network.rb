@@ -11,7 +11,7 @@ module VagrantPlugins
 
         # @param[Hash] options - options from the network config
         # @returns[Array] cli_opts - an array of strings used for the network commnad
-        def generate_connect_cli_arguments(options)
+        def generate_create_cli_arguments(options)
           cli_opts = []
 
           # Splits the networking options to generate the proper CLI flags for docker
@@ -24,6 +24,20 @@ module VagrantPlugins
             else
               cli_opts.concat(["--#{opt}", value])
             end
+          end
+
+          return cli_opts
+        end
+
+        # @param[Hash] options - options from the network config
+        # @returns[Array] cli_opts - an array of strings used for the network commnad
+        def generate_connect_cli_arguments(options)
+          cli_opts = []
+
+          if options[:ip]
+            cli_opts = ["--ip", options[:ip]]
+          elsif options[:ip6]
+            cli_opts = ["--ip6", options[:ip6]]
           end
 
           return cli_opts
@@ -43,7 +57,7 @@ module VagrantPlugins
             # We only handle private networks
             next if type != :private_network
 
-            cli_opts = generate_connect_cli_arguments(options)
+            cli_opts = generate_create_cli_arguments(options)
 
             if options[:subnet]
               network_name = "vagrant_network_#{options[:subnet]}"
@@ -63,12 +77,7 @@ module VagrantPlugins
             end
 
             @logger.debug("Connecting network #{network_name} to container guest #{machine.name}")
-            connect_opts = []
-            if options[:ip]
-              connect_opts = ["--ip", options[:ip]]
-            elsif options[:ip6]
-              connect_opts = ["--ip6", options[:ip6]]
-            end
+            connect_opts = generate_connect_cli_arguments(options)
             machine.provider.driver.connect_network(network_name, container_id, connect_opts)
           end
 
