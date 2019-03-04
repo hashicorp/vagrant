@@ -45,6 +45,10 @@ module VagrantPlugins
         error_key(:docker_provider_nfs_without_privileged)
       end
 
+      class NetworkInvalidOption < DockerError
+        error_key(:network_invalid_option)
+      end
+
       class PackageNotSupported < DockerError
         error_key(:package_not_supported)
       end

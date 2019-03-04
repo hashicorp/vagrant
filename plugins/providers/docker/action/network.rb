@@ -64,8 +64,7 @@ module VagrantPlugins
             elsif options[:type] == "dhcp"
               network_name = "vagrant_network"
             else
-              # TODO: Make this an error class
-              raise "Must specify a `subnet` or use `dhcp`"
+              raise Errors::NetworkInvalidOption, container: machine.name
             end
             container_id = machine.id
 

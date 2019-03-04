@@ -197,6 +197,9 @@ en:
         is functional and properly configured.
 
         Host VM ID: %{id}
+      network_invalid_option: |-
+        Invalid option given for docker network for guest "%{container}". Must specify either
+        a `subnet` or use `type: "dhcp"`.
       package_not_supported: |-
         The "package" command is not supported with the Docker provider.
         If you'd like to commit or push your Docker container, please SSH
