@@ -255,16 +255,19 @@ module VagrantPlugins
         result.match?(/\"#{network}\"/)
       end
 
+      # Returns true or false if network is in use or not.
+      # Nil if Vagrant fails to receive proper JSON from `docker network inspect`
+      #
       # @param [String] network - name of network to look for
-      # @return [Bool]
+      # @return [Bool,nil]
       def network_used?(network)
         result = inspect_network(network)
         begin
           result = JSON.parse(result)
           return result.first["Containers"].size > 0
         rescue JSON::ParserError => e
-          # Could not parse result of network inspection
-          # Handle this some how, maybe log error but not raise?
+          @logger.warn("Could not properly parse response from `docker network inspect #{network}`")
+          return nil
         end
       end
 
