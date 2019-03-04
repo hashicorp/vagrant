@@ -8,6 +8,7 @@ module Vagrant
     autoload :DeepMerge,                 'vagrant/util/deep_merge'
     autoload :Env,                       'vagrant/util/env'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
+    autoload :Experimental,              'vagrant/util/experimental'
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
     autoload :Logger,                    'vagrant/util/logger'
     autoload :LoggingFormatter,          'vagrant/util/logging_formatter'
