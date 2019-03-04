@@ -45,6 +45,10 @@ en:
       This container requires a host VM, and the state of that VM
       is unknown. Run `vagrant up` to verify that the container and
       its host VM is running, then try again.
+    network_configure: |-
+      Configuring and enabling network interfaces...
+    network_destroy: |-
+      Removing network %{network_name} ...
     not_created_skip: |-
       Container not created. Skipping.
     not_docker_provider: |-

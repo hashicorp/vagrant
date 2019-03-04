@@ -29,7 +29,7 @@ module VagrantPlugins
 
             if machine.provider.driver.existing_network?(network_name) &&
                 !machine.provider.driver.network_used?(network_name)
-              env[:ui].info("Removing network #{network_name}")
+              env[:ui].info(I18n.t("docker_provider.network_destroy", network_name: network_name))
               machine.provider.driver.rm_network(network_name)
             else
               @logger.debug("Network #{network_name} not found")

@@ -51,7 +51,7 @@ module VagrantPlugins
             return @app.call(env)
           end
 
-          env[:ui].info("Configuring and enabling network interfaces...")
+          env[:ui].info(I18n.t("docker_provider.network_configure"))
 
           machine.config.vm.networks.each do |type, options|
             # We only handle private networks
