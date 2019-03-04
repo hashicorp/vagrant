@@ -11,7 +11,7 @@ module VagrantPlugins
 
         # @param[Hash] options - options from the network config
         # @returns[Array] cli_opts - an array of strings used for the network commnad
-        def parse_cli_arguments(options)
+        def generate_connect_cli_arguments(options)
           cli_opts = []
 
           # Splits the networking options to generate the proper CLI flags for docker
@@ -43,7 +43,7 @@ module VagrantPlugins
             # We only handle private networks
             next if type != :private_network
 
-            cli_opts = parse_cli_arguments(options)
+            cli_opts = generate_connect_cli_arguments(options)
 
             if options[:subnet]
               network_name = "vagrant_network_#{options[:subnet]}"
