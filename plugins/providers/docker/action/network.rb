@@ -22,7 +22,7 @@ module VagrantPlugins
               # `docker network create` doesn't care about these options
               next
             else
-              cli_opts.concat(["--#{opt}", value])
+              cli_opts.concat(["--#{opt}=#{value.to_s}"])
             end
           end
 
