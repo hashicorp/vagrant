@@ -17,7 +17,7 @@ module VagrantPlugins
           # Splits the networking options to generate the proper CLI flags for docker
           options.each do |opt, value|
             opt = opt.to_s
-            if opt == "ip" || (opt == "type" && value = "dhcp") ||
+            if opt == "ip" || (opt == "type" && value == "dhcp") ||
                 opt == "protocol" || opt == "id"
               # `docker network create` doesn't care about these options
               next
