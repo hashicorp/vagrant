@@ -13,12 +13,12 @@ module VagrantPlugins
         # @returns[Array] cli_opts - an array of strings used for the network commnad
         def generate_create_cli_arguments(options)
           cli_opts = []
+          ignored_options = ["ip", "protocol", "id", "alias"]
 
           # Splits the networking options to generate the proper CLI flags for docker
           options.each do |opt, value|
             opt = opt.to_s
-            if opt == "ip" || (opt == "type" && value == "dhcp") ||
-                opt == "protocol" || opt == "id"
+            if (opt == "type" && value == "dhcp") || ignored_options.include?(opt)
               # `docker network create` doesn't care about these options
               next
             else
@@ -38,6 +38,10 @@ module VagrantPlugins
             cli_opts = ["--ip", options[:ip]]
           elsif options[:ip6]
             cli_opts = ["--ip6", options[:ip6]]
+          end
+
+          if options[:alias]
+            cli_opts.concat(["--alias=#{options[:alias]}"])
           end
 
           return cli_opts
