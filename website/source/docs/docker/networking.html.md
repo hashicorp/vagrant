@@ -16,9 +16,23 @@ by the subnet used for a requested ip address.
 
 For each newly unique network, Vagrant will run the `docker network create` subcommand
 with the provided options from the network config inside your Vagrantfile. If multiple
-networks share the same subnet, it will reuse that existing network. Once these
-networks have been created, Vagrant will attach these networks to the requested
-containers using the `docker network connect` for each network.
+networks share the same subnet, Vagrant will reuse that existing network for multiple
+containers. Once these networks have been created, Vagrant will attach these
+networks to the requested containers using the `docker network connect` for each
+network.
+
+Vagrant names the networks inside docker as `vagrant_network` or `vagrant_network_<subnet here>`
+where `<subnet_here>` is the subnet for the network if defined by the user. An
+example of these networks is shown later in this page. If no subnet is requested
+for the network, Vagrant will connect the `vagrant_network` to the container.
+
+When destroying containers through Vagrant, Vagrant will clean up the network if
+there are no more containers using the network.
+
+## Docker Network Options
+
+Only the network option `:private_network` is currently supported with the docker
+provider in Vagrant.
 
 Most of the options given to `:private_network` align with the command line flags
 for the [docker network create](https://docs.docker.com/engine/reference/commandline/network_create/)
@@ -29,9 +43,6 @@ It should also be noted that if you want a specific IPv6 address, your `:private
 option should use `ip6` rather than `ip`. If you just want to use DHCP, you can
 simply say `type: "dhcp"` insetad. More examples are shared below which demonstrate
 creating a few common network interfaces.
-
-When destroying containers through Vagrant, Vagrant will clean up the network if
-there are no more containers using the network.
 
 ## Docker Network Example
 
