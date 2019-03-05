@@ -39,7 +39,7 @@ describe VagrantPlugins::HostVoid::Cap::NFS do
     let(:result) { Vagrant::Util::Subprocess::Result.new(exit_code, "", "") }
 
     before { allow(Vagrant::Util::Subprocess).to receive(:execute).
-        with(/xbps-query nfs-utils/).and_return(result) }
+        with("/usr/bin/xbps-query", "nfs-utils").and_return(result) }
 
     it "should provide nfs_installed capability" do
       expect(caps.get(:nfs_installed)).to eq(described_class)
