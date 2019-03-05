@@ -73,8 +73,6 @@ This helps keep your Vagrantfile similar to how it has always looked.
 The Docker provider does not support specifying options for `owner` or `group`
 on folders synced with a docker container.
 
-Private and public networks are not currently supported.
-
 ### Volume Consistency
 
 Docker's [volume consistency](https://docs.docker.com/v17.09/engine/admin/volumes/bind-mounts/) setting can be specified using the `docker_consistency` option when defining a synced folder. This can
