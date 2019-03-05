@@ -180,23 +180,23 @@ module VagrantPlugins
       # @param [String] network - name of network to connect conatiner to
       # @param [String] cid - container id
       # @param [Array]  opts - An array of flags used for listing networks
-      def connect_network(network, cid, *opts)
-        command = ['docker', 'network', 'connect', network, cid].concat(*opts)
+      def connect_network(network, cid, opts=nil)
+        command = ['docker', 'network', 'connect', network, cid].push(*opts)
         output = execute(*command)
         output
       end
 
       # @param [String] network - name of network to create
       # @param [Array]  opts - An array of flags used for listing networks
-      def create_network(network, *opts)
-        command = ['docker', 'network', 'create', network].concat(*opts)
+      def create_network(network, opts=nil)
+        command = ['docker', 'network', 'create', network].push(*opts)
         output = execute(*command)
         output
       end
 
       # @param [String] network - name of network to disconnect container from
       # @param [String] cid - container id
-      def disconnect_network(network, cid, *opts)
+      def disconnect_network(network, cid)
         command = ['docker', 'network', 'disconnect', network, cid, "--force"]
         output = execute(*command)
         output
@@ -204,15 +204,15 @@ module VagrantPlugins
 
       # @param [Array]  networks - list of networks to inspect
       # @param [Array]  opts - An array of flags used for listing networks
-      def inspect_network(network, *opts)
-        command = ['docker', 'network', 'inspect', network].concat(*opts)
+      def inspect_network(network, opts=nil)
+        command = ['docker', 'network', 'inspect', network].push(*opts)
         output = execute(*command)
         output
       end
 
       # @param [Array] opts - An array of flags used for listing networks
-      def list_network(*opts)
-        command = ['docker', 'network', 'ls'].concat(*opts)
+      def list_network(opts=nil)
+        command = ['docker', 'network', 'ls'].push(*opts)
         output = execute(*command)
         output
       end
@@ -221,8 +221,8 @@ module VagrantPlugins
       # networks not created by Vagrant.
       #
       # @param [Array] opts - An array of flags used for listing networks
-      def prune_network(*opts)
-        command = ['docker', 'network', 'prune', '--force'].concat(*opts)
+      def prune_network(opts=nil)
+        command = ['docker', 'network', 'prune', '--force'].push(*opts)
         output = execute(*command)
         output
       end
