@@ -184,6 +184,10 @@ a new network for a guest container. If you bring up a container with a network,
 and then change or add some new options (but leave the subnet the same), it will
 not apply those changes or create a new network.
 
+Because the `--link` flag for the `docker network connect` command is considered
+legacy, Vagrant does not support that option when creating containers and connecting
+networks.
+
 ## More Information
 
 For more information on how docker manages its networks, please refer to their
