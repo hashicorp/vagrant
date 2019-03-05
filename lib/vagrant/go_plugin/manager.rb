@@ -7,10 +7,9 @@ module Vagrant
       include Util::Logger
 
       # @return [Manager]
-      def self.instance(env=nil)
-        @instance ||= self.new
-        if env
-          @instance.envirnoment = env
+      def self.instance
+        if !@instance
+          @instance = self.new
         end
         @instance
       end

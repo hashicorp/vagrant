@@ -31,7 +31,7 @@ type GRPCSyncedFolderClient struct {
 	client vagrant_folder.SyncedFolderClient
 }
 
-func (c *GRPCSyncedFolderClient) Cleanup(m *vagrant.Machine, o *vagrant.FolderOptions) (err error) {
+func (c *GRPCSyncedFolderClient) Cleanup(m *vagrant.Machine, o vagrant.FolderOptions) (err error) {
 	machine, err := vagrant.DumpMachine(m)
 	if err != nil {
 		return
@@ -52,7 +52,7 @@ func (c *GRPCSyncedFolderClient) Cleanup(m *vagrant.Machine, o *vagrant.FolderOp
 	return
 }
 
-func (c *GRPCSyncedFolderClient) Disable(m *vagrant.Machine, f *vagrant.FolderList, o *vagrant.FolderOptions) (err error) {
+func (c *GRPCSyncedFolderClient) Disable(m *vagrant.Machine, f vagrant.FolderList, o vagrant.FolderOptions) (err error) {
 	machine, err := vagrant.DumpMachine(m)
 	if err != nil {
 		return
@@ -78,7 +78,7 @@ func (c *GRPCSyncedFolderClient) Disable(m *vagrant.Machine, f *vagrant.FolderLi
 	return
 }
 
-func (c *GRPCSyncedFolderClient) Enable(m *vagrant.Machine, f *vagrant.FolderList, o *vagrant.FolderOptions) (err error) {
+func (c *GRPCSyncedFolderClient) Enable(m *vagrant.Machine, f vagrant.FolderList, o vagrant.FolderOptions) (err error) {
 	machine, err := vagrant.DumpMachine(m)
 	if err != nil {
 		return
@@ -136,7 +136,7 @@ func (c *GRPCSyncedFolderClient) Name() string {
 	return resp.Name
 }
 
-func (c *GRPCSyncedFolderClient) Prepare(m *vagrant.Machine, f *vagrant.FolderList, o *vagrant.FolderOptions) (err error) {
+func (c *GRPCSyncedFolderClient) Prepare(m *vagrant.Machine, f vagrant.FolderList, o vagrant.FolderOptions) (err error) {
 	machine, err := vagrant.DumpMachine(m)
 	if err != nil {
 		return
@@ -171,7 +171,7 @@ type GRPCSyncedFolderServer struct {
 
 func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_folder.CleanupRequest) (resp *vagrant_common.EmptyResponse, err error) {
 	resp = &vagrant_common.EmptyResponse{}
-	machine, err := vagrant.LoadMachine(req.Machine, nil)
+	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
 	}
@@ -180,7 +180,7 @@ func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_folde
 	if err != nil {
 		return
 	}
-	e := s.Impl.Cleanup(machine, &options)
+	e := s.Impl.Cleanup(machine, options)
 	if e != nil {
 		resp.Error = e.Error()
 	}
@@ -189,7 +189,7 @@ func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_folde
 
 func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_folder.Request) (resp *vagrant_common.EmptyResponse, err error) {
 	resp = &vagrant_common.EmptyResponse{}
-	machine, err := vagrant.LoadMachine(req.Machine, nil)
+	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
 	}
@@ -203,7 +203,7 @@ func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_folde
 	if err != nil {
 		return
 	}
-	e := s.Impl.Disable(machine, &folders, &options)
+	e := s.Impl.Disable(machine, folders, options)
 	if e != nil {
 		resp.Error = e.Error()
 	}
@@ -212,7 +212,7 @@ func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_folde
 
 func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_folder.Request) (resp *vagrant_common.EmptyResponse, err error) {
 	resp = &vagrant_common.EmptyResponse{}
-	machine, err := vagrant.LoadMachine(req.Machine, nil)
+	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
 	}
@@ -226,7 +226,7 @@ func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_folder
 	if err != nil {
 		return
 	}
-	e := s.Impl.Enable(machine, &folders, &options)
+	e := s.Impl.Enable(machine, folders, options)
 	if e != nil {
 		resp.Error = e.Error()
 	}
@@ -242,7 +242,7 @@ func (s *GRPCSyncedFolderServer) Info(ctx context.Context, req *vagrant_common.N
 
 func (s *GRPCSyncedFolderServer) IsUsable(ctx context.Context, req *vagrant_common.EmptyRequest) (resp *vagrant_common.IsResponse, err error) {
 	resp = &vagrant_common.IsResponse{}
-	machine, err := vagrant.LoadMachine(req.Machine, nil)
+	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
 	}
@@ -260,7 +260,7 @@ func (s *GRPCSyncedFolderServer) Name(ctx context.Context, req *vagrant_common.N
 
 func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_folder.Request) (resp *vagrant_common.EmptyResponse, err error) {
 	resp = &vagrant_common.EmptyResponse{}
-	machine, err := vagrant.LoadMachine(req.Machine, nil)
+	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
 	}
@@ -274,7 +274,7 @@ func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_folde
 	if err != nil {
 		return
 	}
-	e := s.Impl.Prepare(machine, &folders, &options)
+	e := s.Impl.Prepare(machine, folders, options)
 	if e != nil {
 		resp.Error = e.Error()
 	}
@@ -282,10 +282,27 @@ func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_folde
 }
 
 func (f *SyncedFolderPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
-	vagrant_folder.RegisterSyncedFolderServer(s, &GRPCSyncedFolderServer{Impl: f.Impl})
+	f.Impl.Init()
+	vagrant_folder.RegisterSyncedFolderServer(s,
+		&GRPCSyncedFolderServer{
+			Impl: f.Impl,
+			GRPCIOServer: GRPCIOServer{
+				Impl: f.Impl},
+			GRPCGuestCapabilitiesServer: GRPCGuestCapabilitiesServer{
+				Impl: f.Impl},
+			GRPCHostCapabilitiesServer: GRPCHostCapabilitiesServer{
+				Impl: f.Impl}})
 	return nil
 }
 
 func (f *SyncedFolderPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
-	return &GRPCSyncedFolderClient{client: vagrant_folder.NewSyncedFolderClient(c)}, nil
+	client := vagrant_folder.NewSyncedFolderClient(c)
+	return &GRPCSyncedFolderClient{
+		GRPCIOClient: GRPCIOClient{
+			client: client},
+		GRPCGuestCapabilitiesClient: GRPCGuestCapabilitiesClient{
+			client: client},
+		GRPCHostCapabilitiesClient: GRPCHostCapabilitiesClient{
+			client: client},
+		client: client}, nil
 }

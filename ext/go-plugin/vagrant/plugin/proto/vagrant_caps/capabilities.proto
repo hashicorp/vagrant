@@ -2,6 +2,7 @@ syntax = "proto3";
 package vagrant.caps;
 
 import "github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common/common.proto";
+import "github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_io/io.proto";
 
 message Capability {
   string name = 1;
@@ -59,14 +60,23 @@ message HostCapabilityResponse {
 service GuestCapabilities {
   rpc GuestCapabilities(vagrant.common.NullRequest) returns (CapabilitiesResponse);
   rpc GuestCapability(GuestCapabilityRequest) returns (GuestCapabilityResponse);
+  // These are IO helpers for streaming
+  rpc Read(vagrant.io.ReadRequest) returns (vagrant.io.ReadResponse);
+  rpc Write(vagrant.io.WriteRequest) returns (vagrant.io.WriteResponse);
 }
 
 service HostCapabilities {
   rpc HostCapabilities(vagrant.common.NullRequest) returns (CapabilitiesResponse);
   rpc HostCapability(HostCapabilityRequest) returns (HostCapabilityResponse);
+  // These are IO helpers for streaming
+  rpc Read(vagrant.io.ReadRequest) returns (vagrant.io.ReadResponse);
+  rpc Write(vagrant.io.WriteRequest) returns (vagrant.io.WriteResponse);
 }
 
 service ProviderCapabilities {
   rpc ProviderCapabilities(vagrant.common.NullRequest) returns (ProviderCapabilitiesResponse);
   rpc ProviderCapability(ProviderCapabilityRequest) returns (ProviderCapabilityResponse);
+  // These are IO helpers for streaming
+  rpc Read(vagrant.io.ReadRequest) returns (vagrant.io.ReadResponse);
+  rpc Write(vagrant.io.WriteRequest) returns (vagrant.io.WriteResponse);
 }

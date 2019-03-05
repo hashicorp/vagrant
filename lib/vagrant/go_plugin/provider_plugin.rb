@@ -60,30 +60,10 @@ module Vagrant
       # provider so that it can be interacted with normally within
       # Vagrant
       class Provider < Vagrant.plugin("2", :provider)
+        include DirectGoPlugin
+
         # @return [Vagrant::Machine]
         attr_reader :machine
-
-        # @return [String] plugin name associated to this class
-        def self.go_plugin_name
-          @go_plugin_name
-        end
-
-        # Set the plugin name for this class
-        #
-        # @param [String] n plugin name
-        # @return [String]
-        # @note can only be set once
-        def self.go_plugin_name=(n)
-          if @go_plugin_name
-            raise ArgumentError.new("Class plugin name has already been set")
-          end
-          @go_plugin_name = n
-        end
-
-        # @return [String]
-        def self.name
-          go_plugin_name.to_s.capitalize.tr("_", "")
-        end
 
         def initialize(machine)
           @machine = machine
@@ -232,21 +212,6 @@ module Vagrant
               builder.use action_class
             end
           end
-        end
-
-        def capability
-        end
-
-        # Check if provider has requested capability
-        #
-        # @param [String] provider_name provider name for request
-        # @param [String] capability_name name of the capability
-        # @param [Vagrant::Machine] machine instance of guest
-        # @return [Boolean]
-        def has_capability(provider_name, capability_name, machine)
-          result = load_result { _provider_has_capability(provider_name,
-            capability_name, dump_machine(machine)) }
-          result
         end
 
         # Check if provider is installed

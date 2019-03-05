@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 
+	"google.golang.org/grpc"
+
 	go_plugin "github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common"
@@ -19,6 +21,23 @@ type Config interface {
 type ConfigPlugin struct {
 	go_plugin.NetRPCUnsupportedPlugin
 	Impl Config
+}
+
+func (c *ConfigPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
+	c.Impl.Init()
+	vagrant_config.RegisterConfigServer(s, &GRPCConfigServer{
+		Impl: c.Impl,
+		GRPCIOServer: GRPCIOServer{
+			Impl: c.Impl}})
+	return nil
+}
+
+func (c *ConfigPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, con *grpc.ClientConn) (interface{}, error) {
+	client := vagrant_config.NewConfigClient(con)
+	return &GRPCConfigClient{
+		client: client,
+		GRPCIOClient: GRPCIOClient{
+			client: client}}, nil
 }
 
 type GRPCConfigServer struct {
@@ -104,6 +123,8 @@ func (s *GRPCConfigServer) ConfigFinalize(ctx context.Context, req *vagrant_conf
 }
 
 type GRPCConfigClient struct {
+	GRPCCoreClient
+	GRPCIOClient
 	client vagrant_config.ConfigClient
 }
 

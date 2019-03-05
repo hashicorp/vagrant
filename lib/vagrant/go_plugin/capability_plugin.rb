@@ -6,12 +6,12 @@ module Vagrant
     module CapabilityPlugin
       # Wrapper class for go-plugin defined capabilities
       class Capability
-        extend TypedGoPlugin
+        include TypedGoPlugin
       end
 
       # @return [Interface]
       def self.interface
-        unless @_interface
+        if !@_interface
           @_interface = Interface.new
         end
         @_interface

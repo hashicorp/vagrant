@@ -90,12 +90,16 @@ module Vagrant
 
           # Load given data into the provided machine. This is
           # used to update the machine with data received from
-          # go-plugins
+          # go-plugins. Currently the only modification applied
+          # is an ID change.
           #
           # @param [Hash] data Machine data from go-plugin
           # @param [Vagrant::Machine] machine
           # @return [Vagrant::Machine]
           def load_machine(data, machine)
+            if data[:id] != machine.id
+              machine.id = data[:id]
+            end
             machine
           end
 
@@ -157,7 +161,7 @@ module Vagrant
 
         # @return [String]
         def name
-          go_plugin_name.to_s.capitalize.tr("_", "")
+          go_plugin_name.to_s.split("_").map(&:capitalize).join
         end
       end
 

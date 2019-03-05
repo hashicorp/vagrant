@@ -7,7 +7,7 @@ type Provider interface {
 	IsUsable(machData *Machine) (bool, error)
 	MachineIdChanged(machData *Machine) error
 	Name() string
-	RunAction(actionName string, data string, machData *Machine) (string, error)
+	RunAction(actionName string, args interface{}, machData *Machine) (interface{}, error)
 	SshInfo(machData *Machine) (*SshInfo, error)
 	State(machData *Machine) (*MachineState, error)
 

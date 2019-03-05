@@ -14,7 +14,7 @@ var Plugins *plugin.VagrantPlugin
 
 //export Setup
 func Setup(enableLogger, timestamps bool, logLevel *C.char) bool {
-	lvl := C.GoString(logLevel)
+	lvl := to_gs(logLevel)
 	lopts := &hclog.LoggerOptions{Name: "vagrant"}
 	if enableLogger {
 		lopts.Output = os.Stderr
@@ -32,10 +32,7 @@ func Setup(enableLogger, timestamps bool, logLevel *C.char) bool {
 		return false
 	}
 
-	Plugins = &plugin.VagrantPlugin{
-		PluginDirectories: []string{},
-		Providers:         map[string]*plugin.RemoteProvider{},
-		Logger:            vagrant.DefaultLogger().Named("go-plugin")}
+	Plugins = plugin.VagrantPluginInit()
 	return true
 }
 
@@ -46,7 +43,7 @@ func LoadPlugins(plgpath *C.char) bool {
 		return false
 	}
 
-	p := C.GoString(plgpath)
+	p := to_gs(plgpath)
 	err := Plugins.LoadPlugins(p)
 	if err != nil {
 		Plugins.Logger.Error("failed loading plugins",
@@ -86,3 +83,13 @@ func Teardown() {
 
 // stub required for build
 func main() {}
+
+// helper to convert c string to go string
+func to_gs(s *C.char) string {
+	return C.GoString(s)
+}
+
+// helper to convert go string to c string
+func to_cs(s string) *C.char {
+	return C.CString(s)
+}

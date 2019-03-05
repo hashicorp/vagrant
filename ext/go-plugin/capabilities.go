@@ -11,168 +11,148 @@ import (
 
 //export GuestCapabilities
 func GuestCapabilities(pluginName, pluginType *C.char) *C.char {
-	r := vagrant.Response{}
-	p, err := getGuestCapsPlugin(pluginName, pluginType)
+	r := &Response{}
+	i, err := Plugins.PluginLookup(to_gs(pluginName), to_gs(pluginType))
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
+	}
+	p, ok := i.(*plugin.RemoteGuestCapabilities)
+	if !ok {
+		r.Error = errors.New("failed to load requested plugin")
+		return r.Dump()
 	}
 	r.Result, r.Error = p.GuestCapabilities.GuestCapabilities()
-	return C.CString(r.Dump())
+	return r.Dump()
 }
 
 //export GuestCapability
 func GuestCapability(pluginName, pluginType, cname, cplatform, cargs, cmachine *C.char) *C.char {
-	r := vagrant.Response{}
-	p, err := getGuestCapsPlugin(pluginName, pluginType)
+	r := &Response{}
+	i, err := Plugins.PluginLookup(to_gs(pluginName), to_gs(pluginType))
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
-	machine, err := vagrant.LoadMachine(C.GoString(cmachine), nil)
+	p, ok := i.(*plugin.RemoteGuestCapabilities)
+	if !ok {
+		r.Error = errors.New("Failed to load requested plugin")
+		return r.Dump()
+	}
+	machine, err := vagrant.LoadMachine(to_gs(cmachine), nil)
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
 	var args interface{}
-	err = json.Unmarshal([]byte(C.GoString(cargs)), &args)
+	err = json.Unmarshal([]byte(to_gs(cargs)), &args)
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
 	cap := &vagrant.SystemCapability{
-		Name:     C.GoString(cname),
-		Platform: C.GoString(cplatform)}
+		Name:     to_gs(cname),
+		Platform: to_gs(cplatform)}
 	r.Result, r.Error = p.GuestCapabilities.GuestCapability(cap, args, machine)
-	return C.CString(r.Dump())
+	return r.Dump()
 }
 
 //export HostCapabilities
 func HostCapabilities(pluginName, pluginType *C.char) *C.char {
-	r := vagrant.Response{}
-	p, err := getHostCapsPlugin(pluginName, pluginType)
+	r := &Response{}
+	i, err := Plugins.PluginLookup(to_gs(pluginName), to_gs(pluginType))
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
+	p, ok := i.(*plugin.RemoteHostCapabilities)
+	if !ok {
+		r.Error = errors.New("Failed to load requested plugin")
+		return r.Dump()
+	}
+
 	r.Result, r.Error = p.HostCapabilities.HostCapabilities()
-	return C.CString(r.Dump())
+	return r.Dump()
 }
 
 //export HostCapability
 func HostCapability(pluginName, pluginType, cname, cplatform, cargs, cenv *C.char) *C.char {
-	r := vagrant.Response{}
-	p, err := getHostCapsPlugin(pluginName, pluginType)
+	r := &Response{}
+	i, err := Plugins.PluginLookup(to_gs(pluginName), to_gs(pluginType))
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
-	env, err := vagrant.LoadEnvironment(C.GoString(cenv), nil)
+	p, ok := i.(*plugin.RemoteHostCapabilities)
+	if !ok {
+		r.Error = errors.New("Failed to load requested plugin")
+		return r.Dump()
+	}
+
+	env, err := vagrant.LoadEnvironment(to_gs(cenv), nil)
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
 	var args interface{}
-	err = json.Unmarshal([]byte(C.GoString(cargs)), &args)
+	err = json.Unmarshal([]byte(to_gs(cargs)), &args)
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
 	cap := &vagrant.SystemCapability{
-		Name:     C.GoString(cname),
-		Platform: C.GoString(cplatform)}
+		Name:     to_gs(cname),
+		Platform: to_gs(cplatform)}
 	r.Result, r.Error = p.HostCapabilities.HostCapability(cap, args, env)
-	return C.CString(r.Dump())
+	return r.Dump()
 }
 
 //export ProviderCapabilities
 func ProviderCapabilities(pluginName, pluginType *C.char) *C.char {
-	r := vagrant.Response{}
-	p, err := getProviderCapsPlugin(pluginName, pluginType)
+	r := &Response{}
+	i, err := Plugins.PluginLookup(to_gs(pluginName), to_gs(pluginType))
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
+	p, ok := i.(*plugin.RemoteProviderCapabilities)
+	if !ok {
+		r.Error = errors.New("Failed to load requested plugin")
+		return r.Dump()
+	}
+
 	r.Result, r.Error = p.ProviderCapabilities.ProviderCapabilities()
-	return C.CString(r.Dump())
+	return r.Dump()
 }
 
 //export ProviderCapability
 func ProviderCapability(pluginName, pluginType, cname, cprovider, cargs, cmach *C.char) *C.char {
-	r := vagrant.Response{}
-	p, err := getProviderCapsPlugin(pluginName, pluginType)
+	r := &Response{}
+	i, err := Plugins.PluginLookup(to_gs(pluginName), to_gs(pluginType))
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
-	m, err := vagrant.LoadMachine(C.GoString(cmach), nil)
+	p, ok := i.(*plugin.RemoteProviderCapabilities)
+	if !ok {
+		r.Error = errors.New("Failed to load requested plugin")
+		return r.Dump()
+	}
+
+	m, err := vagrant.LoadMachine(to_gs(cmach), nil)
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
 	var args interface{}
-	err = json.Unmarshal([]byte(C.GoString(cargs)), &args)
+	err = json.Unmarshal([]byte(to_gs(cargs)), &args)
 	if err != nil {
 		r.Error = err
-		return C.CString(r.Dump())
+		return r.Dump()
 	}
 	cap := &vagrant.ProviderCapability{
-		Name:     C.GoString(cname),
-		Provider: C.GoString(cprovider)}
+		Name:     to_gs(cname),
+		Provider: to_gs(cprovider)}
 	r.Result, r.Error = p.ProviderCapabilities.ProviderCapability(cap, args, m)
-	return C.CString(r.Dump())
-}
-
-func getProviderCapsPlugin(pluginName, pluginType *C.char) (c *plugin.RemoteProviderCapabilities, err error) {
-	pname := C.GoString(pluginName)
-	ptype := C.GoString(pluginType)
-
-	if ptype == "provider" {
-		p, ok := Plugins.Providers[pname]
-		if ok {
-			c = &plugin.RemoteProviderCapabilities{
-				Client:               p.Client,
-				ProviderCapabilities: p.Provider}
-		}
-	}
-	if c == nil {
-		err = errors.New("Failed to locate requested plugin")
-	}
-	return
-}
-
-func getGuestCapsPlugin(pluginName, pluginType *C.char) (c *plugin.RemoteGuestCapabilities, err error) {
-	pname := C.GoString(pluginName)
-	ptype := C.GoString(pluginType)
-
-	if ptype == "provider" {
-		p, ok := Plugins.Providers[pname]
-		if ok {
-			c = &plugin.RemoteGuestCapabilities{
-				Client:            p.Client,
-				GuestCapabilities: p.Provider}
-		}
-	}
-	if c == nil {
-		err = errors.New("Failed to locate requested plugin")
-	}
-	return
-}
-
-func getHostCapsPlugin(pluginName, pluginType *C.char) (c *plugin.RemoteHostCapabilities, err error) {
-	pname := C.GoString(pluginName)
-	ptype := C.GoString(pluginType)
-
-	if ptype == "provider" {
-		p, ok := Plugins.Providers[pname]
-		if ok {
-			c = &plugin.RemoteHostCapabilities{
-				Client:           p.Client,
-				HostCapabilities: p.Provider}
-		}
-	}
-	if c == nil {
-		err = errors.New("Failed to locate requested plugin")
-	}
-	return
+	return r.Dump()
 }

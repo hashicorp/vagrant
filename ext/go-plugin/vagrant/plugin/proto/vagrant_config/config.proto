@@ -2,6 +2,7 @@ syntax = "proto3";
 package vagrant.config;
 
 import "github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common/common.proto";
+import "github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_io/io.proto";
 
 message AttributesResponse {
   repeated string attributes = 1;
@@ -41,4 +42,7 @@ service Config {
   rpc ConfigLoad(LoadRequest) returns (LoadResponse);
   rpc ConfigValidate(ValidateRequest) returns (ValidateResponse);
   rpc ConfigFinalize(FinalizeRequest) returns (FinalizeResponse);
+  // These are IO helpers for streaming
+  rpc Read(vagrant.io.ReadRequest) returns (vagrant.io.ReadResponse);
+  rpc Write(vagrant.io.WriteRequest) returns (vagrant.io.WriteResponse);
 }

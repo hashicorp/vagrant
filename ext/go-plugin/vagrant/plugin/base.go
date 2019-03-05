@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 
@@ -9,6 +10,13 @@ import (
 	go_plugin "github.com/hashicorp/go-plugin"
 
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
+)
+
+var (
+	Handshake = go_plugin.HandshakeConfig{
+		MagicCookieKey:   "VAGRANT_PLUGIN_MAGIC_COOKIE",
+		MagicCookieValue: "1561a662a76642f98df77ad025aa13a9b16225d93f90475e91090fbe577317ed",
+		ProtocolVersion:  1}
 )
 
 type RemoteConfig struct {
@@ -45,7 +53,34 @@ type VagrantPlugin struct {
 	Providers         map[string]*RemoteProvider
 	SyncedFolders     map[string]*RemoteSyncedFolder
 	PluginDirectories []string
+	PluginLookup      func(name, kind string) (p interface{}, err error)
 	Logger            hclog.Logger
+}
+
+func VagrantPluginInit() *VagrantPlugin {
+	v := &VagrantPlugin{
+		PluginDirectories: []string{},
+		Providers:         map[string]*RemoteProvider{},
+		SyncedFolders:     map[string]*RemoteSyncedFolder{},
+		Logger:            vagrant.DefaultLogger().Named("go-plugin")}
+	v.PluginLookup = v.DefaultPluginLookup
+	return v
+}
+
+func (v *VagrantPlugin) DefaultPluginLookup(name, kind string) (p interface{}, err error) {
+	switch kind {
+	case "provider":
+		p = v.Providers[name]
+	case "synced_folder":
+		p = v.SyncedFolders[name]
+	default:
+		err = errors.New("invalid plugin type")
+		return
+	}
+	if p == nil {
+		err = errors.New(fmt.Sprintf("Failed to locate %s plugin of type %s", name, kind))
+	}
+	return
 }
 
 func (v *VagrantPlugin) LoadPlugins(pluginPath string) error {
@@ -78,12 +113,8 @@ func (v *VagrantPlugin) LoadProviders(pluginPath string) error {
 		client := go_plugin.NewClient(&go_plugin.ClientConfig{
 			AllowedProtocols: []go_plugin.Protocol{go_plugin.ProtocolGRPC},
 			Logger:           v.Logger,
-			HandshakeConfig: go_plugin.HandshakeConfig{
-				MagicCookieKey:   "BASIC_PLUGIN",
-				MagicCookieValue: "hello",
-				ProtocolVersion:  1,
-			},
-			Cmd: exec.Command(providerPath),
+			HandshakeConfig:  Handshake,
+			Cmd:              exec.Command(providerPath),
 			VersionedPlugins: map[int]go_plugin.PluginSet{
 				2: {"provider": &ProviderPlugin{}}}})
 		gclient, err := client.Client()
@@ -121,12 +152,8 @@ func (v *VagrantPlugin) LoadSyncedFolders(pluginPath string) error {
 		client := go_plugin.NewClient(&go_plugin.ClientConfig{
 			AllowedProtocols: []go_plugin.Protocol{go_plugin.ProtocolGRPC},
 			Logger:           v.Logger,
-			HandshakeConfig: go_plugin.HandshakeConfig{
-				MagicCookieKey:   "BASIC_PLUGIN",
-				MagicCookieValue: "hello",
-				ProtocolVersion:  1,
-			},
-			Cmd: exec.Command(folderPath),
+			HandshakeConfig:  Handshake,
+			Cmd:              exec.Command(folderPath),
 			VersionedPlugins: map[int]go_plugin.PluginSet{
 				2: {"synced_folders": &SyncedFolderPlugin{}}}})
 		gclient, err := client.Client()

@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 
 	"google.golang.org/grpc"
@@ -110,19 +111,26 @@ func (c *GRPCProviderClient) MachineIdChanged(m *vagrant.Machine) (err error) {
 	return
 }
 
-func (c *GRPCProviderClient) RunAction(actName string, runData string, m *vagrant.Machine) (r string, err error) {
+func (c *GRPCProviderClient) RunAction(actName string, args interface{}, m *vagrant.Machine) (r interface{}, err error) {
 	machData, err := vagrant.DumpMachine(m)
+	if err != nil {
+		return
+	}
+	runData, err := json.Marshal(args)
 	if err != nil {
 		return
 	}
 	resp, err := c.client.RunAction(context.Background(), &vagrant_provider.RunActionRequest{
 		Name:    actName,
-		Data:    runData,
+		Data:    string(runData),
 		Machine: machData})
 	if err != nil {
 		return
 	}
-	r = resp.Data
+	err = json.Unmarshal([]byte(resp.Data), &r)
+	if err != nil {
+		return
+	}
 	if resp.Error != "" {
 		err = errors.New(resp.Error)
 	}
@@ -178,10 +186,6 @@ func (c *GRPCProviderClient) Name() string {
 	return resp.Name
 }
 
-func (p *ProviderPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
-	return nil
-}
-
 func (p *ProviderPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	client := vagrant_provider.NewProviderClient(c)
 	return &GRPCProviderClient{
@@ -199,12 +203,7 @@ func (p *ProviderPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCB
 	}, nil
 }
 
-type GRPCProviderPlugin struct {
-	ProviderPlugin
-	Impl Provider
-}
-
-func (p *GRPCProviderPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
+func (p *ProviderPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
 	p.Impl.Init()
 	vagrant_provider.RegisterProviderServer(s, &GRPCProviderServer{
 		Impl: p.Impl,
@@ -219,10 +218,6 @@ func (p *GRPCProviderPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Se
 		GRPCIOServer: GRPCIOServer{
 			Impl: p.Impl}})
 	return nil
-}
-
-func (p *GRPCProviderPlugin) GRPCClient(context.Context, *go_plugin.GRPCBroker, *grpc.ClientConn) (interface{}, error) {
-	return nil, nil
 }
 
 type GRPCProviderServer struct {
@@ -257,12 +252,21 @@ func (s *GRPCProviderServer) RunAction(ctx context.Context, req *vagrant_provide
 		resp.Error = e.Error()
 		return
 	}
-	r, e := s.Impl.RunAction(req.Name, req.Data, m)
+	var args interface{}
+	err = json.Unmarshal([]byte(req.Data), &args)
+	if err != nil {
+		return
+	}
+	r, e := s.Impl.RunAction(req.Name, args, m)
 	if e != nil {
 		resp.Error = e.Error()
 		return
 	}
-	resp.Data = r
+	result, err := json.Marshal(r)
+	if err != nil {
+		return
+	}
+	resp.Data = string(result)
 	return
 }
 

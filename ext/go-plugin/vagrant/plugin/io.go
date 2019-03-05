@@ -11,6 +11,10 @@ import (
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_io"
 )
 
+type IO interface {
+	vagrant.StreamIO
+}
+
 type IOPlugin struct {
 	go_plugin.NetRPCUnsupportedPlugin
 	Impl vagrant.StreamIO

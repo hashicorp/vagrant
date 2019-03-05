@@ -9,13 +9,13 @@ type SyncedFolderInfo struct {
 }
 
 type SyncedFolder interface {
-	Cleanup(m *Machine, opts *FolderOptions) error
-	Disable(m *Machine, f *FolderList, opts *FolderOptions) error
-	Enable(m *Machine, f *FolderList, opts *FolderOptions) error
+	Cleanup(m *Machine, opts FolderOptions) error
+	Disable(m *Machine, f FolderList, opts FolderOptions) error
+	Enable(m *Machine, f FolderList, opts FolderOptions) error
 	Info() *SyncedFolderInfo
 	IsUsable(m *Machine) (bool, error)
 	Name() string
-	Prepare(m *Machine, f *FolderList, opts *FolderOptions) error
+	Prepare(m *Machine, f FolderList, opts FolderOptions) error
 
 	GuestCapabilities
 	HostCapabilities

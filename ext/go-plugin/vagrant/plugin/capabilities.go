@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 
+	"google.golang.org/grpc"
+
 	go_plugin "github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_caps"
@@ -19,6 +21,23 @@ type GuestCapabilities interface {
 type GuestCapabilitiesPlugin struct {
 	go_plugin.NetRPCUnsupportedPlugin
 	Impl GuestCapabilities
+}
+
+func (g *GuestCapabilitiesPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
+	g.Impl.Init()
+	vagrant_caps.RegisterGuestCapabilitiesServer(s, &GRPCGuestCapabilitiesServer{
+		Impl: g.Impl,
+		GRPCIOServer: GRPCIOServer{
+			Impl: g.Impl}})
+	return nil
+}
+
+func (g *GuestCapabilitiesPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+	client := vagrant_caps.NewGuestCapabilitiesClient(c)
+	return &GRPCGuestCapabilitiesClient{
+		client: client,
+		GRPCIOClient: GRPCIOClient{
+			client: client}}, nil
 }
 
 type GRPCGuestCapabilitiesServer struct {
@@ -43,8 +62,7 @@ func (s *GRPCGuestCapabilitiesServer) GuestCapabilities(ctx context.Context, req
 func (s *GRPCGuestCapabilitiesServer) GuestCapability(ctx context.Context, req *vagrant_caps.GuestCapabilityRequest) (resp *vagrant_caps.GuestCapabilityResponse, err error) {
 	resp = &vagrant_caps.GuestCapabilityResponse{}
 	var args interface{}
-	err = json.Unmarshal([]byte(req.Arguments), args)
-	if err != nil {
+	if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
 		return
 	}
 	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
@@ -67,6 +85,8 @@ func (s *GRPCGuestCapabilitiesServer) GuestCapability(ctx context.Context, req *
 }
 
 type GRPCGuestCapabilitiesClient struct {
+	GRPCCoreClient
+	GRPCIOClient
 	client vagrant_caps.GuestCapabilitiesClient
 }
 
@@ -102,6 +122,13 @@ func (c *GRPCGuestCapabilitiesClient) GuestCapability(cap *vagrant.SystemCapabil
 		Capability: &vagrant_caps.Capability{Name: cap.Name, Platform: cap.Platform},
 		Machine:    m,
 		Arguments:  string(a)})
+	if err != nil {
+		return
+	}
+	if resp.Error != "" {
+		err = errors.New(resp.Error)
+		return
+	}
 	err = json.Unmarshal([]byte(resp.Result), &result)
 	return
 }
@@ -109,6 +136,28 @@ func (c *GRPCGuestCapabilitiesClient) GuestCapability(cap *vagrant.SystemCapabil
 type HostCapabilities interface {
 	vagrant.HostCapabilities
 	Meta
+}
+
+type HostCapabilitiesPlugin struct {
+	go_plugin.NetRPCUnsupportedPlugin
+	Impl HostCapabilities
+}
+
+func (h *HostCapabilitiesPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
+	h.Impl.Init()
+	vagrant_caps.RegisterHostCapabilitiesServer(s, &GRPCHostCapabilitiesServer{
+		Impl: h.Impl,
+		GRPCIOServer: GRPCIOServer{
+			Impl: h.Impl}})
+	return nil
+}
+
+func (h *HostCapabilitiesPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+	client := vagrant_caps.NewHostCapabilitiesClient(c)
+	return &GRPCHostCapabilitiesClient{
+		client: client,
+		GRPCIOClient: GRPCIOClient{
+			client: client}}, nil
 }
 
 type GRPCHostCapabilitiesServer struct {
@@ -133,8 +182,7 @@ func (s *GRPCHostCapabilitiesServer) HostCapabilities(ctx context.Context, req *
 func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *vagrant_caps.HostCapabilityRequest) (resp *vagrant_caps.HostCapabilityResponse, err error) {
 	resp = &vagrant_caps.HostCapabilityResponse{}
 	var args interface{}
-	err = json.Unmarshal([]byte(req.Arguments), args)
-	if err != nil {
+	if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
 		return
 	}
 	env, err := vagrant.LoadEnvironment(req.Environment, s.Impl)
@@ -157,6 +205,8 @@ func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *va
 }
 
 type GRPCHostCapabilitiesClient struct {
+	GRPCCoreClient
+	GRPCIOClient
 	client vagrant_caps.HostCapabilitiesClient
 }
 
@@ -194,6 +244,9 @@ func (c *GRPCHostCapabilitiesClient) HostCapability(cap *vagrant.SystemCapabilit
 			Platform: cap.Platform},
 		Environment: e,
 		Arguments:   string(a)})
+	if err != nil {
+		return
+	}
 	err = json.Unmarshal([]byte(resp.Result), &result)
 	return
 }
@@ -201,6 +254,28 @@ func (c *GRPCHostCapabilitiesClient) HostCapability(cap *vagrant.SystemCapabilit
 type ProviderCapabilities interface {
 	vagrant.ProviderCapabilities
 	Meta
+}
+
+type ProviderCapabilitiesPlugin struct {
+	go_plugin.NetRPCUnsupportedPlugin
+	Impl ProviderCapabilities
+}
+
+func (p *ProviderCapabilitiesPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
+	p.Impl.Init()
+	vagrant_caps.RegisterProviderCapabilitiesServer(s, &GRPCProviderCapabilitiesServer{
+		Impl: p.Impl,
+		GRPCIOServer: GRPCIOServer{
+			Impl: p.Impl}})
+	return nil
+}
+
+func (p *ProviderCapabilitiesPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
+	client := vagrant_caps.NewProviderCapabilitiesClient(c)
+	return &GRPCProviderCapabilitiesClient{
+		client: client,
+		GRPCIOClient: GRPCIOClient{
+			client: client}}, nil
 }
 
 type GRPCProviderCapabilitiesServer struct {
@@ -225,7 +300,7 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapabilities(ctx context.Contex
 func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context, req *vagrant_caps.ProviderCapabilityRequest) (resp *vagrant_caps.ProviderCapabilityResponse, err error) {
 	resp = &vagrant_caps.ProviderCapabilityResponse{}
 	var args interface{}
-	err = json.Unmarshal([]byte(req.Arguments), args)
+	err = json.Unmarshal([]byte(req.Arguments), &args)
 	if err != nil {
 		return
 	}
@@ -249,6 +324,8 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context,
 }
 
 type GRPCProviderCapabilitiesClient struct {
+	GRPCCoreClient
+	GRPCIOClient
 	client vagrant_caps.ProviderCapabilitiesClient
 }
 
@@ -286,6 +363,9 @@ func (c *GRPCProviderCapabilitiesClient) ProviderCapability(cap *vagrant.Provide
 			Provider: cap.Provider},
 		Machine:   m,
 		Arguments: string(a)})
+	if err != nil {
+		return
+	}
 	err = json.Unmarshal([]byte(resp.Result), &result)
 	return
 }

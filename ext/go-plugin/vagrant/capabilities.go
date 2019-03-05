@@ -7,7 +7,7 @@ type SystemCapability struct {
 
 type ProviderCapability struct {
 	Name     string `json:"name"`
-	Provider string `json:"name"`
+	Provider string `json:"provider"`
 }
 
 type GuestCapabilities interface {
