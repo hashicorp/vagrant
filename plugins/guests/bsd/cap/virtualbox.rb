@@ -15,8 +15,8 @@ module VagrantPlugins
 
           @@logger.debug("Mounting #{name} (#{options[:hostpath]} to #{guestpath})")
 
-          builtin_mount_type = "-cit vboxsf"
-          addon_mount_type = "-t vboxsf"
+          builtin_mount_type = "-cit vboxvfs"
+          addon_mount_type = "-t vboxvfs"
 
           mount_options = options.fetch(:mount_options, [])
           detected_ids = detect_owner_group_ids(machine, guest_path, mount_options, options)
