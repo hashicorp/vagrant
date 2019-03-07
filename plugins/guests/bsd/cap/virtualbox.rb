@@ -38,7 +38,7 @@ module VagrantPlugins
 
           if result != 0
             if stderr.include?("-cit")
-              @@logger.info("Detected builtin vboxsf module, modifying mount command")
+              @@logger.info("Detected builtin vboxvfs module, modifying mount command")
               mount_command.sub!(addon_mount_type, builtin_mount_type)
             end
 
