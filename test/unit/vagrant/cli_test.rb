@@ -30,6 +30,9 @@ describe Vagrant::CLI do
   describe "#execute" do
     let(:triggers) { double("triggers") }
 
+    before { allow(Vagrant::Util::Experimental).to receive(:feature_enabled?) }
+
+
     it "invokes help and exits with 1 if invalid command" do
       subject = described_class.new(["i-dont-exist"], env)
       expect(subject).to receive(:help).once
@@ -59,7 +62,7 @@ describe Vagrant::CLI do
 
     it "fires triggers, if enabled" do
       allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
-        with("typed_triggers").and_return("true")
+        with("typed_triggers").and_return(true)
       allow(triggers).to receive(:fire_triggers)
 
       commands[:destroy] = [command_lambda("destroy", 42), {}]
@@ -76,7 +79,7 @@ describe Vagrant::CLI do
 
     it "does not fire triggers if disabled" do
       allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
-        with("typed_triggers").and_return("false")
+        with("typed_triggers").and_return(false)
 
       commands[:destroy] = [command_lambda("destroy", 42), {}]
 

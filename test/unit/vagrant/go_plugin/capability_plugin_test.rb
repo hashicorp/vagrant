@@ -9,7 +9,7 @@ describe Vagrant::GoPlugin::CapabilityPlugin do
 
   describe ".interface" do
     it "should create an interface instance" do
-      expect(described_class.interface).to be_a(Vagrant::GoPlugin::CapabilityHost::Interface)
+      expect(described_class.interface).to be_a(Vagrant::GoPlugin::CapabilityPlugin::Interface)
     end
 
     it "should cache generated interface" do
