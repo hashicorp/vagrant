@@ -17,7 +17,7 @@ module VagrantPlugins
               o.separator "Options:"
               o.separator ""
 
-              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |t|
+              o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
                 options[:username] = u
               end
             end
