@@ -9,6 +9,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/cloud: Properly set variable from CLI argument parsing for `username` field [GH-10726]
+
 ## 2.2.4 (February 27, 2019)
 
 FEATURES:
