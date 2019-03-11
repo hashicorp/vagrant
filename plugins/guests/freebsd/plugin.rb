@@ -50,6 +50,11 @@ module VagrantPlugins
         require_relative "cap/shell_expand_guest_path"
         Cap::ShellExpandGuestPath
       end
+
+      guest_capability(:freebsd, :mount_virtualbox_shared_folder) do
+        require_relative "cap/virtualbox"
+        Cap::VirtualBox
+      end
     end
   end
 end
