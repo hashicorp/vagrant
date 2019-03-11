@@ -118,4 +118,56 @@ describe Vagrant::Plugin::StateFile do
         to raise_error(Vagrant::Errors::PluginStateFileParseError)
     end
   end
+
+  context "go plugin usage" do
+    describe "#add_go_plugin" do
+      it "should add plugin to list of installed go plugins" do
+        subject.add_go_plugin("foo", source: "http://localhost/foo.zip")
+        expect(subject.installed_go_plugins).to include("foo")
+      end
+
+      it "should update source when added again" do
+        subject.add_go_plugin("foo", source: "http://localhost/foo.zip")
+        expect(subject.installed_go_plugins["foo"]["source"]).to eq("http://localhost/foo.zip")
+        subject.add_go_plugin("foo", source: "http://localhost/foo1.zip")
+        expect(subject.installed_go_plugins["foo"]["source"]).to eq("http://localhost/foo1.zip")
+      end
+    end
+
+    describe "#remove_go_plugin" do
+      before do
+        subject.add_go_plugin("foo", source: "http://localhost/foo.zip")
+      end
+
+      it "should remove the installed plugin" do
+        subject.remove_go_plugin("foo")
+        expect(subject.installed_go_plugins).not_to include("foo")
+      end
+
+      it "should remove plugin not installed" do
+        subject.remove_go_plugin("foo")
+        expect(subject.installed_go_plugins).not_to include("foo")
+        subject.remove_go_plugin("foo")
+        expect(subject.installed_go_plugins).not_to include("foo")
+      end
+    end
+
+    describe "#has_go_plugin?" do
+      before do
+        subject.add_go_plugin("foo", source: "http://localhost/foo.zip")
+      end
+
+      it "should return true when plugin is installed" do
+        expect(subject.has_go_plugin?("foo")).to be_truthy
+      end
+
+      it "should return false when plugin is not installed" do
+        expect(subject.has_go_plugin?("fee")).to be_falsey
+      end
+
+      it "should allow symbol names" do
+        expect(subject.has_go_plugin?(:foo)).to be_truthy
+      end
+    end
+  end
 end
