@@ -7,6 +7,7 @@ module VagrantPlugins
         def initialize(app, env)
           @app = app
           @logger = Log4r::Logger.new('vagrant::plugins::docker::network')
+          @@lock = Mutex.new
         end
 
         # @param[Hash] options - options from the network config
@@ -64,7 +65,15 @@ module VagrantPlugins
             cli_opts = generate_create_cli_arguments(options)
 
             if options[:subnet]
-              network_name = "vagrant_network_#{options[:subnet]}"
+              existing_network = machine.provider.driver.subnet_defined?(options[:subnet])
+              if !existing_network
+                network_name = "vagrant_network_#{options[:subnet]}"
+              else
+                env[:ui].warn(I18n.t("docker_provider.subnet_exists",
+                                     network_name: existing_network,
+                                     subnet: options[:subnet]))
+                network_name = existing_network
+              end
             elsif options[:type] == "dhcp"
               network_name = "vagrant_network"
             else
@@ -72,11 +81,15 @@ module VagrantPlugins
             end
             container_id = machine.id
 
-            if !machine.provider.driver.existing_network?(network_name)
-              @logger.debug("Creating network #{network_name}")
-              machine.provider.driver.create_network(network_name, cli_opts)
-            else
-              @logger.debug("Network #{network_name} already created")
+            @@lock.synchronize do
+              machine.env.lock("docker-network-create", retry: true) do
+                if !machine.provider.driver.existing_network?(network_name)
+                  @logger.debug("Creating network #{network_name}")
+                  machine.provider.driver.create_network(network_name, cli_opts)
+                else
+                  @logger.debug("Network #{network_name} already created")
+                end
+              end
             end
 
             @logger.debug("Connecting network #{network_name} to container guest #{machine.name}")

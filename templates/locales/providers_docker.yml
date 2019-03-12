@@ -70,6 +70,9 @@ en:
     ssh_through_host_vm: |-
       SSH will be proxied through the Docker virtual machine since we're
       not running Docker natively. This is just a notice, and not an error.
+    subnet_exists: |-
+      A network called '%{network_name}' using subnet '%{subnet}' is already in use.
+      Using '%{network_name}' instead of creating a new network...
     synced_folders_changed: |-
       Vagrant has noticed that the synced folder definitions have changed.
       With Docker, these synced folder changes won't take effect until you

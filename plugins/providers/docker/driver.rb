@@ -205,7 +205,8 @@ module VagrantPlugins
       # @param [Array]  networks - list of networks to inspect
       # @param [Array]  opts - An array of flags used for listing networks
       def inspect_network(network, opts=nil)
-        command = ['docker', 'network', 'inspect', network].push(*opts)
+        command = ['docker', 'network', 'inspect'] + Array(network)
+        command = command.push(*opts)
         output = execute(*command)
         output
       end
@@ -246,13 +247,35 @@ module VagrantPlugins
       # Docker network helpers
       # ######################
 
+      # @param [String] subnet_string - Subnet to look for
+      def subnet_defined?(subnet_string)
+        all_networks = list_network(["--format={{.Name}}"])
+        all_networks = all_networks.split("\n")
+
+        results = inspect_network(all_networks)
+        begin
+          networks_info = JSON.parse(results)
+          networks_info.each do |network|
+            config = network["IPAM"]["Config"]
+            if (config.size > 0 &&
+                config.first["Subnet"] == subnet_string)
+              @logger.debug("Found existing network #{network["Name"]} already configured with #{subnet_string}")
+              return network["Name"]
+            end
+          end
+        rescue JSON::ParserError => e
+          @logger.warn("Could not properly parse response from `docker network inspect #{all_networks.join(" ")}`")
+        end
+        return nil
+      end
+
       # Looks to see if a docker network has already been defined
       #
       # @param [String] network - name of network to look for
       def existing_network?(network)
-        result = list_network(["--format='{{json .Name}}'"])
+        result = list_network(["--format={{.Name}}"])
         #TODO: we should be more explicit here if we can
-        result.match?(/\"#{network}\"/)
+        result.match?(/#{network}/)
       end
 
       # Returns true or false if network is in use or not.

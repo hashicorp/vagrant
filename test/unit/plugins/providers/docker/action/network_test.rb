@@ -61,6 +61,7 @@ describe VagrantPlugins::DockerProvider::Action::Network do
       allow(driver).to receive(:existing_network?).and_return(false)
       allow(driver).to receive(:create_network).and_return(true)
       allow(driver).to receive(:connect_network).and_return(true)
+      allow(driver).to receive(:subnet_defined?).and_return(nil)
 
       called = false
       app = ->(*args) { called = true }
@@ -76,6 +77,8 @@ describe VagrantPlugins::DockerProvider::Action::Network do
       allow(driver).to receive(:existing_network?).and_return(false)
       allow(driver).to receive(:create_network).and_return(true)
       allow(driver).to receive(:connect_network).and_return(true)
+      allow(driver).to receive(:subnet_defined?).and_return(nil)
+
 
       expect(subject).to receive(:generate_create_cli_arguments).
         with(networks[0][1]).and_return(["--subnet=172.20.0.0/16", "--driver=bridge", "--internal=true"])
@@ -85,6 +88,21 @@ describe VagrantPlugins::DockerProvider::Action::Network do
         with(networks[0][1]).and_return(["--ipv6=true", "--subnet=2a02:6b8:b010:9020:1::/80"])
       expect(subject).to receive(:generate_connect_cli_arguments).
         with(networks[1][1]).and_return([])
+
+      expect(driver).to receive(:create_network).twice
+      expect(driver).to receive(:connect_network).twice
+
+      subject.call(env)
+    end
+
+    it "uses an existing network if a matching subnet is found" do
+      allow(driver).to receive(:host_vm?).and_return(false)
+      allow(driver).to receive(:existing_network?).and_return(true)
+      allow(driver).to receive(:create_network).and_return(true)
+      allow(driver).to receive(:connect_network).and_return(true)
+      allow(driver).to receive(:subnet_defined?).and_return("my_cool_subnet_network")
+
+      expect(driver).not_to receive(:create_network)
 
       subject.call(env)
     end

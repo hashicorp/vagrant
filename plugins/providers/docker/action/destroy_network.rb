@@ -27,6 +27,7 @@ module VagrantPlugins
               network_name = "vagrant_network"
             end
 
+            # Only cleans up networks defined by Vagrant
             if machine.provider.driver.existing_network?(network_name) &&
                 !machine.provider.driver.network_used?(network_name)
               env[:ui].info(I18n.t("docker_provider.network_destroy", network_name: network_name))
