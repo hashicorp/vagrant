@@ -912,4 +912,62 @@ describe Vagrant::Machine do
       expect(subject.ui).to_not equal(ui)
     end
   end
+
+  describe "#reload" do
+    context "when ID is unset and id file does not exist" do
+      it "should remain nil" do
+        expect(subject.id).to be_nil
+        instance.reload
+        expect(subject.id).to be_nil
+      end
+    end
+
+    context "when id file is set" do
+      let(:id_content) { "test-machine-id" }
+
+      before do
+        id_file = subject.data_dir.join("id")
+        File.write(id_file.to_s, id_content)
+      end
+
+      it "should update the machine id" do
+        expect(subject.id).to be_nil
+        instance.reload
+        expect(subject.id).to eq(id_content)
+      end
+
+      it "should notify of the id change when provider is set" do
+        expect(provider).to receive(:machine_id_changed)
+        instance.reload
+      end
+
+      context "when id file content includes whitespace" do
+        let(:id_content) { "   test-machine-id\n" }
+
+        it "should remove all whitespace" do
+          instance.reload
+          expect(instance.id).to eq("test-machine-id")
+        end
+      end
+
+      context "when id file content is all whitespace" do
+        let(:id_content) { "\0\0\0\0\0\0" }
+
+        it "should not update the id" do
+          expect(instance.id).to be_nil
+          instance.reload
+          expect(instance.id).to be_nil
+        end
+      end
+
+      context "when id is already set to value in id file" do
+        it "should not notify of id change" do
+          instance.instance_variable_set(:@id, id_content)
+          expect(provider).not_to receive(:machine_id_changed)
+          instance.reload
+          expect(instance.id).to eq(id_content)
+        end
+      end
+    end
+  end
 end

@@ -399,7 +399,10 @@ module Vagrant
         # Read the id file from the data directory if it exists as the
         # ID for the pre-existing physical representation of this machine.
         id_file = @data_dir.join("id")
-        @id = id_file.read.chomp if id_file.file?
+        id_content = id_file.read.strip if id_file.file?
+        if !id_content.to_s.empty?
+          @id = id_content
+        end
       end
 
       if @id != old_id && @provider
