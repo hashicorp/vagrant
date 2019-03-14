@@ -1,69 +1,12 @@
 package plugin
 
 import (
-	"errors"
 	"strings"
 	"testing"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 )
-
-type MockSyncedFolder struct {
-	Core
-	vagrant.NoGuestCapabilities
-	vagrant.NoHostCapabilities
-}
-
-func (s *MockSyncedFolder) Cleanup(m *vagrant.Machine, opts vagrant.FolderOptions) error {
-	if opts != nil {
-		err, _ := opts["error"].(bool)
-		ui, _ := opts["ui"].(bool)
-		if err {
-			return errors.New("cleanup error")
-		}
-		if ui {
-			m.UI.Say("test_output_sf")
-			return nil
-		}
-	}
-	return nil
-}
-
-func (s *MockSyncedFolder) Disable(m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
-	if opts != nil && opts["error"].(bool) {
-		return errors.New("disable error")
-	}
-	return nil
-}
-
-func (s *MockSyncedFolder) Enable(m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
-	if opts != nil && opts["error"].(bool) {
-		return errors.New("enable error")
-	}
-	return nil
-}
-
-func (s *MockSyncedFolder) Info() *vagrant.SyncedFolderInfo {
-	return &vagrant.SyncedFolderInfo{
-		Description: "mock_folder",
-		Priority:    100}
-}
-
-func (s *MockSyncedFolder) IsUsable(m *vagrant.Machine) (bool, error) {
-	return true, nil
-}
-
-func (s *MockSyncedFolder) Name() string {
-	return "mock_folder"
-}
-
-func (s *MockSyncedFolder) Prepare(m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
-	if opts != nil && opts["error"].(bool) {
-		return errors.New("prepare error")
-	}
-	return nil
-}
 
 func TestSyncedFolder_Cleanup(t *testing.T) {
 	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{

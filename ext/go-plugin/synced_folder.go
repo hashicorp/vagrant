@@ -26,132 +26,145 @@ func ListSyncedFolders() *C.char {
 //export SyncedFolderCleanup
 func SyncedFolderCleanup(pluginName, machine, opts *C.char) *C.char {
 	r := &Response{}
-	p, err := getSyncedFolderPlugin(pluginName)
+	i, err := Plugins.PluginLookup(to_gs(pluginName), "synced_folder")
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
-	m, err := vagrant.LoadMachine(C.GoString(machine), nil)
+	p, ok := i.(plugin.SyncedFolder)
+	if !ok {
+		r.Error = errors.New("failed to load requested plugin")
+		return r.Dump()
+	}
+
+	m, err := vagrant.LoadMachine(to_gs(machine), nil)
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
 	var o vagrant.FolderOptions
-	r.Error = json.Unmarshal([]byte(C.GoString(opts)), &o)
+	r.Error = json.Unmarshal([]byte(to_gs(opts)), &o)
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Error = p.SyncedFolder.Cleanup(m, o)
+	r.Error = p.Cleanup(m, o)
 	return r.Dump()
 }
 
 //export SyncedFolderDisable
 func SyncedFolderDisable(pluginName, machine, folders, opts *C.char) *C.char {
 	r := &Response{}
-	p, err := getSyncedFolderPlugin(pluginName)
+	i, err := Plugins.PluginLookup(to_gs(pluginName), "synced_folder")
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
-	m, err := vagrant.LoadMachine(C.GoString(machine), nil)
+	p, ok := i.(plugin.SyncedFolder)
+	if !ok {
+		r.Error = errors.New("failed to load requested plugin")
+		return r.Dump()
+	}
+	m, err := vagrant.LoadMachine(to_gs(machine), nil)
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
 	var f vagrant.FolderList
-	r.Error = json.Unmarshal([]byte(C.GoString(folders)), &f)
+	r.Error = json.Unmarshal([]byte(to_gs(folders)), &f)
 	if r.Error != nil {
 		return r.Dump()
 	}
 	var o vagrant.FolderOptions
-	r.Error = json.Unmarshal([]byte(C.GoString(opts)), &o)
+	r.Error = json.Unmarshal([]byte(to_gs(opts)), &o)
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Error = p.SyncedFolder.Disable(m, f, o)
+	r.Error = p.Disable(m, f, o)
 	return r.Dump()
 }
 
 //export SyncedFolderEnable
 func SyncedFolderEnable(pluginName, machine, folders, opts *C.char) *C.char {
 	r := &Response{}
-	p, err := getSyncedFolderPlugin(pluginName)
+	i, err := Plugins.PluginLookup(to_gs(pluginName), "synced_folder")
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
-	m, err := vagrant.LoadMachine(C.GoString(machine), nil)
+	p, ok := i.(plugin.SyncedFolder)
+	if !ok {
+		r.Error = errors.New("failed to load requested plugin")
+		return r.Dump()
+	}
+	m, err := vagrant.LoadMachine(to_gs(machine), nil)
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
 	var f vagrant.FolderList
-	r.Error = json.Unmarshal([]byte(C.GoString(folders)), &f)
+	r.Error = json.Unmarshal([]byte(to_gs(folders)), &f)
 	if r.Error != nil {
 		return r.Dump()
 	}
 	var o vagrant.FolderOptions
-	r.Error = json.Unmarshal([]byte(C.GoString(opts)), &o)
+	r.Error = json.Unmarshal([]byte(to_gs(opts)), &o)
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Error = p.SyncedFolder.Enable(m, f, o)
+	r.Error = p.Enable(m, f, o)
 	return r.Dump()
 }
 
 //export SyncedFolderIsUsable
 func SyncedFolderIsUsable(pluginName, machine *C.char) *C.char {
 	r := &Response{}
-	p, err := getSyncedFolderPlugin(pluginName)
+	i, err := Plugins.PluginLookup(to_gs(pluginName), "synced_folder")
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
-	m, err := vagrant.LoadMachine(C.GoString(machine), nil)
+	p, ok := i.(plugin.SyncedFolder)
+	if !ok {
+		r.Error = errors.New("failed to load requested plugin")
+		return r.Dump()
+	}
+	m, err := vagrant.LoadMachine(to_gs(machine), nil)
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.SyncedFolder.IsUsable(m)
+	r.Result, r.Error = p.IsUsable(m)
 	return r.Dump()
 }
 
 //export SyncedFolderPrepare
 func SyncedFolderPrepare(pluginName, machine, folders, opts *C.char) *C.char {
 	r := &Response{}
-	p, err := getSyncedFolderPlugin(pluginName)
+	i, err := Plugins.PluginLookup(to_gs(pluginName), "synced_folder")
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
-	m, err := vagrant.LoadMachine(C.GoString(machine), nil)
+	p, ok := i.(plugin.SyncedFolder)
+	if !ok {
+		r.Error = errors.New("failed to load requested plugin")
+		return r.Dump()
+	}
+	m, err := vagrant.LoadMachine(to_gs(machine), nil)
 	if err != nil {
 		r.Error = err
 		return r.Dump()
 	}
 	var f vagrant.FolderList
-	r.Error = json.Unmarshal([]byte(C.GoString(folders)), &f)
+	r.Error = json.Unmarshal([]byte(to_gs(folders)), &f)
 	if r.Error != nil {
 		return r.Dump()
 	}
 	var o vagrant.FolderOptions
-	r.Error = json.Unmarshal([]byte(C.GoString(opts)), &o)
+	r.Error = json.Unmarshal([]byte(to_gs(opts)), &o)
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Error = p.SyncedFolder.Prepare(m, f, o)
+	r.Error = p.Prepare(m, f, o)
 	return r.Dump()
-}
-
-func getSyncedFolderPlugin(pluginName *C.char) (c *plugin.RemoteSyncedFolder, err error) {
-	pname := C.GoString(pluginName)
-	p, ok := Plugins.SyncedFolders[pname]
-	if !ok {
-		err = errors.New("Failed to locate requested plugin")
-		return
-	}
-	c = &plugin.RemoteSyncedFolder{
-		Client:       p.Client,
-		SyncedFolder: p.SyncedFolder}
-	return
 }
