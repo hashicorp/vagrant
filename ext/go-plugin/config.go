@@ -17,7 +17,7 @@ func ConfigLoad(pluginName, pluginType, data *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteConfig)
+	p, ok := i.(plugin.Config)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -27,7 +27,7 @@ func ConfigLoad(pluginName, pluginType, data *C.char) *C.char {
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Result, r.Error = p.Config.ConfigLoad(cdata)
+	r.Result, r.Error = p.ConfigLoad(cdata)
 	return r.Dump()
 }
 
@@ -39,12 +39,12 @@ func ConfigAttributes(pluginName, pluginType *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteConfig)
+	p, ok := i.(plugin.Config)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
 	}
-	r.Result, r.Error = p.Config.ConfigAttributes()
+	r.Result, r.Error = p.ConfigAttributes()
 	return r.Dump()
 }
 
@@ -57,7 +57,7 @@ func ConfigValidate(pluginName, pluginType, data, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteConfig)
+	p, ok := i.(plugin.Config)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -71,7 +71,7 @@ func ConfigValidate(pluginName, pluginType, data, machData *C.char) *C.char {
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Result, r.Error = p.Config.ConfigValidate(cdata, m)
+	r.Result, r.Error = p.ConfigValidate(cdata, m)
 	return r.Dump()
 }
 
@@ -83,7 +83,7 @@ func ConfigFinalize(pluginName, pluginType, data *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteConfig)
+	p, ok := i.(plugin.Config)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -91,7 +91,7 @@ func ConfigFinalize(pluginName, pluginType, data *C.char) *C.char {
 	var cdata map[string]interface{}
 	r.Error = json.Unmarshal([]byte(to_gs(data)), &cdata)
 	if r.Error == nil {
-		r.Result, r.Error = p.Config.ConfigFinalize(cdata)
+		r.Result, r.Error = p.ConfigFinalize(cdata)
 	}
 	return r.Dump()
 }

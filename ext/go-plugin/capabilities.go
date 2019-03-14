@@ -17,12 +17,12 @@ func GuestCapabilities(pluginName, pluginType *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteGuestCapabilities)
+	p, ok := i.(plugin.GuestCapabilities)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
 	}
-	r.Result, r.Error = p.GuestCapabilities.GuestCapabilities()
+	r.Result, r.Error = p.GuestCapabilities()
 	return r.Dump()
 }
 
@@ -34,7 +34,7 @@ func GuestCapability(pluginName, pluginType, cname, cplatform, cargs, cmachine *
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteGuestCapabilities)
+	p, ok := i.(plugin.GuestCapabilities)
 	if !ok {
 		r.Error = errors.New("Failed to load requested plugin")
 		return r.Dump()
@@ -53,7 +53,7 @@ func GuestCapability(pluginName, pluginType, cname, cplatform, cargs, cmachine *
 	cap := &vagrant.SystemCapability{
 		Name:     to_gs(cname),
 		Platform: to_gs(cplatform)}
-	r.Result, r.Error = p.GuestCapabilities.GuestCapability(cap, args, machine)
+	r.Result, r.Error = p.GuestCapability(cap, args, machine)
 	return r.Dump()
 }
 
@@ -65,13 +65,13 @@ func HostCapabilities(pluginName, pluginType *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteHostCapabilities)
+	p, ok := i.(plugin.HostCapabilities)
 	if !ok {
 		r.Error = errors.New("Failed to load requested plugin")
 		return r.Dump()
 	}
 
-	r.Result, r.Error = p.HostCapabilities.HostCapabilities()
+	r.Result, r.Error = p.HostCapabilities()
 	return r.Dump()
 }
 
@@ -83,7 +83,7 @@ func HostCapability(pluginName, pluginType, cname, cplatform, cargs, cenv *C.cha
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteHostCapabilities)
+	p, ok := i.(plugin.HostCapabilities)
 	if !ok {
 		r.Error = errors.New("Failed to load requested plugin")
 		return r.Dump()
@@ -103,7 +103,7 @@ func HostCapability(pluginName, pluginType, cname, cplatform, cargs, cenv *C.cha
 	cap := &vagrant.SystemCapability{
 		Name:     to_gs(cname),
 		Platform: to_gs(cplatform)}
-	r.Result, r.Error = p.HostCapabilities.HostCapability(cap, args, env)
+	r.Result, r.Error = p.HostCapability(cap, args, env)
 	return r.Dump()
 }
 
@@ -115,13 +115,13 @@ func ProviderCapabilities(pluginName, pluginType *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProviderCapabilities)
+	p, ok := i.(plugin.ProviderCapabilities)
 	if !ok {
 		r.Error = errors.New("Failed to load requested plugin")
 		return r.Dump()
 	}
 
-	r.Result, r.Error = p.ProviderCapabilities.ProviderCapabilities()
+	r.Result, r.Error = p.ProviderCapabilities()
 	return r.Dump()
 }
 
@@ -133,7 +133,7 @@ func ProviderCapability(pluginName, pluginType, cname, cprovider, cargs, cmach *
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProviderCapabilities)
+	p, ok := i.(plugin.ProviderCapabilities)
 	if !ok {
 		r.Error = errors.New("Failed to load requested plugin")
 		return r.Dump()
@@ -153,6 +153,6 @@ func ProviderCapability(pluginName, pluginType, cname, cprovider, cargs, cmach *
 	cap := &vagrant.ProviderCapability{
 		Name:     to_gs(cname),
 		Provider: to_gs(cprovider)}
-	r.Result, r.Error = p.ProviderCapabilities.ProviderCapability(cap, args, m)
+	r.Result, r.Error = p.ProviderCapability(cap, args, m)
 	return r.Dump()
 }

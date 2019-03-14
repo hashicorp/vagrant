@@ -23,11 +23,9 @@ func TestCapabilities_GuestCapabilities(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteGuestCapabilities{
-		GuestCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -69,11 +67,9 @@ func TestCapabilities_GuestCapability(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteGuestCapabilities{
-		GuestCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -116,11 +112,9 @@ func TestCapabilities_GuestCapability_noargs(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteGuestCapabilities{
-		GuestCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -158,11 +152,9 @@ func TestCapabilities_HostCapabilities(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteHostCapabilities{
-		HostCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -204,11 +196,9 @@ func TestCapabilities_HostCapability(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteHostCapabilities{
-		HostCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -251,11 +241,9 @@ func TestCapabilities_HostCapability_noargs(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteHostCapabilities{
-		HostCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -293,11 +281,9 @@ func TestCapabilities_ProviderCapabilities(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProviderCapabilities{
-		ProviderCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -339,11 +325,9 @@ func TestCapabilities_ProviderCapability(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProviderCapabilities{
-		ProviderCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -386,11 +370,9 @@ func TestCapabilities_ProviderCapability_noargs(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProviderCapabilities{
-		ProviderCapabilities: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 

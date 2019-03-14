@@ -74,11 +74,9 @@ func TestProvider_ProviderAction(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProvider{
-		Provider: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -108,11 +106,9 @@ func TestProvider_ProviderIsInstalled(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProvider{
-		Provider: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -142,11 +138,9 @@ func TestProvider_ProviderIsUsable(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProvider{
-		Provider: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -176,11 +170,9 @@ func TestProvider_ProviderMachineIdChanged(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProvider{
-		Provider: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -206,11 +198,9 @@ func TestProvider_ProviderRunAction(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProvider{
-		Provider: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -250,11 +240,9 @@ func TestProvider_ProviderSshInfo(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProvider{
-		Provider: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -292,11 +280,9 @@ func TestProvider_ProviderState(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteProvider{
-		Provider: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 

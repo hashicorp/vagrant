@@ -23,11 +23,9 @@ func TestConfig_Load(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteConfig{
-		Config: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -73,11 +71,9 @@ func TestConfig_Attributes(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteConfig{
-		Config: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -120,11 +116,9 @@ func TestConfig_Validate(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteConfig{
-		Config: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 
@@ -170,11 +164,9 @@ func TestConfig_Finalize(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	p := &vplugin.RemoteConfig{
-		Config: impl}
 	Plugins = vplugin.VagrantPluginInit()
 	Plugins.PluginLookup = func(_, _ string) (r interface{}, err error) {
-		r = p
+		r = impl
 		return
 	}
 

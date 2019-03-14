@@ -31,7 +31,7 @@ func ProviderAction(providerName *C.char, actionName *C.char, machData *C.char) 
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProvider)
+	p, ok := i.(plugin.Provider)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -42,7 +42,7 @@ func ProviderAction(providerName *C.char, actionName *C.char, machData *C.char) 
 		return r.Dump()
 	}
 	aName := to_gs(actionName)
-	r.Result, r.Error = p.Provider.Action(aName, m)
+	r.Result, r.Error = p.Action(aName, m)
 	return r.Dump()
 }
 
@@ -54,7 +54,7 @@ func ProviderIsInstalled(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProvider)
+	p, ok := i.(plugin.Provider)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -64,7 +64,7 @@ func ProviderIsInstalled(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.Provider.IsInstalled(m)
+	r.Result, r.Error = p.IsInstalled(m)
 	return r.Dump()
 }
 
@@ -76,7 +76,7 @@ func ProviderIsUsable(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProvider)
+	p, ok := i.(plugin.Provider)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -87,7 +87,7 @@ func ProviderIsUsable(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.Provider.IsUsable(m)
+	r.Result, r.Error = p.IsUsable(m)
 	return r.Dump()
 }
 
@@ -99,7 +99,7 @@ func ProviderMachineIdChanged(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProvider)
+	p, ok := i.(plugin.Provider)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -109,7 +109,7 @@ func ProviderMachineIdChanged(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Error = p.Provider.MachineIdChanged(m)
+	r.Error = p.MachineIdChanged(m)
 	return r.Dump()
 }
 
@@ -121,7 +121,7 @@ func ProviderRunAction(providerName *C.char, actName *C.char, runData *C.char, m
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProvider)
+	p, ok := i.(plugin.Provider)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -138,7 +138,7 @@ func ProviderRunAction(providerName *C.char, actName *C.char, runData *C.char, m
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.Provider.RunAction(aName, rData, m)
+	r.Result, r.Error = p.RunAction(aName, rData, m)
 	return r.Dump()
 }
 
@@ -150,7 +150,7 @@ func ProviderSshInfo(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProvider)
+	p, ok := i.(plugin.Provider)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -160,7 +160,7 @@ func ProviderSshInfo(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.Provider.SshInfo(m)
+	r.Result, r.Error = p.SshInfo(m)
 	return r.Dump()
 }
 
@@ -172,7 +172,7 @@ func ProviderState(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	p, ok := i.(*plugin.RemoteProvider)
+	p, ok := i.(plugin.Provider)
 	if !ok {
 		r.Error = errors.New("failed to load requested plugin")
 		return r.Dump()
@@ -182,6 +182,6 @@ func ProviderState(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.Provider.State(m)
+	r.Result, r.Error = p.State(m)
 	return r.Dump()
 }

@@ -19,9 +19,17 @@ var (
 		ProtocolVersion:  1}
 )
 
+type RemotePlugin interface {
+	Impl() interface{}
+}
+
 type RemoteConfig struct {
 	Client *go_plugin.Client
 	Config vagrant.Config
+}
+
+func (r *RemoteConfig) Impl() interface{} {
+	return r.Config
 }
 
 type RemoteProvider struct {
@@ -29,9 +37,17 @@ type RemoteProvider struct {
 	Provider Provider
 }
 
+func (r *RemoteProvider) Impl() interface{} {
+	return r.Provider
+}
+
 type RemoteGuestCapabilities struct {
 	Client            *go_plugin.Client
 	GuestCapabilities vagrant.GuestCapabilities
+}
+
+func (r *RemoteGuestCapabilities) Impl() interface{} {
+	return r.GuestCapabilities
 }
 
 type RemoteHostCapabilities struct {
@@ -39,14 +55,26 @@ type RemoteHostCapabilities struct {
 	HostCapabilities vagrant.HostCapabilities
 }
 
+func (r *RemoteHostCapabilities) Impl() interface{} {
+	return r.HostCapabilities
+}
+
 type RemoteProviderCapabilities struct {
 	Client               *go_plugin.Client
 	ProviderCapabilities vagrant.ProviderCapabilities
 }
 
+func (r *RemoteProviderCapabilities) Impl() interface{} {
+	return r.ProviderCapabilities
+}
+
 type RemoteSyncedFolder struct {
 	Client       *go_plugin.Client
 	SyncedFolder vagrant.SyncedFolder
+}
+
+func (r *RemoteSyncedFolder) Impl() interface{} {
+	return r.SyncedFolder
 }
 
 type VagrantPlugin struct {
@@ -70,9 +98,9 @@ func VagrantPluginInit() *VagrantPlugin {
 func (v *VagrantPlugin) DefaultPluginLookup(name, kind string) (p interface{}, err error) {
 	switch kind {
 	case "provider":
-		p = v.Providers[name]
+		p = v.Providers[name].Impl()
 	case "synced_folder":
-		p = v.SyncedFolders[name]
+		p = v.SyncedFolders[name].Impl()
 	default:
 		err = errors.New("invalid plugin type")
 		return
