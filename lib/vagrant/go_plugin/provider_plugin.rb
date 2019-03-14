@@ -185,7 +185,7 @@ module Vagrant
         def action(provider_name, action_name, machine)
           result = load_result { _provider_action(provider_name,
             action_name, dump_machine(machine)) }
-          klasses = result.map do |klass_name|
+          klasses = Array(result).map do |klass_name|
             if klass_name.start_with?("self::")
               action_name = klass_name.split("::", 2).last
               klass = Class.new(Action)
