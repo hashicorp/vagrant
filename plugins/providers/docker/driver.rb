@@ -152,15 +152,13 @@ module VagrantPlugins
       def rmi(id)
         execute('docker', 'rmi', id)
         return true
-      rescue Exception => e
+      rescue => e
         return false if e.to_s.include?("is using it")
         raise if !e.to_s.include?("No such image")
       end
 
       def inspect_container(cid)
-        # DISCUSS: Is there a chance that this json will change after the container
-        #          has been brought up?
-        @data ||= JSON.parse(execute('docker', 'inspect', cid)).first
+        JSON.parse(execute('docker', 'inspect', cid)).first
       end
 
       def all_containers
