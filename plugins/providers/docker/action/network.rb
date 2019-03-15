@@ -7,7 +7,6 @@ module VagrantPlugins
         def initialize(app, env)
           @app = app
           @logger = Log4r::Logger.new('vagrant::plugins::docker::network')
-          @@lock = Mutex.new
         end
 
         # @param[Hash] options - options from the network config
@@ -81,14 +80,12 @@ module VagrantPlugins
             end
             container_id = machine.id
 
-            @@lock.synchronize do
-              machine.env.lock("docker-network-create", retry: true) do
-                if !machine.provider.driver.existing_network?(network_name)
-                  @logger.debug("Creating network #{network_name}")
-                  machine.provider.driver.create_network(network_name, cli_opts)
-                else
-                  @logger.debug("Network #{network_name} already created")
-                end
+            machine.env.lock("docker-network-create", retry: true) do
+              if !machine.provider.driver.existing_network?(network_name)
+                @logger.debug("Creating network #{network_name}")
+                machine.provider.driver.create_network(network_name, cli_opts)
+              else
+                @logger.debug("Network #{network_name} already created")
               end
             end
 
