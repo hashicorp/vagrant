@@ -85,17 +85,22 @@ module VagrantPlugins
             network_name = root_options[:name]
           end
 
-          if root_options[:type].to_s == "dhcp" && !root_options[:ip]
-            network_name = "vagrant_network" if !network_name
-            return [network_name, network_options]
+          if root_options[:type].to_s == "dhcp"
+            if !root_options[:ip] && !root_options[:subnet]
+              network_name = "vagrant_network" if !network_name
+              return [network_name, network_options]
+            end
+            if root_options[:subnet]
+              addr = IPAddr.new(root_options[:subnet])
+              root_options[:netmask] = addr.prefix
+            end
           end
 
-          if !root_options[:ip]
+          if root_options[:ip]
+            addr = IPAddr.new(root_options[:ip])
+          elsif addr.nil?
             raise Errors::NetworkIPAddressRequired
           end
-
-          # Validate the IP address
-          addr = IPAddr.new(root_options[:ip])
 
           # If address is ipv6, enable ipv6 support
           network_options[:ipv6] = addr.ipv6?
@@ -116,7 +121,7 @@ module VagrantPlugins
           # With no network name, process options to find or determine
           # name for new network
           if !network_name
-            subnet = IPAddr.new("#{root_options[:ip]}/#{root_options[:netmask]}")
+            subnet = IPAddr.new("#{addr}/#{root_options[:netmask]}")
             network = "#{subnet}/#{root_options[:netmask]}"
             network_options[:subnet] = network
             existing_network = env[:machine].provider.driver.
