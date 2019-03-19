@@ -31,7 +31,7 @@ Download the installer package for the Linux distribution from the releases
 page and install Vagrant.
 
 __NOTE: When Vagrant is installed on the Windows system the version installed
-within the Linux distribution *must* match._
+within the Linux distribution *must* match.__
 
 # Vagrant Usage
 
@@ -43,7 +43,7 @@ not be available. To enable Windows access, which will also enable the
 VirtualBox and Hyper-V providers, set the `VAGRANT_WSL_ENABLE_WINDOWS_ACCESS`
 environment variable:
 
-````
+```
 $ export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
 ```
 
