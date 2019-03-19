@@ -4,6 +4,9 @@ module VagrantPlugins
   module DockerProvider
     module Action
       class DestroyNetwork
+
+        @@lock = Mutex.new
+
         def initialize(app, env)
           @app = app
           @logger = Log4r::Logger.new('vagrant::plugins::docker::network')
@@ -17,21 +20,23 @@ module VagrantPlugins
             return @app.call(env)
           end
 
-          machine.config.vm.networks.each do |type, options|
-            next if type != :private_network && type != :public_network
-
+          @@lock.synchronize do
             machine.env.lock("docker-network-destroy", retry: true) do
-              vagrant_networks = machine.provider.driver.list_network_names.find_all do |n|
-                n.start_with?("vagrant_network")
-              end
+              machine.config.vm.networks.each do |type, options|
+                next if type != :private_network && type != :public_network
 
-              vagrant_networks.each do |network_name|
-                if machine.provider.driver.existing_named_network?(network_name) &&
-                    !machine.provider.driver.network_used?(network_name)
-                  env[:ui].info(I18n.t("docker_provider.network_destroy", network_name: network_name))
-                  machine.provider.driver.rm_network(network_name)
-                else
-                  @logger.debug("Network #{network_name} not found or in use")
+                vagrant_networks = machine.provider.driver.list_network_names.find_all do |n|
+                  n.start_with?("vagrant_network")
+                end
+
+                vagrant_networks.each do |network_name|
+                  if machine.provider.driver.existing_named_network?(network_name) &&
+                      !machine.provider.driver.network_used?(network_name)
+                    env[:ui].info(I18n.t("docker_provider.network_destroy", network_name: network_name))
+                    machine.provider.driver.rm_network(network_name)
+                  else
+                    @logger.debug("Network #{network_name} not found or in use")
+                  end
                 end
               end
             end

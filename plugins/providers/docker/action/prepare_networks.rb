@@ -8,6 +8,8 @@ module VagrantPlugins
 
         include Vagrant::Util::ScopedHashOverride
 
+        @@lock = Mutex.new
+
         def initialize(app, env)
           @app = app
           @logger = Log4r::Logger.new('vagrant::plugins::docker::preparenetworks')
@@ -292,37 +294,39 @@ module VagrantPlugins
           end
 
           connections = {}
-          machine.env.lock("docker-network-create", retry: true) do
-            env[:ui].info(I18n.t("docker_provider.network_create"))
-            machine.config.vm.networks.each_with_index do |net_info, net_idx|
-              type, options = net_info
-              network_options = scoped_hash_override(options, :docker_network)
-              network_options.delete_if{|k,_| options.key?(k)}
+          @@lock.synchronize do
+            machine.env.lock("docker-network-create", retry: true) do
+              env[:ui].info(I18n.t("docker_provider.network_create"))
+              machine.config.vm.networks.each_with_index do |net_info, net_idx|
+                type, options = net_info
+                network_options = scoped_hash_override(options, :docker_network)
+                network_options.delete_if{|k,_| options.key?(k)}
 
-              case type
-              when :public_network
-                network_name, network_options = process_public_network(
-                  options, network_options, env)
-              when :private_network
-                network_name, network_options = process_private_network(
-                  options, network_options, env)
-              else
-                next # unsupported type so ignore
-              end
+                case type
+                when :public_network
+                  network_name, network_options = process_public_network(
+                    options, network_options, env)
+                when :private_network
+                  network_name, network_options = process_private_network(
+                    options, network_options, env)
+                else
+                  next # unsupported type so ignore
+                end
 
-              if !network_name
-                raise Errors::NetworkInvalidOption, container: machine.name
-              end
+                if !network_name
+                  raise Errors::NetworkInvalidOption, container: machine.name
+                end
 
-              if !machine.provider.driver.existing_named_network?(network_name)
-                @logger.debug("Creating network #{network_name}")
-                cli_opts = generate_create_cli_arguments(network_options)
-                machine.provider.driver.create_network(network_name, cli_opts)
-              else
-                @logger.debug("Network #{network_name} already created")
-                validate_network_configuration!(network_name, options, network_options, machine.provider.driver)
+                if !machine.provider.driver.existing_named_network?(network_name)
+                  @logger.debug("Creating network #{network_name}")
+                  cli_opts = generate_create_cli_arguments(network_options)
+                  machine.provider.driver.create_network(network_name, cli_opts)
+                else
+                  @logger.debug("Network #{network_name} already created")
+                  validate_network_configuration!(network_name, options, network_options, machine.provider.driver)
+                end
+                connections[net_idx] = network_name
               end
-              connections[net_idx] = network_name
             end
           end
 
