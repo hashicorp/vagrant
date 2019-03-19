@@ -102,22 +102,22 @@ module VagrantPlugins
 
           # If no mask is provided, attempt to locate any existing
           # network which contains the assigned IP address
-          if !root_options[:mask] && !network_name
+          if !root_options[:netmask] && !network_name
             network_name = env[:machine].provider.driver.
               network_containing_address(root_options[:ip])
             # When no existing network is found, we are creating
             # a new network. Since no mask was provided, default
             # to /24 for ipv4 and /64 for ipv6
             if !network_name
-              root_options[:mask] = addr.ipv4? ? 24 : 64
+              root_options[:netmask] = addr.ipv4? ? 24 : 64
             end
           end
 
           # With no network name, process options to find or determine
           # name for new network
           if !network_name
-            subnet = IPAddr.new("#{root_options[:ip]}/#{root_options[:mask]}")
-            network = "#{subnet}/#{root_options[:mask]}"
+            subnet = IPAddr.new("#{root_options[:ip]}/#{root_options[:netmask]}")
+            network = "#{subnet}/#{root_options[:netmask]}"
             network_options[:subnet] = network
             existing_network = env[:machine].provider.driver.
               network_defined?(network)
