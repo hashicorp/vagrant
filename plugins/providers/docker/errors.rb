@@ -49,6 +49,14 @@ module VagrantPlugins
         error_key(:network_invalid_option)
       end
 
+      class NetworkNameMissing < DockerError
+        error_key(:network_name_missing)
+      end
+
+      class NetworkNameUndefined < DockerError
+        error_key(:network_name_undefined)
+      end
+
       class PackageNotSupported < DockerError
         error_key(:package_not_supported)
       end

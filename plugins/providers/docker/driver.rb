@@ -157,14 +157,20 @@ module VagrantPlugins
         raise if !e.to_s.include?("No such image")
       end
 
+      # Inspect the provided container
+      #
+      # @param [String] cid ID or name of container
+      # @return [Hash]
       def inspect_container(cid)
         JSON.parse(execute('docker', 'inspect', cid)).first
       end
 
+      # @return [Array<String>] list of all container IDs
       def all_containers
         execute('docker', 'ps', '-a', '-q', '--no-trunc').to_s.split
       end
 
+      # @return [String] IP address of the docker bridge
       def docker_bridge_ip
         output = execute('/sbin/ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
         if output =~ /^\s+inet ([0-9.]+)\/[0-9]+\s+/
@@ -206,12 +212,18 @@ module VagrantPlugins
         command = ['docker', 'network', 'inspect'] + Array(network)
         command = command.push(*opts)
         output = execute(*command)
-        output
+        begin
+          JSON.load(output)
+        rescue JSON::ParseError
+          @logger.warn("Failed to parse network inspection of network: #{network}")
+          @logger.debug("Failed network output content: `#{output.inspect}`")
+          nil
+        end
       end
 
-      # @param [Array] opts - An array of flags used for listing networks
-      def list_network(opts=nil)
-        command = ['docker', 'network', 'ls'].push(*opts)
+      # @param [String] opts - Flags used for listing networks
+      def list_network(*opts)
+        command = ['docker', 'network', 'ls', *opts]
         output = execute(*command)
         output
       end
@@ -226,12 +238,11 @@ module VagrantPlugins
         output
       end
 
-      # TODO: Note...cli can optionally take a list of networks to delete.
-      # We might need this later, but for now our helper takes 1 network at a time
+      # Delete network(s)
       #
       # @param [String] network - name of network to remove
-      def rm_network(network)
-        command = ['docker', 'network', 'rm', network]
+      def rm_network(*network)
+        command = ['docker', 'network', 'rm', *network]
         output = execute(*command)
         output
       end
@@ -246,34 +257,55 @@ module VagrantPlugins
       # ######################
 
       # @param [String] subnet_string - Subnet to look for
-      def subnet_defined?(subnet_string)
-        all_networks = list_network(["--format={{.Name}}"])
-        all_networks = all_networks.split("\n")
+      def network_defined?(subnet_string)
+        all_networks = list_network_names
 
-        results = inspect_network(all_networks)
-        begin
-          networks_info = JSON.parse(results)
-          networks_info.each do |network|
-            config = network["IPAM"]["Config"]
-            if (config.size > 0 &&
-                config.first["Subnet"] == subnet_string)
-              @logger.debug("Found existing network #{network["Name"]} already configured with #{subnet_string}")
-              return network["Name"]
-            end
+        network_info = inspect_network(all_networks)
+        network_info.each do |network|
+          config = network["IPAM"]["Config"]
+          if (config.size > 0 &&
+            config.first["Subnet"] == subnet_string)
+            @logger.debug("Found existing network #{network["Name"]} already configured with #{subnet_string}")
+            return network["Name"]
           end
-        rescue JSON::ParserError => e
-          @logger.warn("Could not properly parse response from `docker network inspect #{all_networks.join(" ")}`")
         end
         return nil
       end
 
-      # Looks to see if a docker network has already been defined
+      # Locate network which contains given address
       #
-      # @param [String] network - name of network to look for
-      def existing_network?(network)
-        result = list_network(["--format={{.Name}}"])
-        #TODO: we should be more explicit here if we can
-        result.match?(/#{network}/)
+      # @param [String] address IP address
+      # @return [String] network name
+      def network_containing_address(address)
+        names = list_network_names
+        networks = inspect_network(names)
+        return if !networks
+        networks.each do |net|
+          next if !net["IPAM"]
+          config = net["IPAM"]["Config"]
+          next if !config || config.size < 1
+          config.each do |opts|
+            subnet = IPAddr.new(opts["Subnet"])
+            if subnet.include?(address)
+              return net["Name"]
+            end
+          end
+        end
+        nil
+      end
+
+      # Looks to see if a docker network has already been defined
+      # with the given name
+      #
+      # @param [String] network_name - name of network to look for
+      def existing_named_network?(network_name)
+        result = list_network_names
+        result.any?{|net_name| net_name == network_name}
+      end
+
+      # @return [Array<String>] list of all docker networks
+      def list_network_names
+        list_network("--format={{.Name}}").split("\n").map(&:strip)
       end
 
       # Returns true or false if network is in use or not.
@@ -283,13 +315,8 @@ module VagrantPlugins
       # @return [Bool,nil]
       def network_used?(network)
         result = inspect_network(network)
-        begin
-          result = JSON.parse(result)
-          return result.first["Containers"].size > 0
-        rescue JSON::ParserError => e
-          @logger.warn("Could not properly parse response from `docker network inspect #{network}`")
-          return nil
-        end
+        return nil if !result
+        return result.first["Containers"].size > 0
       end
 
     end

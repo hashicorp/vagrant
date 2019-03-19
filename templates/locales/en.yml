@@ -2148,6 +2148,8 @@ en:
           choice_help: |-
             When choosing an interface, it is usually the one that is
             being used to connect to the internet.
+          select_interface: |-
+            Which interface should the network bridge to?
           specific_not_found: |-
             Specific bridge '%{bridge}' not found. You may be asked to specify
             which network to bridge to.

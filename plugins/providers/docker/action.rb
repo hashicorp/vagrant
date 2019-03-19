@@ -244,6 +244,7 @@ module VagrantPlugins
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
             b2.use PrepareNFSSettings
+            b2.use PrepareNetworks
             b2.use Login
             b2.use Build
 
@@ -266,7 +267,7 @@ module VagrantPlugins
                 end
               end
 
-              b2.use Network
+              b2.use ConnectNetworks
               b2.use Start
               b2.use WaitForRunning
 
@@ -294,6 +295,7 @@ module VagrantPlugins
       action_root = Pathname.new(File.expand_path("../action", __FILE__))
       autoload :Build, action_root.join("build")
       autoload :CompareSyncedFolders, action_root.join("compare_synced_folders")
+      autoload :ConnectNetworks, action_root.join("connect_networks")
       autoload :Create, action_root.join("create")
       autoload :Destroy, action_root.join("destroy")
       autoload :DestroyBuildImage, action_root.join("destroy_build_image")
@@ -311,13 +313,13 @@ module VagrantPlugins
       autoload :IsBuild, action_root.join("is_build")
       autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
       autoload :Login, action_root.join("login")
-      autoload :Pull, action_root.join("pull")
-      autoload :PrepareSSH, action_root.join("prepare_ssh")
-      autoload :Stop, action_root.join("stop")
-      autoload :Network, action_root.join("network")
+      autoload :PrepareNetworks, action_root.join("prepare_networks")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")
+      autoload :PrepareSSH, action_root.join("prepare_ssh")
+      autoload :Pull, action_root.join("pull")
       autoload :Start, action_root.join("start")
+      autoload :Stop, action_root.join("stop")
       autoload :WaitForRunning, action_root.join("wait_for_running")
     end
   end
