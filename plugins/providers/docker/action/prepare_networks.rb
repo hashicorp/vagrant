@@ -85,7 +85,7 @@ module VagrantPlugins
             network_name = root_options[:name]
           end
 
-          if root_options[:type].to_s == "dhcp"
+          if root_options[:type].to_s == "dhcp" && !root_options[:ip]
             network_name = "vagrant_network" if !network_name
             return [network_name, network_options]
           end

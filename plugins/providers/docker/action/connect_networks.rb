@@ -55,7 +55,7 @@ module VagrantPlugins
             end
 
             @logger.debug("Connecting network #{network_name} to container guest #{machine.name}")
-            if options[:ip]
+            if options[:ip] && options[:type] != "dhcp"
               if IPAddr.new(options[:ip]).ipv4?
                 network_options[:ip] = options[:ip]
               else
