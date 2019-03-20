@@ -48,10 +48,13 @@ describe VagrantPlugins::DockerProvider::Action::DestroyNetwork do
   end
 
   describe "#call" do
+    let(:network_names) { ["vagrant_network_172.20.0.0/16", "vagrant_network_2a02:6b8:b010:9020:1::/80"] }
+
     it "calls the next action in the chain" do
       allow(driver).to receive(:host_vm?).and_return(false)
       allow(driver).to receive(:existing_network?).and_return(true)
       allow(driver).to receive(:network_used?).and_return(true)
+      allow(driver).to receive(:list_network_names).and_return([])
 
       called = false
       app = ->(*args) { called = true }
@@ -63,29 +66,31 @@ describe VagrantPlugins::DockerProvider::Action::DestroyNetwork do
     end
 
     it "calls the proper driver method to destroy the network" do
+      allow(driver).to receive(:list_network_names).and_return(network_names)
       allow(driver).to receive(:host_vm?).and_return(false)
-      allow(driver).to receive(:existing_network?).with("vagrant_network_172.20.0.0/16").
+      allow(driver).to receive(:existing_named_network?).with("vagrant_network_172.20.0.0/16").
                                                          and_return(true)
       allow(driver).to receive(:network_used?).with("vagrant_network_172.20.0.0/16").
                                                          and_return(false)
-      allow(driver).to receive(:existing_network?).with("vagrant_network_2a02:6b8:b010:9020:1::/80").
+      allow(driver).to receive(:existing_named_network?).with("vagrant_network_2a02:6b8:b010:9020:1::/80").
                                                          and_return(true)
       allow(driver).to receive(:network_used?).with("vagrant_network_2a02:6b8:b010:9020:1::/80").
                                                          and_return(false)
 
-      expect(driver).to receive(:rm_network).with("vagrant_network_172.20.0.0/16")
-      expect(driver).to receive(:rm_network).with("vagrant_network_2a02:6b8:b010:9020:1::/80")
+      expect(driver).to receive(:rm_network).with("vagrant_network_172.20.0.0/16").twice
+      expect(driver).to receive(:rm_network).with("vagrant_network_2a02:6b8:b010:9020:1::/80").twice
 
       subject.call(env)
     end
 
     it "doesn't destroy the network if another container is still using it" do
       allow(driver).to receive(:host_vm?).and_return(false)
-      allow(driver).to receive(:existing_network?).with("vagrant_network_172.20.0.0/16").
+      allow(driver).to receive(:list_network_names).and_return(network_names)
+      allow(driver).to receive(:existing_named_network?).with("vagrant_network_172.20.0.0/16").
                                                          and_return(true)
       allow(driver).to receive(:network_used?).with("vagrant_network_172.20.0.0/16").
                                                          and_return(true)
-      allow(driver).to receive(:existing_network?).with("vagrant_network_2a02:6b8:b010:9020:1::/80").
+      allow(driver).to receive(:existing_named_network?).with("vagrant_network_2a02:6b8:b010:9020:1::/80").
                                                          and_return(true)
       allow(driver).to receive(:network_used?).with("vagrant_network_2a02:6b8:b010:9020:1::/80").
                                                          and_return(true)
