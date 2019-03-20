@@ -58,7 +58,7 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
   describe "#call" do
     it "calls the next action in the chain" do
       allow(driver).to receive(:host_vm?).and_return(false)
-      allow(driver).to receive(:existing_network?).and_return(false)
+      allow(driver).to receive(:existing_named_network?).and_return(false)
       allow(driver).to receive(:create_network).and_return(true)
       allow(driver).to receive(:connect_network).and_return(true)
       allow(driver).to receive(:subnet_defined?).and_return(nil)
@@ -67,6 +67,10 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       app = ->(*args) { called = true }
 
       action = described_class.new(app, env)
+
+      allow(action).to receive(:process_public_network).and_return(["name", {}])
+      allow(action).to receive(:process_private_network).and_return(["name", {}])
+
       action.call(env)
 
       expect(called).to eq(true)
@@ -74,23 +78,26 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
 
     it "calls the proper driver methods to setup a network" do
       allow(driver).to receive(:host_vm?).and_return(false)
-      allow(driver).to receive(:existing_network?).and_return(false)
+      allow(driver).to receive(:existing_named_network?).and_return(false)
       allow(driver).to receive(:create_network).and_return(true)
       allow(driver).to receive(:connect_network).and_return(true)
       allow(driver).to receive(:subnet_defined?).and_return(nil)
+      allow(driver).to receive(:network_containing_address).
+        with("172.20.128.2").and_return(nil)
+      allow(driver).to receive(:network_defined?).with("172.20.128.0/24").
+        and_return(false)
+      allow(driver).to receive(:network_defined?).with("2a02:6b8:b010:9020:1::/80").
+        and_return(false)
 
 
+      # TODO: Still need to finish up the rest of this method
+      # with the proper generate create tests
       expect(subject).to receive(:generate_create_cli_arguments).
         with(networks[0][1]).and_return(["--subnet=172.20.0.0/16", "--driver=bridge", "--internal=true"])
       expect(subject).to receive(:generate_create_cli_arguments).
         with(networks[1][1]).and_return(["--ipv6=true", "--subnet=2a02:6b8:b010:9020:1::/80"])
-      expect(subject).to receive(:generate_connect_cli_arguments).
-        with(networks[0][1]).and_return(["--ipv6=true", "--subnet=2a02:6b8:b010:9020:1::/80"])
-      expect(subject).to receive(:generate_connect_cli_arguments).
-        with(networks[1][1]).and_return([])
 
       expect(driver).to receive(:create_network).twice
-      expect(driver).to receive(:connect_network).twice
 
       subject.call(env)
     end
