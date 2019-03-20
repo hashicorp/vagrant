@@ -1,7 +1,7 @@
 require_relative "../../../../base"
-require_relative "../../../../../../plugins/providers/docker/action/network"
+require_relative "../../../../../../plugins/providers/docker/action/connect_networks"
 
-describe VagrantPlugins::DockerProvider::Action::Network do
+describe VagrantPlugins::DockerProvider::Action::ConnectNetworks do
   include_context "unit"
   include_context "virtualbox"
 

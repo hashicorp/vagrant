@@ -1,6 +1,8 @@
 require 'ipaddr'
 require 'log4r'
 
+require 'vagrant/util/scoped_hash_override'
+
 module VagrantPlugins
   module DockerProvider
     module Action
