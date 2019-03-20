@@ -214,7 +214,7 @@ module VagrantPlugins
         output = execute(*command)
         begin
           JSON.load(output)
-        rescue JSON::ParseError
+        rescue JSON::ParserError
           @logger.warn("Failed to parse network inspection of network: #{network}")
           @logger.debug("Failed network output content: `#{output.inspect}`")
           nil
@@ -256,7 +256,11 @@ module VagrantPlugins
       # Docker network helpers
       # ######################
 
+      # Determines if a given network has been defined through vagrant with a given
+      # subnet string
+      #
       # @param [String] subnet_string - Subnet to look for
+      # @return [String] network name - Name of network with requested subnet.`nil` if not found
       def network_defined?(subnet_string)
         all_networks = list_network_names
 
@@ -298,6 +302,7 @@ module VagrantPlugins
       # with the given name
       #
       # @param [String] network_name - name of network to look for
+      # @return [Bool]
       def existing_named_network?(network_name)
         result = list_network_names
         result.any?{|net_name| net_name == network_name}
