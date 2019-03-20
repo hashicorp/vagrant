@@ -9,7 +9,6 @@ require 'log4r'
 require 'net/ssh'
 require 'net/ssh/proxy/command'
 require 'net/scp'
-require 'net/sftp'
 
 require 'vagrant/util/ansi_escape_code_remover'
 require 'vagrant/util/file_mode'
