@@ -12,6 +12,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - command/cloud: Properly set variable from CLI argument parsing for `username` field [GH-10726]
+- guest/void: Fix NFS capability detection [GH-10713]
 
 ## 2.2.4 (February 27, 2019)
 
