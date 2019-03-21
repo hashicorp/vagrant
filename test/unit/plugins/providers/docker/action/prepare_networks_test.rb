@@ -256,6 +256,28 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
   end
 
   describe "#process_private_network" do
+    let(:options) { {:ip=>"172.20.128.2", :subnet=>"172.20.0.0/16", :driver=>"bridge", :internal=>"true", :alias=>"mynetwork", :protocol=>"tcp", :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58", :netmask=>24} }
+    let(:dhcp_options) { {type: "dhcp"} }
+    let(:bad_options) { {driver: "bridge"} }
+
+    it "generates a network name and config for a dhcp private network" do
+      network_name, network_options = subject.process_private_network(dhcp_options, {}, env)
+
+      expect(network_name).to eq("vagrant_network")
+      expect(network_options).to eq({})
+    end
+
+    it "generates a network name and options for a static ip" do
+      allow(driver).to receive(:network_defined?).and_return(nil)
+      network_name, network_options = subject.process_private_network(options, {}, env)
+      expect(network_name).to eq("vagrant_network_172.20.0.0/16")
+      expect(network_options).to eq({:ipv6=>false, :subnet=>"172.20.0.0/16"})
+    end
+
+    it "raises an error if no ip address or type `dhcp` was given" do
+      expect{subject.process_private_network(bad_options, {}, env)}.
+        to raise_error(VagrantPlugins::DockerProvider::Errors::NetworkIPAddressRequired)
+    end
   end
 
   describe "#process_public_network" do

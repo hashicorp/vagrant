@@ -124,11 +124,18 @@ module VagrantPlugins
           # With no network name, process options to find or determine
           # name for new network
           if !network_name
-            subnet = IPAddr.new("#{addr}/#{root_options[:netmask]}")
-            network = "#{subnet}/#{root_options[:netmask]}"
+            if !root_options[:subnet]
+              # Only generate a subnet if not given one
+              subnet = IPAddr.new("#{addr}/#{root_options[:netmask]}")
+              network = "#{subnet}/#{root_options[:netmask]}"
+            else
+              network = root_options[:subnet]
+            end
+
             network_options[:subnet] = network
             existing_network = env[:machine].provider.driver.
               network_defined?(network)
+
             if !existing_network
               network_name = "vagrant_network_#{network}"
             else
