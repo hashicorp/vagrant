@@ -1,6 +1,8 @@
 require 'ipaddr'
 require 'log4r'
 
+require 'vagrant/util/scoped_hash_override'
+
 module VagrantPlugins
   module DockerProvider
     module Action
@@ -20,9 +22,9 @@ module VagrantPlugins
         def generate_connect_cli_arguments(options)
           options.map do |key, value|
             # If value is false, option is not set
-            next if value == false
+            next if value.to_s == "false"
             # If value is true, consider feature flag with no value
-            opt = value == true ? [] : [value]
+            opt = value.to_s == "true" ? [] : [value]
             opt.unshift("--#{key.to_s.tr("_", "-")}")
           end.flatten.compact
         end
