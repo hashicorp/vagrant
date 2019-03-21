@@ -42,12 +42,13 @@ module VagrantPlugins
         # Validates that a network name exists. If it does not
         # exist, an exception is raised.
         #
-        # @param [String] name Name of existing network
+        # @param [String] network_name Name of existing network
+        # @param [Hash] env Local call env
         # @return [Boolean]
-        def validate_network_name!(name)
+        def validate_network_name!(network_name, env)
           if !env[:machine].provider.driver.existing_named_network?(network_name)
             raise Errors::NetworkNameUndefined,
-              network_name: name
+              network_name: network_name
           end
           true
         end
@@ -83,7 +84,7 @@ module VagrantPlugins
         # @param [Hash] env Local call env
         # @return [String, Hash] Network name and updated network_options
         def process_private_network(root_options, network_options, env)
-          if root_options[:name] && validate_network_name!(root_options[:name])
+          if root_options[:name] && validate_network_name!(root_options[:name], env)
             network_name = root_options[:name]
           end
 
@@ -150,7 +151,7 @@ module VagrantPlugins
         # @param [Hash] env Local call env
         # @return [String, Hash] Network name and updated network_options
         def process_public_network(root_options, net_options, env)
-          if root_options[:name] && validate_network_name!(root_options[:name])
+          if root_options[:name] && validate_network_name!(root_options[:name], env)
             network_name = root_options[:name]
           end
           if !network_name

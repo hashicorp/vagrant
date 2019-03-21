@@ -105,7 +105,6 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       expect(driver).to receive(:create_network).
         with("vagrant_network_2a02:6b8:b010:9020:1::/80", ["--ipv6", "--subnet", "2a02:6b8:b010:9020:1::/80"])
 
-
       subject.call(env)
 
       expect(env[:docker_connects]).to eq({0=>"vagrant_network_172.20.128.0/24", 1=>"vagrant_network_public_wlp4s0", 2=>"vagrant_network_2a02:6b8:b010:9020:1::/80"})
@@ -193,10 +192,22 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     end
   end
 
-  describe "#list_interfaces" do
-  end
-
   describe "#validate_network_name!" do
+    let(:netname) { "vagrant_network" }
+
+    it "returns true if name exists" do
+      allow(driver).to receive(:existing_named_network?).with(netname).
+        and_return(true)
+
+      expect(subject.validate_network_name!(netname, env)).to be_truthy
+    end
+
+    it "raises an error if name does not exist" do
+      allow(driver).to receive(:existing_named_network?).with(netname).
+        and_return(false)
+
+      expect{subject.validate_network_name!(netname, env)}.to raise_error(VagrantPlugins::DockerProvider::Errors::NetworkNameUndefined)
+    end
   end
 
   describe "#validate_network_configuration!" do
