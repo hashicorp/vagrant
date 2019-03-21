@@ -45,6 +45,18 @@ module VagrantPlugins
         error_key(:docker_provider_nfs_without_privileged)
       end
 
+      class NetworkAddressInvalid < DockerError
+        error_key(:network_address_invalid)
+      end
+
+      class NetworkIPAddressRequired < DockerError
+        error_key(:network_address_required)
+      end
+
+      class NetworkSubnetInvalid < DockerError
+        error_key(:network_subnet_invalid)
+      end
+
       class NetworkInvalidOption < DockerError
         error_key(:network_invalid_option)
       end

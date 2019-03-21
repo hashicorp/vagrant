@@ -32,6 +32,11 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
            :alias=>"mynetwork",
            :protocol=>"tcp",
            :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58"}],
+           [:public_network,
+            {:ip=>"172.30.130.2",
+             :subnet=>"172.30.0.0/16",
+             :driver=>"bridge",
+             :id=>"30e017d5-488f-5a2f-a3ke-k8dce8246b60"}],
          [:private_network,
           {:type=>"dhcp",
            :ipv6=>"true",
@@ -60,8 +65,6 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       allow(driver).to receive(:host_vm?).and_return(false)
       allow(driver).to receive(:existing_named_network?).and_return(false)
       allow(driver).to receive(:create_network).and_return(true)
-      allow(driver).to receive(:connect_network).and_return(true)
-      allow(driver).to receive(:subnet_defined?).and_return(nil)
 
       called = false
       app = ->(*args) { called = true }
@@ -79,39 +82,76 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     it "calls the proper driver methods to setup a network" do
       allow(driver).to receive(:host_vm?).and_return(false)
       allow(driver).to receive(:existing_named_network?).and_return(false)
-      allow(driver).to receive(:create_network).and_return(true)
-      allow(driver).to receive(:connect_network).and_return(true)
-      allow(driver).to receive(:subnet_defined?).and_return(nil)
       allow(driver).to receive(:network_containing_address).
         with("172.20.128.2").and_return(nil)
+      allow(driver).to receive(:network_containing_address).
+        with("192.168.1.1").and_return(nil)
       allow(driver).to receive(:network_defined?).with("172.20.128.0/24").
+        and_return(false)
+      allow(driver).to receive(:network_defined?).with("172.30.128.0/24").
         and_return(false)
       allow(driver).to receive(:network_defined?).with("2a02:6b8:b010:9020:1::/80").
         and_return(false)
 
+      allow(subject).to receive(:request_public_gateway).and_return("1234")
+      allow(subject).to receive(:request_public_iprange).and_return("1234")
 
-      # TODO: Still need to finish up the rest of this method
-      # with the proper generate create tests
-      expect(subject).to receive(:generate_create_cli_arguments).
-        with(networks[0][1]).and_return(["--subnet=172.20.0.0/16", "--driver=bridge", "--internal=true"])
-      expect(subject).to receive(:generate_create_cli_arguments).
-        with(networks[1][1]).and_return(["--ipv6=true", "--subnet=2a02:6b8:b010:9020:1::/80"])
+      allow(machine.ui).to receive(:ask).and_return("1")
 
-      expect(driver).to receive(:create_network).twice
+      expect(driver).to receive(:create_network).
+        with("vagrant_network_172.20.128.0/24", ["--subnet", "172.20.128.0/24"])
+      expect(driver).to receive(:create_network).
+        with("vagrant_network_public_wlp4s0", ["--opt", "parent=wlp4s0", "--subnet", "192.168.1.0/24", "--driver", "macvlan", "--gateway", "1234", "--ip-range", "1234"])
+      expect(driver).to receive(:create_network).
+        with("vagrant_network_2a02:6b8:b010:9020:1::/80", ["--ipv6", "--subnet", "2a02:6b8:b010:9020:1::/80"])
+
 
       subject.call(env)
+
+      expect(env[:docker_connects]).to eq({0=>"vagrant_network_172.20.128.0/24", 1=>"vagrant_network_public_wlp4s0", 2=>"vagrant_network_2a02:6b8:b010:9020:1::/80"})
     end
 
     it "uses an existing network if a matching subnet is found" do
       allow(driver).to receive(:host_vm?).and_return(false)
-      allow(driver).to receive(:existing_network?).and_return(true)
-      allow(driver).to receive(:create_network).and_return(true)
-      allow(driver).to receive(:connect_network).and_return(true)
-      allow(driver).to receive(:subnet_defined?).and_return("my_cool_subnet_network")
+      allow(driver).to receive(:network_containing_address).
+        with("172.20.128.2").and_return(nil)
+      allow(driver).to receive(:network_containing_address).
+        with("192.168.1.1").and_return(nil)
+      allow(driver).to receive(:network_defined?).with("172.20.128.0/24").
+        and_return("vagrant_network_172.20.128.0/24")
+      allow(driver).to receive(:network_defined?).with("172.30.128.0/24").
+        and_return("vagrant_network_public_wlp4s0")
+      allow(driver).to receive(:network_defined?).with("2a02:6b8:b010:9020:1::/80").
+        and_return("vagrant_network_2a02:6b8:b010:9020:1::/80")
+
+      expect(driver).to receive(:existing_named_network?).
+        with("vagrant_network_172.20.128.0/24").and_return(true)
+      expect(driver).to receive(:existing_named_network?).
+        with("vagrant_network_public_wlp4s0").and_return(true)
+      expect(driver).to receive(:existing_named_network?).
+        with("vagrant_network_public_wlp4s0").and_return(true)
+      expect(driver).to receive(:existing_named_network?).
+        with("vagrant_network_2a02:6b8:b010:9020:1::/80").and_return(true)
+
+      allow(machine.ui).to receive(:ask).and_return("1")
 
       expect(driver).not_to receive(:create_network)
 
+      expect(subject).to receive(:validate_network_configuration!).
+        with("vagrant_network_172.20.128.0/24", networks[0][1],
+            {:ipv6=>false, :subnet=>"172.20.128.0/24"}, driver)
+
+      expect(subject).to receive(:validate_network_configuration!).
+        with("vagrant_network_public_wlp4s0", networks[1][1],
+             {"opt"=>"parent=wlp4s0", "subnet"=>"192.168.1.0/24", "driver"=>"macvlan", "gateway"=>"192.168.1.1", "ipv6"=>false}, driver)
+
+
+      expect(subject).to receive(:validate_network_configuration!).
+        with("vagrant_network_2a02:6b8:b010:9020:1::/80", networks[2][1],
+            {:ipv6=>true, :subnet=>"2a02:6b8:b010:9020:1::/80"}, driver)
+
       subject.call(env)
+
     end
 
     it "raises an error if an inproper network configuration is given" do
@@ -119,7 +159,7 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       allow(driver).to receive(:host_vm?).and_return(false)
       allow(driver).to receive(:existing_network?).and_return(false)
 
-      expect{ subject.call(env) }.to raise_error(VagrantPlugins::DockerProvider::Errors::NetworkInvalidOption)
+      expect{ subject.call(env) }.to raise_error(VagrantPlugins::DockerProvider::Errors::NetworkIPAddressRequired)
     end
   end
 

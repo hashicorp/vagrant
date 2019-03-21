@@ -236,6 +236,8 @@ en:
 
           Configured address: %{address}
           Network name:       %{network_name}
+      network_address_required: |-
+        An IP address is required if not using `type: "dhcp"` or not specifying a `subnet`.
       network_invalid_option: |-
         Invalid option given for docker network for guest "%{container}". Must specify either
         a `subnet` or use `type: "dhcp"`.
