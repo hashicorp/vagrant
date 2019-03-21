@@ -96,7 +96,6 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       allow(subject).to receive(:request_public_gateway).and_return("1234")
       allow(subject).to receive(:request_public_iprange).and_return("1234")
 
-
       expect(subject).to receive(:process_private_network).with(networks[0][1], {}, env).
         and_return(["vagrant_network_172.20.128.0/24", {:ipv6=>false, :subnet=>"172.20.128.0/24"}])
 
@@ -132,6 +131,9 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
         and_return("vagrant_network_public_wlp4s0")
       allow(driver).to receive(:network_defined?).with("2a02:6b8:b010:9020:1::/80").
         and_return("vagrant_network_2a02:6b8:b010:9020:1::/80")
+      allow(subject).to receive(:request_public_gateway).and_return("1234")
+      allow(subject).to receive(:request_public_iprange).and_return("1234")
+      allow(machine.ui).to receive(:ask).and_return("1")
 
       expect(driver).to receive(:existing_named_network?).
         with("vagrant_network_172.20.128.0/24").and_return(true)
@@ -142,7 +144,11 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       expect(driver).to receive(:existing_named_network?).
         with("vagrant_network_2a02:6b8:b010:9020:1::/80").and_return(true)
 
-      allow(machine.ui).to receive(:ask).and_return("1")
+      expect(subject).to receive(:process_private_network).with(networks[0][1], {}, env).
+        and_return(["vagrant_network_172.20.128.0/24", {:ipv6=>false, :subnet=>"172.20.128.0/24"}])
+
+      expect(subject).to receive(:process_private_network).with(networks[2][1], {}, env).
+        and_return(["vagrant_network_2a02:6b8:b010:9020:1::/80", {:ipv6=>true, :subnet=>"2a02:6b8:b010:9020:1::/80"}])
 
       expect(driver).not_to receive(:create_network)
 
@@ -221,6 +227,20 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
   end
 
   describe "#validate_network_configuration!" do
+    let(:netname) { "vagrant_network_172.20.128.0/24" }
+    let(:options) { {:ip=>"172.20.128.2", :subnet=>"172.20.0.0/16", :driver=>"bridge", :internal=>"true", :alias=>"mynetwork", :protocol=>"tcp", :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58", :netmask=>24} }
+    let(:network_options) { {:ipv6=>false, :subnet=>"172.20.128.0/24"} }
+
+    it "returns true if all options are valid" do
+      allow(driver).to receive(:network_containing_address).with(options[:ip]).
+                                                                         and_return(netname)
+      allow(driver).to receive(:network_containing_address).with(network_options[:subnet]).
+                                                                         and_return(netname)
+
+      expect(subject.validate_network_configuration!(netname, options, network_options, driver)).
+        to be_truthy
+    end
+
   end
 
   describe "#process_private_network" do
