@@ -131,14 +131,10 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
         and_return("vagrant_network_public_wlp4s0")
       allow(driver).to receive(:network_defined?).with("2a02:6b8:b010:9020:1::/80").
         and_return("vagrant_network_2a02:6b8:b010:9020:1::/80")
-      allow(subject).to receive(:request_public_gateway).and_return("1234")
-      allow(subject).to receive(:request_public_iprange).and_return("1234")
       allow(machine.ui).to receive(:ask).and_return("1")
 
       expect(driver).to receive(:existing_named_network?).
         with("vagrant_network_172.20.128.0/24").and_return(true)
-      expect(driver).to receive(:existing_named_network?).
-        with("vagrant_network_public_wlp4s0").and_return(true)
       expect(driver).to receive(:existing_named_network?).
         with("vagrant_network_public_wlp4s0").and_return(true)
       expect(driver).to receive(:existing_named_network?).
@@ -147,9 +143,11 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       expect(subject).to receive(:process_private_network).with(networks[0][1], {}, env).
         and_return(["vagrant_network_172.20.128.0/24", {:ipv6=>false, :subnet=>"172.20.128.0/24"}])
 
+      expect(subject).to receive(:process_public_network).with(networks[1][1], {}, env).
+        and_return(["vagrant_network_public_wlp4s0", {"opt"=>"parent=wlp4s0", "subnet"=>"192.168.1.0/24", "driver"=>"macvlan", "gateway"=>"1234", "ipv6"=>false, "ip_range"=>"1234"}])
+
       expect(subject).to receive(:process_private_network).with(networks[2][1], {}, env).
         and_return(["vagrant_network_2a02:6b8:b010:9020:1::/80", {:ipv6=>true, :subnet=>"2a02:6b8:b010:9020:1::/80"}])
-
       expect(driver).not_to receive(:create_network)
 
       expect(subject).to receive(:validate_network_configuration!).
@@ -158,15 +156,13 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
 
       expect(subject).to receive(:validate_network_configuration!).
         with("vagrant_network_public_wlp4s0", networks[1][1],
-             {"opt"=>"parent=wlp4s0", "subnet"=>"192.168.1.0/24", "driver"=>"macvlan", "gateway"=>"192.168.1.1", "ipv6"=>false}, driver)
-
+             {"opt"=>"parent=wlp4s0", "subnet"=>"192.168.1.0/24", "driver"=>"macvlan", "gateway"=>"1234", "ipv6"=>false, "ip_range"=>"1234"}, driver)
 
       expect(subject).to receive(:validate_network_configuration!).
         with("vagrant_network_2a02:6b8:b010:9020:1::/80", networks[2][1],
             {:ipv6=>true, :subnet=>"2a02:6b8:b010:9020:1::/80"}, driver)
 
       subject.call(env)
-
     end
 
     it "raises an error if an inproper network configuration is given" do
