@@ -163,22 +163,6 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     end
   end
 
-  describe "#generate_connect_cli_arguments" do
-    let(:network_options) {
-            {:ip=>"172.20.128.2",
-             :subnet=>"172.20.0.0/16",
-             :driver=>"bridge",
-             :internal=>"true",
-             :alias=>"mynetwork",
-             :protocol=>"tcp",
-             :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58"} }
-
-    it "returns an array of cli arguments" do
-      cli_args = subject.generate_connect_cli_arguments(network_options)
-      expect(cli_args).to eq(["--ip", "172.20.128.2", "--alias=mynetwork"])
-    end
-  end
-
   describe "#generate_create_cli_arguments" do
     let(:network_options) {
             {:ip=>"172.20.128.2",
@@ -189,9 +173,23 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
              :protocol=>"tcp",
              :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58"} }
 
+    let(:false_network_options) {
+            {:ip=>"172.20.128.2",
+             :subnet=>"172.20.0.0/16",
+             :driver=>"bridge",
+             :internal=>"false",
+             :alias=>"mynetwork",
+             :protocol=>"tcp",
+             :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58"} }
+
     it "returns an array of cli arguments" do
       cli_args = subject.generate_create_cli_arguments(network_options)
-      expect(cli_args).to eq(["--subnet=172.20.0.0/16", "--driver=bridge", "--internal=true"])
+      expect(cli_args).to eq( ["--ip", "172.20.128.2", "--subnet", "172.20.0.0/16", "--driver", "bridge", "--internal", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
+    end
+
+    it "removes option if set to false" do
+      cli_args = subject.generate_create_cli_arguments(false_network_options)
+      expect(cli_args).to eq( ["--ip", "172.20.128.2", "--subnet", "172.20.0.0/16", "--driver", "bridge", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
     end
   end
 end

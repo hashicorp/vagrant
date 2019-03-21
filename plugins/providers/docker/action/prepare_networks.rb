@@ -20,13 +20,13 @@ module VagrantPlugins
         # Generate CLI arguments for creating the docker network.
         #
         # @param [Hash] options Options from the network config
-        # @returns[Array<String> Network create arguments
+        # @returns[Array<String>] Network create arguments
         def generate_create_cli_arguments(options)
           options.map do |key, value|
             # If value is false, option is not set
-            next if value == false
+            next if value.to_s == "false"
             # If value is true, consider feature flag with no value
-            opt = value == true ? [] : [value]
+            opt = value.to_s == "true" ? [] : [value]
             opt.unshift("--#{key.to_s.tr("_", "-")}")
           end.flatten.compact
         end
