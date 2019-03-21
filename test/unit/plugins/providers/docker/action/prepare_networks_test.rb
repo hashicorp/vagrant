@@ -237,6 +237,22 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
         to be_truthy
     end
 
+    it "raises an error of the address is invalid" do
+      allow(driver).to receive(:network_containing_address).with(options[:ip]).
+                                                                         and_return("fakename")
+      expect{subject.validate_network_configuration!(netname, options, network_options, driver)}.
+        to raise_error(VagrantPlugins::DockerProvider::Errors::NetworkAddressInvalid)
+    end
+
+    it "raises an error of the subnet is invalid" do
+      allow(driver).to receive(:network_containing_address).with(options[:ip]).
+                                                                         and_return(netname)
+      allow(driver).to receive(:network_containing_address).with(network_options[:subnet]).
+                                                                         and_return("fakename")
+
+      expect{subject.validate_network_configuration!(netname, options, network_options, driver)}.
+        to raise_error(VagrantPlugins::DockerProvider::Errors::NetworkSubnetInvalid)
+    end
   end
 
   describe "#process_private_network" do
