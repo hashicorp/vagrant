@@ -69,6 +69,10 @@ module VagrantPlugins
         error_key(:network_name_undefined)
       end
 
+      class NetworkNoInterfaces < DockerError
+        error_key(:network_no_interfaces)
+      end
+
       class PackageNotSupported < DockerError
         error_key(:package_not_supported)
       end

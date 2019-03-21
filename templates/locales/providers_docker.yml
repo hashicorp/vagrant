@@ -252,6 +252,9 @@ en:
         The Docker provider was unable to configure networking using the
         provided network name `%{network_name}`. Please ensure the network
         name is correct and exists, then try again.
+      network_no_interfaces: |-
+        The Docker provider was unable to list any available interfaces to bridge
+        the public network with.
       network_subnet_invalid: |-
         The configured network subnet is not valid for the defined network.
         Please update the network settings and try again.
