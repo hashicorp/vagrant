@@ -192,4 +192,25 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       expect(cli_args).to eq( ["--ip", "172.20.128.2", "--subnet", "172.20.0.0/16", "--driver", "bridge", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
     end
   end
+
+  describe "#list_interfaces" do
+  end
+
+  describe "#validate_network_name!" do
+  end
+
+  describe "#validate_network_configuration!" do
+  end
+
+  describe "#process_private_network" do
+  end
+
+  describe "#process_public_network" do
+  end
+
+  describe "#request_public_gateway" do
+  end
+
+  describe "#request_public_iprange" do
+  end
 end
