@@ -33,8 +33,25 @@ there are no more containers using the network.
 
 Most of the options given align with the command line flags
 for the [docker network create](https://docs.docker.com/engine/reference/commandline/network_create/)
-command. However, if you want the container to have a specific IP instead of using
-DHCP, you also will have to specify a subnet due to how docker networks behave.
+command. If there are any specific options you want to enable from the `docker network create`
+command, you can specify them like this:
+
+```ruby
+docker.vm.network :private_network, type: "dhcp", docker_network__internal: true
+```
+
+This will enable the `internal` option for the network when created with `docker network create`.
+
+Where `option` corresponds to the given flag that will be provided to the `docker network create`
+command. Similarly, if there is a value you wish to enable when connecting a container
+to a given network, you can use the following value in your network config:
+
+```ruby
+docker_connect__option: "value"
+```
+
+It should be noted that if you want the container to have a specific IP instead
+of using DHCP, you also will have to specify a subnet due to how docker networks behave.
 
 It should also be noted that if you want a specific IPv6 address, your network
 option should use `ip6` rather than `ip`. If you just want to use DHCP, you can
@@ -52,7 +69,7 @@ The following Vagrantfile will generate these networks for a container:
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.define "docker"  do |docker|
-    docker.vm.network :private_network, type: "dhcp"
+    docker.vm.network :private_network, type: "dhcp", docker_network__internal: true
     docker.vm.network :private_network,
         ip: "172.20.128.2", subnet: "172.20.0.0/16"
     docker.vm.network :private_network, type: "dhcp", ipv6: "true", subnet: "2a02:6b8:b010:9020:1::/80"
