@@ -16,12 +16,14 @@ describe VagrantPlugins::DockerProvider::Action::ConnectNetworks do
 
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :docker).tap do |m|
+      allow(m).to receive(:id).and_return("12345")
       allow(m.provider).to receive(:driver).and_return(driver)
+      allow(m.provider).to receive(:host_vm?).and_return(false)
       allow(m.config.vm).to receive(:networks).and_return(networks)
     end
   end
 
-  let(:docker_connects) { {0=>"vagrant_network_172.20.128.0/24", 1=>"vagrant_network_public_wlp4s0", 2=>"vagrant_network_2a02:6b8:b010:9020:1::/80"} }
+  let(:docker_connects) { {0=>"vagrant_network_172.20.0.0/16", 1=>"vagrant_network_public_wlp4s0", 2=>"vagrant_network_2a02:6b8:b010:9020:1::/80"} }
 
   let(:env)    {{ machine: machine, ui: machine.ui, root_path: Pathname.new("."),
                   docker_connects: docker_connects }}
@@ -73,20 +75,54 @@ describe VagrantPlugins::DockerProvider::Action::ConnectNetworks do
     end
 
     it "connects all of the avaiable networks to a container" do
+      expect(driver).to receive(:connect_network).with("vagrant_network_172.20.0.0/16", "12345", ["--ip", "172.20.128.2", "--alias", "mynetwork"])
+      expect(driver).to receive(:connect_network).with("vagrant_network_public_wlp4s0", "12345", ["--ip", "172.30.130.2"])
+      expect(driver).to receive(:connect_network).with("vagrant_network_2a02:6b8:b010:9020:1::/80", "12345", [])
+
+      subject.call(env)
     end
 
-    it "raises an error if the network name is missing" do
+    context "with missing env values" do
+      it "raises an error if the network name is missing" do
+        env[:docker_connects] = {}
+
+        expect{subject.call(env)}.to raise_error(VagrantPlugins::DockerProvider::Errors::NetworkNameMissing)
+      end
     end
   end
 
   describe "#generate_connect_cli_arguments" do
+    let(:network_options) {
+            {:ip=>"172.20.128.2",
+             :subnet=>"172.20.0.0/16",
+             :driver=>"bridge",
+             :internal=>"true",
+             :alias=>"mynetwork",
+             :protocol=>"tcp",
+             :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58"} }
+
+    let(:false_network_options) {
+            {:ip=>"172.20.128.2",
+             :subnet=>"172.20.0.0/16",
+             :driver=>"bridge",
+             :internal=>"false",
+             :alias=>"mynetwork",
+             :protocol=>"tcp",
+             :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58"} }
+
     it "removes false values" do
+      cli_args = subject.generate_connect_cli_arguments(false_network_options)
+      expect(cli_args).to eq(["--ip", "172.20.128.2", "--subnet", "172.20.0.0/16", "--driver", "bridge", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
     end
 
     it "removes true and leaves flag value in arguments" do
+      cli_args = subject.generate_connect_cli_arguments(network_options)
+      expect(cli_args).to eq(["--ip", "172.20.128.2", "--subnet", "172.20.0.0/16", "--driver", "bridge", "--internal", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
     end
 
     it "takes options and generates cli flags" do
+      cli_args = subject.generate_connect_cli_arguments(network_options)
+      expect(cli_args).to eq(["--ip", "172.20.128.2", "--subnet", "172.20.0.0/16", "--driver", "bridge", "--internal", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
     end
   end
 end
