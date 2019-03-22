@@ -306,6 +306,19 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
   end
 
   describe "#request_public_gateway" do
+    let(:options) { {:ip=>"172.30.130.2", :subnet=>"172.30.0.0/16", :driver=>"bridge", :id=>"30e017d5-488f-5a2f-a3ke-k8dce8246b60"} }
+    let(:ipaddr) { double("ipaddr", to_s: "172.30.130.2", prefix: 22, succ: "172.30.130.3",
+                          ipv6?: false) }
+
+    it "requests a gateway" do
+      allow(IPAddr).to receive(:new).and_return(ipaddr)
+      allow(ipaddr).to receive(:include?).and_return(false)
+      allow(machine.ui).to receive(:ask).and_return("1")
+
+      addr = subject.request_public_gateway(options, "bridge", env)
+
+      expect(addr).to eq("172.30.130.2")
+    end
   end
 
   describe "#request_public_iprange" do
