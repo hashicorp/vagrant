@@ -31,15 +31,12 @@ there are no more containers using the network.
 
 ## Docker Network Options
 
-Only the network option `:private_network` is currently supported with the docker
-provider in Vagrant.
-
-Most of the options given to `:private_network` align with the command line flags
+Most of the options given align with the command line flags
 for the [docker network create](https://docs.docker.com/engine/reference/commandline/network_create/)
 command. However, if you want the container to have a specific IP instead of using
 DHCP, you also will have to specify a subnet due to how docker networks behave.
 
-It should also be noted that if you want a specific IPv6 address, your `:private_network`
+It should also be noted that if you want a specific IPv6 address, your network
 option should use `ip6` rather than `ip`. If you just want to use DHCP, you can
 simply say `type: "dhcp"` insetad. More examples are shared below which demonstrate
 creating a few common network interfaces.
