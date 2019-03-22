@@ -30,7 +30,7 @@ describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
       expect(comm.received_commands[1]).to match(/\/etc\/sysconfig\/network/)
       expect(comm.received_commands[1]).to match(/hostnamectl set-hostname --static '#{name}'/)
       expect(comm.received_commands[1]).to match(/hostnamectl set-hostname --transient '#{name}'/)
-      expect(comm.received_commands[1]).to match(/service network restart/)
+      expect(comm.received_commands[1]).to match(/service \$?net([a-z_]+|work(ing)?) restart/)
     end
 
     it "does not change the hostname if already set" do
