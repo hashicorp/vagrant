@@ -14,7 +14,7 @@ module Vagrant
       @main_args, @sub_command, @sub_args = split_main_and_subcommand(argv)
 
       if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
-        ui = Vagrant::UI::Prefixed.new(env.ui, "vargant")
+        ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
         @triggers = Vagrant::Plugin::V2::Trigger.new(env, env.vagrantfile.config.trigger, nil, ui)
       end
 
