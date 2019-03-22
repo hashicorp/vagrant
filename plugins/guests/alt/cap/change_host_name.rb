@@ -16,8 +16,10 @@ module VagrantPlugins
               NEW_HOSTNAME_FULL='#{name}'
               NEW_HOSTNAME_SHORT="${NEW_HOSTNAME_FULL%%.*}"
 
-              # Update sysconfig
-              sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
+              if [ -f /etc/sysconfig/network ]; then
+                # Update sysconfig
+                sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
+              fi
 
               # Set the hostname - use hostnamectl if available
               if command -v hostnamectl; then
@@ -36,7 +38,13 @@ module VagrantPlugins
               fi
 
               # Restart network
-              service network restart
+              #   workaround for Alpine: first test service name 'network' and then 'networking'
+              for net_svc_name in network networking; do
+                if service $net_svc_name status 2>/dev/null >/dev/null; then
+                  service $net_svc_name restart
+                  break
+                fi
+              done
             EOH
           end
         end

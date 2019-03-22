@@ -76,8 +76,17 @@ module VagrantPlugins
             # Add the new interface and bring it back up
             iface_path = "#{network_scripts_dir}/ifaces/#{network[:device]}"
 
+            # workaround for Alpine
+            commands[:middle] << "test -f /etc/network/interfaces && \
+                                  sed -i -e '/^[[:space:]]*auto[[:space:]]\\+#{network[:device]}/d;
+                                  /^[[:space:]]*iface #{network[:device]} /,/^[[:space:]]*$/ d;' /etc/network/interfaces"
+
             if network[:type].to_sym == :static
               ipv4_address_entry = TemplateRenderer.render("guests/alt/network_ipv4address", options: template_options)
+
+              # workaround for Alpine
+              commands[:middle] << "test -f /etc/network/interfaces && \
+                                    echo -e 'auto #{network[:device]}\niface #{network[:device]} inet static\n    address #{network[:ip]}\n    netmask #{network[:netmask]}' >>/etc/network/interfaces"
 
               # Upload the new ipv4address configuration
               Tempfile.open("vagrant-alt-configure-ipv4-address") do |f|
@@ -98,6 +107,9 @@ module VagrantPlugins
                 f.close
                 machine.communicate.upload(f.path, ipv4_route_remote_path)
               end
+            elsif network[:type].to_sym == :dhcp
+              # workaround for Alpine
+              commands[:middle] << "test -f /etc/network/interfaces && echo -e 'auto #{network[:device]}\niface #{network[:device]} inet dhcp' >>/etc/network/interfaces"
             end
 
             if nm_controlled and extra_opts[:nm_controlled] == "yes"
