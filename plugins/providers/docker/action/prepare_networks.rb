@@ -282,6 +282,7 @@ module VagrantPlugins
             begin
               range = IPAddr.new(range)
               if !subnet.include?(range)
+                puts "we in here"
                 env[:ui].warn(I18n.t(
                   "docker_provider.network_bridge_iprange_outofbounds",
                   subnet: network_options[:subnet],

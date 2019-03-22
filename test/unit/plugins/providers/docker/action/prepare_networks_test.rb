@@ -322,5 +322,19 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
   end
 
   describe "#request_public_iprange" do
+    let(:options) { {:ip=>"172.30.130.2", :subnet=>"172.30.0.0/16", :driver=>"bridge", :id=>"30e017d5-488f-5a2f-a3ke-k8dce8246b60"} }
+    let(:ipaddr) { double("ipaddr", to_s: "172.30.100.2", prefix: 22, succ: "172.30.100.3",
+                          ipv6?: false) }
+    let(:subnet) { double("ipaddr", to_s: "172.30.130.2", prefix: 22, succ: "172.30.130.3",
+                          ipv6?: false) }
+
+    it "requests a public ip range" do
+      allow(IPAddr).to receive(:new).with(options[:subnet]).and_return(subnet)
+      allow(IPAddr).to receive(:new).with("172.30.130.2").and_return(ipaddr)
+      allow(subnet).to receive(:include?).and_return(true)
+      allow(machine.ui).to receive(:ask).and_return(options[:ip])
+
+      addr = subject.request_public_iprange(options, "bridge", env)
+    end
   end
 end
