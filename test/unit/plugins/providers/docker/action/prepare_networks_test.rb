@@ -282,6 +282,7 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
 
   describe "#process_public_network" do
     let(:options) { {:ip=>"172.30.130.2", :subnet=>"172.30.0.0/16", :driver=>"bridge", :id=>"30e017d5-488f-5a2f-a3ke-k8dce8246b60"} }
+    let(:ipaddr) { double("ipaddr", prefix: 22, succ: "10.1.10.2", ipv6?: false) }
 
     it "raises an error if there are no network interfaces" do
       expect(subject).to receive(:list_interfaces).and_return([])
@@ -292,6 +293,12 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
 
     it "generates a network name and configuration" do
       allow(machine.ui).to receive(:ask).and_return("1")
+      allow(subject).to receive(:request_public_gateway).and_return("1234")
+      allow(subject).to receive(:request_public_iprange).and_return("1234")
+      allow(IPAddr).to receive(:new).and_return(ipaddr)
+      allow(driver).to receive(:existing_named_network?).and_return(false)
+      allow(driver).to receive(:network_containing_address).
+        with("10.1.10.2").and_return("vagrant_network_public")
 
       network_name, network_options = subject.process_public_network(options, {}, env)
       expect(network_name).to eq("vagrant_network_public")
