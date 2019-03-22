@@ -43,8 +43,8 @@ module VagrantPlugins
             if network[:type].to_s == "dhcp"
               network_content = "DHCP=yes"
             else
-              cidr = IPAddr.new("255.255.255.255").mask(network[:netmask])
-              address = "#{network[:ip]}/#{cidr.prefix}"
+              prefix = IPAddr.new("255.255.255.255/#{network[:netmask]}").to_i.to_s(2).count("1")
+              address = "#{network[:ip]}/#{prefix}"
               network_content = "Address=#{address}"
             end
             {"name" => unit_name,
