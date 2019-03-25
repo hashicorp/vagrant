@@ -31,8 +31,16 @@ there are no more containers using the network.
 
 ## Docker Network Options
 
-Most of the options given align with the command line flags
-for the [docker network create](https://docs.docker.com/engine/reference/commandline/network_create/)
+Most of the options work similar to other Vagrant providers. Defining either an
+ip or using `type: 'dhcp'` will give you a network on your container.
+
+```ruby
+docker.vm.network :private_network, type: "dhcp"
+docker.vm.network :private_network, ip: "172.20.128.2"
+```
+
+If you want to set something specific with a new network you can use scoped options
+which align with the command line flags for the [docker network create](https://docs.docker.com/engine/reference/commandline/network_create/)
 command. If there are any specific options you want to enable from the `docker network create`
 command, you can specify them like this:
 
@@ -50,13 +58,13 @@ to a given network, you can use the following value in your network config:
 docker_connect__option: "value"
 ```
 
-It should be noted that if you want the container to have a specific IP instead
-of using DHCP, you also will have to specify a subnet due to how docker networks behave.
+The docker provider will automatically determine a usable subnet for your containers
+network, however if you wish to specify a subnet and or netmask, you can use the
+`subnet` and or `netmask` options for this. By default, Vagrant will use a netmask
+of `/24` for IPv4 and `/64` for IPv6.
 
-It should also be noted that if you want a specific IPv6 address, your network
-option should use `ip6` rather than `ip`. If you just want to use DHCP, you can
-simply say `type: "dhcp"` insetad. More examples are shared below which demonstrate
-creating a few common network interfaces.
+More examples are shared below which demonstrate creating a few common network
+interfaces.
 
 ## Docker Network Example
 
@@ -71,8 +79,8 @@ Vagrant.configure("2") do |config|
   config.vm.define "docker"  do |docker|
     docker.vm.network :private_network, type: "dhcp", docker_network__internal: true
     docker.vm.network :private_network,
-        ip: "172.20.128.2", subnet: "172.20.0.0/16"
-    docker.vm.network :private_network, type: "dhcp", ipv6: "true", subnet: "2a02:6b8:b010:9020:1::/80"
+        ip: "172.20.128.2", netmask: "16"
+    docker.vm.network :private_network, type: "dhcp", subnet: "2a02:6b8:b010:9020:1::/80"
     docker.vm.provider "docker" do |d|
       d.build_dir = "docker_build_dir"
     end
@@ -116,32 +124,27 @@ brian@localghost:vagrant-sandbox % docker exec 370f4e5d2217 ip addr             
        valid_lft forever preferred_lft forever
 ```
 
-## Useful Debugging Tips
+You can also connect your containers to a docker network that was created outside
+of Vagrant:
 
-If you provide Vagrant with a faulty config option when setting up a network, Vagrant
-will pass that option along to the `docker network` commands it uses. That command
-line tool should give you some insight if there is something wrong with the option
-you configured:
+```
+$ docker network create my-custom-network --subnet=172.20.0.0/16
+```
 
 ```ruby
-docker.vm.network :private_network,
-  ip: "172.20.128.2", subnet: "172.20.0.0/16",
-  unsupported: "option"
+Vagrant.configure("2") do |config|
+  config.vm.define "docker"  do |docker|
+    docker.vm.network :private_network, type: "dhcp" name: "my-custom-network"
+    docker.vm.provider "docker" do |d|
+      d.build_dir = "docker_build_dir"
+    end
+  end
+end
 ```
 
-```
-A Docker command executed by Vagrant didn't complete successfully!
-The command run along with the output from the command is shown
-below.
+Vagrant will not delete or modify these outside networks when deleting the container, however.
 
-Command: ["docker", "network", "create", "vagrant_network_172.20.0.0/16", "--subnet=172.20.0.0/16", "--unsupported=option", {:notify=>[:stdout, :stderr]}]
-
-Stderr: unknown flag: --unsupported
-See 'docker network create --help'.
-
-
-Stdout:
-```
+## Useful Debugging Tips
 
 The `docker network` command provides some helpful insights to what might be going
 on with the networks Vagrant creates. For example, if you want to know what networks
