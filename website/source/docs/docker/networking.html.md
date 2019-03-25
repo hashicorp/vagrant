@@ -58,10 +58,65 @@ to a given network, you can use the following value in your network config:
 docker_connect__option: "value"
 ```
 
-The docker provider will automatically determine a usable subnet for your containers
-network, however if you wish to specify a subnet and or netmask, you can use the
-`subnet` and or `netmask` options for this. By default, Vagrant will use a netmask
-of `/24` for IPv4 and `/64` for IPv6.
+When the docker provider creates a new network a netmask is required. If the netmask
+is not provided, Vagrant will default to a `/24` for IPv4 and `/64` for IPv6. To provide
+a different mask, set it using the `netmask` option:
+
+```ruby
+docker.vm.network :private_network, ip: "172.20.128.2", netmask: 16
+```
+
+For networks which set the type to "dhcp", it is also possible to specify a specific
+subnet for the network connection. This allows containers to connect to networks other
+than the default `vagrant_network` network. The docker provider supports specifying
+the desired subnet in two ways. The first is by using the `ip` and `netmask` options:
+
+```ruby
+docker.vm.network :private_network, type: "dhcp", ip: "172.20.128.0", netmask: 24
+```
+
+The second is by using the `subnet` option:
+
+```ruby
+docker.vm.network :private_network, type: "dhcp", subnet: "172.20.128.0/24"
+```
+
+### Public Networks
+
+The Vagrant docker provider also supports defining public networks. The easiest way
+to define a public network is by setting the `type` option to "dhcp":
+
+```ruby
+docker.vm.network :public_network, type: "dhcp"
+```
+
+A bridge interface is required when setting up a public network. When no bridge
+device name is provided, Vagrant will prompt for the appropriate device to use. This
+can also be set using the `bridge` option:
+
+```ruby
+docker.vm.network :public_network, type: "dhcp", bridge: "eth0"
+```
+
+The `bridge` option also supports a list of interfaces which can be used for
+setting up the network. Vagrant will inspect the defined interfaces and use
+the first active interface when setting up the network:
+
+```ruby
+docker.vm.network :public_network, type: "dhcp", bridge: ["eth0", "wlan0"]
+```
+
+Finally, the subnet for the bridge interface must be known when setting up
+the docker network. Even though a DHCP service may be available on the public
+network, docker will manage IP addresses provided to containers. This means
+that the subnet provided when defining the network should not be included
+within the subnet managed by the DHCP service. Vagrant will prompt for subnet
+information, however, it can also be provided in the Vagrantfile using the
+`subnet` option:
+
+```ruby
+docker.vm.network :public_network, type: "dhcp", bridge: "eth0", subnet: "192.168.1.252/30"
+```
 
 More examples are shared below which demonstrate creating a few common network
 interfaces.
