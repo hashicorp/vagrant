@@ -45,6 +45,35 @@ en:
       This container requires a host VM, and the state of that VM
       is unknown. Run `vagrant up` to verify that the container and
       its host VM is running, then try again.
+    network_bridge_gateway_invalid: |-
+      The provided gateway IP address is invalid (%{gateway}). Please
+      provide a valid IP address.
+    network_bridge_gateway_outofbounds: |-
+      The provided gateway IP (%{gateway}) is not within the defined
+      subnet (%{subnet}). Please provide an IP address within the
+      defined subnet.
+    network_bridge_gateway_request: |-
+      Gateway IP address for %{interface} interface [%{default_gateway}]:
+    network_bridge_iprange_info: |-
+      When an explicit address is not provided to a container attached
+      to this bridged network, docker will supply an address to the
+      container. This is independent of the local DHCP service that
+      may be available on the network.
+    network_bridge_iprange_invalid: |-
+      The provided IP address range is invalid (%{range}). Please
+      provide a valid range.
+    network_bridge_iprange_outofbounds: |-
+      The provided IP address range (%{range}) is not within the
+      defined subnet (%{subnet}). Please provide an address range
+      within the defined subnet.
+    network_bridge_iprange_request: |-
+      Available address range for assignment on %{interface} interface [%{default_range}]:
+    network_create: |-
+      Creating and configuring docker networks...
+    network_connect: |-
+      Enabling network interfaces...
+    network_destroy: |-
+      Removing network %{network_name} ...
     not_created_skip: |-
       Container not created. Skipping.
     not_docker_provider: |-
@@ -66,6 +95,9 @@ en:
     ssh_through_host_vm: |-
       SSH will be proxied through the Docker virtual machine since we're
       not running Docker natively. This is just a notice, and not an error.
+    subnet_exists: |-
+      A network called '%{network_name}' using subnet '%{subnet}' is already in use.
+      Using '%{network_name}' instead of creating a new network...
     synced_folders_changed: |-
       Vagrant has noticed that the synced folder definitions have changed.
       With Docker, these synced folder changes won't take effect until you
@@ -197,6 +229,38 @@ en:
         is functional and properly configured.
 
         Host VM ID: %{id}
+      network_address_invalid: |-
+        The configured network address is not valid within the configured
+        subnet of the defined network. Please update the network settings
+        and try again.
+
+          Configured address: %{address}
+          Network name:       %{network_name}
+      network_address_required: |-
+        An IP address is required if not using `type: "dhcp"` or not specifying a `subnet`.
+      network_invalid_option: |-
+        Invalid option given for docker network for guest "%{container}". Must specify either
+        a `subnet` or use `type: "dhcp"`.
+      network_name_missing: |-
+        The Docker provider is unable to connect the container to the
+        defined network due to a missing network name. Please validate
+        your configuration and try again.
+
+          Container: %{container}
+          Network Number: %{index}
+      network_name_undefined: |-
+        The Docker provider was unable to configure networking using the
+        provided network name `%{network_name}`. Please ensure the network
+        name is correct and exists, then try again.
+      network_no_interfaces: |-
+        The Docker provider was unable to list any available interfaces to bridge
+        the public network with.
+      network_subnet_invalid: |-
+        The configured network subnet is not valid for the defined network.
+        Please update the network settings and try again.
+
+          Configured subnet: %{subnet}
+          Network name:      %{network_name}
       package_not_supported: |-
         The "package" command is not supported with the Docker provider.
         If you'd like to commit or push your Docker container, please SSH

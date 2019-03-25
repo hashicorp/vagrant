@@ -152,21 +152,25 @@ module VagrantPlugins
       def rmi(id)
         execute('docker', 'rmi', id)
         return true
-      rescue Exception => e
+      rescue => e
         return false if e.to_s.include?("is using it")
         raise if !e.to_s.include?("No such image")
       end
 
+      # Inspect the provided container
+      #
+      # @param [String] cid ID or name of container
+      # @return [Hash]
       def inspect_container(cid)
-        # DISCUSS: Is there a chance that this json will change after the container
-        #          has been brought up?
-        @data ||= JSON.parse(execute('docker', 'inspect', cid)).first
+        JSON.parse(execute('docker', 'inspect', cid)).first
       end
 
+      # @return [Array<String>] list of all container IDs
       def all_containers
         execute('docker', 'ps', '-a', '-q', '--no-trunc').to_s.split
       end
 
+      # @return [String] IP address of the docker bridge
       def docker_bridge_ip
         output = execute('/sbin/ip', '-4', 'addr', 'show', 'scope', 'global', 'docker0')
         if output =~ /^\s+inet ([0-9.]+)\/[0-9]+\s+/
@@ -177,9 +181,149 @@ module VagrantPlugins
         end
       end
 
+      # @param [String] network - name of network to connect conatiner to
+      # @param [String] cid - container id
+      # @param [Array]  opts - An array of flags used for listing networks
+      def connect_network(network, cid, opts=nil)
+        command = ['docker', 'network', 'connect', network, cid].push(*opts)
+        output = execute(*command)
+        output
+      end
+
+      # @param [String] network - name of network to create
+      # @param [Array]  opts - An array of flags used for listing networks
+      def create_network(network, opts=nil)
+        command = ['docker', 'network', 'create', network].push(*opts)
+        output = execute(*command)
+        output
+      end
+
+      # @param [String] network - name of network to disconnect container from
+      # @param [String] cid - container id
+      def disconnect_network(network, cid)
+        command = ['docker', 'network', 'disconnect', network, cid, "--force"]
+        output = execute(*command)
+        output
+      end
+
+      # @param [Array]  networks - list of networks to inspect
+      # @param [Array]  opts - An array of flags used for listing networks
+      def inspect_network(network, opts=nil)
+        command = ['docker', 'network', 'inspect'] + Array(network)
+        command = command.push(*opts)
+        output = execute(*command)
+        begin
+          JSON.load(output)
+        rescue JSON::ParserError
+          @logger.warn("Failed to parse network inspection of network: #{network}")
+          @logger.debug("Failed network output content: `#{output.inspect}`")
+          nil
+        end
+      end
+
+      # @param [String] opts - Flags used for listing networks
+      def list_network(*opts)
+        command = ['docker', 'network', 'ls', *opts]
+        output = execute(*command)
+        output
+      end
+
+      # Will delete _all_ defined but unused networks in the docker engine. Even
+      # networks not created by Vagrant.
+      #
+      # @param [Array] opts - An array of flags used for listing networks
+      def prune_network(opts=nil)
+        command = ['docker', 'network', 'prune', '--force'].push(*opts)
+        output = execute(*command)
+        output
+      end
+
+      # Delete network(s)
+      #
+      # @param [String] network - name of network to remove
+      def rm_network(*network)
+        command = ['docker', 'network', 'rm', *network]
+        output = execute(*command)
+        output
+      end
+
+      # @param [Array] opts - An array of flags used for listing networks
       def execute(*cmd, **opts, &block)
         @executor.execute(*cmd, **opts, &block)
       end
+
+      # ######################
+      # Docker network helpers
+      # ######################
+
+      # Determines if a given network has been defined through vagrant with a given
+      # subnet string
+      #
+      # @param [String] subnet_string - Subnet to look for
+      # @return [String] network name - Name of network with requested subnet.`nil` if not found
+      def network_defined?(subnet_string)
+        all_networks = list_network_names
+
+        network_info = inspect_network(all_networks)
+        network_info.each do |network|
+          config = network["IPAM"]["Config"]
+          if (config.size > 0 &&
+            config.first["Subnet"] == subnet_string)
+            @logger.debug("Found existing network #{network["Name"]} already configured with #{subnet_string}")
+            return network["Name"]
+          end
+        end
+        return nil
+      end
+
+      # Locate network which contains given address
+      #
+      # @param [String] address IP address
+      # @return [String] network name
+      def network_containing_address(address)
+        names = list_network_names
+        networks = inspect_network(names)
+        return if !networks
+        networks.each do |net|
+          next if !net["IPAM"]
+          config = net["IPAM"]["Config"]
+          next if !config || config.size < 1
+          config.each do |opts|
+            subnet = IPAddr.new(opts["Subnet"])
+            if subnet.include?(address)
+              return net["Name"]
+            end
+          end
+        end
+        nil
+      end
+
+      # Looks to see if a docker network has already been defined
+      # with the given name
+      #
+      # @param [String] network_name - name of network to look for
+      # @return [Bool]
+      def existing_named_network?(network_name)
+        result = list_network_names
+        result.any?{|net_name| net_name == network_name}
+      end
+
+      # @return [Array<String>] list of all docker networks
+      def list_network_names
+        list_network("--format={{.Name}}").split("\n").map(&:strip)
+      end
+
+      # Returns true or false if network is in use or not.
+      # Nil if Vagrant fails to receive proper JSON from `docker network inspect`
+      #
+      # @param [String] network - name of network to look for
+      # @return [Bool,nil]
+      def network_used?(network)
+        result = inspect_network(network)
+        return nil if !result
+        return result.first["Containers"].size > 0
+      end
+
     end
   end
 end
