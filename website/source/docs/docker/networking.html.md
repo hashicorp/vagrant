@@ -106,16 +106,26 @@ the first active interface when setting up the network:
 docker.vm.network :public_network, type: "dhcp", bridge: ["eth0", "wlan0"]
 ```
 
-Finally, the subnet for the bridge interface must be known when setting up
+The available IP range for the bridge interface must be known when setting up
 the docker network. Even though a DHCP service may be available on the public
 network, docker will manage IP addresses provided to containers. This means
-that the subnet provided when defining the network should not be included
-within the subnet managed by the DHCP service. Vagrant will prompt for subnet
-information, however, it can also be provided in the Vagrantfile using the
-`subnet` option:
+that the subnet provided when defining the available IP range for the network
+should not be included within the subnet managed by the DHCP service. Vagrant
+will prompt for the available IP range information, however, it can also be
+provided in the Vagrantfile using the `docker_network__ip_range` option:
 
 ```ruby
-docker.vm.network :public_network, type: "dhcp", bridge: "eth0", subnet: "192.168.1.252/30"
+docker.vm.network :public_network, type: "dhcp", bridge: "eth0", docker_network__ip_range: "192.168.1.252/30"
+```
+
+Finally, the gateway for the interface is required during setup. The docker
+provider will default the gateway address to the first address available for
+the subnet of the bridge device. Vagrant will prompt for confirmation to use
+the default address. The address can also be manually set in the Vagrantfile
+using the `docker_network__gateway` option:
+
+```ruby
+docker.vm.network :public_network, type: "dhcp", bridge: "eth0", docker_network__gateway: "192.168.1.2"
 ```
 
 More examples are shared below which demonstrate creating a few common network
