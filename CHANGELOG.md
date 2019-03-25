@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- providers/docker: Private and Public networking support [GH-10702]
+
 IMPROVEMENTS:
 
 - core: Use consistent settings when unpacking boxes as root [GH-10707]
