@@ -3,7 +3,7 @@ require_relative "../../../synced_folders/unix_mount_helpers"
 module VagrantPlugins
   module GuestFreeBSD
     module Cap
-      class VirtualBox
+      class MountVirtualBoxSharedFolder
         extend SyncedFolder::UnixMountHelpers
 
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)

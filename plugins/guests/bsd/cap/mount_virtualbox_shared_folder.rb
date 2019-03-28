@@ -1,7 +1,7 @@
 module VagrantPlugins
   module GuestBSD
     module Cap
-      class VirtualBox
+      class MountVirtualBoxSharedFolder
         # BSD-based guests do not currently support VirtualBox synced folders.
         # Instead of raising an error about a missing capability, this defines
         # the capability and then provides a more detailed error message,
