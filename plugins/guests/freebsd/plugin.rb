@@ -52,8 +52,13 @@ module VagrantPlugins
       end
 
       guest_capability(:freebsd, :mount_virtualbox_shared_folder) do
-        require_relative "cap/virtualbox"
-        Cap::VirtualBox
+        require_relative "cap/mount_virtualbox_shared_folder"
+        Cap::MountVirtualBoxSharedFolder
+      end
+
+      guest_capability(:freebsd, :unmount_virtualbox_shared_folder) do
+        require_relative "cap/mount_virtualbox_shared_folder"
+        Cap::MountVirtualBoxSharedFolder
       end
     end
   end

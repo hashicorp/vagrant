@@ -1,6 +1,6 @@
 require_relative "../../../../base"
 
-describe "VagrantPlugins::GuestBSD::Cap::VirtualBox" do
+describe "VagrantPlugins::GuestBSD::Cap::MountVirtualBoxSharedFolder" do
   let(:caps) do
     VagrantPlugins::GuestBSD::Plugin
       .components
