@@ -10,6 +10,7 @@ IMPROVEMENTS:
 - core: Write metadata.json file when packaging box [GH-10706]
 - core: Remove whitespace from id file on load [GH-10727]
 - guest/freebsd: Add proper VirtualBox share folders support for FreeBSD guests [GH-10717]
+- guest/freebsd: Add unmount share folder for  VirtualBox guests [GH-10761]
 
 BUG FIXES:
 
