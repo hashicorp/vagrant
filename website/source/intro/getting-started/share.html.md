@@ -47,6 +47,9 @@ the URL again to verify that your environment is no longer being shared.
 Vagrant Share is much more powerful than simply HTTP sharing. For more
 details, see the [complete Vagrant Share documentation](/docs/share/).
 
+Note: Vagrant Share now defaults to using the `ngrok` driver.
+The `classic` driver has been deprecated. 
+
 ~> **Vagrant share is not designed to serve production traffic!** Please do not
 rely on Vagrant share outside of development or Q/A. The Vagrant share service
 is not designed to carry production-level traffic.
