@@ -5,7 +5,7 @@ echo -n "Parsing proto files and generating go output... "
 for i in *
 do
     if [ -d "${i}" ]; then
-        protoc --proto_path=/home/spox/.go/src --proto_path=. --go_out=plugins=grpc:. "${i}"/*.proto;
+        protoc --proto_path=`go env GOPATH`/src --proto_path=. --go_out=plugins=grpc:. "${i}"/*.proto;
     fi
 done
 

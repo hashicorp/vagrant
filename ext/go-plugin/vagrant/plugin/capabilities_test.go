@@ -1,7 +1,9 @@
 package plugin
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
@@ -57,7 +59,7 @@ func TestCapabilities_GuestCapability(t *testing.T) {
 	m := &vagrant.Machine{}
 	args := []string{"test_value", "next_test_value"}
 
-	resp, err := impl.GuestCapability(cap, args, m)
+	resp, err := impl.GuestCapability(context.Background(), cap, args, m)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -95,7 +97,7 @@ func TestCapabilities_GuestCapability_noargs(t *testing.T) {
 	var args interface{}
 	args = nil
 
-	resp, err := impl.GuestCapability(cap, args, m)
+	resp, err := impl.GuestCapability(context.Background(), cap, args, m)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -105,6 +107,80 @@ func TestCapabilities_GuestCapability_noargs(t *testing.T) {
 	}
 	if result[0] != "test_cap" {
 		t.Errorf("%s != test_cap", result[0])
+	}
+}
+
+func TestCapabilities_GuestCapability_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"caps": &GuestCapabilitiesPlugin{Impl: &MockGuestCapabilities{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("caps")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(GuestCapabilities)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	cap := &vagrant.SystemCapability{
+		Name:     "test_cap",
+		Platform: "TestOS"}
+	m := &vagrant.Machine{}
+	args := []string{"pause", "test_value", "next_test_value"}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.GuestCapability(ctx, cap, args, m)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestCapabilities_GuestCapability_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"caps": &GuestCapabilitiesPlugin{Impl: &MockGuestCapabilities{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("caps")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(GuestCapabilities)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	cap := &vagrant.SystemCapability{
+		Name:     "test_cap",
+		Platform: "TestOS"}
+	m := &vagrant.Machine{}
+	args := []string{"pause", "test_value", "next_test_value"}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.GuestCapability(ctx, cap, args, m)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -158,7 +234,7 @@ func TestCapabilities_HostCapability(t *testing.T) {
 	e := &vagrant.Environment{}
 	args := []string{"test_value", "next_test_value"}
 
-	resp, err := impl.HostCapability(cap, args, e)
+	resp, err := impl.HostCapability(context.Background(), cap, args, e)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -196,7 +272,7 @@ func TestCapabilities_HostCapability_noargs(t *testing.T) {
 	var args interface{}
 	args = nil
 
-	resp, err := impl.HostCapability(cap, args, e)
+	resp, err := impl.HostCapability(context.Background(), cap, args, e)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -206,6 +282,80 @@ func TestCapabilities_HostCapability_noargs(t *testing.T) {
 	}
 	if result[0] != "test_cap" {
 		t.Errorf("%s != test_cap", result[0])
+	}
+}
+
+func TestCapabilities_HostCapability_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"caps": &HostCapabilitiesPlugin{Impl: &MockHostCapabilities{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("caps")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(HostCapabilities)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	cap := &vagrant.SystemCapability{
+		Name:     "test_cap",
+		Platform: "TestOS"}
+	e := &vagrant.Environment{}
+	args := []string{"pause", "test_value", "next_test_value"}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.HostCapability(ctx, cap, args, e)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestCapabilities_HostCapability_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"caps": &HostCapabilitiesPlugin{Impl: &MockHostCapabilities{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("caps")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(HostCapabilities)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	cap := &vagrant.SystemCapability{
+		Name:     "test_cap",
+		Platform: "TestOS"}
+	e := &vagrant.Environment{}
+	args := []string{"pause", "test_value", "next_test_value"}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.HostCapability(ctx, cap, args, e)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -259,7 +409,7 @@ func TestCapabilities_ProviderCapability(t *testing.T) {
 	m := &vagrant.Machine{}
 	args := []string{"test_value", "next_test_value"}
 
-	resp, err := impl.ProviderCapability(cap, args, m)
+	resp, err := impl.ProviderCapability(context.Background(), cap, args, m)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -297,7 +447,7 @@ func TestCapabilities_ProviderCapability_noargs(t *testing.T) {
 	var args interface{}
 	args = nil
 
-	resp, err := impl.ProviderCapability(cap, args, m)
+	resp, err := impl.ProviderCapability(context.Background(), cap, args, m)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -307,5 +457,79 @@ func TestCapabilities_ProviderCapability_noargs(t *testing.T) {
 	}
 	if result[0] != "test_cap" {
 		t.Errorf("%s != test_cap", result[0])
+	}
+}
+
+func TestCapabilities_ProviderCapability_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"caps": &ProviderCapabilitiesPlugin{Impl: &MockProviderCapabilities{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("caps")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(ProviderCapabilities)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	cap := &vagrant.ProviderCapability{
+		Name:     "test_cap",
+		Provider: "test_provider"}
+	m := &vagrant.Machine{}
+	args := []string{"pause", "test_value", "next_test_value"}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.ProviderCapability(ctx, cap, args, m)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestCapabilities_ProviderCapability_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"caps": &ProviderCapabilitiesPlugin{Impl: &MockProviderCapabilities{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("caps")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(ProviderCapabilities)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	cap := &vagrant.ProviderCapability{
+		Name:     "test_cap",
+		Provider: "test_provider"}
+	m := &vagrant.Machine{}
+	args := []string{"pause", "test_value", "next_test_value"}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.ProviderCapability(ctx, cap, args, m)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }

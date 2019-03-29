@@ -2,6 +2,7 @@ package main
 
 import (
 	"C"
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -42,7 +43,8 @@ func ProviderAction(providerName *C.char, actionName *C.char, machData *C.char) 
 		return r.Dump()
 	}
 	aName := to_gs(actionName)
-	r.Result, r.Error = p.Action(aName, m)
+	ctx := context.Background()
+	r.Result, r.Error = p.Action(ctx, aName, m)
 	return r.Dump()
 }
 
@@ -64,7 +66,8 @@ func ProviderIsInstalled(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.IsInstalled(m)
+	ctx := context.Background()
+	r.Result, r.Error = p.IsInstalled(ctx, m)
 	return r.Dump()
 }
 
@@ -87,7 +90,8 @@ func ProviderIsUsable(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.IsUsable(m)
+	ctx := context.Background()
+	r.Result, r.Error = p.IsUsable(ctx, m)
 	return r.Dump()
 }
 
@@ -109,7 +113,8 @@ func ProviderMachineIdChanged(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Error = p.MachineIdChanged(m)
+	ctx := context.Background()
+	r.Error = p.MachineIdChanged(ctx, m)
 	return r.Dump()
 }
 
@@ -138,7 +143,8 @@ func ProviderRunAction(providerName *C.char, actName *C.char, runData *C.char, m
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.RunAction(aName, rData, m)
+	ctx := context.Background()
+	r.Result, r.Error = p.RunAction(ctx, aName, rData, m)
 	return r.Dump()
 }
 
@@ -160,7 +166,8 @@ func ProviderSshInfo(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.SshInfo(m)
+	ctx := context.Background()
+	r.Result, r.Error = p.SshInfo(ctx, m)
 	return r.Dump()
 }
 
@@ -182,6 +189,7 @@ func ProviderState(providerName *C.char, machData *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.State(m)
+	ctx := context.Background()
+	r.Result, r.Error = p.State(ctx, m)
 	return r.Dump()
 }

@@ -1,7 +1,9 @@
 package plugin
 
 import (
+	"context"
 	"errors"
+	"time"
 
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 )
@@ -14,9 +16,12 @@ func (g *MockGuestCapabilities) GuestCapabilities() (caps []vagrant.SystemCapabi
 	return
 }
 
-func (g *MockGuestCapabilities) GuestCapability(cap *vagrant.SystemCapability, args interface{}, m *vagrant.Machine) (result interface{}, err error) {
+func (g *MockGuestCapabilities) GuestCapability(ctx context.Context, cap *vagrant.SystemCapability, args interface{}, m *vagrant.Machine) (result interface{}, err error) {
 	if args != nil {
 		arguments := args.([]interface{})
+		if arguments[0] == "pause" {
+			time.Sleep(1 * time.Second)
+		}
 		if len(arguments) > 0 {
 			result = []string{
 				cap.Name,
@@ -36,9 +41,12 @@ func (h *MockHostCapabilities) HostCapabilities() (caps []vagrant.SystemCapabili
 	return
 }
 
-func (h *MockHostCapabilities) HostCapability(cap *vagrant.SystemCapability, args interface{}, e *vagrant.Environment) (result interface{}, err error) {
+func (h *MockHostCapabilities) HostCapability(ctx context.Context, cap *vagrant.SystemCapability, args interface{}, e *vagrant.Environment) (result interface{}, err error) {
 	if args != nil {
 		arguments := args.([]interface{})
+		if arguments[0] == "pause" {
+			time.Sleep(1 * time.Second)
+		}
 		if len(arguments) > 0 {
 			result = []string{
 				cap.Name,
@@ -58,9 +66,12 @@ func (p *MockProviderCapabilities) ProviderCapabilities() (caps []vagrant.Provid
 	return
 }
 
-func (p *MockProviderCapabilities) ProviderCapability(cap *vagrant.ProviderCapability, args interface{}, m *vagrant.Machine) (result interface{}, err error) {
+func (p *MockProviderCapabilities) ProviderCapability(ctx context.Context, cap *vagrant.ProviderCapability, args interface{}, m *vagrant.Machine) (result interface{}, err error) {
 	if args != nil {
 		arguments := args.([]interface{})
+		if arguments[0] == "pause" {
+			time.Sleep(1 * time.Second)
+		}
 		if len(arguments) > 0 {
 			result = []string{
 				cap.Name,
@@ -81,7 +92,10 @@ func (c *MockConfig) ConfigAttributes() (attrs []string, err error) {
 	return
 }
 
-func (c *MockConfig) ConfigLoad(data map[string]interface{}) (loaddata map[string]interface{}, err error) {
+func (c *MockConfig) ConfigLoad(ctx context.Context, data map[string]interface{}) (loaddata map[string]interface{}, err error) {
+	if data["pause"] == true {
+		time.Sleep(1 * time.Second)
+	}
 	loaddata = map[string]interface{}{
 		"test_key": "test_val"}
 	if data["test_key"] != nil {
@@ -90,16 +104,25 @@ func (c *MockConfig) ConfigLoad(data map[string]interface{}) (loaddata map[strin
 	return
 }
 
-func (c *MockConfig) ConfigValidate(data map[string]interface{}, m *vagrant.Machine) (errors []string, err error) {
+func (c *MockConfig) ConfigValidate(ctx context.Context, data map[string]interface{}, m *vagrant.Machine) (errors []string, err error) {
 	errors = []string{"test error"}
+	if data["pause"] == true {
+		time.Sleep(1 * time.Second)
+	}
 	return
 }
 
-func (c *MockConfig) ConfigFinalize(data map[string]interface{}) (finaldata map[string]interface{}, err error) {
+func (c *MockConfig) ConfigFinalize(ctx context.Context, data map[string]interface{}) (finaldata map[string]interface{}, err error) {
 	finaldata = make(map[string]interface{})
 	for key, tval := range data {
-		val := tval.(string)
+		val, ok := tval.(string)
+		if !ok {
+			continue
+		}
 		finaldata[key] = val + "-updated"
+	}
+	if data["pause"] == true {
+		time.Sleep(1 * time.Second)
 	}
 	return
 }
@@ -112,24 +135,39 @@ type MockProvider struct {
 	vagrant.NoProviderCapabilities
 }
 
-func (c *MockProvider) Action(actionName string, m *vagrant.Machine) (actions []string, err error) {
-	if actionName == "valid" {
+func (c *MockProvider) Action(ctx context.Context, actionName string, m *vagrant.Machine) (actions []string, err error) {
+	switch actionName {
+	case "valid":
 		actions = []string{"self::DoTask"}
-	} else {
+	case "pause":
+		time.Sleep(1 * time.Second)
+	default:
 		err = errors.New("Unknown action requested")
 	}
 	return
 }
 
-func (c *MockProvider) IsInstalled(m *vagrant.Machine) (bool, error) {
+func (c *MockProvider) IsInstalled(ctx context.Context, m *vagrant.Machine) (bool, error) {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	return true, nil
 }
 
-func (c *MockProvider) IsUsable(m *vagrant.Machine) (bool, error) {
+func (c *MockProvider) IsUsable(ctx context.Context, m *vagrant.Machine) (bool, error) {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	return true, nil
 }
 
-func (c *MockProvider) MachineIdChanged(m *vagrant.Machine) error {
+func (c *MockProvider) MachineIdChanged(ctx context.Context, m *vagrant.Machine) error {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	return nil
 }
 
@@ -137,13 +175,15 @@ func (c *MockProvider) Name() string {
 	return "mock_provider"
 }
 
-func (c *MockProvider) RunAction(actionName string, args interface{}, m *vagrant.Machine) (r interface{}, err error) {
-	if actionName != "valid" && actionName != "send_output" {
-		err = errors.New("invalid action name")
-		return
-	}
-	if actionName == "send_output" {
+func (c *MockProvider) RunAction(ctx context.Context, actionName string, args interface{}, m *vagrant.Machine) (r interface{}, err error) {
+	switch actionName {
+	case "send_output":
 		m.UI.Say("test_output_p")
+	case "pause":
+		time.Sleep(1 * time.Second)
+	case "valid":
+	default:
+		return nil, errors.New("invalid action name")
 	}
 	var arguments []interface{}
 	if args != nil {
@@ -157,13 +197,21 @@ func (c *MockProvider) RunAction(actionName string, args interface{}, m *vagrant
 	return
 }
 
-func (c *MockProvider) SshInfo(m *vagrant.Machine) (*vagrant.SshInfo, error) {
+func (c *MockProvider) SshInfo(ctx context.Context, m *vagrant.Machine) (*vagrant.SshInfo, error) {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	return &vagrant.SshInfo{
 		Host: "localhost",
 		Port: 2222}, nil
 }
 
-func (c *MockProvider) State(m *vagrant.Machine) (*vagrant.MachineState, error) {
+func (c *MockProvider) State(ctx context.Context, m *vagrant.Machine) (*vagrant.MachineState, error) {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	return &vagrant.MachineState{
 		Id:        "default",
 		ShortDesc: "running"}, nil
@@ -181,7 +229,11 @@ type MockSyncedFolder struct {
 	vagrant.NoHostCapabilities
 }
 
-func (s *MockSyncedFolder) Cleanup(m *vagrant.Machine, opts vagrant.FolderOptions) error {
+func (s *MockSyncedFolder) Cleanup(ctx context.Context, m *vagrant.Machine, opts vagrant.FolderOptions) error {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	if opts != nil {
 		err, _ := opts["error"].(bool)
 		ui, _ := opts["ui"].(bool)
@@ -196,14 +248,22 @@ func (s *MockSyncedFolder) Cleanup(m *vagrant.Machine, opts vagrant.FolderOption
 	return nil
 }
 
-func (s *MockSyncedFolder) Disable(m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
+func (s *MockSyncedFolder) Disable(ctx context.Context, m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	if opts != nil && opts["error"].(bool) {
 		return errors.New("disable error")
 	}
 	return nil
 }
 
-func (s *MockSyncedFolder) Enable(m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
+func (s *MockSyncedFolder) Enable(ctx context.Context, m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	if opts != nil && opts["error"].(bool) {
 		return errors.New("enable error")
 	}
@@ -216,7 +276,11 @@ func (s *MockSyncedFolder) Info() *vagrant.SyncedFolderInfo {
 		Priority:    100}
 }
 
-func (s *MockSyncedFolder) IsUsable(m *vagrant.Machine) (bool, error) {
+func (s *MockSyncedFolder) IsUsable(ctx context.Context, m *vagrant.Machine) (bool, error) {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	return true, nil
 }
 
@@ -224,7 +288,11 @@ func (s *MockSyncedFolder) Name() string {
 	return "mock_folder"
 }
 
-func (s *MockSyncedFolder) Prepare(m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
+func (s *MockSyncedFolder) Prepare(ctx context.Context, m *vagrant.Machine, f vagrant.FolderList, opts vagrant.FolderOptions) error {
+	if m.Name == "pause" {
+		time.Sleep(1 * time.Second)
+	}
+
 	if opts != nil && opts["error"].(bool) {
 		return errors.New("prepare error")
 	}

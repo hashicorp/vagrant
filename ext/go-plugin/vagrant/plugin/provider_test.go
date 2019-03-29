@@ -1,8 +1,10 @@
 package plugin
 
 import (
+	"context"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
@@ -23,7 +25,7 @@ func TestProvider_Action(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	resp, err := impl.Action("valid", &vagrant.Machine{})
+	resp, err := impl.Action(context.Background(), "valid", &vagrant.Machine{})
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -47,9 +49,71 @@ func TestProvider_Action_invalid(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	_, err = impl.Action("invalid", &vagrant.Machine{})
+	_, err = impl.Action(context.Background(), "invalid", &vagrant.Machine{})
 	if err == nil {
 		t.Errorf("illegal action")
+	}
+}
+
+func TestProvider_Action_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.Action(ctx, "pause", &vagrant.Machine{})
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestProvider_Action_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.Action(ctx, "pause", &vagrant.Machine{})
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -68,7 +132,7 @@ func TestProvider_IsInstalled(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	installed, err := impl.IsInstalled(&vagrant.Machine{})
+	installed, err := impl.IsInstalled(context.Background(), &vagrant.Machine{})
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -77,7 +141,7 @@ func TestProvider_IsInstalled(t *testing.T) {
 	}
 }
 
-func TestProvider_IsUsable(t *testing.T) {
+func TestProvider_IsInstalled_context_cancel(t *testing.T) {
 	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
 		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
 	defer server.Stop()
@@ -92,7 +156,67 @@ func TestProvider_IsUsable(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	usable, err := impl.IsUsable(&vagrant.Machine{})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.IsInstalled(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestProvider_IsInstalled_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.IsInstalled(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+func TestProvider_IsUsable(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+	usable, err := impl.IsUsable(context.Background(), &vagrant.Machine{})
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -101,6 +225,65 @@ func TestProvider_IsUsable(t *testing.T) {
 	}
 }
 
+func TestProvider_IsUsable_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestProvider_IsUsable_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
 func TestProvider_MachineIdChanged(t *testing.T) {
 	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
 		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
@@ -116,9 +299,71 @@ func TestProvider_MachineIdChanged(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	err = impl.MachineIdChanged(&vagrant.Machine{})
+	err = impl.MachineIdChanged(context.Background(), &vagrant.Machine{})
 	if err != nil {
 		t.Errorf("err: %s", err)
+	}
+}
+
+func TestProvider_MachineIdChanged_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.MachineIdChanged(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestProvider_MachineIdChanged_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.MachineIdChanged(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -161,7 +406,7 @@ func TestProvider_RunAction(t *testing.T) {
 	args := []string{"test_arg", "other_arg"}
 	m := &vagrant.Machine{}
 
-	resp, err := impl.RunAction("valid", args, m)
+	resp, err := impl.RunAction(context.Background(), "valid", args, m)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -172,6 +417,74 @@ func TestProvider_RunAction(t *testing.T) {
 	}
 	if result[1] != "test_arg" {
 		t.Errorf("%s != test_arg", result[1])
+	}
+}
+
+func TestProvider_RunAction_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	args := []string{"test_arg", "other_arg"}
+	m := &vagrant.Machine{}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.RunAction(ctx, "pause", args, m)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestProvider_RunAction_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	args := []string{"test_arg", "other_arg"}
+	m := &vagrant.Machine{}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.RunAction(ctx, "pause", args, m)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -193,7 +506,7 @@ func TestProvider_RunAction_invalid(t *testing.T) {
 	args := []string{"test_arg", "other_arg"}
 	m := &vagrant.Machine{}
 
-	_, err = impl.RunAction("invalid", args, m)
+	_, err = impl.RunAction(context.Background(), "invalid", args, m)
 	if err == nil {
 		t.Fatalf("illegal action run")
 	}
@@ -214,7 +527,7 @@ func TestProvider_SshInfo(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	resp, err := impl.SshInfo(&vagrant.Machine{})
+	resp, err := impl.SshInfo(context.Background(), &vagrant.Machine{})
 	if err != nil {
 		t.Fatalf("invalid resp: %s", err)
 	}
@@ -224,6 +537,68 @@ func TestProvider_SshInfo(t *testing.T) {
 	}
 	if resp.Port != 2222 {
 		t.Errorf("%d != 2222", resp.Port)
+	}
+}
+
+func TestProvider_SshInfo_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.SshInfo(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("invalid resp: %s", err)
+	}
+}
+
+func TestProvider_SshInfo_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.SshInfo(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("invalid resp: %s", err)
 	}
 }
 
@@ -242,7 +617,7 @@ func TestProvider_State(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	resp, err := impl.State(&vagrant.Machine{})
+	resp, err := impl.State(context.Background(), &vagrant.Machine{})
 	if err != nil {
 		t.Fatalf("invalid resp: %s", err)
 	}
@@ -252,6 +627,68 @@ func TestProvider_State(t *testing.T) {
 	}
 	if resp.ShortDesc != "running" {
 		t.Errorf("%s != running", resp.ShortDesc)
+	}
+}
+
+func TestProvider_State_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.State(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("invalid resp: %s", err)
+	}
+}
+
+func TestProvider_State_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"provider": &ProviderPlugin{Impl: &MockProvider{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("provider")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Provider)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.State(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("invalid resp: %s", err)
 	}
 }
 
@@ -295,8 +732,9 @@ func TestProvider_MachineUI_output(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
+	ctx := context.Background()
 	go func() {
-		_, err = impl.RunAction("send_output", nil, &vagrant.Machine{})
+		_, err = impl.RunAction(ctx, "send_output", nil, &vagrant.Machine{})
 		if err != nil {
 			t.Fatalf("bad resp: %s", err)
 		}

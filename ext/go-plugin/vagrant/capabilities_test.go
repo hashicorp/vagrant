@@ -1,6 +1,7 @@
 package vagrant
 
 import (
+	"context"
 	"testing"
 )
 
@@ -19,7 +20,7 @@ func TestNoGuestCapability(t *testing.T) {
 	g := NoGuestCapabilities{}
 	m := &Machine{}
 	cap := &SystemCapability{"Test", "Test"}
-	r, err := g.GuestCapability(cap, "args", m)
+	r, err := g.GuestCapability(context.Background(), cap, "args", m)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -43,7 +44,7 @@ func TestNoHostCapability(t *testing.T) {
 	h := NoHostCapabilities{}
 	e := &Environment{}
 	cap := &SystemCapability{"Test", "Test"}
-	r, err := h.HostCapability(cap, "args", e)
+	r, err := h.HostCapability(context.Background(), cap, "args", e)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -67,7 +68,7 @@ func TestNoProviderCapability(t *testing.T) {
 	p := NoProviderCapabilities{}
 	m := &Machine{}
 	cap := &ProviderCapability{"Test", "Test"}
-	r, err := p.ProviderCapability(cap, "args", m)
+	r, err := p.ProviderCapability(context.Background(), cap, "args", m)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}

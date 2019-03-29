@@ -1,14 +1,18 @@
 package plugin
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	hclog "github.com/hashicorp/go-hclog"
 	go_plugin "github.com/hashicorp/go-plugin"
-
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 )
 
@@ -17,6 +21,7 @@ var (
 		MagicCookieKey:   "VAGRANT_PLUGIN_MAGIC_COOKIE",
 		MagicCookieValue: "1561a662a76642f98df77ad025aa13a9b16225d93f90475e91090fbe577317ed",
 		ProtocolVersion:  1}
+	ErrPluginShutdown = errors.New("plugin has shutdown")
 )
 
 type RemotePlugin interface {
@@ -238,4 +243,52 @@ func (v *VagrantPlugin) Kill() {
 		p.Client.Kill()
 		v.Logger.Info("plugin killed", "name", n, "type", "synced_folder")
 	}
+}
+
+// Helper used for inspect GRPC related errors and providing "correct"
+// error message
+func handleGrpcError(err error, pluginCtx context.Context, reqCtx context.Context) error {
+	// If there was no error then nothing to process
+	if err == nil {
+		return nil
+	}
+
+	// If a request context is provided, check that it
+	// was not canceled or timed out. If no context
+	// provided, stub one for later.
+	if reqCtx != nil {
+		s := status.FromContextError(reqCtx.Err())
+		switch s.Code() {
+		case codes.Canceled:
+			return context.Canceled
+		case codes.DeadlineExceeded:
+			return context.DeadlineExceeded
+		}
+	} else {
+		reqCtx = context.Background()
+	}
+
+	s, ok := status.FromError(err)
+	if ok && (s.Code() == codes.Unavailable || s.Code() == codes.Canceled) {
+		select {
+		case <-pluginCtx.Done():
+			err = ErrPluginShutdown
+		case <-reqCtx.Done():
+			err = reqCtx.Err()
+			select {
+			case <-pluginCtx.Done():
+				err = ErrPluginShutdown
+			default:
+			}
+		case <-time.After(5):
+			return errors.New("exceeded context timeout")
+		}
+		return err
+	} else if s != nil {
+		// Extract actual error message received
+		// and create new error
+		return errors.New(s.Message())
+	}
+
+	return err
 }

@@ -3,7 +3,6 @@ package plugin
 import (
 	"context"
 	"encoding/json"
-	"errors"
 
 	"google.golang.org/grpc"
 
@@ -11,6 +10,8 @@ import (
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_caps"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common"
+
+	"github.com/LK4D4/joincontext"
 )
 
 type GuestCapabilities interface {
@@ -35,9 +36,11 @@ func (g *GuestCapabilitiesPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *gr
 func (g *GuestCapabilitiesPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	client := vagrant_caps.NewGuestCapabilitiesClient(c)
 	return &GRPCGuestCapabilitiesClient{
-		client: client,
+		client:  client,
+		doneCtx: ctx,
 		GRPCIOClient: GRPCIOClient{
-			client: client}}, nil
+			client:  client,
+			doneCtx: ctx}}, nil
 }
 
 type GRPCGuestCapabilitiesServer struct {
@@ -47,9 +50,18 @@ type GRPCGuestCapabilitiesServer struct {
 
 func (s *GRPCGuestCapabilitiesServer) GuestCapabilities(ctx context.Context, req *vagrant_common.NullRequest) (resp *vagrant_caps.CapabilitiesResponse, err error) {
 	resp = &vagrant_caps.CapabilitiesResponse{}
-	r, e := s.Impl.GuestCapabilities()
-	if e != nil {
-		resp.Error = e.Error()
+	var r []vagrant.SystemCapability
+	n := make(chan struct{}, 1)
+	go func() {
+		r, err = s.Impl.GuestCapabilities()
+		n <- struct{}{}
+	}()
+	select {
+	case <-ctx.Done():
+		return
+	case <-n:
+	}
+	if err != nil {
 		return
 	}
 	for _, cap := range r {
@@ -61,7 +73,7 @@ func (s *GRPCGuestCapabilitiesServer) GuestCapabilities(ctx context.Context, req
 
 func (s *GRPCGuestCapabilitiesServer) GuestCapability(ctx context.Context, req *vagrant_caps.GuestCapabilityRequest) (resp *vagrant_caps.GuestCapabilityResponse, err error) {
 	resp = &vagrant_caps.GuestCapabilityResponse{}
-	var args interface{}
+	var args, r interface{}
 	if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
 		return
 	}
@@ -72,7 +84,17 @@ func (s *GRPCGuestCapabilitiesServer) GuestCapability(ctx context.Context, req *
 	cap := &vagrant.SystemCapability{
 		Name:     req.Capability.Name,
 		Platform: req.Capability.Platform}
-	r, err := s.Impl.GuestCapability(cap, args, machine)
+	n := make(chan struct{}, 1)
+	go func() {
+		r, err = s.Impl.GuestCapability(ctx, cap, args, machine)
+		n <- struct{}{}
+	}()
+	select {
+	case <-ctx.Done():
+		return
+	case <-n:
+	}
+
 	if err != nil {
 		return
 	}
@@ -87,17 +109,16 @@ func (s *GRPCGuestCapabilitiesServer) GuestCapability(ctx context.Context, req *
 type GRPCGuestCapabilitiesClient struct {
 	GRPCCoreClient
 	GRPCIOClient
-	client vagrant_caps.GuestCapabilitiesClient
+	client  vagrant_caps.GuestCapabilitiesClient
+	doneCtx context.Context
 }
 
 func (c *GRPCGuestCapabilitiesClient) GuestCapabilities() (caps []vagrant.SystemCapability, err error) {
-	resp, err := c.client.GuestCapabilities(context.Background(), &vagrant_common.NullRequest{})
+	ctx := context.Background()
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.GuestCapabilities(jctx, &vagrant_common.NullRequest{})
 	if err != nil {
-		return
-	}
-	if resp.Error != "" {
-		err = errors.New(resp.Error)
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	caps = make([]vagrant.SystemCapability, len(resp.Capabilities))
 	for i := 0; i < len(resp.Capabilities); i++ {
@@ -109,7 +130,7 @@ func (c *GRPCGuestCapabilitiesClient) GuestCapabilities() (caps []vagrant.System
 	return
 }
 
-func (c *GRPCGuestCapabilitiesClient) GuestCapability(cap *vagrant.SystemCapability, args interface{}, machine *vagrant.Machine) (result interface{}, err error) {
+func (c *GRPCGuestCapabilitiesClient) GuestCapability(ctx context.Context, cap *vagrant.SystemCapability, args interface{}, machine *vagrant.Machine) (result interface{}, err error) {
 	a, err := json.Marshal(args)
 	if err != nil {
 		return
@@ -118,16 +139,13 @@ func (c *GRPCGuestCapabilitiesClient) GuestCapability(cap *vagrant.SystemCapabil
 	if err != nil {
 		return
 	}
-	resp, err := c.client.GuestCapability(context.Background(), &vagrant_caps.GuestCapabilityRequest{
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.GuestCapability(jctx, &vagrant_caps.GuestCapabilityRequest{
 		Capability: &vagrant_caps.Capability{Name: cap.Name, Platform: cap.Platform},
 		Machine:    m,
 		Arguments:  string(a)})
 	if err != nil {
-		return
-	}
-	if resp.Error != "" {
-		err = errors.New(resp.Error)
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	err = json.Unmarshal([]byte(resp.Result), &result)
 	return
@@ -155,9 +173,11 @@ func (h *HostCapabilitiesPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grp
 func (h *HostCapabilitiesPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	client := vagrant_caps.NewHostCapabilitiesClient(c)
 	return &GRPCHostCapabilitiesClient{
-		client: client,
+		client:  client,
+		doneCtx: ctx,
 		GRPCIOClient: GRPCIOClient{
-			client: client}}, nil
+			client:  client,
+			doneCtx: ctx}}, nil
 }
 
 type GRPCHostCapabilitiesServer struct {
@@ -167,9 +187,18 @@ type GRPCHostCapabilitiesServer struct {
 
 func (s *GRPCHostCapabilitiesServer) HostCapabilities(ctx context.Context, req *vagrant_common.NullRequest) (resp *vagrant_caps.CapabilitiesResponse, err error) {
 	resp = &vagrant_caps.CapabilitiesResponse{}
-	r, e := s.Impl.HostCapabilities()
-	if e != nil {
-		resp.Error = e.Error()
+	var r []vagrant.SystemCapability
+	n := make(chan struct{}, 1)
+	go func() {
+		r, err = s.Impl.HostCapabilities()
+		n <- struct{}{}
+	}()
+	select {
+	case <-ctx.Done():
+		return
+	case <-n:
+	}
+	if err != nil {
 		return
 	}
 	for _, cap := range r {
@@ -181,7 +210,7 @@ func (s *GRPCHostCapabilitiesServer) HostCapabilities(ctx context.Context, req *
 
 func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *vagrant_caps.HostCapabilityRequest) (resp *vagrant_caps.HostCapabilityResponse, err error) {
 	resp = &vagrant_caps.HostCapabilityResponse{}
-	var args interface{}
+	var args, r interface{}
 	if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
 		return
 	}
@@ -192,7 +221,16 @@ func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *va
 	cap := &vagrant.SystemCapability{
 		Name:     req.Capability.Name,
 		Platform: req.Capability.Platform}
-	r, err := s.Impl.HostCapability(cap, args, env)
+	n := make(chan struct{}, 1)
+	go func() {
+		r, err = s.Impl.HostCapability(ctx, cap, args, env)
+		n <- struct{}{}
+	}()
+	select {
+	case <-ctx.Done():
+		return
+	case <-n:
+	}
 	if err != nil {
 		return
 	}
@@ -207,17 +245,16 @@ func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *va
 type GRPCHostCapabilitiesClient struct {
 	GRPCCoreClient
 	GRPCIOClient
-	client vagrant_caps.HostCapabilitiesClient
+	client  vagrant_caps.HostCapabilitiesClient
+	doneCtx context.Context
 }
 
 func (c *GRPCHostCapabilitiesClient) HostCapabilities() (caps []vagrant.SystemCapability, err error) {
-	resp, err := c.client.HostCapabilities(context.Background(), &vagrant_common.NullRequest{})
+	ctx := context.Background()
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.HostCapabilities(jctx, &vagrant_common.NullRequest{})
 	if err != nil {
-		return
-	}
-	if resp.Error != "" {
-		err = errors.New(resp.Error)
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	caps = make([]vagrant.SystemCapability, len(resp.Capabilities))
 	for i := 0; i < len(resp.Capabilities); i++ {
@@ -229,7 +266,7 @@ func (c *GRPCHostCapabilitiesClient) HostCapabilities() (caps []vagrant.SystemCa
 	return
 }
 
-func (c *GRPCHostCapabilitiesClient) HostCapability(cap *vagrant.SystemCapability, args interface{}, env *vagrant.Environment) (result interface{}, err error) {
+func (c *GRPCHostCapabilitiesClient) HostCapability(ctx context.Context, cap *vagrant.SystemCapability, args interface{}, env *vagrant.Environment) (result interface{}, err error) {
 	a, err := json.Marshal(args)
 	if err != nil {
 		return
@@ -238,14 +275,15 @@ func (c *GRPCHostCapabilitiesClient) HostCapability(cap *vagrant.SystemCapabilit
 	if err != nil {
 		return
 	}
-	resp, err := c.client.HostCapability(context.Background(), &vagrant_caps.HostCapabilityRequest{
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.HostCapability(jctx, &vagrant_caps.HostCapabilityRequest{
 		Capability: &vagrant_caps.Capability{
 			Name:     cap.Name,
 			Platform: cap.Platform},
 		Environment: e,
 		Arguments:   string(a)})
 	if err != nil {
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	err = json.Unmarshal([]byte(resp.Result), &result)
 	return
@@ -273,9 +311,11 @@ func (p *ProviderCapabilitiesPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s 
 func (p *ProviderCapabilitiesPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	client := vagrant_caps.NewProviderCapabilitiesClient(c)
 	return &GRPCProviderCapabilitiesClient{
-		client: client,
+		client:  client,
+		doneCtx: ctx,
 		GRPCIOClient: GRPCIOClient{
-			client: client}}, nil
+			client:  client,
+			doneCtx: ctx}}, nil
 }
 
 type GRPCProviderCapabilitiesServer struct {
@@ -285,9 +325,18 @@ type GRPCProviderCapabilitiesServer struct {
 
 func (s *GRPCProviderCapabilitiesServer) ProviderCapabilities(ctx context.Context, req *vagrant_common.NullRequest) (resp *vagrant_caps.ProviderCapabilitiesResponse, err error) {
 	resp = &vagrant_caps.ProviderCapabilitiesResponse{}
-	r, e := s.Impl.ProviderCapabilities()
-	if e != nil {
-		resp.Error = e.Error()
+	var r []vagrant.ProviderCapability
+	n := make(chan struct{}, 1)
+	go func() {
+		r, err = s.Impl.ProviderCapabilities()
+		n <- struct{}{}
+	}()
+	select {
+	case <-ctx.Done():
+		return
+	case <-n:
+	}
+	if err != nil {
 		return
 	}
 	for _, cap := range r {
@@ -299,7 +348,7 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapabilities(ctx context.Contex
 
 func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context, req *vagrant_caps.ProviderCapabilityRequest) (resp *vagrant_caps.ProviderCapabilityResponse, err error) {
 	resp = &vagrant_caps.ProviderCapabilityResponse{}
-	var args interface{}
+	var args, r interface{}
 	err = json.Unmarshal([]byte(req.Arguments), &args)
 	if err != nil {
 		return
@@ -311,7 +360,16 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context,
 	cap := &vagrant.ProviderCapability{
 		Name:     req.Capability.Name,
 		Provider: req.Capability.Provider}
-	r, err := s.Impl.ProviderCapability(cap, args, m)
+	n := make(chan struct{}, 1)
+	go func() {
+		r, err = s.Impl.ProviderCapability(ctx, cap, args, m)
+		n <- struct{}{}
+	}()
+	select {
+	case <-ctx.Done():
+		return
+	case <-n:
+	}
 	if err != nil {
 		return
 	}
@@ -326,17 +384,16 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context,
 type GRPCProviderCapabilitiesClient struct {
 	GRPCCoreClient
 	GRPCIOClient
-	client vagrant_caps.ProviderCapabilitiesClient
+	client  vagrant_caps.ProviderCapabilitiesClient
+	doneCtx context.Context
 }
 
 func (c *GRPCProviderCapabilitiesClient) ProviderCapabilities() (caps []vagrant.ProviderCapability, err error) {
-	resp, err := c.client.ProviderCapabilities(context.Background(), &vagrant_common.NullRequest{})
+	ctx := context.Background()
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.ProviderCapabilities(jctx, &vagrant_common.NullRequest{})
 	if err != nil {
-		return
-	}
-	if resp.Error != "" {
-		err = errors.New(resp.Error)
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	caps = make([]vagrant.ProviderCapability, len(resp.Capabilities))
 	for i := 0; i < len(resp.Capabilities); i++ {
@@ -348,7 +405,7 @@ func (c *GRPCProviderCapabilitiesClient) ProviderCapabilities() (caps []vagrant.
 	return
 }
 
-func (c *GRPCProviderCapabilitiesClient) ProviderCapability(cap *vagrant.ProviderCapability, args interface{}, machine *vagrant.Machine) (result interface{}, err error) {
+func (c *GRPCProviderCapabilitiesClient) ProviderCapability(ctx context.Context, cap *vagrant.ProviderCapability, args interface{}, machine *vagrant.Machine) (result interface{}, err error) {
 	a, err := json.Marshal(args)
 	if err != nil {
 		return
@@ -357,14 +414,15 @@ func (c *GRPCProviderCapabilitiesClient) ProviderCapability(cap *vagrant.Provide
 	if err != nil {
 		return
 	}
-	resp, err := c.client.ProviderCapability(context.Background(), &vagrant_caps.ProviderCapabilityRequest{
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.ProviderCapability(jctx, &vagrant_caps.ProviderCapabilityRequest{
 		Capability: &vagrant_caps.ProviderCapability{
 			Name:     cap.Name,
 			Provider: cap.Provider},
 		Machine:   m,
 		Arguments: string(a)})
 	if err != nil {
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	err = json.Unmarshal([]byte(resp.Result), &result)
 	return

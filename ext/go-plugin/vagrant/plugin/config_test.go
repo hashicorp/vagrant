@@ -1,7 +1,9 @@
 package plugin
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
@@ -50,8 +52,8 @@ func TestConfigPlugin_Load(t *testing.T) {
 	}
 
 	data := map[string]interface{}{}
-
-	resp, err := impl.ConfigLoad(data)
+	var resp map[string]interface{}
+	resp, err = impl.ConfigLoad(context.Background(), data)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -61,6 +63,70 @@ func TestConfigPlugin_Load(t *testing.T) {
 	v := resp["test_key"].(string)
 	if v != "test_val" {
 		t.Errorf("%s != test_val", v)
+	}
+}
+
+func TestConfigPlugin_Load_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"configs": &ConfigPlugin{Impl: &MockConfig{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("configs")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Config)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	data := map[string]interface{}{"pause": true}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.ConfigLoad(ctx, data)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestConfigPlugin_Load_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"configs": &ConfigPlugin{Impl: &MockConfig{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("configs")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Config)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	data := map[string]interface{}{"pause": true}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.ConfigLoad(ctx, data)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -82,7 +148,7 @@ func TestConfigPlugin_Validate(t *testing.T) {
 	data := map[string]interface{}{}
 	machine := &vagrant.Machine{}
 
-	resp, err := impl.ConfigValidate(data, machine)
+	resp, err := impl.ConfigValidate(context.Background(), data, machine)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -91,6 +157,43 @@ func TestConfigPlugin_Validate(t *testing.T) {
 	}
 	if resp[0] != "test error" {
 		t.Errorf("%s != test error", resp[0])
+	}
+}
+
+func TestConfigPlugin_Validate_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"configs": &ConfigPlugin{Impl: &MockConfig{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("configs")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Config)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	data := map[string]interface{}{"pause": true}
+	machine := &vagrant.Machine{}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.ConfigValidate(ctx, data, machine)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -113,7 +216,7 @@ func TestConfigPlugin_Finalize(t *testing.T) {
 		"test_key":  "test_val",
 		"other_key": "other_val"}
 
-	resp, err := impl.ConfigFinalize(data)
+	resp, err := impl.ConfigFinalize(context.Background(), data)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -127,5 +230,43 @@ func TestConfigPlugin_Finalize(t *testing.T) {
 	v = resp["other_key"].(string)
 	if v != "other_val-updated" {
 		t.Errorf("%s != other_val-updated", v)
+	}
+}
+
+func TestConfigPlugin_Finalize_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"configs": &ConfigPlugin{Impl: &MockConfig{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("configs")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(Config)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	data := map[string]interface{}{
+		"pause":     true,
+		"test_key":  "test_val",
+		"other_key": "other_val"}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{}, 1)
+	go func() {
+		_, err = impl.ConfigFinalize(ctx, data)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
 	}
 }

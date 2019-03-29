@@ -1,8 +1,10 @@
 package plugin
 
 import (
+	"context"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
@@ -23,7 +25,7 @@ func TestSyncedFolder_Cleanup(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	err = impl.Cleanup(&vagrant.Machine{}, nil)
+	err = impl.Cleanup(context.Background(), &vagrant.Machine{}, nil)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -47,12 +49,74 @@ func TestSyncedFolder_Cleanup_error(t *testing.T) {
 	args := map[string]interface{}{
 		"error": true}
 
-	err = impl.Cleanup(&vagrant.Machine{}, args)
+	err = impl.Cleanup(context.Background(), &vagrant.Machine{}, args)
 	if err == nil {
 		t.Fatalf("illegal cleanup")
 	}
 	if err.Error() != "cleanup error" {
 		t.Errorf("%s != cleanup error", err.Error())
+	}
+}
+
+func TestSyncedFolder_Cleanup_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.Cleanup(ctx, &vagrant.Machine{Name: "pause"}, nil)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestSyncedFolder_Cleanup_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.Cleanup(ctx, &vagrant.Machine{Name: "pause"}, nil)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -71,7 +135,7 @@ func TestSyncedFolder_Disable(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	err = impl.Disable(&vagrant.Machine{}, nil, nil)
+	err = impl.Disable(context.Background(), &vagrant.Machine{}, nil, nil)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -97,12 +161,74 @@ func TestSyncedFolder_Disable_error(t *testing.T) {
 	args := map[string]interface{}{
 		"error": true}
 
-	err = impl.Disable(&vagrant.Machine{}, folders, args)
+	err = impl.Disable(context.Background(), &vagrant.Machine{}, folders, args)
 	if err == nil {
 		t.Fatalf("illegal disable")
 	}
 	if err.Error() != "disable error" {
 		t.Errorf("%s != disable error", err.Error())
+	}
+}
+
+func TestSyncedFolder_Disable_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.Disable(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestSyncedFolder_Disable_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.Disable(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -121,7 +247,7 @@ func TestSyncedFolder_Enable(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	err = impl.Enable(&vagrant.Machine{}, nil, nil)
+	err = impl.Enable(context.Background(), &vagrant.Machine{}, nil, nil)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -147,12 +273,74 @@ func TestSyncedFolder_Enable_error(t *testing.T) {
 	args := map[string]interface{}{
 		"error": true}
 
-	err = impl.Enable(&vagrant.Machine{}, folders, args)
+	err = impl.Enable(context.Background(), &vagrant.Machine{}, folders, args)
 	if err == nil {
 		t.Fatalf("illegal enable")
 	}
 	if err.Error() != "enable error" {
 		t.Errorf("%s != enable error", err.Error())
+	}
+}
+
+func TestSyncedFolder_Enable_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.Enable(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestSyncedFolder_Enable_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.Enable(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -171,7 +359,7 @@ func TestSyncedFolder_Prepare(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	err = impl.Prepare(&vagrant.Machine{}, nil, nil)
+	err = impl.Prepare(context.Background(), &vagrant.Machine{}, nil, nil)
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -197,7 +385,7 @@ func TestSyncedFolder_Prepare_error(t *testing.T) {
 	args := map[string]interface{}{
 		"error": true}
 
-	err = impl.Prepare(&vagrant.Machine{}, folders, args)
+	err = impl.Prepare(context.Background(), &vagrant.Machine{}, folders, args)
 	if err == nil {
 		t.Fatalf("illegal prepare")
 	}
@@ -206,6 +394,67 @@ func TestSyncedFolder_Prepare_error(t *testing.T) {
 	}
 }
 
+func TestSyncedFolder_Prepare_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.Prepare(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestSyncedFolder_Prepare_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		err = impl.Prepare(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
 func TestSyncedFolder_Info(t *testing.T) {
 	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
 		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
@@ -249,12 +498,74 @@ func TestSyncedFolder_IsUsable(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	resp, err := impl.IsUsable(&vagrant.Machine{})
+	resp, err := impl.IsUsable(context.Background(), &vagrant.Machine{})
 	if err != nil {
 		t.Fatalf("bad resp: %s", err)
 	}
 	if !resp {
 		t.Errorf("bad result")
+	}
+}
+
+func TestSyncedFolder_IsUsable_context_cancel(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	select {
+	case <-n:
+		t.Fatalf("unexpected completion")
+	case <-time.After(2 * time.Millisecond):
+		cancel()
+	}
+	<-n
+	if err != context.Canceled {
+		t.Fatalf("bad resp: %s", err)
+	}
+}
+
+func TestSyncedFolder_IsUsable_context_timeout(t *testing.T) {
+	client, server := plugin.TestPluginGRPCConn(t, map[string]plugin.Plugin{
+		"folder": &SyncedFolderPlugin{Impl: &MockSyncedFolder{}}})
+	defer server.Stop()
+	defer client.Close()
+
+	raw, err := client.Dispense("folder")
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+	impl, ok := raw.(SyncedFolder)
+	if !ok {
+		t.Fatalf("bad %#v", raw)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	defer cancel()
+	n := make(chan struct{})
+	go func() {
+		_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
+		n <- struct{}{}
+	}()
+	<-n
+	if err != context.DeadlineExceeded {
+		t.Fatalf("bad resp: %s", err)
 	}
 }
 
@@ -295,7 +606,7 @@ func TestSyncedFolder_MachineUI_output(t *testing.T) {
 	}
 
 	go func() {
-		err := impl.Cleanup(&vagrant.Machine{}, map[string]interface{}{"ui": true})
+		err := impl.Cleanup(context.Background(), &vagrant.Machine{}, map[string]interface{}{"ui": true})
 		if err != nil {
 			t.Fatalf("bad resp: %s", err)
 		}

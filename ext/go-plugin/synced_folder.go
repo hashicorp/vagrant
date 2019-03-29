@@ -2,6 +2,7 @@ package main
 
 import (
 	"C"
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -47,7 +48,8 @@ func SyncedFolderCleanup(pluginName, machine, opts *C.char) *C.char {
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Error = p.Cleanup(m, o)
+	ctx := context.Background()
+	r.Error = p.Cleanup(ctx, m, o)
 	return r.Dump()
 }
 
@@ -79,7 +81,8 @@ func SyncedFolderDisable(pluginName, machine, folders, opts *C.char) *C.char {
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Error = p.Disable(m, f, o)
+	ctx := context.Background()
+	r.Error = p.Disable(ctx, m, f, o)
 	return r.Dump()
 }
 
@@ -111,7 +114,8 @@ func SyncedFolderEnable(pluginName, machine, folders, opts *C.char) *C.char {
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Error = p.Enable(m, f, o)
+	ctx := context.Background()
+	r.Error = p.Enable(ctx, m, f, o)
 	return r.Dump()
 }
 
@@ -133,7 +137,8 @@ func SyncedFolderIsUsable(pluginName, machine *C.char) *C.char {
 		r.Error = err
 		return r.Dump()
 	}
-	r.Result, r.Error = p.IsUsable(m)
+	ctx := context.Background()
+	r.Result, r.Error = p.IsUsable(ctx, m)
 	return r.Dump()
 }
 
@@ -165,6 +170,7 @@ func SyncedFolderPrepare(pluginName, machine, folders, opts *C.char) *C.char {
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Error = p.Prepare(m, f, o)
+	ctx := context.Background()
+	r.Error = p.Prepare(ctx, m, f, o)
 	return r.Dump()
 }

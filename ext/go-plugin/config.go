@@ -2,6 +2,7 @@ package main
 
 import (
 	"C"
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -27,7 +28,8 @@ func ConfigLoad(pluginName, pluginType, data *C.char) *C.char {
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Result, r.Error = p.ConfigLoad(cdata)
+	ctx := context.Background()
+	r.Result, r.Error = p.ConfigLoad(ctx, cdata)
 	return r.Dump()
 }
 
@@ -71,7 +73,8 @@ func ConfigValidate(pluginName, pluginType, data, machData *C.char) *C.char {
 	if r.Error != nil {
 		return r.Dump()
 	}
-	r.Result, r.Error = p.ConfigValidate(cdata, m)
+	ctx := context.Background()
+	r.Result, r.Error = p.ConfigValidate(ctx, cdata, m)
 	return r.Dump()
 }
 
@@ -91,7 +94,8 @@ func ConfigFinalize(pluginName, pluginType, data *C.char) *C.char {
 	var cdata map[string]interface{}
 	r.Error = json.Unmarshal([]byte(to_gs(data)), &cdata)
 	if r.Error == nil {
-		r.Result, r.Error = p.ConfigFinalize(cdata)
+		ctx := context.Background()
+		r.Result, r.Error = p.ConfigFinalize(ctx, cdata)
 	}
 	return r.Dump()
 }

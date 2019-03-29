@@ -3,7 +3,6 @@ package plugin
 import (
 	"context"
 	"encoding/json"
-	"errors"
 
 	"google.golang.org/grpc"
 
@@ -11,6 +10,8 @@ import (
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_config"
+
+	"github.com/LK4D4/joincontext"
 )
 
 type Config interface {
@@ -35,9 +36,11 @@ func (c *ConfigPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) 
 func (c *ConfigPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, con *grpc.ClientConn) (interface{}, error) {
 	client := vagrant_config.NewConfigClient(con)
 	return &GRPCConfigClient{
-		client: client,
+		client:  client,
+		doneCtx: ctx,
 		GRPCIOClient: GRPCIOClient{
-			client: client}}, nil
+			client:  client,
+			doneCtx: ctx}}, nil
 }
 
 type GRPCConfigServer struct {
@@ -47,33 +50,45 @@ type GRPCConfigServer struct {
 
 func (s *GRPCConfigServer) ConfigAttributes(ctx context.Context, req *vagrant_common.NullRequest) (resp *vagrant_config.AttributesResponse, err error) {
 	resp = &vagrant_config.AttributesResponse{}
-	r, e := s.Impl.ConfigAttributes()
-	if e != nil {
-		resp.Error = e.Error()
-		return
+	n := make(chan struct{}, 1)
+	go func() {
+		resp.Attributes, err = s.Impl.ConfigAttributes()
+		n <- struct{}{}
+	}()
+	select {
+	case <-ctx.Done():
+	case <-n:
 	}
-	resp.Attributes = r
 	return
 }
 
 func (s *GRPCConfigServer) ConfigLoad(ctx context.Context, req *vagrant_config.LoadRequest) (resp *vagrant_config.LoadResponse, err error) {
 	resp = &vagrant_config.LoadResponse{}
-	var data map[string]interface{}
+	var data, r map[string]interface{}
 	err = json.Unmarshal([]byte(req.Data), &data)
 	if err != nil {
-		resp.Error = err.Error()
 		return
 	}
-	r, err := s.Impl.ConfigLoad(data)
+	n := make(chan struct{}, 1)
+	go func() {
+		r, err = s.Impl.ConfigLoad(ctx, data)
+		n <- struct{}{}
+	}()
+
+	select {
+	case <-ctx.Done():
+		return
+	case <-n:
+	}
+
 	if err != nil {
-		resp.Error = err.Error()
 		return
 	}
 	mdata, err := json.Marshal(r)
 	if err != nil {
-		resp.Error = err.Error()
 		return
 	}
+
 	resp.Data = string(mdata)
 	return
 }
@@ -83,39 +98,50 @@ func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_conf
 	var data map[string]interface{}
 	err = json.Unmarshal([]byte(req.Data), &data)
 	if err != nil {
-		resp.Error = err.Error()
 		return
 	}
 	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
-		resp.Error = err.Error()
 		return
 	}
-	r, err := s.Impl.ConfigValidate(data, m)
-	if err != nil {
-		resp.Error = err.Error()
-		return
+	n := make(chan struct{}, 1)
+	go func() {
+		resp.Errors, err = s.Impl.ConfigValidate(ctx, data, m)
+		n <- struct{}{}
+	}()
+
+	select {
+	case <-ctx.Done():
+	case <-n:
 	}
-	resp.Errors = r
+
 	return
 }
 
 func (s *GRPCConfigServer) ConfigFinalize(ctx context.Context, req *vagrant_config.FinalizeRequest) (resp *vagrant_config.FinalizeResponse, err error) {
 	resp = &vagrant_config.FinalizeResponse{}
-	var data map[string]interface{}
+	var data, r map[string]interface{}
 	err = json.Unmarshal([]byte(req.Data), &data)
 	if err != nil {
-		resp.Error = err.Error()
 		return
 	}
-	r, err := s.Impl.ConfigFinalize(data)
+	n := make(chan struct{}, 1)
+	go func() {
+		r, err = s.Impl.ConfigFinalize(ctx, data)
+		n <- struct{}{}
+	}()
+
+	select {
+	case <-ctx.Done():
+		return
+	case <-n:
+	}
+
 	if err != nil {
-		resp.Error = err.Error()
 		return
 	}
 	mdata, err := json.Marshal(r)
 	if err != nil {
-		resp.Error = err.Error()
 		return
 	}
 	resp.Data = string(mdata)
@@ -125,40 +151,37 @@ func (s *GRPCConfigServer) ConfigFinalize(ctx context.Context, req *vagrant_conf
 type GRPCConfigClient struct {
 	GRPCCoreClient
 	GRPCIOClient
-	client vagrant_config.ConfigClient
+	client  vagrant_config.ConfigClient
+	doneCtx context.Context
 }
 
 func (c *GRPCConfigClient) ConfigAttributes() (attrs []string, err error) {
-	resp, err := c.client.ConfigAttributes(context.Background(), &vagrant_common.NullRequest{})
+	ctx := context.Background()
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.ConfigAttributes(jctx, &vagrant_common.NullRequest{})
 	if err != nil {
-		return
-	}
-	if resp.Error != "" {
-		err = errors.New(resp.Error)
+		return nil, handleGrpcError(err, c.doneCtx, nil)
 	}
 	attrs = resp.Attributes
 	return
 }
 
-func (c *GRPCConfigClient) ConfigLoad(data map[string]interface{}) (loaddata map[string]interface{}, err error) {
+func (c *GRPCConfigClient) ConfigLoad(ctx context.Context, data map[string]interface{}) (loaddata map[string]interface{}, err error) {
 	mdata, err := json.Marshal(data)
 	if err != nil {
 		return
 	}
-	resp, err := c.client.ConfigLoad(context.Background(), &vagrant_config.LoadRequest{
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.ConfigLoad(jctx, &vagrant_config.LoadRequest{
 		Data: string(mdata)})
 	if err != nil {
-		return
-	}
-	if resp.Error != "" {
-		err = errors.New(resp.Error)
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	err = json.Unmarshal([]byte(resp.Data), &loaddata)
 	return
 }
 
-func (c *GRPCConfigClient) ConfigValidate(data map[string]interface{}, m *vagrant.Machine) (errs []string, err error) {
+func (c *GRPCConfigClient) ConfigValidate(ctx context.Context, data map[string]interface{}, m *vagrant.Machine) (errs []string, err error) {
 	machData, err := vagrant.DumpMachine(m)
 	if err != nil {
 		return
@@ -167,33 +190,27 @@ func (c *GRPCConfigClient) ConfigValidate(data map[string]interface{}, m *vagran
 	if err != nil {
 		return
 	}
-	resp, err := c.client.ConfigValidate(context.Background(), &vagrant_config.ValidateRequest{
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.ConfigValidate(jctx, &vagrant_config.ValidateRequest{
 		Data:    string(mdata),
 		Machine: machData})
 	if err != nil {
-		return
-	}
-	if resp.Error != "" {
-		err = errors.New(resp.Error)
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	errs = resp.Errors
 	return
 }
 
-func (c *GRPCConfigClient) ConfigFinalize(data map[string]interface{}) (finaldata map[string]interface{}, err error) {
+func (c *GRPCConfigClient) ConfigFinalize(ctx context.Context, data map[string]interface{}) (finaldata map[string]interface{}, err error) {
 	mdata, err := json.Marshal(data)
 	if err != nil {
 		return
 	}
-	resp, err := c.client.ConfigFinalize(context.Background(), &vagrant_config.FinalizeRequest{
+	jctx, _ := joincontext.Join(ctx, c.doneCtx)
+	resp, err := c.client.ConfigFinalize(jctx, &vagrant_config.FinalizeRequest{
 		Data: string(mdata)})
 	if err != nil {
-		return
-	}
-	if resp.Error != "" {
-		err = errors.New(resp.Error)
-		return
+		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
 	err = json.Unmarshal([]byte(resp.Data), &finaldata)
 	return

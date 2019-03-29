@@ -2,6 +2,7 @@ package main
 
 import (
 	"C"
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -53,7 +54,8 @@ func GuestCapability(pluginName, pluginType, cname, cplatform, cargs, cmachine *
 	cap := &vagrant.SystemCapability{
 		Name:     to_gs(cname),
 		Platform: to_gs(cplatform)}
-	r.Result, r.Error = p.GuestCapability(cap, args, machine)
+	ctx := context.Background()
+	r.Result, r.Error = p.GuestCapability(ctx, cap, args, machine)
 	return r.Dump()
 }
 
@@ -103,7 +105,8 @@ func HostCapability(pluginName, pluginType, cname, cplatform, cargs, cenv *C.cha
 	cap := &vagrant.SystemCapability{
 		Name:     to_gs(cname),
 		Platform: to_gs(cplatform)}
-	r.Result, r.Error = p.HostCapability(cap, args, env)
+	ctx := context.Background()
+	r.Result, r.Error = p.HostCapability(ctx, cap, args, env)
 	return r.Dump()
 }
 
@@ -153,6 +156,7 @@ func ProviderCapability(pluginName, pluginType, cname, cprovider, cargs, cmach *
 	cap := &vagrant.ProviderCapability{
 		Name:     to_gs(cname),
 		Provider: to_gs(cprovider)}
-	r.Result, r.Error = p.ProviderCapability(cap, args, m)
+	ctx := context.Background()
+	r.Result, r.Error = p.ProviderCapability(ctx, cap, args, m)
 	return r.Dump()
 }

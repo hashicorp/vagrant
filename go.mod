@@ -1,6 +1,7 @@
 module github.com/hashicorp/vagrant
 
 require (
+	github.com/LK4D4/joincontext v0.0.0-20171026170139-1724345da6d5
 	github.com/dylanmei/iso8601 v0.1.0 // indirect
 	github.com/dylanmei/winrmtest v0.0.0-20190225150635-99b7fe2fddf1
 	github.com/golang/protobuf v1.3.0
