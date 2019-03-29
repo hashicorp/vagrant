@@ -8,8 +8,7 @@ import (
 
 	go_plugin "github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
-	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common"
-	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_config"
+	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto"
 
 	"github.com/LK4D4/joincontext"
 )
@@ -26,7 +25,7 @@ type ConfigPlugin struct {
 
 func (c *ConfigPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
 	c.Impl.Init()
-	vagrant_config.RegisterConfigServer(s, &GRPCConfigServer{
+	vagrant_proto.RegisterConfigServer(s, &GRPCConfigServer{
 		Impl: c.Impl,
 		GRPCIOServer: GRPCIOServer{
 			Impl: c.Impl}})
@@ -34,7 +33,7 @@ func (c *ConfigPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) 
 }
 
 func (c *ConfigPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, con *grpc.ClientConn) (interface{}, error) {
-	client := vagrant_config.NewConfigClient(con)
+	client := vagrant_proto.NewConfigClient(con)
 	return &GRPCConfigClient{
 		client:  client,
 		doneCtx: ctx,
@@ -48,11 +47,11 @@ type GRPCConfigServer struct {
 	Impl Config
 }
 
-func (s *GRPCConfigServer) ConfigAttributes(ctx context.Context, req *vagrant_common.NullRequest) (resp *vagrant_config.AttributesResponse, err error) {
-	resp = &vagrant_config.AttributesResponse{}
+func (s *GRPCConfigServer) ConfigAttributes(ctx context.Context, req *vagrant_proto.Empty) (resp *vagrant_proto.ListResponse, err error) {
+	resp = &vagrant_proto.ListResponse{}
 	n := make(chan struct{}, 1)
 	go func() {
-		resp.Attributes, err = s.Impl.ConfigAttributes()
+		resp.Items, err = s.Impl.ConfigAttributes()
 		n <- struct{}{}
 	}()
 	select {
@@ -62,14 +61,14 @@ func (s *GRPCConfigServer) ConfigAttributes(ctx context.Context, req *vagrant_co
 	return
 }
 
-func (s *GRPCConfigServer) ConfigLoad(ctx context.Context, req *vagrant_config.LoadRequest) (resp *vagrant_config.LoadResponse, err error) {
-	resp = &vagrant_config.LoadResponse{}
+func (s *GRPCConfigServer) ConfigLoad(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.Configuration, err error) {
+	resp = &vagrant_proto.Configuration{}
 	var data, r map[string]interface{}
 	err = json.Unmarshal([]byte(req.Data), &data)
 	if err != nil {
 		return
 	}
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
 		r, err = s.Impl.ConfigLoad(ctx, data)
 		n <- struct{}{}
@@ -93,8 +92,8 @@ func (s *GRPCConfigServer) ConfigLoad(ctx context.Context, req *vagrant_config.L
 	return
 }
 
-func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_config.ValidateRequest) (resp *vagrant_config.ValidateResponse, err error) {
-	resp = &vagrant_config.ValidateResponse{}
+func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.ListResponse, err error) {
+	resp = &vagrant_proto.ListResponse{}
 	var data map[string]interface{}
 	err = json.Unmarshal([]byte(req.Data), &data)
 	if err != nil {
@@ -104,9 +103,9 @@ func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_conf
 	if err != nil {
 		return
 	}
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
-		resp.Errors, err = s.Impl.ConfigValidate(ctx, data, m)
+		resp.Items, err = s.Impl.ConfigValidate(ctx, data, m)
 		n <- struct{}{}
 	}()
 
@@ -118,14 +117,14 @@ func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_conf
 	return
 }
 
-func (s *GRPCConfigServer) ConfigFinalize(ctx context.Context, req *vagrant_config.FinalizeRequest) (resp *vagrant_config.FinalizeResponse, err error) {
-	resp = &vagrant_config.FinalizeResponse{}
+func (s *GRPCConfigServer) ConfigFinalize(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.Configuration, err error) {
+	resp = &vagrant_proto.Configuration{}
 	var data, r map[string]interface{}
 	err = json.Unmarshal([]byte(req.Data), &data)
 	if err != nil {
 		return
 	}
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
 		r, err = s.Impl.ConfigFinalize(ctx, data)
 		n <- struct{}{}
@@ -151,18 +150,18 @@ func (s *GRPCConfigServer) ConfigFinalize(ctx context.Context, req *vagrant_conf
 type GRPCConfigClient struct {
 	GRPCCoreClient
 	GRPCIOClient
-	client  vagrant_config.ConfigClient
+	client  vagrant_proto.ConfigClient
 	doneCtx context.Context
 }
 
 func (c *GRPCConfigClient) ConfigAttributes() (attrs []string, err error) {
 	ctx := context.Background()
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.ConfigAttributes(jctx, &vagrant_common.NullRequest{})
+	resp, err := c.client.ConfigAttributes(jctx, &vagrant_proto.Empty{})
 	if err != nil {
 		return nil, handleGrpcError(err, c.doneCtx, nil)
 	}
-	attrs = resp.Attributes
+	attrs = resp.Items
 	return
 }
 
@@ -172,7 +171,7 @@ func (c *GRPCConfigClient) ConfigLoad(ctx context.Context, data map[string]inter
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.ConfigLoad(jctx, &vagrant_config.LoadRequest{
+	resp, err := c.client.ConfigLoad(jctx, &vagrant_proto.Configuration{
 		Data: string(mdata)})
 	if err != nil {
 		return nil, handleGrpcError(err, c.doneCtx, ctx)
@@ -191,13 +190,13 @@ func (c *GRPCConfigClient) ConfigValidate(ctx context.Context, data map[string]i
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.ConfigValidate(jctx, &vagrant_config.ValidateRequest{
+	resp, err := c.client.ConfigValidate(jctx, &vagrant_proto.Configuration{
 		Data:    string(mdata),
 		Machine: machData})
 	if err != nil {
 		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
-	errs = resp.Errors
+	errs = resp.Items
 	return
 }
 
@@ -207,7 +206,7 @@ func (c *GRPCConfigClient) ConfigFinalize(ctx context.Context, data map[string]i
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.ConfigFinalize(jctx, &vagrant_config.FinalizeRequest{
+	resp, err := c.client.ConfigFinalize(jctx, &vagrant_proto.Configuration{
 		Data: string(mdata)})
 	if err != nil {
 		return nil, handleGrpcError(err, c.doneCtx, ctx)

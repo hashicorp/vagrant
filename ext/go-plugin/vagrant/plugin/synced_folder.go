@@ -8,8 +8,7 @@ import (
 
 	go_plugin "github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
-	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common"
-	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_folder"
+	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto"
 
 	"github.com/LK4D4/joincontext"
 )
@@ -29,7 +28,7 @@ type GRPCSyncedFolderClient struct {
 	GRPCGuestCapabilitiesClient
 	GRPCHostCapabilitiesClient
 	GRPCIOClient
-	client  vagrant_folder.SyncedFolderClient
+	client  vagrant_proto.SyncedFolderClient
 	doneCtx context.Context
 }
 
@@ -43,7 +42,7 @@ func (c *GRPCSyncedFolderClient) Cleanup(ctx context.Context, m *vagrant.Machine
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	_, err = c.client.Cleanup(jctx, &vagrant_folder.CleanupRequest{
+	_, err = c.client.Cleanup(jctx, &vagrant_proto.SyncedFolders{
 		Machine: machine,
 		Options: string(opts)})
 	return handleGrpcError(err, c.doneCtx, ctx)
@@ -63,7 +62,7 @@ func (c *GRPCSyncedFolderClient) Disable(ctx context.Context, m *vagrant.Machine
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	_, err = c.client.Disable(jctx, &vagrant_folder.Request{
+	_, err = c.client.Disable(jctx, &vagrant_proto.SyncedFolders{
 		Machine: machine,
 		Folders: string(folders),
 		Options: string(opts)})
@@ -84,7 +83,7 @@ func (c *GRPCSyncedFolderClient) Enable(ctx context.Context, m *vagrant.Machine,
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	_, err = c.client.Enable(jctx, &vagrant_folder.Request{
+	_, err = c.client.Enable(jctx, &vagrant_proto.SyncedFolders{
 		Machine: machine,
 		Folders: string(folders),
 		Options: string(opts)})
@@ -92,7 +91,7 @@ func (c *GRPCSyncedFolderClient) Enable(ctx context.Context, m *vagrant.Machine,
 }
 
 func (c *GRPCSyncedFolderClient) Info() *vagrant.SyncedFolderInfo {
-	resp, err := c.client.Info(context.Background(), &vagrant_common.NullRequest{})
+	resp, err := c.client.Info(context.Background(), &vagrant_proto.Empty{})
 	if err != nil {
 		return &vagrant.SyncedFolderInfo{}
 	}
@@ -107,7 +106,7 @@ func (c *GRPCSyncedFolderClient) IsUsable(ctx context.Context, m *vagrant.Machin
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.IsUsable(jctx, &vagrant_common.EmptyRequest{
+	resp, err := c.client.IsUsable(jctx, &vagrant_proto.Machine{
 		Machine: machine})
 	if err != nil {
 		return false, handleGrpcError(err, c.doneCtx, ctx)
@@ -117,7 +116,7 @@ func (c *GRPCSyncedFolderClient) IsUsable(ctx context.Context, m *vagrant.Machin
 }
 
 func (c *GRPCSyncedFolderClient) Name() string {
-	resp, err := c.client.Name(context.Background(), &vagrant_common.NullRequest{})
+	resp, err := c.client.Name(context.Background(), &vagrant_proto.Empty{})
 	if err != nil {
 		return ""
 	}
@@ -138,7 +137,7 @@ func (c *GRPCSyncedFolderClient) Prepare(ctx context.Context, m *vagrant.Machine
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	_, err = c.client.Prepare(jctx, &vagrant_folder.Request{
+	_, err = c.client.Prepare(jctx, &vagrant_proto.SyncedFolders{
 		Machine: machine,
 		Folders: string(folders),
 		Options: string(opts)})
@@ -152,8 +151,8 @@ type GRPCSyncedFolderServer struct {
 	Impl SyncedFolder
 }
 
-func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_folder.CleanupRequest) (resp *vagrant_common.EmptyResponse, err error) {
-	resp = &vagrant_common.EmptyResponse{}
+func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
+	resp = &vagrant_proto.Empty{}
 	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -175,8 +174,8 @@ func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_folde
 	return
 }
 
-func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_folder.Request) (resp *vagrant_common.EmptyResponse, err error) {
-	resp = &vagrant_common.EmptyResponse{}
+func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
+	resp = &vagrant_proto.Empty{}
 	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -203,8 +202,8 @@ func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_folde
 	return
 }
 
-func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_folder.Request) (resp *vagrant_common.EmptyResponse, err error) {
-	resp = &vagrant_common.EmptyResponse{}
+func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
+	resp = &vagrant_proto.Empty{}
 	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -231,7 +230,7 @@ func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_folder
 	return
 }
 
-func (s *GRPCSyncedFolderServer) Info(ctx context.Context, req *vagrant_common.NullRequest) (*vagrant_folder.InfoResponse, error) {
+func (s *GRPCSyncedFolderServer) Info(ctx context.Context, req *vagrant_proto.Empty) (*vagrant_proto.PluginInfo, error) {
 	n := make(chan struct{})
 	var r *vagrant.SyncedFolderInfo
 	go func() {
@@ -243,13 +242,13 @@ func (s *GRPCSyncedFolderServer) Info(ctx context.Context, req *vagrant_common.N
 		return nil, nil
 	case <-n:
 	}
-	return &vagrant_folder.InfoResponse{
+	return &vagrant_proto.PluginInfo{
 		Description: r.Description,
 		Priority:    r.Priority}, nil
 }
 
-func (s *GRPCSyncedFolderServer) IsUsable(ctx context.Context, req *vagrant_common.EmptyRequest) (resp *vagrant_common.IsResponse, err error) {
-	resp = &vagrant_common.IsResponse{}
+func (s *GRPCSyncedFolderServer) IsUsable(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
+	resp = &vagrant_proto.Valid{}
 	var r bool
 	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
@@ -272,12 +271,12 @@ func (s *GRPCSyncedFolderServer) IsUsable(ctx context.Context, req *vagrant_comm
 	return
 }
 
-func (s *GRPCSyncedFolderServer) Name(_ context.Context, req *vagrant_common.NullRequest) (*vagrant_common.NameResponse, error) {
-	return &vagrant_common.NameResponse{Name: s.Impl.Name()}, nil
+func (s *GRPCSyncedFolderServer) Name(_ context.Context, req *vagrant_proto.Empty) (*vagrant_proto.Identifier, error) {
+	return &vagrant_proto.Identifier{Name: s.Impl.Name()}, nil
 }
 
-func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_folder.Request) (resp *vagrant_common.EmptyResponse, err error) {
-	resp = &vagrant_common.EmptyResponse{}
+func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
+	resp = &vagrant_proto.Empty{}
 	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -306,7 +305,7 @@ func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_folde
 
 func (f *SyncedFolderPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
 	f.Impl.Init()
-	vagrant_folder.RegisterSyncedFolderServer(s,
+	vagrant_proto.RegisterSyncedFolderServer(s,
 		&GRPCSyncedFolderServer{
 			Impl: f.Impl,
 			GRPCIOServer: GRPCIOServer{
@@ -319,7 +318,7 @@ func (f *SyncedFolderPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Se
 }
 
 func (f *SyncedFolderPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
-	client := vagrant_folder.NewSyncedFolderClient(c)
+	client := vagrant_proto.NewSyncedFolderClient(c)
 	return &GRPCSyncedFolderClient{
 		GRPCIOClient: GRPCIOClient{
 			client:  client,

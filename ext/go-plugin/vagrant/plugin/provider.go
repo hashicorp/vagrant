@@ -8,8 +8,7 @@ import (
 
 	go_plugin "github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
-	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_common"
-	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_provider"
+	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto"
 
 	"github.com/LK4D4/joincontext"
 )
@@ -31,7 +30,7 @@ type GRPCProviderClient struct {
 	GRPCHostCapabilitiesClient
 	GRPCProviderCapabilitiesClient
 	GRPCIOClient
-	client  vagrant_provider.ProviderClient
+	client  vagrant_proto.ProviderClient
 	doneCtx context.Context
 }
 
@@ -42,20 +41,20 @@ func (c *GRPCProviderClient) Action(ctx context.Context, actionName string, m *v
 	}
 
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.Action(jctx, &vagrant_provider.ActionRequest{
+	resp, err := c.client.Action(jctx, &vagrant_proto.GenericAction{
 		Name:    actionName,
 		Machine: machData})
 	if err != nil {
 		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
-	r = resp.Result
+	r = resp.Items
 	return
 }
 
 func (c *GRPCProviderClient) Info() *vagrant.ProviderInfo {
 	ctx := context.Background()
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.Info(jctx, &vagrant_common.NullRequest{})
+	resp, err := c.client.Info(jctx, &vagrant_proto.Empty{})
 	if err != nil {
 		return &vagrant.ProviderInfo{}
 	}
@@ -70,7 +69,7 @@ func (c *GRPCProviderClient) IsInstalled(ctx context.Context, m *vagrant.Machine
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.IsInstalled(jctx, &vagrant_common.EmptyRequest{
+	resp, err := c.client.IsInstalled(jctx, &vagrant_proto.Machine{
 		Machine: machData})
 	if err != nil {
 		return false, handleGrpcError(err, c.doneCtx, ctx)
@@ -85,7 +84,7 @@ func (c *GRPCProviderClient) IsUsable(ctx context.Context, m *vagrant.Machine) (
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.IsUsable(jctx, &vagrant_common.EmptyRequest{
+	resp, err := c.client.IsUsable(jctx, &vagrant_proto.Machine{
 		Machine: machData})
 	if err != nil {
 		return false, handleGrpcError(err, c.doneCtx, ctx)
@@ -100,7 +99,7 @@ func (c *GRPCProviderClient) MachineIdChanged(ctx context.Context, m *vagrant.Ma
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	_, err = c.client.MachineIdChanged(jctx, &vagrant_common.EmptyRequest{
+	_, err = c.client.MachineIdChanged(jctx, &vagrant_proto.Machine{
 		Machine: machData})
 	if err != nil {
 		return handleGrpcError(err, c.doneCtx, ctx)
@@ -118,14 +117,14 @@ func (c *GRPCProviderClient) RunAction(ctx context.Context, actName string, args
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.RunAction(jctx, &vagrant_provider.RunActionRequest{
+	resp, err := c.client.RunAction(jctx, &vagrant_proto.ExecuteAction{
 		Name:    actName,
 		Data:    string(runData),
 		Machine: machData})
 	if err != nil {
 		return nil, handleGrpcError(err, c.doneCtx, ctx)
 	}
-	err = json.Unmarshal([]byte(resp.Data), &r)
+	err = json.Unmarshal([]byte(resp.Result), &r)
 	if err != nil {
 		return
 	}
@@ -138,7 +137,7 @@ func (c *GRPCProviderClient) SshInfo(ctx context.Context, m *vagrant.Machine) (r
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.SshInfo(jctx, &vagrant_common.EmptyRequest{
+	resp, err := c.client.SshInfo(jctx, &vagrant_proto.Machine{
 		Machine: machData})
 	if err != nil {
 		return nil, handleGrpcError(err, c.doneCtx, ctx)
@@ -157,7 +156,7 @@ func (c *GRPCProviderClient) State(ctx context.Context, m *vagrant.Machine) (r *
 		return
 	}
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.State(jctx, &vagrant_common.EmptyRequest{
+	resp, err := c.client.State(jctx, &vagrant_proto.Machine{
 		Machine: machData})
 	if err != nil {
 		return nil, handleGrpcError(err, c.doneCtx, ctx)
@@ -172,7 +171,7 @@ func (c *GRPCProviderClient) State(ctx context.Context, m *vagrant.Machine) (r *
 func (c *GRPCProviderClient) Name() string {
 	ctx := context.Background()
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.Name(jctx, &vagrant_common.NullRequest{})
+	resp, err := c.client.Name(jctx, &vagrant_proto.Empty{})
 	if err != nil {
 		return ""
 	}
@@ -180,7 +179,7 @@ func (c *GRPCProviderClient) Name() string {
 }
 
 func (p *ProviderPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
-	client := vagrant_provider.NewProviderClient(c)
+	client := vagrant_proto.NewProviderClient(c)
 	return &GRPCProviderClient{
 		GRPCConfigClient: GRPCConfigClient{
 			client:  client,
@@ -204,7 +203,7 @@ func (p *ProviderPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCB
 
 func (p *ProviderPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
 	p.Impl.Init()
-	vagrant_provider.RegisterProviderServer(s, &GRPCProviderServer{
+	vagrant_proto.RegisterProviderServer(s, &GRPCProviderServer{
 		Impl: p.Impl,
 		GRPCConfigServer: GRPCConfigServer{
 			Impl: p.Impl},
@@ -228,10 +227,10 @@ type GRPCProviderServer struct {
 	Impl Provider
 }
 
-func (s *GRPCProviderServer) Action(ctx context.Context, req *vagrant_provider.ActionRequest) (resp *vagrant_provider.ActionResponse, err error) {
-	resp = &vagrant_provider.ActionResponse{}
+func (s *GRPCProviderServer) Action(ctx context.Context, req *vagrant_proto.GenericAction) (resp *vagrant_proto.ListResponse, err error) {
+	resp = &vagrant_proto.ListResponse{}
 	var r []string
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -249,14 +248,14 @@ func (s *GRPCProviderServer) Action(ctx context.Context, req *vagrant_provider.A
 	if err != nil {
 		return
 	}
-	resp.Result = r
+	resp.Items = r
 	return
 }
 
-func (s *GRPCProviderServer) RunAction(ctx context.Context, req *vagrant_provider.RunActionRequest) (resp *vagrant_provider.RunActionResponse, err error) {
-	resp = &vagrant_provider.RunActionResponse{}
+func (s *GRPCProviderServer) RunAction(ctx context.Context, req *vagrant_proto.ExecuteAction) (resp *vagrant_proto.GenericResponse, err error) {
+	resp = &vagrant_proto.GenericResponse{}
 	var args, r interface{}
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -282,13 +281,13 @@ func (s *GRPCProviderServer) RunAction(ctx context.Context, req *vagrant_provide
 	if err != nil {
 		return
 	}
-	resp.Data = string(result)
+	resp.Result = string(result)
 	return
 }
 
-func (s *GRPCProviderServer) Info(ctx context.Context, req *vagrant_common.NullRequest) (*vagrant_provider.InfoResponse, error) {
+func (s *GRPCProviderServer) Info(ctx context.Context, req *vagrant_proto.Empty) (*vagrant_proto.PluginInfo, error) {
 	var r *vagrant.ProviderInfo
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
 		r = s.Impl.Info()
 		n <- struct{}{}
@@ -299,15 +298,15 @@ func (s *GRPCProviderServer) Info(ctx context.Context, req *vagrant_common.NullR
 	case <-n:
 	}
 
-	return &vagrant_provider.InfoResponse{
+	return &vagrant_proto.PluginInfo{
 		Description: r.Description,
 		Priority:    r.Priority}, nil
 }
 
-func (s *GRPCProviderServer) IsInstalled(ctx context.Context, req *vagrant_common.EmptyRequest) (resp *vagrant_common.IsResponse, err error) {
-	resp = &vagrant_common.IsResponse{}
+func (s *GRPCProviderServer) IsInstalled(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
+	resp = &vagrant_proto.Valid{}
 	var r bool
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -328,10 +327,10 @@ func (s *GRPCProviderServer) IsInstalled(ctx context.Context, req *vagrant_commo
 	return
 }
 
-func (s *GRPCProviderServer) IsUsable(ctx context.Context, req *vagrant_common.EmptyRequest) (resp *vagrant_common.IsResponse, err error) {
-	resp = &vagrant_common.IsResponse{}
+func (s *GRPCProviderServer) IsUsable(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
+	resp = &vagrant_proto.Valid{}
 	var r bool
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -352,8 +351,8 @@ func (s *GRPCProviderServer) IsUsable(ctx context.Context, req *vagrant_common.E
 	return
 }
 
-func (s *GRPCProviderServer) SshInfo(ctx context.Context, req *vagrant_common.EmptyRequest) (resp *vagrant_provider.SshInfoResponse, err error) {
-	resp = &vagrant_provider.SshInfoResponse{}
+func (s *GRPCProviderServer) SshInfo(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.MachineSshInfo, err error) {
+	resp = &vagrant_proto.MachineSshInfo{}
 	var r *vagrant.SshInfo
 	n := make(chan struct{}, 1)
 	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
@@ -373,7 +372,7 @@ func (s *GRPCProviderServer) SshInfo(ctx context.Context, req *vagrant_common.Em
 	if err != nil {
 		return
 	}
-	resp = &vagrant_provider.SshInfoResponse{
+	resp = &vagrant_proto.MachineSshInfo{
 		Host:           r.Host,
 		Port:           r.Port,
 		Username:       r.Username,
@@ -381,10 +380,10 @@ func (s *GRPCProviderServer) SshInfo(ctx context.Context, req *vagrant_common.Em
 	return
 }
 
-func (s *GRPCProviderServer) State(ctx context.Context, req *vagrant_common.EmptyRequest) (resp *vagrant_provider.StateResponse, err error) {
-	resp = &vagrant_provider.StateResponse{}
+func (s *GRPCProviderServer) State(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.MachineState, err error) {
+	resp = &vagrant_proto.MachineState{}
 	var r *vagrant.MachineState
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -402,16 +401,15 @@ func (s *GRPCProviderServer) State(ctx context.Context, req *vagrant_common.Empt
 	if err != nil {
 		return
 	}
-	resp = &vagrant_provider.StateResponse{
+	resp = &vagrant_proto.MachineState{
 		Id:               r.Id,
 		ShortDescription: r.ShortDesc,
 		LongDescription:  r.LongDesc}
 	return
 }
 
-func (s *GRPCProviderServer) MachineIdChanged(ctx context.Context, req *vagrant_common.EmptyRequest) (resp *vagrant_common.EmptyResponse, err error) {
-	resp = &vagrant_common.EmptyResponse{}
-	n := make(chan struct{}, 1)
+func (s *GRPCProviderServer) MachineIdChanged(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Machine, err error) {
+	n := make(chan struct{})
 	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 	if err != nil {
 		return
@@ -424,9 +422,14 @@ func (s *GRPCProviderServer) MachineIdChanged(ctx context.Context, req *vagrant_
 	case <-ctx.Done():
 	case <-n:
 	}
+	mdata, err := vagrant.DumpMachine(m)
+	if err != nil {
+		return
+	}
+	resp = &vagrant_proto.Machine{Machine: mdata}
 	return
 }
 
-func (s *GRPCProviderServer) Name(ctx context.Context, req *vagrant_common.NullRequest) (*vagrant_common.NameResponse, error) {
-	return &vagrant_common.NameResponse{Name: s.Impl.Name()}, nil
+func (s *GRPCProviderServer) Name(ctx context.Context, req *vagrant_proto.Empty) (*vagrant_proto.Identifier, error) {
+	return &vagrant_proto.Identifier{Name: s.Impl.Name()}, nil
 }

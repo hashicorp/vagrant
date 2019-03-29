@@ -7,7 +7,7 @@ import (
 
 	go_plugin "github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
-	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto/vagrant_io"
+	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant/plugin/proto"
 
 	"github.com/LK4D4/joincontext"
 )
@@ -25,11 +25,11 @@ type GRPCIOServer struct {
 	Impl vagrant.StreamIO
 }
 
-func (s *GRPCIOServer) Read(ctx context.Context, req *vagrant_io.ReadRequest) (r *vagrant_io.ReadResponse, err error) {
-	r = &vagrant_io.ReadResponse{}
-	n := make(chan struct{}, 1)
+func (s *GRPCIOServer) Read(ctx context.Context, req *vagrant_proto.Identifier) (r *vagrant_proto.Content, err error) {
+	r = &vagrant_proto.Content{}
+	n := make(chan struct{})
 	go func() {
-		r.Content, err = s.Impl.Read(req.Target)
+		r.Value, err = s.Impl.Read(req.Name)
 		n <- struct{}{}
 	}()
 	select {
@@ -39,12 +39,12 @@ func (s *GRPCIOServer) Read(ctx context.Context, req *vagrant_io.ReadRequest) (r
 	return
 }
 
-func (s *GRPCIOServer) Write(ctx context.Context, req *vagrant_io.WriteRequest) (r *vagrant_io.WriteResponse, err error) {
-	r = &vagrant_io.WriteResponse{}
-	n := make(chan struct{}, 1)
+func (s *GRPCIOServer) Write(ctx context.Context, req *vagrant_proto.Content) (r *vagrant_proto.WriteResponse, err error) {
+	r = &vagrant_proto.WriteResponse{}
+	n := make(chan struct{})
 	bytes := 0
 	go func() {
-		bytes, err = s.Impl.Write(req.Content, req.Target)
+		bytes, err = s.Impl.Write(req.Value, req.Target)
 		n <- struct{}{}
 	}()
 	select {
@@ -57,28 +57,28 @@ func (s *GRPCIOServer) Write(ctx context.Context, req *vagrant_io.WriteRequest) 
 }
 
 type GRPCIOClient struct {
-	client  vagrant_io.IOClient
+	client  vagrant_proto.IOClient
 	doneCtx context.Context
 }
 
 func (c *GRPCIOClient) Read(target string) (content string, err error) {
 	ctx := context.Background()
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.Read(jctx, &vagrant_io.ReadRequest{
-		Target: target})
+	resp, err := c.client.Read(jctx, &vagrant_proto.Identifier{
+		Name: target})
 	if err != nil {
 		return content, handleGrpcError(err, c.doneCtx, ctx)
 	}
-	content = resp.Content
+	content = resp.Value
 	return
 }
 
 func (c *GRPCIOClient) Write(content, target string) (length int, err error) {
 	ctx := context.Background()
 	jctx, _ := joincontext.Join(ctx, c.doneCtx)
-	resp, err := c.client.Write(jctx, &vagrant_io.WriteRequest{
-		Content: content,
-		Target:  target})
+	resp, err := c.client.Write(jctx, &vagrant_proto.Content{
+		Value:  content,
+		Target: target})
 	if err != nil {
 		return length, handleGrpcError(err, c.doneCtx, ctx)
 	}
@@ -87,12 +87,12 @@ func (c *GRPCIOClient) Write(content, target string) (length int, err error) {
 }
 
 func (i *IOPlugin) GRPCServer(broker *go_plugin.GRPCBroker, s *grpc.Server) error {
-	vagrant_io.RegisterIOServer(s, &GRPCIOServer{Impl: i.Impl})
+	vagrant_proto.RegisterIOServer(s, &GRPCIOServer{Impl: i.Impl})
 	return nil
 }
 
 func (i *IOPlugin) GRPCClient(ctx context.Context, broker *go_plugin.GRPCBroker, c *grpc.ClientConn) (interface{}, error) {
 	return &GRPCIOClient{
-		client:  vagrant_io.NewIOClient(c),
+		client:  vagrant_proto.NewIOClient(c),
 		doneCtx: ctx}, nil
 }

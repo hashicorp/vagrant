@@ -284,7 +284,7 @@ func handleGrpcError(err error, pluginCtx context.Context, reqCtx context.Contex
 			return errors.New("exceeded context timeout")
 		}
 		return err
-	} else if s != nil {
+	} else if s != nil && s.Message() != "" {
 		// Extract actual error message received
 		// and create new error
 		return errors.New(s.Message())

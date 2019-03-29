@@ -27,7 +27,7 @@ func TestSyncedFolder_Cleanup(t *testing.T) {
 
 	err = impl.Cleanup(context.Background(), &vagrant.Machine{}, nil)
 	if err != nil {
-		t.Fatalf("bad resp: %s", err)
+		t.Fatalf("bad resp: %#v", err)
 	}
 }
 
