@@ -11,6 +11,7 @@ IMPROVEMENTS:
 - core: Remove whitespace from id file on load [GH-10727]
 - guest/freebsd: Add proper VirtualBox share folders support for FreeBSD guests [GH-10717]
 - guest/freebsd: Add unmount share folder for  VirtualBox guests [GH-10761]
+- guest/freebsd: Simplify network interface listing when configuring networks [GH-10763]
 
 BUG FIXES:
 
