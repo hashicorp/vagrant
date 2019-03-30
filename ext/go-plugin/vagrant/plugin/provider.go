@@ -228,68 +228,71 @@ type GRPCProviderServer struct {
 }
 
 func (s *GRPCProviderServer) Action(ctx context.Context, req *vagrant_proto.GenericAction) (resp *vagrant_proto.ListResponse, err error) {
+	var (
+		r []string
+		m *vagrant.Machine
+	)
 	resp = &vagrant_proto.ListResponse{}
-	var r []string
 	n := make(chan struct{})
-	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-	if err != nil {
-		return
-	}
 	go func() {
+		defer func() { n <- struct{}{} }()
+		m, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		if err != nil {
+			return
+		}
 		r, err = s.Impl.Action(ctx, req.Name, m)
+		resp.Items = r
 		n <- struct{}{}
 	}()
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
 	}
-
-	if err != nil {
-		return
-	}
-	resp.Items = r
 	return
 }
 
 func (s *GRPCProviderServer) RunAction(ctx context.Context, req *vagrant_proto.ExecuteAction) (resp *vagrant_proto.GenericResponse, err error) {
+	var (
+		args, r interface{}
+		m       *vagrant.Machine
+	)
 	resp = &vagrant_proto.GenericResponse{}
-	var args, r interface{}
 	n := make(chan struct{})
-	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-	if err != nil {
-		return
-	}
-	err = json.Unmarshal([]byte(req.Data), &args)
-	if err != nil {
-		return
-	}
 	go func() {
+		defer func() { n <- struct{}{} }()
+		m, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		if err != nil {
+			return
+		}
+		err = json.Unmarshal([]byte(req.Data), &args)
+		if err != nil {
+			return
+		}
 		r, err = s.Impl.RunAction(ctx, req.Name, args, m)
-		n <- struct{}{}
+		if err != nil {
+			return
+		}
+		result, err := json.Marshal(r)
+		if err != nil {
+			return
+		}
+		resp.Result = string(result)
 	}()
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
 	}
-
-	if err != nil {
-		return
-	}
-	result, err := json.Marshal(r)
-	if err != nil {
-		return
-	}
-	resp.Result = string(result)
 	return
 }
 
 func (s *GRPCProviderServer) Info(ctx context.Context, req *vagrant_proto.Empty) (*vagrant_proto.PluginInfo, error) {
+	resp := &vagrant_proto.PluginInfo{}
 	var r *vagrant.ProviderInfo
 	n := make(chan struct{})
 	go func() {
 		r = s.Impl.Info()
+		resp.Description = r.Description
+		resp.Priority = r.Priority
 		n <- struct{}{}
 	}()
 	select {
@@ -297,86 +300,72 @@ func (s *GRPCProviderServer) Info(ctx context.Context, req *vagrant_proto.Empty)
 		return nil, nil
 	case <-n:
 	}
-
-	return &vagrant_proto.PluginInfo{
-		Description: r.Description,
-		Priority:    r.Priority}, nil
+	return resp, nil
 }
 
 func (s *GRPCProviderServer) IsInstalled(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
+	var m *vagrant.Machine
 	resp = &vagrant_proto.Valid{}
-	var r bool
 	n := make(chan struct{})
-	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-	if err != nil {
-		return
-	}
 	go func() {
-		r, err = s.Impl.IsInstalled(ctx, m)
-		n <- struct{}{}
+		defer func() { n <- struct{}{} }()
+		m, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		if err != nil {
+			return
+		}
+		resp.Result, err = s.Impl.IsInstalled(ctx, m)
 	}()
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
 	}
-	if err != nil {
-		return
-	}
-	resp.Result = r
 	return
 }
 
 func (s *GRPCProviderServer) IsUsable(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
+	var m *vagrant.Machine
 	resp = &vagrant_proto.Valid{}
-	var r bool
 	n := make(chan struct{})
-	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-	if err != nil {
-		return
-	}
 	go func() {
-		r, err = s.Impl.IsUsable(ctx, m)
-		n <- struct{}{}
+		defer func() { n <- struct{}{} }()
+		m, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		if err != nil {
+			return
+		}
+		resp.Result, err = s.Impl.IsUsable(ctx, m)
 	}()
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
 	}
-	if err != nil {
-		return
-	}
-	resp.Result = r
 	return
 }
 
 func (s *GRPCProviderServer) SshInfo(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.MachineSshInfo, err error) {
 	resp = &vagrant_proto.MachineSshInfo{}
 	var r *vagrant.SshInfo
-	n := make(chan struct{}, 1)
-	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-	if err != nil {
-		return
-	}
+	var m *vagrant.Machine
+	n := make(chan struct{})
 	go func() {
+		defer func() { n <- struct{}{} }()
+		m, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		if err != nil {
+			return
+		}
 		r, err = s.Impl.SshInfo(ctx, m)
-		n <- struct{}{}
+		if err != nil {
+			return
+		}
+		resp = &vagrant_proto.MachineSshInfo{
+			Host:           r.Host,
+			Port:           r.Port,
+			Username:       r.Username,
+			PrivateKeyPath: r.PrivateKeyPath}
 	}()
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
 	}
-
-	if err != nil {
-		return
-	}
-	resp = &vagrant_proto.MachineSshInfo{
-		Host:           r.Host,
-		Port:           r.Port,
-		Username:       r.Username,
-		PrivateKeyPath: r.PrivateKeyPath}
 	return
 }
 
@@ -389,44 +378,48 @@ func (s *GRPCProviderServer) State(ctx context.Context, req *vagrant_proto.Machi
 		return
 	}
 	go func() {
+		defer func() { n <- struct{}{} }()
 		r, err = s.Impl.State(ctx, m)
-		n <- struct{}{}
+		if err != nil {
+			return
+		}
+		resp = &vagrant_proto.MachineState{
+			Id:               r.Id,
+			ShortDescription: r.ShortDesc,
+			LongDescription:  r.LongDesc}
 	}()
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
 	}
-
-	if err != nil {
-		return
-	}
-	resp = &vagrant_proto.MachineState{
-		Id:               r.Id,
-		ShortDescription: r.ShortDesc,
-		LongDescription:  r.LongDesc}
 	return
 }
 
 func (s *GRPCProviderServer) MachineIdChanged(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Machine, err error) {
+	resp = &vagrant_proto.Machine{}
+	var mdata string
+	var m *vagrant.Machine
 	n := make(chan struct{})
-	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-	if err != nil {
-		return
-	}
 	go func() {
+		defer func() { n <- struct{}{} }()
+		m, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		if err != nil {
+			return
+		}
 		err = s.Impl.MachineIdChanged(ctx, m)
-		n <- struct{}{}
+		if err != nil {
+			return
+		}
+		mdata, err = vagrant.DumpMachine(m)
+		if err != nil {
+			return
+		}
+		resp = &vagrant_proto.Machine{Machine: mdata}
 	}()
 	select {
 	case <-ctx.Done():
 	case <-n:
 	}
-	mdata, err := vagrant.DumpMachine(m)
-	if err != nil {
-		return
-	}
-	resp = &vagrant_proto.Machine{Machine: mdata}
 	return
 }
 

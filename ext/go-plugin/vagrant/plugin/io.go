@@ -44,14 +44,16 @@ func (s *GRPCIOServer) Write(ctx context.Context, req *vagrant_proto.Content) (r
 	n := make(chan struct{})
 	bytes := 0
 	go func() {
+		defer func() { n <- struct{}{} }()
 		bytes, err = s.Impl.Write(req.Value, req.Target)
-		n <- struct{}{}
+		if err != nil {
+			return
+		}
+		r.Length = int32(bytes)
 	}()
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
-		r.Length = int32(bytes)
 	}
 	return
 }

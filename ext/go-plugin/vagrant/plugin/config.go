@@ -49,7 +49,7 @@ type GRPCConfigServer struct {
 
 func (s *GRPCConfigServer) ConfigAttributes(ctx context.Context, req *vagrant_proto.Empty) (resp *vagrant_proto.ListResponse, err error) {
 	resp = &vagrant_proto.ListResponse{}
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
 		resp.Items, err = s.Impl.ConfigAttributes()
 		n <- struct{}{}
@@ -64,86 +64,77 @@ func (s *GRPCConfigServer) ConfigAttributes(ctx context.Context, req *vagrant_pr
 func (s *GRPCConfigServer) ConfigLoad(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.Configuration, err error) {
 	resp = &vagrant_proto.Configuration{}
 	var data, r map[string]interface{}
-	err = json.Unmarshal([]byte(req.Data), &data)
-	if err != nil {
-		return
-	}
 	n := make(chan struct{})
 	go func() {
+		defer func() { n <- struct{}{} }()
+		err = json.Unmarshal([]byte(req.Data), &data)
+		if err != nil {
+			return
+		}
 		r, err = s.Impl.ConfigLoad(ctx, data)
-		n <- struct{}{}
+		var mdata []byte
+		mdata, err = json.Marshal(r)
+		if err != nil {
+			return
+		}
+		resp.Data = string(mdata)
 	}()
 
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
 	}
-
-	if err != nil {
-		return
-	}
-	mdata, err := json.Marshal(r)
-	if err != nil {
-		return
-	}
-
-	resp.Data = string(mdata)
 	return
 }
 
 func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.ListResponse, err error) {
 	resp = &vagrant_proto.ListResponse{}
+	var m *vagrant.Machine
 	var data map[string]interface{}
-	err = json.Unmarshal([]byte(req.Data), &data)
-	if err != nil {
-		return
-	}
-	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-	if err != nil {
-		return
-	}
 	n := make(chan struct{})
 	go func() {
+		defer func() { n <- struct{}{} }()
+		err = json.Unmarshal([]byte(req.Data), &data)
+		if err != nil {
+			return
+		}
+		m, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		if err != nil {
+			return
+		}
 		resp.Items, err = s.Impl.ConfigValidate(ctx, data, m)
-		n <- struct{}{}
 	}()
 
 	select {
 	case <-ctx.Done():
 	case <-n:
 	}
-
 	return
 }
 
 func (s *GRPCConfigServer) ConfigFinalize(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.Configuration, err error) {
 	resp = &vagrant_proto.Configuration{}
 	var data, r map[string]interface{}
-	err = json.Unmarshal([]byte(req.Data), &data)
-	if err != nil {
-		return
-	}
 	n := make(chan struct{})
 	go func() {
+		defer func() { n <- struct{}{} }()
+		err = json.Unmarshal([]byte(req.Data), &data)
+		if err != nil {
+			return
+		}
 		r, err = s.Impl.ConfigFinalize(ctx, data)
-		n <- struct{}{}
+		var mdata []byte
+		mdata, err = json.Marshal(r)
+		if err != nil {
+			return
+		}
+		resp.Data = string(mdata)
 	}()
 
 	select {
 	case <-ctx.Done():
-		return
 	case <-n:
 	}
-
-	if err != nil {
-		return
-	}
-	mdata, err := json.Marshal(r)
-	if err != nil {
-		return
-	}
-	resp.Data = string(mdata)
 	return
 }
 

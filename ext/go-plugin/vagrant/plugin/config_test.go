@@ -84,7 +84,7 @@ func TestConfigPlugin_Load_context_timeout(t *testing.T) {
 	data := map[string]interface{}{"pause": true}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
 		_, err = impl.ConfigLoad(ctx, data)
 		n <- struct{}{}
@@ -113,7 +113,7 @@ func TestConfigPlugin_Load_context_cancel(t *testing.T) {
 	data := map[string]interface{}{"pause": true}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
 		_, err = impl.ConfigLoad(ctx, data)
 		n <- struct{}{}
@@ -180,7 +180,7 @@ func TestConfigPlugin_Validate_context_cancel(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
 		_, err = impl.ConfigValidate(ctx, data, machine)
 		n <- struct{}{}
@@ -254,7 +254,7 @@ func TestConfigPlugin_Finalize_context_cancel(t *testing.T) {
 		"other_key": "other_val"}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	n := make(chan struct{}, 1)
+	n := make(chan struct{})
 	go func() {
 		_, err = impl.ConfigFinalize(ctx, data)
 		n <- struct{}{}
