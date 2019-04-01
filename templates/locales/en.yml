@@ -243,6 +243,7 @@ en:
       fix the issue:
 
       %{message}
+    rsync_command_dump: "Running rsync command: %{command}"
     rsync_communicator_not_ready: |-
       The machine is reporting that it is not ready for rsync to
       communicate with it. Verify that this machine is properly running.

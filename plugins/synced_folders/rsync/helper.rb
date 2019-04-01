@@ -185,6 +185,11 @@ module VagrantPlugins
           "#{username}@#{host}:#{guestpath}",
         ].flatten
 
+        if opts.include?(:verbose)
+          machine.ui.info(I18n.t("vagrant.rsync_command_dump",
+                                 command: command))
+        end
+
         # The working directory should be the root path
         command_opts = {}
         command_opts[:workdir] = machine.env.root_path.to_s
