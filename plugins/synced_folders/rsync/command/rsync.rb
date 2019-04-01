@@ -27,6 +27,9 @@ module VagrantPlugins
             o.on("--[no-]rsync-chown", "Use rsync to modify ownership") do |chown|
               options[:rsync_chown] = chown
             end
+            o.on("--args ARGS", String, "Override rsync arguments given in shared folder configuration (bash syntax)") do |args|
+              options[:override_args] = Shellwords.split(args)
+            end
             o.on("--verbose", "Enable verbose output") do |v|
               options[:verbose] = v
             end
@@ -68,6 +71,9 @@ module VagrantPlugins
             folders.each do |id, folder_opts|
               if options.has_key?(:rsync_chown)
                 folder_opts = folder_opts.merge(rsync_ownership: options[:rsync_chown])
+              end
+              if options.has_key?(:override_args)
+                folder_opts = folder_opts.merge(args: options[:override_args])
               end
               if options.has_key?(:verbose)
                 folder_opts = folder_opts.merge(verbose: options[:verbose])
