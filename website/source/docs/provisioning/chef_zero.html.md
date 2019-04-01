@@ -22,7 +22,7 @@ and client key registration.
 
 <div class="alert alert-warning">
   <strong>Warning:</strong> If you are not familiar with Chef and Vagrant already,
-  I recommend starting with the <a href="/docs/provisioning/shell.html">shell
+  we recommend starting with the <a href="/docs/provisioning/shell.html">shell
   provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant
   is the best way to learn Chef.
 </div>

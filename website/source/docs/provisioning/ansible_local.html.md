@@ -15,7 +15,7 @@ The Vagrant Ansible Local provisioner allows you to provision the guest using [A
 
 <div class="alert alert-warning">
   <strong>Warning:</strong>
-  If you are not familiar with Ansible and Vagrant already, I recommend starting with the <a href="/docs/provisioning/shell.html">shell provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant is a great way to learn Ansible.
+  If you are not familiar with Ansible and Vagrant already, we recommend starting with the <a href="/docs/provisioning/shell.html">shell provisioner</a>. However, if you are comfortable with Vagrant already, Vagrant is a great way to learn Ansible.
 </div>
 
 ## Setup Requirements

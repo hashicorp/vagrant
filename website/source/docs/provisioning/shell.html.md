@@ -123,7 +123,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-I understand that if you are not familiar with Ruby, the above may seem very
+It is understandable that if you are not familiar with Ruby, the above may seem very
 advanced or foreign. But do not fear, what it is doing is quite simple:
 the script is assigned to a global variable `$script`. This global variable
 contains a string which is then passed in as the inline script to the
