@@ -16,5 +16,6 @@ require (
 	github.com/pkg/sftp v1.10.0
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	golang.org/x/net v0.0.0-20190301231341-16b79f2e4e95
+	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
 	google.golang.org/grpc v1.19.0
 )

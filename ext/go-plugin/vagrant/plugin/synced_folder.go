@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	go_plugin "github.com/hashicorp/go-plugin"
@@ -153,11 +154,9 @@ type GRPCSyncedFolderServer struct {
 
 func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
 	resp = &vagrant_proto.Empty{}
-	var machine *vagrant.Machine
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
-		machine, err = vagrant.LoadMachine(req.Machine, s.Impl)
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
@@ -167,21 +166,17 @@ func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_proto
 			return
 		}
 		err = s.Impl.Cleanup(ctx, machine, options)
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
 func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
 	resp = &vagrant_proto.Empty{}
-	var machine *vagrant.Machine
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
-		machine, err = vagrant.LoadMachine(req.Machine, s.Impl)
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
@@ -196,21 +191,17 @@ func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_proto
 			return
 		}
 		err = s.Impl.Disable(ctx, machine, folders, options)
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
 func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
 	resp = &vagrant_proto.Empty{}
-	var machine *vagrant.Machine
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
-		machine, err = vagrant.LoadMachine(req.Machine, s.Impl)
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
@@ -225,48 +216,41 @@ func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_proto.
 			return
 		}
 		err = s.Impl.Enable(ctx, machine, folders, options)
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
 func (s *GRPCSyncedFolderServer) Info(ctx context.Context, req *vagrant_proto.Empty) (resp *vagrant_proto.PluginInfo, err error) {
 	resp = &vagrant_proto.PluginInfo{}
-	n := make(chan struct{})
-	go func() {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
 		r := s.Impl.Info()
 		resp.Description = r.Description
 		resp.Priority = r.Priority
-		n <- struct{}{}
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
 func (s *GRPCSyncedFolderServer) IsUsable(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
 	resp = &vagrant_proto.Valid{}
-	var machine *vagrant.Machine
-	var r bool
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
-		machine, err = vagrant.LoadMachine(req.Machine, s.Impl)
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
-		r, err = s.Impl.IsUsable(ctx, machine)
+		r, err := s.Impl.IsUsable(ctx, machine)
+		if err != nil {
+			return
+		}
 		resp.Result = r
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
@@ -276,29 +260,26 @@ func (s *GRPCSyncedFolderServer) Name(_ context.Context, req *vagrant_proto.Empt
 
 func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
 	resp = &vagrant_proto.Empty{}
-	machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
-	if err != nil {
-		return
-	}
-	var folders vagrant.FolderList
-	err = json.Unmarshal([]byte(req.Folders), &folders)
-	if err != nil {
-		return
-	}
-	var options vagrant.FolderOptions
-	err = json.Unmarshal([]byte(req.Options), &options)
-	if err != nil {
-		return
-	}
-	n := make(chan struct{})
-	go func() {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
+		if err != nil {
+			return
+		}
+		var folders vagrant.FolderList
+		err = json.Unmarshal([]byte(req.Folders), &folders)
+		if err != nil {
+			return
+		}
+		var options vagrant.FolderOptions
+		err = json.Unmarshal([]byte(req.Options), &options)
+		if err != nil {
+			return
+		}
 		err = s.Impl.Prepare(ctx, machine, folders, options)
-		n <- struct{}{}
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 

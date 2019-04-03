@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	go_plugin "github.com/hashicorp/go-plugin"
@@ -49,11 +50,9 @@ type GRPCGuestCapabilitiesServer struct {
 
 func (s *GRPCGuestCapabilitiesServer) GuestCapabilities(ctx context.Context, req *vagrant_proto.Empty) (resp *vagrant_proto.SystemCapabilityList, err error) {
 	resp = &vagrant_proto.SystemCapabilityList{}
-	var r []vagrant.SystemCapability
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
-		r, err = s.Impl.GuestCapabilities()
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		r, err := s.Impl.GuestCapabilities()
 		if err != nil {
 			return
 		}
@@ -61,43 +60,36 @@ func (s *GRPCGuestCapabilitiesServer) GuestCapabilities(ctx context.Context, req
 			rcap := &vagrant_proto.SystemCapability{Name: cap.Name, Platform: cap.Platform}
 			resp.Capabilities = append(resp.Capabilities, rcap)
 		}
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
 func (s *GRPCGuestCapabilitiesServer) GuestCapability(ctx context.Context, req *vagrant_proto.GuestCapabilityRequest) (resp *vagrant_proto.GenericResponse, err error) {
 	resp = &vagrant_proto.GenericResponse{}
-	var args, r interface{}
-	var machine *vagrant.Machine
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		var args interface{}
 		if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
 			return
 		}
-		machine, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
 		cap := &vagrant.SystemCapability{
 			Name:     req.Capability.Name,
 			Platform: req.Capability.Platform}
-		r, err = s.Impl.GuestCapability(ctx, cap, args, machine)
-		var result []byte
-		result, err = json.Marshal(r)
+		r, err := s.Impl.GuestCapability(ctx, cap, args, machine)
+		result, err := json.Marshal(r)
 		if err != nil {
 			return
 		}
 		resp.Result = string(result)
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
@@ -182,11 +174,9 @@ type GRPCHostCapabilitiesServer struct {
 
 func (s *GRPCHostCapabilitiesServer) HostCapabilities(ctx context.Context, req *vagrant_proto.Empty) (resp *vagrant_proto.SystemCapabilityList, err error) {
 	resp = &vagrant_proto.SystemCapabilityList{}
-	var r []vagrant.SystemCapability
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
-		r, err = s.Impl.HostCapabilities()
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		r, err := s.Impl.HostCapabilities()
 		if err != nil {
 			return
 		}
@@ -194,20 +184,17 @@ func (s *GRPCHostCapabilitiesServer) HostCapabilities(ctx context.Context, req *
 			rcap := &vagrant_proto.SystemCapability{Name: cap.Name, Platform: cap.Platform}
 			resp.Capabilities = append(resp.Capabilities, rcap)
 		}
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
 func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *vagrant_proto.HostCapabilityRequest) (resp *vagrant_proto.GenericResponse, err error) {
 	resp = &vagrant_proto.GenericResponse{}
-	var args, r interface{}
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		var args interface{}
 		if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
 			return
 		}
@@ -219,18 +206,15 @@ func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *va
 			Name:     req.Capability.Name,
 			Platform: req.Capability.Platform}
 
-		r, err = s.Impl.HostCapability(ctx, cap, args, env)
-		var result []byte
-		result, err = json.Marshal(r)
+		r, err := s.Impl.HostCapability(ctx, cap, args, env)
+		result, err := json.Marshal(r)
 		if err != nil {
 			return
 		}
 		resp.Result = string(result)
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
@@ -317,11 +301,9 @@ type GRPCProviderCapabilitiesServer struct {
 
 func (s *GRPCProviderCapabilitiesServer) ProviderCapabilities(ctx context.Context, req *vagrant_proto.Empty) (resp *vagrant_proto.ProviderCapabilityList, err error) {
 	resp = &vagrant_proto.ProviderCapabilityList{}
-	var r []vagrant.ProviderCapability
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
-		r, err = s.Impl.ProviderCapabilities()
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		r, err := s.Impl.ProviderCapabilities()
 		if err != nil {
 			return
 		}
@@ -329,26 +311,21 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapabilities(ctx context.Contex
 			rcap := &vagrant_proto.ProviderCapability{Name: cap.Name, Provider: cap.Provider}
 			resp.Capabilities = append(resp.Capabilities, rcap)
 		}
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 
 func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context, req *vagrant_proto.ProviderCapabilityRequest) (resp *vagrant_proto.GenericResponse, err error) {
 	resp = &vagrant_proto.GenericResponse{}
-	var m *vagrant.Machine
-	var args, r interface{}
-	n := make(chan struct{})
-	go func() {
-		defer func() { n <- struct{}{} }()
-		err = json.Unmarshal([]byte(req.Arguments), &args)
-		if err != nil {
+	g, _ := errgroup.WithContext(ctx)
+	g.Go(func() (err error) {
+		var args interface{}
+		if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
 			return
 		}
-		m, err = vagrant.LoadMachine(req.Machine, s.Impl)
+		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
@@ -356,18 +333,18 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context,
 			Name:     req.Capability.Name,
 			Provider: req.Capability.Provider}
 
-		r, err = s.Impl.ProviderCapability(ctx, cap, args, m)
-		var result []byte
-		result, err = json.Marshal(r)
+		r, err := s.Impl.ProviderCapability(ctx, cap, args, m)
+		if err != nil {
+			return
+		}
+		result, err := json.Marshal(r)
 		if err != nil {
 			return
 		}
 		resp.Result = string(result)
-	}()
-	select {
-	case <-ctx.Done():
-	case <-n:
-	}
+		return
+	})
+	err = g.Wait()
 	return
 }
 

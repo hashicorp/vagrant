@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 )
@@ -74,20 +76,15 @@ func TestSyncedFolder_Cleanup_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
+	g.Go(func() (err error) {
 		err = impl.Cleanup(ctx, &vagrant.Machine{Name: "pause"}, nil)
-		n <- struct{}{}
-	}()
-	select {
-	case <-n:
-		t.Fatalf("unexpected completion")
-	case <-time.After(2 * time.Millisecond):
-		cancel()
-	}
-	<-n
-	if err != context.Canceled {
+		return
+	})
+	time.Sleep(2 * time.Millisecond)
+	cancel()
+	if g.Wait() != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -186,20 +183,15 @@ func TestSyncedFolder_Disable_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
+	g.Go(func() (err error) {
 		err = impl.Disable(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
-		n <- struct{}{}
-	}()
-	select {
-	case <-n:
-		t.Fatalf("unexpected completion")
-	case <-time.After(2 * time.Millisecond):
-		cancel()
-	}
-	<-n
-	if err != context.Canceled {
+		return
+	})
+	time.Sleep(2 * time.Millisecond)
+	cancel()
+	if g.Wait() != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -298,20 +290,15 @@ func TestSyncedFolder_Enable_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
+	g.Go(func() (err error) {
 		err = impl.Enable(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
-		n <- struct{}{}
-	}()
-	select {
-	case <-n:
-		t.Fatalf("unexpected completion")
-	case <-time.After(2 * time.Millisecond):
-		cancel()
-	}
-	<-n
-	if err != context.Canceled {
+		return
+	})
+	time.Sleep(2 * time.Millisecond)
+	cancel()
+	if g.Wait() != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -410,20 +397,15 @@ func TestSyncedFolder_Prepare_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
+	g.Go(func() (err error) {
 		err = impl.Prepare(ctx, &vagrant.Machine{Name: "pause"}, nil, nil)
-		n <- struct{}{}
-	}()
-	select {
-	case <-n:
-		t.Fatalf("unexpected completion")
-	case <-time.After(2 * time.Millisecond):
-		cancel()
-	}
-	<-n
-	if err != context.Canceled {
+		return
+	})
+	time.Sleep(2 * time.Millisecond)
+	cancel()
+	if g.Wait() != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -523,20 +505,15 @@ func TestSyncedFolder_IsUsable_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
+	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
+	g.Go(func() (err error) {
 		_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
-		n <- struct{}{}
-	}()
-	select {
-	case <-n:
-		t.Fatalf("unexpected completion")
-	case <-time.After(2 * time.Millisecond):
-		cancel()
-	}
-	<-n
-	if err != context.Canceled {
+		return
+	})
+	time.Sleep(2 * time.Millisecond)
+	cancel()
+	if g.Wait() != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
