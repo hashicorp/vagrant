@@ -29,7 +29,7 @@ module VagrantPlugins
       # @return [Object]
       attr_accessor :config
 
-      # When to run this provisioner. Either "once" or "always"
+      # When to run this provisioner. Either "once", "always", or "never"
       #
       # @return [String]
       attr_accessor :run
