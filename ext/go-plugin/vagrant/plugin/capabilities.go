@@ -68,7 +68,7 @@ func (s *GRPCGuestCapabilitiesServer) GuestCapabilities(ctx context.Context, req
 
 func (s *GRPCGuestCapabilitiesServer) GuestCapability(ctx context.Context, req *vagrant_proto.GuestCapabilityRequest) (resp *vagrant_proto.GenericResponse, err error) {
 	resp = &vagrant_proto.GenericResponse{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		var args interface{}
 		if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
@@ -81,7 +81,7 @@ func (s *GRPCGuestCapabilitiesServer) GuestCapability(ctx context.Context, req *
 		cap := &vagrant.SystemCapability{
 			Name:     req.Capability.Name,
 			Platform: req.Capability.Platform}
-		r, err := s.Impl.GuestCapability(ctx, cap, args, machine)
+		r, err := s.Impl.GuestCapability(gctx, cap, args, machine)
 		result, err := json.Marshal(r)
 		if err != nil {
 			return
@@ -192,7 +192,7 @@ func (s *GRPCHostCapabilitiesServer) HostCapabilities(ctx context.Context, req *
 
 func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *vagrant_proto.HostCapabilityRequest) (resp *vagrant_proto.GenericResponse, err error) {
 	resp = &vagrant_proto.GenericResponse{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		var args interface{}
 		if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
@@ -206,7 +206,7 @@ func (s *GRPCHostCapabilitiesServer) HostCapability(ctx context.Context, req *va
 			Name:     req.Capability.Name,
 			Platform: req.Capability.Platform}
 
-		r, err := s.Impl.HostCapability(ctx, cap, args, env)
+		r, err := s.Impl.HostCapability(gctx, cap, args, env)
 		result, err := json.Marshal(r)
 		if err != nil {
 			return
@@ -319,7 +319,7 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapabilities(ctx context.Contex
 
 func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context, req *vagrant_proto.ProviderCapabilityRequest) (resp *vagrant_proto.GenericResponse, err error) {
 	resp = &vagrant_proto.GenericResponse{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		var args interface{}
 		if err = json.Unmarshal([]byte(req.Arguments), &args); err != nil {
@@ -333,7 +333,7 @@ func (s *GRPCProviderCapabilitiesServer) ProviderCapability(ctx context.Context,
 			Name:     req.Capability.Name,
 			Provider: req.Capability.Provider}
 
-		r, err := s.Impl.ProviderCapability(ctx, cap, args, m)
+		r, err := s.Impl.ProviderCapability(gctx, cap, args, m)
 		if err != nil {
 			return
 		}

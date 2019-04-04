@@ -154,7 +154,7 @@ type GRPCSyncedFolderServer struct {
 
 func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
 	resp = &vagrant_proto.Empty{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
@@ -165,7 +165,7 @@ func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_proto
 		if err != nil {
 			return
 		}
-		err = s.Impl.Cleanup(ctx, machine, options)
+		err = s.Impl.Cleanup(gctx, machine, options)
 		return
 	})
 	err = g.Wait()
@@ -174,7 +174,7 @@ func (s *GRPCSyncedFolderServer) Cleanup(ctx context.Context, req *vagrant_proto
 
 func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
 	resp = &vagrant_proto.Empty{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
@@ -190,7 +190,7 @@ func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_proto
 		if err != nil {
 			return
 		}
-		err = s.Impl.Disable(ctx, machine, folders, options)
+		err = s.Impl.Disable(gctx, machine, folders, options)
 		return
 	})
 	err = g.Wait()
@@ -199,7 +199,7 @@ func (s *GRPCSyncedFolderServer) Disable(ctx context.Context, req *vagrant_proto
 
 func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
 	resp = &vagrant_proto.Empty{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
@@ -215,7 +215,7 @@ func (s *GRPCSyncedFolderServer) Enable(ctx context.Context, req *vagrant_proto.
 		if err != nil {
 			return
 		}
-		err = s.Impl.Enable(ctx, machine, folders, options)
+		err = s.Impl.Enable(gctx, machine, folders, options)
 		return
 	})
 	err = g.Wait()
@@ -260,7 +260,7 @@ func (s *GRPCSyncedFolderServer) Name(_ context.Context, req *vagrant_proto.Empt
 
 func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_proto.SyncedFolders) (resp *vagrant_proto.Empty, err error) {
 	resp = &vagrant_proto.Empty{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
@@ -276,7 +276,7 @@ func (s *GRPCSyncedFolderServer) Prepare(ctx context.Context, req *vagrant_proto
 		if err != nil {
 			return
 		}
-		err = s.Impl.Prepare(ctx, machine, folders, options)
+		err = s.Impl.Prepare(gctx, machine, folders, options)
 		return
 	})
 	err = g.Wait()

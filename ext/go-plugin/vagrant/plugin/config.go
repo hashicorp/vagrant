@@ -61,14 +61,14 @@ func (s *GRPCConfigServer) ConfigAttributes(ctx context.Context, req *vagrant_pr
 
 func (s *GRPCConfigServer) ConfigLoad(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.Configuration, err error) {
 	resp = &vagrant_proto.Configuration{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		var data map[string]interface{}
 		err = json.Unmarshal([]byte(req.Data), &data)
 		if err != nil {
 			return
 		}
-		r, err := s.Impl.ConfigLoad(ctx, data)
+		r, err := s.Impl.ConfigLoad(gctx, data)
 		if err != nil {
 			return
 		}
@@ -85,7 +85,7 @@ func (s *GRPCConfigServer) ConfigLoad(ctx context.Context, req *vagrant_proto.Co
 
 func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.ListResponse, err error) {
 	resp = &vagrant_proto.ListResponse{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		var data map[string]interface{}
 		err = json.Unmarshal([]byte(req.Data), &data)
@@ -96,7 +96,7 @@ func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_prot
 		if err != nil {
 			return
 		}
-		resp.Items, err = s.Impl.ConfigValidate(ctx, data, m)
+		resp.Items, err = s.Impl.ConfigValidate(gctx, data, m)
 		return
 	})
 	err = g.Wait()
@@ -105,14 +105,14 @@ func (s *GRPCConfigServer) ConfigValidate(ctx context.Context, req *vagrant_prot
 
 func (s *GRPCConfigServer) ConfigFinalize(ctx context.Context, req *vagrant_proto.Configuration) (resp *vagrant_proto.Configuration, err error) {
 	resp = &vagrant_proto.Configuration{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		var data map[string]interface{}
 		err = json.Unmarshal([]byte(req.Data), &data)
 		if err != nil {
 			return
 		}
-		r, err := s.Impl.ConfigFinalize(ctx, data)
+		r, err := s.Impl.ConfigFinalize(gctx, data)
 		if err != nil {
 			return
 		}

@@ -230,13 +230,13 @@ type GRPCProviderServer struct {
 
 func (s *GRPCProviderServer) Action(ctx context.Context, req *vagrant_proto.GenericAction) (resp *vagrant_proto.ListResponse, err error) {
 	resp = &vagrant_proto.ListResponse{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
-		r, err := s.Impl.Action(ctx, req.Name, m)
+		r, err := s.Impl.Action(gctx, req.Name, m)
 		if err != nil {
 			return
 		}
@@ -249,7 +249,7 @@ func (s *GRPCProviderServer) Action(ctx context.Context, req *vagrant_proto.Gene
 
 func (s *GRPCProviderServer) RunAction(ctx context.Context, req *vagrant_proto.ExecuteAction) (resp *vagrant_proto.GenericResponse, err error) {
 	resp = &vagrant_proto.GenericResponse{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		var args interface{}
 		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
@@ -259,7 +259,7 @@ func (s *GRPCProviderServer) RunAction(ctx context.Context, req *vagrant_proto.E
 		if err = json.Unmarshal([]byte(req.Data), &args); err != nil {
 			return
 		}
-		r, err := s.Impl.RunAction(ctx, req.Name, args, m)
+		r, err := s.Impl.RunAction(gctx, req.Name, args, m)
 		if err != nil {
 			return
 		}
@@ -289,13 +289,13 @@ func (s *GRPCProviderServer) Info(ctx context.Context, req *vagrant_proto.Empty)
 
 func (s *GRPCProviderServer) IsInstalled(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
 	resp = &vagrant_proto.Valid{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
-		resp.Result, err = s.Impl.IsInstalled(ctx, m)
+		resp.Result, err = s.Impl.IsInstalled(gctx, m)
 		return
 	})
 	err = g.Wait()
@@ -304,13 +304,13 @@ func (s *GRPCProviderServer) IsInstalled(ctx context.Context, req *vagrant_proto
 
 func (s *GRPCProviderServer) IsUsable(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
 	resp = &vagrant_proto.Valid{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
-		resp.Result, err = s.Impl.IsUsable(ctx, m)
+		resp.Result, err = s.Impl.IsUsable(gctx, m)
 		return
 	})
 	err = g.Wait()
@@ -319,13 +319,13 @@ func (s *GRPCProviderServer) IsUsable(ctx context.Context, req *vagrant_proto.Ma
 
 func (s *GRPCProviderServer) SshInfo(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.MachineSshInfo, err error) {
 	resp = &vagrant_proto.MachineSshInfo{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
-		r, err := s.Impl.SshInfo(ctx, m)
+		r, err := s.Impl.SshInfo(gctx, m)
 		if err != nil {
 			return
 		}
@@ -341,13 +341,13 @@ func (s *GRPCProviderServer) SshInfo(ctx context.Context, req *vagrant_proto.Mac
 
 func (s *GRPCProviderServer) State(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.MachineState, err error) {
 	resp = &vagrant_proto.MachineState{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
-		r, err := s.Impl.State(ctx, m)
+		r, err := s.Impl.State(gctx, m)
 		if err != nil {
 			return
 		}
@@ -362,13 +362,13 @@ func (s *GRPCProviderServer) State(ctx context.Context, req *vagrant_proto.Machi
 
 func (s *GRPCProviderServer) MachineIdChanged(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Machine, err error) {
 	resp = &vagrant_proto.Machine{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
-		if err = s.Impl.MachineIdChanged(ctx, m); err != nil {
+		if err = s.Impl.MachineIdChanged(gctx, m); err != nil {
 			return
 		}
 		mdata, err := vagrant.DumpMachine(m)
