@@ -6,8 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 )
@@ -73,15 +71,13 @@ func TestProvider_Action_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.Action(ctx, "pause", &vagrant.Machine{})
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.Action(ctx, "pause", &vagrant.Machine{})
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -101,14 +97,9 @@ func TestProvider_Action_context_timeout(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
-		_, err = impl.Action(ctx, "pause", &vagrant.Machine{})
-		n <- struct{}{}
-	}()
-	<-n
+	_, err = impl.Action(ctx, "pause", &vagrant.Machine{})
 	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -154,15 +145,13 @@ func TestProvider_IsInstalled_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.IsInstalled(ctx, &vagrant.Machine{Name: "pause"})
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.IsInstalled(ctx, &vagrant.Machine{Name: "pause"})
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -182,14 +171,9 @@ func TestProvider_IsInstalled_context_timeout(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
-		_, err = impl.IsInstalled(ctx, &vagrant.Machine{Name: "pause"})
-		n <- struct{}{}
-	}()
-	<-n
+	_, err = impl.IsInstalled(ctx, &vagrant.Machine{Name: "pause"})
 	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -232,15 +216,13 @@ func TestProvider_IsUsable_context_cancel(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -259,14 +241,9 @@ func TestProvider_IsUsable_context_timeout(t *testing.T) {
 	if !ok {
 		t.Fatalf("bad %#v", raw)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
-		_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
-		n <- struct{}{}
-	}()
-	<-n
+	_, err = impl.IsUsable(ctx, &vagrant.Machine{Name: "pause"})
 	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -308,15 +285,13 @@ func TestProvider_MachineIdChanged_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		err = impl.MachineIdChanged(ctx, &vagrant.Machine{Name: "pause"})
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	err = impl.MachineIdChanged(ctx, &vagrant.Machine{Name: "pause"})
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -336,14 +311,9 @@ func TestProvider_MachineIdChanged_context_timeout(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
-		err = impl.MachineIdChanged(ctx, &vagrant.Machine{Name: "pause"})
-		n <- struct{}{}
-	}()
-	<-n
+	err = impl.MachineIdChanged(ctx, &vagrant.Machine{Name: "pause"})
 	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -421,15 +391,13 @@ func TestProvider_RunAction_context_cancel(t *testing.T) {
 	m := &vagrant.Machine{}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.RunAction(ctx, "pause", args, m)
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.RunAction(ctx, "pause", args, m)
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -452,14 +420,9 @@ func TestProvider_RunAction_context_timeout(t *testing.T) {
 	args := []string{"test_arg", "other_arg"}
 	m := &vagrant.Machine{}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
-		_, err = impl.RunAction(ctx, "pause", args, m)
-		n <- struct{}{}
-	}()
-	<-n
+	_, err = impl.RunAction(ctx, "pause", args, m)
 	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -533,15 +496,13 @@ func TestProvider_SshInfo_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.SshInfo(ctx, &vagrant.Machine{Name: "pause"})
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.SshInfo(ctx, &vagrant.Machine{Name: "pause"})
+	if err != context.Canceled {
 		t.Fatalf("invalid resp: %s", err)
 	}
 }
@@ -561,14 +522,9 @@ func TestProvider_SshInfo_context_timeout(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
-		_, err = impl.SshInfo(ctx, &vagrant.Machine{Name: "pause"})
-		n <- struct{}{}
-	}()
-	<-n
+	_, err = impl.SshInfo(ctx, &vagrant.Machine{Name: "pause"})
 	if err != context.DeadlineExceeded {
 		t.Fatalf("invalid resp: %s", err)
 	}
@@ -618,15 +574,13 @@ func TestProvider_State_context_cancel(t *testing.T) {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.State(ctx, &vagrant.Machine{Name: "pause"})
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.State(ctx, &vagrant.Machine{Name: "pause"})
+	if err != context.Canceled {
 		t.Fatalf("invalid resp: %s", err)
 	}
 }
@@ -646,14 +600,9 @@ func TestProvider_State_context_timeout(t *testing.T) {
 		t.Fatalf("bad %#v", raw)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
-		_, err = impl.State(ctx, &vagrant.Machine{Name: "pause"})
-		n <- struct{}{}
-	}()
-	<-n
+	_, err = impl.State(ctx, &vagrant.Machine{Name: "pause"})
 	if err != context.DeadlineExceeded {
 		t.Fatalf("invalid resp: %s", err)
 	}

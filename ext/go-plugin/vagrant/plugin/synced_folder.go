@@ -237,13 +237,13 @@ func (s *GRPCSyncedFolderServer) Info(ctx context.Context, req *vagrant_proto.Em
 
 func (s *GRPCSyncedFolderServer) IsUsable(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
 	resp = &vagrant_proto.Valid{}
-	g, _ := errgroup.WithContext(ctx)
+	g, gctx := errgroup.WithContext(ctx)
 	g.Go(func() (err error) {
 		machine, err := vagrant.LoadMachine(req.Machine, s.Impl)
 		if err != nil {
 			return
 		}
-		r, err := s.Impl.IsUsable(ctx, machine)
+		r, err := s.Impl.IsUsable(gctx, machine)
 		if err != nil {
 			return
 		}

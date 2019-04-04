@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 )
@@ -84,14 +82,9 @@ func TestConfigPlugin_Load_context_timeout(t *testing.T) {
 	}
 
 	data := map[string]interface{}{"pause": true}
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	n := make(chan struct{})
-	go func() {
-		_, err = impl.ConfigLoad(ctx, data)
-		n <- struct{}{}
-	}()
-	<-n
+	_, err = impl.ConfigLoad(ctx, data)
 	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
@@ -114,15 +107,13 @@ func TestConfigPlugin_Load_context_cancel(t *testing.T) {
 
 	data := map[string]interface{}{"pause": true}
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.ConfigLoad(ctx, data)
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.ConfigLoad(ctx, data)
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -176,15 +167,13 @@ func TestConfigPlugin_Validate_context_cancel(t *testing.T) {
 	machine := &vagrant.Machine{}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.ConfigValidate(ctx, data, machine)
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.ConfigValidate(ctx, data, machine)
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -245,15 +234,13 @@ func TestConfigPlugin_Finalize_context_cancel(t *testing.T) {
 		"test_key":  "test_val",
 		"other_key": "other_val"}
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.ConfigFinalize(ctx, data)
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.ConfigFinalize(ctx, data)
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }

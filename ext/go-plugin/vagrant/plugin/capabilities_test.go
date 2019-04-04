@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/vagrant/ext/go-plugin/vagrant"
 )
@@ -134,15 +132,13 @@ func TestCapabilities_GuestCapability_context_cancel(t *testing.T) {
 	args := []string{"pause", "test_value", "next_test_value"}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.GuestCapability(ctx, cap, args, m)
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.GuestCapability(ctx, cap, args, m)
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -168,14 +164,10 @@ func TestCapabilities_GuestCapability_context_timeout(t *testing.T) {
 	m := &vagrant.Machine{}
 	args := []string{"pause", "test_value", "next_test_value"}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
-	g, _ := errgroup.WithContext(ctx)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.GuestCapability(ctx, cap, args, m)
-		return
-	})
-	if g.Wait() != context.DeadlineExceeded {
+	_, err = impl.GuestCapability(ctx, cap, args, m)
+	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -303,15 +295,13 @@ func TestCapabilities_HostCapability_context_cancel(t *testing.T) {
 	args := []string{"pause", "test_value", "next_test_value"}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.HostCapability(ctx, cap, args, e)
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.HostCapability(ctx, cap, args, e)
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -337,14 +327,10 @@ func TestCapabilities_HostCapability_context_timeout(t *testing.T) {
 	e := &vagrant.Environment{}
 	args := []string{"pause", "test_value", "next_test_value"}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
-	g, _ := errgroup.WithContext(ctx)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.HostCapability(ctx, cap, args, e)
-		return
-	})
-	if g.Wait() != context.DeadlineExceeded {
+	_, err = impl.HostCapability(ctx, cap, args, e)
+	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -472,15 +458,13 @@ func TestCapabilities_ProviderCapability_context_cancel(t *testing.T) {
 	args := []string{"pause", "test_value", "next_test_value"}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	g, _ := errgroup.WithContext(ctx)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.ProviderCapability(ctx, cap, args, m)
-		return
-	})
-	time.Sleep(2 * time.Millisecond)
-	cancel()
-	if g.Wait() != context.Canceled {
+	go func() {
+		time.Sleep(2 * time.Millisecond)
+		cancel()
+	}()
+	_, err = impl.ProviderCapability(ctx, cap, args, m)
+	if err != context.Canceled {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
@@ -506,14 +490,10 @@ func TestCapabilities_ProviderCapability_context_timeout(t *testing.T) {
 	m := &vagrant.Machine{}
 	args := []string{"pause", "test_value", "next_test_value"}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
-	g, _ := errgroup.WithContext(ctx)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Millisecond)
 	defer cancel()
-	g.Go(func() (err error) {
-		_, err = impl.ProviderCapability(ctx, cap, args, m)
-		return
-	})
-	if g.Wait() != context.DeadlineExceeded {
+	_, err = impl.ProviderCapability(ctx, cap, args, m)
+	if err != context.DeadlineExceeded {
 		t.Fatalf("bad resp: %s", err)
 	}
 }
