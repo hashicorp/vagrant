@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	go_plugin "github.com/hashicorp/go-plugin"
@@ -230,155 +229,115 @@ type GRPCProviderServer struct {
 
 func (s *GRPCProviderServer) Action(ctx context.Context, req *vagrant_proto.GenericAction) (resp *vagrant_proto.ListResponse, err error) {
 	resp = &vagrant_proto.ListResponse{}
-	g, gctx := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-		if err != nil {
-			return
-		}
-		r, err := s.Impl.Action(gctx, req.Name, m)
-		if err != nil {
-			return
-		}
-		resp.Items = r
+	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
+	if err != nil {
 		return
-	})
-	err = g.Wait()
+	}
+	r, err := s.Impl.Action(ctx, req.Name, m)
+	if err != nil {
+		return
+	}
+	resp.Items = r
 	return
 }
 
 func (s *GRPCProviderServer) RunAction(ctx context.Context, req *vagrant_proto.ExecuteAction) (resp *vagrant_proto.GenericResponse, err error) {
 	resp = &vagrant_proto.GenericResponse{}
-	g, gctx := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		var args interface{}
-		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-		if err != nil {
-			return
-		}
-		if err = json.Unmarshal([]byte(req.Data), &args); err != nil {
-			return
-		}
-		r, err := s.Impl.RunAction(gctx, req.Name, args, m)
-		if err != nil {
-			return
-		}
-		result, err := json.Marshal(r)
-		if err != nil {
-			return
-		}
-		resp.Result = string(result)
+	var args interface{}
+	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
+	if err != nil {
 		return
-	})
-	err = g.Wait()
+	}
+	if err = json.Unmarshal([]byte(req.Data), &args); err != nil {
+		return
+	}
+	r, err := s.Impl.RunAction(ctx, req.Name, args, m)
+	if err != nil {
+		return
+	}
+	result, err := json.Marshal(r)
+	if err != nil {
+		return
+	}
+	resp.Result = string(result)
 	return
 }
 
 func (s *GRPCProviderServer) Info(ctx context.Context, req *vagrant_proto.Empty) (resp *vagrant_proto.PluginInfo, err error) {
 	resp = &vagrant_proto.PluginInfo{}
-	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		r := s.Impl.Info()
-		resp.Description = r.Description
-		resp.Priority = r.Priority
-		return
-	})
-	err = g.Wait()
+	r := s.Impl.Info()
+	resp.Description = r.Description
+	resp.Priority = r.Priority
 	return
 }
 
 func (s *GRPCProviderServer) IsInstalled(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
 	resp = &vagrant_proto.Valid{}
-	g, gctx := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-		if err != nil {
-			return
-		}
-		resp.Result, err = s.Impl.IsInstalled(gctx, m)
+	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
+	if err != nil {
 		return
-	})
-	err = g.Wait()
+	}
+	resp.Result, err = s.Impl.IsInstalled(ctx, m)
 	return
 }
 
 func (s *GRPCProviderServer) IsUsable(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Valid, err error) {
 	resp = &vagrant_proto.Valid{}
-	g, gctx := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-		if err != nil {
-			return
-		}
-		resp.Result, err = s.Impl.IsUsable(gctx, m)
+	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
+	if err != nil {
 		return
-	})
-	err = g.Wait()
+	}
+	resp.Result, err = s.Impl.IsUsable(ctx, m)
 	return
 }
 
 func (s *GRPCProviderServer) SshInfo(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.MachineSshInfo, err error) {
 	resp = &vagrant_proto.MachineSshInfo{}
-	g, gctx := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-		if err != nil {
-			return
-		}
-		r, err := s.Impl.SshInfo(gctx, m)
-		if err != nil {
-			return
-		}
-		resp.Host = r.Host
-		resp.Port = r.Port
-		resp.Username = r.Username
-		resp.PrivateKeyPath = r.PrivateKeyPath
+	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
+	if err != nil {
 		return
-	})
-	err = g.Wait()
+	}
+	r, err := s.Impl.SshInfo(ctx, m)
+	if err != nil {
+		return
+	}
+	resp.Host = r.Host
+	resp.Port = r.Port
+	resp.Username = r.Username
+	resp.PrivateKeyPath = r.PrivateKeyPath
 	return
 }
 
 func (s *GRPCProviderServer) State(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.MachineState, err error) {
 	resp = &vagrant_proto.MachineState{}
-	g, gctx := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-		if err != nil {
-			return
-		}
-		r, err := s.Impl.State(gctx, m)
-		if err != nil {
-			return
-		}
-		resp.Id = r.Id
-		resp.ShortDescription = r.ShortDesc
-		resp.LongDescription = r.LongDesc
+	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
+	if err != nil {
 		return
-	})
-	err = g.Wait()
+	}
+	r, err := s.Impl.State(ctx, m)
+	if err != nil {
+		return
+	}
+	resp.Id = r.Id
+	resp.ShortDescription = r.ShortDesc
+	resp.LongDescription = r.LongDesc
 	return
 }
 
 func (s *GRPCProviderServer) MachineIdChanged(ctx context.Context, req *vagrant_proto.Machine) (resp *vagrant_proto.Machine, err error) {
 	resp = &vagrant_proto.Machine{}
-	g, gctx := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		m, err := vagrant.LoadMachine(req.Machine, s.Impl)
-		if err != nil {
-			return
-		}
-		if err = s.Impl.MachineIdChanged(gctx, m); err != nil {
-			return
-		}
-		mdata, err := vagrant.DumpMachine(m)
-		if err != nil {
-			return
-		}
-		resp = &vagrant_proto.Machine{Machine: mdata}
+	m, err := vagrant.LoadMachine(req.Machine, s.Impl)
+	if err != nil {
 		return
-	})
-	err = g.Wait()
+	}
+	if err = s.Impl.MachineIdChanged(ctx, m); err != nil {
+		return
+	}
+	mdata, err := vagrant.DumpMachine(m)
+	if err != nil {
+		return
+	}
+	resp = &vagrant_proto.Machine{Machine: mdata}
 	return
 }
 

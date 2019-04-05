@@ -3,7 +3,6 @@ package plugin
 import (
 	"context"
 
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	go_plugin "github.com/hashicorp/go-plugin"
@@ -28,28 +27,18 @@ type GRPCIOServer struct {
 
 func (s *GRPCIOServer) Read(ctx context.Context, req *vagrant_proto.Identifier) (r *vagrant_proto.Content, err error) {
 	r = &vagrant_proto.Content{}
-	g, _ := errgroup.WithContext(ctx)
-	g.Go(func() (err error) {
-		r.Value, err = s.Impl.Read(req.Name)
-		return
-	})
-	err = g.Wait()
+	r.Value, err = s.Impl.Read(req.Name)
 	return
 }
 
 func (s *GRPCIOServer) Write(ctx context.Context, req *vagrant_proto.Content) (r *vagrant_proto.WriteResponse, err error) {
 	r = &vagrant_proto.WriteResponse{}
-	g, _ := errgroup.WithContext(ctx)
 	bytes := 0
-	g.Go(func() (err error) {
-		bytes, err = s.Impl.Write(req.Value, req.Target)
-		if err != nil {
-			return
-		}
-		r.Length = int32(bytes)
+	bytes, err = s.Impl.Write(req.Value, req.Target)
+	if err != nil {
 		return
-	})
-	err = g.Wait()
+	}
+	r.Length = int32(bytes)
 	return
 }
 
