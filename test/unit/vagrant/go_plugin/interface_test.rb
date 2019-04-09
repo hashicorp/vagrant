@@ -22,8 +22,8 @@ describe Vagrant::GoPlugin::Interface do
 
   describe "#register_plugins" do
     it "should load Provider and SyncedFolder plugins" do
-      expect(Vagrant::GoPlugin::ProviderPlugin).to receive_message_chain(:interface, :load!)
-      expect(Vagrant::GoPlugin::SyncedFolderPlugin).to receive_message_chain(:interface, :load!)
+      expect(subject).to receive(:load_providers)
+      expect(subject).to receive(:load_synced_folders)
       subject.register_plugins
     end
   end
