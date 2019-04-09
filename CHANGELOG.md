@@ -21,6 +21,7 @@ BUG FIXES:
 - core/triggers: Fix typo in UI output [GH-10748]
 - guest/void: Fix NFS capability detection [GH-10713]
 - provider/virtualbox: Ensure non-existent machines do not attempt to list snapshots [GH-10784]
+- provisioner/ansible: Fix pip installer hardcoded curl get_pip.py piped to python [GH-10625]
 
 ## 2.2.4 (February 27, 2019)
 
