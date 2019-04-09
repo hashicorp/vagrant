@@ -221,5 +221,17 @@ module Vagrant
       "#{@name}-#{@version}-#{@provider}" <=>
       "#{other.name}-#{other.version}-#{other.provider}"
     end
+
+    # @return [String]
+    def to_json(*args)
+      {
+        name: name,
+        provider: provider,
+        version: version,
+        directory: directory.to_s,
+        metadata: metadata,
+        metadata_url: metadata_url
+      }.to_json(*args)
+    end
   end
 end

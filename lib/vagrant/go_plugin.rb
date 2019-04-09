@@ -1,4 +1,6 @@
 module Vagrant
+  autoload :Proto, "vagrant/go_plugin/vagrant_proto/vagrant_services_pb"
+
   module GoPlugin
 
     # @return [String]

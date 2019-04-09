@@ -927,6 +927,26 @@ module Vagrant
       end
     end
 
+    # @return [String]
+    def to_json(*args)
+      {
+        cwd: cwd,
+        data_dir: data_dir,
+        vagrantfile_name: vagrantfile_name,
+        home_path: home_path,
+        local_data_path: local_data_path,
+        tmp_path: tmp_path,
+        aliases_path: aliases_path,
+        boxes_path: boxes_path,
+        gems_path: gems_path,
+        default_private_key_path: default_private_key_path,
+        root_path: root_path,
+        primary_machine_name: primary_machine_name,
+        machine_names: machine_names,
+        active_machines: Hash[active_machines]
+      }.to_json(*args)
+    end
+
     protected
 
     # Attempt to guess the configured provider in use. Will fallback

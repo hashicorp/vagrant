@@ -81,6 +81,50 @@ func Teardown() {
 	Plugins.Logger.Info("plugins have been halted")
 }
 
+//export ListProviders
+func ListProviders() *C.char {
+	list := map[string]interface{}{}
+	r := &Response{Result: list}
+	if Plugins == nil {
+		return r.Dump()
+	}
+	for n, p := range Plugins.Providers {
+		info := p.Provider.Info()
+		c := p.Client.ReattachConfig()
+		data := map[string]interface{}{
+			"network":     c.Addr.Network(),
+			"address":     c.Addr.String(),
+			"description": info.Description,
+			"priority":    info.Priority,
+		}
+		list[n] = data
+	}
+	r.Result = list
+	return r.Dump()
+}
+
+//export ListSyncedFolders
+func ListSyncedFolders() *C.char {
+	list := map[string]interface{}{}
+	r := &Response{Result: list}
+	if Plugins == nil {
+		return r.Dump()
+	}
+	for n, p := range Plugins.SyncedFolders {
+		info := p.SyncedFolder.Info()
+		c := p.Client.ReattachConfig()
+		data := map[string]interface{}{
+			"network":     c.Addr.Network(),
+			"address":     c.Addr.String(),
+			"description": info.Description,
+			"priority":    info.Priority,
+		}
+		list[n] = data
+	}
+	r.Result = list
+	return r.Dump()
+}
+
 // stub required for build
 func main() {}
 
