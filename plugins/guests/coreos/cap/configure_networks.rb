@@ -6,79 +6,63 @@ module VagrantPlugins
   module GuestCoreOS
     module Cap
       class ConfigureNetworks
-        include Vagrant::Util
+        extend Vagrant::Util::GuestInspection::Linux
+
+        DEFAULT_ENVIRONMENT_IP = "127.0.0.1".freeze
 
         def self.configure_networks(machine, networks)
-          machine.communicate.tap do |comm|
-            # Read network interface names
-            interfaces = []
-            comm.sudo("ifconfig | grep -E '(e[n,t][h,s,p][[:digit:]]([a-z][[:digit:]])?)' | cut -f1 -d:") do |_, result|
-              interfaces = result.split("\n")
+          cloud_config = {}
+          # Locate configured IP addresses to drop in /etc/environment
+          # for export. If no addresses found, fall back to default
+          public_ip = catch(:public_ip) do
+            machine.config.vm.networks.each do |type, opts|
+              next if type != :public_network
+              throw(:public_ip, opts[:ip]) if opts[:ip]
             end
+            DEFAULT_ENVIRONMENT_IP
+          end
+          private_ip = catch(:private_ip) do
+            machine.config.vm.networks.each do |type, opts|
+              next if type != :private_network
+              throw(:private_ip, opts[:ip]) if opts[:ip]
+            end
+            public_ip
+          end
+          cloud_config["write_files"] = [
+            {"path" => "/etc/environment",
+              "content" => "COREOS_PUBLIC_IPV4=#{public_ip}\nCOREOS_PRIVATE_IPV4=#{private_ip}"}
+          ]
 
-            primary_machine_config = machine.env.active_machines.first
-            primary_machine = machine.env.machine(*primary_machine_config, true)
-
-            primary_machine_ip = get_ip(primary_machine)
-            current_ip = get_ip(machine)
-            if current_ip == primary_machine_ip
-              entry = TemplateRenderer.render("guests/coreos/etcd.service", options: {
-                my_ip: current_ip,
-              })
+          # Generate configuration for any static network interfaces
+          # which have been defined
+          interfaces = machine.guest.capability(:network_interfaces)
+          units = networks.map do |network|
+            iface = network[:interface].to_i
+            unit_name = "50-vagrant#{iface}.network"
+            device = interfaces[iface]
+            if network[:type].to_s == "dhcp"
+              network_content = "DHCP=yes"
             else
-              connection_string = "#{primary_machine_ip}:7001"
-              entry = TemplateRenderer.render("guests/coreos/etcd.service", options: {
-                connection_string: connection_string,
-                my_ip: current_ip,
-              })
+              prefix = IPAddr.new("255.255.255.255/#{network[:netmask]}").to_i.to_s(2).count("1")
+              address = "#{network[:ip]}/#{prefix}"
+              network_content = "Address=#{address}"
             end
-
-            Tempfile.open("vagrant-coreos-configure-networks") do |f|
-              f.binmode
-              f.write(entry)
-              f.fsync
-              f.close
-              comm.upload(f.path, "/tmp/etcd-cluster.service")
-            end
-
-            # Build a list of commands
-            commands = []
-
-            # Stop default systemd
-            commands << "systemctl stop etcd"
-
-            # Configure interfaces
-            # FIXME: fix matching of interfaces with IP addresses
-            networks.each do |network|
-              iface = interfaces[network[:interface].to_i]
-              commands << "ifconfig #{iface} #{network[:ip]} netmask #{network[:netmask]}".squeeze(" ")
-            end
-
-            commands << <<-EOH.gsub(/^ {14}/, '')
-              mv /tmp/etcd-cluster.service /media/state/units/
-              systemctl restart local-enable.service
-
-              # Restart default etcd
-              systemctl start etcd
-            EOH
-
-            # Run all network configuration commands in one communicator session.
-            comm.sudo(commands.join("\n"))
+            {"name" => unit_name,
+              "runtime" => "no",
+              "content" => "[Match]\nName=#{device}\n[Network]\n#{network_content}"}
           end
-        end
+          cloud_config["coreos"] = {"units" => units.compact}
 
-        private
+          # Upload configuration and apply
+          file = Tempfile.new("vagrant-coreos-networks")
+          file.puts("#cloud-config\n")
+          file.puts(cloud_config.to_yaml)
+          file.close
 
-        def self.get_ip(machine)
-          ip = nil
-          machine.config.vm.networks.each do |type, opts|
-            if type == :private_network && opts[:ip]
-              ip = opts[:ip]
-              break
-            end
-          end
-
-          ip
+          dst = "/var/tmp/networks.yml"
+          svc_path = dst.tr("/", "-")[1..-1]
+          machine.communicate.upload(file.path, dst)
+          machine.communicate.sudo("systemctl start system-cloudinit@#{svc_path}.service")
         end
       end
     end
