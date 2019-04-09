@@ -19,6 +19,7 @@ BUG FIXES:
 - communicator/ssh: Remove net/sftp loading to prevent loading errors [GH-10745]
 - core/triggers: Fix typo in UI output [GH-10748]
 - guest/void: Fix NFS capability detection [GH-10713]
+- provider/virtualbox: Ensure non-existent machines do not attempt to list snapshots [GH-10784]
 
 ## 2.2.4 (February 27, 2019)
 
