@@ -32,7 +32,10 @@ module VagrantPlugins
         #
         # Current limitations:
         #   - The installation of a specific Ansible version is only supported by
-        #     the "pip" install_mode.
+        #     the "pip" install_mode. Note that "pip" installation also takes place
+        #     via a default command. If pip needs to be installed differently then 
+        #     the command can be overwritten by supplying "pip_install_cmd" in the
+        #     config settings.
         #   - There is no absolute guarantee that the automated installation will replace
         #     a previous Ansible installation (although it works fine in many cases)
         #
@@ -51,7 +54,7 @@ module VagrantPlugins
              (config.version.to_s.to_sym == :latest ||
               !@machine.guest.capability(:ansible_installed, config.version))
             @machine.ui.detail I18n.t("vagrant.provisioners.ansible.installing")
-            @machine.guest.capability(:ansible_install, config.install_mode, config.version, config.pip_args)
+            @machine.guest.capability(:ansible_install, config.install_mode, config.version, config.pip_args, config.pip_install_cmd)
           end
 
           # This step will also fetch the Ansible version data into related instance variables

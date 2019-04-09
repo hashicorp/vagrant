@@ -11,6 +11,7 @@ module VagrantPlugins
         attr_accessor :install
         attr_accessor :install_mode
         attr_accessor :pip_args
+        attr_accessor :pip_install_cmd
 
         def initialize
           super
@@ -18,6 +19,7 @@ module VagrantPlugins
           @install           = UNSET_VALUE
           @install_mode      = UNSET_VALUE
           @pip_args          = UNSET_VALUE
+          @pip_install_cmd   = UNSET_VALUE          
           @provisioning_path = UNSET_VALUE
           @tmp_path          = UNSET_VALUE
         end
@@ -28,6 +30,7 @@ module VagrantPlugins
           @install           = true                   if @install           == UNSET_VALUE
           @install_mode      = :default               if @install_mode      == UNSET_VALUE
           @pip_args          = ""                     if @pip_args          == UNSET_VALUE
+          @pip_install_cmd   = ""                     if @pip_args          == UNSET_VALUE          
           @provisioning_path = "/vagrant"             if provisioning_path  == UNSET_VALUE
           @tmp_path          = "/tmp/vagrant-ansible" if tmp_path           == UNSET_VALUE
         end
