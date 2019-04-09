@@ -9,6 +9,7 @@ IMPROVEMENTS:
 - core: Use consistent settings when unpacking boxes as root [GH-10707]
 - core: Write metadata.json file when packaging box [GH-10706]
 - core: Remove whitespace from id file on load [GH-10727]
+- guest/coreos:  Update network configuration and hostname setting [GH-10752]
 - guest/freebsd: Add proper VirtualBox share folders support for FreeBSD guests [GH-10717]
 - guest/freebsd: Add unmount share folder for  VirtualBox guests [GH-10761]
 - guest/freebsd: Simplify network interface listing when configuring networks [GH-10763]
