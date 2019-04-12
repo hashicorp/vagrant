@@ -135,7 +135,7 @@ This can be disabled setting this environment variable.
 ## `VAGRANT_DISABLE_VBOXSYMLINKCREATE`
 
 If set, this will disable the ability to create symlinks with all virtualbox
-shared folders. Defaults to true if the option is not set. This can be overridden
+shared folders. Defaults to false if the option is not set. This can be overridden
 on a per-folder basis within your Vagrantfile config by settings the
 `SharedFoldersEnableSymlinksCreate` option to true.
 
