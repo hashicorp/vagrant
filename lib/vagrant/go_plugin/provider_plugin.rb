@@ -31,14 +31,21 @@ module Vagrant
 
         # Run the action
         def call(env)
-          result = plugin_client.run_action(
+          if env.is_a?(Hash) && !env.is_a?(Vagrant::Util::HashWithIndifferentAccess)
+            env = Vagrant::Util::HashWithIndifferentAccess.new(env)
+          end
+          machine = env.fetch(:machine, {})
+          response = plugin_client.run_action(
             Vagrant::Proto::ExecuteAction.new(
               name: self.class.action_name,
               data: JSON.dump(env),
               machine: JSON.dump(machine)))
-          response = JSON.load(result)
-          response.each_pair do |k, v|
-            env[k] = v
+          result = JSON.load(response.result)
+          if result.is_a?(Hash)
+            result = Vagrant::Util::HashWithIndifferentAccess.new(result)
+            result.each_pair do |k, v|
+              env[k] = v
+            end
           end
           @app.call(env)
         end
@@ -58,7 +65,7 @@ module Vagrant
         end
 
         # @return [String] name of the provider plugin for this class
-        def provider_name
+        def name
           if !@_name
             @_name = plugin_client.name(Vagrant::Proto::Empty.new).name
           end
@@ -105,20 +112,24 @@ module Vagrant
 
         # Execute capability with given name
         #
-        # @param [Symbol] name Name of the capability
+        # @param [Symbol] cap_name Name of the capability
         # @return [Object]
-        def capability(name, *args)
+        def capability(cap_name, *args)
           r = plugin_client.provider_capability(
             Vagrant::Proto::ProviderCapabilityRequest.new(
               capability: Vagrant::Proto::ProviderCapability.new(
-                name: name.to_s,
-                provider: provider_name
+                name: cap_name.to_s,
+                provider: name
               ),
               machine: JSON.dump(machine),
               arguments: JSON.dump(args)
             )
           )
-          JSON.load(r.result)
+          result = JSON.load(r.result)
+          if result.is_a?(Hash)
+            result = Vagrant::Util::HashWithIndifferentAccess.new(result)
+          end
+          result
         end
 
         # @return [Boolean] provider is installed

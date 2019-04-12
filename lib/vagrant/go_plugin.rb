@@ -9,6 +9,7 @@ module Vagrant
     autoload :CapabilityPlugin, "vagrant/go_plugin/capability_plugin"
     autoload :ConfigPlugin, "vagrant/go_plugin/config_plugin"
     autoload :Core, "vagrant/go_plugin/core"
+    autoload :GRPCPlugin, "vagrant/go_plugin/core"
     autoload :Interface, "vagrant/go_plugin/interface"
     autoload :Manager, "vagrant/go_plugin/manager"
     autoload :ProviderPlugin, "vagrant/go_plugin/provider_plugin"

@@ -49,6 +49,32 @@ describe Vagrant::GoPlugin::CapabilityPlugin do
       expect(plugin_klass).to receive(:guest_capability).with(:dummy, :other_cap)
       described_class.generate_guest_capabilities(client, plugin_klass, plugin_type)
     end
+
+    context "generated capability" do
+      let(:cap_class) { Class.new(Vagrant::GoPlugin::CapabilityPlugin::Capability) }
+      let(:response) { double(result: result) }
+      let(:result) { nil }
+
+      before {
+        expect(Class).to receive(:new).and_return(cap_class)
+        allow(Class).to receive(:new).and_call_original
+        described_class.generate_guest_capabilities(client, plugin_klass, plugin_type)
+      }
+
+      it "should call guest_capability on the plugin client" do
+        expect(client).to receive(:guest_capability).and_return(response)
+        cap_class.stub_cap(nil, nil)
+      end
+
+      context "when result is a hash" do
+        let(:result) { "{}" }
+
+        it "should convert hash to hash with indifferent access" do
+          expect(client).to receive(:guest_capability).and_return(response)
+          expect(cap_class.stub_cap(nil, nil)).to be_a(Vagrant::Util::HashWithIndifferentAccess)
+        end
+      end
+    end
   end
 
   describe ".generate_host_capabilities" do
@@ -91,6 +117,32 @@ describe Vagrant::GoPlugin::CapabilityPlugin do
       expect(plugin_klass).to receive(:host_capability).with(:dummy, :other_cap)
       described_class.generate_host_capabilities(client, plugin_klass, plugin_type)
     end
+
+    context "generated capability" do
+      let(:cap_class) { Class.new(Vagrant::GoPlugin::CapabilityPlugin::Capability) }
+      let(:response) { double(result: result) }
+      let(:result) { nil }
+
+      before {
+        expect(Class).to receive(:new).and_return(cap_class)
+        allow(Class).to receive(:new).and_call_original
+        described_class.generate_host_capabilities(client, plugin_klass, plugin_type)
+      }
+
+      it "should call guest_capability on the plugin client" do
+        expect(client).to receive(:host_capability).and_return(response)
+        cap_class.stub_cap(nil, nil)
+      end
+
+      context "when result is a hash" do
+        let(:result) { "{}" }
+
+        it "should convert hash to hash with indifferent access" do
+          expect(client).to receive(:host_capability).and_return(response)
+          expect(cap_class.stub_cap(nil, nil)).to be_a(Vagrant::Util::HashWithIndifferentAccess)
+        end
+      end
+    end
   end
 
   describe ".generate_provider_capabilities" do
@@ -132,6 +184,32 @@ describe Vagrant::GoPlugin::CapabilityPlugin do
       expect(plugin_klass).to receive(:provider_capability).with(:dummy, :stub_cap)
       expect(plugin_klass).to receive(:provider_capability).with(:dummy, :other_cap)
       described_class.generate_provider_capabilities(client, plugin_klass, plugin_type)
+    end
+
+    context "generated capability" do
+      let(:cap_class) { Class.new(Vagrant::GoPlugin::CapabilityPlugin::Capability) }
+      let(:response) { double(result: result) }
+      let(:result) { nil }
+
+      before {
+        expect(Class).to receive(:new).and_return(cap_class)
+        allow(Class).to receive(:new).and_call_original
+        described_class.generate_provider_capabilities(client, plugin_klass, plugin_type)
+      }
+
+      it "should call guest_capability on the plugin client" do
+        expect(client).to receive(:provider_capability).and_return(response)
+        cap_class.stub_cap(nil, nil)
+      end
+
+      context "when result is a hash" do
+        let(:result) { "{}" }
+
+        it "should convert hash to hash with indifferent access" do
+          expect(client).to receive(:provider_capability).and_return(response)
+          expect(cap_class.stub_cap(nil, nil)).to be_a(Vagrant::Util::HashWithIndifferentAccess)
+        end
+      end
     end
   end
 end

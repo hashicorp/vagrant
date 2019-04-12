@@ -24,14 +24,21 @@ module Vagrant
         logger.debug("guest capabilities support detected in #{plugin_type} plugin #{plugin_klass}")
         result.capabilities.each do |cap|
           cap_klass = Class.new(Capability).tap do |k|
-            k.class_eval("def self.#{cap.name}(machine, *args){ plugin_client.guest_capability(" \
-              "Vagrant::Proto::GuestCapabilityRequest.new(" \
-              "machine: JSON.dump(machine), arguments: JSON.dump(args)," \
-              "capability: Vagrant::Proto::SystemCapability.new(" \
-              "name: '#{cap.name}', platform: '#{cap.platform}'))) }")
+            k.define_singleton_method(cap.name) { |machine, *args|
+              response = plugin_client.guest_capability(
+                Vagrant::Proto::GuestCapabilityRequest.new(
+                  machine: JSON.dump(machine), arguments: JSON.dump(args),
+                  capability: Vagrant::Proto::SystemCapability.new(
+                    name: cap.name, platform: cap.platform))).result
+              result = JSON.load(response)
+              if result.is_a?(Hash)
+                result = Vagrant::Util::HashWithIndifferentAccess.new(result)
+              end
+              result
+            }
           end
           cap_klass.plugin_client = client
-          plugin_klass.guest_capability(cap.platform, cap.name) { cap_klass }
+          plugin_klass.guest_capability(cap.platform.to_sym, cap.name.to_sym) { cap_klass }
         end
       end
 
@@ -48,14 +55,21 @@ module Vagrant
         logger.debug("host capabilities support detected in #{plugin_type} plugin #{plugin_klass}")
         result.capabilities.each do |cap|
           cap_klass = Class.new(Capability).tap do |k|
-            k.class_eval("def self.#{cap.name}(environment, *args){ plugin_client.host_capability(" \
-              "Vagrant::Proto::HostCapabilityRequest.new(" \
-              "environment: JSON.dump(environment), arguments: JSON.dump(args)," \
-              "capability: Vagrant::Proto::SystemCapability.new(" \
-              "name: '#{cap.name}', platform: '#{cap.platform}'))) }")
+            k.define_singleton_method(cap.name) { |environment, *args|
+              response = plugin_client.host_capability(
+                Vagrant::Proto::HostCapabilityRequest.new(
+                  environment: JSON.dump(environment), arguments: JSON.dump(args),
+                  capability: Vagrant::Proto::SystemCapability.new(
+                    name: cap.name, platform: cap.platform))).result
+              result = JSON.load(response)
+              if result.is_a?(Hash)
+                result = Vagrant::Util::HashWithIndifferentAccess.new(result)
+              end
+              result
+            }
           end
           cap_klass.plugin_client = client
-          plugin_klass.host_capability(cap.platform, cap.name) { cap_klass }
+          plugin_klass.host_capability(cap.platform.to_sym, cap.name.to_sym) { cap_klass }
         end
       end
 
@@ -72,14 +86,21 @@ module Vagrant
         logger.debug("provider capabilities support detected in #{plugin_type} plugin #{plugin_klass}")
         result.capabilities.each do |cap|
           cap_klass = Class.new(Capability).tap do |k|
-            k.class_eval("def self.#{cap.name}(machine, *args){ plugin_client.provider_capability(" \
-              "Vagrant::Proto::ProviderCapabilityRequest.new(" \
-              "machine: JSON.dump(machine), arguments: JSON.dump(args)," \
-              "capability: Vagrant::Proto::ProviderCapability.new(" \
-              "name: '#{cap.name}', provider: '#{cap.provider}'))) }")
+            k.define_singleton_method(cap.name) { |machine, *args|
+              response = plugin_client.provider_capability(
+                Vagrant::Proto::ProviderCapabilityRequest.new(
+                  machine: JSON.dump(machine), arguments: JSON.dump(args),
+                  capability: Vagrant::Proto::ProviderCapability.new(
+                    name: cap.name, provider: cap.provider))).result
+              result = JSON.load(response)
+              if result.is_a?(Hash)
+                result = Vagrant::Util::HashWithIndifferentAccess.new(result)
+              end
+              result
+            }
           end
           cap_klass.plugin_client = client
-          plugin_klass.provider_capability(cap.provider, cap.name) { cap_klass }
+          plugin_klass.provider_capability(cap.provider.to_sym, cap.name.to_sym) { cap_klass }
         end
       end
     end

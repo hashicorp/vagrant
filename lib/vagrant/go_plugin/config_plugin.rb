@@ -27,14 +27,17 @@ module Vagrant
         # Finalize the current configuration
         def finalize!
           data = local_data
-          result = plugin_client.config_finalize(Vagrant::Proto::Configuration.new(
+          response = plugin_client.config_finalize(Vagrant::Proto::Configuration.new(
             data: JSON.dump(data)))
-          new_data = Vagrant::Util::HashWithIndifferentAccess.new(JSON.load(result.data))
-          new_data.each do |key, value|
-            next if data[key] == value
-            instance_variable_set("@#{key}", value)
-            if !self.respond_to?(key)
-              self.define_singleton_method(key) { instance_variable_get("@#{key}") }
+          result = JSON.load(response.data)
+          if result && result.is_a?(Hash)
+            new_data = Vagrant::Util::HashWithIndifferentAccess.new(result)
+            new_data.each do |key, value|
+              next if data[key] == value
+              instance_variable_set("@#{key}", value)
+              if !key.start_with?("_") && !self.respond_to?(key)
+                self.define_singleton_method(key) { instance_variable_get("@#{key}") }
+              end
             end
           end
           self
@@ -47,18 +50,14 @@ module Vagrant
         def validate(machine)
           result = plugin_client.config_validate(Vagrant::Proto::Configuration.new(
             machine: JSON.dump(machine),
-            data: local_data))
+            data: JSON.dump(local_data)))
           result.items
         end
 
         # @return [Hash] currently defined instance variables
         def local_data
-          data = Vagrant::Util::HashWithIndifferentAccess.
+          Vagrant::Util::HashWithIndifferentAccess.
             new(instance_variables_hash)
-          data.delete_if { |k,v|
-            k.start_with?("_")
-          }
-          data
         end
       end
     end
