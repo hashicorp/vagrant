@@ -138,7 +138,7 @@ If set, this will completely disable the ability to create symlinks with all Vir
 shared folders. If this environment variable is not set, the VirtualBox synced
 folders option `SharedFoldersEnableSymlinksCreate` will be enabled by default.
 This option can be overridden on a per-folder basis within your Vagrantfile
-config by settings the `SharedFoldersEnableSymlinksCreate` option to true if you
+config by setting the `SharedFoldersEnableSymlinksCreate` option to true if you
 do not wish to completely disable this feature for all VirtualBox guests.
 
 More information on the option can be read in the [VirtualBox synced folders docs page.](/docs/synced-folders/virtualbox.html#sharedfoldersenablesymlinkscreate)
