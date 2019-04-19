@@ -595,6 +595,28 @@ module VagrantPlugins
           return ip
         end
 
+        def read_guest_ip_by_mac_address(mac_address)
+          output = execute("guestproperty", "enumerate", @uuid)
+
+          # Use the MAC address to find the adapter number
+          adapter_number = output[/Name: \/VirtualBox\/GuestInfo\/Net\/(\d+)\/MAC, value: #{mac_address}, timestamp: \d+, flags:.*$/, 1]
+          if adapter_number.nil? || adapter_number.empty?
+            raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound,
+              guest_property: "/VirtualBox/GuestInfo/Net/\d+/V4/MAC, value: #{mac_address}"
+          end
+
+          # Now use the adapter number to find the IPv4 address.
+          #
+          # Use the previous command's output, for efficiency
+          ip = output[/Name: \/VirtualBox\/GuestInfo\/Net\/#{adapter_number}\/V4\/IP, value: (.*), timestamp: \d+, flags:.*$/, 1]
+          if !valid_ip_address?(ip)
+            raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound,
+              guest_property: "/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP"
+          end
+
+          return ip
+        end
+
         def read_guest_property(property)
           output = execute("guestproperty", "get", @uuid, property)
           if output =~ /^Value: (.+?)$/
@@ -670,6 +692,12 @@ module VagrantPlugins
 
               nics[adapter] ||= {}
               nics[adapter][:type] = type
+            elsif line =~ /^macaddress(\d+)="(.+?)"$/
+              adapter = $1.to_i
+              mac_address = $2.to_s
+
+              nics[adapter] ||= {}
+              nics[adapter][:mac_address] = mac_address
             elsif line =~ /^hostonlyadapter(\d+)="(.+?)"$/
               adapter = $1.to_i
               network = $2.to_s

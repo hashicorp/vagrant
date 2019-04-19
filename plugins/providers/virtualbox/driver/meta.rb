@@ -126,6 +126,7 @@ module VagrantPlugins
           :read_dhcp_servers,
           :read_guest_additions_version,
           :read_guest_ip,
+          :read_guest_ip_by_mac_address,
           :read_guest_property,
           :read_host_only_interfaces,
           :read_mac_address,

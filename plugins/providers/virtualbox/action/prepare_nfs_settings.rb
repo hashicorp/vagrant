@@ -37,18 +37,20 @@ module VagrantPlugins
         #
         # The ! indicates that this method modifies its argument.
         def add_ips_to_env!(env)
-          adapter, host_ip = find_host_only_adapter
-          machine_ip       = read_static_machine_ips
+          # Find the MAC address of guest-side NIC associated with the host-only
+          # adapter of the guest
+          mac_address, host_ip = find_host_only_mac_address
+          machine_ip           = read_static_machine_ips
 
           if !machine_ip
             # No static IP, attempt to use the dynamic IP.
-            machine_ip = read_dynamic_machine_ip(adapter)
+            machine_ip = read_dynamic_machine_ip(mac_address)
           else
             # We have static IPs, also attempt to read any dynamic IPs.
             # If there is no dynamic IP on the adapter, it doesn't matter. We
             # already have a static IP.
             begin
-              dynamic_ip = read_dynamic_machine_ip(adapter)
+              dynamic_ip = read_dynamic_machine_ip(mac_address)
             rescue Vagrant::Errors::NFSNoGuestIP
               dynamic_ip = nil
             end
@@ -78,21 +80,20 @@ module VagrantPlugins
           end
 
           raise Vagrant::Errors::NFSNoHostonlyNetwork if !host_ip || !machine_ip
-
           env[:nfs_host_ip]    = host_ip
           env[:nfs_machine_ip] = machine_ip
         end
 
-        # Finds first host only network adapter and returns its adapter number
+        # Finds first host-only network adapter and returns its MAC address
         # and IP address
         #
-        # @return [Integer, String] adapter number, ip address of found host-only adapter
-        def find_host_only_adapter
+        # @return [String, String] guest-side MAC address, host-side ip address of found host-only adapter
+        def find_host_only_mac_address
           @machine.provider.driver.read_network_interfaces.each do |adapter, opts|
             if opts[:type] == :hostonly
               @machine.provider.driver.read_host_only_interfaces.each do |interface|
                 if interface[:name] == opts[:hostonly]
-                  return adapter, interface[:ip]
+                  return opts[:mac_address], interface[:ip]
                 end
               end
             end
@@ -123,25 +124,21 @@ module VagrantPlugins
         end
 
         # Returns the IP address of the guest by looking at vbox guest property
-        # for the appropriate guest adapter.
+        # for the appropriate guest adapter with the given MAC address.
         #
         # For DHCP interfaces, the guest property will not be present until the
         # guest completes
         #
-        # @param [Integer] adapter number to read IP for
+        # @param [String] MAC address of adapter, which we want to read IP of
         # @return [String] ip address of adapter
-        def read_dynamic_machine_ip(adapter)
-          return nil unless adapter
-
-          # vbox guest properties are 0-indexed, while showvminfo network
-          # interfaces are 1-indexed. go figure.
-          guestproperty_adapter = adapter - 1
+        def read_dynamic_machine_ip(mac_address)
+          return nil unless mac_address
 
           # we need to wait for the guest's IP to show up as a guest property.
           # retry thresholds are relatively high since we might need to wait
           # for DHCP, but even static IPs can take a second or two to appear.
           retryable(retry_options.merge(on: Vagrant::Errors::VirtualBoxGuestPropertyNotFound)) do
-            @machine.provider.driver.read_guest_ip(guestproperty_adapter)
+            @machine.provider.driver.read_guest_ip_by_mac_address(mac_address)
           end
         rescue Vagrant::Errors::VirtualBoxGuestPropertyNotFound
           # this error is more specific with a better error message directing
