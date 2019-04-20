@@ -12,6 +12,8 @@ require "rubygems/name_tuple"
 require_relative "shared_helpers"
 require_relative "version"
 require_relative "util/safe_env"
+require_relative "util/platform"
+require "vagrant/util/subprocess"
 
 module Vagrant
   # This class manages Vagrant's interaction with Bundler. Vagrant uses
@@ -40,6 +42,17 @@ module Vagrant
     def initialize
       @plugin_gem_path = Vagrant.user_data_path.join("gems", RUBY_VERSION).freeze
       @logger = Log4r::Logger.new("vagrant::bundler")
+
+      # Because of a rubygems bug, we need to set the gemrc file path
+      # through this method rather than relying on the environment varible
+      # GEMRC. On windows, that path gets split on `:`: and `;`, which means
+      # the drive letter gets treated as its own path. If that path exists locally,
+      # (like having a random folder called `c` where the library was invoked),
+      # it fails thinking the folder `c` is a gemrc file.
+      gemrc_val = ENV["GEMRC"]
+      ENV["GEMRC"] = ""
+      Gem.configuration = Gem::ConfigFile.new(["--config-file", gemrc_val])
+      ENV["GEMRC"] = gemrc_val
     end
 
     # Enable Vagrant environment specific plugins at given data path
