@@ -80,7 +80,7 @@ module VagrantPlugins
           end
 
           to_update = [
-            [name, provider, boxes[name][provider].sort.last],
+            [name, provider, boxes[name][provider].sort_by{|n| Gem::Version.new(n)}.last],
           ]
 
           to_update.each do |n, p, v|
