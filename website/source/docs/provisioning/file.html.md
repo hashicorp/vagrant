@@ -88,7 +88,9 @@ The file provisioner takes only two options, both of which are required:
 * `destination` (string) - Is the remote path on the guest machine where
   the source will be uploaded to. The file/folder is uploaded as the SSH user
   over SCP, so this location must be writable to that user. The SSH user can be
-  determined by running `vagrant ssh-config`, and defaults to "vagrant".
+  determined by running `vagrant ssh-config`, and defaults to "vagrant". Both
+  forward and backward slash work for Windows guest. Variables like `$HOME` are
+  expanded by Vagrant, not by guest.
 
 ## Caveats
 
