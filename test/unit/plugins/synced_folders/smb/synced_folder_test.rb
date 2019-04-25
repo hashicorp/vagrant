@@ -36,7 +36,7 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
     end
   end
 
-  describe ".usable?" do
+  describe "#usable?" do
     context "without supporting capabilities" do
       it "is not usable" do
         expect(subject.usable?(machine)).to be(false)
@@ -66,7 +66,7 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
     end
   end
 
-  describe ".prepare" do
+  describe "#prepare" do
     let(:host_caps){ [:smb_start, :smb_prepare] }
 
     context "with username credentials provided" do
@@ -181,7 +181,7 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
     end
   end
 
-  describe ".enable" do
+  describe "#enable" do
     it "fails when guest does not support capability" do
       expect{
         subject.enable(machine, folders, options)
@@ -312,7 +312,7 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
     end
   end
 
-  describe ".cleanup" do
+  describe "#cleanup" do
     context "without supporting capability" do
       it "does nothing" do
         subject.cleanup(machine, options)
