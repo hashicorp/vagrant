@@ -134,10 +134,9 @@ If you do not want to type your password on every `vagrant up`, Vagrant
 uses thoughtfully crafted commands to make fine-grained sudoers modifications
 possible to avoid entering your password.
 
-Below, we have a couple example sudoers entries. Note that you may
-have to modify them _slightly_ on certain hosts because the way Vagrant
-modifies `/etc/exports` changes a bit from OS to OS. If the commands below
-are located in non-standard paths, modify them as appropriate.
+Below are example entries to add at the end of your sudoers file.
+
+Note that you may have to modify them _slightly_ on certain hosts because the way Vagrant modifies `/etc/exports` changes a bit from OS to OS. If the commands below are located in non-standard paths, modify them as appropriate.
 
 For \*nix users, make sure to edit your `/etc/sudoers` file with `visudo`. It protects you against syntax errors which could leave you without the ability to gain elevated privileges.
 
@@ -148,7 +147,7 @@ All of the snippets below require Vagrant version 1.7.3 or higher.
    configured, you might need to use a different group than the ones listed in the examples below.
 </div>
 
-For OS X, sudoers should have this entry:
+At the end of sudoers in OS X:
 
 ```
 Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
@@ -157,7 +156,7 @@ Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -E -e /*/ d -ibak /etc/exports
 %admin ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD, VAGRANT_EXPORTS_REMOVE
 ```
 
-For Ubuntu Linux , sudoers should look like this:
+At the end of sudoers in Ubuntu Linux:
 
 ```
 Cmnd_Alias VAGRANT_EXPORTS_CHOWN = /bin/chown 0\:0 /tmp/*
@@ -168,8 +167,7 @@ Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
 %sudo ALL=(root) NOPASSWD: VAGRANT_EXPORTS_CHOWN, VAGRANT_EXPORTS_MV, VAGRANT_NFSD_CHECK, VAGRANT_NFSD_START, VAGRANT_NFSD_APPLY
 ```
 
-For Fedora Linux, sudoers might look like this (given your user
-belongs to the vagrant group):
+At the end of sudoers in Fedora Linux (given your user belongs to the `vagrant` group):
 
 ```
 Cmnd_Alias VAGRANT_EXPORTS_CHOWN = /bin/chown 0\:0 /tmp/*
