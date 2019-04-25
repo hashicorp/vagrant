@@ -152,6 +152,15 @@ module VagrantPlugins
             guest: data[:guestpath].to_s))
           machine.guest.capability(
             :mount_smb_shared_folder, data[:smb_id], data[:guestpath], data)
+
+          clean_folder_configuration(data)
+        end
+      end
+
+      # Nothing to do here but ensure folder options are scrubbed
+      def disable(machine, folders, opts)
+        folders.each do |_, data|
+          clean_folder_configuration(data)
         end
       end
 
@@ -159,6 +168,18 @@ module VagrantPlugins
         if machine.env.host.capability?(:smb_cleanup)
           machine.env.host.capability(:smb_cleanup, machine, opts)
         end
+      end
+
+      protected
+
+      # Remove data that should not be persisted within folder
+      # specific configuration
+      #
+      # @param [Hash] data Folder configuration
+      def clean_folder_configuration(data)
+        return if !data.is_a?(Hash)
+        data.delete(:smb_password)
+        nil
       end
     end
   end

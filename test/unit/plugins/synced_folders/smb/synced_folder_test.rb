@@ -229,6 +229,11 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
         expect(folders["/second/path"][:smb_host]).to eq("ADDR")
       end
 
+      it "should scrub folder configuration" do
+        expect(subject).to receive(:clean_folder_configuration).at_least(:once)
+        subject.enable(machine, folders, options)
+      end
+
       context "with smb_host option set" do
         let(:folders){ {"/first/path" => {smb_host: "ADDR"}, "/second/path" => {}} }
 
@@ -251,6 +256,59 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
           expect(folders["/second/path"][:group]).to eq("smbgroup")
         end
       end
+
+      context "with smb_username and smb_password set" do
+        let(:folders){ {
+          "/first/path" => {owner: "smbowner", smb_username: "user", smb_password: "pass"},
+          "/second/path" => {group: "smbgroup", smb_username: "user", smb_password: "pass"}
+        } }
+
+        it "should retain non password configuration options" do
+          subject.enable(machine, folders, options)
+          folder1 = folders["/first/path"]
+          folder2 = folders["/second/path"]
+          expect(folder1.key?(:owner)).to be_truthy
+          expect(folder1.key?(:smb_username)).to be_truthy
+          expect(folder2.key?(:group)).to be_truthy
+          expect(folder2.key?(:smb_username)).to be_truthy
+        end
+
+        it "should remove the smb_password option when set" do
+          subject.enable(machine, folders, options)
+          expect(folders["/first/path"].key?(:smb_password)).to be_falsey
+          expect(folders["/second/path"].key?(:smb_password)).to be_falsey
+        end
+      end
+    end
+  end
+
+  describe "#disable" do
+    it "should scrub folder configuration" do
+      expect(subject).to receive(:clean_folder_configuration).at_least(:once)
+      subject.disable(machine, folders, options)
+    end
+
+    context "with smb_username and smb_password set" do
+      let(:folders){ {
+        "/first/path" => {owner: "smbowner", smb_username: "user", smb_password: "pass"},
+        "/second/path" => {group: "smbgroup", smb_username: "user", smb_password: "pass"}
+      } }
+
+      it "should retain non password configuration options" do
+        subject.disable(machine, folders, options)
+        folder1 = folders["/first/path"]
+        folder2 = folders["/second/path"]
+        expect(folder1.key?(:owner)).to be_truthy
+        expect(folder1.key?(:smb_username)).to be_truthy
+        expect(folder2.key?(:group)).to be_truthy
+        expect(folder2.key?(:smb_username)).to be_truthy
+      end
+
+      it "should remove the smb_password option when set" do
+        subject.disable(machine, folders, options)
+        expect(folders["/first/path"].key?(:smb_password)).to be_falsey
+        expect(folders["/second/path"].key?(:smb_password)).to be_falsey
+      end
     end
   end
 
@@ -268,6 +326,19 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
         expect(host).to receive(:capability).with(:smb_cleanup, any_args)
         subject.cleanup(machine, options)
       end
+    end
+  end
+
+  describe "#clean_folder_configuration" do
+    it "should remove smb_password if defined" do
+      data = {smb_password: "password"}
+      subject.send(:clean_folder_configuration, data)
+      expect(data.key?(:smb_password)).to be_falsey
+    end
+
+    it "should not error if non-hash value provided" do
+      expect { subject.send(:clean_folder_configuration, nil) }.
+        not_to raise_error
     end
   end
 end
