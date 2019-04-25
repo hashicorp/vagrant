@@ -67,7 +67,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
         expect(called).to be(false)
       end
 
-      it "does update if there is an update" do
+      it "does the correct update if there is an update" do
         metadata_url.open("w") do |f|
           f.write(<<-RAW)
       {
@@ -77,7 +77,25 @@ describe VagrantPlugins::CommandBox::Command::Update do
             "version": "1.0"
           },
           {
-            "version": "1.1",
+            "version": "1.8",
+            "providers": [
+              {
+                "name": "virtualbox",
+                "url": "bar"
+              }
+            ]
+          },
+          {
+            "version": "1.10",
+            "providers": [
+              {
+                "name": "virtualbox",
+                "url": "bar"
+              }
+            ]
+          },
+          {
+            "version": "1.11",
             "providers": [
               {
                 "name": "virtualbox",
@@ -97,7 +115,7 @@ describe VagrantPlugins::CommandBox::Command::Update do
             expect(opts[:box_force]).to eq(nil)
             expect(opts[:box_url]).to eq(metadata_url.to_s)
             expect(opts[:box_provider]).to eq("virtualbox")
-            expect(opts[:box_version]).to eq("1.1")
+            expect(opts[:box_version]).to eq("1.11")
             expect(opts[:box_download_ca_path]).to be_nil
             expect(opts[:box_download_ca_cert]).to be_nil
             expect(opts[:box_download_client_cert]).to be_nil
