@@ -16,6 +16,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/box/update: Ensure the right version is picked when updating specific boxes [GH-10810]
 - command/cloud: Properly set variable from CLI argument parsing for `username` field [GH-10726]
 - communicator/ssh: Remove net/sftp loading to prevent loading errors [GH-10745]
 - core/triggers: Fix typo in UI output [GH-10748]
