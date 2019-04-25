@@ -41,6 +41,10 @@ describe Vagrant::Util::SSH do
 
     let(:ssh_path) { "/usr/bin/ssh" }
 
+    before {
+      allow(Vagrant::Util::Which).to receive(:which).with("ssh", any_args).and_return(ssh_path)
+    }
+
     it "searches original PATH for executable" do
       expect(Vagrant::Util::Which).to receive(:which).with("ssh", original_path: true).and_return("valid-return")
       allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
