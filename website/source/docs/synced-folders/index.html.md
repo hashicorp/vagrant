@@ -16,8 +16,8 @@ guest machine, allowing you to continue working on your project's files
 on your host machine, but use the resources in the guest machine to
 compile or run your project.
 
-By default, Vagrant will share your project directory (the directory
-with the [Vagrantfile](/docs/vagrantfile/)) to `/vagrant`.
+By default, Vagrant will use [RSync](rsync.html) to share your project directory
+(the directory with the [Vagrantfile](/docs/vagrantfile/)) to `/vagrant`.
 
 Read the [basic usage](/docs/synced-folders/basic_usage.html) page to get started
 with synced folders.
