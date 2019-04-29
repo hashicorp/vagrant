@@ -102,7 +102,19 @@ module VagrantPlugins
               # will be fixed someday and the gsub below can be removed.
               host.gsub!(/^[^A-Za-z]+/, "")
             end
-            host = @machine.env.cwd.join(host).to_s
+            # if host path is a volume key, don't expand it.
+            # if both exist (a path and a key) show warning and move on
+            # otherwise assume it's a realative path and expand the host path
+            compose_config = get_composition
+            if compose_config["volumes"] && compose_config["volumes"].keys.include?(host)
+              if File.directory?(@machine.env.cwd.join(host).to_s)
+                @machine.env.ui.warn(I18n.t("docker_provider.volume_path_not_expanded",
+                                           host: host))
+              end
+            else
+              @logger.debug("Path expanding #{host} to current Vagrant working dir instead of docker-compose config file directory")
+              host = @machine.env.cwd.join(host).to_s
+            end
             "#{host}:#{guest}"
           end
           cmd     = Array(params.fetch(:cmd))
