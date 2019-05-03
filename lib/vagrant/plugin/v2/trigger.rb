@@ -301,7 +301,7 @@ module Vagrant
         # @param [Integer] code Code to exit Vagrant on
         def trigger_abort(exit_code)
           @ui.warn(I18n.t("vagrant.trigger.abort"))
-          exit(exit_code)
+          Process.exit!(exit_code)
         end
 
         # Calls the given ruby block for execution
