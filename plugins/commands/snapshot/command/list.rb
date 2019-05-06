@@ -32,8 +32,9 @@ module VagrantPlugins
               next
             end
 
+            vm.ui.output("", prefix: true)
             snapshots.each do |snapshot|
-              vm.ui.output(snapshot, prefix: false)
+              vm.ui.detail(snapshot, prefix: false)
             end
           end
 
