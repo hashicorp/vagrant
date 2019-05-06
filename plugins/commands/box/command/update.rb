@@ -128,7 +128,13 @@ module VagrantPlugins
             if download_options[:insecure].nil?
               download_options[:insecure] = machine.config.vm.box_download_insecure
             end
-            box_update(box, version, machine.ui, download_options, force)
+
+            begin
+              box_update(box, version, machine.ui, download_options, force)
+            rescue Vagrant::Errors::BoxUpdateNoMetadata => e
+              machine.ui.warn(e)
+              next
+            end
           end
         end
 
