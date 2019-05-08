@@ -28,6 +28,19 @@ describe Vagrant::Bundler do
     expect(subject.env_plugin_gem_path).to be_nil
   end
 
+  describe "#initialize" do
+    let(:gemrc_location) { "C:\\My\\Config\\File" }
+
+    it "should set up GEMRC through a flag instead of GEMRC" do
+      allow(ENV).to receive(:[]).with("VAGRANT_HOME")
+      allow(ENV).to receive(:[]).with("USERPROFILE")
+
+      allow(ENV).to receive(:[]).with("GEMRC").and_return(gemrc_location)
+      expect(Gem::ConfigFile).to receive(:new).with(["--config-file", gemrc_location])
+      init_subject = described_class.new
+    end
+  end
+
   describe "#deinit" do
     it "should provide method for backwards compatibility" do
       subject.deinit
