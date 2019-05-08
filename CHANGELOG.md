@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- command/snapshot: Separate snapshot names for guests when listing snapshots [GH-10828]
 - core: Use consistent settings when unpacking boxes as root [GH-10707]
 - core: Write metadata.json file when packaging box [GH-10706]
 - core: Remove whitespace from id file on load [GH-10727]
