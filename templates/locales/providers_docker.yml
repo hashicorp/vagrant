@@ -104,6 +104,12 @@ en:
       destroy the container and recreate it.
     waiting_for_running: |-
       Waiting for container to enter "running" state...
+    volume_path_not_expanded: |-
+      Host path `%{host}` exists as a `volumes` key and is a folder on disk. Vagrant
+      will not expand this key like it used to and instead leave it as is defined.
+      If this folder is intended to be used, make sure its full path is defined
+      in your `volumes` config. More information can be found on volumes in the
+      docker compose documentation.
 
     messages:
       destroying: |-

@@ -106,6 +106,22 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       end
     end
 
+    context 'with a volumes key in use for mounting' do
+      let(:compose_config) { {"volumes"=>{"my_volume_key"=>"data"}} }
+
+      before do
+        params[:volumes] = 'my_volume_key:my/guest/path'
+        allow(Pathname).to receive(:new).with('./path').and_call_original
+        allow(Pathname).to receive(:new).with('my_volume_key').and_call_original
+        allow(Pathname).to receive(:new).with('/compose/cwd/my_volume_key').and_call_original
+        allow(subject).to receive(:get_composition).and_return(compose_config)
+      end
+
+      it 'should not expand the relative host directory' do
+        expect(docker_yml).to receive(:write).with(%r{my_volume_key})
+      end
+    end
+
     it 'links containers' do
       params[:links].each do |link|
         expect(docker_yml).to receive(:write).with(/#{link}/)
