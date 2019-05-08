@@ -21,6 +21,7 @@ BUG FIXES:
 - communicator/ssh: Remove net/sftp loading to prevent loading errors [GH-10745]
 - core/triggers: Fix typo in UI output [GH-10748]
 - guest/void: Fix NFS capability detection [GH-10713]
+- host/windows: Fix rubygems error when host has directory named `c` [GH-10803]
 - provider/virtualbox: Ensure non-existent machines do not attempt to list snapshots [GH-10784]
 - provisioner/ansible: Fix pip installer hardcoded curl get_pip.py piped to python [GH-10625]
 
