@@ -405,6 +405,24 @@ describe VagrantPlugins::CommandBox::Command::Update do
             end
           end
 
+          context "ignoring boxes with no metadata" do
+            before do
+              allow(subject).to receive(:with_target_vms) { |&block| block.call machine }
+            end
+
+            let(:box) do
+              box_dir = test_iso_env.box3("foo", "1.0", :virtualbox)
+              box = Vagrant::Box.new(
+                "foo", :virtualbox, "1.0", box_dir, metadata_url: "foo")
+              allow(box).to receive(:has_update?).and_raise(Vagrant::Errors::BoxUpdateNoMetadata, name: "foo")
+              box
+            end
+
+            it "continues to update the rest of the boxes in the environment" do
+              subject.execute
+            end
+          end
+
           context "force flag is specified on the command line" do
             let(:argv) { ["--force"].concat(download_options) }
 
