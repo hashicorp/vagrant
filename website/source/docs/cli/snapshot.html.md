@@ -84,7 +84,7 @@ This command will list all the snapshots taken.
 
 # Snapshot Delete
 
-**Command: `vagrant snapshot delete NAME`**
+**Command: `vagrant snapshot delete [vm-name] NAME`**
 
 This command will delete the named snapshot.
 
