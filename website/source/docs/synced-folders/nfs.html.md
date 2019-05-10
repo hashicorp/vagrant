@@ -139,6 +139,8 @@ have to modify them _slightly_ on certain hosts because the way Vagrant
 modifies `/etc/exports` changes a bit from OS to OS. If the commands below
 are located in non-standard paths, modify them as appropriate.
 
+Also note that in the sudoer file format, entries are applied in order. If you've added the appropriate entries but still have to type in your password, make sure the entries aren't inserted too early. From the sudoers man page: "When multiple entries match for a user, they are applied in order. Where there are multiple matches, the last match is used (which is not necessarily the most specific match)."
+
 For \*nix users, make sure to edit your `/etc/sudoers` file with `visudo`. It protects you against syntax errors which could leave you without the ability to gain elevated privileges.
 
 All of the snippets below require Vagrant version 1.7.3 or higher.
