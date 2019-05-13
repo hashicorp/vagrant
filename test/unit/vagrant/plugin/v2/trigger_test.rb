@@ -74,7 +74,7 @@ describe Vagrant::Plugin::V2::Trigger do
 
       after_triggers = triggers.after_triggers
       expect(after_triggers.size).to eq(3)
-      subject.send(:filter_triggers, after_triggers, "ubuntu", :action)
+      subject.send(:filter_triggers, after_triggers, :ubuntu, :action)
       expect(after_triggers.size).to eq(2)
     end
 
