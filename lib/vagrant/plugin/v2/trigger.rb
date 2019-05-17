@@ -296,12 +296,22 @@ module Vagrant
           end
         end
 
-        # Exits Vagrant immediately
+        # Exits Vagrant immediately, unless in a parallel context. If other
+        # threads are detected, just *this* thread exists. If it is the final
+        # thread, it will exit with the configured exit code.
         #
         # @param [Integer] code Code to exit Vagrant on
         def trigger_abort(exit_code)
           @ui.warn(I18n.t("vagrant.trigger.abort"))
-          Process.exit!(exit_code)
+
+          # We assume 2 is the smallest since thread Main spawns at least 1 thread
+          # to configure a given guest.
+          if Thread.list.size == 2
+            Process.exit!(exit_code)
+          else
+            @logger.debug("Other threads still active, exiting current thread")
+            Thread.exit
+          end
         end
 
         # Calls the given ruby block for execution

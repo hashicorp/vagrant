@@ -413,7 +413,7 @@ describe Vagrant::Plugin::V2::Trigger do
   end
 
   context "#trigger_abort" do
-    it "system exits when called" do
+    it "exits when called and is only thread running" do
       allow(Process).to receive(:exit!).and_return(true)
       output = ""
       allow(machine.ui).to receive(:warn) do |data|
@@ -421,6 +421,17 @@ describe Vagrant::Plugin::V2::Trigger do
       end
 
       expect(Process).to receive(:exit!).with(3)
+      subject.send(:trigger_abort, 3)
+    end
+
+    it "exits the thread when called and there are other threads running" do
+      output = ""
+      allow(machine.ui).to receive(:warn) do |data|
+        output << data
+      end
+
+      expect(Thread).to receive(:list).and_return([1,2,3])
+      expect(Thread).to receive(:exit)
       subject.send(:trigger_abort, 3)
     end
   end
