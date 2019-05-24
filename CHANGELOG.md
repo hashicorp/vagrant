@@ -24,6 +24,7 @@ BUG FIXES:
 - contrib/bash: Search for running_vm_list only in `machines` folder [GH-10841]
 - core/triggers: Fix typo in UI output [GH-10748]
 - core/triggers: Properly exit with abort option [GH-10824]
+- core/triggers: Ensure guest names are string when filtering trigger configs [GH-10854]
 - guest/void: Fix NFS capability detection [GH-10713]
 - host/windows: Fix rubygems error when host has directory named `c` [GH-10803]
 - provider/virtualbox: Ensure non-existent machines do not attempt to list snapshots [GH-10784]
