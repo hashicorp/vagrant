@@ -117,7 +117,7 @@ module VagrantPlugins
         @command = command.to_sym
         @ruby_block = UNSET_VALUE
 
-        @logger.debug("Trigger defined for command: #{command}")
+        @logger.debug("Trigger defined for: #{command}")
       end
 
       # Config option `ruby` for a trigger which reads in a ruby block and sets
