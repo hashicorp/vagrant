@@ -5,7 +5,7 @@ sidebar_current: "gettingstarted-providers"
 description: |-
   In this getting started guide, your project was always backed with VirtualBox.
   But Vagrant can work with a wide variety of backend providers, such as VMware,
-  AWS, and more. Read the page of each provider for more information on how to
+  Hyper-V, and more. Read the page of each provider for more information on how to
   set them up.
 ---
 
@@ -14,7 +14,7 @@ description: |-
 In this getting started guide, your project was always backed with
 [VirtualBox](https://www.virtualbox.org). But Vagrant can work with
 a wide variety of backend providers, such as [VMware](/docs/vmware/),
-[AWS](https://github.com/mitchellh/vagrant-aws), and more. Read the page
+[Hyper-V](/docs/hyperv), and more. Read the page
 of each provider for more information on how to set them up.
 
 Once you have a provider installed, you do not need to make any modifications
@@ -23,12 +23,6 @@ Vagrant will do the rest:
 
 ```
 $ vagrant up --provider=vmware_fusion
-```
-
-Ready to move that to the cloud? Take it to AWS:
-
-```
-$ vagrant up --provider=aws
 ```
 
 Once you run `vagrant up` with another provider, every other Vagrant
