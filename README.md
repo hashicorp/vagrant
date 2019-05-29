@@ -56,6 +56,15 @@ Once your Vagrant bundle is installed from Git repository, you can run the test 
 
 This will run the unit test suite, which should come back all green!
 
+If you are developing Vagrant on a machine that already has a Vagrant package installation present, both will attempt to use the same folder for their configuration (location of this folder depends on system). In this case, override the
+`VAGRANT_HOME` environment variable for your development version of Vagrant before running any commands. For example, in Bash:
+
+    export VAGRANT_HOME=/path/to/project/.vagrant
+
+This folder will be ignored by Git. You can now run Vagrant commands against the development version:
+
+    bundle exec vagrant
+
 Please take time to read the [HashiCorp Community Guidelines](https://www.hashicorp.com/community-guidelines) and the [Vagrant Contributing Guide](https://github.com/hashicorp/vagrant/blob/master/.github/CONTRIBUTING.md).
 
 Then you're good to go!
