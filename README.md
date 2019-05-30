@@ -50,6 +50,8 @@ and you're welcome to give it a shot. Please review the installation page [here]
 
 ## Contributing to Vagrant
 
+Package dependencies: Vagrant requires `bsdtar` to be available on your system PATH to run tests successfully.
+
 Once your Vagrant bundle is installed from Git repository, you can run the test suite with:
 
     bundle exec rake
