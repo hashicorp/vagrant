@@ -103,12 +103,6 @@ module Vagrant
         raise Errors::UIExpectsTTY
       end
 
-      [:detail, :warn, :error, :info, :output, :success].each do |method|
-        define_method(method) do |message, *args, **opts|
-          machine("ui", method.to_s, message, *args, **opts)
-        end
-      end
-
       def machine(type, *data)
         opts = {}
         opts = data.pop if data.last.kind_of?(Hash)
