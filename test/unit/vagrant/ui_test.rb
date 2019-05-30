@@ -2,7 +2,7 @@ require File.expand_path("../../base", __FILE__)
 
 describe Vagrant::UI::Basic do
   context "in general" do
-    it "outputs within the a new thread" do
+    it "outputs within a new thread" do
       current = Thread.current.object_id
 
       expect(subject).to receive(:safe_puts).with(any_args) { |*args|
@@ -231,16 +231,8 @@ describe Vagrant::UI::MachineReadable do
 
   [:detail, :warn, :error, :info, :output, :success].each do |method|
     describe "##{method}" do
-      it "outputs UI type to the machine-readable output" do
-        expect(subject).to receive(:safe_puts).with(any_args) { |message|
-          parts = message.split(",")
-          expect(parts.length).to eq(5)
-          expect(parts[1]).to eq("")
-          expect(parts[2]).to eq("ui")
-          expect(parts[3]).to eq(method.to_s)
-          expect(parts[4]).to eq("foo")
-          true
-        }
+      it "does not output UI type to the machine-readable output" do
+        expect(subject).to receive(:safe_puts).never
 
         subject.send(method, "foo")
       end
