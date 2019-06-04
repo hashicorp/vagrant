@@ -6,7 +6,8 @@ describe VagrantPlugins::ProviderVirtualBox::Provider do
   let(:driver){ double("driver") }
   let(:provider){ double("provider", driver: driver) }
   let(:provider_config){ double("provider_config") }
-  let(:machine){ double("machine", uid: "1000", provider: provider, provider_config: provider_config) }
+  let(:uid) { "1000" }
+  let(:machine){ double("machine", uid: uid, provider: provider, provider_config: provider_config) }
 
   let(:platform)   { double("platform") }
 
@@ -19,6 +20,8 @@ describe VagrantPlugins::ProviderVirtualBox::Provider do
     allow(platform).to receive(:wsl?).and_return(false)
     allow(platform).to receive(:wsl_windows_access_bypass?).and_return(false)
     allow(machine).to receive(:id).and_return("foo")
+
+    allow(Process).to receive(:uid).and_return(uid)
   end
 
   describe ".usable?" do
@@ -48,7 +51,8 @@ describe VagrantPlugins::ProviderVirtualBox::Provider do
 
   describe "#driver" do
     it "is initialized" do
-      expect(subject.driver).to be_kind_of(VagrantPlugins::ProviderVirtualBox::Driver::Meta)
+      allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:new).and_return(driver)
+      expect(subject.driver).to be(driver)
     end
   end
 
