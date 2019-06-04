@@ -15,6 +15,7 @@ IMPROVEMENTS:
 - guest/freebsd: Add proper VirtualBox share folders support for FreeBSD guests [GH-10717]
 - guest/freebsd: Add unmount share folder for  VirtualBox guests [GH-10761]
 - guest/freebsd: Simplify network interface listing when configuring networks [GH-10763]
+- synced_folder/smb: Remove configuration information from synced folder data [GH-10811]
 
 BUG FIXES:
 
