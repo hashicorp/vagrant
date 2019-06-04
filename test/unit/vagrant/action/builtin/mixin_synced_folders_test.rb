@@ -256,6 +256,66 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
     end
   end
 
+  describe "#save_synced_folders" do
+    let(:folders) { {} }
+    let(:options) { {} }
+    let(:output_file) { double("output_file") }
+
+    before do
+      allow(machine.data_dir).to receive(:join).with("synced_folders").
+        and_return(output_file)
+      allow(output_file).to receive(:open).and_yield(output_file)
+      allow(output_file).to receive(:write)
+    end
+
+    it "should write empty hash to file" do
+      expect(output_file).to receive(:write).with("{}")
+      subject.save_synced_folders(machine, folders, options)
+    end
+
+    it "should call credential scrubber before writing file" do
+      expect(Vagrant::Util::CredentialScrubber).to receive(:desensitize).and_call_original
+      subject.save_synced_folders(machine, folders, options)
+    end
+
+    context "when folder data is defined" do
+      let(:folders) {
+        {"root" => {
+          hostpath: "foo", type: "nfs", nfs__foo: "bar"}}
+      }
+
+      it "should write folder information to file" do
+        expect(output_file).to receive(:write).with(JSON.dump(folders))
+        subject.save_synced_folders(machine, folders, options)
+      end
+
+      context "when folder data configuration includes sensitive data" do
+        let(:password) { "VAGRANT_TEST_PASSWORD" }
+
+        before do
+          folders["root"][:folder_password] = password
+          Vagrant::Util::CredentialScrubber.sensitive(password)
+        end
+
+        after { Vagrant::Util::CredentialScrubber.unsensitive(password) }
+
+        it "should not include password when writing file" do
+          expect(output_file).to receive(:write) do |content|
+            expect(content).not_to include(password)
+          end
+          subject.save_synced_folders(machine, folders, options)
+        end
+
+        it "should mask password content when writing file" do
+          expect(output_file).to receive(:write) do |content|
+            expect(content).to include(Vagrant::Util::CredentialScrubber::REPLACEMENT_TEXT)
+          end
+          subject.save_synced_folders(machine, folders, options)
+        end
+      end
+    end
+  end
+
   describe "#synced_folders_diff" do
     it "sees two equal " do
       one = {
