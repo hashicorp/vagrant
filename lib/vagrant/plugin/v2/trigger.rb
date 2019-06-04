@@ -300,8 +300,17 @@ module Vagrant
         #
         # @param [Integer] code Code to exit Vagrant on
         def trigger_abort(exit_code)
-          @ui.warn(I18n.t("vagrant.trigger.abort"))
-          Process.exit!(exit_code)
+          if Thread.current[:batch_parallel_action]
+            @ui.warn(I18n.t("vagrant.trigger.abort_threaded"))
+            @logger.debug("Trigger abort within parallel batch action. " \
+              "Setting exit code and terminating.")
+            Thread.current[:exit_code] = exit_code
+            Thread.current.terminate
+          else
+            @ui.warn(I18n.t("vagrant.trigger.abort"))
+            @logger.debug("Trigger abort within non-parallel action, exiting directly")
+            Process.exit!(exit_code)
+          end
         end
 
         # Calls the given ruby block for execution
