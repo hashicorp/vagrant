@@ -703,10 +703,9 @@ en:
         plugins in the `plugins` group in your Gemfile or manually require
         them in a Vagrantfile.
       bundler_error: |-
-        Bundler, the underlying system Vagrant uses to install plugins,
-        reported an error. The error is shown below. These errors are usually
-        caused by misconfigured plugin installations or transient network
-        issues. The error from Bundler is:
+        Vagrant failed to properly resolve required dependencies. These
+        errors can commonly be caused by misconfigured plugin installations
+        or transient network issues. The reported error is:
 
         %{message}
       cant_read_mac_addresses: |-
