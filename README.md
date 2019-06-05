@@ -19,6 +19,8 @@ between Windows, Mac OS X, and Linux.
 
 ## Quick Start
 
+Package dependencies: Vagrant requires `bsdtar` to be available on your system PATH to run successfully.
+
 For the quick-start, we'll bring up a development machine on
 [VirtualBox](https://www.virtualbox.org/) because it is free and works
 on all major platforms. Vagrant can, however, work with almost any
@@ -49,8 +51,6 @@ If you want the bleeding edge version of Vagrant, we try to keep master pretty s
 and you're welcome to give it a shot. Please review the installation page [here](https://www.vagrantup.com/docs/installation/source.html).
 
 ## Contributing to Vagrant
-
-Package dependencies: Vagrant requires `bsdtar` to be available on your system PATH to run tests successfully.
 
 Once your Vagrant bundle is installed from Git repository, you can run the test suite with:
 
