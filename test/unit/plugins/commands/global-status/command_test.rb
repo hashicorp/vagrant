@@ -10,8 +10,10 @@ describe VagrantPlugins::CommandGlobalStatus::Command do
     # We have to create a Vagrantfile so there is a root path
     env = isolated_environment
     env.vagrantfile("")
-    env.create_vagrant_env
+    env.create_vagrant_env(env_opts)
   end
+
+  let(:env_opts) { {} }
 
   let(:machine) { iso_env.machine(iso_env.machine_names[0], :dummy) }
 
@@ -34,6 +36,38 @@ describe VagrantPlugins::CommandGlobalStatus::Command do
       iso_env.machine_index.set(new_entry("bar"))
 
       expect(subject.execute).to eq(0)
+    end
+  end
+
+  describe "with --machine-readable" do
+    let(:env_opts) { {ui_class: Vagrant::UI::MachineReadable} }
+
+    before do
+      iso_env.machine_index.set(new_entry("foo"))
+      iso_env.machine_index.set(new_entry("bar"))
+      allow($stdout).to receive(:puts)
+    end
+
+    after { subject.execute }
+
+    it "should include the machine id" do
+      expect($stdout).to receive(:puts).with(/,machine-id,/).twice
+    end
+
+    it "should include the machine state" do
+      expect($stdout).to receive(:puts).with(/,state,/).twice
+    end
+
+    it "should include the machine count" do
+      expect($stdout).to receive(:puts).with(/machine-count,2/)
+    end
+
+    it "should include the machine home path" do
+      expect($stdout).to receive(:puts).with(/,machine-home,/).twice
+    end
+
+    it "should include the provider name" do
+      expect($stdout).to receive(:puts).with(/,provider-name,/).twice
     end
   end
 

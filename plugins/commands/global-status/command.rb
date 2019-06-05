@@ -65,6 +65,17 @@ module VagrantPlugins
           @env.machine_index.delete(deletable) if deletable
         end
 
+        # Machine-readable (non-formatted) output
+        @env.ui.machine("metadata", "machine-count", entries.length.to_s);
+        entries.each do |entry|
+          opts = { "target" => entry.name.to_s }
+          @env.ui.machine("machine-id", entry.id.to_s[0...7], opts)
+          @env.ui.machine("provider-name", entry.provider.to_s, opts)
+          @env.ui.machine("machine-home", entry.vagrantfile_path.to_s, opts)
+          @env.ui.machine("state", entry.state.to_s, opts)
+        end
+
+        # Human-readable (table formatted) output
         total_width = 0
         columns.each do |header, method|
           header = header.ljust(widths[method]) if widths[method]
