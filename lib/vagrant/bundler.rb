@@ -76,12 +76,8 @@ module Vagrant
 
       # Add HashiCorp RubyGems source
       if !Gem.sources.include?(HASHICORP_GEMSTORE)
-        current_sources = Gem.sources.sources.dup
-        Gem.sources.clear
-        Gem.sources << HASHICORP_GEMSTORE
-        current_sources.each do |src|
-          Gem.sources << src
-        end
+        sources = [HASHICORP_GEMSTORE] + Gem.sources.sources
+        Gem.sources.replace(sources)
       end
 
       # Generate dependencies for all registered plugins
