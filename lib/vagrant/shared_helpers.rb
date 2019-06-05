@@ -35,6 +35,14 @@ module Vagrant
     !!ENV["VAGRANT_INSTALLER_ENV"]
   end
 
+  # This returns a true/false if we are running within a bundler environment
+  #
+  # @return [Boolean]
+  def self.in_bundler?
+    !!ENV["BUNDLE_GEMFILE"] &&
+      !defined?(::Bundler).nil?
+  end
+
   # Returns the path to the embedded directory of the Vagrant installer,
   # if there is one (if we're running in an installer).
   #
