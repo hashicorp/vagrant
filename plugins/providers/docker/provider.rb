@@ -45,6 +45,14 @@ module VagrantPlugins
         @driver
       end
 
+      def usable?(raise_error=false)
+        driver.execute("docker", "version")
+        true
+      rescue Vagrant::Errors::CommandUnavailable, Errors::ExecuteError
+        raise if raise_error
+        return false
+      end
+
       # This returns the {Vagrant::Machine} that is our host machine.
       # It does not perform any action on the machine or verify it is
       # running.
