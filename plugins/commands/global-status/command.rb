@@ -68,11 +68,11 @@ module VagrantPlugins
         # Machine-readable (non-formatted) output
         @env.ui.machine("metadata", "machine-count", entries.length.to_s);
         entries.each do |entry|
-          opts = { "target" => entry.send(:name).to_s }
-          @env.ui.machine("machine-id", entry.send(:id).to_s[0...7], opts)
-          @env.ui.machine("provider-name", entry.send(:provider).to_s, opts)
-          @env.ui.machine("machine-home", entry.send(:vagrantfile_path).to_s, opts)
-          @env.ui.machine("state", entry.send(:state).to_s, opts)
+          opts = { "target" => entry.name.to_s }
+          @env.ui.machine("machine-id", entry.id.to_s[0...7], opts)
+          @env.ui.machine("provider-name", entry.provider.to_s, opts)
+          @env.ui.machine("machine-home", entry.vagrantfile_path.to_s, opts)
+          @env.ui.machine("state", entry.state.to_s, opts)
         end
 
         # Human-readable (table formatted) output
