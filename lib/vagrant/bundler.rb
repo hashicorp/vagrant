@@ -76,12 +76,8 @@ module Vagrant
 
       # Add HashiCorp RubyGems source
       if !Gem.sources.include?(HASHICORP_GEMSTORE)
-        current_sources = Gem.sources.sources.dup
-        Gem.sources.clear
-        Gem.sources << HASHICORP_GEMSTORE
-        current_sources.each do |src|
-          Gem.sources << src
-        end
+        sources = [HASHICORP_GEMSTORE] + Gem.sources.sources
+        Gem.sources.replace(sources)
       end
 
       # Generate dependencies for all registered plugins
@@ -313,6 +309,12 @@ module Vagrant
         @logger.debug("Enabling strict dependency enforcement")
         plugin_deps += vagrant_internal_specs.map do |spec|
           next if system_plugins.include?(spec.name)
+          # If we are not running within the installer and
+          # we are not within a bundler environment then we
+          # only want activated specs
+          if !Vagrant.in_installer? && !Vagrant.in_bundler?
+            next if !spec.activated?
+          end
           Gem::Dependency.new(spec.name, spec.version)
         end.compact
       else
@@ -415,8 +417,13 @@ module Vagrant
       Gem::Resolver.compose_sets(*sets)
     end
 
-    # @return [Array<[Gem::Specification, String]>] spec and directory pairs
+    # @return [Array<[Gem::Specification]>] spec list
     def vagrant_internal_specs
+      # activate any dependencies up front so we can always
+      # pin them when resolving
+      Gem::Specification.find { |s| s.name == "vagrant" && s.activated? }.
+        runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
+      # discover all the gems we have available
       list = {}
       directories = [Gem::Specification.default_specifications_dir]
       Gem::Specification.find_all{true}.each do |spec|
