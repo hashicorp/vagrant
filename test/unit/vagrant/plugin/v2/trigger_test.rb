@@ -423,6 +423,37 @@ describe Vagrant::Plugin::V2::Trigger do
       expect(Process).to receive(:exit!).with(3)
       subject.send(:trigger_abort, 3)
     end
+
+    context "when running in parallel" do
+      let(:thread) {
+        @t ||= Thread.new do
+          Thread.current[:batch_parallel_action] = true
+          Thread.stop
+          subject.send(:trigger_abort, exit_code)
+        end
+      }
+      let(:exit_code) { 22 }
+
+      before do
+        expect(Process).not_to receive(:exit!)
+        sleep(0.1) until thread.stop?
+      end
+
+      after { @t = nil }
+
+      it "should terminate the thread" do
+        expect(thread).to receive(:terminate).and_call_original
+        thread.wakeup
+        thread.join(1) while thread.alive?
+      end
+
+      it "should set the exit code into the thread data" do
+        expect(thread).to receive(:terminate).and_call_original
+        thread.wakeup
+        thread.join(1) while thread.alive?
+        expect(thread[:exit_code]).to eq(exit_code)
+      end
+    end
   end
 
   context "#ruby" do

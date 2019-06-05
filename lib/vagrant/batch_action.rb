@@ -71,6 +71,10 @@ module Vagrant
         thread = Thread.new do
           Thread.current[:error] = nil
 
+          # Note that this thread is being used for running
+          # a batch action
+          Thread.current[:batch_parallel_action] = par
+
           # Record our pid when we started in order to figure out if
           # we've forked...
           start_pid = Process.pid
@@ -159,6 +163,16 @@ module Vagrant
 
       if !errors.empty?
         raise Errors::BatchMultiError, message: errors.join("\n\n")
+      end
+
+      # Check if any threads set an exit code and exit if found. If
+      # multiple threads have exit code values set, the first encountered
+      # will be the value used.
+      threads.each do |thread|
+        if thread[:exit_code]
+          @logger.debug("Found exit code set within batch action thread. Exiting")
+          Process.exit!(thread[:exit_code])
+        end
       end
     end
   end
