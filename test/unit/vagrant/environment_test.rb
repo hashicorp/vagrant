@@ -165,7 +165,7 @@ describe Vagrant::Environment do
 
         collection = double("collection")
         expect(Vagrant::BoxCollection).to receive(:new).with(
-          env.homedir.join("boxes"), anything).and_return(collection)
+          env.homedir.join("boxes"), anything).twice.and_return(collection)
         expect(collection).to receive(:upgrade_v1_1_v1_5).once
         subject
       end
@@ -761,6 +761,7 @@ VF
     before do
       m = Vagrant.plugin("2").manager
       allow(m).to receive(:providers).and_return(plugin_providers)
+      allow_any_instance_of(described_class).to receive(:process_configured_plugins)
     end
 
     it "is the highest matching usable provider" do
@@ -1428,6 +1429,108 @@ VF
 
       env = isolated_env.create_vagrant_env
       expect(env.machine_names).to eq([:foo, :bar])
+    end
+  end
+
+  describe "guess_provider" do
+    before { allow_any_instance_of(described_class).to receive(:process_configured_plugins) }
+
+    it "should return the default provider by default" do
+      expect(subject).to receive(:default_provider).and_return("default_provider")
+      expect(subject.send(:guess_provider)).to eq("default_provider")
+    end
+
+    context "when provider is defined via command line argument" do
+      before { stub_const("ARGV", argv) }
+
+      context "when provider is given as single argument" do
+        let(:argv) { ["--provider=single_arg"] }
+
+        it "should return the provider name" do
+          expect(subject.send(:guess_provider)).to eq("single_arg")
+        end
+      end
+
+      context "when provider is given as two arguments" do
+        let(:argv) { ["--provider", "double_arg"] }
+
+        it "should return the provider name" do
+          expect(subject.send(:guess_provider)).to eq("double_arg")
+        end
+      end
+    end
+
+    context "when no default provider is available" do
+      before {
+        expect(subject).to receive(:default_provider).
+          and_raise(Vagrant::Errors::NoDefaultProvider) }
+
+      it "should return a nil value" do
+        expect(subject.send(:guess_provider)).to be_nil
+      end
+    end
+  end
+
+  describe "#find_configured_plugins" do
+    before do
+      allow_any_instance_of(described_class).to receive(:guess_provider).and_return(:dummy)
+      allow_any_instance_of(described_class).to receive(:process_configured_plugins)
+    end
+
+    it "should find no plugins when no plugins are configured" do
+      expect(subject.send(:find_configured_plugins)).to be_empty
+    end
+
+    context "when plugins are defined in the Vagrantfile" do
+      before do
+        env.vagrantfile <<-VF
+          Vagrant.configure("2") do |config|
+            config.vagrant.plugins = "vagrant-plugin"
+          end
+          VF
+      end
+
+      it "should return the vagrant-plugin" do
+        expect(subject.send(:find_configured_plugins).keys).to include("vagrant-plugin")
+      end
+    end
+
+    context "when plugins are defined in the Vagrantfile of a box" do
+      before do
+        env.box3("foo", "1.0", :dummy, vagrantfile: <<-VF)
+          Vagrant.configure("2") do |config|
+            config.vagrant.plugins = "vagrant-plugin"
+          end
+        VF
+        env.vagrantfile <<-VF
+          Vagrant.configure("2") do |config|
+            config.vm.box = "foo"
+          end
+        VF
+      end
+
+      it "should return the vagrant-plugin" do
+        expect(subject.send(:find_configured_plugins).keys).to include("vagrant-plugin")
+      end
+    end
+
+    context "when the box does not match the provider" do
+      before do
+        env.box3("foo", "1.0", :other, vagrantfile: <<-VF)
+          Vagrant.configure("2") do |config|
+            config.vagrant.plugins = "vagrant-plugin"
+          end
+        VF
+        env.vagrantfile <<-VF
+          Vagrant.configure("2") do |config|
+            config.vm.box = "foo"
+          end
+        VF
+      end
+
+      it "should not return the vagrant-plugin" do
+        expect(subject.send(:find_configured_plugins).keys).not_to include("vagrant-plugin")
+      end
     end
   end
 

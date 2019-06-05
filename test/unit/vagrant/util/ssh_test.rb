@@ -39,7 +39,7 @@ describe Vagrant::Util::SSH do
       dsa_authentication: true
     }}
 
-    let(:ssh_path) { "/usr/bin/ssh" }
+    let(:ssh_path) { /.*ssh/ }
 
     before {
       allow(Vagrant::Util::Which).to receive(:which).with("ssh", any_args).and_return(ssh_path)
@@ -100,8 +100,6 @@ describe Vagrant::Util::SSH do
         compression: true,
         dsa_authentication: true
       }}
-
-      let(:ssh_path) { "/usr/bin/ssh" }
 
       it "uses the IdentityFile argument and escapes the '%' character" do
         allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
@@ -251,7 +249,7 @@ describe Vagrant::Util::SSH do
       it "enables ssh config loading" do
         allow(Vagrant::Util::SafeExec).to receive(:exec).and_return(nil)
         expect(Vagrant::Util::SafeExec).to receive(:exec) do |exe_path, *args|
-          expect(exe_path).to eq(ssh_path)
+          expect(exe_path).to match(ssh_path)
           config_options = ["-F", "/path/to/config"]
           expect(args & config_options).to eq(config_options)
         end
