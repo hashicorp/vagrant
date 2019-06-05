@@ -58,12 +58,11 @@ Once your Vagrant bundle is installed from Git repository, you can run the test 
 
 This will run the unit test suite, which should come back all green!
 
-If you are developing Vagrant on a machine that already has a Vagrant package installation present, both will attempt to use the same folder for their configuration (location of this folder depends on system). In this case, override the
-`VAGRANT_HOME` environment variable for your development version of Vagrant before running any commands. For example, in Bash:
+If you are developing Vagrant on a machine that already has a Vagrant package installation present, both will attempt to use the same folder for their configuration (location of this folder depends on system). This can cause errors when Vagrant attempts to load plugins. In this case, override the `VAGRANT_HOME` environment variable for your development version of Vagrant before running any commands, to be some new folder within the project or elsewhere on your machine. For example, in Bash:
 
-    export VAGRANT_HOME=/path/to/project/.vagrant
+    export VAGRANT_HOME=~/.vagrant-dev
 
-This folder will be ignored by Git. You can now run Vagrant commands against the development version:
+You can now run Vagrant commands against the development version:
 
     bundle exec vagrant
 
