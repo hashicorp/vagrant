@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- command/global-status: Provide machine-readable information [GH-10506]
 - command/snapshot: Separate snapshot names for guests when listing snapshots [GH-10828]
 - command/box/update: Ignore missing metadata files when updating all boxes [GH-10829]
 - core: Use consistent settings when unpacking boxes as root [GH-10707]
