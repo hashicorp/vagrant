@@ -302,7 +302,7 @@ module Vagrant
           end
           source_list[name] << source
         end
-        Gem::Dependency.new(name, gem_version)
+        Gem::Dependency.new(name, *gem_version.split(","))
       end
 
       if Vagrant.strict_dependency_enforcement
