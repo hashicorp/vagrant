@@ -121,7 +121,7 @@ end
 
 Triggers _without_ the type option will run before or after a Vagrant guest.
 
-Older Vagrant versions will unfortunetly not be able to properly parse the new
+Older Vagrant versions will unfortunately not be able to properly parse the new
 `:type` option. If you are worried about older clients failing to parse your Vagrantfile,
 you can guard the new trigger based on the version of Vagrant:
 

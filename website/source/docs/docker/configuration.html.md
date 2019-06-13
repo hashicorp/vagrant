@@ -23,7 +23,7 @@ One of the following settings is required when using the Docker provider:
 
   * `git_repo` (string) - The URL of a git repository to build the image from.
     Supports pulling specific tags, branches and revision, consult the
-    [docker documenation](https://docs.docker.com/engine/reference/commandline/build/#/git-repositories)
+    [docker documentation](https://docs.docker.com/engine/reference/commandline/build/#/git-repositories)
     for more information.
 
 ### Optional
