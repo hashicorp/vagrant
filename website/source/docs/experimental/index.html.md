@@ -10,7 +10,7 @@ description: |-
 
 Some features that aren't ready for release can be enabled through this feature
 flag. There are a couple of different ways of going about enabling these features.
-It is also worth noting that Vagrant will not validate the existance of a feature
+It is also worth noting that Vagrant will not validate the existence of a feature
 flag.
 
 For example if you are on Linux or Mac, and you wish to enable every single experimental feature, you can set the flag

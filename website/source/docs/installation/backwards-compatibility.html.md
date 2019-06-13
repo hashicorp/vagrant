@@ -3,7 +3,7 @@ layout: "docs"
 page_title: "Backwards Compatibility"
 sidebar_current: "installation-backwards-compatibility"
 description: |-
-  Vagrant makes a very strict backwards-compatability promise.
+  Vagrant makes a very strict backwards-compatibility promise.
 ---
 
 # Backwards Compatibility
