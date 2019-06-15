@@ -31,15 +31,10 @@ module Vagrant
         # @param [String] output path to the output file
         # @param [String] directory path to a directory containing the files
         def self.validate!(output, directory)
-          filename = File.basename(output.to_s)
           output   = fullpath(output)
 
           if File.directory?(output)
             raise Vagrant::Errors::PackageOutputDirectory
-          end
-
-          if File.exist?(output)
-            raise Vagrant::Errors::PackageOutputExists, filename: filename
           end
 
           if !Vagrant::Util::Presence.present?(directory) || !File.directory?(directory)
@@ -101,7 +96,7 @@ module Vagrant
           @env = env
 
           # There are certain exceptions that we don't delete the file for.
-          ignore_exc = [Errors::PackageOutputDirectory, Errors::PackageOutputExists]
+          ignore_exc = [Errors::PackageOutputDirectory]
           ignore_exc.each do |exc|
             return if env["vagrant.error"].is_a?(exc)
           end

@@ -26,7 +26,6 @@ describe Vagrant::Action::General::Package do
       allow(described_class).to receive(:fullpath).and_return(output)
       allow(File).to receive(:directory?).with(output).and_return(false)
       allow(File).to receive(:directory?).with(directory).and_return(true)
-      allow(File).to receive(:exist?).and_return(false)
       allow(Vagrant::Util::Presence).to receive(:present?).with(directory).and_return(true)
     end
 
@@ -34,18 +33,11 @@ describe Vagrant::Action::General::Package do
       expect { described_class.validate!(output, directory) }.not_to raise_error
     end
 
-    it "should raise error when output directory exists" do
+    it "should raise error when output is a directory" do
       expect(File).to receive(:directory?).with(output).and_return(true)
       expect {
         described_class.validate!(output, directory)
       }.to raise_error(Vagrant::Errors::PackageOutputDirectory)
-    end
-
-    it "should raise error if output path exists" do
-      expect(File).to receive(:exist?).with(output).and_return(true)
-      expect {
-        described_class.validate!(output, directory)
-      }.to raise_error(Vagrant::Errors::PackageOutputExists)
     end
 
     it "should raise error if directory value not provided" do
@@ -124,16 +116,6 @@ describe Vagrant::Action::General::Package do
 
     context "when vagrant error is PackageOutputDirectory" do
       let(:error) { Vagrant::Errors::PackageOutputDirectory.new }
-
-      it "should not do anything" do
-        expect(File).not_to receive(:exist?)
-        expect(File).not_to receive(:delete)
-        subject.recover(env)
-      end
-    end
-
-    context "when vagrant error is PackageOutputExists" do
-      let(:error) { Vagrant::Errors::PackageOutputExists.new }
 
       it "should not do anything" do
         expect(File).not_to receive(:exist?)
