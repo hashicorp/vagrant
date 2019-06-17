@@ -24,6 +24,7 @@ BUG FIXES:
 
 - command/box/update: Ensure the right version is picked when updating specific boxes [GH-10810]
 - command/cloud: Properly set variable from CLI argument parsing for `username` field [GH-10726]
+- command/rsync_auto: Use relative paths to machines folder path for file path Listener [GH-10902]
 - communicator/ssh: Remove net/sftp loading to prevent loading errors [GH-10745]
 - contrib/bash: Search for running_vm_list only in `machines` folder [GH-10841]
 - core/bundler: Properly parse multiple constants when installing plugins [GH-10896]
