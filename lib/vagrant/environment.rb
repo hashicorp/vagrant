@@ -938,7 +938,7 @@ module Vagrant
           break
         end
       end
-      return gp if gp
+      return gp.to_sym if gp
       begin
         default_provider
       rescue Errors::NoDefaultProvider
