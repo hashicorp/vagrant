@@ -7,9 +7,9 @@ module VagrantPlugins
           # @return [true, false]
           def self.chef_installed(machine, product, version)
             if version != :latest
-              command = 'if ((&knife --version) -Match "Chef: ' + version.to_s + '"){ exit 0 } else { exit 1 }'
+              command = 'if ((&knife --version) -Match "' + version.to_s + '"){ exit 0 } else { exit 1 }'
             else
-              command = 'if ((&knife --version) -Match "Chef: *"){ exit 0 } else { exit 1 }'
+              command = 'if ((&knife --version) -Match "Chef*"){ exit 0 } else { exit 1 }'
             end
             machine.communicate.test(command, sudo: true)
           end
