@@ -121,9 +121,13 @@ module VagrantPlugins
 
               if folder_opts[:exclude]
                 Array(folder_opts[:exclude]).each do |pattern|
-                  ignores << RsyncHelper.exclude_to_regexp(hostpath, pattern.to_s)
+                  ignores << RsyncHelper.exclude_to_regexp(pattern.to_s)
                 end
               end
+
+              # Always ignore Vagrant
+              ignores << /.vagrant\//
+              ignores.uniq!
             end
           end
 

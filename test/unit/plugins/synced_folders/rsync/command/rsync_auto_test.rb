@@ -66,15 +66,12 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
     # https://github.com/hashicorp/vagrant/blob/9c1b014536e61b332cfaa00774a87a240cce8ed9/lib/vagrant/action/builtin/synced_folders.rb#L45-L46
     let(:config_synced_folders)  { {"/vagrant":
       {type: "rsync",
-        exclude: false,
         hostpath: "/Users/brian/code/vagrant-sandbox"},
       "/vagrant/other-dir":
       {type: "rsync",
-        exclude: false,
         hostpath: "/Users/brian/code/vagrant-sandbox/other-dir"},
       "/vagrant/relative-dir":
       {type: "rsync",
-        exclude: false,
         hostpath: "/Users/brian/code/relative-dir"}}}
 
     before do
@@ -103,6 +100,11 @@ describe VagrantPlugins::SyncedFolderRSync::Command::RsyncAuto do
         with("Watching: /Users/brian/code/relative-dir")
       expect(helper_class).to receive(:rsync_single)
 
+      expect(Listen).to receive(:to).
+        with("/Users/brian/code/vagrant-sandbox",
+             "/Users/brian/code/relative-dir",
+             {:ignore=>[/.vagrant\//],
+                        :force_polling=>false})
       subject.execute
     end
 

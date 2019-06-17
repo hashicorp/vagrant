@@ -16,7 +16,13 @@ module VagrantPlugins
 
       # This converts an rsync exclude pattern to a regular expression
       # we can send to Listen.
-      def self.exclude_to_regexp(path, exclude)
+      #
+      # Note: Listen expects a path relative to the parameter passed into the
+      # Listener, not a fully qualified path
+      #
+      # @param [String]  - exclude path
+      # @return [Regexp] - A regex of the path, modified, to exclude
+      def self.exclude_to_regexp(exclude)
         start_anchor = false
 
         if exclude.start_with?("/")
@@ -24,19 +30,14 @@ module VagrantPlugins
           exclude      = exclude[1..-1]
         end
 
-        path   = "#{path}/" if !path.end_with?("/")
-        regexp = "^#{Regexp.escape(path)}"
-        regexp += ".*" if !start_anchor
-
         # This is not an ideal solution, but it's a start. We can improve and
         # keep unit tests passing in the future.
         exclude = exclude.gsub("**", "|||GLOBAL|||")
         exclude = exclude.gsub("*", "|||PATH|||")
         exclude = exclude.gsub("|||PATH|||", "[^/]*")
         exclude = exclude.gsub("|||GLOBAL|||", ".*")
-        regexp += exclude
 
-        Regexp.new(regexp)
+        Regexp.new(exclude)
       end
 
       def self.rsync_single(machine, ssh_info, opts)
