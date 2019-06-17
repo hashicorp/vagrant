@@ -120,7 +120,7 @@ module VagrantPlugins
         end
 
         def self.nfs_exports_template(environment)
-          "nfs/exports"
+          "nfs/exports_bsd"
         end
 
         def self.nfs_installed(environment)

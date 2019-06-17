@@ -19,7 +19,7 @@ module VagrantPlugins
         end
 
         def self.nfs_exports_template(environment)
-          "nfs/exports_freebsd"
+          "nfs/exports_bsd"
         end
 
         def self.nfs_restart_command(environment)
