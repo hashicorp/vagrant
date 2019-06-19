@@ -35,6 +35,16 @@ module VagrantPlugins
         require_relative "cap/smb"
         Cap::SMB
       end
+
+      guest_capability(:debian, :hyperv_daemons_installed) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
+      end
+
+      guest_capability(:debian, :hyperv_daemons_install) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
+      end
     end
   end
 end

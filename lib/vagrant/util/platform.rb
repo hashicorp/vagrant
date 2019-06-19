@@ -651,6 +651,19 @@ module Vagrant
           @_wsl_windows_appdata_local
         end
 
+        # Fetch the Windows temp directory
+        #
+        # @return [String, Nil]
+        def windows_temp
+          if !@_windows_temp
+            result = Util::Subprocess.execute("cmd.exe", "/c", "echo %TEMP%")
+            if result.exit_code == 0
+              @_windows_temp = result.stdout.gsub("\"", "").strip
+            end
+          end
+          @_windows_temp
+        end
+
         # Confirm Vagrant versions installed within the WSL and the Windows system
         # are the same. Raise error if they do not match.
         def wsl_validate_matching_vagrant_versions!

@@ -73,6 +73,41 @@ module VagrantPlugins
           cmds.each{ |cmd| comm.execute(cmd) }
           true
         end
+
+        # Create directories at given locations on guest
+        #
+        # @param [Vagrant::Machine] machine Vagrant guest machine
+        # @param [array] paths to create on guest
+        def self.create_directories(machine, dirs)
+          return [] if dirs.empty?
+
+          remote_fn = create_tmp_path(machine, {})
+          tmp = Tempfile.new('hv_dirs')
+          begin
+            tmp.write dirs.join("\n") + "\n"
+            tmp.close
+            machine.communicate.upload(tmp.path, remote_fn)
+          ensure
+            tmp.close
+            tmp.unlink
+          end
+          created_paths = []
+          machine.communicate.sudo("bash -c 'while IFS= read -r line
+              do
+                if [ ! -z \"${line}\" ] && [ ! -d \"${line}\" ]; then
+                  if [ -f \"${line}\" ]; then
+                    rm \"${line}\"
+                  fi
+                  mkdir -p -v \"${line}\" || true
+                fi
+              done < #{remote_fn}'
+              ") do |type, data|
+            if type == :stdout && /^.*\'(?<dir>.*)\'/ =~ data
+              created_paths << dir.strip
+            end
+          end
+          created_paths
+        end
       end
     end
   end

@@ -10,6 +10,41 @@ en:
       VM not created. Moving on...
     message_not_running: |-
       Hyper-V machine isn't running. Can't SSH in!
+    share_folders:
+      syncing: Syncing shared folders...
+      syncing_entry: "%{guestpath} => %{hostpath}"
+      nosync_entry: "Sync disabled: %{hostpath}"
+    daemons:
+      installing: |-
+        Installing Hyper-V daemons...
+      activating: |-
+        Activating Hyper-V daemons...
+    sync:
+      auto_initial: |-
+        Doing an initial sync...
+      auto_new_folders: |-
+        New synced folders were added to the Vagrantfile since running
+        `vagrant reload`. If these new synced folders are backed by Hyper-V
+        auto sync, they won't be automatically synced until a
+        `vagrant reload` is run.
+      auto_no_paths: |-
+        There are no paths to watch! This is either because you have no
+        synced folders, or any synced folders you have have specified `auto`
+        to be false.
+      auto_path: "Watching: %{path}"
+      auto_sync_error: |-
+        There was an error while syncing. The error is shown below.
+        This may not be critical since syncing sometimes fails, but if this
+        message repeats, then please fix the issue:
+
+        %{message}
+      communicator_not_ready: |-
+        The machine is reporting that it is not ready to communicate with it.
+        Verify that this machine is properly running.
+      communicator_not_ready_callback: |-
+        Failed to connect to remote machine. This is usually caused by the
+        machine rebooting or being halted. Please make sure the machine is
+        running, and modify a file to try again.
 
     config:
       invalid_auto_start_action: |-
@@ -106,3 +141,18 @@ en:
         problem:
 
           icacls.exe %{root_dir} /T /Q /grant "NT AUTHORITY\SYSTEM:(IO)(CI)(F)"
+      daemons_not_installed_in_guest: |-
+        Hyper-V daemons are not installed in the guest operation system.
+        Hyper-V shared folder plugin relies on Hyper-V daemons to function
+        properly. For guest operation system which does not support Hyper-V
+        daemons, you may use Rsync or SMB plugin instead.
+      daemons_not_enabled_in_guest: |-
+        Hyper-V daemons are not enabled in the guest operation system.
+        Hyper-V shared folder plugin relies on Hyper-V daemons to function
+        properly. For guest operation system which does not support Hyper-V
+        daemons, you may use Rsync or SMB plugin instead.
+      daemons_enable_failed_in_guest: |-
+        Failed to enable Hyper-V daemons in the guest operation system.
+        Hyper-V shared folder plugin relies on Hyper-V daemons to function
+        properly. For guest operation system which does not support Hyper-V
+        daemons, you may use Rsync or SMB plugin instead.

@@ -40,6 +40,16 @@ module VagrantPlugins
         require_relative "cap/rsync"
         Cap::RSync
       end
+
+      guest_capability(:redhat, :hyperv_daemons_installed) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
+      end
+
+      guest_capability(:redhat, :hyperv_daemons_install) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
+      end
     end
   end
 end

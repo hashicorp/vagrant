@@ -41,6 +41,18 @@ module VagrantPlugins
       class SystemAccessRequired < HyperVError
         error_key(:system_access_required)
       end
+
+      class DaemonsNotInstalledInGuest < HyperVError
+        error_key(:daemons_not_installed_in_guest)
+      end
+
+      class DaemonsNotEnabledInGuest < HyperVError
+        error_key(:daemons_not_enabled_in_guest)
+      end
+
+      class DaemonsEnableFailedInGuest < HyperVError
+        error_key(:daemons_enable_failed_in_guest)
+      end
     end
   end
 end

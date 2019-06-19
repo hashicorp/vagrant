@@ -1,6 +1,10 @@
+require 'fileutils'
+require 'find'
 require "json"
+require 'tempfile'
 
 require "vagrant/util/powershell"
+require "vagrant/util/subprocess"
 
 require_relative "plugin"
 
@@ -120,7 +124,7 @@ module VagrantPlugins
       #
       # @return [nil]
       def start
-        execute(:start_vm, VmId: vm_id )
+        execute(:start_vm, VmId: vm_id)
       end
 
       # Stop the VM
@@ -215,6 +219,36 @@ module VagrantPlugins
       # @return [nil]
       def set_name(vmname)
         execute(:set_name, VMID: vm_id, VMName: vmname)
+      end
+
+      # Sync files
+      #
+      # @return [nil]
+      def sync_files(vm_id, dirs, files, is_win_guest: true)
+        network_info = read_guest_ip
+        guest_ip = network_info["ip"]
+        suffix = (0...8).map { ('a'..'z').to_a[rand(26)] }.join
+        windows_temp = Vagrant::Util::Platform.windows_temp
+        if Vagrant::Util::Platform.wsl?
+          process = Vagrant::Util::Subprocess.execute(
+            "wslpath", "-u", "-a", windows_temp)
+          windows_temp = process.stdout.chomp if process.exit_code == 0
+        end
+        fn = File.join(windows_temp, ".hv_sync_files_#{suffix}")
+        begin
+          File.open(fn, 'w') do |file|
+            file.write dirs.to_json
+          end
+          win_path = Vagrant::Util::Platform.format_windows_path(
+            fn, :disable_unc)
+          status = execute(:sync_files,
+                           vm_id: vm_id,
+                           guest_ip: guest_ip,
+                           dir_list: win_path)
+          status
+        ensure
+          FileUtils.rm_f(fn)
+        end
       end
 
       protected
