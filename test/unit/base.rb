@@ -41,6 +41,10 @@ RSpec.configure do |c|
     c.filter_run_excluding :windows
   end
 
+  if !Vagrant::Util::Which.which("bsdtar")
+    c.filter_run_excluding :bsdtar
+  end
+
   c.after(:suite) do
     FileUtils.rm_rf(VAGRANT_TEST_CWD)
   end
