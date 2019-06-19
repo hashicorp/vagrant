@@ -44,6 +44,11 @@ module VagrantPlugins
         Cap::FileSystem
       end
 
+      guest_capability(:windows, :create_directories) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
       guest_capability(:windows, :mount_virtualbox_shared_folder) do
         require_relative "cap/mount_shared_folder"
         Cap::MountSharedFolder
@@ -97,6 +102,21 @@ module VagrantPlugins
       guest_capability(:windows, :remove_public_key) do
         require_relative "cap/public_key"
         Cap::PublicKey
+      end
+
+      guest_capability(:windows, :hyperv_daemons_running) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
+      end
+
+      guest_capability(:windows, :hyperv_daemons_activate) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
+      end
+
+      guest_capability(:windows, :hyperv_daemons_installed) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
       end
 
       protected
