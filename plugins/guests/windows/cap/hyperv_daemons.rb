@@ -4,7 +4,8 @@ module VagrantPlugins
   module GuestWindows
     module Cap
       class HypervDaemons
-        HYPERV_DAEMON_SERVICES = {kvp: "vmickvpexchange", vss: "vmicvss", fcopy: "vmicguestinterface" }
+        HYPERV_DAEMON_SERVICES = %i[kvp vss fcopy]
+        HYPERV_DAEMON_SERVICE_NAMES = {kvp: "vmickvpexchange", vss: "vmicvss", fcopy: "vmicguestinterface" }
 
         # https://docs.microsoft.com/en-us/dotnet/api/system.serviceprocess.servicecontrollerstatus?view=netframework-4.8
         STOPPED = 1
@@ -19,7 +20,7 @@ module VagrantPlugins
         DISABLED_MODE = 4
 
         def self.hyperv_daemons_activate(machine)
-          result = HYPERV_DAEMON_SERVICES.keys.map do |service|
+          result = HYPERV_DAEMON_SERVICES.map do |service|
             hyperv_daemon_activate machine, service
           end
           result.all?
@@ -40,7 +41,7 @@ module VagrantPlugins
         end
 
         def self.hyperv_daemons_running(machine)
-          result = HYPERV_DAEMON_SERVICES.keys.map do |service|
+          result = HYPERV_DAEMON_SERVICES.map do |service|
             hyperv_daemon_running machine, service.to_sym
           end
           result.all?
@@ -55,7 +56,7 @@ module VagrantPlugins
         end
 
         def self.hyperv_daemons_installed(machine)
-          result = HYPERV_DAEMON_SERVICES.keys.map do |service|
+          result = HYPERV_DAEMON_SERVICES.map do |service|
             hyperv_daemon_installed machine, service.to_sym
           end
           result.all?
@@ -96,7 +97,7 @@ module VagrantPlugins
         end
 
         def self.hyperv_daemon_name(service)
-          HYPERV_DAEMON_SERVICES[service]
+          HYPERV_DAEMON_SERVICE_NAMES[service]
         end
       end
     end

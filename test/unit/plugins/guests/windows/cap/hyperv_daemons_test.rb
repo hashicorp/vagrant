@@ -5,7 +5,8 @@ require_relative "../../../../base"
 require Vagrant.source_root.join("plugins/guests/windows/cap/hyperv_daemons")
 
 describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
-  HYPERV_DAEMON_SERVICES = {kvp: "vmickvpexchange", vss: "vmicvss", fcopy: "vmicguestinterface" }
+  HYPERV_DAEMON_SERVICES = %i[kvp vss fcopy]
+  HYPERV_DAEMON_SERVICE_NAMES = {kvp: "vmickvpexchange", vss: "vmicvss", fcopy: "vmicguestinterface" }
 
   STOPPED = 1
   RUNNING =	4
@@ -23,7 +24,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
   let(:comm) { double("comm") }
 
   def name_for(service)
-    HYPERV_DAEMON_SERVICES[service]
+    HYPERV_DAEMON_SERVICE_NAMES[service]
   end
 
   def service_status(name, running: true, disabled: false)
@@ -36,7 +37,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
     subject { described_class }
 
     describe "#hyperv_daemon_running" do
-      HYPERV_DAEMON_SERVICES.keys.each do |service|
+      HYPERV_DAEMON_SERVICES.each do |service|
         context "daemon #{service}" do
           let(:service) { service }
           let(:service_name) { name_for(service) }
@@ -58,14 +59,14 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
 
     describe "#hyperv_daemons_running" do
       it "checks hyperv daemons are running" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(subject).to receive(:hyperv_daemon_running).with(machine, service).and_return(true)
         end
         expect(subject.hyperv_daemons_running(machine)).to be_truthy
       end
 
       it "checks hyperv daemons are not running" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(subject).to receive(:hyperv_daemon_running).with(machine, service).and_return(false)
         end
         expect(subject.hyperv_daemons_running(machine)).to be_falsy
@@ -73,11 +74,11 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
     end
 
     describe "#hyperv_daemon_installed" do
-      HYPERV_DAEMON_SERVICES.keys.each do |service|
+      HYPERV_DAEMON_SERVICES.each do |service|
         context "daemon #{service}" do
           let(:service) { service }
 
-          before { expect(described_class.hyperv_daemon_installed(subject, service)).to be_truthy }
+          before { expect(subject.hyperv_daemon_installed(subject, service)).to be_truthy }
 
           it "does not call communicate#execute" do
             expect(comm).to receive(:execute).never
@@ -88,7 +89,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
 
     describe "#hyperv_daemons_installed" do
       it "checks hyperv daemons are running" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(subject).to receive(:hyperv_daemon_installed).with(machine, service).and_return(true)
         end
         expect(subject.hyperv_daemons_installed(machine)).to be_truthy
@@ -96,7 +97,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
       end
 
       it "checks hyperv daemons are not running" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(subject).to receive(:hyperv_daemon_installed).with(machine, service).and_return(false)
         end
         expect(subject.hyperv_daemons_installed(machine)).to be_falsy
@@ -105,7 +106,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
     end
 
     describe "#hyperv_daemon_activate" do
-      HYPERV_DAEMON_SERVICES.keys.each do |service|
+      HYPERV_DAEMON_SERVICES.each do |service|
         context "daemon #{service}" do
           let(:service) { service }
           let(:service_name) { name_for(service) }
@@ -160,14 +161,14 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
 
     describe "#hyperv_daemons_activate" do
       it "activates hyperv daemons" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(subject).to receive(:hyperv_daemon_activate).with(machine, service).and_return(true)
         end
         expect(subject.hyperv_daemons_activate(machine)).to be_truthy
       end
 
       it "fails to activate hyperv daemons" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(subject).to receive(:hyperv_daemon_activate).with(machine, service).and_return(false)
         end
         expect(subject.hyperv_daemons_activate(machine)).to be_falsy
@@ -175,7 +176,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
     end
 
     describe "#hyperv_daemon_activate" do
-      HYPERV_DAEMON_SERVICES.keys.each do |service|
+      HYPERV_DAEMON_SERVICES.each do |service|
         context "daemon #{service}" do
           let(:service) { service }
           let(:service_name) { name_for(service) }
@@ -273,7 +274,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
       let(:cap) { caps.get(:hyperv_daemons_running) }
 
       it "checks hyperv daemons are running" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(cap).to receive(:hyperv_daemon_running).with(machine, service).and_return(true)
         end
         expect(cap.hyperv_daemons_running(machine)).to be_truthy
@@ -284,7 +285,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
       let(:cap) { caps.get(:hyperv_daemons_installed) }
 
       it "checks hyperv daemons are running" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(cap).to receive(:hyperv_daemon_installed).with(machine, service).and_return(true)
         end
         expect(cap.hyperv_daemons_installed(machine)).to be_truthy
@@ -295,7 +296,7 @@ describe VagrantPlugins::GuestWindows::Cap::HypervDaemons do
       let(:cap) { caps.get(:hyperv_daemons_activate) }
 
       it "activates hyperv daemons" do
-        HYPERV_DAEMON_SERVICES.keys.each do |service|
+        HYPERV_DAEMON_SERVICES.each do |service|
           expect(cap).to receive(:hyperv_daemon_activate).with(machine, service).and_return(true)
         end
         expect(cap.hyperv_daemons_activate(machine)).to be_truthy

@@ -81,16 +81,14 @@ describe "VagrantPlugins::GuestLinux::Cap::HypervDaemons" do
       expect(cap.hyperv_daemons_activate(machine)).to be_truthy
     end
 
-    [ { name: "Debian/Ubuntu",
-        apt_get?: true,
-        service_separator: "-" },
-      { name: "Generic Linux",
-        apt_get?: false,
-        service_separator: "_" } ].each do |test|
+    { debian: { apt_get?: true,
+                service_separator: "-" },
+      linux: { apt_get?: false,
+               service_separator: "_" } }.map do |guest_type, guest_opts|
 
-      context test[name] do
-        let(:apt_get?) { test[:apt_get?] }
-        let(:service_separator) { test[:service_separator] }
+      context guest_type do
+        let(:apt_get?) { guest_opts[:apt_get?] }
+        let(:service_separator) { guest_opts[:service_separator] }
 
         it "checks whether guest OS is apt based" do
           expect(comm.received_commands[0]).to match(/which apt-get/)
