@@ -54,6 +54,7 @@ reference:
         when: on_fail
     unit_tests: &unit_tests
       steps:
+        - run: sudo apt-get update ; sudo apt-get -yq install bsdtar
         - checkout
         - restore_cache:
             key: static-site-gems-v1-{{ checksum "Gemfile.lock" }}
