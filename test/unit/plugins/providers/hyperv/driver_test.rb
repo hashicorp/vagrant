@@ -130,7 +130,7 @@ describe VagrantPlugins::HyperV::Driver do
       let(:windows_path) { "WIN_PATH" }
       let(:windows_temp) { "TEMP_DIR" }
       let(:wsl_temp) { "WSL_TEMP" }
-      let(:dir_list) { double("file") }
+      let(:file_list) { double("file") }
 
       before do
         allow(subject).to receive(:read_guest_ip).and_return(guest_ip)
@@ -138,17 +138,17 @@ describe VagrantPlugins::HyperV::Driver do
         allow(Vagrant::Util::Subprocess).to receive(:execute).
           with("wslpath", "-u", "-a", windows_temp).and_return(double(exit_code: 0, stdout: wsl_temp))
         allow(File).to receive(:open) do |fn, type, &proc|
-          proc.call dir_list
+          proc.call file_list
 
           allow(Vagrant::Util::Platform).to receive(:format_windows_path).
             with(fn, :disable_unc).and_return(windows_path)
           allow(FileUtils).to receive(:rm_f).with(fn)
-        end.and_return(dir_list)
-        allow(dir_list).to receive(:write).with(dirs.to_json)
+        end.and_return(file_list)
+        allow(file_list).to receive(:write).with(files.to_json)
         allow(subject).to receive(:execute).with(:sync_files,
                                                  vm_id: vm_id,
                                                  guest_ip: guest_ip["ip"],
-                                                 dir_list: windows_path)
+                                                 file_list: windows_path)
       end
 
       after { subject.sync_files vm_id, dirs, files, is_win_guest: false }
@@ -182,20 +182,20 @@ describe VagrantPlugins::HyperV::Driver do
               expect(fn).to match(/#{temp_dir}\/\.hv_sync_files_.*/)
               expect(type).to eq('w')
 
-              proc.call dir_list
+              proc.call file_list
 
               expect(Vagrant::Util::Platform).to receive(:format_windows_path).
                 with(fn, :disable_unc).and_return(windows_path)
               expect(FileUtils).to receive(:rm_f).with(fn)
-            end.and_return(dir_list)
-            expect(dir_list).to receive(:write).with(dirs.to_json)
+            end.and_return(file_list)
+            expect(file_list).to receive(:write).with(files.to_json)
           end
 
           it "calls sync files powershell script" do
             expect(subject).to receive(:execute).with(:sync_files,
                                                       vm_id: vm_id,
                                                       guest_ip: guest_ip["ip"],
-                                                      dir_list: windows_path)
+                                                      file_list: windows_path)
           end
         end
       end

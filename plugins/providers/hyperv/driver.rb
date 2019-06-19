@@ -237,14 +237,14 @@ module VagrantPlugins
         fn = File.join(windows_temp, ".hv_sync_files_#{suffix}")
         begin
           File.open(fn, 'w') do |file|
-            file.write dirs.to_json
+            file.write files.to_json
           end
           win_path = Vagrant::Util::Platform.format_windows_path(
             fn, :disable_unc)
           status = execute(:sync_files,
                            vm_id: vm_id,
                            guest_ip: guest_ip,
-                           dir_list: win_path)
+                           file_list: win_path)
           status
         ensure
           FileUtils.rm_f(fn)
