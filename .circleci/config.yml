@@ -88,7 +88,7 @@ jobs:
             s3_dst="${ASSETS_PRIVATE_BUCKET}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/"
           fi
           s3_dst="${ASSETS_PRIVATE_BUCKET}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_TAG}/"
-          aws s3 cp ./vagrant-*.gem "${s3_dst}" > .output 2>&1
+          aws s3 cp vagrant-*.gem "${s3_dst}" > .output 2>&1
       - *PRIVATE_FAILURE
   release:
     <<: *builder
