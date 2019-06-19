@@ -31,8 +31,10 @@ module VagrantPlugins
                 target = platform_guest_path
               else
                 win_path = HyperV::SyncHelper.platform_join(win_host_path, guest_rel)
+                guest_rel = guest_rel.split("/")[0..-2].join("/") if sym == :files
                 target = HyperV::SyncHelper.platform_join(platform_guest_path, guest_rel,
                                                           is_windows: is_win_guest)
+                target = target[0..-2] if target.end_with? '\\', '/'
               end
               mapping[win_path] = target
             end

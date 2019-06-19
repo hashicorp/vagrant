@@ -1,3 +1,4 @@
+require 'json'
 require_relative "../../../base"
 
 require Vagrant.source_root.join("plugins/providers/hyperv/driver")
@@ -115,6 +116,88 @@ describe VagrantPlugins::HyperV::Driver do
           expect(args[:Name]).to eq("CustomKey")
         end
         subject.set_vm_integration_services(CustomKey: true)
+      end
+    end
+
+    describe "#sync_files" do
+      let(:dirs) { %w[dir1 dir2] }
+      let(:files) { %w[file1 file2] }
+      let(:guest_ip) do
+        {}.tap do |ip|
+          ip["ip"] = "guest_ip"
+        end
+      end
+      let(:windows_path) { "WIN_PATH" }
+      let(:windows_temp) { "TEMP_DIR" }
+      let(:wsl_temp) { "WSL_TEMP" }
+      let(:dir_list) { double("file") }
+
+      before do
+        allow(subject).to receive(:read_guest_ip).and_return(guest_ip)
+        allow(Vagrant::Util::Platform).to receive(:windows_temp).and_return(windows_temp)
+        allow(Vagrant::Util::Subprocess).to receive(:execute).
+          with("wslpath", "-u", "-a", windows_temp).and_return(double(exit_code: 0, stdout: wsl_temp))
+        allow(File).to receive(:open) do |fn, type, &proc|
+          proc.call dir_list
+
+          allow(Vagrant::Util::Platform).to receive(:format_windows_path).
+            with(fn, :disable_unc).and_return(windows_path)
+          allow(FileUtils).to receive(:rm_f).with(fn)
+        end.and_return(dir_list)
+        allow(dir_list).to receive(:write).with(dirs.to_json)
+        allow(subject).to receive(:execute).with(:sync_files,
+                                                 vm_id: vm_id,
+                                                 guest_ip: guest_ip["ip"],
+                                                 dir_list: windows_path)
+      end
+
+      after { subject.sync_files vm_id, dirs, files, is_win_guest: false }
+
+      %i[Windows WSL].each do |host_type|
+        context "in #{host_type} environment" do
+          let(:is_wsl) { host_type == :WSL }
+          let(:temp_dir) { is_wsl ? wsl_temp : windows_temp }
+
+          before do
+            allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(is_wsl)
+          end
+
+          it "reads guest ip" do
+            expect(subject).to receive(:read_guest_ip).and_return(guest_ip)
+          end
+
+          it "gets Windows temporary dir where dir list is written" do
+            expect(Vagrant::Util::Platform).to receive(:windows_temp).and_return(windows_temp)
+          end
+
+          if host_type == :WSL
+            it "converts Windows temporary dir to Unix style for WSL" do
+              expect(Vagrant::Util::Subprocess).to receive(:execute).
+                with("wslpath", "-u", "-a", windows_temp).and_return(double(exit_code: 0, stdout: wsl_temp))
+            end
+          end
+
+          it "writes dir list to temporary file" do
+            expect(File).to receive(:open) do |fn, type, &proc|
+              expect(fn).to match(/#{temp_dir}\/\.hv_sync_files_.*/)
+              expect(type).to eq('w')
+
+              proc.call dir_list
+
+              expect(Vagrant::Util::Platform).to receive(:format_windows_path).
+                with(fn, :disable_unc).and_return(windows_path)
+              expect(FileUtils).to receive(:rm_f).with(fn)
+            end.and_return(dir_list)
+            expect(dir_list).to receive(:write).with(dirs.to_json)
+          end
+
+          it "calls sync files powershell script" do
+            expect(subject).to receive(:execute).with(:sync_files,
+                                                      vm_id: vm_id,
+                                                      guest_ip: guest_ip["ip"],
+                                                      dir_list: windows_path)
+          end
+        end
       end
     end
   end

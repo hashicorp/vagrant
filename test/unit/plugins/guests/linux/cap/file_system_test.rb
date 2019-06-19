@@ -124,4 +124,72 @@ describe "VagrantPlugins::GuestLinux::Cap::FileSystem" do
       end
     end
   end
+
+  describe ".create_directories" do
+    let(:cap) { caps.get(:create_directories) }
+    let(:dirs) { %w(dir1 dir2) }
+
+    before { allow(cap).to receive(:create_tmp_path).and_return("TMP_DIR") }
+    after { expect(cap.create_directories(machine, dirs)).to eql(dirs) }
+
+    context "passes directories to be create" do
+      let(:temp_file) do
+        double("temp_file").tap do |temp_file|
+          allow(temp_file).to receive(:close)
+          allow(temp_file).to receive(:path).and_return("temp_path")
+          allow(temp_file).to receive(:unlink)
+        end
+      end
+      let(:sudo_block) do
+        Proc.new do |arg, &proc|
+          lines = arg.split("\n")
+          expect(lines[lines.length - 2]).to match(/TMP_DIR/)
+          dirs.each do |dir|
+            proc.call :stdout, "mkdir: created directory '#{dir}'\n"
+          end
+        end
+      end
+
+      before do
+        allow(Tempfile).to receive(:new).and_return(temp_file)
+        allow(temp_file).to receive(:write)
+        allow(temp_file).to receive(:close)
+        allow(comm).to receive(:upload)
+        allow(comm).to receive(:sudo, &sudo_block)
+      end
+
+      it "creates temporary file on guest" do
+        expect(cap).to receive(:create_tmp_path)
+      end
+
+      it "creates a temporary file to write dir list" do
+        expect(Tempfile).to receive(:new).and_return(temp_file)
+      end
+
+      it "writes dir list to a local temporary file" do
+        expect(temp_file).to receive(:write).with(dirs.join("\n") + "\n")
+      end
+
+      it "uploads the local temporary file with dir list to guest" do
+        expect(comm).to receive(:upload).with("temp_path", "TMP_DIR")
+      end
+
+      it "executes bash script to create directories on guest" do
+        expect(comm).to receive(:sudo, &sudo_block)
+      end
+    end
+
+    context "passes empty dir list" do
+      let(:dirs) { [] }
+
+      after { expect(cap.create_directories(machine, dirs)).to eql([]) }
+
+      it "does nothing" do
+        expect(cap).to receive(:create_tmp_path).never
+        expect(Tempfile).to receive(:new).never
+        expect(comm).to receive(:upload).never
+        expect(comm).to receive(:sudo).never
+      end
+    end
+  end
 end
