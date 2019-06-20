@@ -538,7 +538,7 @@ EOF
       let(:temp_dir) { 'C:\Users\User\AppData\Local\Temp' }
 
       it "should return windows temporary directory" do
-        allow(Vagrant::Util::PowerShell).to receive(:execute).
+        allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).
           with("(Get-Item Env:TEMP).Value").and_return(temp_dir)
         expect(subject.windows_temp).to eql(temp_dir)
       end
