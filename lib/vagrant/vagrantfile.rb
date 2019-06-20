@@ -112,7 +112,7 @@ module Vagrant
     # @param [Pathname] data_path Machine data path
     # @return [Hash<Symbol, Object>] Various configuration parameters for a
     #   machine. See the main documentation body for more info.
-    def machine_config(name, provider, boxes, data_path=nil)
+    def machine_config(name, provider, boxes, data_path=nil, validate_provider=true)
       keys = @keys.dup
 
       sub_machine = @config.vm.defined_vms[name]
@@ -127,7 +127,7 @@ module Vagrant
       box_formats      = nil
       if provider != nil
         provider_plugin  = Vagrant.plugin("2").manager.providers[provider]
-        if !provider_plugin
+        if !provider_plugin && validate_provider
           providers  = Vagrant.plugin("2").manager.providers.to_hash.keys
           if providers
             providers_str = providers.join(', ')
@@ -145,18 +145,22 @@ module Vagrant
             machine: name, provider: provider, providers: providers_str
         end
 
-        provider_cls     = provider_plugin[0]
-        provider_options = provider_plugin[1]
-        box_formats      = provider_options[:box_format] || provider
+        if validate_provider
+          provider_cls     = provider_plugin[0]
+          provider_options = provider_plugin[1]
+          box_formats      = provider_options[:box_format] || provider
 
-        # Test if the provider is usable or not
-        begin
-          provider_cls.usable?(true)
-        rescue Errors::VagrantError => e
-          raise Errors::ProviderNotUsable,
-            machine: name.to_s,
-            provider: provider.to_s,
-            message: e.to_s
+          # Test if the provider is usable or not
+          begin
+            provider_cls.usable?(true)
+          rescue Errors::VagrantError => e
+            raise Errors::ProviderNotUsable,
+              machine: name.to_s,
+              provider: provider.to_s,
+              message: e.to_s
+          end
+        else
+          box_formats = provider
         end
       end
 

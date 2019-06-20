@@ -955,7 +955,7 @@ module Vagrant
       provider = guess_provider
       vagrantfile.machine_names.each do |mname|
         ldp = @local_data_path.join("machines/#{mname}/#{provider}") if @local_data_path
-        plugins << vagrantfile.machine_config(mname, guess_provider, boxes, ldp)[:config]
+        plugins << vagrantfile.machine_config(mname, guess_provider, boxes, ldp, false)[:config]
       end
       result = plugins.reverse.inject(Vagrant::Util::HashWithIndifferentAccess.new) do |memo, val|
         Vagrant::Util::DeepMerge.deep_merge(memo, val.vagrant.plugins)
