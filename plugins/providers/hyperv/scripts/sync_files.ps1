@@ -28,7 +28,6 @@ function copy-file($machine, $file_list, $path_separator) {
       Write-Host "Copied $from to $($machine) => $to."
     } Catch {
       $failed += $from
-      Break
     }
   }
   [hashtable]$return = @{}
