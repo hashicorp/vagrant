@@ -69,7 +69,7 @@ module VagrantPlugins
           # Checks for the existence of chef binary and error if it
           # doesn't exist.
           if windows?
-            command = "if ((&'#{binary}' -v) -Match 'Chef: *'){ exit 0 } else { exit 1 }"
+            command = "if ((&'#{binary}' -v) -Match 'Chef*'){ exit 0 } else { exit 1 }"
           else
             command = "sh -c 'command -v #{binary}'"
           end
