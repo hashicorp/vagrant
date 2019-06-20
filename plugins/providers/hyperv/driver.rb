@@ -239,7 +239,7 @@ module VagrantPlugins
           File.open(fn, 'w') do |file|
             file.write files.to_json
           end
-          win_path = Vagrant::Util::Platform.format_windows_path(
+          win_path = Vagrant::Util::Platform.windows_path(
             fn, :disable_unc)
           status = execute(:sync_files,
                            vm_id: vm_id,

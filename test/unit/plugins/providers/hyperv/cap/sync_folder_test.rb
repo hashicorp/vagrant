@@ -169,7 +169,7 @@ describe VagrantPlugins::HyperV::Cap::SyncFolder do
               allow(guest).to receive(:name).and_return(guest_type)
               allow(VagrantPlugins::HyperV::SyncHelper).to receive(:expand_path).
                 with(hostpath).and_return(expanded_hostpath)
-              allow(Vagrant::Util::Platform).to receive(:format_windows_path).
+              allow(Vagrant::Util::Platform).to receive(:windows_path).
                 with(expanded_hostpath, :disable_unc).and_return(expanded_hostpath_windows)
               allow(described_class).to receive(:find_includes).
                 with(hostpath, exclude).and_return(includes)
@@ -186,7 +186,7 @@ describe VagrantPlugins::HyperV::Cap::SyncFolder do
             end
 
             it "formats expanded full path to windows path" do
-              expect(Vagrant::Util::Platform).to receive(:format_windows_path).
+              expect(Vagrant::Util::Platform).to receive(:windows_path).
                 with(expanded_hostpath, :disable_unc).and_return(expanded_hostpath_windows)
             end
 

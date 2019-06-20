@@ -487,11 +487,11 @@ module Vagrant
         #
         # @param [Pathname, String] path Path to convert
         # @return [String]
-        def windows_path(path)
+        def windows_path(path, *args)
           path = cygwin_windows_path(path)
           path = wsl_to_windows_path(path)
           if windows? || wsl?
-            path = windows_unc_path(path)
+            path = windows_unc_path(path) if !args.include?(:disable_unc)
           end
           path
         end

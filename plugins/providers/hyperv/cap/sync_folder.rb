@@ -10,7 +10,7 @@ module VagrantPlugins
           is_win_guest = machine.guest.name == :windows
           host_path = VagrantPlugins::HyperV::SyncHelper.expand_path(data[:hostpath])
           guest_path = data[:guestpath]
-          win_host_path = Vagrant::Util::Platform.format_windows_path(
+          win_host_path = Vagrant::Util::Platform.windows_path(
             host_path, :disable_unc)
           win_guest_path = guest_path.tr '/', '\\'
 

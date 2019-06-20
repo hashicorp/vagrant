@@ -140,7 +140,7 @@ describe VagrantPlugins::HyperV::Driver do
         allow(File).to receive(:open) do |fn, type, &proc|
           proc.call file_list
 
-          allow(Vagrant::Util::Platform).to receive(:format_windows_path).
+          allow(Vagrant::Util::Platform).to receive(:windows_path).
             with(fn, :disable_unc).and_return(windows_path)
           allow(FileUtils).to receive(:rm_f).with(fn)
         end.and_return(file_list)
@@ -184,7 +184,7 @@ describe VagrantPlugins::HyperV::Driver do
 
               proc.call file_list
 
-              expect(Vagrant::Util::Platform).to receive(:format_windows_path).
+              expect(Vagrant::Util::Platform).to receive(:windows_path).
                 with(fn, :disable_unc).and_return(windows_path)
               expect(FileUtils).to receive(:rm_f).with(fn)
             end.and_return(file_list)
