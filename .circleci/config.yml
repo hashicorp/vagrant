@@ -82,13 +82,18 @@ jobs:
       - attach_workspace:
           at: .
       - run: |
+          gem_name=(vagrant-*.gem)
+          if [ "${CIRCLE_TAG}" == "" ]; then
+            remote_gem_name="vagrant-master.gem"
+          else
+            remote_gem_name="vagrant.gem"
+          fi
           if [[ "${CIRCLE_BRANCH}" = "build-"* ]]; then
-            s3_dst="${ASSETS_PRIVATE_BUCKET}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH##build-}/"
+            s3_dst="${ASSETS_PRIVATE_LONGTERM}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH##build-}/"
           else
             s3_dst="${ASSETS_PRIVATE_BUCKET}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/"
           fi
-          s3_dst="${ASSETS_PRIVATE_BUCKET}/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${CIRCLE_TAG}/"
-          aws s3 cp vagrant-*.gem "${s3_dst}" > .output 2>&1
+          aws s3 cp "${gem_name}" "${s3_dst}${remote_gem_name}" > .output 2>&1
       - *PRIVATE_FAILURE
   release:
     <<: *builder
