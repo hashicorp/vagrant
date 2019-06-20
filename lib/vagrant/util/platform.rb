@@ -656,10 +656,8 @@ module Vagrant
         # @return [String, Nil]
         def windows_temp
           if !@_windows_temp
-            result = Util::Subprocess.execute("cmd.exe", "/c", "echo %TEMP%")
-            if result.exit_code == 0
-              @_windows_temp = result.stdout.gsub("\"", "").strip
-            end
+            result = Vagrant::Util::PowerShell.execute_cmd("(Get-Item Env:TEMP).Value")
+            @_windows_temp = result.gsub("\"", "").strip
           end
           @_windows_temp
         end
