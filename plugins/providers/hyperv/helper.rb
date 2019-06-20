@@ -15,8 +15,8 @@ module VagrantPlugins
         excluded_dirs = []
         excluded_files = []
         excludes.map do |exclude|
-          excluded_path = platform_join expanded_path, exclude,
-                                        is_windows: !Vagrant::Util::Platform.wsl?
+          # Dir.glob accepts Unix style path only
+          excluded_path = platform_join expanded_path, exclude, is_windows: false
           Dir.glob(excluded_path) do |e|
             if directory?(e)
               excluded_dirs << e

@@ -34,7 +34,7 @@ describe VagrantPlugins::HyperV::SyncHelper do
         let(:expanded_hostpath) { expanded_hostpaths[host_type] }
 
         before do
-          allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(!is_windows)
+          allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(false)
           allow(subject).to receive(:expand_path).with(hostpath).and_return(expanded_hostpath)
         end
 
@@ -44,7 +44,7 @@ describe VagrantPlugins::HyperV::SyncHelper do
           exclude_dirs.map do |dir|
             fullpath = [expanded_hostpath, dir[0..-2]].join(separator)
             allow(subject).to receive(:platform_join).
-              with(expanded_hostpath, dir, is_windows: is_windows).and_return(fullpath)
+              with(expanded_hostpath, dir, is_windows: false).and_return(fullpath)
 
             ignore_paths = []
             allow(described_class).to receive(:directory?).with(fullpath).and_return(true)
