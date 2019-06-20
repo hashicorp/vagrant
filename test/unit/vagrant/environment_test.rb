@@ -1447,7 +1447,7 @@ VF
         let(:argv) { ["--provider=single_arg"] }
 
         it "should return the provider name" do
-          expect(subject.send(:guess_provider)).to eq("single_arg")
+          expect(subject.send(:guess_provider)).to eq(:single_arg)
         end
       end
 
@@ -1455,7 +1455,7 @@ VF
         let(:argv) { ["--provider", "double_arg"] }
 
         it "should return the provider name" do
-          expect(subject.send(:guess_provider)).to eq("double_arg")
+          expect(subject.send(:guess_provider)).to eq(:double_arg)
         end
       end
     end
