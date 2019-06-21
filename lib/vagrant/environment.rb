@@ -1021,7 +1021,11 @@ module Vagrant
         ui.warn(I18n.t("vagrant.plugins.local.install_rerun_command"))
         exit(-1)
       end
-      Vagrant::Plugin::Manager.instance.local_file.installed_plugins
+      if Vagrant::Plugin::Manager.instance.local_file
+        Vagrant::Plugin::Manager.instance.local_file.installed_plugins
+      else
+        {}
+      end
     end
 
     # This method copies the private key into the home directory if it
