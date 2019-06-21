@@ -1561,10 +1561,18 @@ VF
       allow(plugin_manager).to receive(:load_plugins)
     end
 
+    context "when local data directory does not exist" do
+      let(:local_file) { nil }
+
+      it "should properly return empty result" do
+        expect(instance.send(:process_configured_plugins)).to be_empty
+      end
+    end
+
     context "plugins are disabled" do
       before{ allow(Vagrant).to receive(:plugins_enabled?).and_return(false) }
 
-      it "should return nil" do
+      it "should return empty result" do
         expect(instance.send(:process_configured_plugins)).to be_nil
       end
     end
