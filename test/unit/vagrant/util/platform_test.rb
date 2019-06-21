@@ -534,4 +534,28 @@ EOF
       end
     end
   end
+
+  describe "#windows_to_wsl_path" do
+    let(:path) { 'c:\my_test_path' }
+    let(:wsl_path) { "/mnt/c/expected_path" }
+    let(:process_result) { double("process", stdout: wsl_path)}
+
+    before do
+      allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(process_result)
+    end
+
+    after { expect(subject.windows_to_wsl_path(path)).to eq(wsl_path) }
+
+    it "invokes wslpath directly" do
+      allow(subject).to receive(:wsl?).and_return(true)
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with("wslpath", "-u", "-a", path)
+    end
+
+    it "invokes wslpath through wsl.exe" do
+      allow(subject).to receive(:wsl?).and_return(false)
+      expect(Vagrant::Util::Subprocess).to receive(:execute).
+        with("wsl", "--", "/bin/wslpath", "-u", "-a", "c:/my_test_path")
+    end
+  end
+
 end

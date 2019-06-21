@@ -341,6 +341,25 @@ module Vagrant
           wsl? && !path.to_s.downcase.start_with?("/mnt/")
         end
 
+        # This takes any path and converts it from a Windows path to a
+        # WSL style path.
+        #
+        # @param [String path] Windows style path
+        # @return [String] WSL style path
+        def windows_to_wsl_path(path)
+          if wsl?
+            cmd = ["wslpath", "-u", "-a", path.to_s]
+          else
+            cmd = ["wsl", "--", "/bin/wslpath", "-u", "-a", path.gsub("\\", "/")]
+          end
+
+          begin
+            process = Subprocess.execute(*cmd)
+            return process.stdout.chomp
+          rescue Errors::CommandUnavailableWindows
+          end
+        end
+
         # Compute the path to rootfs of currently active WSL.
         #
         # @return [String] A path to rootfs of a current WSL instance.
@@ -473,11 +492,7 @@ module Vagrant
         def format_windows_path(path, *args)
           path = cygwin_path(path) if cygwin?
           path = msys_path(path) if msys?
-          path = wsl_to_windows_path(path) if wsl?
-          if windows? || wsl?
-            path = windows_unc_path(path) if !args.include?(:disable_unc)
-          end
-
+          path = windows_to_wsl_path(path) if wsl?
           path
         end
 
