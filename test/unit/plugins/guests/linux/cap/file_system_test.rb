@@ -135,6 +135,7 @@ describe "VagrantPlugins::GuestLinux::Cap::FileSystem" do
     context "passes directories to be create" do
       let(:temp_file) do
         double("temp_file").tap do |temp_file|
+          allow(temp_file).to receive(:binmode)
           allow(temp_file).to receive(:close)
           allow(temp_file).to receive(:path).and_return("temp_path")
           allow(temp_file).to receive(:unlink)

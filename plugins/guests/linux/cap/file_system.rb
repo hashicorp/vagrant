@@ -84,6 +84,7 @@ module VagrantPlugins
           remote_fn = create_tmp_path(machine, {})
           tmp = Tempfile.new('hv_dirs')
           begin
+            tmp.binmode
             tmp.write dirs.join("\n") + "\n"
             tmp.close
             machine.communicate.upload(tmp.path, remote_fn)
