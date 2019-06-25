@@ -15,34 +15,20 @@ targeted at Vagrant core members who have the ability to cut a release.
     $ git push --tags
     ```
 
-1. Trigger an installer creation run within the HashiCorp Bamboo installation.
-  This will take around 45 minutes.
+1. This will automatically trigger an installer creation, upload the artifacts,
+  and publish the release.
 
-1. Download all the resulting artifacts into the `pkg/dist` folder relative to
-  the Vagrant repository on your local machine.
+1. After the release has been published update the `website/config.rb` to point
+  to the latest version, commit, and push.
 
-1. Run `./scripts/sign.sh` with the version that is being created. This must be
-    run from the Vagrant repo root. This will GPG sign and checksum the files.
+1. Publish the webiste by deleting the `stable-website` branch, recreate the branch,
+  and force push. From the `master` branch, run:
 
-1. Run the following command to upload the binaries to the releases site:
-
-    ```
-    $ hc-releases upload pkg/dist
-    ```
-
-1. Publish the new index files to the releases site:
-
-    ```
-    $ hc-releases publish
-    ```
-
-1. Update `website/config.rb` to point to the latest version, commit, and push.
-
-1. Tell HashiBot to deploy in `#deploys`
-
-    ```
-    hashibot deploy vagrant
-    ```
+   ```
+   $ git branch -D stable-website
+   $ git branch -b stable-website
+   $ git push -f origin stable-website
+   ```
 
 1. Update `version.txt` to append `.dev` and add a new blank entry in the
   CHANGELOG, commit, and push.
