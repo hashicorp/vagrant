@@ -66,7 +66,7 @@ module VagrantPlugins
         #
         # @param [Vagrant::Machine] machine Vagrant guest machine
         # @param [array] paths to create on guest
-        def self.create_directories(machine, dirs)
+        def self.create_directories(machine, dirs, opts={})
           return [] if dirs.empty?
 
           remote_fn = create_tmp_path(machine, {})

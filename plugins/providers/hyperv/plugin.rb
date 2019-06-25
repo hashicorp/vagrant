@@ -27,11 +27,6 @@ module VagrantPlugins
         Config
       end
 
-      provider_capability("hyperv", "sync_folder") do
-        require_relative "cap/sync_folder"
-        Cap::SyncFolder
-      end
-
       provider_capability("hyperv", "public_address") do
         require_relative "cap/public_address"
         Cap::PublicAddress

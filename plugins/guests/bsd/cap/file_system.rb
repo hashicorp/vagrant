@@ -44,7 +44,7 @@ module VagrantPlugins
             "rm -f '#{compressed_file}'",
             "rm -rf '#{extract_dir}'"
           ]
-          cmds.each{ |cmd| comm.execute(cmd) }
+          cmds.each{ |cmd| comm.execute(cmd, sudo: opts[:sudo] || false) }
           true
         end
 
@@ -68,7 +68,7 @@ module VagrantPlugins
             "rm -f '#{compressed_file}'",
             "rm -rf '#{extract_dir}'"
           ]
-          cmds.each{ |cmd| comm.execute(cmd) }
+          cmds.each{ |cmd| comm.execute(cmd, sudo: opts[:sudo] || false) }
           true
         end
       end

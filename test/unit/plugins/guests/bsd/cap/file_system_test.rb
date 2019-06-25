@@ -45,40 +45,45 @@ describe "VagrantPlugins::GuestBSD::Cap::FileSystem" do
     let(:cap) { caps.get(:decompress_tgz) }
     let(:comp) { "compressed_file" }
     let(:dest) { "path/to/destination" }
-    let(:opts) { {} }
 
     before { allow(cap).to receive(:create_tmp_path).and_return("TMP_DIR") }
     after{ cap.decompress_tgz(machine, comp, dest, opts) }
 
-    it "should create temporary directory for extraction" do
-      expect(cap).to receive(:create_tmp_path)
-    end
+    [false, true].each do |sudo_flag|
+      context "sudo flag: #{sudo_flag}" do
+        let(:opts) { {sudo: sudo_flag} }
 
-    it "should extract file with tar" do
-      expect(comm).to receive(:execute).with(/tar/)
-    end
+        it "should create temporary directory for extraction" do
+          expect(cap).to receive(:create_tmp_path)
+        end
 
-    it "should extract file to temporary directory" do
-      expect(comm).to receive(:execute).with(/TMP_DIR/)
-    end
+        it "should extract file with tar" do
+          expect(comm).to receive(:execute).with(/tar/, sudo: sudo_flag)
+        end
 
-    it "should remove compressed file from guest" do
-      expect(comm).to receive(:execute).with(/rm .*#{comp}/)
-    end
+        it "should extract file to temporary directory" do
+          expect(comm).to receive(:execute).with(/TMP_DIR/, sudo: sudo_flag)
+        end
 
-    it "should remove extraction directory from guest" do
-      expect(comm).to receive(:execute).with(/rm .*TMP_DIR/)
-    end
+        it "should remove compressed file from guest" do
+          expect(comm).to receive(:execute).with(/rm .*#{comp}/, sudo: sudo_flag)
+        end
 
-    it "should create parent directories for destination" do
-      expect(comm).to receive(:execute).with(/mkdir -p .*to'/)
-    end
+        it "should remove extraction directory from guest" do
+          expect(comm).to receive(:execute).with(/rm .*TMP_DIR/, sudo: sudo_flag)
+        end
 
-    context "when type is directory" do
-      before { opts[:type] = :directory }
+        it "should create parent directories for destination" do
+          expect(comm).to receive(:execute).with(/mkdir -p .*to'/, sudo: sudo_flag)
+        end
 
-      it "should create destination directory" do
-        expect(comm).to receive(:execute).with(/mkdir -p .*destination'/)
+        context "when type is directory" do
+          before { opts[:type] = :directory }
+
+          it "should create destination directory" do
+            expect(comm).to receive(:execute).with(/mkdir -p .*destination'/, sudo: sudo_flag)
+          end
+        end
       end
     end
   end
@@ -87,40 +92,45 @@ describe "VagrantPlugins::GuestBSD::Cap::FileSystem" do
     let(:cap) { caps.get(:decompress_zip) }
     let(:comp) { "compressed_file" }
     let(:dest) { "path/to/destination" }
-    let(:opts) { {} }
 
     before { allow(cap).to receive(:create_tmp_path).and_return("TMP_DIR") }
     after{ cap.decompress_zip(machine, comp, dest, opts) }
 
-    it "should create temporary directory for extraction" do
-      expect(cap).to receive(:create_tmp_path)
-    end
+    [false, true].each do |sudo_flag|
+      context "sudo flag: #{sudo_flag}" do
+        let(:opts) { {sudo: sudo_flag} }
 
-    it "should extract file with zip" do
-      expect(comm).to receive(:execute).with(/zip/)
-    end
+        it "should create temporary directory for extraction" do
+          expect(cap).to receive(:create_tmp_path)
+        end
 
-    it "should extract file to temporary directory" do
-      expect(comm).to receive(:execute).with(/TMP_DIR/)
-    end
+        it "should extract file with zip" do
+          expect(comm).to receive(:execute).with(/zip/, sudo: sudo_flag)
+        end
 
-    it "should remove compressed file from guest" do
-      expect(comm).to receive(:execute).with(/rm .*#{comp}/)
-    end
+        it "should extract file to temporary directory" do
+          expect(comm).to receive(:execute).with(/TMP_DIR/, sudo: sudo_flag)
+        end
 
-    it "should remove extraction directory from guest" do
-      expect(comm).to receive(:execute).with(/rm .*TMP_DIR/)
-    end
+        it "should remove compressed file from guest" do
+          expect(comm).to receive(:execute).with(/rm .*#{comp}/, sudo: sudo_flag)
+        end
 
-    it "should create parent directories for destination" do
-      expect(comm).to receive(:execute).with(/mkdir -p .*to'/)
-    end
+        it "should remove extraction directory from guest" do
+          expect(comm).to receive(:execute).with(/rm .*TMP_DIR/, sudo: sudo_flag)
+        end
 
-    context "when type is directory" do
-      before { opts[:type] = :directory }
+        it "should create parent directories for destination" do
+          expect(comm).to receive(:execute).with(/mkdir -p .*to'/, sudo: sudo_flag)
+        end
 
-      it "should create destination directory" do
-        expect(comm).to receive(:execute).with(/mkdir -p .*destination'/)
+        context "when type is directory" do
+          before { opts[:type] = :directory }
+
+          it "should create destination directory" do
+            expect(comm).to receive(:execute).with(/mkdir -p .*destination'/, sudo: sudo_flag)
+          end
+        end
       end
     end
   end
