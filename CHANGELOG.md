@@ -6,7 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
-## 2.2.5 (July 19, 2019)
+## 2.2.5 (June 19, 2019)
 
 FEATURES:
 
