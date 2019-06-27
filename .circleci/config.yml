@@ -187,6 +187,14 @@ jobs:
               slack -s error -m "Failed to stage CHANGELOG update for release trigger"
               exit 1
             fi
+            echo -e "## Next version (Unreleased)\n\nFEATURES:\n\nIMPROVEMENTS:\n\nBUG FIXES:\n" | cat - CHANGELOG.md > .t && mv .t CHANGELOG.md
+            if [ $? -ne 0 ]; then
+              slack -s error -m "Failed to write update to CHANGELOG for development"
+              exit 1
+            fi
+            dev_version=$(ruby -e "puts Gem::Version.new(Gem::Version.new(${version}).segments.tap{|x|x[2]=x[2].succ}.join('.'))")
+            echo "${dev_version}.dev" > version.txt
+            git commit CHANGELOG.md version.txt -m "Update version and CHANGELOG for development v${dev_version}.dev"
             git push upstream master "v${version}"
             if [ $? -ne 0 ]; then
               slack -s error -m "Failed to push updates to GitHub for release trigger"
