@@ -29,7 +29,12 @@ reference:
       filters:
         branches:
           only: /^pull\/.*/
-    master: &MASTER_WORKFLOW
+    public_master: &PUBLIC_MASTER_WORKFLOW
+      filters:
+        branches:
+          only: master
+    private_master: &PRIVATE_MASTER_WORKFLOW
+      context: vagrant
       filters:
         branches:
           only: master
@@ -116,6 +121,79 @@ jobs:
           fi
           slack -m "New Vagrant installers release triggered: *${version}*"
       - *PRIVATE_FAILURE
+  trigger_release:
+    <<: *builder
+    steps:
+      - checkout
+      - run:
+          name: Check for version bump
+          command: |
+            set +e
+            compare_url="${CIRCLE_COMPARE_URL/github.com/api.github.com/repos}"
+            files=($(curl -SsL -H "Accept: application/json" "${compare_url}" | jq -r .files[].filename))
+            for i in "${files[@]}"; do
+              if [ "${i}" != "version.txt" ]; then
+                continue
+              fi
+              version=$(<./version.txt)
+              if [[ ! "${version}" =~ ^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$ ]]; then
+                continue
+              fi
+              tags=($(git tag))
+              for j in "${tag[@]}"; do
+                if [ "${j}" = "v${version}" ]; then
+                  echo "Tag already exists. Exiting..."
+                  exit 0
+                fi
+              done
+              echo "Tag for version v${version} does not exist. Trigger release..."
+              touch .do-release
+              exit 0
+            done
+      - run:
+          name: Setup GitHub User
+          command: |
+            set +e
+            test -f .do-release || exit 0
+            git config --local user.email "hashicorp-ci@users.noreply.github.com" && git config --local user.name "hashicorp-ci"
+            if [ $? -ne 0 ]; then
+              slack -s error -m "Failed to configure GitHub user for release trigger"
+              exit 1
+            fi
+      - run:
+          name: Configure GitHub Repository
+          command: |
+            set +e
+            test -f .do-release || exit 0
+            git remote add upstream "https://${HASHIBOT_TOKEN}@github.com/hashicorp/vagrant.git"
+            if [ $? -ne 0 ]; then
+              slack -s error -m "Failed to configure git repository for release trigger"
+              exit 1
+            fi
+      - run:
+          name: Update CHANGELOG and Release
+          command: |
+            set +e
+            test -f .do-release || exit 0
+            version=$(<./version.txt)
+            reldate=$(date +"%B %e %Y")
+            sed -i "s/Next version (Unreleased)/${version} (${reldate})/" CHANGELOG.md
+            if [ $? -ne 0 ]; then
+              slack -s error -m "Failed to update CHANGELOG for release trigger"
+              exit 1
+            fi
+            git commit CHANGELOG.md -m "Update CHANGELOG for release v${version}" && git tag "v${version}"
+            if [ $? -ne 0 ]; then
+              slack -s error -m "Failed to stage CHANGELOG update for release trigger"
+              exit 1
+            fi
+            git push upstream master "v${version}"
+            if [ $? -ne 0 ]; then
+              slack -s error -m "Failed to push updates to GitHub for release trigger"
+              exit 1
+            fi
+            slack -s warn -m "New release has been triggered for version v${version}!"
+            exit
   test_ruby23:
     <<: *ruby23
     <<: *unit_tests
@@ -176,15 +254,15 @@ workflows:
   master:
     jobs:
       - test_ruby23:
-          <<: *MASTER_WORKFLOW
+          <<: *PUBLIC_MASTER_WORKFLOW
       - test_ruby24:
-          <<: *MASTER_WORKFLOW
+          <<: *PUBLIC_MASTER_WORKFLOW
       - test_ruby25:
-          <<: *MASTER_WORKFLOW
+          <<: *PUBLIC_MASTER_WORKFLOW
       - test_ruby26:
-          <<: *MASTER_WORKFLOW
+          <<: *PUBLIC_MASTER_WORKFLOW
       - build:
-          <<: *MASTER_WORKFLOW
+          <<: *PUBLIC_MASTER_WORKFLOW
           context: vagrant
           requires:
             - test_ruby23
@@ -192,8 +270,11 @@ workflows:
             - test_ruby25
             - test_ruby26
       - store:
-          <<: *MASTER_WORKFLOW
-          context: vagrant
+          <<: *PRIVATE_MASTER_WORKFLOW
+          requires:
+            - build
+      - trigger_release:
+          <<: *PRIVATE_MASTER_WORKFLOW
           requires:
             - build
   website:
