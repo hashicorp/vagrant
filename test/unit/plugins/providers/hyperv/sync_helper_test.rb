@@ -701,6 +701,7 @@ describe VagrantPlugins::HyperV::SyncHelper do
             let(:is_windows) { host_type == :Windows }
             let(:source) { sources[host_type] }
             let(:new_source) { new_sources[host_type] }
+            let(:new_source_windows) { new_sources[:Windows] }
 
             context "uploads file by Hyper-V daemons when applicable" do
               let(:windows_temp) { windows_temps[host_type] }
@@ -709,6 +710,8 @@ describe VagrantPlugins::HyperV::SyncHelper do
                 allow(subject).to receive(:hyperv_copy?).with(machine).and_return(true)
                 allow(subject).to receive(:format_windows_temp).and_return(windows_temp)
                 allow(Vagrant::Util::Platform).to receive(:wsl?).and_return(!is_windows)
+                allow(Vagrant::Util::Platform).to receive(:windows_path).
+                  with(new_source, :disable_unc).and_return(new_source_windows)
                 allow(FileUtils).to receive(:rm_f)
                 allow(FileUtils).to receive(:mv)
                 allow(subject).to receive(:hyperv_copy)
@@ -724,7 +727,7 @@ describe VagrantPlugins::HyperV::SyncHelper do
               end
 
               it "calls Hyper-V cmdlet to copy file" do
-                expect(subject).to receive(:hyperv_copy).with(machine, new_source, dest_dir)
+                expect(subject).to receive(:hyperv_copy).with(machine, new_source_windows, dest_dir)
               end
             end
 

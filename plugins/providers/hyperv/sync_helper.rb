@@ -265,7 +265,8 @@ module VagrantPlugins
             source_copy = platform_join windows_temp, filename, is_windows: !Vagrant::Util::Platform.wsl?
             FileUtils.mv source, source_copy
             source = source_copy
-            hyperv_copy machine, source, dest_dir
+            win_source_path = Vagrant::Util::Platform.windows_path(source, :disable_unc)
+            hyperv_copy machine, win_source_path, dest_dir
           else
             machine.communicate.upload(source, dest)
           end
