@@ -2,7 +2,7 @@ require 'optparse'
 
 require "vagrant/action/builtin/mixin_synced_folders"
 
-require_relative "../helper"
+require_relative "../sync_helper"
 
 module VagrantPlugins
   module HyperV

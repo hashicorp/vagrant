@@ -3,7 +3,7 @@ require 'zip'
 
 require_relative "../../../base"
 
-require Vagrant.source_root.join("plugins/providers/hyperv/helper")
+require Vagrant.source_root.join("plugins/providers/hyperv/sync_helper")
 
 describe VagrantPlugins::HyperV::SyncHelper do
   subject { described_class }

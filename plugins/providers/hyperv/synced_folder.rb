@@ -1,7 +1,7 @@
 require "fileutils"
 require "vagrant/util/platform"
 
-require_relative 'helper'
+require_relative 'sync_helper'
 
 module VagrantPlugins
   module HyperV

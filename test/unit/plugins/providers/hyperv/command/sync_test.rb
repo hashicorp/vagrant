@@ -1,6 +1,6 @@
 require_relative "../../../../base"
 
-require Vagrant.source_root.join("plugins/providers/hyperv/helper")
+require Vagrant.source_root.join("plugins/providers/hyperv/sync_helper")
 require Vagrant.source_root.join("plugins/providers/hyperv/command/sync")
 
 describe VagrantPlugins::HyperV::Command::Sync do

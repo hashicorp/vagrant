@@ -8,7 +8,7 @@ require "vagrant/util/platform"
 
 require "listen"
 
-require_relative '../helper'
+require_relative '../sync_helper'
 
 module VagrantPlugins
   module HyperV

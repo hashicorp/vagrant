@@ -3,7 +3,7 @@ require "vagrant"
 require Vagrant.source_root.join("test/unit/base")
 require Vagrant.source_root.join("plugins/providers/hyperv/config")
 require Vagrant.source_root.join("plugins/providers/hyperv/errors")
-require Vagrant.source_root.join("plugins/providers/hyperv/helper")
+require Vagrant.source_root.join("plugins/providers/hyperv/sync_helper")
 require Vagrant.source_root.join("plugins/providers/hyperv/synced_folder")
 
 describe VagrantPlugins::HyperV::SyncedFolder do
