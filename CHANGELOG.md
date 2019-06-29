@@ -2,6 +2,14 @@
 
 FEATURES:
 
+IMPROVEMENTS:
+
+BUG FIXES:
+
+## 2.2.5 (June 19, 2019)
+
+FEATURES:
+
 - providers/docker: Private and Public networking support [GH-10702]
 
 IMPROVEMENTS:
@@ -39,6 +47,7 @@ BUG FIXES:
 - provider/virtualbox: Ensure non-existent machines do not attempt to list snapshots [GH-10784]
 - provider/docker: Properly set docker-compose config file with volume names [GH-10820]
 - provisioner/ansible: Fix pip installer hardcoded curl get_pip.py piped to python [GH-10625]
+- provisioner/chef: Update chef install check for guests [GH-10917]
 - synced_folders/rsync: Remove rsync__excludes from command if array is empty [GH-10901]
 
 ## 2.2.4 (February 27, 2019)

@@ -182,6 +182,18 @@ Cmnd_Alias VAGRANT_NFSD_APPLY = /usr/sbin/exportfs -ar
 %vagrant ALL=(root) NOPASSWD: VAGRANT_EXPORTS_CHOWN, VAGRANT_EXPORTS_MV, VAGRANT_NFSD_CHECK, VAGRANT_NFSD_START, VAGRANT_NFSD_APPLY
 ```
 
+For SUSE Linux, sudoers might look like this (given your user
+belongs to the vagrant group):
+
+```
+Cmnd_Alias VAGRANT_CHOWN = /usr/bin/chown 0\:0 /tmp/vagrant[a-z0-9-]*
+Cmnd_Alias VAGRANT_MV = /usr/bin/mv -f /tmp/vagrant[a-z0-9-]* /etc/exports
+Cmnd_Alias VAGRANT_START = /sbin/service nfsserver start
+Cmnd_Alias VAGRANT_STATUS = /sbin/service nfsserver status
+Cmnd_Alias VAGRANT_APPLY = /usr/sbin/exportfs -ar
+%vagrant ALL=(root) NOPASSWD: VAGRANT_CHOWN, VAGRANT_MV, VAGRANT_START, VAGRANT_STATUS, VAGRANT_APPLY
+```
+
 If you don't want to edit `/etc/sudoers` directly, you can create
 `/etc/sudoers.d/vagrant-syncedfolders` with the appropriate entries,
 assuming `/etc/sudoers.d` has been enabled.

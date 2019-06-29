@@ -320,7 +320,7 @@ describe Vagrant::Box, :skip_windows do
       FileUtils.rm_rf(scratch)
     end
 
-    it "should repackage the box" do
+    it "should repackage the box", :bsdtar do
       test_file_contents = "hello, world!"
 
       # Put a file in the box directory to verify it is packaged properly

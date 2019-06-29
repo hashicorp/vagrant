@@ -938,7 +938,7 @@ module Vagrant
           break
         end
       end
-      return gp if gp
+      return gp.to_sym if gp
       begin
         default_provider
       rescue Errors::NoDefaultProvider
@@ -955,7 +955,7 @@ module Vagrant
       provider = guess_provider
       vagrantfile.machine_names.each do |mname|
         ldp = @local_data_path.join("machines/#{mname}/#{provider}") if @local_data_path
-        plugins << vagrantfile.machine_config(mname, guess_provider, boxes, ldp)[:config]
+        plugins << vagrantfile.machine_config(mname, guess_provider, boxes, ldp, false)[:config]
       end
       result = plugins.reverse.inject(Vagrant::Util::HashWithIndifferentAccess.new) do |memo, val|
         Vagrant::Util::DeepMerge.deep_merge(memo, val.vagrant.plugins)
@@ -1021,7 +1021,11 @@ module Vagrant
         ui.warn(I18n.t("vagrant.plugins.local.install_rerun_command"))
         exit(-1)
       end
-      Vagrant::Plugin::Manager.instance.local_file.installed_plugins
+      if Vagrant::Plugin::Manager.instance.local_file
+        Vagrant::Plugin::Manager.instance.local_file.installed_plugins
+      else
+        {}
+      end
     end
 
     # This method copies the private key into the home directory if it

@@ -21,8 +21,6 @@ describe VagrantPlugins::DockerProvider::Provider do
   end
 
   describe ".usable?" do
-    subject { described_class.new(machine) }
-
     it "returns true if usable" do
       allow(provider_config).to receive(:compose).and_return(false)
       allow(subject.driver).to receive(:execute).with("docker", "version").and_return(true)
@@ -53,9 +51,10 @@ describe VagrantPlugins::DockerProvider::Provider do
   end
 
   describe "#state" do
+    before { allow(subject).to receive(:driver).and_return(driver_obj) }
+
     it "returns not_created if no ID" do
       allow(machine).to receive(:id).and_return(nil)
-
       expect(subject.state.id).to eq(:not_created)
     end
 
@@ -63,7 +62,8 @@ describe VagrantPlugins::DockerProvider::Provider do
       allow(provider_config).to receive(:compose).and_return(false)
       allow(platform).to receive(:windows?).and_return(false)
       allow(platform).to receive(:darwin?).and_return(false)
-      allow(machine).to receive(:id).and_return("foo")
+      expect(machine).to receive(:id).and_return("foo")
+      expect(driver_obj).to receive(:created?).with("foo").and_return(false)
 
       expect(subject.state.id).to eq(:not_created)
     end
