@@ -14,11 +14,22 @@ en:
       syncing: Syncing shared folders...
       syncing_entry: "%{guestpath} => %{hostpath}"
       nosync_entry: "Sync disabled: %{hostpath}"
+      no_daemons: |-
+        Hyper-V daemons are not running on the guest operation system.
+        This may impact the performance.
     daemons:
       installing: |-
         Installing Hyper-V daemons...
       activating: |-
         Activating Hyper-V daemons...
+      unable_to_install: |-
+        Hyper-V daemons cannot be installed in the guest operation system.
+      unable_to_activate: |-
+        Hyper-V daemons cannot be activated in the guest operation system
+        as no Hyper-V daemons activation approach is provided on the guest
+        operation system.
+      activation_failed: |-
+        Failed to activate in the guest operation system.
     sync:
       auto_initial: |-
         Doing an initial sync...
@@ -141,18 +152,3 @@ en:
         problem:
 
           icacls.exe %{root_dir} /T /Q /grant "NT AUTHORITY\SYSTEM:(IO)(CI)(F)"
-      daemons_not_installed_in_guest: |-
-        Hyper-V daemons are not installed in the guest operation system.
-        Hyper-V shared folder plugin relies on Hyper-V daemons to function
-        properly. For guest operation system which does not support Hyper-V
-        daemons, you may use Rsync or SMB plugin instead.
-      daemons_not_enabled_in_guest: |-
-        Hyper-V daemons are not enabled in the guest operation system.
-        Hyper-V shared folder plugin relies on Hyper-V daemons to function
-        properly. For guest operation system which does not support Hyper-V
-        daemons, you may use Rsync or SMB plugin instead.
-      daemons_enable_failed_in_guest: |-
-        Failed to enable Hyper-V daemons in the guest operation system.
-        Hyper-V shared folder plugin relies on Hyper-V daemons to function
-        properly. For guest operation system which does not support Hyper-V
-        daemons, you may use Rsync or SMB plugin instead.

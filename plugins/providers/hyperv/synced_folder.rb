@@ -18,7 +18,7 @@ module VagrantPlugins
       end
 
       def enable(machine, folders, _opts)
-        return unless configure_hv_daemons(machine)
+        machine.ui.warn I18n.t("vagrant_hyperv.share_folders.no_daemons") unless configure_hv_daemons(machine)
 
         # short guestpaths first, so we don't step on ourselves
         folders = folders.sort_by do |id, data|
@@ -62,18 +62,27 @@ module VagrantPlugins
           installed = machine.guest.capability(:hyperv_daemons_installed)
           unless installed
             can_install = machine.guest.capability?(:hyperv_daemons_install)
-            raise Errors::DaemonsNotInstalledInGuest unless can_install
+            unless can_install
+              machine.ui.warn I18n.t("vagrant_hyperv.daemons.unable_to_install")
+              return false
+            end
 
             machine.ui.info I18n.t("vagrant_hyperv.daemons.installing")
             machine.guest.capability(:hyperv_daemons_install)
           end
 
           can_activate = machine.guest.capability?(:hyperv_daemons_activate)
-          raise Errors::DaemonsNotEnabledInGuest unless can_activate
+          unless can_activate
+            machine.ui.warn I18n.t("vagrant_hyperv.daemons.unable_to_activate")
+            return false
+          end
 
           machine.ui.info I18n.t("vagrant_hyperv.daemons.activating")
           activated = machine.guest.capability(:hyperv_daemons_activate)
-          raise Errors::DaemonsEnableFailedInGuest unless activated
+          unless activated
+            machine.ui.warn I18n.t("vagrant_hyperv.daemons.activation_failed")
+            return false
+          end
         end
         true
       end

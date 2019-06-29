@@ -72,6 +72,11 @@ describe VagrantPlugins::HyperV::SyncedFolder do
   end
 
   describe "#configure_hv_daemons" do
+    before do
+      allow(ui).to receive(:info)
+      allow(ui).to receive(:warn)
+    end
+
     it "runs guest which does not support capability :hyperv_daemons_running" do
       allow(guest).to receive(:capability?).with(:hyperv_daemons_running).and_return(false)
       expect(subject.send(:configure_hv_daemons, machine)).to be_falsy
@@ -89,7 +94,6 @@ describe VagrantPlugins::HyperV::SyncedFolder do
       allow(guest).to receive(:capability).with(:hyperv_daemons_installed).and_return(true)
       allow(guest).to receive(:capability?).with(:hyperv_daemons_activate).and_return(true)
       allow(guest).to receive(:capability).with(:hyperv_daemons_activate).and_return(true)
-      allow(ui).to receive(:info)
       expect(subject.send(:configure_hv_daemons, machine)).to be_truthy
     end
 
@@ -98,7 +102,7 @@ describe VagrantPlugins::HyperV::SyncedFolder do
       allow(guest).to receive(:capability).with(:hyperv_daemons_running).and_return(false)
       allow(guest).to receive(:capability).with(:hyperv_daemons_installed).and_return(true)
       allow(guest).to receive(:capability?).with(:hyperv_daemons_activate).and_return(false)
-      expect { subject.send(:configure_hv_daemons, machine) }.to raise_error(VagrantPlugins::HyperV::Errors::DaemonsNotEnabledInGuest)
+      expect(subject.send(:configure_hv_daemons, machine)).to be_falsy
     end
 
     it "runs guest which has hyperv daemons installed but activate failed" do
@@ -107,8 +111,7 @@ describe VagrantPlugins::HyperV::SyncedFolder do
       allow(guest).to receive(:capability).with(:hyperv_daemons_installed).and_return(true)
       allow(guest).to receive(:capability?).with(:hyperv_daemons_activate).and_return(true)
       allow(guest).to receive(:capability).with(:hyperv_daemons_activate).and_return(false)
-      allow(ui).to receive(:info)
-      expect { subject.send(:configure_hv_daemons, machine) }.to raise_error(VagrantPlugins::HyperV::Errors::DaemonsEnableFailedInGuest)
+      expect(subject.send(:configure_hv_daemons, machine)).to be_falsy
     end
 
     it "runs guest which has no hyperv daemons and unable to install" do
@@ -116,7 +119,7 @@ describe VagrantPlugins::HyperV::SyncedFolder do
       allow(guest).to receive(:capability).with(:hyperv_daemons_running).and_return(false)
       allow(guest).to receive(:capability).with(:hyperv_daemons_installed).and_return(false)
       allow(guest).to receive(:capability?).with(:hyperv_daemons_install).and_return(false)
-      expect { subject.send(:configure_hv_daemons, machine) }.to raise_error(VagrantPlugins::HyperV::Errors::DaemonsNotInstalledInGuest)
+      expect(subject.send(:configure_hv_daemons, machine)).to be_falsy
     end
 
     it "runs guest which has hyperv daemons newly installed but failed to activate" do
@@ -127,8 +130,7 @@ describe VagrantPlugins::HyperV::SyncedFolder do
       allow(guest).to receive(:capability).with(:hyperv_daemons_install).and_return(true)
       allow(guest).to receive(:capability?).with(:hyperv_daemons_activate).and_return(true)
       allow(guest).to receive(:capability).with(:hyperv_daemons_activate).and_return(false)
-      allow(ui).to receive(:info)
-      expect { subject.send(:configure_hv_daemons, machine) }.to raise_error(VagrantPlugins::HyperV::Errors::DaemonsEnableFailedInGuest)
+      expect(subject.send(:configure_hv_daemons, machine)).to be_falsy
     end
   end
 end
