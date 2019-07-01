@@ -421,8 +421,9 @@ module Vagrant
     def vagrant_internal_specs
       # activate any dependencies up front so we can always
       # pin them when resolving
-      Gem::Specification.find { |s| s.name == "vagrant" && s.activated? }.
-        runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
+      if (vs = Gem::Specification.find { |s| s.name == "vagrant" && s.activated? })
+        vs.runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
+      end
       # discover all the gems we have available
       list = {}
       directories = [Gem::Specification.default_specifications_dir]
