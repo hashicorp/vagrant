@@ -95,46 +95,46 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
     As-is `pip` is installed if needed via a default command which looks like
 
-        ```shell
-        curl https://bootstrap.pypa.io/get-pip.py | sudo python
-        ```
+    ```shell
+    curl https://bootstrap.pypa.io/get-pip.py | sudo python
+    ```
 
     This can be problematic in certain scenarios, for example, when behind a proxy. It is possible to override this default command by providing an explicit command to run as part of the config using `pip_install_cmd`. For example:
-        
-        ```ruby
-        config.vm.provision "ansible_local" do |ansible|
-          ansible.playbook = "playbook.yml"
-          ansible.install_mode = "pip"
-          ansible.pip_install_cmd = "https_proxy=http://your.proxy.server:port curl -s https://bootstrap.pypa.io/get-pip.py | sudo https_proxy=http://your.proxy.server:port python"
-          ansible.version = "2.2.1.0"
-        end
-        ```
-        
+
+    ```ruby
+    config.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "playbook.yml"
+      ansible.install_mode = "pip"
+      ansible.pip_install_cmd = "https_proxy=http://your.proxy.server:port curl -s https://bootstrap.pypa.io/get-pip.py | sudo https_proxy=http/your.proxy.server:port python"
+      ansible.version = "2.2.1.0"
+    end
+    ```
+
     In this case case `pip` will be installed via the command:
 
-        ```shell
-        https_proxy=http://your.proxy.server:port curl -s https://bootstrap.pypa.io/get-pip.py | sudo https_proxy=http://your.proxy.server:port python
-        ```
+    ```shell
+    https_proxy=http://your.proxy.server:port curl -s https://bootstrap.pypa.io/get-pip.py | sudo https_proxy=http://your.proxy.server:porpython
+    ```
 
     If `pip_install_cmd` is not provided in the config, then `pip` is installed via the default command.
 
   - `:pip_args_only`: This mode is very similar to the `:pip` mode, with the difference that in this case no pip arguments will be automatically set by Vagrant.
 
-        Example:
+    Example:
 
-        ```ruby
-        config.vm.provision "ansible_local" do |ansible|
-          ansible.playbook = "playbook.yml"
-          ansible.install_mode = "pip_args_only"
-          ansible.pip_args = "-r /vagrant/requirements.txt"
-        end
-        ```
+    ```ruby
+    config.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "playbook.yml"
+      ansible.install_mode = "pip_args_only"
+      ansible.pip_args = "-r /vagrant/requirements.txt"
+    end
+    ```
 
-        With this configuration, Vagrant will install `pip` and then execute the command
+    With this configuration, Vagrant will install `pip` and then execute the command
 
-        ```shell
-        sudo pip install -r /vagrant/requirements.txt
-        ```
+    ```shell
+    sudo pip install -r /vagrant/requirements.txt
+    ```
 
     The default value of `install_mode` is `:default`, and any invalid value for this option will silently fall back to the default value.
 
