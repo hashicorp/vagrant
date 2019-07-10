@@ -68,7 +68,7 @@ module VagrantPlugins
 
             image = machine.provider.driver.build(
               build_dir || git_repo,
-              build_args: args) do |type, data|
+              { extra_args: args, build_args: args}) do |type, data|
               data = remove_ansi_escape_codes(data.chomp).chomp
               env[:ui].detail(data) if data != ""
             end
