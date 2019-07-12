@@ -23,7 +23,7 @@ methods.
 
 On **Windows**
 
-> Uninstall using the add/remove programs section of the control panel
+> Uninstall using the add/remove programs section of the control panel. To delete all vagrant related files, delete the folder located at your User Homedir, for example: C:\Users\Snooops\.vagrant
 
 On **Mac OS X**:
 
