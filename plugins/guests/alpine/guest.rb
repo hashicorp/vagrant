@@ -1,12 +1,4 @@
-begin
-  require 'vagrant'
-rescue LoadError
-  raise 'The Vagrant Alpine Linux Guest plugin must be run within Vagrant.'
-end
-
-if Vagrant::VERSION < '1.7.0'
-  fail 'The vagrant-alpine plugin is only compatible with Vagrant 1.7+'
-end
+require 'vagrant'
 
 module VagrantPlugins
   module GuestAlpine
