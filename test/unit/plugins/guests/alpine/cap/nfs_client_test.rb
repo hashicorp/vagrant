@@ -1,5 +1,4 @@
-
-require 'spec_helper'
+require_relative "../../../../base"
 
 describe 'VagrantPlugins::GuestAlpine::Cap::NFSClient' do
     let(:described_class) do
