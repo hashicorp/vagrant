@@ -13,9 +13,6 @@ module VagrantPlugins
   module GuestAlpine
     module Cap
       class ConfigureNetworks
-        def self.source_root
-          @source_root ||= Pathname.new(File.expand_path('../../../../', __FILE__))
-        end
         include Vagrant::Util
         def self.configure_networks(machine, networks)
           machine.communicate.tap do |comm|
@@ -31,7 +28,7 @@ module VagrantPlugins
             entries = []
             networks.each do |network|
               interfaces.add(network[:interface])
-              entry = TemplateRenderer.render("guests/alpine/network_#{network[:type]}", { options: network, template_root: source_root.join('templates') })
+              entry = TemplateRenderer.render("guests/alpine/network_#{network[:type]}", { options: network })
               entries << entry
             end
 
