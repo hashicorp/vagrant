@@ -355,6 +355,9 @@ function Report-ErrorVagrantVMImport {
     )
 
     $ManagementService = Get-WmiObject -Namespace 'root\virtualization\v2' -Class 'Msvm_VirtualSystemManagementService'
+    if($null -eq $ManagementService) {
+        throw 'The Hyper-V Virtual Machine Management Service (VMMS) is not running.'
+    }
 
     # Relative path names will fail when attempting to import a system
     # definition so always ensure we are using the full path to the
