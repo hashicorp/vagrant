@@ -248,10 +248,10 @@ module VagrantPlugins
         def hostonly_config(options)
           options = {
             auto_config: true,
+            dhcp_server: true,
             mac:         nil,
             nic_type:    nil,
             type:        :static,
-            dhcp_server: true,
           }.merge(options)
 
           # Make sure the type is a symbol
@@ -321,6 +321,7 @@ module VagrantPlugins
           return {
             adapter_ip:  options[:adapter_ip],
             auto_config: options[:auto_config],
+            dhcp_server: options[:dhcp_server],
             ip:          options[:ip],
             mac:         options[:mac],
             name:        options[:name],

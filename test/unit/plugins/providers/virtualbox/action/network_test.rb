@@ -123,6 +123,7 @@ describe VagrantPlugins::ProviderVirtualBox::Action::Network do
         dhcp_ip: "172.28.128.2",
         dhcp_lower: "172.28.128.3",
         dhcp_upper: "172.28.128.254",
+        dhcp_server: true,
         adapter: 2
       })
 
