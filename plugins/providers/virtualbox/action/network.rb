@@ -251,6 +251,7 @@ module VagrantPlugins
             mac:         nil,
             nic_type:    nil,
             type:        :static,
+            dhcp_server: true,
           }.merge(options)
 
           # Make sure the type is a symbol
@@ -347,7 +348,7 @@ module VagrantPlugins
             @logger.info("Created network: #{interface[:name]}")
           end
 
-          if config[:type] == :dhcp
+          if config[:type] == :dhcp && config[:dhcp_server]
             create_dhcp_server_if_necessary(interface, config)
           end
 
