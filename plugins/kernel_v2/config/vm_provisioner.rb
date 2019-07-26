@@ -40,6 +40,16 @@ module VagrantPlugins
       # @return [Boolean]
       attr_accessor :preserve_order
 
+      # The name of a provisioner to run before it has started
+      #
+      # @return [String]
+      attr_accessor :before
+
+      # The name of a provisioner to run after it is finished
+      #
+      # @return [String]
+      attr_accessor :after
+
       def initialize(name, type)
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
@@ -51,6 +61,8 @@ module VagrantPlugins
         @preserve_order = false
         @run     = nil
         @type    = type
+        @before  = nil
+        @after   = nil
 
         # Attempt to find the provisioner...
         if !Vagrant.plugin("2").manager.provisioners[type]
