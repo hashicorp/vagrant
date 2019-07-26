@@ -4,6 +4,9 @@ module VagrantPlugins
   module Kernel_V2
     # Represents a single configured provisioner for a VM.
     class VagrantConfigProvisioner
+      # Defaults
+      VALID_BEFORE_AFTER_TYPES = [:each, :all].freeze
+
       # Unique name for this provisioner
       #
       # @return [String]
@@ -100,6 +103,25 @@ module VagrantPlugins
         return if invalid?
 
         @config.finalize!
+      end
+
+      # TODO: This isn't being called
+      #
+      # @return [Array] array of strings of error messages from config option validation
+      def validate(machine)
+        errors = _detected_errors
+
+        if @before
+          if @before.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
+            errors << "Before symbol is not a valid symbol"
+          end
+        end
+
+        if @after
+          if @after.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@after)
+            errors << "After symbol is not a valid symbol"
+          end
+        end
       end
 
       # Returns whether the provisioner used was invalid or not. A provisioner
