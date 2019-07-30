@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- guest/alpine: Integrate the vagrant-alpine plugin into Vagrant core [GH-10975]
+
 IMPROVEMENTS:
 
 BUG FIXES:
