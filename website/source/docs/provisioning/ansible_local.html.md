@@ -78,20 +78,20 @@ This section lists the _specific_ options for the Ansible Local provisioner. In 
 
   - `:pip`: Ansible is installed from [PyPI](https://pypi.python.org/pypi) with [pip](https://pip.pypa.io) package installer. With this mode, Vagrant will systematically try to [install the latest pip version](https://pip.pypa.io/en/stable/installing/#installing-with-get-pip-py). With the `:pip` mode you can optionally install a specific Ansible release by setting the [`version`](/docs/provisioning/ansible_common.html#version) option.
 
-        Example:
+    Example:
 
-        ```ruby
-        config.vm.provision "ansible_local" do |ansible|
-          ansible.playbook = "playbook.yml"
-          ansible.install_mode = "pip"
-          ansible.version = "2.2.1.0"
-        end
-        ```
-        With this configuration, Vagrant will install `pip` and then execute the command
+    ```ruby
+    config.vm.provision "ansible_local" do |ansible|
+      ansible.playbook = "playbook.yml"
+      ansible.install_mode = "pip"
+      ansible.version = "2.2.1.0"
+    end
+    ```
+    With this configuration, Vagrant will install `pip` and then execute the command
 
-        ```shell
-        sudo pip install --upgrade ansible==2.2.1.0
-        ```
+    ```shell
+    sudo pip install --upgrade ansible==2.2.1.0
+    ```
 
     As-is `pip` is installed if needed via a default command which looks like
 
