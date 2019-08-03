@@ -17,7 +17,11 @@ module VagrantPlugins
               NEW_HOSTNAME_SHORT="${NEW_HOSTNAME_FULL%%.*}"
 
               # Update sysconfig
-              sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
+              if [ -f /etc/sysconfig/network ]; then
+                sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
+              elif [ -f /etc/hostname ]; then
+                sed -i 's/.*/#{name}/' /etc/hostname
+              fi
 
               # Set the hostname - use hostnamectl if available
               if command -v hostnamectl; then
@@ -36,7 +40,14 @@ module VagrantPlugins
               fi
 
               # Restart network
-              service network restart
+              if command -v hostnamectl; then
+                if [ -f /etc/init.d/network ]; then
+                  service network restart
+                elif [ -f /etc/init.d/networking ]; then
+                  service networking restart
+                fi
+              fi
+
             EOH
           end
         end
