@@ -41,6 +41,6 @@ responds to reports of malicious software distributed via Vagrant Cloud
 and takes down boxes
 - __The latest release date__. More up-to-date boxes contain up-to-date
 software
-- __Availability of the box download__. Vagrant Cloud periodically checks if box
-has is publicly accessible. You can see this information on the box
+- __Availability of the box download__. Vagrant Cloud periodically checks if a box
+is publicly accessible. You can see this information on the box
 page next to the provider
