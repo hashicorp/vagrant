@@ -3,7 +3,7 @@ require 'log4r'
 module VagrantPlugins
   module Kernel_V2
     # Represents a single configured provisioner for a VM.
-    class VagrantConfigProvisioner
+    class VagrantConfigProvisioner < Vagrant.plugin("2", :config)
       # Defaults
       VALID_BEFORE_AFTER_TYPES = [:each, :all].freeze
 
@@ -53,7 +53,7 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :after
 
-      def initialize(name, type)
+      def initialize(name, type, before=nil, after=nil)
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
 
@@ -64,8 +64,8 @@ module VagrantPlugins
         @preserve_order = false
         @run     = nil
         @type    = type
-        @before  = nil
-        @after   = nil
+        @before  = before #these aren't being properly set
+        @after   = after
 
         # Attempt to find the provisioner...
         if !Vagrant.plugin("2").manager.provisioners[type]

@@ -760,6 +760,13 @@ module VagrantPlugins
             next
           end
 
+          require 'pry'
+          binding.pry
+          #provisioner_errors = vm_provisioner.validate(machine)
+          #if provisioner_errors
+          #  errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
+          #end
+
           if vm_provisioner.config
             provisioner_errors = vm_provisioner.config.validate(machine)
             if provisioner_errors
