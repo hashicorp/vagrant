@@ -3,7 +3,7 @@ module VagrantPlugins
     class Provisioner < Vagrant.plugin("2", :provisioner)
       def provision
         @machine.communicate.tap do |comm|
-          source = File.expand_path(config.source)
+          source = "#{@machine.env.cwd}/#{config.source}"
           destination = expand_guest_path(config.destination)
 
           # If the source is a directory determine if any path modifications
