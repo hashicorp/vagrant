@@ -29,7 +29,6 @@ $shell = <<-'CONTENTS'
 export DEBIAN_FRONTEND=noninteractive
 MARKER_FILE="/usr/local/etc/vagrant_provision_marker"
 RUBY_VER_REQ=$(awk '$1 == "s.required_ruby_version" { print $4 }' /vagrant/vagrant.gemspec | tr -d '"')
-BUNDLER_VER_REQ=$(awk '/s.add_dependency "bundler"/ { print $4 }' /vagrant/vagrant.gemspec | tr -d '"')
 
 # Only provision once
 if [ -f "${MARKER_FILE}" ]; then
@@ -66,8 +65,7 @@ apt-get install -qy git
 # Upgrade Rubygems
 su -l -c "rvm ${RUBY_VER} do gem update --system" vagrant
 
-# Install bundler and prepare to run unit tests
-su -l -c "gem install bundler -v ${BUNDLER_VER_REQ}" vagrant
+# Prepare to run unit tests
 su -l -c 'cd /vagrant; bundle install' vagrant
 
 # Automatically move into the shared folder, but only add the command
