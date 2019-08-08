@@ -36,20 +36,21 @@ if [ -f "${MARKER_FILE}" ]; then
   exit 0
 fi
 
+# Add ubuntu_rvm repo
+apt-add-repository -y ppa:rael-gc/rvm
+
 # Update apt
 apt-get update --quiet
 
-# Install basic dependencies
-apt-get install -qy build-essential bsdtar curl
+# Add vagrant user to sudo group:
+# ubuntu_rvm only adds users in group sudo to group rvm
+usermod -a -G sudo vagrant
+
+# Install basic dependencies and RVM
+apt-get install -qy build-essential bsdtar rvm
 
 # Import the mpapis public key to verify downloaded releases
 su -l -c 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3' vagrant
-
-# Install RVM
-su -l -c 'curl -sL https://get.rvm.io | bash -s stable' vagrant
-
-# Add the vagrant user to the RVM group
-#usermod -a -G rvm vagrant
 
 # Install latest Ruby that complies with Vagrant's version constraint
 RUBY_VER_LATEST=$(su -l -c 'rvm list known' vagrant | tr '[]-' ' ' | awk "/^ ruby  ${RUBY_VER_REQ:0:1}\./ { print \$2 }" | sort | tail -n1)
