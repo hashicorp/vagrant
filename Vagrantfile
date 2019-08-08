@@ -52,10 +52,10 @@ apt-get install -qy build-essential bsdtar rvm
 # Import the mpapis public key to verify downloaded releases
 su -l -c 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3' vagrant
 
-# Install latest Ruby that complies with Vagrant's version constraint
-RUBY_VER_LATEST=$(su -l -c 'rvm list known' vagrant | tr '[]-' ' ' | awk "/^ ruby  ${RUBY_VER_REQ:0:1}\./ { print \$2 }" | sort | tail -n1)
-su -l -c "rvm install ${RUBY_VER_LATEST}" vagrant
-su -l -c "rvm --default use ${RUBY_VER_LATEST}" vagrant
+# Install next-to-last Ruby that complies with Vagrant's version constraint
+RUBY_VER=$(su -l -c 'rvm list known' vagrant | tr '[]-' ' ' | awk "/^ ruby  ${RUBY_VER_REQ:0:1}\./ { print \$2 }" | sort -r | sed -n '2p')
+su -l -c "rvm install ${RUBY_VER}" vagrant
+su -l -c "rvm --default use ${RUBY_VER}" vagrant
 
 # Output the Ruby version (for sanity)
 su -l -c 'ruby --version' vagrant
@@ -64,7 +64,7 @@ su -l -c 'ruby --version' vagrant
 apt-get install -qy git
 
 # Upgrade Rubygems
-su -l -c "rvm ${RUBY_VER_LATEST} do gem update --system" vagrant
+su -l -c "rvm ${RUBY_VER} do gem update --system" vagrant
 
 # Install bundler and prepare to run unit tests
 su -l -c "gem install bundler -v ${BUNDLER_VER_REQ}" vagrant
