@@ -70,7 +70,7 @@ su -l -c 'cd /vagrant; bundle install' vagrant
 
 # Automatically move into the shared folder, but only add the command
 # if it's not already there.
-grep -q 'cd /vagrant' /home/vagrant/.bash_profile || echo 'cd /vagrant' >> /home/vagrant/.bash_profile
+grep -q 'cd /vagrant' /home/vagrant/.bash_profile 2>/dev/null || echo 'cd /vagrant' >> /home/vagrant/.bash_profile
 
 # Touch the marker file so we don't do this again
 touch ${MARKER_FILE}
