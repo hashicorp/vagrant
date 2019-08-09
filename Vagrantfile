@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
 
   ["vmware_fusion", "vmware_workstation", "virtualbox"].each do |provider|
     config.vm.provider provider do |v, override|
-      v.memory = "1024"
+      v.memory = "2048"
     end
   end
 
