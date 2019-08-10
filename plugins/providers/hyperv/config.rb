@@ -48,6 +48,8 @@ module VagrantPlugins
       attr_accessor :enable_virtualization_extensions
       # @return [Hash] Options for VMServiceIntegration
       attr_accessor :vm_integration_services
+      # @return [String] Set Enhanced session transport type
+      attr_accessor :enhanced_session_transport_type
 
       def initialize
         @ip_address_timeout = UNSET_VALUE
@@ -65,6 +67,7 @@ module VagrantPlugins
         @enable_automatic_checkpoints = UNSET_VALUE
         @enable_checkpoints = UNSET_VALUE
         @vm_integration_services = {}
+        @enhanced_session_transport_type = UNSET_VALUE
       end
 
       def finalize!
@@ -102,6 +105,8 @@ module VagrantPlugins
 
         # If automatic checkpoints are enabled, checkpoints will automatically be enabled
         @enable_checkpoints ||= @enable_automatic_checkpoints
+
+        @enhanced_session_transport_type = nil if @enhanced_session_transport_type == UNSET_VALUE
       end
 
       def validate(machine)

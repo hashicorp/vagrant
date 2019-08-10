@@ -28,7 +28,8 @@ describe VagrantPlugins::HyperV::Action::Configure do
       enable_checkpoints: false,
       enable_automatic_checkpoints: true,
       enable_virtualization_extensions: false,
-      vm_integration_services: vm_integration_services
+      vm_integration_services: vm_integration_services,
+      enhanced_session_transport_type: "HvSocket"
     )
   }
   let(:vm_integration_services){ {} }

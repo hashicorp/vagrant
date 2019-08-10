@@ -289,6 +289,14 @@ module VagrantPlugins
                 DiskSize: size_bytes)
       end
 
+      # Set enhanced session transport type of the VM
+      #
+      # @param [String] enhanced session transport type of the VM
+      # @return [nil]
+      def set_enhanced_session_transport_type(transport_type)
+        execute(:set_enhanced_session_transport_type, VmID: vm_id, type: transport_type)
+      end
+
       protected
 
       def execute_powershell(path, options, &block)
