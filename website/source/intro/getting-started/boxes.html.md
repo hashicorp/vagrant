@@ -30,24 +30,24 @@ under a specific name so that multiple Vagrant environments can re-use it.
 If you have not added a box yet, you can do so now:
 
 ```
-$ vagrant box add hashicorp/precise64
+$ vagrant box add hashicorp/bionic64
 ```
 
-This will download the box named "hashicorp/precise64" from
+This will download the box named "hashicorp/bionic64" from
 [HashiCorp's Vagrant Cloud box catalog](https://vagrantcloud.com/boxes/search), a place where you can find
 and host boxes. While it is easiest to download boxes from HashiCorp's Vagrant Cloud
 you can also add boxes from a local file, custom URL, etc.
 
 Boxes are globally stored for the current user. Each project uses a box
 as an initial image to clone from, and never modifies the actual base
-image. This means that if you have two projects both using the `hashicorp/precise64`
+image. This means that if you have two projects both using the `hashicorp/bionic64`
 box we just added, adding files in one guest machine will have no effect
 on the other machine.
 
 In the above command, you will notice that boxes are namespaced. Boxes are
 broken down into two parts - the username and the box name - separated by a
 slash. In the example above, the username is "hashicorp", and the box is
-"precise64". You can also specify boxes via URLs or local file paths, but that
+"bionic64". You can also specify boxes via URLs or local file paths, but that
 will not be covered in the getting started guide.
 
 ~> **Namespaces do not guarantee canonical boxes!** A common misconception is
@@ -65,11 +65,11 @@ contents to the following:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/precise64"
+  config.vm.box = "hashicorp/bionic64"
 end
 ```
 
-The "hashicorp/precise64" in this case must match the name you used to add
+The "hashicorp/bionic64" in this case must match the name you used to add
 the box above. This is how Vagrant knows what box to use. If the box was not
 added before, Vagrant will automatically download and add the box when it is
 run.
@@ -79,7 +79,7 @@ for example:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/precise64"
+  config.vm.box = "hashicorp/bionic64"
   config.vm.box_version = "1.1.0"
 end
 ```
@@ -88,8 +88,8 @@ You may also specify the URL to a box directly using `config.vm.box_url`:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/precise64"
-  config.vm.box_url = "https://vagrantcloud.com/hashicorp/precise64"
+  config.vm.box = "hashicorp/bionic64"
+  config.vm.box_url = "https://vagrantcloud.com/hashicorp/bionic64"
 end
 ```
 
@@ -99,7 +99,7 @@ with it a little bit.
 ## Finding More Boxes
 
 For the remainder of this getting started guide, we will only use the
-"hashicorp/precise64" box we added previously. But soon after finishing
+"hashicorp/bionic64" box we added previously. But soon after finishing
 this getting started guide, the first question you will probably have is
 "where do I find more boxes?"
 

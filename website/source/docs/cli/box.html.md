@@ -33,7 +33,7 @@ one of three things:
 
 * A shorthand name from the
 [public catalog of available Vagrant images](https://vagrantcloud.com/boxes/search),
-such as "hashicorp/precise64".
+such as "hashicorp/bionic64".
 
 * File path or HTTP URL to a box in a [catalog](https://vagrantcloud.com/boxes/search).
 For HTTP, basic authentication is supported and `http_proxy` environmental

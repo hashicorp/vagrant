@@ -7,7 +7,7 @@ description: |-
   with the VMware Fusion provider, or any other provider. A box must be
   installed for each provider, and can share the same name as other boxes as
   long as the providers differ. So you can have both a VirtualBox and VMware
-  Fusion "precise64" box.
+  Fusion "bionic64" box.
 ---
 
 # Basic Provider Usage
@@ -18,12 +18,12 @@ Vagrant boxes are all provider-specific. A box for VirtualBox is incompatible
 with the VMware Fusion provider, or any other provider. A box must be installed
 for each provider, and can share the same name as other boxes as long
 as the providers differ. So you can have both a VirtualBox and VMware Fusion
-"precise64" box.
+"bionic64" box.
 
 Installing boxes has not changed at all:
 
 ```
-$ vagrant box add hashicorp/precise64
+$ vagrant box add hashicorp/bionic64
 ```
 
 Vagrant now automatically detects what provider a box is for. This is
@@ -32,8 +32,8 @@ to the name, as can be seen below.
 
 ```
 $ vagrant box list
-precise64 (virtualbox)
-precise64 (vmware_fusion)
+bionic64 (virtualbox)
+bionic64 (vmware_fusion)
 ```
 
 ## Vagrant Up

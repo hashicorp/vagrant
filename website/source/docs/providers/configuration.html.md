@@ -5,7 +5,7 @@ sidebar_current: "providers-configuration"
 description: |-
   While well-behaved Vagrant providers should work with any Vagrantfile with
   sane defaults, providers generally expose unique configuration options so that
-  you can get the most out of each provider.  
+  you can get the most out of each provider
 ---
 
 # Configuration
@@ -71,16 +71,16 @@ Example:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.box = "precise64"
+  config.vm.box = "bionic64"
 
   config.vm.provider "vmware_fusion" do |v, override|
-    override.vm.box = "precise64_fusion"
+    override.vm.box = "bionic64_fusion"
   end
 end
 ```
 
-In the above case, Vagrant will use the "precise64" box by default, but
-will use "precise64_fusion" if the VMware Fusion provider is used.
+In the above case, Vagrant will use the "bionic64" box by default, but
+will use "bionic64_fusion" if the VMware Fusion provider is used.
 
 <div class="alert alert-info">
   <strong>The Vagrant Way:</strong> The proper "Vagrant way" is to

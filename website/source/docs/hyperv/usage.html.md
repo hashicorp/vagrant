@@ -22,4 +22,4 @@ permissions.
 
 Boxes for Hyper-V can be easily found on
 [HashiCorp's Vagrant Cloud](https://vagrantcloud.com/boxes/search). To get started, you might
-want to try the `hashicorp/precise64` box.
+want to try the `hashicorp/bionic64` box.

@@ -36,7 +36,7 @@ and one command in your terminal, we brought up a fully functional, SSH accessib
 virtual machine. Cool. The SSH session can be terminated with `CTRL+D`.
 
 ```
-vagrant@precise64:~$ logout
+vagrant@bionic64:~$ logout
 Connection to 127.0.0.1 closed.
 ```
 

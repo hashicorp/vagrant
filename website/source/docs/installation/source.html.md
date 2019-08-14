@@ -61,7 +61,7 @@ This will generate files in `exec/`, including `vagrant`. You can now specify
 the full path to the `exec/vagrant` anywhere on your operating system:
 
 ```shell
-$ /path/to/vagrant/exec/vagrant init -m hashicorp/precise64
+$ /path/to/vagrant/exec/vagrant init -m hashicorp/bionic64
 ```
 
 Note that you _will_ receive warnings that running Vagrant like this is not

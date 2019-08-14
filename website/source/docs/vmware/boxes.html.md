@@ -42,10 +42,10 @@ $ tree
 |-- ...
 |-- disk.vmdk
 |-- metadata.json
-|-- precise64.nvram
-|-- precise64.vmsd
-|-- precise64.vmx
-|-- precise64.vmxf
+|-- bionic64.nvram
+|-- bionic64.vmsd
+|-- bionic64.vmx
+|-- bionic64.vmxf
 
 0 directories, 17 files
 ```

@@ -17,7 +17,7 @@ not made by repackaging an existing Vagrant environment (hence the "base"
 in the "base box").
 
 For example, the Ubuntu boxes provided by the Vagrant project (such as
-"precise64") are base boxes. They were created from a minimal Ubuntu install
+"bionic64") are base boxes. They were created from a minimal Ubuntu install
 from an ISO, rather than repackaging an existing environment.
 
 Base boxes are extremely useful for having a clean slate starting point from

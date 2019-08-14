@@ -24,7 +24,7 @@ Note that when you `vagrant ssh` into your machine, you're in `/home/vagrant`.
 
 If your terminal displays an error about incompatible guest additions (or no
 guest additions), you may need to update your box or choose a different box such
-as `hashicorp/precise64`. Some users have also had success with the
+as `hashicorp/bionic64`. Some users have also had success with the
 [vagrant-vbguest](https://github.com/dotless-de/vagrant-vbguest) plugin, but it
 is not officially supported by the Vagrant core team.
 
@@ -35,7 +35,7 @@ $ vagrant up
 ...
 $ vagrant ssh
 ...
-vagrant@precise64:~$ ls /vagrant
+vagrant@bionic64:~$ ls /vagrant
 Vagrantfile
 ```
 
@@ -44,8 +44,8 @@ is actually the same Vagrantfile that is on your actual host machine.
 Go ahead and touch a file to prove it to yourself:
 
 ```
-vagrant@precise64:~$ touch /vagrant/foo
-vagrant@precise64:~$ exit
+vagrant@bionic64:~$ touch /vagrant/foo
+vagrant@bionic64:~$ exit
 $ ls
 foo Vagrantfile
 ```

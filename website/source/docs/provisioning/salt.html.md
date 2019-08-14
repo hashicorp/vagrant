@@ -30,7 +30,7 @@ on a single minion, without a master:
 ```ruby
   Vagrant.configure("2") do |config|
     ## Choose your base box
-    config.vm.box = "precise64"
+    config.vm.box = "bionic64"
 
     ## For masterless, mount your salt file root
     config.vm.synced_folder "salt/roots/", "/srv/salt/"

@@ -23,9 +23,9 @@ Specifying the `--parallel` option will have no effect.
 To get started, create a new `Vagrantfile` that points to a VMware box:
 
 ```ruby
-# vagrant init hashicorp/precise64
+# vagrant init hashicorp/bionic64
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/precise64"
+  config.vm.box = "hashicorp/bionic64"
 end
 ```
 

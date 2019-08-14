@@ -55,13 +55,13 @@ $ vagrant ssh node1
 
 Welcome to your Vagrant-built virtual machine.
 Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
-vagrant@precise64:~$ logout
+vagrant@bionic64:~$ logout
 Connection to 127.0.0.1 closed.
 $ vagrant ssh node2
 
 Welcome to your Vagrant-built virtual machine.
 Last login: Fri Sep 14 06:23:18 2012 from 10.0.2.2
-vagrant@precise64:~$ logout
+vagrant@bionic64:~$ logout
 Connection to 127.0.0.1 closed.
 $
 ```
@@ -85,7 +85,7 @@ $ vagrant ssh 13759ff
 
 Welcome to your Vagrant-built virtual machine.
 Last login: Fri Jul 20 15:19:36 2018 from 10.0.2.2
-vagrant@precise64:~$ logout
+vagrant@bionic64:~$ logout
 Connection to 127.0.0.1 closed.
 $
 ```
