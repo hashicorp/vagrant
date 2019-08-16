@@ -78,4 +78,6 @@ For other users, we recommend the [Bento boxes](https://vagrantcloud.com/bento).
 
 These are the only two officially-recommended box sets.
 
+Special thanks to the Bento project for providing a solid base template for the `hashicorp/bionic64` box.
+
 ~> **It is often a point of confusion**, but Canonical (the company that makes the Ubuntu operating system) publishes boxes under the "ubuntu" namespace on Vagrant Cloud. These boxes only support Virtualbox and do not provide an ideal experience for most users. If you encounter issues with these boxes, please try the Bento boxes instead.
