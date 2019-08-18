@@ -97,9 +97,9 @@ module VagrantPlugins
               env[:machine].provider_config.vm_integration_services)
           end
 
-          if !env[:machine].provider_config.enhanced_session_transport_type.empty?
+          if env[:machine].provider_config.enable_enhanced_session_mode
             env[:ui].detail("Setting VM Enhanced session transport type")
-            env[:machine].provider.driver.set_enhanced_session_transport_type(env[:machine].provider_config.enhanced_session_transport_type)
+            env[:machine].provider.driver.set_enhanced_session_transport_type("HvSocket")
           end
 
           @app.call(env)
