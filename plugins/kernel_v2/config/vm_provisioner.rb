@@ -45,12 +45,12 @@ module VagrantPlugins
 
       # The name of a provisioner to run before it has started
       #
-      # @return [String]
+      # @return [String, Symbol]
       attr_accessor :before
 
       # The name of a provisioner to run after it is finished
       #
-      # @return [String]
+      # @return [String, Symbol]
       attr_accessor :after
 
       def initialize(name, type, before=nil, after=nil)
