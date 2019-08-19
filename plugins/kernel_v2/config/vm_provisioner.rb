@@ -105,23 +105,43 @@ module VagrantPlugins
         @config.finalize!
       end
 
+      # @param [Vagrant::Machine] machine - machine to validate against
+      # @param [Array<Symbol>] provisioner_names - Names of provisioners for a given machine
       # @return [Array] array of strings of error messages from config option validation
-      def validate(machine)
+      def validate(machine, provisioner_names)
         errors = _detected_errors
 
         if @before
-          if @before.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
-            errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "before", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
-          elsif !@before.is_a?(String) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
-            errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "before")
+          if !VALID_BEFORE_AFTER_TYPES.include?(@before)
+            if @before.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
+              errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "before", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
+            elsif !@before.is_a?(String) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
+              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "before")
+            end
+
+            if !provisioner_names.include?(@before.to_sym)
+              errors << I18n.t("vagrant.provisioners.base.missing_provisioner_name",
+                               name: @before,
+                               machine_name: machine.name,
+                               action: "before")
+            end
           end
         end
 
         if @after
-          if @after.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@after)
-            errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "after", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
-          elsif !@after.is_a?(String) && !VALID_BEFORE_AFTER_TYPES.include?(@after)
-            errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "after")
+          if !VALID_BEFORE_AFTER_TYPES.include?(@after)
+            if @after.is_a?(Symbol)
+              errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "after", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
+            elsif !@after.is_a?(String)
+              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "after")
+            end
+
+            if !provisioner_names.include?(@after.to_sym)
+              errors << I18n.t("vagrant.provisioners.base.missing_provisioner_name",
+                               name: @after,
+                               machine_name: machine.name,
+                               action: "after")
+            end
           end
         end
 
