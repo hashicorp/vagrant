@@ -105,23 +105,27 @@ module VagrantPlugins
         @config.finalize!
       end
 
-      # TODO: This isn't being called
-      #
       # @return [Array] array of strings of error messages from config option validation
       def validate(machine)
         errors = _detected_errors
 
         if @before
           if @before.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
-            errors << "Before symbol is not a valid symbol"
+            errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "before", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
+          elsif !@before.is_a?(String) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
+            errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "before")
           end
         end
 
         if @after
           if @after.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@after)
-            errors << "After symbol is not a valid symbol"
+            errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "after", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
+          elsif !@after.is_a?(String) && !VALID_BEFORE_AFTER_TYPES.include?(@after)
+            errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "after")
           end
         end
+
+        {"provisioner" => errors}
       end
 
       # Returns whether the provisioner used was invalid or not. A provisioner

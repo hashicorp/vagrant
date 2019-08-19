@@ -331,7 +331,14 @@ module VagrantPlugins
         end
 
         if !prov
-          prov = VagrantConfigProvisioner.new(name, type.to_sym)
+          if options.key?(:before)
+            before = options.delete(:before)
+          end
+          if options.key?(:after)
+            after = options.delete(:after)
+          end
+
+          prov = VagrantConfigProvisioner.new(name, type.to_sym, before, after)
           @provisioners << prov
         end
 
@@ -760,12 +767,10 @@ module VagrantPlugins
             next
           end
 
-          require 'pry'
-          binding.pry
-          #provisioner_errors = vm_provisioner.validate(machine)
-          #if provisioner_errors
-          #  errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
-          #end
+          provisioner_errors = vm_provisioner.validate(machine)
+          if provisioner_errors
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
+          end
 
           if vm_provisioner.config
             provisioner_errors = vm_provisioner.config.validate(machine)
