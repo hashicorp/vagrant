@@ -64,7 +64,7 @@ module VagrantPlugins
         @preserve_order = false
         @run     = nil
         @type    = type
-        @before  = before #these aren't being properly set
+        @before  = before
         @after   = after
 
         # Attempt to find the provisioner...
