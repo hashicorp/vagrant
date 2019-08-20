@@ -105,6 +105,8 @@ module VagrantPlugins
         @config.finalize!
       end
 
+      # Validates the before/after options
+      #
       # @param [Vagrant::Machine] machine - machine to validate against
       # @param [Array<Symbol>] provisioner_names - Names of provisioners for a given machine
       # @return [Array] array of strings of error messages from config option validation

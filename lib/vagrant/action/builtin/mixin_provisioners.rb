@@ -29,6 +29,8 @@ module Vagrant
             options = {
               name: provisioner.name,
               run:  provisioner.run,
+              before:  provisioner.before,
+              after:  provisioner.after,
             }
 
             # Return the result
@@ -36,6 +38,13 @@ module Vagrant
           end
 
           return @_provisioner_instances.compact
+        end
+
+        # Sorts provisioners based on order specified with before/after options
+        #
+        # @return [Array<Provisioner, Hash>]
+        def sort_provisioner_instances(pvs)
+          return pvs
         end
 
         # This will return a mapping of a provisioner instance to its
