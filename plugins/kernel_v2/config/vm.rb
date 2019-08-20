@@ -767,7 +767,7 @@ module VagrantPlugins
             next
           end
 
-          provisioner_names = @provisioners.map { |i| i.name if i.name != vm_provisioner.name }.reject(&:blank?)
+          provisioner_names = @provisioners.map { |i| i.name if i.name != vm_provisioner.name }.reject(&:nil?)
           provisioner_errors = vm_provisioner.validate(machine, provisioner_names)
           if provisioner_errors
             errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
