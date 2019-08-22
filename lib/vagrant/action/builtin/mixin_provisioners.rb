@@ -55,17 +55,18 @@ module Vagrant
 
           # extract root provisioners
           root_provs = pvs.map { |p,o| [p,o] if o[:before].nil? && o[:after].nil? }.reject(&:nil?)
+
+          if root_provs.size == pvs.size
+            # no dependencies found
+            return pvs
+          end
+
           # extract dependency provisioners
           dep_provs = pvs.map { |p,o| [p,o] if (!o[:before].nil? && !o[:before].is_a?(Symbol)) || (!o[:after].nil? && !o[:after].is_a?(Symbol)) }.reject(&:nil?)
           # extract each provisioners
           each_provs = pvs.map { |p,o| [p,o] if o[:before] == :each || o[:after] == :each }.reject(&:nil?)
           # extract all provisioners
           all_provs = pvs.map { |p,o| [p,o] if o[:before] == :all || o[:after] == :all }.reject(&:nil?)
-
-          if root_provs.size == pvs.size
-            # no dependencies found
-            return pvs
-          end
 
           # TODO: Log here, that provisioner order is being changed
 
