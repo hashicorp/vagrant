@@ -12,14 +12,14 @@ for a Vagrant environment.
 
 You don't need a Vagrant Cloud account to use public boxes.
 
-1. Go to the [Box search page](https://vagrantcloud.com/boxes/search)
+1. Go to the [Box search page](https://vagrantcloud.com/boxes/search).
 
 1. Once you find a box, click its name to learn more about it.
 
 1. When you're ready to use it, copy the name, such as "hashicorp/bionic64"
    and initialize your Vagrant project with `vagrant init hashicorp/bionic64`.
    Or, if you already have a Vagrant project created, modify the Vagrantfile
-   to use the box: `config.vm.box = "hashicorp/bionic64"`
+   to use the box: `config.vm.box = "hashicorp/bionic64"`.
 
 ## Provider Support
 
@@ -34,13 +34,13 @@ it's important to keep in mind whose box you're using. Here
 are some things to note when you're choosing a box:
 
 - __The username of the user__. If it's `bento` or `canonical`, you can likely
-trust the box more than an anonymous user
+trust the box more than an anonymous user.
 - __The number of downloads of the box__. Heavily downloaded boxes
 are likely vetted more often by other members of the community. HashiCorp
 responds to reports of malicious software distributed via Vagrant Cloud
-and takes down boxes
+and takes down boxes.
 - __The latest release date__. More up-to-date boxes contain up-to-date
-software
+software.
 - __Availability of the box download__. Vagrant Cloud periodically checks if a box
 is publicly accessible. You can see this information on the box
-page next to the provider
+page next to the provider.
