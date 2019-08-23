@@ -27,3 +27,11 @@ To release a new version of a box to the public or to your team:
 Once you click "Release now," that version will be available for installation
 with Vagrant. Before clicking this, Vagrant does not know the version even
 exists.
+
+## Note About Public Boxes
+
+Be aware, when you create and upload a new version artifact on a public box in
+Vagrant Cloud, even if that specific version has not been marked for "release",
+it can be accessible if a user knows the box URL with the new version. Releasing
+a box simply makes it publicly accessible through search, or through reference
+using the `organization/box-name` syntax.
