@@ -42,6 +42,7 @@ describe Vagrant::Action::Builtin::MixinProvisioners do
 
   after do
     sandbox.close
+    described_class.reset!
   end
 
   describe "#provisioner_instances" do

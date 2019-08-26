@@ -90,20 +90,23 @@ module Vagrant
           # Add :each and :all provisioners in reverse to preserve order in Vagrantfile
 
           # add each to final array
-          # TODO: Account for additional tmp_final size after insert for BOTH before/after cases (if both shortcuts are used)
+          # TODO: This doesn't work if before each provisioners are defined before after provisioners
+          #
+          # Maybe do before and after individually instead??
           tmp_final_provs = final_provs.dup
-          before_extra_index = 1 # offset for final array size
-          after_extra_index = 0
-          each_provs.reverse_each do |p,options|
-            idx = 0
-            final_provs.each_with_index.map do |(prv,o), i|
+          index_offset = 0
+          final_provs.each_with_index.map do |(prv,o), i|
+            each_provs.reverse_each do |p, options|
+              idx = 0
               if options[:before]
-                idx = (i+before_extra_index)-1 unless i == 0
-                before_extra_index += 1
+                idx = (i+index_offset+1)-1 unless i == 0
+                puts "b: #{idx}"
+                index_offset += 1
                 tmp_final_provs.insert(idx, [p,options])
               elsif options[:after]
-                idx = (i+after_extra_index)+1
-                after_extra_index += 1
+                idx = (i+index_offset)+1
+                index_offset += 1
+                puts "a: #{idx}"
                 tmp_final_provs.insert(idx, [p,options])
               end
             end
@@ -132,6 +135,13 @@ module Vagrant
 
           # Return the type map
           @_provisioner_types
+        end
+
+        # @private
+        # Reset the cached values for platform. This is not considered a public
+        # API and should only be used for testing.
+        def self.reset!
+          instance_variables.each(&method(:remove_instance_variable))
         end
       end
     end
