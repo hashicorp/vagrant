@@ -41,6 +41,8 @@ module Vagrant
           return @_provisioner_instances.compact
         end
 
+        private
+
         # Sorts provisioners based on order specified with before/after options
         #
         # TODO: make sure all defined provisioners work here (i.e. even thoughs defined in separate but loaded Vagrantfile)
@@ -49,10 +51,6 @@ module Vagrant
         def sort_provisioner_instances(pvs)
           final_provs = []
           root_provs = []
-          dep_provs = []
-          each_provs = []
-          all_provs = []
-
           # extract root provisioners
           root_provs = pvs.map { |p,o| [p,o] if o[:before].nil? && o[:after].nil? }.reject(&:nil?)
 
@@ -60,6 +58,10 @@ module Vagrant
             # no dependencies found
             return pvs
           end
+
+          dep_provs = []
+          each_provs = []
+          all_provs = []
 
           # extract dependency provisioners
           dep_provs = pvs.map { |p,o| [p,o] if (!o[:before].nil? && !o[:before].is_a?(Symbol)) || (!o[:after].nil? && !o[:after].is_a?(Symbol)) }.reject(&:nil?)
@@ -73,6 +75,7 @@ module Vagrant
           # insert provisioners in order
           final_provs = root_provs
           dep_provs.each do |p,options|
+            idx = 0
             if options[:before]
               idx = final_provs.each_with_index.map { |(p,o), i| i if o[:name].to_s == options[:before] }.reject(&:nil?).first
               idx -= 1 unless idx == 0
@@ -84,20 +87,23 @@ module Vagrant
             end
           end
 
+          # Add :each and :all provisioners in reverse to preserve order in Vagrantfile
+
           # add each to final array
+          # TODO: Account for additional tmp_final size after insert for BOTH before/after cases (if both shortcuts are used)
           tmp_final_provs = final_provs.dup
-          extra_index = 0
+          before_extra_index = 1 # offset for final array size
+          after_extra_index = 0
           each_provs.reverse_each do |p,options|
+            idx = 0
             final_provs.each_with_index.map do |(prv,o), i|
               if options[:before]
-                idx = i-1 unless idx == 0
-                idx += extra_index
-                extra_index += 1
+                idx = (i+before_extra_index)-1 unless i == 0
+                before_extra_index += 1
                 tmp_final_provs.insert(idx, [p,options])
               elsif options[:after]
-                idx = i+1
-                idx += extra_index
-                extra_index += 1
+                idx = (i+after_extra_index)+1
+                after_extra_index += 1
                 tmp_final_provs.insert(idx, [p,options])
               end
             end
