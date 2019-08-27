@@ -46,7 +46,7 @@ describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
 
       it "sets hostname with hostnamectl" do
         cap.change_host_name(machine, name)
-        expect(comm.received_commands[2]).to match(/hostnamectl/)
+        comm.received_commands.find { |cmd| cmd =~ /^hostnamectl/ }
       end
     end
 
@@ -55,7 +55,7 @@ describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
 
       it "sets hostname with hostname command" do
         cap.change_host_name(machine, name)
-        expect(comm.received_commands[2]).to match(/hostname -F/)
+        comm.received_commands.find { |cmd| cmd =~ /^hostname -F/ }
       end
     end
 
@@ -65,53 +65,42 @@ describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
 
         it "restarts networkd with systemctl" do
           cap.change_host_name(machine, name)
-          expect(comm.received_commands[3]).to match(/systemctl restart systemd-networkd/)
+          comm.received_commands.find { |cmd| cmd =~ /systemctl restart systemd-networkd/ }
         end
       end
 
-      context "when NetworkManager is in use" do
+      context "when NetworkManager is in use with systemctl" do
         let(:networkd) { false }
         let(:network_manager) { true }
 
         it "restarts NetworkManager with systemctl" do
           cap.change_host_name(machine, name)
-          expect(comm.received_commands[3]).to match(/systemctl restart NetworkManager/)
+          comm.received_commands.find { |cmd| cmd =~ /systemctl restart NetworkManager/ }
         end
       end
 
-      context "when networkd and NetworkManager are not in use" do
+      context "when NetworkManager is in use without systemctl" do
         let(:networkd) { false }
-        let(:network_manager) { false }
-        let(:systemd) { true }
+        let(:network_manager) { true }
+        let(:systemd) { false }
 
-        it "restarts the network using systemctl" do
-          expect(cap).to receive(:restart_each_interface).
-            with(machine, anything)
+        it "restarts NetworkManager without systemctl" do
           cap.change_host_name(machine, name)
-        end
-
-        it "restarts networking with networking init script" do
-          expect(cap).to receive(:restart_each_interface).
-            with(machine, anything)
-          cap.change_host_name(machine, name)
+          comm.received_commands.find { |cmd| cmd =~ /service NetworkManager restart/ }
         end
       end
 
       context "when systemd is not in use" do
+        let(:networkd) { false }
+        let(:network_manager) { false }
         let(:systemd) { false }
 
-        it "restarts the network using service" do
-          expect(cap).to receive(:restart_each_interface).
-            with(machine, anything)
+        it "restarts networking with networking init script" do
           cap.change_host_name(machine, name)
-        end
-
-        it "restarts the network using ifdown/ifup" do
-          expect(cap).to receive(:restart_each_interface).
-            with(machine, anything)
-          cap.change_host_name(machine, name)
+          comm.received_commands.find { |cmd| cmd =~ /service networking restart/ }
         end
       end
+
     end
 
     it "does not change the hostname if already set" do
