@@ -14,6 +14,27 @@ While Vagrant offers multiple options for how you are able to provision
 your machine, there is a standard usage pattern as well as some important
 points common to all provisioners that are important to know.
 
+## Options
+
+Every Vagrant provisioner accepts a few base options. The only required
+option is what type a provisioner is:
+
+
+* `name` (string) - The name of the provisioner. Note: if no `type` option is given,
+  this option _must_ be the type of provisioner it is. If you wish to give it a
+  different name you must also set the `type` option to define the kind of provisioner.
+* `type` (string) - The class of provisioner to configure. (i.e. `"shell"` or `"file"`)
+* `before` (string or symbol) - The exact name of an already defined provisioner
+  that _this_ provisioner should run before. If defined as a symbol, its only valid
+  values are `:each` or `:all`, which makes the provisioner run before each and
+  every root provisioner, or before all provisioners respectively.
+* `after` (string or symbol) - The exact name of an already defined provisioner
+  that _this_ provisioner should run after. If defined as a symbol, its only valid
+  values are `:each` or `:all`, which makes the provisioner run after each and
+  every root provisioner, or before all provisioners respectively.
+
+More information about `before` and `after` options can be read [below](#dependency-provisioners).
+
 ## Configuration
 
 First, every provisioner is configured within your
@@ -225,4 +246,90 @@ Vagrant.configure("2") do |config|
     preserve_order: true,
     inline: "echo SECOND!"
 end
+```
+
+## Dependency Provisioners
+
+If a provisioner has been configured using the `before` or `after` options, it
+is considered a _Dependency Provisioner_. This means it has been configured to
+run before or after a _Root Provisioner_, which does not have the `before` or
+`after` options configured. Dependency provisioners also have two valid shortcuts:
+`:each` and `:all`.
+
+An example of these dependency provisioners can be seen below:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "C", after: "B", type: "shell", inline:<<-SHELL
+  echo 'C'
+  SHELL
+  config.vm.provision "B", type: "shell", inline:<<-SHELL
+  echo 'B'
+  SHELL
+  config.vm.provision "D", type: "shell", inline:<<-SHELL
+  echo 'D'
+  SHELL
+  config.vm.provision "A", before: "B", type: "shell", inline:<<-SHELL
+  echo 'A'
+  SHELL
+  config.vm.provision "Separate After", after: :each, type: "shell", inline:<<-SHELL
+  echo '=============================='
+  SHELL
+  config.vm.provision "Separate Before", before: :each, type: "shell", inline:<<-SHELL
+  echo '++++++++++++++++++++++++++++++'
+  SHELL
+  config.vm.provision "Hello", before: :all, type: "shell", inline:<<-SHELL
+  echo 'HERE WE GO!!'
+  SHELL
+  config.vm.provision "Goodbye", after: :all, type: "shell", inline:<<-SHELL
+  echo 'The end'
+  SHELL
+end
+```
+
+The result of running `vagrant provision` with a guest configured above:
+
+```
+==> default: Running provisioner: Hello (shell)...
+    default: Running: inline script
+    default: HERE WE GO!!
+==> default: Running provisioner: Separate Before (shell)...
+    default: Running: inline script
+    default: ++++++++++++++++++++++++++++++
+==> default: Running provisioner: A (shell)...
+    default: Running: inline script
+    default: A
+==> default: Running provisioner: Separate After (shell)...
+    default: Running: inline script
+    default: ==============================
+==> default: Running provisioner: Separate Before (shell)...
+    default: Running: inline script
+    default: ++++++++++++++++++++++++++++++
+==> default: Running provisioner: B (shell)...
+    default: Running: inline script
+    default: B
+==> default: Running provisioner: Separate After (shell)...
+    default: Running: inline script
+    default: ==============================
+==> default: Running provisioner: Separate Before (shell)...
+    default: Running: inline script
+    default: ++++++++++++++++++++++++++++++
+==> default: Running provisioner: C (shell)...
+    default: Running: inline script
+    default: C
+==> default: Running provisioner: Separate After (shell)...
+    default: Running: inline script
+    default: ==============================
+==> default: Running provisioner: Separate Before (shell)...
+    default: Running: inline script
+    default: ++++++++++++++++++++++++++++++
+==> default: Running provisioner: D (shell)...
+    default: Running: inline script
+    default: D
+==> default: Running provisioner: Separate After (shell)...
+    default: Running: inline script
+    default: ==============================
+==> default: Running provisioner: Goodbye (shell)...
+    default: Running: inline script
+    default: The end
 ```
