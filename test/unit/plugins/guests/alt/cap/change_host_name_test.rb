@@ -24,10 +24,12 @@ describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
     let(:systemd) { true }
     let(:hostnamectl) { true }
     let(:networkd) { true }
+    let(:service) { true }
     let(:network_manager) { false }
 
     before do
       allow(cap).to receive(:systemd?).and_return(systemd)
+      allow(cap).to receive(:service?).and_return(service)
       allow(cap).to receive(:hostnamectl?).and_return(hostnamectl)
       allow(cap).to receive(:systemd_networkd?).and_return(networkd)
       allow(cap).to receive(:systemd_controlled?).with(anything, /NetworkManager/).and_return(network_manager)
