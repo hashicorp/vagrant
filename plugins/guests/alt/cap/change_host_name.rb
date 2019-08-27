@@ -16,9 +16,6 @@ module VagrantPlugins
               NEW_HOSTNAME_FULL='#{name}'
               NEW_HOSTNAME_SHORT="${NEW_HOSTNAME_FULL%%.*}"
 
-              # Update sysconfig
-              sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
-
               # Set the hostname - use hostnamectl if available
               if command -v hostnamectl; then
                 hostnamectl set-hostname --static '#{name}'
@@ -35,8 +32,30 @@ module VagrantPlugins
                 sed -i -e "s/\(\s\)$CURRENT_HOSTNAME_SHORT\(\s\)/\1$NEW_HOSTNAME_SHORT\2/g" -e "s/\(\s\)$CURRENT_HOSTNAME_SHORT$/\1$NEW_HOSTNAME_SHORT/g" /etc/hosts
               fi
 
-              # Restart network
-              service network restart
+              # Persist hostname change across reboots
+              if [ -f /etc/sysconfig/network ]; then
+                sed -i 's/\\(HOSTNAME=\\).*/\\1#{name}/' /etc/sysconfig/network
+              elif [ -f /etc/hostname ]; then
+                sed -i 's/.*/#{name}/' /etc/hostname
+              else
+                echo 'Unrecognized system. Hostname change may not persist across reboots.'
+                exit 0
+              fi
+
+              # Restart the network if we find a recognized SYS V init script
+              if command -v service; then
+                if [ -f /etc/init.d/network ]; then
+                  service network restart
+                elif [ -f /etc/init.d/networking ]; then
+                  service networking restart
+                elif [ -f /etc/init.d/NetworkManager ]; then
+                  service NetworkManager restart
+                else
+                  echo 'Unrecognized system. Networking was not restarted following hostname change.'
+                  exit 0
+                fi
+              fi
+
             EOH
           end
         end
