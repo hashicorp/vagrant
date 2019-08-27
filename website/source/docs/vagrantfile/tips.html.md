@@ -4,7 +4,7 @@ page_title: "Tips & Tricks - Vagrantfile"
 sidebar_current: "vagrantfile-tips"
 description: |-
   The Vagrantfile is a very flexible configuration format. Since it is just
-  Ruby, there is a lot you can do with it. However, in that same vein, since
+  Ruby, there is a lot you can do with it. However, in the same vein, since
   it is Ruby, there are a lot of ways you can shoot yourself in the foot. When
   using some of the tips and tricks on this page, please take care to use them
   correctly.
