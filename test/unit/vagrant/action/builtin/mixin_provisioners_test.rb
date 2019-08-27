@@ -197,5 +197,42 @@ describe Vagrant::Action::Builtin::MixinProvisioners do
         expect(result[5].last[:name]).to eq("after-test")
       end
     end
+
+    describe "with before and after :all dependency provisioners" do
+      let(:provisioner_config){ {} }
+      let(:provisioner_root) do
+        prov = VagrantPlugins::Kernel_V2::VagrantConfigProvisioner.new("root-test", :shell)
+        prov.config = provisioner_config
+        prov
+      end
+      let(:provisioner_root2) do
+        prov = VagrantPlugins::Kernel_V2::VagrantConfigProvisioner.new("root2-test", :shell)
+        prov.config = provisioner_config
+        prov
+      end
+      let(:provisioner_after) do
+        prov = VagrantPlugins::Kernel_V2::VagrantConfigProvisioner.new("after-test", :shell)
+        prov.config = provisioner_config
+        prov.after = :all
+        prov
+      end
+      let(:provisioner_before) do
+        prov = VagrantPlugins::Kernel_V2::VagrantConfigProvisioner.new("before-test", :shell)
+        prov.config = provisioner_config
+        prov.before = :all
+        prov
+      end
+
+      let(:provisioner_instances) { [provisioner_root,provisioner_root2,provisioner_before,provisioner_after] }
+
+      it "puts the each shortcut provisioners in place" do
+        result = subject.provisioner_instances(env)
+
+        expect(result[0].last[:name]).to eq("before-test")
+        expect(result[1].last[:name]).to eq("root-test")
+        expect(result[2].last[:name]).to eq("root2-test")
+        expect(result[3].last[:name]).to eq("after-test")
+      end
+    end
   end
 end
