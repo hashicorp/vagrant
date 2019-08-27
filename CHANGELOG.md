@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/alt: Improve handling for using network tools when setting hostname [GH-11000]
+
 BUG FIXES:
 
 ## 2.2.5 (June 19, 2019)
