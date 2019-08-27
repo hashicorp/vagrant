@@ -45,8 +45,6 @@ module Vagrant
 
         # Sorts provisioners based on order specified with before/after options
         #
-        # TODO: make sure all defined provisioners work here (i.e. even thoughs defined in separate but loaded Vagrantfile)
-        #
         # @return [Array<Provisioner, Hash>]
         def sort_provisioner_instances(pvs)
           final_provs = []
@@ -70,8 +68,6 @@ module Vagrant
           # extract all provisioners
           all_provs = pvs.map { |p,o| [p,o] if o[:before] == :all || o[:after] == :all }.reject(&:nil?)
 
-          # TODO: Log here, that provisioner order is being changed
-
           # insert provisioners in order
           final_provs = root_provs
           dep_provs.each do |p,options|
@@ -90,26 +86,22 @@ module Vagrant
           # Add :each and :all provisioners in reverse to preserve order in Vagrantfile
 
           # add each to final array
-          # TODO: This doesn't work if before each provisioners are defined before after provisioners
-          #
-          # Maybe do before and after individually instead??
-          tmp_final_provs = final_provs.dup
-          index_offset = 0
+          tmp_final_provs = []
           final_provs.each_with_index.map do |(prv,o), i|
+            tmp_before = []
+            tmp_after = []
+
             each_provs.reverse_each do |p, options|
-              idx = 0
               if options[:before]
-                idx = (i+index_offset+1)-1 unless i == 0
-                puts "b: #{idx}"
-                index_offset += 1
-                tmp_final_provs.insert(idx, [p,options])
+                tmp_before << [p,options]
               elsif options[:after]
-                idx = (i+index_offset)+1
-                index_offset += 1
-                puts "a: #{idx}"
-                tmp_final_provs.insert(idx, [p,options])
+                tmp_after << [p,options]
               end
             end
+
+            tmp_final_provs += tmp_before unless tmp_before.empty?
+            tmp_final_provs += [[prv,o]]
+            tmp_final_provs += tmp_after unless tmp_after.empty?
           end
           final_provs = tmp_final_provs
 

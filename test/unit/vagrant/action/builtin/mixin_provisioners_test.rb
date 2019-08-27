@@ -188,9 +188,6 @@ describe Vagrant::Action::Builtin::MixinProvisioners do
 
       it "puts the each shortcut provisioners in place" do
         result = subject.provisioner_instances(env)
-        result.each do |p,o|
-          puts o[:name]
-        end
 
         expect(result[0].last[:name]).to eq("before-test")
         expect(result[1].last[:name]).to eq("root-test")
