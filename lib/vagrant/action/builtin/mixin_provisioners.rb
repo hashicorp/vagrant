@@ -57,6 +57,7 @@ module Vagrant
             return pvs
           end
 
+          # ensure placeholder variables are Arrays
           dep_provs = []
           each_provs = []
           all_provs = []
@@ -83,8 +84,6 @@ module Vagrant
           end
 
           # Add :each and :all provisioners in reverse to preserve order in Vagrantfile
-
-          # add each to final array
           tmp_final_provs = []
           final_provs.each_with_index.map do |(prv,o), i|
             tmp_before = []
@@ -104,16 +103,14 @@ module Vagrant
           end
           final_provs = tmp_final_provs
 
-          # add all to final array
-          tmp_final_provs = final_provs.dup
+          # Add all to final array
           all_provs.reverse_each do |p,options|
             if options[:before]
-              tmp_final_provs.insert(0, [p,options])
+              final_provs.insert(0, [p,options])
             elsif options[:after]
-              tmp_final_provs.push([p,options])
+              final_provs.push([p,options])
             end
           end
-          final_provs = tmp_final_provs
 
           return final_provs
         end
