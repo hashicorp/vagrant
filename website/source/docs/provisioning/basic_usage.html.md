@@ -28,12 +28,16 @@ option is what type a provisioner is:
   that _this_ provisioner should run before. If defined as a symbol, its only valid
   values are `:each` or `:all`, which makes the provisioner run before each and
   every root provisioner, or before all provisioners respectively.
+  __Note__: This option is currently experimental, so it needs to be explicitly
+  enabled to work. More info can be found [here](/docs/experimental/index.html).
 * `after` (string or symbol) - The exact name of an already defined provisioner
   that _this_ provisioner should run after. If defined as a symbol, its only valid
   values are `:each` or `:all`, which makes the provisioner run after each and
   every root provisioner, or before all provisioners respectively.
+  __Note__: This option is currently experimental, so it needs to be explicitly
+  enabled to work. More info can be found [here](/docs/experimental/index.html).
 
-More information about `before` and `after` options can be read [below](#dependency-provisioners).
+More information about how to use `before` and `after` options can be read [below](#dependency-provisioners).
 
 ## Configuration
 
@@ -250,10 +254,18 @@ end
 
 ## Dependency Provisioners
 
+<div class="alert alert-warning">
+  <strong>Warning: Advanced Topic!</strong> Dependency provisioners are
+  an advanced topic. If you are just getting started with Vagrant, you can
+  safely skip this.
+</div>
+
 If a provisioner has been configured using the `before` or `after` options, it
 is considered a _Dependency Provisioner_. This means it has been configured to
 run before or after a _Root Provisioner_, which does not have the `before` or
-`after` options configured. Dependency provisioners also have two valid shortcuts:
+`after` options configured.
+
+Dependency provisioners also have two valid shortcuts:
 `:each` and `:all`.
 
 **TODO: Add good real example here**
