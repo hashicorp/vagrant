@@ -7,6 +7,7 @@ require "vagrant/action/builtin/mixin_synced_folders"
 require "vagrant/config/v2/util"
 require "vagrant/util/platform"
 require "vagrant/util/presence"
+require "vagrant/util/experimental"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
@@ -338,7 +339,11 @@ module VagrantPlugins
             after = options.delete(:after)
           end
 
-          prov = VagrantConfigProvisioner.new(name, type.to_sym, before, after)
+          if Vagrant::Util::Experimental.feature_enabled?("dependency_provisioners")
+            prov = VagrantConfigProvisioner.new(name, type.to_sym, before, after)
+          else
+            prov = VagrantConfigProvisioner.new(name, type.to_sym)
+          end
           @provisioners << prov
         end
 
