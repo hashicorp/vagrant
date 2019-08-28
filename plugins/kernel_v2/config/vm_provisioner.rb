@@ -108,10 +108,12 @@ module VagrantPlugins
       # Validates the before/after options
       #
       # @param [Vagrant::Machine] machine - machine to validate against
-      # @param [Array<Symbol>] provisioner_names - Names of provisioners for a given machine
+      # @param [Array] provisioners - Array of defined provisioners for the guest machine
       # @return [Array] array of strings of error messages from config option validation
-      def validate(machine, provisioner_names)
+      def validate(machine, provisioners)
         errors = _detected_errors
+
+        provisioner_names = provisioners.map { |i| i.name if i.name != name }.reject(&:nil?)
 
         if @before
           if !VALID_BEFORE_AFTER_TYPES.include?(@before)
@@ -127,6 +129,14 @@ module VagrantPlugins
                                machine_name: machine.name,
                                action: "before",
                                provisioner_name: @name)
+            end
+
+            dep_prov = provisioners.map { |i| i if i.name.to_s == @before && (i.before || i.after) }.reject(&:nil?)
+
+            if !dep_prov.empty?
+              errors << I18n.t("vagrant.provisioners.base.dependency_provisioner_dependency",
+                               name: @name,
+                               dep_name: dep_prov.first.name.to_s)
             end
           end
         end
@@ -145,6 +155,13 @@ module VagrantPlugins
                                machine_name: machine.name,
                                action: "after",
                                provisioner_name: @name)
+            end
+
+            dep_prov = provisioners.map { |i| i if i.name.to_s == @after && (i.before || i.after) }.reject(&:nil?)
+            if !dep_prov.empty?
+              errors << I18n.t("vagrant.provisioners.base.dependency_provisioner_dependency",
+                               name: @name,
+                               dep_name: dep_prov.first.name.to_s)
             end
           end
         end
