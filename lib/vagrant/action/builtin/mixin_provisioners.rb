@@ -74,7 +74,6 @@ module Vagrant
             idx = 0
             if options[:before]
               idx = final_provs.each_with_index.map { |(p,o), i| i if o[:name].to_s == options[:before] }.reject(&:nil?).first
-              idx -= 1 unless idx == 0
               final_provs.insert(idx, [p, options])
             elsif options[:after]
               idx = final_provs.each_with_index.map { |(p,o), i| i if o[:name].to_s == options[:after] }.reject(&:nil?).first
