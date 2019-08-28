@@ -268,8 +268,6 @@ run before or after a _Root Provisioner_, which does not have the `before` or
 Dependency provisioners also have two valid shortcuts:
 `:each` and `:all`.
 
-**TODO: Add good real example here**
-
 **Note**: As of 2.2.6, dependency provisioners cannot rely on other dependency
 provisioners and is considered a configuration state error in Vagrant. If you must
 order dependency provisioners, you can still order them by the order they are defined
