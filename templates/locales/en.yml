@@ -2490,7 +2490,7 @@ en:
         invalid_alias_value: |-
           Provisioner option `%{opt}` is not set as a valid type. Must be a string, or one of the alias shortcuts: %{alias}
         missing_provisioner_name: |-
-          Could not find provisioner name `%{name}` defined for machine `%{machine_name}` to run provisioner `%{action}`.
+          Could not find provisioner name `%{name}` defined for machine `%{machine_name}` to run provisioner `%{action}` "%{provisioner_name}".
         wrong_type: |-
           Provisioner option `%{opt}` is not set as a valid type. Must be a string.
       chef:

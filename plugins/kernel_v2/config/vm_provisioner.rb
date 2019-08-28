@@ -125,7 +125,8 @@ module VagrantPlugins
               errors << I18n.t("vagrant.provisioners.base.missing_provisioner_name",
                                name: @before,
                                machine_name: machine.name,
-                               action: "before")
+                               action: "before",
+                               provisioner_name: @name)
             end
           end
         end
@@ -142,7 +143,8 @@ module VagrantPlugins
               errors << I18n.t("vagrant.provisioners.base.missing_provisioner_name",
                                name: @after,
                                machine_name: machine.name,
-                               action: "after")
+                               action: "after",
+                               provisioner_name: @name)
             end
           end
         end
