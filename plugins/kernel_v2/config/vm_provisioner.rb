@@ -115,6 +115,10 @@ module VagrantPlugins
 
         provisioner_names = provisioners.map { |i| i.name if i.name != name }.reject(&:nil?)
 
+        if @before && @after
+          errors << I18n.t("vagrant.provisioners.base.both_before_after_set")
+        end
+
         if @before
           if !VALID_BEFORE_AFTER_TYPES.include?(@before)
             if @before.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@before)

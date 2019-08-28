@@ -2487,6 +2487,8 @@ en:
 
     provisioners:
       base:
+        both_before_after_set: |-
+          Dependency provisioners cannot currently set both `before` and `after` options.
         dependency_provisioner_dependency: |-
           Dependency provisioner "%{name}" relies on another dependency provisioner "%{dep_name}". This is currently not supported.
         invalid_alias_value: |-
