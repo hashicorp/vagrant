@@ -50,7 +50,7 @@ module Vagrant
           final_provs = []
           root_provs = []
           # extract root provisioners
-          root_provs = pvs.map { |p,o| [p,o] if o[:before].nil? && o[:after].nil? }.reject(&:nil?)
+          root_provs = pvs.find_all { |_, o| o[:before].nil? && o[:after].nil? }
 
           if root_provs.size == pvs.size
             # no dependencies found
@@ -63,21 +63,21 @@ module Vagrant
           all_provs = []
 
           # extract dependency provisioners
-          dep_provs = pvs.map { |p,o| [p,o] if (!o[:before].nil? && !o[:before].is_a?(Symbol)) || (!o[:after].nil? && !o[:after].is_a?(Symbol)) }.reject(&:nil?)
+          dep_provs = pvs.find_all { |_, o| o[:before].is_a?(String) || o[:after].is_a?(String) }
           # extract each provisioners
-          each_provs = pvs.map { |p,o| [p,o] if o[:before] == :each || o[:after] == :each }.reject(&:nil?)
+          each_provs = pvs.find_all { |_,o| o[:before] == :each || o[:after] == :each }
           # extract all provisioners
-          all_provs = pvs.map { |p,o| [p,o] if o[:before] == :all || o[:after] == :all }.reject(&:nil?)
+          all_provs = pvs.find_all { |_,o| o[:before] == :all || o[:after] == :all }
 
           # insert provisioners in order
           final_provs = root_provs
           dep_provs.each do |p,options|
             idx = 0
             if options[:before]
-              idx = final_provs.each_with_index.map { |(p,o), i| i if o[:name].to_s == options[:before] }.reject(&:nil?).first
+              idx = final_provs.index { |_, o| o[:name].to_s == options[:before] }
               final_provs.insert(idx, [p, options])
             elsif options[:after]
-              idx = final_provs.each_with_index.map { |(p,o), i| i if o[:name].to_s == options[:after] }.reject(&:nil?).first
+              idx = final_provs.index { |_, o| o[:name].to_s == options[:after] }
               idx += 1
               final_provs.insert(idx, [p, options])
             end
@@ -85,7 +85,7 @@ module Vagrant
 
           # Add :each and :all provisioners in reverse to preserve order in Vagrantfile
           tmp_final_provs = []
-          final_provs.each_with_index.map do |(prv,o), i|
+          final_provs.each_with_index do |(prv,o), i|
             tmp_before = []
             tmp_after = []
 

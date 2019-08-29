@@ -260,6 +260,22 @@ end
   safely skip this.
 </div>
 
+<div class="alert alert-warning">
+  <strong>Warning!</strong> This feature is still experimental and may break or
+  change in between releases. Use at your own risk.
+
+  This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+
+  ```
+  VAGRANT_EXPERIMENTAL="dependency_provisioners"
+  ```
+
+  Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
+  information about this flag visit the [Experimental docs page](/docs/experimental/)
+  for more info. Without this flag enabled, provisioners with the `before` and
+  `after` option will be ignored.
+</div>
+
 If a provisioner has been configured using the `before` or `after` options, it
 is considered a _Dependency Provisioner_. This means it has been configured to
 run before or after a _Root Provisioner_, which does not have the `before` or

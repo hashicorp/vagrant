@@ -53,7 +53,7 @@ module VagrantPlugins
       # @return [String, Symbol]
       attr_accessor :after
 
-      def initialize(name, type, before=nil, after=nil)
+      def initialize(name, type, **options)
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
 
@@ -64,8 +64,8 @@ module VagrantPlugins
         @preserve_order = false
         @run     = nil
         @type    = type
-        @before  = before
-        @after   = after
+        @before  = options[:before]
+        @after   = options[:after]
 
         # Attempt to find the provisioner...
         if !Vagrant.plugin("2").manager.provisioners[type]
@@ -113,7 +113,7 @@ module VagrantPlugins
       def validate(machine, provisioners)
         errors = _detected_errors
 
-        provisioner_names = provisioners.map { |i| i.name if i.name != name }.reject(&:nil?)
+        provisioner_names = provisioners.map { |i| i.name.to_s if i.name != name }.reject(&:nil?)
 
         if @before && @after
           errors << I18n.t("vagrant.provisioners.base.both_before_after_set")
@@ -127,7 +127,7 @@ module VagrantPlugins
               errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "before")
             end
 
-            if !provisioner_names.include?(@before.to_sym)
+            if !provisioner_names.include?(@before)
               errors << I18n.t("vagrant.provisioners.base.missing_provisioner_name",
                                name: @before,
                                machine_name: machine.name,
@@ -135,7 +135,7 @@ module VagrantPlugins
                                provisioner_name: @name)
             end
 
-            dep_prov = provisioners.map { |i| i if i.name.to_s == @before && (i.before || i.after) }.reject(&:nil?)
+            dep_prov = provisioners.find_all { |i| i.name.to_s == @before && (i.before || i.after) }
 
             if !dep_prov.empty?
               errors << I18n.t("vagrant.provisioners.base.dependency_provisioner_dependency",
@@ -153,7 +153,7 @@ module VagrantPlugins
               errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "after")
             end
 
-            if !provisioner_names.include?(@after.to_sym)
+            if !provisioner_names.include?(@after)
               errors << I18n.t("vagrant.provisioners.base.missing_provisioner_name",
                                name: @after,
                                machine_name: machine.name,
@@ -161,7 +161,8 @@ module VagrantPlugins
                                provisioner_name: @name)
             end
 
-            dep_prov = provisioners.map { |i| i if i.name.to_s == @after && (i.before || i.after) }.reject(&:nil?)
+            dep_prov = provisioners.find_all { |i| i.name.to_s == @after && (i.before || i.after) }
+
             if !dep_prov.empty?
               errors << I18n.t("vagrant.provisioners.base.dependency_provisioner_dependency",
                                name: @name,

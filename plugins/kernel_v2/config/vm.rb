@@ -340,7 +340,8 @@ module VagrantPlugins
           end
 
           if Vagrant::Util::Experimental.feature_enabled?("dependency_provisioners")
-            prov = VagrantConfigProvisioner.new(name, type.to_sym, before, after)
+            opts = {before: before, after: after}
+            prov = VagrantConfigProvisioner.new(name, type.to_sym, opts)
           else
             prov = VagrantConfigProvisioner.new(name, type.to_sym)
           end
