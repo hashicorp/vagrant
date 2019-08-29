@@ -48,8 +48,8 @@ with how to add it, but they all follow the same format:
 $ vagrant box add USER/BOX
 ```
 
-For example: `vagrant box add hashicorp/precise64`. You can also quickly
-initialize a Vagrant environment with `vagrant init hashicorp/precise64`.
+For example: `vagrant box add hashicorp/bionic64`. You can also quickly
+initialize a Vagrant environment with `vagrant init hashicorp/bionic64`.
 
 ~> **Namespaces do not guarantee canonical boxes!** A common misconception is
 that a namespace like "ubuntu" represents the canonical space for Ubuntu boxes.
@@ -60,22 +60,24 @@ with third-party published boxes.
 
 ## Official Boxes
 
-HashiCorp (the makers of Vagrant) publish a basic Ubuntu 12.04 (32 and 64-bit) box that is available for minimal use cases. It is highly optimized, small in size, and includes support for Virtualbox and VMware. You can use it like this:
+HashiCorp (the makers of Vagrant) publish a basic Ubuntu 18.04 64-bit box that is available for minimal use cases. It is highly optimized, small in size, and includes support for Virtualbox, Hyper-V, and VMware. You can use it like this:
 
 ```shell
-$ vagrant init hashicorp/precise64
+$ vagrant init hashicorp/bionic64
 ```
 
 or you can update your `Vagrantfile` as follows:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/precise64"
+  config.vm.box = "hashicorp/bionic64"
 end
 ```
 
 For other users, we recommend the [Bento boxes](https://vagrantcloud.com/bento). The Bento boxes are [open source](https://github.com/chef/bento) and built for a number of providers including VMware, Virtualbox, and Parallels. There are a variety of operating systems and versions available.
 
 These are the only two officially-recommended box sets.
+
+Special thanks to the Bento project for providing a solid base template for the `hashicorp/bionic64` box.
 
 ~> **It is often a point of confusion**, but Canonical (the company that makes the Ubuntu operating system) publishes boxes under the "ubuntu" namespace on Vagrant Cloud. These boxes only support Virtualbox and do not provide an ideal experience for most users. If you encounter issues with these boxes, please try the Bento boxes instead.

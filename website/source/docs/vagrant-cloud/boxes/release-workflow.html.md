@@ -10,7 +10,7 @@ Creating new boxes through their [release lifecycle](/docs/vagrant-cloud/boxes/l
 is possible through the Vagrant Cloud website, but you can also automate
 the task via the Vagrant Cloud API.
 
-1. Create box, or locate a boxes `tag`, like `hashicorp/precise64`
+1. Create box, or locate a boxes `tag`, like `hashicorp/bionic64`
 2. After some event, like the end of a CI build, you may want to
 release a new version of the box. To do this, first use the API to
 create a new version with a version number and a short description

@@ -43,19 +43,19 @@ setting in the created Vagrantfile.
 Create a base Vagrantfile:
 
 ```sh
-$ vagrant init hashicorp/precise64
+$ vagrant init hashicorp/bionic64
 ```
 
 Create a minimal Vagrantfile (no comments or helpers):
 
 ```sh
-$ vagrant init -m hashicorp/precise64
+$ vagrant init -m hashicorp/bionic64
 ```
 
 Create a new Vagrantfile, overwriting the one at the current path:
 
 ```sh
-$ vagrant init -f hashicorp/precise64
+$ vagrant init -f hashicorp/bionic64
 ```
 
 Create a Vagrantfile with the specific box, from the specific box URL:
@@ -67,5 +67,5 @@ $ vagrant init my-company-box https://boxes.company.com/my-company.box
 Create a Vagrantfile, locking the box to a version constraint:
 
 ```sh
-$ vagrant init --box-version '> 0.1.5' hashicorp/precise64
+$ vagrant init --box-version '> 0.1.5' hashicorp/bionic64
 ```

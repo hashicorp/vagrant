@@ -16,10 +16,10 @@ You don't need a Vagrant Cloud account to use public boxes.
 
 1. Once you find a box, click its name to learn more about it.
 
-1. When you're ready to use it, copy the name, such as "hashicorp/precise64"
-   and initialize your Vagrant project with `vagrant init hashicorp/precise64`.
+1. When you're ready to use it, copy the name, such as "hashicorp/bionic64"
+   and initialize your Vagrant project with `vagrant init hashicorp/bionic64`.
    Or, if you already have a Vagrant project created, modify the Vagrantfile
-   to use the box: `config.vm.box = "hashicorp/precise64"`
+   to use the box: `config.vm.box = "hashicorp/bionic64"`
 
 ## Provider Support
 

@@ -25,7 +25,7 @@ please follow along in your terminal:
 ```
 $ mkdir vagrant_getting_started
 $ cd vagrant_getting_started
-$ vagrant init hashicorp/precise64
+$ vagrant init hashicorp/bionic64
 ```
 
 This will place a `Vagrantfile` in your current directory. You can

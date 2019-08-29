@@ -16,7 +16,7 @@ website for users to learn more:
 
 ```
 brian@localghost % vagrant box list -i
-hashicorp/precise64     (virtualbox, 1.0.0)
+hashicorp/bionic64     (virtualbox, 1.0.0)
   - author: brian
   - homepage: https://www.vagrantup.com
 ```

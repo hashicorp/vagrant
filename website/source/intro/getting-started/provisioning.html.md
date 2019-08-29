@@ -43,7 +43,7 @@ look like this:
 
 ```ruby
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/precise64"
+  config.vm.box = "hashicorp/bionic64"
   config.vm.provision :shell, path: "bootstrap.sh"
 end
 ```
@@ -70,7 +70,7 @@ that the provisioning works by loading a file from SSH within the machine:
 ```
 $ vagrant ssh
 ...
-vagrant@precise64:~$ wget -qO- 127.0.0.1
+vagrant@bionic64:~$ wget -qO- 127.0.0.1
 ```
 
 This works because in the shell script above we installed Apache and

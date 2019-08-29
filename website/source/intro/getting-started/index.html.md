@@ -36,7 +36,7 @@ provider for the getting started guide, please install that as well.
 ## Up and Running
 
 ```
-$ vagrant init hashicorp/precise64
+$ vagrant init hashicorp/bionic64
 $ vagrant up
 ```
 

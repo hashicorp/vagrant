@@ -95,15 +95,15 @@ It is a JSON document, structured in the following way:
 
 ```json
 {
-  "name": "hashicorp/precise64",
-  "description": "This box contains Ubuntu 12.04 LTS 64-bit.",
+  "name": "hashicorp/bionic64",
+  "description": "This box contains Ubuntu 18.04 LTS 64-bit.",
   "versions": [
     {
       "version": "0.1.0",
       "providers": [
         {
           "name": "virtualbox",
-          "url": "http://somewhere.com/precise64_010_virtualbox.box",
+          "url": "http://somewhere.com/bionic64_010_virtualbox.box",
           "checksum_type": "sha1",
           "checksum": "foo"
         }
