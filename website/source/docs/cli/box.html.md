@@ -142,6 +142,8 @@ This command removes old versions of installed boxes. If the box is currently in
 
 * `--force` - Destroy without confirmation even when box is in use.
 
+* `--keep-used-boxes` - When combined with `--force`, will keep boxes still in use.
+
 # Box Remove
 
 **Command: `vagrant box remove NAME`**

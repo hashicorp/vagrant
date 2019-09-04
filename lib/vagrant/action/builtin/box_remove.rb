@@ -99,8 +99,11 @@ module Vagrant
                 b.use Confirm, message, force_key
               end
 
+              # Keep used boxes, even if "force" is applied
+              keep_used_boxes = env[:keep_used_boxes]
+
               result = env[:action_runner].run(stack, env)
-              if !result[:result]
+              if !result[:result] || keep_used_boxes
                 # They said "no", so continue with the next box
                 next
               end
