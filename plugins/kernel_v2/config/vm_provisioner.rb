@@ -113,7 +113,7 @@ module VagrantPlugins
       def validate(machine, provisioners)
         errors = _detected_errors
 
-        provisioner_names = provisioners.map { |i| i.name.to_s if i.name != name }.reject(&:nil?)
+        provisioner_names = provisioners.map { |i| i.name.to_s if i.name != name }.compact
 
         if @before && @after
           errors << I18n.t("vagrant.provisioners.base.both_before_after_set")
