@@ -31,7 +31,7 @@ module VagrantPlugins
               options[:force] = f
             end
 
-            o.on("-k", "--keep-used-boxes", "When combined with `--force`, will keep boxes still in use.") do |k|
+            o.on("-k", "--keep-active-boxes", "When combined with `--force`, will keep boxes still actively in use.") do |k|
               options[:keep] = k
             end
           end

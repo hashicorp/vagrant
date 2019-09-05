@@ -142,7 +142,7 @@ This command removes old versions of installed boxes. If the box is currently in
 
 * `--force` - Destroy without confirmation even when box is in use.
 
-* `--keep-used-boxes` - When combined with `--force`, will keep boxes still in use.
+* `--keep-active-boxes` - When combined with `--force`, will keep boxes still actively in use.
 
 # Box Remove
 
