@@ -509,7 +509,13 @@ module VagrantPlugins
 
             line = "(unknown)"
             if e.backtrace && e.backtrace[0]
-              line = e.backtrace[0].split(":")[1]
+              if Vagrant::Util::Platform.windows?
+                # path is split into two tokens on windows for some reason...
+                # where 0th is drive letter, 1st is path, so line number is token 2
+                line = e.backtrace[0].split(":")[2]
+              else
+                line = e.backtrace[0].split(":")[1]
+              end
             end
 
             raise Vagrant::Errors::VagrantfileLoadError,
