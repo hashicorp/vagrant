@@ -3,6 +3,7 @@
 FEATURES:
 
 - guest/alpine: Integrate the vagrant-alpine plugin into Vagrant core [GH-10975]
+- core/provisioners: Introduce new Provisioner options: before and after [GH-11043]
 
 IMPROVEMENTS:
 
