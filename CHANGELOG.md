@@ -10,6 +10,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provider/docker: Fix default provider validation if password is used [GH-11053]
+
 ## 2.2.5 (June 19, 2019)
 
 FEATURES:
