@@ -2,6 +2,8 @@ require "pathname"
 
 require "log4r"
 
+require "vagrant/util/platform"
+
 module Vagrant
   module Config
     # This class is responsible for loading Vagrant configuration,
@@ -129,7 +131,13 @@ module Vagrant
                 path = "(unknown)"
                 if e.backtrace && e.backtrace[0]
                   backtrace_tokens = e.backtrace[0].split(":")
-                  path = backtrace_tokens[0]
+                  if Vagrant::Util::Platform.windows?
+                    # path is split into two tokens on windows for some reason...
+                    # where 0th is drive letter, 1st is path
+                    path = backtrace_tokens[0] + ":" + backtrace_tokens[1]
+                  else
+                    path = backtrace_tokens[0]
+                  end
                   backtrace_tokens.each do |part|
                     if part =~ /\d+/
                       line = part.to_i
