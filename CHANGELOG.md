@@ -7,6 +7,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - guest/alt: Improve handling for using network tools when setting hostname [GH-11000]
+- command/box/prune: Allow prompt skip while preserving actively in use boxes [GH-10908]
 
 BUG FIXES:
 
