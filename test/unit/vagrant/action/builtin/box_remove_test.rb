@@ -151,6 +151,37 @@ describe Vagrant::Action::Builtin::BoxRemove do
 
       subject.call(env)
     end
+
+    it "doesn't delete if the box is in use and keep_used_boxes is set" do
+      env[:keep_used_boxes] = true
+      machine_index << new_entry("foo", "virtualbox", "1.0")
+
+      result = { result: true }
+      expect(action_runner).to receive(:run).
+        with(anything, env).and_return(result)
+
+      expect(box_collection).to receive(:find).with(
+        "foo", :virtualbox, "1.0").and_return(box)
+      expect(box).to receive(:destroy!).never
+
+      subject.call(env)
+    end
+
+    it "deletes if the box is in use and force is used" do
+      machine_index << new_entry("foo", "virtualbox", "1.0")
+
+      result = { result: true }
+      expect(action_runner).to receive(:run).
+        with(anything, env).and_return(result)
+
+      expect(box_collection).to receive(:find).with(
+        "foo", :virtualbox, "1.0").and_return(box)
+      expect(box_collection).to receive(:clean).with(box.name)
+        .and_return(true)
+      expect(box).to receive(:destroy!)
+
+      subject.call(env)
+    end
   end
 
   it "errors if the box doesn't exist" do
