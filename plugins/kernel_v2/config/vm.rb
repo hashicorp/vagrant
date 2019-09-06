@@ -7,6 +7,7 @@ require "vagrant/action/builtin/mixin_synced_folders"
 require "vagrant/config/v2/util"
 require "vagrant/util/platform"
 require "vagrant/util/presence"
+require "vagrant/util/experimental"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
@@ -331,7 +332,19 @@ module VagrantPlugins
         end
 
         if !prov
-          prov = VagrantConfigProvisioner.new(name, type.to_sym)
+          if options.key?(:before)
+            before = options.delete(:before)
+          end
+          if options.key?(:after)
+            after = options.delete(:after)
+          end
+
+          if Vagrant::Util::Experimental.feature_enabled?("dependency_provisioners")
+            opts = {before: before, after: after}
+            prov = VagrantConfigProvisioner.new(name, type.to_sym, opts)
+          else
+            prov = VagrantConfigProvisioner.new(name, type.to_sym)
+          end
           @provisioners << prov
         end
 
@@ -758,6 +771,11 @@ module VagrantPlugins
             errors["vm"] << I18n.t("vagrant.config.vm.provisioner_not_found",
                                    name: name)
             next
+          end
+
+          provisioner_errors = vm_provisioner.validate(machine, @provisioners)
+          if provisioner_errors
+            errors = Vagrant::Config::V2::Util.merge_errors(errors, provisioner_errors)
           end
 
           if vm_provisioner.config

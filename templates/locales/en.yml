@@ -2486,6 +2486,17 @@ en:
           VirtualBox has successfully been installed!
 
     provisioners:
+      base:
+        both_before_after_set: |-
+          Dependency provisioners cannot currently set both `before` and `after` options.
+        dependency_provisioner_dependency: |-
+          Dependency provisioner "%{name}" relies on another dependency provisioner "%{dep_name}". This is currently not supported.
+        invalid_alias_value: |-
+          Provisioner option `%{opt}` is not set as a valid type. Must be a string, or one of the alias shortcuts: %{alias}
+        missing_provisioner_name: |-
+          Could not find provisioner name `%{name}` defined for machine `%{machine_name}` to run provisioner "%{provisioner_name}" `%{action}`.
+        wrong_type: |-
+          Provisioner option `%{opt}` is not set as a valid type. Must be a string.
       chef:
         chef_not_detected: |-
           The chef binary (either `chef-solo` or `chef-client`) was not found on
