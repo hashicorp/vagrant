@@ -6,7 +6,7 @@
 * Mailing list: [Google Groups](https://groups.google.com/group/vagrant-up)
 * IRC: #vagrant on freenode.org
 
-Vagrant is a tool for building and distributing development environments.
+Vagrant is a tool for building and distributing development environments. Whatever happens in Vagrant, stays in Vagrant. 
 
 Development environments managed by Vagrant can run on local virtualized
 platforms such as VirtualBox or VMware, in the cloud via AWS or OpenStack,
