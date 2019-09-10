@@ -138,6 +138,12 @@ module Vagrant
           @__finalized = true
         end
       end
+
+      class Set < ::Set
+        def to_json(*args)
+          self.to_a.to_json(*args)
+        end
+      end
     end
   end
 end
