@@ -12,7 +12,9 @@ module Vagrant
       # @param [Symbol] parent_type Type of parent class (:provider, :synced_folder, etc)
       def self.generate_config(client, parent_name, parent_klass, parent_type)
         config_attrs = client.config_attributes(Vagrant::Proto::Empty.new).items
-        config_klass = Class.new(Config)
+        config_klass = Class.new(Config).tap do |c|
+          c.class_eval("def parent_name; '#{parent_name}'; end")
+        end
         config_klass.plugin_client = client
         Array(config_attrs).each do |att|
           config_klass.instance_eval("attr_accessor :#{att}")
@@ -35,9 +37,6 @@ module Vagrant
             new_data.each do |key, value|
               next if data[key] == value
               instance_variable_set("@#{key}", value)
-              if !key.start_with?("_") && !self.respond_to?(key)
-                self.define_singleton_method(key) { instance_variable_get("@#{key}") }
-              end
             end
           end
           self
@@ -51,7 +50,7 @@ module Vagrant
           result = plugin_client.config_validate(Vagrant::Proto::Configuration.new(
             machine: JSON.dump(machine),
             data: JSON.dump(local_data)))
-          result.items
+          {parent_name => result.items}
         end
 
         # @return [Hash] currently defined instance variables
