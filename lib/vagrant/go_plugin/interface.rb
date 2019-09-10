@@ -1,6 +1,17 @@
 require "log4r"
 require "vagrant/go_plugin/core"
 
+require "vagrant/go_plugin/vagrant_proto/vagrant_services_pb"
+
+module RubyLogger
+  include Vagrant::Util::Logger
+end
+
+module GRPC
+  extend Vagrant::Util::Logger
+end
+
+
 module Vagrant
   module GoPlugin
     # Interface for go-plugin integration
@@ -15,11 +26,15 @@ module Vagrant
 
       attach_function :_setup, :Setup, [:enable_logger, :timestamps, :log_level], :bool
       attach_function :_teardown, :Teardown, [], :void
+      attach_function :_reset, :Reset, [], :void
       attach_function :_load_plugins, :LoadPlugins, [:plugin_directory], :bool
       attach_function :_list_providers, :ListProviders, [], :plugin_result
       attach_function :_list_synced_folders, :ListSyncedFolders, [], :plugin_result
 
       def initialize
+        Vagrant::Proto.instance_eval do
+          ::GRPC.extend(Vagrant::Util::Logger)
+        end
         setup
       end
 
@@ -70,6 +85,12 @@ module Vagrant
         else
           logger.warn("go-plugin interface already setup")
         end
+      end
+
+      def reset
+        logger.debug("running go-plugin interface reset")
+        _reset
+        logger.debug("completed go-plugin interface reset")
       end
 
       # Teardown any plugins that may be currently active
