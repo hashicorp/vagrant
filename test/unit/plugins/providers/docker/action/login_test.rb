@@ -4,7 +4,6 @@ require_relative "../../../../../../plugins/providers/docker/action/login"
 
 describe VagrantPlugins::DockerProvider::Action::Login do
   include_context "unit"
-  include_context "virtualbox"
 
   let(:sandbox) { isolated_environment }
 
