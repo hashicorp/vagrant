@@ -131,13 +131,8 @@ module Vagrant
                 path = "(unknown)"
                 if e.backtrace && e.backtrace[0]
                   backtrace_tokens = e.backtrace[0].split(":")
-                  if Vagrant::Util::Platform.windows?
-                    # path is split into two tokens on windows for some reason...
-                    # where 0th is drive letter, 1st is path
-                    path = backtrace_tokens[0] + ":" + backtrace_tokens[1]
-                  else
-                    path = backtrace_tokens[0]
-                  end
+                  path = e.backtrace.first.slice(0, e.backtrace.first.rindex(':')).rpartition(':').first
+
                   backtrace_tokens.each do |part|
                     if part =~ /\d+/
                       line = part.to_i
