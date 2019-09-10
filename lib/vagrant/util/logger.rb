@@ -9,7 +9,11 @@ module Vagrant
       # @return [Log4r::Logger]
       def logger
         if !@_logger
-          @_logger = Log4r::Logger.new(self.class.name.downcase)
+          name = (self.is_a?(Module) ? self : self.class).name.downcase
+          if !name.start_with?("vagrant")
+            name = "vagrant::root::#{name}"
+          end
+          @_logger = Log4r::Logger.new(name)
         end
         @_logger
       end
