@@ -2,8 +2,6 @@ require "pathname"
 
 require "log4r"
 
-require "vagrant/util/platform"
-
 module Vagrant
   module Config
     # This class is responsible for loading Vagrant configuration,
@@ -132,7 +130,6 @@ module Vagrant
                 if e.backtrace && e.backtrace[0]
                   backtrace_tokens = e.backtrace[0].split(":")
                   path = e.backtrace.first.slice(0, e.backtrace.first.rindex(':')).rpartition(':').first
-
                   backtrace_tokens.each do |part|
                     if part =~ /\d+/
                       line = part.to_i
