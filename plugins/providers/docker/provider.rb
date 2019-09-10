@@ -11,6 +11,14 @@ module VagrantPlugins
     class Provider < Vagrant.plugin("2", :provider)
       @@host_vm_mutex = Mutex.new
 
+      def self.usable?(raise_error=false)
+        Driver.new.execute("docker", "version")
+        true
+      rescue Vagrant::Errors::CommandUnavailable, Errors::ExecuteError
+        raise if raise_error
+        return false
+      end
+
       def initialize(machine)
         @logger  = Log4r::Logger.new("vagrant::provider::docker")
         @machine = machine
@@ -43,14 +51,6 @@ module VagrantPlugins
         end
 
         @driver
-      end
-
-      def usable?(raise_error=false)
-        driver.execute("docker", "version")
-        true
-      rescue Vagrant::Errors::CommandUnavailable, Errors::ExecuteError
-        raise if raise_error
-        return false
       end
 
       # This returns the {Vagrant::Machine} that is our host machine.

@@ -28,6 +28,11 @@ shared_context "virtualbox" do
     allow(subprocess).to receive(:execute).
       with("VBoxManage", "showvminfo", kind_of(String), kind_of(Hash)).
       and_return(subprocess_result(exit_code: 0))
+
+    # apparently this is also used in docker tests
+    allow(subprocess).to receive(:execute).
+      with("docker", "version", an_instance_of(Hash)).
+      and_return(subprocess_result(exit_code: 0))
   end
 
   around do |example|
