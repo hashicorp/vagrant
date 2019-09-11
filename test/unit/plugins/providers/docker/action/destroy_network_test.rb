@@ -52,6 +52,10 @@ describe VagrantPlugins::DockerProvider::Action::DestroyNetwork do
 
   subject { described_class.new(app, env) }
 
+  before do
+    allow(driver).to receive(:execute) { |*args| @cmd = args.join(' ') }
+  end
+
   after do
     sandbox.close
   end
