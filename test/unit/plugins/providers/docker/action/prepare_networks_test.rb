@@ -67,6 +67,18 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
 
   subject { described_class.new(app, env) }
 
+  let(:subprocess_result) do
+    double("subprocess_result").tap do |result|
+      allow(result).to receive(:exit_code).and_return(0)
+      allow(result).to receive(:stdout).and_return("")
+      allow(result).to receive(:stderr).and_return("")
+    end
+  end
+
+  before do
+    allow(Vagrant::Util::Subprocess).to receive(:execute).with("docker", "version", an_instance_of(Hash)).and_return(subprocess_result)
+  end
+
   after do
     sandbox.close
   end
