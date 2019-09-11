@@ -28,7 +28,9 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     end
   end
 
-  let(:env)    {{ machine: machine, ui: machine.ui, root_path: Pathname.new(".") }}
+  let(:vagrantfile) { double("vagrantfile") }
+
+  let(:env)    {{ machine: machine, ui: machine.ui, root_path: Pathname.new("."), vagrantfile: vagrantfile }}
   let(:app)    { lambda { |*args| }}
   let(:driver) { double("driver", create: "abcd1234") }
 
@@ -63,10 +65,6 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
         }
 
   subject { described_class.new(app, env) }
-
-  before do
-    allow(driver).to receive(:execute) { |*args| @cmd = args.join(' ') }
-  end
 
   after do
     sandbox.close

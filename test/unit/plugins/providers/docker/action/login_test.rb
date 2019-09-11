@@ -33,7 +33,9 @@ describe VagrantPlugins::DockerProvider::Action::Login do
     end
   end
 
-  let(:env)    {{ machine: machine, ui: machine.ui, root_path: Pathname.new(".") }}
+  let(:vagrantfile) { double("vagrantfile") }
+
+  let(:env)    {{ machine: machine, ui: machine.ui, root_path: Pathname.new("."), vagrantfile: vagrantfile }}
   let(:app)    { lambda { |*args| }}
   let(:driver) { double("driver", create: "abcd1234") }
 

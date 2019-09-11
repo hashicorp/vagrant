@@ -33,8 +33,10 @@ describe VagrantPlugins::DockerProvider::Action::ConnectNetworks do
 
   let(:docker_connects) { {0=>"vagrant_network_172.20.0.0/16", 1=>"vagrant_network_public_wlp4s0", 2=>"vagrant_network_2a02:6b8:b010:9020:1::/80"} }
 
+  let(:vagrantfile) { double("vagrantfile") }
+
   let(:env)    {{ machine: machine, ui: machine.ui, root_path: Pathname.new("."),
-                  docker_connects: docker_connects }}
+                  docker_connects: docker_connects, vagrantfile: vagrantfile }}
   let(:app)    { lambda { |*args| }}
   let(:driver) { double("driver", create: "abcd1234") }
 
