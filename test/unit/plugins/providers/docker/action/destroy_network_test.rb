@@ -3,7 +3,6 @@ require_relative "../../../../../../plugins/providers/docker/action/destroy_netw
 
 describe VagrantPlugins::DockerProvider::Action::DestroyNetwork do
   include_context "unit"
-  include_context "virtualbox"
 
   let(:sandbox) { isolated_environment }
 
