@@ -22,6 +22,7 @@ describe VagrantPlugins::DockerProvider::Action::DestroyNetwork do
 
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :docker).tap do |m|
+      allow(m).to receive(:vagrantfile).and_return(vagrantfile)
       allow(m).to receive(:config).and_return(machine_config)
       allow(m.provider).to receive(:driver).and_return(driver)
       allow(m.config.vm).to receive(:networks).and_return(networks)
@@ -53,10 +54,6 @@ describe VagrantPlugins::DockerProvider::Action::DestroyNetwork do
   }
 
   subject { described_class.new(app, env) }
-
-  before do
-    allow(driver).to receive(:execute) { |*args| @cmd = args.join(' ') }
-  end
 
   after do
     sandbox.close

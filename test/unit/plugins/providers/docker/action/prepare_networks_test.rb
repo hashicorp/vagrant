@@ -22,6 +22,7 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
 
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :docker).tap do |m|
+      allow(m).to receive(:vagrantfile).and_return(vagrantfile)
       allow(m).to receive(:config).and_return(machine_config)
       allow(m.provider).to receive(:driver).and_return(driver)
       allow(m.config.vm).to receive(:networks).and_return(networks)

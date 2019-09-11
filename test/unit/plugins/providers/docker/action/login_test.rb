@@ -28,6 +28,7 @@ describe VagrantPlugins::DockerProvider::Action::Login do
       allow(m).to receive(:id).and_return("12345")
       allow(m).to receive(:config).and_return(machine_config)
       allow(m).to receive(:provider_config).and_return(provider_config)
+      allow(m).to receive(:vagrantfile).and_return(vagrantfile)
       allow(m.provider).to receive(:driver).and_return(driver)
       allow(m.provider).to receive(:host_vm?).and_return(false)
     end
@@ -41,10 +42,6 @@ describe VagrantPlugins::DockerProvider::Action::Login do
 
 
   subject { described_class.new(app, env) }
-
-  before do
-    allow(driver).to receive(:execute) { |*args| @cmd = args.join(' ') }
-  end
 
   after do
     sandbox.close
