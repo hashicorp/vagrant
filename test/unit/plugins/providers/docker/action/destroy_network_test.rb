@@ -12,8 +12,17 @@ describe VagrantPlugins::DockerProvider::Action::DestroyNetwork do
     sandbox.create_vagrant_env
   end
 
+  let(:vm_config) { double("machine_vm_config") }
+
+  let(:machine_config) do
+    double("machine_config").tap do |top_config|
+      allow(top_config).to receive(:vm).and_return(vm_config)
+    end
+  end
+
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :docker).tap do |m|
+      allow(m).to receive(:config).and_return(machine_config)
       allow(m.provider).to receive(:driver).and_return(driver)
       allow(m.config.vm).to receive(:networks).and_return(networks)
     end

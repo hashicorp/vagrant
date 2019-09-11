@@ -15,9 +15,18 @@ describe VagrantPlugins::DockerProvider::Action::Login do
 
   let(:provider_config) { double("provider_config", username: "docker", password: "") }
 
+  let(:vm_config) { double("machine_vm_config") }
+
+  let(:machine_config) do
+    double("machine_config").tap do |top_config|
+      allow(top_config).to receive(:vm).and_return(vm_config)
+    end
+  end
+
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :docker).tap do |m|
       allow(m).to receive(:id).and_return("12345")
+      allow(m).to receive(:config).and_return(machine_config)
       allow(m).to receive(:provider_config).and_return(provider_config)
       allow(m.provider).to receive(:driver).and_return(driver)
       allow(m.provider).to receive(:host_vm?).and_return(false)
