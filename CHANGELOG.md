@@ -15,6 +15,7 @@ BUG FIXES:
 
 - provider/docker: Fix default provider validation if password is used [GH-11053]
 - provider/docker: Fix Docker providers usable? check [GH-11068]
+- core: Ensure proper paths are shown in config loading exceptions [GH-11056]
 
 ## 2.2.5 (June 19, 2019)
 
