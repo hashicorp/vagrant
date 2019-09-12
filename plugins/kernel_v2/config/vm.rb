@@ -509,7 +509,7 @@ module VagrantPlugins
 
             line = "(unknown)"
             if e.backtrace && e.backtrace[0]
-              line = e.backtrace[0].split(":")[1]
+              line = e.backtrace.first.slice(0, e.backtrace.first.rindex(':')).rpartition(':').last
             end
 
             raise Vagrant::Errors::VagrantfileLoadError,
