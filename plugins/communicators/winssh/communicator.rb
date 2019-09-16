@@ -36,7 +36,7 @@ module VagrantPlugins
           remote_name = "#{machine_config_ssh.upload_directory}\\#{File.basename(tfile.path)}.#{remote_ext}"
 
           if shell == "powershell"
-            base_cmd = "powershell -File #{remote_name}"
+            base_cmd = "powershell -File #{remote_name} -InputFormat None"
             tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
 Remove-Item #{remote_name}
 Write-Host #{CMD_GARBAGE_MARKER}

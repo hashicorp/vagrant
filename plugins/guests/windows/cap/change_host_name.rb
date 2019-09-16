@@ -23,7 +23,8 @@ module VagrantPlugins
           machine.communicate.execute(
             script,
             error_class: Errors::RenameComputerFailed,
-            error_key: :rename_computer_failed)
+            error_key: :rename_computer_failed,
+            shell: "powershell")
 
           machine.guest.capability(:reboot)
         end
