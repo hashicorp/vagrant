@@ -1,4 +1,5 @@
 require File.expand_path("../../ssh/communicator", __FILE__)
+require_relative "../winrm/command_filter"
 
 module VagrantPlugins
   module CommunicatorWinSSH
@@ -9,6 +10,7 @@ module VagrantPlugins
       def initialize(machine)
         super
         @logger = Log4r::Logger.new("vagrant::communication::winssh")
+        @cmd_filter = VagrantPlugins::CommunicatorWinRM::CommandFilter.new()
       end
 
       # Executes the command on an SSH connection within a login shell.
@@ -21,6 +23,15 @@ module VagrantPlugins
         sudo  = opts[:sudo]
         shell = (opts[:shell] || machine_config_ssh.shell).to_s
 
+        # If this is a *nix command with no Windows equivalent, don't run it
+        command_filtered = @cmd_filter.filter(command)
+        # transform command to windows equivalent, and force powershell for certain commands
+        if command_filtered != command || command_filtered =~ /^(cp|\$)/
+          return 0 if command_filtered.empty?
+          shell = "powershell"
+          command = command_filtered
+        end
+        
         @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
 
@@ -36,7 +47,7 @@ module VagrantPlugins
           remote_name = "#{machine_config_ssh.upload_directory}\\#{File.basename(tfile.path)}.#{remote_ext}"
 
           if shell == "powershell"
-            base_cmd = "powershell -File #{remote_name} -InputFormat None"
+            base_cmd = "powershell -File #{remote_name} < nul"
             tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
 Remove-Item #{remote_name}
 Write-Host #{CMD_GARBAGE_MARKER}
