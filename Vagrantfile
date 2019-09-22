@@ -4,11 +4,11 @@
 # Ruby, run unit tests, etc.
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/bionic64"
+  config.vm.box = "hashicorp/bionic64"
   config.vm.hostname = "vagrant"
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  ["vmware_fusion", "vmware_workstation", "virtualbox"].each do |provider|
+  ["vmware_desktop", "virtualbox", "hyperv"].each do |provider|
     config.vm.provider provider do |v, override|
       v.memory = "2048"
     end
