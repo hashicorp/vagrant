@@ -33,14 +33,15 @@ As with all software and configuration used from a public source,
 it's important to keep in mind whose box you're using. Here
 are some things to note when you're choosing a box:
 
-- __The username of the user__. If it's `bento` or `canonical`, you can likely
+- __The username of the user__. If it's `bento` or `ubuntu`, you can likely
 trust the box more than an anonymous user.
 - __The number of downloads of the box__. Heavily downloaded boxes
 are likely vetted more often by other members of the community. HashiCorp
 responds to reports of malicious software distributed via Vagrant Cloud
-and takes down boxes.
-- __The latest release date__. More up-to-date boxes contain up-to-date
-software.
+by disabling and/or removing boxes. If you find a box which includes
+malicious software, please report it to: <a href="mailto:support+vagrantcloud@hashicorp.com">support+vagrantcloud@hashicorp.com</a>.
+- __The latest release date__. Boxes which are updated periodically or which
+have recent release dates will generally contain more up-to-date software.
 - __Availability of the box download__. Vagrant Cloud periodically checks if a box
-is publicly accessible. You can see this information on the box
-page next to the provider.
+which is externally hosted (hosted by the box author, not Vagrant Cloud) is publicly
+accessible. You can see this information on the box page next to the provider.
