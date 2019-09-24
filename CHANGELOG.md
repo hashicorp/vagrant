@@ -11,6 +11,7 @@ IMPROVEMENTS:
 - command/box/prune: Allow prompt skip while preserving actively in use boxes [GH-10908]
 - guest/suse: Add ipv6 network config templates for SUSE based distributions [GH-11013]
 - dev: Fixed Vagrantfile for Vagrant development [GH-11012]
+- provisioners/chef: Update pkg install flags for chef on FreeBSD guests [GH-11075]
 
 BUG FIXES:
 
