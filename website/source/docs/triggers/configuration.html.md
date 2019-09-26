@@ -75,9 +75,9 @@ The trigger class takes various options.
   + `path`
 
     **Note:** The `run` option with `inline` is not entirely like a shell provisioner that runs bash.
-    It executes binaries on your machine rather than a bash script. If you wish you use
-    bash to pipe some text to a file in your `run` option with `inline`, wrap
-    your inline script with _`bash -c "<script goes here>"`_. For example:
+    It executes binaries on your machine rather than a bash script. For example:
+    If you wish you use bash to pipe some text to a file in your `run` option with `inline`, wrap
+    your inline script with _`bash -c "<script goes here>"`_.:
 
     ```ruby
     config.trigger.after :up do |trigger|
