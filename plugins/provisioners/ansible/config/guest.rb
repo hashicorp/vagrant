@@ -19,7 +19,7 @@ module VagrantPlugins
           @install           = UNSET_VALUE
           @install_mode      = UNSET_VALUE
           @pip_args          = UNSET_VALUE
-          @pip_install_cmd   = UNSET_VALUE          
+          @pip_install_cmd   = ""
           @provisioning_path = UNSET_VALUE
           @tmp_path          = UNSET_VALUE
         end
