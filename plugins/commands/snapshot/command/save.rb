@@ -31,7 +31,15 @@ module VagrantPlugins
               help: opts.help.chomp
           end
 
-          name = argv.pop
+          # If no snapshot name is given, the backup name is the same as the machine name.
+          # If there is a name given, we need to remove it and save it as `name`. Otherwise
+          # `with_target_vms` will treat the snapshot name as a guest name.
+          if argv.size < 2
+            name = argv.first
+          else
+            name = argv.pop
+          end
+
           with_target_vms(argv) do |vm|
             if !vm.provider.capability?(:snapshot_list)
               raise Vagrant::Errors::SnapshotNotSupported

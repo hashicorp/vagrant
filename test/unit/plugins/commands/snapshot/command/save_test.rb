@@ -76,6 +76,29 @@ describe VagrantPlugins::CommandSnapshot::Command::Save do
       end
     end
 
+    context "with a snapshot guest and name given" do
+      let(:argv)     { ["foo", "backup"] }
+      it "calls snapshot_save with a snapshot name" do
+        machine.id = "foo"
+
+        expect(machine).to receive(:action) do |name, opts|
+          expect(name).to eq(:snapshot_save)
+          expect(opts[:snapshot_name]).to eq("backup")
+        end
+
+        expect(subject.execute).to eq(0)
+      end
+
+      it "doesn't snapshot a non-existent machine" do
+        machine.id = nil
+
+        expect(subject).to receive(:with_target_vms){}
+
+        expect(machine).to_not receive(:action)
+        expect(subject.execute).to eq(0)
+      end
+    end
+
     context "with a duplicate snapshot name given and no force flag" do
       let(:argv)     { ["test"] }
 
