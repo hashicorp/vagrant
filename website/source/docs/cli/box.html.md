@@ -91,7 +91,8 @@ you are not using a catalog).
   included within the catalog entry.
 
 * `--checksum-type TYPE` - The type of checksum that `--checksum` is if it
-  is specified. Supported values are currently "md5", "sha1", and "sha256".
+  is specified. Supported values are currently "md5", "sha1", "sha256",
+  "sha384", and "sha512".
 
 * `--name VALUE` - Logical name for the box. This is the value that you
   would put into `config.vm.box` in your Vagrantfile. When adding a box from

@@ -1,6 +1,7 @@
 require "uri"
 
 require "log4r"
+require "digest"
 require "digest/md5"
 require "digest/sha1"
 require "vagrant/util/busy"
@@ -23,7 +24,10 @@ module Vagrant
       # Supported file checksum
       CHECKSUM_MAP = {
         :md5 => Digest::MD5,
-        :sha1 => Digest::SHA1
+        :sha1 => Digest::SHA1,
+        :sha256 => Digest::SHA256,
+        :sha384 => Digest::SHA384,
+        :sha512 => Digest::SHA512
       }.freeze
 
       # Hosts that do not require notification on redirect
@@ -68,7 +72,10 @@ module Vagrant
         @location_trusted = options[:location_trusted]
         @checksums   = {
           :md5 => options[:md5],
-          :sha1 => options[:sha1]
+          :sha1 => options[:sha1],
+          :sha256 => options[:sha256],
+          :sha384 => options[:sha384],
+          :sha512 => options[:sha512]
         }
       end
 

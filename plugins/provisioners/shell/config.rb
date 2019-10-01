@@ -7,6 +7,9 @@ module VagrantPlugins
       attr_accessor :path
       attr_accessor :md5
       attr_accessor :sha1
+      attr_accessor :sha256
+      attr_accessor :sha384
+      attr_accessor :sha512
       attr_accessor :env
       attr_accessor :upload_path
       attr_accessor :args
@@ -26,6 +29,9 @@ module VagrantPlugins
         @path                  = UNSET_VALUE
         @md5                   = UNSET_VALUE
         @sha1                  = UNSET_VALUE
+        @sha256                = UNSET_VALUE
+        @sha384                = UNSET_VALUE
+        @sha512                = UNSET_VALUE
         @env                   = UNSET_VALUE
         @upload_path           = UNSET_VALUE
         @privileged            = UNSET_VALUE
@@ -45,6 +51,9 @@ module VagrantPlugins
         @path                 = nil if @path == UNSET_VALUE
         @md5                  = nil if @md5 == UNSET_VALUE
         @sha1                 = nil if @sha1 == UNSET_VALUE
+        @sha256               = nil if @sha256 == UNSET_VALUE
+        @sha384               = nil if @sha384 == UNSET_VALUE
+        @sha512               = nil if @sha512 == UNSET_VALUE
         @env                  = {}  if @env == UNSET_VALUE
         @upload_path          = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
         @privileged           = true if @privileged == UNSET_VALUE

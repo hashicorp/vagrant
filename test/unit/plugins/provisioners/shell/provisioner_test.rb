@@ -188,6 +188,9 @@ describe "Vagrant::Shell::Provisioner" do
           :binary      => false,
           :md5         => nil,
           :sha1        => 'EXPECTED_VALUE',
+          :sha256      => nil,
+          :sha384      => nil,
+          :sha512      => nil,
           :reset       => false,
           :reboot      => false
         )
@@ -198,6 +201,111 @@ describe "Vagrant::Shell::Provisioner" do
         allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
         allow(digest).to receive(:file).and_return(digest)
         expect(Digest::SHA1).to receive(:new).and_return(digest)
+        expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
+      end
+
+      it "should raise an exception" do
+        vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
+
+        expect{ vsp.provision }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
+      end
+    end
+
+    context "that does not have matching sha256 checksum" do
+      let(:config) {
+        double(
+          :config,
+          :args        => "doesn't matter",
+          :env         => {},
+          :upload_path => "arbitrary",
+          :remote?     => true,
+          :path        => "http://example.com/script.sh",
+          :binary      => false,
+          :md5         => nil,
+          :sha1        => nil,
+          :sha256      => 'EXPECTED_VALUE',
+          :sha384      => nil,
+          :sha512      => nil,
+          :reset       => false,
+          :reboot      => false
+        )
+      }
+
+      let(:digest){ double("digest") }
+      before do
+        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
+        allow(digest).to receive(:file).and_return(digest)
+        expect(Digest::SHA256).to receive(:new).and_return(digest)
+        expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
+      end
+
+      it "should raise an exception" do
+        vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
+
+        expect{ vsp.provision }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
+      end
+    end
+
+    context "that does not have matching sha384 checksum" do
+      let(:config) {
+        double(
+          :config,
+          :args        => "doesn't matter",
+          :env         => {},
+          :upload_path => "arbitrary",
+          :remote?     => true,
+          :path        => "http://example.com/script.sh",
+          :binary      => false,
+          :md5         => nil,
+          :sha1        => nil,
+          :sha256      => nil,
+          :sha384      => 'EXPECTED_VALUE',
+          :sha512      => nil,
+          :reset       => false,
+          :reboot      => false
+        )
+      }
+
+      let(:digest){ double("digest") }
+      before do
+        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
+        allow(digest).to receive(:file).and_return(digest)
+        expect(Digest::SHA384).to receive(:new).and_return(digest)
+        expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
+      end
+
+      it "should raise an exception" do
+        vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
+
+        expect{ vsp.provision }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
+      end
+    end
+
+    context "that does not have matching sha512 checksum" do
+      let(:config) {
+        double(
+          :config,
+          :args        => "doesn't matter",
+          :env         => {},
+          :upload_path => "arbitrary",
+          :remote?     => true,
+          :path        => "http://example.com/script.sh",
+          :binary      => false,
+          :md5         => nil,
+          :sha1        => nil,
+          :sha256      => nil,
+          :sha384      => nil,
+          :sha512      => 'EXPECTED_VALUE',
+          :reset       => false,
+          :reboot      => false
+        )
+      }
+
+      let(:digest){ double("digest") }
+      before do
+        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
+        allow(digest).to receive(:file).and_return(digest)
+        expect(Digest::SHA512).to receive(:new).and_return(digest)
         expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
       end
 
@@ -220,6 +328,9 @@ describe "Vagrant::Shell::Provisioner" do
           :binary      => false,
           :md5         => 'EXPECTED_VALUE',
           :sha1        => nil,
+          :sha256      => nil,
+          :sha384      => nil,
+          :sha512      => nil,
           :reset       => false,
           :reboot      => false
         )

@@ -181,7 +181,7 @@ describe Vagrant::Util::Downloader do
         allow(digest).to receive(:file).and_return(digest)
       end
 
-      [Digest::MD5, Digest::SHA1].each do |klass|
+      [Digest::MD5, Digest::SHA1, Digest::SHA256, Digest::SHA384, Digest::SHA512].each do |klass|
         short_name = klass.to_s.split("::").last.downcase
 
         context "using #{short_name} digest" do
