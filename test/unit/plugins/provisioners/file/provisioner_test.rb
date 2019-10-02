@@ -65,7 +65,7 @@ describe VagrantPlugins::FileUpload::Provisioner do
       allow(config).to receive(:destination).and_return("/foo/bar")
 
       expect(communicator).to receive(:upload).with(
-        File.expand_path("source"), "/foo/bar")
+        File.expand_path("#{machine.env.cwd}/source"), "/foo/bar")
 
       subject.provision
     end
