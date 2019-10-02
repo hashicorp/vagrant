@@ -21,7 +21,6 @@ module VagrantPlugins
           end
 
           def self.get_pip(machine, pip_install_cmd=DEFAULT_PIP_INSTALL_CMD)
-
             # The objective here is to get pip either by default
             # or by the argument passed in. The objective is not 
             # to circumvent the pip setup by passing in nothing.
