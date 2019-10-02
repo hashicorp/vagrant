@@ -33,7 +33,7 @@ module VagrantPlugins
         # Current limitations:
         #   - The installation of a specific Ansible version is only supported by
         #     the "pip" install_mode. Note that "pip" installation also takes place
-        #     via a default command. If pip needs to be installed differently then 
+        #     via a default command. If pip needs to be installed differently then
         #     the command can be overwritten by supplying "pip_install_cmd" in the
         #     config settings.
         #   - There is no absolute guarantee that the automated installation will replace
