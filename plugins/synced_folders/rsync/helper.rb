@@ -30,6 +30,10 @@ module VagrantPlugins
           exclude      = exclude[1..-1]
         end
 
+        exclude = "#{exclude}/" if !exclude.end_with?("/")
+        exclude = "^#{exclude}"
+        exclude += ".*" if !start_anchor
+
         # This is not an ideal solution, but it's a start. We can improve and
         # keep unit tests passing in the future.
         exclude = exclude.gsub("**", "|||GLOBAL|||")
