@@ -20,6 +20,7 @@ BUG FIXES:
 - provider/docker: Fix Docker providers usable? check [GH-11068]
 - core: Ensure proper paths are shown in config loading exceptions [GH-11056]
 - command/rsync-auto: Fix path watcher bug so that all subdirectories are synced when changed [GH-11089]
+- command/snapshot/save: Ensure VM id is passed to list snapshots for hyper-v provider [GH-11097]
 
 ## 2.2.5 (June 19, 2019)
 
