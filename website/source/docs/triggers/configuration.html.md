@@ -74,6 +74,18 @@ The trigger class takes various options.
   + `inline`
   + `path`
 
+    **Note:** The `run` option with `inline` is not entirely like a shell provisioner that runs bash.
+    It executes binaries on your machine rather than a bash script. For example:
+    If you wish you use bash to pipe some text to a file in your `run` option with `inline`, wrap
+    your inline script with _`bash -c "<script goes here>"`_.:
+
+    ```ruby
+    config.trigger.after :up do |trigger|
+      trigger.info = "More information"
+      trigger.run = {inline: "bash -c 'echo \"hey there!!\" > file.txt'"}
+    end
+    ```
+
 * `warn` (string) - A warning message that will be printed at the beginning of a trigger.
 
 * `exit_codes` (integer, array) - A set of acceptable exit codes to continue on. Defaults to `0` if option is absent. For now only valid with the `run` option.
