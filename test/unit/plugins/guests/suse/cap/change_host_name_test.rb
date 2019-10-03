@@ -25,15 +25,15 @@ describe "VagrantPlugins::GuestSUSE::Cap::ChangeHostName" do
     let(:basename) { "banana-rama" }
 
     it "sets the hostname" do
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
+      comm.stub_command("getent hosts '#{name}'", exit_code: 1)
 
       cap.change_host_name(machine, name)
-      expect(comm.received_commands[1]).to match(/echo '#{basename}' > \/etc\/HOSTNAME/)
-      expect(comm.received_commands[1]).to match(/hostname '#{basename}'/)
+      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname '#{basename}'/)
     end
 
     it "does not change the hostname if already set" do
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+      comm.stub_command("getent hosts '#{name}'", exit_code: 0)
+
       cap.change_host_name(machine, name)
       expect(comm.received_commands.size).to eq(1)
     end
