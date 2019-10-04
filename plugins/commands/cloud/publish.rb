@@ -43,6 +43,12 @@ module VagrantPlugins
             o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
               options[:username] = u
             end
+            o.on("-c", "--checksum CHECKSUM_VALUE", String, "Checksum of the box for this provider. --checksum-type option is required.") do |c|
+              options[:checksum] = c
+            end
+            o.on("-C", "--checksum-type TYPE", String, "Type of checksum used (md5, sha1, sha256, sha384, sha512). --checksum option is required.") do |c|
+              options[:checksum_type] = c
+            end
           end
 
           # Parse the options
@@ -97,7 +103,8 @@ module VagrantPlugins
           account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
           box = VagrantCloud::Box.new(account, box_name, nil, options[:short_description], options[:description], access_token)
           cloud_version = VagrantCloud::Version.new(box, version, nil, options[:version_description], access_token)
-          provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, options[:url], org, box_name, access_token)
+          provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, options[:url], org, box_name,
+            access_token, nil, options[:checksum], options[:checksum_type])
 
           ui = Vagrant::UI::Prefixed.new(@env.ui, "cloud")
 

@@ -19,6 +19,12 @@ module VagrantPlugins
               o.on("-u", "--username USERNAME_OR_EMAIL", String, "Vagrant Cloud username or email address") do |u|
                 options[:username] = u
               end
+              o.on("-c", "--checksum CHECKSUM_VALUE", String, "Checksum of the box for this provider. --checksum-type option is required.") do |c|
+                options[:checksum] = c
+              end
+              o.on("-C", "--checksum-type TYPE", String, "Type of checksum used (md5, sha1, sha256, sha384, sha512). --checksum option is required.") do |c|
+                options[:checksum_type] = c
+              end
             end
 
             # Parse the options
@@ -52,16 +58,17 @@ module VagrantPlugins
             account = VagrantPlugins::CloudCommand::Util.account(org, access_token, server_url)
             box = VagrantCloud::Box.new(account, box_name, nil, nil, nil, access_token)
             cloud_version = VagrantCloud::Version.new(box, version, nil, nil, access_token)
-            provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, url, org, box_name, access_token)
+            provider = VagrantCloud::Provider.new(cloud_version, provider_name, nil, url, org, box_name,
+              access_token, nil, options[:checksum], options[:checksum_type])
 
             begin
               success = provider.create_provider
-              @env.ui.success(I18n.t("cloud_command.provider.create_success", provider:provider_name, org: org, box_name: box_name, version: version))
-              success = success.delete_if{|_, v|v.nil?}
+              @env.ui.success(I18n.t("cloud_command.provider.create_success", provider: provider_name, org: org, box_name: box_name, version: version))
+              success = success.compact
               VagrantPlugins::CloudCommand::Util.format_box_results(success, @env)
               return 0
             rescue VagrantCloud::ClientError => e
-              @env.ui.error(I18n.t("cloud_command.errors.provider.create_fail", provider:provider_name, org: org, box_name: box_name, version: version))
+              @env.ui.error(I18n.t("cloud_command.errors.provider.create_fail", provider: provider_name, org: org, box_name: box_name, version: version))
               @env.ui.error(e)
               return 1
             end
