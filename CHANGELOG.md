@@ -13,6 +13,7 @@ IMPROVEMENTS:
 - dev: Fixed Vagrantfile for Vagrant development [GH-11012]
 - provisioners/chef: Update pkg install flags for chef on FreeBSD guests [GH-11075]
 - provider/hyperv: Improve error message when VMMS is not running [GH-10978]
+- guest/windows: Retry on connection timeout errors for the reboot capability [GH-11093]
 
 BUG FIXES:
 
