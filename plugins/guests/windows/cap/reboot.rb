@@ -28,7 +28,7 @@ module VagrantPlugins
           wait_remaining = MAX_REBOOT_RETRY_DURATION
           begin
             wait_for_reboot(machine)
-          rescue Vagrant::Errors::MachineGuestNotReady, WinRM::WinRMHTTPTransportError => e
+          rescue HTTPClient::ConnectTimeoutError, Vagrant::Errors::MachineGuestNotReady, WinRM::WinRMHTTPTransportError => e
             raise if wait_remaining < 0
             @logger.warn("Machine not ready, cannot start reboot yet. Trying again")
             sleep(5)
