@@ -54,6 +54,23 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
     end
   end
 
+  describe '#build' do
+    it 'creates a compose config with no extra options' do
+      expect(subject).to receive(:update_composition)
+      subject.build(composition_path)
+    end
+
+    it 'creates a compose config when given an array for build-arg' do
+      expect(subject).to receive(:update_composition)
+      subject.build(composition_path, extra_args: ["foo", "bar"])
+    end
+
+    it 'creates a compose config when given a hash for build-arg' do
+      expect(subject).to receive(:update_composition)
+      subject.build(composition_path, extra_args: {"foo"=>"bar"})
+    end
+  end
+
   describe '#create' do
     let(:params) { {
       image:      'jimi/hendrix:electric-ladyland',
