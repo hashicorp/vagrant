@@ -20,4 +20,16 @@ describe FileChecksum do
     instance = described_class.new(file, Digest::SHA1)
     expect(instance.checksum).to eq("264b207c7913e461c43d0f63d2512f4017af4755")
   end
+
+  it "should support initialize with class or string" do
+    file = environment.workdir.join("file")
+    file.open("w+") { |f| f.write("HELLO!") }
+
+    %w(md5 sha1 sha256 sha384 sha512).each do |type|
+      klass = Digest.const_get(type.upcase)
+      t_i = described_class.new(file, type)
+      k_i = described_class.new(file, klass)
+      expect(t_i.checksum).to eq(k_i.checksum)
+    end
+  end
 end
