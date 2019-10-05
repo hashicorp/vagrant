@@ -48,7 +48,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Create do
 
     it "creates a provider" do
       allow(VagrantCloud::Provider).to receive(:new).
-        with(version, "virtualbox", nil, nil, "vagrant", "box-name", client.token).
+        with(version, "virtualbox", nil, nil, "vagrant", "box-name", client.token, nil, nil, nil).
         and_return(provider)
 
       expect(VagrantPlugins::CloudCommand::Util).to receive(:format_box_results)
@@ -59,7 +59,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Create do
 
     it "displays an error if encoutering a problem with the request" do
       allow(VagrantCloud::Provider).to receive(:new).
-        with(version, "virtualbox", nil, nil, "vagrant", "box-name", client.token).
+        with(version, "virtualbox", nil, nil, "vagrant", "box-name", client.token, nil, nil, nil).
         and_return(provider)
 
       allow(provider).to receive(:create_provider).
@@ -73,7 +73,7 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Create do
 
     it "creates a provider" do
       allow(VagrantCloud::Provider).to receive(:new).
-        with(version, "virtualbox", nil, "https://box.com/box", "vagrant", "box-name", client.token).
+        with(version, "virtualbox", nil, "https://box.com/box", "vagrant", "box-name", client.token, nil, nil, nil).
         and_return(provider)
 
       expect(VagrantPlugins::CloudCommand::Util).to receive(:format_box_results)

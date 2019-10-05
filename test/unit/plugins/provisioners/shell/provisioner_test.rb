@@ -175,8 +175,16 @@ describe "Vagrant::Shell::Provisioner" do
   end
 
   context "with remote script" do
+    let(:filechecksum) { double("filechecksum", checksum: checksum_value) }
+    let(:checksum_value) { double("checksum_value") }
+
+    before do
+      allow(FileChecksum).to receive(:new).and_return(filechecksum)
+      allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
+    end
 
     context "that does not have matching sha1 checksum" do
+      let(:checksum_value) { "INVALID_VALUE" }
       let(:config) {
         double(
           :config,
@@ -196,14 +204,6 @@ describe "Vagrant::Shell::Provisioner" do
         )
       }
 
-      let(:digest){ double("digest") }
-      before do
-        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
-        allow(digest).to receive(:file).and_return(digest)
-        expect(Digest::SHA1).to receive(:new).and_return(digest)
-        expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
-      end
-
       it "should raise an exception" do
         vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
 
@@ -212,6 +212,7 @@ describe "Vagrant::Shell::Provisioner" do
     end
 
     context "that does not have matching sha256 checksum" do
+      let(:checksum_value) { "INVALID_VALUE" }
       let(:config) {
         double(
           :config,
@@ -231,14 +232,6 @@ describe "Vagrant::Shell::Provisioner" do
         )
       }
 
-      let(:digest){ double("digest") }
-      before do
-        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
-        allow(digest).to receive(:file).and_return(digest)
-        expect(Digest::SHA256).to receive(:new).and_return(digest)
-        expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
-      end
-
       it "should raise an exception" do
         vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
 
@@ -247,6 +240,7 @@ describe "Vagrant::Shell::Provisioner" do
     end
 
     context "that does not have matching sha384 checksum" do
+      let(:checksum_value) { "INVALID_VALUE" }
       let(:config) {
         double(
           :config,
@@ -266,14 +260,6 @@ describe "Vagrant::Shell::Provisioner" do
         )
       }
 
-      let(:digest){ double("digest") }
-      before do
-        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
-        allow(digest).to receive(:file).and_return(digest)
-        expect(Digest::SHA384).to receive(:new).and_return(digest)
-        expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
-      end
-
       it "should raise an exception" do
         vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
 
@@ -282,6 +268,7 @@ describe "Vagrant::Shell::Provisioner" do
     end
 
     context "that does not have matching sha512 checksum" do
+      let(:checksum_value) { "INVALID_VALUE" }
       let(:config) {
         double(
           :config,
@@ -301,14 +288,6 @@ describe "Vagrant::Shell::Provisioner" do
         )
       }
 
-      let(:digest){ double("digest") }
-      before do
-        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
-        allow(digest).to receive(:file).and_return(digest)
-        expect(Digest::SHA512).to receive(:new).and_return(digest)
-        expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
-      end
-
       it "should raise an exception" do
         vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
 
@@ -317,6 +296,7 @@ describe "Vagrant::Shell::Provisioner" do
     end
 
     context "that does not have matching md5 checksum" do
+      let(:checksum_value) { "INVALID_VALUE" }
       let(:config) {
         double(
           :config,
@@ -335,14 +315,6 @@ describe "Vagrant::Shell::Provisioner" do
           :reboot      => false
         )
       }
-
-      let(:digest){ double("digest") }
-      before do
-        allow_any_instance_of(Vagrant::Util::Downloader).to receive(:execute_curl).and_return(true)
-        allow(digest).to receive(:file).and_return(digest)
-        expect(Digest::MD5).to receive(:new).and_return(digest)
-        expect(digest).to receive(:hexdigest).and_return('INVALID_VALUE')
-      end
 
       it "should raise an exception" do
         vsp = VagrantPlugins::Shell::Provisioner.new(machine, config)
