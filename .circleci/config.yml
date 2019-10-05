@@ -4,9 +4,6 @@ reference:
     SLACK_TITLE: Vagrant CI
     RELEASE_TARGET_REPONAME: vagrant-installers
   images:
-    ruby23: &ruby23
-      docker:
-        - image: circleci/ruby:2.3
     ruby24: &ruby24
       docker:
         - image: circleci/ruby:2.4
@@ -116,9 +113,6 @@ jobs:
           fi
           slack -m "New Vagrant installers release triggered: *${version}*"
       - *PRIVATE_FAILURE
-  test_ruby23:
-    <<: *ruby23
-    <<: *unit_tests
   test_ruby24:
     <<: *ruby24
     <<: *unit_tests
@@ -165,8 +159,6 @@ workflows:
             - build
   pull_requests:
     jobs:
-      - test_ruby23:
-          <<: *PUBLIC_WORKFLOW
       - test_ruby24:
           <<: *PUBLIC_WORKFLOW
       - test_ruby25:
@@ -175,8 +167,6 @@ workflows:
           <<: *PUBLIC_WORKFLOW
   master:
     jobs:
-      - test_ruby23:
-          <<: *MASTER_WORKFLOW
       - test_ruby24:
           <<: *MASTER_WORKFLOW
       - test_ruby25:
@@ -187,7 +177,6 @@ workflows:
           <<: *MASTER_WORKFLOW
           context: vagrant
           requires:
-            - test_ruby23
             - test_ruby24
             - test_ruby25
             - test_ruby26
