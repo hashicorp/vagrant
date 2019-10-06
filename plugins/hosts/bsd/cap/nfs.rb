@@ -8,12 +8,31 @@ module VagrantPlugins
   module HostBSD
     module Cap
       class NFS
+        # On OS X 10.15, / is read-only and paths inside of /Users (and elsewhere) are mounted
+        # via a "firmlink" (which is a new invention in APFS). These must be resolved to their
+        # full path to be shareable via NFS.
+        # /Users/johnsmith/mycode   becomes   /System/Volumes/Data/Users/johnsmith/mycode
+        # we check to see if a path is mounted here with `df`, and prepend it.
+        #
+        # Firmlinks are only createable by the OS, so a hardcoded path should be fine, until
+        # Apple gets crazier. This wasn't supposed to be visible to applications anyway:
+        # https://developer.apple.com/videos/play/wwdc2019/710/?time=481
+        # see also https://github.com/hashicorp/vagrant/issues/10961
+        OSX_FIRMLINK_HACK = "/System/Volumes/Data"
+
         def self.nfs_export(environment, ui, id, ips, folders)
           nfs_exports_template = environment.host.capability(:nfs_exports_template)
           nfs_restart_command  = environment.host.capability(:nfs_restart_command)
           logger = Log4r::Logger.new("vagrant::hosts::bsd")
 
           nfs_checkexports! if File.file?("/etc/exports")
+
+          # Check to see if this folder is mounted 1) as APFS and 2) within the /System/Volumes/Data volume
+          # on OS X, which is a read-write "firmlink", and must be prepended so it can be shared via NFS
+          # we also need to directly mutate the :hostpath if we change it, so that it's mounted with the
+          # prefix.
+          logger.debug("Checking to see if NFS exports are in an APFS firmlink...")
+          nfs_check_folders_for_apfs folders
 
           # We need to build up mapping of directories that are enclosed
           # within each other because the exports file has to have subdirectories
@@ -190,6 +209,18 @@ module VagrantPlugins
           r = Vagrant::Util::Subprocess.execute("nfsd", "checkexports")
           if r.exit_code != 0
             raise Vagrant::Errors::NFSBadExports, output: r.stderr
+          end
+        end
+
+        def self.nfs_check_folders_for_apfs(folders)
+          folders.each do |_, opts|
+            # check to see if this path is mounted in an APFS filesystem, and if it's in the
+            # firmlink which must be prefixed.
+            is_mounted_apfs_command = "df -t apfs #{opts[:hostpath]}"
+            result = Vagrant::Util::Subprocess.execute(*Shellwords.split(is_mounted_apfs_command))
+            if (result.stdout.include? OSX_FIRMLINK_HACK)
+              opts[:hostpath].prepend(OSX_FIRMLINK_HACK)
+            end
           end
         end
       end
