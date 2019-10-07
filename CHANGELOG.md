@@ -24,6 +24,7 @@ BUG FIXES:
 - command/rsync-auto: Fix path watcher bug so that all subdirectories are synced when changed [GH-11089]
 - command/snapshot/save: Ensure VM id is passed to list snapshots for hyper-v provider [GH-11097]
 - provisioner/ansible_local: Ensure pip_install_cmd is finalized to emptry string [GH-11098]
+- provisioner/file: Ensure relative path for file provisioner source is relative to guest machines cwd [GH-11099]
 
 ## 2.2.5 (June 19, 2019)
 
