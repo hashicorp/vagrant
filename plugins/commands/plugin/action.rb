@@ -74,6 +74,23 @@ module VagrantPlugins
       autoload :RepairPluginsLocal, action_root.join("repair_plugins")
       autoload :UninstallPlugin, action_root.join("uninstall_plugin")
       autoload :UpdateGems, action_root.join("update_gems")
+
+      Vagrant::Util::Experimental.guard_with(:go_plugin) do
+        autoload :UninstallGoPlugin, action_root.join("uninstall_go_plugin")
+        autoload :InstallGoPlugin, action_root.join("install_go_plugin")
+
+        def self.action_go_install
+          Vagrant::Action::Builder.new.tap do |b|
+            b.use InstallGoPlugin
+          end
+        end
+
+        def self.action_go_uninstall
+          Vagrant::Action::Builder.new.tap do |b|
+            b.use UninstallGoPlugin
+          end
+        end
+      end
     end
   end
 end

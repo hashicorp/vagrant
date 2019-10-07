@@ -4,10 +4,17 @@ sudo: false
 
 cache: bundler
 
+before_install:
+  - which go
+  - sudo apt-get remove --purge golang-go
+  - sudo add-apt-repository ppa:gophers/archive -y
+  - sudo apt-get update -q
+  - sudo apt-get install golang-1.11-go -yq
+
 addons:
   apt:
     packages:
-    - bsdtar
+      - bsdtar
 
 rvm:
   - 2.3.8
@@ -22,5 +29,13 @@ branches:
 env:
   global:
     - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
+    - GO111MODULE=on
+    - GOPATH=$HOME/go
+    - GOROOT=/usr/lib/go-1.11
+    - PATH=/usr/lib/go-1.11/bin:$PATH
 
-script: bundle exec rake test:unit
+script:
+  - go version
+  - go test ./...
+  - bundle exec rake compile
+  - bundle exec rake test:unit

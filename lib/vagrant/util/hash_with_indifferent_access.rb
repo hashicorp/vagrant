@@ -14,6 +14,9 @@ module Vagrant
         super(&block)
 
         hash.each do |key, value|
+          if value.is_a?(Hash) && !value.is_a?(self.class)
+            value = self.class.new(value)
+          end
           self[convert_key(key)] = value
         end
       end

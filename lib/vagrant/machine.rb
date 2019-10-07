@@ -578,6 +578,20 @@ module Vagrant
       end
     end
 
+    # @return [String]
+    def to_json(*args)
+      {
+        box: box,
+        config: config,
+        data_dir: data_dir,
+        environment: env,
+        id: id,
+        name: name,
+        provider_config: provider_config,
+        provider_name: provider_name
+      }.to_json(*args)
+    end
+
     protected
 
     # Returns the path to the file that stores the UID.

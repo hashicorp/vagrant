@@ -1,0 +1,196 @@
+syntax = "proto3";
+package vagrant.proto;
+
+message Empty{}
+
+message Machine {
+  string machine = 1;
+}
+
+message Valid {
+  bool result = 1;
+}
+
+message Identifier {
+  string name = 1;
+}
+
+message PluginInfo {
+  string description = 1;
+  int64 priority = 2;
+}
+
+message Content {
+  string target = 1;
+  string value = 2;
+}
+
+message WriteResponse {
+  int32 length = 1;
+}
+
+service IO {
+  rpc Read(Identifier) returns (Content);
+  rpc Write(Content) returns (WriteResponse);
+}
+
+message SystemCapability {
+  string name = 1;
+  string platform = 2;
+}
+
+message ProviderCapability {
+  string name = 1;
+  string provider = 2;
+}
+
+message SystemCapabilityList {
+  repeated SystemCapability capabilities = 1;
+}
+
+message ProviderCapabilityList {
+  repeated ProviderCapability capabilities = 1;
+}
+
+message GenericResponse {
+  string result = 1;
+}
+
+message GuestCapabilityRequest {
+  SystemCapability capability = 1;
+  string machine = 2;
+  string arguments = 3;
+}
+
+message HostCapabilityRequest {
+  SystemCapability capability = 1;
+  string environment = 2;
+  string arguments = 3;
+}
+
+message ProviderCapabilityRequest {
+  ProviderCapability capability = 1;
+  string machine = 2;
+  string arguments = 3;
+}
+
+service GuestCapabilities {
+  rpc GuestCapabilities(Empty) returns (SystemCapabilityList);
+  rpc GuestCapability(GuestCapabilityRequest) returns (GenericResponse);
+  // IO helpers for streaming (copied from Stream service)
+  rpc Read(Identifier) returns (Content);
+  rpc Write(Content) returns (WriteResponse);
+}
+
+service HostCapabilities {
+  rpc HostCapabilities(Empty) returns (SystemCapabilityList);
+  rpc HostCapability(HostCapabilityRequest) returns (GenericResponse);
+  // IO helpers for streaming (copied from Stream service)
+  rpc Read(Identifier) returns (Content);
+  rpc Write(Content) returns (WriteResponse);
+}
+
+service ProviderCapabilities {
+  rpc ProviderCapabilities (Empty) returns (ProviderCapabilityList);
+  rpc ProviderCapability (ProviderCapabilityRequest) returns (GenericResponse);
+  // IO helpers for streaming (copied from Stream service)
+  rpc Read(Identifier) returns (Content);
+  rpc Write(Content) returns (WriteResponse);
+}
+
+message Configuration {
+  string data = 1;
+  string machine = 2;
+}
+
+message ListResponse {
+  repeated string items = 1;
+}
+
+service Config {
+  rpc ConfigAttributes(Empty) returns (ListResponse);
+  rpc ConfigLoad(Configuration) returns (Configuration);
+  rpc ConfigValidate(Configuration) returns (ListResponse);
+  rpc ConfigFinalize(Configuration) returns (Configuration);
+  // IO helpers for streaming (copied from Stream service)
+  rpc Read(Identifier) returns (Content);
+  rpc Write(Content) returns (WriteResponse);
+}
+
+message SyncedFolders {
+  string machine = 1;
+  string folders = 2;
+  string options = 3;
+}
+
+service SyncedFolder {
+  rpc Cleanup(SyncedFolders) returns (Empty);
+  rpc Disable(SyncedFolders) returns (Empty);
+  rpc Enable(SyncedFolders) returns (Empty);
+  rpc Info(Empty) returns (PluginInfo);
+  rpc IsUsable(Machine) returns (Valid);
+  rpc Name(Empty) returns (Identifier);
+  rpc Prepare(SyncedFolders) returns (Empty);
+  // IO helpers for streaming (copied from Stream service)
+  rpc Read(Identifier) returns (Content);
+  rpc Write(Content) returns (WriteResponse);
+  // Guest capabilities helpers (copied from GuestCapabilities service)
+  rpc GuestCapabilities(Empty) returns (SystemCapabilityList);
+  rpc GuestCapability(GuestCapabilityRequest) returns (GenericResponse);
+  // Host capabilities helpers (copied from GuestCapabilities service)
+  rpc HostCapabilities(Empty) returns (SystemCapabilityList);
+  rpc HostCapability(HostCapabilityRequest) returns (GenericResponse);
+}
+
+message GenericAction {
+  string name = 1;
+  string machine = 2;
+}
+
+message ExecuteAction {
+  string name = 1;
+  string data = 2;
+  string machine = 3;
+}
+
+message MachineSshInfo {
+  string host = 1;
+  int64 port = 2;
+  string private_key_path = 3;
+  string username = 4;
+}
+
+message MachineState {
+  string id = 1;
+  string short_description = 2;
+  string long_description = 3;
+}
+
+service Provider {
+  rpc Action(GenericAction) returns (ListResponse);
+  rpc Info(Empty) returns (PluginInfo);
+  rpc IsInstalled(Machine) returns (Valid);
+  rpc IsUsable(Machine) returns (Valid);
+  rpc MachineIdChanged(Machine) returns (Machine);
+  rpc Name(Empty) returns (Identifier);
+  rpc RunAction(ExecuteAction) returns (GenericResponse);
+  rpc SshInfo(Machine) returns (MachineSshInfo);
+  rpc State(Machine) returns (MachineState);
+  // IO helpers for streaming (copied from Stream service)
+  rpc Read(Identifier) returns (Content);
+  rpc Write(Content) returns (WriteResponse);
+  // Config helpers (copied from Config service)
+  rpc ConfigAttributes(Empty) returns (ListResponse);
+  rpc ConfigLoad(Configuration) returns (Configuration);
+  rpc ConfigValidate(Configuration) returns (ListResponse);
+  rpc ConfigFinalize(Configuration) returns (Configuration);
+  // Guest capabilities helpers (copied from GuestCapabilities service)
+  rpc GuestCapabilities(Empty) returns (SystemCapabilityList);
+  rpc GuestCapability(GuestCapabilityRequest) returns (GenericResponse);
+  // Host capabilities helpers (copied from HostCapabilities service)
+  rpc HostCapabilities(Empty) returns (SystemCapabilityList);
+  rpc HostCapability(HostCapabilityRequest) returns (GenericResponse);
+  // Provider capabilities helpers (copied from ProviderCapabilities service)
+  rpc ProviderCapabilities (Empty) returns (ProviderCapabilityList);
+  rpc ProviderCapability (ProviderCapabilityRequest) returns (GenericResponse);
+}

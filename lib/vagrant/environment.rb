@@ -175,6 +175,15 @@ module Vagrant
       # Load any global plugins
       Vagrant::Plugin::Manager.instance.load_plugins(plugins)
 
+      # Load any available go-plugins
+      Util::Experimental.guard_with(:go_plugin) do
+        begin
+          Vagrant::GoPlugin::Manager.instance.globalize!
+        rescue LoadError => err
+          @logger.warn("go plugin support is not available: #{err}")
+        end
+      end
+
       plugins = process_configured_plugins
 
       # Call the hooks that does not require configurations to be loaded
@@ -916,6 +925,26 @@ module Vagrant
         raise Errors::LocalDataDirectoryNotAccessible,
           local_data_path: @local_data_path.to_s
       end
+    end
+
+    # @return [String]
+    def to_json(*args)
+      {
+        cwd: cwd,
+        data_dir: data_dir,
+        vagrantfile_name: vagrantfile_name,
+        home_path: home_path,
+        local_data_path: local_data_path,
+        tmp_path: tmp_path,
+        aliases_path: aliases_path,
+        boxes_path: boxes_path,
+        gems_path: gems_path,
+        default_private_key_path: default_private_key_path,
+        root_path: root_path,
+        primary_machine_name: primary_machine_name,
+        machine_names: machine_names,
+        active_machines: Hash[active_machines]
+      }.to_json(*args)
     end
 
     protected

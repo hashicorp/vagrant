@@ -7,6 +7,10 @@ module Vagrant
         def method_missing(name, *args, &block)
           DummyConfig.new
         end
+
+        def to_json(*_)
+          "null"
+        end
       end
     end
   end

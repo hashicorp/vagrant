@@ -28,6 +28,7 @@ module Vagrant
 
         @data["version"] ||= "1"
         @data["installed"] ||= {}
+        @data["go_plugin"] ||= {}
       end
 
       # Add a plugin that is installed to the state file.
@@ -45,6 +46,43 @@ module Vagrant
         }
 
         save!
+      end
+
+      # Add a go plugin that is installed to the state file
+      #
+      # @param [String, Symbol] name Plugin name
+      def add_go_plugin(name, **opts)
+        @data["go_plugin"][name] = {
+          "source" => opts[:source]
+        }
+
+        save!
+      end
+
+      # Remove a go plugin that is installed from the state file
+      #
+      # @param [String, Symbol] name Name of the plugin
+      def remove_go_plugin(name)
+        @data["go_plugin"].delete(name.to_s)
+
+        save!
+      end
+
+      # Check if go plugin is installed from the state file
+      #
+      # @param [String, Symbol] name Plugin name
+      # @return [Boolean]
+      def has_go_plugin?(name)
+        @data["go_plugin"].key?(name.to_s)
+      end
+
+      # This returns a hash of installed go plugins according to the state
+      # file. Note that this may _not_ directly match over to actually
+      # installed plugins
+      #
+      # @return [Hash]
+      def installed_go_plugins
+        @data["go_plugin"]
       end
 
       # Adds a RubyGems index source to look up gems.

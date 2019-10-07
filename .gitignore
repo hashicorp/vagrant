@@ -48,5 +48,10 @@ doc/
 .ruby-version
 .rvmrc
 
+# Extensions
+*.so
+*.bundle
+tmp/*
+
 # Box storage for spec
 test/vagrant-spec/boxes/*.box
