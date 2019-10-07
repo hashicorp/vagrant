@@ -14,6 +14,7 @@ IMPROVEMENTS:
 - provisioners/chef: Update pkg install flags for chef on FreeBSD guests [GH-11075]
 - provider/hyperv: Improve error message when VMMS is not running [GH-10978]
 - guest/windows: Retry on connection timeout errors for the reboot capability [GH-11093]
+- provider/virtualbox: Raise additional errors for incomplete virtualbox installation on usable check [GH-10938]
 
 BUG FIXES:
 
