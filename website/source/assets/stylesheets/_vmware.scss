@@ -28,9 +28,6 @@
 
     span.tagline {
       display: block;
-      font-family: $font-family-klavika;
-      font-size: 20px;
-      font-weight: $font-weight-reg;
       margin: 15px 0 30px 0;
     }
   }
@@ -40,20 +37,11 @@
     padding: 100px 0;
 
     h2 {
-      font-family: $font-family-klavika;
-      font-size: 36px;
-      font-weight: $font-weight-bold;
-      line-height: 1.25;
-      letter-spacing: -0.02em;
       margin: 20px 0 10px 0;
       padding: 0;
     }
 
     p {
-      font-family: $font-family-open-sans;
-      font-size: 16px;
-      letter-spacing: 0.01em;
-      line-height: 1.8;
       margin: 0 0 10px;
     }
 
@@ -61,14 +49,8 @@
       background: $black;
       color: $white;
       display: inline-block;
-      font-family: $font-family-klavika;
-      font-size: 18px;
-      font-weight: $font-weight-bold;
-      line-height: 1;
       margin: 0;
       padding: 5px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
     }
 
     &.black {
@@ -90,7 +72,7 @@
     }
 
     &.blue-dark {
-      background: $vagrant-blue-dark;
+      background: $vagrant-d1;
 
       h2 {
         color: $white;
@@ -102,7 +84,7 @@
     }
 
     &.blue {
-      background: $vagrant-blue;
+      background: $vagrant;
 
       h2 {
         color: $white;
@@ -158,7 +140,7 @@
           input {
             border: none;
             box-shadow: 3px 4px 0 rgba(0,0,0,0.1);
-            font-family: $font-family-klavika;
+            font-family: $font-display;
             font-size: 18px;
             height: 50px;
             line-height: 50px;
@@ -173,12 +155,12 @@
           }
 
           button {
-            background: $vagrant-blue;
+            background: $vagrant;
             border: none;
             border-radius: 0;
             box-shadow: 3px 4px 0 rgba(0,0,0,0.1);
             color: $white;
-            font-family: $font-family-klavika;
+            font-family: $font-display;
             font-size: 18px;
             height: 50px;
             line-height: 50px;
@@ -219,7 +201,6 @@
 
     &#faq {
       h3 {
-        line-height: 1.4;
         margin-top: 25px;
       }
     }
@@ -230,7 +211,7 @@
   #inner {
     .legal-text p {
       font-family: $font-family-monospace;
-      font-size: $font-size - 2;
+      font-size: $font-size-default - 2;
       margin-bottom: 25px;
     }
   }
