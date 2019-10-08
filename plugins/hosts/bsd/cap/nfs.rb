@@ -214,9 +214,9 @@ module VagrantPlugins
 
         def self.nfs_check_folders_for_apfs(folders)
           folders.each do |_, opts|
-            # check to see if this path is mounted in an APFS filesystem, and if it's in the
-            # firmlink which must be prefixed.
-            is_mounted_apfs_command = "df -t apfs #{opts[:hostpath]}"
+            # check to see if this path is mounted in an APFS filesystem, and if it's under the
+            # firmlink which must be prefixed. we need to use the OS X df — GNU won't notice.
+            is_mounted_apfs_command = "/bin/df -t apfs #{opts[:hostpath]}"
             result = Vagrant::Util::Subprocess.execute(*Shellwords.split(is_mounted_apfs_command))
             if (result.stdout.include? OSX_FIRMLINK_HACK)
               opts[:hostpath].prepend(OSX_FIRMLINK_HACK)
