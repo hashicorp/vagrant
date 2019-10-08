@@ -26,6 +26,7 @@ BUG FIXES:
 - provisioner/ansible_local: Ensure pip_install_cmd is finalized to emptry string [GH-11098]
 - provisioner/file: Ensure relative path for file provisioner source is relative to guest machines cwd [GH-11099]
 - provider/docker: Ensure docker build_args option is properly set in docker compose config yaml [GH-11106]
+- guest/suse: Use hostnamectl instead of hostname to set the hostname under SUSE [GH-11100]
 
 ## 2.2.5 (June 19, 2019)
 
