@@ -2,31 +2,33 @@
 
 FEATURES:
 
-- guest/alpine: Integrate the vagrant-alpine plugin into Vagrant core [GH-10975]
 - core/provisioners: Introduce new Provisioner options: before and after [GH-11043]
+- guest/alpine: Integrate the vagrant-alpine plugin into Vagrant core [GH-10975]
 
 IMPROVEMENTS:
 
-- guest/alt: Improve handling for using network tools when setting hostname [GH-11000]
 - command/box/prune: Allow prompt skip while preserving actively in use boxes [GH-10908]
-- guest/suse: Add ipv6 network config templates for SUSE based distributions [GH-11013]
+- command/cloud: Support providing checksum information with boxes [GH-11101]
 - dev: Fixed Vagrantfile for Vagrant development [GH-11012]
+- guest/alt: Improve handling for using network tools when setting hostname [GH-11000]
+- guest/suse: Add ipv6 network config templates for SUSE based distributions [GH-11013]
+- guest/windows: Retry on connection timeout errors for the reboot capability [GH-11093]
 - provisioners/chef: Update pkg install flags for chef on FreeBSD guests [GH-11075]
 - provider/hyperv: Improve error message when VMMS is not running [GH-10978]
-- guest/windows: Retry on connection timeout errors for the reboot capability [GH-11093]
 - provider/virtualbox: Raise additional errors for incomplete virtualbox installation on usable check [GH-10938]
+- util/filechecksum: Add support for more checksum types [GH-11101]
 
 BUG FIXES:
 
-- provider/docker: Fix default provider validation if password is used [GH-11053]
-- provider/docker: Fix Docker providers usable? check [GH-11068]
-- core: Ensure proper paths are shown in config loading exceptions [GH-11056]
 - command/rsync-auto: Fix path watcher bug so that all subdirectories are synced when changed [GH-11089]
 - command/snapshot/save: Ensure VM id is passed to list snapshots for hyper-v provider [GH-11097]
+- core: Ensure proper paths are shown in config loading exceptions [GH-11056]
+- guest/suse: Use hostnamectl instead of hostname to set the hostname under SUSE [GH-11100]
+- provider/docker: Fix default provider validation if password is used [GH-11053]
+- provider/docker: Fix Docker providers usable? check [GH-11068]
 - provisioner/ansible_local: Ensure pip_install_cmd is finalized to emptry string [GH-11098]
 - provisioner/file: Ensure relative path for file provisioner source is relative to guest machines cwd [GH-11099]
 - provider/docker: Ensure docker build_args option is properly set in docker compose config yaml [GH-11106]
-- guest/suse: Use hostnamectl instead of hostname to set the hostname under SUSE [GH-11100]
 
 ## 2.2.5 (June 19, 2019)
 
