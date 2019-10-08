@@ -5,11 +5,10 @@ module VagrantPlugins
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
-          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
+          if !comm.test("getent hosts '#{name}'", sudo: false)
             basename = name.split(".", 2)[0]
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
-              echo '#{basename}' > /etc/HOSTNAME
-              hostname '#{basename}'
+              hostnamectl set-hostname '#{basename}'
 
               # Prepend ourselves to /etc/hosts
               grep -w '#{name}' /etc/hosts || {
