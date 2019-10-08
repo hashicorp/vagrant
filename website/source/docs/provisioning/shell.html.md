@@ -83,6 +83,12 @@ The remainder of the available options are optional:
 
 * `sha1` (string) - SHA1 checksum used to validate remotely downloaded shell files.
 
+* `sha256` (string) - SHA256 checksum used to validate remotely downloaded shell files.
+
+* `sha384` (string) - SHA384 checksum used to validate remotely downloaded shell files.
+
+* `sha512` (string) - SHA512 checksum used to validate remotely downloaded shell files.
+
 * `sensitive` (boolean) - Marks the Hash values used in the `env` option as sensitive
   and hides them from output. By default this is "false".
 

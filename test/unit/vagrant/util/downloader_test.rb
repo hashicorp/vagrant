@@ -175,23 +175,19 @@ describe Vagrant::Util::Downloader do
     context "with checksum" do
       let(:checksum_expected_value){ 'MD5_CHECKSUM_VALUE' }
       let(:checksum_invalid_value){ 'INVALID_VALUE' }
-      let(:digest){ double("digest") }
+      let(:filechecksum) { double("filechecksum", checksum: checksum_value) }
+      let(:checksum_value) { double("checksum_value") }
 
-      before do
-        allow(digest).to receive(:file).and_return(digest)
-      end
+      before { allow(FileChecksum).to receive(:new).with(any_args).and_return(filechecksum) }
 
-      [Digest::MD5, Digest::SHA1].each do |klass|
+      [Digest::MD5, Digest::SHA1, Digest::SHA256, Digest::SHA384, Digest::SHA512].each do |klass|
         short_name = klass.to_s.split("::").last.downcase
 
         context "using #{short_name} digest" do
           subject { described_class.new(source, destination, short_name.to_sym => checksum_expected_value) }
 
           context "that matches expected value" do
-            before do
-              expect(klass).to receive(:new).and_return(digest)
-              expect(digest).to receive(:hexdigest).and_return(checksum_expected_value)
-            end
+            let(:checksum_value) { checksum_expected_value }
 
             it "should not raise an exception" do
               expect(subject.download!).to be(true)
@@ -199,10 +195,7 @@ describe Vagrant::Util::Downloader do
           end
 
           context "that does not match expected value" do
-            before do
-              expect(klass).to receive(:new).and_return(digest)
-              expect(digest).to receive(:hexdigest).and_return(checksum_invalid_value)
-            end
+            let(:checksum_value) { checksum_invalid_value }
 
             it "should raise an exception" do
               expect{ subject.download! }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
@@ -213,13 +206,9 @@ describe Vagrant::Util::Downloader do
 
       context "using both md5 and sha1 digests" do
         context "that both match expected values" do
-          subject { described_class.new(source, destination, md5: checksum_expected_value, sha1: checksum_expected_value) }
+          let(:checksum_value) { checksum_expected_value }
 
-          before do
-            expect(Digest::MD5).to receive(:new).and_return(digest)
-            expect(Digest::SHA1).to receive(:new).and_return(digest)
-            expect(digest).to receive(:hexdigest).and_return(checksum_expected_value).exactly(2).times
-          end
+          subject { described_class.new(source, destination, md5: checksum_expected_value, sha1: checksum_expected_value) }
 
           it "should not raise an exception" do
             expect(subject.download!).to be(true)
@@ -227,12 +216,14 @@ describe Vagrant::Util::Downloader do
         end
 
         context "that only sha1 matches expected value" do
-          subject { described_class.new(source, destination, md5: checksum_invalid_value, sha1: checksum_expected_value) }
+          subject { described_class.new(source, destination, md5: checksum_expected_value, sha1: checksum_expected_value) }
+
+          let(:valid_checksum) { double("valid_checksum", checksum: checksum_expected_value) }
+          let(:invalid_checksum) { double("invalid_checksum", checksum: checksum_invalid_value) }
 
           before do
-            allow(Digest::MD5).to receive(:new).and_return(digest)
-            allow(Digest::SHA1).to receive(:new).and_return(digest)
-            expect(digest).to receive(:hexdigest).and_return(checksum_expected_value).at_least(:once)
+            allow(FileChecksum).to receive(:new).with(anything, :sha1).and_return(valid_checksum)
+            allow(FileChecksum).to receive(:new).with(anything, :md5).and_return(invalid_checksum)
           end
 
           it "should raise an exception" do
@@ -241,12 +232,14 @@ describe Vagrant::Util::Downloader do
         end
 
         context "that only md5 matches expected value" do
-          subject { described_class.new(source, destination, md5: checksum_expected_value, sha1: checksum_invalid_value) }
+          subject { described_class.new(source, destination, md5: checksum_expected_value, sha1: checksum_expected_value) }
+
+          let(:valid_checksum) { double("valid_checksum", checksum: checksum_expected_value) }
+          let(:invalid_checksum) { double("invalid_checksum", checksum: checksum_invalid_value) }
 
           before do
-            allow(Digest::MD5).to receive(:new).and_return(digest)
-            allow(Digest::SHA1).to receive(:new).and_return(digest)
-            expect(digest).to receive(:hexdigest).and_return(checksum_expected_value).at_least(:once)
+            allow(FileChecksum).to receive(:new).with(anything, :md5).and_return(valid_checksum)
+            allow(FileChecksum).to receive(:new).with(anything, :sha1).and_return(invalid_checksum)
           end
 
           it "should raise an exception" do
@@ -255,13 +248,8 @@ describe Vagrant::Util::Downloader do
         end
 
         context "that none match expected value" do
+          let(:checksum_value) { checksum_expected_value }
           subject { described_class.new(source, destination, md5: checksum_invalid_value, sha1: checksum_invalid_value) }
-
-          before do
-            allow(Digest::MD5).to receive(:new).and_return(digest)
-            allow(Digest::SHA1).to receive(:new).and_return(digest)
-            expect(digest).to receive(:hexdigest).and_return(checksum_expected_value).at_least(:once)
-          end
 
           it "should raise an exception" do
             expect{ subject.download! }.to raise_error(Vagrant::Errors::DownloaderChecksumError)

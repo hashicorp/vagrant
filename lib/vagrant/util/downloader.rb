@@ -1,12 +1,14 @@
 require "uri"
 
 require "log4r"
+require "digest"
 require "digest/md5"
 require "digest/sha1"
 require "vagrant/util/busy"
 require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 require "vagrant/util/curl_helper"
+require "vagrant/util/file_checksum"
 
 module Vagrant
   module Util
@@ -19,12 +21,6 @@ module Vagrant
       #
       #     Vagrant/1.7.4 (+https://www.vagrantup.com; ruby2.1.0)
       USER_AGENT = "Vagrant/#{VERSION} (+https://www.vagrantup.com; #{RUBY_ENGINE}#{RUBY_VERSION}) #{ENV['VAGRANT_USER_AGENT_PROVISIONAL_STRING']}".freeze
-
-      # Supported file checksum
-      CHECKSUM_MAP = {
-        :md5 => Digest::MD5,
-        :sha1 => Digest::SHA1
-      }.freeze
 
       # Hosts that do not require notification on redirect
       SILENCED_HOSTS = [
@@ -68,8 +64,11 @@ module Vagrant
         @location_trusted = options[:location_trusted]
         @checksums   = {
           :md5 => options[:md5],
-          :sha1 => options[:sha1]
-        }
+          :sha1 => options[:sha1],
+          :sha256 => options[:sha256],
+          :sha384 => options[:sha384],
+          :sha512 => options[:sha512]
+        }.compact
       end
 
       # This executes the actual download, downloading the source file
@@ -165,34 +164,21 @@ module Vagrant
       # @option checksums [String] :sha1 Compare SHA1 checksum
       # @return [Boolean]
       def validate_download!(source, path, checksums)
-        CHECKSUM_MAP.each do |type, klass|
-          if checksums[type]
-            result = checksum_file(klass, path)
-            @logger.debug("Validating checksum (#{type}) for #{source}. " \
-              "expected: #{checksums[type]} actual: #{result}")
-            if checksums[type] != result
-              raise Errors::DownloaderChecksumError.new(
-                source: source,
-                path: path,
-                type: type,
-                expected_checksum: checksums[type],
-                actual_checksum: result
-              )
-            end
+        checksums.each do |type, expected|
+          actual = FileChecksum.new(path, type).checksum
+          @logger.debug("Validating checksum (#{type}) for #{source}. " \
+            "expected: #{expected} actual: #{actual}")
+          if actual.casecmp(expected) != 0
+            raise Errors::DownloaderChecksumError.new(
+              source: source,
+              path: path,
+              type: type,
+              expected_checksum: expected,
+              actual_checksum: actual
+            )
           end
         end
         true
-      end
-
-      # Generate checksum on given file
-      #
-      # @param digest_class [Class] Digest class to use for generating checksum
-      # @param path [String, Pathname] Path to file
-      # @return [String] hexdigest result
-      def checksum_file(digest_class, path)
-        digester = digest_class.new
-        digester.file(path)
-        digester.hexdigest
       end
 
       def execute_curl(options, subprocess_options, &data_proc)

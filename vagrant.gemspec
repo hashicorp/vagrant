@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.add_dependency "winrm", "~> 2.1"
   s.add_dependency "winrm-fs", "~> 1.0"
   s.add_dependency "winrm-elevated", "~> 1.1"
-  s.add_dependency "vagrant_cloud", "~> 2.0.2"
+  s.add_dependency "vagrant_cloud", "~> 2.0.3"
 
   # NOTE: The ruby_dep gem is an implicit dependency from the listen gem. Later versions
   # of the ruby_dep gem impose an aggressive constraint on the required ruby version (>= 2.2.5).

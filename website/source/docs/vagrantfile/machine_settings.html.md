@@ -46,7 +46,7 @@ when Vagrant must download the box. If this is specified, then
 
 * `config.vm.box_download_checksum_type` (string) - The type of checksum specified
 by `config.vm.box_download_checksum` (if any). Supported values are
-currently "md5", "sha1", and "sha256".
+currently "md5", "sha1", "sha256", "sha384", and "sha512".
 
 * `config.vm.box_download_client_cert` (string) - Path to a client certificate to
 use when downloading the box, if it is necessary. By default, no client

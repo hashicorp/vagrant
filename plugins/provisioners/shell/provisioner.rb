@@ -253,7 +253,10 @@ module VagrantPlugins
               config.path,
               download_path,
               md5: config.md5,
-              sha1: config.sha1
+              sha1: config.sha1,
+              sha256: config.sha256,
+              sha384: config.sha384,
+              sha512: config.sha512
             ).download!
             ext    = File.extname(config.path)
             script = download_path.read
