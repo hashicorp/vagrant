@@ -153,6 +153,10 @@ module VagrantPlugins
 
         # Generate configuration for public network
         #
+        # TODO: When the Vagrant installer upgrades to Ruby 2.5.x,
+        # remove all instances of the roundabout way of determining a prefix
+        # and instead just use the built-in `.prefix` method
+        #
         # @param [Hash] root_options Root networking options
         # @param [Hash] net_options Docker scoped networking options
         # @param [Hash] env Local call env
@@ -191,7 +195,9 @@ module VagrantPlugins
             base_opts[:opt] = "parent=#{bridge_interface.name}"
             subnet = IPAddr.new(bridge_interface.addr.ip_address <<
               "/" << bridge_interface.netmask.ip_unpack.first)
-            base_opts[:subnet] = "#{subnet}/#{subnet.prefix}"
+            netmask = bridge_interface.netmask.ip_unpack.first
+            prefix = IPAddr.new("255.255.255.255/#{netmask}").to_i.to_s(2).count("1")
+            base_opts[:subnet] = "#{subnet}/#{prefix}"
             subnet_addr = IPAddr.new(base_opts[:subnet])
             base_opts[:driver] = "macvlan"
             base_opts[:gateway] = subnet_addr.succ.to_s
@@ -213,7 +219,7 @@ module VagrantPlugins
                   network_options, bridge_interface.name, env)
               end
               network_options[:ip_range] = request_public_iprange(
-                network_options, bridge_interface.name, env)
+                network_options, bridge_interface, env)
             end
           end
           [network_name, network_options]
@@ -257,8 +263,12 @@ module VagrantPlugins
         # Request the IP range allowed for use by docker when creating a new
         # public network
         #
+        # TODO: When the Vagrant installer upgrades to Ruby 2.5.x,
+        # remove all instances of the roundabout way of determining a prefix
+        # and instead just use the built-in `.prefix` method
+        #
         # @param [Hash] network_options Docker scoped networking options
-        # @param [String] interface The bridge interface used
+        # @param [Socket::Ifaddr] interface The bridge interface used
         # @param [Hash] env Local call env
         # @return [String] Address range
         def request_public_iprange(network_options, interface, env)
@@ -272,7 +282,7 @@ module VagrantPlugins
           while !range
             range = env[:ui].ask(I18n.t(
               "docker_provider.network_bridge_iprange_request",
-              interface: interface,
+              interface: interface.name,
               default_range: network_options[:subnet]) + " ",
               prefix: false
             ).strip
@@ -282,11 +292,12 @@ module VagrantPlugins
             begin
               range = IPAddr.new(range)
               if !subnet.include?(range)
-                puts "we in here"
+                netmask = interface.netmask.ip_unpack.first
+                prefix = IPAddr.new("255.255.255.255/#{netmask}").to_i.to_s(2).count("1")
                 env[:ui].warn(I18n.t(
                   "docker_provider.network_bridge_iprange_outofbounds",
                   subnet: network_options[:subnet],
-                  range: "#{range}/#{range.prefix}"
+                  range: "#{range}/#{prefix}"
                 ) + "\n", prefix: false)
                 range = nil
               end
@@ -297,7 +308,10 @@ module VagrantPlugins
               range = nil
             end
           end
-          "#{range}/#{range.prefix}"
+
+          netmask = interface.netmask.ip_unpack.first
+          prefix = IPAddr.new("255.255.255.255/#{netmask}").to_i.to_s(2).count("1")
+          "#{range}/#{prefix}"
         end
 
         # Execute the action
