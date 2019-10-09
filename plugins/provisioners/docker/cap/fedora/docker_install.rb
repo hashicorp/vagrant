@@ -6,9 +6,13 @@ module VagrantPlugins
           def self.docker_install(machine)
             machine.communicate.tap do |comm|
               if dnf?(machine)
-                comm.sudo("dnf -y install docker")
+                comm.sudo("dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo")
+                comm.sudo("dnf makecache")
+                comm.sudo("dnf -y install docker-ce")
               else
-                comm.sudo("yum -y install docker")
+                comm.sudo("yum-config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo")
+                comm.sudo("yum makecache")
+                comm.sudo("yum -y install docker-ce")
               end
               comm.sudo("systemctl start docker.service")
               comm.sudo("systemctl enable docker.service")
