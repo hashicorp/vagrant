@@ -305,7 +305,8 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
 
   describe "#process_public_network" do
     let(:options) { {:ip=>"172.30.130.2", :subnet=>"172.30.0.0/16", :driver=>"bridge", :id=>"30e017d5-488f-5a2f-a3ke-k8dce8246b60"} }
-    let(:ipaddr) { double("ipaddr", prefix: 22, succ: "10.1.10.2", ipv4?: true, ipv6?: false) }
+    let(:ipaddr) { double("ipaddr", prefix: 22, succ: "10.1.10.2", ipv4?: true,
+                          ipv6?: false, to_i: 4294967040) }
 
     it "raises an error if there are no network interfaces" do
       expect(subject).to receive(:list_interfaces).and_return([])
@@ -351,13 +352,20 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     let(:subnet) { double("ipaddr", to_s: "172.30.130.2", prefix: 22, succ: "172.30.130.3",
                           ipv6?: false) }
 
+    let(:ipaddr_prefix) { double("ipaddr_prefix", to_s: "255.255.255.255/255.255.255.0",
+                                 to_i: 4294967040 ) }
+
+    let(:netmask) { double("netmask", ip_unpack: ["255.255.255.0", 0]) }
+    let(:interface) { double("interface", name: "bridge", netmask: netmask) }
+
     it "requests a public ip range" do
       allow(IPAddr).to receive(:new).with(options[:subnet]).and_return(subnet)
       allow(IPAddr).to receive(:new).with("172.30.130.2").and_return(ipaddr)
+      allow(IPAddr).to receive(:new).with("255.255.255.255/255.255.255.0").and_return(ipaddr_prefix)
       allow(subnet).to receive(:include?).and_return(true)
       allow(machine.ui).to receive(:ask).and_return(options[:ip])
 
-      addr = subject.request_public_iprange(options, "bridge", env)
+      addr = subject.request_public_iprange(options, interface, env)
     end
   end
 end

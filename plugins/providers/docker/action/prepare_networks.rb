@@ -191,7 +191,8 @@ module VagrantPlugins
             base_opts[:opt] = "parent=#{bridge_interface.name}"
             subnet = IPAddr.new(bridge_interface.addr.ip_address <<
               "/" << bridge_interface.netmask.ip_unpack.first)
-            prefix = subnet.ipv4? ? 24 : 64
+            netmask = bridge_interface.netmask.ip_unpack.first
+            prefix = IPAddr.new("255.255.255.255/#{netmask}").to_i.to_s(2).count("1")
             base_opts[:subnet] = "#{subnet}/#{prefix}"
             subnet_addr = IPAddr.new(base_opts[:subnet])
             base_opts[:driver] = "macvlan"
@@ -214,7 +215,7 @@ module VagrantPlugins
                   network_options, bridge_interface.name, env)
               end
               network_options[:ip_range] = request_public_iprange(
-                network_options, bridge_interface.name, env)
+                network_options, bridge_interface, env)
             end
           end
           [network_name, network_options]
@@ -259,7 +260,7 @@ module VagrantPlugins
         # public network
         #
         # @param [Hash] network_options Docker scoped networking options
-        # @param [String] interface The bridge interface used
+        # @param [Socket::Ifaddr] interface The bridge interface used
         # @param [Hash] env Local call env
         # @return [String] Address range
         def request_public_iprange(network_options, interface, env)
@@ -273,7 +274,7 @@ module VagrantPlugins
           while !range
             range = env[:ui].ask(I18n.t(
               "docker_provider.network_bridge_iprange_request",
-              interface: interface,
+              interface: interface.name,
               default_range: network_options[:subnet]) + " ",
               prefix: false
             ).strip
@@ -283,10 +284,12 @@ module VagrantPlugins
             begin
               range = IPAddr.new(range)
               if !subnet.include?(range)
+                netmask = interface.netmask.ip_unpack.first
+                prefix = IPAddr.new("255.255.255.255/#{netmask}").to_i.to_s(2).count("1")
                 env[:ui].warn(I18n.t(
                   "docker_provider.network_bridge_iprange_outofbounds",
                   subnet: network_options[:subnet],
-                  range: "#{range}/#{range.prefix}"
+                  range: "#{range}/#{prefix}"
                 ) + "\n", prefix: false)
                 range = nil
               end
@@ -297,7 +300,9 @@ module VagrantPlugins
               range = nil
             end
           end
-          prefix = range.ipv4? ? 24 : 64
+
+          netmask = interface.netmask.ip_unpack.first
+          prefix = IPAddr.new("255.255.255.255/#{netmask}").to_i.to_s(2).count("1")
           "#{range}/#{prefix}"
         end
 
