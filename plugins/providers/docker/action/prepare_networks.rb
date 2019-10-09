@@ -153,6 +153,10 @@ module VagrantPlugins
 
         # Generate configuration for public network
         #
+        # TODO: When the Vagrant installer upgrades to Ruby 2.5.x,
+        # remove all instances of the roundabout way of determining a prefix
+        # and instead just use the built-in `.prefix` method
+        #
         # @param [Hash] root_options Root networking options
         # @param [Hash] net_options Docker scoped networking options
         # @param [Hash] env Local call env
@@ -258,6 +262,10 @@ module VagrantPlugins
 
         # Request the IP range allowed for use by docker when creating a new
         # public network
+        #
+        # TODO: When the Vagrant installer upgrades to Ruby 2.5.x,
+        # remove all instances of the roundabout way of determining a prefix
+        # and instead just use the built-in `.prefix` method
         #
         # @param [Hash] network_options Docker scoped networking options
         # @param [Socket::Ifaddr] interface The bridge interface used
