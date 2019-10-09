@@ -30,6 +30,7 @@ BUG FIXES:
 - provisioner/file: Ensure relative path for file provisioner source is relative to guest machines cwd [GH-11099]
 - provider/docker: Ensure docker build_args option is properly set in docker compose config yaml [GH-11106]
 - guest/suse: Update nfs & service daemon names for suse based hosts and guests [GH-11076]
+- provider/docker: Determine ip address prefix workaround for docker public networks [GH-11111]
 
 ## 2.2.5 (June 19, 2019)
 
