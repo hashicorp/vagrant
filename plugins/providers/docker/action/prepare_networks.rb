@@ -191,7 +191,8 @@ module VagrantPlugins
             base_opts[:opt] = "parent=#{bridge_interface.name}"
             subnet = IPAddr.new(bridge_interface.addr.ip_address <<
               "/" << bridge_interface.netmask.ip_unpack.first)
-            base_opts[:subnet] = "#{subnet}/#{subnet.prefix}"
+            prefix = subnet.ipv4? ? 24 : 64
+            base_opts[:subnet] = "#{subnet}/#{prefix}"
             subnet_addr = IPAddr.new(base_opts[:subnet])
             base_opts[:driver] = "macvlan"
             base_opts[:gateway] = subnet_addr.succ.to_s
@@ -282,7 +283,6 @@ module VagrantPlugins
             begin
               range = IPAddr.new(range)
               if !subnet.include?(range)
-                puts "we in here"
                 env[:ui].warn(I18n.t(
                   "docker_provider.network_bridge_iprange_outofbounds",
                   subnet: network_options[:subnet],
@@ -297,7 +297,8 @@ module VagrantPlugins
               range = nil
             end
           end
-          "#{range}/#{range.prefix}"
+          prefix = range.ipv4? ? 24 : 64
+          "#{range}/#{prefix}"
         end
 
         # Execute the action
