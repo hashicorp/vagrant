@@ -33,6 +33,7 @@ BUG FIXES:
 - provider/docker: Ensure docker build_args option is properly set in docker compose config yaml [GH-11106]
 - guest/suse: Update nfs & service daemon names for suse based hosts and guests [GH-11076]
 - provider/docker: Determine ip address prefix workaround for docker public networks [GH-11111]
+- provider/docker: Only return interfaces where addr is not nil for networks [GH-11116]
 
 ## 2.2.5 (June 19, 2019)
 
