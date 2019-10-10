@@ -34,7 +34,7 @@ module VagrantPlugins
         # @return [Array<Socket::Ifaddr>] interface list
         def list_interfaces
           Socket.getifaddrs.find_all do |i|
-            i.addr.ip? && !i.addr.ipv4_loopback? &&
+            !i.addr.nil? && i.addr.ip? && !i.addr.ipv4_loopback? &&
               !i.addr.ipv6_loopback? && !i.addr.ipv6_linklocal?
           end
         end

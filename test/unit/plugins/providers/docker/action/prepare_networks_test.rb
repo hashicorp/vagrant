@@ -197,6 +197,25 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     end
   end
 
+  describe "#list_interfaces" do
+    let(:interfaces){ ["192.168.1.2", "192.168.10.10"] }
+
+    it "returns an array of interfaces to use" do
+      allow(Socket).to receive(:getifaddrs).
+            and_return(interfaces.map{|i| double(:socket, addr: Addrinfo.ip(i))})
+      interfaces = subject.list_interfaces
+
+      expect(subject.list_interfaces.size).to eq(2)
+    end
+
+    it "does not include an interface with the address is nil" do
+      allow(Socket).to receive(:getifaddrs).
+        and_return(interfaces.map{|i| double(:socket, addr: nil)})
+
+      expect(subject.list_interfaces.size).to eq(0)
+    end
+  end
+
   describe "#generate_create_cli_arguments" do
     let(:network_options) {
             {:ip=>"172.20.128.2",
