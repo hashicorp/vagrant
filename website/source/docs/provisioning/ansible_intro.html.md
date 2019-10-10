@@ -239,6 +239,7 @@ config.vm.network :private_network, ip: "192.168.111.222"
 **Notes:**
 
   - The machine names in `Vagrantfile` and `ansible.inventory_path` files should correspond, unless you use `ansible.limit` option to reference the correct machines.
+  - The `ansible.inventory_path` option by default is only scoped to apply to a single guest in the inventory file, and does not apply to all defined guests. To allow access to all available machines in the inventory, it is necessary to set `ansible.limit = "all"`.
   - The SSH host addresses (and ports) must obviously be specified twice, in `Vagrantfile` and `ansible.inventory_path` files.
   - Sharing hostnames across Vagrant host and guests might be a good idea (e.g. with some Ansible configuration task, or with a plugin like [`vagrant-hostmanager`](https://github.com/smdahlen/vagrant-hostmanager)).
 
