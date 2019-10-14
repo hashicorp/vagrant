@@ -5,7 +5,7 @@ set :vmware_utility_version, "1.0.7"
 
 activate :hashicorp do |h|
   h.name         = "vagrant"
-  h.version      = "2.2.5"
+  h.version      = "2.2.6"
   h.github_slug  = "hashicorp/vagrant"
   h.website_root = "website"
 end
