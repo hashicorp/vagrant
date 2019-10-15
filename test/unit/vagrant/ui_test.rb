@@ -413,5 +413,10 @@ describe Vagrant::UI::Prefixed do
         expect(subject.format_message(:detail, msg).count("\n")).to eq(msg.count("\n"))
       end
     end
+
+    it "should properly format a blank message" do
+      expect(subject.format_message(:detail, "", target: "default", prefix: true)).
+        to match(/\s+default:\s+/)
+    end
   end
 end

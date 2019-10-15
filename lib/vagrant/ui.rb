@@ -329,12 +329,15 @@ module Vagrant
         target = opts[:target] if opts.key?(:target)
         target = "#{target}:" if target != ""
 
-        lines = [].tap do |l|
-          message.scan(/(.*?)(\n|$)/).each do |m|
-            l << m.first if m.first != "" || (m.first == "" && m.last == "\n")
+        lines = [message]
+        if message != ""
+          lines = [].tap do |l|
+            message.scan(/(.*?)(\n|$)/).each do |m|
+              l << m.first if m.first != "" || (m.first == "" && m.last == "\n")
+            end
           end
+          lines << "" if message.end_with?("\n")
         end
-        lines << "" if message.end_with?("\n")
 
         # Otherwise, make sure to prefix every line properly
         lines.map do |line|
