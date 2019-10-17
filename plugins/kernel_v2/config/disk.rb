@@ -13,9 +13,9 @@ module VagrantPlugins
       # @return [String]
       attr_reader :id
 
-      # Name for the given Disk. Defaults to nil.
+      # File name for the given disk. Defaults to nil.
       #
-      # TODO: Should probably default to a string+short integer id
+      # TODO: Should probably default to a string+short integer id in the finalize method
       #
       # @return [String]
       attr_accessor :name
