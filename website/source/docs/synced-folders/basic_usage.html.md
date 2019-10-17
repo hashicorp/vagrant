@@ -19,7 +19,7 @@ is very simple:
 Vagrant.configure("2") do |config|
   # other config here
 
-  config.vm.synced_folder "src/", "/srv/website"
+  config.vm.synced_folder "src/", "/src/website"
 end
 ```
 
