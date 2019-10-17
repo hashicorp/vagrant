@@ -11,6 +11,7 @@ require "vagrant/util/experimental"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
+require File.expand_path("../disk", __FILE__)
 
 module VagrantPlugins
   module Kernel_V2
@@ -79,6 +80,7 @@ module VagrantPlugins
         @__compiled_provider_configs   = {}
         @__defined_vm_keys             = []
         @__defined_vms                 = {}
+        @__drives                      = {}
         @__finalized                   = false
         @__networks                    = {}
         @__providers                   = {}
@@ -122,6 +124,11 @@ module VagrantPlugins
               new_defined_vms[key].options.merge!(subvm.options)
             end
           end
+
+          # Merge defined drives
+          # TODO: Actually write this
+          other_drives = other.instance_variable_get(:@__drives)
+          new_drives   = @__drives.dup
 
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
@@ -185,6 +192,7 @@ module VagrantPlugins
 
           result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
           result.instance_variable_set(:@__defined_vms, new_defined_vms)
+          result.instance_variable_set(:@__drives, new_drives)
           result.instance_variable_set(:@__providers, new_providers)
           result.instance_variable_set(:@__provider_order, new_order)
           result.instance_variable_set(:@__provider_overrides, new_overrides)
@@ -384,6 +392,17 @@ module VagrantPlugins
         @__defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
+      def disk(type, &block)
+        disk = VagrantConfigDisk.new(type)
+        if block.is_a?(Hash)
+          disk.set_options(block)
+        else
+          block.call(disk, VagrantConfigDisk)
+        end
+
+        @__drives[disk[:id]] = disk
+      end
+
       #-------------------------------------------------------------------
       # Internal methods, don't call these.
       #-------------------------------------------------------------------
@@ -545,6 +564,11 @@ module VagrantPlugins
           if options[:hostpath]  == '.'
             current_dir_shared = true
           end
+        end
+
+        # TODO: This might need to be more complicated
+        @__drives.each do |d|
+          d.finalize!
         end
 
         if !current_dir_shared && !@__synced_folders["/vagrant"]
