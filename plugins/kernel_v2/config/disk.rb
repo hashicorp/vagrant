@@ -41,7 +41,13 @@ module VagrantPlugins
 
       # Provider specific options
       #
-      # TODO: INTERNAL??
+      # This should work similar to how a "Provisioner" class works:
+      #
+      # - This class is the base class where as this options value is actually a
+      #   provider specific class for the given options for that provider, if required
+      #
+      # - Hopefully in general the top-scope disk options are enough for the general
+      #   case that most people won't need provider specific options except for very specific cases
       #
       # @return [Hash]
       attr_accessor :options
