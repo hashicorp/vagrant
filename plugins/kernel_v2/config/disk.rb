@@ -66,6 +66,7 @@ module VagrantPlugins
         @id = SecureRandom.uuid
 
         # find disk provider plugin
+        # Need to pass in provider or figure out provider here
         @config_class = nil
         # @invalid = true if provider not found
         if !@config_class
@@ -99,7 +100,7 @@ module VagrantPlugins
         @type = nil if @type == UNSET_VALUE
         @size = nil if @size == UNSET_VALUE
 
-        @config = nil if @options == UNSET_VALUE
+        @config = nil if @config == UNSET_VALUE
       end
 
       # @return [Array] array of strings of error messages from config option validation
