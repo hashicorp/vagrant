@@ -400,7 +400,7 @@ module VagrantPlugins
           block.call(disk, VagrantConfigDisk)
         end
 
-        disk.add_config(options, block)
+        disk.add_config(options, &block)
 
         @__drives << disk
 
