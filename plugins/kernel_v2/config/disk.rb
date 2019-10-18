@@ -49,19 +49,47 @@ module VagrantPlugins
       # - Hopefully in general the top-scope disk options are enough for the general
       #   case that most people won't need provider specific options except for very specific cases
       #
-      # @return [Hash]
-      attr_accessor :options
+      # @return [Object]
+      attr_accessor :config
 
       def initialize(type)
         @logger = Log4r::Logger.new("vagrant::config::vm::trigger::config")
 
         @name = UNSET_VALUE
         @type = UNSET_VALUE
+        @provider_type = UNSET_VALUE
         @size = UNSET_VALUE
-        @options = UNSET_VALUE
+        @config = nil
+        @invalid = false
 
         # Internal options
         @id = SecureRandom.uuid
+
+        # find disk provider plugin
+        @config_class = nil
+        # @invalid = true if provider not found
+        if !@config_class
+          @logger.info(
+            "Disk config for '#{@provider_type}' not found. Ignoring config.")
+          @config_class = Vagrant::Config::V2::DummyConfig
+        end
+      end
+
+      def add_config(**options, &block)
+        return if invalid?
+
+        current = @config_class.new
+        current.set_options(options) if options
+        block.call(current) if block
+        current = @config.merge(current) if @config
+        @config = current
+      end
+
+      # Returns true or false if disk provider is found
+      #
+      # @return [Bool]
+      def invalid?
+        @invalid
       end
 
       def finalize!
@@ -71,7 +99,7 @@ module VagrantPlugins
         @type = nil if @type == UNSET_VALUE
         @size = nil if @size == UNSET_VALUE
 
-        @options = nil if @options == UNSET_VALUE
+        @config = nil if @options == UNSET_VALUE
       end
 
       # @return [Array] array of strings of error messages from config option validation

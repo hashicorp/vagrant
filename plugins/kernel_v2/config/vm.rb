@@ -392,7 +392,7 @@ module VagrantPlugins
         @__defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
-      def disk(type, &block)
+      def disk(type, **options, &block)
         disk = VagrantConfigDisk.new(type)
         if block.is_a?(Hash)
           disk.set_options(block)
@@ -400,7 +400,10 @@ module VagrantPlugins
           block.call(disk, VagrantConfigDisk)
         end
 
+        disk.add_config(options, block)
+
         @__drives << disk
+
       end
 
       #-------------------------------------------------------------------
