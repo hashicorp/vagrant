@@ -15,7 +15,7 @@ module VagrantPlugins
             fi
 
             if test $(ps -o comm= 1) == 'systemd'; then
-              /bin/systemctl restart rpcbind nfs
+              /bin/systemctl restart rpcbind nfs-server
             else
               /etc/init.d/rpcbind restart
               /etc/init.d/nfs restart
