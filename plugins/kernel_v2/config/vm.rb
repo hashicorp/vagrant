@@ -80,7 +80,7 @@ module VagrantPlugins
         @__compiled_provider_configs   = {}
         @__defined_vm_keys             = []
         @__defined_vms                 = {}
-        @__drives                      = {}
+        @__drives                      = []
         @__finalized                   = false
         @__networks                    = {}
         @__providers                   = {}
@@ -400,7 +400,7 @@ module VagrantPlugins
           block.call(disk, VagrantConfigDisk)
         end
 
-        @__drives[disk[:id]] = disk
+        @__drives << disk
       end
 
       #-------------------------------------------------------------------
