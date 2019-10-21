@@ -21,7 +21,7 @@ IMPROVEMENTS:
 - guest/alt: Improve handling for using network tools when setting hostname [GH-11000]
 - guest/suse: Add ipv6 network config templates for SUSE based distributions [GH-11013]
 - guest/windows: Retry on connection timeout errors for the reboot capability [GH-11093]
-- host/bsd: Use host resolve path capability to modify local paths if requird [GH-11108]
+- host/bsd: Use host resolve path capability to modify local paths if required [GH-11108]
 - host/darwin: Add host resolve path capability to provide real paths for firmlinks [GH-11108]
 - provisioners/chef: Update pkg install flags for chef on FreeBSD guests [GH-11075]
 - provider/hyperv: Improve error message when VMMS is not running [GH-10978]
