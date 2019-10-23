@@ -44,6 +44,7 @@ module VagrantPlugins
       attr_accessor :post_up_message
       attr_accessor :usable_port_range
       attr_reader :provisioners
+      attr_reader :disks
 
       # This is an experimental feature that isn't public yet.
       attr_accessor :clone
@@ -74,13 +75,13 @@ module VagrantPlugins
         @hostname                      = UNSET_VALUE
         @post_up_message               = UNSET_VALUE
         @provisioners                  = []
+        @disks                         = []
         @usable_port_range             = UNSET_VALUE
 
         # Internal state
         @__compiled_provider_configs   = {}
         @__defined_vm_keys             = []
         @__defined_vms                 = {}
-        @__disks                      = []
         @__finalized                   = false
         @__networks                    = {}
         @__providers                   = {}
@@ -126,9 +127,9 @@ module VagrantPlugins
           end
 
           # Merge defined disks
-          other_disks = other.instance_variable_get(:@__disks)
-          new_disks   = @__disks.dup
-          @__disks.each do |d|
+          other_disks = other.instance_variable_get(:@disks)
+          new_disks   = @disks.dup
+          @disks.each do |d|
             other_d = other_disks.find { |o| d.id == o.id }
             if other_d
               # There is an override. Take it.
@@ -204,7 +205,7 @@ module VagrantPlugins
 
           result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
           result.instance_variable_set(:@__defined_vms, new_defined_vms)
-          result.instance_variable_set(:@__disks, new_disks)
+          result.instance_variable_set(:@disks, new_disks)
           result.instance_variable_set(:@__providers, new_providers)
           result.instance_variable_set(:@__provider_order, new_order)
           result.instance_variable_set(:@__provider_overrides, new_overrides)
@@ -416,7 +417,7 @@ module VagrantPlugins
         # Add provider config
         disk.add_config(options, &block)
 
-        @__disks << disk
+        @disks << disk
       end
 
       #-------------------------------------------------------------------
@@ -582,7 +583,7 @@ module VagrantPlugins
           end
         end
 
-        @__disks.each do |d|
+        @disks.each do |d|
           d.finalize!
         end
 
@@ -789,13 +790,13 @@ module VagrantPlugins
 
         # Validate disks
         # Check if there is more than one primrary disk defined and throw an error
-        if @__disks.select { |d| d.primary && d.type == :disk }.size > 1
+        if @disks.select { |d| d.primary && d.type == :disk }.size > 1
           errors << "There is more than one disk defined for guest '#{machine.name}'. Please pick a `primary` disk."
         end
 
         # TODO: Check for duplicate disk names?
 
-        @__disks.each do |d|
+        @disks.each do |d|
           error = d.validate(machine)
           errors.concat error if !error.empty?
         end
