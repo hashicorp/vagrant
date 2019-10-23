@@ -80,7 +80,7 @@ module VagrantPlugins
         @__compiled_provider_configs   = {}
         @__defined_vm_keys             = []
         @__defined_vms                 = {}
-        @__drives                      = []
+        @__disks                      = []
         @__finalized                   = false
         @__networks                    = {}
         @__providers                   = {}
@@ -125,10 +125,22 @@ module VagrantPlugins
             end
           end
 
-          # Merge defined drives
-          # TODO: Actually write this
-          other_drives = other.instance_variable_get(:@__drives)
-          new_drives   = @__drives.dup
+          # Merge defined disks
+          other_disks = other.instance_variable_get(:@__disks)
+          new_disks   = @__disks.dup
+          @__disks.each do |d|
+            other_d = other_disks.find { |o| d.id == o.id }
+            if other_d
+              # There is an override. Take it.
+              other_d.config = d.config.merge(other_p.config)
+            end
+
+            # There is an override, merge it into the
+            new_disks << d.dup
+          end
+          other_disks.each do |d|
+            new_disks << d.dup
+          end
 
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
@@ -192,7 +204,7 @@ module VagrantPlugins
 
           result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
           result.instance_variable_set(:@__defined_vms, new_defined_vms)
-          result.instance_variable_set(:@__drives, new_drives)
+          result.instance_variable_set(:@__disks, new_disks)
           result.instance_variable_set(:@__providers, new_providers)
           result.instance_variable_set(:@__provider_order, new_order)
           result.instance_variable_set(:@__provider_overrides, new_overrides)
@@ -402,8 +414,7 @@ module VagrantPlugins
 
         disk.add_config(options, &block)
 
-        @__drives << disk
-
+        @__disks << disk
       end
 
       #-------------------------------------------------------------------
@@ -570,7 +581,7 @@ module VagrantPlugins
         end
 
         # TODO: This might need to be more complicated
-        @__drives.each do |d|
+        @__disks.each do |d|
           d.finalize!
         end
 
