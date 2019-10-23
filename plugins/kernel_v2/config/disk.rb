@@ -101,7 +101,12 @@ module VagrantPlugins
         # by user
         @type = :disk if @type == UNSET_VALUE
         @size = nil if @size == UNSET_VALUE
-        @primary = true if @primary == UNSET_VALUE
+
+        if @primary == UNSET_VALUE
+          @primary = true
+        else
+          @primary = false
+        end
 
         # Give the disk a default name if unset
         # TODO: Name not required if primary?
