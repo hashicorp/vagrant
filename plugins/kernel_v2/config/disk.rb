@@ -84,7 +84,7 @@ module VagrantPlugins
 
         current = @config_class.new
         current.set_options(options) if options
-        block.call(current) if block
+        block.call(current) if block_given?
         current = @config.merge(current) if @config
         @config = current
       end
@@ -121,7 +121,7 @@ module VagrantPlugins
         end
 
         # TODO: Convert a string to int here?
-        if !@size.is_a?(Integer)
+        if @size && !@size.is_a?(Integer)
           errors << "Config option size for disk is not an integer"
         end
 

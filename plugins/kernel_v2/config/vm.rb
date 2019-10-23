@@ -406,12 +406,14 @@ module VagrantPlugins
 
       def disk(type, **options, &block)
         disk = VagrantConfigDisk.new(type)
-        if block.is_a?(Hash)
-          disk.set_options(block)
-        else
+
+        disk.set_options(options)
+
+        if block_given?
           block.call(disk, VagrantConfigDisk)
         end
 
+        # Add provider config
         disk.add_config(options, &block)
 
         @__disks << disk
