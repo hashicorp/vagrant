@@ -580,7 +580,6 @@ module VagrantPlugins
           end
         end
 
-        # TODO: This might need to be more complicated
         @__disks.each do |d|
           d.finalize!
         end
@@ -784,6 +783,17 @@ module VagrantPlugins
                 "vagrant.config.vm.network_ip_ends_in_one"))
             end
           end
+        end
+
+        # Validate disks
+        # Check if there is more than one primrary disk defined and throw an error
+        if @__disks.select { |d| d.primary && d.type == :disk }.size > 1
+          errors << "There is more than one disk defined for guest '#{machine.name}'. Please pick a `primary` disk."
+        end
+
+        @__disks.each do |d|
+          error = d.validate(machine)
+          errors.concat error if !error.empty?
         end
 
         # We're done with VM level errors so prepare the section

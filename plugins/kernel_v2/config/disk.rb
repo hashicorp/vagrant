@@ -8,6 +8,8 @@ module VagrantPlugins
       # Config class for a given Disk
       #-------------------------------------------------------------------
 
+      DEFAULT_DISK_TYPES = [:disk, :dvd, :floppy].freeze
+
       # Note: This value is for internal use only
       #
       # @return [String]
@@ -29,17 +31,20 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :name
 
-      # Type of disk to create
+      # Type of disk to create. Defaults to `:disk`
       #
       # @return [Symbol]
       attr_accessor :type
 
       # Size of disk to create
       #
+      # TODO: Should we have shortcuts for GB???
+      #
       # @return [Integer]
       attr_accessor :size
 
-      # Determines if this disk is the _main_ disk, or an attachment. Defaults to true
+      # Determines if this disk is the _main_ disk, or an attachment.
+      # Defaults to true.
       #
       # @return [Boolean]
       attr_accessor :primary
@@ -60,8 +65,9 @@ module VagrantPlugins
       def initialize(type)
         @logger = Log4r::Logger.new("vagrant::config::vm::trigger::config")
 
+        @type = type
+
         @name = UNSET_VALUE
-        @type = UNSET_VALUE
         @provider_type = UNSET_VALUE
         @size = UNSET_VALUE
         @primary = UNSET_VALUE
@@ -102,10 +108,12 @@ module VagrantPlugins
       def finalize!
         # Ensure all config options are set to nil or default value if untouched
         # by user
-        @name = nil if @name == UNSET_VALUE
-        @type = nil if @type == UNSET_VALUE
+        @type = :disk if @type == UNSET_VALUE
         @size = nil if @size == UNSET_VALUE
         @primary = true if @primary == UNSET_VALUE
+
+        # generate name instead of nil if unset_value
+        @name = nil if @name == UNSET_VALUE
 
         @config = nil if @config == UNSET_VALUE
       end
@@ -115,6 +123,15 @@ module VagrantPlugins
         errors = _detected_errors
 
         # validate type with list of known disk types
+
+        if !DEFAULT_DISK_TYPES.include?(@type)
+          errors << "Disk type '#{@type}' is not a valid type. Please pick one of the following supported disk types: #{DEFAULT_DISK_TYPES.join(', ')}"
+        end
+
+        # TODO: Convert a string to int here?
+        if !@size.is_a?(Integer)
+          errors << "Config option size for disk is not an integer"
+        end
 
         errors
       end
