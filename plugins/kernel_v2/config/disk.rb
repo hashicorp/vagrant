@@ -39,6 +39,11 @@ module VagrantPlugins
       # @return [Integer]
       attr_accessor :size
 
+      # Determines if this disk is the _main_ disk, or an attachment. Defaults to true
+      #
+      # @return [Boolean]
+      attr_accessor :primary
+
       # Provider specific options
       #
       # This should work similar to how a "Provisioner" class works:
@@ -59,6 +64,7 @@ module VagrantPlugins
         @type = UNSET_VALUE
         @provider_type = UNSET_VALUE
         @size = UNSET_VALUE
+        @primary = UNSET_VALUE
         @config = nil
         @invalid = false
 
@@ -99,6 +105,7 @@ module VagrantPlugins
         @name = nil if @name == UNSET_VALUE
         @type = nil if @type == UNSET_VALUE
         @size = nil if @size == UNSET_VALUE
+        @primary = true if @primary == UNSET_VALUE
 
         @config = nil if @config == UNSET_VALUE
       end
