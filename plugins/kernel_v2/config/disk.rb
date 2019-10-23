@@ -15,18 +15,9 @@ module VagrantPlugins
       # @return [String]
       attr_reader :id
 
-      # File name for the given disk. Defaults to nil.
+      # File name for the given disk. Defaults to a generated name that is:
       #
-      # TODO: Should probably default to a string+short integer id in the finalize method
-      #
-      # Sometihng like:
-      #
-      # - `vagrant_short_id`
-      #
-      # Where short_id is calculated from the disks ID
-      #
-      # Finalize method in `Config#VM` might need to ensure there aren't colliding disk names?
-      # It might also depend on the provider
+      #  vagrant_<disk_type>_<short_uuid>
       #
       # @return [String]
       attr_accessor :name
