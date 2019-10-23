@@ -791,6 +791,8 @@ module VagrantPlugins
           errors << "There is more than one disk defined for guest '#{machine.name}'. Please pick a `primary` disk."
         end
 
+        # TODO: Check for duplicate disk names?
+
         @__disks.each do |d|
           error = d.validate(machine)
           errors.concat error if !error.empty?

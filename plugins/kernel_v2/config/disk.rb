@@ -112,8 +112,9 @@ module VagrantPlugins
         @size = nil if @size == UNSET_VALUE
         @primary = true if @primary == UNSET_VALUE
 
-        # generate name instead of nil if unset_value
-        @name = nil if @name == UNSET_VALUE
+        # Give the disk a default name if unset
+        # TODO: Name not required if primray?
+        @name = "vagrant_#{@type.to_s}_#{@id.split("-").last}" if @name == UNSET_VALUE
 
         @config = nil if @config == UNSET_VALUE
       end
