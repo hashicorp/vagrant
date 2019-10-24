@@ -2053,6 +2053,9 @@ en:
           No pushed snapshot found!
 
           Use `vagrant snapshot push` to push a snapshot to restore to.
+        save:
+          vm_not_created: |-
+            Machine '%{name}' has not been created yet, and therefore cannot save snapshots. Skipping...
       status:
         aborted: |-
           The VM is in an aborted state. This means that it was abruptly

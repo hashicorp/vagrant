@@ -92,8 +92,6 @@ describe VagrantPlugins::CommandSnapshot::Command::Save do
       it "doesn't snapshot a non-existent machine" do
         machine.id = nil
 
-        expect(subject).to receive(:with_target_vms){}
-
         expect(machine).to_not receive(:action)
         expect(subject.execute).to eq(0)
       end
