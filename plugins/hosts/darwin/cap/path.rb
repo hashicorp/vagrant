@@ -1,3 +1,5 @@
+require "vagrant/util"
+
 module VagrantPlugins
   module HostDarwin
     module Cap
@@ -15,6 +17,10 @@ module VagrantPlugins
         # @return [String] resolved path
         def self.resolve_host_path(env, path)
           path = File.expand_path(path)
+          volume = volume_list.detect do |volume_path|
+            path.start_with?(volume_path)
+          end
+          return path unless volume.nil?
           firmlink = firmlink_map.detect do |mount_path, data_path|
             path.start_with?(mount_path)
           end
@@ -24,6 +30,25 @@ module VagrantPlugins
           new_path = path.sub(current_prefix, new_prefix)
           @@logger.debug("Resolved given path `#{path}` to `#{new_path}`")
           new_path
+        end
+
+        MOUNT_PATTERN = /^(?<device>.+?) on (?<mount>.+?) type (?<type>.+?) \((?<options>.+)\)/.freeze
+
+        # Generate list of Volumes if available on the host
+        #
+        # @return [Array<String>]
+        def self.volume_list
+          if !@volume_list
+            @volume_list = []
+            result = Vagrant::Util::Subprocess.execute("mount")
+            result.stdout.each_line do |line|
+              info = line.match(MOUNT_PATTERN)
+              if info && info[:mount] != "/"
+                @volume_list << info[:mount]
+              end
+            end
+          end
+          @volume_list
         end
 
         # Generate mapping of firmlinks if available on the host
