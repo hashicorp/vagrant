@@ -21,6 +21,9 @@ describe VagrantPlugins::HostBSD::Cap::NFS do
       allow(described_class).to receive(:system)
       allow(File).to receive(:writable?).with("/etc/exports")
       allow(ui).to receive(:info)
+
+      allow(Vagrant::Util::Subprocess).to receive(:execute).with("nfsd", "checkexports").
+        and_return(Vagrant::Util::Subprocess::Result.new(0, "", ""))
     end
 
     it "should execute successfully when no folders are defined" do
