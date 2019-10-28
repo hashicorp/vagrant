@@ -32,6 +32,7 @@ and save it as `bootstrap.sh` in the same directory as your Vagrantfile:
 apt-get update
 apt-get install -y apache2
 if ! [ -L /var/www ]; then
+  [ -d /var/www/html ] && cp -r /var/www/html /vagrant/html
   rm -rf /var/www
   ln -fs /vagrant /var/www
 fi
@@ -75,7 +76,9 @@ vagrant@bionic64:~$ wget -qO- 127.0.0.1
 
 This works because in the shell script above we installed Apache and
 setup the default `DocumentRoot` of Apache to point to our `/vagrant`
-directory, which is the default synced folder setup by Vagrant.
+directory, which is the default synced folder setup by Vagrant. We also copied
+the default Apache web site to the `/vagrant/html` folder so that the web server will
+have content to serve.
 
 You can play around some more by creating some more files and viewing
 them from the terminal, but in the next step we will cover networking
