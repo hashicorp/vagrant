@@ -14,6 +14,8 @@ module Vagrant
           # Check that provider plugin is installed for disk
           # If not, log warning or error to user that disks won't be managed
 
+          # TODO: configure and attach disks for the machines providers implementation
+
           # Continue On
           @app.call(env)
         end
