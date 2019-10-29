@@ -210,7 +210,6 @@ module VagrantPlugins
 
           result.instance_variable_set(:@__defined_vm_keys, new_defined_vm_keys)
           result.instance_variable_set(:@__defined_vms, new_defined_vms)
-          result.instance_variable_set(:@disks, new_disks)
           result.instance_variable_set(:@__providers, new_providers)
           result.instance_variable_set(:@__provider_order, new_order)
           result.instance_variable_set(:@__provider_overrides, new_overrides)
