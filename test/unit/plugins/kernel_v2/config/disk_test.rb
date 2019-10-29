@@ -38,7 +38,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
       assert_valid
     end
 
-    it "sets a command" do
+    it "sets a disk type" do
       subject.finalize!
       expect(subject.type).to eq(type)
     end
