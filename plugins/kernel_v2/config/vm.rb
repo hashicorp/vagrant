@@ -178,17 +178,17 @@ module VagrantPlugins
           @provisioners.each do |p|
             other_p = other_provs.find { |o| p.id == o.id }
             if other_p
-              # there is an override. take it.
+              # There is an override. Take it.
               other_p.config = p.config.merge(other_p.config)
               other_p.run    ||= p.run
               next if !other_p.preserve_order
 
-              # we're preserving order, delete from other
+              # We're preserving order, delete from other
               p = other_p
               other_provs.delete(other_p)
             end
 
-            # there is an override, merge it into the
+            # There is an override, merge it into the
             new_provs << p.dup
           end
           other_provs.each do |p|
