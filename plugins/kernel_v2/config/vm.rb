@@ -134,10 +134,8 @@ module VagrantPlugins
             if other_p
               # there is an override. take it.
               other_p.config = p.config.merge(other_p.config)
-              #other_p.run    ||= p.run
-              #next if !other_p.preserve_order
 
-              # we're preserving order, delete from other
+              # Remove duplicate disk config from other
               p = other_p
               other_disks.delete(other_p)
             end
