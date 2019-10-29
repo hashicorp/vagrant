@@ -128,20 +128,27 @@ module VagrantPlugins
 
           # Merge defined disks
           other_disks = other.instance_variable_get(:@disks)
-          new_disks   = @disks.dup
-          @disks.each do |d|
-            other_d = other_disks.find { |o| d.id == o.id }
-            if other_d
-              # There is an override. Take it.
-              other_d.config = d.config.merge(other_p.config)
+          new_disks   = []
+          @disks.each do |p|
+            other_p = other_disks.find { |o| p.id == o.id }
+            if other_p
+              # there is an override. take it.
+              other_p.config = p.config.merge(other_p.config)
+              #other_p.run    ||= p.run
+              #next if !other_p.preserve_order
+
+              # we're preserving order, delete from other
+              p = other_p
+              other_disks.delete(other_p)
             end
 
-            # There is an override, merge it into the
-            new_disks << d.dup
+            # there is an override, merge it into the
+            new_disks << p.dup
           end
-          other_disks.each do |d|
-            new_disks << d.dup
+          other_disks.each do |p|
+            new_disks << p.dup
           end
+          result.instance_variable_set(:@disks, new_disks)
 
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
@@ -173,17 +180,17 @@ module VagrantPlugins
           @provisioners.each do |p|
             other_p = other_provs.find { |o| p.id == o.id }
             if other_p
-              # There is an override. Take it.
+              # there is an override. take it.
               other_p.config = p.config.merge(other_p.config)
               other_p.run    ||= p.run
               next if !other_p.preserve_order
 
-              # We're preserving order, delete from other
+              # we're preserving order, delete from other
               p = other_p
               other_provs.delete(other_p)
             end
 
-            # There is an override, merge it into the
+            # there is an override, merge it into the
             new_provs << p.dup
           end
           other_provs.each do |p|
