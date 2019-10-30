@@ -34,6 +34,12 @@ module VagrantPlugins
       # @return [Integer]
       attr_accessor :size
 
+      # Path to the location of the disk file (Optional)
+      #
+      # @return [String]
+      attr_accessor :file
+
+
       # Determines if this disk is the _main_ disk, or an attachment.
       # Defaults to true.
       #
@@ -64,6 +70,7 @@ module VagrantPlugins
         @primary = UNSET_VALUE
         @config = nil
         @invalid = false
+        @file = UNSET_VALUE
 
         # Internal options
         @id = SecureRandom.uuid
@@ -101,6 +108,7 @@ module VagrantPlugins
         # by user
         @type = :disk if @type == UNSET_VALUE
         @size = nil if @size == UNSET_VALUE
+        @file = nil if @file == UNSET_VALUE
 
         if @primary == UNSET_VALUE
           @primary = true
@@ -128,6 +136,14 @@ module VagrantPlugins
         # TODO: Convert a string to int here?
         if @size && !@size.is_a?(Integer)
           errors << "Config option size for disk is not an integer"
+        end
+
+        if @file
+          if !@file.is_a?(String)
+            errors << "Config option `file` for #{machine.name} disk config is not a string"
+          else
+            # Validate that file exists
+          end
         end
 
         errors
