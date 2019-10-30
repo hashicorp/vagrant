@@ -60,7 +60,7 @@ module VagrantPlugins
       attr_accessor :config
 
       def initialize(type)
-        @logger = Log4r::Logger.new("vagrant::config::vm::trigger::config")
+        @logger = Log4r::Logger.new("vagrant::config::vm::disk")
 
         @type = type
 
