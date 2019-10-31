@@ -11,10 +11,7 @@ module Vagrant
           machine = env[:machine]
           defined_disks = get_disks(machine, env)
 
-          # Check that provider plugin is installed for disk
-          # If not, log warning or error to user that disks won't be managed
-
-          # TODO: configure and attach disks for the machines providers implementation
+          # Call into providers machine implementation for disk management
 
           # Continue On
           @app.call(env)
@@ -24,9 +21,7 @@ module Vagrant
           return @_disks if @_disks
 
           @_disks = []
-          @_disks = machine.config.vm.disks.map do |disk|
-            # initialize the disk provider??
-          end
+          @_disks = machine.config.vm.disks
 
           @_disks
         end

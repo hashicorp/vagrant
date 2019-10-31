@@ -39,7 +39,6 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :file
 
-
       # Determines if this disk is the _main_ disk, or an attachment.
       # Defaults to true.
       #
