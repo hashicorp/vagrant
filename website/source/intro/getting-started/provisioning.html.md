@@ -52,6 +52,20 @@ The "provision" line is new, and tells Vagrant to use the `shell` provisioner
 to setup the machine, with the `bootstrap.sh` file. The file path is relative
 to the location of the project root (where the Vagrantfile is).
 
+We also need to add some html content which will be served by the Apache webserver.
+To do this create a subdirectory named `html` in the project root directory. 
+In the `html` directory create a html file named `index.html`.
+For example:
+
+```html
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Getting started with Vagrant!</h1>
+  </body>
+</html>
+```
+
 ## Provision!
 
 After everything is configured, just run `vagrant up` to create your
