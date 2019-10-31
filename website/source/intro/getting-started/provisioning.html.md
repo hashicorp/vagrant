@@ -32,7 +32,6 @@ and save it as `bootstrap.sh` in the same directory as your Vagrantfile:
 apt-get update
 apt-get install -y apache2
 if ! [ -L /var/www ]; then
-  [ -d /var/www/html ] && cp -r /var/www/html /vagrant/html
   rm -rf /var/www
   ln -fs /vagrant /var/www
 fi
@@ -52,6 +51,20 @@ end
 The "provision" line is new, and tells Vagrant to use the `shell` provisioner
 to setup the machine, with the `bootstrap.sh` file. The file path is relative
 to the location of the project root (where the Vagrantfile is).
+
+We also need to add some html content which will be served by the Apache webserver.
+To do this create a subdirectory named `html` in the project root directory. 
+In the `html` directory create a html file named `index.html`.
+For example:
+
+```html
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Getting started with Vagrant!</h1>
+  </body>
+</html>
+```
 
 ## Provision!
 
@@ -76,9 +89,7 @@ vagrant@bionic64:~$ wget -qO- 127.0.0.1
 
 This works because in the shell script above we installed Apache and
 setup the default `DocumentRoot` of Apache to point to our `/vagrant`
-directory, which is the default synced folder setup by Vagrant. We also copied
-the default Apache web site to the `/vagrant/html` folder so that the web server will
-have content to serve.
+directory, which is the default synced folder setup by Vagrant.
 
 You can play around some more by creating some more files and viewing
 them from the terminal, but in the next step we will cover networking
