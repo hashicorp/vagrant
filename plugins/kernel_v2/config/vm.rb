@@ -410,18 +410,26 @@ module VagrantPlugins
       end
 
       def disk(type, **options, &block)
-        disk = VagrantConfigDisk.new(type)
+        disk_config = VagrantConfigDisk.new(type)
 
-        disk.set_options(options)
+        # Remove provider__option options before set_options, otherwise will
+        # show up as missing setting
+        #
+        # We can probably combine this into a single method call...?
+        provider_options = options.select { |k,v| k.to_s.include?("__") }
+        options.delete_if { |k,v| k.to_s.include?("__") }
 
-        if block_given?
-          block.call(disk, VagrantConfigDisk)
-        end
+        disk_config.set_options(options)
+
+        # Can't use blocks if we use provider__option
+        #if block_given?
+        #  block.call(disk, VagrantConfigDisk)
+        #end
 
         # Add provider config
-        disk.add_config(options, &block)
+        disk_config.add_provider_config(provider_options, &block)
 
-        @disks << disk
+        @disks << disk_config
       end
 
       #-------------------------------------------------------------------

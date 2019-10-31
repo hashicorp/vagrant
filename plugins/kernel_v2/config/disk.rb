@@ -48,59 +48,39 @@ module VagrantPlugins
 
       # Provider specific options
       #
-      # This should work similar to how a "Provisioner" class works:
-      #
-      # - This class is the base class where as this options value is actually a
-      #   provider specific class for the given options for that provider, if required
-      #
-      # - Hopefully in general the top-scope disk options are enough for the general
-      #   case that most people won't need provider specific options except for very specific cases
-      #
-      # @return [Object]
-      attr_accessor :config
+      # @return [Hash]
+      attr_accessor :provider_config
 
       def initialize(type)
         @logger = Log4r::Logger.new("vagrant::config::vm::disk")
 
         @type = type
+        @provider_config = {}
 
         @name = UNSET_VALUE
         @provider_type = UNSET_VALUE
         @size = UNSET_VALUE
         @primary = UNSET_VALUE
-        @config = nil
-        @invalid = false
         @file = UNSET_VALUE
 
         # Internal options
         @id = SecureRandom.uuid
+      end
 
-        # find disk provider plugin
-        # Need to pass in provider or figure out provider here
-        @config_class = nil
-        # @invalid = true if provider not found
-        if !@config_class
-          @logger.info(
-            "Disk config for '#{@provider_type}' not found. Ignoring config.")
-          @config_class = Vagrant::Config::V2::DummyConfig
+      def add_provider_config(**options, &block)
+        current = {}
+        options.each do |k,v|
+          opts = k.to_s.split("__")
+          if opts.size == 2
+            current[opts[0]] = opts[1]
+          else
+            @logger.warn("Disk option '#{k}' found that does not match expected schema")
+          end
         end
-      end
 
-      def add_config(**options, &block)
-        return if invalid?
-
-        current = @config_class.new
-        current.set_options(options) if options
-        block.call(current) if block_given?
-        current = @config.merge(current) if @config
-        @config = current
-      end
-
-      # Returns true or false if disk provider is found
-      #
-      # @return [Bool]
-      def invalid?
-        @invalid
+        #block.call(current) if block
+        current = @provider_config.merge(current) if !@provider_config.empty?
+        @provider_config = current
       end
 
       def finalize!
@@ -120,7 +100,7 @@ module VagrantPlugins
         # TODO: Name not required if primary?
         @name = "vagrant_#{@type.to_s}_#{@id.split("-").last}" if @name == UNSET_VALUE
 
-        @config = nil if @config == UNSET_VALUE
+        @provider_config = nil if @provider_config == {}
       end
 
       # @return [Array] array of strings of error messages from config option validation
