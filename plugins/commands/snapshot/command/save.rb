@@ -15,6 +15,9 @@ module VagrantPlugins
             o.separator "can be restored via `vagrant snapshot restore` at any point in the"
             o.separator "future to get back to this exact machine state."
             o.separator ""
+            o.separator "If no vm-name is given, Vagrant will take a snapshot of"
+            o.separator "the entire environment with the same snapshot name."
+            o.separator ""
             o.separator "Snapshots are useful for experimenting in a machine and being able"
             o.separator "to rollback quickly."
 
@@ -31,18 +34,20 @@ module VagrantPlugins
               help: opts.help.chomp
           end
 
-          # If no snapshot name is given, the backup name is the same as the machine name.
-          # If there is a name given, we need to remove it and save it as `name`. Otherwise
-          # `with_target_vms` will treat the snapshot name as a guest name.
-          if argv.size < 2
-            name = argv.first
-          else
-            name = argv.pop
-          end
+          name = argv.pop
 
           with_target_vms(argv) do |vm|
             if !vm.provider.capability?(:snapshot_list)
               raise Vagrant::Errors::SnapshotNotSupported
+            end
+
+            # In this case, no vm name was given, and we are iterating over the
+            # entire environment. If a vm hasn't been created yet, we can't list
+            # its snapshots
+            if vm.id.nil?
+              @env.ui.warn(I18n.t("vagrant.commands.snapshot.save.vm_not_created",
+                                  name: vm.name))
+              next
             end
 
             snapshot_list = vm.provider.capability(:snapshot_list)
