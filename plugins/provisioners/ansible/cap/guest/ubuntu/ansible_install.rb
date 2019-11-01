@@ -21,13 +21,13 @@ module VagrantPlugins
               unless machine.communicate.test("test -x \"$(which add-apt-repository)\"")
                 machine.communicate.sudo """
                   apt-get update -y -qq && \
-                  apt-get install -y -qq software-properties-common
+                  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq software-properties-common --option \"Dpkg::Options::=--force-confold\"
                 """
               end
               machine.communicate.sudo """
                 add-apt-repository ppa:ansible/ansible -y && \
                 apt-get update -y -qq && \
-                apt-get install -y -qq ansible
+                DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ansible --option \"Dpkg::Options::=--force-confold\"
               """
             end
 
