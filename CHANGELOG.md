@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- command/snapshot/save: Fix regression that prevented snapshot of all guests in environment [GH-11152]
+
 ## 2.2.6 (October 14, 2019)
 
 FEATURES:
