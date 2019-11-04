@@ -132,14 +132,11 @@
 
     &#simple {
       .terminal {
+        @extend .g-type-code;
         border: 1px solid $white;
         background: $black;
         box-sizing: border-box;
         color: $white;
-        font-family: $font-monospace;
-        font-size: 0.844rem;
-        font-weight: $font-weight-reg;
-        line-height: 1.926em;
         margin: 20px auto auto auto;
         padding: 10px 20px 20px 20px;
 
