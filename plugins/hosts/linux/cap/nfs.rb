@@ -262,16 +262,25 @@ module VagrantPlugins
         end
 
         def self.modinfo_path
-          path = Vagrant::Util::Which.which("modinfo")
-          return path if path
+          if !defined?(@_modinfo_path)
+            @_modinfo_path = Vagrant::Util::Which.which("modinfo")
 
-          folders = ["/sbin"]
-          folders.each do |folder|
-            path = "#{folder}/modinfo"
-            return path if File.file?(path)
+            if @_modinfo_path.to_s.empty?
+              folders = ["/sbin"]
+              folders.each do |folder|
+                path = "#{folder}/modinfo"
+                if File.file?(path)
+                  @_modinfo_path = path
+                  break
+                end
+              end
+            end
+
+            if @_modinfo_path.to_s.empty?
+              @_modinfo_path = "modinfo"
+            end
           end
-
-          "modinfo"
+          @_modinfo_path
         end
 
         # @private

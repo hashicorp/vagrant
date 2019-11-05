@@ -372,5 +372,15 @@ EOH
         expect(cap.modinfo_path).to eq("modinfo")
       end
     end
+
+    context "with cached value for modinfo_path" do
+      before do
+        cap.instance_variable_set(:@_modinfo_path, "/usr/local/bin/modinfo")
+      end
+
+      it "should use cached value" do
+        expect(cap.modinfo_path).to eq("/usr/local/bin/modinfo")
+      end
+    end
   end
 end
