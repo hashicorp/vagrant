@@ -270,6 +270,8 @@ module VagrantPlugins
             path = "#{folder}/modinfo"
             return path if File.file?(path)
           end
+
+          "modinfo"
         end
 
         # @private
