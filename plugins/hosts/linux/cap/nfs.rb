@@ -93,7 +93,7 @@ module VagrantPlugins
               "systemctl --no-pager --no-legend --plain list-unit-files --all --type=service " \
                 "| grep #{nfs_service_name_systemd}").exit_code == 0
           else
-            Vagrant::Util::Subprocess.execute("modinfo", "nfsd").exit_code == 0 ||
+            Vagrant::Util::Subprocess.execute(modinfo_path, "nfsd").exit_code == 0 ||
               Vagrant::Util::Subprocess.execute("grep", "nfsd", "/proc/filesystems").exit_code == 0
           end
         end
@@ -259,6 +259,17 @@ module VagrantPlugins
 
         def self.nfs_running?(check_command)
           Vagrant::Util::Subprocess.execute(*Shellwords.split(check_command)).exit_code == 0
+        end
+
+        def self.modinfo_path
+          path = Vagrant::Util::Which.which("modinfo")
+          return path if path
+
+          folders = ["/sbin"]
+          folders.each do |folder|
+            path = "#{folder}/modinfo"
+            return path if File.file?(path)
+          end
         end
 
         # @private
