@@ -4,6 +4,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/opensuse: Check for basename hostname prior to setting hostname [GH-11170]
+
 BUG FIXES:
 
 - command/snapshot/save: Fix regression that prevented snapshot of all guests in environment [GH-11152]
