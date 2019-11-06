@@ -1,16 +1,16 @@
 .button {
   background: $button-background;
-  border: 1px solid $button-font-color;
-  box-shadow: 3px 4px 0 rgba(0,0,0,0.1);
+  border: 1px solid #d6d6d7;
+  border-radius: 1px;
+  box-sizing: border-box;
   color: $button-font-color;
   display: inline-block;
   font-family: $button-font-family;
   font-size: $button-font-size;
-  font-weight: $button-font-weight;
-  letter-spacing: 1px;
+  font-weight: $font-weight-medium;
+  line-height: 1.6em;
   margin-bottom: 4px;
-  padding: 10px 30px;
-  text-transform: uppercase;
+  padding: 13px 19px;
   text-decoration: none;
 
   &:hover,
@@ -19,19 +19,54 @@
     text-decoration: none;
   }
 
+  &:focus {
+    border: 3px solid $vagrant-l1;
+    color: $button-font-color;
+    outline: none;
+    padding: 11px 17px;
+  }
+
   &:hover {
-    background: $button-font-color;
-    border: 1px solid $button-font-color;
-    color: $button-background;
+    background: #eaeaeb;
+    border: 1px solid #d6d6d7;
+    color: $button-font-color;
+    padding: 13px 19px;
+  }
+
+  &:active {
+    background: #dfdfe0;
+    border: 1px solid #d6d6d7;
+    color: $button-font-color;
+    padding: 13px 19px;
   }
 
   &.primary {
     background: $button-primary-background;
-    border: 1px solid darken($button-primary-background, 5%);
-    color: $button-primary-font-color;
+    border: none;
+    color: $white;
+    padding: 14px 20px;
+
+    &:focus {
+      border: 3px solid $vagrant-l1;
+      padding: 11px 17px;
+    }
 
     &:hover {
-      background: lighten($button-primary-background, 5%);
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)),
+        $button-primary-background;
+      border: none;
+      padding: 14px 20px;
     }
+
+    &:active {
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+        $button-primary-background;
+      border: none;
+      padding: 14px 20px;
+    }
+  }
+
+  &.inline {
+    padding: 8px 14px;
   }
 }
