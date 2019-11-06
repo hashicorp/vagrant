@@ -337,4 +337,50 @@ EOH
       end
     end
   end
+
+  describe ".modinfo_path" do
+    let(:cap){ VagrantPlugins::HostLinux::Cap::NFS }
+
+    context "with modinfo on PATH" do
+      before do
+        expect(Vagrant::Util::Which).to receive(:which).with("modinfo").and_return("/usr/bin/modinfo")
+      end
+
+      it "should use full path to modinfo" do
+        expect(cap.modinfo_path).to eq("/usr/bin/modinfo")
+      end
+    end
+
+    context "with modinfo at /sbin/modinfo" do
+      before do
+        expect(Vagrant::Util::Which).to receive(:which).with("modinfo").and_return(nil)
+        expect(File).to receive(:file?).with("/sbin/modinfo").and_return(true)
+      end
+
+      it "should use /sbin/modinfo" do
+        expect(cap.modinfo_path).to eq("/sbin/modinfo")
+      end
+    end
+
+    context "modinfo not found" do
+      before do
+        expect(Vagrant::Util::Which).to receive(:which).with("modinfo").and_return(nil)
+        expect(File).to receive(:file?).with("/sbin/modinfo").and_return(false)
+      end
+
+      it "should use modinfo" do
+        expect(cap.modinfo_path).to eq("modinfo")
+      end
+    end
+
+    context "with cached value for modinfo_path" do
+      before do
+        cap.instance_variable_set(:@_modinfo_path, "/usr/local/bin/modinfo")
+      end
+
+      it "should use cached value" do
+        expect(cap.modinfo_path).to eq("/usr/local/bin/modinfo")
+      end
+    end
+  end
 end
