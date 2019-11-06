@@ -409,22 +409,26 @@ module VagrantPlugins
         @__defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
+      # Stores disk config options from Vagrantfile
+      #
+      # @param [Symbol] type
+      # @param [Hash]   options
+      # @param [Block]  block
       def disk(type, **options, &block)
         disk_config = VagrantConfigDisk.new(type)
 
         # Remove provider__option options before set_options, otherwise will
         # show up as missing setting
-        #
-        # We can probably combine this into a single method call...?
-        provider_options = options.select { |k,v| k.to_s.include?("__") }
-        options.delete_if { |k,v| k.to_s.include?("__") }
+        # Extract provider hash options as well
+        provider_options = {}
+        options.delete_if do |p,o|
+          if o.is_a?(Hash) || p.to_s.include?("__")
+            provider_options[p] = o
+            true
+          end
+        end
 
         disk_config.set_options(options)
-
-        # Can't use blocks if we use provider__option
-        #if block_given?
-        #  block.call(disk, VagrantConfigDisk)
-        #end
 
         # Add provider config
         disk_config.add_provider_config(provider_options, &block)

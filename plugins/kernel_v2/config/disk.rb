@@ -66,18 +66,30 @@ module VagrantPlugins
         @id = SecureRandom.uuid
       end
 
+      # Helper method for storing provider specific config options
+      #
+      # Expected format is:
+      #
+      # - `provider__diskoption: value`
+      # - `{provider: {diskoption: value, otherdiskoption: value, ...}`
+      #
+      # Duplicates will be overriden
+      #
+      # @param [Hash] options
       def add_provider_config(**options, &block)
         current = {}
         options.each do |k,v|
           opts = k.to_s.split("__")
+
           if opts.size == 2
-            current[opts[0]] = opts[1]
+            current[opts[0].to_sym] = {opts[1].to_sym => v}
+          elsif v.is_a?(Hash)
+            current[k] = v
           else
-            @logger.warn("Disk option '#{k}' found that does not match expected schema")
+            @logger.warn("Disk option '#{k}' found that does not match expected provider disk config schema.")
           end
         end
 
-        #block.call(current) if block
         current = @provider_config.merge(current) if !@provider_config.empty?
         @provider_config = current
       end
