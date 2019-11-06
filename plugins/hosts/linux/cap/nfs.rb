@@ -266,13 +266,9 @@ module VagrantPlugins
             @_modinfo_path = Vagrant::Util::Which.which("modinfo")
 
             if @_modinfo_path.to_s.empty?
-              folders = ["/sbin"]
-              folders.each do |folder|
-                path = "#{folder}/modinfo"
-                if File.file?(path)
-                  @_modinfo_path = path
-                  break
-                end
+              path = "/sbin/modinfo"
+              if File.file?(path)
+                @_modinfo_path = path
               end
             end
 
