@@ -5,6 +5,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - guest/opensuse: Check for basename hostname prior to setting hostname [GH-11170]
+- host/linux: Check for modinfo in /sbin if it's not on PATH [GH-11178]
 
 BUG FIXES:
 
