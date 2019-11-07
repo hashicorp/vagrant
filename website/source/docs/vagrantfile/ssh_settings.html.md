@@ -70,14 +70,11 @@ to use port 4567 to talk to the guest if there is no other option.
 * `config.ssh.host` (string) - The hostname or IP to SSH into. By default this is
 empty, because the provider usually figures this out for you.
 
-* `config.ssh.insert_key` (boolean) - If `true`, Vagrant will automatically insert
+* `config.ssh.insert_key` (boolean) - By default or if set to `true`, Vagrant will automatically insert
 a keypair to use for SSH, replacing Vagrant's default insecure key inside the machine
-if detected. By default, this is true.
-
-    This only has an effect if you do not already
-    use private keys for authentication or if you are relying on the default insecure key.
-    If you do not have to care about security in your project and want to
-    keep using the default insecure key, set this to `false`.
+if detected. If you already use private keys for authentication to your guest, or are relying
+on the default insecure key, this option will not be used. If set to `false`,
+Vagrant will not automatically add a keypair to the guest.
 
 * `config.ssh.keep_alive` (boolean) - If `true`, this setting SSH will send keep-alive packets
 every 5 seconds by default to keep connections alive.
