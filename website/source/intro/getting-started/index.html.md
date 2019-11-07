@@ -42,7 +42,7 @@ $ vagrant up
 
 After running the above two commands, you will have a fully running
 virtual machine in [VirtualBox](https://www.virtualbox.org) running
-Ubuntu 12.04 LTS 64-bit. You can SSH into this machine with
+Ubuntu 18.04 LTS 64-bit. You can SSH into this machine with
 `vagrant ssh`, and when you are done playing around, you can terminate the
 virtual machine with `vagrant destroy`.
 
