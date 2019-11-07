@@ -55,7 +55,7 @@ module VagrantPlugins
           argv = parse_options(opts)
           return if !argv
 
-          if argv.empty? || argv.length > 4 || argv.length < 3
+          if argv.empty? || argv.length > 4 || argv.length < 3 || (argv.length == 3 && !options[:url])
             raise Vagrant::Errors::CLIInvalidUsage,
               help: opts.help.chomp
           end

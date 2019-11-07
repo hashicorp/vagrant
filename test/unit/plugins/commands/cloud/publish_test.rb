@@ -52,6 +52,15 @@ describe VagrantPlugins::CloudCommand::Command::Publish do
     let(:argv) { ["vagrant/box", "1.0.0", "virtualbox"] }
 
     it "shows help" do
+      expect { subject.execute }.
+        to raise_error(Vagrant::Errors::CLIInvalidUsage)
+    end
+  end
+
+  context "missing box file" do
+    let(:argv) { ["vagrant/box", "1.0.0", "virtualbox", "/notreal/file.box"] }
+
+    it "raises an exception" do
       allow(File).to receive(:file?).and_return(false)
       expect { subject.execute }.
         to raise_error(Vagrant::Errors::BoxFileNotExist)
