@@ -32,4 +32,15 @@ describe FileChecksum do
       expect(t_i.checksum).to eq(k_i.checksum)
     end
   end
+
+  context "with an invalid digest" do
+    let(:fake_digest) { :fake_digest }
+
+    it "should raise an exception if the box has an invalid checksum type" do
+      file = environment.workdir.join("file")
+      file.open("w+") { |f| f.write("HELLO!") }
+
+      expect{ described_class.new(file, fake_digest) }.to raise_error(Vagrant::Errors::BoxChecksumInvalidType)
+    end
+  end
 end
