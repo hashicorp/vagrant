@@ -238,7 +238,7 @@ module Vagrant
     # @return [Hash]
     def find_by_prefix(prefix)
       @machines.each do |uuid, data|
-        return data.merge("id" => uuid) if uuid.start_with?(prefix)
+        return data.merge("id" => uuid) if uuid.start_with?(prefix) or data['name'] == prefix
       end
 
       nil
