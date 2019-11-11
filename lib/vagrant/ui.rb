@@ -329,10 +329,15 @@ module Vagrant
         target = opts[:target] if opts.key?(:target)
         target = "#{target}:" if target != ""
 
-        # Get the lines. The first default is because if the message
-        # is an empty string, then we want to still use the empty string.
         lines = [message]
-        lines = message.split("\n") if message != ""
+        if message != ""
+          lines = [].tap do |l|
+            message.scan(/(.*?)(\n|$)/).each do |m|
+              l << m.first if m.first != "" || (m.first == "" && m.last == "\n")
+            end
+          end
+          lines << "" if message.end_with?("\n")
+        end
 
         # Otherwise, make sure to prefix every line properly
         lines.map do |line|

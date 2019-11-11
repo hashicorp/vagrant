@@ -406,4 +406,17 @@ describe Vagrant::UI::Prefixed do
       subject.output("foo", target: "bar")
     end
   end
+
+  describe "#format_message" do
+    it "should return the same number of new lines as given" do
+      ["no new line", "one\nnew line", "two\nnew lines\n", "three\nnew lines\n\n"].each do |msg|
+        expect(subject.format_message(:detail, msg).count("\n")).to eq(msg.count("\n"))
+      end
+    end
+
+    it "should properly format a blank message" do
+      expect(subject.format_message(:detail, "", target: "default", prefix: true)).
+        to match(/\s+default:\s+/)
+    end
+  end
 end
