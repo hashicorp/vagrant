@@ -11,6 +11,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - command/snapshot/save: Fix regression that prevented snapshot of all guests in environment [GH-11152]
+- core: Update UI to properly retain newlines when adding prefix [GH-11126]
 
 ## 2.2.6 (October 14, 2019)
 
