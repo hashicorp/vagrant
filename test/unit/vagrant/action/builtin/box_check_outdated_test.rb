@@ -86,8 +86,6 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
   end
 
   context "with a box" do
-    let(:warning) { "ALREADY INSTALLED" }
-
     it "sets env if no update" do
       expect(box).to receive(:has_update?).and_return(nil)
 
@@ -274,9 +272,11 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
     end
 
     it "should return the updated box if it is already installed" do
-      expect(subject).to receive(:check_outdated_local).with(env).and_return(updated_box)
+      expect(env[:box_collection]).to receive(:find).with("foo", :virtualbox, "> 1.0").and_return(updated_box)
 
-      subject.check_outdated_local(env)
+      local_update = subject.check_outdated_local(env)
+
+      expect(local_update).to eq(updated_box)
     end
   end
 end
