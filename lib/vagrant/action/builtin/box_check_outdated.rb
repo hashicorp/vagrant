@@ -71,7 +71,7 @@ module Vagrant
           end
           env[:box_outdated] = update != nil
           local_update = check_outdated_local(env)
-          if update and (local_update.nil? or local_update.version < update[1].version)
+          if update && (local_update.nil? || (local_update.version < update[1].version))
             env[:ui].warn(I18n.t(
               "vagrant.box_outdated_single",
               name: update[0].name,
