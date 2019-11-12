@@ -13,6 +13,7 @@ BUG FIXES:
 - command/snapshot/save: Fix regression that prevented snapshot of all guests in environment [GH-11152]
 - core: Update UI to properly retain newlines when adding prefix [GH-11126]
 - core: Check if box update is available locally [GH-11188]
+- core: Ensure Vagrant::Errors are loaded in file_checksum util [GH-11183]
 
 ## 2.2.6 (October 14, 2019)
 
