@@ -141,6 +141,41 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       expect(env[:box_outdated]).to be(true)
     end
 
+    context "both local and remote update exist" do
+      it "should prompt user to update" do
+        iso_env.box3("foo", "1.1", :virtualbox)
+
+        md = Vagrant::BoxMetadata.new(StringIO.new(<<-RAW))
+        {
+          "name": "foo",
+          "versions": [
+            {
+              "version": "1.2",
+              "providers": [
+                {
+                  "name": "virtualbox",
+                  "url": "bar"
+                }
+              ]
+            }
+          ]
+        }
+        RAW
+
+        expect(box).to receive(:has_update?).with(machine.config.vm.box_version,
+            {download_options:
+              {automatic_check: true, ca_cert: nil, ca_path: nil, client_cert: nil, insecure: false}}).
+          and_return([md, md.version("1.2"), md.version("1.2").provider("virtualbox")])
+
+        allow(I18n).to receive(:t) { :ok }
+        expect(I18n).to receive(:t).with(/box_outdated_single/, hash_including(latest: "1.2")).once
+
+        expect(app).to receive(:call).with(env).once
+
+        subject.call(env)
+      end
+    end
+
     it "does not have a local update if not within constraints" do
       iso_env.box3("foo", "1.1", :virtualbox)
 
@@ -225,6 +260,23 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
 
         subject.call(env)
       end
+    end
+  end
+
+  describe ".check_outdated_local" do
+    let(:updated_box) do
+      box_dir = iso_env.box3("foo", "1.1", :virtualbox)
+      Vagrant::Box.new("foo", :virtualbox, "1.1", box_dir).tap do |b|
+        allow(b).to receive(:has_update?).and_return(nil)
+      end
+    end
+
+    it "should return the updated box if it is already installed" do
+      expect(env[:box_collection]).to receive(:find).with("foo", :virtualbox, "> 1.0").and_return(updated_box)
+
+      local_update = subject.check_outdated_local(env)
+
+      expect(local_update).to eq(updated_box)
     end
   end
 end
