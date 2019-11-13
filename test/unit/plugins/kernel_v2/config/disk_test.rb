@@ -43,9 +43,9 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
       expect(subject.type).to eq(type)
     end
 
-    it "defaults to primray disk" do
+    it "defaults to non-primray disk" do
       subject.finalize!
-      expect(subject.primary).to eq(true)
+      expect(subject.primary).to eq(false)
     end
   end
 

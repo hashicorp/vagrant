@@ -102,9 +102,9 @@ module VagrantPlugins
         @file = nil if @file == UNSET_VALUE
 
         if @primary == UNSET_VALUE
-          @primary = true
-        else
           @primary = false
+        else
+          @primary = true
         end
 
         # Give the disk a default name if unset
