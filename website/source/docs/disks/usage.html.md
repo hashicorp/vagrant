@@ -1,7 +1,7 @@
 ---
 layout: "docs"
 page_title: "Vagrant Disk Usage"
-sidebar_current: "disk-usage"
+sidebar_current: "disks-usage"
 description: |-
   Various Vagrant Disk examples
 ---
