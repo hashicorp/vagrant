@@ -1,0 +1,24 @@
+---
+layout: "docs"
+page_title: "Vagrant Disks Configuration"
+sidebar_current: "disks-configuration"
+description: |-
+  Documentation of various configuration options for Vagrant Disks
+---
+
+# Configuration
+
+Vagrant Disks has several options that allow users to define and attach disks to guests.
+
+## Disk Options
+
+* `name` (string) - Optional argument to give the disk a name
+* `type` (symbol) - The type of disk to manage. This option defaults to `:disk`. Please read the provider specific documentation for supported types.
+* `file` (string) - Optional argument that defines a path on disk pointing to the location of a disk file.
+* `primary` (boolean) - Optional argument that configures a given disk to be the "primary" disk to manage on the guest. There can only be one `primary` disk per guest.
+* `provider_config` (hash) - Additional provider specific options for managing a given disk.
+
+    **Note:** The `provider_config` option will depend on the provider you are using. Please read the provider specific documentation for disk management to learn about what options are available to use.
+
+## Disk Types
+
