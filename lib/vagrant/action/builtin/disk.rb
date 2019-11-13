@@ -12,6 +12,8 @@ module Vagrant
           defined_disks = get_disks(machine, env)
 
           # Call into providers machine implementation for disk management
+          #
+          # machine.provider.configure_disks(defined_disks)
 
           # Continue On
           @app.call(env)
