@@ -806,8 +806,10 @@ module VagrantPlugins
 
         # Validate disks
         # Check if there is more than one primrary disk defined and throw an error
-        if @disks.select { |d| d.primary && d.type == :disk }.size > 1
-          errors << "There is more than one disk defined for guest '#{machine.name}'. Please pick a `primary` disk."
+        primary_disks = @disks.select { |d| d.primary && d.type == :disk }
+        if primary_disks.size > 1
+          errors << I18n.t("vagrant.config.vm.multiple_primary_disks_error",
+                           name: machine.name)
         end
 
         # TODO: Check for duplicate disk names?

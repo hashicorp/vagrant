@@ -1892,6 +1892,8 @@ en:
           hyphens or dots. It cannot start with a hyphen or dot.
         ignore_provider_config: |-
           Ignoring provider config for validation...
+        multiple_primary_disks_error: |-
+          There are more than one primary disks defined for guest '%{name}'. Please ensure that only one disk has been defined as a primary disk.
         name_invalid: |-
           The sub-VM name '%{name}' is invalid. Please don't use special characters.
         network_ip_ends_in_one: |-
