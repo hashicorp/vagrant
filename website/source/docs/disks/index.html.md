@@ -10,5 +10,7 @@ description: |-
 
 As of version 2.3.0, Vagrant is capable managing what disks are available for a given guest.
 
+TODO: GIVE A HIGH LEVEL OVERVIEW HERE
+
 For more information about what options are available for configuring disks, see the
 [configuration section](/docs/disks/configuration.html).
