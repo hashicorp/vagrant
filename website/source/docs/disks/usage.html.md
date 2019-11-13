@@ -11,3 +11,8 @@ description: |-
 Below are some very simple examples of how to use Vagrant Disks.
 
 ## Examples
+
+- Resizing a disk (primary)
+- Attaching a new disk
+- Using provider specific options
+- ???
