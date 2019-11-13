@@ -119,6 +119,9 @@ This command tells you whether or not the box you are using in
 your current Vagrant environment is outdated. If the `--global` flag
 is present, every installed box will be checked for updates.
 
+This will show the latest version available for the specific provider type,
+which may be different than the absolute latest version available.
+
 Checking for updates involves refreshing the metadata associated with
 a box. This generally requires an internet connection.
 
