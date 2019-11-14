@@ -1,6 +1,8 @@
 require "log4r"
 require "securerandom"
 
+require "vagrant/util/numeric"
+
 module VagrantPlugins
   module Kernel_V2
     class VagrantConfigDisk < Vagrant.plugin("2", :config)
@@ -124,9 +126,12 @@ module VagrantPlugins
           errors << "Disk type '#{@type}' is not a valid type. Please pick one of the following supported disk types: #{DEFAULT_DISK_TYPES.join(', ')}"
         end
 
-        # TODO: Convert a string to int here?
         if @size && !@size.is_a?(Integer)
-          errors << "Config option size for disk is not an integer"
+          if @size.is_a?(String)
+            @size = Vagrant::Util::Numeric.string_to_bytes(@size)
+          else
+            errors << "Config option size for disk is not an integer"
+          end
         end
 
         if @file
