@@ -32,3 +32,9 @@ Vagrant Disks has several options that allow users to define and attach disks to
 ## Provider Author Guide
 
 If you are a vagrant plugin author who maintains a provider for Vagrant, this short guide will hopefully give some information on how to use the internal disk config object.
+
+TODO: Fill out these main points
+
+- Entry level builtin action `disk` and how to use it as a provider author
+- `id` is unique to each disk config object
+- `provider_config` and how to its structured and how to use/validate it
