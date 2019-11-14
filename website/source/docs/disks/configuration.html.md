@@ -20,7 +20,7 @@ Vagrant Disks has several options that allow users to define and attach disks to
 
     Generally, the disk option accepts two kinds of ways to define a provider config:
 
-    + `providername__diskoption = value`
+    + `providername__diskoption: value`
       - The provider name followed by a double underscore, and then the provider specific option for that disk
     + `{providername: {diskoption: value}, otherprovidername: {diskoption: value}`
       - A hash where the top level key(s) are one or more providers, and each provider keys values are a hash of options and their values.
