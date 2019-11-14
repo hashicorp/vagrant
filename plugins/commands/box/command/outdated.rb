@@ -73,7 +73,15 @@ module VagrantPlugins
             end
 
             current = Gem::Version.new(box.version)
-            latest  = Gem::Version.new(md.versions(provider: box.provider).last)
+            box_versions = md.versions(provider: box.provider)
+
+            if box_versions.empty?
+              latest_box_version = box_versions.last.to_i
+            else
+              latest_box_version = box_versions.last
+            end
+
+            latest  = Gem::Version.new(latest_box_version)
             if latest <= current
               @env.ui.success(I18n.t(
                 "vagrant.box_up_to_date",
