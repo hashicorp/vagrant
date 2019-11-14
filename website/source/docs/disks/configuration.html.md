@@ -29,3 +29,6 @@ Vagrant Disks has several options that allow users to define and attach disks to
 
 ## Disk Types
 
+## Provider Author Guide
+
+If you are a vagrant plugin author who maintains a provider for Vagrant, this short guide will hopefully give some information on how to use the internal disk config object.
