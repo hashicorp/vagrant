@@ -129,6 +129,33 @@ Vagrant.configure("2") do |config|
 end
 ```
 
+In the code block above, the script block starts with `<<-SCRIPT` and ends with `SCRIPT`.
+This is known as a "Here Document" or a "heredoc".  Additionally, if your script
+relies on quotes and you do not wish for Ruby to escape your quotes, you may
+want to use this style of heredoc where `SCRIPT` is surrounded in single quotes:
+
+```ruby
+$script = <<-'SCRIPT'
+echo "These are my \"quotes\"! I am provisioning my guest."
+date > /etc/vagrant_provisioned_at
+SCRIPT
+
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", inline: $script
+end
+```
+
+Now that our "heredoc" is quoted, our script will preserve the quotes in the string to `echo`:
+
+```
+==> default: Running provisioner: shell...
+    default: Running: inline script
+    default: These are my "quotes"! I am provisioning my guest.
+```
+
+For more examples of how to use "heredoc" in Ruby, please refer to the
+[Ruby documentation](https://ruby-doc.org/core-2.5.0/doc/syntax/literals_rdoc.html#label-Here+Documents).
+
 It is understandable that if you are not familiar with Ruby, the above may seem very
 advanced or foreign. But do not fear, what it is doing is quite simple:
 the script is assigned to a global variable `$script`. This global variable
