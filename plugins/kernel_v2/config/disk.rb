@@ -31,9 +31,7 @@ module VagrantPlugins
 
       # Size of disk to create
       #
-      # TODO: Should we have shortcuts for GB???
-      #
-      # @return [Integer]
+      # @return [Integer,String]
       attr_accessor :size
 
       # Path to the location of the disk file (Optional)

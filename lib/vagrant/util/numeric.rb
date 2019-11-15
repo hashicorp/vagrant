@@ -1,8 +1,10 @@
+require "log4r"
+
 module Vagrant
   module Util
     class Numeric
-      # Authors Note: This class has borrowed some code from the ActiveSupport Numeric class
 
+      # Authors Note: This conversion has been borrowed from the ActiveSupport Numeric class
       # Conversion helper constants
       KILOBYTE = 1024
       MEGABYTE = KILOBYTE * 1024
@@ -11,7 +13,14 @@ module Vagrant
       PETABYTE = TERABYTE * 1024
       EXABYTE  = PETABYTE * 1024
 
+      BYTES_CONVERSION_MAP = {KB: KILOBYTE, MB: MEGABYTE, GB: GIGABYTE, TB: TERABYTE,
+                              PB: PETABYTE, EB: EXABYTE}
+
+      # Regex borrowed from the vagrant-disksize config class
+      SHORTHAND_MATCH_REGEX = /^(?<number>[0-9]+)\s?(?<unit>KB|MB|GB|TB)?$/
+
       class << self
+        LOGGER = Log4r::Logger.new("vagrant::util::numeric")
 
         # A helper that converts a shortcut string to its bytes representation.
         # The expected format of `str` is essentially: "<Number>XX"
@@ -20,9 +29,24 @@ module Vagrant
         # str = "50MB"
         #
         # @param [String] - str
-        # @return [Integer] - bytes
+        # @return [Integer,nil] - bytes - returns nil if method fails to convert to bytes
         def string_to_bytes(str)
+          bytes = nil
+
           str = str.to_s.strip
+          matches = SHORTHAND_MATCH_REGEX.match(str)
+          if matches
+            number = matches[:number].to_i
+            unit = matches[:unit].to_sym
+
+            if BYTES_CONVERSION_MAP.key?(unit)
+              bytes = number * BYTES_CONVERSION_MAP[unit]
+            else
+              LOGGER.error("An invalid unit or format was given, string_to_bytes cannot convert #{str}")
+            end
+          end
+
+          bytes
         end
 
         # @private
