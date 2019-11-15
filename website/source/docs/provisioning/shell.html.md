@@ -130,9 +130,9 @@ end
 ```
 
 In the code block above, the script block starts with `<<-SCRIPT` and ends with `SCRIPT`.
-This is known as a _Here Document_ or a _heredoc_.  Additionally, if your script
+This is known as a `Here Document` or a `heredoc`.  Additionally, if your script
 relies on quotes and you do not wish for Ruby to escape your quotes, you may
-want to use this style of _heredoc_ where `SCRIPT` is surrounded in single quotes:
+want to use this style of heredoc where `SCRIPT` is surrounded in single quotes:
 
 ```ruby
 $script = <<-'SCRIPT'
