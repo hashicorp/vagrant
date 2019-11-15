@@ -82,6 +82,16 @@ module VagrantPlugins
         Cap::ReadIPAddress
       end
 
+      guest_capability(:linux, :wait_for_reboot) do
+        require_relative "cap/reboot"
+        Cap::Reboot
+      end
+
+      guest_capability(:linux, :reboot) do
+        require_relative "cap/reboot"
+        Cap::Reboot
+      end
+
       guest_capability(:linux, :remove_public_key) do
         require_relative "cap/public_key"
         Cap::PublicKey
