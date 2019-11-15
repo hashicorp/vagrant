@@ -13,7 +13,7 @@ module VagrantPlugins
           comm = machine.communicate
 
           @logger.debug("Issuing reboot command for guest")
-          comm.sudo("reboot")
+          comm.sudo(reboot_script)
 
           machine.ui.info(I18n.t("vagrant.guests.capabilities.rebooting"))
 
