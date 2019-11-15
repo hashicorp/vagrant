@@ -130,7 +130,7 @@ end
 ```
 
 In the code block above, the script block starts with `<<-SCRIPT` and ends with `SCRIPT`.
-This is known as a `Here Document` or a `heredoc`.  Additionally, if your script
+This is known as a "Here Document" or a "heredoc".  Additionally, if your script
 relies on quotes and you do not wish for Ruby to escape your quotes, you may
 want to use this style of heredoc where `SCRIPT` is surrounded in single quotes:
 
@@ -145,7 +145,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-Now that our _heredoc_ is quoted, our script will preserve the quotes in the string to `echo`:
+Now that our "heredoc" is quoted, our script will preserve the quotes in the string to `echo`:
 
 ```
 ==> default: Running provisioner: shell...
@@ -153,7 +153,7 @@ Now that our _heredoc_ is quoted, our script will preserve the quotes in the str
     default: These are my "quotes"! I am provisioning my guest.
 ```
 
-For more examples of how to use _heredoc_ in Ruby, please refer to the
+For more examples of how to use "heredoc" in Ruby, please refer to the
 [Ruby documentation](https://ruby-doc.org/core-2.5.0/doc/syntax/literals_rdoc.html#label-Here+Documents).
 
 It is understandable that if you are not familiar with Ruby, the above may seem very
