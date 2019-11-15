@@ -18,8 +18,8 @@ module VagrantPlugins
       def build(dir, **opts, &block)
         args   = Array(opts[:extra_args])
         args   << dir
-        result = execute('docker', 'build', *args, &block)
-        matches = result.scan(/Successfully built (.+)$/i)
+        result = execute('docker', 'build', '-q', *args, &block)
+        matches = result.scan(/^sha256:([0-9a-f]+)$/i)
         if matches.empty?
           # This will cause a stack trace in Vagrant, but it is a bug
           # if this happens anyways.
