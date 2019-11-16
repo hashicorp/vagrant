@@ -27,7 +27,12 @@ module VagrantPlugins
               stdout: result.stdout
           end
 
-          result.stdout
+          # If the new buildkit-based docker build is used, stdout is empty, and the output is in stderr
+          if result.stdout.to_s.strip.length == 0
+            result.stderr
+          else
+            result.stdout
+          end
         end
 
         def windows?

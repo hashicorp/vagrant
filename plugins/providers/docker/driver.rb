@@ -18,12 +18,16 @@ module VagrantPlugins
       def build(dir, **opts, &block)
         args   = Array(opts[:extra_args])
         args   << dir
-        result = execute('docker', 'build', '-q', *args, &block)
-        matches = result.scan(/^sha256:([0-9a-f]+)$/i)
+        result = execute('docker', 'build', '--progress', 'plain', *args, &block)
+        matches = result.scan(/Successfully built (.+)$/i)
         if matches.empty?
-          # This will cause a stack trace in Vagrant, but it is a bug
-          # if this happens anyways.
-          raise "UNKNOWN OUTPUT: #{result}"
+          # Check for the new output format 'writing image sha256...'
+          matches = result.scan(/writing image sha256:([0-9a-z]+) done$/i)
+          if matches.empty?
+            # This will cause a stack trace in Vagrant, but it is a bug
+            # if this happens anyways.
+            raise "UNKNOWN OUTPUT: #{result}"
+          end
         end
 
         # Return the last match, and the capture of it
