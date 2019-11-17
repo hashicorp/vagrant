@@ -77,7 +77,7 @@ module VagrantPlugins
           sleep 0.5
 
           nfs_cleanup("#{Process.uid} #{id}")
-          output = "#{nfs_exports_content}\n#{output}"
+          output = nfs_exports_content + output
           nfs_write_exports(output)
 
           if nfs_running?(nfs_check_command)
