@@ -22,7 +22,7 @@ module VagrantPlugins
         matches = result.scan(/Successfully built (.+)$/i)
         if matches.empty?
           # Check for the new output format 'writing image sha256...'
-          matches = result.scan(/writing image sha256:([0-9a-z]+) done$/i)
+          matches = result.scan(/writing image sha256:([0-9a-z]+) +$/i)
           if matches.empty?
             # This will cause a stack trace in Vagrant, but it is a bug
             # if this happens anyways.
