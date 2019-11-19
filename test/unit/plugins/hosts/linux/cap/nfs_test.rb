@@ -188,7 +188,7 @@ EOH
                   :linux__nfs_options=>["rw","all_squash"]}}
       valid_id = SecureRandom.uuid
       content =<<-EOH
-\n# VAGRANT-BEGIN: #{Process.uid} #{valid_id}
+# VAGRANT-BEGIN: #{Process.uid} #{valid_id}
 "/home/vagrant" 127.0.0.1(rw,all_squash,anonuid=,anongid=,fsid=)
 "/newhome/otherproject" 127.0.0.1(rw,all_squash,anonuid=,anongid=,fsid=)
 # VAGRANT-END: #{Process.uid} #{valid_id}
