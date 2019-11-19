@@ -5,6 +5,10 @@ module VagrantPlugins
         error_namespace("docker_provider.errors")
       end
 
+      class BuildError < DockerError
+        error_key(:build_error)
+      end
+
       class CommunicatorNonDocker < DockerError
         error_key(:communicator_non_docker)
       end
