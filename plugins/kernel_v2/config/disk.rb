@@ -121,28 +121,34 @@ module VagrantPlugins
         # validate type with list of known disk types
 
         if !DEFAULT_DISK_TYPES.include?(@type)
-          errors << "Disk type '#{@type}' is not a valid type. Please pick one of the following supported disk types: #{DEFAULT_DISK_TYPES.join(', ')}"
+          errors << I18n.t("vagrant.config.disk.invalid_type", type: @type,
+                           types: DEFAULT_DISK_TYPES.join(', '))
         end
 
         if @size && !@size.is_a?(Integer)
           if @size.is_a?(String)
             @size = Vagrant::Util::Numeric.string_to_bytes(@size)
-          else
-            errors << "Config option size for disk is not an integer"
+          end
+
+          if !@size
+            errors << I18n.t("vagrant.config.disk.invalid_size", name: @name, machine: machine.name)
           end
         end
 
         if @file
           if !@file.is_a?(String)
-            errors << "Config option `file` for #{machine.name} disk config is not a string"
+            errors << I18n.t("vagrant.config.disk.invalid_file_type", file: @file, machine: machine.name)
           elsif !File.file?(@file)
-            errors << "Disk file '#{@file}' for disk '#{@name}' on machine '#{machine.name}' does not exist."
+            errors << I18n.t("vagrant.config.disk.missing_file", file_path: @file,
+                             name: @name, machine: machine.name)
           end
         end
 
         if @provider_config
           if !@provider_config.keys.include?(machine.provider_name)
-            machine.env.ui.warn("Guest '#{machine.name}' using provider '#{machine.provider_name}' has provider specific config options for a provider other than '#{machine.provider_name}'. These provider config options will be ignored for this guest")
+            machine.env.ui.warn(I18n.t("vagrant.config.disk.missing_provider",
+                                       machine: machine.name,
+                                       provider_name: machine.provider_name))
           end
         end
 
