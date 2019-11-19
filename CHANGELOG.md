@@ -17,6 +17,7 @@ BUG FIXES:
 - core: Ensure Vagrant::Errors are loaded in file_checksum util [GH-11183]
 - cloud/publish: Improve argument handling for missing arguments to command [GH-11184]
 - core: Get latest version for current provider during outdated check [GH-11192]
+- linux/nfs: avoid adding extra newlines to /etc/exports [GH-11201]
 
 ## 2.2.6 (October 14, 2019)
 
