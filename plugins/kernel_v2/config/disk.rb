@@ -135,8 +135,8 @@ module VagrantPlugins
         if @file
           if !@file.is_a?(String)
             errors << "Config option `file` for #{machine.name} disk config is not a string"
-          else
-            # Validate that file exists
+          elsif !File.file?(@file)
+            errors << "Disk file '#{@file}' for disk '#{@name}' on machine '#{machine.name}' does not exist."
           end
         end
 
