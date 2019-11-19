@@ -140,6 +140,12 @@ module VagrantPlugins
           end
         end
 
+        if @provider_config
+          if !@provider_config.keys.include?(machine.provider_name)
+            machine.env.ui.warn("Guest '#{machine.name}' using provider '#{machine.provider_name}' has provider specific config options for a provider other than '#{machine.provider_name}'. These provider config options will be ignored for this guest")
+          end
+        end
+
         errors
       end
 
