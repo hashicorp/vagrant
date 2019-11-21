@@ -209,6 +209,29 @@ describe Vagrant::Action::Builtin::BoxAdd, :skip_windows, :bsdtar do
         to raise_error(Vagrant::Errors::BoxChecksumMismatch)
     end
 
+    it "ignores checksums if empty string" do
+      box_path = iso_env.box2_file(:virtualbox)
+      with_web_server(box_path) do |port|
+        env[:box_name] = "foo"
+        env[:box_url] = "http://127.0.0.1:#{port}/#{box_path.basename}"
+        env[:box_checksum] = ""
+        env[:box_checksum_type] = ""
+
+
+        expect(box_collection).to receive(:add).with(any_args) { |path, name, version, **opts|
+          expect(checksum(path)).to eq(checksum(box_path))
+          expect(name).to eq("foo")
+          expect(version).to eq("0")
+          expect(opts[:metadata_url]).to be_nil
+          true
+        }.and_return(box)
+
+        expect(app).to receive(:call).with(env)
+
+        subject.call(env)
+      end
+    end
+
     it "does not raise an error if the checksum has different case" do
       box_path = iso_env.box2_file(:virtualbox)
 

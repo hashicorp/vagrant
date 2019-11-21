@@ -578,7 +578,7 @@ en:
         The specified checksum type is not supported by Vagrant: %{type}.
         Vagrant supports the following checksum types:
 
-        md5, sha1, sha256
+        %{types}
       box_checksum_mismatch: |-
         The checksum of the downloaded box did not match the expected
         value. Please verify that you have the proper URL setup and that

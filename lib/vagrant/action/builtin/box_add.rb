@@ -348,9 +348,15 @@ module Vagrant
             end
 
             if opts[:checksum] && opts[:checksum_type]
-              env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
-              validate_checksum(
-                opts[:checksum_type], opts[:checksum], box_url)
+              if opts[:checksum].to_s.strip.empty?
+                @logger.warn("Given checksum is empty, cannot validate checksum for box")
+              elsif opts[:checksum_type].to_s.strip.empty?
+                @logger.warn("Given checksum type is empty, cannot validate checksum for box")
+              else
+                env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
+                validate_checksum(
+                  opts[:checksum_type], opts[:checksum], box_url)
+              end
             end
 
             # Add the box!
