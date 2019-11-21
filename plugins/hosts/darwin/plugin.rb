@@ -55,6 +55,11 @@ module VagrantPlugins
         require_relative "cap/configured_ip_addresses"
         Cap::ConfiguredIPAddresses
       end
+
+      host_capability("darwin", "nfs_exports_template") do
+        require_relative "cap/nfs"
+        Cap::NFS
+      end
     end
   end
 end
