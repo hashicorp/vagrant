@@ -815,7 +815,8 @@ module VagrantPlugins
         disk_names = @disks.map { |d| d.name }
         duplicate_names = disk_names.detect{ |d| disk_names.count(d) > 1 }
         if duplicate_names && duplicate_names.size
-          errors << "Duplicate disk names found: #{duplicate_names}. Please use unique names"
+          errors << I18n.t("vagrant.config.vm.multiple_disk_names_error",
+                           name: duplicate_names)
         end
 
         @disks.each do |d|
