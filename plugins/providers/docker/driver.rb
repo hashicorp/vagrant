@@ -15,19 +15,31 @@ module VagrantPlugins
         @executor = Executor::Local.new
       end
 
+      # Returns the id for a new container built from `docker build`. Raises
+      # an exception if the id was unable to be captured from the output
+      #
+      # @return [String] id - ID matched from the docker build output.
       def build(dir, **opts, &block)
-        args   = Array(opts[:extra_args])
-        args   << dir
-        result = execute('docker', 'build', *args, &block)
-        matches = result.scan(/Successfully built (.+)$/i)
-        if matches.empty?
-          # This will cause a stack trace in Vagrant, but it is a bug
-          # if this happens anyways.
-          raise "UNKNOWN OUTPUT: #{result}"
+        args = Array(opts[:extra_args])
+        args << dir
+        opts = {with_stderr: true}
+        result = execute('docker', 'build', *args, opts, &block)
+        matches = result.match(/Successfully built (?<id>.+)$/i)
+        if !matches
+          # Check for the new output format 'writing image sha256...'
+          # In this case, docker builtkit is enabled. Its format is different
+          # from standard docker
+          @logger.warn("Could not determine docker container ID. Scanning for buildkit output instead")
+          matches = result.match(/writing image .+:(?<id>[0-9a-z]+) done/i)
+          if !matches
+            # This will cause a stack trace in Vagrant, but it is a bug
+            # if this happens anyways.
+            raise Errors::BuildError, result: result
+          end
         end
 
-        # Return the last match, and the capture of it
-        matches[-1][0]
+        # Return the matched group `id`
+        matches[:id]
       end
 
       def create(params, **opts, &block)
