@@ -18,6 +18,7 @@ BUG FIXES:
 - cloud/publish: Improve argument handling for missing arguments to command [GH-11184]
 - core: Get latest version for current provider during outdated check [GH-11192]
 - linux/nfs: avoid adding extra newlines to /etc/exports [GH-11201]
+- guest/redhat: Ensure `nfs-server` is restarted when installing nfs client [GH-11212]
 
 ## 2.2.6 (October 14, 2019)
 
