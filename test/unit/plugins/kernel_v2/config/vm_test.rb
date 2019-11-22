@@ -551,9 +551,11 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
   describe "#disk" do
     it "stores the disks" do
-      subject.disk("disk", size: 100)
-      subject.disk("disk", size: 1000, primary: false, name: "storage")
+      subject.disk(:disk, size: 100)
+      subject.disk(:disk, size: 1000, primary: false, name: "storage")
       subject.finalize!
+
+      assert_valid
 
       d = subject.disks
       expect(d.length).to eql(2)
@@ -562,9 +564,16 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       expect(d[1].name).to eql("storage")
     end
 
+    it "raises an error with duplicate names" do
+      subject.disk(:disk, size: 100, name: "foo")
+      subject.disk(:disk, size: 1000, name: "foo", primary: false)
+      subject.finalize!
+      assert_invalid
+    end
+
     it "does not merge duplicate disks" do
-      subject.disk("disk", size: 1000, primary: false, name: "storage")
-      subject.disk("disk", size: 1000, primary: false, name: "backup")
+      subject.disk(:disk, size: 1000, primary: false, name: "storage")
+      subject.disk(:disk, size: 1000, primary: false, name: "backup")
 
       merged = subject.merge(subject)
       merged_disks = merged.disks
@@ -573,10 +582,10 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
 
     it "ignores non-overriding runs" do
-      subject.disk("disk", name: "foo")
+      subject.disk(:disk, name: "foo")
 
       other = described_class.new
-      other.disk("disk", name: "bar", primary: false)
+      other.disk(:disk, name: "bar", primary: false)
 
       merged = subject.merge(other)
       merged_disks = merged.disks
