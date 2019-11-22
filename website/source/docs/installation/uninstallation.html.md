@@ -50,8 +50,8 @@ by Vagrant. Removing the user data effectively makes Vagrant think it
 is a fresh install.
 
 On all platforms, this directory is located in the root of your home directory,
-and is named `vagrnat.d`. Simply remove the `~/.vagrant.d` directory to delete the user data. If on
-Windows, this directory is located at `C:\Users\YourUsername\.vagrnat.d`, where
+and is named `vagrant.d`. Simply remove the `~/.vagrant.d` directory to delete the user data. If on
+Windows, this directory is located at `C:\Users\YourUsername\.vagrant.d`, where
 `YourUsername` is the username of your local user.
 
 When debugging, the Vagrant support team may ask you to remove this
