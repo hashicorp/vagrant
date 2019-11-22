@@ -180,11 +180,6 @@ workflows:
             - test_ruby24
             - test_ruby25
             - test_ruby26
-      - store:
-          <<: *MASTER_WORKFLOW
-          context: vagrant
-          requires:
-            - build
   website:
     jobs:
       - build-website:
