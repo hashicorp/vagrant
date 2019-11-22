@@ -15,7 +15,8 @@ module Vagrant
           if machine.provider.capability?(:configure_disks)
            machine.provider.capability(:configure_disks, defined_disks)
           else
-            @logger.warn(":configure_disks capability not defined for provider, cannot configure disks")
+            env[:ui].warn(I18n.t("vagrant.actions.disk.provider_unsupported",
+                               provider: machine.provider_name))
           end
 
           # Continue On

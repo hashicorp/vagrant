@@ -2153,6 +2153,9 @@ en:
       runner:
         waiting_cleanup: "Waiting for cleanup before exiting..."
         exit_immediately: "Exiting immediately, without cleanup!"
+      disk:
+        provider_unsupported: |-
+          Guest provider '%{provider}' does not support the disk feature, and will not use the disk configuration defined.
       vm:
         boot:
           booting: Booting VM...
