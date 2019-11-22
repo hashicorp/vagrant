@@ -30,6 +30,7 @@ module VagrantPlugins
       autoload :MessageNotCreated, File.expand_path("../action/message_not_created", __FILE__)
       autoload :MessageNotRunning, File.expand_path("../action/message_not_running", __FILE__)
       autoload :MessageWillNotDestroy, File.expand_path("../action/message_will_not_destroy", __FILE__)
+      autoload :MessageWillNotOverwritePackageOutput, File.expand_path("../action/message_will_not_overwrite_package_output", __FILE__)
       autoload :Network, File.expand_path("../action/network", __FILE__)
       autoload :NetworkFixIPv6, File.expand_path("../action/network_fix_ipv6", __FILE__)
       autoload :Package, File.expand_path("../action/package", __FILE__)
@@ -163,11 +164,18 @@ module VagrantPlugins
             b2.use ClearForwardedPorts
             b2.use PrepareNFSValidIds
             b2.use SyncedFolderCleanup
-            b2.use Package
-            b2.use Export
-            b2.use PackageVagrantfile
+            b2.use Call, PackageOutputOverwriteConfirm do |env2, b3|
+              if env2[:result]
+                b3.use Package
+                b3.use Export
+                b3.use PackageVagrantfile
+              else
+                b3.use MessageWillNotOverwritePackageOutput
+              end
+            end
           end
         end
+
       end
 
       # This action just runs the provisioners on the machine.

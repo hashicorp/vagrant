@@ -32,6 +32,10 @@ module VagrantPlugins
           o.on("--vagrantfile FILE", "Vagrantfile to package with the box") do |v|
             options[:vagrantfile] = v
           end
+
+          o.on("-f", "--force", "Vagrantfile to package with the box") do |f|
+            options[:force_output_overwrite] = f
+          end
         end
 
         # Parse the options

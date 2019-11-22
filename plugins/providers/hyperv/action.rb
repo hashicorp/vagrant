@@ -79,10 +79,16 @@ module VagrantPlugins
             b2.use PackageSetupFiles
             b2.use action_halt
             b2.use SyncedFolderCleanup
-            b2.use Package
-            b2.use PackageVagrantfile
-            b2.use PackageMetadataJson
-            b2.use Export
+            b2.use Call, PackageOutputOverwriteConfirm do |env2, b3|
+              if env2[:result]
+                b3.use Package
+                b3.use PackageVagrantfile
+                b3.use PackageMetadataJson
+                b3.use Export
+              else
+                b3.use MessageWillNotOverwritePackageOutput
+              end
+            end
           end
         end
       end

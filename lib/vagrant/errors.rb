@@ -552,10 +552,6 @@ module Vagrant
       error_key(:output_is_directory, "vagrant.actions.general.package")
     end
 
-    class PackageOutputExists < VagrantError
-      error_key(:output_exists, "vagrant.actions.general.package")
-    end
-
     class PackageRequiresDirectory < VagrantError
       error_key(:requires_directory, "vagrant.actions.general.package")
     end
