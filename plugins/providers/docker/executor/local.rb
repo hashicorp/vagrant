@@ -27,10 +27,12 @@ module VagrantPlugins
               stdout: result.stdout
           end
 
-          if result.stdout.to_s.strip.length == 0
-            result.stderr
-          else
-            result.stdout
+          if opts
+            if opts[:with_stderr]
+              return result.stdout + " " + result.stderr
+            else
+              return result.stdout
+            end
           end
         end
 

@@ -20,9 +20,10 @@ module VagrantPlugins
       #
       # @return [String] id - ID matched from the docker build output.
       def build(dir, **opts, &block)
-        args   = Array(opts[:extra_args])
-        args   << dir
-        result = execute('docker', 'build', *args, &block)
+        args = Array(opts[:extra_args])
+        args << dir
+        opts = {with_stderr: true}
+        result = execute('docker', 'build', *args, opts, &block)
         matches = result.match(/Successfully built (?<id>.+)$/i)
         if !matches
           # Check for the new output format 'writing image sha256...'
