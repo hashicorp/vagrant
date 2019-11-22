@@ -19,7 +19,9 @@ do this on every platform.
 Removing the Vagrant program will remove the `vagrant` binary and all
 dependencies from your machine. After uninstalling the program, you can
 always [reinstall](/docs/installation/) again using standard
-methods.
+methods. Uninstalling Vagrant will _not_ remove user data. The section below this
+one gives more detailed instructions on how to remove that directory from your
+system.
 
 On **Windows**
 
@@ -47,8 +49,12 @@ Removing the user data will remove all [boxes](/docs/boxes.html),
 by Vagrant. Removing the user data effectively makes Vagrant think it
 is a fresh install.
 
-On all platforms, remove the `~/.vagrant.d` directory to delete the user
-data. When debugging, the Vagrant support team may ask you to remove this
+On all platforms, this directory is located in the root of your home directory,
+and is named `vagrant.d`. Simply remove the `~/.vagrant.d` directory to delete the user data. If on
+Windows, this directory is located at `C:\Users\YourUsername\.vagrant.d`, where
+`YourUsername` is the username of your local user.
+
+When debugging, the Vagrant support team may ask you to remove this
 directory. Before removing this directory, please make a backup.
 
 Running Vagrant will automatically regenerate any data necessary to run,
