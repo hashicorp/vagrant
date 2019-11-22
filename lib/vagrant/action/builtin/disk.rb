@@ -12,8 +12,11 @@ module Vagrant
           defined_disks = get_disks(machine, env)
 
           # Call into providers machine implementation for disk management
-          #
-          # machine.provider.configure_disks(defined_disks)
+          if machine.provider.capability?(:configure_disks)
+           machine.provider.capability(:configure_disks, defined_disks)
+          else
+            @logger.warn(":configure_disks capability not defined for provider, cannot configure disks")
+          end
 
           # Continue On
           @app.call(env)
