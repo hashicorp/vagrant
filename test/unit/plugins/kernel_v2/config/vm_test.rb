@@ -549,6 +549,58 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
   end
 
+  describe "#disk" do
+    before(:each) do
+      allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
+        with("disk_base_config").and_return("true")
+    end
+
+    it "stores the disks" do
+      subject.disk(:disk, size: 100)
+      subject.disk(:disk, size: 1000, primary: false, name: "storage")
+      subject.finalize!
+
+      assert_valid
+
+      d = subject.disks
+      expect(d.length).to eql(2)
+      expect(d[0].size).to eql(100)
+      expect(d[1].size).to eql(1000)
+      expect(d[1].name).to eql("storage")
+    end
+
+    it "raises an error with duplicate names" do
+      subject.disk(:disk, size: 100, name: "foo")
+      subject.disk(:disk, size: 1000, name: "foo", primary: false)
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "does not merge duplicate disks" do
+      subject.disk(:disk, size: 1000, primary: false, name: "storage")
+      subject.disk(:disk, size: 1000, primary: false, name: "backup")
+
+      merged = subject.merge(subject)
+      merged_disks = merged.disks
+
+      expect(merged_disks.length).to eql(2)
+    end
+
+    it "ignores non-overriding runs" do
+      subject.disk(:disk, name: "foo")
+
+      other = described_class.new
+      other.disk(:disk, name: "bar", primary: false)
+
+      merged = subject.merge(other)
+      merged_disks = merged.disks
+
+      expect(merged_disks.length).to eql(2)
+      expect(merged_disks[0].name).to eq("foo")
+      expect(merged_disks[1].name).to eq("bar")
+    end
+  end
+
   describe "#synced_folder(s)" do
     it "defaults to sharing the current directory" do
       subject.finalize!

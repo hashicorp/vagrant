@@ -1792,6 +1792,17 @@ en:
 # Translations for config validation errors
 #-------------------------------------------------------------------------------
     config:
+      disk:
+        invalid_type: |-
+          Disk type '%{type}' is not a valid type. Please pick one of the following supported disk types: %{types}
+        invalid_size: |-
+          Config option 'size' for disk '%{name}' on guest '%{machine}' is not an integer
+        invalid_file_type: |-
+          Disk config option 'file' for '%{machine}' is not a string.
+        missing_file: |-
+          Disk file '%{file_path}' for disk '%{name}' on machine '%{machine}' does not exist.
+        missing_provider: |-
+          Guest '%{machine}' using provider '%{provider_name}' has provider specific config options for a provider other than '%{provider_name}'. These provider config options will be ignored for this guest
       common:
         bad_field: "The following settings shouldn't exist: %{fields}"
       chef:
@@ -1892,6 +1903,10 @@ en:
           hyphens or dots. It cannot start with a hyphen or dot.
         ignore_provider_config: |-
           Ignoring provider config for validation...
+        multiple_primary_disks_error: |-
+          There are more than one primary disks defined for guest '%{name}'. Please ensure that only one disk has been defined as a primary disk.
+        multiple_disk_names_error: |-
+          Duplicate disk names defined: '%{name}'. Disk names must be unique.
         name_invalid: |-
           The sub-VM name '%{name}' is invalid. Please don't use special characters.
         network_ip_ends_in_one: |-
@@ -2138,6 +2153,9 @@ en:
       runner:
         waiting_cleanup: "Waiting for cleanup before exiting..."
         exit_immediately: "Exiting immediately, without cleanup!"
+      disk:
+        provider_unsupported: |-
+          Guest provider '%{provider}' does not support the disk feature, and will not use the disk configuration defined.
       vm:
         boot:
           booting: Booting VM...

@@ -79,6 +79,7 @@ module VagrantPlugins
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
+          b.use Disk
           b.use Customize, "pre-boot"
           b.use Boot
           b.use Customize, "post-boot"

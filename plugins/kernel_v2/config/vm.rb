@@ -11,6 +11,7 @@ require "vagrant/util/experimental"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
+require File.expand_path("../disk", __FILE__)
 
 module VagrantPlugins
   module Kernel_V2
@@ -43,6 +44,7 @@ module VagrantPlugins
       attr_accessor :post_up_message
       attr_accessor :usable_port_range
       attr_reader :provisioners
+      attr_reader :disks
 
       # This is an experimental feature that isn't public yet.
       attr_accessor :clone
@@ -73,6 +75,7 @@ module VagrantPlugins
         @hostname                      = UNSET_VALUE
         @post_up_message               = UNSET_VALUE
         @provisioners                  = []
+        @disks                         = []
         @usable_port_range             = UNSET_VALUE
 
         # Internal state
@@ -122,6 +125,28 @@ module VagrantPlugins
               new_defined_vms[key].options.merge!(subvm.options)
             end
           end
+
+          # Merge defined disks
+          other_disks = other.instance_variable_get(:@disks)
+          new_disks   = []
+          @disks.each do |p|
+            other_p = other_disks.find { |o| p.id == o.id }
+            if other_p
+              # there is an override. take it.
+              other_p.config = p.config.merge(other_p.config)
+
+              # Remove duplicate disk config from other
+              p = other_p
+              other_disks.delete(other_p)
+            end
+
+            # there is an override, merge it into the
+            new_disks << p.dup
+          end
+          other_disks.each do |p|
+            new_disks << p.dup
+          end
+          result.instance_variable_set(:@disks, new_disks)
 
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
@@ -384,6 +409,38 @@ module VagrantPlugins
         @__defined_vms[name].config_procs << [options[:config_version], block] if block
       end
 
+      # Stores disk config options from Vagrantfile
+      #
+      # @param [Symbol] type
+      # @param [Hash]   options
+      # @param [Block]  block
+      def disk(type, **options, &block)
+        disk_config = VagrantConfigDisk.new(type)
+
+        # Remove provider__option options before set_options, otherwise will
+        # show up as missing setting
+        # Extract provider hash options as well
+        provider_options = {}
+        options.delete_if do |p,o|
+          if o.is_a?(Hash) || p.to_s.include?("__")
+            provider_options[p] = o
+            true
+          end
+        end
+
+        disk_config.set_options(options)
+
+        # Add provider config
+        disk_config.add_provider_config(provider_options, &block)
+
+        if !Vagrant::Util::Experimental.feature_enabled?("disk_base_config")
+          @logger.warn("Disk config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `disk_base_config`. Disk will not be added to internal config, and will be ignored.")
+          return
+        end
+
+        @disks << disk_config
+      end
+
       #-------------------------------------------------------------------
       # Internal methods, don't call these.
       #-------------------------------------------------------------------
@@ -545,6 +602,10 @@ module VagrantPlugins
           if options[:hostpath]  == '.'
             current_dir_shared = true
           end
+        end
+
+        @disks.each do |d|
+          d.finalize!
         end
 
         if !current_dir_shared && !@__synced_folders["/vagrant"]
@@ -746,6 +807,26 @@ module VagrantPlugins
                 "vagrant.config.vm.network_ip_ends_in_one"))
             end
           end
+        end
+
+        # Validate disks
+        # Check if there is more than one primrary disk defined and throw an error
+        primary_disks = @disks.select { |d| d.primary && d.type == :disk }
+        if primary_disks.size > 1
+          errors << I18n.t("vagrant.config.vm.multiple_primary_disks_error",
+                           name: machine.name)
+        end
+
+        disk_names = @disks.map { |d| d.name }
+        duplicate_names = disk_names.detect{ |d| disk_names.count(d) > 1 }
+        if duplicate_names && duplicate_names.size
+          errors << I18n.t("vagrant.config.vm.multiple_disk_names_error",
+                           name: duplicate_names)
+        end
+
+        @disks.each do |d|
+          error = d.validate(machine)
+          errors.concat error if !error.empty?
         end
 
         # We're done with VM level errors so prepare the section
