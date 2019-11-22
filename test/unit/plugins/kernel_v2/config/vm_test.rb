@@ -550,6 +550,11 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   end
 
   describe "#disk" do
+    before(:each) do
+      allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
+        with("disk_base_config").and_return("true")
+    end
+
     it "stores the disks" do
       subject.disk(:disk, size: 100)
       subject.disk(:disk, size: 1000, primary: false, name: "storage")
