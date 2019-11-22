@@ -8,6 +8,23 @@ description: |-
 
 # Configuration
 
+<div class="alert alert-warning">
+  <strong>Warning!</strong> This feature is experimental and may break or
+  change in between releases. Use at your own risk. It currently is not officially
+  supported or functional.
+
+  This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+
+  ```
+  VAGRANT_EXPERIMENTAL="disk_base_config"
+  ```
+
+  Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
+  information about this flag visit the [Experimental docs page](/docs/experimental/)
+  for more info. Without this flag enabled, triggers with the `:type` option
+  will be ignored.
+</div>
+
 Vagrant Disks has several options that allow users to define and attach disks to guests.
 
 ## Disk Options
@@ -29,12 +46,31 @@ Vagrant Disks has several options that allow users to define and attach disks to
 
 ## Disk Types
 
+The disk config currently accepts three kinds of disk types:
+
+* `disk` (symbol)
+* `dvd` (symbol)
+* `floppy` (symbol)
+
+You can set a disk type with the first argument of a disk config in your Vagrantfile:
+
+```ruby
+config.vm.disk :disk, name: "backup", size: "10GB"
+config.vm.disk :floppy, name: "cool_files"
+```
+
 ## Provider Author Guide
 
 If you are a vagrant plugin author who maintains a provider for Vagrant, this short guide will hopefully give some information on how to use the internal disk config object.
 
-TODO: Fill out these main points
+<div class="alert alert-warning">
+  <strong>Warning!</strong> This guide is still being written as we develop this
+  new feature for Vagrant. Some points below are what we plan on covering once this
+  feature is more fully developed in Vagrant.
+</div>
 
 - Entry level builtin action `disk` and how to use it as a provider author
 - `id` is unique to each disk config object
 - `provider_config` and how to its structured and how to use/validate it
+
+More information should be coming once the disk feature is more functional.
