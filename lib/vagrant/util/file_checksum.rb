@@ -66,7 +66,8 @@ class FileChecksum
     digest = CHECKSUM_MAP[type.to_s.to_sym]
     if digest.nil?
       raise Vagrant::Errors::BoxChecksumInvalidType,
-        type: type.to_s
+        type: type.to_s,
+        types: CHECKSUM_MAP.keys.join(', ')
     end
     digest
   end
