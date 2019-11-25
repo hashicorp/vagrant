@@ -8,6 +8,7 @@ IMPROVEMENTS:
 - host/linux: Check for modinfo in /sbin if it's not on PATH [GH-11178]
 - core: Show guest name in hostname error message [GH-11175]
 - provisioners/shell: Linux guests now support `reboot` option [GH-11194]
+- darwin/nfs: Put each NFS export on its own line [GH-11216]
 
 BUG FIXES:
 
