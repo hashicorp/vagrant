@@ -63,6 +63,19 @@ To disable this warning, set the environment variable `VAGRANT_USE_VAGRANT_TRIGG
 EOF
         end
       end
+      if plugins.keys.include?("vagrant-alpine") &&
+        !ENV["VAGRANT_USE_VAGRANT_ALPINE"]
+      $stderr.puts <<-EOF
+WARNING: Vagrant has detected the `vagrant-alpine` plugin. This plugin conflicts
+with the internal Alpine Linux guest plugin. Please uninstall the
+`vagrant-alpine` plugin and run the command again if you wish to use the core
+Alpine Linux guest plugin. To uninstall the plugin, run the command shown below:
+
+vagrant plugin uninstall vagrant-alpine
+
+To disable this warning, set the environment variable `VAGRANT_USE_VAGRANT_ALPINE`.
+EOF
+      end
     end
   end
 end
