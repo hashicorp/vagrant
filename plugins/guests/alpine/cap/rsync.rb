@@ -8,7 +8,7 @@ module VagrantPlugins
 
         def self.rsync_install(machine)
           machine.communicate.tap do |comm|
-            comm.sudo('apk add rsync')
+            comm.sudo('apk add --update-cache rsync')
           end
         end
       end
