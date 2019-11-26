@@ -15,6 +15,7 @@ module Vagrant
       # Number of seconds to wait while attempting to get powershell version
       DEFAULT_VERSION_DETECTION_TIMEOUT = 30
       LOGGER = Log4r::Logger.new("vagrant::util::powershell")
+      POWERSHELL_CORE_EXE = "pwsh"
 
       # @return [String|nil] a powershell executable, depending on environment
       def self.executable
@@ -34,6 +35,8 @@ module Vagrant
                   @_powershell_executable = nil
                 end
               end
+            elsif !Which.which(POWERSHELL_CORE_EXE).nil?
+              @_powershell_executable = POWERSHELL_CORE_EXE
             else
               @_powershell_executable = nil
             end
