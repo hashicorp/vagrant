@@ -28,7 +28,7 @@ module VagrantPlugins
 
             def self.pip_setup(machine, pip_install_cmd = "")
               machine.communicate.sudo "pacman -Syy --noconfirm"
-              machine.communicate.sudo "pacman -S --noconfirm base-devel curl git"
+              machine.communicate.sudo "pacman -S --noconfirm base-devel curl git python"
 
               Pip::get_pip machine, pip_install_cmd
             end
