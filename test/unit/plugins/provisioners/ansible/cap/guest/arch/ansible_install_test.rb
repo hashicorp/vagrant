@@ -32,7 +32,7 @@ describe VagrantPlugins::Ansible::Cap::Guest::Arch::AnsibleInstall do
       expect(communicator).to receive(:sudo).once.ordered.
         with("pacman -Syy --noconfirm")
       expect(communicator).to receive(:sudo).once.ordered.
-        with("pacman -S --noconfirm base-devel curl git")
+        with("pacman -S --noconfirm base-devel curl git python")
       expect(VagrantPlugins::Ansible::Cap::Guest::Pip).to receive(:get_pip).once.ordered.
         with(machine, pip_install_cmd)
 
