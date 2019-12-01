@@ -7,8 +7,7 @@ module VagrantPlugins
         module Debian
           module AnsibleInstall
 
-
-            def self.ansible_install(machine, install_mode, ansible_version, pip_args, pip_install_cmd="")
+            def self.ansible_install(machine, install_mode, ansible_version, pip_args, pip_install_cmd = "")
               case install_mode
               when :pip
                 pip_setup machine, pip_install_cmd
@@ -36,7 +35,7 @@ INLINE_CRIPT
               machine.communicate.sudo "apt-get install -y -qq ansible"
             end
 
-            def self.pip_setup(machine, pip_install_cmd="")
+            def self.pip_setup(machine, pip_install_cmd = "")
               machine.communicate.sudo "apt-get update -y -qq"
               machine.communicate.sudo "apt-get install -y -qq build-essential curl git libssl-dev libffi-dev python-dev"
               Pip::get_pip machine, pip_install_cmd

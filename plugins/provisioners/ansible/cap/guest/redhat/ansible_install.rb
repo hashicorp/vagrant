@@ -8,7 +8,7 @@ module VagrantPlugins
         module RedHat
           module AnsibleInstall
 
-            def self.ansible_install(machine, install_mode, ansible_version, pip_args, pip_install_cmd="")
+            def self.ansible_install(machine, install_mode, ansible_version, pip_args, pip_install_cmd = "")
               case install_mode
               when :pip
                 pip_setup machine, pip_install_cmd
@@ -33,7 +33,7 @@ module VagrantPlugins
               machine.communicate.sudo "#{rpm_package_manager} -y --enablerepo=epel install ansible"
             end
 
-            def self.pip_setup(machine, pip_install_cmd="")
+            def self.pip_setup(machine, pip_install_cmd = "")
               rpm_package_manager = Facts::rpm_package_manager(machine)
 
               machine.communicate.sudo("#{rpm_package_manager} -y install curl gcc libffi-devel openssl-devel python-crypto python-devel python-setuptools")
