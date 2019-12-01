@@ -16,8 +16,12 @@ module VagrantPlugins
             end
 
             args_array = [pip_args, upgrade_arg, "#{package}#{version_arg}"]
+            args_array.reject! { |a| a.nil? || a.empty? }
 
-            machine.communicate.sudo "pip install #{args_array.join(' ')}"
+            pip_install = "pip install"
+            pip_install += " #{args_array.join(' ')}" unless args_array.empty?
+
+            machine.communicate.sudo pip_install
           end
 
           def self.get_pip(machine, pip_install_cmd=DEFAULT_PIP_INSTALL_CMD)
