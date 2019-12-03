@@ -296,11 +296,6 @@ jailbreak by setting `VAGRANT_SKIP_SUBPROCESS_JAILBREAK`.
 
 Vagrant will append the contents of this variable to the default user agent header.
 
-## `VAGRANT_USE_VAGRANT_ALPINE`
-
-Vagrant will not display the warning about disabling the core Alpine Linux guest
-plugin if the community plugin is installed.
-
 ## `VAGRANT_USE_VAGRANT_TRIGGERS`
 
 Vagrant will not display the warning about disabling the core trigger feature if
