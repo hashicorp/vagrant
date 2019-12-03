@@ -20,6 +20,18 @@ describe VagrantPlugins::CommandBox::Command::Outdated do
     allow(iso_env).to receive(:action_runner).and_return(action_runner)
   end
 
+  context "with force argument" do
+    let(:argv) { ["--force"] }
+
+    it "passes along the force update option" do
+      expect(action_runner).to receive(:run).with(any_args) { |action, **opts|
+        expect(opts[:box_outdated_force]).to be_truthy
+        true
+      }
+      subject.execute
+    end
+  end
+
   context "with global argument" do
     let(:argv) { ["--global"] }
 
@@ -27,10 +39,6 @@ describe VagrantPlugins::CommandBox::Command::Outdated do
       expect(subject).to receive(:outdated_global)
 
       subject.execute
-    end
-
-    before do
-
     end
 
     describe ".outdated_global" do

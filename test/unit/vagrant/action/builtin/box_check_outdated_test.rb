@@ -54,10 +54,20 @@ describe Vagrant::Action::Builtin::BoxCheckOutdated do
       env[:box_outdated_force] = true
 
       expect(app).to receive(:call).with(env).once
+      expect(box).to receive(:has_update?)
 
       subject.call(env)
 
       expect(env).to have_key(:box_outdated)
+    end
+
+    it "checks if not forced" do
+      machine.config.vm.box_check_update = false
+      env[:box_outdated_force] = false
+
+      expect(app).to receive(:call).with(env).once
+
+      subject.call(env)
     end
   end
 
