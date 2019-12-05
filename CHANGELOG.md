@@ -9,6 +9,7 @@ IMPROVEMENTS:
 - core: Show guest name in hostname error message [GH-11175]
 - provisioners/shell: Linux guests now support `reboot` option [GH-11194]
 - darwin/nfs: Put each NFS export on its own line [GH-11216]
+- contrib/bash: Add more completion flags to up command [GH-11223]
 
 BUG FIXES:
 
