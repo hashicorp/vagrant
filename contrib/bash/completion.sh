@@ -75,7 +75,19 @@ _vagrant() {
               then
                 local vm_list=$(find "${vagrant_state_file}/machines" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
               fi
-              local up_commands="--no-provision"
+              local up_commands="\
+                --provision \
+                --no-provision \
+                --provision-with \
+                --destroy-on-error \
+                --no-destroy-on-error \
+                --parallel \
+                --no-parallel
+                --provider \
+                --install-provider \
+                --no-install-provider \
+                -h \
+                --help"
               COMPREPLY=($(compgen -W "${up_commands} ${vm_list}" -- ${cur}))
               return 0
             ;;
