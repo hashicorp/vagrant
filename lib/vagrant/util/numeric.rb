@@ -49,6 +49,14 @@ module Vagrant
           bytes
         end
 
+        # Rounds actual value to two decimal places
+        #
+        # @param [Integer] bytes
+        # @return [Integer] megabytes - bytes representation in megabytes
+        def bytes_to_megabytes(bytes)
+          (bytes / MEGABYTE).round(2)
+        end
+
         # @private
         # Reset the cached values for platform. This is not considered a public
         # API and should only be used for testing.
