@@ -436,6 +436,10 @@ module Vagrant
       error_key(:machine_action_locked)
     end
 
+    class MachineFolderNotAccessible < VagrantError
+      error_key(:machine_folder_not_accessible)
+    end
+
     class MachineGuestNotReady < VagrantError
       error_key(:machine_guest_not_ready)
     end
