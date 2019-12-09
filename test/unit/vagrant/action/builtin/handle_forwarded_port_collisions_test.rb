@@ -69,7 +69,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
     end
 
     context "with forwarded port defined" do
-      let(:port_options){ {guest: 80, host: 8080} }
+      let(:port_options){ {guest: 80, host: 52811} }
       before do
         expect(vm_config).to receive(:networks).and_return([[:forwarded_port, port_options]]).twice
       end
@@ -80,7 +80,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       end
 
       context "with forwarded port already in use" do
-        let(:extra_in_use){ [8080] }
+        let(:extra_in_use){ [52811] }
 
         it "should raise a port collision error" do
           expect{ instance.call(env) }.to raise_error(Vagrant::Errors::ForwardPortCollision)
@@ -105,7 +105,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
 
       context "with custom port_check method" do
         let(:check_result){ [] }
-        let(:port_options){ {guest: 80, host: 8080, host_ip: "127.0.1.1"} }
+        let(:port_options){ {guest: 80, host: 52811, host_ip: "127.0.1.1"} }
 
         context "that accepts two parameters" do
           let(:collision_port_check) do
@@ -145,7 +145,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
 
   describe "#port_check" do
     let(:host_ip){ "127.0.0.1" }
-    let(:host_port){ 8080 }
+    let(:host_port){ 52811 }
 
     it "should check if the port is open" do
       expect(instance).to receive(:is_port_open?).with(host_ip, host_port).and_return true
