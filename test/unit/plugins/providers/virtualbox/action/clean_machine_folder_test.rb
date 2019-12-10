@@ -3,7 +3,7 @@ require_relative '../base'
 describe VagrantPlugins::ProviderVirtualBox::Action::CleanMachineFolder do
   let(:app) { double("app") }
   let(:driver) { double("driver") }
-  let(:machine) { double("machine", provider: double("provider", driver: driver)) }
+  let(:machine) { double("machine", provider: double("provider", driver: driver), name: "") }
   let(:env) {
     { machine: machine }
   }
