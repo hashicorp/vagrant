@@ -19,6 +19,7 @@ module VagrantPlugins
             clean_machine_folder(machine_folder)
           rescue Errno::EPERM
             raise Vagrant::Errors::MachineFolderNotAccessible,
+              name: env[:machine].name,
               path: machine_folder
           end
 
