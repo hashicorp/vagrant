@@ -52,6 +52,17 @@ The remainder of the available options are optional:
   the script. Vagrant will handle quoting for environment variable values, but
   the keys remain untouched.
 
+  Example:
+
+    ```ruby
+    s.env = {
+      PERL_TESTS: "ENV['PERL_TESTS'] || yes",
+      GOLANG_TESTS: "ENV['GOLANG_TESTS'] || yes"
+    }
+    ```
+    This syntax allow you to redefine environment variables on command line when
+    running Vagrant: `PERL_TESTS=no vagrant up`.
+
 * `keep_color` (boolean) - Vagrant automatically colors output in green and
   red depending on whether the output is from stdout or stderr. If this is
   true, Vagrant will not do this, allowing the native colors from the script
