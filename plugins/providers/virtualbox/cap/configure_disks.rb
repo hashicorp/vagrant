@@ -7,19 +7,19 @@ module VagrantPlugins
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         def self.configure_disks(machine, defined_disks)
-          return nil if defined_disks.empty?
-          disks = current_vm_disks(machine)
+          return if defined_disks.empty?
+
+          current_disks = machine.provider.driver.list_hdds
+          # Compare current disks to config, and if there's a delta, adjust accordingly
+          #
+          # Compare by name if possible
+          defined_disks.each do |disk|
+            if disk.type == :disk
+            end
+          end
         end
 
         protected
-
-        # Maybe move these into the virtualbox driver??
-        # Versioning might be an issue :shrug:
-
-        def self.current_vm_disks(machine)
-          disks = {}
-          info = machine.provider.driver.show_vm_info(machine.id)
-        end
 
         def self.vmdk_to_vdi(driver)
         end

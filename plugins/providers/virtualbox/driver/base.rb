@@ -383,6 +383,55 @@ module VagrantPlugins
           info
         end
 
+        # @return [Array] hdds An array of hashes of harddrive info for a guest
+        def list_hdds
+          hdds = []
+          tmp_drive = {}
+          execute('list', 'hdds', retryable: true).split("\n").each do |line|
+            if line == "" # separator between disks
+              hdds << tmp_drive
+              tmp_drive = {}
+              next
+            end
+            parts = line.partition(":")
+            key = parts.first.strip
+            value = parts.last.strip
+            tmp_drive[key] = value
+          end
+          hdds << tmp_drive unless tmp_drive.empty?
+
+          hdds
+        end
+
+        # @param [String] disk_file
+        # @param [Integer] disk_size_in_mb
+        def resize_disk(disk_file, disk_size_in_mb)
+          # todo: better error handling for this execute
+          # todo: MEDIUM changes if virtualbox is older than 5. Need a proper check/switch
+          # Maybe move this into version_4, then version_5
+          execute("modify#{MEDIUM}", disk_file, '--resize', disk_size_in_mb.to_s)
+        end
+
+        # @param [String] uui - virtual machines uuid
+        # @param [Hash] disk - disk to attach
+        def attach_disk(uuid, disk)
+          controller = disk[:controller]
+          port = disk[:port]
+          device = disk[:device]
+          file = disk[:file]
+
+          # todo: hard set to type hdd, need to look if all types are compatible with these flags
+          execute('storageattach', uuid, '--storagectl', controller, '--port', port, '--device', device, '--type', 'hdd',  '--medium', file)
+        end
+
+        # Removes a disk from the given virtual machine
+        #
+        # @param [String] disk_file
+        def remove_disk(disk_file)
+          # todo: better error handling for this execute
+          execute("closemedium", disk_file, '--delete')
+        end
+
         # Execute the given subcommand for VBoxManage and return the output.
         def execute(*command, &block)
           # Get the options hash if it exists
