@@ -383,6 +383,9 @@ module VagrantPlugins
           info
         end
 
+        # Lists all attached harddisks from a given virtual machine. Additionally,
+        # this method adds a new key "Disk Name" based on the disks file path from "Location"
+        #
         # @return [Array] hdds An array of hashes of harddrive info for a guest
         def list_hdds
           hdds = []
@@ -397,6 +400,10 @@ module VagrantPlugins
             key = parts.first.strip
             value = parts.last.strip
             tmp_drive[key] = value
+
+            if key == "Location"
+              tmp_drive["Disk Name"] = File.basename(value, ".*")
+            end
           end
           hdds << tmp_drive unless tmp_drive.empty?
 
