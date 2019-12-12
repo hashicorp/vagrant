@@ -419,6 +419,18 @@ module VagrantPlugins
           execute("modify#{MEDIUM}", disk_file, '--resize', disk_size_in_mb.to_s)
         end
 
+        # Creates a disk. Default format is VDI unless overridden
+        #
+        # Note: disk_size must be divisible by 512 bytes, otherwise operation will fail
+        # Source: https://www.virtualbox.org/ticket/5582
+        #
+        # @param [String] disk_file
+        # @param [Integer] disk_size - size in bytes (MUST BE DIVISIBLE BY 512 bytes)
+        # @param [String] disk_format - format of disk, defaults to "VDI"
+        def create_disk(disk_file, disk_size, disk_format="VDI")
+          execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_s, '--format', disk_format)
+        end
+
         # @param [String] uui - virtual machines uuid
         # @param [Hash] disk - disk to attach
         def attach_disk(uuid, disk)
