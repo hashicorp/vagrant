@@ -62,18 +62,23 @@ module VagrantPlugins
           return defined_disk_size == requested_disk_size
         end
 
+        # Creates and attaches a disk to a machine
+        #
+        # @param [Vagrant::Machine] machine
+        # @param [Kernel_V2::VagrantConfigDisk] disk_config
         def self.create_disk(machine, disk_config)
           guest_info = machine.provider.driver.show_vm_info(machine.id)
           disk_provider_config = disk_config.provider_config[:virtualbox]
 
           guest_folder = File.dirname(guest_info["CfgFile"])
+          disk_ext = "vdi"
+
           if disk_provider_config
             if disk_provider_config.include?(:disk_type)
               disk_ext = disk_provider_config[:disk_type].downcase
             end
-          else
-            disk_ext = "vdi"
           end
+          # TODO: use File class for path separator instead
           disk_file = "#{guest_folder}/#{disk_config.name}.#{disk_ext}"
           require 'pry'
           binding.pry
@@ -82,6 +87,10 @@ module VagrantPlugins
           # Source: https://www.virtualbox.org/ticket/5582
           LOGGER.info("Attempting to create a new disk file '#{disk_file}' of size '#{disk_config.size}' bytes")
           machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
+
+          # TODO: Determine what port and device to attach disk to???
+          # look at guest_info and see what is in use
+          #machine.provider.driver.attach_disk(machine.id, nil, nil, disk_file)
         end
 
         def self.resize_disk(machine, disk_config, defined_disk)

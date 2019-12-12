@@ -428,16 +428,20 @@ module VagrantPlugins
         # @param [Integer] disk_size - size in bytes (MUST BE DIVISIBLE BY 512 bytes)
         # @param [String] disk_format - format of disk, defaults to "VDI"
         def create_disk(disk_file, disk_size, disk_format="VDI")
-          execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_s, '--format', disk_format)
+          execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_i.to_s, '--format', disk_format)
         end
 
+        # Controller-Port-Device looks like:
+        # SATA Controller-ImageUUID-0-0 (sub out ImageUUID)
+        # - Controller: SATA Controller
+        # - Port: 0
+        # - Device: 0
+        #
         # @param [String] uui - virtual machines uuid
         # @param [Hash] disk - disk to attach
-        def attach_disk(uuid, disk)
-          controller = disk[:controller]
-          port = disk[:port]
-          device = disk[:device]
-          file = disk[:file]
+        def attach_disk(uuid, port, device, file)
+          # Maybe only support SATA Controller for `:disk`???
+          controller = "SATA Controller"
 
           # todo: hard set to type hdd, need to look if all types are compatible with these flags
           execute('storageattach', uuid, '--storagectl', controller, '--port', port, '--device', device, '--type', 'hdd',  '--medium', file)
