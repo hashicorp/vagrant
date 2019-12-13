@@ -109,6 +109,8 @@ module VagrantPlugins
           machine.provider.driver.attach_disk(machine.id, port, device, disk_file)
         end
 
+        # @param [Vagrant::Machine] machine
+        # @return [String] port - The next available port on a given device
         def self.get_next_port(machine)
           vm_info = machine.provider.driver.show_vm_info
 
@@ -126,6 +128,9 @@ module VagrantPlugins
           port
         end
 
+        # @param [Hash] vm_info - Guest info from show_vm_info
+        # @param [Hash] defined_disk - A specific disk with info from list_hdd
+        # @return [Hash] disk - A hash with `port` and `device` keys found from a matching UUID in vm_info
         def self.get_port_and_device(vm_info, defined_disk)
           disk = {}
           vm_info.each do |key,value|
