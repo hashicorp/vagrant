@@ -44,7 +44,7 @@ module VagrantPlugins
             machine.ui.warn("Disk '#{disk.name}' not found in guest. Creating and attaching disk to guest...")
             # create new disk and attach
             create_disk(machine, disk)
-          elsif !compare_disk_state(disk, current_disk)
+          elsif compare_disk_state(machine, disk, current_disk)
             machine.ui.warn("Disk '#{disk.name}' needs to be resized. Attempting to resize disk...", prefix: true)
             resize_disk(machine, disk, current_disk)
           else
@@ -58,11 +58,18 @@ module VagrantPlugins
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         # @param [Hash] defined_disk
         # @return [Boolean]
-        def self.compare_disk_state(disk_config, defined_disk)
+        def self.compare_disk_state(machine, disk_config, defined_disk)
           requested_disk_size = Vagrant::Util::Numeric.bytes_to_megabytes(disk_config.size)
           defined_disk_size = defined_disk["Capacity"].split(" ").first.to_f
 
-          return defined_disk_size == requested_disk_size
+          if defined_disk_size > requested_disk_size
+            machine.ui.warn("VirtualBox does not support shrinking disk size. Cannot shrink '#{disk_config.name}' disks size")
+            return false
+          elsif defined_disk_size < requested_disk_size
+            return true
+          else
+            return false
+          end
         end
 
         # Creates and attaches a disk to a machine
