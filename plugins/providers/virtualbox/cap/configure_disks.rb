@@ -125,21 +125,34 @@ module VagrantPlugins
           port
         end
 
-
         def self.resize_disk(machine, disk_config, defined_disk)
-          # check if vmdk (probably)
-          # if so, convert
-          # then resize
-          # if converted, convert back
-          # reattach??
-          # done
+          if defined_disk["Storage format"] == "VMDK"
+            LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
+            # How to:
+            # grab disks port and device number
+            # clone disk to vdi formatted disk
+            # detatch vmdk disk??
+            # resize vdi
+            # clone disk to vmdk
+            # attach vmdk to original port/device
+            # delete vdi
+            # delete vmdk
+            #
+            # TODO: IF any of the above steps fail, display a useful error message
+            # telling the user how to recover
+            #
+            # Vagrant could also have a "rescue" here where in the case of failure, it simply
+            # reattaches the original disk
+          else
+            machine.provider.driver.resize_disk(defined_disk["Location"], disk_config.size.to_i)
+          end
         end
 
-        def self.vmdk_to_vdi(driver)
+        def self.vmdk_to_vdi(driver, defined_disk)
           LOGGER.warn("Converting disk from vmdk to vdi format")
         end
 
-        def self.vdi_to_vmdk(driver)
+        def self.vdi_to_vmdk(driver, defined_disk)
           LOGGER.warn("Converting disk from vdi to vmdk format")
         end
       end

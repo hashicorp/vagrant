@@ -433,6 +433,9 @@ module VagrantPlugins
           execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_i.to_s, '--format', disk_format)
         end
 
+        def clone_disk(disk_file, disk_format="VDI")
+        end
+
         # Controller-Port-Device looks like:
         # SATA Controller-ImageUUID-0-0 (sub out ImageUUID)
         # - Controller: SATA Controller
