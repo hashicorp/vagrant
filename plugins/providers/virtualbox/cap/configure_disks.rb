@@ -99,11 +99,10 @@ module VagrantPlugins
 
           # TODO: Determine what port and device to attach disk to???
           # look at guest_info and see what is in use
-
           # need to get the _correct_ port and device to attach disk to
           # Port is easy (pick the "next one" available), but what about device??? can you have more than one device per controller?
           port = get_next_port(machine)
-          device = "0"
+          device = "0" # TODO: Fix me
           machine.provider.driver.attach_disk(machine.id, port, device, disk_file)
         end
 
