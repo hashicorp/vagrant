@@ -129,7 +129,7 @@ module VagrantPlugins
             # clone disk to vdi formatted disk
             # detatch vmdk disk??
             # resize vdi
-            # clone disk to vmdk
+            # clone disk to vmdk ....(or don't clone back if requested file type is vdi??)
             # attach vmdk to original port/device
             # delete vdi
             # delete vmdk
