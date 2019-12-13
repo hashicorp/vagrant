@@ -13,8 +13,6 @@ module VagrantPlugins
           return if defined_disks.empty?
 
           current_disks = machine.provider.driver.list_hdds
-          require 'pry'
-          binding.pry
 
           defined_disks.each do |disk|
             if disk.type == :disk
@@ -90,8 +88,6 @@ module VagrantPlugins
           end
           # TODO: use File class for path separator instead
           disk_file = "#{guest_folder}/#{disk_config.name}.#{disk_ext}"
-          require 'pry'
-          binding.pry
 
           # TODO: Round disk_config.size to the nearest 512 bytes to make it divisble by 512
           # Source: https://www.virtualbox.org/ticket/5582
