@@ -1,5 +1,6 @@
 require "log4r"
 require "vagrant/util/numeric"
+require "vagrant/util/experimental"
 
 module VagrantPlugins
   module ProviderVirtualBox
@@ -11,6 +12,8 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         def self.configure_disks(machine, defined_disks)
           return if defined_disks.empty?
+
+          # return if Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
 
           machine.ui.info("Configuring storage mediums...")
 
