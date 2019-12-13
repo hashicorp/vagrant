@@ -372,9 +372,9 @@ module VagrantPlugins
         #
         # @param [String] uuid
         # @return [Hash] info
-        def show_vm_info(uuid)
+        def show_vm_info
           info = {}
-          execute('showvminfo', uuid, '--machinereadable', retryable: true).split("\n").each do |line|
+          execute('showvminfo', @uuid, '--machinereadable', retryable: true).split("\n").each do |line|
             parts = line.partition('=')
             key = parts.first.gsub('"', '')
             value = parts.last.gsub('"', '')

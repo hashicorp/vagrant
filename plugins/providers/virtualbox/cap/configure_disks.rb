@@ -67,7 +67,7 @@ module VagrantPlugins
         # @param [Vagrant::Machine] machine
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         def self.create_disk(machine, disk_config)
-          guest_info = machine.provider.driver.show_vm_info(machine.id)
+          guest_info = machine.provider.driver.show_vm_info
           disk_provider_config = disk_config.provider_config[:virtualbox]
 
           guest_folder = File.dirname(guest_info["CfgFile"])
