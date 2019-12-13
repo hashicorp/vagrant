@@ -411,14 +411,14 @@ module VagrantPlugins
         end
 
         # @param [String] disk_file
-        # @param [Integer] disk_size_in_mb
-        def resize_disk(disk_file, disk_size_in_mb)
+        # @param [Integer] disk_size in bytes
+        def resize_disk(disk_file, disk_size)
           # todo: better error handling for this execute
           # todo: MEDIUM changes if virtualbox is older than 5. Need a proper check/switch
           # Maybe move this into version_4, then version_5
           # if version 4, medium = "hd"
           medium = "medium"
-          execute("modify#{medium}", disk_file, '--resizebyte', disk_size_in_mb.to_i.to_s)
+          execute("modify#{medium}", disk_file, '--resizebyte', disk_size.to_i.to_s)
         end
 
         # Creates a disk. Default format is VDI unless overridden
