@@ -170,25 +170,22 @@ module VagrantPlugins
 
         def self.vmdk_to_vdi(driver, defined_disk)
           LOGGER.warn("Converting disk '#{defined_disk["Disk Name"]}' from 'vmdk' to 'vdi' format")
-          # todo: MEDIUM changes if virtualbox is older than 5. Need a proper check/switch
-          # Maybe move this into version_4, then version_5
-          # if version 4, medium = "hd"
-          medium = "medium"
-
           source = defined_disk["Location"]
           destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vdi"
-          driver.execute("clone#{medium}", source, destination, '--format', 'VDI')
+
+          driver.clone_disk(source, destination, 'VDI')
 
           destination
         end
 
         def self.vdi_to_vmdk(driver, defined_disk)
           LOGGER.warn("Converting disk from vdi to vmdk format")
-          medium = "medium"
-
           source = defined_disk["Location"]
           destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vmdk"
-          driver.execute("clone#{medium}", source, destination, '--format', 'VMDK')
+
+          driver.clone_disk(source, destination, 'VMDK')
+
+          destination
         end
       end
     end

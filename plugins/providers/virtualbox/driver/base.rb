@@ -433,7 +433,16 @@ module VagrantPlugins
           execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_i.to_s, '--format', disk_format)
         end
 
-        def clone_disk(disk_file, disk_format="VDI")
+        # @param [String] source
+        # @param [String] destination
+        # @param [String] disk_format
+        def clone_disk(source, destination, disk_format)
+          # todo: MEDIUM changes if virtualbox is older than 5. Need a proper check/switch
+          # Maybe move this into version_4, then version_5
+          # if version 4, medium = "hd"
+          medium = "medium"
+
+          execute("clone#{medium}", source, destination, '--format', disk_format)
         end
 
         # Controller-Port-Device looks like:
