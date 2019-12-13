@@ -12,6 +12,8 @@ module VagrantPlugins
         def self.configure_disks(machine, defined_disks)
           return if defined_disks.empty?
 
+          machine.ui.info("Configuring storage mediums...")
+
           current_disks = machine.provider.driver.list_hdds
 
           defined_disks.each do |disk|
@@ -39,15 +41,15 @@ module VagrantPlugins
           end
 
           if !current_disk
-            machine.ui.warn("Disk '#{disk.name}' not found in guest. Creating and attaching disk to guest...")
+            machine.ui.detail("Disk '#{disk.name}' not found in guest. Creating and attaching disk to guest...")
             # create new disk and attach
             create_disk(machine, disk)
           elsif compare_disk_state(machine, disk, current_disk)
-            machine.ui.warn("Disk '#{disk.name}' needs to be resized. Attempting to resize disk...", prefix: true)
+            machine.ui.detail("Disk '#{disk.name}' needs to be resized. Resizing disk...", prefix: true)
             resize_disk(machine, disk, current_disk)
           else
             # log no need to reconfigure disk, already in desired state
-            LOGGER.info("No further configuration required for disk '#{disk.name}'.")
+            LOGGER.info("No further configuration required for disk '#{disk.name}'")
           end
         end
 
