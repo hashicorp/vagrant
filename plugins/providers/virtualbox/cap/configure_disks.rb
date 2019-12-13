@@ -87,7 +87,8 @@ module VagrantPlugins
             end
           end
           # TODO: use File class for path separator instead
-          disk_file = "#{guest_folder}/#{disk_config.name}.#{disk_ext}"
+          #disk_file = "#{guest_folder}/#{disk_config.name}.#{disk_ext}"
+          disk_file = File.join(guest_folder, disk_config.name) + ".#{disk_ext}"
 
           # TODO: Round disk_config.size to the nearest 512 bytes to make it divisble by 512
           # Source: https://www.virtualbox.org/ticket/5582
@@ -121,14 +122,36 @@ module VagrantPlugins
           port
         end
 
+        def self.get_port_and_device(vm_info, defined_disk)
+          disk = {}
+          vm_info.each do |key,value|
+            if key.include?("ImageUUID") && value == defined_disk["UUID"]
+              disk_info = key.split("-")
+              disk[:port] = disk_info[2]
+              disk[:device] = disk_info[3]
+              break
+            else
+              next
+            end
+          end
+
+          disk
+        end
+
         def self.resize_disk(machine, disk_config, defined_disk)
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
             # How to:
             # grab disks port and device number
+            vm_info = machine.provider.driver.show_vm_info
+            disk_info = get_port_and_device(vm_info, defined_disk)
             # clone disk to vdi formatted disk
+            vdi_disk_file = vmdk_to_vdi(machine.provider.driver, defined_disk)
             # detatch vmdk disk??
+            machine.provider.driver.attach_disk(machine.id, disk_info[:port], disk_info[:device], vdi_disk_file)
+            machine.provider.driver.remove_disk(defined_disk["Location"])
             # resize vdi
+            machine.provider.driver.resize_disk(vdi_disk_file, disk_config.size.to_i)
             # clone disk to vmdk ....(or don't clone back if requested file type is vdi??)
             # attach vmdk to original port/device
             # delete vdi
@@ -145,11 +168,26 @@ module VagrantPlugins
         end
 
         def self.vmdk_to_vdi(driver, defined_disk)
-          LOGGER.warn("Converting disk from vmdk to vdi format")
+          LOGGER.warn("Converting disk '#{defined_disk["Disk Name"]}' from 'vmdk' to 'vdi' format")
+          # todo: MEDIUM changes if virtualbox is older than 5. Need a proper check/switch
+          # Maybe move this into version_4, then version_5
+          # if version 4, medium = "hd"
+          medium = "medium"
+
+          source = defined_disk["Location"]
+          destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vdi"
+          driver.execute("clone#{medium}", source, destination, '--format', 'VDI')
+
+          destination
         end
 
         def self.vdi_to_vmdk(driver, defined_disk)
           LOGGER.warn("Converting disk from vdi to vmdk format")
+          medium = "medium"
+
+          source = defined_disk["Location"]
+          destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vmdk"
+          driver.execute("clone#{medium}", source, destination, '--format', 'VMDK')
         end
       end
     end
