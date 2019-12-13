@@ -13,6 +13,8 @@ module VagrantPlugins
           return if defined_disks.empty?
 
           current_disks = machine.provider.driver.list_hdds
+          require 'pry'
+          binding.pry
 
           defined_disks.each do |disk|
             if disk.type == :disk
@@ -90,8 +92,30 @@ module VagrantPlugins
 
           # TODO: Determine what port and device to attach disk to???
           # look at guest_info and see what is in use
-          #machine.provider.driver.attach_disk(machine.id, nil, nil, disk_file)
+
+          require 'pry'
+          binding.pry
+          # need to get the _correct_ port and device to attach disk to
+          # Port is easy (pick the "next one" available), but what about device??? can you have more than one device per controller?
+          #disk_data = get_sata_controller_list(machine)
+          machine.provider.driver.attach_disk(machine.id, disk_data[:port], disk_data[:device], disk_file)
         end
+
+        def self.get_sata_controller_list(machine)
+          vm_info = show_vm_info
+
+          sata_controller = {}
+          vm_info.each do |key,value|
+            if key.include?("ImageUUID")
+              disk_info = key.split("-")
+            else
+              next
+            end
+          end
+
+          sata_controller
+        end
+
 
         def self.resize_disk(machine, disk_config, defined_disk)
           # check if vmdk (probably)
