@@ -34,6 +34,7 @@ module VagrantPlugins
           # Grab the existing configured disk, if it exists
           current_disk = nil
           if disk.primary
+            # TODO: This instead might need to be determined through the show_vm_info data instead
             current_disk = all_disks.first
           else
             current_disk = all_disks.select { |d| d["Disk Name"] == disk.name}.first
@@ -93,27 +94,28 @@ module VagrantPlugins
           # TODO: Determine what port and device to attach disk to???
           # look at guest_info and see what is in use
 
-          require 'pry'
-          binding.pry
           # need to get the _correct_ port and device to attach disk to
           # Port is easy (pick the "next one" available), but what about device??? can you have more than one device per controller?
-          #disk_data = get_sata_controller_list(machine)
-          machine.provider.driver.attach_disk(machine.id, disk_data[:port], disk_data[:device], disk_file)
+          port = get_next_port(machine)
+          device = "0"
+          machine.provider.driver.attach_disk(machine.id, port, device, disk_file)
         end
 
-        def self.get_sata_controller_list(machine)
-          vm_info = show_vm_info
+        def self.get_next_port(machine)
+          vm_info = machine.provider.driver.show_vm_info
 
-          sata_controller = {}
+          port = 0
           vm_info.each do |key,value|
             if key.include?("ImageUUID")
               disk_info = key.split("-")
+              port = disk_info[2]
             else
               next
             end
           end
 
-          sata_controller
+          port = (port.to_i + 1).to_s
+          port
         end
 
 

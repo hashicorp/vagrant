@@ -444,7 +444,7 @@ module VagrantPlugins
           controller = "SATA Controller"
 
           # todo: hard set to type hdd, need to look if all types are compatible with these flags
-          execute('storageattach', uuid, '--storagectl', controller, '--port', port, '--device', device, '--type', 'hdd',  '--medium', file)
+          execute('storageattach', uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--type', 'hdd',  '--medium', file)
         end
 
         # Removes a disk from the given virtual machine
