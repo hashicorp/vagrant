@@ -109,7 +109,7 @@ module VagrantPlugins
           if @primary
             @name = "vagrant_primary"
           else
-            @name = "name_#{@type.to_s}_#{@id.split("-").last}"
+            @name = "vagrant_#{@type.to_s}_#{@id.split("-").last}"
           end
         end
 
