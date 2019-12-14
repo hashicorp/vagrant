@@ -44,11 +44,9 @@ module VagrantPlugins
           end
 
           if !current_disk
-            machine.ui.detail("Disk '#{disk.name}' not found in guest. Creating and attaching disk to guest...")
             # create new disk and attach
             create_disk(machine, disk)
           elsif compare_disk_state(machine, disk, current_disk)
-            machine.ui.detail("Disk '#{disk.name}' needs to be resized. Resizing disk...", prefix: true)
             resize_disk(machine, disk, current_disk)
           else
             # log no need to reconfigure disk, already in desired state
@@ -80,6 +78,7 @@ module VagrantPlugins
         # @param [Vagrant::Machine] machine
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         def self.create_disk(machine, disk_config)
+          machine.ui.detail("Disk '#{disk_config.name}' not found in guest. Creating and attaching disk to guest...")
           guest_info = machine.provider.driver.show_vm_info
           disk_provider_config = disk_config.provider_config[:virtualbox]
 
@@ -148,6 +147,8 @@ module VagrantPlugins
         end
 
         def self.resize_disk(machine, disk_config, defined_disk)
+          machine.ui.detail("Disk '#{disk.name}' needs to be resized. Resizing disk...", prefix: true)
+
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
             # How to:
