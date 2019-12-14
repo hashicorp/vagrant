@@ -13,7 +13,7 @@ module VagrantPlugins
         def self.configure_disks(machine, defined_disks)
           return if defined_disks.empty?
 
-          # return if Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
+          return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
 
           machine.ui.info("Configuring storage mediums...")
 
