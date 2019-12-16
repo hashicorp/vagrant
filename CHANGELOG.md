@@ -10,6 +10,7 @@ IMPROVEMENTS:
 - provisioners/shell: Linux guests now support `reboot` option [GH-11194]
 - darwin/nfs: Put each NFS export on its own line [GH-11216]
 - contrib/bash: Add more completion flags to up command [GH-11223]
+- provider/virtualbox: Add VirtualBox provider support for version 6.1.x [GH-11250]
 
 BUG FIXES:
 
