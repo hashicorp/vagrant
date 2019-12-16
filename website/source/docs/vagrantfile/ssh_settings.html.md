@@ -126,9 +126,7 @@ net-ssh library (ignored by the `ssh` executable) and should not be used in gene
 This defaults to the value of `config.ssh.username`.
 
 * `config.ssh.shell` (string) - The shell to use when executing SSH commands from
-Vagrant. By default this is `bash -l`. Note that this has no effect on
-the shell you get when you run `vagrant ssh`. This configuration option
-only affects the shell to use when executing commands internally in Vagrant.
+Vagrant. By default this is `bash -l`.
 
 * `config.ssh.sudo_command` (string) - The command to use when executing a command
 with `sudo`. This defaults to `sudo -E -H %c`. The `%c` will be replaced by
