@@ -48,9 +48,7 @@ packets every 5 seconds by default to keep connections alive.
 
 * `config.winssh.shell` (string) - The shell to use when executing SSH commands from
 Vagrant. By default this is `cmd`. Valid values are `"cmd"` or `"powershell"`.
-Note that this has no effect on the shell you get when you run `vagrant ssh`.
-This configuration option only affects the shell to use when executing commands
-internally in Vagrant.
+When the WinSSH provider is enabled, this shell will be used when you run `vagrant ssh`.
 
 * `config.winssh.export_command_template` (string) - The template used to generate
 exported environment variables in the active session. This can be useful
