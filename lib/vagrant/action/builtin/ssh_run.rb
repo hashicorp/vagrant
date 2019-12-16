@@ -37,13 +37,17 @@ module Vagrant
           # Get the command and wrap it in a login shell
           command = ShellQuote.escape(env[:ssh_run_command], "'")
 
-          # This will always default to 'bash -l' unless it is explicitly set in
-          # the Vagrantfile, because the base SSHConfig object has already been
-          # finalized.
-          shell = env[:machine].config.ssh.shell
+          if env[:machine].config.vm.communicator == :winssh
+            shell = env[:machine].config.winssh.shell
+          else
+            shell = env[:machine].config.ssh.shell
+          end
 
-          if env[:machine].config.vm.communicator == :winssh && shell == "cmd"
-            command = "#{shell} /C #{command}"
+          if shell == "cmd"
+            # Add an extra space to the command so cmd.exe quoting works
+            # properly
+            command = "#{shell} /C #{command} "
+            env[:tty] = false
           else
             command = "#{shell} -c '#{command}'"
           end

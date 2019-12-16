@@ -88,14 +88,34 @@ describe Vagrant::Action::Builtin::SSHRun do
   end
 
   context "when using the WinSSH communicator" do
+    let(:winssh) { double("winssh", shell: "foo") }
+
     before do
       expect(vm).to receive(:communicator).and_return(:winssh)
-      expect(ssh).to receive(:shell).and_return("cmd")
+      expect(config).to receive(:winssh).and_return(winssh)
     end
 
-    it "should use Windows-specific flags for cmd" do
+    it "should use the WinSSH shell for running ssh commands" do
       ssh_info = { foo: :bar }
-      opts = {:extra_args=>["-t", "cmd /C dir"], :subprocess=>true}
+      opts = {:extra_args=>["-t", "foo -c 'dir'"], :subprocess=>true}
+
+      expect(ssh_klass).to receive(:exec).
+        with(ssh_info, opts)
+
+      env[:ssh_info] = ssh_info
+      env[:ssh_run_command] = "dir"
+      described_class.new(app, env).call(env)
+    end
+  end
+
+  context "when shell is cmd" do
+    before do
+      expect(ssh).to receive(:shell).and_return('cmd')
+    end
+
+    it "should use appropriate options for cmd" do
+      ssh_info = { foo: :bar }
+      opts = {:extra_args=>["cmd /C dir "], :subprocess=>true}
 
       expect(ssh_klass).to receive(:exec).
         with(ssh_info, opts)
