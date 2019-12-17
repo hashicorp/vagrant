@@ -1,9 +1,7 @@
 require_relative "../../../../../../base"
 require_relative "../shared/pip_ansible_install_examples"
 
-
 require Vagrant.source_root.join("plugins/provisioners/ansible/cap/guest/arch/ansible_install")
-
 
 describe VagrantPlugins::Ansible::Cap::Guest::Arch::AnsibleInstall do
   include_context "unit"
