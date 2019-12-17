@@ -147,7 +147,7 @@ module VagrantPlugins
         end
 
         def self.resize_disk(machine, disk_config, defined_disk)
-          machine.ui.detail("Disk '#{disk.name}' needs to be resized. Resizing disk...", prefix: true)
+          machine.ui.detail("Disk '#{disk_config.name}' needs to be resized. Resizing disk...", prefix: true)
 
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
