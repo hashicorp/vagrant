@@ -45,6 +45,22 @@ module VagrantPlugins
         require_relative 'cap/smb'
         Cap::SMB
       end
+
+      def self.check_community_plugin
+        plugins = Vagrant::Plugin::Manager.instance.installed_plugins
+        if plugins.keys.include?("vagrant-alpine")
+          $stderr.puts <<-EOF
+WARNING: Vagrant has detected the `vagrant-alpine` plugin. This plugin's
+functionality has been merged into the main Vagrant project and should be
+considered deprecated. To uninstall the plugin, run the command shown below:
+
+  vagrant plugin uninstall vagrant-alpine
+
+EOF
+        end
+      end
+
+      self.check_community_plugin
     end
   end
 end

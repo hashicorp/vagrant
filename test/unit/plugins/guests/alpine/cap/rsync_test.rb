@@ -16,9 +16,9 @@ describe 'VagrantPlugins::GuestAlpine::Cap::RSync' do
         VagrantPlugins::GuestAlpine::Plugin.components.guest_capabilities[:alpine].get(:rsync_install)
     end
 
-    it 'should install rsync' do
+    it 'should install rsync with --update-cache flag' do
         # communicator.should_receive(:sudo).with('apk add rsync')
-        expect(communicator).to receive(:sudo).with('apk add rsync')
+        expect(communicator).to receive(:sudo).with('apk add --update-cache rsync')
         allow_message_expectations_on_nil
         described_class.rsync_install(machine)
     end
