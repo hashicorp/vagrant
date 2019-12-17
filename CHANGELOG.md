@@ -12,6 +12,7 @@ IMPROVEMENTS:
 - contrib/bash: Add more completion flags to up command [GH-11223]
 - provider/virtualbox: Add VirtualBox provider support for version 6.1.x [GH-11250]
 - box/outdated: Allow to force check for box updates and ignore cached check [GH-11231]
+- guest/alpine: Update apk cache when installing rsync [GH-11220]
 
 BUG FIXES:
 
