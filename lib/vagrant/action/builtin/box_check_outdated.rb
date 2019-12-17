@@ -40,7 +40,7 @@ module Vagrant
           # Have download options specified in the environment override
           # options specified for the machine.
           download_options = {
-            automatic_check: true,
+            automatic_check: !env[:box_outdated_force],
             ca_cert: env[:ca_cert] || machine.config.vm.box_download_ca_cert,
             ca_path: env[:ca_path] || machine.config.vm.box_download_ca_path,
             client_cert: env[:client_cert] ||

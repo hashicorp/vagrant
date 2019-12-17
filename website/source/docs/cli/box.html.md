@@ -125,8 +125,13 @@ which may be different than the absolute latest version available.
 Checking for updates involves refreshing the metadata associated with
 a box. This generally requires an internet connection.
 
+By default, if Vagrant has recently checked for a box that's out of date, it will
+cache that answer and not look up another update for one hour. This cached value
+can be ignored if the `--force` flag is used.
+
 ## Options
 
+* `--force` - Check for updates for all installed boxes and ignore cache interval.
 * `--global` - Check for updates for all installed boxes, not just the
   boxes for the current Vagrant environment.
 
