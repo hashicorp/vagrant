@@ -47,7 +47,16 @@ module Vagrant
           raise Errors::VagrantInterrupt if env[:interrupted]
           action = @actions.shift
           @logger.info("Calling IN action: #{action}")
+
+          if !action.is_a?(Proc) && env[:hook]
+            hook_name = action.class.name.split("::").last.
+              gsub(/([a-z])([A-Z])/, '\1_\2').gsub('-', '_').downcase
+          end
+
+          env[:hook].call("before_#{hook_name}".to_sym) if hook_name
           @stack.unshift(action).first.call(env)
+          env[:hook].call("after_#{hook_name}".to_sym) if hook_name
+
           raise Errors::VagrantInterrupt if env[:interrupted]
           @logger.info("Calling OUT action: #{action}")
         rescue SystemExit
