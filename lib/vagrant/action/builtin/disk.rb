@@ -12,11 +12,13 @@ module Vagrant
           defined_disks = get_disks(machine, env)
 
           # Call into providers machine implementation for disk management
-          if machine.provider.capability?(:configure_disks)
-           machine.provider.capability(:configure_disks, defined_disks)
-          else
-            env[:ui].warn(I18n.t("vagrant.actions.disk.provider_unsupported",
-                               provider: machine.provider_name))
+          if !defined_disks.empty?
+            if machine.provider.capability?(:configure_disks)
+             machine.provider.capability(:configure_disks, defined_disks)
+            else
+              env[:ui].warn(I18n.t("vagrant.actions.disk.provider_unsupported",
+                                 provider: machine.provider_name))
+            end
           end
 
           # Continue On
