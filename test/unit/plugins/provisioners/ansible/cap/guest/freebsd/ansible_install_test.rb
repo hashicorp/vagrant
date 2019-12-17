@@ -31,7 +31,7 @@ describe VagrantPlugins::Ansible::Cap::Guest::FreeBSD::AnsibleInstall do
 
     describe "when install_mode is :default (or unknown)" do
       it "installs ansible with 'pkg' package manager" do
-        expect(communicator).to receive(:sudo).with("yes | pkg install ansible")
+        expect(communicator).to receive(:sudo).with("pkg install -qy py36-ansible")
 
         subject.ansible_install(machine, :default, "", "", "")
       end

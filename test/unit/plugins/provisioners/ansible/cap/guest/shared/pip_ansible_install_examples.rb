@@ -33,7 +33,7 @@ shared_examples_for "Ansible setup via pip on Debian-based systems" do
       expect(communicator).to receive(:sudo).once.ordered.
         with("apt-get update -y -qq")
       expect(communicator).to receive(:sudo).once.ordered.
-        with("apt-get install -y -qq build-essential curl git libssl-dev libffi-dev python-dev")
+        with("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev python-dev")
       expect(communicator).to receive(:sudo).once.ordered.
         with("pip install --upgrade ansible")
 
@@ -44,7 +44,7 @@ shared_examples_for "Ansible setup via pip on Debian-based systems" do
       expect(communicator).to receive(:sudo).once.ordered.
         with("apt-get update -y -qq")
       expect(communicator).to receive(:sudo).once.ordered.
-        with("apt-get install -y -qq build-essential curl git libssl-dev libffi-dev python-dev")
+        with("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" build-essential curl git libssl-dev libffi-dev python-dev")
       expect(communicator).to receive(:sudo).once.ordered.
         with("pip install")
 

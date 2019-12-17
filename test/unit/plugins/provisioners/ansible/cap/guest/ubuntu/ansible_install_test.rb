@@ -42,13 +42,13 @@ describe VagrantPlugins::Ansible::Cap::Guest::Ubuntu::AnsibleInstall do
             expect(communicator).to receive(:sudo).once.ordered.
               with("""
                   apt-get update -y -qq && \
-                  apt-get install -y -qq software-properties-common
+                  DEBIAN_FRONTEND=noninteractive apt-get install -y -qq software-properties-common --option \"Dpkg::Options::=--force-confold\"
                 """)
             expect(communicator).to receive(:sudo).once.ordered.
               with("""
                 add-apt-repository ppa:ansible/ansible -y && \
                 apt-get update -y -qq && \
-                apt-get install -y -qq ansible
+                DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ansible --option \"Dpkg::Options::=--force-confold\"
               """)
 
             subject.ansible_install(machine, :default, "", "", "")
@@ -62,7 +62,7 @@ describe VagrantPlugins::Ansible::Cap::Guest::Ubuntu::AnsibleInstall do
               with("""
                 add-apt-repository ppa:ansible/ansible -y && \
                 apt-get update -y -qq && \
-                apt-get install -y -qq ansible
+                DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ansible --option \"Dpkg::Options::=--force-confold\"
               """)
 
             subject.ansible_install(machine, :default, "", "", "")

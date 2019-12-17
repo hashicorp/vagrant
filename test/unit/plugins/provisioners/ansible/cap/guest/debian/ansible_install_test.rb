@@ -40,7 +40,7 @@ INLINE_CRIPT
 
         expect(communicator).to receive(:sudo).once.ordered.with(install_backports_if_wheezy_release)
         expect(communicator).to receive(:sudo).once.ordered.with("apt-get update -y -qq")
-        expect(communicator).to receive(:sudo).once.ordered.with("apt-get install -y -qq ansible")
+        expect(communicator).to receive(:sudo).once.ordered.with("DEBIAN_FRONTEND=noninteractive apt-get install -y -qq --option \"Dpkg::Options::=--force-confold\" ansible")
 
         subject.ansible_install(machine, :default, "", "", "")
       end
