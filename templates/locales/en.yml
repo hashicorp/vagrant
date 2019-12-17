@@ -964,6 +964,15 @@ en:
         If you believe this message is in error, please check the process
         listing for any "ruby" or "vagrant" processes and kill them. Then
         try again.
+      machine_folder_not_accessible: |-
+        Vagrant attempted to clean the machine folder for the machine '%{name}'
+        but does not have permission to read the following path:
+
+        %{path}
+
+        Please ensure that Vagrant has the proper permissions to access the path
+        above. You may need to grant this permission to the terminal emulator
+        running Vagrant as well.
       machine_guest_not_ready: |-
         Guest-specific operations were attempted on a machine that is not
         ready for guest communication. This should not happen and a bug
