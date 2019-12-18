@@ -14,6 +14,7 @@ IMPROVEMENTS:
 - box/outdated: Allow to force check for box updates and ignore cached check [GH-11231]
 - guest/alpine: Update apk cache when installing rsync [GH-11220]
 - provider/virtualbox: Improve error message when machine folder is inaccessible [GH-11239]
+- provisioner/ansible_local: Add pip install method for arch guests [GH-11265]
 
 BUG FIXES:
 
@@ -28,6 +29,7 @@ BUG FIXES:
 - core: Do not validate checksums if options are empty string [GH-11211]
 - provider/docker: Enhance docker build method to match against buildkit output [GH-11205]
 - provisioner/ansible_local: Don't prompt for input when installing Ansible on Ubuntu and Debian [GH-11191]
+- provisioner/ansible_local: Ensure all guest caps accept all passed in arguments [GH-11265]
 
 ## 2.2.6 (October 14, 2019)
 
