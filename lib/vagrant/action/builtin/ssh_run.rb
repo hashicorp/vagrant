@@ -47,7 +47,10 @@ module Vagrant
             # Add an extra space to the command so cmd.exe quoting works
             # properly
             command = "#{shell} /C #{command} "
-            env[:tty] = false
+          elsif shell == "powershell"
+            command = "$ProgressPreference = \"SilentlyContinue\"; #{command}"
+            command = Base64.strict_encode64(command.encode("UTF-16LE", "UTF-8"))
+            command = "#{shell} -encodedCommand #{command}"
           else
             command = "#{shell} -c '#{command}'"
           end
@@ -57,10 +60,11 @@ module Vagrant
           opts[:extra_args] ||= []
 
           # Allow the user to specify a tty or non-tty manually, but if they
-          # don't then we default to a TTY
+          # don't then we default to a TTY unless they are using WinSSH
           if !opts[:extra_args].include?("-t") &&
               !opts[:extra_args].include?("-T") &&
-              env[:tty]
+              env[:tty] &&
+              env[:machine].config.vm.communicator != :winssh
             opts[:extra_args] << "-t"
           end
 
