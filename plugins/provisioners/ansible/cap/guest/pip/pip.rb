@@ -16,19 +16,23 @@ module VagrantPlugins
             end
 
             args_array = [pip_args, upgrade_arg, "#{package}#{version_arg}"]
+            args_array.reject! { |a| a.nil? || a.empty? }
 
-            machine.communicate.sudo "pip install #{args_array.join(' ')}"
+            pip_install = "pip install"
+            pip_install += " #{args_array.join(' ')}" unless args_array.empty?
+
+            machine.communicate.sudo pip_install
           end
 
-          def self.get_pip(machine, pip_install_cmd=DEFAULT_PIP_INSTALL_CMD)
+          def self.get_pip(machine, pip_install_cmd = DEFAULT_PIP_INSTALL_CMD)
             # The objective here is to get pip either by default
-            # or by the argument passed in. The objective is not 
+            # or by the argument passed in. The objective is not
             # to circumvent the pip setup by passing in nothing.
             # Thus, we stick with the default on an empty string.
             # Typecast added in the check for safety.
 
             if pip_install_cmd.to_s.empty?
-              pip_install_cmd=DEFAULT_PIP_INSTALL_CMD
+              pip_install_cmd = DEFAULT_PIP_INSTALL_CMD
             end
 
             machine.ui.detail I18n.t("vagrant.provisioners.ansible.installing_pip")
