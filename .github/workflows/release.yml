@@ -1,0 +1,22 @@
+on:
+  push:
+    branches:
+      - 'build-*'
+    tags: '*'
+    paths-ignore:
+      - 'CHANGELOG.md'
+      - 'website/**'
+
+jobs:
+  trigger-release:
+    name: Trigger Installers Build
+    runs-on: self-hosted
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v1
+      - name: Create Builders Release
+        run: ./.ci/release.sh
+        working-directory: ${{github.workspace}}
+      - name: Clean Workspace
+        if: always()
+        run: rm -rf ${{ github.workspace }}
