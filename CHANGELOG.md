@@ -25,6 +25,7 @@ BUG FIXES:
 - cloud/publish: Improve argument handling for missing arguments to command [GH-11184]
 - core: Get latest version for current provider during outdated check [GH-11192]
 - linux/nfs: avoid adding extra newlines to /etc/exports [GH-11201]
+- guest/darwin: Fix VMware synced folders on APFS [GH-11267]
 - guest/redhat: Ensure `nfs-server` is restarted when installing nfs client [GH-11212]
 - core: Do not validate checksums if options are empty string [GH-11211]
 - provider/docker: Enhance docker build method to match against buildkit output [GH-11205]
