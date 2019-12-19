@@ -75,7 +75,8 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       end
 
       it "should check if host port is in use" do
-        expect(instance).to receive(:is_forwarded_already).and_return false
+        expect(instance).to receive(:is_forwarded_already).and_return(false)
+        expect(instance).to receive(:is_port_open?).and_return(false)
         instance.call(env)
       end
 
@@ -148,7 +149,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
     let(:host_port){ 8080 }
 
     it "should check if the port is open" do
-      expect(instance).to receive(:is_port_open?).with(host_ip, host_port).and_return true
+      expect(instance).to receive(:is_port_open?).with(host_ip, host_port).and_return(true)
       instance.send(:port_check, host_ip, host_port)
     end
 
@@ -156,13 +157,13 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       let(:host_ip){ nil }
 
       it "should set host_ip to 0.0.0.0 when unset" do
-        expect(instance).to receive(:is_port_open?).with("0.0.0.0", host_port).and_return true
+        expect(instance).to receive(:is_port_open?).with("0.0.0.0", host_port).and_return(true)
         instance.send(:port_check, host_ip, host_port)
       end
 
       it "should set host_ip to 127.0.0.1 when 0.0.0.0 is not available" do
-        expect(instance).to receive(:is_port_open?).with("0.0.0.0", host_port).and_raise Errno::EADDRNOTAVAIL
-        expect(instance).to receive(:is_port_open?).with("127.0.0.1", host_port).and_return true
+        expect(instance).to receive(:is_port_open?).with("0.0.0.0", host_port).and_raise(Errno::EADDRNOTAVAIL)
+        expect(instance).to receive(:is_port_open?).with("127.0.0.1", host_port).and_return(true)
         instance.send(:port_check, host_ip, host_port)
       end
     end
