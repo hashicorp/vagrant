@@ -17,7 +17,7 @@ you may set. A complete reference is shown below:
 * `cpus` (integer) - Number of virtual CPUs allocated to VM at startup.
 * `differencing_disk` (boolean) - **Deprecated** Use differencing disk instead of cloning entire VHD (use `linked_clone` instead) Default: false.
 * `enable_virtualization_extensions` (boolean) - Enable virtualization extensions for the virtual CPUs. Default: false
-* `enable_checkpoints` (boolean) Enable checkpoints of the VM. Default: false
+* `enable_checkpoints` (boolean) Enable checkpoints of the VM. Default: true
 * `enable_automatic_checkpoints` (boolean) Enable automatic checkpoints of the VM. Default: false
 * `ip_address_timeout` (integer) - Number of seconds to wait for the VM to report an IP address. Default: 120.
 * `linked_clone` (boolean) - Use differencing disk instead of cloning entire VHD. Default: false
