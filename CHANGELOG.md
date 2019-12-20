@@ -15,6 +15,7 @@ IMPROVEMENTS:
 - guest/alpine: Update apk cache when installing rsync [GH-11220]
 - provider/virtualbox: Improve error message when machine folder is inaccessible [GH-11239]
 - provisioner/ansible_local: Add pip install method for arch guests [GH-11265]
+- communicators/winssh: Use Windows shell for `vagrant ssh -c` [GH-11258]
 
 BUG FIXES:
 
@@ -544,7 +545,7 @@ BUG FIXES:
   - core: Rescue more exceptions when checking if port is open [GH-8517]
   - guests/solaris11: Inherit from Solaris guest and keep solaris11 specific methods [GH-9034]
   - guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
-  - guests/windows: Specify expected shell when executing on guest (fixes winssh communicator usage) [GH-9012]
+  - guests/windows: Specify expected shell when executing on guest (fixes einssh communicator usage) [GH-9012]
   - guests/windows: Include WinSSH Communicator when using insert_public_key [GH-9105]
   - hosts/windows: Check for vagrant.exe when validating versions within WSL [GH-9107, GH-8962]
   - providers/docker: Isolate windows check within executor to handle running through VM [GH-8921]
