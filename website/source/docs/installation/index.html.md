@@ -10,6 +10,8 @@ description: |-
 
 # Installing Vagrant
 
+First of all you must install one of provider. (VirtualBox)[https://www.virtualbox.org/wiki/Downloads] for example.
+
 Installing Vagrant is extremely easy. Head over to the
 [Vagrant downloads page](/downloads.html) and get the appropriate installer or
 package for your platform. Install the package using standard procedures for
