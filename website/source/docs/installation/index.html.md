@@ -11,7 +11,7 @@ description: |-
 # Installing Vagrant
 
 Installing Vagrant is extremely easy. Head over to the
-[Vagrant downloads page](/downloads.html) and get the appropriate installer or
+[Vagrant downloads page](https://www.vagrantup.com/downloads.html) and get the appropriate installer or
 package for your platform. Install the package using standard procedures for
 your operating system.
 
