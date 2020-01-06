@@ -71,7 +71,7 @@ describe Vagrant::Action::Builtin::Provision do
         prov.config = provisioner_config
         prov
       end
-      let(:provisioner_config){ {} }
+      let(:provisioner_config){ double("provisioner_config", name: "spec-test") }
 
       before{ expect(vm_config).to receive(:provisioners).and_return([provisioner]) }
 
