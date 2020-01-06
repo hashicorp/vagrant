@@ -25,9 +25,26 @@ module Vagrant
             # Store in the type map so that --provision-with works properly
             @_provisioner_types[result] = provisioner.type
 
+            # Set top level provisioner name to provisioner configs name if top level name not set.
+            # This is mostly for handling the shell provisioner, if a user has set its name like:
+            #
+            #   config.vm.provision "shell", name: "my_provisioner"
+            #
+            # Where `name` is a shell config option, not a top level provisioner class option
+            #
+            # Note: `name` is set to a symbol, since it is converted to one via #Config::VM.provision
+            provisioner_name = provisioner.name
+            if !provisioner_name
+              if provisioner.config.name
+                provisioner_name = provisioner.config.name.to_sym
+              end
+            else
+              provisioner_name = provisioner_name.to_sym
+            end
+
             # Build up the options
             options = {
-              name: provisioner.name,
+              name: provisioner_name,
               run:  provisioner.run,
               before:  provisioner.before,
               after:  provisioner.after,

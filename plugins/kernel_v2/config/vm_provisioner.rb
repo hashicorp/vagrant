@@ -9,7 +9,10 @@ module VagrantPlugins
 
       # Unique name for this provisioner
       #
-      # @return [String]
+      # Accepts a string, but is ultimately forced into a symbol in the top level method inside
+      # #Config::VM.provision method while being parsed from a Vagrantfile
+      #
+      # @return [Symbol]
       attr_reader :name
 
       # Internal unique name for this provisioner
