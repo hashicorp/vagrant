@@ -33,6 +33,7 @@ BUG FIXES:
 - provisioner/ansible_local: Don't prompt for input when installing Ansible on Ubuntu and Debian [GH-11191]
 - provisioner/ansible_local: Ensure all guest caps accept all passed in arguments [GH-11265]
 - host/windows: Fix regression that prevented port collisions from being detected [GH-11244]
+- core/provisioner: Set top level provisioner name if set in a provisioner config [GH-11295]
 
 ## 2.2.6 (October 14, 2019)
 
