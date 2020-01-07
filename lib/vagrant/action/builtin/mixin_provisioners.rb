@@ -35,7 +35,8 @@ module Vagrant
             # Note: `name` is set to a symbol, since it is converted to one via #Config::VM.provision
             provisioner_name = provisioner.name
             if !provisioner_name
-              if provisioner.config.name
+              if provisioner.config.respond_to?(:name) &&
+                  provisioner.config.name
                 provisioner_name = provisioner.config.name.to_sym
               end
             else
