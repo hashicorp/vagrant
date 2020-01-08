@@ -126,8 +126,8 @@ Some of these options are for advanced usage only and should not be used unless 
     ```ruby
     ansible.host_vars = {
       "host1" => {"http_port" => 80,
-                  "maxRequestsPerChild" => 808},
-                  "comments" => "text with spaces",
+                  "maxRequestsPerChild" => 808,
+                  "comments" => "text with spaces"},
       "host2" => {"http_port" => 303,
                   "maxRequestsPerChild" => 909}
     }
