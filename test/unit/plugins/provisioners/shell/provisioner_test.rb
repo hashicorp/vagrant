@@ -323,4 +323,82 @@ describe "Vagrant::Shell::Provisioner" do
       end
     end
   end
+
+  describe "#upload_path" do
+    context "when upload path is not set" do
+      let(:vsp) {
+        VagrantPlugins::Shell::Provisioner.new(machine, config)
+      }
+
+      let(:config) {
+        double(
+          :config,
+          :args        => "doesn't matter",
+          :env         => {},
+          :upload_path => nil,
+          :remote?     => false,
+          :path        => "doesn't matter",
+          :inline      => "doesn't matter",
+          :binary      => false,
+          :reset       => true,
+          :reboot      => false,
+        )
+      }
+
+      it "should default to /tmp/vagrant-shell" do
+        expect(vsp.upload_path).to eq("/tmp/vagrant-shell")
+      end
+
+      context "with winssh provisioner" do
+        before do
+          allow(machine).to receive_message_chain(:config, :vm, :communicator).and_return(:winssh)
+        end
+
+        it "should default to C:\\Windows\\Temp\\vagrant-shell" do
+          expect(vsp.upload_path).to eq("C:\\Windows\\Temp\\vagrant-shell")
+        end
+      end
+    end
+
+    context "when upload_path is set" do
+      let(:config) {
+        double(
+          :config,
+          :args        => "doesn't matter",
+          :env         => {},
+          :upload_path => "arbitrary",
+          :remote?     => false,
+          :path        => "doesn't matter",
+          :inline      => "doesn't matter",
+          :binary      => false,
+          :reset       => true,
+          :reboot      => false,
+        )
+      }
+
+      let(:vsp) {
+        VagrantPlugins::Shell::Provisioner.new(machine, config)
+      }
+
+      it "should use the value from from config" do
+        expect(vsp.upload_path).to eq("arbitrary")
+      end
+    end
+
+    context "with cached value" do
+      let(:config) { double(:config) }
+
+      let(:vsp) {
+        VagrantPlugins::Shell::Provisioner.new(machine, config)
+      }
+
+      before do
+        vsp.instance_variable_set(:@_upload_path, "anything")
+      end
+
+      it "should use cached value" do
+        expect(vsp.upload_path).to eq("anything")
+      end
+    end
+  end
 end

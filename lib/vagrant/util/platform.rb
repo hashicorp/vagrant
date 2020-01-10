@@ -213,11 +213,18 @@ module Vagrant
           return path if !cygwin?
 
           # Replace all "\" with "/", otherwise cygpath doesn't work.
-          path = path.gsub("\\", "/")
+          path = unix_windows_path(path)
 
           # Call out to cygpath and gather the result
           process = Subprocess.execute("cygpath", "-w", "-l", "-a", path.to_s)
           return process.stdout.chomp
+        end
+
+        # This takes any path and converts Windows-style path separators
+        # to Unix-like path separators.
+        # @return [String]
+        def unix_windows_path(path)
+          path.gsub("\\", "/")
         end
 
         # This checks if the filesystem is case sensitive. This is not a

@@ -54,7 +54,7 @@ SCRIPT
           end
 
           tfile.close
-          upload(tfile.path, remote_name)
+          upload(tfile.path, remote_name, mkdir: false)
           tfile.delete
 
           base_cmd = shell_cmd(opts.merge(shell: base_cmd))
@@ -156,6 +156,74 @@ SCRIPT
         @machine.config.winssh
       end
 
+      def upload(from, to, **opts)
+        opts = {
+          mkdir: true
+        }.merge(opts)
+
+        mkdir = opts[:mkdir]
+
+        to = Vagrant::Util::Platform.unix_windows_path(to)
+        @logger.debug("Uploading: #{from} to #{to}")
+
+        if File.directory?(from)
+          if from.end_with?(".")
+            @logger.debug("Uploading directory contents of: #{from}")
+            from = from.sub(/\.$/, "")
+          else
+            @logger.debug("Uploading full directory container of: #{from}")
+            to = File.join(to, File.basename(File.expand_path(from)))
+          end
+        end
+
+        scp_connect do |scp|
+          uploader = lambda do |path, remote_dest=nil|
+            if File.directory?(path)
+              Dir.new(path).each do |entry|
+                next if entry == "." || entry == ".."
+                full_path = File.join(path, entry)
+                dest = File.join(to, path.sub(/^#{Regexp.escape(from)}/, ""))
+                create_remote_directory(dest) if mkdir
+                uploader.call(full_path, dest)
+              end
+            else
+              if remote_dest
+                dest = File.join(remote_dest, File.basename(path))
+              else
+                dest = to
+                if to.end_with?(File::SEPARATOR)
+                  dest = File.join(to, File.basename(path))
+                end
+              end
+              @logger.debug("Ensuring remote directory exists for destination upload")
+              create_remote_directory(File.dirname(dest)) if mkdir
+              @logger.debug("Uploading file #{path} to remote #{dest}")
+              upload_file = File.open(path, "rb")
+              begin
+                scp.upload!(upload_file, dest)
+              ensure
+                upload_file.close
+              end
+            end
+          end
+          uploader.call(from)
+        end
+      rescue RuntimeError => e
+        # Net::SCP raises a runtime error for this so the only way we have
+        # to really catch this exception is to check the message to see if
+        # it is something we care about. If it isn't, we re-raise.
+        raise if e.message !~ /Permission denied/
+
+        # Otherwise, it is a permission denied, so let's raise a proper
+        # exception
+        raise Vagrant::Errors::SCPPermissionDenied,
+          from: from.to_s,
+          to: to.to_s
+      end
+
+      def create_remote_directory(dir)
+        execute("dir \"#{dir}\"\n if errorlevel 1 (mkdir \"#{dir}\")", shell: "cmd")
+      end
     end
   end
 end
