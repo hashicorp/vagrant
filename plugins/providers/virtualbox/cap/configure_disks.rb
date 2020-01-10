@@ -90,8 +90,6 @@ module VagrantPlugins
               disk_ext = disk_provider_config[:disk_type].downcase
             end
           end
-          # TODO: use File class for path separator instead
-          #disk_file = "#{guest_folder}/#{disk_config.name}.#{disk_ext}"
           disk_file = File.join(guest_folder, disk_config.name) + ".#{disk_ext}"
 
           # TODO: Round disk_config.size to the nearest 512 bytes to make it divisble by 512
