@@ -57,11 +57,6 @@ module Vagrant
           (bytes / MEGABYTE).round(2)
         end
 
-        # @param [Integer] bytes
-        # @return [Integer] bytes - rounded up to nearest 512
-        def round_to_512(bytes)
-        end
-
         # @private
         # Reset the cached values for platform. This is not considered a public
         # API and should only be used for testing.
