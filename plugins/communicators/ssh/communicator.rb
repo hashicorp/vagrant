@@ -65,7 +65,7 @@ module VagrantPlugins
           while true
             ssh_info = @machine.ssh_info
             break if ssh_info
-            sleep 0.5
+            sleep(0.5)
           end
 
           # Got it! Let the user know what we're connecting to.
@@ -354,6 +354,11 @@ module VagrantPlugins
         wait_for_ready(5)
       end
 
+      def generate_environment_export(env_key, env_value)
+        template = machine_config_ssh.export_command_template
+        template.sub("%ENV_KEY%", env_key).sub("%ENV_VALUE%", env_value) + "\n"
+      end
+
       protected
 
       # Opens an SSH connection and yields it to a block.
@@ -628,7 +633,7 @@ module VagrantPlugins
             end
 
             # Set the terminal
-            ch2.send_data generate_environment_export("TERM", "vt100")
+            ch2.send_data(generate_environment_export("TERM", "vt100"))
 
             # Set SSH_AUTH_SOCK if we are in sudo and forwarding agent.
             # This is to work around often misconfigured boxes where
@@ -651,7 +656,7 @@ module VagrantPlugins
                 @logger.warn("No SSH_AUTH_SOCK found despite forward_agent being set.")
               else
                 @logger.info("Setting SSH_AUTH_SOCK remotely: #{auth_socket}")
-                ch2.send_data generate_environment_export("SSH_AUTH_SOCK", auth_socket)
+                ch2.send_data(generate_environment_export("SSH_AUTH_SOCK", auth_socket))
               end
             end
 
@@ -669,11 +674,11 @@ module VagrantPlugins
               data += "printf #{PTY_DELIM_END}\n"
               data += "exit $exitcode\n"
               data = data.force_encoding('ASCII-8BIT')
-              ch2.send_data data
+              ch2.send_data(data)
             else
-              ch2.send_data "printf '#{CMD_GARBAGE_MARKER}'\n(>&2 printf '#{CMD_GARBAGE_MARKER}')\n#{command}\n".force_encoding('ASCII-8BIT')
+              ch2.send_data("printf '#{CMD_GARBAGE_MARKER}'\n(>&2 printf '#{CMD_GARBAGE_MARKER}')\n#{command}\n".force_encoding('ASCII-8BIT'))
               # Remember to exit or this channel will hang open
-              ch2.send_data "exit\n"
+              ch2.send_data("exit\n")
             end
 
             # Send eof to let server know we're done
@@ -757,11 +762,6 @@ module VagrantPlugins
         return false if !File.file?(path)
         source_path = Vagrant.source_root.join("keys", "vagrant")
         return File.read(path).chomp == source_path.read.chomp
-      end
-
-      def generate_environment_export(env_key, env_value)
-        template = machine_config_ssh.export_command_template
-        template.sub("%ENV_KEY%", env_key).sub("%ENV_VALUE%", env_value) + "\n"
       end
 
       def create_remote_directory(dir)

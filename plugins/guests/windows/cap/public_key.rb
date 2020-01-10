@@ -37,7 +37,7 @@ module VagrantPlugins
 
           # Ensure the user's ssh directory exists
           remote_ssh_dir = "#{home_dir}\\.ssh"
-          comm.execute("dir \"#{remote_ssh_dir}\"\n if errorlevel 1 (mkdir \"#{remote_ssh_dir}\")", shell: "cmd")
+          comm.create_remote_directory(remote_ssh_dir)
           remote_upload_path = "#{temp_dir}\\vagrant-insert-pubkey-#{Time.now.to_i}"
           remote_authkeys_path = "#{remote_ssh_dir}\\authorized_keys"
 
@@ -55,7 +55,7 @@ module VagrantPlugins
           File.write(keys_file.path, keys.join("\r\n") + "\r\n")
           comm.upload(keys_file.path, remote_upload_path)
           keys_file.delete
-          comm.execute <<-EOC.gsub(/^\s*/, ""), shell: "powershell"
+          comm.execute(<<-EOC.gsub(/^\s*/, ""), shell: "powershell")
             Set-Acl "#{remote_upload_path}" (Get-Acl "#{remote_authkeys_path}")
             Move-Item -Force "#{remote_upload_path}" "#{remote_authkeys_path}"
           EOC

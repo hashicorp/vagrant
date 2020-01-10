@@ -69,10 +69,10 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
   # by providing to `before`
   connection_setup = proc do
     allow(connection).to receive(:logger)
-    allow(connection).to receive(:closed?).and_return false
+    allow(connection).to receive(:closed?).and_return(false)
     allow(connection).to receive(:open_channel).
       and_yield(channel).and_return(channel)
-    allow(channel).to receive(:wait).and_return true
+    allow(channel).to receive(:wait).and_return(true)
     allow(channel).to receive(:close)
     allow(command_channel).to receive(:send_data)
     allow(command_channel).to receive(:eof!)
@@ -88,7 +88,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     allow(channel).to receive(:on_request)
     allow(channel).to receive(:on_process)
     allow(channel).to receive(:exec).with(anything).
-      and_yield(command_channel, '').and_return channel
+      and_yield(command_channel, '').and_return(channel)
     expect(command_channel).to receive(:on_request).with('exit-status').
       and_yield(nil, exit_data)
     # Return mocked net-ssh connection during setup
@@ -132,11 +132,11 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
 
     context "with an invalid shell test" do
       before do
-        expect(exit_data).to receive(:read_long).and_return 1
+        expect(exit_data).to receive(:read_long).and_return(1)
       end
 
       it "returns raises SSHInvalidShell error" do
-        expect{ communicator.ready? }.to raise_error Vagrant::Errors::SSHInvalidShell
+        expect{ communicator.ready? }.to raise_error(Vagrant::Errors::SSHInvalidShell)
       end
     end
   end
@@ -215,7 +215,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
 
     context "with exit code as non-zero" do
       before do
-        expect(exit_data).to receive(:read_long).and_return 1
+        expect(exit_data).to receive(:read_long).and_return(1)
       end
 
       it "returns false" do
@@ -224,7 +224,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     end
   end
 
-  describe ".upload" do
+  describe "#upload" do
     before do
       allow(communicator).to receive(:create_remote_directory)
       expect(communicator).to receive(:scp_connect).and_yield(scp)
@@ -241,7 +241,9 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     it "uploads a file if local path is a file" do
       file = Tempfile.new('vagrant-test')
       begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:\destination\file')
+        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file')
+        expect(Vagrant::Util::Platform).to receive(:unix_windows_path).with('C:\destination\file').
+          and_call_original
         communicator.upload(file.path, 'C:\destination\file')
       ensure
         file.delete
@@ -251,7 +253,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     it "raises custom error on permission errors" do
       file = Tempfile.new('vagrant-test')
       begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:\destination\file').
+        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file').
           and_raise("Permission denied")
         expect{ communicator.upload(file.path, 'C:\destination\file') }.to(
           raise_error(Vagrant::Errors::SCPPermissionDenied)
@@ -264,7 +266,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     it "does not raise custom error on non-permission errors" do
       file = Tempfile.new('vagrant-test')
       begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:\destination\file').
+        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file').
           and_raise("Some other error")
         expect{ communicator.upload(file.path, 'C:\destination\file') }.to raise_error(RuntimeError)
       ensure
@@ -523,6 +525,14 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       it "should generate custom export based on template" do
         expect(communicator.send(:generate_environment_export, "TEST", "value")).to eq("setenv TEST value\n")
       end
+    end
+  end
+
+  describe "#shell_execute" do
+    before(&connection_setup)
+    it "should not create a directory for the command wrapper script" do
+      expect(communicator).to receive(:upload).with(anything, anything, hash_including(mkdir: false))
+      communicator.shell_execute(connection, "dir")
     end
   end
 end
