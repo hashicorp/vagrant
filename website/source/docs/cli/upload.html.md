@@ -18,7 +18,7 @@ machine.
 
 * `destination` - Path on the guest machine to upload file or directory.
 
-* `source` - Path to file or diretory on host to upload to guest machine.
+* `source` - Path to file or directory on host to upload to guest machine.
 
 * `--compress` - Compress the file or directory before uploading to guest machine.
 
