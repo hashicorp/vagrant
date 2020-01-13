@@ -31,7 +31,7 @@ module Vagrant
 
         def write_disk_metadata(machine, current_disks)
           meta_file = machine.data_dir.join("disk_meta")
-          @logger.debug("Writing box metadata file to #{meta_file}")
+          @logger.debug("Writing disk metadata file to #{meta_file}")
           File.open(meta_file.to_s, "w+") do |file|
             file.write(JSON.dump(current_disks))
           end
