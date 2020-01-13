@@ -15,11 +15,13 @@ module VagrantPlugins
       def shell_execute(connection, command, **opts)
         opts = {
           sudo: false,
-          shell: nil
+          shell: nil,
+          force_raw: false
         }.merge(opts)
 
-        sudo  = opts[:sudo]
-        shell = (opts[:shell] || machine_config_ssh.shell).to_s
+        sudo      = opts[:sudo]
+        shell     = (opts[:shell] || machine_config_ssh.shell).to_s
+        force_raw = opts[:force_raw]
 
         @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
         exit_status = nil
@@ -31,33 +33,38 @@ module VagrantPlugins
           stderr_marker_found = false
           stderr_data_buffer = ''
 
-          tfile = Tempfile.new('vagrant-ssh')
-          remote_ext = shell == "powershell" ? "ps1" : "bat"
-          remote_name = "#{machine_config_ssh.upload_directory}\\#{File.basename(tfile.path)}.#{remote_ext}"
+          if force_raw
+            base_cmd = "cmd /Q /C #{command}"
+          else
+            tfile = Tempfile.new('vagrant-ssh')
+            remote_ext = shell == "powershell" ? "ps1" : "bat"
+            remote_name = "#{machine_config_ssh.upload_directory}\\#{File.basename(tfile.path)}.#{remote_ext}"
 
-          if shell == "powershell"
-            base_cmd = "powershell -File #{remote_name}"
-            tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
+            if shell == "powershell"
+              base_cmd = "powershell -File #{remote_name}"
+              tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
 Remove-Item #{remote_name}
 Write-Host #{CMD_GARBAGE_MARKER}
 [Console]::Error.WriteLine("#{CMD_GARBAGE_MARKER}")
 #{command}
 SCRIPT
-          else
-            base_cmd = remote_name
-            tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
+            else
+              base_cmd = remote_name
+              tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
 ECHO OFF
 ECHO #{CMD_GARBAGE_MARKER}
 ECHO #{CMD_GARBAGE_MARKER} 1>&2
 #{command}
 SCRIPT
+            end
+
+            tfile.close
+            upload(tfile.path, remote_name)
+            tfile.delete
+
+            base_cmd = shell_cmd(opts.merge(shell: base_cmd))
           end
 
-          tfile.close
-          upload(tfile.path, remote_name, mkdir: false)
-          tfile.delete
-
-          base_cmd = shell_cmd(opts.merge(shell: base_cmd))
           @logger.debug("Base SSH exec command: #{base_cmd}")
 
           ch.exec(base_cmd) do |ch2, _|
@@ -156,13 +163,7 @@ SCRIPT
         @machine.config.winssh
       end
 
-      def upload(from, to, **opts)
-        opts = {
-          mkdir: true
-        }.merge(opts)
-
-        mkdir = opts[:mkdir]
-
+      def upload(from, to)
         to = Vagrant::Util::Platform.unix_windows_path(to)
         @logger.debug("Uploading: #{from} to #{to}")
 
@@ -183,7 +184,7 @@ SCRIPT
                 next if entry == "." || entry == ".."
                 full_path = File.join(path, entry)
                 dest = File.join(to, path.sub(/^#{Regexp.escape(from)}/, ""))
-                create_remote_directory(dest) if mkdir
+                create_remote_directory(dest)
                 uploader.call(full_path, dest)
               end
             else
@@ -196,7 +197,7 @@ SCRIPT
                 end
               end
               @logger.debug("Ensuring remote directory exists for destination upload")
-              create_remote_directory(File.dirname(dest)) if mkdir
+              create_remote_directory(File.dirname(dest))
               @logger.debug("Uploading file #{path} to remote #{dest}")
               upload_file = File.open(path, "rb")
               begin
@@ -221,8 +222,8 @@ SCRIPT
           to: to.to_s
       end
 
-      def create_remote_directory(dir)
-        execute("dir \"#{dir}\"\n if errorlevel 1 (mkdir \"#{dir}\")", shell: "cmd")
+      def create_remote_directory(dir, force_raw=false)
+        execute("dir \"#{dir}\"\n if errorlevel 1 (mkdir \"#{dir}\")", shell: "cmd", force_raw: force_raw)
       end
     end
   end
