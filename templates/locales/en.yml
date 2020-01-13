@@ -1812,6 +1812,8 @@ en:
           Disk file '%{file_path}' for disk '%{name}' on machine '%{machine}' does not exist.
         missing_provider: |-
           Guest '%{machine}' using provider '%{provider_name}' has provider specific config options for a provider other than '%{provider_name}'. These provider config options will be ignored for this guest
+        no_name_set: |-
+          A 'name' option is required when defining a disk for guest '%{machine}'.
       common:
         bad_field: "The following settings shouldn't exist: %{fields}"
       chef:

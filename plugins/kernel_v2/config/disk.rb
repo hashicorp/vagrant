@@ -110,9 +110,8 @@ module VagrantPlugins
             @name = "vagrant_primary"
           else
             # TODO: Can't rely on `id` because it changes in between vagrant runs
-            #
-            # INSTEAD: Make name a hard requirement, and see if that solves things
-            @name = "vagrant_#{@type.to_s}_#{@id.split("-").last}"
+            #@name = "vagrant_#{@type.to_s}_#{@id.split("-").last}"
+            @name = nil
           end
         end
 
@@ -155,6 +154,10 @@ module VagrantPlugins
                                        machine: machine.name,
                                        provider_name: machine.provider_name))
           end
+        end
+
+        if !@name
+          errors << I18n.t("vagrant.config.disk.no_name_set", machine: machine.name)
         end
 
         errors
