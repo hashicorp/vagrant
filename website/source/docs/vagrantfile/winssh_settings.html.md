@@ -74,5 +74,3 @@ being executed.
 
 * `config.winssh.upload_directory` (string) - The upload directory used on the guest
 to store scripts for execute. This is set to `C:\Windows\Temp` by default.
-Vagrant will not attempt to create this directory, so it must already exist on
-the guest.
