@@ -203,6 +203,23 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
         expect(stderr).to eq("Dir1\nDir2\n")
       end
     end
+
+    context "with force_raw set to true" do
+      it "does not write to a temp file" do
+        expect(ssh_cmd_file).to_not receive(:puts)
+        communicator.execute("dir", force_raw: true)
+      end
+
+      it "does not upload a wrapper script" do
+        expect(communicator).to_not receive(:upload)
+        communicator.execute("dir", force_raw: true)
+      end
+
+      it "executes the base command" do
+        expect(channel).to receive(:exec).with(/dir/)
+        expect(communicator.execute("dir", force_raw: true)).to eq(0)
+      end
+    end
   end
 
   describe ".test" do
@@ -525,14 +542,6 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       it "should generate custom export based on template" do
         expect(communicator.send(:generate_environment_export, "TEST", "value")).to eq("setenv TEST value\n")
       end
-    end
-  end
-
-  describe "#shell_execute" do
-    before(&connection_setup)
-    it "should not create a directory for the command wrapper script" do
-      expect(communicator).to receive(:upload).with(anything, anything, hash_including(mkdir: false))
-      communicator.shell_execute(connection, "dir")
     end
   end
 end

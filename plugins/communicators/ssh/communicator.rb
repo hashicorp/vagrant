@@ -227,6 +227,7 @@ module VagrantPlugins
           command:     command,
           shell:       nil,
           sudo:        false,
+          force_raw:   false
         }.merge(opts || {})
 
         opts[:good_exit] = Array(opts[:good_exit])
@@ -238,6 +239,7 @@ module VagrantPlugins
           shell_opts = {
             sudo: opts[:sudo],
             shell: opts[:shell],
+            force_raw: opts[:force_raw]
           }
 
           shell_execute(connection, command, **shell_opts) do |type, data|
