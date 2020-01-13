@@ -43,9 +43,9 @@ module VagrantPlugins
           @_upload_path = config.upload_path.to_s
 
           if @_upload_path.empty?
-            case @machine.config.vm.communicator
-            when :winssh
-              @_upload_path = "C:\\Windows\\Temp\\vagrant-shell"
+            case @machine.config.vm.guest
+            when :windows
+              @_upload_path = "C:\\tmp\\vagrant-shell"
             else
               @_upload_path = "/tmp/vagrant-shell"
             end

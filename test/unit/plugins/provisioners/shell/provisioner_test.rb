@@ -8,6 +8,7 @@ describe "Vagrant::Shell::Provisioner" do
   let(:machine) {
     double(:machine, env: env, id: "ID").tap { |machine|
       allow(machine).to receive_message_chain(:config, :vm, :communicator).and_return(:not_winrm)
+      allow(machine).to receive_message_chain(:config, :vm, :guest).and_return(:linux)
       allow(machine).to receive_message_chain(:communicate, :tap) {}
     }
   }
@@ -349,13 +350,13 @@ describe "Vagrant::Shell::Provisioner" do
         expect(vsp.upload_path).to eq("/tmp/vagrant-shell")
       end
 
-      context "with winssh provisioner" do
+      context "windows" do
         before do
-          allow(machine).to receive_message_chain(:config, :vm, :communicator).and_return(:winssh)
+          allow(machine).to receive_message_chain(:config, :vm, :guest).and_return(:windows)
         end
 
-        it "should default to C:\\Windows\\Temp\\vagrant-shell" do
-          expect(vsp.upload_path).to eq("C:\\Windows\\Temp\\vagrant-shell")
+        it "should default to C:\\tmp\\vagrant-shell" do
+          expect(vsp.upload_path).to eq("C:\\tmp\\vagrant-shell")
         end
       end
     end
