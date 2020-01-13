@@ -133,7 +133,7 @@ end
 ## Default Router
 
 Depending on your setup, you may wish to manually override the default
-router configuration. This is required if you need access the Vagrant box from
+router configuration. This is required if you need to access the Vagrant box from
 other networks over the public network. To do so, you can use a shell
 provisioner script:
 
