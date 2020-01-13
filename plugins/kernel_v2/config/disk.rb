@@ -110,6 +110,8 @@ module VagrantPlugins
             @name = "vagrant_primary"
           else
             # TODO: Can't rely on `id` because it changes in between vagrant runs
+            #
+            # INSTEAD: Make name a hard requirement, and see if that solves things
             @name = "vagrant_#{@type.to_s}_#{@id.split("-").last}"
           end
         end

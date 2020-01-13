@@ -1,3 +1,5 @@
+require "json"
+
 module Vagrant
   module Action
     module Builtin
@@ -14,15 +16,25 @@ module Vagrant
           # Call into providers machine implementation for disk management
           if !defined_disks.empty?
             if machine.provider.capability?(:configure_disks)
-             machine.provider.capability(:configure_disks, defined_disks)
+             configured_disks = machine.provider.capability(:configure_disks, defined_disks)
             else
               env[:ui].warn(I18n.t("vagrant.actions.disk.provider_unsupported",
                                  provider: machine.provider_name))
             end
           end
 
+          write_disk_metadata(machine, configured_disks)
+
           # Continue On
           @app.call(env)
+        end
+
+        def write_disk_metadata(machine, current_disks)
+          meta_file = machine.data_dir.join("disk_meta")
+          @logger.debug("Writing box metadata file to #{meta_file}")
+          File.open(meta_file.to_s, "w+") do |file|
+            file.write(JSON.dump(current_disks))
+          end
         end
 
         def get_disks(machine, env)

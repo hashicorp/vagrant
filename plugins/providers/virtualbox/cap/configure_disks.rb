@@ -10,6 +10,7 @@ module VagrantPlugins
 
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
+        # @return [Hash] configured_disks - A hash of all the current configured disks
         def self.configure_disks(machine, defined_disks)
           return if defined_disks.empty?
 
@@ -19,21 +20,28 @@ module VagrantPlugins
 
           current_disks = machine.provider.driver.list_hdds
 
+          configured_disks = {disk: [], floppy: [], dvd: []}
+
           defined_disks.each do |disk|
             if disk.type == :disk
-              handle_configure_disk(machine, disk, current_disks)
+              disk_data = handle_configure_disk(machine, disk, current_disks)
+              configured_disks[:disk] << disk_data unless disk_data.empty?
             elsif disk.type == :floppy
               # TODO: Write me
             elsif disk.type == :dvd
               # TODO: Write me
             end
           end
+
+          return configured_disks
         end
 
         protected
 
         # Handles all disk configs of type `:disk`
+        # @param [Hash] - disk_metadata
         def self.handle_configure_disk(machine, disk, all_disks)
+          disk_metadata = {}
           # Grab the existing configured disk, if it exists
           current_disk = nil
           if disk.primary
@@ -45,13 +53,15 @@ module VagrantPlugins
 
           if !current_disk
             # create new disk and attach
-            create_disk(machine, disk)
+            disk_metadata = create_disk(machine, disk)
           elsif compare_disk_state(machine, disk, current_disk)
-            resize_disk(machine, disk, current_disk)
+            disk_metadata = resize_disk(machine, disk, current_disk)
           else
             # log no need to reconfigure disk, already in desired state
             LOGGER.info("No further configuration required for disk '#{disk.name}'")
           end
+
+          return disk_metadata
         end
 
         # Check to see if current disk is configured based on defined_disks
@@ -94,8 +104,13 @@ module VagrantPlugins
 
           # TODO: Round disk_config.size to the nearest 512 bytes to make it divisble by 512
           # Source: https://www.virtualbox.org/ticket/5582
+          #
+          # note: this might not be required... :thinking: needs more testing
           LOGGER.info("Attempting to create a new disk file '#{disk_file}' of size '#{disk_config.size}' bytes")
-          machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
+
+          var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
+          # grab uuid from var, might also need disk name
+          disk_metadata = {uuid: var.split(':').last.strip, name: disk_config.name}
 
           # TODO: Determine what port and device to attach disk to???
           # look at guest_info and see what is in use
@@ -104,6 +119,8 @@ module VagrantPlugins
           port = get_next_port(machine)
           device = "0" # TODO: Fix me
           machine.provider.driver.attach_disk(machine.id, port, device, disk_file)
+
+          disk_metadata
         end
 
         # @param [Vagrant::Machine] machine
@@ -173,6 +190,10 @@ module VagrantPlugins
           else
             machine.provider.driver.resize_disk(defined_disk["Location"], disk_config.size.to_i)
           end
+
+
+          disk_metadata = {uuid: defined_disk["UUID"], name: defined_disk["Name"]}
+          return disk_metadata
         end
 
         def self.vmdk_to_vdi(driver, defined_disk)
