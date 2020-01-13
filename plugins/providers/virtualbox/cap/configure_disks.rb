@@ -59,6 +59,7 @@ module VagrantPlugins
           else
             # log no need to reconfigure disk, already in desired state
             LOGGER.info("No further configuration required for disk '#{disk.name}'")
+            disk_metadata = {uuid: current_disk["UUID"], name: disk.name}
           end
 
           return disk_metadata
