@@ -34,7 +34,11 @@ module VagrantPlugins
           stderr_data_buffer = ''
 
           if force_raw
-            base_cmd = "cmd /Q /C #{command}"
+            if shell == "powershell"
+              base_cmd = "powershell \"Write-Host #{CMD_GARBAGE_MARKER}; [Console]::Error.WriteLine('#{CMD_GARBAGE_MARKER}'); #{command}\""
+            else
+              base_cmd = "cmd /q /c \"ECHO #{CMD_GARBAGE_MARKER} && ECHO #{CMD_GARBAGE_MARKER} 1>&2 && #{command}\""
+            end
           else
             tfile = Tempfile.new('vagrant-ssh')
             remote_ext = shell == "powershell" ? "ps1" : "bat"
@@ -197,7 +201,7 @@ SCRIPT
                 end
               end
               @logger.debug("Ensuring remote directory exists for destination upload")
-              create_remote_directory(File.dirname(dest))
+              create_remote_directory(File.dirname(dest), force_raw: true)
               @logger.debug("Uploading file #{path} to remote #{dest}")
               upload_file = File.open(path, "rb")
               begin
@@ -223,7 +227,7 @@ SCRIPT
       end
 
       def create_remote_directory(dir, force_raw=false)
-        execute("dir \"#{dir}\"\n if errorlevel 1 (mkdir \"#{dir}\")", shell: "cmd", force_raw: force_raw)
+        execute("if not exist \"#{dir}\" mkdir \"#{dir}\"", shell: "cmd", force_raw: force_raw)
       end
     end
   end

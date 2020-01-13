@@ -207,16 +207,22 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     context "with force_raw set to true" do
       it "does not write to a temp file" do
         expect(ssh_cmd_file).to_not receive(:puts)
-        communicator.execute("dir", force_raw: true)
+        expect(communicator.execute("dir", force_raw: true)).to eq(0)
       end
 
       it "does not upload a wrapper script" do
         expect(communicator).to_not receive(:upload)
-        communicator.execute("dir", force_raw: true)
+        expect(communicator.execute("dir", force_raw: true)).to eq(0)
       end
 
       it "executes the base command" do
         expect(channel).to receive(:exec).with(/dir/)
+        expect(communicator.execute("dir", force_raw: true)).to eq(0)
+      end
+
+      it "prepends UUID output to command for garbage removal" do
+        expect(channel).to receive(:exec).
+          with(/ECHO #{command_garbage_marker} && ECHO #{command_garbage_marker}.*/)
         expect(communicator.execute("dir", force_raw: true)).to eq(0)
       end
     end
