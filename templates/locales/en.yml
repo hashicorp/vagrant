@@ -2171,6 +2171,8 @@ en:
         waiting_cleanup: "Waiting for cleanup before exiting..."
         exit_immediately: "Exiting immediately, without cleanup!"
       disk:
+        cleanup_provider_unsupported: |-
+          Guest provider '%{provider}' does not support the cleaning up disks, and will not attempt to clean up attached disks on the guest..
         provider_unsupported: |-
           Guest provider '%{provider}' does not support the disk feature, and will not use the disk configuration defined.
       vm:

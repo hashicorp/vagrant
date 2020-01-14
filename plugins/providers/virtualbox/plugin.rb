@@ -44,6 +44,11 @@ module VagrantPlugins
         Cap::ConfigureDisks
       end
 
+      provider_capability(:virtualbox, :cleanup_disks) do
+        require_relative "cap/cleanup_disks"
+        Cap::CleanupDisks
+      end
+
       provider_capability(:virtualbox, :snapshot_list) do
         require_relative "cap"
         Cap
