@@ -463,10 +463,14 @@ module VagrantPlugins
 
         # Removes a disk from the given virtual machine
         #
-        # @param [String] disk_file
-        def remove_disk(disk_file)
-          # todo: better error handling for this execute
-          execute("closemedium", disk_file, '--delete')
+        # @param [String] disk_uuid
+        def close_medium(disk_uuid)
+          execute("closemedium", disk_uuid, '--delete')
+        end
+
+        def remove_disk(port, device)
+          controller = "SATA Controller"
+          execute('storageattach', @uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--medium', "none")
         end
 
         # Execute the given subcommand for VBoxManage and return the output.

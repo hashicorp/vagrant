@@ -18,7 +18,9 @@ module Vagrant
           if !defined_disks.empty?
             if machine.provider.capability?(:cleanup_disks)
               disk_meta_file = read_disk_metadata(machine)
-              machine.provider.capability(:cleanup_disks, defined_disks, disk_meta_file)
+              if !disk_meta_file.empty?
+                machine.provider.capability(:cleanup_disks, defined_disks, disk_meta_file)
+              end
             else
               env[:ui].warn(I18n.t("vagrant.actions.disk.provider_unsupported",
                                  provider: machine.provider_name))
@@ -31,7 +33,12 @@ module Vagrant
 
         def read_disk_metadata(machine)
           meta_file = machine.data_dir.join("disk_meta")
-          disk_meta = JSON.parse(meta_file.read)
+          if File.file?(meta_file)
+            disk_meta = JSON.parse(meta_file.read)
+          else
+            @logger.info("No previous disk_meta file defined for guest #{machine.name}")
+            disk_meta = {}
+          end
 
           return disk_meta
         end
