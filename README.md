@@ -90,7 +90,7 @@ provider/virtualbox/basic
 ...
 ```
 
-Then, run one of those components:
+ Then, run one of those components:
 
 ```
 $ rake acceptance:run COMPONENTS="cli"
