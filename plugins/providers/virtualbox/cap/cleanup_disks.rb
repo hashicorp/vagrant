@@ -10,7 +10,8 @@ module VagrantPlugins
 
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
-        def self.cleanup_disks(machine, defined_disks)
+        # @param [Hash] disk_meta_file
+        def self.cleanup_disks(machine, defined_disks, disk_meta_file)
           return if defined_disks.empty?
 
           return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")

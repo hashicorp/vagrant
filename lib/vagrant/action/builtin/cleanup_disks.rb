@@ -17,7 +17,8 @@ module Vagrant
           # Call into providers machine implementation for disk management
           if !defined_disks.empty?
             if machine.provider.capability?(:cleanup_disks)
-              machine.provider.capability(:cleanup_disks, defined_disks)
+              disk_meta_file = read_disk_metadata(machine)
+              machine.provider.capability(:cleanup_disks, defined_disks, disk_meta_file)
             else
               env[:ui].warn(I18n.t("vagrant.actions.disk.provider_unsupported",
                                  provider: machine.provider_name))
