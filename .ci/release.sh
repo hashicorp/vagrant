@@ -39,6 +39,7 @@ vagrant_version="${vagrant_version##*version: }"
 # update the repository variable with the desired destination
 repo_owner="${target_owner}"
 repo_name="${target_repository}"
+full_sha="master"
 export GITHUB_TOKEN="${HASHIBOT_TOKEN}"
 
 if [ "${tag}" = "" ]; then
