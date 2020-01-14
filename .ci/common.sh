@@ -254,8 +254,11 @@ function release_validate() {
 # $2: Asset file or directory of assets
 function release() {
     release_validate "${@}"
-    wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${1}" -delete \
-         "${1}" "${2}" "Failed to create release for version ${1}"
+    wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${1}" -delete
+    if [ $? -ne 0 ]; then
+        wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${1}" \
+             "${1}" "${2}" "Failed to create release for version ${1}"
+    fi
 }
 
 # Generate a GitHub prerelease
@@ -270,9 +273,13 @@ function prerelease() {
         ptag="${1}"
     fi
 
-    wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-         -delete -prerelease "${ptag}" "${2}" \
-         "Failed to create prerelease for version ${1}"
+    wrap_raw ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
+             -delete -prerelease "${ptag}" "${2}"
+    if [ $? -ne 0 ]; then
+        wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
+             -prerelease "${ptag}" "${2}" \
+             "Failed to create prerelease for version ${1}"
+    fi
     echo -n "${ptag}"
 }
 
