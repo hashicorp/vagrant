@@ -52,6 +52,11 @@ module VagrantPlugins
               LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
               disk_info = get_device_port(vm_info, d["uuid"])
 
+              # TODO: add proper vagrant error here with values
+              if disk_info.values.any?(nil)
+                raise Error, "could not determine device and port to remove disk"
+              end
+
               machine.ui.detail("Disk '#{d["name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
 
               # TODO: Maybe add a prompt for yes/no for closing the medium
