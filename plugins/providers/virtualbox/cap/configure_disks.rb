@@ -119,7 +119,7 @@ module VagrantPlugins
           # Port is easy (pick the "next one" available), but what about device??? can you have more than one device per controller?
           port = get_next_port(machine)
           device = "0" # TODO: Fix me
-          machine.provider.driver.attach_disk(machine.id, port, device, disk_file)
+          machine.provider.driver.attach_disk(port, device, disk_file)
 
           disk_metadata
         end

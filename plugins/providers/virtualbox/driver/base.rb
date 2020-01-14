@@ -453,12 +453,12 @@ module VagrantPlugins
         #
         # @param [String] uui - virtual machines uuid
         # @param [Hash] disk - disk to attach
-        def attach_disk(uuid, port, device, file)
+        def attach_disk(port, device, file, type="hdd")
           # Maybe only support SATA Controller for `:disk`???
           controller = "SATA Controller"
 
           # todo: hard set to type hdd, need to look if all types are compatible with these flags
-          execute('storageattach', uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--type', 'hdd',  '--medium', file)
+          execute('storageattach', @uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--type', type, '--medium', file)
         end
 
         # Removes a disk from the given virtual machine
