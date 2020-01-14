@@ -9,13 +9,14 @@ module VagrantPlugins
 
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
-        # @param [Hash] disk_meta_file
+        # @param [Hash] disk_meta_file - A hash of all the previously defined disks from the last configure_disk action
         def self.cleanup_disks(machine, defined_disks, disk_meta_file)
           return if defined_disks.empty?
 
           return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
 
           handle_cleanup_disk(machine, defined_disks, disk_meta_file["disk"])
+          # TODO: Floppy and DVD disks
         end
 
         protected
@@ -41,6 +42,9 @@ module VagrantPlugins
           disk_info
         end
 
+        # @param [Vagrant::Machine] machine
+        # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
+        # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
           vm_info = machine.provider.driver.show_vm_info
 
