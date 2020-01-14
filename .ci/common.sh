@@ -1,15 +1,23 @@
+# last-modified: Tue Jan 14 20:37:58 UTC 2020
 #!/usr/bin/env bash
 
+# Path to file used for output redirect
+# and extracting messages for warning and
+# failure information sent to slack
+function output_file() {
+    printf "/tmp/.ci-output"
+}
+
 # Write failure message, send error to configured
-# slack, and exit with non-zero status. If a
-# /tmp/.ci-output file exists, the last 5 lines will be
+# slack, and exit with non-zero status. If an
+# "$(output_file)" file exists, the last 5 lines will be
 # included in the slack message.
 #
 # $1: Failure message
 function fail() {
     (>&2 echo "ERROR: ${1}")
-    if [ -f "/tmp/.ci-output" ]; then
-        slack -s error -m "ERROR: ${1}" -f /tmp/.ci-output -T 5
+    if [ -f ""$(output_file)"" ]; then
+        slack -s error -m "ERROR: ${1}" -f "$(output_file)" -T 5
     else
         slack -s error -m "ERROR: ${1}"
     fi
@@ -22,8 +30,8 @@ function fail() {
 # $1: Warning message
 function warn() {
     (>&2 echo "WARN:  ${1}")
-    if [ -f "/tmp/.ci-output" ]; then
-        slack -s warn -m "WARNING: ${1}" -f /tmp/.ci-output
+    if [ -f ""$(output_file)"" ]; then
+        slack -s warn -m "WARNING: ${1}" -f "$(output_file)"
     else
         slack -s warn -m "WARNING: ${1}"
     fi
@@ -38,13 +46,20 @@ function warn() {
 # $@{$#}: Failure message
 function wrap() {
     i=$(("${#}" - 1))
-    rm -f /tmp/.ci-output
-    "${@:1:$i}" > /tmp/.ci-output 2>&1
+    wrap_raw "${@:1:$i}"
     if [ $? -ne 0 ]; then
-        cat /tmp/.ci-output
+        cat "$(output_file)"
         fail "${@:$#}"
     fi
-    rm /tmp/.ci-output
+    rm "$(output_file)"
+}
+
+# Execute command while redirecting all output to
+# a file. Exit status is returned.
+function wrap_raw() {
+    rm -f "$(output_file)"
+    "${@}" > "$(output_file)" 2>&1
+    return $?
 }
 
 # Execute command while redirecting all output to
@@ -57,30 +72,57 @@ function wrap() {
 # $@{$#}: Failure message
 function wrap_stream() {
     i=$(("${#}" - 1))
-    rm -f /tmp/.ci-output
-    "${@:1:$i}" > /tmp/.ci-output 2>&1 &
-    pid=$!
-    until [ -f /tmp/.ci-output ]; do
-        sleep 0.1
-    done
-    tail -f --quiet --pid "${pid}" /tmp/.ci-output
-    wait "${pid}"
+    wrap_stream_raw "${@:1:$i}"
     if [ $? -ne 0 ]; then
         fail "${@:$#}"
     fi
-    rm /tmp/.ci-output
+    rm "$(output_file)"
 }
+
+# Execute command while redirecting all output
+# to a file. Command output will be streamed
+# during execution. Exit status is returned
+function wrap_stream_raw() {
+    rm -f "$(output_file)"
+    "${@}" > "$(output_file)" 2>&1 &
+    pid=$!
+    until [ -f "$(output_file)" ]; do
+        sleep 0.1
+    done
+    tail -f --quiet --pid "${pid}" "$(output_file)"
+    wait "${pid}"
+    return $?
+}
+
 
 # Send command to packet device and wrap
 # execution
+# $@{1:$#-1}: Command to execute
+# $@{$#}: Failure message
 function pkt_wrap() {
     wrap packet-exec run -quiet -- "${@}"
 }
 
 # Send command to packet device and wrap
+# execution
+# $@: Command to execute
+function pkt_wrap_raw() {
+    wrap_raw packet-exec run -quiet -- "${@}"
+}
+
+# Send command to packet device and wrap
 # execution with output streaming
+# $@{1:$#-1}: Command to execute
+# $@{$#}: Failure message
 function pkt_wrap_stream() {
     wrap_stream packet-exec run -quiet -- "${@}"
+}
+
+# Send command to packet device and wrap
+# execution with output streaming
+# $@: Command to execute
+function pkt_wrap_stream_raw() {
+    wrap_stream_raw packet-exec run -quiet -- "${@}"
 }
 
 # Generates location within the asset storage
@@ -213,7 +255,7 @@ function release_validate() {
 function release() {
     release_validate "${@}"
     wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${1}" -delete \
-         -replace "${1}" "${2}" "Failed to create release for version ${1}"
+         "${1}" "${2}" "Failed to create release for version ${1}"
 }
 
 # Generate a GitHub prerelease
@@ -229,7 +271,7 @@ function prerelease() {
     fi
 
     wrap ghr -u "${repo_owner}" -r "${repo_name}" -c "${full_sha}" -n "${ptag}" \
-         -delete -replace -prerelease "${ptag}" "${2}" \
+         -delete -prerelease "${ptag}" "${2}" \
          "Failed to create prerelease for version ${1}"
     echo -n "${ptag}"
 }
@@ -302,10 +344,28 @@ function hashicorp_release() {
     hashicorp_release_validate "${directory}"
     hashicorp_release_verify "${directory}"
 
+    oid="${AWS_ACCESS_KEY_ID}"
+    okey="${AWS_SECRET_ACCESS_KEY}"
+    export AWS_ACCESS_KEY_ID="${RELEASE_AWS_ACCESS_KEY_ID}"
+    export AWS_SECRET_ACCESS_KEY="${RELEASE_AWS_SECRET_ACCESS_KEY}"
+
     wrap_stream hc-releases upload "${directory}" \
                 "Failed to upload HashiCorp release assets"
     wrap_stream hc-releases publish \
                 "Failed to publish HashiCorp release"
+
+    export AWS_ACCESS_KEY_ID="${oid}"
+    export AWS_SECRET_ACCESS_KEY="${okey}"
+}
+
+# Configures git for hashibot usage
+function hashibot_git() {
+    wrap git config user.name "${HASHIBOT_USERNAME}" \
+         "Failed to setup git for hashibot usage (username)"
+    wrap git config user.email "${HASHIBOT_EMAIL}" \
+         "Failed to setup git for hashibot usage (email)"
+    wrap git remote set-url origin "https://${HASHIBOT_USERNAME}:${HASHIBOT_TOKEN}@github.com/${repository}" \
+         "Failed to setup git for hashibot usage (remote)"
 }
 
 # Stub cleanup method which can be redefined
@@ -324,7 +384,7 @@ trap cleanup EXIT
 # If repository is public, FORCE_PUBLIC_DEBUG environment
 # variable must also be set.
 
-is_private=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}" | jq .private)
+is_private=$(curl -H "Authorization: token ${HASHIBOT_TOKEN}" -s "https://api.github.com/repos/${GITHUB_REPOSITORY}" | jq .private)
 
 if [ "${DEBUG}" != "" ]; then
     if [ "${is_private}" = "false" ]; then
@@ -343,7 +403,7 @@ else
 fi
 
 # Check if we are running a public repository on private runners
-if [ "${VAGRANT_PRIVATE}" != "" ] && [ "${is_private}" != "true" ]; then
+if [ "${VAGRANT_PRIVATE}" != "" ] && [ "${is_private}" = "false" ]; then
     fail "Cannot run public repositories on private Vagrant runners. Disable runners now!"
 fi
 
