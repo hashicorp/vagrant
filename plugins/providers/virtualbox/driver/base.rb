@@ -451,8 +451,10 @@ module VagrantPlugins
         # - Port: 0
         # - Device: 0
         #
-        # @param [String] uui - virtual machines uuid
-        # @param [Hash] disk - disk to attach
+        # @param [String] port - port on device to attach disk to
+        # @param [String] device - device on controller for disk
+        # @param [String] file - disk file path
+        # @param [String] type - type of disk to attach
         def attach_disk(port, device, file, type="hdd")
           # Maybe only support SATA Controller for `:disk`???
           controller = "SATA Controller"

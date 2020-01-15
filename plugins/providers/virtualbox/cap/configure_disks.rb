@@ -174,7 +174,7 @@ module VagrantPlugins
             # clone disk to vdi formatted disk
             vdi_disk_file = vmdk_to_vdi(machine.provider.driver, defined_disk)
             # detatch vmdk disk??
-            machine.provider.driver.attach_disk(machine.id, disk_info[:port], disk_info[:device], vdi_disk_file)
+            machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vdi_disk_file, "hdd")
             machine.provider.driver.remove_disk(defined_disk["Location"])
             # resize vdi
             machine.provider.driver.resize_disk(vdi_disk_file, disk_config.size.to_i)
