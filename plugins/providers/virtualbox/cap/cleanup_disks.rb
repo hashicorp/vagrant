@@ -63,7 +63,6 @@ module VagrantPlugins
 
               machine.ui.warn("Disk '#{d["name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
 
-              # TODO: Maybe add a prompt for yes/no for closing the medium
               machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
               machine.provider.driver.close_medium(d["uuid"])
             end
