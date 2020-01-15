@@ -465,7 +465,7 @@ module VagrantPlugins
 
         # Removes a disk from the given virtual machine
         #
-        # @param [String] disk_uuid
+        # @param [String] disk_uuid or file path
         def close_medium(disk_uuid)
           execute("closemedium", disk_uuid, '--delete')
         end

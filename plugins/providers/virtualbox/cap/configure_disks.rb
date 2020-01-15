@@ -167,23 +167,29 @@ module VagrantPlugins
 
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
-            # How to:
             # grab disks port and device number
             vm_info = machine.provider.driver.show_vm_info
             disk_info = get_port_and_device(vm_info, defined_disk)
             # clone disk to vdi formatted disk
-            vdi_disk_file = vmdk_to_vdi(machine.provider.driver, defined_disk)
-            # detatch vmdk disk??
-            machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vdi_disk_file, "hdd")
-            machine.provider.driver.remove_disk(defined_disk["Location"])
+            vdi_disk_file = vmdk_to_vdi(machine.provider.driver, defined_disk["Location"])
             # resize vdi
             machine.provider.driver.resize_disk(vdi_disk_file, disk_config.size.to_i)
-            # clone disk to vmdk ....(or don't clone back if requested file type is vdi??)
-            # attach vmdk to original port/device
-            # delete vdi
-            # delete vmdk
-            #
-            # TODO: IF any of the above steps fail, display a useful error message
+
+            # remove and close original volume
+            machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
+            machine.provider.driver.close_medium(defined_disk["UUID"])
+
+            vmdk_disk_file = vdi_to_vmdk(machine.provider.driver, vdi_disk_file)
+            machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
+
+            # close cloned volume format
+            machine.provider.driver.close_medium(vdi_disk_file)
+
+            # Get new disk UUID for vagrant disk_meta file
+            new_disk_info = machine.provider.driver.list_hdds.select { |h| h["Location"] == defined_disk["Location"] }.first
+            defined_disk = new_disk_info
+
+            # TODO: If any of the above steps fail, display a useful error message
             # telling the user how to recover
             #
             # Vagrant could also have a "rescue" here where in the case of failure, it simply
@@ -193,13 +199,13 @@ module VagrantPlugins
           end
 
 
-          disk_metadata = {uuid: defined_disk["UUID"], name: defined_disk["Name"]}
+          disk_metadata = {uuid: defined_disk["UUID"], name: disk_config.name}
           return disk_metadata
         end
 
-        def self.vmdk_to_vdi(driver, defined_disk)
-          LOGGER.warn("Converting disk '#{defined_disk["Disk Name"]}' from 'vmdk' to 'vdi' format")
-          source = defined_disk["Location"]
+        def self.vmdk_to_vdi(driver, defined_disk_path)
+          LOGGER.warn("Converting disk '#{defined_disk_path}' from 'vmdk' to 'vdi' format")
+          source = defined_disk_path
           destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vdi"
 
           driver.clone_disk(source, destination, 'VDI')
@@ -207,9 +213,9 @@ module VagrantPlugins
           destination
         end
 
-        def self.vdi_to_vmdk(driver, defined_disk)
-          LOGGER.warn("Converting disk from vdi to vmdk format")
-          source = defined_disk["Location"]
+        def self.vdi_to_vmdk(driver, defined_disk_path)
+          LOGGER.warn("Converting disk '#{defined_disk_path}' from 'vdi' to 'vmdk' format")
+          source = defined_disk_path
           destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vmdk"
 
           driver.clone_disk(source, destination, 'VMDK')
