@@ -61,7 +61,7 @@ module VagrantPlugins
                 raise Error, "could not determine device and port to remove disk"
               end
 
-              machine.ui.info("Disk '#{d["name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
+              machine.ui.warn("Disk '#{d["name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
 
               # TODO: Maybe add a prompt for yes/no for closing the medium
               machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
