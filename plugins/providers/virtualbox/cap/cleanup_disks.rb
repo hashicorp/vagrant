@@ -11,7 +11,7 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @param [Hash] disk_meta_file - A hash of all the previously defined disks from the last configure_disk action
         def self.cleanup_disks(machine, defined_disks, disk_meta_file)
-          return if defined_disks.empty?
+          return if disk_meta_file.values.flatten.empty?
 
           return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
 
