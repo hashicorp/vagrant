@@ -110,9 +110,8 @@ module VagrantPlugins
           # note: this might not be required... :thinking: needs more testing
           LOGGER.info("Attempting to create a new disk file '#{disk_file}' of size '#{disk_config.size}' bytes")
 
-          var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
-          # grab uuid from var, might also need disk name
-          disk_metadata = {uuid: var.split(':').last.strip, name: disk_config.name}
+          disk_var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
+          disk_metadata = {uuid: disk_var.split(':').last.strip, name: disk_config.name}
 
           # TODO: Determine what port and device to attach disk to???
           # look at guest_info and see what is in use
