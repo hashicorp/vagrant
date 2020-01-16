@@ -28,8 +28,10 @@ module VagrantPlugins
               configured_disks[:disk] << disk_data unless disk_data.empty?
             elsif disk.type == :floppy
               # TODO: Write me
+              machine.ui.warn("Floppy disk configuration not yet supported. Skipping disk #{disk.name}...")
             elsif disk.type == :dvd
               # TODO: Write me
+              machine.ui.warn("DVD disk configuration not yet supported. Skipping disk #{disk.name}...")
             end
           end
 
