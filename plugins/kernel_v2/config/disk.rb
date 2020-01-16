@@ -109,8 +109,6 @@ module VagrantPlugins
           if @primary
             @name = "vagrant_primary"
           else
-            # TODO: Can't rely on `id` because it changes in between vagrant runs
-            #@name = "vagrant_#{@type.to_s}_#{@id.split("-").last}"
             @name = nil
           end
         end

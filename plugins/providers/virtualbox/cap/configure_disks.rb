@@ -57,7 +57,6 @@ module VagrantPlugins
           elsif compare_disk_state(machine, disk, current_disk)
             disk_metadata = resize_disk(machine, disk, current_disk)
           else
-            # log no need to reconfigure disk, already in desired state
             LOGGER.info("No further configuration required for disk '#{disk.name}'")
             disk_metadata = {uuid: current_disk["UUID"], name: disk.name}
           end
@@ -124,6 +123,9 @@ module VagrantPlugins
           disk_metadata
         end
 
+        # TODO: Possibly consolidate this method and just use `get_port_and_device`,
+        # and determine which port and device to use from that info instead
+        #
         # @param [Vagrant::Machine] machine
         # @return [String] port - The next available port on a given device
         def self.get_next_port(machine)
@@ -198,11 +200,13 @@ module VagrantPlugins
             machine.provider.driver.resize_disk(defined_disk["Location"], disk_config.size.to_i)
           end
 
-
           disk_metadata = {uuid: defined_disk["UUID"], name: disk_config.name}
           return disk_metadata
         end
 
+        # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
+        # @param [String] defined_disk_path
+        # @return [String] destination - The cloned disk
         def self.vmdk_to_vdi(driver, defined_disk_path)
           LOGGER.warn("Converting disk '#{defined_disk_path}' from 'vmdk' to 'vdi' format")
           source = defined_disk_path
@@ -213,6 +217,9 @@ module VagrantPlugins
           destination
         end
 
+        # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
+        # @param [String] defined_disk_path
+        # @return [String] destination - The cloned disk
         def self.vdi_to_vmdk(driver, defined_disk_path)
           LOGGER.warn("Converting disk '#{defined_disk_path}' from 'vdi' to 'vmdk' format")
           source = defined_disk_path
