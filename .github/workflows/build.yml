@@ -22,13 +22,13 @@ jobs:
         working-directory: ${{github.workspace}}
         env:
           ASSETS_LONGTERM_PREFIX: elt
-          ASSETS_PRIVATE_BUCKET: est
+          ASSETS_PRIVATE_BUCKET: ${{ secrets.ASSETS_PRIVATE_BUCKET }}
           ASSETS_PRIVATE_LONGTERM: ${{ secrets.ASSETS_PRIVATE_LONGTERM }}
           ASSETS_PRIVATE_SHORTTERM: ${{ secrets.ASSETS_PRIVATE_SHORTTERM }}
           ASSETS_PUBLIC_BUCKET: ${{ secrets.ASSETS_PUBLIC_BUCKET }}
           ASSETS_PUBLIC_LONGTERM: ${{ secrets.ASSETS_PUBLIC_LONGTERM }}
           ASSETS_PUBLIC_SHORTTERM: ${{ secrets.ASSETS_PUBLIC_SHORTTERM }}
-          ASSETS_SHORTTERM_PREFIX: ${{ secrets.ASSETS_SHORTTERM_PREFIX }}
+          ASSETS_SHORTTERM_PREFIX: est
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           HASHIBOT_EMAIL: ${{ secrets.HASHIBOT_EMAIL }}
