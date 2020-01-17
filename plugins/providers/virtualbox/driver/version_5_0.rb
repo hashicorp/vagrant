@@ -16,6 +16,23 @@ module VagrantPlugins
           @uuid = uuid
         end
 
+        # Controller-Port-Device looks like:
+        # SATA Controller-ImageUUID-0-0 (sub out ImageUUID)
+        # - Controller: SATA Controller
+        # - Port: 0
+        # - Device: 0
+        #
+        # @param [String] port - port on device to attach disk to
+        # @param [String] device - device on controller for disk
+        # @param [String] file - disk file path
+        # @param [String] type - type of disk to attach
+        def attach_disk(port, device, file, type="hdd")
+          # Maybe only support SATA Controller for `:disk`???
+          controller = "SATA Controller"
+
+          execute('storageattach', @uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--type', type, '--medium', file)
+        end
+
         def clear_forwarded_ports
           retryable(on: Vagrant::Errors::VBoxManageError, tries: 3, sleep: 1) do
             args = []
@@ -38,6 +55,13 @@ module VagrantPlugins
           end
         end
 
+        # @param [String] source
+        # @param [String] destination
+        # @param [String] disk_format
+        def clone_disk(source, destination, disk_format)
+          execute("clonemedium", source, destination, '--format', disk_format)
+        end
+
         def clonevm(master_id, snapshot_name)
           machine_name = "temp_clone_#{(Time.now.to_f * 1000.0).to_i}_#{rand(100000)}"
           args = ["--register", "--name", machine_name]
@@ -47,6 +71,13 @@ module VagrantPlugins
 
           execute("clonevm", master_id, *args, retryable: true)
           return get_machine_id(machine_name)
+        end
+
+        # Removes a disk from the given virtual machine
+        #
+        # @param [String] disk_uuid or file path
+        def close_medium(disk_uuid)
+          execute("closemedium", disk_uuid, '--delete')
         end
 
         def create_dhcp_server(network, options)
@@ -64,6 +95,19 @@ module VagrantPlugins
             end
           end
         end
+
+       # Creates a disk. Default format is VDI unless overridden
+       #
+       # Note: disk_size must be divisible by 512 bytes, otherwise operation will fail
+       # Source: https://www.virtualbox.org/ticket/5582
+       #
+       # @param [String] disk_file
+       # @param [Integer] disk_size - size in bytes (MUST BE DIVISIBLE BY 512 bytes)
+       # @param [String] disk_format - format of disk, defaults to "VDI"
+       def create_disk(disk_file, disk_size, disk_format="VDI")
+         execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_i.to_s, '--format', disk_format)
+       end
+
 
         def create_host_only_network(options)
           # Create the interface
@@ -130,6 +174,33 @@ module VagrantPlugins
           end
         end
 
+        # Lists all attached harddisks from a given virtual machine. Additionally,
+        # this method adds a new key "Disk Name" based on the disks file path from "Location"
+        #
+        # @return [Array] hdds An array of hashes of harddrive info for a guest
+        def list_hdds
+          hdds = []
+          tmp_drive = {}
+          execute('list', 'hdds', retryable: true).split("\n").each do |line|
+            if line == "" # separator between disks
+              hdds << tmp_drive
+              tmp_drive = {}
+              next
+            end
+            parts = line.partition(":")
+            key = parts.first.strip
+            value = parts.last.strip
+            tmp_drive[key] = value
+
+            if key == "Location"
+              tmp_drive["Disk Name"] = File.basename(value, ".*")
+            end
+          end
+          hdds << tmp_drive unless tmp_drive.empty?
+
+          hdds
+        end
+
         def list_snapshots(machine_id)
           output = execute(
             "snapshot", machine_id, "list", "--machinereadable",
@@ -147,6 +218,19 @@ module VagrantPlugins
           d = e.extra_data
           return [] if d[:stderr].include?("does not have") || d[:stdout].include?("does not have")
           raise
+        end
+
+        # @param [String] port - port on device to attach disk to
+        # @param [String] device - device on controller for disk
+        def remove_disk(port, device)
+          controller = "SATA Controller"
+          execute('storageattach', @uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--medium', "none")
+        end
+
+        # @param [String] disk_file
+        # @param [Integer] disk_size in bytes
+        def resize_disk(disk_file, disk_size)
+          execute("modifymedium", disk_file, '--resizebyte', disk_size.to_i.to_s)
         end
 
         def restore_snapshot(machine_id, snapshot_name)
