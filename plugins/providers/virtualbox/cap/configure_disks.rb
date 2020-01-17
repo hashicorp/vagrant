@@ -8,6 +8,8 @@ module VagrantPlugins
       module ConfigureDisks
         LOGGER = Log4r::Logger.new("vagrant::plugins::virtualbox::configure_disks")
 
+        MAX_DISK_NUMER = 30.freeze
+
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @return [Hash] configured_disks - A hash of all the current configured disks
@@ -15,6 +17,13 @@ module VagrantPlugins
           return if defined_disks.empty?
 
           return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
+
+          if defined_disks.size > MAX_DISK_NUMER
+            # TODO: THORW AN ERROR HERE
+            #
+            # you can only attach up to 30 disks per controller, INCLUDING the primary disk
+            raise Exception, "fix me"
+          end
 
           machine.ui.info("Configuring storage mediums...")
 
@@ -118,33 +127,38 @@ module VagrantPlugins
           # look at guest_info and see what is in use
           # need to get the _correct_ port and device to attach disk to
           # Port is easy (pick the "next one" available), but what about device??? can you have more than one device per controller?
-          port = get_next_port(machine)
-          device = "0" # TODO: Fix me
-          machine.provider.driver.attach_disk(port, device, disk_file)
+          #
+          # Stderr: VBoxManage: error: The port and/or device parameter are out of range: port=30 (must be in range [0, 29]), device=0 (must be in range [0, 0])
+
+          dsk_controller_info = get_next_port_device(machine)
+          machine.provider.driver.attach_disk(dsk_controller_info[:port], dsk_controller_info[:device], disk_file)
 
           disk_metadata
         end
 
-        # TODO: Possibly consolidate this method and just use `get_port_and_device`,
-        # and determine which port and device to use from that info instead
+        # Finds the next available port and or device for a given controller
         #
         # @param [Vagrant::Machine] machine
-        # @return [String] port - The next available port on a given device
-        def self.get_next_port(machine)
+        # @return [Hash] dsk_info - The next available port and device on a given controller
+        def self.get_next_port_device(machine)
           vm_info = machine.provider.driver.show_vm_info
+          dsk_info = {device: "0", port: "0"}
 
           port = 0
+          device = 0
           vm_info.each do |key,value|
             if key.include?("ImageUUID")
               disk_info = key.split("-")
               port = disk_info[2]
+              device = disk_info[3]
             else
               next
             end
           end
 
-          port = (port.to_i + 1).to_s
-          port
+          dsk_info[:port] = (port.to_i + 1).to_s
+
+          dsk_info
         end
 
         # @param [Hash] vm_info - Guest info from show_vm_info

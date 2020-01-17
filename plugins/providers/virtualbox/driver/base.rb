@@ -449,8 +449,12 @@ module VagrantPlugins
           # Maybe only support SATA Controller for `:disk`???
           controller = "SATA Controller"
 
-          # todo: hard set to type hdd, need to look if all types are compatible with these flags
           execute('storageattach', @uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--type', type, '--medium', file)
+        end
+
+        def attach_sata_controller(name=nil)
+          name = 'SATA Controller' if !name
+          execute('storagectl', @uuid, '--name', name, '--add', 'sata', '--controller', 'IntelAhci', '--portcount', "30")
         end
 
         # Removes a disk from the given virtual machine
