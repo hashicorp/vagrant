@@ -19,10 +19,8 @@ module VagrantPlugins
           return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
 
           if defined_disks.size > MAX_DISK_NUMER
-            # TODO: THORW AN ERROR HERE
-            #
             # you can only attach up to 30 disks per controller, INCLUDING the primary disk
-            raise Exception, "fix me"
+            raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
           end
 
           machine.ui.info("Configuring storage mediums...")
