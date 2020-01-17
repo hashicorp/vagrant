@@ -51,11 +51,17 @@ module VagrantPlugins
         # @param [Hash] - disk_metadata
         def self.handle_configure_disk(machine, disk, all_disks)
           disk_metadata = {}
+
           # Grab the existing configured disk, if it exists
           current_disk = nil
           if disk.primary
-            # TODO: This instead might need to be determined through the show_vm_info data instead
-            current_disk = all_disks.first
+            # Ensure we grab the proper primary disk
+            # We can't rely on the order of `all_disks`, as they will not
+            # always come in port order, but primary is always Port 0 Device 0.
+            vm_info = machine.provider.driver.show_vm_info
+            primary_uuid = vm_info["SATA Controller-ImageUUID-0-0"]
+
+            current_disk = all_disks.select { |d| d["UUID"] == primary_uuid }.first
           else
             current_disk = all_disks.select { |d| d["Disk Name"] == disk.name}.first
           end
