@@ -118,17 +118,17 @@ module VagrantPlugins
           disk_var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
           disk_metadata = {uuid: disk_var.split(':').last.strip, name: disk_config.name}
 
-          dsk_controller_info = get_next_port_device(machine)
+          dsk_controller_info = get_next_port(machine)
           machine.provider.driver.attach_disk(dsk_controller_info[:port], dsk_controller_info[:device], disk_file)
 
           disk_metadata
         end
 
-        # Finds the next available port and or device for a given controller
+        # Finds the next available port
         #
         # @param [Vagrant::Machine] machine
         # @return [Hash] dsk_info - The next available port and device on a given controller
-        def self.get_next_port_device(machine)
+        def self.get_next_port(machine)
           vm_info = machine.provider.driver.show_vm_info
           dsk_info = {device: "0", port: "0"}
 
