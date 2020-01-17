@@ -108,7 +108,7 @@ module VagrantPlugins
         @size = nil if @size == UNSET_VALUE
         @file = nil if @file == UNSET_VALUE
 
-        @disk_ext = "vmdk" if @disk_ext == UNSET_VALUE
+        @disk_ext = "vdi" if @disk_ext == UNSET_VALUE
 
         if @primary == UNSET_VALUE
           @primary = false
