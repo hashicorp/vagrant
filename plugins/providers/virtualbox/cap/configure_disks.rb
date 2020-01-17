@@ -154,18 +154,16 @@ module VagrantPlugins
         # @return [Hash] disk - A hash with `port` and `device` keys found from a matching UUID in vm_info
         def self.get_port_and_device(vm_info, defined_disk)
           disk = {}
-          vm_info.each do |key,value|
-            if key.include?("ImageUUID") && value == defined_disk["UUID"]
-              disk_info = key.split("-")
-              disk[:port] = disk_info[2]
-              disk[:device] = disk_info[3]
-              break
-            else
-              next
-            end
-          end
+          disk_info_key = vm_info.key(defined_disk["UUID"])
+          # TODO: Should we do something else here if the UUID cannot be found?
+          return disk if !disk_info_key
 
-          disk
+          disk_info = disk_info_key.split("-")
+
+          disk[:port] = disk_info[2]
+          disk[:device] = disk_info[3]
+
+          return disk
         end
 
         def self.resize_disk(machine, disk_config, defined_disk)
