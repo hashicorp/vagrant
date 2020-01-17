@@ -21,25 +21,23 @@ module VagrantPlugins
 
         protected
 
+        # TODO: This method is duplicated in configure_disks
+        #
         # @param [Hash] vm_info - A guests information from vboxmanage
         # @param [String] disk_uuid - the UUID for the disk we are searching for
         # @return [Hash] disk_info - Contains a device and port number
-        def self.get_device_port(vm_info, disk_uuid)
-          disk_info = {device: nil, port: nil}
+        def self.get_port_and_device(vm_info, disk_uuid)
+          disk = {}
+          disk_info_key = vm_info.key(disk_uuid)
+          # TODO: Should we do something else here if the UUID cannot be found?
+          return disk if !disk_info_key
 
-          vm_info.each do |key,value|
-            if key.include?("ImageUUID") &&
-                value == disk_uuid
-              info = key.split("-")
-              disk_info[:port] = info[2]
-              disk_info[:device] = info[3]
-              break
-            else
-              next
-            end
-          end
+          disk_info = disk_info_key.split("-")
 
-          disk_info
+          disk[:port] = disk_info[2]
+          disk[:device] = disk_info[3]
+
+          return disk
         end
 
         # @param [Vagrant::Machine] machine
@@ -54,10 +52,10 @@ module VagrantPlugins
               next
             else
               LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
-              disk_info = get_device_port(vm_info, d["uuid"])
+              disk_info = get_port_and_device(vm_info, d["uuid"])
 
               # TODO: add proper vagrant error here with values
-              if disk_info.values.any?(nil)
+              if disk_info.empty?
                 raise Error, "could not determine device and port to remove disk"
               end
 
