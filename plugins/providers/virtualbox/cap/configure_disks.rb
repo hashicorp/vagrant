@@ -8,6 +8,7 @@ module VagrantPlugins
       module ConfigureDisks
         LOGGER = Log4r::Logger.new("vagrant::plugins::virtualbox::configure_disks")
 
+        # The max amount of disks that can be attached to a single device in a controller
         MAX_DISK_NUMER = 30.freeze
 
         # @param [Vagrant::Machine] machine
