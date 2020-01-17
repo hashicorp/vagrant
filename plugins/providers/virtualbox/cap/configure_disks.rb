@@ -111,29 +111,12 @@ module VagrantPlugins
           guest_folder = File.dirname(guest_info["CfgFile"])
 
           disk_ext = disk_config.disk_ext
-
-          if disk_provider_config
-            if disk_provider_config.include?(:disk_type)
-              disk_ext = disk_provider_config[:disk_type].downcase
-            end
-          end
           disk_file = File.join(guest_folder, disk_config.name) + ".#{disk_ext}"
 
-          # TODO: Round disk_config.size to the nearest 512 bytes to make it divisble by 512
-          # Source: https://www.virtualbox.org/ticket/5582
-          #
-          # note: this might not be required... :thinking: needs more testing
           LOGGER.info("Attempting to create a new disk file '#{disk_file}' of size '#{disk_config.size}' bytes")
 
           disk_var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
           disk_metadata = {uuid: disk_var.split(':').last.strip, name: disk_config.name}
-
-          # TODO: Determine what port and device to attach disk to???
-          # look at guest_info and see what is in use
-          # need to get the _correct_ port and device to attach disk to
-          # Port is easy (pick the "next one" available), but what about device??? can you have more than one device per controller?
-          #
-          # Stderr: VBoxManage: error: The port and/or device parameter are out of range: port=30 (must be in range [0, 29]), device=0 (must be in range [0, 0])
 
           dsk_controller_info = get_next_port_device(machine)
           machine.provider.driver.attach_disk(dsk_controller_info[:port], dsk_controller_info[:device], disk_file)
