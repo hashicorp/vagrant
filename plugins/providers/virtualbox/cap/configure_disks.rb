@@ -95,7 +95,8 @@ module VagrantPlugins
           disk_provider_config = disk_config.provider_config[:virtualbox] if disk_config.provider_config
 
           guest_folder = File.dirname(guest_info["CfgFile"])
-          disk_ext = "vdi"
+
+          disk_ext = disk_config.disk_ext
 
           if disk_provider_config
             if disk_provider_config.include?(:disk_type)

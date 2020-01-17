@@ -11,6 +11,7 @@ module VagrantPlugins
       #-------------------------------------------------------------------
 
       DEFAULT_DISK_TYPES = [:disk, :dvd, :floppy].freeze
+      DEFAULT_DISK_EXT = ["vdi", "vmdk", "vhd", "vhdx"].freeze
 
       # Note: This value is for internal use only
       #
@@ -28,6 +29,11 @@ module VagrantPlugins
       #
       # @return [Symbol]
       attr_accessor :type
+
+      # Type of disk extension to create. Defaults to `vdi`
+      #
+      # @return [String]
+      attr_accessor :disk_ext
 
       # Size of disk to create
       #
@@ -61,6 +67,7 @@ module VagrantPlugins
         @size = UNSET_VALUE
         @primary = UNSET_VALUE
         @file = UNSET_VALUE
+        @disk_ext = UNSET_VALUE
 
         # Internal options
         @id = SecureRandom.uuid
@@ -101,6 +108,8 @@ module VagrantPlugins
         @size = nil if @size == UNSET_VALUE
         @file = nil if @file == UNSET_VALUE
 
+        @disk_ext = "vmdk" if @disk_ext == UNSET_VALUE
+
         if @primary == UNSET_VALUE
           @primary = false
         end
@@ -125,6 +134,15 @@ module VagrantPlugins
         if !DEFAULT_DISK_TYPES.include?(@type)
           errors << I18n.t("vagrant.config.disk.invalid_type", type: @type,
                            types: DEFAULT_DISK_TYPES.join(', '))
+        end
+
+        if !DEFAULT_DISK_EXT.include?(@disk_ext)
+          errors << I18n.t("vagrant.config.disk.invalid_ext", ext: @disk_ext,
+                           name: @name, exts: DEFAULT_DISK_EXT.join(', ') )
+        end
+
+        if @disk_ext
+          @disk_ext = @disk_ext.downcase
         end
 
         if @size && !@size.is_a?(Integer)

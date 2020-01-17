@@ -1802,6 +1802,8 @@ en:
 #-------------------------------------------------------------------------------
     config:
       disk:
+        invalid_ext: |-
+          Disk type '%{ext}' is not a valid disk extention for '%{name}'. Please pick one of the following supported disk types: %{exts}
         invalid_type: |-
           Disk type '%{type}' is not a valid type. Please pick one of the following supported disk types: %{types}
         invalid_size: |-
