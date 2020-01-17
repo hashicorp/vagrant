@@ -171,9 +171,10 @@ module VagrantPlugins
 
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
-            # grab disks port and device number
+            # grab disk to be resized port and device number
             vm_info = machine.provider.driver.show_vm_info
             disk_info = get_port_and_device(vm_info, defined_disk)
+
             # clone disk to vdi formatted disk
             vdi_disk_file = vmdk_to_vdi(machine.provider.driver, defined_disk["Location"])
             # resize vdi
@@ -183,13 +184,14 @@ module VagrantPlugins
             machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
             machine.provider.driver.close_medium(defined_disk["UUID"])
 
+            # clone back to original vmdk format and attach resized disk
             vmdk_disk_file = vdi_to_vmdk(machine.provider.driver, vdi_disk_file)
             machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
 
             # close cloned volume format
             machine.provider.driver.close_medium(vdi_disk_file)
 
-            # Get new disk UUID for vagrant disk_meta file
+            # Get new updated disk UUID for vagrant disk_meta file
             new_disk_info = machine.provider.driver.list_hdds.select { |h| h["Location"] == defined_disk["Location"] }.first
             defined_disk = new_disk_info
 
@@ -205,6 +207,8 @@ module VagrantPlugins
           disk_metadata = {uuid: defined_disk["UUID"], name: disk_config.name}
           return disk_metadata
         end
+
+        # TODO: Maybe these should be virtualbox driver methods?
 
         # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
         # @param [String] defined_disk_path
