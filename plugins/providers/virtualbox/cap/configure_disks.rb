@@ -19,7 +19,7 @@ module VagrantPlugins
 
           return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
 
-          if defined_disks.size > MAX_DISK_NUMER
+          if defined_disks.size > MAX_DISK_NUMBER
             # you can only attach up to 30 disks per controller, INCLUDING the primary disk
             raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
           end
@@ -126,23 +126,30 @@ module VagrantPlugins
 
         # Finds the next available port
         #
+        # SATA Controller-ImageUUID-0-0 (sub out ImageUUID)
+        # - Controller: SATA Controller
+        # - Port: 0
+        # - Device: 0
+        #
+        # Note: Virtualbox returns the string above with the port and device info
+        #  disk_info = key.split("-")
+        #  port = disk_info[2]
+        #  device = disk_info[3]
+        #
         # @param [Vagrant::Machine] machine
         # @return [Hash] dsk_info - The next available port and device on a given controller
         def self.get_next_port(machine)
           vm_info = machine.provider.driver.show_vm_info
           dsk_info = {device: "0", port: "0"}
 
-          port = 0
-          device = 0
-
           disk_images = vm_info.select { |v| v.include?("ImageUUID") && v.include?("SATA Controller") }
-          disk_images.each do |key,value|
-            disk_info = key.split("-")
-            port = disk_info[2]
-            device = disk_info[3]
-          end
+          used_ports = disk_images.keys.map { |k| k.split('-') }.map {|v| v[2].to_i}
+          next_available_port = ((0..(MAX_DISK_NUMBER-1)).to_a - used_ports).first
 
-          dsk_info[:port] = (port.to_i + 1).to_s
+          dsk_info[:port] = next_available_port.to_s
+          if dsk_info[:port] == ""
+            LOGGER.warn("There are no more available ports to attach disks to for the SATA Controller. Clear up some space to attach new disks.")
+          end
 
           dsk_info
         end
