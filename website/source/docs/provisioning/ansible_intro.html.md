@@ -44,7 +44,7 @@ You can of course target other operating systems that do not have YUM by changin
 
 ### Running Ansible
 
-The `playbook` option is strictly required by both Ansible provisioners ([`ansible`](/docs/provisioning/ansible.html) and [`ansible_local`](/docs/provisioning/ansible_local.html)), as illustrated in this basic Vagrantfile` configuration:
+The `playbook` option is strictly required by both Ansible provisioners ([`ansible`](/docs/provisioning/ansible.html) and [`ansible_local`](/docs/provisioning/ansible_local.html)), as illustrated in this basic `Vagrantfile` configuration:
 
 ```ruby
 Vagrant.configure("2") do |config|
