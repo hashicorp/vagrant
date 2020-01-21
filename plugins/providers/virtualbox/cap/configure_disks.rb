@@ -134,14 +134,11 @@ module VagrantPlugins
 
           port = 0
           device = 0
-          vm_info.each do |key,value|
-            if key.include?("ImageUUID")
-              disk_info = key.split("-")
-              port = disk_info[2]
-              device = disk_info[3]
-            else
-              next
-            end
+          disk_images = vm_info.select { |v| v.include?("ImageUUID") }
+          disk_images.each do |key,value|
+            disk_info = key.split("-")
+            port = disk_info[2]
+            device = disk_info[3]
           end
 
           dsk_info[:port] = (port.to_i + 1).to_s
