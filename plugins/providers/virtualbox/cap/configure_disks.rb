@@ -134,7 +134,8 @@ module VagrantPlugins
 
           port = 0
           device = 0
-          disk_images = vm_info.select { |v| v.include?("ImageUUID") }
+
+          disk_images = vm_info.select { |v| v.include?("ImageUUID") && v.include?("SATA Controller") }
           disk_images.each do |key,value|
             disk_info = key.split("-")
             port = disk_info[2]
