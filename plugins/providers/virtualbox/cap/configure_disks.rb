@@ -148,7 +148,8 @@ module VagrantPlugins
 
           dsk_info[:port] = next_available_port.to_s
           if dsk_info[:port] == ""
-            LOGGER.warn("There are no more available ports to attach disks to for the SATA Controller. Clear up some space to attach new disks.")
+            # This likely only occurs if additional disks have been added outside of Vagrant configuration
+            LOGGER.warn("There are no more available ports to attach disks to for the SATA Controller. Clear up some space on the SATA controller to attach new disks.")
           end
 
           dsk_info
