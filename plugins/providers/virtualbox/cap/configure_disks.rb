@@ -15,9 +15,9 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @return [Hash] configured_disks - A hash of all the current configured disks
         def self.configure_disks(machine, defined_disks)
-          return if defined_disks.empty?
+          return {} if defined_disks.empty?
 
-          return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
+          return {} if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
 
           if defined_disks.size > MAX_DISK_NUMBER
             # you can only attach up to 30 disks per controller, INCLUDING the primary disk
