@@ -1,8 +1,3 @@
-behavior "remove_labels_on_reply" "remove_stale" {
-    labels = ["waiting-reply"]
-    only_non_maintainers = true
-}
-
 poll "closed_issue_locker" "locker" {
   schedule             = "0 50 1 * * *"
   closed_for           = "720h" # 30 days
