@@ -14,6 +14,7 @@ module Vagrant
           defined_disks = get_disks(machine, env)
 
           # Call into providers machine implementation for disk management
+          configured_disks = {}
           if !defined_disks.empty?
             if machine.provider.capability?(:configure_disks)
              configured_disks = machine.provider.capability(:configure_disks, defined_disks)
@@ -23,7 +24,7 @@ module Vagrant
             end
           end
 
-          write_disk_metadata(machine, configured_disks)
+          write_disk_metadata(machine, configured_disks) unless configured_disks.empty?
 
           # Continue On
           @app.call(env)
