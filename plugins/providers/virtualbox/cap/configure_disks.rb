@@ -168,13 +168,15 @@ module VagrantPlugins
           dsk_info
         end
 
+        # Looks up a defined_disk for a guests information from virtualbox. If
+        # no matching UUID is found, it returns an empty hash.
+        #
         # @param [Hash] vm_info - Guest info from show_vm_info
         # @param [Hash] defined_disk - A specific disk with info from list_hdd
         # @return [Hash] disk - A hash with `port` and `device` keys found from a matching UUID in vm_info
         def self.get_port_and_device(vm_info, defined_disk)
           disk = {}
           disk_info_key = vm_info.key(defined_disk["UUID"])
-          # TODO: Should we do something else here if the UUID cannot be found?
           return disk if !disk_info_key
 
           disk_info = disk_info_key.split("-")

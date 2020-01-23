@@ -29,7 +29,6 @@ module VagrantPlugins
         def self.get_port_and_device(vm_info, disk_uuid)
           disk = {}
           disk_info_key = vm_info.key(disk_uuid)
-          # TODO: Should we do something else here if the UUID cannot be found?
           return disk if !disk_info_key
 
           disk_info = disk_info_key.split("-")
