@@ -116,6 +116,7 @@ module VagrantPlugins
           :execute_command,
           :export,
           :forward_ports,
+          :get_port_and_device,
           :halt,
           :import,
           :list_snapshots,

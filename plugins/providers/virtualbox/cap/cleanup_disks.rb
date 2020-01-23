@@ -21,24 +21,6 @@ module VagrantPlugins
 
         protected
 
-        # TODO: This method is duplicated in configure_disks
-        #
-        # @param [Hash] vm_info - A guests information from vboxmanage
-        # @param [String] disk_uuid - the UUID for the disk we are searching for
-        # @return [Hash] disk_info - Contains a device and port number
-        def self.get_port_and_device(vm_info, disk_uuid)
-          disk = {}
-          disk_info_key = vm_info.key(disk_uuid)
-          return disk if !disk_info_key
-
-          disk_info = disk_info_key.split("-")
-
-          disk[:port] = disk_info[2]
-          disk[:device] = disk_info[3]
-
-          return disk
-        end
-
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
@@ -52,7 +34,7 @@ module VagrantPlugins
               next
             else
               LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
-              disk_info = get_port_and_device(vm_info, d["uuid"])
+              disk_info = machine.provider.driver.get_port_and_device(d["uuid"])
 
               machine.ui.warn("Disk '#{d["name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
 

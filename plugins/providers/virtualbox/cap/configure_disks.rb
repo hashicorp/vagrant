@@ -90,8 +90,7 @@ module VagrantPlugins
           else
             # TODO: What if it needs to be resized?
 
-            vm_info = machine.provider.driver.show_vm_info
-            disk_info = get_port_and_device(vm_info, current_disk)
+            disk_info = machine.provider.driver.get_port_and_device(current_disk["UUID"])
             if disk_info.empty?
               LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
               dsk_info = get_next_port(machine)
@@ -185,33 +184,13 @@ module VagrantPlugins
           dsk_info
         end
 
-        # Looks up a defined_disk for a guests information from virtualbox. If
-        # no matching UUID is found, it returns an empty hash.
-        #
-        # @param [Hash] vm_info - Guest info from show_vm_info
-        # @param [Hash] defined_disk - A specific disk with info from list_hdd
-        # @return [Hash] disk - A hash with `port` and `device` keys found from a matching UUID in vm_info
-        def self.get_port_and_device(vm_info, defined_disk)
-          disk = {}
-          disk_info_key = vm_info.key(defined_disk["UUID"])
-          return disk if !disk_info_key
-
-          disk_info = disk_info_key.split("-")
-
-          disk[:port] = disk_info[2]
-          disk[:device] = disk_info[3]
-
-          return disk
-        end
-
         def self.resize_disk(machine, disk_config, defined_disk)
           machine.ui.detail("Disk '#{disk_config.name}' needs to be resized. Resizing disk...", prefix: true)
 
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
             # grab disk to be resized port and device number
-            vm_info = machine.provider.driver.show_vm_info
-            disk_info = get_port_and_device(vm_info, defined_disk)
+            disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
 
             # clone disk to vdi formatted disk
             vdi_disk_file = vmdk_to_vdi(machine.provider.driver, defined_disk["Location"])
