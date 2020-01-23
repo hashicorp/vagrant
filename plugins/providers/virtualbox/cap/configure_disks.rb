@@ -73,7 +73,20 @@ module VagrantPlugins
           elsif compare_disk_state(machine, disk, current_disk)
             disk_metadata = resize_disk(machine, disk, current_disk)
           else
-            LOGGER.info("No further configuration required for disk '#{disk.name}'")
+            # TODO: What if it needs to be resized?
+
+            vm_info = machine.provider.driver.show_vm_info
+            disk_info = get_port_and_device(vm_info, current_disk)
+            if disk_info.empty?
+              LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
+              dsk_info = get_next_port(machine)
+              machine.provider.driver.attach_disk(dsk_info[:port],
+                                                  dsk_info[:device],
+                                                  current_disk["Location"])
+            else
+              LOGGER.info("No further configuration required for disk '#{disk.name}'")
+            end
+
             disk_metadata = {uuid: current_disk["UUID"], name: disk.name}
           end
 
