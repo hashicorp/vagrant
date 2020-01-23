@@ -110,23 +110,8 @@ shared_context "unit" do
   end
 
   # This helper provides temporary environmental variable changes.
-  def with_temp_env(environment)
-    # Build up the new environment, preserving the old values so we
-    # can replace them back in later.
-    old_env = {}
-    environment.each do |key, value|
-      key          = key.to_s
-      old_env[key] = ENV[key]
-      ENV[key]     = value
-    end
-
-    # Call the block, returning its return value
-    return yield
-  ensure
-    # Reset the environment no matter what
-    old_env.each do |key, value|
-      ENV[key] = value
-    end
+  def with_temp_env(environment, &block)
+    Vagrant::with_temp_env(environment, &block)
   end
 
   # This helper provides a randomly available port(s) for each argument to the
