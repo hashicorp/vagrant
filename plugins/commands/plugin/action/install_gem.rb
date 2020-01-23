@@ -18,6 +18,7 @@ module VagrantPlugins
           plugin_name = env[:plugin_name]
           sources     = env[:plugin_sources]
           version     = env[:plugin_version]
+          env_vars    = env[:env_vars]
           env_local   = env[:plugin_env_local]
 
           # Install the gem
@@ -33,6 +34,7 @@ module VagrantPlugins
             require:   entrypoint,
             sources:   sources,
             verbose:   !!env[:plugin_verbose],
+            env_vars:  env_vars,
             env_local: env_local
           )
 

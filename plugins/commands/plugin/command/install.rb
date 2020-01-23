@@ -12,12 +12,20 @@ module VagrantPlugins
         LOCAL_INSTALL_PAUSE = 3
 
         def execute
-          options = { verbose: false }
+          options = {
+            verbose: false,
+            env_vars: {},
+          }
 
           opts = OptionParser.new do |o|
             o.banner = "Usage: vagrant plugin install <name>... [-h]"
             o.separator ""
             build_install_opts(o, options)
+
+            o.on("-D VARIABLE=VALUE", "--define VARIABLE=VALUE", "Set environment variable") do |e|
+              name, value = e.split('=', 2)
+              options[:env_vars][name] = value
+            end
 
             o.on("--local", "Install plugin for local project only") do |l|
               options[:env_local] = l
@@ -61,6 +69,7 @@ module VagrantPlugins
                 plugin_version:     info[:version],
                 plugin_sources:     info[:sources] || Vagrant::Bundler::DEFAULT_GEM_SOURCES.dup,
                 plugin_name:        name,
+                env_vars:           options[:env_vars],
                 plugin_env_local:   true
               )
             end
@@ -73,6 +82,7 @@ module VagrantPlugins
                 plugin_sources:     options[:plugin_sources],
                 plugin_name:        name,
                 plugin_verbose:     options[:verbose],
+                env_vars:           options[:env_vars],
                 plugin_env_local:   options[:env_local]
               )
             end

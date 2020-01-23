@@ -135,7 +135,7 @@ module Vagrant
         if local_spec.nil?
           result = nil
           install_lambda = lambda do
-            Vagrant::Bundler.instance.install(plugins, opts[:env_local]).each do |spec|
+            Vagrant::Bundler.instance.install(plugins, opts[:env_vars], opts[:env_local]).each do |spec|
               next if spec.name != name
               next if result && result.version >= spec.version
               result = spec
@@ -158,6 +158,7 @@ module Vagrant
           require: opts[:require],
           sources: opts[:sources],
           env_local: !!opts[:env_local],
+          env_vars: opts[:env_vars],
           installed_gem_version: result.version.to_s
         )
 

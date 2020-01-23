@@ -137,10 +137,11 @@ module Vagrant
     # Installs the list of plugins.
     #
     # @param [Hash] plugins
+    # @param [Hash] env_vars Additional/override environment variables
     # @param [Boolean] env_local Environment local plugin install
     # @return [Array<Gem::Specification>]
-    def install(plugins, env_local=false)
-      internal_install(plugins, nil, env_local: env_local)
+    def install(plugins, env_vars={}, env_local=false)
+      internal_install(plugins, nil, env_vars: env_vars, env_local: env_local)
     end
 
     # Installs a local '*.gem' file so that Bundler can find it.
@@ -385,27 +386,33 @@ module Vagrant
       # dependencies are satisfied by gems in the install directory (which will likely not
       # be true)
       install_path = extra[:env_local] ? env_plugin_gem_path : plugin_gem_path
-      result = request_set.install_into(install_path.to_s, true,
-        ignore_dependencies: true,
-        prerelease: Vagrant.prerelease?,
-        wrappers: true
-      )
-      result = result.map(&:full_spec)
-      result.each do |spec|
-        existing_paths = $LOAD_PATH.find_all{|s| s.include?(spec.full_name) }
-        if !existing_paths.empty?
-          @logger.debug("Removing existing LOAD_PATHs for #{spec.full_name} - " +
-            existing_paths.join(", "))
-          existing_paths.each{|s| $LOAD_PATH.delete(s) }
-        end
-        spec.full_require_paths.each do |r_path|
-          if !$LOAD_PATH.include?(r_path)
-            @logger.debug("Adding path to LOAD_PATH - #{r_path}")
-            $LOAD_PATH.unshift(r_path)
+      Vagrant::with_temp_env(extra[:env_vars]) do
+        # TODO: we're writing the env_vars for each installed plugin to plugins.json, but
+        # we're unable to honour them here because the RequestSet defines the changes for
+        # all plugins. How do we fix this so that vagrant plugin update honours the
+        # original install env vars?
+        result = request_set.install_into(install_path.to_s, true,
+          ignore_dependencies: true,
+          prerelease: Vagrant.prerelease?,
+          wrappers: true
+        )
+        result = result.map(&:full_spec)
+        result.each do |spec|
+          existing_paths = $LOAD_PATH.find_all{|s| s.include?(spec.full_name) }
+          if !existing_paths.empty?
+            @logger.debug("Removing existing LOAD_PATHs for #{spec.full_name} - " +
+                              existing_paths.join(", "))
+            existing_paths.each{|s| $LOAD_PATH.delete(s) }
+          end
+          spec.full_require_paths.each do |r_path|
+            if !$LOAD_PATH.include?(r_path)
+              @logger.debug("Adding path to LOAD_PATH - #{r_path}")
+              $LOAD_PATH.unshift(r_path)
+            end
           end
         end
+        result
       end
-      result
     end
 
     # Generate the composite resolver set totally all of vagrant (builtin + plugin set)

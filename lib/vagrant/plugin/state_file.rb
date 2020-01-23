@@ -41,6 +41,7 @@ module Vagrant
           "require"               => opts[:require] || "",
           "sources"               => opts[:sources] || [],
           "installed_gem_version" => opts[:installed_gem_version],
+          "env_vars"              => opts[:env_vars],
           "env_local"             => !!opts[:env_local]
         }
 
