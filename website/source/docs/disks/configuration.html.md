@@ -33,7 +33,7 @@ Vagrant Disks has several options that allow users to define and attach disks to
 extension a disk should have. For a list of supported disk extensions, please check
 the specific provider being used.
 * `file` (string) - Optional argument that defines a path on disk pointing to the location of a disk file.
-* `name` (string) - Optional argument to give the disk a name
+* `name` (string) - Required option to give the disk a name. This name will be used as a filename when creating the disk.
 * `primary` (boolean) - Optional argument that configures a given disk to be the "primary" disk to manage on the guest. There can only be one `primary` disk per guest.
 * `provider_config` (hash) - Additional provider specific options for managing a given disk.
 
