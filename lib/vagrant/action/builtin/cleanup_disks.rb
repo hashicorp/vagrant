@@ -14,19 +14,15 @@ module Vagrant
           machine = env[:machine]
           defined_disks = get_disks(machine, env)
 
-          # TODO: Maybe always cleanup disks, even if no disks are defined.
-          # Check meta file first
-          #
           # Call into providers machine implementation for disk management
-          if !defined_disks.empty?
+          disk_meta_file = read_disk_metadata(machine)
+
+          if !disk_meta_file.empty?
             if machine.provider.capability?(:cleanup_disks)
-              disk_meta_file = read_disk_metadata(machine)
-              if !disk_meta_file.empty?
-                machine.provider.capability(:cleanup_disks, defined_disks, disk_meta_file)
-              end
+              machine.provider.capability(:cleanup_disks, defined_disks, disk_meta_file)
             else
               env[:ui].warn(I18n.t("vagrant.actions.disk.provider_unsupported",
-                                 provider: machine.provider_name))
+                                   provider: machine.provider_name))
             end
           end
 
