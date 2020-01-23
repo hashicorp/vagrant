@@ -133,6 +133,8 @@ module VagrantPlugins
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         def self.create_disk(machine, disk_config)
           machine.ui.detail("Disk '#{disk_config.name}' not found in guest. Creating and attaching disk to guest...")
+          # NOTE: At the moment, there are no provider specific configs for VirtualBox
+          # but we grab it anyway for future use.
           disk_provider_config = disk_config.provider_config[:virtualbox] if disk_config.provider_config
 
           guest_info = machine.provider.driver.show_vm_info
