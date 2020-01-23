@@ -14,6 +14,9 @@ module Vagrant
           machine = env[:machine]
           defined_disks = get_disks(machine, env)
 
+          # TODO: Maybe always cleanup disks, even if no disks are defined.
+          # Check meta file first
+          #
           # Call into providers machine implementation for disk management
           if !defined_disks.empty?
             if machine.provider.capability?(:cleanup_disks)
