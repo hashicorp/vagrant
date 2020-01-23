@@ -48,12 +48,11 @@ module VagrantPlugins
 
         protected
 
-        # Handles all disk configs of type `:disk`
-        # @param [Hash] - disk_metadata
-        def self.handle_configure_disk(machine, disk, all_disks)
-          disk_metadata = {}
-
-          # Grab the existing configured disk, if it exists
+        # @param [Vagrant::Machine] machine - the current machine
+        # @param [Config::Disk] disk - the current disk to configure
+        # @param [Array] all_disks - A list of all currently defined disks in VirtualBox
+        # @return [Hash] current_disk - Returns the current disk. Returns nil if it doesn't exist
+        def self.get_current_disk(machine, disk, all_disks)
           current_disk = nil
           if disk.primary
             # Ensure we grab the proper primary disk
@@ -67,6 +66,22 @@ module VagrantPlugins
             current_disk = all_disks.select { |d| d["Disk Name"] == disk.name}.first
           end
 
+          return current_disk
+        end
+
+        # Handles all disk configs of type `:disk`
+        #
+        # @param [Vagrant::Machine] machine - the current machine
+        # @param [Config::Disk] disk - the current disk to configure
+        # @param [Array] all_disks - A list of all currently defined disks in VirtualBox
+        # @return [Hash] - disk_metadata
+        def self.handle_configure_disk(machine, disk, all_disks)
+          disk_metadata = {}
+
+          # Grab the existing configured disk, if it exists
+          current_disk = get_current_disk(machine, disk, all_disks)
+
+          # Configure current disk
           if !current_disk
             # create new disk and attach
             disk_metadata = create_disk(machine, disk)
