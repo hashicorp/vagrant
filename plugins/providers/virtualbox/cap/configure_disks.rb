@@ -85,7 +85,7 @@ module VagrantPlugins
           if !current_disk
             # create new disk and attach
             disk_metadata = create_disk(machine, disk)
-          elsif compare_disk_state(machine, disk, current_disk)
+          elsif compare_disk_size(machine, disk, current_disk)
             disk_metadata = resize_disk(machine, disk, current_disk)
           else
             # TODO: What if it needs to be resized?
@@ -113,7 +113,7 @@ module VagrantPlugins
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         # @param [Hash] defined_disk
         # @return [Boolean]
-        def self.compare_disk_state(machine, disk_config, defined_disk)
+        def self.compare_disk_size(machine, disk_config, defined_disk)
           requested_disk_size = Vagrant::Util::Numeric.bytes_to_megabytes(disk_config.size)
           defined_disk_size = defined_disk["Capacity"].split(" ").first.to_f
 
