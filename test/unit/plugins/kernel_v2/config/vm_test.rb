@@ -556,8 +556,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     end
 
     it "stores the disks" do
-      subject.disk(:disk, size: 100)
-      subject.disk(:disk, size: 1000, primary: false, name: "storage")
+      subject.disk(:disk, size: 100, primary: true)
+      subject.disk(:disk, size: 1000, name: "storage")
       subject.finalize!
 
       assert_valid

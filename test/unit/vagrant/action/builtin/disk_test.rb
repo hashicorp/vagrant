@@ -20,7 +20,7 @@ describe Vagrant::Action::Builtin::Disk do
       subject = described_class.new(app, env)
 
       expect(app).to receive(:call).with(env).ordered
-      expect(machine.provider).to receive(:capability).with(:configure_disks, disks)
+      expect(machine.provider).to receive(:capability).with(:configure_disks, disks).and_return({})
 
       subject.call(env)
     end
