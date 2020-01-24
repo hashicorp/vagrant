@@ -8,3 +8,19 @@ description: |-
 ---
 
 # Usage
+
+<div class="alert alert-warning">
+  <strong>Warning!</strong> This feature is experimental and may break or
+  change in between releases. Use at your own risk. It currently is not officially
+  supported or functional.
+
+  This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
+
+  ```
+  VAGRANT_EXPERIMENTAL="virtualbox_disk_hdd"
+  ```
+
+  Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
+  information about this flag visit the [Experimental docs page](/docs/experimental/)
+  for more info. Without this flag enabled, any disks defined will not be configured.
+</div>

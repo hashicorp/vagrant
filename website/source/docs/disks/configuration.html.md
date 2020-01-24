@@ -21,8 +21,7 @@ description: |-
 
   Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
   information about this flag visit the [Experimental docs page](/docs/experimental/)
-  for more info. Without this flag enabled, triggers with the `:type` option
-  will be ignored.
+  for more info. Without this flag enabled, any disks defined will not be configured.
 </div>
 
 Vagrant Disks has several options that allow users to define and attach disks to guests.
@@ -43,7 +42,7 @@ the specific provider being used.
       - The provider name followed by a double underscore, and then the provider specific option for that disk
     + `{providername: {diskoption: value}, otherprovidername: {diskoption: value}`
       - A hash where the top level key(s) are one or more providers, and each provider keys values are a hash of options and their values.
-* `type` (symbol) - The type of disk to manage. This option defaults to `:disk`. Please read the provider specific documentation for supported types.
+* `size` (String) - The size of the disk to create. For example, `"10GB"`.
 
     **Note:** More specific examples of these can be found under the provider specific disk page. The `provider_config` option will depend on the provider you are using. Please read the provider specific documentation for disk management to learn about what options are available to use.
 
@@ -72,8 +71,22 @@ If you are a vagrant plugin author who maintains a provider for Vagrant, this sh
   feature is more fully developed in Vagrant.
 </div>
 
-- Entry level builtin action `disk` and how to use it as a provider author
-- `id` is unique to each disk config object
+TODO: Write a bit here about what the internal disk config object looks like, and
+how to use it. Add code links if possible to the virtualbox disk feature.
+
 - `provider_config` and how to its structured and how to use/validate it
 
-More information should be coming once the disk feature is more functional.
+All providers must implement the capability `configure_disks`, and `cleanup_disks`.
+These methods are responsible for the following:
+
+- `configure_disks` - Reads in a Vagrant config for defined disks from a Vagrantfile,
+and creates and attaches the disks based on the given config
+- `cleanup_disks` - Compares the current Vagrant config for defined disks and detaches
+any disks that are no longer valid for a guest.
+
+These methods are called in the builtin Vagrant actions _Disk_ and _CleanupDisks_.
+If the provider does not support these capabilities, they will be skipped over and no
+disks will be configured.
+
+For a more detailed example of how to use this disk configuration with Vagrant, please
+check out how it was implemented using the VirtualBox provider.
