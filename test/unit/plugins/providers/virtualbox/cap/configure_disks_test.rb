@@ -222,10 +222,16 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   end
 
   context "#compare_disk_size" do
+    let(:disk_config_small) { double("disk", name: "disk-0", size: 1073741824.0, primary: false, type: :disk) }
+    let(:disk_config_large) { double("disk", name: "disk-0", size: 68719476736.0, primary: false, type: :disk) }
+
     it "shows a warning if user attempts to shrink size" do
+      expect(machine.ui).to receive(:warn)
+      expect(subject.compare_disk_size(machine, disk_config_small, all_disks[1])).to be_falsey
     end
 
     it "returns true if requested size is bigger than current size" do
+      expect(subject.compare_disk_size(machine, disk_config_large, all_disks[1])).to be_truthy
     end
   end
 
