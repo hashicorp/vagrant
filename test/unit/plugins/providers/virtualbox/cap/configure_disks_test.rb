@@ -28,10 +28,38 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   let(:vm_info) { {"SATA Controller-ImageUUID-0-0" => "12345",
                    "SATA Controller-ImageUUID-1-0" => "67890"} }
 
-  let(:defined_disks) { [double("disk-0", name: "disk-0", size: "5GB", type: :disk),
-                        double("disk-1", name: "disk-1", size: "5GB", type: :disk),
-                        double("disk-2", name: "disk-2", size: "5GB", type: :disk),
-                        double("disk-3", name: "disk-3", size: "5GB", type: :disk)] }
+  let(:defined_disks) { [double("disk", name: "vagrant_primary", size: "5GB", primary: true, type: :disk),
+                         double("disk", name: "disk-0", size: "5GB", primary: false, type: :disk),
+                         double("disk", name: "disk-1", size: "5GB", primary: false, type: :disk),
+                         double("disk", name: "disk-2", size: "5GB", primary: false, type: :disk)] }
+
+  let(:all_disks) { [{"UUID"=>"12345",
+          "Parent UUID"=>"base",
+          "State"=>"created",
+          "Type"=>"normal (base)",
+          "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/ubuntu-18.04-amd64-disk001.vmdk",
+          "Disk Name"=>"ubuntu-18.04-amd64-disk001",
+          "Storage format"=>"VMDK",
+          "Capacity"=>"65536 MBytes",
+          "Encryption"=>"disabled"},
+         {"UUID"=>"67890",
+          "Parent UUID"=>"base",
+          "State"=>"created",
+          "Type"=>"normal (base)",
+          "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/disk-0.vdi",
+          "Disk Name"=>"disk-0",
+          "Storage format"=>"VDI",
+          "Capacity"=>"10240 MBytes",
+          "Encryption"=>"disabled"},
+         {"UUID"=>"324bbb53-d5ad-45f8-9bfa-1f2468b199a8",
+          "Parent UUID"=>"base",
+          "State"=>"created",
+          "Type"=>"normal (base)",
+          "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/disk-1.vdi",
+          "Disk Name"=>"disk-1",
+          "Storage format"=>"VDI",
+          "Capacity"=>"5120 MBytes",
+          "Encryption"=>"disabled"}] }
 
   let(:subject) { described_class }
 
@@ -68,16 +96,129 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   context "#get_current_disk" do
     it "gets primary disk uuid if disk to configure is primary" do
+      primary_disk = subject.get_current_disk(machine, defined_disks.first, all_disks)
+      expect(primary_disk).to eq(all_disks.first)
     end
 
     it "finds the disk to configure" do
+      disk = subject.get_current_disk(machine, defined_disks[1], all_disks)
+      expect(disk).to eq(all_disks[1])
     end
 
     it "returns nil if disk is not found" do
+      disk = subject.get_current_disk(machine, defined_disks[3], all_disks)
+      expect(disk).to be_nil
     end
   end
 
   context "#handle_configure_disk" do
+    describe "when creating a new disk" do
+      let(:all_disks) { [{"UUID"=>"12345",
+              "Parent UUID"=>"base",
+              "State"=>"created",
+              "Type"=>"normal (base)",
+              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/ubuntu-18.04-amd64-disk001.vmdk",
+              "Disk Name"=>"ubuntu-18.04-amd64-disk001",
+              "Storage format"=>"VMDK",
+              "Capacity"=>"65536 MBytes",
+              "Encryption"=>"disabled"}] }
+
+      let(:disk_meta) { {uuid: "67890", name: "disk-0"} }
+
+      it "creates a new disk if it doesn't yet exist" do
+        expect(subject).to receive(:create_disk).with(machine, defined_disks[1])
+          .and_return(disk_meta)
+
+        subject.handle_configure_disk(machine, defined_disks[1], all_disks)
+      end
+    end
+
+    describe "when a disk needs to be resized" do
+      let(:all_disks) { [{"UUID"=>"12345",
+              "Parent UUID"=>"base",
+              "State"=>"created",
+              "Type"=>"normal (base)",
+              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/ubuntu-18.04-amd64-disk001.vmdk",
+              "Disk Name"=>"ubuntu-18.04-amd64-disk001",
+              "Storage format"=>"VMDK",
+              "Capacity"=>"65536 MBytes",
+              "Encryption"=>"disabled"},
+             {"UUID"=>"67890",
+              "Parent UUID"=>"base",
+              "State"=>"created",
+              "Type"=>"normal (base)",
+              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/disk-0.vdi",
+              "Disk Name"=>"disk-0",
+              "Storage format"=>"VDI",
+              "Capacity"=>"10240 MBytes",
+              "Encryption"=>"disabled"}] }
+
+      it "resizes a disk" do
+        expect(subject).to receive(:get_current_disk).
+          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
+
+        expect(subject).to receive(:compare_disk_size).
+          with(machine, defined_disks[1], all_disks[1]).and_return(true)
+
+        expect(subject).to receive(:resize_disk).
+          with(machine, defined_disks[1], all_disks[1]).and_return(true)
+
+        subject.handle_configure_disk(machine, defined_disks[1], all_disks)
+      end
+    end
+
+    describe "if no additional disk configuration is required" do
+      let(:all_disks) { [{"UUID"=>"12345",
+              "Parent UUID"=>"base",
+              "State"=>"created",
+              "Type"=>"normal (base)",
+              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/ubuntu-18.04-amd64-disk001.vmdk",
+              "Disk Name"=>"ubuntu-18.04-amd64-disk001",
+              "Storage format"=>"VMDK",
+              "Capacity"=>"65536 MBytes",
+              "Encryption"=>"disabled"},
+             {"UUID"=>"67890",
+              "Parent UUID"=>"base",
+              "State"=>"created",
+              "Type"=>"normal (base)",
+              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/disk-0.vdi",
+              "Disk Name"=>"disk-0",
+              "Storage format"=>"VDI",
+              "Capacity"=>"10240 MBytes",
+              "Encryption"=>"disabled"}] }
+
+      let(:disk_info) { {port: "1", device: "0"} }
+
+      it "reattaches disk if vagrant defined disk exists but is not attached to guest" do
+        expect(subject).to receive(:get_current_disk).
+          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
+
+        expect(subject).to receive(:compare_disk_size).
+          with(machine, defined_disks[1], all_disks[1]).and_return(false)
+
+        expect(driver).to receive(:get_port_and_device).with("67890").
+          and_return({})
+
+        expect(driver).to receive(:attach_disk).with((disk_info[:port].to_i + 1).to_s,
+                                                     disk_info[:device],
+                                                     all_disks[1]["Location"])
+
+        subject.handle_configure_disk(machine, defined_disks[1], all_disks)
+      end
+
+      it "does nothing if all disks are properly configured" do
+        expect(subject).to receive(:get_current_disk).
+          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
+
+        expect(subject).to receive(:compare_disk_size).
+          with(machine, defined_disks[1], all_disks[1]).and_return(false)
+
+        expect(driver).to receive(:get_port_and_device).with("67890").
+          and_return(disk_info)
+
+        subject.handle_configure_disk(machine, defined_disks[1], all_disks)
+      end
+    end
   end
 
   context "#compare_disk_size" do
