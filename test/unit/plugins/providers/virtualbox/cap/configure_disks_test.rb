@@ -236,25 +236,85 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   end
 
   context "#create_disk" do
+    let(:disk_config) { double("disk", name: "disk-0", size: 1073741824.0,
+                               primary: false, type: :disk, disk_ext: "vdi",
+                               provider_config: nil) }
+    let(:vm_info) { {"CfgFile"=>"/home/vagrant/VirtualBox VMs/disks/"} }
+    let(:disk_file) { "/home/vagrant/VirtualBox VMs/disk-0.vdi" }
+    let(:disk_data) { "Medium created. UUID: 67890\n" }
+
+    let(:port_and_device) { {port: "1", device: "0"} }
+
     it "creates a disk and attaches it to a guest" do
+      expect(driver).to receive(:show_vm_info).and_return(vm_info)
+
+      expect(driver).to receive(:create_disk).
+        with(disk_file, disk_config.size, "VDI").and_return(disk_data)
+
+      expect(subject).to receive(:get_next_port).with(machine).
+        and_return(port_and_device)
+
+      expect(driver).to receive(:attach_disk).with(port_and_device[:port],
+                                                   port_and_device[:device],
+                                                   disk_file)
+
+      subject.create_disk(machine, disk_config)
     end
   end
 
   context "#get_next_port" do
     it "determines the next available port to use" do
-    end
-
-    it "returns empty string if no usable port is available" do
+      dsk_info = subject.get_next_port(machine)
+      expect(dsk_info[:device]).to eq("0")
+      expect(dsk_info[:port]).to eq("2")
     end
   end
 
   context "#resize_disk" do
     describe "when a disk is vmdk format" do
+      let(:disk_config) { double("disk", name: "vagrant_primary", size: 1073741824.0,
+                                 primary: false, type: :disk, disk_ext: "vmdk",
+                                 provider_config: nil) }
+      let(:attach_info) { {port: "0", device: "0"} }
+      let(:vdi_disk_file) { "/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vdi" }
+      let(:vmdk_disk_file) { "/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk" }
+
       it "converts the disk to vdi, resizes it, and converts back to vmdk" do
+        expect(driver).to receive(:get_port_and_device).with("12345").
+          and_return(attach_info)
+
+        expect(subject).to receive(:vmdk_to_vdi).with(driver, all_disks[0]["Location"]).
+          and_return(vdi_disk_file)
+
+        expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).
+          and_return(true)
+
+        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device]).
+          and_return(true)
+        expect(driver).to receive(:close_medium).with("12345")
+
+        expect(subject).to receive(:vdi_to_vmdk).with(driver, vdi_disk_file).
+          and_return(vmdk_disk_file)
+
+        expect(driver).to receive(:attach_disk).
+          with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd").and_return(true)
+        expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
+
+        expect(driver).to receive(:list_hdds).and_return(all_disks)
+
+        subject.resize_disk(machine, disk_config, all_disks[0])
       end
     end
 
-    it "resizes the disk" do
+    describe "when a disk is vdi format" do
+      let(:disk_config) { double("disk", name: "disk-0", size: 1073741824.0,
+                                 primary: false, type: :disk, disk_ext: "vdi",
+                                 provider_config: nil) }
+      it "resizes the disk" do
+        expect(driver).to receive(:resize_disk).with(all_disks[1]["Location"], disk_config.size.to_i)
+
+        subject.resize_disk(machine, disk_config, all_disks[1])
+      end
     end
   end
 
