@@ -23,7 +23,7 @@ here](/docs/vagrant-cloud/boxes/lifecycle.html).
 
 ## Vagrant Box Catalog and Discovery
 
-Vagrant Cloud hosts a catalog of publically available Vagrant Boxes. These are boxes
+Vagrant Cloud hosts a catalog of publicly available Vagrant Boxes. These are boxes
 created by both HashiCorp and community contributions. You can find an owner of
 a box by selecting their username in the URL or on the box page.
 
