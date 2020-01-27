@@ -144,7 +144,7 @@ en:
       unauthorized: |-
         Invalid username or password. Please try again.
       unexpected_error: |-
-        An unexpected error occured: %{error}
+        An unexpected error occurred: %{error}
 
     check_logged_in: |-
       You are already logged in.
