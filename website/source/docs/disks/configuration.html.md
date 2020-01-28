@@ -35,7 +35,7 @@ the provider specific documentation to see any available provider_config options
 
     **Note:** More specific examples of these can be found under the provider
     specific disk page. The `provider_config` option will depend on the provider
-    you are using. Please read the provider specific documentation for disk 
+    you are using. Please read the provider specific documentation for disk
     management to learn about what options are available to use.
 
 ## Disk Types
@@ -83,6 +83,26 @@ a users Vagrantfile.
 
 For a more detailed example of how to use this disk configuration with Vagrant, please
 check out how it was implemented using the VirtualBox provider.
+
+### The disk_meta file
+
+Both builtin disk actions `configure_disks` and `cleanup_disks` expect to read and
+write down a `disk_meta` file inside a machines data dir. This file is specifically
+for keeping track of the _last configured state_ for disks in a given provider.
+Generally, this file is used as a way for Vagrant to keep track of what disks
+are being managed by Vagrant with the provider uses, so that it does not accidentally
+delete or manage disks that were configured outside of Vagrants configuration.
+
+For the VirtualBox provider, Vagrant uses this file to see what disks were configured
+on the _last run_ of Vagrant, and compares that to the current configured state for
+the Vagrantfile on the _current run_ of Vagrant. It specifically stores each disks
+UUID and disk name for use. If it notices a disk that is no longer in the
+Vagrantfile, it can be assumed that the disk is no longer valid for that guest,
+and cleans up the disk.
+
+This may not be required for your provider, however with the VirtualBox provider, Vagrant
+needs a way to keep track of the defined disks managed by Vagrant and their disk UUIDs
+that VirtualBox uses to keep track of these disks.
 
 ### The provider_config hash
 
