@@ -26,7 +26,16 @@ SATA Controllers can only support up to **30 disks** per guest. Therefore if you
 to define and attach more than 30, it will result in an error. This number _includes_
 the primary disk for the guest.
 
-## Applying Changes to Guests
+## Resizing VMDK format disks
+
+VMDK disks cannot be resized in their current state, so Vagrant will automatically
+convert these disks to VDI, resize the disk, and convert it back to its original format.
+Many Vagrant boxes default to using the VMDK disk format, so resizing disks for
+many users will require Vagrant to convert these disks. Generally, this will be transparent
+to the user. However if Vagrant crashes or if a user interrupts Vagrant during the
+cloning process, there is a chance that you might lose your data.
+
+## Applying Vagrant disk configuration changes to guests
 
 Due to how VirtualBox works, you must reload your guest for any disk config changes
 to be applied. So if you update your Vagrantfile to update or even remove disks, make
