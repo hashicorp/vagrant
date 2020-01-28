@@ -26,7 +26,8 @@ module VagrantPlugins
         # @param [String] device - device on controller for disk
         # @param [String] file - disk file path
         # @param [String] type - type of disk to attach
-        def attach_disk(port, device, file, type="hdd")
+        # @param [Hash]   opts -  additional options
+        def attach_disk(port, device, file, type="hdd", **opts)
           # Maybe only support SATA Controller for `:disk`???
           controller = "SATA Controller"
 
@@ -62,7 +63,7 @@ module VagrantPlugins
         # @param [String] source
         # @param [String] destination
         # @param [String] disk_format
-        def clone_disk(source, destination, disk_format)
+        def clone_disk(source, destination, disk_format, **opts)
           execute("clonemedium", source, destination, '--format', disk_format)
         end
 
@@ -80,6 +81,7 @@ module VagrantPlugins
         # Removes a disk from the given virtual machine
         #
         # @param [String] disk_uuid or file path
+        # @param [Hash]   opts -  additional options
         def close_medium(disk_uuid)
           execute("closemedium", disk_uuid, '--delete')
         end
@@ -108,7 +110,8 @@ module VagrantPlugins
        # @param [String] disk_file
        # @param [Integer] disk_size - size in bytes (MUST BE DIVISIBLE BY 512 bytes)
        # @param [String] disk_format - format of disk, defaults to "VDI"
-       def create_disk(disk_file, disk_size, disk_format="VDI")
+        # @param [Hash]  opts -  additional options
+       def create_disk(disk_file, disk_size, disk_format="VDI", **opts)
          execute("createmedium", '--filename', disk_file, '--sizebyte', disk_size.to_i.to_s, '--format', disk_format)
        end
 
@@ -226,6 +229,7 @@ module VagrantPlugins
 
         # @param [String] port - port on device to attach disk to
         # @param [String] device - device on controller for disk
+        # @param [Hash]   opts -  additional options
         def remove_disk(port, device)
           controller = "SATA Controller"
           execute('storageattach', @uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--medium', "none")
@@ -233,7 +237,8 @@ module VagrantPlugins
 
         # @param [String] disk_file
         # @param [Integer] disk_size in bytes
-        def resize_disk(disk_file, disk_size)
+        # @param [Hash]   opts -  additional options
+        def resize_disk(disk_file, disk_size, **opts)
           execute("modifymedium", disk_file, '--resizebyte', disk_size.to_i.to_s)
         end
 
