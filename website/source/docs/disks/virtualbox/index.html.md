@@ -25,9 +25,8 @@ description: |-
   for more info. Without this flag enabled, any disks defined will not be configured.
 </div>
 
-
-Vagrant using the `vboxmanage` command line interface to manage disks for a
-VirtualBox guest.
+**Vagrant currently only supports VirtualBox version 5.x and newer for configuring and
+attaching disks.**
 
 Because of how VirtualBox handles disk management, a Vagrant guest _must_ be powered
 off for any changes to be applied to a guest. If you make a configuration change
@@ -37,3 +36,7 @@ to be applied.
 When new disks are defined to be attached to a guest, Vagrant will create and attach
 these disks to a guests SATA Controller. It should be noted that up to 30 disks
 can be attached to the SATA Controller.
+
+For more information on how to use VirtualBox to configure disks for a guest, refer
+to the [general usage](/docs/disks/usage.html) and [configuration](/docs/disks/configuration.html)
+guide for more information.

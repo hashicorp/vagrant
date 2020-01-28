@@ -15,9 +15,13 @@ Vagrant Disks has several options that allow users to define and attach disks to
 * `disk_ext` (string) - Optional argument that defines what kind of file
 extension a disk should have. For a list of supported disk extensions, please check
 the specific provider being used.
-* `file` (string) - Optional argument that defines a path on disk pointing to the location of a disk file that already exists.
-* `name` (string) - Required option to give the disk a name. This name will be used as a filename when creating the disk.
-* `primary` (boolean) - Optional argument that configures a given disk to be the "primary" disk to manage on the guest. There can only be one `primary` disk per guest.
+* `file` (string) - Optional argument that defines a path on disk pointing to
+the location of a disk file that already exists.
+* `name` (string) - Required option to give the disk a name. This name will be
+used as a filename when creating the disk.
+* `primary` (boolean) - Optional argument that configures a given disk to be the
+"primary" disk to manage on the guest. There can only be one `primary` disk per guest.
+Defaults to `false` if not specified.
 * `provider_config` (hash) - Additional provider specific options for managing a given disk. Please refer to
 the provider specific documentation to see any available provider_config options.
 
@@ -29,7 +33,10 @@ the provider specific documentation to see any available provider_config options
       - A hash where the top level key(s) are one or more providers, and each provider keys values are a hash of options and their values.
 * `size` (String) - The size of the disk to create. For example, `"10GB"`.
 
-    **Note:** More specific examples of these can be found under the provider specific disk page. The `provider_config` option will depend on the provider you are using. Please read the provider specific documentation for disk management to learn about what options are available to use.
+    **Note:** More specific examples of these can be found under the provider
+    specific disk page. The `provider_config` option will depend on the provider
+    you are using. Please read the provider specific documentation for disk 
+    management to learn about what options are available to use.
 
 ## Disk Types
 
@@ -55,14 +62,9 @@ If you are a vagrant plugin author who maintains a provider for Vagrant, this sh
 
 <div class="alert alert-warning">
   <strong>Warning!</strong> This guide is still being written as we develop this
-  new feature for Vagrant. Some points below are what we plan on covering once this
-  feature is more fully developed in Vagrant.
+  new feature for Vagrant. Is something missing, or could this be improved? Please
+  let us know on GitHub by opening an issue or open a pull request directly.
 </div>
-
-TODO: Write a bit here about what the internal disk config object looks like, and
-how to use it. Add code links if possible to the virtualbox disk feature.
-
-- `provider_config` and how to its structured and how to use/validate it
 
 All providers must implement the capability `configure_disks`, and `cleanup_disks`.
 These methods are responsible for the following:
@@ -74,7 +76,16 @@ any disks that are no longer valid for a guest.
 
 These methods are called in the builtin Vagrant actions _Disk_ and _CleanupDisks_.
 If the provider does not support these capabilities, they will be skipped over and no
-disks will be configured.
+disks will be configured. It is the providers job to implement these provider capabilities
+and handle the methods required to support disk creation and deletion. Vagrant will
+handle parsing and supplying the config object based on what has been defined inside
+a users Vagrantfile.
 
 For a more detailed example of how to use this disk configuration with Vagrant, please
 check out how it was implemented using the VirtualBox provider.
+
+### The provider_config hash
+
+The disk config class supports an optional hash of options called `provider_config`.
+This allows the user to define some additional options for a provider to use that
+may be non-standard across different providers.

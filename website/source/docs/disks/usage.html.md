@@ -29,7 +29,7 @@ description: |-
 
 Below are some very simple examples of how to use Vagrant Disks with the VirtualBox provider.
 
-## Basic disk examples
+## Basic Examples
 
 ### Resizing your primary disk
 
@@ -95,3 +95,9 @@ end
 Note: Virtualbox only allows for up to 30 disks to be attached to a given SATA Controller,
 and this number includes the primary disk! Attempting to configure more than 30 will
 result in a Vagrant error.
+
+### Removing Disks
+
+If you have removed a disk from your Vagrant config and wish for it to be detached from the guest,
+you will need to `vagrant reload` your guest to apply these changes. **NOTE:** Doing so
+will also delete the medium from your hard drive.
