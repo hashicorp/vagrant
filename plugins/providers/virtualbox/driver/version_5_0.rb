@@ -104,11 +104,8 @@ module VagrantPlugins
 
        # Creates a disk. Default format is VDI unless overridden
        #
-       # Note: disk_size must be divisible by 512 bytes, otherwise operation will fail
-       # Source: https://www.virtualbox.org/ticket/5582
-       #
        # @param [String] disk_file
-       # @param [Integer] disk_size - size in bytes (MUST BE DIVISIBLE BY 512 bytes)
+       # @param [Integer] disk_size - size in bytes
        # @param [String] disk_format - format of disk, defaults to "VDI"
         # @param [Hash]  opts -  additional options
        def create_disk(disk_file, disk_size, disk_format="VDI", **opts)
