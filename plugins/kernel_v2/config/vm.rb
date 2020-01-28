@@ -376,7 +376,7 @@ module VagrantPlugins
         prov.preserve_order = !!options.delete(:preserve_order) if \
           options.key?(:preserve_order)
         prov.run = options.delete(:run) if options.key?(:run)
-        prov.add_config(options, &block)
+        prov.add_config(**options, &block)
         nil
       end
 

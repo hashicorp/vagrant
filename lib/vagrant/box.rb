@@ -165,7 +165,7 @@ module Vagrant
       version += ", " if version
       version ||= ""
       version += "> #{@version}"
-      md      = self.load_metadata(download_options)
+      md      = self.load_metadata(**download_options)
       newer   = md.version(version, provider: @provider)
       return nil if !newer
 
