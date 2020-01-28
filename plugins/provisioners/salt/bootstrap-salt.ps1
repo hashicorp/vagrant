@@ -54,6 +54,9 @@ If ([IntPtr]::Size -eq 4) {
   $arch = "AMD64"
 }
 
+# Powershell supports only TLS 1.0 by default. Add support up to TLS 1.2
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]'Tls,Tls11,Tls12'
+
 # Download minion setup file
 $minionFilename = "Salt-Minion-$version-$arch-Setup.exe"
 $versionYear = [regex]::Match($version, "\d+").Value
