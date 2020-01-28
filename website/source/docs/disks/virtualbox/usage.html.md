@@ -24,3 +24,11 @@ description: |-
   information about this flag visit the [Experimental docs page](/docs/experimental/)
   for more info. Without this flag enabled, any disks defined will not be configured.
 </div>
+
+For examples of how to use the disk feature with VirtualBox, please refer to the
+[general disk usage guide](/docs/disks/usage.html) for more examples.
+
+## provider_config options
+
+Currently, there are no additional options supported for the `provider_config` option.
+This page will be updated with any valid options as they become supported.

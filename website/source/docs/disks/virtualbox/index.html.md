@@ -33,3 +33,7 @@ Because of how VirtualBox handles disk management, a Vagrant guest _must_ be pow
 off for any changes to be applied to a guest. If you make a configuration change
 with a guests disk, you will need to `vagrant reload` the guest for any changes
 to be applied.
+
+When new disks are defined to be attached to a guest, Vagrant will create and attach
+these disks to a guests SATA Controller. It should be noted that up to 30 disks
+can be attached to the SATA Controller.

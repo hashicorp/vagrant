@@ -16,12 +16,15 @@ description: |-
   This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
 
   ```
-  VAGRANT_EXPERIMENTAL="disk_base_config"
+  VAGRANT_EXPERIMENTAL="virtualbox_disk_hdd"
   ```
 
   Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
   information about this flag visit the [Experimental docs page](/docs/experimental/)
   for more info. Without this flag enabled, any disks defined will not be configured.
+
+  Also note that the examples below use the VirtualBox provider, which is the current
+  supported providier for this feature.
 </div>
 
 Below are some very simple examples of how to use Vagrant Disks with the VirtualBox provider.

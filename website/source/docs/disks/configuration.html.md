@@ -8,22 +8,6 @@ description: |-
 
 # Configuration
 
-<div class="alert alert-warning">
-  <strong>Warning!</strong> This feature is experimental and may break or
-  change in between releases. Use at your own risk. It currently is not officially
-  supported or functional.
-
-  This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
-
-  ```
-  VAGRANT_EXPERIMENTAL="disk_base_config"
-  ```
-
-  Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more
-  information about this flag visit the [Experimental docs page](/docs/experimental/)
-  for more info. Without this flag enabled, any disks defined will not be configured.
-</div>
-
 Vagrant Disks has several options that allow users to define and attach disks to guests.
 
 ## Disk Options
@@ -31,10 +15,11 @@ Vagrant Disks has several options that allow users to define and attach disks to
 * `disk_ext` (string) - Optional argument that defines what kind of file
 extension a disk should have. For a list of supported disk extensions, please check
 the specific provider being used.
-* `file` (string) - Optional argument that defines a path on disk pointing to the location of a disk file.
+* `file` (string) - Optional argument that defines a path on disk pointing to the location of a disk file that already exists.
 * `name` (string) - Required option to give the disk a name. This name will be used as a filename when creating the disk.
 * `primary` (boolean) - Optional argument that configures a given disk to be the "primary" disk to manage on the guest. There can only be one `primary` disk per guest.
-* `provider_config` (hash) - Additional provider specific options for managing a given disk.
+* `provider_config` (hash) - Additional provider specific options for managing a given disk. Please refer to
+the provider specific documentation to see any available provider_config options.
 
     Generally, the disk option accepts two kinds of ways to define a provider config:
 
@@ -53,6 +38,9 @@ The disk config currently accepts three kinds of disk types:
 * `disk` (symbol)
 * `dvd` (symbol)
 * `floppy` (symbol)
+
+**NOTE:** These types depend on the provider used, and may not yet be functional. Please
+refer to the provider specific implementation for more details for what is supported.
 
 You can set a disk type with the first argument of a disk config in your Vagrantfile:
 
