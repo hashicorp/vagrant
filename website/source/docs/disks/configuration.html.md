@@ -13,8 +13,8 @@ Vagrant Disks has several options that allow users to define and attach disks to
 ## Disk Options
 
 * `disk_ext` (string) - Optional argument that defines what kind of file
-extension a disk should have. For a list of supported disk extensions, please check
-the specific provider being used.
+extension a disk should have. Defaults to `"vdi"` if unspecified. For a list of
+supported disk extensions, please check the specific provider being used.
 * `file` (string) - Optional argument that defines a path on disk pointing to
 the location of a disk file that already exists.
 * `name` (string) - Required option to give the disk a name. This name will be
