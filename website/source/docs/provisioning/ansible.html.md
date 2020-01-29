@@ -1,7 +1,7 @@
 ---
 layout: "docs"
 page_title: "Ansible - Provisioning"
-sidebar_current: "provisioning-ansible"
+sidebar_current: "provisioning-ansible-provisioner"
 description: |-
   The Vagrant Ansible provisioner allows you to provision the guest using
   Ansible playbooks by executing "ansible-playbook" from the Vagrant host.
