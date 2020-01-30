@@ -7,7 +7,6 @@ describe "VagrantPlugins::Shell::Config" do
 
   let(:machine)          { double('machine', env: Vagrant::Environment.new) }
   let(:file_that_exists) { File.expand_path(__FILE__)                       }
-  let(:unset_value)      { Vagrant::Plugin::V2::Config::UNSET_VALUE         }
 
   subject { described_class.new }
 
@@ -146,7 +145,6 @@ describe "VagrantPlugins::Shell::Config" do
 
     it "returns no error if upload_path is unset" do
       subject.inline = "script"
-      subject.upload_path = unset_value
       subject.finalize!
 
       result = subject.validate(machine)
@@ -172,7 +170,6 @@ describe "VagrantPlugins::Shell::Config" do
     end
 
     it "no longer sets a default for upload_path" do
-      subject.upload_path = unset_value
       subject.finalize!
 
       expect(subject.upload_path).to eq(nil)
