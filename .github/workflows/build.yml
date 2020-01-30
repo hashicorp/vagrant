@@ -8,6 +8,7 @@ on:
 
 jobs:
   build-gem:
+    if: github.repository == 'hashicorp/vagrant'
     name: Build Vagrant RubyGem
     runs-on: ubuntu-18.04
     steps:
