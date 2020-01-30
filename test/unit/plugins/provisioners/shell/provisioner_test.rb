@@ -355,19 +355,21 @@ describe "Vagrant::Shell::Provisioner" do
           allow(machine).to receive_message_chain(:config, :vm, :guest).and_return(:windows)
         end
 
-        it "should default to C:\\tmp\\vagrant-shell" do
-          expect(vsp.upload_path).to eq("C:\\tmp\\vagrant-shell")
+        it "should default to C:/tmp/vagrant-shell" do
+          expect(vsp.upload_path).to eq("C:/tmp/vagrant-shell")
         end
       end
     end
 
     context "when upload_path is set" do
+      let(:upload_path) { "arbitrary" }
+
       let(:config) {
         double(
           :config,
           :args        => "doesn't matter",
           :env         => {},
-          :upload_path => "arbitrary",
+          :upload_path => upload_path,
           :remote?     => false,
           :path        => "doesn't matter",
           :inline      => "doesn't matter",
@@ -383,6 +385,18 @@ describe "Vagrant::Shell::Provisioner" do
 
       it "should use the value from from config" do
         expect(vsp.upload_path).to eq("arbitrary")
+      end
+
+      context "windows" do
+        let(:upload_path) { "C:\\Windows\\Temp" }
+
+        before do
+          allow(machine).to receive_message_chain(:config, :vm, :guest).and_return(:windows)
+        end
+
+        it "should normalize the slashes" do
+          expect(vsp.upload_path).to eq("C:/Windows/Temp")
+        end
       end
     end
 

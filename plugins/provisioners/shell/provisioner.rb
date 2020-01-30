@@ -40,12 +40,17 @@ module VagrantPlugins
 
       def upload_path
         if !defined?(@_upload_path)
-          @_upload_path = config.upload_path.to_s
+          case @machine.config.vm.guest
+          when :windows
+            @_upload_path = Vagrant::Util::Platform.unix_windows_path(config.upload_path.to_s)
+          else
+            @_upload_path = config.upload_path.to_s
+          end
 
           if @_upload_path.empty?
             case @machine.config.vm.guest
             when :windows
-              @_upload_path = "C:\\tmp\\vagrant-shell"
+              @_upload_path = "C:/tmp/vagrant-shell"
             else
               @_upload_path = "/tmp/vagrant-shell"
             end
