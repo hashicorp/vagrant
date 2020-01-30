@@ -17,12 +17,14 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     )
   end
 
+  let(:shell) { "cmd" }
+
   # SSH configuration information mock
   let(:winssh) do
     double("winssh",
       insert_key: false,
       export_command_template: export_command_template,
-      shell: 'cmd',
+      shell: shell,
       upload_directory: "C:\\Windows\\Temp"
     )
   end
@@ -224,6 +226,22 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
         expect(channel).to receive(:exec).
           with(/ECHO #{command_garbage_marker} && ECHO #{command_garbage_marker}.*/)
         expect(communicator.execute("dir", force_raw: true)).to eq(0)
+      end
+
+      context "and shell is powershell" do
+        let(:shell) { "powershell" }
+
+        it "passes the correct flags to powershell" do
+          expect(channel).to receive(:exec).
+            with(/-encodedCommand/)
+          expect(communicator.execute("dir", force_raw: true)).to eq(0)
+        end
+
+        it "encodes the raw command" do
+          expect(channel).to receive(:exec).
+            with(/VwByAGkAdABlAC0ASABvAHMAdAAgADQAMQBlADUANwBkADMAOAAtAGIANABmADcALQA0AGUANAA2AC0AOQBjADMAOAAtADEAMwA4ADcAMwBkADMAMwA4AGIAOAA2AC0AdgBhAGcAcgBhAG4AdAAtAHMAcwBoADsAIABbAEMAbwBuAHMAbwBsAGUAXQA6ADoARQByAHIAbwByAC4AVwByAGkAdABlAEwAaQBuAGUAKAAnADQAMQBlADUANwBkADMAOAAtAGIANABmADcALQA0AGUANAA2AC0AOQBjADMAOAAtADEAMwA4ADcAMwBkADMAMwA4AGIAOAA2AC0AdgBhAGcAcgBhAG4AdAAtAHMAcwBoACcAKQA7ACAAZABpAHIA/)
+          expect(communicator.execute("dir", force_raw: true)).to eq(0)
+        end
       end
     end
   end
@@ -548,6 +566,22 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       it "should generate custom export based on template" do
         expect(communicator.send(:generate_environment_export, "TEST", "value")).to eq("setenv TEST value\n")
       end
+    end
+  end
+
+  describe "#create_remote_directory" do
+    it "should set the shell to powershell" do
+      expect(communicator).to receive(:execute).with(
+        anything,
+        hash_including(shell: "powershell"))
+      communicator.create_remote_directory('c:\destination')
+    end
+
+    it "should use an appropriate command for powershell" do
+      expect(communicator).to receive(:execute).with(
+        /md -Force/,
+        anything)
+      communicator.create_remote_directory('c:\destination')
     end
   end
 end

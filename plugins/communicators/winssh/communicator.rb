@@ -35,9 +35,12 @@ module VagrantPlugins
 
           if force_raw
             if shell == "powershell"
-              base_cmd = "powershell \"Write-Host #{CMD_GARBAGE_MARKER}; [Console]::Error.WriteLine('#{CMD_GARBAGE_MARKER}'); #{command}\""
+              command = "Write-Host #{CMD_GARBAGE_MARKER}; [Console]::Error.WriteLine('#{CMD_GARBAGE_MARKER}'); #{command}"
+              command = Base64.strict_encode64(command.encode("UTF-16LE", "UTF-8"))
+              base_cmd = "powershell -encodedCommand #{command}"
             else
-              base_cmd = "cmd /q /c \"ECHO #{CMD_GARBAGE_MARKER} && ECHO #{CMD_GARBAGE_MARKER} 1>&2 && #{command}\""
+              command = "ECHO #{CMD_GARBAGE_MARKER} && ECHO #{CMD_GARBAGE_MARKER} 1>&2 && #{command}"
+              base_cmd = "cmd /q /c \"#{command}\""
             end
           else
             tfile = Tempfile.new('vagrant-ssh')
@@ -227,7 +230,7 @@ SCRIPT
       end
 
       def create_remote_directory(dir, force_raw=false)
-        execute("if not exist \"#{dir}\" mkdir \"#{dir}\"", shell: "cmd", force_raw: force_raw)
+        execute("md -Force \"#{dir}\"", shell: "powershell", force_raw: force_raw)
       end
     end
   end
