@@ -18,7 +18,7 @@ supported disk extensions, please check the specific provider being used.
 * `file` (string) - Optional argument that defines a path on disk pointing to
 the location of a disk file that already exists.
 * `name` (string) - Required option to give the disk a name. This name will be
-used as a filename when creating the disk.
+used as the filename when creating the disk.
 * `primary` (boolean) - Optional argument that configures a given disk to be the
 "primary" disk to manage on the guest. There can only be one `primary` disk per guest.
 Defaults to `false` if not specified.

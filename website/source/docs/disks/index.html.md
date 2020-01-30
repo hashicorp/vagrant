@@ -11,12 +11,14 @@ description: |-
 <div class="alert alert-warning">
   <strong>Warning!</strong> This feature is experimental and may break or
   change in between releases. Use at your own risk. It currently is not officially
-  supported or functional.
+  supported or functional. Please refer to the providier specific disk documentation
+  for more information on how to use and enable this feature.
 </div>
 
 Vagrant Disks is a feature that allows users to define what mediums should be attached
-to their guests, as well as allowing users to resize their primary disk. For examples
-on how to achieve this, among other use cases, please refer to the [usage](/docs/disks/usage.html)
+to their guests, as well as allowing users to resize their primary disk.
+
+For examples on how to achieve this, among other use cases, please refer to the [usage](/docs/disks/usage.html)
 guide for more information!
 
 For more information about what options are available for configuring disks, see the
