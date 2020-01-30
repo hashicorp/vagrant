@@ -1,7 +1,7 @@
 ---
 layout: "docs"
 page_title: "Ansible - Short Introduction"
-sidebar_current: "provisioning-ansible-intro"
+sidebar_current: "provisioning-ansible"
 description: |-
   This page includes options and information that is applicable to both Vagrant
   Ansible provisioners.
