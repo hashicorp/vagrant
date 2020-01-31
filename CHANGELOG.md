@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core/synced_folders: Validate type option if set [GH-11359]
+
 ## 2.2.7 (January 27, 2020)
 
 IMPROVEMENTS:
