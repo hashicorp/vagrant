@@ -155,6 +155,7 @@ describe VagrantPlugins::DockerProvider::Driver do
   describe '#build' do
     let(:result) { "Successfully built other_package\nSuccessfully built 1a2b3c4d" }
     let(:buildkit_result) { "writing image sha256:1a2b3c4d done" }
+    let(:podman_result) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2" }
     let(:cid) { "1a2b3c4d" }
 
     it "builds a container with standard docker" do
@@ -171,6 +172,32 @@ describe VagrantPlugins::DockerProvider::Driver do
       container_id = subject.build("/tmp/fakedir")
 
       expect(container_id).to eq(cid)
+    end
+
+    it "builds a container with podman emulating docker CLI" do
+      allow(subject).to receive(:execute).and_return(podman_result)
+      allow(subject).to receive(:podman?).and_return(true)
+
+      container_id = subject.build("/tmp/fakedir")
+
+      expect(container_id).to eq(cid)
+    end
+  end
+
+  describe '#podman?' do
+    let(:emulating_docker_output) { "podman version 1.7.1-dev" }
+    let(:real_docker_output) { "Docker version 1.8.1, build d12ea79" }
+
+    it 'returns false when docker is used' do
+      allow(subject).to receive(:execute).and_return(real_docker_output)
+
+      expect(subject.podman?).to be false
+    end
+
+    it 'returns true when podman is used' do
+      allow(subject).to receive(:execute).and_return(emulating_docker_output)
+
+      expect(subject.podman?).to be true
     end
   end
 

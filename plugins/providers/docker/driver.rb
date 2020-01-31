@@ -29,7 +29,16 @@ module VagrantPlugins
         # from standard docker
         matches = result.scan(/writing image .+:([0-9a-z]+) done/i).last
         if !matches
-          matches = result.scan(/Successfully built (.+)$/i).last
+          if podman?
+            # Check for podman format when it is emulating docker CLI.
+            # Podman outputs the full hash of the container on
+            # the last line after a successful build.
+            match = result.split.select { |str| str.match?(/[0-9a-z]{64}/) }.last
+            return match[0..7] unless match.nil?
+          else
+            matches = result.scan(/Successfully built (.+)$/i).last
+          end
+
           if !matches
             # This will cause a stack trace in Vagrant, but it is a bug
             # if this happens anyways.
@@ -39,6 +48,13 @@ module VagrantPlugins
 
         # Return the matched group `id`
         matches[0]
+      end
+
+      # Check if podman emulating docker CLI is enabled.
+      #
+      # @return [Bool]
+      def podman?
+        execute('docker', '--version').include?("podman")
       end
 
       def create(params, **opts, &block)
