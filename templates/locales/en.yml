@@ -1946,7 +1946,7 @@ en:
         shared_folder_invalid_option_type: |-
           The type '%{type}' is not a valid synced folder type. If 'type' is not
             specified, Vagrant will automatically choose the best synced folder
-            option for your guest. Otherwise, please pick from the following valid options:
+            option for your guest. Otherwise, please pick from the following available options:
 
               %{options}
         shared_folder_nfs_owner_group: |-
