@@ -3,6 +3,243 @@ require_relative "../base"
 
 require "vagrant/bundler"
 
+describe Vagrant::Bundler::SolutionFile do
+  let(:plugin_path) { Pathname.new(tmpdir) + "plugin_file" }
+  let(:solution_path) { Pathname.new(tmpdir) + "solution_file" }
+  let(:tmpdir) { @tmpdir ||= Dir.mktmpdir("vagrant-bundler-test") }
+  let(:subject) {
+    described_class.new(
+      plugin_file: plugin_path,
+      solution_file: solution_path
+    )
+  }
+
+  after do
+    if @tmpdir
+      FileUtils.rm_rf(@tmpdir)
+      @tmpdir = nil
+    end
+  end
+
+  describe "#initialize" do
+    context "file paths" do
+      context "with solution_file not provided" do
+        let(:subject) { described_class.new(plugin_file: plugin_path) }
+
+        it "should set the plugin_file" do
+          expect(subject.plugin_file.to_s).to eq(plugin_path.to_s)
+        end
+
+        it "should set solution path to same directory" do
+          expect(subject.solution_file.to_s).to eq(plugin_path.to_s + ".sol")
+        end
+      end
+
+      context "with custom solution_file provided" do
+        let(:subject) { described_class.
+            new(plugin_file: plugin_path, solution_file: solution_path) }
+
+        it "should set the plugin file path" do
+          expect(subject.plugin_file.to_s).to eq(plugin_path.to_s)
+        end
+
+        it "should set the solution file path to given value" do
+          expect(subject.solution_file.to_s).to eq(solution_path.to_s)
+        end
+      end
+    end
+
+    context "initialization behavior" do
+      context "on creation" do
+        before { expect_any_instance_of(described_class).to receive(:load) }
+
+        it "should load solution file during initialization" do
+          subject
+        end
+      end
+
+      it "should be invalid by default" do
+        expect(subject.valid?).to be_falsey
+      end
+    end
+  end
+
+  describe "#dependency_list=" do
+    it "should accept a list of Gem::Dependency instances" do
+      list = ["dep1", "dep2"].map{ |x| Gem::Dependency.new(x) }
+      expect(subject.dependency_list = list).to eq(list)
+    end
+
+    it "should error if list includes instance not Gem::Dependency" do
+      list = ["dep1", "dep2"].map{ |x| Gem::Dependency.new(x) } << :invalid
+      expect{ subject.dependency_list = list }.to raise_error(TypeError)
+    end
+  end
+
+  describe "#delete!" do
+    context "when file does not exist" do
+      before { subject.solution_file.delete if subject.solution_file.exist? }
+
+      it "should return false" do
+        expect(subject.delete!).to be_falsey
+      end
+
+      it "should not exist" do
+        subject.delete!
+        expect(subject.solution_file.exist?).to be_falsey
+      end
+    end
+
+    context "when file does exist" do
+      before { subject.solution_file.write('x') }
+
+      it "should return true" do
+        expect(subject.delete!).to be_truthy
+      end
+
+      it "should not exist" do
+        expect(subject.solution_file.exist?).to be_truthy
+        subject.delete!
+        expect(subject.solution_file.exist?).to be_falsey
+      end
+    end
+  end
+
+  describe "store!" do
+    context "when plugin file does not exist" do
+      before { subject.plugin_file.delete if subject.plugin_file.exist? }
+
+      it "should return false" do
+        expect(subject.store!).to be_falsey
+      end
+
+      it "should not create a solution file" do
+        subject.store!
+        expect(subject.solution_file.exist?).to be_falsey
+      end
+    end
+
+
+    context "when plugin file does exist" do
+      before { subject.plugin_file.write("x") }
+
+      it "should return true" do
+        expect(subject.store!).to be_truthy
+      end
+
+      it "should create a solution file" do
+        expect(subject.solution_file.exist?).to be_falsey
+        subject.store!
+        expect(subject.solution_file.exist?).to be_truthy
+      end
+
+      context "stored file" do
+        let(:content) {
+          @content ||= JSON.load(subject.solution_file.read)
+        }
+        before { subject.store! }
+        after { @content = nil }
+
+        it "should store JSON hash" do
+          expect(content).to be_a(Hash)
+        end
+
+        it "should include dependencies key as array value" do
+          expect(content["dependencies"]).to be_a(Array)
+        end
+
+        it "should include checksum key as string value" do
+          expect(content["checksum"]).to be_a(String)
+        end
+
+        it "should include vagrant_version key as string value" do
+          expect(content["vagrant_version"]).to be_a(String)
+        end
+
+        it "should include vagrant_version key that matches current version" do
+          expect(content["vagrant_version"]).to eq(Vagrant::VERSION)
+        end
+      end
+    end
+  end
+
+  describe "behavior" do
+    context "when storing new solution set" do
+      let(:deps) { ["dep1", "dep2"].map{ |n| Gem::Dependency.new(n) } }
+
+      context "when plugin file does not exist" do
+        before { subject.solution_file.delete if subject.solution_file.exist? }
+
+        it "should not create a solution file" do
+          subject.dependency_list = deps
+          subject.store!
+          expect(subject.solution_file.exist?).to be_falsey
+        end
+      end
+
+      context "when plugin file does exist" do
+        before { subject.plugin_file.write("x") }
+
+        it "should create a solution file" do
+          subject.dependency_list = deps
+          subject.store!
+          expect(subject.solution_file.exist?).to be_truthy
+        end
+
+        it "should update solution file instance to valid" do
+          expect(subject.valid?).to be_falsey
+          subject.dependency_list = deps
+          subject.store!
+          expect(subject.valid?).to be_truthy
+        end
+
+        context "when solution file does exist" do
+          before do
+            subject.dependency_list = deps
+            subject.store!
+          end
+
+          it "should be a valid solution" do
+            subject = described_class.new(
+              plugin_file: plugin_path,
+              solution_file: solution_path
+            )
+            expect(subject.valid?).to be_truthy
+          end
+
+          it "should have expected dependency list" do
+            subject = described_class.new(
+              plugin_file: plugin_path,
+              solution_file: solution_path
+            )
+            expect(subject.dependency_list).to eq(deps)
+          end
+
+          context "when plugin file has been changed" do
+            before { subject.plugin_file.write("xy") }
+
+            it "should not be a valid solution" do
+              subject = described_class.new(
+                plugin_file: plugin_path,
+                solution_file: solution_path
+              )
+              expect(subject.valid?).to be_falsey
+            end
+
+            it "should have empty dependency list" do
+              subject = described_class.new(
+                plugin_file: plugin_path,
+                solution_file: solution_path
+              )
+              expect(subject.dependency_list).to be_empty
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 describe Vagrant::Bundler do
   include_context "unit"
 
@@ -29,16 +266,6 @@ describe Vagrant::Bundler do
   end
 
   describe "#initialize" do
-    let(:gemrc_location) { "C:\\My\\Config\\File" }
-
-    it "should set up GEMRC through a flag instead of GEMRC" do
-      allow(ENV).to receive(:[]).with("VAGRANT_HOME")
-      allow(ENV).to receive(:[]).with("USERPROFILE")
-
-      allow(ENV).to receive(:[]).with("GEMRC").and_return(gemrc_location)
-      expect(Gem::ConfigFile).to receive(:new).with(["--config-file", gemrc_location])
-      init_subject = described_class.new
-    end
   end
 
   describe "#deinit" do
