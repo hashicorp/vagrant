@@ -183,6 +183,7 @@ module Vagrant
 
       def execute_curl(options, subprocess_options, &data_proc)
         options = options.dup
+        options.unshift("-q")
         options << subprocess_options
 
         # Create the callback that is called if we are interrupted
@@ -230,7 +231,6 @@ module Vagrant
       def options
         # Build the list of parameters to execute with cURL
         options = [
-          "-q",
           "--fail",
           "--location",
           "--max-redirs", "10", "--verbose",
