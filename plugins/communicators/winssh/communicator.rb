@@ -48,28 +48,27 @@ module VagrantPlugins
             remote_name = "#{machine_config_ssh.upload_directory}/#{File.basename(tfile.path)}.#{remote_ext}"
 
             if shell == "powershell"
-              base_cmd = "powershell -File #{remote_name}"
               tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
 Remove-Item #{remote_name}
 Write-Host #{CMD_GARBAGE_MARKER}
 [Console]::Error.WriteLine("#{CMD_GARBAGE_MARKER}")
 #{command}
 SCRIPT
+              base_cmd = "powershell -file #{remote_name}"
             else
-              base_cmd = remote_name
               tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
+DEL #{remote_name}
 ECHO OFF
 ECHO #{CMD_GARBAGE_MARKER}
 ECHO #{CMD_GARBAGE_MARKER} 1>&2
 #{command}
 SCRIPT
+              base_cmd = "cmd /q /c #{remote_name}"
             end
 
             tfile.close
             upload(tfile.path, remote_name)
             tfile.delete
-
-            base_cmd = shell_cmd(opts.merge(shell: base_cmd))
           end
 
           @logger.debug("Base SSH exec command: #{base_cmd}")

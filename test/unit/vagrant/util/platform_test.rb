@@ -533,11 +533,11 @@ EOF
         expect(subject.wsl_drvfs_path?("/home/vagrant/some/path")).to be_falsey
       end
     end
+  end
 
-    describe ".unix_windows_path" do
-      it "takes a windows path and returns a unixy path" do
-        expect(subject.unix_windows_path("C:\\Temp\\Windows")).to eq("C:/Temp/Windows")
-      end
+  describe ".unix_windows_path" do
+    it "takes a windows path and returns a POSIX-like path" do
+      expect(subject.unix_windows_path("C:\\Temp\\Windows")).to eq("C:/Temp/Windows")
     end
   end
 end
