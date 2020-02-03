@@ -1,5 +1,5 @@
-Please note that the Vagrant issue tracker is in priority reserved for bug reports and enhancements. For general usage questions, please use the Vagrant mailing list:
-https://groups.google.com/forum/#!forum/vagrant-up. Thank you!
+Please note that the Vagrant issue tracker is in priority reserved for bug reports and enhancements. For general usage questions, please use
+HashiCorp Discuss: https://discuss.hashicorp.com/c/vagrant/24 Thank you!
 
 **Tip:** Before submitting your issue, don't hesitate to remove the above introductory text, possible empty sections (e.g. References), and this tip.
 
