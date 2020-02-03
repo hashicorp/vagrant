@@ -194,19 +194,20 @@ module VagrantPlugins
           @machine.communicate.tap do |comm|
             # Make sure that the upload path has an extension, since
             # having an extension is critical for Windows execution
-            if File.extname(upload_path) == ""
-              upload_path += File.extname(path.to_s)
+            winrm_upload_path = upload_path
+            if File.extname(winrm_upload_path) == ""
+              winrm_upload_path += File.extname(path.to_s)
             end
 
             # Upload it
-            comm.upload(path.to_s, upload_path)
+            comm.upload(path.to_s, winrm_upload_path)
 
             # Build the environment
             env = config.env.map { |k,v| "$env:#{k} = #{quote_and_escape(v.to_s)}" }
             env = env.join("; ")
 
             # Calculate the path that we'll be executing
-            exec_path = upload_path
+            exec_path = winrm_upload_path
             exec_path.gsub!('/', '\\')
             exec_path = "c:#{exec_path}" if exec_path.start_with?("\\")
 

@@ -416,4 +416,52 @@ describe "Vagrant::Shell::Provisioner" do
       end
     end
   end
+
+  describe "#provision_winrm" do
+    let(:config) {
+      double(
+        :config,
+        :args                            => "doesn't matter",
+        :env                             => {},
+        :upload_path                     => "arbitrary",
+        :remote?                         => false,
+        :path                            => "script/info.ps1",
+        :binary                          => false,
+        :md5                             => nil,
+        :sha1                            => 'EXPECTED_VALUE',
+        :sha256                          => nil,
+        :sha384                          => nil,
+        :sha512                          => nil,
+        :reset                           => false,
+        :reboot                          => false,
+        :powershell_args                 => "",
+        :name                            => nil,
+        :privileged                      => false,
+        :powershell_elevated_interactive => false
+      )
+    }
+
+    let(:vsp) {
+      VagrantPlugins::Shell::Provisioner.new(machine, config)
+    }
+
+    let(:communicator) { double("communicator") }
+    let(:guest) { double("guest") }
+    let(:ui) { double("ui") }
+
+    before {
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(false)
+      allow(ui).to receive(:detail)
+      allow(communicator).to receive(:sudo)
+      allow(machine).to receive(:communicate).and_return(communicator)
+      allow(machine).to receive(:guest).and_return(guest)
+      allow(machine).to receive(:ui).and_return(ui)
+      allow(vsp).to receive(:with_script_file).and_yield(config.path)
+    }
+
+    it "ensures that files are uploaded with an extension" do
+      expect(communicator).to receive(:upload).with(config.path, /arbitrary.ps1$/)
+      vsp.send(:provision_winrm, "")
+    end
+  end
 end
