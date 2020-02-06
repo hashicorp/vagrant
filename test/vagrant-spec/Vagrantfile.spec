@@ -1,5 +1,9 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
 # Guest boxes to use for vagrant-spec
 GUEST_BOXES = {
+  'hashicorp/bionic64' => '1.0.282',
   'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
   'hashicorp-vagrant/centos-7.4' => '1.0.2',
   'hashicorp-vagrant/windows-10' => '1.0.0',
@@ -8,10 +12,20 @@ GUEST_BOXES = {
 
 # Host boxes to run vagrant-spec
 HOST_BOXES = {
+  'hashicorp/bionic64' => '1.0.282',
   'hashicorp-vagrant/ubuntu-16.04' => '1.0.1',
   'hashicorp-vagrant/centos-7.4' => '1.0.2',
   'hashicorp-vagrant/windows-10' => '1.0.0',
   'spox/osx-10.12' => '0.0.1'
+}
+
+# Not all boxes are named by their specific "platform"
+# so this allows Vagrant to use the right provision script
+PLATFORM_SCRIPT_MAPPING = {
+  "ubuntu" => "ubuntu",
+  "bionic" => "ubuntu",
+  "centos" => "centos",
+  "windows" => "windows"
 }
 
 # Determine what providers to test
@@ -63,9 +77,11 @@ Vagrant.configure(2) do |global_config|
           vmware.vmx['vhv.allow'] = 'TRUE'
         end
         if platform == "windows"
-          config.vm.provision :shell, path: "./scripts/#{platform}-setup.#{provider_name}.ps1", run: "once"
+          config.vm.provision :shell,
+            path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-setup.#{provider_name}.ps1", run: "once"
         else
-          config.vm.provision :shell, path: "./scripts/#{platform}-setup.#{provider_name}.sh", run: "once"
+          config.vm.provision :shell,
+            path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-setup.#{provider_name}.sh", run: "once"
         end
         guest_boxes.each_with_index do |box_info, idx|
           guest_box, box_version = box_info
@@ -86,7 +102,7 @@ Vagrant.configure(2) do |global_config|
           else
             config.vm.provision(
               :shell,
-              path: "./scripts/#{platform}-run.#{provider_name}.sh",
+              path: "./scripts/#{PLATFORM_SCRIPT_MAPPING[platform]}-run.#{provider_name}.sh",
               keep_color: true,
               env: {
                 "VAGRANT_SPEC_ARGS" => "--no-builtin #{spec_cmd_args}".strip,
