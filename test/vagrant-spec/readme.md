@@ -1,10 +1,10 @@
 # Running vagrant-spec
 
-The vagrant-spec project is where Vagrant acceptance tests live and are run.
+The vagrant-spec project is where Vagrant acceptance tests live.
 __NOTE:__ You must use a hypervisor that allows for nested virtualization to run these tests.
 So for the _vagrant_ project, it uses the vagrant vmware plugin as a host. If you
 want to test this locally, please keep in mind that you will need this hypervisor
-to properly run the tests locally.
+to properly run the tests.
 
 ## Requirements
 
@@ -80,14 +80,14 @@ VAGRANT__SPEC_ARGS="--component cli"
 Or with the full command....
 
 ```shell
-VAGRANT_SPEC_ARGS="cli" VAGRANT_CLOUD_TOKEN=REAL_TOKEN_HERE VAGRANT_HOST_BOXES=hashicorp-vagrant/centos-7.4 VAGRANT_GUEST_BOXES=hashicorp-vagrant/windows-10 VAGRANT_CWD=test/vagrant-spec/ VAGRANT_VAGRANTFILE=Vagrantfile.spec vagrant up --provider vmware_desktop
+VAGRANT_SPEC_ARGS="--component cli" VAGRANT_CLOUD_TOKEN=REAL_TOKEN_HERE VAGRANT_HOST_BOXES=hashicorp-vagrant/centos-7.4 VAGRANT_GUEST_BOXES=hashicorp-vagrant/windows-10 VAGRANT_CWD=test/vagrant-spec/ VAGRANT_VAGRANTFILE=Vagrantfile.spec vagrant up --provider vmware_desktop
 ```
 
 ### About Vagrantfile.spec
 
 This Vagrantfile expects the box used to end in a specific "platform", so that it can associate
 a provision script with the correct plaform. Because some boxes might not end in
-their platform (like `hashicorp-vagrant/ubuntu-16.04` versus `hashicorp/bionic64`,
+their platform (like `hashicorp-vagrant/ubuntu-16.04` versus `hashicorp/bionic64`),
 there is a hash defined called `PLATFORM_SCRIPT_MAPPING` that will tell vagrant
 which platform script to provision with rather than relying on the box ending with
 the name of the platform.
