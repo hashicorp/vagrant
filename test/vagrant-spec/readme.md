@@ -31,6 +31,9 @@ these are required for defining which hosts and guests to run the tests on.
   - Vagrantfile to use for running vagrant-spec. Unless changed, this should be set as `Vagrantfile.spec`.
 - VAGRANT_HOST_MEMORY
   - Set how much memory your host will use (defaults to 2048)
+- VAGRANT_SPEC_ARGS
+  - Specific arguments to pass along to the vagrant-spec gem, such as running specific tests instead of the whole suite
+  - Example: `--component cli`
 
 ## How to run
 
@@ -61,6 +64,24 @@ VAGRANT_HOST_MEMORY=10000 VAGRANT_CLOUD_TOKEN=REAL_TOKEN_HERE VAGRANT_HOST_BOXES
 __Note:__ It is not required that you invoke Vagrant directly in the source repo, so
 if you wish to run it else where, be sure to properly set the `VAGRANT_CWD` environment
 variable to point to the proper test directory inside of the Vagrant source.
+
+### How to run specific tests
+
+Sometimes when debugging, it's useful to only run a small subset of tests, instead of
+waiting for evetything to run. This can be achieved by passing along arugments
+using the `VAGRANT_SPEC_ARGS` environment variable:
+
+For example, here is what you could set to only run cli tests
+
+```shell
+VAGRANT__SPEC_ARGS="--component cli"
+```
+
+Or with the full command....
+
+```shell
+VAGRANT_SPEC_ARGS="cli" VAGRANT_CLOUD_TOKEN=REAL_TOKEN_HERE VAGRANT_HOST_BOXES=hashicorp-vagrant/centos-7.4 VAGRANT_GUEST_BOXES=hashicorp-vagrant/windows-10 VAGRANT_CWD=test/vagrant-spec/ VAGRANT_VAGRANTFILE=Vagrantfile.spec vagrant up --provider vmware_desktop
+```
 
 ### About Vagrantfile.spec
 
