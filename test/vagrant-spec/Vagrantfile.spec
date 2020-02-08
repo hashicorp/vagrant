@@ -72,7 +72,7 @@ Vagrant.configure(2) do |global_config|
         config.vm.synced_folder '.', '/vagrant', disable: true
         config.vm.synced_folder '../../', '/vagrant'
         config.vm.provider :vmware_desktop do |vmware|
-          vmware.vmx["memsize"] = ENV.fetch("VAGRANT_HOST_MEMORY", "2048")
+          vmware.vmx["memsize"] = ENV.fetch("VAGRANT_HOST_MEMORY", "5000")
           vmware.vmx['vhv.enable'] = 'TRUE'
           vmware.vmx['vhv.allow'] = 'TRUE'
         end
