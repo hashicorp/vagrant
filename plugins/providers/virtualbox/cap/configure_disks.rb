@@ -43,7 +43,7 @@ module VagrantPlugins
             end
           end
 
-          return configured_disks
+          configured_disks
         end
 
         protected
@@ -66,7 +66,7 @@ module VagrantPlugins
             current_disk = all_disks.select { |d| d["Disk Name"] == disk.name}.first
           end
 
-          return current_disk
+          current_disk
         end
 
         # Handles all disk configs of type `:disk`
@@ -104,7 +104,7 @@ module VagrantPlugins
             disk_metadata = {uuid: current_disk["UUID"], name: disk.name}
           end
 
-          return disk_metadata
+          disk_metadata
         end
 
         # Check to see if current disk is configured based on defined_disks
@@ -222,7 +222,8 @@ module VagrantPlugins
           end
 
           disk_metadata = {uuid: defined_disk["UUID"], name: disk_config.name}
-          return disk_metadata
+
+          disk_metadata
         end
 
         # TODO: Maybe these should be virtualbox driver methods?
