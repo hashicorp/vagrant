@@ -433,9 +433,8 @@ module VagrantPlugins
         # Add provider config
         disk_config.add_provider_config(provider_options, &block)
 
-        if !Vagrant::Util::Experimental.feature_enabled?("disk_base_config") &&
-           !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
-          @logger.warn("Disk config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `disk_base_config`. Disk will not be added to internal config, and will be ignored.")
+        if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
+          @logger.warn("Disk config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `virtualbox_disk_hdd`. Disk will not be added to internal config, and will be ignored.")
           return
         end
 
