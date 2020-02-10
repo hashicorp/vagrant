@@ -283,7 +283,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:get_port_and_device).with("12345").
           and_return(attach_info)
 
-        expect(subject).to receive(:vmdk_to_vdi).with(driver, all_disks[0]["Location"]).
+        expect(driver).to receive(:vmdk_to_vdi).with(all_disks[0]["Location"]).
           and_return(vdi_disk_file)
 
         expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).
@@ -293,7 +293,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 
-        expect(subject).to receive(:vdi_to_vmdk).with(driver, vdi_disk_file).
+        expect(driver).to receive(:vdi_to_vmdk).with(vdi_disk_file).
           and_return(vmdk_disk_file)
 
         expect(driver).to receive(:attach_disk).
