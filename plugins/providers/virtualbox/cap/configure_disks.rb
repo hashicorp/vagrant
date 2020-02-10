@@ -176,7 +176,7 @@ module VagrantPlugins
           next_available_port = ((0..(MAX_DISK_NUMBER-1)).to_a - used_ports).first
 
           dsk_info[:port] = next_available_port.to_s
-          if dsk_info[:port] == ""
+          if dsk_info[:port].empty?
             # This likely only occurs if additional disks have been added outside of Vagrant configuration
             LOGGER.warn("There are no more available ports to attach disks to for the SATA Controller. Clear up some space on the SATA controller to attach new disks.")
           end
