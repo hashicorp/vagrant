@@ -894,6 +894,30 @@ module VagrantPlugins
           return true
         end
 
+        # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
+        # @param [String] defined_disk_path
+        # @return [String] destination - The cloned disk
+        def vmdk_to_vdi(defined_disk_path)
+          source = defined_disk_path
+          destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vdi"
+
+          clone_disk(source, destination, 'VDI')
+
+          destination
+        end
+
+        # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
+        # @param [String] defined_disk_path
+        # @return [String] destination - The cloned disk
+        def vdi_to_vmdk(defined_disk_path)
+          source = defined_disk_path
+          destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vmdk"
+
+          clone_disk(source, destination, 'VMDK')
+
+          destination
+        end
+
         protected
 
         def valid_ip_address?(ip)

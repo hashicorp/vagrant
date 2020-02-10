@@ -193,7 +193,7 @@ module VagrantPlugins
             disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
 
             # clone disk to vdi formatted disk
-            vdi_disk_file = vmdk_to_vdi(machine.provider.driver, defined_disk["Location"])
+            vdi_disk_file = machine.provider.driver.vmdk_to_vdi(defined_disk["Location"])
             # resize vdi
             machine.provider.driver.resize_disk(vdi_disk_file, disk_config.size.to_i)
 
@@ -202,7 +202,7 @@ module VagrantPlugins
             machine.provider.driver.close_medium(defined_disk["UUID"])
 
             # clone back to original vmdk format and attach resized disk
-            vmdk_disk_file = vdi_to_vmdk(machine.provider.driver, vdi_disk_file)
+            vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
             machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
 
             # close cloned volume format
@@ -224,34 +224,6 @@ module VagrantPlugins
           disk_metadata = {uuid: defined_disk["UUID"], name: disk_config.name}
 
           disk_metadata
-        end
-
-        # TODO: Maybe these should be virtualbox driver methods?
-
-        # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
-        # @param [String] defined_disk_path
-        # @return [String] destination - The cloned disk
-        def self.vmdk_to_vdi(driver, defined_disk_path)
-          LOGGER.warn("Converting disk '#{defined_disk_path}' from 'vmdk' to 'vdi' format")
-          source = defined_disk_path
-          destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vdi"
-
-          driver.clone_disk(source, destination, 'VDI')
-
-          destination
-        end
-
-        # @param [VagrantPlugins::VirtualboxProvider::Driver] driver
-        # @param [String] defined_disk_path
-        # @return [String] destination - The cloned disk
-        def self.vdi_to_vmdk(driver, defined_disk_path)
-          LOGGER.warn("Converting disk '#{defined_disk_path}' from 'vdi' to 'vmdk' format")
-          source = defined_disk_path
-          destination = File.join(File.dirname(source), File.basename(source, ".*")) + ".vmdk"
-
-          driver.clone_disk(source, destination, 'VMDK')
-
-          destination
         end
       end
     end

@@ -147,9 +147,11 @@ module VagrantPlugins
           :ssh_port,
           :start,
           :suspend,
+          :vdi_to_vmdk,
           :verify!,
           :verify_image,
-          :vm_exists?
+          :vm_exists?,
+          :vmdk_to_vdi
 
         protected
 
