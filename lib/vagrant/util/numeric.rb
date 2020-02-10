@@ -6,12 +6,12 @@ module Vagrant
 
       # Authors Note: This conversion has been borrowed from the ActiveSupport Numeric class
       # Conversion helper constants
-      KILOBYTE = 1024.0
-      MEGABYTE = KILOBYTE * 1024.0
-      GIGABYTE = MEGABYTE * 1024.0
-      TERABYTE = GIGABYTE * 1024.0
-      PETABYTE = TERABYTE * 1024.0
-      EXABYTE  = PETABYTE * 1024.0
+      KILOBYTE = 1024
+      MEGABYTE = KILOBYTE * 1024
+      GIGABYTE = MEGABYTE * 1024
+      TERABYTE = GIGABYTE * 1024
+      PETABYTE = TERABYTE * 1024
+      EXABYTE  = PETABYTE * 1024
 
       BYTES_CONVERSION_MAP = {KB: KILOBYTE, MB: MEGABYTE, GB: GIGABYTE, TB: TERABYTE,
                               PB: PETABYTE, EB: EXABYTE}
@@ -54,7 +54,7 @@ module Vagrant
         # @param [Integer] bytes
         # @return [Integer] megabytes - bytes representation in megabytes
         def bytes_to_megabytes(bytes)
-          (bytes / MEGABYTE).round(2)
+          (bytes / MEGABYTE.to_f).round(2)
         end
 
         # @private
