@@ -179,6 +179,7 @@ module VagrantPlugins
           if dsk_info[:port].empty?
             # This likely only occurs if additional disks have been added outside of Vagrant configuration
             LOGGER.warn("There are no more available ports to attach disks to for the SATA Controller. Clear up some space on the SATA controller to attach new disks.")
+            raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
           end
 
           dsk_info
