@@ -194,6 +194,9 @@ module Vagrant
     # @param [Pathname] Path to Vagrant::Environment data directory
     # @return [Pathname] Path to environment specific gem directory
     def environment_path=(env_data_path)
+      if !env_data_path.is_a?(Pathname)
+        raise TypeError, "Expected `Pathname` but received `#{env_data_path.class}`"
+      end
       @env_plugin_gem_path = env_data_path.join("plugins", "gems", RUBY_VERSION).freeze
       @environment_data_path = env_data_path
     end
@@ -209,8 +212,9 @@ module Vagrant
     #
     # @param [Hash] opts Options passed to #init!
     # @return [SolutionFile]
-    def load_solution_file(opts)
+    def load_solution_file(opts={})
       return if !opts[:local] && !opts[:global]
+      return if opts[:local] && opts[:global]
       return if opts[:local] && environment_data_path.nil?
       solution_path = (environment_data_path || Vagrant.user_data_path) + "bundler"
       solution_path += opts[:local] ? "local.sol" : "global.sol"
