@@ -138,4 +138,6 @@ appropriate user. By default this is "vagrant", since that is what most
 public boxes are made as.
 
 * `config.ssh.verify_host_key` (string, symbol) - Perform strict host-key verification. The
-default value is `:never`.
+default value is `:never`. The other options are `:accept_new_or_local_tunnel`,
+`:accept_new`, or `:always`, which each refer to one of
+[net-ssh](https://net-ssh.github.io/net-ssh/)'s `Net::SSH::Verifiers` subclasses.
