@@ -1,4 +1,4 @@
-VERSION?="0.3.41"
+VERSION?="0.3.43"
 
 build:
 	@echo "==> Starting build in Docker..."
