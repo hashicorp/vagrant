@@ -140,9 +140,14 @@ module VagrantPlugins
 
           if machine.provider.capability?(:validate_disk_ext)
             if !machine.provider.capability(:validate_disk_ext, @disk_ext)
+              if machine.provider.capability?(:get_default_disk_ext)
+                disk_exts = machine.provider.capability(:get_default_disk_ext).join(', ')
+              else
+                disk_exts = "not found"
+              end
               errors << I18n.t("vagrant.config.disk.invalid_ext", ext: @disk_ext,
                                name: @name,
-                               exts: machine.provider.capability(:get_default_disk_ext).join(', '))
+                               exts: disk_exts)
             end
           else
             @logger.warn("No provider capability defined to validate 'disk_ext' type")
