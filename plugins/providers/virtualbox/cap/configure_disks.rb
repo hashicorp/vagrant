@@ -221,9 +221,9 @@ module VagrantPlugins
               machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
             rescue Exception => e
               LOGGER.warn("Vagrant encountered an error while trying to resize a disk. Vagrant will now attempt to reattach and preserve the original disk...")
-              # TODO: Actually write some good recovery steps for this scenario
               machine.ui.error("Vagrant has encountered an exception while trying to resize a disk. It will now attempt to reattach the original disk, as to prevent any data loss.")
-              machine.ui.error("The original disk is located at : #{original_disk["Location"]}")
+              machine.ui.error("The original disk is located at: #{original_disk["Location"]}")
+              machine.ui.error("If Vagrant fails to reattach the original disk, it is recommended that you open the VirtualBox GUI and navigate to the current guests settings for '#{machine.name}' and look at the 'storage' section. Here is where you can reattach a missing disk if Vagrant fails to do so...")
               # move backup to original name
               FileUtils.mv(backup_disk_location, original_disk["Location"], force: true)
               # Attach disk
@@ -235,6 +235,7 @@ module VagrantPlugins
                 machine.provider.driver.close_medium(vdi_disk_file)
               end
 
+              machine.ui.warn("Disk has been reattached. Vagrant will now continue on an raise the exception receieved")
               raise e
             ensure
               # Remove backup disk file if all goes well
