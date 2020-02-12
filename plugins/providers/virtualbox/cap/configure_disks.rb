@@ -196,6 +196,7 @@ module VagrantPlugins
             disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
             # original disk information in case anything goes wrong during clone/resize
             original_disk = defined_disk
+            backup_disk_location = "#{original_disk["Location"]}.backup"
 
             # clone disk to vdi formatted disk
             vdi_disk_file = machine.provider.driver.vmdk_to_vdi(defined_disk["Location"])
@@ -209,7 +210,7 @@ module VagrantPlugins
               machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
               # Create a backup of the original disk if something goes wrong
               LOGGER.warn("Making a backup of the original disk at #{defined_disk["Location"]}")
-              FileUtils.mv(defined_disk["Location"], "#{defined_disk["Location"]}.backup")
+              FileUtils.mv(defined_disk["Location"], backup_disk_location)
 
               # we have to close here, otherwise we can't re-clone after
               # resizing the vdi disk
@@ -224,8 +225,7 @@ module VagrantPlugins
               machine.ui.error("Vagrant has encountered an exception while trying to resize a disk. It will now attempt to reattach the original disk, as to prevent any data loss.")
               machine.ui.error("The original disk is located at : #{original_disk["Location"]}")
               # move backup to original name
-              FileUtils.mv("#{original_disk["Location"]}.backup",
-                           original_disk["Location"], force: true)
+              FileUtils.mv(backup_disk_location, original_disk["Location"], force: true)
               # Attach disk
               machine.provider.driver.
                 attach_disk(disk_info[:port], disk_info[:device], original_disk["Location"], "hdd")
@@ -238,7 +238,7 @@ module VagrantPlugins
               raise e
             ensure
               # Remove backup disk file if all goes well
-              FileUtils.remove("#{original_disk["Location"]}.backup", force: true)
+              FileUtils.remove(backup_disk_location, force: true)
             end
 
             # Remove cloned resized volume format
