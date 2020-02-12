@@ -28,11 +28,11 @@ Gem::Specification.new do |s|
   s.add_dependency "net-scp", "~> 1.2.0"
   s.add_dependency "rb-kqueue", "~> 0.2.0"
   s.add_dependency "rest-client", ">= 1.6.0", "< 3.0"
-  s.add_dependency "rubyzip", "~> 1.3"
+  s.add_dependency "rubyzip", "~> 2.0"
   s.add_dependency "wdm", "~> 0.1.0"
-  s.add_dependency "winrm", "~> 2.1"
-  s.add_dependency "winrm-fs", "~> 1.0"
-  s.add_dependency "winrm-elevated", "~> 1.1"
+  s.add_dependency "winrm", ">= 2.3.4", "< 3.0"
+  s.add_dependency "winrm-fs", ">= 1.3.4", "< 2.0"
+  s.add_dependency "winrm-elevated", ">= 1.2.1", "< 2.0"
   s.add_dependency "vagrant_cloud", "~> 2.0.3"
 
   # NOTE: The ruby_dep gem is an implicit dependency from the listen gem. Later versions

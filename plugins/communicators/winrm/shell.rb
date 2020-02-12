@@ -19,7 +19,7 @@ module VagrantPlugins
 
       # Exit code generated when user is invalid. Can occur
       # after a hostname update
-      INVALID_USERID_EXITCODE = -196608
+      INVALID_USERID_EXITCODE = -2147024809
 
       # These are the exceptions that we retry because they represent
       # errors that are generally fixed from a retry and don't
