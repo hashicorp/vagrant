@@ -1,4 +1,5 @@
 require "log4r"
+require "fileutils"
 require "vagrant/util/numeric"
 require "vagrant/util/experimental"
 
@@ -190,34 +191,62 @@ module VagrantPlugins
 
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
+
             # grab disk to be resized port and device number
             disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
+            # original disk information in case anything goes wrong during clone/resize
+            original_disk = defined_disk
 
             # clone disk to vdi formatted disk
             vdi_disk_file = machine.provider.driver.vmdk_to_vdi(defined_disk["Location"])
             # resize vdi
             machine.provider.driver.resize_disk(vdi_disk_file, disk_config.size.to_i)
 
-            # remove and close original volume
-            machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
-            machine.provider.driver.close_medium(defined_disk["UUID"])
+            begin
+              # Danger Zone
 
-            # clone back to original vmdk format and attach resized disk
-            vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
-            machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
+              # remove and close original volume
+              machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
+              # Create a backup of the original disk if something goes wrong
+              LOGGER.warn("Making a backup of the original disk at #{defined_disk["Location"]}")
+              FileUtils.mv(defined_disk["Location"], "#{defined_disk["Location"]}.backup")
 
-            # close cloned volume format
+              # we have to close here, otherwise we can't re-clone after
+              # resizing the vdi disk
+              machine.provider.driver.close_medium(defined_disk["UUID"])
+
+              # clone back to original vmdk format and attach resized disk
+              vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
+              machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
+            rescue Exception => e
+              LOGGER.warn("Vagrant encountered an error while trying to resize a disk. Vagrant will now attempt to reattach and preserve the original disk...")
+              # TODO: Actually write some good recovery steps for this scenario
+              machine.ui.error("Vagrant has encountered an exception while trying to resize a disk. It will now attempt to reattach the original disk, as to prevent any data loss.")
+              machine.ui.error("The original disk is located at : #{original_disk["Location"]}")
+              # move backup to original name
+              FileUtils.mv("#{original_disk["Location"]}.backup",
+                           original_disk["Location"], force: true)
+              # Attach disk
+              machine.provider.driver.
+                attach_disk(disk_info[:port], disk_info[:device], original_disk["Location"], "hdd")
+
+              # Remove cloned disk if still hanging around
+              if vdi_disk_file
+                machine.provider.driver.close_medium(vdi_disk_file)
+              end
+
+              raise e
+            ensure
+              # Remove backup disk file if all goes well
+              FileUtils.remove("#{original_disk["Location"]}.backup", force: true)
+            end
+
+            # Remove cloned resized volume format
             machine.provider.driver.close_medium(vdi_disk_file)
 
             # Get new updated disk UUID for vagrant disk_meta file
             new_disk_info = machine.provider.driver.list_hdds.select { |h| h["Location"] == defined_disk["Location"] }.first
             defined_disk = new_disk_info
-
-            # TODO: If any of the above steps fail, display a useful error message
-            # telling the user how to recover
-            #
-            # Vagrant could also have a "rescue" here where in the case of failure, it simply
-            # reattaches the original disk
           else
             machine.provider.driver.resize_disk(defined_disk["Location"], disk_config.size.to_i)
           end

@@ -280,6 +280,37 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       let(:vmdk_disk_file) { "/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk" }
 
       it "converts the disk to vdi, resizes it, and converts back to vmdk" do
+        expect(FileUtils).to receive(:mv).and_return(true)
+
+        expect(driver).to receive(:get_port_and_device).with("12345").
+          and_return(attach_info)
+
+        expect(driver).to receive(:vmdk_to_vdi).with(all_disks[0]["Location"]).
+          and_return(vdi_disk_file)
+
+        expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).
+          and_return(true)
+
+        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device]).
+          and_return(true)
+        expect(driver).to receive(:close_medium).with("12345")
+
+        expect(driver).to receive(:vdi_to_vmdk).with(vdi_disk_file).
+          and_return(vmdk_disk_file)
+
+        expect(driver).to receive(:attach_disk).
+          with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd").and_return(true)
+        expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
+
+        expect(driver).to receive(:list_hdds).and_return(all_disks)
+
+        subject.resize_disk(machine, disk_config, all_disks[0])
+      end
+
+      it "reattaches original disk if something goes wrong" do
+        # fix this to properly "mv" file
+        expect(FileUtils).to receive(:mv).and_return(true)
+
         expect(driver).to receive(:get_port_and_device).with("12345").
           and_return(attach_info)
 
