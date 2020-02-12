@@ -37,7 +37,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           "Parent UUID"=>"base",
           "State"=>"created",
           "Type"=>"normal (base)",
-          "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/ubuntu-18.04-amd64-disk001.vmdk",
+          "Location"=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk",
           "Disk Name"=>"ubuntu-18.04-amd64-disk001",
           "Storage format"=>"VMDK",
           "Capacity"=>"65536 MBytes",
@@ -46,7 +46,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           "Parent UUID"=>"base",
           "State"=>"created",
           "Type"=>"normal (base)",
-          "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/disk-0.vdi",
+          "Location"=>"/home/vagrant/VirtualBox VMs/disk-0.vdi",
           "Disk Name"=>"disk-0",
           "Storage format"=>"VDI",
           "Capacity"=>"10240 MBytes",
@@ -55,7 +55,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           "Parent UUID"=>"base",
           "State"=>"created",
           "Type"=>"normal (base)",
-          "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/disk-1.vdi",
+          "Location"=>"/home/vagrant/VirtualBox VMs/disk-1.vdi",
           "Disk Name"=>"disk-1",
           "Storage format"=>"VDI",
           "Capacity"=>"5120 MBytes",
@@ -117,7 +117,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
               "Parent UUID"=>"base",
               "State"=>"created",
               "Type"=>"normal (base)",
-              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/ubuntu-18.04-amd64-disk001.vmdk",
+              "Location"=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk",
               "Disk Name"=>"ubuntu-18.04-amd64-disk001",
               "Storage format"=>"VMDK",
               "Capacity"=>"65536 MBytes",
@@ -138,7 +138,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
               "Parent UUID"=>"base",
               "State"=>"created",
               "Type"=>"normal (base)",
-              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/ubuntu-18.04-amd64-disk001.vmdk",
+              "Location"=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk",
               "Disk Name"=>"ubuntu-18.04-amd64-disk001",
               "Storage format"=>"VMDK",
               "Capacity"=>"65536 MBytes",
@@ -147,7 +147,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
               "Parent UUID"=>"base",
               "State"=>"created",
               "Type"=>"normal (base)",
-              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/disk-0.vdi",
+              "Location"=>"/home/vagrant/VirtualBox VMs/disk-0.vdi",
               "Disk Name"=>"disk-0",
               "Storage format"=>"VDI",
               "Capacity"=>"10240 MBytes",
@@ -172,7 +172,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
               "Parent UUID"=>"base",
               "State"=>"created",
               "Type"=>"normal (base)",
-              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/ubuntu-18.04-amd64-disk001.vmdk",
+              "Location"=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk",
               "Disk Name"=>"ubuntu-18.04-amd64-disk001",
               "Storage format"=>"VMDK",
               "Capacity"=>"65536 MBytes",
@@ -181,7 +181,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
               "Parent UUID"=>"base",
               "State"=>"created",
               "Type"=>"normal (base)",
-              "Location"=>"/home/vagrant/VirtualBox VMs/vagrant-sandbox_1579888721946_75923/disk-0.vdi",
+              "Location"=>"/home/vagrant/VirtualBox VMs/disk-0.vdi",
               "Disk Name"=>"disk-0",
               "Storage format"=>"VDI",
               "Capacity"=>"10240 MBytes",
@@ -280,7 +280,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       let(:vmdk_disk_file) { "/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk" }
 
       it "converts the disk to vdi, resizes it, and converts back to vmdk" do
-        expect(FileUtils).to receive(:mv).and_return(true)
+        expect(FileUtils).to receive(:mv).with(vmdk_disk_file, "#{vmdk_disk_file}.backup").
+          and_return(true)
 
         expect(driver).to receive(:get_port_and_device).with("12345").
           and_return(attach_info)
@@ -303,13 +304,16 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
 
         expect(driver).to receive(:list_hdds).and_return(all_disks)
+
+        expect(FileUtils).to receive(:remove).with("#{vmdk_disk_file}.backup", force: true).
+          and_return(true)
 
         subject.resize_disk(machine, disk_config, all_disks[0])
       end
 
       it "reattaches original disk if something goes wrong" do
-        # fix this to properly "mv" file
-        expect(FileUtils).to receive(:mv).and_return(true)
+        expect(FileUtils).to receive(:mv).with(vmdk_disk_file, "#{vmdk_disk_file}.backup").
+          and_return(true)
 
         expect(driver).to receive(:get_port_and_device).with("12345").
           and_return(attach_info)
@@ -324,16 +328,16 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 
-        expect(driver).to receive(:vdi_to_vmdk).with(vdi_disk_file).
-          and_return(vmdk_disk_file)
+        allow(driver).to receive(:vdi_to_vmdk).and_raise(Exception)
+
+        expect(FileUtils).to receive(:mv).with("#{vmdk_disk_file}.backup", vmdk_disk_file, force: true).
+          and_return(true)
 
         expect(driver).to receive(:attach_disk).
           with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd").and_return(true)
         expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
 
-        expect(driver).to receive(:list_hdds).and_return(all_disks)
-
-        subject.resize_disk(machine, disk_config, all_disks[0])
+        expect{subject.resize_disk(machine, disk_config, all_disks[0])}.to raise_error(Exception)
       end
     end
 
