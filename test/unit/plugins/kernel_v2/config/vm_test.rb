@@ -7,7 +7,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
   subject { described_class.new }
 
-  let(:machine) { double("machine") }
+  let(:provider) { double("provider") }
+  let(:machine) { double("machine", provider: provider) }
 
   def assert_invalid
     errors = subject.validate(machine)
@@ -36,6 +37,9 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     allow(machine).to receive(:env).and_return(env)
     allow(machine).to receive(:provider_config).and_return(nil)
     allow(machine).to receive(:provider_options).and_return({})
+
+    allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
+    allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
 
     subject.box = "foo"
   end
