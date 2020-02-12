@@ -49,6 +49,16 @@ module VagrantPlugins
         Cap::CleanupDisks
       end
 
+      provider_capability(:virtualbox, :validate_disk_ext) do
+        require_relative "cap/validate_disk_ext"
+        Cap::ValidateDiskExt
+      end
+
+      provider_capability(:virtualbox, :get_default_disk_ext) do
+        require_relative "cap/validate_disk_ext"
+        Cap::ValidateDiskExt
+      end
+
       provider_capability(:virtualbox, :snapshot_list) do
         require_relative "cap"
         Cap

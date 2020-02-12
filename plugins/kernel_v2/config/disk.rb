@@ -11,7 +11,6 @@ module VagrantPlugins
       #-------------------------------------------------------------------
 
       DEFAULT_DISK_TYPES = [:disk, :dvd, :floppy].freeze
-      DEFAULT_DISK_EXT = ["vdi", "vmdk", "vhd", "vhdx"].freeze
 
       # Note: This value is for internal use only
       #
@@ -136,13 +135,18 @@ module VagrantPlugins
                            types: DEFAULT_DISK_TYPES.join(', '))
         end
 
-        if !DEFAULT_DISK_EXT.include?(@disk_ext)
-          errors << I18n.t("vagrant.config.disk.invalid_ext", ext: @disk_ext,
-                           name: @name, exts: DEFAULT_DISK_EXT.join(', ') )
-        end
-
         if @disk_ext
           @disk_ext = @disk_ext.downcase
+
+          if machine.provider.capability?(:validate_disk_ext)
+            if !machine.provider.capability(:validate_disk_ext, @disk_ext)
+              errors << I18n.t("vagrant.config.disk.invalid_ext", ext: @disk_ext,
+                               name: @name,
+                               exts: machine.provider.capability(:get_default_disk_ext).join(', '))
+            end
+          else
+            @logger.warn("No provider capability defined to validate 'disk_ext' type")
+          end
         end
 
         if @size && !@size.is_a?(Integer)
