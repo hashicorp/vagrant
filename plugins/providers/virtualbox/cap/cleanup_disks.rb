@@ -13,7 +13,7 @@ module VagrantPlugins
         def self.cleanup_disks(machine, defined_disks, disk_meta_file)
           return if disk_meta_file.values.flatten.empty?
 
-          return if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
+          return if !Vagrant::Util::Experimental.feature_enabled?("disks")
 
           handle_cleanup_disk(machine, defined_disks, disk_meta_file["disk"])
           # TODO: Floppy and DVD disks

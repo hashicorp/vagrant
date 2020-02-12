@@ -17,7 +17,7 @@ description: |-
   This feature currently reqiures the experimental flag to be used. To explicitly enable this feature, you can set the experimental flag to:
 
   ```
-  VAGRANT_EXPERIMENTAL="virtualbox_disk_hdd"
+  VAGRANT_EXPERIMENTAL="disks"
   ```
 
   Please note that `VAGRANT_EXPERIMENTAL` is an environment variable. For more

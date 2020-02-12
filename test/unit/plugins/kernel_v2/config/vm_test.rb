@@ -556,7 +556,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   describe "#disk" do
     before(:each) do
       allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
-        with("virtualbox_disk_hdd").and_return("true")
+        with("disks").and_return("true")
     end
 
     it "stores the disks" do

@@ -18,7 +18,7 @@ module VagrantPlugins
         def self.configure_disks(machine, defined_disks)
           return {} if defined_disks.empty?
 
-          return {} if !Vagrant::Util::Experimental.feature_enabled?("virtualbox_disk_hdd")
+          return {} if !Vagrant::Util::Experimental.feature_enabled?("disks")
 
           if defined_disks.size > MAX_DISK_NUMBER
             # you can only attach up to 30 disks per controller, INCLUDING the primary disk
