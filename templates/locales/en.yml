@@ -2173,6 +2173,23 @@ en:
 #-------------------------------------------------------------------------------
 # Translations for Vagrant middleware actions
 #-------------------------------------------------------------------------------
+    cap:
+      configure_disks:
+        start: "Configuring storage mediums..."
+        floppy_not_supported: "Floppy disk configuration not yet supported. Skipping disk '%{name}'..."
+        dvd_not_supported: "DVD disk configuration not yet supported. Skipping disk '%{name}'..."
+        shrink_size_not_supported: |-
+          VirtualBox does not support shrinking disk sizes. Cannot shrink '%{name}' disks size.
+        create_disk: |-
+          Disk '%{name}' not found in guest. Creating and attaching disk to guest...
+        resize_disk: |-
+          Disk '%{name}' needs to be resized. Resizing disk...
+        recovery_from_resize: |-
+          Vagrant has encountered an exception while trying to resize a disk. It will now attempt to reattach the original disk, as to prevent any data loss.
+          The original disk is located at %{location}
+          If Vagrant fails to reattach the original disk, it is recommended that you open the VirtualBox GUI and navigate to the current guests settings for '%{name}' and look at the 'storage' section. Here is where you can reattach a missing disk if Vagrant fails to do so...
+        recovery_attached_disks: |-
+          Disk has been reattached. Vagrant will now continue on an raise the exception receieved
     actions:
       runner:
         waiting_cleanup: "Waiting for cleanup before exiting..."

@@ -25,7 +25,7 @@ module VagrantPlugins
             raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
           end
 
-          machine.ui.info("Configuring storage mediums...")
+          machine.ui.info(I18n.t("vagrant.cap.configure_disks.start"))
 
           current_disks = machine.provider.driver.list_hdds
 
@@ -37,10 +37,10 @@ module VagrantPlugins
               configured_disks[:disk] << disk_data unless disk_data.empty?
             elsif disk.type == :floppy
               # TODO: Write me
-              machine.ui.warn("Floppy disk configuration not yet supported. Skipping disk #{disk.name}...")
+              machine.ui.info(I18n.t("vagrant.cap.configure_disks.floppy_not_supported", name: disk.name))
             elsif disk.type == :dvd
               # TODO: Write me
-              machine.ui.warn("DVD disk configuration not yet supported. Skipping disk #{disk.name}...")
+              machine.ui.info(I18n.t("vagrant.cap.configure_disks.dvd_not_supported", name: disk.name))
             end
           end
 
@@ -118,7 +118,7 @@ module VagrantPlugins
           defined_disk_size = defined_disk["Capacity"].split(" ").first.to_f
 
           if defined_disk_size > requested_disk_size
-            machine.ui.warn("VirtualBox does not support shrinking disk size. Cannot shrink '#{disk_config.name}' disks size")
+            machine.ui.warn(I18n.t("vagrant.cap.configure_disks.shrink_size_not_supported", name: disk_config.name))
             return false
           elsif defined_disk_size < requested_disk_size
             return true
@@ -132,7 +132,7 @@ module VagrantPlugins
         # @param [Vagrant::Machine] machine
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         def self.create_disk(machine, disk_config)
-          machine.ui.detail("Disk '#{disk_config.name}' not found in guest. Creating and attaching disk to guest...")
+          machine.ui.detail(I18n.t("vagrant.cap.configure_disks.create_disk", name: disk_config.name))
           # NOTE: At the moment, there are no provider specific configs for VirtualBox
           # but we grab it anyway for future use.
           disk_provider_config = disk_config.provider_config[:virtualbox] if disk_config.provider_config
@@ -187,7 +187,7 @@ module VagrantPlugins
         end
 
         def self.resize_disk(machine, disk_config, defined_disk)
-          machine.ui.detail("Disk '#{disk_config.name}' needs to be resized. Resizing disk...", prefix: true)
+          machine.ui.detail(I18n.t("vagrant.cap.configure_disks.resize_disk", name: disk_config.name), prefix: true)
 
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
@@ -219,11 +219,12 @@ module VagrantPlugins
               # clone back to original vmdk format and attach resized disk
               vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
               machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
-            rescue Exception => e
+            rescue Exception
               LOGGER.warn("Vagrant encountered an error while trying to resize a disk. Vagrant will now attempt to reattach and preserve the original disk...")
-              machine.ui.error("Vagrant has encountered an exception while trying to resize a disk. It will now attempt to reattach the original disk, as to prevent any data loss.")
-              machine.ui.error("The original disk is located at: #{original_disk["Location"]}")
-              machine.ui.error("If Vagrant fails to reattach the original disk, it is recommended that you open the VirtualBox GUI and navigate to the current guests settings for '#{machine.name}' and look at the 'storage' section. Here is where you can reattach a missing disk if Vagrant fails to do so...")
+
+              machine.ui.error(I18n.t("vagrant.cap.configure_disks.recovery_from_resize",
+                                      location: original_disk["Location"],
+                                      name: machine.name))
               # move backup to original name
               FileUtils.mv(backup_disk_location, original_disk["Location"], force: true)
               # Attach disk
@@ -235,8 +236,9 @@ module VagrantPlugins
                 machine.provider.driver.close_medium(vdi_disk_file)
               end
 
-              machine.ui.warn("Disk has been reattached. Vagrant will now continue on an raise the exception receieved")
-              raise e
+              machine.ui.warn(I18n.t("vagrant.cap.configure_disks.recovery_attached_disks"))
+
+              raise
             ensure
               # Remove backup disk file if all goes well
               FileUtils.remove(backup_disk_location, force: true)
