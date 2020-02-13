@@ -219,7 +219,7 @@ module VagrantPlugins
               # clone back to original vmdk format and attach resized disk
               vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
               machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
-            rescue Exception
+            rescue ScriptError, SignalException, StandardError
               LOGGER.warn("Vagrant encountered an error while trying to resize a disk. Vagrant will now attempt to reattach and preserve the original disk...")
 
               machine.ui.error(I18n.t("vagrant.cap.configure_disks.recovery_from_resize",

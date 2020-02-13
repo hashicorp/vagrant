@@ -328,7 +328,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 
-        allow(driver).to receive(:vdi_to_vmdk).and_raise(Exception)
+        allow(driver).to receive(:vdi_to_vmdk).and_raise(StandardError)
 
         expect(FileUtils).to receive(:mv).with("#{vmdk_disk_file}.backup", vmdk_disk_file, force: true).
           and_return(true)
