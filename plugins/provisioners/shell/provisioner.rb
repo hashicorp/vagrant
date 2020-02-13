@@ -136,7 +136,7 @@ module VagrantPlugins
           @machine.communicate.tap do |comm|
             env = config.env.map{|k,v| comm.generate_environment_export(k, v)}.join
             if File.extname(upload_path).empty?
-              remote_ext = @machine.config.winssh.shell == "powershell" ? "ps1" : "bat"
+              remote_ext = File.extname(path)[1..-1]
               upload_path << ".#{remote_ext}"
             end
             if remote_ext == "ps1"
