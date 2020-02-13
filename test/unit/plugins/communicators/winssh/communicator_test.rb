@@ -274,7 +274,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     it "uploads a directory if local path is a directory" do
       Dir.mktmpdir('vagrant-test') do |dir|
         FileUtils.touch(File.join(dir, "test-file"))
-        expect(scp).to receive(:upload!).with(an_instance_of(File), /test-file/)
+        expect(scp).to receive(:upload!).with(an_instance_of(File), /test-file/, {shell: "powershell.exe"})
         communicator.upload(dir, 'C:\destination')
       end
     end
@@ -282,7 +282,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     it "uploads a file if local path is a file" do
       file = Tempfile.new('vagrant-test')
       begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file')
+        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file', {shell: "powershell.exe"})
         expect(Vagrant::Util::Platform).to receive(:unix_windows_path).with('C:\destination\file').
           and_call_original
         communicator.upload(file.path, 'C:\destination\file')
@@ -294,7 +294,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     it "raises custom error on permission errors" do
       file = Tempfile.new('vagrant-test')
       begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file').
+        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file', {shell: "powershell.exe"}).
           and_raise("Permission denied")
         expect{ communicator.upload(file.path, 'C:\destination\file') }.to(
           raise_error(Vagrant::Errors::SCPPermissionDenied)
@@ -307,7 +307,7 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     it "does not raise custom error on non-permission errors" do
       file = Tempfile.new('vagrant-test')
       begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file').
+        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file', {shell: "powershell.exe"}).
           and_raise("Some other error")
         expect{ communicator.upload(file.path, 'C:\destination\file') }.to raise_error(RuntimeError)
       ensure
@@ -582,6 +582,35 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
         /md -Force/,
         anything)
       communicator.create_remote_directory('c:\destination')
+    end
+  end
+end
+
+# Tests for Net::SCP#start_command patch
+describe Net::SCP do
+  include_context "unit"
+
+  let(:session) do
+    double("session",
+           logger: nil)
+  end
+
+  let(:scp){ @scp ||= described_class.new(session) }
+
+  let(:channel) { double("channel") }
+
+  before do
+    allow(session).to receive(:open_channel).and_yield(channel)
+  end
+
+  describe "#start_command" do
+    context "with shell set to powershell.exe" do
+      let(:options) { {:shell => "powershell.exe" } }
+
+      it "escapes single quotes in the destination" do
+        expect(channel).to receive(:exec).with(/C:\/vagrant''s scripts/)
+        scp.start_command("", anything, "C:/vagrant's scripts", options)
+      end
     end
   end
 end

@@ -207,7 +207,7 @@ SCRIPT
               @logger.debug("Uploading file #{path} to remote #{dest}")
               upload_file = File.open(path, "rb")
               begin
-                scp.upload!(upload_file, dest)
+                scp.upload!(upload_file, dest, shell: "powershell.exe")
               ensure
                 upload_file.close
               end
@@ -230,6 +230,56 @@ SCRIPT
 
       def create_remote_directory(dir, force_raw=false)
         execute("md -Force \"#{dir}\"", shell: "powershell", force_raw: force_raw)
+      end
+    end
+  end
+end
+
+# This monkey patches Net::SCP#start_command so that we don't apply special
+# shell escaping rules to the remote path when using powershell.exe as a shell.
+# PowerShell also needs single quotes around the remote path if the path has
+# spaces in it.
+#
+# Here is an example of a properly formatted scp command for PowerShell:
+#
+#     scp.exe -t 'c:/destination path'
+#
+module Net
+  class SCP
+    def start_command(mode, local, remote, options={}, &callback)
+      session.open_channel do |channel|
+      
+        if options[:shell].to_s == "powershell.exe"
+          powershell_escaped = remote.gsub(/'/, "''")
+          command = "#{options[:shell]} -c #{scp_command(mode, options)} '#{powershell_escaped}'"
+        elsif options[:shell]
+          escaped_file = shellescape(remote).gsub(/'/) { |m| "'\\''" }
+          command = "#{options[:shell]} -c #{scp_command(mode, options)} #{escaped_file}"
+        else
+          command = "#{scp_command(mode, options)} #{shellescape(remote)}"
+        end
+
+        channel.exec(command) do |ch, success|
+          if success
+            channel[:local   ] = local
+            channel[:remote  ] = remote
+            channel[:options ] = options.dup
+            channel[:callback] = callback
+            channel[:buffer  ] = Net::SSH::Buffer.new
+            channel[:state   ] = "#{mode}_start"
+            channel[:stack   ] = []
+            channel[:error_string] = ''
+
+            channel.on_close                  { |ch| send("#{channel[:state]}_state", channel); raise Net::SCP::Error, "SCP did not finish successfully (#{channel[:exit]}): #{channel[:error_string]}" if channel[:exit] != 0 }
+            channel.on_data                   { |ch, data| channel[:buffer].append(data) }
+            channel.on_extended_data          { |ch, type, data| debug { data.chomp } }
+            channel.on_request("exit-status") { |ch, data| channel[:exit] = data.read_long }
+            channel.on_process                { send("#{channel[:state]}_state", channel) }
+          else
+            channel.close
+            raise Net::SCP::Error, "could not exec scp on the remote host"
+          end
+        end
       end
     end
   end
