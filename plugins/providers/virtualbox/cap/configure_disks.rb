@@ -186,6 +186,10 @@ module VagrantPlugins
           dsk_info
         end
 
+        # @param [Vagrant::Machine] machine
+        # @param [Config::Disk] disk_config - the current disk to configure
+        # @param [Hash] defined_disk - current disk as represented by VirtualBox
+        # @return [Hash] - disk_metadata
         def self.resize_disk(machine, disk_config, defined_disk)
           machine.ui.detail(I18n.t("vagrant.cap.configure_disks.resize_disk", name: disk_config.name), prefix: true)
 
@@ -221,22 +225,10 @@ module VagrantPlugins
               machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], vmdk_disk_file, "hdd")
             rescue ScriptError, SignalException, StandardError
               LOGGER.warn("Vagrant encountered an error while trying to resize a disk. Vagrant will now attempt to reattach and preserve the original disk...")
-
               machine.ui.error(I18n.t("vagrant.cap.configure_disks.recovery_from_resize",
                                       location: original_disk["Location"],
                                       name: machine.name))
-              # move backup to original name
-              FileUtils.mv(backup_disk_location, original_disk["Location"], force: true)
-              # Attach disk
-              machine.provider.driver.
-                attach_disk(disk_info[:port], disk_info[:device], original_disk["Location"], "hdd")
-
-              # Remove cloned disk if still hanging around
-              if vdi_disk_file
-                machine.provider.driver.close_medium(vdi_disk_file)
-              end
-
-              machine.ui.warn(I18n.t("vagrant.cap.configure_disks.recovery_attached_disks"))
+              recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file)
 
               raise
             ensure
@@ -257,6 +249,37 @@ module VagrantPlugins
           disk_metadata = {uuid: defined_disk["UUID"], name: disk_config.name}
 
           disk_metadata
+        end
+
+        # Recovery method for when an exception occurs during the process of resizing disks
+        #
+        # It attempts to move back the backup disk into place, and reattach it to the guest before
+        # raising the original error
+        #
+        # @param [Vagrant::Machine] machine
+        # @param [Hash] disk_info - The disk device and port number to attach back to
+        # @param [String] backup_disk_location - The place on disk where vagrant made a backup of the original disk being resized
+        # @param [Hash] original_disk - The disk information from VirtualBox
+        # @param [String] vdi_disk_file - The place on disk where vagrant made a clone of the original disk being resized
+        def self.recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file)
+          begin
+            # move backup to original name
+            FileUtils.mv(backup_disk_location, original_disk["Location"], force: true)
+            # Attach disk
+            machine.provider.driver.
+              attach_disk(disk_info[:port], disk_info[:device], original_disk["Location"], "hdd")
+
+            # Remove cloned disk if still hanging around
+            if vdi_disk_file
+              machine.provider.driver.close_medium(vdi_disk_file)
+            end
+
+            # We recovered!
+            machine.ui.warn(I18n.t("vagrant.cap.configure_disks.recovery_attached_disks"))
+          rescue => e
+            LOGGER.error("Vagrant encountered an error while trying to recover. It will now show the original error and continue...")
+            LOGGER.error(e)
+          end
         end
       end
     end
