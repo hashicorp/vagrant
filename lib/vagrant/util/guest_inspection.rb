@@ -12,7 +12,7 @@ module Vagrant
         #
         # @return [Boolean]
         def systemd?(comm)
-          comm.test("ps -o comm= 1 | grep systemd")
+          comm.test("ps -o comm= 1 | grep systemd", sudo: true)
         end
 
         # systemd-networkd.service is in use
