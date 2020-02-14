@@ -67,7 +67,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
     before do
       allow(comm).to receive(:test).with("nmcli -t d show eth1").and_return(false)
       allow(comm).to receive(:test).with("nmcli -t d show eth2").and_return(false)
-      allow(comm).to receive(:test).with("ps -o comm= 1 | grep systemd").and_return(false)
+      allow(comm).to receive(:test).with("ps -o comm= 1 | grep systemd", {sudo: true}).and_return(false)
       allow(comm).to receive(:test).with("systemctl -q is-active systemd-networkd.service", anything).and_return(false)
       allow(comm).to receive(:test).with("command -v netplan").and_return(false)
     end
@@ -85,7 +85,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
 
     context "with systemd" do
       before do
-        expect(comm).to receive(:test).with("ps -o comm= 1 | grep systemd").and_return(true)
+        expect(comm).to receive(:test).with("ps -o comm= 1 | grep systemd", {sudo: true}).and_return(true)
         allow(comm).to receive(:test).with("command -v netplan").and_return(false)
       end
 
