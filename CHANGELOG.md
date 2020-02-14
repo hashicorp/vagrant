@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- virtualbox/disks: Add ability to manage virtual disks for guests [GH-11349]
+
 IMPROVEMENTS:
 
 BUG FIXES:
