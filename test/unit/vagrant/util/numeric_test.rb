@@ -18,4 +18,10 @@ describe Vagrant::Util::Numeric do
       expect(bytes).to eq(nil)
     end
   end
+
+  describe "bytes to megabytes" do
+    it "converts bytes to megabytes" do
+      expect(subject.bytes_to_megabytes(1000000)).to eq(0.95)
+    end
+  end
 end

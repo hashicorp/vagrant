@@ -29,6 +29,11 @@ module VagrantPlugins
       # @return [Symbol]
       attr_accessor :type
 
+      # Type of disk extension to create. Defaults to `vdi`
+      #
+      # @return [String]
+      attr_accessor :disk_ext
+
       # Size of disk to create
       #
       # @return [Integer,String]
@@ -61,6 +66,7 @@ module VagrantPlugins
         @size = UNSET_VALUE
         @primary = UNSET_VALUE
         @file = UNSET_VALUE
+        @disk_ext = UNSET_VALUE
 
         # Internal options
         @id = SecureRandom.uuid
@@ -101,6 +107,8 @@ module VagrantPlugins
         @size = nil if @size == UNSET_VALUE
         @file = nil if @file == UNSET_VALUE
 
+        @disk_ext = "vdi" if @disk_ext == UNSET_VALUE
+
         if @primary == UNSET_VALUE
           @primary = false
         end
@@ -109,7 +117,7 @@ module VagrantPlugins
           if @primary
             @name = "vagrant_primary"
           else
-            @name = "name_#{@type.to_s}_#{@id.split("-").last}"
+            @name = nil
           end
         end
 
@@ -125,6 +133,25 @@ module VagrantPlugins
         if !DEFAULT_DISK_TYPES.include?(@type)
           errors << I18n.t("vagrant.config.disk.invalid_type", type: @type,
                            types: DEFAULT_DISK_TYPES.join(', '))
+        end
+
+        if @disk_ext
+          @disk_ext = @disk_ext.downcase
+
+          if machine.provider.capability?(:validate_disk_ext)
+            if !machine.provider.capability(:validate_disk_ext, @disk_ext)
+              if machine.provider.capability?(:get_default_disk_ext)
+                disk_exts = machine.provider.capability(:get_default_disk_ext).join(', ')
+              else
+                disk_exts = "not found"
+              end
+              errors << I18n.t("vagrant.config.disk.invalid_ext", ext: @disk_ext,
+                               name: @name,
+                               exts: disk_exts)
+            end
+          else
+            @logger.warn("No provider capability defined to validate 'disk_ext' type")
+          end
         end
 
         if @size && !@size.is_a?(Integer)
@@ -152,6 +179,10 @@ module VagrantPlugins
                                        machine: machine.name,
                                        provider_name: machine.provider_name))
           end
+        end
+
+        if !@name
+          errors << I18n.t("vagrant.config.disk.no_name_set", machine: machine.name)
         end
 
         errors

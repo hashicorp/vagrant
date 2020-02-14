@@ -368,6 +368,21 @@ module VagrantPlugins
         def vm_exists?(uuid)
         end
 
+        # Returns a hash of information about a given virtual machine
+        #
+        # @param [String] uuid
+        # @return [Hash] info
+        def show_vm_info
+          info = {}
+          execute('showvminfo', @uuid, '--machinereadable', retryable: true).split("\n").each do |line|
+            parts = line.partition('=')
+            key = parts.first.gsub('"', '')
+            value = parts.last.gsub('"', '')
+            info[key] = value
+          end
+          info
+        end
+
         # Execute the given subcommand for VBoxManage and return the output.
         def execute(*command, &block)
           # Get the options hash if it exists

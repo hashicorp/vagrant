@@ -9,7 +9,9 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
 
   subject { described_class.new(type) }
 
-  let(:machine) { double("machine") }
+  let(:provider) { double("provider") }
+  let(:machine) { double("machine", provider: provider) }
+
 
   def assert_invalid
     errors = subject.validate(machine)
@@ -30,6 +32,8 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
 
     subject.name = "foo"
     subject.size = 100
+    allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
+    allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
   end
 
   describe "with defaults" do

@@ -3,7 +3,8 @@ require "json"
 module Vagrant
   module Action
     module Builtin
-      class Disk
+      class CleanupDisks
+        # Removes any attached disks no longer defined in a Vagrantfile config
         def initialize(app, env)
           @app    = app
           @logger = Log4r::Logger.new("vagrant::action::builtin::disk")
@@ -14,28 +15,31 @@ module Vagrant
           defined_disks = get_disks(machine, env)
 
           # Call into providers machine implementation for disk management
-          configured_disks = {}
-          if !defined_disks.empty?
-            if machine.provider.capability?(:configure_disks)
-             configured_disks = machine.provider.capability(:configure_disks, defined_disks)
+          disk_meta_file = read_disk_metadata(machine)
+
+          if !disk_meta_file.empty?
+            if machine.provider.capability?(:cleanup_disks)
+              machine.provider.capability(:cleanup_disks, defined_disks, disk_meta_file)
             else
               env[:ui].warn(I18n.t("vagrant.actions.disk.provider_unsupported",
-                                 provider: machine.provider_name))
+                                   provider: machine.provider_name))
             end
           end
-
-          write_disk_metadata(machine, configured_disks) unless configured_disks.empty?
 
           # Continue On
           @app.call(env)
         end
 
-        def write_disk_metadata(machine, current_disks)
+        def read_disk_metadata(machine)
           meta_file = machine.data_dir.join("disk_meta")
-          @logger.debug("Writing disk metadata file to #{meta_file}")
-          File.open(meta_file.to_s, "w+") do |file|
-            file.write(JSON.dump(current_disks))
+          if File.file?(meta_file)
+            disk_meta = JSON.parse(meta_file.read)
+          else
+            @logger.info("No previous disk_meta file defined for guest #{machine.name}")
+            disk_meta = {}
           end
+
+          return disk_meta
         end
 
         def get_disks(machine, env)

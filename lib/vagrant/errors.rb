@@ -904,6 +904,10 @@ module Vagrant
       error_key(:virtualbox_broken_version_040214)
     end
 
+    class VirtualBoxDisksDefinedExceedLimit < VagrantError
+      error_key(:virtualbox_disks_defined_exceed_limit)
+    end
+
     class VirtualBoxGuestPropertyNotFound < VagrantError
       error_key(:virtualbox_guest_property_not_found)
     end
