@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/linux: Update systemd? check to use sudo [GH-11398]
+
 BUG FIXES:
 
 - core/synced_folders: Validate type option if set [GH-11359]
