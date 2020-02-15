@@ -12,11 +12,12 @@ describe "templates/guests/arch/network_static" do
       netmask: "24",
     })
     expect(result).to eq <<-EOH.gsub(/^ {6}/, "")
-      Connection=ethernet
-      Description='A basic static ethernet connection'
-      Interface=eth1
-      IP=static
-      Address=('1.1.1.1/24')
+      [Match]
+      Name=eth1
+
+      [Network]
+      Description=A basic static ethernet connection
+      Address=1.1.1.1/24
     EOH
   end
 
@@ -28,12 +29,13 @@ describe "templates/guests/arch/network_static" do
       netmask: "24",
     })
     expect(result).to eq <<-EOH.gsub(/^ {6}/, "")
-      Connection=ethernet
-      Description='A basic static ethernet connection'
-      Interface=eth1
-      IP=static
-      Address=('1.1.1.1/24')
-      Gateway='1.2.3.4'
+      [Match]
+      Name=eth1
+
+      [Network]
+      Description=A basic static ethernet connection
+      Address=1.1.1.1/24
+      Gateway=1.2.3.4
     EOH
   end
 end

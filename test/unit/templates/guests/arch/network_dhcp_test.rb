@@ -10,10 +10,12 @@ describe "templates/guests/arch/network_dhcp" do
       device: "eth1",
     })
     expect(result).to eq <<-EOH.gsub(/^ {6}/, "")
-      Description='A basic dhcp ethernet connection'
-      Interface=eth1
-      Connection=ethernet
-      IP=dhcp
+      [Match]
+      Name=eth1
+
+      [Network]
+      Description=A basic DHCP ethernet connection
+      DHCP=ipv4
     EOH
   end
 end
