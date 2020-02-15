@@ -1,4 +1,6 @@
-Description='A basic dhcp ethernet connection'
-Interface=<%= options[:device] %>
-Connection=ethernet
-IP=dhcp
+[Match]
+Name=<%= options[:device] %>
+
+[Network]
+Description=A basic DHCP ethernet connection
+DHCP=ipv4

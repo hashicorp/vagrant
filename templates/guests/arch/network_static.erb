@@ -1,8 +1,9 @@
-Connection=ethernet
-Description='A basic static ethernet connection'
-Interface=<%= options[:device] %>
-IP=static
-Address=('<%= options[:ip]%>/<%= options[:netmask] %>')
+[Match]
+Name=<%= options[:device] %>
+
+[Network]
+Description=A basic static ethernet connection
+Address=<%= options[:ip]%>/<%= options[:netmask] %>
 <% if options[:gateway] -%>
-Gateway='<%= options[:gateway] %>'
+Gateway=<%= options[:gateway] %>
 <% end -%>

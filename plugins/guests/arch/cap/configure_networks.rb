@@ -41,10 +41,9 @@ module VagrantPlugins
 
             commands << <<-EOH.gsub(/^ {14}/, '').rstrip
               # Configure #{network[:device]}
-              mv '#{remote_path}' '/etc/netctl/#{network[:device]}' &&
-              ip link set '#{network[:device]}' down &&
-              netctl restart '#{network[:device]}' &&
-              netctl enable '#{network[:device]}'
+              chmod 0644 '#{remote_path}' &&
+              mv '#{remote_path}' '/etc/systemd/network/#{network[:device]}.network' &&
+              networkctl reload
             EOH
           end
 
