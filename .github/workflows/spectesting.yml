@@ -18,6 +18,11 @@ jobs:
     steps:
       - name: Code Checkout
         uses: actions/checkout@v1
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6.x'
+          architecture: 'x64'
       - name: vagrant-spec Code Checkout and Build
         working-directory: ${{github.workspace}}
         run: .ci/spec/build-vagrant-spec.sh
