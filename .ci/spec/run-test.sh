@@ -61,6 +61,7 @@ wrap_stream packet-exec run -upload -- /bin/true \
 # Run the job
 
 echo "Running vagrant spec tests..."
+# Need to make memory customizable for windows hosts
 pkt_wrap_stream "cd vagrant;VAGRANT_HOST_MEMORY=5000 VAGRANT_CWD=test/vagrant-spec/ VAGRANT_VAGRANTFILE=Vagrantfile.spec vagrant up --provider vmware_desktop" \
                 "Vagrant command failed"
 
