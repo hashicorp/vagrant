@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - master
+      - 'spec-test-*'
+    paths-ignore:
+      - 'CHANGELOG.md'
+      - 'website/**'
+
+jobs:
+  spec-tests:
+    if: github.repository == 'hashicorp/vagrant'
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        host_os: ["hashicorp/bionic64"]
+        guest_os: ["hashicorp/bionic64", "hashicorp-vagrant/ubuntu-16.04"]
+    name: Vagrant-Spec Tests
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v1
+      - name: vagrant-spec Code Checkout and Build
+        run: .ci/spec/build-vagrant-spec.sh
+      - name: Run Tests
+        run: .ci/spec/run-test.sh
+        env:
+          PKT_VAGRANT_HOST_BOXES: ${{ matrix.host_os }}
+          PKT_VAGRANT_GUEST_BOXES: ${{ matrix.guest_os }}
+      - name: Clean Workspace
+        if: always()
+        run: rm -rf ${{ github.workspace }}
