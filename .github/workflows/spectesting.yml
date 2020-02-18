@@ -21,7 +21,7 @@ jobs:
       - name: vagrant-spec Code Checkout and Build
         working-directory: ${{github.workspace}}
         run: .ci/spec/build-vagrant-spec.sh
-      - name: Run Tests
+      - name: Run Tests on ${{ matrix.host_os }} with guest ${{ matrix.guest_os }}
         run: .ci/spec/run-test.sh
         working-directory: ${{github.workspace}}
         env:
