@@ -1,7 +1,6 @@
 on:
   push:
     branches:
-      - master
       - 'spec-test-*'
     paths-ignore:
       - 'CHANGELOG.md'
@@ -20,12 +19,14 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v1
       - name: vagrant-spec Code Checkout and Build
+        working-directory: ${{github.workspace}}
         run: .ci/spec/build-vagrant-spec.sh
       - name: Run Tests
         run: .ci/spec/run-test.sh
+        working-directory: ${{github.workspace}}
         env:
-          PKT_VAGRANT_HOST_BOXES: ${{ matrix.host_os }}
-          PKT_VAGRANT_GUEST_BOXES: ${{ matrix.guest_os }}
+          VAGRANT_HOST_BOXES: ${{ matrix.host_os }}
+          VAGRANT_GUEST_BOXES: ${{ matrix.guest_os }}
       - name: Clean Workspace
         if: always()
         run: rm -rf ${{ github.workspace }}
