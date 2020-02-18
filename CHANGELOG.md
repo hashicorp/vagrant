@@ -11,6 +11,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core/synced_folders: Validate type option if set [GH-11359]
+- providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
 
 ## 2.2.7 (January 27, 2020)
 
