@@ -6,8 +6,16 @@ on:
       - 'CHANGELOG.md'
       - 'website/**'
 
-        # split packet setup and test runner into two jobs
 jobs:
+  setup-packet:
+    if: github.repository == 'hashicorp/vagrant'
+    runs-on: self-hosted
+    name: Build Packet Instance
+    steps:
+      - name: Create packet instance
+        run: .ci/spec/create-packet.sh
+        working-directory: ${{github.workspace}}
+
   spec-tests:
     if: github.repository == 'hashicorp/vagrant'
     runs-on: self-hosted
