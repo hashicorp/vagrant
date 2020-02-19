@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.6'
-      - name: Sync Installers Repository
+      - name: Sync Vagrant Repository
         run: ./.ci/sync.sh
         working-directory: ${{github.workspace}}
         env:
@@ -39,7 +39,7 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.6'
-      - name: Sync Builders Repository
+      - name: Sync Blackbox Testing Repository
         run: ./.ci/sync.sh
         working-directory: ${{github.workspace}}
         env:
