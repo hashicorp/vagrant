@@ -8,7 +8,7 @@ on:
 
 jobs:
   setup-packet:
-    if: github.repository == 'hashicorp/vagrant'
+    if: github.repository == 'hashicorp/vagrant-blackbox'
     runs-on: self-hosted
     name: Build Packet Instance
     steps:
@@ -17,7 +17,7 @@ jobs:
         working-directory: ${{github.workspace}}
 
   spec-tests:
-    if: github.repository == 'hashicorp/vagrant'
+    if: github.repository == 'hashicorp/vagrant-blackbox'
     runs-on: self-hosted
     strategy:
       matrix:
