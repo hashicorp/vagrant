@@ -29,7 +29,7 @@ jobs:
         working-directory: ${{github.workspace}}
         env:
           VAGRANT_HOST_BOXES: hashicorp/bionic64
-          VAGRANT_GUEST_BOXES: hasicorp/bionic64,hashicorp-vagrant/ubuntu-16.04
+          VAGRANT_GUEST_BOXES: hashicorp-vagrant/ubuntu-16.04
 
   spec-tests:
     if: github.repository == 'hashicorp/vagrant-blackbox'
@@ -42,7 +42,7 @@ jobs:
         working-directory: ${{github.workspace}}
         env:
           VAGRANT_HOST_BOXES: hashicorp/bionic64
-          VAGRANT_GUEST_BOXES: hasicorp/bionic64,hashicorp-vagrant/ubuntu-16.04
+          VAGRANT_GUEST_BOXES: hashicorp-vagrant/ubuntu-16.04
 
   cleanup:
     if: github.repository == 'hashicorp/vagrant-blackbox'
