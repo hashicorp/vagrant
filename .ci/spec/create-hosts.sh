@@ -25,15 +25,6 @@ pushd "${root}" > "${output}"
 
 # Assumes packet is already set up
 
-# Define a custom cleanup function to destroy any orphan guests
-# on the packet device
-function cleanup() {
-    (>&2 echo "Cleaning up packet device")
-    unset PACKET_EXEC_PERSIST
-    pkt_wrap_stream "cd vagrant;VAGRANT_CWD=test/vagrant-spec/ VAGRANT_VAGRANTFILE=Vagrantfile.spec vagrant destroy -f" \
-                "Vagrant command failed"
-}
-
 # job_id is provided by common.sh
 export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
 
@@ -46,12 +37,22 @@ export PKT_VAGRANT_CWD="/test/vagrant-spec/"
 export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 ###
 
+# Grab vagrant-spec gem
+###
+
+echo "Syncing up remote packet device for current job... "
+# NOTE: We only need to call packet-exec with the -upload option once
+#       since we are persisting the job directory. This command
+#       is used simply to seed the work directory.
+wrap_stream packet-exec run -upload -- /bin/true \
+            "Failed to setup project on remote packet instance"
+
 # Run the job
 
 echo "Running vagrant spec tests..."
 # Need to make memory customizable for windows hosts
-pkt_wrap_stream "cd vagrant;vagrant provision --provider vmware_desktop" \
-                "Vagrant Blackbox testing command failed"
+wrap_stream packet-exec run -upload --  "cd vagrant;vagrant up --no-provision --provider vmware_desktop" \
+                                        "Vagrant Blackbox host creation command failed"
 
 
 echo "Finished vagrant spec tests"

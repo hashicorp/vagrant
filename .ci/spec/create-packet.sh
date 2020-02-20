@@ -42,8 +42,4 @@ if [ $? -ne 0 ]; then
                 "Failed to create packet device"
 fi
 
-# job_id is provided by common.sh
-export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
-export PACKET_EXEC_PERSIST="1"
-
 echo "Finished creating spec test packet instance"
