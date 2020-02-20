@@ -37,15 +37,8 @@ export PKT_VAGRANT_CWD="/test/vagrant-spec/"
 export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 ###
 
-# Grab vagrant-spec gem
+# TODO: Grab vagrant-spec gem and place inside root dir of Vagrant repo
 ###
-
-echo "Syncing up remote packet device for current job... "
-# NOTE: We only need to call packet-exec with the -upload option once
-#       since we are persisting the job directory. This command
-#       is used simply to seed the work directory.
-wrap_stream packet-exec run -upload -- /bin/true \
-            "Failed to setup project on remote packet instance"
 
 # Run the job
 
