@@ -37,7 +37,8 @@ export PKT_VAGRANT_CWD="/test/vagrant-spec/"
 export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 ###
 
-# TODO: Grab vagrant-spec gem and place inside root dir of Vagrant repo
+# Grab vagrant-spec gem and place inside root dir of Vagrant repo
+download_assets "${ASSETS_PRIVATE_BUCKET}/vagrant-spec/vagrant-spec.gem" "."
 ###
 
 # Run the job
