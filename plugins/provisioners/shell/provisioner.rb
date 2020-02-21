@@ -135,20 +135,25 @@ module VagrantPlugins
           # Upload the script to the machine
           @machine.communicate.tap do |comm|
             env = config.env.map{|k,v| comm.generate_environment_export(k, v)}.join
+            shell = comm.machine_config_ssh.shell
             if File.extname(upload_path).empty?
               remote_ext = File.extname(path)[1..-1]
               upload_path << ".#{remote_ext}"
             end
-            if remote_ext == "ps1"
+            if remote_ext == "ps1" # we are executing a ps file
               # Copy powershell_args from configuration
               shell_args = config.powershell_args
               # For PowerShell scripts bypass the execution policy unless already specified
               shell_args += " -ExecutionPolicy Bypass" if config.powershell_args !~ /[-\/]ExecutionPolicy/i
               # CLIXML output is kinda useless, especially on non-windows hosts
               shell_args += " -OutputFormat Text" if config.powershell_args !~ /[-\/]OutputFormat/i
-              command = "#{env}\npowershell #{shell_args} #{upload_path}#{args}"
-            else
-              command = "#{env}\n#{upload_path}#{args}"
+              command = "#{env}\npowershell #{shell_args} -file \"#{upload_path}\"#{args}"
+            else # we are executing a bat file
+              if shell == "powershell" # wrapper file is a .ps1
+                command = "#{env}\n& \"#{upload_path}\"#{args}"
+              else # wrapper file is a .bat
+                command = "#{env}\n\"#{upload_path}\"#{args}"
+              end
             end
 
             # Reset upload path permissions for the current ssh user
@@ -290,7 +295,11 @@ module VagrantPlugins
           script = Pathname.new(config.path).expand_path(root_path).read
         else
           # The script is just the inline code...
-          ext    = ".ps1"
+          if @machine.config.vm.communicator == :winssh && @machine.config.winssh.shell == "cmd"
+            ext = ".bat"
+          else
+            ext = ".ps1"
+          end
           script = config.inline
         end
 

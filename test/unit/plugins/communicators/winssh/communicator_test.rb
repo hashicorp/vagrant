@@ -34,12 +34,15 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
   let(:provider) { double("provider") }
   # UI mock
   let(:ui) { double("ui") }
+  # SSH info mock
+  let(:ssh_info) { double("ssh_info") }
   # Machine mock built with previously defined
   let(:machine) do
     double("machine",
       config: config,
       provider: provider,
-      ui: ui
+      ui: ui,
+      ssh_info: ssh_info
     )
   end
   # Subject instance to test
@@ -62,8 +65,8 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
   let(:command_stdout_data) { '' }
   # Command output returned on stderr
   let(:command_stderr_data) { '' }
-  # Mock for net-ssh scp
-  let(:scp) { double("scp") }
+  # Mock for net-ssh sftp
+  let(:sftp) { double("sftp") }
   # Stub file to match commands
   let(:ssh_cmd_file){ double("ssh_cmd_file", path: "/dev/null/path") }
 
@@ -99,8 +102,8 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     allow(ssh_cmd_file).to receive(:puts)
     allow(ssh_cmd_file).to receive(:close)
     allow(ssh_cmd_file).to receive(:delete)
-    allow(scp).to receive(:upload!)
-    allow(communicator).to receive(:scp_connect).and_return(true)
+    allow(sftp).to receive(:upload!)
+    allow(communicator).to receive(:sftp_connect).and_return(true)
   end
 
   describe ".wait_for_ready" do
@@ -267,14 +270,15 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
 
   describe "#upload" do
     before do
-      allow(communicator).to receive(:create_remote_directory)
-      expect(communicator).to receive(:scp_connect).and_yield(scp)
+      allow(sftp).to receive(:upload)
+      expect(communicator).to receive(:sftp_connect).and_yield(sftp)
     end
 
     it "uploads a directory if local path is a directory" do
       Dir.mktmpdir('vagrant-test') do |dir|
         FileUtils.touch(File.join(dir, "test-file"))
-        expect(scp).to receive(:upload!).with(an_instance_of(File), /test-file/, {shell: "powershell.exe"})
+        expect(sftp).to receive(:mkdir).with(/destination/).exactly(2).times
+        expect(sftp).to receive(:upload!).with(an_instance_of(File), /test-file/)
         communicator.upload(dir, 'C:\destination')
       end
     end
@@ -282,7 +286,8 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
     it "uploads a file if local path is a file" do
       file = Tempfile.new('vagrant-test')
       begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file', {shell: "powershell.exe"})
+        expect(sftp).to receive(:mkdir).with(/destination/)
+        expect(sftp).to receive(:upload!).with(instance_of(File), 'C:/destination/file')
         expect(Vagrant::Util::Platform).to receive(:unix_windows_path).with('C:\destination\file').
           and_call_original
         communicator.upload(file.path, 'C:\destination\file')
@@ -291,23 +296,11 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
       end
     end
 
-    it "raises custom error on permission errors" do
-      file = Tempfile.new('vagrant-test')
-      begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file', {shell: "powershell.exe"}).
-          and_raise("Permission denied")
-        expect{ communicator.upload(file.path, 'C:\destination\file') }.to(
-          raise_error(Vagrant::Errors::SCPPermissionDenied)
-        )
-      ensure
-        file.delete
-      end
-    end
-
     it "does not raise custom error on non-permission errors" do
       file = Tempfile.new('vagrant-test')
       begin
-        expect(scp).to receive(:upload!).with(instance_of(File), 'C:/destination/file', {shell: "powershell.exe"}).
+        expect(sftp).to receive(:mkdir).with(/destination/)
+        expect(sftp).to receive(:upload!).with(instance_of(File), 'C:/destination/file').
           and_raise("Some other error")
         expect{ communicator.upload(file.path, 'C:\destination\file') }.to raise_error(RuntimeError)
       ensure
@@ -318,11 +311,11 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
 
   describe ".download" do
     before do
-      expect(communicator).to receive(:scp_connect).and_yield(scp)
+      expect(communicator).to receive(:sftp_connect).and_yield(sftp)
     end
 
-    it "calls scp to download file" do
-      expect(scp).to receive(:download!).with('/path/from', 'C:\path\to')
+    it "calls sftp to download file" do
+      expect(sftp).to receive(:download!).with('/path/from', 'C:\path\to')
       communicator.download('/path/from', 'C:\path\to')
     end
   end
@@ -565,51 +558,6 @@ describe VagrantPlugins::CommunicatorWinSSH::Communicator do
 
       it "should generate custom export based on template" do
         expect(communicator.send(:generate_environment_export, "TEST", "value")).to eq("setenv TEST value\n")
-      end
-    end
-  end
-
-  describe "#create_remote_directory" do
-    it "should set the shell to powershell" do
-      expect(communicator).to receive(:execute).with(
-        anything,
-        hash_including(shell: "powershell"))
-      communicator.create_remote_directory('c:\destination')
-    end
-
-    it "should use an appropriate command for powershell" do
-      expect(communicator).to receive(:execute).with(
-        /md -Force/,
-        anything)
-      communicator.create_remote_directory('c:\destination')
-    end
-  end
-end
-
-# Tests for Net::SCP#start_command patch
-describe Net::SCP do
-  include_context "unit"
-
-  let(:session) do
-    double("session",
-           logger: nil)
-  end
-
-  let(:scp){ @scp ||= described_class.new(session) }
-
-  let(:channel) { double("channel") }
-
-  before do
-    allow(session).to receive(:open_channel).and_yield(channel)
-  end
-
-  describe "#start_command" do
-    context "with shell set to powershell.exe" do
-      let(:options) { {:shell => "powershell.exe" } }
-
-      it "escapes single quotes in the destination" do
-        expect(channel).to receive(:exec).with(/C:\/vagrant''s scripts/)
-        scp.start_command("", anything, "C:/vagrant's scripts", options)
       end
     end
   end
