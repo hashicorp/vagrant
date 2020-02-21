@@ -134,13 +134,18 @@ module VagrantPlugins
         with_script_file do |path|
           # Upload the script to the machine
           @machine.communicate.tap do |comm|
-            env = config.env.map{|k,v| comm.generate_environment_export(k, v)}.join
+            env = config.env.map{|k,v| comm.generate_environment_export(k, v)}.join(';')
             shell = comm.machine_config_ssh.shell
             if File.extname(upload_path).empty?
               remote_ext = File.extname(path)[1..-1]
+              if !remote_ext
+                remote_ext = @machine.config.winssh.shell == "cmd" ? "bat" : "ps1"
+              end
               upload_path << ".#{remote_ext}"
             end
-            if remote_ext == "ps1" # we are executing a ps file
+            if remote_ext == "bat"
+              command = "#{env}\n cmd.exe /c \"#{upload_path}\" #{args}"
+            else
               # Copy powershell_args from configuration
               shell_args = config.powershell_args
               # For PowerShell scripts bypass the execution policy unless already specified
@@ -148,12 +153,6 @@ module VagrantPlugins
               # CLIXML output is kinda useless, especially on non-windows hosts
               shell_args += " -OutputFormat Text" if config.powershell_args !~ /[-\/]OutputFormat/i
               command = "#{env}\npowershell #{shell_args} -file \"#{upload_path}\"#{args}"
-            else # we are executing a bat file
-              if shell == "powershell" # wrapper file is a .ps1
-                command = "#{env}\n& \"#{upload_path}\"#{args}"
-              else # wrapper file is a .bat
-                command = "#{env}\n\"#{upload_path}\"#{args}"
-              end
             end
 
             # Reset upload path permissions for the current ssh user
@@ -179,7 +178,7 @@ module VagrantPlugins
             # Execute it with sudo
             comm.execute(
               command,
-              sudo: config.privileged,
+              shell: :powershell,
               error_key: :ssh_bad_exit_status_muted
             ) do |type, data|
               handle_comm(type, data)
@@ -294,18 +293,12 @@ module VagrantPlugins
           ext    = File.extname(config.path)
           script = Pathname.new(config.path).expand_path(root_path).read
         else
-          # The script is just the inline code...
-          if @machine.config.vm.communicator == :winssh && @machine.config.winssh.shell == "cmd"
-            ext = ".bat"
-          else
-            ext = ".ps1"
-          end
           script = config.inline
         end
 
         # Replace Windows line endings with Unix ones unless binary file
         # or we're running on Windows.
-        if !config.binary && @machine.config.vm.communicator != :winrm
+        if !config.binary && @machine.config.vm.guest != :windows
           begin
             script = script.gsub(/\r\n?$/, "\n")
           rescue ArgumentError
