@@ -1,5 +1,7 @@
 require File.expand_path("../../ssh/communicator", __FILE__)
 
+require 'net/sftp'
+
 module VagrantPlugins
   module CommunicatorWinSSH
     # This class provides communication with a Windows VM running
@@ -40,31 +42,33 @@ module VagrantPlugins
               base_cmd = "powershell -encodedCommand #{command}"
             else
               command = "ECHO #{CMD_GARBAGE_MARKER} && ECHO #{CMD_GARBAGE_MARKER} 1>&2 && #{command}"
-              base_cmd = "cmd /q /c \"#{command}\""
+              base_cmd = command
             end
-          else
+          else # write a wrapper file
             tfile = Tempfile.new('vagrant-ssh')
             remote_ext = shell == "powershell" ? "ps1" : "bat"
             remote_name = "#{machine_config_ssh.upload_directory}/#{File.basename(tfile.path)}.#{remote_ext}"
 
             if shell == "powershell"
               tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
-Remove-Item #{remote_name}
+Remove-Item "#{remote_name}"
 Write-Host #{CMD_GARBAGE_MARKER}
 [Console]::Error.WriteLine("#{CMD_GARBAGE_MARKER}")
 #{command}
 SCRIPT
-              base_cmd = "powershell -file #{remote_name}"
             else
               tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
-DEL #{remote_name}
+DEL "#{remote_name}"
 ECHO OFF
 ECHO #{CMD_GARBAGE_MARKER}
 ECHO #{CMD_GARBAGE_MARKER} 1>&2
 #{command}
 SCRIPT
-              base_cmd = "cmd /q /c #{remote_name}"
             end
+
+            wrapper_command = "& '#{remote_name.gsub("'", "''")}'"
+            wrapper_command = Base64.strict_encode64(wrapper_command.encode("UTF-16LE", "UTF-8"))
+            base_cmd = "powershell -encodedCommand #{wrapper_command}"
 
             tfile.close
             upload(tfile.path, remote_name)
@@ -169,6 +173,18 @@ SCRIPT
         @machine.config.winssh
       end
 
+      def download(from, to=nil)
+        @logger.debug("Downloading: #{from} to #{to}")
+
+        sftp_connect do |sftp|
+          sftp.download!(from, to)
+        end
+      end
+
+      # Note: I could not get Net::SFTP to throw a permissions denied error,
+      # even when uploading to a directory where I did not have write
+      # privileges. I believe this is because Windows SSH sessions are started
+      # in an elevated process.
       def upload(from, to)
         to = Vagrant::Util::Platform.unix_windows_path(to)
         @logger.debug("Uploading: #{from} to #{to}")
@@ -183,14 +199,14 @@ SCRIPT
           end
         end
 
-        scp_connect do |scp|
+        sftp_connect do |sftp|
           uploader = lambda do |path, remote_dest=nil|
             if File.directory?(path)
               Dir.new(path).each do |entry|
                 next if entry == "." || entry == ".."
                 full_path = File.join(path, entry)
                 dest = File.join(to, path.sub(/^#{Regexp.escape(from)}/, ""))
-                create_remote_directory(dest)
+                sftp.mkdir(dest)
                 uploader.call(full_path, dest)
               end
             else
@@ -203,11 +219,11 @@ SCRIPT
                 end
               end
               @logger.debug("Ensuring remote directory exists for destination upload")
-              create_remote_directory(File.dirname(dest), force_raw: true)
+              sftp.mkdir(File.dirname(dest))
               @logger.debug("Uploading file #{path} to remote #{dest}")
               upload_file = File.open(path, "rb")
               begin
-                scp.upload!(upload_file, dest, shell: "powershell.exe")
+                sftp.upload!(upload_file, dest)
               ensure
                 upload_file.close
               end
@@ -215,70 +231,15 @@ SCRIPT
           end
           uploader.call(from)
         end
-      rescue RuntimeError => e
-        # Net::SCP raises a runtime error for this so the only way we have
-        # to really catch this exception is to check the message to see if
-        # it is something we care about. If it isn't, we re-raise.
-        raise if e.message !~ /Permission denied/
-
-        # Otherwise, it is a permission denied, so let's raise a proper
-        # exception
-        raise Vagrant::Errors::SCPPermissionDenied,
-          from: from.to_s,
-          to: to.to_s
       end
 
-      def create_remote_directory(dir, force_raw=false)
-        execute("md -Force \"#{dir}\"", shell: "powershell", force_raw: force_raw)
-      end
-    end
-  end
-end
-
-# This monkey patches Net::SCP#start_command so that we don't apply special
-# shell escaping rules to the remote path when using powershell.exe as a shell.
-# PowerShell also needs single quotes around the remote path if the path has
-# spaces in it.
-#
-# Here is an example of a properly formatted scp command for PowerShell:
-#
-#     scp.exe -t 'c:/destination path'
-#
-module Net
-  class SCP
-    def start_command(mode, local, remote, options={}, &callback)
-      session.open_channel do |channel|
-      
-        if options[:shell].to_s == "powershell.exe"
-          powershell_escaped = remote.gsub(/'/, "''")
-          command = "#{options[:shell]} -c #{scp_command(mode, options)} '#{powershell_escaped}'"
-        elsif options[:shell]
-          escaped_file = shellescape(remote).gsub(/'/) { |m| "'\\''" }
-          command = "#{options[:shell]} -c #{scp_command(mode, options)} #{escaped_file}"
-        else
-          command = "#{scp_command(mode, options)} #{shellescape(remote)}"
-        end
-
-        channel.exec(command) do |ch, success|
-          if success
-            channel[:local   ] = local
-            channel[:remote  ] = remote
-            channel[:options ] = options.dup
-            channel[:callback] = callback
-            channel[:buffer  ] = Net::SSH::Buffer.new
-            channel[:state   ] = "#{mode}_start"
-            channel[:stack   ] = []
-            channel[:error_string] = ''
-
-            channel.on_close                  { |ch| send("#{channel[:state]}_state", channel); raise Net::SCP::Error, "SCP did not finish successfully (#{channel[:exit]}): #{channel[:error_string]}" if channel[:exit] != 0 }
-            channel.on_data                   { |ch, data| channel[:buffer].append(data) }
-            channel.on_extended_data          { |ch, type, data| debug { data.chomp } }
-            channel.on_request("exit-status") { |ch, data| channel[:exit] = data.read_long }
-            channel.on_process                { send("#{channel[:state]}_state", channel) }
-          else
-            channel.close
-            raise Net::SCP::Error, "could not exec scp on the remote host"
-          end
+      # Opens an SFTP connection and yields it so that you can download and
+      # upload files. SFTP works more reliably than SCP on Windows due to
+      # issues with shell quoting and escaping.
+      def sftp_connect
+        # Connect to SFTP and yield the SFTP object
+        connect do |connection|
+          return yield connection.sftp
         end
       end
     end
