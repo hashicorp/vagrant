@@ -7,25 +7,33 @@ module VagrantPlugins
     # This class provides communication with a Windows VM running
     # the Windows native port of OpenSSH
     class Communicator < VagrantPlugins::CommunicatorSSH::Communicator
+      # Command to run when checking if connection is ready and working
+      READY_COMMAND="dir"
 
       def initialize(machine)
         super
         @logger = Log4r::Logger.new("vagrant::communication::winssh")
       end
 
+      # Wrap the shell if required. By default we are using powershell
+      # which requires no modification. If cmd is defined as shell, add
+      # prefix to start within cmd.exe
+      def shell_cmd(opts)
+        case opts[:shell].to_s
+        when "cmd"
+          "cmd.exe /c '#{opts[:command]}'"
+        else
+          opts[:command]
+        end
+      end
+
       # Executes the command on an SSH connection within a login shell.
       def shell_execute(connection, command, **opts)
-        opts = {
-          sudo: false,
-          shell: nil,
-          force_raw: false
-        }.merge(opts)
+        opts[:shell] ||= machine_config_ssh.shell
 
-        sudo      = opts[:sudo]
-        shell     = (opts[:shell] || machine_config_ssh.shell).to_s
-        force_raw = opts[:force_raw]
+        command = shell_cmd(opts.merge(command: command))
 
-        @logger.info("Execute: #{command} (sudo=#{sudo.inspect})")
+        @logger.info("Execute: #{command} - opts: #{opts}")
         exit_status = nil
 
         # Open the channel so we can execute or command
@@ -35,49 +43,10 @@ module VagrantPlugins
           stderr_marker_found = false
           stderr_data_buffer = ''
 
-          if force_raw
-            if shell == "powershell"
-              command = "Write-Host #{CMD_GARBAGE_MARKER}; [Console]::Error.WriteLine('#{CMD_GARBAGE_MARKER}'); #{command}"
-              command = Base64.strict_encode64(command.encode("UTF-16LE", "UTF-8"))
-              base_cmd = "powershell -encodedCommand #{command}"
-            else
-              command = "ECHO #{CMD_GARBAGE_MARKER} && ECHO #{CMD_GARBAGE_MARKER} 1>&2 && #{command}"
-              base_cmd = command
-            end
-          else # write a wrapper file
-            tfile = Tempfile.new('vagrant-ssh')
-            remote_ext = shell == "powershell" ? "ps1" : "bat"
-            remote_name = "#{machine_config_ssh.upload_directory}/#{File.basename(tfile.path)}.#{remote_ext}"
+          @logger.debug("Base SSH exec command: #{command}")
+          command = "$ProgressPreference = 'SilentlyContinue';Write-Output #{CMD_GARBAGE_MARKER};[Console]::Error.WriteLine('#{CMD_GARBAGE_MARKER}');#{command}"
 
-            if shell == "powershell"
-              tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
-Remove-Item "#{remote_name}"
-Write-Host #{CMD_GARBAGE_MARKER}
-[Console]::Error.WriteLine("#{CMD_GARBAGE_MARKER}")
-#{command}
-SCRIPT
-            else
-              tfile.puts <<-SCRIPT.force_encoding('ASCII-8BIT')
-DEL "#{remote_name}"
-ECHO OFF
-ECHO #{CMD_GARBAGE_MARKER}
-ECHO #{CMD_GARBAGE_MARKER} 1>&2
-#{command}
-SCRIPT
-            end
-
-            wrapper_command = "& '#{remote_name.gsub("'", "''")}'"
-            wrapper_command = Base64.strict_encode64(wrapper_command.encode("UTF-16LE", "UTF-8"))
-            base_cmd = "powershell -encodedCommand #{wrapper_command}"
-
-            tfile.close
-            upload(tfile.path, remote_name)
-            tfile.delete
-          end
-
-          @logger.debug("Base SSH exec command: #{base_cmd}")
-
-          ch.exec(base_cmd) do |ch2, _|
+          ch.exec(command) do |ch2, _|
             # Setup the channel callbacks so we can get data and exit status
             ch2.on_data do |ch3, data|
               # Filter out the clear screen command
@@ -107,14 +76,14 @@ SCRIPT
                 stderr_data_buffer << data
                 marker_index = stderr_data_buffer.index(CMD_GARBAGE_MARKER)
                 if marker_index
-                  marker_found = true
+                  stderr_marker_found = true
                   stderr_data_buffer.slice!(0, marker_index + CMD_GARBAGE_MARKER.size)
                   data.replace(stderr_data_buffer.lstrip)
                   data_buffer = nil
                 end
               end
 
-              if block_given? && marker_found
+              if block_given? && stderr_marker_found && !data.empty?
                 yield :stderr, data
               end
             end
@@ -240,6 +209,39 @@ SCRIPT
         # Connect to SFTP and yield the SFTP object
         connect do |connection|
           return yield connection.sftp
+        end
+      end
+
+      protected
+
+      # The WinSSH communicator connection provides isolated modification
+      # to the generated connection instances. This modification forces
+      # all provided commands to run within powershell
+      def connect(*args)
+        connection = nil
+        super { |c| connection = c }
+
+        if !connection.instance_variable_get(:@winssh_patched)
+          open_chan = connection.method(:open_channel)
+          connection.define_singleton_method(:open_channel) do |*args, &chan_block|
+            open_chan.call(*args) do |ch|
+              exec = ch.method(:exec)
+              ch.define_singleton_method(:exec) do |command, &block|
+                command = Base64.strict_encode64(command.encode("UTF-16LE", "UTF-8"))
+                command = "powershell -NoLogo -NonInteractive -ExecutionPolicy Bypass " \
+                  "-NoProfile -EncodedCommand #{command}"
+                exec.call(command, &block)
+              end
+              chan_block.call(ch)
+            end
+          end
+          connection.instance_variable_set(:@winssh_patched, true)
+        end
+
+        if block_given?
+          yield connection
+        else
+          connection
         end
       end
     end

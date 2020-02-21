@@ -20,6 +20,7 @@ module VagrantPlugins
   module CommunicatorSSH
     # This class provides communication with the VM via SSH.
     class Communicator < Vagrant.plugin("2", :communicator)
+      READY_COMMAND=""
       # Marker for start of PTY enabled command output
       PTY_DELIM_START = "bccbb768c119429488cfd109aacea6b5-pty"
       # Marker for end of PTY enabled command output
@@ -155,7 +156,7 @@ module VagrantPlugins
         end
 
         # Verify the shell is valid
-        if execute("", error_check: false) != 0
+        if execute(self.class.const_get(:READY_COMMAND), error_check: false) != 0
           raise Vagrant::Errors::SSHInvalidShell
         end
 
@@ -168,6 +169,7 @@ module VagrantPlugins
 
         # If we used a password, then insert the insecure key
         ssh_info = @machine.ssh_info
+        return if ssh_info.nil?
         insert   = ssh_info[:password] && ssh_info[:private_key_path].empty?
         ssh_info[:private_key_path].each do |pk|
           if insecure_key?(pk)
