@@ -33,7 +33,6 @@ module VagrantPlugins
               machine.communicate.sudo "apk add --update python3"
               machine.communicate.sudo "apk add --update #{DEV_PACKAGES}"
               machine.communicate.sudo "pip3 install --upgrade pip"
-              # Pip::get_pip machine, pip_install_cmd
             end
 
           end
