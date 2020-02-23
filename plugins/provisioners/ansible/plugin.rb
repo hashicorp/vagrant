@@ -45,6 +45,11 @@ module VagrantPlugins
         Cap::Guest::Arch::AnsibleInstall
       end
 
+      guest_capability(:alpine, :ansible_install) do
+        require_relative "cap/guest/alpine/ansible_install"
+        Cap::Guest::Alpine::AnsibleInstall
+      end
+
       guest_capability(:debian, :ansible_install) do
         require_relative "cap/guest/debian/ansible_install"
         Cap::Guest::Debian::AnsibleInstall
