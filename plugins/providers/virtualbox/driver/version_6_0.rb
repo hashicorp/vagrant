@@ -96,6 +96,41 @@ module VagrantPlugins
           return get_machine_id specified_name
         end
 
+        def share_folders(folders)
+          is_solaris = begin
+                         "SunOS" == read_guest_property("/VirtualBox/GuestInfo/OS/Product")
+                       rescue
+                         false
+                       end
+          folders.each do |folder|
+            # NOTE: Guest additions on Solaris guests do not properly handle
+            # UNC style paths so prevent conversion (See GH-7264)
+            if is_solaris
+              hostpath = folder[:hostpath]
+            else
+              hostpath = Vagrant::Util::Platform.windows_path(folder[:hostpath])
+            end
+            args = ["--name",
+              folder[:name],
+              "--hostpath",
+              hostpath,
+              "--auto-mount-point",
+              folder[:guestpath]]
+
+            args << "--transient" if folder.key?(:transient) && folder[:transient]
+
+            args << "--automount" if folder.key?(:automount) && folder[:automount]
+
+            if folder[:SharedFoldersEnableSymlinksCreate]
+              # Enable symlinks on the shared folder
+              execute("setextradata", @uuid, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/#{folder[:name]}", "1", retryable: true)
+            end
+
+            # Add the shared folder
+            execute("sharedfolder", "add", @uuid, *args, retryable: true)
+          end
+        end
+
       end
     end
   end

@@ -106,6 +106,8 @@ module VagrantPlugins
             hostpath = Vagrant::Util::Platform.cygwin_windows_path(hostpath)
           end
 
+          guestpath = data[:guestpath]
+
           enable_symlink_create = true
 
           if ENV['VAGRANT_DISABLE_VBOXSYMLINKCREATE']
@@ -123,6 +125,7 @@ module VagrantPlugins
             defs << {
               name: os_friendly_id(id),
               hostpath: hostpath.to_s,
+              guestpath: guestpath.to_s,
               transient: transient,
               SharedFoldersEnableSymlinksCreate: enable_symlink_create,
               automount: !!data[:automount]
