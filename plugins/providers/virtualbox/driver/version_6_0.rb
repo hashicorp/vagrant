@@ -113,13 +113,13 @@ module VagrantPlugins
             args = ["--name",
               folder[:name],
               "--hostpath",
-              hostpath,
-              "--auto-mount-point",
-              folder[:guestpath]]
+              hostpath]
 
             args << "--transient" if folder.key?(:transient) && folder[:transient]
 
             args << "--automount" if folder.key?(:automount) && folder[:automount]
+
+            args << "--auto-mount-point" if folder.key?(:guestpath) && folder[:guestpath]
 
             if folder[:SharedFoldersEnableSymlinksCreate]
               # Enable symlinks on the shared folder
