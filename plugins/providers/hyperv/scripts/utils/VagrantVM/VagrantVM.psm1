@@ -722,7 +722,7 @@ function Check-VagrantHyperVAccess {
     )
     $acl = Get-ACL -Path $Path
     $systemACL = $acl.Access | where {
-        $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq "S-1-5-18" -and
+        try { return $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq "S-1-5-18" } catch { return $false } -and
         $_.FileSystemRights -eq "FullControl" -and
         $_.AccessControlType -eq "Allow" -and
         $_.IsInherited -eq $true}
