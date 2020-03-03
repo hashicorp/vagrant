@@ -199,7 +199,7 @@ $ docker network create my-custom-network --subnet=172.20.0.0/16
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.define "docker"  do |docker|
-    docker.vm.network :private_network, type: "dhcp" name: "my-custom-network"
+    docker.vm.network :private_network, type: "dhcp", name: "my-custom-network"
     docker.vm.provider "docker" do |d|
       d.build_dir = "docker_build_dir"
     end
