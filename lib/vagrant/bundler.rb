@@ -582,7 +582,7 @@ module Vagrant
         ignore_dependencies: true,
         prerelease: Vagrant.prerelease?,
         wrappers: true,
-        document: false
+        document: []
       )
       result = result.map(&:full_spec)
       result.each do |spec|
