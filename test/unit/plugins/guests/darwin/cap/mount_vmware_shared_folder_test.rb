@@ -39,10 +39,6 @@ describe "VagrantPlugins::GuestDarwin::Cap::MountVmwareSharedFolder" do
         expect(communicator).to receive(:test).with(/synthetic\.conf/)
       end
 
-      it "should register an action hook" do
-        expect(VagrantPlugins::GuestDarwin::Plugin).to receive(:action_hook).with(:apfs_firmlinks, :after_synced_folders)
-      end
-
       context "with guest path within existing directory" do
         let(:guestpath) { "/Users/vagrant/workspace" }
 
@@ -75,10 +71,6 @@ describe "VagrantPlugins::GuestDarwin::Cap::MountVmwareSharedFolder" do
 
         it "should create the symlink within the writable APFS container" do
           expect(communicator).to receive(:sudo).with(%r{ln -s .+/System/Volumes/Data.+})
-        end
-
-        it "should register an action hook" do
-          expect(VagrantPlugins::GuestDarwin::Plugin).to receive(:action_hook).with(:apfs_firmlinks, :after_synced_folders)
         end
 
         context "when firmlink is provided by the system" do
