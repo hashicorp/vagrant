@@ -2,6 +2,7 @@ require 'vagrant/action/builder'
 
 module Vagrant
   module Action
+    autoload :Hook,        'vagrant/action/hook'
     autoload :Runner,      'vagrant/action/runner'
     autoload :Warden,      'vagrant/action/warden'
 
