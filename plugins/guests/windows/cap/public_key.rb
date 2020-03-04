@@ -37,7 +37,7 @@ module VagrantPlugins
 
           # Ensure the user's ssh directory exists
           remote_ssh_dir = "#{home_dir}\\.ssh"
-          comm.create_remote_directory(remote_ssh_dir)
+          comm.execute("New-Item -Path '#{remote_ssh_dir}' -ItemType directory -Force", shell: "powershell")
           remote_upload_path = "#{temp_dir}\\vagrant-insert-pubkey-#{Time.now.to_i}"
           remote_authkeys_path = "#{remote_ssh_dir}\\authorized_keys"
 
@@ -67,7 +67,7 @@ module VagrantPlugins
         # @return [Hash] {:temp, :home}
         def self.fetch_guest_paths(communicator)
           output = ""
-          communicator.execute("echo %TEMP%\necho %USERPROFILE%", shell: "cmd") do |type, data|
+          communicator.execute("Write-Output $env:TEMP\nWrite-Output $env:USERPROFILE", shell: "powershell") do |type, data|
             if type == :stdout
               output << data
             end
