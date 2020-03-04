@@ -4,6 +4,14 @@ module VagrantPlugins
   module GuestDarwin
     module Cap
       class MountVmwareSharedFolder
+        # Entry point for hook to called delayed actions
+        # which finalizing the synced folders setup on
+        # the guest
+        def self.write_apfs_firmlinks(env)
+          if env[:machine] && @_apfs_firmlinks[env[:machine].id]
+            @_apfs_firmlinks.delete(env[:machine].id).call
+          end
+        end
 
         # we seem to be unable to ask 'mount -t vmhgfs' to mount the roots
         # of specific shares, so instead we symlink from what is already
@@ -14,6 +22,7 @@ module VagrantPlugins
           # Use this variable to determine which machines
           # have been registered with after hook
           @apply_firmlinks ||= Hash.new{ |h, k| h[k] = {bootstrap: false, content: []} }
+          @_apfs_firmlinks ||= Hash.new{ |h, k| h[k] = [] }
 
           machine.communicate.tap do |comm|
             # check if we are dealing with an APFS root container
@@ -61,17 +70,14 @@ module VagrantPlugins
 
               # If we haven't already added our hook to apply firmlinks, do it now
               if @apply_firmlinks[machine.id][:content].empty?
-                Plugin.action_hook(:apfs_firmlinks, :after_synced_folders) do |hook|
-                  action = proc { |*_|
-                    content = @apply_firmlinks[machine.id][:content].join("\n")
-                    # Write out the synthetic file
-                    comm.sudo("echo -e #{content.inspect} > /etc/synthetic.conf")
-                    if @apply_firmlinks[:bootstrap]
-                      # Re-bootstrap the root container to pick up firmlink updates
-                      comm.sudo("/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -B")
-                    end
-                  }
-                  hook.prepend(action)
+                @_apfs_firmlinks[machine.id] = proc do
+                  content = @apply_firmlinks[machine.id][:content].join("\n")
+                  # Write out the synthetic file
+                  comm.sudo("echo -e #{content.inspect} > /etc/synthetic.conf")
+                  if @apply_firmlinks[:bootstrap]
+                    # Re-bootstrap the root container to pick up firmlink updates
+                    comm.sudo("/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -B")
+                  end
                 end
               end
               @apply_firmlinks[machine.id][:content] << share_line
