@@ -28,6 +28,55 @@ module Vagrant
           result
         end
 
+        # Find all hooks that are applicable for the given key. This
+        # lookup does not include hooks which are defined for ALL_ACTIONS.
+        # Key lookups will match on either string or symbol values. The
+        # provided keys is broken down into multiple parts for lookups,
+        # which allows defining hooks with an entire namespaced name,
+        # or a short suffx. For example:
+        #
+        #  Assume we are given an action class
+        #    key = Vagrant::Action::Builtin::SyncedFolders
+        #
+        #  The list of keys that will be checked for hooks:
+        #    ["Vagrant::Action::Builtin::SyncedFolders", "vagrant_action_builtin_synced_folders",
+        #     "Action::Builtin::SyncedFolders", "action_builtin_synced_folders",
+        #     "Builtin::SyncedFolders", "builtin_synced_folders",
+        #     "SyncedFolders", "synced_folders"]
+        #
+        # @param key [Class, String] key Key for hook lookups
+        # @return [Array<Proc>]
+        def find_action_hooks(key)
+          result = []
+
+          generate_hook_keys(key).each do |k|
+            @registered.each do |plugin|
+              result += plugin.components.action_hooks[k]
+              result += plugin.components.action_hooks[k.to_sym]
+            end
+          end
+
+          result
+        end
+
+        # Generate all valid lookup keys for given key
+        #
+        # @param [Class, String] key Base key for generation
+        # @return [Array<String>] all valid keys
+        def generate_hook_keys(key)
+          key = key.is_a?(Class) ? key.name : key.to_s
+          parts = key.split("::")
+          [].tap do |keys|
+            until parts.empty?
+              x = parts.join("::")
+              keys << x
+              y = x.gsub(/([a-z])([A-Z])/, '\1_\2').gsub('::', '_').downcase
+              keys << y if x != y
+              parts.shift
+            end
+          end
+        end
+
         # This returns all the registered commands.
         #
         # @return [Registry<Symbol, Array<Proc, Hash>>]
