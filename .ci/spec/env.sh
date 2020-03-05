@@ -11,5 +11,4 @@ export PACKET_EXEC_OPERATING_SYSTEM="${PACKET_EXEC_OPERATING_SYSTEM:-ubuntu_18_0
 export PACKET_EXEC_PRE_BUILTINS="${PACKET_EXEC_PRE_BUILTINS:-InstallVagrant,InstallVirtualBox,InstallVmware,InstallHashiCorpTool,InstallVagrantVmware}"
 export PACKET_EXEC_QUIET="1"
 export PKT_VAGRANT_CLOUD_TOKEN="${VAGRANT_CLOUD_TOKEN}"
-export VAGRANT_PKG_VERSION="2.2.7" # need to figure out how to make this latest instead
 ###
