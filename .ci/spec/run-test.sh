@@ -28,7 +28,7 @@ export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
 export PKT_VAGRANT_GUEST_BOXES="${VAGRANT_GUEST_BOXES}"
 # other vagrant-spec options
 export PKT_VAGRANT_HOST_MEMORY=10000
-export PKT_VAGRANT_CWD="/test/vagrant-spec/"
+export PKT_VAGRANT_CWD="test/vagrant-spec/"
 export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 ###
 
