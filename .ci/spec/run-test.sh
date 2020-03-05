@@ -16,7 +16,7 @@ pushd "${root}" > "${output}"
 function cleanup() {
     (>&2 echo "Cleaning up packet device")
     unset PACKET_EXEC_PERSIST
-    pkt_wrap_stream "cd vagrant;VAGRANT_CWD=test/vagrant-spec/ VAGRANT_VAGRANTFILE=Vagrantfile.spec vagrant destroy -f" \
+    pkt_wrap_stream "cd vagrant;vagrant destroy -f" \
                 "Vagrant command failed"
 }
 
