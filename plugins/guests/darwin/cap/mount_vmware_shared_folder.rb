@@ -8,9 +8,17 @@ module VagrantPlugins
         # which finalizing the synced folders setup on
         # the guest
         def self.write_apfs_firmlinks(env)
-          if env[:machine] && @_apfs_firmlinks[env[:machine].id]
-            @_apfs_firmlinks.delete(env[:machine].id).call
+          if env && env[:machine] && delayed = apfs_firmlinks_delayed.delete(env[:machine].id)
+            delayed.call
           end
+        end
+
+        # @return [Hash] storage location for delayed actions
+        def self.apfs_firmlinks_delayed
+          if !@_apfs_firmlinks
+            @_apfs_firmlinks = {}
+          end
+          @_apfs_firmlinks
         end
 
         # we seem to be unable to ask 'mount -t vmhgfs' to mount the roots
@@ -22,7 +30,6 @@ module VagrantPlugins
           # Use this variable to determine which machines
           # have been registered with after hook
           @apply_firmlinks ||= Hash.new{ |h, k| h[k] = {bootstrap: false, content: []} }
-          @_apfs_firmlinks ||= Hash.new{ |h, k| h[k] = [] }
 
           machine.communicate.tap do |comm|
             # check if we are dealing with an APFS root container
@@ -70,7 +77,7 @@ module VagrantPlugins
 
               # If we haven't already added our hook to apply firmlinks, do it now
               if @apply_firmlinks[machine.id][:content].empty?
-                @_apfs_firmlinks[machine.id] = proc do
+                apfs_firmlinks_delayed[machine.id] = proc do
                   content = @apply_firmlinks[machine.id][:content].join("\n")
                   # Write out the synthetic file
                   comm.sudo("echo -e #{content.inspect} > /etc/synthetic.conf")

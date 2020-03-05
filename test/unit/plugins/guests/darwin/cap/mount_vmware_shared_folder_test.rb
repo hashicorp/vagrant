@@ -156,4 +156,55 @@ describe "VagrantPlugins::GuestDarwin::Cap::MountVmwareSharedFolder" do
       end
     end
   end
+
+  describe ".write_apfs_firmlinks" do
+    let(:env) { nil }
+    let(:action) { double("action", call: nil) }
+    let(:machine) { double("machine", id: machine_id) }
+    let(:machine_id) { double("machine_id") }
+    let(:delayed) { {} }
+
+    context "when env is nil" do
+      it "should be a no-op" do
+        expect(described_class).not_to receive(:apfs_firmlinks_delayed)
+        described_class.write_apfs_firmlinks(env)
+      end
+    end
+
+    context "when env is empty hash" do
+      let(:env) { {} }
+
+      it "should be a no-op" do
+        expect(described_class).not_to receive(:apfs_firmlinks_delayed)
+        described_class.write_apfs_firmlinks(env)
+      end
+    end
+
+    context "when machine is defined within env" do
+      let(:env) { {machine: machine} }
+
+      it "should request the stored delayed actions" do
+        expect(described_class).to receive(:apfs_firmlinks_delayed).and_return(delayed)
+        described_class.write_apfs_firmlinks(env)
+      end
+    end
+
+    context "when delayed action is stored for machine" do
+      let(:env) { {machine: machine} }
+
+      before { described_class.apfs_firmlinks_delayed[machine_id] = action }
+      after { described_class.apfs_firmlinks_delayed.clear }
+
+      it "should call the delayed action" do
+        expect(action).to receive(:call)
+        described_class.write_apfs_firmlinks(env)
+      end
+
+      it "should remove the action after calling" do
+        expect(action).to receive(:call)
+        described_class.write_apfs_firmlinks(env)
+        expect(delayed).to be_empty
+      end
+    end
+  end
 end
