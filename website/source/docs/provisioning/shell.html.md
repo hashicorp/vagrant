@@ -166,8 +166,12 @@ Of course, if any Ruby in your Vagrantfile outside of basic variable assignment
 makes you uncomfortable, you can use an actual script file, documented in
 the next section.
 
-For Windows guest machines, the inline script _must_ be PowerShell. Batch
-scripts are not allowed as inline scripts.
+For Windows guest machines, the supported inline script is dependent upon the
+communicator in use. When using the `winrm` communicator, the inline script
+_must_ be PowerShell. Batch scripts are not allowed as inline scripts when
+using the `winrm` communicator. When using the `winssh` communicator, the
+inline script will be run using the configured `shell` which defaults to
+PowerShell.
 
 ## External Script
 
