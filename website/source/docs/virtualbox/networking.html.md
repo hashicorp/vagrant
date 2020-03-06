@@ -22,7 +22,7 @@ the host-only interface to use.
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.network "private_network", type: "dhcp",
-    name: => "vboxnet3"
+    name: "vboxnet3"
 end
 ```
 
