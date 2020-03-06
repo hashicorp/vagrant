@@ -15,14 +15,14 @@ description: |-
 By default, private networks are [host-only networks](https://www.virtualbox.org/manual/ch06.html#network_hostonly),
 because those are the easiest to work with. In VirtualBox, since you can
 create multiple host-only networks, it is also possible to specify which
-host-only network you want to the Vagrant Virtualbox provider to use for
+host-only network you want the Vagrant VirtualBox provider to use for
 a given interface. To do this, use the `:name` symbol with the name of
 the host-only interface to use.
 
 ```ruby
 Vagrant.configure("2") do |config|
   config.vm.network "private_network", type: "dhcp",
-    :name => "vboxnet3"
+    name: => "vboxnet3"
 end
 ```
 
