@@ -16,7 +16,7 @@ By default, private networks are [host-only networks](https://www.virtualbox.org
 because those are the easiest to work with. In VirtualBox, since you can
 create multiple host-only networks, it is also possible to specify which
 host-only network you want the Vagrant VirtualBox provider to use for
-a given interface. To do this, use the `:name` symbol with the name of
+a given interface. To do this, use the `name` argument with the name of
 the host-only interface to use.
 
 ```ruby
