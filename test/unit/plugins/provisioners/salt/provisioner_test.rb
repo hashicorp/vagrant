@@ -37,6 +37,7 @@ describe VagrantPlugins::Salt::Provisioner do
         allow(config).to receive(:install_master).and_return(true)
         allow(config).to receive(:install_syndic).and_return(true)
         allow(config).to receive(:no_minion).and_return(true)
+        allow(config).to receive(:python_version).and_return("2")
         allow(config).to receive(:install_type).and_return('stable')
         allow(config).to receive(:install_args).and_return('develop')
         allow(config).to receive(:verbose).and_return(true)
