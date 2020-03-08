@@ -632,7 +632,11 @@ module Vagrant
       self_spec.runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
       # discover all the gems we have available
       list = {}
-      directories = [Gem::Specification.default_specifications_dir]
+      if(Gem::Version.create(RUBY_VERSION) >= Gem::Version.create("2.7"))
+        directories = [Gem.default_specifications_dir]
+      else
+        directories = [Gem::Specification.default_specifications_dir]
+      end
       Gem::Specification.find_all{true}.each do |spec|
         list[spec.full_name] = spec
       end
