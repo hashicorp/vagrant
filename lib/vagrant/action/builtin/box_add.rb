@@ -2,6 +2,7 @@ require "digest/sha1"
 require "log4r"
 require "pathname"
 require "uri"
+require "cgi"
 
 require "vagrant/box_metadata"
 require "vagrant/util/downloader"
@@ -44,7 +45,7 @@ module Vagrant
             u = u.gsub("\\", "/")
             if Util::Platform.windows? && u =~ /^[a-z]:/i
               # On Windows, we need to be careful about drive letters
-              u = "file:///#{URI.escape(u)}"
+              u = "file:///#{CGI::escape(u)}"
             end
 
             if u =~ /^[a-z0-9]+:.*$/i && !u.start_with?("file://")
@@ -53,9 +54,9 @@ module Vagrant
             end
 
             # Expand the path and try to use that, if possible
-            p = File.expand_path(URI.unescape(u.gsub(/^file:\/\//, "")))
+            p = File.expand_path(CGI::unescape(u.gsub(/^file:\/\//, "")))
             p = Util::Platform.cygwin_windows_path(p)
-            next "file://#{URI.escape(p.gsub("\\", "/"))}" if File.file?(p)
+            next "file://#{p.gsub("\\", "/")}" if File.file?(p)
 
             u
           end
@@ -495,7 +496,7 @@ module Vagrant
             url ||= uri.opaque
             #7570 Strip leading slash left in front of drive letter by uri.path
             Util::Platform.windows? && url.gsub!(/^\/([a-zA-Z]:)/, '\1')
-            url = URI.unescape(url)
+            url = CGI::unescape(url)
 
             begin
               File.open(url, "r") do |f|
