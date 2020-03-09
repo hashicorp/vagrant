@@ -48,20 +48,42 @@ module Vagrant
           action = @actions.shift
           @logger.info("Calling IN action: #{action}")
 
-          if !action.is_a?(Proc) && env[:hook]
-            hook_name = action.class.name.split("::").last.
-              gsub(/([a-z])([A-Z])/, '\1_\2').gsub('-', '_').downcase
+          actions = [action]
+
+          # If this is an action class, set name to check for any defined hooks
+          if !action.is_a?(Proc)
+            hook_name = action.class.name
+            @logger.debug("Performing hooks lookup on #{hook_name} (Action: #{action} - class: #{action.class})")
+            hooks = Vagrant.plugin("2").manager.find_action_hooks(hook_name)
+
+            if !hooks.empty?
+              @logger.debug("Found #{hooks.count} hooks defined for #{hook_name} (Action: #{action})")
+              # Create a new builder for the current action so we can
+              # properly apply the hooks with the correct ordering
+              b = Builder.new
+              b.stack << action
+
+              hooks.each do |hook_proc|
+                hook = Hook.new.tap { |h| hook_proc.call(h) }
+                hook.apply(b)
+              end
+
+              actions = b.stack.map { |a| finalize_action(a, @env) }
+            end
           end
 
-          env[:hook].call("before_#{hook_name}".to_sym) if hook_name
-          @stack.unshift(action).first.call(env)
-          env[:hook].call("after_#{hook_name}".to_sym) if hook_name
+          @logger.info("Calling BEGIN action: #{action}")
+          actions.each do |local_action|
+            @logger.info("Calling IN action: #{local_action} (root: #{action})")
+            @stack.unshift(local_action).first.call(env)
+            raise Errors::VagrantInterrupt if env[:interrupted]
+            @logger.info("Calling OUT action: #{local_action} (root: #{action})")
+          end
 
-          raise Errors::VagrantInterrupt if env[:interrupted]
-          @logger.info("Calling OUT action: #{action}")
-        rescue SystemExit
-          # This means that an "exit" or "abort" was called. In these cases,
-          # we just exit immediately.
+          @logger.info("Calling COMPLETE action: #{action}")
+        rescue SystemExit, NoMemoryError
+          # This means that an "exit" or "abort" was called, or we have run out
+          # of memory. In these cases, we just exit immediately.
           raise
         rescue Exception => e
           # We guard this so that the Warden only outputs this once for

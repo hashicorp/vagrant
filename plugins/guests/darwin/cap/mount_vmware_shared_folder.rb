@@ -4,6 +4,22 @@ module VagrantPlugins
   module GuestDarwin
     module Cap
       class MountVmwareSharedFolder
+        # Entry point for hook to called delayed actions
+        # which finalizing the synced folders setup on
+        # the guest
+        def self.write_apfs_firmlinks(env)
+          if env && env[:machine] && delayed = apfs_firmlinks_delayed.delete(env[:machine].id)
+            delayed.call
+          end
+        end
+
+        # @return [Hash] storage location for delayed actions
+        def self.apfs_firmlinks_delayed
+          if !@_apfs_firmlinks
+            @_apfs_firmlinks = {}
+          end
+          @_apfs_firmlinks
+        end
 
         # we seem to be unable to ask 'mount -t vmhgfs' to mount the roots
         # of specific shares, so instead we symlink from what is already
@@ -61,17 +77,14 @@ module VagrantPlugins
 
               # If we haven't already added our hook to apply firmlinks, do it now
               if @apply_firmlinks[machine.id][:content].empty?
-                Plugin.action_hook(:apfs_firmlinks, :after_synced_folders) do |hook|
-                  action = proc { |*_|
-                    content = @apply_firmlinks[machine.id][:content].join("\n")
-                    # Write out the synthetic file
-                    comm.sudo("echo -e #{content.inspect} > /etc/synthetic.conf")
-                    if @apply_firmlinks[:bootstrap]
-                      # Re-bootstrap the root container to pick up firmlink updates
-                      comm.sudo("/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -B")
-                    end
-                  }
-                  hook.prepend(action)
+                apfs_firmlinks_delayed[machine.id] = proc do
+                  content = @apply_firmlinks[machine.id][:content].join("\n")
+                  # Write out the synthetic file
+                  comm.sudo("echo -e #{content.inspect} > /etc/synthetic.conf")
+                  if @apply_firmlinks[:bootstrap]
+                    # Re-bootstrap the root container to pick up firmlink updates
+                    comm.sudo("/System/Library/Filesystems/apfs.fs/Contents/Resources/apfs.util -B")
+                  end
                 end
               end
               @apply_firmlinks[machine.id][:content] << share_line
