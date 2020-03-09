@@ -11,6 +11,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core/downloader: Always set `-q` flag as first option [GH-11366]
 - core/hooks: Update dynamic action hook implementation to prevent looping [GH-11427]
 - core/synced_folders: Validate type option if set [GH-11359]
 - providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
