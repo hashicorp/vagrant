@@ -37,7 +37,7 @@ describe "templates/nfs/exports_darwin" do
       })
       expect(result).to eq <<-EOH.gsub(/^ {8}/, "")
         # VAGRANT-BEGIN: 501 UUID
-        /vagrant -alldirs -mapall=501:80 172.16.0.2
+        "/vagrant" -alldirs -mapall=501:80 172.16.0.2
         # VAGRANT-END: 501 UUID
       EOH
     end
@@ -59,8 +59,8 @@ describe "templates/nfs/exports_darwin" do
       })
       expect(result).to eq <<-EOH.gsub(/^ {8}/, "")
         # VAGRANT-BEGIN: 501 UUID
-        /vagrant -alldirs -mapall=501:80 172.16.0.2
-        /vagrant/other -alldirs -mapall=501:80 172.16.0.2
+        "/vagrant" -alldirs -mapall=501:80 172.16.0.2
+        "/vagrant/other" -alldirs -mapall=501:80 172.16.0.2
         # VAGRANT-END: 501 UUID
       EOH
     end
