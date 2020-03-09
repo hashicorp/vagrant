@@ -261,17 +261,16 @@ describe Vagrant::Util::Downloader do
 
   describe "#head" do
     let(:curl_options) {
-      ["-q", "--fail", "--location", "--max-redirs", "10", "--verbose", "--user-agent", described_class::USER_AGENT, source, {}]
+      ["-q", "-I", "--fail", "--location", "--max-redirs", "10",
+       "--verbose", "--user-agent", described_class::USER_AGENT,
+       source, {}]
     }
 
     it "returns the output" do
       allow(subprocess_result).to receive(:stdout).and_return("foo")
 
-      options = curl_options.dup
-      options.unshift("-I")
-
       expect(Vagrant::Util::Subprocess).to receive(:execute).
-        with("curl", *options).and_return(subprocess_result)
+        with("curl", *curl_options).and_return(subprocess_result)
 
       expect(subject.head).to eq("foo")
     end
