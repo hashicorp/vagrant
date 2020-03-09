@@ -7,6 +7,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - guest/linux: Update systemd? check to use sudo [GH-11398]
+- guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
 
 BUG FIXES:
 
