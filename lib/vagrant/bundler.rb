@@ -18,6 +18,149 @@ module Vagrant
   # Bundler as a way to properly resolve all dependencies of Vagrant and
   # all Vagrant-installed plugins.
   class Bundler
+    class SolutionFile
+      # @return [Pathname] path to plugin file
+      attr_reader :plugin_file
+      # @return [Pathname] path to solution file
+      attr_reader :solution_file
+      # @return [Array<Gem::Dependency>] list of required dependencies
+      attr_reader :dependency_list
+
+      # @param [Pathname] plugin_file Path to plugin file
+      # @param [Pathname] solution_file Custom path to solution file
+      def initialize(plugin_file:, solution_file: nil)
+        @logger = Log4r::Logger.new("vagrant::bundler::signature_file")
+        @plugin_file = Pathname.new(plugin_file.to_s)
+        if solution_file
+          @solution_file = Pathname.new(solution_file.to_s)
+        else
+          @solution_file = Pathname.new(@plugin_file.to_s + ".sol")
+        end
+        @valid = false
+        @dependency_list = [].freeze
+        @logger.debug("new solution file instance plugin_file=#{plugin_file} " \
+          "solution_file=#{solution_file}")
+        load
+      end
+
+      # Set the list of dependencies for this solution
+      #
+      # @param [Array<Gem::Dependency>] dependency_list List of dependencies for the solution
+      def dependency_list=(dependency_list)
+        Array(dependency_list).each do |d|
+          if !d.is_a?(Gem::Dependency)
+            raise TypeError, "Expected `Gem::Dependency` but received `#{d.class}`"
+          end
+        end
+        @dependency_list = dependency_list.map(&:freeze).freeze
+      end
+
+      # @return [Boolean] contained solution is valid
+      def valid?
+        @valid
+      end
+
+      # @return [FalseClass] invalidate this solution file
+      def invalidate!
+        @logger.debug("manually invalidating solution file")
+        @valid = false
+      end
+
+      # Delete the solution file
+      #
+      # @return [Boolean] true if file was deleted
+      def delete!
+        if !solution_file.exist?
+          @logger.debug("solution file does not exist. nothing to delete.")
+          return false
+        end
+        @logger.debug("deleting solution file - #{solution_file}")
+        solution_file.delete
+        true
+      end
+
+      # Store the solution file
+      def store!
+        if !plugin_file.exist?
+          @logger.debug("plugin file does not exist, not storing solution")
+          return
+        end
+        if !solution_file.dirname.exist?
+          @logger.debug("creating directory for solution file: #{solution_file.dirname}")
+          solution_file.dirname.mkpath
+        end
+        @logger.debug("writing solution file contents to disk")
+        solution_file.write({
+          dependencies: dependency_list.map { |d|
+            [d.name, d.requirements_list]
+          },
+          checksum: plugin_file_checksum,
+          vagrant_version: Vagrant::VERSION
+        }.to_json)
+        @valid = true
+      end
+
+      def to_s # :nodoc:
+        "<Vagrant::Bundler::SolutionFile:#{plugin_file}:" \
+          "#{solution_file}:#{valid? ? "valid" : "invalid"}>"
+      end
+
+      protected
+
+      # Load the solution file for the plugin path provided
+      # if it exists. Validate solution is still applicable
+      # before injecting dependencies.
+      def load
+        if !plugin_file.exist? || !solution_file.exist?
+          @logger.debug("missing file so skipping loading")
+          return
+        end
+        solution = read_solution || return
+        return if !valid_solution?(
+          checksum: solution[:checksum],
+          version: solution[:vagrant_version]
+        )
+        @logger.debug("loading solution dependency list")
+        @dependency_list = solution[:dependencies].map do |name, requirements|
+          Gem::Dependency.new(name, requirements)
+        end
+        @logger.debug("solution dependency list: #{dependency_list}")
+        @valid = true
+      end
+
+      # Validate the given checksum matches the plugin file
+      # checksum
+      #
+      # @param [String] checksum Checksum value to validate
+      # @return [Boolean]
+      def valid_solution?(checksum:, version:)
+        file_checksum = plugin_file_checksum
+        @logger.debug("solution validation check CHECKSUM #{file_checksum} <-> #{checksum}" \
+          " VERSION #{Vagrant::VERSION} <-> #{version}")
+        plugin_file_checksum == checksum &&
+          Vagrant::VERSION == version
+      end
+
+      # @return [String] checksum of plugin file
+      def plugin_file_checksum
+        digest = Digest::SHA256.new
+        digest.file(plugin_file.to_s)
+        digest.hexdigest
+      end
+
+      # Read contents of solution file and parse
+      #
+      # @return [Hash]
+      def read_solution
+        @logger.debug("reading solution file - #{solution_file}")
+        begin
+          hash = JSON.load(solution_file.read)
+          Vagrant::Util::HashWithIndifferentAccess.new(hash)
+        rescue => err
+          @logger.warn("failed to load solution file, ignoring (error: #{err})")
+        end
+      end
+    end
 
     # Location of HashiCorp gem repository
     HASHICORP_GEMSTORE = "https://gems.hashicorp.com/".freeze
@@ -34,26 +177,16 @@ module Vagrant
 
     # @return [Pathname] Global plugin path
     attr_reader :plugin_gem_path
+    # @return [Pathname] Global plugin solution set path
+    attr_reader :plugin_solution_path
     # @return [Pathname] Vagrant environment specific plugin path
     attr_reader :env_plugin_gem_path
+    # @return [Pathname] Vagrant environment data path
+    attr_reader :environment_data_path
 
     def initialize
       @plugin_gem_path = Vagrant.user_data_path.join("gems", RUBY_VERSION).freeze
       @logger = Log4r::Logger.new("vagrant::bundler")
-
-      # TODO: Remove fix when https://github.com/rubygems/rubygems/pull/2735
-      # gets merged and released
-      #
-      # Because of a rubygems bug, we need to set the gemrc file path
-      # through this method rather than relying on the environment varible
-      # GEMRC. On windows, that path gets split on `:`: and `;`, which means
-      # the drive letter gets treated as its own path. If that path exists locally,
-      # (like having a random folder called `c` where the library was invoked),
-      # it fails thinking the folder `c` is a gemrc file.
-      gemrc_val = ENV["GEMRC"]
-      ENV["GEMRC"] = ""
-      Gem.configuration = Gem::ConfigFile.new(["--config-file", gemrc_val])
-      ENV["GEMRC"] = gemrc_val
     end
 
     # Enable Vagrant environment specific plugins at given data path
@@ -61,12 +194,39 @@ module Vagrant
     # @param [Pathname] Path to Vagrant::Environment data directory
     # @return [Pathname] Path to environment specific gem directory
     def environment_path=(env_data_path)
+      if !env_data_path.is_a?(Pathname)
+        raise TypeError, "Expected `Pathname` but received `#{env_data_path.class}`"
+      end
       @env_plugin_gem_path = env_data_path.join("plugins", "gems", RUBY_VERSION).freeze
+      @environment_data_path = env_data_path
+    end
+
+    # Use the given options to create a solution file instance
+    # for use during initialization. When a Vagrant environment
+    # is in use, solution files will be stored within the environment's
+    # data directory. This is because the solution for loading global
+    # plugins is dependent on any solution generated for local plugins.
+    # When no Vagrant environment is in use (running Vagrant without a
+    # Vagrantfile), the Vagrant user data path will be used for solution
+    # storage since only the global plugins will be used.
+    #
+    # @param [Hash] opts Options passed to #init!
+    # @return [SolutionFile]
+    def load_solution_file(opts={})
+      return if !opts[:local] && !opts[:global]
+      return if opts[:local] && opts[:global]
+      return if opts[:local] && environment_data_path.nil?
+      solution_path = (environment_data_path || Vagrant.user_data_path) + "bundler"
+      solution_path += opts[:local] ? "local.sol" : "global.sol"
+      SolutionFile.new(
+        plugin_file: opts[:local] || opts[:global],
+        solution_file: solution_path
+      )
     end
 
     # Initializes Bundler and the various gem paths so that we can begin
     # loading gems.
-    def init!(plugins, repair=false)
+    def init!(plugins, repair=false, **opts)
       if !@initial_specifications
         @initial_specifications = Gem::Specification.find_all{true}
       else
@@ -74,44 +234,77 @@ module Vagrant
         Gem::Specification.reset
       end
 
-      # Add HashiCorp RubyGems source
-      if !Gem.sources.include?(HASHICORP_GEMSTORE)
-        sources = [HASHICORP_GEMSTORE] + Gem.sources.sources
-        Gem.sources.replace(sources)
+      solution_file = load_solution_file(opts)
+      @logger.debug("solution file in use for init: #{solution_file}")
+
+      solution = nil
+      composed_set = generate_vagrant_set
+
+      if solution_file&.valid?
+        @logger.debug("loading cached solution set")
+        solution = solution_file.dependency_list.map do |dep|
+          spec = composed_set.find_all(dep).first
+          if !spec
+            @logger.warn("failed to locate specification for dependency - #{dep}")
+            @logger.warn("invalidating solution file - #{solution_file}")
+            solution_file.invalidate!
+            break
+          end
+          dep_r = Gem::Resolver::DependencyRequest.new(dep, nil)
+          Gem::Resolver::ActivationRequest.new(spec, dep_r)
+        end
       end
 
-      # Generate dependencies for all registered plugins
-      plugin_deps = plugins.map do |name, info|
-        Gem::Dependency.new(name, info['installed_gem_version'].to_s.empty? ? '> 0' : info['installed_gem_version'])
-      end
+      if !solution_file&.valid?
+        @logger.debug("generating solution set for configured plugins")
+        # Add HashiCorp RubyGems source
+        if !Gem.sources.include?(HASHICORP_GEMSTORE)
+          sources = [HASHICORP_GEMSTORE] + Gem.sources.sources
+          Gem.sources.replace(sources)
+        end
 
-      @logger.debug("Current generated plugin dependency list: #{plugin_deps}")
+        # Generate dependencies for all registered plugins
+        plugin_deps = plugins.map do |name, info|
+          Gem::Dependency.new(name, info['installed_gem_version'].to_s.empty? ? '> 0' : info['installed_gem_version'])
+        end
 
-      # Load dependencies into a request set for resolution
-      request_set = Gem::RequestSet.new(*plugin_deps)
-      # Never allow dependencies to be remotely satisfied during init
-      request_set.remote = false
+        @logger.debug("Current generated plugin dependency list: #{plugin_deps}")
 
-      repair_result = nil
-      begin
-        # Compose set for resolution
-        composed_set = generate_vagrant_set
-        # Resolve the request set to ensure proper activation order
-        solution = request_set.resolve(composed_set)
-      rescue Gem::UnsatisfiableDependencyError => failure
-        if repair
-          raise failure if @init_retried
-          @logger.debug("Resolution failed but attempting to repair. Failure: #{failure}")
-          install(plugins)
-          @init_retried = true
-          retry
-        else
-          raise
+        # Load dependencies into a request set for resolution
+        request_set = Gem::RequestSet.new(*plugin_deps)
+        # Never allow dependencies to be remotely satisfied during init
+        request_set.remote = false
+
+        repair_result = nil
+        begin
+          @logger.debug("resolving solution from available specification set")
+          # Resolve the request set to ensure proper activation order
+          solution = request_set.resolve(composed_set)
+          @logger.debug("solution set for configured plugins has been resolved")
+        rescue Gem::UnsatisfiableDependencyError => failure
+          if repair
+            raise failure if @init_retried
+            @logger.debug("Resolution failed but attempting to repair. Failure: #{failure}")
+            install(plugins)
+            @init_retried = true
+            retry
+          else
+            raise
+          end
         end
       end
 
       # Activate the gems
+      @logger.debug("activating solution set")
       activate_solution(solution)
+
+      if solution_file && !solution_file.valid?
+        solution_file.dependency_list = solution.map do |activation|
+          activation.request.dependency
+        end
+        solution_file.store!
+        @logger.debug("solution set stored to - #{solution_file}")
+      end
 
       full_vagrant_spec_list = @initial_specifications +
         solution.map(&:full_spec)
@@ -388,7 +581,8 @@ module Vagrant
       result = request_set.install_into(install_path.to_s, true,
         ignore_dependencies: true,
         prerelease: Vagrant.prerelease?,
-        wrappers: true
+        wrappers: true,
+        document: []
       )
       result = result.map(&:full_spec)
       result.each do |spec|

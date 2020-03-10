@@ -51,7 +51,7 @@ module Vagrant
         @globalized = true
         @logger.debug("Enabling globalized plugins")
         plugins = installed_plugins
-        bundler_init(plugins)
+        bundler_init(plugins, global: user_file.path)
         plugins
       end
 
@@ -66,7 +66,7 @@ module Vagrant
           @local_file = StateFile.new(env.local_data_path.join("plugins.json"))
           Vagrant::Bundler.instance.environment_path = env.local_data_path
           plugins = local_file.installed_plugins
-          bundler_init(plugins)
+          bundler_init(plugins, local: local_file.path)
           plugins
         end
       end
@@ -80,7 +80,7 @@ module Vagrant
       #
       # @param [Hash] plugins List of plugins
       # @return [nil]
-      def bundler_init(plugins)
+      def bundler_init(plugins, **opts)
         if !Vagrant.plugins_init?
           @logger.warn("Plugin initialization is disabled")
           return nil
@@ -99,7 +99,7 @@ module Vagrant
           )
         end
         begin
-          Vagrant::Bundler.instance.init!(plugins)
+          Vagrant::Bundler.instance.init!(plugins, **opts)
         rescue StandardError, ScriptError => err
           @logger.error("Plugin initialization error - #{err.class}: #{err}")
           err.backtrace.each do |backtrace_line|

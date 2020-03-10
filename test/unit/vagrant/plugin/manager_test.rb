@@ -35,7 +35,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "should init bundler with installed plugins" do
-      expect(subject).to receive(:bundler_init).with(plugins)
+      expect(subject).to receive(:bundler_init).with(plugins, anything)
       subject.globalize!
     end
 
@@ -48,7 +48,7 @@ describe Vagrant::Plugin::Manager do
     let(:env) { double("env", local_data_path: local_data_path) }
     let(:local_data_path) { double("local_data_path") }
     let(:plugins) { double("plugins") }
-    let(:state_file) { double("state_file", installed_plugins: plugins) }
+    let(:state_file) { double("state_file", path: double("state_file_path"), installed_plugins: plugins) }
 
     before do
       allow(Vagrant::Plugin::StateFile).to receive(:new).and_return(state_file)
@@ -71,7 +71,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "should run bundler initialization" do
-      expect(subject).to receive(:bundler_init).with(plugins)
+      expect(subject).to receive(:bundler_init).with(plugins, anything)
       subject.localize!(env)
     end
 
@@ -118,7 +118,7 @@ describe Vagrant::Plugin::Manager do
     end
 
     it "should init the bundler instance with plugins" do
-      expect(bundler).to receive(:init!).with(plugins)
+      expect(bundler).to receive(:init!).with(plugins, anything)
       subject.bundler_init(plugins)
     end
 

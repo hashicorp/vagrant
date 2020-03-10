@@ -3,11 +3,249 @@ require_relative "../base"
 
 require "vagrant/bundler"
 
+describe Vagrant::Bundler::SolutionFile do
+  let(:plugin_path) { Pathname.new(tmpdir) + "plugin_file" }
+  let(:solution_path) { Pathname.new(tmpdir) + "solution_file" }
+  let(:tmpdir) { @tmpdir ||= Dir.mktmpdir("vagrant-bundler-test") }
+  let(:subject) {
+    described_class.new(
+      plugin_file: plugin_path,
+      solution_file: solution_path
+    )
+  }
+
+  after do
+    if @tmpdir
+      FileUtils.rm_rf(@tmpdir)
+      @tmpdir = nil
+    end
+  end
+
+  describe "#initialize" do
+    context "file paths" do
+      context "with solution_file not provided" do
+        let(:subject) { described_class.new(plugin_file: plugin_path) }
+
+        it "should set the plugin_file" do
+          expect(subject.plugin_file.to_s).to eq(plugin_path.to_s)
+        end
+
+        it "should set solution path to same directory" do
+          expect(subject.solution_file.to_s).to eq(plugin_path.to_s + ".sol")
+        end
+      end
+
+      context "with custom solution_file provided" do
+        let(:subject) { described_class.
+            new(plugin_file: plugin_path, solution_file: solution_path) }
+
+        it "should set the plugin file path" do
+          expect(subject.plugin_file.to_s).to eq(plugin_path.to_s)
+        end
+
+        it "should set the solution file path to given value" do
+          expect(subject.solution_file.to_s).to eq(solution_path.to_s)
+        end
+      end
+    end
+
+    context "initialization behavior" do
+      context "on creation" do
+        before { expect_any_instance_of(described_class).to receive(:load) }
+
+        it "should load solution file during initialization" do
+          subject
+        end
+      end
+
+      it "should be invalid by default" do
+        expect(subject.valid?).to be_falsey
+      end
+    end
+  end
+
+  describe "#dependency_list=" do
+    it "should accept a list of Gem::Dependency instances" do
+      list = ["dep1", "dep2"].map{ |x| Gem::Dependency.new(x) }
+      expect(subject.dependency_list = list).to eq(list)
+    end
+
+    it "should error if list includes instance not Gem::Dependency" do
+      list = ["dep1", "dep2"].map{ |x| Gem::Dependency.new(x) } << :invalid
+      expect{ subject.dependency_list = list }.to raise_error(TypeError)
+    end
+  end
+
+  describe "#delete!" do
+    context "when file does not exist" do
+      before { subject.solution_file.delete if subject.solution_file.exist? }
+
+      it "should return false" do
+        expect(subject.delete!).to be_falsey
+      end
+
+      it "should not exist" do
+        subject.delete!
+        expect(subject.solution_file.exist?).to be_falsey
+      end
+    end
+
+    context "when file does exist" do
+      before { subject.solution_file.write('x') }
+
+      it "should return true" do
+        expect(subject.delete!).to be_truthy
+      end
+
+      it "should not exist" do
+        expect(subject.solution_file.exist?).to be_truthy
+        subject.delete!
+        expect(subject.solution_file.exist?).to be_falsey
+      end
+    end
+  end
+
+  describe "store!" do
+    context "when plugin file does not exist" do
+      before { subject.plugin_file.delete if subject.plugin_file.exist? }
+
+      it "should return false" do
+        expect(subject.store!).to be_falsey
+      end
+
+      it "should not create a solution file" do
+        subject.store!
+        expect(subject.solution_file.exist?).to be_falsey
+      end
+    end
+
+
+    context "when plugin file does exist" do
+      before { subject.plugin_file.write("x") }
+
+      it "should return true" do
+        expect(subject.store!).to be_truthy
+      end
+
+      it "should create a solution file" do
+        expect(subject.solution_file.exist?).to be_falsey
+        subject.store!
+        expect(subject.solution_file.exist?).to be_truthy
+      end
+
+      context "stored file" do
+        let(:content) {
+          @content ||= JSON.load(subject.solution_file.read)
+        }
+        before { subject.store! }
+        after { @content = nil }
+
+        it "should store JSON hash" do
+          expect(content).to be_a(Hash)
+        end
+
+        it "should include dependencies key as array value" do
+          expect(content["dependencies"]).to be_a(Array)
+        end
+
+        it "should include checksum key as string value" do
+          expect(content["checksum"]).to be_a(String)
+        end
+
+        it "should include vagrant_version key as string value" do
+          expect(content["vagrant_version"]).to be_a(String)
+        end
+
+        it "should include vagrant_version key that matches current version" do
+          expect(content["vagrant_version"]).to eq(Vagrant::VERSION)
+        end
+      end
+    end
+  end
+
+  describe "behavior" do
+    context "when storing new solution set" do
+      let(:deps) { ["dep1", "dep2"].map{ |n| Gem::Dependency.new(n) } }
+
+      context "when plugin file does not exist" do
+        before { subject.solution_file.delete if subject.solution_file.exist? }
+
+        it "should not create a solution file" do
+          subject.dependency_list = deps
+          subject.store!
+          expect(subject.solution_file.exist?).to be_falsey
+        end
+      end
+
+      context "when plugin file does exist" do
+        before { subject.plugin_file.write("x") }
+
+        it "should create a solution file" do
+          subject.dependency_list = deps
+          subject.store!
+          expect(subject.solution_file.exist?).to be_truthy
+        end
+
+        it "should update solution file instance to valid" do
+          expect(subject.valid?).to be_falsey
+          subject.dependency_list = deps
+          subject.store!
+          expect(subject.valid?).to be_truthy
+        end
+
+        context "when solution file does exist" do
+          before do
+            subject.dependency_list = deps
+            subject.store!
+          end
+
+          it "should be a valid solution" do
+            subject = described_class.new(
+              plugin_file: plugin_path,
+              solution_file: solution_path
+            )
+            expect(subject.valid?).to be_truthy
+          end
+
+          it "should have expected dependency list" do
+            subject = described_class.new(
+              plugin_file: plugin_path,
+              solution_file: solution_path
+            )
+            expect(subject.dependency_list).to eq(deps)
+          end
+
+          context "when plugin file has been changed" do
+            before { subject.plugin_file.write("xy") }
+
+            it "should not be a valid solution" do
+              subject = described_class.new(
+                plugin_file: plugin_path,
+                solution_file: solution_path
+              )
+              expect(subject.valid?).to be_falsey
+            end
+
+            it "should have empty dependency list" do
+              subject = described_class.new(
+                plugin_file: plugin_path,
+                solution_file: solution_path
+              )
+              expect(subject.dependency_list).to be_empty
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 describe Vagrant::Bundler do
   include_context "unit"
 
   let(:iso_env) { isolated_environment }
   let(:env) { iso_env.create_vagrant_env }
+  let(:tmpdir) { @v_tmpdir ||= Pathname.new(Dir.mktmpdir("vagrant-bundler-test")) }
 
   before do
     @tmpdir = Dir.mktmpdir("vagrant-bundler-test")
@@ -18,6 +256,7 @@ describe Vagrant::Bundler do
   after do
     ENV["VAGRANT_HOME"] = @vh
     FileUtils.rm_rf(@tmpdir)
+    FileUtils.rm_rf(@v_tmpdir) if @v_tmpdir
   end
 
   it "should isolate gem path based on Ruby version" do
@@ -29,15 +268,151 @@ describe Vagrant::Bundler do
   end
 
   describe "#initialize" do
-    let(:gemrc_location) { "C:\\My\\Config\\File" }
+    it "should automatically set the plugin gem path" do
+      expect(subject.plugin_gem_path).not_to be_nil
+    end
 
-    it "should set up GEMRC through a flag instead of GEMRC" do
-      allow(ENV).to receive(:[]).with("VAGRANT_HOME")
-      allow(ENV).to receive(:[]).with("USERPROFILE")
+    it "should add current ruby version to plugin gem path suffix" do
+      expect(subject.plugin_gem_path.to_s).to end_with(RUBY_VERSION)
+    end
 
-      allow(ENV).to receive(:[]).with("GEMRC").and_return(gemrc_location)
-      expect(Gem::ConfigFile).to receive(:new).with(["--config-file", gemrc_location])
-      init_subject = described_class.new
+    it "should freeze the plugin gem path" do
+      expect(subject.plugin_gem_path).to be_frozen
+    end
+  end
+
+  describe "#environment_path=" do
+    it "should error if not given Pathname" do
+      expect { subject.environment_path = :value }.
+        to raise_error(TypeError)
+    end
+
+    context "when set with Pathname" do
+      let(:env_path) { Pathname.new("/dev/null") }
+      before { subject.environment_path = env_path }
+
+      it "should set the environment_data_path" do
+        expect(subject.environment_data_path).to eq(env_path)
+      end
+
+      it "should set the env_plugin_gem_path" do
+        expect(subject.env_plugin_gem_path).not_to be_nil
+      end
+
+      it "should suffix current ruby version to env_plugin_gem_path" do
+        expect(subject.env_plugin_gem_path.to_s).to end_with(RUBY_VERSION)
+      end
+
+      it "should base env_plugin_gem_path on environment_path value" do
+        expect(subject.env_plugin_gem_path.to_s).to start_with(env_path.to_s)
+      end
+
+      it "should freeze the env_plugin_gem_path" do
+        expect(subject.env_plugin_gem_path).to be_frozen
+      end
+    end
+  end
+
+  describe "#load_solution_file" do
+    let(:local_opt) { nil }
+    let(:global_opt) { nil }
+    let(:options) { {local: local_opt, global: global_opt} }
+
+    it "should return nil when local and global options are blank" do
+      expect(subject.load_solution_file(options)).to be_nil
+    end
+
+    context "when environment data path is set" do
+      let(:env_path) { "/dev/null" }
+      before { subject.environment_path = Pathname.new(env_path) }
+
+      context "when local option is set" do
+        let(:local_opt) { tmpdir + "local" }
+
+        it "should return a SolutionFile instance" do
+          expect(subject.load_solution_file(options)).to be_a(Vagrant::Bundler::SolutionFile)
+        end
+
+        it "should be located in the environment data path" do
+          file = subject.load_solution_file(options)
+          expect(file.solution_file.to_s).to start_with(env_path)
+        end
+
+        it "should have a local.sol solution file" do
+          file = subject.load_solution_file(options)
+          expect(file.solution_file.to_s).to end_with("local.sol")
+        end
+
+        it "should have plugin file set to local value" do
+          file = subject.load_solution_file(options)
+          expect(file.plugin_file.to_s).to eq(local_opt.to_s)
+        end
+      end
+
+      context "when global option is set" do
+        let(:global_opt) { tmpdir + "global" }
+
+        it "should return a SolutionFile instance" do
+          expect(subject.load_solution_file(options)).to be_a(Vagrant::Bundler::SolutionFile)
+        end
+
+        it "should be located in the environment data path" do
+          file = subject.load_solution_file(options)
+          expect(file.solution_file.to_s).to start_with(env_path)
+        end
+
+        it "should have a global.sol solution file" do
+          file = subject.load_solution_file(options)
+          expect(file.solution_file.to_s).to end_with("global.sol")
+        end
+
+        it "should have plugin file set to global value" do
+          file = subject.load_solution_file(options)
+          expect(file.plugin_file.to_s).to eq(global_opt.to_s)
+        end
+      end
+
+      context "when local and global option is set" do
+        let(:global_opt) { tmpdir + "global" }
+        let(:local_opt) { tmpdir + "local" }
+
+        it "should return nil" do
+          expect(subject.load_solution_file(options)).to be_nil
+        end
+      end
+    end
+
+    context "when environment data path is unset" do
+      context "when local option is set" do
+        let(:local_opt) { tmpdir + "local" }
+
+        it "should return nil" do
+          expect(subject.load_solution_file(options)).to be_nil
+        end
+      end
+
+      context "when global option is set" do
+        let(:global_opt) { tmpdir + "global" }
+
+        it "should return a SolutionFile instance" do
+          expect(subject.load_solution_file(options)).to be_a(Vagrant::Bundler::SolutionFile)
+        end
+
+        it "should be located in the vagrant user data path" do
+          file = subject.load_solution_file(options)
+          expect(file.solution_file.to_s).to start_with(Vagrant.user_data_path.to_s)
+        end
+
+        it "should have a global.sol solution file" do
+          file = subject.load_solution_file(options)
+          expect(file.solution_file.to_s).to end_with("global.sol")
+        end
+
+        it "should have plugin file set to global value" do
+          file = subject.load_solution_file(options)
+          expect(file.plugin_file.to_s).to eq(global_opt.to_s)
+        end
+      end
     end
   end
 
@@ -160,6 +535,65 @@ describe Vagrant::Bundler do
       it "should set update to specific names" do
         expect(subject).to receive(:internal_install) do |info, update, opts|
           expect(update[:gems]).to eq(specific)
+        end
+      end
+    end
+  end
+
+  describe Vagrant::Bundler::PluginSet do
+    let(:name) { "test-gem" }
+    let(:version) { "1.0.0" }
+    let(:directory) { @directory ||= Dir.mktmpdir("vagrant-bundler-test") }
+
+    after do
+      FileUtils.rm_rf(@directory) if @directory
+      @directory = nil
+    end
+
+    describe "#add_vendor_gem" do
+      context "when spec file does not exist" do
+        it "should raise a not found error" do
+          expect { subject.add_vendor_gem(name, directory) }.to raise_error(Gem::GemNotFoundException)
+        end
+      end
+
+      context "when spec file exists" do
+        before do
+          spec = Gem::Specification.new(name, version)
+          File.write(File.join(directory, "#{name}.gemspec"), spec.to_ruby)
+        end
+
+        it "should load the specification" do
+          expect(subject.add_vendor_gem(name, directory)).to be_a(Gem::Specification)
+        end
+
+        it "should set the full path in specification" do
+          spec = subject.add_vendor_gem(name, directory)
+          expect(spec.full_gem_path).to eq(directory)
+        end
+      end
+    end
+
+    describe "#find_all" do
+      let(:request) { Gem::Resolver::DependencyRequest.new(dependency, nil) }
+      let(:dependency) { Gem::Dependency.new("test-gem", requirement) }
+      let(:requirement) { Gem::Requirement.new(version) }
+
+      context "when specification is not included in set" do
+        it "should return empty array" do
+          expect(subject.find_all(request)).to eq([])
+        end
+      end
+
+      context "when specification is included in set" do
+        before do
+          spec = Gem::Specification.new(name, version)
+          File.write(File.join(directory, "#{name}.gemspec"), spec.to_ruby)
+          subject.add_vendor_gem(name, directory)
+        end
+
+        it "should return a vendor specification instance" do
+          expect(subject.find_all(request).first).to be_a(Gem::Resolver::VendorSpecification)
         end
       end
     end
