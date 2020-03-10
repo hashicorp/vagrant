@@ -94,6 +94,11 @@ begin
   # Schedule the cleanup of things
   at_exit(&Vagrant::Bundler.instance.method(:deinit))
 
+  # If this is not a pre-release disable verbose output
+  if !Vagrant.prerelease?
+    $VERBOSE = nil
+  end
+
   # Create a logger right away
   logger = Log4r::Logger.new("vagrant::bin::vagrant")
   logger.info("`vagrant` invoked: #{ARGV.inspect}")
