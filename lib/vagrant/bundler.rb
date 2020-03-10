@@ -615,15 +615,25 @@ module Vagrant
     def vagrant_internal_specs
       # activate any dependencies up front so we can always
       # pin them when resolving
-      Gem::Specification.find { |s| s.name == "vagrant" && s.activated? }.
-        runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
+      self_spec = Gem::Specification.find { |s| s.name == "vagrant" && s.activated? }
+      if !self_spec
+        @logger.warn("Failed to locate activated vagrant specification. Activating...")
+        self_spec = Gem::Specification.find { |s| s.name == "vagrant" }
+        if !self_spec
+          @logger.error("Failed to locate Vagrant RubyGem specification")
+          raise Vagrant::Errors::SourceSpecNotFound
+        end
+        self_spec.activate
+        @logger.info("Activated vagrant specification version - #{self_spec.version}")
+      end
+      self_spec.runtime_dependencies.each { |d| gem d.name, *d.requirement.as_list }
       # discover all the gems we have available
       list = {}
       directories = [Gem::Specification.default_specifications_dir]
       Gem::Specification.find_all{true}.each do |spec|
         list[spec.full_name] = spec
       end
-      if(!defined?(::Bundler))
+      if(!Object.const_defined?(:Bundler))
         directories += Gem::Specification.dirs.find_all do |path|
           !path.start_with?(Gem.user_dir)
         end

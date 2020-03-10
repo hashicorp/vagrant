@@ -711,6 +711,10 @@ en:
         or transient network issues. The reported error is:
 
         %{message}
+      source_spec_not_found: |-
+        Vagrant failed to properly initialize its internal library
+        dependencies. Please try running the command again. If this
+        error persists, please report a bug.
       cant_read_mac_addresses: |-
         The provider you are using  ('%{provider}') doesn't support the
         "nic_mac_addresses" provider capability which is required

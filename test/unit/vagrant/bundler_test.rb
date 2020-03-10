@@ -540,6 +540,86 @@ describe Vagrant::Bundler do
     end
   end
 
+  describe "#vagrant_internal_specs" do
+    let(:vagrant_spec) { double("vagrant_spec", name: "vagrant", version: Gem::Version.new(Vagrant::VERSION),
+      activated?: vagrant_spec_activated, activate: nil, runtime_dependencies: vagrant_dep_specs) }
+    let(:spec_list) { [] }
+    let(:spec_dirs) { [] }
+    let(:spec_default_dir) { "/dev/null" }
+    let(:dir_spec_list) { [] }
+    let(:vagrant_spec_activated) { true }
+    let(:vagrant_dep_specs) { [] }
+
+    before do
+      allow(Gem::Specification).to receive(:find) { |&b| vagrant_spec if b.call(vagrant_spec) }
+      allow(Gem::Specification).to receive(:find_all).and_return(spec_list)
+      allow(Gem::Specification).to receive(:dirs).and_return(spec_dirs)
+      allow(Gem::Specification).to receive(:default_specifications_dir).and_return(spec_default_dir)
+      allow(Gem::Specification).to receive(:each_spec).and_return(dir_spec_list)
+    end
+
+    it "should return an empty list" do
+      expect(subject.send(:vagrant_internal_specs)).to eq([])
+    end
+
+    context "when vagrant specification is not activated" do
+      let(:vagrant_spec_activated) { false }
+
+      it "should activate the specification" do
+        expect(vagrant_spec).to receive(:activate)
+        subject.send(:vagrant_internal_specs)
+      end
+    end
+
+    context "when vagrant specification is not found" do
+      before { allow(Gem::Specification).to receive(:find).and_return(nil) }
+
+      it "should raise not found error" do
+        expect { subject.send(:vagrant_internal_specs) }.to raise_error(Vagrant::Errors::SourceSpecNotFound)
+      end
+    end
+
+    context "when run time dependencies are defined" do
+      let(:vagrant_dep_specs) { [double("spec", name: "vagrant-dep", requirement: double("spec-req", as_list: []))] }
+
+      it "should call #gem to activate the dependencies" do
+        expect(subject).to receive(:gem).with("vagrant-dep", any_args)
+        subject.send(:vagrant_internal_specs)
+      end
+    end
+
+    context "when bundler is not defined" do
+      before { expect(Object).to receive(:const_defined?).with(:Bundler).and_return(false) }
+
+      it "should load gem specification directories" do
+        expect(Gem::Specification).to receive(:dirs).and_return(spec_dirs)
+        subject.send(:vagrant_internal_specs)
+      end
+
+      context "when checking paths" do
+        let(:spec_dirs) { [double("spec-dir", start_with?: in_user_dir)] }
+        let(:in_user_dir) { true }
+        let(:user_dir) { double("user-dir") }
+
+        before { allow(Gem).to receive(:user_dir).and_return(user_dir) }
+
+        it "should check if path is within local user directory" do
+          expect(spec_dirs.first).to receive(:start_with?).with(user_dir).and_return(false)
+          subject.send(:vagrant_internal_specs)
+        end
+
+        context "when path is not within user directory" do
+          let(:in_user_dir) { false }
+
+          it "should use path when loading specs" do
+            expect(Gem::Specification).to receive(:each_spec) { |arg| expect(arg).to include(spec_dirs.first) }
+            subject.send(:vagrant_internal_specs)
+          end
+        end
+      end
+    end
+  end
+
   describe Vagrant::Bundler::PluginSet do
     let(:name) { "test-gem" }
     let(:version) { "1.0.0" }
