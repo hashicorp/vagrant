@@ -12,6 +12,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core/bundler: Activate vagrant specification when not active [GH-11445]
 - core/downloader: Always set `-q` flag as first option [GH-11366]
 - core/hooks: Update dynamic action hook implementation to prevent looping [GH-11427]
 - core/synced_folders: Validate type option if set [GH-11359]
