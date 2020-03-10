@@ -178,12 +178,13 @@ can take many seconds.
 ## Windows Boxes
 
 Supported Windows guest operating systems:
-- Windows 7
-- Windows 8
-- Windows Server 2008
-- Windows Server 2008 R2
-- Windows Server 2012
-- Windows Server 2012 R2
+
+  - Windows 7
+  - Windows 8
+  - Windows Server 2008
+  - Windows Server 2008 R2
+  - Windows Server 2012
+  - Windows Server 2012 R2
 
 Windows Server 2003 and Windows XP are _not_ supported, but if you are a die
 hard XP fan [this](https://stackoverflow.com/a/18593425/18475) may help you.
@@ -234,6 +235,26 @@ Vagrant:
 ```
 netsh firewall add portopening TCP 5985 "Port 5985"
 winrm set winrm/config/listener?Address=*+Transport=HTTP @{Port="5985"}
+```
+
+### Optional WinSSH Configuration
+
+When using the WinSSH communicator, you may run into an issue where a PowerShell
+command can't display a progress bar. A typical error message might look like:
+
+```
+Win32 internal error "Access is denied" 0x5 occurred while reading the console output buffer.
+```
+
+In order to prevent this, we recommend setting `$ProgressPreference = "SilentlyContinue"`
+in your box's PowerShell profile:
+
+```
+if (!(Test-Path -Path $PROFILE)) {
+  New-Item -ItemType File -Path $PROFILE -Force
+}
+
+Add-Content $PROFILE '$ProgressPreference = "SilentlyContinue"'
 ```
 
 ## Other Software
