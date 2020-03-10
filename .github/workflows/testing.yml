@@ -4,12 +4,18 @@ on:
       - master
       - 'test-*'
     paths:
+      - 'bin/**'
       - 'lib/**'
       - 'plugins/**'
       - 'test/**'
   pull_request:
     branches:
       - master
+    paths:
+      - 'bin/**'
+      - 'lib/**'
+      - 'plugins/**'
+      - 'test/**'
 
 jobs:
   unit-tests:
