@@ -248,6 +248,10 @@ module Vagrant
       error_key(:bundler_error)
     end
 
+    class SourceSpecNotFound < BundlerError
+      error_key(:source_spec_not_found)
+    end
+
     class CantReadMACAddresses < VagrantError
       error_key(:cant_read_mac_addresses)
     end
