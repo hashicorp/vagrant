@@ -4,9 +4,9 @@ on:
       - master
       - 'test-*'
     paths:
-      - 'lib'
-      - 'plugins'
-      - 'test'
+      - 'lib/**'
+      - 'plugins/**'
+      - 'test/**'
   pull_request:
     branches:
       - master
