@@ -8,6 +8,7 @@ describe "Vagrant::Shell::Provisioner" do
   let(:machine) {
     double(:machine, env: env, id: "ID").tap { |machine|
       allow(machine).to receive_message_chain(:config, :vm, :communicator).and_return(:not_winrm)
+      allow(machine).to receive_message_chain(:config, :vm, :guest).and_return(:linux)
       allow(machine).to receive_message_chain(:communicate, :tap) {}
     }
   }
@@ -321,6 +322,146 @@ describe "Vagrant::Shell::Provisioner" do
 
         expect{ vsp.provision }.to raise_error(Vagrant::Errors::DownloaderChecksumError)
       end
+    end
+  end
+
+  describe "#upload_path" do
+    context "when upload path is not set" do
+      let(:vsp) {
+        VagrantPlugins::Shell::Provisioner.new(machine, config)
+      }
+
+      let(:config) {
+        double(
+          :config,
+          :args        => "doesn't matter",
+          :env         => {},
+          :upload_path => nil,
+          :remote?     => false,
+          :path        => "doesn't matter",
+          :inline      => "doesn't matter",
+          :binary      => false,
+          :reset       => true,
+          :reboot      => false,
+        )
+      }
+
+      it "should default to /tmp/vagrant-shell" do
+        expect(vsp.upload_path).to eq("/tmp/vagrant-shell")
+      end
+
+      context "windows" do
+        before do
+          allow(machine).to receive_message_chain(:config, :vm, :guest).and_return(:windows)
+        end
+
+        it "should default to C:/tmp/vagrant-shell" do
+          expect(vsp.upload_path).to eq("C:/tmp/vagrant-shell")
+        end
+      end
+    end
+
+    context "when upload_path is set" do
+      let(:upload_path) { "arbitrary" }
+
+      let(:config) {
+        double(
+          :config,
+          :args        => "doesn't matter",
+          :env         => {},
+          :upload_path => upload_path,
+          :remote?     => false,
+          :path        => "doesn't matter",
+          :inline      => "doesn't matter",
+          :binary      => false,
+          :reset       => true,
+          :reboot      => false,
+        )
+      }
+
+      let(:vsp) {
+        VagrantPlugins::Shell::Provisioner.new(machine, config)
+      }
+
+      it "should use the value from from config" do
+        expect(vsp.upload_path).to eq("arbitrary")
+      end
+
+      context "windows" do
+        let(:upload_path) { "C:\\Windows\\Temp" }
+
+        before do
+          allow(machine).to receive_message_chain(:config, :vm, :guest).and_return(:windows)
+        end
+
+        it "should normalize the slashes" do
+          expect(vsp.upload_path).to eq("C:/Windows/Temp")
+        end
+      end
+    end
+
+    context "with cached value" do
+      let(:config) { double(:config) }
+
+      let(:vsp) {
+        VagrantPlugins::Shell::Provisioner.new(machine, config)
+      }
+
+      before do
+        vsp.instance_variable_set(:@_upload_path, "anything")
+      end
+
+      it "should use cached value" do
+        expect(vsp.upload_path).to eq("anything")
+      end
+    end
+  end
+
+  describe "#provision_winrm" do
+    let(:config) {
+      double(
+        :config,
+        :args                            => "doesn't matter",
+        :env                             => {},
+        :upload_path                     => "arbitrary",
+        :remote?                         => false,
+        :path                            => "script/info.ps1",
+        :binary                          => false,
+        :md5                             => nil,
+        :sha1                            => 'EXPECTED_VALUE',
+        :sha256                          => nil,
+        :sha384                          => nil,
+        :sha512                          => nil,
+        :reset                           => false,
+        :reboot                          => false,
+        :powershell_args                 => "",
+        :name                            => nil,
+        :privileged                      => false,
+        :powershell_elevated_interactive => false
+      )
+    }
+
+    let(:vsp) {
+      VagrantPlugins::Shell::Provisioner.new(machine, config)
+    }
+
+    let(:communicator) { double("communicator") }
+    let(:guest) { double("guest") }
+    let(:ui) { double("ui") }
+
+    before {
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(false)
+      allow(ui).to receive(:detail)
+      allow(communicator).to receive(:sudo)
+      allow(machine).to receive(:communicate).and_return(communicator)
+      allow(machine).to receive(:guest).and_return(guest)
+      allow(machine).to receive(:ui).and_return(ui)
+      allow(vsp).to receive(:with_script_file).and_yield(config.path)
+    }
+
+    it "ensures that files are uploaded with an extension" do
+      expect(communicator).to receive(:upload).with(config.path, /arbitrary.ps1$/)
+      vsp.send(:provision_winrm, "")
     end
   end
 end

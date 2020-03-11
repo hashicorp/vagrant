@@ -55,7 +55,7 @@ module VagrantPlugins
         @sha384               = nil if @sha384 == UNSET_VALUE
         @sha512               = nil if @sha512 == UNSET_VALUE
         @env                  = {}  if @env == UNSET_VALUE
-        @upload_path          = "/tmp/vagrant-shell" if @upload_path == UNSET_VALUE
+        @upload_path          = nil if @upload_path == UNSET_VALUE
         @privileged           = true if @privileged == UNSET_VALUE
         @binary               = false if @binary == UNSET_VALUE
         @keep_color           = false if @keep_color == UNSET_VALUE
@@ -107,11 +107,6 @@ module VagrantPlugins
 
         if !env.is_a?(Hash)
           errors << I18n.t("vagrant.provisioners.shell.env_must_be_a_hash")
-        end
-
-        # There needs to be a path to upload the script to
-        if !upload_path
-          errors << I18n.t("vagrant.provisioners.shell.upload_path_not_set")
         end
 
         if !args_valid?

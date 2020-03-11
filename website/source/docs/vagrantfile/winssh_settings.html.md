@@ -47,8 +47,9 @@ receives the data to send to SSH on stdin. This can be used to proxy the SSH con
 packets every 5 seconds by default to keep connections alive.
 
 * `config.winssh.shell` (string) - The shell to use when executing SSH commands from
-Vagrant. By default this is `cmd`. Valid values are `"cmd"` or `"powershell"`.
-When the WinSSH provider is enabled, this shell will be used when you run `vagrant ssh`.
+Vagrant. By default this is `powershell`. Valid values are `"cmd"` or `"powershell"`.
+When the WinSSH provider is enabled, this shell will only be used internally. When
+running `vagrant ssh` you will be provided the shell configured by the guest.
 
 * `config.winssh.export_command_template` (string) - The template used to generate
 exported environment variables in the active session. This can be useful
