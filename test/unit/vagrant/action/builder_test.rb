@@ -237,13 +237,19 @@ describe Vagrant::Action::Builder do
   end
 
   describe "action hooks" do
-    it "applies them properly" do
-      hook = double("hook")
-      allow(hook).to receive(:apply) do |builder|
-        builder.use appender_proc(2)
-      end
+    let(:hook) { double("hook") }
+    let(:manager) { Vagrant.plugin("2").manager }
 
-      data[:action_hooks] = [hook]
+    before do
+      allow(manager).to receive(:action_hooks).and_return([])
+    end
+
+    it "applies them properly" do
+      hook_proc = proc{ |h| h.append(appender_proc(2)) }
+      expect(manager).to receive(:action_hooks).with(:test_action).
+        and_return([hook_proc])
+
+      data[:action_name] = :test_action
 
       subject.use appender_proc(1)
       subject.call(data)
@@ -253,11 +259,16 @@ describe Vagrant::Action::Builder do
     end
 
     it "applies without prepend/append if it has already" do
-      hook = double("hook")
-      expect(hook).to receive(:apply).with(anything, { no_prepend_or_append: true }).once
+      hook_proc = proc{ |h| h.append(appender_proc(2)) }
+      expect(manager).to receive(:action_hooks).with(:test_action).
+        and_return([hook_proc])
 
-      data[:action_hooks] = [hook]
-      data[:action_hooks_already_ran] = true
+      data[:action_name] = :test_action
+
+      subject.use appender_proc(1)
+      subject.call(data.merge(action_hooks_already_ran: true))
+
+      expect(data[:data]).to eq([1])
       subject.call(data)
     end
   end
@@ -293,6 +304,167 @@ describe Vagrant::Action::Builder do
 
       expect(data[:data]).to eq([
         "1_in", "2_in", "3_in", "3_out", "2_out", "1_out"])
+    end
+  end
+
+  describe "dynamic action hooks" do
+    class ActionOne
+      def initialize(app, env)
+        @app = app
+      end
+
+      def call(env)
+        env[:data] << 1 if env[:data]
+        @app.call(env)
+      end
+
+      def recover(env)
+        env[:recover] << 1
+      end
+    end
+
+    class ActionTwo
+      def initialize(app, env)
+        @app = app
+      end
+
+      def call(env)
+        env[:data] << 2 if env[:data]
+        @app.call(env)
+      end
+
+      def recover(env)
+        env[:recover] << 2
+      end
+    end
+
+    let(:data) { {data: []} }
+    let(:hook_action_name) { :action_two }
+
+    let(:plugin) do
+      h_name = hook_action_name
+      @plugin ||= Class.new(Vagrant.plugin("2")) do
+        name "Test Plugin"
+        action_hook(:before_test, h_name) do |hook|
+          hook.prepend(proc{ |env| env[:data] << :first })
+        end
+      end
+    end
+
+    before { plugin }
+
+    after do
+      Vagrant.plugin("2").manager.unregister(@plugin) if @plugin
+      @plugin = nil
+    end
+
+    it "should call hook before running action" do
+      instance = described_class.build(ActionTwo)
+      instance.call(data)
+      expect(data[:data].first).to eq(:first)
+      expect(data[:data].last).to eq(2)
+    end
+
+    context "when hook is appending to action" do
+      let(:plugin) do
+        @plugin ||= Class.new(Vagrant.plugin("2")) do
+          name "Test Plugin"
+          action_hook(:before_test, :action_two) do |hook|
+            hook.append(proc{ |env| env[:data] << :first })
+          end
+        end
+      end
+
+      it "should call hook after action when action is nested" do
+        instance = described_class.build(ActionTwo).use(described_class.build(ActionOne))
+        instance.call(data)
+        expect(data[:data][0]).to eq(2)
+        expect(data[:data][1]).to eq(:first)
+        expect(data[:data][2]).to eq(1)
+      end
+    end
+
+    context "when hook uses class name" do
+      let(:hook_action_name) { "ActionTwo" }
+
+      it "should execute the hook" do
+        instance = described_class.build(ActionTwo)
+        instance.call(data)
+        expect(data[:data]).to include(:first)
+      end
+    end
+
+    context "when action includes a namespace" do
+      module Vagrant
+        module Test
+          class ActionTest
+            def initialize(app, env)
+              @app = app
+            end
+
+            def call(env)
+              env[:data] << :test if env[:data]
+              @app.call(env)
+            end
+          end
+        end
+      end
+
+      let(:instance) { described_class.build(Vagrant::Test::ActionTest) }
+
+      context "when hook uses short snake case name" do
+        let(:hook_action_name) { :action_test }
+
+        it "should execute the hook" do
+          instance.call(data)
+          expect(data[:data]).to include(:first)
+        end
+      end
+
+      context "when hook uses partial snake case name" do
+        let(:hook_action_name) { :test_action_test }
+
+        it "should execute the hook" do
+          instance.call(data)
+          expect(data[:data]).to include(:first)
+        end
+      end
+
+      context "when hook uses full snake case name" do
+        let(:hook_action_name) { :vagrant_test_action_test }
+
+        it "should execute the hook" do
+          instance.call(data)
+          expect(data[:data]).to include(:first)
+        end
+      end
+
+      context "when hook uses short class name" do
+        let(:hook_action_name) { "ActionTest" }
+
+        it "should execute the hook" do
+          instance.call(data)
+          expect(data[:data]).to include(:first)
+        end
+      end
+
+      context "when hook uses partial namespace class name" do
+        let(:hook_action_name) { "Test::ActionTest" }
+
+        it "should execute the hook" do
+          instance.call(data)
+          expect(data[:data]).to include(:first)
+        end
+      end
+
+      context "when hook uses full namespace class name" do
+        let(:hook_action_name) { "Vagrant::Test::ActionTest" }
+
+        it "should execute the hook" do
+          instance.call(data)
+          expect(data[:data]).to include(:first)
+        end
+      end
     end
   end
 end

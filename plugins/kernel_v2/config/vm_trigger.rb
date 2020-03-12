@@ -114,7 +114,7 @@ module VagrantPlugins
 
         # Internal options
         @id = SecureRandom.uuid
-        @command = command.to_sym
+        @command = command.to_s
         @ruby_block = UNSET_VALUE
 
         @logger.debug("Trigger defined for: #{command}")

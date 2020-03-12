@@ -7,6 +7,7 @@ module Vagrant
     autoload :CredentialScrubber,        'vagrant/util/credential_scrubber'
     autoload :DeepMerge,                 'vagrant/util/deep_merge'
     autoload :Env,                       'vagrant/util/env'
+    autoload :Experimental,              'vagrant/util/experimental'
     autoload :HashWithIndifferentAccess, 'vagrant/util/hash_with_indifferent_access'
     autoload :GuestInspection,           'vagrant/util/guest_inspection'
     autoload :LoggingFormatter,          'vagrant/util/logging_formatter'
