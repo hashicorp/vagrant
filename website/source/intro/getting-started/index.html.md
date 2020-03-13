@@ -36,6 +36,8 @@ provider for the getting started guide, please install that as well.
 ## Up and Running
 
 ```
+$ mkdir vagrant.testdir
+$ cd vagrant.testdir
 $ vagrant init hashicorp/bionic64
 $ vagrant up
 ```
