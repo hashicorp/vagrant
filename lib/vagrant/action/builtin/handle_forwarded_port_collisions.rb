@@ -1,7 +1,7 @@
 require "set"
 
 require "log4r"
-require 'socket'
+require "socket"
 
 require "vagrant/util/is_port_open"
 
@@ -246,7 +246,7 @@ module Vagrant
         def ipv4_addresses
           ip_addresses = []
           Socket.getifaddrs.each do |ifaddr|
-            if ifaddr.addr.ipv4?
+            if ifaddr.addr && ifaddr.addr.ipv4?
               ip_addresses << ifaddr.addr.ip_address
             end
           end

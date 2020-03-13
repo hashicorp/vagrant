@@ -154,11 +154,20 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       allow(ipv4_ifaddr).to receive_message_chain(:addr, :ipv4?).and_return(true)
       allow(ipv4_ifaddr).to receive_message_chain(:addr, :ip_address).and_return("127.0.0.1")
       allow(ipv6_ifaddr).to receive_message_chain(:addr, :ipv4?).and_return(false)
+      allow(Socket).to receive(:getifaddrs).and_return(ifaddrs)
     end
 
     it "returns a list of all IPv4 addresses" do
-      allow(Socket).to receive(:getifaddrs).and_return(ifaddrs)
       expect(instance.send(:ipv4_addresses)).to eq([ "127.0.0.1" ])
+    end
+
+    context "on windows" do
+      let(:nil_ifaddr) { double("nil_ifaddr", addr: nil ) }
+      let(:ifaddrs) { [ ipv4_ifaddr, ipv6_ifaddr, nil_ifaddr ] }
+
+      it "filters out nil addr info" do
+        expect(instance.send(:ipv4_addresses)).to eq([ "127.0.0.1" ])
+      end
     end
   end
 
