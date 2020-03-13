@@ -72,6 +72,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       let(:port_options){ {guest: 80, host: 8080} }
       before do
         expect(vm_config).to receive(:networks).and_return([[:forwarded_port, port_options]]).twice
+        allow(instance).to receive(:ipv4_addresses).and_return(["127.0.0.1"])
       end
 
       it "should check if host port is in use" do
@@ -144,6 +145,23 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
   describe "#recover" do
   end
 
+  describe "#ipv4_addresses" do
+    let(:ipv4_ifaddr) { double("ipv4_ifaddr") }
+    let(:ipv6_ifaddr) { double("ipv6_ifaddr") }
+    let(:ifaddrs) { [ ipv4_ifaddr, ipv6_ifaddr ] }
+
+    before do
+      allow(ipv4_ifaddr).to receive_message_chain(:addr, :ipv4?).and_return(true)
+      allow(ipv4_ifaddr).to receive_message_chain(:addr, :ip_address).and_return("127.0.0.1")
+      allow(ipv6_ifaddr).to receive_message_chain(:addr, :ipv4?).and_return(false)
+    end
+
+    it "returns a list of all IPv4 addresses" do
+      allow(Socket).to receive(:getifaddrs).and_return(ifaddrs)
+      expect(instance.send(:ipv4_addresses)).to eq([ "127.0.0.1" ])
+    end
+  end
+
   describe "#port_check" do
     let(:host_ip){ "127.0.0.1" }
     let(:host_port){ 8080 }
@@ -153,18 +171,34 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       instance.send(:port_check, host_ip, host_port)
     end
 
-    context "when host_ip is not set" do
-      let(:host_ip){ nil }
+    context "when host_ip is 0.0.0.0" do
+      let(:host_ip) { "0.0.0.0" }
+      let(:test_ips) { [ "127.0.0.1", "192.168.1.7" ] }
 
-      it "should set host_ip to 0.0.0.0 when unset" do
-        expect(instance).to receive(:is_port_open?).with("0.0.0.0", host_port).and_return(true)
+      before do
+        allow(instance).to receive(:ipv4_addresses).and_return(test_ips)
+      end
+
+      it "should check the port on every IPv4 interface" do
+        expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port)
+        expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port)
         instance.send(:port_check, host_ip, host_port)
       end
 
-      it "should set host_ip to 127.0.0.1 when 0.0.0.0 is not available" do
-        expect(instance).to receive(:is_port_open?).with("0.0.0.0", host_port).and_raise(Errno::EADDRNOTAVAIL)
-        expect(instance).to receive(:is_port_open?).with("127.0.0.1", host_port).and_return(true)
-        instance.send(:port_check, host_ip, host_port)
+      it "should return false if the port is closed on any IPv4 interfaces" do
+        expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port).
+          and_return(true)
+        expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port).
+          and_return(false)
+        expect(instance.send(:port_check, host_ip, host_port)).to be(false)
+      end
+
+      it "should return true if the port is open on all IPv4 interfaces" do
+        expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port).
+          and_return(true)
+        expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port).
+          and_return(true)
+        expect(instance.send(:port_check, host_ip, host_port)).to be(true)
       end
     end
   end

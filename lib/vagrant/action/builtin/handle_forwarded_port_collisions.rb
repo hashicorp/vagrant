@@ -1,6 +1,7 @@
 require "set"
 
 require "log4r"
+require 'socket'
 
 require "vagrant/util/is_port_open"
 
@@ -242,19 +243,34 @@ module Vagrant
           return extra_in_use.fetch(hostport).include?(hostip)
         end
 
-        def port_check(host_ip, host_port)
-          # If no host_ip is specified, intention taken to be list on all interfaces.
-          # If platform is windows, default back to localhost only
-          test_host_ip = host_ip || "0.0.0.0"
-          begin
-            is_port_open?(test_host_ip, host_port)
-          rescue Errno::EADDRNOTAVAIL
-            if !host_ip && test_host_ip == "0.0.0.0"
-              test_host_ip = "127.0.0.1"
-              retry
-            else
-              raise
+        def ipv4_addresses
+          ip_addresses = []
+          Socket.getifaddrs.each do |ifaddr|
+            if ifaddr.addr.ipv4?
+              ip_addresses << ifaddr.addr.ip_address
             end
+          end
+          ip_addresses
+        end
+
+        def port_check(host_ip, host_port)
+          # If no host_ip is specified, intention taken to be listen on all interfaces.
+          if host_ip.nil? || host_ip == "0.0.0.0"
+            @logger.debug("Checking port #{host_port} on all IPv4 addresses...")
+            available_ips = ipv4_addresses.select do |test_host_ip|
+              @logger.debug("Host IP: #{test_host_ip}, port: #{host_port}")
+              !is_port_open?(test_host_ip, host_port)
+            end
+            if available_ips.empty?
+              @logger.debug("Cannot forward port #{host_port} on any interfaces.")
+              true
+            else
+              @logger.debug("These IP addresses will forward to the guest: #{available_ips.join(', ')}")
+              false
+            end
+          else
+            # Do a regular check
+            is_port_open?(host_ip, host_port)
           end
         end
 
