@@ -10,7 +10,9 @@ module VagrantPlugins
           end
 
           # Detect various flavors we care about
-          if output =~ /(CentOS|Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 7/i
+          if output =~ /(CentOS|Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 8/i
+            return :rhel_8
+          elsif output =~ /(CentOS|Red Hat Enterprise|Scientific|Cloud|Virtuozzo)\s*Linux( .+)? release 7/i
             return :rhel_7
           else
             return :rhel
