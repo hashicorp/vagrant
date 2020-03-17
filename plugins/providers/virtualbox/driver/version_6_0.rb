@@ -119,7 +119,7 @@ module VagrantPlugins
 
             args << "--automount" if folder.key?(:automount) && folder[:automount]
 
-            args << "--auto-mount-point" if folder.key?(:guestpath) && folder[:guestpath]
+            args << "--auto-mount-point" << folder[:guestpath] if folder.key?(:guestpath)
 
             if folder[:SharedFoldersEnableSymlinksCreate]
               # Enable symlinks on the shared folder
