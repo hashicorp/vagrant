@@ -39,10 +39,13 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
     end
   end
 
+  let(:guest) { }
+
   let(:vm_config) do
     double("machine_vm_config").tap do |config|
       allow(config).to receive(:usable_port_range).and_return(1000..2000)
       allow(config).to receive(:networks).and_return([])
+      allow(config).to receive(:guest).and_return(guest)
     end
   end
 
@@ -161,7 +164,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       expect(instance.send(:ipv4_addresses)).to eq([ "127.0.0.1" ])
     end
 
-    context "on windows" do
+    context "with nil interface address" do
       let(:nil_ifaddr) { double("nil_ifaddr", addr: nil ) }
       let(:ifaddrs) { [ ipv4_ifaddr, ipv6_ifaddr, nil_ifaddr ] }
 
@@ -174,6 +177,10 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
   describe "#port_check" do
     let(:host_ip){ "127.0.0.1" }
     let(:host_port){ 8080 }
+
+    before do
+      instance.instance_variable_set(:@machine, machine)
+    end
 
     it "should check if the port is open" do
       expect(instance).to receive(:is_port_open?).with(host_ip, host_port).and_return(true)
@@ -188,26 +195,30 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
         allow(instance).to receive(:ipv4_addresses).and_return(test_ips)
       end
 
-      it "should check the port on every IPv4 interface" do
-        expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port)
-        expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port)
-        instance.send(:port_check, host_ip, host_port)
-      end
+      context "on windows" do
+        let(:guest) { :windows }
 
-      it "should return false if the port is closed on any IPv4 interfaces" do
-        expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port).
-          and_return(true)
-        expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port).
-          and_return(false)
-        expect(instance.send(:port_check, host_ip, host_port)).to be(false)
-      end
+        it "should check the port on every IPv4 interface" do
+          expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port)
+          expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port)
+          instance.send(:port_check, host_ip, host_port)
+        end
 
-      it "should return true if the port is open on all IPv4 interfaces" do
-        expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port).
-          and_return(true)
-        expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port).
-          and_return(true)
-        expect(instance.send(:port_check, host_ip, host_port)).to be(true)
+        it "should return false if the port is closed on any IPv4 interfaces" do
+          expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port).
+            and_return(true)
+          expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port).
+            and_return(false)
+          expect(instance.send(:port_check, host_ip, host_port)).to be(false)
+        end
+
+        it "should return true if the port is open on all IPv4 interfaces" do
+          expect(instance).to receive(:is_port_open?).with(test_ips.first, host_port).
+            and_return(true)
+          expect(instance).to receive(:is_port_open?).with(test_ips.last, host_port).
+            and_return(true)
+          expect(instance.send(:port_check, host_ip, host_port)).to be(true)
+        end
       end
     end
   end
