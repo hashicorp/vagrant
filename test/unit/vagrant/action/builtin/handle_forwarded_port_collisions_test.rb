@@ -177,9 +177,11 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
   describe "#port_check" do
     let(:host_ip){ "127.0.0.1" }
     let(:host_port){ 8080 }
+    let(:test_ips) { [ "127.0.0.1", "192.168.1.7" ] }
 
     before do
       instance.instance_variable_set(:@machine, machine)
+      allow(instance).to receive(:ipv4_addresses).and_return(test_ips)
     end
 
     it "should check if the port is open" do
@@ -187,13 +189,8 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       instance.send(:port_check, host_ip, host_port)
     end
 
-    context "when host_ip is 0.0.0.0" do
+    context "when host ip is 0.0.0.0" do
       let(:host_ip) { "0.0.0.0" }
-      let(:test_ips) { [ "127.0.0.1", "192.168.1.7" ] }
-
-      before do
-        allow(instance).to receive(:ipv4_addresses).and_return(test_ips)
-      end
 
       context "on windows" do
         let(:guest) { :windows }
@@ -219,6 +216,14 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
             and_return(true)
           expect(instance.send(:port_check, host_ip, host_port)).to be(true)
         end
+      end
+    end
+
+    context "when host ip does not exist" do
+      let(:host_ip) { "127.0.0.2" }
+
+      it "should raise an error" do
+        expect{ instance.send(:port_check, host_ip, host_port) }.to raise_error(Vagrant::Errors::ForwardPortHostIPNotFound)
       end
     end
   end

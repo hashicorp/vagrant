@@ -271,7 +271,11 @@ module Vagrant
             end
           else
             # Do a regular check
-            is_port_open?(host_ip, host_port)
+            if test_host_ip == "0.0.0.0" || ipv4_addresses.include?(test_host_ip)
+              is_port_open?(test_host_ip, host_port)
+            else
+              raise Errors::ForwardPortHostIPNotFound
+            end
           end
         end
 
