@@ -243,35 +243,33 @@ module Vagrant
           return extra_in_use.fetch(hostport).include?(hostip)
         end
 
-        def ipv4_addresses
-          ip_addresses = []
-          Socket.getifaddrs.each do |ifaddr|
-            if ifaddr.addr && ifaddr.addr.ipv4?
-              ip_addresses << ifaddr.addr.ip_address
-            end
+        def ipv4_interfaces
+          Socket.getifaddrs.select do |ifaddr|
+            ifaddr.addr && ifaddr.addr.ipv4?
+          end.map do |ifaddr|
+            [ifaddr.name, ifaddr.addr.ip_address]
           end
-          ip_addresses
         end
 
         def port_check(host_ip, host_port)
           # If no host_ip is specified, intention taken to be listen on all interfaces.
           test_host_ip = host_ip || "0.0.0.0"
           if @machine.config.vm.guest == :windows && test_host_ip == "0.0.0.0"
-            @logger.debug("Checking port #{host_port} on all IPv4 addresses...")
-            available_ips = ipv4_addresses.select do |test_host_ip|
-              @logger.debug("Host IP: #{test_host_ip}, port: #{host_port}")
-              !is_port_open?(test_host_ip, host_port)
+            @logger.debug("Testing port #{host_port} on all IPv4 interfaces...")
+            available_interfaces = ipv4_interfaces.select do |interface|
+              @logger.debug("Testing #{interface[0]} with IP address #{interface[1]}")
+              !is_port_open?(interface[1], host_port)
             end
-            if available_ips.empty?
+            if available_interfaces.empty?
               @logger.debug("Cannot forward port #{host_port} on any interfaces.")
               true
             else
-              @logger.debug("These IP addresses will forward to the guest: #{available_ips.join(', ')}")
+              @logger.debug("Port #{host_port} will forward to the guest on the following interfaces: #{available_interfaces}")
               false
             end
           else
             # Do a regular check
-            if test_host_ip == "0.0.0.0" || ipv4_addresses.include?(test_host_ip)
+            if test_host_ip == "0.0.0.0" || ipv4_interfaces.detect { |iface| iface[1] == test_host_ip }
               is_port_open?(test_host_ip, host_port)
             else
               raise Errors::ForwardPortHostIPNotFound
