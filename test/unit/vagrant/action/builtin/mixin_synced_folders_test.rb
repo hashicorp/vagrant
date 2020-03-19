@@ -270,12 +270,12 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
 
     it "should write empty hash to file" do
       expect(output_file).to receive(:write).with("{}")
-      subject.save_synced_folders(machine, folders, options)
+      subject.save_synced_folders(machine, folders, **options)
     end
 
     it "should call credential scrubber before writing file" do
       expect(Vagrant::Util::CredentialScrubber).to receive(:desensitize).and_call_original
-      subject.save_synced_folders(machine, folders, options)
+      subject.save_synced_folders(machine, folders, **options)
     end
 
     context "when folder data is defined" do
@@ -286,7 +286,7 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
 
       it "should write folder information to file" do
         expect(output_file).to receive(:write).with(JSON.dump(folders))
-        subject.save_synced_folders(machine, folders, options)
+        subject.save_synced_folders(machine, folders, **options)
       end
 
       context "when folder data configuration includes sensitive data" do
@@ -303,14 +303,14 @@ describe Vagrant::Action::Builtin::MixinSyncedFolders do
           expect(output_file).to receive(:write) do |content|
             expect(content).not_to include(password)
           end
-          subject.save_synced_folders(machine, folders, options)
+          subject.save_synced_folders(machine, folders, **options)
         end
 
         it "should mask password content when writing file" do
           expect(output_file).to receive(:write) do |content|
             expect(content).to include(Vagrant::Util::CredentialScrubber::REPLACEMENT_TEXT)
           end
-          subject.save_synced_folders(machine, folders, options)
+          subject.save_synced_folders(machine, folders, **options)
         end
       end
     end

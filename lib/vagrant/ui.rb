@@ -155,9 +155,9 @@ module Vagrant
       # to `say`.
       [:detail, :info, :warn, :error, :output, :success].each do |method|
         class_eval <<-CODE
-          def #{method}(message, *args)
+          def #{method}(message, **args)
             super(message)
-            say(#{method.inspect}, message, *args)
+            say(#{method.inspect}, message, **args)
           end
         CODE
       end
@@ -175,7 +175,7 @@ module Vagrant
         opts[:prefix]   = false if !opts.key?(:prefix)
 
         # Output the data
-        say(:info, message, opts)
+        say(:info, message, **opts)
 
         input = nil
         if opts[:echo] || !@stdin.respond_to?(:noecho)
@@ -186,10 +186,10 @@ module Vagrant
 
             # Output a newline because without echo, the newline isn't
             # echoed either.
-            say(:info, "\n", opts)
+            say(:info, "\n", **opts)
           rescue Errno::EBADF
             # This means that stdin doesn't support echoless input.
-            say(:info, "\n#{I18n.t("vagrant.stdin_cant_hide_input")}\n ", opts)
+            say(:info, "\n#{I18n.t("vagrant.stdin_cant_hide_input")}\n ", **opts)
 
             # Ask again, with echo enabled
             input = ask(message, opts.merge(echo: true))

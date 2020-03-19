@@ -410,7 +410,7 @@ module VagrantPlugins
         prov.preserve_order = !!options.delete(:preserve_order) if \
           options.key?(:preserve_order)
         prov.run = options.delete(:run) if options.key?(:run)
-        prov.add_config(options, &block)
+        prov.add_config(**options, &block)
         nil
       end
 
@@ -465,7 +465,7 @@ module VagrantPlugins
         disk_config.set_options(options)
 
         # Add provider config
-        disk_config.add_provider_config(provider_options, &block)
+        disk_config.add_provider_config(**provider_options, &block)
 
         if !Vagrant::Util::Experimental.feature_enabled?("disks")
           @logger.warn("Disk config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `disks`. Disk will not be added to internal config, and will be ignored.")

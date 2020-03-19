@@ -30,9 +30,14 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       delete: true
     )
   end
+
+  def empty_opts
+    Gem::Version.create(RUBY_VERSION) >= Gem::Version.create("2.7") ? [] : [{}]
+  end
+
   let(:data_directory){ double("data-directory", join: composition_path) }
   let(:local_data_path){ double("local-data-path") }
-  let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "--remove-orphans", "-d", {}] }
+  let(:compose_execute_up){ ["docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "up", "--remove-orphans", "-d"] + empty_opts }
 
 
   subject{ described_class.new(machine) }
@@ -277,7 +282,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:created?).and_return(true) }
 
       it 'removes the container' do
-        expect(subject).to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", {})
+        expect(subject).to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", *empty_opts)
         subject.rm(cid)
       end
     end
@@ -286,7 +291,7 @@ describe VagrantPlugins::DockerProvider::Driver::Compose do
       before { allow(subject).to receive(:created?).and_return(false) }
 
       it 'does not attempt to remove the container' do
-        expect(subject).not_to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", {})
+        expect(subject).not_to receive(:execute).with("docker-compose", "-f", "docker-compose.yml", "-p", "cwd", "rm", "-f", "docker_1", *empty_opts)
         subject.rm(cid)
       end
     end
