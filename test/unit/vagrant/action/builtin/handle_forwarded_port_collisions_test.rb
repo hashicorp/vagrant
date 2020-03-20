@@ -39,13 +39,10 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
     end
   end
 
-  let(:guest) { }
-
   let(:vm_config) do
     double("machine_vm_config").tap do |config|
       allow(config).to receive(:usable_port_range).and_return(1000..2000)
       allow(config).to receive(:networks).and_return([])
-      allow(config).to receive(:guest).and_return(guest)
     end
   end
 
@@ -206,7 +203,9 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       let(:host_ip) { "0.0.0.0" }
 
       context "on windows" do
-        let(:guest) { :windows }
+        before do
+          expect(Vagrant::Util::Platform).to receive(:windows?).and_return(true)
+        end
 
         it "should check the port on every IPv4 interface" do
           expect(instance).to receive(:is_port_open?).with(interfaces[0][1], host_port)

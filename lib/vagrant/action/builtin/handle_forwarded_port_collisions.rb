@@ -254,7 +254,7 @@ module Vagrant
         def port_check(host_ip, host_port)
           # If no host_ip is specified, intention taken to be listen on all interfaces.
           test_host_ip = host_ip || "0.0.0.0"
-          if @machine.config.vm.guest == :windows && test_host_ip == "0.0.0.0"
+          if Util::Platform.windows? && test_host_ip == "0.0.0.0"
             @logger.debug("Testing port #{host_port} on all IPv4 interfaces...")
             available_interfaces = ipv4_interfaces.select do |interface|
               @logger.debug("Testing #{interface[0]} with IP address #{interface[1]}")
