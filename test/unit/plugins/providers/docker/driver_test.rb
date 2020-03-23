@@ -389,8 +389,17 @@ describe VagrantPlugins::DockerProvider::Driver do
       end
     end
 
-    context 'image is being used' do
+    context 'image is being used by running container' do
       before { allow(subject).to receive(:execute).and_raise("image is being used by running container") }
+
+      it 'does not remove the image' do
+        expect(subject.rmi(id)).to eq(false)
+        subject.rmi(id)
+      end
+    end
+
+    context 'image is being used by stopped container' do
+      before { allow(subject).to receive(:execute).and_raise("image is being used by stopped container") }
 
       it 'does not remove the image' do
         expect(subject.rmi(id)).to eq(false)
