@@ -24,13 +24,12 @@ module VagrantPlugins
         args << dir
         opts = {with_stderr: true}
         result = execute('docker', 'build', *args, opts, &block)
-        matches = result.scan(/Successfully built (?<id>.+)$/i).last
+        # Check for the new output format 'writing image sha256...'
+        # In this case, docker builtkit is enabled. Its format is different
+        # from standard docker
+        matches = result.scan(/writing image .+:([0-9a-z]+) done/i).last
         if !matches
-          # Check for the new output format 'writing image sha256...'
-          # In this case, docker builtkit is enabled. Its format is different
-          # from standard docker
-          @logger.warn("Could not determine docker container ID. Scanning for buildkit output instead")
-          matches = result.scan(/writing image .+:(?<id>[0-9a-z]+) done/i).last
+          matches = result.scan(/Successfully built (.+)$/i).last
           if !matches
             # This will cause a stack trace in Vagrant, but it is a bug
             # if this happens anyways.
