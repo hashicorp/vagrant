@@ -379,6 +379,44 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
   end
 
+  describe '#rmi' do
+    let(:id) { 'asdg21ew' }
+
+    context 'image exists' do
+      it "removes the image" do
+        expect(subject).to receive(:execute).with('docker', 'rmi', id)
+        subject.rmi(id)
+      end
+    end
+
+    context 'image is being used' do
+      before { allow(subject).to receive(:execute).and_raise("image is being used by running container") }
+
+      it 'does not remove the image' do
+        expect(subject.rmi(id)).to eq(false)
+        subject.rmi(id)
+      end
+    end
+
+    context 'container is using it' do
+      before { allow(subject).to receive(:execute).and_raise("container is using it") }
+
+      it 'does not remove the image' do
+        expect(subject.rmi(id)).to eq(false)
+        subject.rmi(id)
+      end
+    end
+
+    context 'image does not exist' do
+      before { allow(subject).to receive(:execute).and_raise("No such image") }
+
+      it 'raises an error' do
+        expect(subject.rmi(id)).to eq(nil)
+        subject.rmi(id)
+      end
+    end
+  end
+
   describe '#inspect_container' do
     let(:data) { '[{"json": "value"}]' }
 
