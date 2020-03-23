@@ -153,7 +153,7 @@ describe VagrantPlugins::DockerProvider::Driver do
 
 
   describe '#build' do
-    let(:result) { "Successfully built 1a2b3c4d" }
+    let(:result) { "Successfully built other_package\nSuccessfully built 1a2b3c4d" }
     let(:buildkit_result) { "writing image sha256:1a2b3c4d done" }
     let(:cid) { "1a2b3c4d" }
 
