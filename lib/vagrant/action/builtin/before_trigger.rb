@@ -1,26 +1,32 @@
 module Vagrant
   module Action
     module Builtin
-      # This class is intended to be used by the Action::Warden class for executing
-      # action triggers before any given action.
-      class BeforeTriggerAction
-        # @param [Symbol] action_name - The action class name to fire trigger on
-        # @param [Vagrant::Plugin::V2::Triger] triggers - trigger object
-        def initialize(app, env, action_name, triggers, type=:action)
+      # This class is used within the Builder class for injecting triggers into
+      # different parts of the call stack.
+      class Trigger
+        # @param [Class, String, Symbol] name Name of trigger to fire
+        # @param [Vagrant::Plugin::V2::Triger] triggers Trigger object
+        # @param [Symbol] timing When trigger should fire (:before/:after)
+        # @param [Symbol] type Type of trigger
+        def initialize(app, env, name, triggers, timing, type=:action)
           @app         = app
           @env         = env
           @triggers    = triggers
-          @action_name = action_name
+          @name        = name
+          @timing      = timing
           @type        = type
+
+          if ![:before, :after].include?(at)
+            raise ArgumentError,
+              "Invalid value provided for `timing` (allowed: :before or :after)"
+          end
         end
 
         def call(env)
           machine = env[:machine]
           machine_name = machine.name if machine
 
-          @triggers.fire(@action_name, :before, machine_name, @type) if
-            Vagrant::Util::Experimental.feature_enabled?("typed_triggers");
-
+          @triggers.fire(@name, @timing, machine_name, @type)
           # Carry on
           @app.call(env)
         end
