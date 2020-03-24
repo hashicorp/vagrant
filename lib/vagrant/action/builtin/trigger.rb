@@ -16,7 +16,7 @@ module Vagrant
           @timing      = timing
           @type        = type
 
-          if ![:before, :after].include?(at)
+          if ![:before, :after].include?(timing)
             raise ArgumentError,
               "Invalid value provided for `timing` (allowed: :before or :after)"
           end
