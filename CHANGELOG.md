@@ -21,6 +21,7 @@ BUG FIXES:
 - darwin/nfs: Quote directories in /etc/exports [GH-11441]
 - communicators/winssh: Fix issues with Windows SSH communicator [GH-11430]
 - providers/docker: Fix issue where Vagrant fails to remove image if it is in use [GH-11355]
+- providers/docker: Fix issue with getting correct docker image id from build output [GH-11461]
 
 ## 2.2.7 (January 27, 2020)
 
