@@ -392,6 +392,10 @@ module Vagrant
       error_key(:hyperv_virtualbox_error)
     end
 
+    class HypervNotSupported < VagrantError
+      error_key(:hyperv_not_supported)
+    end
+
     class ForwardPortAdapterNotFound < VagrantError
       error_key(:forward_port_adapter_not_found)
     end

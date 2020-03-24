@@ -46,7 +46,7 @@ module VagrantPlugins
             "rm -f '#{compressed_file}'",
             "rm -rf '#{extract_dir}'"
           ]
-          cmds.each{ |cmd| comm.execute(cmd) }
+          cmds.each{ |cmd| comm.execute(cmd, sudo: opts[:sudo] || false) }
           true
         end
 
@@ -70,8 +70,44 @@ module VagrantPlugins
             "rm -f '#{compressed_file}'",
             "rm -rf '#{extract_dir}'"
           ]
-          cmds.each{ |cmd| comm.execute(cmd) }
+          cmds.each{ |cmd| comm.execute(cmd, sudo: opts[:sudo] || false) }
           true
+        end
+
+        # Create directories at given locations on guest
+        #
+        # @param [Vagrant::Machine] machine Vagrant guest machine
+        # @param [array] paths to create on guest
+        def self.create_directories(machine, dirs, opts={})
+          return [] if dirs.empty?
+
+          remote_fn = create_tmp_path(machine, {})
+          tmp = Tempfile.new('hv_dirs')
+          begin
+            tmp.binmode
+            tmp.write dirs.join("\n") + "\n"
+            tmp.close
+            machine.communicate.upload(tmp.path, remote_fn)
+          ensure
+            tmp.close
+            tmp.unlink
+          end
+          created_paths = []
+          machine.communicate.execute("bash -c 'while IFS= read -r line
+              do
+                if [ ! -z \"${line}\" ] && [ ! -d \"${line}\" ]; then
+                  if [ -f \"${line}\" ]; then
+                    rm \"${line}\"
+                  fi
+                  mkdir -p -v \"${line}\" || true
+                fi
+              done < #{remote_fn}'
+              ", sudo: opts[:sudo] || false) do |type, data|
+            if type == :stdout && /^.*\'(?<dir>.*)\'/ =~ data
+              created_paths << dir.strip
+            end
+          end
+          created_paths
         end
       end
     end

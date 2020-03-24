@@ -117,9 +117,29 @@ module VagrantPlugins
         Cap::RSync
       end
 
+      guest_capability(:linux, :create_directories) do
+        require_relative "cap/file_system"
+        Cap::FileSystem
+      end
+
       guest_capability(:linux, :unmount_virtualbox_shared_folder) do
         require_relative "cap/mount_virtualbox_shared_folder"
         Cap::MountVirtualBoxSharedFolder
+      end
+
+      guest_capability(:linux, :hyperv_daemons_running) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
+      end
+
+      guest_capability(:linux, :hyperv_daemons_activate) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
+      end
+
+      guest_capability(:linux, :hyperv_daemons_installed) do
+        require_relative "cap/hyperv_daemons"
+        Cap::HypervDaemons
       end
     end
   end

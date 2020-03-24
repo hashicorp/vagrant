@@ -494,11 +494,11 @@ module Vagrant
         #
         # @param [Pathname, String] path Path to convert
         # @return [String]
-        def windows_path(path)
+        def windows_path(path, *args)
           path = cygwin_windows_path(path)
           path = wsl_to_windows_path(path)
           if windows? || wsl?
-            path = windows_unc_path(path)
+            path = windows_unc_path(path) if !args.include?(:disable_unc)
           end
           path
         end
@@ -656,6 +656,17 @@ module Vagrant
             end
           end
           @_wsl_windows_appdata_local
+        end
+
+        # Fetch the Windows temp directory
+        #
+        # @return [String, Nil]
+        def windows_temp
+          if !@_windows_temp
+            result = Vagrant::Util::PowerShell.execute_cmd("(Get-Item Env:TEMP).Value")
+            @_windows_temp = result.gsub("\"", "").strip
+          end
+          @_windows_temp
         end
 
         # Confirm Vagrant versions installed within the WSL and the Windows system

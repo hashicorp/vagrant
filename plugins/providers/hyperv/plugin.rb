@@ -16,6 +16,11 @@ module VagrantPlugins
         Provider
       end
 
+      synced_folder(:hyperv) do
+        require File.expand_path("../synced_folder", __FILE__)
+        SyncedFolder
+      end
+
       config(:hyperv, :provider) do
         require_relative "config"
         init!
@@ -30,6 +35,16 @@ module VagrantPlugins
       provider_capability("hyperv", "snapshot_list") do
         require_relative "cap/snapshot_list"
         Cap::SnapshotList
+      end
+
+      command("hyperv-sync", primary: false) do
+        require_relative "command/sync"
+        Command::Sync
+      end
+
+      command("hyperv-sync-auto", primary: false) do
+        require_relative "command/sync_auto"
+        Command::SyncAuto
       end
 
       protected

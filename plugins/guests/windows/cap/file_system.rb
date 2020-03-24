@@ -1,3 +1,5 @@
+require 'json'
+
 module VagrantPlugins
   module GuestWindows
     module Cap
@@ -58,6 +60,47 @@ module VagrantPlugins
             comm.execute(cmd, shell: :powershell)
           end
           true
+        end
+
+        # Create directories at given locations on guest
+        #
+        # @param [Vagrant::Machine] machine Vagrant guest machine
+        # @param [array] paths to create on guest
+        def self.create_directories(machine, dirs, opts={})
+          return [] if dirs.empty?
+
+          remote_fn = create_tmp_path(machine, {})
+          tmp = Tempfile.new('hv_dirs')
+          begin
+            tmp.write dirs.join("\n") + "\n"
+            tmp.close
+            machine.communicate.upload(tmp.path, remote_fn)
+          ensure
+            tmp.close
+            tmp.unlink
+          end
+          created_paths = []
+          cmd = <<-EOH.gsub(/^ {6}/, "")
+      $files = Get-Content #{remote_fn}
+      foreach ($file in $files) {
+        if (-Not (Test-Path($file))) {
+          ConvertTo-Json (New-Item $file -type directory -Force | Select-Object FullName)
+        } else {
+          if (-Not ((Get-Item $file) -is [System.IO.DirectoryInfo])) {
+            # Remove the file
+            Remove-Item -Path $file -Force
+            ConvertTo-Json (New-Item $file -type directory -Force | Select-Object FullName)
+          }
+        }
+      }
+          EOH
+          machine.communicate.execute(cmd, shell: :powershell) do |type, data|
+            if type == :stdout
+              obj = JSON.parse(data)
+              created_paths << obj["FullName"].strip unless obj["FullName"].nil?
+            end
+          end
+          created_paths
         end
       end
     end

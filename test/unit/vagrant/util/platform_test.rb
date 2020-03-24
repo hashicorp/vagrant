@@ -533,6 +533,16 @@ EOF
         expect(subject.wsl_drvfs_path?("/home/vagrant/some/path")).to be_falsey
       end
     end
+
+    describe ".windows_temp" do
+      let(:temp_dir) { 'C:\Users\User\AppData\Local\Temp' }
+
+      it "should return windows temporary directory" do
+        allow(Vagrant::Util::PowerShell).to receive(:execute_cmd).
+          with("(Get-Item Env:TEMP).Value").and_return(temp_dir)
+        expect(subject.windows_temp).to eql(temp_dir)
+      end
+    end
   end
 
   describe ".unix_windows_path" do

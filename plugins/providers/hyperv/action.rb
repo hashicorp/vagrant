@@ -161,6 +161,15 @@ module VagrantPlugins
         end
       end
 
+      # This is the action that is called to sync folders to a running
+      # machine without a reboot.
+      def self.action_sync_folders
+        Vagrant::Action::Builder.new.tap do |b|
+          b.use SyncedFolderCleanup
+          b.use SyncedFolders
+        end
+      end
+
       def self.action_up
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckEnabled
