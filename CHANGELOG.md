@@ -20,6 +20,7 @@ BUG FIXES:
 - providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
 - darwin/nfs: Quote directories in /etc/exports [GH-11441]
 - communicators/winssh: Fix issues with Windows SSH communicator [GH-11430]
+- providers/docker: Fix issue where Vagrant fails to remove image if it is in use [GH-11355]
 
 ## 2.2.7 (January 27, 2020)
 
