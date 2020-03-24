@@ -166,6 +166,7 @@ module VagrantPlugins
         return true
       rescue => e
         return false if e.to_s.include?("is using it")
+        return false if e.to_s.include?("is being used")
         raise if !e.to_s.include?("No such image")
       end
 
