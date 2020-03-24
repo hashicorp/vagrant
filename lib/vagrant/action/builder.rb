@@ -181,25 +181,25 @@ module Vagrant
 
           # Start with adding any action triggers that may be defined
           if triggers && !triggers.find(action, :before, machine_name, :action).empty?
-            hook.prepend(Vagrant::Action::Builtin::BeforeTriggerAction,
-              action.name, triggers)
+            hook.prepend(Vagrant::Action::Builtin::Trigger,
+              action.name, triggers, :before, :action)
           end
 
           if triggers && !triggers.find(action, :after, machine_name, :action).empty?
-            hook.append(Vagrant::Action::Builtin::AfterTriggerAction,
-              action.name, triggers)
+            hook.append(Vagrant::Action::Builtin::Trigger,
+              action.name, triggers, :after, :action)
           end
 
           # Next look for any hook triggers that may be defined against
           # the dynamically generated action class hooks
           if triggers && !triggers.find(action, :before, machine_name, :hook).empty?
-            hook.prepend(Vagrant::Action::Builtin::BeforeTriggerAction,
-              action.name, triggers, :hook)
+            hook.prepend(Vagrant::Action::Builtin::Trigger,
+              action.name, triggers, :before, :hook)
           end
 
           if triggers && !triggers.find(action, :after, machine_name, :hook).empty?
-            hook.append(Vagrant::Action::Builtin::AfterTriggerAction,
-              action.name, triggers, :hook)
+            hook.append(Vagrant::Action::Builtin::Trigger,
+              action.name, triggers, :after, :hook)
           end
 
           # Finally load any registered hooks for dynamically generated
@@ -231,12 +231,12 @@ module Vagrant
         # Start with loading any hook triggers if applicable
         if Vagrant::Util::Experimental.feature_enabled?("typed_triggers") && env[:triggers]
           if !env[:triggers].find(env[:action_name], :before, machine_name, :hook).empty?
-            hook.prepend(Vagrant::Action::Builtin::BeforeTriggerAction,
-              env[:action_name].to_sym, env[:triggers])
+            hook.prepend(Vagrant::Action::Builtin::Trigger,
+              env[:action_name], :env[:triggers], :before, :hook)
           end
           if !env[:triggers].find(env[:action_name], :after, machine_name, :hook).empty?
-            hook.append(Vagrant::Action::Builtin::AfterTriggerAction,
-              env[:action_name].to_sym, env[:triggers])
+            hook.append(Vagrant::Action::Builtin::Trigger,
+              env[:action_name], env[:triggers], :after, :hook)
           end
         end
 
@@ -249,13 +249,13 @@ module Vagrant
 
         # Finally load any action triggers defined
         if env[:triggers]
-          if !env[:triggers].find(env[:raw_action_name], :before, machine_name, :action)
-            hook.prepend(Vagrant::Action::Builtin::BeforeTriggerAction,
-              env[:raw_action_name].to_sym, env[:triggers])
+          if !env[:triggers].find(env[:raw_action_name], :before, machine_name, :action).empty?
+            hook.prepend(Vagrant::Action::Builtin::Trigger,
+              env[:raw_action_name], env[:triggers], :before, :action)
           end
-          if !env[:triggers].find(env[:raw_action_name], :after, machine_name, :action)
-            hook.append(Vagrant::Action::Builtin::AfterTriggerAction,
-              env[:raw_action_name].to_sym, env[:triggers])
+          if !env[:triggers].find(env[:raw_action_name], :after, machine_name, :action).empty?
+            hook.append(Vagrant::Action::Builtin::Trigger,
+              env[:raw_action_name], env[:triggers], :after, :action)
           end
         end
 
