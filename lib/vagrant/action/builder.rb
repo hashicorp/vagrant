@@ -232,7 +232,7 @@ module Vagrant
         if Vagrant::Util::Experimental.feature_enabled?("typed_triggers") && env[:triggers]
           if !env[:triggers].find(env[:action_name], :before, machine_name, :hook).empty?
             hook.prepend(Vagrant::Action::Builtin::Trigger,
-              env[:action_name], :env[:triggers], :before, :hook)
+              env[:action_name], env[:triggers], :before, :hook)
           end
           if !env[:triggers].find(env[:action_name], :after, machine_name, :hook).empty?
             hook.append(Vagrant::Action::Builtin::Trigger,

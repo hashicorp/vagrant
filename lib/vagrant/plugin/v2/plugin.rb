@@ -71,6 +71,7 @@ module Vagrant
         # @return [Array] List of the hooks for the given action.
         def self.action_hook(name, hook_name=nil, &block)
           # The name is currently not used but we want it for the future.
+          hook_name = hook_name.to_s if hook_name
 
           hook_name ||= ALL_ACTIONS
           components.action_hooks[hook_name.to_sym] << block

@@ -1,7 +1,5 @@
 require "log4r"
 require 'vagrant/util/experimental'
-require 'vagrant/action/builtin/before_trigger'
-require 'vagrant/action/builtin/after_trigger'
 
 module Vagrant
   module Action

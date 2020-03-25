@@ -467,4 +467,293 @@ describe Vagrant::Action::Builder do
       end
     end
   end
+
+  describe "#apply_dynamic_updates" do
+    let(:env) { {triggers: triggers, machine: machine} }
+    let(:machine) { nil }
+    let(:triggers) { nil }
+
+    let(:subject) do
+      @subject ||= described_class.new.tap do |b|
+        b.use Vagrant::Action::Builtin::EnvSet
+        b.use Vagrant::Action::Builtin::Confirm
+      end
+    end
+
+    after { @subject = nil }
+
+    it "should not modify the builder stack by default" do
+      s1 = subject.stack.dup
+      subject.apply_dynamic_updates(env)
+      s2 = subject.stack.dup
+      expect(s1).to eq(s2)
+    end
+
+    context "when an action hooks is defined" do
+      let(:plugin) do
+        @plugin ||= Class.new(Vagrant.plugin("2")) do
+          name "Test Plugin"
+          action_hook(:before_action, Vagrant::Action::Builtin::Confirm) do |hook|
+            hook.prepend(Vagrant::Action::Builtin::Call)
+          end
+        end
+      end
+
+      before { plugin }
+
+      after do
+        Vagrant.plugin("2").manager.unregister(@plugin) if @plugin
+        @plugin = nil
+      end
+
+      it "should modify the builder stack" do
+        s1 = subject.stack.dup
+        subject.apply_dynamic_updates(env)
+        s2 = subject.stack.dup
+        expect(s1).not_to eq(s2)
+      end
+
+      it "should add new action to the middle of the call stack" do
+        subject.apply_dynamic_updates(env)
+        expect(subject.stack[1].first).to eq(Vagrant::Action::Builtin::Call)
+      end
+    end
+
+    context "when triggers are enabled" do
+      let(:triggers) { double("triggers") }
+
+      before do
+        allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
+          with("typed_triggers").and_return(true)
+        allow(triggers).to receive(:find).and_return([])
+      end
+
+      it "should not modify the builder stack by default" do
+        s1 = subject.stack.dup
+        subject.apply_dynamic_updates(env)
+        s2 = subject.stack.dup
+        expect(s1).to eq(s2)
+      end
+
+      context "when triggers are found" do
+        let(:action) { Vagrant::Action::Builtin::EnvSet }
+
+        before { expect(triggers).to receive(:find).
+            with(action, timing, nil, type).and_return([true]) }
+
+        context "for action type" do
+          let(:type) { :action }
+
+          context "for before timing" do
+            let(:timing) { :before }
+
+            it "should add trigger action to start of stack" do
+              subject.apply_dynamic_updates(env)
+              expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Trigger)
+            end
+
+            it "should have timing and type arguments" do
+              subject.apply_dynamic_updates(env)
+              args = subject.stack[0][1]
+              expect(args).to include(type)
+              expect(args).to include(timing)
+              expect(args).to include(action.to_s)
+            end
+          end
+
+          context "for after timing" do
+            let(:timing) { :after }
+
+            it "should add trigger action to middle of stack" do
+              subject.apply_dynamic_updates(env)
+              expect(subject.stack[1].first).to eq(Vagrant::Action::Builtin::Trigger)
+            end
+
+            it "should have timing and type arguments" do
+              subject.apply_dynamic_updates(env)
+              args = subject.stack[1][1]
+              expect(args).to include(type)
+              expect(args).to include(timing)
+              expect(args).to include(action.to_s)
+            end
+          end
+        end
+
+        context "for hook type" do
+          let(:type) { :hook }
+
+          context "for before timing" do
+            let(:timing) { :before }
+
+            it "should add trigger action to start of stack" do
+              subject.apply_dynamic_updates(env)
+              expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Trigger)
+            end
+
+            it "should have timing and type arguments" do
+              subject.apply_dynamic_updates(env)
+              args = subject.stack[0][1]
+              expect(args).to include(type)
+              expect(args).to include(timing)
+              expect(args).to include(action.to_s)
+            end
+          end
+
+          context "for after timing" do
+            let(:timing) { :after }
+
+            it "should add trigger action to middle of stack" do
+              subject.apply_dynamic_updates(env)
+              expect(subject.stack[1].first).to eq(Vagrant::Action::Builtin::Trigger)
+            end
+
+            it "should have timing and type arguments" do
+              subject.apply_dynamic_updates(env)
+              args = subject.stack[1][1]
+              expect(args).to include(type)
+              expect(args).to include(timing)
+              expect(args).to include(action.to_s)
+            end
+          end
+        end
+      end
+    end
+  end
+
+  describe "#apply_action_name" do
+    let(:env) { {triggers: triggers, machine: machine, action_name: action_name, raw_action_name: raw_action_name} }
+    let(:raw_action_name) { :up }
+    let(:action_name) { "machine_#{raw_action_name}".to_sym }
+    let(:machine) { nil }
+    let(:triggers) { double("triggers") }
+
+    let(:subject) do
+      @subject ||= described_class.new.tap do |b|
+        b.use Vagrant::Action::Builtin::EnvSet
+        b.use Vagrant::Action::Builtin::Confirm
+      end
+    end
+
+    before { allow(triggers).to receive(:find).and_return([]) }
+    after { @subject = nil }
+
+    it "should mark action hooks applied within env" do
+      subject.apply_action_name(env)
+      expect(env[:action_hooks_already_ran]).to be_truthy
+    end
+
+    context "when a plugin has added an action hook" do
+      let(:plugin) do
+        @plugin ||= Class.new(Vagrant.plugin("2")) do
+          name "Test Plugin"
+          action_hook(:before_action, :machine_up) do |hook|
+            hook.prepend(Vagrant::Action::Builtin::Call)
+          end
+        end
+      end
+
+      before { plugin }
+
+      after do
+        Vagrant.plugin("2").manager.unregister(@plugin) if @plugin
+        @plugin = nil
+      end
+
+      it "should add new action to the call stack" do
+        subject.apply_action_name(env)
+        expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Call)
+      end
+
+      it "should only add new action to the call stack once" do
+        subject.apply_action_name(env)
+        subject.apply_action_name(env)
+        expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Call)
+        expect(subject.stack[1].first).not_to eq(Vagrant::Action::Builtin::Call)
+      end
+    end
+
+    context "when trigger has been defined for raw action" do
+      before do
+        expect(triggers).to receive(:find).with(raw_action_name, timing, nil, :action).
+          and_return([true])
+      end
+
+      context "when timing is before" do
+        let(:timing) { :before }
+
+        it "should add a trigger action to the start of the stack" do
+          subject.apply_action_name(env)
+          expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Trigger)
+        end
+
+        it "should include arguments to the trigger action" do
+          subject.apply_action_name(env)
+          args = subject.stack[0][1]
+          expect(args).to include(raw_action_name)
+          expect(args).to include(timing)
+          expect(args).to include(:action)
+        end
+      end
+
+      context "when timing is after" do
+        let(:timing) { :after }
+
+        it "should add a trigger action to the end of the stack" do
+          subject.apply_action_name(env)
+          expect(subject.stack.last.first).to eq(Vagrant::Action::Builtin::Trigger)
+        end
+
+        it "should include arguments to the trigger action" do
+          subject.apply_action_name(env)
+          args = subject.stack.last[1]
+          expect(args).to include(raw_action_name)
+          expect(args).to include(timing)
+          expect(args).to include(:action)
+        end
+      end
+    end
+
+    context "when trigger has been defined for hook" do
+      before do
+        allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
+          with("typed_triggers").and_return(true)
+        expect(triggers).to receive(:find).with(action_name, timing, nil, :hook).
+          and_return([true])
+      end
+
+      context "when timing is before" do
+        let(:timing) { :before }
+
+        it "should add a trigger action to the start of the stack" do
+          subject.apply_action_name(env)
+          expect(subject.stack[0].first).to eq(Vagrant::Action::Builtin::Trigger)
+        end
+
+        it "should include arguments to the trigger action" do
+          subject.apply_action_name(env)
+          args = subject.stack[0][1]
+          expect(args).to include(action_name)
+          expect(args).to include(timing)
+          expect(args).to include(:hook)
+        end
+      end
+
+      context "when timing is after" do
+        let(:timing) { :after }
+
+        it "should add a trigger action to the end of the stack" do
+          subject.apply_action_name(env)
+          expect(subject.stack.last.first).to eq(Vagrant::Action::Builtin::Trigger)
+        end
+
+        it "should include arguments to the trigger action" do
+          subject.apply_action_name(env)
+          args = subject.stack.last[1]
+          expect(args).to include(action_name)
+          expect(args).to include(timing)
+          expect(args).to include(:hook)
+        end
+      end
+    end
+  end
 end
