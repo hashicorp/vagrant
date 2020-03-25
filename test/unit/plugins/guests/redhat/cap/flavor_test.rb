@@ -27,6 +27,9 @@ describe "VagrantPlugins::GuestRedHat::Cap::Flavor" do
       "Scientific Linux release 7" => :rhel_7,
       "CloudLinux release 7.2 (Valeri Kubasov)" => :rhel_7,
 
+      "CentOS Linux release 8.1.1911 (Core)" => :rhel_8,
+      "Red Hat Enterprise Linux release 8" => :rhel_8,
+
       "CentOS" => :rhel,
       "RHEL 6" => :rhel,
       "banana" => :rhel,
