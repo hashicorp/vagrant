@@ -10,6 +10,7 @@ IMPROVEMENTS:
 - core/bundler: Cache plugin solution sets to speed up startup times [GH-11363]
 - guest/linux: Update systemd? check to use sudo [GH-11398]
 - guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
+- guest/redhat: Add support for SMB [GH-11463]
 
 BUG FIXES:
 
