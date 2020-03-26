@@ -78,6 +78,12 @@ if argv.include?("--debug-timestamp")
   ENV["VAGRANT_LOG_TIMESTAMP"] = "1"
 end
 
+# Setting to enable/disable showing progress bars
+if argv.include?("--quiet-progress")
+  argv.delete("--quiet-progress")
+  ENV["VAGRANT_QUIET_PROGRESS"] = "1"
+end
+
 # Stdout/stderr should not buffer output
 $stdout.sync = true
 $stderr.sync = true

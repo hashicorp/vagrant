@@ -31,9 +31,14 @@ module Vagrant
       attr_accessor :stderr
 
       def initialize
-        @logger   = Log4r::Logger.new("vagrant::ui::interface")
-        @opts     = { :show_progress => true }
+        if ENV["VAGRANT_QUIET_PROGRESS"]
+          show_progress = false
+        else
+          show_progress = true
+        end
 
+        @logger   = Log4r::Logger.new("vagrant::ui::interface")
+        @opts     = { :show_progress => show_progress }
         @stdin  = $stdin
         @stdout = $stdout
         @stderr = $stderr
