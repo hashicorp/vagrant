@@ -54,7 +54,7 @@ masterless setup.
 
 ## Install Options
 
-The Salt provosioner uses the [Salt bootstrap script](https://github.com/saltstack/salt-bootstrap)
+The Salt provisioner uses the [Salt bootstrap script](https://github.com/saltstack/salt-bootstrap)
 for installing Salt on your guest. These options build up the arguments used to
 for the bootstrap script.
 
