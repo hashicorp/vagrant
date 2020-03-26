@@ -211,15 +211,17 @@ module Vagrant
       # to the UI. Send `clear_line` to clear the line to show
       # a continuous progress meter.
       def report_progress(progress, total, show_parts=true)
-        if total && total > 0
-          percent = (progress.to_f / total.to_f) * 100
-          line    = "Progress: #{percent.to_i}%"
-          line   << " (#{progress} / #{total})" if show_parts
-        else
-          line    = "Progress: #{progress}"
-        end
+        if @opts[:show_progress] == true
+          if total && total > 0
+            percent = (progress.to_f / total.to_f) * 100
+            line    = "Progress: #{percent.to_i}%"
+            line   << " (#{progress} / #{total})" if show_parts
+          else
+            line    = "Progress: #{progress}"
+          end
 
-        info(line, new_line: false)
+          info(line, new_line: false)
+        end
       end
 
       def clear_line
@@ -301,7 +303,11 @@ module Vagrant
 
       [:clear_line, :report_progress].each do |method|
         # By default do nothing, these aren't formatted
-        define_method(method) { |*args| @ui.send(method, *args) }
+        define_method(method) do |*args|
+          @ui.output_if_showing_progress do |ui|
+            ui.send(method, *args)
+          end
+        end
       end
 
       # For machine-readable output, set the prefix in the
