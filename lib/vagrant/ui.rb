@@ -32,7 +32,7 @@ module Vagrant
 
       def initialize
         @logger   = Log4r::Logger.new("vagrant::ui::interface")
-        @opts     = {}
+        @opts     = { :show_progress => true }
 
         @stdin  = $stdin
         @stdout = $stdout
@@ -74,6 +74,12 @@ module Vagrant
       # @param [Array] data The data associated with the type
       def machine(type, *data)
         @logger.info("Machine: #{type} #{data.inspect}")
+      end
+
+      def output_if_showing_progress
+        if @opts[:show_progress] == true
+          yield self
+        end
       end
     end
 

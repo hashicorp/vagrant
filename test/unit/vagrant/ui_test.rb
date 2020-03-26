@@ -110,6 +110,18 @@ describe Vagrant::UI::Basic do
       subject.detail(output)
     end
   end
+
+  context "#output_if_showing_progress" do
+    it "yields an output" do
+      subject.opts[:show_progress] = true
+      expect { |b| subject.output_if_showing_progress(&b) }.to yield_control
+    end
+
+    it "does not yield an output" do
+      subject.opts[:show_progress] = false
+      expect { |b| subject.output_if_showing_progress(&b) }.to_not yield_control
+    end
+  end
 end
 
 describe Vagrant::UI::Colored do
