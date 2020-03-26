@@ -91,6 +91,14 @@ describe "vagrant bin" do
           with(hash_including(ui_class: Vagrant::UI::Colored))
       end
     end
+
+    describe "--quiet-progress" do
+      let(:argv) { ["--quiet-progress"] }
+
+      it "should enable less verbose progress output" do
+        expect(ENV).to receive(:[]=).with("VAGRANT_QUIET_PROGRESS", "1")
+      end
+    end
   end
 
   context "default CLI flags" do
