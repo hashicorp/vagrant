@@ -99,6 +99,17 @@ begin
     $VERBOSE = nil
   end
 
+  # Add any option flags defined within this file here
+  # so they are automatically propagated to all commands
+  Vagrant.add_default_cli_options(proc { |o|
+    o.on("--[no-]color", "Enable or disable color output")
+    o.on("--machine-readable", "Enable machine readable output")
+    o.on("-v", "--version", "Display Vagrant version")
+    o.on("--debug", "Enable debug output")
+    o.on("--timestamp", "Enable timestamps on log output")
+    o.on("--debug-timestamp", "Enable debug output with timestamps")
+  })
+
   # Create a logger right away
   logger = Log4r::Logger.new("vagrant::bin::vagrant")
   logger.info("`vagrant` invoked: #{ARGV.inspect}")
