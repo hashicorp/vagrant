@@ -4,14 +4,14 @@ module VagrantPlugins
       module Redhat
         module DockerInstall
           def self.docker_install(machine)
+            if machine.guest.capability("flavor") == :rhel_8
+              machine.ui.warn("Docker is not supported on RHEL 8 machines.")
+              raise DockerError, :install_failed
+            end
+            
             machine.communicate.tap do |comm|
               comm.sudo("yum -q -y update")
               comm.sudo("yum -q -y remove docker-io* || true")
-              if machine.guest.capability("flavor") == :rhel_8
-                # containerd.io is not available on official yum repos
-                # install it directly from docker
-                comm.sudo("yum -y install https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm")
-              end
               comm.sudo("curl -fsSL https://get.docker.com/ | sh")
             end
 
