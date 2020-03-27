@@ -1,23 +1,24 @@
-require_relative "client"
+require_relative "../docker/provisioner"
 require_relative "installer"
+require_relative "client"
 
 module VagrantPlugins
-  module DockerProvisioner
-    class DockerError < Vagrant::Errors::VagrantError
-      error_namespace("vagrant.provisioners.docker")
+  module PodmanProvisioner
+    class PodmanError < Vagrant::Errors::VagrantError
+      error_namespace("vagrant.provisioners.podman")
     end
 
-    class Provisioner < Vagrant.plugin("2", :provisioner)
+    class Provisioner < VagrantPlugins::DockerProvisioner::Provisioner
       def initialize(machine, config, installer = nil, client = nil)
-        super(machine, config)
+        super(machine, config, installer, client)
 
         @installer = installer || Installer.new(@machine)
         @client    = client    || Client.new(@machine)
-        @logger = Log4r::Logger.new("vagrant::provisioners::docker")
+        @logger = Log4r::Logger.new("vagrant::provisioners::podman")
       end
 
       def provision
-        @logger.info("Checking for Docker installation...")
+        @logger.info("Checking for Podman installation...")
         if @installer.ensure_installed
           if !config.post_install_provisioner.nil?
             @logger.info("Running post setup provision script...")
@@ -28,10 +29,6 @@ module VagrantPlugins
             machine.env.hook(:run_provisioner, env)
           end
         end
-
-        # Attempt to start service if not running
-        @client.start_service
-        raise DockerError, :not_running if !@client.daemon_running?
 
         if config.images.any?
           @machine.ui.info(I18n.t("vagrant.docker_pulling_images"))
@@ -47,14 +44,6 @@ module VagrantPlugins
           @machine.ui.info(I18n.t("vagrant.docker_starting_containers"))
           @client.run(config.containers)
         end
-      end
-
-      def run_provisioner(env)
-        klass  = Vagrant.plugin("2").manager.provisioners[env[:provisioner].type]
-        result = klass.new(env[:machine], env[:provisioner].config)
-        result.config.finalize!
-
-        result.provision
       end
     end
   end
