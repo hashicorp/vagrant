@@ -4,15 +4,19 @@ module VagrantPlugins
       module Redhat
         module DockerInstall
           def self.docker_install(machine)
+            machine.ui.warn(I18n.t("vagrant.provisioners.docker.rhel_not_supported"))
+
             if machine.guest.capability("flavor") == :rhel_8
-              machine.ui.warn("Docker is not supported on RHEL 8 machines.")
               raise DockerError, :install_failed
             end
-            
+
             machine.communicate.tap do |comm|
               comm.sudo("yum -q -y update")
               comm.sudo("yum -q -y remove docker-io* || true")
-              comm.sudo("curl -fsSL https://get.docker.com/ | sh")
+              comm.sudo("yum install -y -q yum-utils")
+              comm.sudo("yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo")
+              comm.sudo("yum makecache")
+              comm.sudo("yum install -y -q docker-ce")
             end
 
             case machine.guest.capability("flavor")

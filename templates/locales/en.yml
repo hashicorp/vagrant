@@ -2821,6 +2821,9 @@ en:
           provisioner
         not_running: "Docker is not running on the guest VM."
         install_failed: "Docker installation failed."
+        rhel_not_supported: |-
+          RHEL is now only supported by Docker EE. Please install Docker EE or
+          switch to the Podman provisioner to run containers on RHEL.
 
       salt:
         minion_config_nonexist: |-
