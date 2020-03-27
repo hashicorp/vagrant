@@ -272,7 +272,7 @@ module Vagrant
             if test_host_ip == "0.0.0.0" || ipv4_interfaces.detect { |iface| iface[1] == test_host_ip }
               is_port_open?(test_host_ip, host_port)
             else
-              raise Errors::ForwardPortHostIPNotFound
+              raise Errors::ForwardPortHostIPNotFound, name: @machine.name, host_ip: host_ip
             end
           end
         end

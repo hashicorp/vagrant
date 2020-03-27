@@ -233,9 +233,11 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
 
     context "when host ip does not exist" do
       let(:host_ip) { "127.0.0.2" }
+      let(:name) { "default" }
 
-      it "should raise an error" do
-        expect{ instance.send(:port_check, host_ip, host_port) }.to raise_error(Vagrant::Errors::ForwardPortHostIPNotFound)
+      it "should raise an error including the machine name" do
+        allow(machine).to receive(:name).and_return(name)
+        expect{ instance.send(:port_check, host_ip, host_port) }.to raise_error(Vagrant::Errors::ForwardPortHostIPNotFound, /#{name}/)
       end
     end
   end
