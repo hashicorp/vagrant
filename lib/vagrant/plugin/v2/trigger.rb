@@ -36,7 +36,7 @@ module Vagrant
         # @param [Symbol] name Name of `type` thing to fire trigger on
         # @param [Symbol] stage :before or :after
         # @param [String] guest The guest that invoked firing the triggers
-        # @param [Symbol] type Type of trigger to fire
+        # @param [Symbol] type Type of trigger to fire (:action, :hook, :command)
         def fire(name, stage, guest, type)
           if community_plugin_detected?
             @logger.warn("Community plugin `vagrant-triggers detected, so core triggers will not fire")

@@ -214,10 +214,7 @@ module VagrantPlugins
         end
 
         if @type == :command || !@type
-          commands = []
-          Vagrant.plugin("2").manager.commands.each do |key,data|
-            commands.push(key)
-          end
+          commands = Vagrant.plugin("2").manager.commands.keys.map(&:to_s)
 
           if !commands.include?(@command) && @command != :all
             machine.ui.warn(I18n.t("vagrant.config.triggers.bad_command_warning",

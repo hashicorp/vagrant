@@ -96,4 +96,49 @@ describe Vagrant::Action::Runner do
     instance.run(callable)
     expect(result).to eq("bar")
   end
+
+  describe "triggers" do
+    let(:environment) { double("environment", ui: nil) }
+    let(:machine) { double("machine", triggers: machine_triggers, name: "") }
+    let(:env_triggers) { double("env_triggers", find: []) }
+    let(:machine_triggers) { double("machine_triggers", find: []) }
+
+    before do
+      allow(environment).to receive_message_chain(:vagrantfile, :config, :trigger)
+      allow(Vagrant::Plugin::V2::Trigger).to receive(:new).
+        and_return(env_triggers)
+    end
+
+    context "when only environment is provided" do
+      let(:instance) { described_class.new(action_name: "test", env: environment) }
+
+      it "should use environment to build new trigger" do
+        expect(environment).to receive_message_chain(:vagrantfile, :config, :trigger)
+        instance.run(lambda{|_|})
+      end
+
+      it "should pass environment based triggers to callable" do
+        callable = lambda { |env| expect(env[:triggers]).to eq(env_triggers) }
+        instance.run(callable)
+      end
+    end
+
+    context "when only machine is provided" do
+      let(:instance) { described_class.new(action_name: "test", machine: machine) }
+
+      it "should pass machine based triggers to callable" do
+        callable = lambda { |env| expect(env[:triggers]).to eq(machine_triggers) }
+        instance.run(callable)
+      end
+    end
+
+    context "when both environment and machine is provided" do
+      let(:instance) { described_class.new(action_name: "test", machine: machine, env: environment) }
+
+      it "should pass machine based triggers to callable" do
+        callable = lambda { |env| expect(env[:triggers]).to eq(machine_triggers) }
+        instance.run(callable)
+      end
+    end
+  end
 end

@@ -62,6 +62,11 @@ module Vagrant
     # @return [Hash]
     attr_reader :provider_options
 
+    # The triggers with machine specific configuration applied
+    #
+    # @return [Vagrant::Plugin::V2::Trigger]
+    attr_reader :triggers
+
     # The UI for outputting in the scope of this machine.
     #
     # @return [UI]

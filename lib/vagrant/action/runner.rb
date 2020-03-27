@@ -40,11 +40,12 @@ module Vagrant
         # hash above.
         env = environment[:env]
         machine = environment[:machine]
-        machine_name = machine.name if machine
+
+        environment[:triggers] = machine.triggers if machine
 
         if env
           ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
-          environment[:triggers] = Vagrant::Plugin::V2::Trigger.
+          environment[:triggers] ||= Vagrant::Plugin::V2::Trigger.
             new(env, env.vagrantfile.config.trigger, machine, ui)
         end
 
