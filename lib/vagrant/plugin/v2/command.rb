@@ -51,7 +51,7 @@ module Vagrant
           argv = @argv.dup
 
           # Default opts to a blank optionparser if none is given
-          opts ||= OptionParser.new
+          opts ||= Vagrant::OptionParser.new
 
           # Add the help option, which must be on every command.
           opts.on_tail("-h", "--help", "Print this help") do

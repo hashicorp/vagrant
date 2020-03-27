@@ -9,6 +9,31 @@ class Log4r::BasicFormatter
   end
 end
 
+
+require "optparse"
+
+module Vagrant
+  # This is a customized OptionParser for Vagrant plugins. It
+  # will automatically add any default CLI options defined
+  # outside of command implementations to the local option
+  # parser instances in use
+  class OptionParser < ::OptionParser
+    def initialize(*_)
+      super
+      Vagrant.default_cli_options.each do |opt_proc|
+        opt_proc.call(self)
+      end
+    end
+  end
+end
+
+# Inject the option parser into the vagrant plugins
+# module so it is automatically used when defining
+# command options
+module VagrantPlugins
+  OptionParser = Vagrant::OptionParser
+end
+
 require "vagrant/shared_helpers"
 require "rubygems"
 require "vagrant/util"
