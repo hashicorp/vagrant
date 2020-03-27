@@ -124,6 +124,23 @@ describe Vagrant::UI::Basic do
   end
 end
 
+describe Vagrant::UI::NonInteractive do
+  # let(:ui)     { Vagrant::UI::NonInteractive.new }
+
+  describe "#ask" do
+    it "raises an exception" do
+      expect{subject.ask("foo")}.to raise_error(Vagrant::Errors::UIExpectsTTY)
+    end
+  end
+
+  describe "#report_progress" do
+    it "does not output progress" do
+      expect(subject).to_not receive(:info)
+      subject.report_progress(1, 1)
+    end
+  end
+end
+
 describe Vagrant::UI::Colored do
   include_context "unit"
 

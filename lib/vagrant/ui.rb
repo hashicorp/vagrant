@@ -265,6 +265,19 @@ module Vagrant
       end
     end
 
+
+    class NonInteractive < Basic
+      def initialize
+        super
+        @opts = { :show_progress => false }
+      end
+
+      def ask(*args)
+        # Non interactive can't ask for input
+        raise Errors::UIExpectsTTY
+      end
+    end
+
     # Prefixed wraps an existing UI and adds a prefix to it.
     class Prefixed < Interface
       # The prefix for `output` messages.
