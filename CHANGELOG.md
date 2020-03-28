@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- bin/vagrant: Automatically include global options within commands [GH-11473]
 - bin/vagrant: Suppress Ruby warnings when not running pre-release version [GH-11446]
 - core/bundler: Cache plugin solution sets to speed up startup times [GH-11363]
 - guest/linux: Update systemd? check to use sudo [GH-11398]
