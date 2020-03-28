@@ -102,6 +102,11 @@ describe "vagrant bin" do
       allow(Kernel).to receive(:at_exit)
       allow(Kernel).to receive(:exit)
       allow(Vagrant::Environment).to receive(:new).and_call_original
+
+      # Include this to intercept checkpoint instance setup
+      # since it is a singleton
+      allow(Vagrant::Util::CheckpointClient).
+        to receive_message_chain(:instance, :setup, :check)
     end
 
     it "should include default CLI flags in command help output" do
