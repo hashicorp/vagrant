@@ -67,6 +67,7 @@ module VagrantPlugins
 
           nfs_opts_setup(folders)
           folders = folder_dupe_check(folders)
+          ips = ips.uniq
           output = Vagrant::Util::TemplateRenderer.render('nfs/exports_linux',
                                            uuid: id,
                                            ips: ips,

@@ -132,16 +132,16 @@ describe VagrantPlugins::HostLinux::Cap::NFS do
     end
 
     it "should export new entries" do
-      cap.nfs_export(env, ui, SecureRandom.uuid, ["127.0.0.1"], "tmp" => {:hostpath => "/tmp"})
+      cap.nfs_export(env, ui, SecureRandom.uuid, ["127.0.0.1", "127.0.0.1"], "tmp" => {:hostpath => "/tmp"})
       exports_content = File.read(exports_path)
-      expect(exports_content).to match(/\/tmp.*127\.0\.0\.1/)
+      expect(exports_content.scan(/\/tmp.*127\.0\.0\.1/).length).to be(1)
     end
 
     it "should not remove existing entries" do
       File.write(exports_path, "/custom/directory hostname1(rw,sync,no_subtree_check)")
-      cap.nfs_export(env, ui, SecureRandom.uuid, ["127.0.0.1"], "tmp" => {:hostpath => "/tmp"})
+      cap.nfs_export(env, ui, SecureRandom.uuid, ["127.0.0.1", "127.0.0.1"], "tmp" => {:hostpath => "/tmp"})
       exports_content = File.read(exports_path)
-      expect(exports_content).to match(/\/tmp.*127\.0\.0\.1/)
+      expect(exports_content.scan(/\/tmp.*127\.0\.0\.1/).length).to be(1)
       expect(exports_content).to match(/\/custom\/directory.*hostname1/)
     end
 
