@@ -92,11 +92,12 @@ describe "vagrant bin" do
       end
     end
 
-    describe "--quiet-progress" do
-      let(:argv) { ["--quiet-progress"] }
+    describe "--no-tty" do
+      let(:argv) { ["--no-tty"] }
 
       it "should enable less verbose progress output" do
-        expect(ENV).to receive(:[]=).with("VAGRANT_QUIET_PROGRESS", "1")
+        expect(Vagrant::Environment).to receive(:new).
+          with(hash_including(ui_class: Vagrant::UI::NonInteractive))
       end
     end
   end

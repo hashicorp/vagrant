@@ -78,12 +78,6 @@ if argv.include?("--debug-timestamp")
   ENV["VAGRANT_LOG_TIMESTAMP"] = "1"
 end
 
-# Setting to enable/disable showing progress bars
-if argv.include?("--quiet-progress")
-  argv.delete("--quiet-progress")
-  ENV["VAGRANT_QUIET_PROGRESS"] = "1"
-end
-
 # Stdout/stderr should not buffer output
 $stdout.sync = true
 $stderr.sync = true
@@ -114,6 +108,7 @@ begin
     o.on("--debug", "Enable debug output")
     o.on("--timestamp", "Enable timestamps on log output")
     o.on("--debug-timestamp", "Enable debug output with timestamps")
+    o.on("--no-tty", "Enable non-interactive output")
   })
 
   # Create a logger right away
@@ -150,6 +145,12 @@ begin
   if argv.include?("--machine-readable")
     argv.delete("--machine-readable")
     opts[:ui_class] = Vagrant::UI::MachineReadable
+  end
+
+  # Setting to enable/disable showing progress bars
+  if argv.include?("--no-tty")
+    argv.delete("--no-tty")
+    opts[:ui_class] = Vagrant::UI::NonInteractive
   end
 
   # Default to colored output
