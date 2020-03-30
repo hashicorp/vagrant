@@ -727,6 +727,7 @@ VF
     end
 
     describe "with inventory_path option" do
+
       before do
         config.inventory_path = existing_file
       end
@@ -746,6 +747,26 @@ VF
           expect(args).not_to include("--user=#{machine.ssh_info[:username]}")
           expect(args).to include("--extra-vars=ansible_ssh_user='#{machine.ssh_info[:username]}'")
         }.and_return(default_execute_result)
+      end
+
+      describe "with force_remote_user option disabled" do
+        let(:other_inventory_file) { "/other/path" }
+
+        before do
+          config.inventory_path = [existing_file, other_inventory_file]
+        end
+
+        it_should_set_arguments_and_environment_variables 7
+
+        it "will include multiple inventory files" do
+          config.inventory_path = [existing_file, other_inventory_file]
+          expect(Vagrant::Util::Subprocess).to receive(:execute).with('ansible-playbook', any_args) { |*args|
+            expect(args).to include("--inventory-file=#{existing_file}")
+            expect(args).to include("--inventory-file=#{other_inventory_file}")
+            expect(args).not_to include("--inventory-file=#{generated_inventory_file}")
+            expect(File.exists?(generated_inventory_file)).to be(false)
+          }.and_return(default_execute_result)
+        end
       end
 
       describe "with force_remote_user option disabled" do
