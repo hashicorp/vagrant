@@ -24,6 +24,7 @@ BUG FIXES:
 - communicators/winssh: Fix issues with Windows SSH communicator [GH-11430]
 - providers/docker: Fix issue where Vagrant fails to remove image if it is in use [GH-11355]
 - providers/docker: Fix issue with getting correct docker image id from build output [GH-11461]
+- hosts/linux: Ensure `/etc/exports` does not contain duplicate records [GH-10591]
 
 ## 2.2.7 (January 27, 2020)
 
