@@ -6,8 +6,8 @@ module VagrantPlugins
       module ValidateDiskExt
         LOGGER = Log4r::Logger.new("vagrant::plugins::hyperv::validate_disk_ext")
 
-        # The default set of disk formats that VirtualBox supports
-        DEFAULT_DISK_EXT = ["vdi", "vmdk", "vhd"].map(&:freeze).freeze
+        # The default set of disk formats that Hyper-V supports
+        DEFAULT_DISK_EXT = ["vhd", "vhdx"].map(&:freeze).freeze
 
         # @param [Vagrant::Machine] machine
         # @param [String] disk_ext
