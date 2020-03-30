@@ -111,22 +111,14 @@ describe Vagrant::UI::Basic do
     end
   end
 
-  context "#output_if_showing_progress" do
-    it "yields an output" do
-      subject.opts[:show_progress] = true
-      expect { |b| subject.output_if_showing_progress(&b) }.to yield_control
-    end
-
-    it "does not yield an output" do
-      subject.opts[:show_progress] = false
-      expect { |b| subject.output_if_showing_progress(&b) }.to_not yield_control
+  context "#rewriting" do
+    it "does output progress" do
+      expect { |b| subject.rewriting(&b) }.to yield_control
     end
   end
 end
 
 describe Vagrant::UI::NonInteractive do
-  # let(:ui)     { Vagrant::UI::NonInteractive.new }
-
   describe "#ask" do
     it "raises an exception" do
       expect{subject.ask("foo")}.to raise_error(Vagrant::Errors::UIExpectsTTY)
@@ -137,6 +129,12 @@ describe Vagrant::UI::NonInteractive do
     it "does not output progress" do
       expect(subject).to_not receive(:info)
       subject.report_progress(1, 1)
+    end
+  end
+
+  describe "#rewriting" do
+    it "does not output progress" do
+      expect { |b| subject.rewriting(&b) }.to_not yield_control
     end
   end
 end

@@ -83,7 +83,7 @@ module Vagrant
             # 10 - Time left
             # 11 - Current speed
             output = "Progress: #{columns[0]}% (Rate: #{columns[11]}/s, Estimated time remaining: #{columns[10]})"
-            ui.output_if_showing_progress do |ui|
+            ui.rewriting do |ui|
               ui.clear_line
               ui.detail(output, new_line: false)
             end

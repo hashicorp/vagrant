@@ -33,6 +33,7 @@ module Vagrant
       def initialize
         @logger   = Log4r::Logger.new("vagrant::ui::interface")
         @opts     = {}
+
         @stdin  = $stdin
         @stdout = $stdout
         @stderr = $stderr
@@ -75,10 +76,8 @@ module Vagrant
         @logger.info("Machine: #{type} #{data.inspect}")
       end
 
-      def output_if_showing_progress
-        if @opts[:show_progress] == true
-          yield self
-        end
+      def rewriting
+        yield self
       end
     end
 
@@ -205,17 +204,15 @@ module Vagrant
       # to the UI. Send `clear_line` to clear the line to show
       # a continuous progress meter.
       def report_progress(progress, total, show_parts=true)
-        if @opts[:show_progress] == true
-          if total && total > 0
-            percent = (progress.to_f / total.to_f) * 100
-            line    = "Progress: #{percent.to_i}%"
-            line   << " (#{progress} / #{total})" if show_parts
-          else
-            line    = "Progress: #{progress}"
-          end
-
-          info(line, new_line: false)
+        if total && total > 0
+          percent = (progress.to_f / total.to_f) * 100
+          line    = "Progress: #{percent.to_i}%"
+          line   << " (#{progress} / #{total})" if show_parts
+        else
+          line    = "Progress: #{progress}"
         end
+
+        info(line, new_line: false)
       end
 
       def clear_line
@@ -263,7 +260,19 @@ module Vagrant
     class NonInteractive < Basic
       def initialize
         super
-        @opts = { :show_progress => false }
+      end
+
+      def rewriting
+        # no-op
+      end
+
+      def report_progress(progress, total, show_parts=true)
+        # no-op
+      end
+
+      def clear_line
+        @logger.warn("Using `clear line` in a non interactive ui")
+        say(:info, "\n", opts)
       end
 
       def ask(*args)
@@ -311,9 +320,7 @@ module Vagrant
       [:clear_line, :report_progress].each do |method|
         # By default do nothing, these aren't formatted
         define_method(method) do |*args|
-          @ui.output_if_showing_progress do |ui|
-            ui.send(method, *args)
-          end
+          @ui.send(method, *args)
         end
       end
 
@@ -368,6 +375,13 @@ module Vagrant
           "#{prefix}#{target} #{line}"
         end.join("\n")
       end
+
+      def rewriting
+        @ui.rewriting do |ui|
+          yield ui
+        end
+      end
+
     end
 
     # This is a UI implementation that outputs color for various types
