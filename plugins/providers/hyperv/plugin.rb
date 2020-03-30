@@ -32,22 +32,22 @@ module VagrantPlugins
         Cap::SnapshotList
       end
 
-      provider_capability(:virtualbox, :configure_disks) do
+      provider_capability(:hyperv, :configure_disks) do
         require_relative "cap/configure_disks"
         Cap::ConfigureDisks
       end
 
-      provider_capability(:virtualbox, :cleanup_disks) do
+      provider_capability(:hyperv, :cleanup_disks) do
         require_relative "cap/cleanup_disks"
         Cap::CleanupDisks
       end
 
-      provider_capability(:virtualbox, :validate_disk_ext) do
+      provider_capability(:hyperv, :validate_disk_ext) do
         require_relative "cap/validate_disk_ext"
         Cap::ValidateDiskExt
       end
 
-      provider_capability(:virtualbox, :get_default_disk_ext) do
+      provider_capability(:hyperv, :get_default_disk_ext) do
         require_relative "cap/validate_disk_ext"
         Cap::ValidateDiskExt
       end
