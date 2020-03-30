@@ -27,6 +27,11 @@ module VagrantPlugins
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
           # Iterate over each disk_meta disk, check if it's still defined in the
           # guests config, and if it's no longer there, remove it from the guest
+          disk_meta.each do |d|
+            # find d in defined_disk
+            # if found, continue on
+            # else, remove the disk
+          end
         end
       end
     end
