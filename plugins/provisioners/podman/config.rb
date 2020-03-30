@@ -1,8 +1,8 @@
-require_relative "../docker/config"
+require_relative "../container/config"
 
 module VagrantPlugins
   module PodmanProvisioner
-    class Config < VagrantPlugins::DockerProvisioner::Config
+    class Config < VagrantPlugins::ContainerProvisioner::Config
       def post_install_provision(name, **options, &block)
         # Abort
         raise PodmanError, :wrong_provisioner if options[:type] == "podman"

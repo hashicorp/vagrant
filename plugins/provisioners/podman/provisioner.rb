@@ -1,4 +1,5 @@
-require_relative "../docker/provisioner"
+require_relative "../container/provisioner"
+
 require_relative "installer"
 require_relative "client"
 
@@ -8,7 +9,7 @@ module VagrantPlugins
       error_namespace("vagrant.provisioners.podman")
     end
 
-    class Provisioner < VagrantPlugins::DockerProvisioner::Provisioner
+    class Provisioner < VagrantPlugins::ContainerProvisioner::Provisioner
       def initialize(machine, config, installer = nil, client = nil)
         super(machine, config, installer, client)
 

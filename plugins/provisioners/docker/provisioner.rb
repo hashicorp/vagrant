@@ -1,3 +1,5 @@
+require_relative "../container/provisioner"
+
 require_relative "client"
 require_relative "installer"
 
@@ -7,7 +9,7 @@ module VagrantPlugins
       error_namespace("vagrant.provisioners.docker")
     end
 
-    class Provisioner < Vagrant.plugin("2", :provisioner)
+    class Provisioner < VagrantPlugins::ContainerProvisioner::Provisioner
       def initialize(machine, config, installer = nil, client = nil)
         super(machine, config)
 
@@ -49,13 +51,6 @@ module VagrantPlugins
         end
       end
 
-      def run_provisioner(env)
-        klass  = Vagrant.plugin("2").manager.provisioners[env[:provisioner].type]
-        result = klass.new(env[:machine], env[:provisioner].config)
-        result.config.finalize!
-
-        result.provision
-      end
     end
   end
 end

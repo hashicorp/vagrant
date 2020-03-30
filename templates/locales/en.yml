@@ -127,6 +127,16 @@ en:
       Warning: Chef run list is empty. This may not be what you want.
     cli_interrupt: |-
       Exiting due to interrupt.
+    container_pulling_single: |-
+      -- Image: %{name}
+    container_building_single: |-
+      -- Path: %{path}
+    container_running: |-
+      -- Container: %{name}
+    container_restarting_container_args: |-
+      -- Detected changes to container '%{name}' args, restarting...
+    container_restarting_container_image: |-
+      -- Detected newer image for container '%{name}', restarting...
     docker_auto_start_not_available: |-
       Unable to configure automatic restart of Docker containers on
       the guest machine
