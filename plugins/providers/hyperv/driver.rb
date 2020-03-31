@@ -37,14 +37,27 @@ module VagrantPlugins
       # @param [String] controller_location
       # @param [Hash] opts
       def attach_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
-        execute(:attach_disk_drive, @vm_id, controller_type, controller_numer,
+        execute(:attach_disk_drive, @vm_id, controller_type, controller_number,
                 controller_location, disk_file_path)
       end
 
+      # TODO: Include other options like if disk is fixed or dymanic in opts hash?
+      #
+      # @param [String] path
+      # @param [Int] size_bytes
+      # @param [Hash] opts
       def new_vdh(path, size_bytes, **opts)
-        execute(:new_vdh, @vm_id, path, size_bytes)
+        # ensure size_bytes is a uint64
+        execute(:new_vdh, path, size_bytes)
       end
 
+      # @param [String] controller_type
+      # @param [String] controller_number
+      # @param [String] controller_location
+      # @param [Hash] opts
+      def remove_disk(controller_type, controller_number, controller_location, **opts)
+        execute(:remove_disk_drive, @vm_id, controller_type, controller_number, controller_location)
+      end
 
       ########
       ########
