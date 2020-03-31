@@ -28,6 +28,28 @@ module VagrantPlugins
         @vm_id = id
       end
 
+      #
+      # Disk Driver methods
+      #
+
+      # @param [String] controller_type
+      # @param [String] controller_number
+      # @param [String] controller_location
+      # @param [Hash] opts
+      def attach_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
+        execute(:attach_disk_drive, @vm_id, controller_type, controller_numer,
+                controller_location, disk_file_path)
+      end
+
+      def new_vdh(path, size_bytes, **opts)
+        execute(:new_vdh, @vm_id, path, size_bytes)
+      end
+
+
+      ########
+      ########
+      ########
+
       # @return [Boolean] Supports VMCX
       def has_vmcx_support?
         !!execute(:has_vmcx_support)["result"]
