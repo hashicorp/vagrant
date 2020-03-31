@@ -139,6 +139,16 @@ module VagrantPlugins
             end
           end
 
+          if inventory_path
+            if inventory_path.kind_of?(String)
+              @inventory_path = [inventory_path]
+            elsif !inventory_path.kind_of?(Array)
+              @errors << I18n.t(
+                "vagrant.provisioners.ansible.errors.inventory_path_invalid",
+                type:  inventory_path.class.to_s,
+                value: inventory_path.to_s)
+            end
+          end
         end
 
         protected
