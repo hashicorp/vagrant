@@ -165,7 +165,10 @@ module VagrantPlugins
             @command_arguments << "--limit=#{@machine.name}"
           end
 
-          @command_arguments << "--inventory-file=#{inventory_path}"
+          inv_path = inventory_path
+          inv_path.each do |path|
+            @command_arguments << "--inventory-file=#{path}"
+          end
           @command_arguments << "--extra-vars=#{extra_vars_argument}" if config.extra_vars
           @command_arguments << "--#{@lexicon[:become]}" if config.become
           @command_arguments << "--#{@lexicon[:become_user]}=#{config.become_user}" if config.become_user
@@ -205,7 +208,7 @@ module VagrantPlugins
           if config.inventory_path
             config.inventory_path
           else
-            @inventory_path ||= generate_inventory
+            @inventory_path ||= [generate_inventory]
           end
         end
 
