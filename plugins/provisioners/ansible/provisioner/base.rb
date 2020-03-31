@@ -2,6 +2,7 @@ require_relative "../constants"
 require_relative "../errors"
 require_relative "../helpers"
 
+
 module VagrantPlugins
   module Ansible
     module Provisioner
@@ -45,7 +46,7 @@ module VagrantPlugins
           @command_arguments = []
           @environment_variables = {}
           @inventory_machines = {}
-          @inventory_path = nil
+          @inventory_path = []
 
           @gathered_version_stdout = nil
           @gathered_version_major = nil
@@ -94,7 +95,9 @@ module VagrantPlugins
         def check_files_existence
           check_path_is_a_file(config.playbook, :playbook)
 
-          check_path_exists(config.inventory_path, :inventory_path) if config.inventory_path
+          config.inventory_path.each do |path|
+            check_path_exists(path, :inventory_path)
+          end
           check_path_is_a_file(config.config_file, :config_file) if config.config_file
           check_path_is_a_file(config.extra_vars[1..-1], :extra_vars) if has_an_extra_vars_file_argument
           check_path_is_a_file(config.galaxy_role_file, :galaxy_role_file) if config.galaxy_role_file
@@ -161,7 +164,9 @@ module VagrantPlugins
             @command_arguments << "--limit=#{@machine.name}"
           end
 
-          @command_arguments << "--inventory-file=#{inventory_path}"
+          inventory_path.each do |path|
+            @command_arguments << "--inventory-file=#{path}"
+          end
           @command_arguments << "--extra-vars=#{extra_vars_argument}" if config.extra_vars
           @command_arguments << "--#{@lexicon[:become]}" if config.become
           @command_arguments << "--#{@lexicon[:become_user]}=#{config.become_user}" if config.become_user
@@ -201,7 +206,7 @@ module VagrantPlugins
           if config.inventory_path
             config.inventory_path
           else
-            @inventory_path ||= generate_inventory
+            @inventory_path ||= [generate_inventory]
           end
         end
 

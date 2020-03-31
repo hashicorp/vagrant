@@ -79,7 +79,7 @@ module VagrantPlugins
           @galaxy_command      = GALAXY_COMMAND_DEFAULT   if @galaxy_command      == UNSET_VALUE
           @groups              = {}                       if @groups              == UNSET_VALUE
           @host_vars           = {}                       if @host_vars           == UNSET_VALUE
-          @inventory_path      = nil                      if @inventory_path      == UNSET_VALUE
+          @inventory_path      = []                       if @inventory_path      == UNSET_VALUE
           @limit               = nil                      if @limit               == UNSET_VALUE
           @playbook            = nil                      if @playbook            == UNSET_VALUE
           @playbook_command    = PLAYBOOK_COMMAND_DEFAULT if @playbook_command    == UNSET_VALUE
@@ -136,6 +136,17 @@ module VagrantPlugins
                 "vagrant.provisioners.ansible.errors.raw_arguments_invalid",
                 type:  raw_arguments.class.to_s,
                 value: raw_arguments.to_s)
+            end
+          end
+
+          if inventory_path
+            if inventory_path.kind_of?(String)
+              @inventory_path = [inventory_path]
+            elsif !raw_arguments.kind_of?(Array)
+              @errors << I18n.t(
+                "vagrant.provisioners.ansible.errors.raw_arguments_invalid",
+                type:  inventory_path.class.to_s,
+                value: inventory_path.to_s)
             end
           end
 
