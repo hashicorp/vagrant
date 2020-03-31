@@ -43,6 +43,11 @@ module VagrantPlugins
 
       # TODO: Include other options like if disk is fixed or dymanic in opts hash?
       #
+      # Example path for default disk location. Should be able to get this
+      # for new disks and store them in the same folder
+      #
+      # C:\Users\vagrant\test\.vagrant\machines\hashicorp\hyperv\Virtual Hard Disks\ubuntu-18.04-amd64.vhdx
+      #
       # @param [String] path
       # @param [Int] size_bytes
       # @param [Hash] opts
