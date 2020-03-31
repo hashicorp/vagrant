@@ -59,6 +59,13 @@ module VagrantPlugins
         execute(:remove_disk_drive, @vm_id, controller_type, controller_number, controller_location)
       end
 
+      # @param [String] path
+      # @param [Int] size_bytes
+      # @param [Hash] opts
+      def resize_disk(disk_file_path, size_bytes, **opts)
+        execute(:resize_disk_drive, @vm_id, disk_file_path, size_bytes)
+      end
+
       ########
       ########
       ########
