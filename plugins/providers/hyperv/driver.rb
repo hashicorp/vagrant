@@ -71,6 +71,10 @@ module VagrantPlugins
         execute(:resize_disk_drive, @vm_id, disk_file_path, size_bytes)
       end
 
+      def list_hdds
+        execute(:list_hdds, @vm_id)
+      end
+
       ########
       ########
       ########
