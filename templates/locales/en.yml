@@ -2832,6 +2832,12 @@ en:
         not_running: "Docker is not running on the guest VM."
         install_failed: "Docker installation failed."
 
+      podman:
+        wrong_provisioner: |-
+          The Podman post-install provisioner cannot also take a Podman post-install
+          provisioner
+        install_failed: "Podman installation failed."
+
       salt:
         minion_config_nonexist: |-
           The specified minion_config '%{missing_config_file}' file could not be found.

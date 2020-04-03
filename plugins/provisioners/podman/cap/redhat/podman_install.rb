@@ -9,7 +9,7 @@ module VagrantPlugins
             case machine.guest.capability("flavor")
             when :rhel_7
               machine.communicate.tap do |comm|
-                comm.sudo("curl curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo")
+                comm.sudo("curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/CentOS_7/devel:kubic:libcontainers:stable.repo")
                 comm.sudo("yum -q -y install podman")
               end
             when :rhel_8
