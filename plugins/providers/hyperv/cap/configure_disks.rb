@@ -9,10 +9,6 @@ module VagrantPlugins
       module ConfigureDisks
         LOGGER = Log4r::Logger.new("vagrant::plugins::hyperv::configure_disks")
 
-        # The max amount of disks that can be attached to a single device in a controller
-        # TODO: Figure out if there's a limit for Hyper-V guests
-        MAX_DISK_NUMBER = 30.freeze
-
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @return [Hash] configured_disks - A hash of all the current configured disks
@@ -20,11 +16,6 @@ module VagrantPlugins
           return {} if defined_disks.empty?
 
           return {} if !Vagrant::Util::Experimental.feature_enabled?("disks")
-
-          if defined_disks.size > MAX_DISK_NUMBER
-            # you can only attach up to 30 disks per controller, INCLUDING the primary disk
-            raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
-          end
 
           machine.ui.info(I18n.t("vagrant.cap.configure_disks.start"))
 
