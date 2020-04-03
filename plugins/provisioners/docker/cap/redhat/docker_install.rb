@@ -4,9 +4,11 @@ module VagrantPlugins
       module Redhat
         module DockerInstall
           def self.docker_install(machine)
-            machine.ui.warn(I18n.t("vagrant.provisioners.docker.rhel_not_supported"))
-
-            if machine.guest.capability("flavor") == :rhel_8
+            flavor = machine.guest.capability("flavor")
+            if flavor.to_s.include? "rhel"
+              # rhel is not supported by docker ce
+              # https://docs.docker.com/ee/docker-ee/rhel/
+              machine.ui.warn(I18n.t("vagrant.provisioners.docker.rhel_not_supported"))
               raise DockerError, :install_failed
             end
 
@@ -19,15 +21,15 @@ module VagrantPlugins
               comm.sudo("yum install -y -q docker-ce")
             end
 
-            case machine.guest.capability("flavor")
-            when :rhel_7
-              docker_enable_rhel7(machine)
+            case flavor
+            when :centos_7
+              docker_enable_centos7(machine)
             else
               docker_enable_default(machine)
             end
           end
 
-          def self.docker_enable_rhel7(machine)
+          def self.docker_enable_centos7(machine)
             machine.communicate.tap do |comm|
               comm.sudo("systemctl start docker.service")
               comm.sudo("systemctl enable docker.service")
