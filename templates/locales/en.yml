@@ -2321,6 +2321,13 @@ en:
           forwarding: Forwarding ports...
           forwarding_entry: |-
             %{guest_port} (guest) => %{host_port} (host) (adapter %{adapter})
+          host_ip_not_found: |-
+            You are trying to forward a host IP that does not exist. Please set `host_ip`
+            to the address of an existing IPv4 network interface, or remove the option
+            from your port forward configuration.
+
+            VM: %{name}
+            Host IP: %{host_ip}
           non_nat: |-
             VirtualBox adapter #%{adapter} not configured as "NAT". Skipping port
             forwards on this adapter.

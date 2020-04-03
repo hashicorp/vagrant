@@ -400,6 +400,10 @@ module Vagrant
       error_key(:auto_empty, "vagrant.actions.vm.forward_ports")
     end
 
+    class ForwardPortHostIPNotFound < VagrantError
+      error_key(:host_ip_not_found, "vagrant.actions.vm.forward_ports")
+    end
+
     class ForwardPortCollision < VagrantError
       error_key(:collision_error, "vagrant.actions.vm.forward_ports")
     end

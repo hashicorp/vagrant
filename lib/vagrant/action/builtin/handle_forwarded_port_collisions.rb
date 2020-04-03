@@ -1,6 +1,7 @@
 require "set"
 
 require "log4r"
+require "socket"
 
 require "vagrant/util/is_port_open"
 
@@ -242,18 +243,36 @@ module Vagrant
           return extra_in_use.fetch(hostport).include?(hostip)
         end
 
+        def ipv4_interfaces
+          Socket.getifaddrs.select do |ifaddr|
+            ifaddr.addr && ifaddr.addr.ipv4?
+          end.map do |ifaddr|
+            [ifaddr.name, ifaddr.addr.ip_address]
+          end
+        end
+
         def port_check(host_ip, host_port)
-          # If no host_ip is specified, intention taken to be list on all interfaces.
-          # If platform is windows, default back to localhost only
+          # If no host_ip is specified, intention taken to be listen on all interfaces.
           test_host_ip = host_ip || "0.0.0.0"
-          begin
-            is_port_open?(test_host_ip, host_port)
-          rescue Errno::EADDRNOTAVAIL
-            if !host_ip && test_host_ip == "0.0.0.0"
-              test_host_ip = "127.0.0.1"
-              retry
+          if Util::Platform.windows? && test_host_ip == "0.0.0.0"
+            @logger.debug("Testing port #{host_port} on all IPv4 interfaces...")
+            available_interfaces = ipv4_interfaces.select do |interface|
+              @logger.debug("Testing #{interface[0]} with IP address #{interface[1]}")
+              !is_port_open?(interface[1], host_port)
+            end
+            if available_interfaces.empty?
+              @logger.debug("Cannot forward port #{host_port} on any interfaces.")
+              true
             else
-              raise
+              @logger.debug("Port #{host_port} will forward to the guest on the following interfaces: #{available_interfaces}")
+              false
+            end
+          else
+            # Do a regular check
+            if test_host_ip == "0.0.0.0" || ipv4_interfaces.detect { |iface| iface[1] == test_host_ip }
+              is_port_open?(test_host_ip, host_port)
+            else
+              raise Errors::ForwardPortHostIPNotFound, name: @machine.name, host_ip: host_ip
             end
           end
         end
