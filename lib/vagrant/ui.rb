@@ -76,6 +76,9 @@ module Vagrant
         @logger.info("Machine: #{type} #{data.inspect}")
       end
 
+      # Yields self (UI)
+      # Provides a way for selectively displaying or not displaying
+      # updating content like download progress.
       def rewriting
         yield self
       end

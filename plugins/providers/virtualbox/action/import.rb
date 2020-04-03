@@ -19,8 +19,10 @@ module VagrantPlugins
           env[:ui].info I18n.t("vagrant.actions.vm.clone.creating")
           env[:machine].id = env[:machine].provider.driver.clonevm(
             env[:clone_id], env[:clone_snapshot]) do |progress|
-            env[:ui].clear_line
-            env[:ui].report_progress(progress, 100, false)
+            env[:ui].rewriting do |ui|
+              ui.clear_line
+              ui.report_progress(progress, 100, false)
+            end
           end
 
           # Clear the line one last time since the progress meter doesn't
@@ -51,8 +53,10 @@ module VagrantPlugins
           # Import the virtual machine
           ovf_file = env[:machine].box.directory.join("box.ovf").to_s
           id = env[:machine].provider.driver.import(ovf_file) do |progress|
-            env[:ui].clear_line
-            env[:ui].report_progress(progress, 100, false)
+            env[:ui].rewriting do |ui|
+              ui.clear_line
+              ui.report_progress(progress, 100, false)
+            end
           end
 
           # Set the machine ID
