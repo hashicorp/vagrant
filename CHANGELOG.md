@@ -26,6 +26,7 @@ BUG FIXES:
 - providers/docker: Fix issue where Vagrant fails to remove image if it is in use [GH-11355]
 - providers/docker: Fix issue with getting correct docker image id from build output [GH-11461]
 - hosts/linux: Ensure `/etc/exports` does not contain duplicate records [GH-10591]
+- hosts/windows: Check all interfaces for port conflict when host_ip: "0.0.0.0" [GH-11454]
 
 ## 2.2.7 (January 27, 2020)
 
