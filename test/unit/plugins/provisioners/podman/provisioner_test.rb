@@ -49,6 +49,7 @@ describe VagrantPlugins::PodmanProvisioner::Provisioner do
     it "invokes a post_install_provisioner if defined and podman is installed" do
       allow(installer).to receive(:ensure_installed).and_return(true)
       allow(config).to receive(:post_install_provisioner).and_return(provisioner)
+      allow(config).to receive(:kubic).and_return(false)
       allow(machine).to receive(:env).and_return(iso_env)
       allow(machine.env).to receive(:hook).and_return(true)
 
@@ -59,6 +60,7 @@ describe VagrantPlugins::PodmanProvisioner::Provisioner do
     it "does not invoke post_install_provisioner if not defined" do
       allow(installer).to receive(:ensure_installed).and_return(true)
       allow(config).to receive(:post_install_provisioner).and_return(nil)
+      allow(config).to receive(:kubic).and_return(false)
       allow(machine).to receive(:env).and_return(iso_env)
       allow(machine.env).to receive(:hook).and_return(true)
 

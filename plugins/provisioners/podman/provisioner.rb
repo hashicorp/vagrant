@@ -20,7 +20,8 @@ module VagrantPlugins
 
       def provision
         @logger.info("Checking for Podman installation...")
-        if @installer.ensure_installed
+
+        if @installer.ensure_installed(config.kubic)
           if !config.post_install_provisioner.nil?
             @logger.info("Running post setup provision script...")
             env = {
