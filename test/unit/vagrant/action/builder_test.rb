@@ -700,12 +700,14 @@ describe Vagrant::Action::Builder do
 
         it "should add a trigger action to the end of the stack" do
           subject.apply_action_name(env)
-          expect(subject.stack.last.first).to eq(Vagrant::Action::Builtin::Trigger)
+          expect(subject.stack.first.first).to eq(Vagrant::Action::Builtin::Delayed)
         end
 
         it "should include arguments to the trigger action" do
           subject.apply_action_name(env)
-          args = subject.stack.last[1]
+          builder = subject.stack.first[1]&.first
+          expect(builder).not_to be_nil
+          args = builder.stack.first[1]
           expect(args).to include(raw_action_name)
           expect(args).to include(timing)
           expect(args).to include(:action)

@@ -16,6 +16,7 @@ module Vagrant
       autoload :CleanupDisks, "vagrant/action/builtin/cleanup_disks"
       autoload :Confirm, "vagrant/action/builtin/confirm"
       autoload :ConfigValidate, "vagrant/action/builtin/config_validate"
+      autoload :Delayed, "vagrant/action/builtin/delayed"
       autoload :DestroyConfirm, "vagrant/action/builtin/destroy_confirm"
       autoload :Disk, "vagrant/action/builtin/disk"
       autoload :EnvSet,  "vagrant/action/builtin/env_set"

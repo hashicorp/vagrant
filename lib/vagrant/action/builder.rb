@@ -247,15 +247,24 @@ module Vagrant
           hook_proc.call(hook)
         end
 
-        # Finally load any action triggers defined
+        # Finally load any action triggers defined. The action triggers
+        # are the originally implemented trigger style. They run before
+        # and after specific provider actions (like :up, :halt, etc) and
+        # are different from true action triggers
         if env[:triggers]
           if !env[:triggers].find(env[:raw_action_name], :before, machine_name, :action).empty?
             hook.prepend(Vagrant::Action::Builtin::Trigger,
               env[:raw_action_name], env[:triggers], :before, :action)
           end
           if !env[:triggers].find(env[:raw_action_name], :after, machine_name, :action).empty?
-            hook.append(Vagrant::Action::Builtin::Trigger,
+            # NOTE: These after triggers need to be delayed before running to
+            #       allow the rest of the call stack to complete before being
+            #       run. The delayed action is prepended to the stack (not appended)
+            #       to ensure it is called first, which results in it properly
+            #       waiting for everything to finish before itself completing.
+            builder = self.class.build(Vagrant::Action::Builtin::Trigger,
               env[:raw_action_name], env[:triggers], :after, :action)
+            hook.prepend(Vagrant::Action::Builtin::Delayed, builder)
           end
         end
 
