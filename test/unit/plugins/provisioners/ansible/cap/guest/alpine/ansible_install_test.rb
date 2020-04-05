@@ -26,11 +26,9 @@ describe VagrantPlugins::Ansible::Cap::Guest::Alpine::AnsibleInstall do
   describe "#pip_setup" do
     it "install required alpine packages for pip" do
       expect(communicator).to receive(:sudo).once.ordered.
-        with("apk add --update --no-cache python3")
+        with("apk add --update --no-cache python")
       expect(communicator).to receive(:sudo).once.ordered.
-        with("if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi")
-      expect(communicator).to receive(:sudo).once.ordered.
-        with("apk add --update --no-cache --virtual .build-deps python3-dev libffi-dev openssl-dev build-base")
+        with("apk add --update --no-cache --virtual .build-deps python-dev libffi-dev openssl-dev build-base")
 
       subject.pip_setup(machine)
     end
@@ -43,7 +41,7 @@ describe VagrantPlugins::Ansible::Cap::Guest::Alpine::AnsibleInstall do
     describe "when install_mode is :default (or unknown)" do
       it "installs ansible with 'apk' package manager" do
         expect(communicator).to receive(:sudo).once.ordered.
-            with("apk add --update --no-cache python3 ansible")
+            with("apk add --update --no-cache python ansible")
 
         subject.ansible_install(machine, :default, "", "", "")
       end
