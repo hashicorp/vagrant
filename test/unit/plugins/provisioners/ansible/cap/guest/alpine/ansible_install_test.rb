@@ -26,34 +26,24 @@ describe VagrantPlugins::Ansible::Cap::Guest::Alpine::AnsibleInstall do
   describe "#pip_setup" do
     it "install required alpine packages for pip" do
       expect(communicator).to receive(:sudo).once.ordered.
-        with("pip3 install --upgrade pip")
+        with("apk add --update --no-cache python3")
+      expect(communicator).to receive(:sudo).once.ordered.
+        with("if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi")
+      expect(communicator).to receive(:sudo).once.ordered.
+        with("apk add --update --no-cache --virtual .build-deps python3-dev libffi-dev openssl-dev build-base")
 
       subject.pip_setup(machine)
     end
   end
 
   describe "#ansible_install" do
-    describe "install python3 for any mode" do
-      it "installs python3 and set default symlinks" do
-        expect(communicator).to receive(:sudo).once.ordered.
-            with("apk add --update --no-cache python3")
-        expect(communicator).to receive(:sudo).once.ordered.
-            with("if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi")
-
-        subject.python_setup(machine)
-      end
-    end
 
     it_behaves_like "Ansible setup via pip"
 
     describe "when install_mode is :default (or unknown)" do
       it "installs ansible with 'apk' package manager" do
         expect(communicator).to receive(:sudo).once.ordered.
-            with("apk add --update --no-cache python3")
-        expect(communicator).to receive(:sudo).once.ordered.
-            with("if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi")
-        expect(communicator).to receive(:sudo).once.ordered.
-            with("apk add --update --no-cache ansible")
+            with("apk add --update --no-cache python3 ansible")
 
         subject.ansible_install(machine, :default, "", "", "")
       end
