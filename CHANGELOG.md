@@ -13,6 +13,7 @@ IMPROVEMENTS:
 - guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
 - guest/redhat: Add support for SMB [GH-11463]
 - providers/docker: Support catching container name when using podman [GH-11356]
+- core: update childprocess gem [GH-11487]
 
 BUG FIXES:
 
