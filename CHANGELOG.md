@@ -14,6 +14,7 @@ IMPROVEMENTS:
 - guest/redhat: Add support for SMB [GH-11463]
 - providers/docker: Support catching container name when using podman [GH-11356]
 - core: update childprocess gem [GH-11487]
+- guest/linux: Use systemd if available to halt and reboot system [GH-11407]
 
 BUG FIXES:
 
