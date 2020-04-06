@@ -10,7 +10,6 @@ module VagrantPlugins
         extend Vagrant::Util::GuestInspection::Linux
 
         NETPLAN_DEFAULT_VERSION = 2
-        NETPLAN_DEFAULT_RENDERER = "networkd".freeze
         NETPLAN_DIRECTORY = "/etc/netplan".freeze
         NETWORKD_DIRECTORY = "/etc/systemd/network".freeze
 
@@ -61,12 +60,21 @@ module VagrantPlugins
           # By default, netplan expects the renderer to be systemd-networkd,
           # but if any device is managed by NetworkManager, then we use that renderer
           # ref: https://netplan.io/reference
-          renderer = NETPLAN_DEFAULT_RENDERER
-          ethernets.keys.each do |k|
-            if nm_controlled?(comm, k)
-              renderer = "NetworkManager"
-              break
+          if networkd?(comm)
+            renderer = "networkd"
+            ethernets.keys.each do |k|
+              if nm_controlled?(comm, k)
+                render = "NetworkManager"
+                if !nmcli?(comm)
+                  raise Vagrant::Errors::NetworkManagerNotInstalled, device: k
+                end
+                break
+              end
             end
+          elsif nmcli?(comm)
+            renderer = "NetworkManager"
+          else
+            raise Vagrant::Errors::NetplanNoAvailableRenderers
           end
 
           np_config = {"network" => {"version" => NETPLAN_DEFAULT_VERSION,

@@ -468,6 +468,10 @@ module Vagrant
       error_key(:multi_vm_target_required)
     end
 
+    class NetplanNoAvailableRenderers < VagrantError
+      error_key(:netplan_no_available_renderers)
+    end
+
     class NetSSHException < VagrantError
       error_key(:net_ssh_exception)
     end

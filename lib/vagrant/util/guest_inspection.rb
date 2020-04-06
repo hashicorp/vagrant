@@ -73,6 +73,14 @@ module Vagrant
           comm.test("command -v netplan")
         end
 
+        # is networkd isntalled
+        #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
+        # @return [Boolean]
+        def networkd?(comm)
+          comm.test("command -v networkd")
+        end
+
         ## nmcli helpers
 
         # nmcli is installed
