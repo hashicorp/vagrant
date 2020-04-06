@@ -1,14 +1,20 @@
+require 'vagrant/util/guest_inspection'
 require "log4r"
 
 module VagrantPlugins
   module GuestLinux
     module Cap
       class Reboot
+        extend Vagrant::Util::GuestInspection::Linux
         MAX_REBOOT_RETRY_DURATION = 120
 
         def self.reboot(machine)
           @logger = Log4r::Logger.new("vagrant::linux::reboot")
-          reboot_script = "reboot"
+          if systemd?(machine.communicate)
+            reboot_script = "systemctl reboot"
+          else
+            reboot_script = "reboot"
+          end
 
           comm = machine.communicate
 

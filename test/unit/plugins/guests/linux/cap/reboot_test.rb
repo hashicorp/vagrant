@@ -12,38 +12,67 @@ describe "VagrantPlugins::GuestLinux::Cap::Reboot" do
   let(:communicator) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
   let(:ui) { double("ui") }
 
-  before do
-    allow(machine).to receive(:communicate).and_return(communicator)
-    allow(machine).to receive(:guest).and_return(guest)
-    allow(machine.guest).to receive(:ready?).and_return(true)
-    allow(machine).to receive(:ui).and_return(ui)
-    allow(ui).to receive(:info)
-  end
-
-  after do
-    communicator.verify_expectations!
-  end
-
-  describe ".reboot" do
-    it "reboots the vm" do
-      allow(communicator).to receive(:execute)
-
-      expect(communicator).to receive(:execute).with(/reboot/, nil).and_return(0)
-      expect(described_class).to receive(:wait_for_reboot)
-
-      described_class.reboot(machine)
+  context "systemd not enabled" do
+    before do
+      allow(machine).to receive(:communicate).and_return(communicator)
+      allow(machine).to receive(:guest).and_return(guest)
+      allow(machine.guest).to receive(:ready?).and_return(true)
+      allow(machine).to receive(:ui).and_return(ui)
+      allow(ui).to receive(:info)
+      allow(communicator).to receive(:test).and_return(false)
     end
 
-    context "user output" do
-      before do
+    after do
+      communicator.verify_expectations!
+    end
+
+    describe ".reboot" do
+      it "reboots the vm" do
         allow(communicator).to receive(:execute)
-        allow(described_class).to receive(:wait_for_reboot)
+
+        expect(communicator).to receive(:execute).with(/reboot/, nil).and_return(0)
+        expect(described_class).to receive(:wait_for_reboot)
+
+        described_class.reboot(machine)
       end
 
-      after { described_class.reboot(machine) }
+      context "user output" do
+        before do
+          allow(communicator).to receive(:execute)
+          allow(described_class).to receive(:wait_for_reboot)
+        end
 
-      it "sends message to user that guest is rebooting" do
-        expect(ui).to receive(:info)
+        after { described_class.reboot(machine) }
+
+        it "sends message to user that guest is rebooting" do
+          expect(ui).to receive(:info)
+        end
+      end
+    end
+
+    context "systemd enabled" do
+      before do
+        allow(machine).to receive(:communicate).and_return(communicator)
+        allow(machine).to receive(:guest).and_return(guest)
+        allow(machine.guest).to receive(:ready?).and_return(true)
+        allow(machine).to receive(:ui).and_return(ui)
+        allow(ui).to receive(:info)
+        allow(communicator).to receive(:test).and_return(true)
+      end
+
+      after do
+        communicator.verify_expectations!
+      end
+
+      describe ".reboot" do
+        it "reboots the vm" do
+          allow(communicator).to receive(:execute)
+
+          expect(communicator).to receive(:execute).with(/systemctl reboot/, nil).and_return(0)
+          expect(described_class).to receive(:wait_for_reboot)
+
+          described_class.reboot(machine)
+        end
       end
     end
   end
