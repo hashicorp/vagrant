@@ -38,6 +38,7 @@ describe Vagrant::Util::Downloader do
       before do
         allow(ui).to receive(:clear_line)
         allow(ui).to receive(:detail)
+        allow(ui).to receive(:rewriting).and_yield(ui)
       end
 
       after do

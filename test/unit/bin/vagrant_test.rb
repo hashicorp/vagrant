@@ -91,6 +91,15 @@ describe "vagrant bin" do
           with(hash_including(ui_class: Vagrant::UI::Colored))
       end
     end
+
+    describe "--no-tty" do
+      let(:argv) { ["--no-tty"] }
+
+      it "should enable less verbose progress output" do
+        expect(Vagrant::Environment).to receive(:new).
+          with(hash_including(ui_class: Vagrant::UI::NonInteractive))
+      end
+    end
   end
 
   context "default CLI flags" do

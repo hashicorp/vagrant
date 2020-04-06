@@ -75,6 +75,13 @@ module Vagrant
       def machine(type, *data)
         @logger.info("Machine: #{type} #{data.inspect}")
       end
+
+      # Yields self (UI)
+      # Provides a way for selectively displaying or not displaying
+      # updating content like download progress.
+      def rewriting
+        yield self
+      end
     end
 
     # This is a UI implementation that does nothing.
@@ -252,6 +259,31 @@ module Vagrant
       end
     end
 
+
+    class NonInteractive < Basic
+      def initialize
+        super
+      end
+
+      def rewriting
+        # no-op
+      end
+
+      def report_progress(progress, total, show_parts=true)
+        # no-op
+      end
+
+      def clear_line
+        @logger.warn("Using `clear line` in a non interactive ui")
+        say(:info, "\n", opts)
+      end
+
+      def ask(*args)
+        # Non interactive can't ask for input
+        raise Errors::UIExpectsTTY
+      end
+    end
+
     # Prefixed wraps an existing UI and adds a prefix to it.
     class Prefixed < Interface
       # The prefix for `output` messages.
@@ -290,7 +322,9 @@ module Vagrant
 
       [:clear_line, :report_progress].each do |method|
         # By default do nothing, these aren't formatted
-        define_method(method) { |*args| @ui.send(method, *args) }
+        define_method(method) do |*args|
+          @ui.send(method, *args)
+        end
       end
 
       # For machine-readable output, set the prefix in the
@@ -344,6 +378,13 @@ module Vagrant
           "#{prefix}#{target} #{line}"
         end.join("\n")
       end
+
+      def rewriting
+        @ui.rewriting do |ui|
+          yield ui
+        end
+      end
+
     end
 
     # This is a UI implementation that outputs color for various types

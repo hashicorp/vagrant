@@ -23,8 +23,10 @@ module VagrantPlugins
         def export
           @env[:ui].info I18n.t("vagrant.actions.vm.export.exporting")
           @env[:machine].provider.driver.export(ovf_path) do |progress|
-            @env[:ui].clear_line
-            @env[:ui].report_progress(progress.percent, 100, false)
+            @env[:ui].rewriting do |ui|
+              ui.clear_line
+              ui.report_progress(progress.percent, 100, false)
+            end
           end
 
           # Clear the line a final time so the next data can appear
