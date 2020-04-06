@@ -13,8 +13,9 @@ IMPROVEMENTS:
 - guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
 - guest/redhat: Add support for SMB [GH-11463]
 - providers/docker: Support catching container name when using podman [GH-11356]
-- core: update childprocess gem [GH-11487]
+- core: Update childprocess gem [GH-11487]
 - guest/linux: Use systemd if available to halt and reboot system [GH-11407]
+- core: Add cli option `--no-tty` [GH-11414]
 
 BUG FIXES:
 
