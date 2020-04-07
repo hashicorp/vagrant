@@ -107,8 +107,6 @@ module VagrantPlugins
         @size = nil if @size == UNSET_VALUE
         @file = nil if @file == UNSET_VALUE
 
-        @disk_ext = "vdi" if @disk_ext == UNSET_VALUE
-
         if @primary == UNSET_VALUE
           @primary = false
         end
@@ -135,7 +133,18 @@ module VagrantPlugins
                            types: DEFAULT_DISK_TYPES.join(', '))
         end
 
-        if @disk_ext
+        if @disk_ext == UNSET_VALUE
+          # Work around to finalize disk_ext with a valid default per-provider
+          if machine.provider_name == :virtualbox
+            @disk_ext = "vdi"
+          elsif machine.provider_name == :vmware_desktop
+            @disk_ext = nil
+          elsif machine.provider_name == :hyperv
+            @disk_ext = "vhdx"
+          else
+            @disk_ext = "vdi"
+          end
+        elsif @disk_ext
           @disk_ext = @disk_ext.downcase
 
           if machine.provider.capability?(:validate_disk_ext)

@@ -10,7 +10,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
   subject { described_class.new(type) }
 
   let(:provider) { double("provider") }
-  let(:machine) { double("machine", provider: provider) }
+  let(:machine) { double("machine", provider: provider, provider_name: :virtualbox) }
 
 
   def assert_invalid
