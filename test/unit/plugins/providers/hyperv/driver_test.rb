@@ -91,7 +91,7 @@ describe VagrantPlugins::HyperV::Driver do
     describe "#set_vm_integration_services" do
       it "should map known integration services names automatically" do
         expect(subject).to receive(:execute) do |name, args|
-          expect(args[:Name]).to eq("Shutdown")
+          expect(args[:Id]).to eq(VagrantPlugins::HyperV::Driver::INTEGRATION_SERVICES_MAP[:shutdown])
         end
         subject.set_vm_integration_services(shutdown: true)
       end
@@ -112,7 +112,7 @@ describe VagrantPlugins::HyperV::Driver do
 
       it "should pass unknown key names directly through" do
         expect(subject).to receive(:execute) do |name, args|
-          expect(args[:Name]).to eq("CustomKey")
+          expect(args[:Id]).to eq("CustomKey")
         end
         subject.set_vm_integration_services(CustomKey: true)
       end

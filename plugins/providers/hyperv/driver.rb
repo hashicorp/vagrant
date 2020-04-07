@@ -10,15 +10,16 @@ module VagrantPlugins
       ERROR_REGEXP  = /===Begin-Error===(.+?)===End-Error===/m
       OUTPUT_REGEXP = /===Begin-Output===(.+?)===End-Output===/m
 
-      # Name mapping for integration services for nicer keys
+      # Name mapping for integration services for id
+      # https://social.technet.microsoft.com/Forums/de-DE/154917de-f3ca-4b1e-b3f8-23dd4b4f0f06/getvmintegrationservice-sprachabhngig?forum=powershell_de
       INTEGRATION_SERVICES_MAP = {
-        guest_service_interface: "Guest Service Interface",
-        heartbeat: "Heartbeat",
-        key_value_pair_exchange: "Key-Value Pair Exchange",
-        shutdown: "Shutdown",
-        time_synchronization: "Time Synchronization",
-        vss: "VSS",
-      }
+        guest_service_interface: "6C09BB55-D683-4DA0-8931-C9BF705F6480".freeze,
+        heartbeat: "84EAAE65-2F2E-45F5-9BB5-0E857DC8EB47".freeze,
+        key_value_pair_exchange: "2A34B1C2-FD73-4043-8A5B-DD2159BC743F".freeze,
+        shutdown: "9F8233AC-BE49-4C79-8EE3-E7E1985B2077".freeze,
+        time_synchronization: "2497F4DE-E9FA-4204-80E4-4B75C46419C0".freeze,
+        vss: "5CED1297-4598-4915-A5FC-AD21BB4D02A4".freeze,
+      }.freeze
 
       # @return [String] VM ID
       attr_reader :vm_id
@@ -203,7 +204,7 @@ module VagrantPlugins
       #       to configurable even if Vagrant is not aware of them.
       def set_vm_integration_services(config)
         config.each_pair do |srv_name, srv_enable|
-          args = {VMID: vm_id, Name: INTEGRATION_SERVICES_MAP.fetch(srv_name.to_sym, srv_name).to_s}
+          args = {VMID: vm_id, Id: INTEGRATION_SERVICES_MAP.fetch(srv_name.to_sym, srv_name).to_s}
           args[:Enable] = true if srv_enable
           execute(:set_vm_integration_services, args)
         end

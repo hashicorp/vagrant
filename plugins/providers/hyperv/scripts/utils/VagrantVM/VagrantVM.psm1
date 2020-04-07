@@ -614,15 +614,15 @@ function Set-VagrantVMService {
         [parameter (Mandatory=$true)]
         [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
         [parameter (Mandatory=$true)]
-        [string] $Name,
+        [string] $Id,
         [parameter (Mandatory=$true)]
         [bool] $Enable
     )
 
     if($Enable) {
-        Hyper-V\Enable-VMIntegrationService -VM $VM -Name $Name
+        Hyper-V\Get-VMIntegrationService -VM $VM | ?{$_.Id -match $Id} | Hyper-V\Enable-VMIntegrationService
     } else {
-        Hyper-V\Disable-VMIntegrationService -VM $VM -Name $Name
+        Hyper-V\Get-VMIntegrationService -VM $VM | ?{$_.Id -match $Id} | Hyper-V\Disable-VMIntegrationService
     }
     return $VM
 <#
@@ -634,9 +634,9 @@ Enable or disable Hyper-V VM integration services.
 
 Hyper-V VM for modification.
 
-.PARAMETER Name
+.PARAMETER Id
 
-Name of the integration service.
+Id of the integration service.
 
 .PARAMETER Enable
 
