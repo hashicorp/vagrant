@@ -37,8 +37,9 @@ module VagrantPlugins
       # @param [String] controller_location
       # @param [Hash] opts
       def attach_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
-        execute(:attach_disk_drive, @vm_id, controller_type, controller_number,
-                controller_location, disk_file_path)
+        execute(:attach_disk_drive, VmId: @vm_id, ControllerType: controller_type,
+                ControllerNumber: controller_number, ControllerLocation: controller_location,
+                DiskFilePath: disk_file_path)
       end
 
       # TODO: Include other options like if disk is fixed or dymanic in opts hash?
@@ -53,7 +54,7 @@ module VagrantPlugins
       # @param [Hash] opts
       def new_vdh(path, size_bytes, **opts)
         # ensure size_bytes is a uint64
-        execute(:new_vdh, path, size_bytes)
+        execute(:new_vdh, DiskFilePath: path, DiskSizeBytes: size_bytes)
       end
 
       # @param [String] controller_type
@@ -61,18 +62,20 @@ module VagrantPlugins
       # @param [String] controller_location
       # @param [Hash] opts
       def remove_disk(controller_type, controller_number, controller_location, **opts)
-        execute(:remove_disk_drive, @vm_id, controller_type, controller_number, controller_location)
+        execute(:remove_disk_drive, VmId: @vm_id, ControllerType: controller_type,
+                ControllerNumer: controller_number, ControllerLocation: controller_location)
       end
 
       # @param [String] path
       # @param [Int] size_bytes
       # @param [Hash] opts
       def resize_disk(disk_file_path, size_bytes, **opts)
-        execute(:resize_disk_drive, @vm_id, disk_file_path, size_bytes)
+        execute(:resize_disk_drive, VmId: @vm_id, DiskFilePath: disk_file_path,
+                DiskSize: size_bytes)
       end
 
       def list_hdds
-        execute(:list_hdds, @vm_id)
+        execute(:list_hdds, VmId: @vm_id)
       end
 
       ########
