@@ -7,7 +7,7 @@ param(
 
 try {
     $VM = Hyper-V\Get-VM -Id $VmId
-    $Disks = @(Hyper-V\Get-VMHardDiskDrive -VMName $VM)
+    $Disks = @(Hyper-V\Get-VMHardDiskDrive -VMName $VM.name)
 } catch {
     Write-ErrorMessage "Failed to retrieve all disk info from ${VM}: ${PSItem}"
     exit 1
