@@ -125,4 +125,22 @@ shared_examples "a version 5.x virtualbox driver" do |options|
       end
     end
   end
+
+  describe "#read_guest_ip" do
+    it "retries reading the guest ip if the resulting value ends in .1" do
+      key = "/VirtualBox/GuestInfo/Net/1/V4/IP"
+
+      expect(subprocess).to receive(:execute).
+        with("VBoxManage", "guestproperty", "get", uuid, key, an_instance_of(Hash)).
+        and_return(subprocess_result(stdout: "Value: 172.28.128.1"))
+
+      expect(subprocess).to receive(:execute).
+        with("VBoxManage", "guestproperty", "get", uuid, key, an_instance_of(Hash)).
+        and_return(subprocess_result(stdout: "Value: 172.28.128.11"))
+
+      value = subject.read_guest_ip(1)
+
+      expect(value).to eq("172.28.128.11")
+    end
+  end
 end
