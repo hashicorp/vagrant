@@ -8,7 +8,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
   end
 
   let(:machine) { double("machine", env: env) }
-  let(:env) { double("env", host: host) }
+  let(:env) { double("env", host: host, ui: double("ui"), data_dir: double("data_dir")) }
   let(:host) { double("host") }
   let(:guest) { double("guest") }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
@@ -44,6 +44,9 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       allow(comm).to receive(:execute).with(any_args)
       allow(machine).to receive(:guest).and_return(guest)
       allow(guest).to receive(:capability).with(:shell_expand_guest_path, mount_guest_path).and_return(mount_guest_path)
+      allow(ENV).to receive(:[]).with("VAGRANT_DISABLE_SMBMFSYMLINKS").and_return(false)
+      allow(ENV).to receive(:[]).with("GEM_SKIP").and_return(false)
+      allow(cap).to receive(:display_mfsymlinks_warning)
     end
 
     it "generates the expected default mount command" do
@@ -76,13 +79,13 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
-    it "it adds mfsymlinks option by default" do
+    it "adds mfsymlinks option by default" do
       expect(comm).to receive(:sudo).with(/mfsymlinks/, any_args)
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
-    it "it does not add mfsymlinks option if env var VAGRANT_DISABLE_SMBMFSYMLINKS exists" do
-      ENV['VAGRANT_DISABLE_SMBMFSYMLINKS'] = "1"
+    it "does not add mfsymlinks option if env var VAGRANT_DISABLE_SMBMFSYMLINKS exists" do
+      expect(ENV).to receive(:[]).with("VAGRANT_DISABLE_SMBMFSYMLINKS").and_return(true)
       expect(comm).not_to receive(:sudo).with(/mfsymlinks/, any_args)
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
@@ -137,6 +140,29 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
         result = cap.merge_mount_options(base, override)
         expect(result).to include("opt4=on")
       end
+    end
+  end
+
+  describe ".display_mfsymlinks_warning" do
+    let(:gate_file){ double("gate") }
+
+    before do
+      allow(env.data_dir).to receive(:join).and_return(gate_file)
+      allow(gate_file).to receive(:exist?).and_return(false)
+      allow(gate_file).to receive(:to_path).and_return("PATH")
+      allow(FileUtils).to receive(:touch)
+    end
+  
+    it "should output warning message" do
+      expect(env.ui).to receive(:warn).with(/VAGRANT_DISABLE_SMBMFSYMLINKS=1/)
+      cap.display_mfsymlinks_warning(env)
+    end
+
+    it "should not output warning message if gate file exists" do
+      allow(gate_file).to receive(:exist?).and_return(true)
+
+      expect(env.ui).not_to receive(:warn)
+      cap.display_mfsymlinks_warning(env)
     end
   end
 end
