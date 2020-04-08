@@ -8,29 +8,30 @@ IMPROVEMENTS:
 
 - bin/vagrant: Automatically include global options within commands [GH-11473]
 - bin/vagrant: Suppress Ruby warnings when not running pre-release version [GH-11446]
-- core/bundler: Cache plugin solution sets to speed up startup times [GH-11363]
-- guest/linux: Update systemd? check to use sudo [GH-11398]
-- guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
-- guest/redhat: Add support for SMB [GH-11463]
-- providers/docker: Support catching container name when using podman [GH-11356]
 - core: Update childprocess gem [GH-11487]
-- guest/linux: Use systemd if available to halt and reboot system [GH-11407]
 - core: Add cli option `--no-tty` [GH-11414]
+- core: Overhaul call stack modifications implementation for hooks and triggers [GH-11455]
+- core/bundler: Cache plugin solution sets to speed up startup times [GH-11363]
 - guest/alpine: Add ansible provisioner guest support [GH-11411]
+- guest/linux: Update systemd? check to use sudo [GH-11398]
+- guest/linux: Use systemd if available to halt and reboot system [GH-11407]
+- guest/redhat: Add support for SMB [GH-11463]
+- guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
+- providers/docker: Support catching container name when using podman [GH-11356]
 
 BUG FIXES:
 
+- communicators/winssh: Fix issues with Windows SSH communicator [GH-11430]
 - core/bundler: Activate vagrant specification when not active [GH-11445]
 - core/downloader: Always set `-q` flag as first option [GH-11366]
 - core/hooks: Update dynamic action hook implementation to prevent looping [GH-11427]
 - core/synced_folders: Validate type option if set [GH-11359]
+- host/darwin: Quote directories in /etc/exports [GH-11441]
+- host/linux: Ensure `/etc/exports` does not contain duplicate records [GH-10591]
+- host/windows: Check all interfaces for port conflict when host_ip: "0.0.0.0" [GH-11454]
 - providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
-- darwin/nfs: Quote directories in /etc/exports [GH-11441]
-- communicators/winssh: Fix issues with Windows SSH communicator [GH-11430]
 - providers/docker: Fix issue where Vagrant fails to remove image if it is in use [GH-11355]
 - providers/docker: Fix issue with getting correct docker image id from build output [GH-11461]
-- hosts/linux: Ensure `/etc/exports` does not contain duplicate records [GH-10591]
-- hosts/windows: Check all interfaces for port conflict when host_ip: "0.0.0.0" [GH-11454]
 
 ## 2.2.7 (January 27, 2020)
 
