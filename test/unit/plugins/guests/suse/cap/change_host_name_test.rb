@@ -12,6 +12,7 @@ describe "VagrantPlugins::GuestSUSE::Cap::ChangeHostName" do
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
+    allow(comm).to receive(:sudo).with("sed -i \"s/localhost/localhost #{basename}/g\" /etc/hosts")
   end
 
   after do
@@ -25,17 +26,18 @@ describe "VagrantPlugins::GuestSUSE::Cap::ChangeHostName" do
     let(:basename) { "banana-rama" }
 
     it "sets the hostname" do
-      comm.stub_command('test "$(hostnamectl --static status)" = "#{basename}"', exit_code: 1)
-
+      allow(comm).to receive(:test).with("hostnamectl --static status", {:sudo=>true}).and_return(true)
+      
+      expect(comm).to receive(:sudo).with("hostnamectl set-hostname '#{basename}'")
       cap.change_host_name(machine, name)
-      expect(comm.received_commands[1]).to match(/hostnamectl set-hostname '#{basename}'/)
     end
 
     it "does not change the hostname if already set" do
-      comm.stub_command('test "$(hostnamectl --static status)" = "#{basename}"', exit_code: 0)
+      allow(comm).to receive(:test).with("hostnamectl --static status", {:sudo=>true}).and_return(false)
 
+      expect(comm).to receive(:sudo)
+      expect(comm).to_not receive(:sudo).with("hostnamectl set-hostname '#{basename}'")
       cap.change_host_name(machine, name)
-      expect(comm.received_commands.size).to eq(1)
     end
   end
 end

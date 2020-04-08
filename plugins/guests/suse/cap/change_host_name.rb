@@ -6,16 +6,16 @@ module VagrantPlugins
           comm = machine.communicate
 
           basename = name.split(".", 2)[0]
-          if !comm.test('test "$(hostnamectl --static status)" = "#{basename}"', sudo: false)
+          if comm.test("hostnamectl --static status", sudo: true)
+            comm.sudo("hostnamectl set-hostname '#{basename}'")
+          else
             comm.sudo <<-EOH.gsub(/^ {14}/, '')
-              hostnamectl set-hostname '#{basename}'
-
-              # Prepend ourselves to /etc/hosts
-              grep -w '#{name}' /etc/hosts || {
-                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
-              }
+              sed -i "s/$(hostname)/#{basename}/g" /etc/hosts
+              hostname '#{basename}'
+              echo '#{name}' > /etc/HOSTNAME
             EOH
           end
+          comm.sudo("sed -i \"s/localhost/localhost #{basename}/g\" /etc/hosts")
         end
       end
     end
