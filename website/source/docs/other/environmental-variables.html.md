@@ -143,6 +143,10 @@ do not wish to completely disable this feature for all VirtualBox guests.
 
 More information on the option can be read in the [VirtualBox synced folders docs page.](/docs/synced-folders/virtualbox.html#sharedfoldersenablesymlinkscreate)
 
+## `VAGRANT_DISABLE_SMBMFSYMLINKS`
+
+If set, this will disable the `mfsymlinks` option for mounting SMB filesystems. If not set, then the `mfsymlinks` option will be enabled by default. This option can be overriden on a pre-folder basis with your Vagrantfile by setting `mount_options: ['mfsymlinks']`.
+
 ## `VAGRANT_DOTFILE_PATH`
 
 `VAGRANT_DOTFILE_PATH` can be set to change the directory where Vagrant stores

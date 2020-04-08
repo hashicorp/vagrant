@@ -34,6 +34,9 @@ module VagrantPlugins
           mnt_opts << "credentials=/etc/smb_creds_#{name}"
           mnt_opts << "uid=#{mount_uid}"
           mnt_opts << "gid=#{mount_gid}"
+          if !ENV['VAGRANT_DISABLE_SMBMFSYMLINKS']
+            mnt_opts << "mfsymlinks"
+          end
 
           mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
 

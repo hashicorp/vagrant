@@ -76,6 +76,17 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
+    it "it adds mfsymlinks option by default" do
+      expect(comm).to receive(:sudo).with(/mfsymlinks/, any_args)
+      cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+    end
+
+    it "it does not add mfsymlinks option if env var VAGRANT_DISABLE_SMBMFSYMLINKS exists" do
+      ENV['VAGRANT_DISABLE_SMBMFSYMLINKS'] = "1"
+      expect(comm).not_to receive(:sudo).with(/mfsymlinks/, any_args)
+      cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+    end
+
     context "with custom mount options" do
       let(:folder_options) do
         {
