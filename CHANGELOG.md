@@ -16,6 +16,7 @@ IMPROVEMENTS:
 - core: Update childprocess gem [GH-11487]
 - guest/linux: Use systemd if available to halt and reboot system [GH-11407]
 - core: Add cli option `--no-tty` [GH-11414]
+- guest/alpine: Add ansible provisioner guest support [GH-11411]
 
 BUG FIXES:
 
