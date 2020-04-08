@@ -301,7 +301,7 @@ en:
         Vagrant has been configured to abort. Vagrant will terminate
         after remaining running actions have completed...
       start: |-
-        Running %{type} triggers %{stage} %{action} ...
+        Running %{type} triggers %{stage} %{name} ...
       fire_with_name: |-
         Running trigger: %{name}...
       fire: |-
@@ -1529,7 +1529,8 @@ en:
       triggers_no_stage_given: |-
         The incorrect stage was given to the trigger plugin:
         Guest: %{guest_name}
-        Action: %{action}
+        Name:  %{name}
+        Type:  %{type}
         Stage: %{stage}
 
         This is an internal error that should be reported as a bug.

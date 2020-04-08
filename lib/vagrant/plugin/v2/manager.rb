@@ -64,7 +64,11 @@ module Vagrant
         # @param [Class, String] key Base key for generation
         # @return [Array<String>] all valid keys
         def generate_hook_keys(key)
-          key = key.is_a?(Class) ? key.name : key.to_s
+          if key.is_a?(Class)
+            key = key.name.to_s
+          else
+            key = key.to_s
+          end
           parts = key.split("::")
           [].tap do |keys|
             until parts.empty?

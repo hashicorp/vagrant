@@ -36,31 +36,99 @@ describe Vagrant::Plugin::V2::Trigger do
     triggers.finalize!
   end
 
-
   let(:subject) { described_class.new(env, triggers, machine, ui) }
 
-  context "#fire_triggers" do
-    it "raises an error if an inproper stage is given" do
-      expect{ subject.fire_triggers(:up, :not_real, "guest", :action) }.
+  describe "#fire" do
+    it "raises an error if an improper stage is given" do
+      expect{ subject.fire(:up, :not_real, "guest", :action) }.
        to raise_error(Vagrant::Errors::TriggersNoStageGiven)
     end
 
     it "does not fire triggers if community plugin is detected" do
       allow(subject).to receive(:community_plugin_detected?).and_return(true)
 
-      expect(subject).not_to receive(:fire)
-      subject.fire_triggers(:up, :before, "guest", :action)
+      expect(subject).not_to receive(:execute)
+      subject.fire(:up, :before, "guest", :action)
     end
 
     it "does fire triggers if community plugin is not detected" do
       allow(subject).to receive(:community_plugin_detected?).and_return(false)
 
-      expect(subject).to receive(:fire)
-      subject.fire_triggers(:up, :before, "guest", :action)
+      expect(subject).to receive(:execute)
+      subject.fire(:up, :before, "guest", :action)
     end
   end
 
-  context "#filter_triggers" do
+  describe "#find" do
+    it "raises an error if an improper stage is given" do
+      expect { subject.find(:up, :not_real, "guest", :action) }.
+        to raise_error(Vagrant::Errors::TriggersNoStageGiven)
+    end
+
+    it "returns empty array when no triggers are found" do
+      expect(subject.find(:halt, :after, "guest", :action)).to be_empty
+    end
+
+    it "returns items in array when triggers are found" do
+      expect(subject.find(:halt, :before, "guest", :action)).not_to be_empty
+    end
+
+    it "returns the execpted number of items in the array when triggers are found" do
+      expect(subject.find(:halt, :before, "guest", :action).count).to eq(1)
+    end
+
+    it "filters all found triggers" do
+      expect(subject).to receive(:filter_triggers)
+      subject.find(:halt, :before, "guest", :action)
+    end
+
+    it "should not attempt to match hook name with non-hook type" do
+      expect(subject).not_to receive(:matched_hook?)
+      subject.find(:halt, :before, "guest", :action)
+    end
+
+    context "with hook type" do
+      before do
+        triggers.before(:environment_load, hash_block.merge(type: :hook))
+        triggers.before(Vagrant::Action::Builtin::SyncedFolders, hash_block.merge(type: :hook))
+        triggers.finalize!
+      end
+
+      it "returns empty array when no triggers are found" do
+        expect(subject.find(:environment_unload, :before, "guest", :hook)).to be_empty
+      end
+
+      it "returns items in array when triggers are found" do
+        expect(subject.find(:environment_load, :before, "guest", :hook).size).to eq(1)
+      end
+
+      it "should locate hook trigger using class constant" do
+        expect(subject.find(Vagrant::Action::Builtin::SyncedFolders, :before, "guest", :hook)).
+          not_to be_empty
+      end
+
+      it "should locate hook trigger using string" do
+        expect(subject.find("environment_load", :before, "guest", :hook)).not_to be_empty
+      end
+
+      it "should locate hook trigger using full converted name" do
+        expect(subject.find(:vagrant_action_builtin_synced_folders, :before, "guest", :hook)).
+          not_to be_empty
+      end
+
+      it "should locate hook trigger using partial suffix converted name" do
+        expect(subject.find(:builtin_synced_folders, :before, "guest", :hook)).
+          not_to be_empty
+      end
+
+      it "should not locate hook trigger using partial prefix converted name" do
+        expect(subject.find(:vagrant_action, :before, "guest", :hook)).
+          to be_empty
+      end
+    end
+  end
+
+  describe "#filter_triggers" do
     it "returns all triggers if no constraints" do
       before_triggers = triggers.before_triggers
       filtered_triggers = subject.send(:filter_triggers, before_triggers, "guest", :action)
@@ -101,17 +169,17 @@ describe Vagrant::Plugin::V2::Trigger do
     end
   end
 
-  context "#fire" do
+  describe "#execute" do
     it "calls the corresponding trigger methods if options set" do
       expect(subject).to receive(:info).twice
       expect(subject).to receive(:warn).once
       expect(subject).to receive(:run).twice
       expect(subject).to receive(:run_remote).once
-      subject.send(:fire, triggers.before_triggers, "guest")
+      subject.send(:execute, triggers.before_triggers)
     end
   end
 
-  context "#info" do
+  describe "#info" do
     let(:message) { "Printing some info" }
 
     it "prints messages at INFO" do
@@ -125,7 +193,7 @@ describe Vagrant::Plugin::V2::Trigger do
     end
   end
 
-  context "#warn" do
+  describe "#warn" do
     let(:message) { "Printing some warnings" }
 
     it "prints messages at WARN" do
@@ -139,7 +207,7 @@ describe Vagrant::Plugin::V2::Trigger do
     end
   end
 
-  context "#run" do
+  describe "#run" do
     let(:trigger_run) { VagrantPlugins::Kernel_V2::TriggerConfig.new }
     let(:shell_block) { {info: "hi", run: {inline: "echo 'hi'", env: {"KEY"=>"VALUE"}}} }
     let(:shell_block_exit_codes) {
@@ -305,7 +373,7 @@ describe Vagrant::Plugin::V2::Trigger do
     end
   end
 
-  context "#run_remote" do
+  describe "#run_remote" do
     let (:trigger_run) { VagrantPlugins::Kernel_V2::TriggerConfig.new }
     let (:shell_block) { {info: "hi", run_remote: {inline: "echo 'hi'", env: {"KEY"=>"VALUE"}}} }
     let (:path_block) { {warn: "bye",
@@ -412,7 +480,7 @@ describe Vagrant::Plugin::V2::Trigger do
     end
   end
 
-  context "#trigger_abort" do
+  describe "#trigger_abort" do
     it "system exits when called" do
       allow(Process).to receive(:exit!).and_return(true)
       output = ""
@@ -456,7 +524,7 @@ describe Vagrant::Plugin::V2::Trigger do
     end
   end
 
-  context "#ruby" do
+  describe "#ruby" do
     let(:trigger_run) { VagrantPlugins::Kernel_V2::TriggerConfig.new }
     let(:block) { proc{var = 1+1} }
     let(:ruby_trigger) { {info: "hi", ruby: block} }
@@ -469,6 +537,20 @@ describe Vagrant::Plugin::V2::Trigger do
     it "executes a ruby block" do
       expect(block).to receive(:call)
       subject.send(:execute_ruby, block)
+    end
+  end
+
+  describe "#nameify" do
+    it "should return empty string when object" do
+      expect(subject.send(:nameify, "")).to eq("")
+    end
+
+    it "should return name of class" do
+      expect(subject.send(:nameify, String)).to eq("String")
+    end
+
+    it "should return empty string when class has no name" do
+      expect(subject.send(:nameify, Class.new)).to eq("")
     end
   end
 end

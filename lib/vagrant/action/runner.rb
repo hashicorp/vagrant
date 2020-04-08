@@ -34,30 +34,19 @@ module Vagrant
         environment.merge!(@lazy_globals.call) if @lazy_globals
         environment.merge!(options || {})
 
-        if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
-          # NOTE: Triggers are initialized later in the Action::Runer because of
-          # how `@lazy_globals` are evaluated. Rather than trying to guess where
-          # the `env` is coming from, we can wait until they're merged into a single
-          # hash above.
-          env = environment[:env]
-          machine = environment[:machine]
-          machine_name = machine.name if machine
+        # NOTE: Triggers are initialized later in the Action::Runer because of
+        # how `@lazy_globals` are evaluated. Rather than trying to guess where
+        # the `env` is coming from, we can wait until they're merged into a single
+        # hash above.
+        env = environment[:env]
+        machine = environment[:machine]
 
+        environment[:triggers] = machine.triggers if machine
+
+        if env
           ui = Vagrant::UI::Prefixed.new(env.ui, "vagrant")
-          triggers = Vagrant::Plugin::V2::Trigger.new(env, env.vagrantfile.config.trigger, machine, ui)
-        end
-
-        # Setup the action hooks
-        hooks = Vagrant.plugin("2").manager.action_hooks(environment[:action_name])
-        if !hooks.empty?
-          @logger.info("Preparing hooks for middleware sequence...")
-          environment[:action_hooks] = hooks.map do |hook_proc|
-            Hook.new.tap do |h|
-              hook_proc.call(h)
-            end
-          end
-
-          @logger.info("#{environment[:action_hooks].length} hooks defined.")
+          environment[:triggers] ||= Vagrant::Plugin::V2::Trigger.
+            new(env, env.vagrantfile.config.trigger, machine, ui)
         end
 
         # Run the action chain in a busy block, marking the environment as
@@ -95,13 +84,9 @@ module Vagrant
 
         action_name = environment[:action_name]
 
-        triggers.fire_triggers(action_name, :before, machine_name, :hook) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
-
         # We place a process lock around every action that is called
         @logger.info("Running action: #{environment[:action_name]} #{callable_id}")
         Util::Busy.busy(int_callback) { callable.call(environment) }
-
-        triggers.fire_triggers(action_name, :after, machine_name, :hook) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
 
         # Return the environment in case there are things in there that
         # the caller wants to use.
