@@ -110,13 +110,13 @@ module VagrantPlugins
         # @param [Hash] defined_disk
         # @return [Boolean]
         def self.compare_disk_size(machine, disk_config, defined_disk)
-          requested_disk_size = Vagrant::Util::Numeric.bytes_to_megabytes(disk_config.size)
-
+          # Hyper-V returns disk size in bytes
+          requested_disk_size = disk_config.size
           disk_actual = machine.provider.driver.get_disk(defined_disk["Path"])
-
-          defined_disk_size = defined_disk["Capacity"].split(" ").first.to_f
+          defined_disk_size = disk_config.size
 
           if defined_disk_size > requested_disk_size
+            # TODO: Check if disk (maybe use file path) is of type `VHDX`. If not, the disk cannot be shrunk
             machine.ui.warn(I18n.t("vagrant.cap.configure_disks.shrink_size_not_supported", name: disk_config.name))
             return false
           elsif defined_disk_size < requested_disk_size
