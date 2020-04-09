@@ -111,6 +111,9 @@ module VagrantPlugins
         # @return [Boolean]
         def self.compare_disk_size(machine, disk_config, defined_disk)
           requested_disk_size = Vagrant::Util::Numeric.bytes_to_megabytes(disk_config.size)
+
+          disk_actual = machine.provider.driver.get_disk(defined_disk["Path"])
+
           defined_disk_size = defined_disk["Capacity"].split(" ").first.to_f
 
           if defined_disk_size > requested_disk_size

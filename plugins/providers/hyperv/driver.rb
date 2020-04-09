@@ -78,6 +78,10 @@ module VagrantPlugins
         execute(:list_hdds, VmId: @vm_id)
       end
 
+      def get_disk(disk_file_path)
+        execute(:get_vhd, DiskFilePath: disk_file_path)
+      end
+
       ########
       ########
       ########
