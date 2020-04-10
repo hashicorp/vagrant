@@ -85,18 +85,21 @@ module VagrantPlugins
           elsif compare_disk_size(machine, disk, current_disk)
             disk_metadata = resize_disk(machine, disk, current_disk)
           else
-            # TODO: What if it needs to be resized?
+            # TODO OLD: What if it needs to be resized?
+            #
+            # TODO: Is it possible for a disk to not be connected by this point
+            # for hyper-v? Since we get the disk from the vm info itself
 
-            disk_info = machine.provider.driver.get_port_and_device(current_disk["UUID"])
-            if disk_info.empty?
-              LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
-              dsk_info = get_next_port(machine)
-              machine.provider.driver.attach_disk(dsk_info[:port],
-                                                  dsk_info[:device],
-                                                  current_disk["Location"])
-            else
-              LOGGER.info("No further configuration required for disk '#{disk.name}'")
-            end
+            #disk_info = machine.provider.driver.get_port_and_device(current_disk["UUID"])
+            #if disk_info.empty?
+            #  LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
+            #  dsk_info = get_next_port(machine)
+            #  machine.provider.driver.attach_disk(dsk_info[:port],
+            #                                      dsk_info[:device],
+            #                                      current_disk["Location"])
+            #else
+            #  LOGGER.info("No further configuration required for disk '#{disk.name}'")
+            #end
 
             disk_metadata = {uuid: current_disk["UUID"], name: disk.name}
           end
