@@ -135,15 +135,20 @@ module VagrantPlugins
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         def self.create_disk(machine, disk_config)
           machine.ui.detail(I18n.t("vagrant.cap.configure_disks.create_disk", name: disk_config.name))
-          # NOTE: At the moment, there are no provider specific configs for Hyper-V
-          # but we grab it anyway for future use.
           disk_provider_config = disk_config.provider_config[:hyperv] if disk_config.provider_config
 
-          # TODO: Create and store disk before attaching, if required
+          # TODO: Create and store disk before attaching
+          #
+          # create supporting powershell scripts and hyper-v driver methods
+          #
+          # pass along disk_provider_config if defined. This should
+          # contain various options for creating disks
 
+          # Get the machines data dir, that will now be the path for the new disk
           guest_info = machine.provider.driver.show_vm_info
           guest_folder = File.dirname(guest_info["CfgFile"])
 
+          # Set the extension
           disk_ext = disk_config.disk_ext
           disk_file = File.join(guest_folder, disk_config.name) + ".#{disk_ext}"
 
@@ -152,6 +157,8 @@ module VagrantPlugins
           disk_var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
           disk_metadata = {uuid: disk_var.split(':').last.strip, name: disk_config.name}
 
+          # This might not be required. If no port is specified, we can just
+          # attach the disk with the command for hyper-v
           dsk_controller_info = get_next_port(machine)
           machine.provider.driver.attach_disk(dsk_controller_info[:port], dsk_controller_info[:device], disk_file)
 
