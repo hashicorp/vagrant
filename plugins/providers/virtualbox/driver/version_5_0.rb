@@ -928,7 +928,7 @@ module VagrantPlugins
         def valid_ip_address?(ip)
           # Filter out invalid IP addresses
           # GH-4658 VirtualBox can report an IP address of 0.0.0.0 for FreeBSD guests.
-          if ip == "0.0.0.0"
+          if ip == "0.0.0.0" || ip.nil?
             return false
           else
             return true

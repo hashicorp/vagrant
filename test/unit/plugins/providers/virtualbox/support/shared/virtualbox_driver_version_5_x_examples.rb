@@ -136,10 +136,28 @@ shared_examples "a version 5.x virtualbox driver" do |options|
           and_return(subprocess_result(stdout: "Value: 172.28.128.1"))
       end
 
-      it "should set the ip value to nil" do
-        value = subject.read_guest_ip(1)
+      it "should raise an error" do
+        expect { subject.read_guest_ip(1) }.to raise_error(Vagrant::Errors::VirtualBoxGuestPropertyNotFound)
+      end
+    end
+  end
 
-        expect(value).to be_nil
+  describe "#valid_ip_address?" do
+    context "when ip is 0.0.0.0" do
+      let(:ip) { "0.0.0.0" }
+
+      it "should be false" do
+        result = subject.send(:valid_ip_address?, ip)
+        expect(result).to be(false)
+      end
+    end
+
+    context "when ip address is nil" do
+      let(:ip) { nil }
+
+      it "should be false" do
+        result = subject.send(:valid_ip_address?, ip)
+        expect(result).to be(false)
       end
     end
   end
