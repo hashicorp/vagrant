@@ -101,6 +101,9 @@ module VagrantPlugins
             #  LOGGER.info("No further configuration required for disk '#{disk.name}'")
             #end
 
+            # TODO: You might need to re-run the get_Disk method to get the most up
+            # to date option for DiskIdentifier. It seems like if you use the data
+            # from `list_hdds` it doesn't include this value
             disk_metadata = {uuid: current_disk["DiskIdentifier"], name: disk.name, path: current_disk["Path"]}
           end
 
