@@ -60,7 +60,7 @@ module VagrantPlugins
           else
             # might have to look at the path of the disk, as the disk name doesn't
             # make any sense
-            current_disk = all_disks.select { |d| d["Disk Name"] == disk.name}.first
+            current_disk = all_disks.select { |d| File.basename(d["Path"], '.*') == disk.name}.first
           end
 
           current_disk

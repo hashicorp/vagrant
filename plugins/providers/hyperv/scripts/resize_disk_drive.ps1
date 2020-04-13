@@ -4,7 +4,7 @@ param(
     [Parameter(Mandatory=$true)]
     [string]$VmId,
     [Parameter(Mandatory=$true)]
-    [string]$DiskFilePath
+    [string]$DiskFilePath,
     [Parameter(Mandatory=$true)]
     [UInt64]$DiskSize
 )
