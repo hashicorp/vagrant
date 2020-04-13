@@ -25,7 +25,7 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
-          # Iterate over each disk_meta disk, check if it's still defined in the
+          # TODO: Iterate over each disk_meta disk, check if it's still defined in the
           # guests config, and if it's no longer there, remove it from the guest
           disk_meta.each do |d|
             # find d in defined_disk
