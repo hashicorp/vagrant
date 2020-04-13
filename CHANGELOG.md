@@ -18,6 +18,7 @@ IMPROVEMENTS:
 - guest/redhat: Add support for SMB [GH-11463]
 - guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
 - providers/docker: Support catching container name when using podman [GH-11356]
+- provisioners/docker: Support Centos8 [GH-11462]
 
 BUG FIXES:
 
