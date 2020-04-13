@@ -2,7 +2,7 @@ require "log4r"
 require "vagrant/util/experimental"
 
 module VagrantPlugins
-  module Hyperv
+  module HyperV
     module Cap
       module CleanupDisks
         LOGGER = Log4r::Logger.new("vagrant::plugins::hyperv::cleanup_disks")
