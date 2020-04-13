@@ -116,7 +116,7 @@ module VagrantPlugins
           # Hyper-V returns disk size in bytes
           requested_disk_size = disk_config.size
           disk_actual = machine.provider.driver.get_disk(defined_disk["Path"])
-          defined_disk_size = disk_config.size
+          defined_disk_size = disk_actual["Size"]
 
           if defined_disk_size > requested_disk_size
             # TODO: Check if disk (maybe use file path) is of type `VHDX`. If not, the disk cannot be shrunk
