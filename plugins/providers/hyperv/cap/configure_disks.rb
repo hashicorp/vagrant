@@ -58,8 +58,8 @@ module VagrantPlugins
 
             current_disk = all_disks.select { |d| d["ControllerLocation"] == 0 && d["ControllerNumber"] == 0 }.first
           else
-            # might have to look at the path of the disk, as the disk name doesn't
-            # make any sense
+            # Hyper-V disk names aren't the actual names of the disk, so we have
+            # to grab the name from the file path instead
             current_disk = all_disks.select { |d| File.basename(d["Path"], '.*') == disk.name}.first
           end
 
