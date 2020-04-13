@@ -31,6 +31,17 @@ module VagrantPlugins
             # find d in defined_disk
             # if found, continue on
             # else, remove the disk
+
+            # look at Path instead of Name or UUID
+            disk_name  = File.basename(d["path"], '.*')
+            dsk = defined_disks.select { |dk| dk.name == disk_name }
+            primary_disk_uuid = ""
+            ## todo: finish this
+            if !dsk.empty? || d["uuid"] == primary_disk_uuid
+              next
+            else
+              #remove disk from guest, and remove from system
+            end
           end
         end
       end
