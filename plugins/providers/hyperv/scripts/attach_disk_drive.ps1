@@ -14,7 +14,7 @@ try {
     $VM = Hyper-V\Get-VM -Id $VmId
     #Hyper-V\Add-VMHardDiskDrive -VMName $vm -ControllerType $ControllerType -ControllerNumber $ControllerNumber -ControllerLocation $ControllerLocation -Path $DiskFilePath
     # Add logic to support missing params. Below is the simple case for attaching a disk
-    Hyper-V\Add-VMHardDiskDrive -VMName $VM -Path $DiskFilePath
+    Hyper-V\Add-VMHardDiskDrive -VMName $VM.Name -Path $DiskFilePath
 } catch {
     Write-ErrorMessage "Failed to attach disk ${DiskFilePath} to VM ${VM}: ${PSItem}"
     exit 1

@@ -90,7 +90,7 @@ module VagrantPlugins
             # TODO: Is it possible for a disk to not be connected by this point
             # for hyper-v? Since we get the disk from the vm info itself
 
-            #disk_info = machine.provider.driver.get_port_and_device(current_disk["UUID"])
+            #disk_info = machine.provider.driver.get_port_and_device(current_disk["DiskIdentifier"])
             #if disk_info.empty?
             #  LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
             #  dsk_info = get_next_port(machine)
@@ -101,7 +101,7 @@ module VagrantPlugins
             #  LOGGER.info("No further configuration required for disk '#{disk.name}'")
             #end
 
-            disk_metadata = {uuid: current_disk["UUID"], name: disk.name}
+            disk_metadata = {uuid: current_disk["DiskIdentifier"], name: disk.name, path: current_disk["Path"]}
           end
 
           disk_metadata
@@ -135,32 +135,27 @@ module VagrantPlugins
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         def self.create_disk(machine, disk_config)
           machine.ui.detail(I18n.t("vagrant.cap.configure_disks.create_disk", name: disk_config.name))
+          disk_provider_config = {}
           disk_provider_config = disk_config.provider_config[:hyperv] if disk_config.provider_config
 
-          # TODO: Create and store disk before attaching
-          #
-          # create supporting powershell scripts and hyper-v driver methods
-          #
-          # pass along disk_provider_config if defined. This should
-          # contain various options for creating disks
-
           # Get the machines data dir, that will now be the path for the new disk
-          guest_info = machine.provider.driver.show_vm_info
-          guest_folder = File.dirname(guest_info["CfgFile"])
+          guest_disk_folder = machine.data_dir.join("Virtual Hard Disks")
 
           # Set the extension
           disk_ext = disk_config.disk_ext
-          disk_file = File.join(guest_folder, disk_config.name) + ".#{disk_ext}"
+          disk_file = File.join(guest_disk_folder, disk_config.name) + ".#{disk_ext}"
 
           LOGGER.info("Attempting to create a new disk file '#{disk_file}' of size '#{disk_config.size}' bytes")
 
-          disk_var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
-          disk_metadata = {uuid: disk_var.split(':').last.strip, name: disk_config.name}
+          machine.provider.driver.create_disk(disk_file, disk_config.size, disk_provider_config)
+
+          disk_info = machine.provider.driver.get_disk(disk_file)
+          disk_metadata = {uuid: disk_info["DiskIdentifier"], name: disk_config.name, path: disk_info["Path"]}
 
           # This might not be required. If no port is specified, we can just
           # attach the disk with the command for hyper-v
-          dsk_controller_info = get_next_port(machine)
-          machine.provider.driver.attach_disk(dsk_controller_info[:port], dsk_controller_info[:device], disk_file)
+          #dsk_controller_info = get_next_port(machine)
+          machine.provider.driver.attach_disk(nil, nil, nil, disk_file)
 
           disk_metadata
         end
@@ -172,11 +167,12 @@ module VagrantPlugins
         def self.resize_disk(machine, disk_config, defined_disk)
           machine.ui.detail(I18n.t("vagrant.cap.configure_disks.resize_disk", name: disk_config.name), prefix: true)
 
-          # TODO: Resize the disks
-          machine.provider.driver.resize_disk(defined_disk["Location"], disk_config.size.to_i)
+          machine.provider.driver.resize_disk(defined_disk["Path"], disk_config.size.to_i)
+
+          disk_info = machine.provider.driver.get_disk(defined_disk["Path"])
 
           # Store updated metadata
-          disk_metadata = {uuid: defined_disk["UUID"], name: disk_config.name}
+          disk_metadata = {uuid: disk_info["DiskIdentifier"], name: disk_config.name, path: disk_info["Path"]}
 
           disk_metadata
         end

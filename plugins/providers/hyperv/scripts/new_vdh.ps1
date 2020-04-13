@@ -2,7 +2,7 @@
 
 param(
     [Parameter(Mandatory=$true)]
-    [string]$DiskFilePath
+    [string]$DiskFilePath,
     [Parameter(Mandatory=$true)]
     [UInt64]$DiskSizeBytes
 )
