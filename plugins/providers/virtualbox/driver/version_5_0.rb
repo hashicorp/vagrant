@@ -481,7 +481,7 @@ module VagrantPlugins
             end
           end
 
-          return get_machine_id specified_name
+          return get_machine_id(specified_name)
         end
 
         def max_network_adapters
@@ -588,9 +588,10 @@ module VagrantPlugins
         def read_guest_ip(adapter_number)
           ip = read_guest_property("/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP")
           if ip.end_with?(".1")
-            @logger.warn("VBoxManage guest property returned: #{ip}. Result resembles IP of DHCP server. Retrying IP lookup.")
-            ip = read_guest_property("/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP")
+            @logger.warn("VBoxManage guest property returned: #{ip}. Result resembles IP of DHCP server and is being ignored.")
+            ip = nil
           end
+
           if !valid_ip_address?(ip)
             raise Vagrant::Errors::VirtualBoxGuestPropertyNotFound,
               guest_property: "/VirtualBox/GuestInfo/Net/#{adapter_number}/V4/IP"
