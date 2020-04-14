@@ -138,7 +138,7 @@ module VagrantPlugins
           if machine.provider_name == :virtualbox
             @disk_ext = "vdi"
           elsif machine.provider_name == :vmware_desktop
-            @disk_ext = nil
+            @disk_ext = "vmdk"
           elsif machine.provider_name == :hyperv
             @disk_ext = "vhdx"
           else
