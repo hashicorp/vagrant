@@ -32,7 +32,6 @@ module VagrantPlugins
             disk_name  = File.basename(d["path"], '.*')
             dsk = defined_disks.select { |dk| dk.name == disk_name }
 
-
             if !dsk.empty? || d["primary"] == true
               next
             else

@@ -41,10 +41,6 @@ module VagrantPlugins
 
         protected
 
-        # TODO: Looks like it's assumed that controllerlocation=0 will be the primary
-        # disk, so we can use that to configure it. Otherwise, we can match up the disk
-        # name to the disk config name, like we do with virtualbox
-        #
         # @param [Vagrant::Machine] machine - the current machine
         # @param [Config::Disk] disk - the current disk to configure
         # @param [Array] all_disks - A list of all currently defined disks in VirtualBox
@@ -54,11 +50,15 @@ module VagrantPlugins
           if disk.primary
             # Ensure we grab the proper primary disk
             # We can't rely on the order of `all_disks`, as they will not
-            # always come in port order, but primary is always Port 0 Device 0.
+            # always come in port order, but primary should always be Location 0 Number 0.
 
             current_disk = all_disks.select { |d| d["ControllerLocation"] == 0 && d["ControllerNumber"] == 0 }.first
 
-            # Need to get actual disk info to obtain UUID
+            # Need to get actual disk info to obtain UUID instead of what's returned
+            #
+            # This is not required for newly created disks, as its metadata is
+            # set when creating and attaching the disk. This is only for the primary
+            # disk, since it already exists.
             real_disk_info = machine.provider.driver.get_disk(current_disk["Path"])
             current_disk = real_disk_info
           else
