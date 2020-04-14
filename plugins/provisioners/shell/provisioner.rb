@@ -4,7 +4,6 @@ require "tempfile"
 require "vagrant/util/downloader"
 require "vagrant/util/retryable"
 
-require "pry-byebug"
 module VagrantPlugins
   module Shell
     class Provisioner < Vagrant.plugin("2", :provisioner)
@@ -143,7 +142,7 @@ module VagrantPlugins
               remote_ext = @machine.config.winssh.shell == "cmd" ? ".bat" : ".ps1"
             end
 
-            remote_path = add_extension(upload_path(), remote_ext)
+            remote_path = add_extension(upload_path, remote_ext)
             if remote_ext == "bat"
               command = "#{env}\n cmd.exe /c \"#{remote_path}\" #{args}"
             else
