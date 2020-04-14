@@ -160,9 +160,7 @@ module VagrantPlugins
           disk_info = machine.provider.driver.get_disk(disk_file)
           disk_metadata = {uuid: disk_info["DiskIdentifier"], name: disk_config.name, path: disk_info["Path"]}
 
-          # This might not be required. If no port is specified, we can just
-          # attach the disk with the command for hyper-v
-          #dsk_controller_info = get_next_port(machine)
+          # TODO: Should we be passing in controller info?
           machine.provider.driver.attach_disk(nil, nil, nil, disk_file)
 
           disk_metadata
