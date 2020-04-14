@@ -56,9 +56,10 @@ module VagrantPlugins
       # @param [String] controller_number
       # @param [String] controller_location
       # @param [Hash] opts
-      def remove_disk(controller_type, controller_number, controller_location, **opts)
+      def remove_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
         execute(:remove_disk_drive, VmId: @vm_id, ControllerType: controller_type,
-                ControllerNumber: controller_number, ControllerLocation: controller_location)
+                ControllerNumber: controller_number, ControllerLocation: controller_location,
+                DiskFilePath: disk_file_path)
       end
 
       # @param [String] path
