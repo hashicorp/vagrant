@@ -93,6 +93,9 @@ module VagrantPlugins
             #
             # TODO: Is it possible for a disk to not be connected by this point
             # for hyper-v? Since we get the disk from the vm info itself
+            #
+            # note: hyper-v has a key `"Attached"` that can be used to see if
+            # the disk is currently attached to a guest
 
             #disk_info = machine.provider.driver.get_port_and_device(current_disk["DiskIdentifier"])
             #if disk_info.empty?
@@ -106,6 +109,9 @@ module VagrantPlugins
             #end
 
             disk_metadata = {uuid: current_disk["DiskIdentifier"], name: disk.name, path: current_disk["Path"]}
+            if disk.primary
+              disk_metadata[:primary] = true
+            end
           end
 
           disk_metadata
