@@ -90,20 +90,14 @@ module VagrantPlugins
             disk_metadata = resize_disk(machine, disk, current_disk)
           else
             # TODO OLD: What if it needs to be resized?
-            #
-            # TODO: Is it possible for a disk to not be connected by this point
-            # for hyper-v? Since we get the disk from the vm info itself
-            #
-            # note: hyper-v has a key `"Attached"` that can be used to see if
-            # the disk is currently attached to a guest
 
-            #disk_info = machine.provider.driver.get_port_and_device(current_disk["DiskIdentifier"])
-            #if disk_info.empty?
+            # Can't use "attached" attribute, because it is false when the guest
+            # is powered off
+            #
+            #disk_info = machine.provider.driver.get_disk(current_disk["Path"])
+            #if disk_info["Attached"] == false
             #  LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
-            #  dsk_info = get_next_port(machine)
-            #  machine.provider.driver.attach_disk(dsk_info[:port],
-            #                                      dsk_info[:device],
-            #                                      current_disk["Location"])
+            #  machine.provider.driver.attach_disk(nil, nil, nil, current_disk["Path"])
             #else
             #  LOGGER.info("No further configuration required for disk '#{disk.name}'")
             #end
