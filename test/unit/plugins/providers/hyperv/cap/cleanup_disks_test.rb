@@ -1,5 +1,3 @@
-require_relative "../base"
-
 require Vagrant.source_root.join("plugins/providers/hyperv/cap/cleanup_disks")
 
 describe VagrantPlugins::HyperV::Cap::CleanupDisks do

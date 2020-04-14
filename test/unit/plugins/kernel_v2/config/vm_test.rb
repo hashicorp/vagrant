@@ -8,7 +8,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   subject { described_class.new }
 
   let(:provider) { double("provider") }
-  let(:machine) { double("machine", provider: provider) }
+  let(:machine) { double("machine", provider: provider, provider_name: "provider") }
 
   def assert_invalid
     errors = subject.validate(machine)
