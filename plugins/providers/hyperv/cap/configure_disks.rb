@@ -123,9 +123,13 @@ module VagrantPlugins
           defined_disk_size = disk_actual["Size"]
 
           if defined_disk_size > requested_disk_size
-            # TODO: Check if disk (maybe use file path) is of type `VHDX`. If not, the disk cannot be shrunk
-            machine.ui.warn(I18n.t("vagrant.cap.configure_disks.shrink_size_not_supported", name: disk_config.name))
-            return false
+            if File.extname(disk_actual["Path"]) == ".vhdx"
+              # VHDX formats can be shrunk
+              return true
+            else
+              machine.ui.warn(I18n.t("vagrant.cap.configure_disks.shrink_size_not_supported", name: disk_config.name))
+              return false
+            end
           elsif defined_disk_size < requested_disk_size
             return true
           else
