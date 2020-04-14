@@ -82,6 +82,10 @@ module VagrantPlugins
         execute(:get_vhd, DiskFilePath: disk_file_path)
       end
 
+      def dismount_disk(disk_file_path)
+        execute(:dismount_vhd, DiskFilePath: disk_file_path)
+      end
+
       ########
       ########
       ########
