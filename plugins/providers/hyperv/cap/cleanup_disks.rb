@@ -43,7 +43,10 @@ module VagrantPlugins
 
               disk_actual = all_disks.select { |a| a["Path"] == d["path"] }.first
 
-              machine.provider.driver.remove_disk(disk_actual["ControllerType"], disk_actual["ControllerNumber"], disk_actual["DiskLocation"])
+              machine.provider.driver.remove_disk(disk_actual["ControllerType"], disk_actual["ControllerNumber"], disk_actual["ControllerLocation"])
+
+              # TODO: delete disk
+              # maybe we can just "dismount" instead of removing the disk all together
             end
           end
         end
