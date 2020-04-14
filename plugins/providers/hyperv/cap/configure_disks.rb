@@ -57,6 +57,10 @@ module VagrantPlugins
             # always come in port order, but primary is always Port 0 Device 0.
 
             current_disk = all_disks.select { |d| d["ControllerLocation"] == 0 && d["ControllerNumber"] == 0 }.first
+
+            # Need to get actual disk info to obtain UUID
+            real_disk_info = machine.provider.driver.get_disk(current_disk["Path"])
+            current_disk = real_disk_info
           else
             # Hyper-V disk names aren't the actual names of the disk, so we have
             # to grab the name from the file path instead
@@ -101,9 +105,6 @@ module VagrantPlugins
             #  LOGGER.info("No further configuration required for disk '#{disk.name}'")
             #end
 
-            # TODO: You might need to re-run the get_Disk method to get the most up
-            # to date option for DiskIdentifier. It seems like if you use the data
-            # from `list_hdds` it doesn't include this value
             disk_metadata = {uuid: current_disk["DiskIdentifier"], name: disk.name, path: current_disk["Path"]}
           end
 
