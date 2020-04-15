@@ -9,6 +9,11 @@
 # For development reload the function after making changes
 # unfunction _vagrant && autoload -U _vagrant 
 
+__box_list ()
+{
+    _wanted application expl 'command' compadd $(command vagrant box list | awk '{print $1}' )
+}
+
 function _vagrant () {
 
     local -a sub_commands && sub_commands=(
@@ -40,6 +45,17 @@ function _vagrant () {
         'winrm-config:outputs WinRM configuration to connect to the machine'
     )
     
+    local -a _box_arguments && _box_arguments=(
+        'add:NAME URI Add a box to the system'
+        'help:COMMAND Describe subcommands or one specific subcommand'
+        'list:Lists all installed boxes'
+        'outdated:Checks if there is a new version available for the box'
+        'prune:Removes boxes'
+        'remove:NAME Remove a box from the system'
+        'repackage:NAME Repackage an installed box into a `.box` file.'
+        'update:Updates the box, if there any updates available'
+    )
+
     local -a common_arguments && common_arguments=(
       '--(no-)color=[Enable or disable color output]'
       '--machine-readable=[Enable machine readable output]'
@@ -155,7 +171,7 @@ function _vagrant () {
       options)
         case $line[1] in
           box)
-            _arguments -s -S : $common_arguments ;;
+             __vagrant-box ;;
           cloud)
             _arguments -s -S : $common_arguments ;;
           destroy)
@@ -207,4 +223,92 @@ function _vagrant () {
         esac
       ;;
   esac
+}
+
+__vagrant-box ()
+{
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    local -a box_common_arguments && box_common_arguments=(
+      '--help[Print help message]'
+    )
+
+    local -a box_ca_arguments && box_ca_arguments=(
+      '--cacert FILE[CA certificate for SSL download]'
+      '--capath DIR[CA certificate directory for SSL download]'
+      '--cert FILE[A client SSL cert, if needed]'
+      '--insecure[Do not validate SSL certificates]'
+    )
+
+    local -a box_add_arguments && box_add_arguments=(
+      '--clean[Clean any temporary download files]'
+      '--force[Overwrite an existing box if it exists]'
+      '--location-trustedTrust["Location" header from HTTP redirects and use the same credentials for subsequent urls as for the initial one]'
+      '--provider PROVIDER[Provider the box should satisfy]'
+      '--box-version VERSION[Constrain version of the added box]'
+      '--checksum CHECKSUM[Checksum for the box]'
+      '--checksum-type TYPE[Checksum type (md5, sha1, sha256)]'
+      '-name BOX[Name of the box]'
+    )
+
+    local -a box_list_arguments && box_list_arguments=(
+      '--box-info[Displays additional information about the boxes]'
+    )
+
+    local -a box_outdated_arguments && box_outdated_arguments=(
+      '--global[Check all boxes installed]'
+      '--force[Force checks for latest box updates]'
+    )
+
+    local -a box_prune_arguments && box_prune_arguments=(
+      '--provider PROVIDER[The specific provider type for the boxes to destroy]'
+      '--dry-run[Only print the boxes that would be removed]'
+      '--name NAME[The specific box name to check for outdated versions]'
+      '--force[Destroy without confirmation even when box is in use]'
+      '--keep-active-boxes[When combined with `--force`, will keep boxes still actively in use]'
+    )
+
+    local -a box_remove_arguments && box_remove_arguments=(
+      '--force[Remove without confirmation]'
+      '--provider PROVIDER[The specific provider type for the boxes to destroy]'
+      '--box-version VERSION[The specific version of the box to remove]'
+      '--all[Remove all available versions of the box]'
+    )
+
+    local -a box_update_arguments && box_update_arguments=(
+      '--box BOX[Update a specific box]'
+      '--force[Overwrite an existing box if it exists]'
+      '--provider PROVIDER[The specific provider type for the boxes to destroy]'
+    )
+
+    _arguments -C \
+        ':command:->command' \
+        '*::options:->options'
+
+   case $state in
+       (command)
+           _describe -t commands 'command' _box_arguments
+           return
+       ;;
+
+       (options)
+           case $line[1] in
+              add)
+                _arguments -s -S :  $box_add_arguments $box_ca_arguments $box_common_arguments ;;
+              list)
+                _arguments -s -S : $box_list_arguments $box_common_arguments ;;
+              outdated)
+                _arguments -s -S :  $box_outdated_arguments $box_ca_arguments $box_common_arguments ;;
+              prune)
+                _arguments -s -S :  $box_prune_arguments $box_common_arguments ;;
+              remove)
+                _arguments -s -S : $box_remove_arguments $box_common_arguments ':feature:__box_list' ;;
+              repackage)
+                _arguments -s -S : $box_common_arguments ':feature:__box_list' ;;
+              update)
+                _arguments -s -S : $box_update_arguments $box_ca_arguments $box_common_arguments ;;
+           esac
+       ;;
+    esac
 }
