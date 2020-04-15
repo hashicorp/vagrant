@@ -139,6 +139,13 @@ module VagrantPlugins
 
         # Creates and attaches a disk to a machine
         #
+        # Extra params:
+        #   - Fixed: true
+        #   - BlockSizeBytes: must be 512 or 4096
+        #   - LogicalSectorSizeBytes: must be 512 or 4096
+        #   - PhysicalSectorSizeBytes: must be 512 or 4096
+        #   - SourceDisk: file path
+        #
         # @param [Vagrant::Machine] machine
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
         def self.create_disk(machine, disk_config)
