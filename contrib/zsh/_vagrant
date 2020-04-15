@@ -1,0 +1,210 @@
+#compdef _vagrant vagrant
+
+# ZSH completion for Vagrant
+#
+# To use this completion add this to ~/.zshrc
+# fpath=(/path/to/this/dir $fpath)
+# compinit
+#
+# For development reload the function after making changes
+# unfunction _vagrant && autoload -U _vagrant 
+
+function _vagrant () {
+
+    local -a sub_commands && sub_commands=(
+        'box:manages everything related to Vagrant Cloud'
+        'destroy:stops and deletes all traces of the vagrant machine'
+        'global-status:outputs status Vagrant environments for this user'
+        'halt:stops the vagrant machine'
+        'help:shows the help for a subcommand'
+        'init:initializes a new Vagrant environment by creating a Vagrantfile'
+        'package:packages a running vagrant environment into a box'
+        'plugin:manages plugins: install, uninstall, update, etc.'
+        'port:displays information about guest port mappings'
+        'powershell:connects to machine via powershell remoting'
+        'provision:provisions the vagrant machine'
+        'push:deploys code in this environment to a configured destination'
+        'rdp:connects to machine via RDP'
+        'reload:restarts vagrant machine, loads new Vagrantfile configuration'
+        'resume:resume a suspended vagrant machine'
+        'snapshot:manages snapshots; saving, restoring, etc.'
+        'ssh:connects to machine via SSH'
+        'ssh-config:outputs OpenSSH valid configuration to connect to the machine'
+        'status:outputs status of the vagrant machine'
+        'suspend:suspends the machine'
+        'up:starts and provisions the vagrant environment'
+        'upload:upload to machine via communicator'
+        'validate:validates the Vagrantfile'
+        'version:prints current and latest Vagrant version'
+        'winrm:executes commands on a machine via WinRM'
+        'winrm-config:outputs WinRM configuration to connect to the machine'
+    )
+    
+    local -a common_arguments && common_arguments=(
+      '--(no-)color=[Enable or disable color output]'
+      '--machine-readable=[Enable machine readable output]'
+      '--debug=[Enable debug output]'
+      '--timestamp=[Enable timestamps on log output]'
+      '--debug-timestamp=[Enable debug output with timestamp]'
+      '--no-tty=[Enable non-interactive output]'
+      '--help=[Print help message]'
+    )
+
+    local -a destroy_arguments && destroy_arguments=(
+      '--force=[Destroy without confirmation]'
+      '--(no-)parallel=[Enable or disable parallelism if provider supports it]'
+    )
+
+    local -a global_status_arguments && global_status_arguments=(
+      '--prune=[Prune invalid entries]'
+    )
+
+    local -a halt_arguments && halt_arguments=(
+      '--force=[Force shut down (equivalent of pulling power)]'
+    )
+
+    local -a init_arguments && init_arguments=(
+      '--box-version VERSION=[Version of the box to add]'
+      '--force=[Overwrite existing Vagrantfile]'
+      '--minimal=[Use minimal Vagrantfile template (no help comments). Ignored with --template]'
+      '--output FILE=[Output path for the box. "-" for stdout]'
+      '--template FILE=[Path to custom Vagrantfile template]'
+    )
+
+    local -a package_arguments && package_arguments=(
+      '--base NAME=[Name of a VM in VirtualBox to package as a base box (VirtualBox Only)]'
+      '--output NAME=[Name of the file to output]'
+      '--include FILE,FILE=[Comma separated additional files to package with the box]'
+      '--vagrantfile FILE=[Vagrantfile to package with the box]'
+    )
+
+    local -a port_arguments && port_arguments=(
+      '--guest=[NOutput the host port that maps to the given guest port]'
+    )
+
+    local -a powershell_arguments && powershell_arguments=(
+      '--command COMMAND=[Execute a powershell command directly]'
+      '--elevated=[Execute a powershell command with elevated permissions]'
+    )
+
+    local -a provision_arguments && provision_arguments=(
+      '--provision-with x,y,z=[Enable only certain provisioners, by type or by name]'
+    )
+
+    local -a reload_arguments && reload_arguments=(
+      '--(no-)provision=[Enable or disable provisioning]'
+      '--provision-with x,y,z=[Enable only certain provisioners, by type or by name]'
+      '--force=[Force shut down (equivalent of pulling power)]'
+    )
+
+    local -a resume_arguments && resume_arguments=(
+      '--(no-)provision=[Enable or disable provisioning]'
+      '--provision-with x,y,z=[Enable only certain provisioners, by type or by name]'
+    )
+
+    local -a ssh_arguments && ssh_arguments=(
+      '--command=[Execute an SSH command directly]'
+      '--plain=[Plain mode, leaves authentication up to user]'
+      '--(no-)tty=[Enables tty when executing an ssh command (defaults to true)]'
+    )
+
+    local -a ssh_config_arguments && ssh_config_arguments=(
+      '--host NAME=[Name the host or the config]'
+    )
+
+    local -a suspend_arguments && suspend_arguments=(
+      '--all-global=[Suspend all running vms globally]'
+    )
+
+    local -a up_arguments && up_arguments=(
+      '--(no-)provision=[Enable or disable provisioning]'
+      '--provision-with x,y,z=[Enable only certain provisioners, by type or by name]'
+      '--(no-)destroy-on-error=[Destroy machine if any fatal error happens (default to true)]'
+      '--(no-)parallel=[Enable or disable parallelism if provider supports it]'
+      '--provider=[Back the machine with a specific provider]'
+      '--(no-)install-provider=[If possible, install the provider if it is not installed]'
+    )
+
+    local -a upload_arguments && upload_arguments=(
+      '--temporary=[Upload source to temporary directory]'
+      '--compress=[Use gzip compression for upload]'
+      '--compression-type\=TYPE=[Type of compression to use (tgz, zip)]'
+    )
+
+    local -a validate_arguments && validate_arguments=(
+      '--ignore-provider=[Ignores provider config options]'
+    )
+
+    local -a winrm_arguments && winrm_arguments=(
+      '--command COMMAND=[Execute a WinRM command directly]'
+      '--elevated=[Run with elevated credentials]'
+      '--shell SHELL=[Use specified shell (powershell, cmd)]'
+    )
+
+    local -a winrm_config_arguments && winrm_config_arguments=(
+      '--host NAME=[Name the host for the config]'
+    )
+
+    _arguments -C \
+    ':command:->command' \
+    '*::options:->options'
+
+  case $state in
+      command)
+        _describe -t commands 'command' sub_commands ;;
+      options)
+        case $line[1] in
+          box)
+            _arguments -s -S : $common_arguments ;;
+          cloud)
+            _arguments -s -S : $common_arguments ;;
+          destroy)
+            _arguments -s -S : $destroy_arguments $common_arguments ;;
+          global-status)
+            _arguments -s -S : $global_status_arguments $common_arguments ;;
+          halt)
+            _arguments -s -S : $halt_arguments $common_arguments ;;
+          init)
+            _arguments -s -S : $init_arguments $common_arguments ;;
+          package)
+            _arguments -s -S : $package_arguments $common_arguments ;;
+          plugin)
+            _arguments -s -S : $common_arguments ;;
+          port)
+            _arguments -s -S : $port_arguments $common_arguments ;;
+          powershell)
+            _arguments -s -S : $powershell_arguments $common_arguments ;;
+          provision)
+            _arguments -s -S : $provision_arguments $common_arguments ;;
+          push)
+            _arguments -s -S : $common_arguments ;;
+          rdp)
+            _arguments -s -S : $common_arguments ;;
+          reload)
+            _arguments -s -S : $reload_arguments $common_arguments ;;
+          resume)
+            _arguments -s -S : $resume_arguments $common_arguments ;;
+          snapshot)
+            _arguments -s -S : $common_arguments ;;
+          ssh)
+            _arguments -s -S : $ssh_arguments $common_arguments ;;
+          ssh-config)
+            _arguments -s -S : $ssh_config_arguments $common_arguments ;;
+          status)
+            _arguments -s -S : $common_arguments ;;
+          suspend)
+            _arguments -s -S : $suspend_arguments $common_arguments ;;
+          up)
+            _arguments -s -S : $up_arguments $common_arguments ;;
+          upload)
+            _arguments -s -S : $upload_arguments $common_arguments ;;
+          validate)
+            _arguments -s -S : $validate_arguments $common_arguments ;;
+          winrm)
+            _arguments -s -S : $winrm_arguments $common_arguments ;;
+          winrm-config)
+            _arguments -s -S : $winrm_config_arguments $common_arguments ;;
+        esac
+      ;;
+  esac
+}
