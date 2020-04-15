@@ -156,13 +156,17 @@ module VagrantPlugins
           # Get the machines data dir, that will now be the path for the new disk
           guest_disk_folder = machine.data_dir.join("Virtual Hard Disks")
 
-          # Set the extension
-          disk_ext = disk_config.disk_ext
-          disk_file = File.join(guest_disk_folder, disk_config.name) + ".#{disk_ext}"
+          if disk_config.file
+            disk_file = disk_config.file
+          else
+            # Set the extension
+            disk_ext = disk_config.disk_ext
+            disk_file = File.join(guest_disk_folder, disk_config.name) + ".#{disk_ext}"
 
-          LOGGER.info("Attempting to create a new disk file '#{disk_file}' of size '#{disk_config.size}' bytes")
+            LOGGER.info("Attempting to create a new disk file '#{disk_file}' of size '#{disk_config.size}' bytes")
 
-          machine.provider.driver.create_disk(disk_file, disk_config.size, disk_provider_config)
+            machine.provider.driver.create_disk(disk_file, disk_config.size, disk_provider_config)
+          end
 
           disk_info = machine.provider.driver.get_disk(disk_file)
           disk_metadata = {uuid: disk_info["DiskIdentifier"], name: disk_config.name, path: disk_info["Path"]}
