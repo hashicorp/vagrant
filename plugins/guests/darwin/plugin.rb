@@ -8,7 +8,7 @@ module VagrantPlugins
 
       action_hook(:apfs_firmlinks, :synced_folders) do |hook|
         require_relative "cap/mount_vmware_shared_folder"
-        hook.append(Cap::MountVmwareSharedFolder.method(:write_apfs_firmlinks))
+        hook.prepend(Vagrant::Action::Builtin::Delayed, Cap::MountVmwareSharedFolder.method(:write_apfs_firmlinks))
       end
 
       guest(:darwin, :bsd)  do
