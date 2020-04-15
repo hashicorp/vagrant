@@ -56,6 +56,15 @@ function _vagrant () {
         'update:Updates the box, if there any updates available'
     )
 
+    local -a _snapshot_arguments && _snapshot_arguments=(
+        'delete:Delete a snapshot taken previously with snapshot save'
+        'list:List all snapshots taken for a machine'
+        'pop:Restore state that was pushed onto the snapshot stack'
+        'push:Take a snapshot of the current state of the machine and push it onto the stack of states'
+        'restore:Restore a snapshot taken previously with snapshot save.'
+        'save:Take a snapshot of the current state of the machine'
+    )
+
     local -a common_arguments && common_arguments=(
       '--(no-)color=[Enable or disable color output]'
       '--machine-readable=[Enable machine readable output]'
@@ -201,7 +210,7 @@ function _vagrant () {
           resume)
             _arguments -s -S : $resume_arguments $common_arguments ;;
           snapshot)
-            _arguments -s -S : $common_arguments ;;
+            __vagrant-snapshot ;;
           ssh)
             _arguments -s -S : $ssh_arguments $common_arguments ;;
           ssh-config)
@@ -308,6 +317,61 @@ __vagrant-box ()
                 _arguments -s -S : $box_common_arguments ':feature:__box_list' ;;
               update)
                 _arguments -s -S : $box_update_arguments $box_ca_arguments $box_common_arguments ;;
+           esac
+       ;;
+    esac
+}
+
+__vagrant-snapshot ()
+{
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    local -a snapshot_common_arguments && snapshot_common_arguments=(
+      '--help[Print help message]'
+    )
+
+    local -a snapshot_provision_arguments && snapshot_provision_arguments=(
+      '--(no-)provision=[Enable or disable provisioning]'
+      '--provision-with x,y,z=[Enable only certain provisioners, by type or by name]'
+    )
+
+    local -a snapshot_start_argument && snapshot_start_argument=(
+      '--no-start=[Do not start the snapshot after the restore]'
+    ) 
+
+    local -a snapshot_pop_arguments && snapshot_pop_arguments=(
+      '--no-delete=[Do not delete the snapshot after the restore]'
+    )
+
+    local -a snapshot_force_arguments && snapshot_force_arguments=(
+      '--force=[Replace snapshot without confirmation]'
+    )
+    
+    _arguments -C \
+        ':command:->command' \
+        '*::options:->options'
+
+   case $state in
+       (command)
+           _describe -t commands 'command' _snapshot_arguments
+           return
+       ;;
+
+       (options)
+           case $line[1] in
+              delete)
+                _arguments -s -S : $snapshot_common_arguments ;;
+              list)
+                _arguments -s -S : $snapshot_common_arguments ;;
+              pop)
+                _arguments -s -S : $snapshot_pop_arguments $snapshot_start_argument $snapshot_provision_arguments $snapshot_common_arguments ;;
+              push)
+                _arguments -s -S : $snapshot_common_arguments ;;
+              restore)
+                _arguments -s -S : $snapshot_provision_arguments $snapshot_start_argument $snapshot_common_arguments ;;
+              save)
+                _arguments -s -S : $snapshot_force_arguments $snapshot_common_arguments ;;
            esac
        ;;
     esac
