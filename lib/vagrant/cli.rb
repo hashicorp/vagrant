@@ -31,9 +31,17 @@ module Vagrant
         return 0
       end
 
-      if @main_args.include?("-install_autocomplete")
-        # Install zsh autocomplete script
-        Vagrant::Util::InstallCLIAutocomplete.install
+      if @main_args.include?("-install-autocomplete")
+        # Install autocomplete scripts
+        written_paths = Vagrant::Util::InstallCLIAutocomplete.install
+        if written_paths.length > 0
+          @env.ui.info("Autocomplete installed at paths:")
+          written_paths.each do |p|
+            @env.ui.info("- #{p}")
+          end
+        else
+          @env.ui.info("Autocomplete not installed")
+        end
         return 0
       end
 

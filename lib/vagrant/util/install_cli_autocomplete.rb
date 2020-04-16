@@ -1,7 +1,7 @@
 module Vagrant
   module Util
     # Generic installation of content to shell config file
-    class Shell
+    class InstallShellConfig
       PREPEND = "".freeze
       STRING_INSERT = "".freeze
       APPEND = "".freeze
@@ -39,11 +39,12 @@ module Vagrant
             f.write("\n")
           end
         end
+        return path
       end
     end
 
     # Install autocomplete script to zsh config located as .zshrc
-    class ZSHShell < Shell
+    class InstallZSHShellConfig < InstallShellConfig
       PREPEND = "# >>>> Vagrant zsh completion (start)".freeze
       STRING_INSERT = """fpath=(#{File.join(Vagrant.source_root, "contrib", "zsh")} $fpath)\ncompinit""".freeze
       APPEND = "# <<<<  Vagrant zsh completion (end)".freeze
@@ -51,25 +52,30 @@ module Vagrant
     end
 
     # Install autocomplete script to bash config located as .bashrc or .bash_profile
-    class BashShell < Shell
+    class InstallBashShellConfig < InstallShellConfig
       PREPEND = "# >>>> Vagrant bash completion (start)".freeze
       STRING_INSERT = ". #{File.join(Vagrant.source_root, 'contrib', 'bash', 'completion.sh')}".freeze
-      APPEND = "# <<<<  Vagrant basg completion (end)".freeze
+      APPEND = "# <<<<  Vagrant bash completion (end)".freeze
       CONFIG_PATHS = [".bashrc", ".bash_profile"].freeze
     end
 
     # Install autocomplete script for supported shells
     class InstallCLIAutocomplete
       SUPPORTED_SHELLS = {
-        "zsh" => Vagrant::Util::ZSHShell,
-        "bash" => Vagrant::Util::BashShell
+        "zsh" => Vagrant::Util::InstallZSHShellConfig,
+        "bash" => Vagrant::Util::InstallBashShellConfig
       }
 
       def self.install
         home = Dir.home
+        written_paths = []
         SUPPORTED_SHELLS.each do |k, shell|
-          shell.install(home)
+          p = shell.install(home)
+          if p
+            written_paths.push(p)
+          end
         end
+        return written_paths
       end
     end
   end
