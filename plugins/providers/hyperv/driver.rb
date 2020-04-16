@@ -49,7 +49,7 @@ module VagrantPlugins
       # @param [Hash] opts
       def create_disk(path, size_bytes, **opts)
         # ensure size_bytes is a uint64
-        execute(:new_vdh, DiskFilePath: path, DiskSizeBytes: size_bytes)
+        execute(:new_vhd, DiskFilePath: path, DiskSizeBytes: size_bytes)
       end
 
       # @param [String] controller_type
