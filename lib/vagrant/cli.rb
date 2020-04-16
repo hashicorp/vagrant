@@ -2,6 +2,7 @@ require 'log4r'
 require 'optparse'
 
 require 'vagrant/util/experimental'
+require 'vagrant/util/install_cli_autocomplete'
 
 module Vagrant
   # Manages the command line interface to Vagrant.
@@ -27,6 +28,12 @@ module Vagrant
         # Help is next in short-circuiting everything. Print
         # the help and exit.
         help
+        return 0
+      end
+
+      if @main_args.include?("-install_autocomplete")
+        # Install zsh autocomplete script
+        Vagrant::Util::InstallCLIAutocomplete.install
         return 0
       end
 

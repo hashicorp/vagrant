@@ -71,13 +71,13 @@ function _vagrant () {
     )
 
     local -a _plugin_arguments && _plugin_arguments=(
-      'expunge:'
-      'install:'
-      'license:'
-      'list:'
-      'repair:'
-      'uninstall:'
-      'update:'
+      'expunge:Expunge a plugin'
+      'install:Install a plugin'
+      'license:Install the license for a plugin'
+      'list:List plugins'
+      'repair:Repair a broken plugin'
+      'uninstall:Uninstall a plugin'
+      'update:Lookup new version of plugins and install'
     )
 
     local -a common_arguments && common_arguments=(
@@ -273,7 +273,7 @@ __vagrant-box ()
       '--box-version VERSION[Constrain version of the added box]'
       '--checksum CHECKSUM[Checksum for the box]'
       '--checksum-type TYPE[Checksum type (md5, sha1, sha256)]'
-      '-name BOX[Name of the box]'
+      '--name BOX[Name of the box]'
     )
 
     local -a box_list_arguments && box_list_arguments=(
@@ -402,7 +402,7 @@ __vagrant-plugin ()
     )
 
     local -a plugin_local_arguments && plugin_local_arguments=(
-      '--localRemove plugin from local project]'
+      '--local[Remove plugin from local project]'
     )
 
     local -a plugin_install_arguments && plugin_install_arguments=(
@@ -410,7 +410,7 @@ __vagrant-plugin ()
       '--plugin-clean-sources[Remove all plugin sources defined so far (including defaults)]'
       '--plugin-source PLUGIN_SOURCE[Add a RubyGems repository source]'
       '--plugin-version PLUGIN_VERSION[Install a specific version of the plugin]'
-      '-local[Install plugin for local project only]'
+      '--local[Install plugin for local project only]'
       '--verbose[Enable verbose output for plugin installation]'
     )
 
