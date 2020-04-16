@@ -1,14 +1,13 @@
 module Vagrant
   module Util
-    class ZSHShell
-      PREPEND = "# >>>> Vagrant zsh completion (start)".freeze
-      STRING_INSERT = """fpath=(#{File.join(Vagrant.source_root, "contrib", "zsh")} $fpath)\ncompinit""".freeze
-      APPEND = "# <<<<  Vagrant zsh completion (end)".freeze
-
-      CONFIG_PATHS = [".zshrc"].freeze
+    class Shell
+      PREPEND = "".freeze
+      STRING_INSERT = "".freeze
+      APPEND = "".freeze
+      CONFIG_PATHS = [""].freeze
 
       def self.shell_installed(home)
-        CONFIG_PATHS.each do |path|
+        self::CONFIG_PATHS.each do |path|
           config_file = File.join(home, path)
           if File.exists?(config_file)
             return config_file
@@ -19,7 +18,7 @@ module Vagrant
 
       def self.is_installed(path)
         File.foreach(path) do |line|
-          if line.include?(PREPEND)
+          if line.include?(self::PREPEND)
             return true
           end
         end
@@ -31,15 +30,22 @@ module Vagrant
         if path && !is_installed(path)
           File.open(path, "a") do |f|
             f.write("\n")
-            f.write(PREPEND)
+            f.write(self::PREPEND)
             f.write("\n")
-            f.write(STRING_INSERT)
+            f.write(self::STRING_INSERT)
             f.write("\n")
-            f.write(APPEND)
+            f.write(self::APPEND)
             f.write("\n")
           end
         end
       end
+    end
+
+    class ZSHShell < Shell
+      PREPEND = "# >>>> Vagrant zsh completion (start)".freeze
+      STRING_INSERT = """fpath=(#{File.join(Vagrant.source_root, "contrib", "zsh")} $fpath)\ncompinit""".freeze
+      APPEND = "# <<<<  Vagrant zsh completion (end)".freeze
+      CONFIG_PATHS = [".zshrc"].freeze
     end
 
     # Install autocomplete script for supported shells
