@@ -14,6 +14,11 @@ __box_list ()
     _wanted application expl 'command' compadd $(command vagrant box list | awk '{print $1}' )
 }
 
+__plugin_list ()
+{
+    _wanted application expl 'command' compadd $(command vagrant plugin list | awk '{print $1}')
+}
+
 function _vagrant () {
 
     local -a sub_commands && sub_commands=(
@@ -63,6 +68,16 @@ function _vagrant () {
         'push:Take a snapshot of the current state of the machine and push it onto the stack of states'
         'restore:Restore a snapshot taken previously with snapshot save.'
         'save:Take a snapshot of the current state of the machine'
+    )
+
+    local -a _plugin_arguments && _plugin_arguments=(
+      'expunge:'
+      'install:'
+      'license:'
+      'list:'
+      'repair:'
+      'uninstall:'
+      'update:'
     )
 
     local -a common_arguments && common_arguments=(
@@ -194,7 +209,7 @@ function _vagrant () {
           package)
             _arguments -s -S : $package_arguments $common_arguments ;;
           plugin)
-            _arguments -s -S : $common_arguments ;;
+            __vagrant-plugin ;;
           port)
             _arguments -s -S : $port_arguments $common_arguments ;;
           powershell)
@@ -316,7 +331,7 @@ __vagrant-box ()
               repackage)
                 _arguments -s -S : $box_common_arguments ':feature:__box_list' ;;
               update)
-                _arguments -s -S : $box_update_arguments $box_ca_arguments $box_common_arguments ;;
+                _arguments -s -S : $box_update_arguments $box_ca_arguments $box_common_arguments ':feature:__box_list';;
            esac
        ;;
     esac
@@ -372,6 +387,67 @@ __vagrant-snapshot ()
                 _arguments -s -S : $snapshot_provision_arguments $snapshot_start_argument $snapshot_common_arguments ;;
               save)
                 _arguments -s -S : $snapshot_force_arguments $snapshot_common_arguments ;;
+           esac
+       ;;
+    esac
+}
+
+__vagrant-plugin ()
+{
+    local curcontext="$curcontext" state line
+    typeset -A opt_args
+
+    local -a plugin_common_arguments && plugin_common_arguments=(
+      '--help[Print help message]'
+    )
+
+    local -a plugin_local_arguments && plugin_local_arguments=(
+      '--localRemove plugin from local project]'
+    )
+
+    local -a plugin_install_arguments && plugin_install_arguments=(
+      '--entry-point NAME[The name of the entry point file for loading the plugin]'
+      '--plugin-clean-sources[Remove all plugin sources defined so far (including defaults)]'
+      '--plugin-source PLUGIN_SOURCE[Add a RubyGems repository source]'
+      '--plugin-version PLUGIN_VERSION[Install a specific version of the plugin]'
+      '-local[Install plugin for local project only]'
+      '--verbose[Enable verbose output for plugin installation]'
+    )
+
+    local -a plugin_expunge_arguments && plugin_expunge_arguments=(
+      '--force[Do not prompt for confirmation]'
+      '--local[Include plugins from local project for expunge]'
+      '--local-only[Only expunge local project plugins]'
+      '--global-only[Only expunge global plugins]'
+      '--reinstall[Reinstall current plugins after expunge]'
+    )
+
+    _arguments -C \
+        ':command:->command' \
+        '*::options:->options'
+
+   case $state in
+       (command)
+           _describe -t commands 'command' _plugin_arguments
+           return
+       ;;
+
+       (options)
+           case $line[1] in
+              install)
+                _arguments -s -S : $plugin_install_arguments $plugin_common_arguments ;;
+              expunge)
+                _arguments -s -S : $plugin_expunge_arguments $plugin_common_arguments ;;
+              license)
+                _arguments -s -S : $plugin_common_arguments ;;
+              list)
+                _arguments -s -S : $plugin_common_arguments ;;
+              repair)
+                _arguments -s -S : $plugin_local_arguments $plugin_common_arguments ':feature:__plugin_list' ;;
+              uninstall)
+                _arguments -s -S : $plugin_local_arguments $plugin_common_arguments ':feature:__plugin_list' ;;
+              update)
+                _arguments -s -S : $plugin_local_arguments $plugin_common_arguments ':feature:__plugin_list' ;;
            esac
        ;;
     esac
