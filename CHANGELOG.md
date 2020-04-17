@@ -19,6 +19,7 @@ IMPROVEMENTS:
 - guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
 - providers/docker: Support catching container name when using podman [GH-11356]
 - provisioners/docker: Support Centos8 [GH-11462]
+- provisioners/podman: Add Podman as a provisioner [GH-11472]
 
 BUG FIXES:
 
