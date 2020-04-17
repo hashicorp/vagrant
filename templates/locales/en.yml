@@ -1010,6 +1010,9 @@ en:
         the proper location.
       multi_vm_target_required: |-
         This command requires a specific VM name to target in a multi-VM environment.
+      netplan_no_available_renderers: |-
+        No renderers compatible with netplan are available on guest. Please install 
+        a compatible renderer. 
       net_ssh_exception: |-
         An error occurred in the underlying SSH library that Vagrant uses.
         The error message is shown below. In many cases, errors from this
