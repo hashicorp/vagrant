@@ -36,6 +36,7 @@ BUG FIXES:
 - providers/hyperv: Prevent error when identity reference cannot be translated [GH-11425]
 - providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
 - guests/debian: Choose netplan renderer based on network configuration and installed tools [GH-11498]
+- provider/hyperv: Use service id for manipulating vm integration services [GH-11499]
 
 ## 2.2.7 (January 27, 2020)
 
