@@ -20,6 +20,7 @@ IMPROVEMENTS:
 - providers/docker: Support catching container name when using podman [GH-11356]
 - provisioners/docker: Support Centos8 [GH-11462]
 - provisioners/podman: Add Podman as a provisioner [GH-11472]
+- provisioners/salt: Allow specifying python_version [GH-11436]
 
 BUG FIXES:
 
@@ -28,15 +29,15 @@ BUG FIXES:
 - core/downloader: Always set `-q` flag as first option [GH-11366]
 - core/hooks: Update dynamic action hook implementation to prevent looping [GH-11427]
 - core/synced_folders: Validate type option if set [GH-11359]
+- guests/debian: Choose netplan renderer based on network configuration and installed tools [GH-11498]
 - host/darwin: Quote directories in /etc/exports [GH-11441]
 - host/linux: Ensure `/etc/exports` does not contain duplicate records [GH-10591]
 - host/windows: Check all interfaces for port conflict when host_ip: "0.0.0.0" [GH-11454]
 - providers/docker: Fix issue where Vagrant fails to remove image if it is in use [GH-11355]
 - providers/docker: Fix issue with getting correct docker image id from build output [GH-11461]
 - providers/hyperv: Prevent error when identity reference cannot be translated [GH-11425]
-- providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
-- guests/debian: Choose netplan renderer based on network configuration and installed tools [GH-11498]
 - provider/hyperv: Use service id for manipulating vm integration services [GH-11499]
+- providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
 
 ## 2.2.7 (January 27, 2020)
 
