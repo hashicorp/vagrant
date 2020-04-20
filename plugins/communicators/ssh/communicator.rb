@@ -407,14 +407,6 @@ module VagrantPlugins
         auth_methods << "publickey" if ssh_info[:private_key_path]
         auth_methods << "password" if ssh_info[:password]
 
-        # yanked directly from ruby's Net::SSH, but with `none` last
-        # TODO: Remove this once Vagrant has updated its dependency on Net:SSH
-        # to be > 4.1.0, which should include this fix.
-        cipher_array = Net::SSH::Transport::Algorithms::ALGORITHMS[:encryption].dup
-        if cipher_array.delete("none")
-          cipher_array.push("none")
-        end
-
         # Build the options we'll use to initiate the connection via Net::SSH
         common_connect_opts = {
           auth_methods:          auth_methods,
@@ -425,10 +417,9 @@ module VagrantPlugins
           verify_host_key:       ssh_info[:verify_host_key],
           password:              ssh_info[:password],
           port:                  ssh_info[:port],
-          timeout:               15,
+          timeout:               ssh_info[:connect_timeout],
           user_known_hosts_file: [],
-          verbose:               :debug,
-          encryption:            cipher_array,
+          verbose:               :debug
         }
 
         # Connect to SSH, giving it a few tries

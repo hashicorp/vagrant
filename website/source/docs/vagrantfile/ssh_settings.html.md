@@ -22,6 +22,9 @@ defaults are typically fine, but you can fine tune whatever you would like.
 compression setting when ssh'ing into a machine. If this is not set, it will
 default to `true` and `Compression=yes` will be enabled with ssh.
 
+* `config.ssh.connect_timeout` (integer) - Number of seconds to wait for establishing
+an SSH connection to the guest. Defaults to `15`.
+
 * `config.ssh.config` (string) - Path to a custom ssh_config file to use for configuring
 the SSH connections.
 

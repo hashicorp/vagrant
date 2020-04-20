@@ -656,22 +656,6 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         ).and_return(true)
         communicator.send(:connect)
       end
-
-      it "includes the default cipher array for encryption" do
-        cipher_array = %w(aes256-ctr aes192-ctr aes128-ctr
-                          aes256-cbc aes192-cbc aes128-cbc
-                          rijndael-cbc@lysator.liu.se blowfish-ctr
-                          blowfish-cbc cast128-ctr cast128-cbc
-                          3des-ctr 3des-cbc idea-cbc arcfour256
-                          arcfour128 arcfour none)
-
-        expect(Net::SSH).to receive(:start).with(
-          nil, nil, hash_including(
-            encryption: cipher_array
-          )
-        ).and_return(true)
-        communicator.send(:connect)
-      end
     end
 
     context "with keys_only disabled and verify_host_key enabled" do
@@ -880,6 +864,25 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
         expect(Net::SSH).to receive(:start).with(
           anything, anything, hash_including(
             remote_user: remote_user
+          )
+        ).and_return(true)
+        communicator.send(:connect)
+      end
+    end
+
+    context "with connect_timeout configured" do
+      before do
+        expect(machine).to receive(:ssh_info).and_return(
+          host: '127.0.0.1',
+          port: 2222,
+          connect_timeout: 30
+        )
+      end
+
+      it "has connect_timeout defined" do
+        expect(Net::SSH).to receive(:start).with(
+          anything, anything, hash_including(
+            timeout: 30
           )
         ).and_return(true)
         communicator.send(:connect)
