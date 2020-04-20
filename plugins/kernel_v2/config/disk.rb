@@ -119,7 +119,12 @@ module VagrantPlugins
           end
         end
 
-        @provider_config = nil if @provider_config == {}
+        # TODO: fix me??
+        if @provider_config.empty?
+          @provider_config = nil
+        else
+          @provider_config = @provider_config[:provider_config]
+        end
       end
 
       # @return [Array] array of strings of error messages from config option validation
