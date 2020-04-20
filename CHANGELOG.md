@@ -15,6 +15,7 @@ IMPROVEMENTS:
 - guest/alpine: Add ansible provisioner guest support [GH-11411]
 - guest/linux: Update systemd? check to use sudo [GH-11398]
 - guest/linux: Use systemd if available to halt and reboot system [GH-11407]
+- guests/linux: Mount smb folders with `mfsymlinks` option by default [GH-11503]
 - guest/redhat: Add support for SMB [GH-11463]
 - guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
 - providers/docker: Support catching container name when using podman [GH-11356]
