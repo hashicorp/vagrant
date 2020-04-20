@@ -39,6 +39,7 @@ BUG FIXES:
 - providers/hyperv: Prevent error when identity reference cannot be translated [GH-11425]
 - provider/hyperv: Use service id for manipulating vm integration services [GH-11499]
 - providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
+- providers/virtualbox: Raise an error if guest IP ends in .1 [GH-11500]
 - provisioners/shell: Ensure windows shell provisioners always get an extension [GH-11517]
 
 ## 2.2.7 (January 27, 2020)
