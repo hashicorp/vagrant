@@ -125,4 +125,40 @@ shared_examples "a version 5.x virtualbox driver" do |options|
       end
     end
   end
+
+  describe "#read_guest_ip" do
+    context "when guest ip ends in .1" do
+      before do
+        key = "/VirtualBox/GuestInfo/Net/1/V4/IP"
+
+        expect(subprocess).to receive(:execute).
+          with("VBoxManage", "guestproperty", "get", uuid, key, an_instance_of(Hash)).
+          and_return(subprocess_result(stdout: "Value: 172.28.128.1"))
+      end
+
+      it "should raise an error" do
+        expect { subject.read_guest_ip(1) }.to raise_error(Vagrant::Errors::VirtualBoxGuestPropertyNotFound)
+      end
+    end
+  end
+
+  describe "#valid_ip_address?" do
+    context "when ip is 0.0.0.0" do
+      let(:ip) { "0.0.0.0" }
+
+      it "should be false" do
+        result = subject.send(:valid_ip_address?, ip)
+        expect(result).to be(false)
+      end
+    end
+
+    context "when ip address is nil" do
+      let(:ip) { nil }
+
+      it "should be false" do
+        result = subject.send(:valid_ip_address?, ip)
+        expect(result).to be(false)
+      end
+    end
+  end
 end
