@@ -42,14 +42,12 @@ module VagrantPlugins
                 DiskFilePath: disk_file_path)
       end
 
-      # TODO: Include other options like if disk is fixed or dymanic in opts hash?
-      #
       # @param [String] path
       # @param [Int] size_bytes
       # @param [Hash] opts
       def create_disk(path, size_bytes, **opts)
         # ensure size_bytes is a uint64
-        execute(:new_vhd, DiskFilePath: path, DiskSizeBytes: size_bytes)
+        execute(:new_vhd, Path: path, SizeBytes: size_bytes, **opts)
       end
 
       # @param [String] controller_type
@@ -287,6 +285,7 @@ module VagrantPlugins
         options = options || {}
         ps_options = []
         options.each do |key, value|
+          next if value == '' || value.nil?
           next if value == false
           ps_options << "-#{key}"
           # If the value is a TrueClass assume switch
