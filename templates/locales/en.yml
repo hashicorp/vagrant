@@ -2424,7 +2424,18 @@ en:
             For more information see:
             RFC5661: https://tools.ietf.org/html/rfc5661#section-2.9.1
             RFC7530: https://tools.ietf.org/html/rfc7530#section-3.1
+        smb:
+          mfsymlink_warning: |-
+            Vagrant is currently configured to mount SMB folders with the 
+            `mfsymlink` option enabled. This is equivalent to adding the 
+            following to your Vagrantfile:
+              
+              config.vm.synced_folder '/host/path', '/guest/path', type: "smb", mount_options: ['mfsymlink']
 
+            This option may be globally disabled with an environment variable:
+
+              VAGRANT_DISABLE_SMBMFSYMLINKS=1
+            
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
