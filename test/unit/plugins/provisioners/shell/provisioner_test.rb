@@ -4,6 +4,7 @@ require Vagrant.source_root.join("plugins/provisioners/shell/provisioner")
 describe "Vagrant::Shell::Provisioner" do
   include_context "unit"
 
+  let(:default_win_path) { "C:/tmp/vagrant-shell" }
   let(:env){ isolated_environment }
   let(:machine) {
     double(:machine, env: env, id: "ID").tap { |machine|
@@ -456,12 +457,139 @@ describe "Vagrant::Shell::Provisioner" do
       allow(machine).to receive(:communicate).and_return(communicator)
       allow(machine).to receive(:guest).and_return(guest)
       allow(machine).to receive(:ui).and_return(ui)
-      allow(vsp).to receive(:with_script_file).and_yield(config.path)
     }
 
     it "ensures that files are uploaded with an extension" do
+      allow(vsp).to receive(:with_script_file).and_yield(config.path)
       expect(communicator).to receive(:upload).with(config.path, /arbitrary.ps1$/)
       vsp.send(:provision_winrm, "")
+    end
+
+    context "inline option set" do
+      let(:config) {
+        double(
+          :config,
+          :args                            => "doesn't matter",
+          :env                             => {},
+          :remote?                         => false,
+          :inline                          => "some commands",
+          :upload_path                     => nil,
+          :path                            => nil,
+          :binary                          => false,
+          :md5                             => nil,
+          :sha1                            => 'EXPECTED_VALUE',
+          :sha256                          => nil,
+          :sha384                          => nil,
+          :sha512                          => nil,
+          :reset                           => false,
+          :reboot                          => false,
+          :powershell_args                 => "",
+          :name                            => nil,
+          :privileged                      => false,
+          :powershell_elevated_interactive => false
+        )
+      }
+  
+      it "creates an executable with an extension" do
+        allow(vsp).to receive(:with_script_file).and_yield(default_win_path)
+        allow(communicator).to receive(:upload).with(default_win_path, /vagrant-shell/)
+        expect(communicator).to receive(:sudo).with(/vagrant-shell.ps1/, anything)
+        vsp.send(:provision_winrm, "")
+      end
+    end
+  end
+
+  describe "#provision_winssh" do
+    let(:config) {
+      double(
+        :config,
+        :args                            => "doesn't matter",
+        :env                             => {},
+        :upload_path                     => "arbitrary",
+        :remote?                         => false,
+        :path                            => nil,
+        :inline                          => "something",
+        :binary                          => false,
+        :md5                             => nil,
+        :sha1                            => 'EXPECTED_VALUE',
+        :sha256                          => nil,
+        :sha384                          => nil,
+        :sha512                          => nil,
+        :reset                           => false,
+        :reboot                          => false,
+        :powershell_args                 => "",
+        :name                            => nil,
+        :privileged                      => false,
+        :powershell_elevated_interactive => false
+      )
+    }
+
+    let(:vsp) {
+      VagrantPlugins::Shell::Provisioner.new(machine, config)
+    }
+
+    let(:communicator) { double("communicator") }
+    let(:guest) { double("guest") }
+    let(:ui) { double("ui") }
+
+    before {
+      allow(guest).to receive(:capability?).with(:wait_for_reboot).and_return(false)
+      allow(ui).to receive(:detail)
+      allow(communicator).to receive(:sudo)
+      allow(communicator).to receive_message_chain(:machine_config_ssh, :shell)
+      allow(machine).to receive(:communicate).and_return(communicator)
+      allow(machine).to receive(:guest).and_return(guest)
+      allow(machine).to receive(:ui).and_return(ui)
+      allow(machine).to receive(:ssh_info).and_return(true)
+    }
+
+    it "ensures that files are uploaded as .bat when shell is cmd" do
+      allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("cmd")
+      allow(vsp).to receive(:with_script_file).and_yield(default_win_path)
+      expect(communicator).to receive(:upload).with(default_win_path, /arbitrary.bat/)
+      expect(communicator).to receive(:execute).with(/arbitrary.bat/, anything)
+      vsp.send(:provision_winssh, "")
+    end
+
+    it "ensures that files are uploaded as .ps1 when shell is not cmd" do
+      allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("ps")
+      allow(vsp).to receive(:with_script_file).and_yield(default_win_path)
+      expect(communicator).to receive(:upload).with(default_win_path, /arbitrary.ps1/)
+      expect(communicator).to receive(:execute).with(/arbitrary.ps1/, anything)
+      vsp.send(:provision_winssh, "")
+    end
+
+    context "ps1 file being uploaded" do
+      let(:config) {
+        double(
+          :config,
+          :args                            => "doesn't matter",
+          :env                             => {},
+          :upload_path                     => "arbitrary",
+          :remote?                         => false,
+          :path                            => "script/info.ps1",
+          :binary                          => false,
+          :md5                             => nil,
+          :sha1                            => 'EXPECTED_VALUE',
+          :sha256                          => nil,
+          :sha384                          => nil,
+          :sha512                          => nil,
+          :reset                           => false,
+          :reboot                          => false,
+          :powershell_args                 => "",
+          :name                            => nil,
+          :privileged                      => false,
+          :powershell_elevated_interactive => false
+        )
+      }
+      
+      it "ensures that files are uploaded same extension as provided path.ps1" do
+        allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("cmd")
+        allow(vsp).to receive(:with_script_file).and_yield(config.path)
+        expect(communicator).to receive(:upload).with(config.path, /arbitrary.ps1/)
+        expect(communicator).to receive(:execute).with(/arbitrary.ps1/, anything)
+        vsp.send(:provision_winssh, "")
+      end
     end
   end
 end

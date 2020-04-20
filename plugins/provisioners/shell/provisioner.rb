@@ -9,6 +9,8 @@ module VagrantPlugins
     class Provisioner < Vagrant.plugin("2", :provisioner)
       include Vagrant::Util::Retryable
 
+      DEFAULT_WINDOWS_SHELL_EXT = ".ps1".freeze
+
       def provision
         args = ""
         if config.args.is_a?(String)
@@ -135,16 +137,14 @@ module VagrantPlugins
           # Upload the script to the machine
           @machine.communicate.tap do |comm|
             env = config.env.map{|k,v| comm.generate_environment_export(k, v)}.join(';')
-            shell = comm.machine_config_ssh.shell
-            if File.extname(upload_path).empty?
-              remote_ext = File.extname(path)[1..-1]
-              if !remote_ext
-                remote_ext = @machine.config.winssh.shell == "cmd" ? "bat" : "ps1"
-              end
-              upload_path << ".#{remote_ext}"
+            remote_ext = File.extname(path)
+            if remote_ext.empty?
+              remote_ext = @machine.config.winssh.shell == "cmd" ? ".bat" : ".ps1"
             end
+
+            remote_path = add_extension(upload_path, remote_ext)
             if remote_ext == "bat"
-              command = "#{env}\n cmd.exe /c \"#{upload_path}\" #{args}"
+              command = "#{env}\n cmd.exe /c \"#{remote_path}\" #{args}"
             else
               # Copy powershell_args from configuration
               shell_args = config.powershell_args
@@ -152,7 +152,7 @@ module VagrantPlugins
               shell_args += " -ExecutionPolicy Bypass" if config.powershell_args !~ /[-\/]ExecutionPolicy/i
               # CLIXML output is kinda useless, especially on non-windows hosts
               shell_args += " -OutputFormat Text" if config.powershell_args !~ /[-\/]OutputFormat/i
-              command = "#{env}\npowershell #{shell_args} -file \"#{upload_path}\"#{args}"
+              command = "#{env}\npowershell #{shell_args} -file \"#{remote_path}\"#{args}"
             end
 
             # Reset upload path permissions for the current ssh user
@@ -161,8 +161,8 @@ module VagrantPlugins
               info = @machine.ssh_info
               raise Vagrant::Errors::SSHNotReady if info.nil?
             end
-
-            comm.upload(path.to_s, upload_path)
+            
+            comm.upload(path.to_s, remote_path)
 
             if config.name
               @machine.ui.detail(I18n.t("vagrant.provisioners.shell.running",
@@ -198,10 +198,7 @@ module VagrantPlugins
           @machine.communicate.tap do |comm|
             # Make sure that the upload path has an extension, since
             # having an extension is critical for Windows execution
-            winrm_upload_path = upload_path
-            if File.extname(winrm_upload_path) == ""
-              winrm_upload_path += File.extname(path.to_s)
-            end
+            winrm_upload_path = add_extension(upload_path, DEFAULT_WINDOWS_SHELL_EXT)
 
             # Upload it
             comm.upload(path.to_s, winrm_upload_path)
@@ -258,6 +255,11 @@ module VagrantPlugins
       # Quote and escape strings for shell execution, thanks to Capistrano.
       def quote_and_escape(text, quote = '"')
         "#{quote}#{text.gsub(/#{quote}/) { |m| "#{m}\\#{m}#{m}" }}#{quote}"
+      end
+
+      def add_extension(path, ext)
+        return path if !File.extname(path.to_s).empty?
+        path + ext
       end
 
       # This method yields the path to a script to upload and execute
