@@ -1,7 +1,7 @@
 ---
 layout: "docs"
 page_title: "Disks for Hyper-V Provider"
-sidebar_current: "disks-providers-virtualbox"
+sidebar_current: "disks-providers-hyperv"
 description: |-
   Vagrant comes with support out of the box for Hyper-V, a free,
   cross-platform consumer virtualization product.

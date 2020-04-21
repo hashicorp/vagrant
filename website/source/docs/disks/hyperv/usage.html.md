@@ -1,9 +1,9 @@
 ---
 layout: "docs"
-page_title: "Usage - Disks VirtualBox Provider"
-sidebar_current: "disks-providers-virtualbox-usage"
+page_title: "Usage - Disks Hyper-V Provider"
+sidebar_current: "disks-providers-hyperv-usage"
 description: |-
-  The Vagrant VirtualBox provider is used just like any other provider. Please
+  The Vagrant Hyper-V provider is used just like any other provider. Please
   read the general basic usage page for providers.
 ---
 
@@ -25,7 +25,49 @@ description: |-
   for more info. Without this flag enabled, any disks defined will not be configured.
 </div>
 
-For examples of how to use the disk feature with VirtualBox, please refer to the
+For examples of how to use the disk feature with Hyper-V, please refer to the
 [general disk usage guide](/docs/disks/usage.html) for more examples.
 
 ## provider_config options
+
+Most options are used for either creating or attaching a hard disk to your guest.
+Vagrant supports most options for these operations. You should be able to define
+the powershell specific argument to a given Hyper-V command in the provider_config
+hash, and Vagrant should properly pass it along to the command.
+
+To define a provider specific option, please refer to the [Disk Options documentation page](/docs/disks/configuration.html) for more info.
+
+### Note about options defined below
+
+It is possible these options could be out of date or stale. If you happen to see
+an option that has changed or is missing from this page, please open an issue
+or pull request on Vagrants GitHub page to correct this.
+
+### New-VHD Supported Options
+
+For more information about each option, please visit the [New-VHD Hyper-V documentation](https://docs.microsoft.com/en-us/powershell/module/hyper-v/new-vhd?view=win10-ps).
+
+__Note:__ By default, all Hyper-V disks are defined as a Dynamic virtual hard disk. If you
+wish to make the disk a fixed size, you can set the `Fixed` option below when creating
+a new disk.
+
+* `BlockSizeBytes` (string) - Optional argument, i.e. `"128MB"`
+* `Differencing` (bool) - If set, the disk will be used to store differencing changes from parent disk (must set `ParentPath`)
+* `Fixed` (bool) - If set, the disk will be a fixed size, not dynamically allocated.
+* `LogicalSectorSizeBytes` (string) - Optional argument, must be either `"512MB"` or `"4096MB"`
+* `ParentPath` (string) - The parent disk path used if a `Differencing` disk is defined
+* `PhysicalSectorSizeBytes` (string) - Optional argument, must be either `"512MB"` or `"4096MB"`
+* `SourceDisk` (int) - Existing disk to use as a source for the new disk
+
+### Add-VMHardDiskDrive Supported Options
+
+For more information about each option, please visit the [Add-VMHardDiskDrive Hyper-V documentation](https://docs.microsoft.com/en-us/powershell/module/hyper-v/add-vmharddiskdrive?view=win10-ps)
+
+Generally, these options do not need to be set or handled by most users. Only
+use these options if you are sure you know what you are doing. Vagrant will
+be able to attach disks for you without these options, but they are available
+if it is required that you specificy a specific location for a disk.
+
+* `ControllerLocation` (int) - The location that the disk should be attached to on the controller
+* `ControllerNumber` (int) - The controller to use for attaching the disk
+* `ControllerType` (string) - The kind of controller to use when attaching the a disk. Only `"IDE"` and `"SCSI"` are valid.
