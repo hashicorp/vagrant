@@ -200,8 +200,15 @@ end
 
 If you are running a Batch or PowerShell script for Windows, make sure
 that the external path has the proper extension (".bat" or ".ps1"), because
-Windows uses this to determine what kind of file it is to execute. If you
-exclude this extension, it likely will not work.
+Windows uses this to determine what kind of file it is to execute. Additionally,
+if you are running Vagrant on something like Cygwin or WSL where bash is
+available, then you should be able to use an extension like ".sh".
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "shell", path: "scripts/PowershellScript.ps1"
+end
+```
 
 To run a script already available on the guest you can use an inline script to
 invoke the remote script on the guest.
