@@ -184,7 +184,7 @@ module VagrantPlugins
           end
         end
 
-        if @provider_config
+        if !@provider_config.empty?
           if !@provider_config.keys.include?(machine.provider_name)
             machine.env.ui.warn(I18n.t("vagrant.config.disk.missing_provider",
                                        machine: machine.name,
