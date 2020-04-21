@@ -175,7 +175,6 @@ module VagrantPlugins
           disk_info = machine.provider.driver.get_disk(disk_file)
           disk_metadata = {uuid: disk_info["DiskIdentifier"], name: disk_config.name, path: disk_info["Path"]}
 
-          # TODO: Should we be passing in controller info?
           machine.provider.driver.attach_disk(disk_file, disk_provider_config)
 
           disk_metadata
