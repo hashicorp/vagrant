@@ -153,6 +153,10 @@ module VagrantPlugins
           disk_provider_config = {}
           disk_provider_config = disk_config.provider_config[:hyperv] if disk_config.provider_config
 
+          if !disk_provider_config.empty?
+            disk_provider_config = convert_size_vars!(disk_provider_config)
+          end
+
           # Get the machines data dir, that will now be the path for the new disk
           guest_disk_folder = machine.data_dir.join("Virtual Hard Disks")
 
@@ -172,9 +176,48 @@ module VagrantPlugins
           disk_metadata = {uuid: disk_info["DiskIdentifier"], name: disk_config.name, path: disk_info["Path"]}
 
           # TODO: Should we be passing in controller info?
-          machine.provider.driver.attach_disk(nil, nil, nil, disk_file)
+          machine.provider.driver.attach_disk(disk_file, disk_provider_config)
 
           disk_metadata
+        end
+
+        # Converts any "shortcut" options such as "123MB" into its byte form. This
+        # is due to what parameter type is expected when calling the `New-VHD`
+        # powershell command
+        #
+        # @param [Hash] disk_provider_config
+        # @return [Hash] disk_provider_config
+        def self.convert_size_vars!(disk_provider_config)
+          conversion_keys = [:BlockSizeBytes, :LogicalSectorSizeBytes, :PhysicalSectorSizeBytes]
+
+          conversion_keys.each do |k|
+            if disk_provider_config.keys.include?(k)
+              if k.is_a? Integer
+                # Assume it is bytes
+                bytes = disk_provider_config[k]
+              elsif k == :BlockSizeBytes
+                bytes = Vagrant::Util::Numeric.string_to_bytes(disk_provider_config[k])
+              elsif k == :LogicalSectorSizeBytes || k == :PhysicalSectorSizeBytes
+                # Logical and Physical can only be these exact values, so converting it
+                # won't work
+                case disk_provider_config[k]
+                  when "4096MB"
+                    bytes = 4096
+                  when "512MB"
+                    bytes = 512
+                  else
+                    # Their config is wrong
+                    bytes = disk_provider_config[k]
+                end
+              else
+                bytes = disk_provider_config[k]
+              end
+
+              disk_provider_config[k] = bytes
+            end
+          end
+
+          disk_provider_config
         end
 
         # @param [Vagrant::Machine] machine
