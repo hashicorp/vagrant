@@ -28,67 +28,6 @@ module VagrantPlugins
         @vm_id = id
       end
 
-      #
-      # Disk Driver methods
-      #
-
-      # @param [String] controller_type
-      # @param [String] controller_number
-      # @param [String] controller_location
-      # @param [Hash] opts
-      def attach_disk(disk_file_path,  **opts)
-        execute(:attach_disk_drive, VmId: @vm_id, Path: disk_file_path, ControllerType: opts[:ControllerType],
-                ControllerNumber: opts[:ControllerNumber], ControllerLocation: opts[:ControllerLocation])
-      end
-
-      # @param [String] path
-      # @param [Int] size_bytes
-      # @param [Hash] opts
-      def create_disk(path, size_bytes, **opts)
-        # ensure size_bytes is a uint64
-        execute(:new_vhd, Path: path, SizeBytes: size_bytes, Fixed: opts[:Fixed],
-               BlockSizeBytes: opts[:BlockSizeBytes], LogicalSectorSizeBytes: opts[:LogicalSectorSizeBytes],
-               PhysicalSectorSizeBytes: opts[:PhysicalSectorSizeBytes],
-               SourceDisk: opts[:SourceDisk], Differencing: opts[:Differencing],
-               ParentPath: opts[:ParentPath])
-      end
-
-      # @param [String] controller_type
-      # @param [String] controller_number
-      # @param [String] controller_location
-      # @param [Hash] opts
-      def remove_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
-        execute(:remove_disk_drive, VmId: @vm_id, ControllerType: controller_type,
-                ControllerNumber: controller_number, ControllerLocation: controller_location,
-                DiskFilePath: disk_file_path)
-      end
-
-      # @param [String] path
-      # @param [Int] size_bytes
-      # @param [Hash] opts
-      def resize_disk(disk_file_path, size_bytes, **opts)
-        execute(:resize_disk_drive, VmId: @vm_id, DiskFilePath: disk_file_path,
-                DiskSize: size_bytes)
-      end
-
-      def list_hdds
-        execute(:list_hdds, VmId: @vm_id)
-      end
-
-      # @param [String] disk_file_path
-      def get_disk(disk_file_path)
-        execute(:get_vhd, DiskFilePath: disk_file_path)
-      end
-
-      # @param [String] disk_file_path
-      def dismount_disk(disk_file_path)
-        execute(:dismount_vhd, DiskFilePath: disk_file_path)
-      end
-
-      ########
-      ########
-      ########
-
       # @return [Boolean] Supports VMCX
       def has_vmcx_support?
         !!execute(:has_vmcx_support)["result"]
@@ -278,6 +217,68 @@ module VagrantPlugins
       def set_name(vmname)
         execute(:set_name, VMID: vm_id, VMName: vmname)
       end
+
+      #
+      # Disk Driver methods
+      #
+
+      # @param [String] controller_type
+      # @param [String] controller_number
+      # @param [String] controller_location
+      # @param [Hash] opts
+      def attach_disk(disk_file_path,  **opts)
+        execute(:attach_disk_drive, VmId: @vm_id, Path: disk_file_path, ControllerType: opts[:ControllerType],
+                ControllerNumber: opts[:ControllerNumber], ControllerLocation: opts[:ControllerLocation])
+      end
+
+      # @param [String] path
+      # @param [Int] size_bytes
+      # @param [Hash] opts
+      def create_disk(path, size_bytes, **opts)
+        # ensure size_bytes is a uint64
+        execute(:new_vhd, Path: path, SizeBytes: size_bytes, Fixed: opts[:Fixed],
+               BlockSizeBytes: opts[:BlockSizeBytes], LogicalSectorSizeBytes: opts[:LogicalSectorSizeBytes],
+               PhysicalSectorSizeBytes: opts[:PhysicalSectorSizeBytes],
+               SourceDisk: opts[:SourceDisk], Differencing: opts[:Differencing],
+               ParentPath: opts[:ParentPath])
+      end
+
+      # @param [String] disk_file_path
+      def dismount_disk(disk_file_path)
+        execute(:dismount_vhd, DiskFilePath: disk_file_path)
+      end
+
+      # @param [String] disk_file_path
+      def get_disk(disk_file_path)
+        execute(:get_vhd, DiskFilePath: disk_file_path)
+      end
+
+      def list_hdds
+        execute(:list_hdds, VmId: @vm_id)
+      end
+
+      # @param [String] controller_type
+      # @param [String] controller_number
+      # @param [String] controller_location
+      # @param [Hash] opts
+      def remove_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
+        execute(:remove_disk_drive, VmId: @vm_id, ControllerType: controller_type,
+                ControllerNumber: controller_number, ControllerLocation: controller_location,
+                DiskFilePath: disk_file_path)
+      end
+
+      # @param [String] path
+      # @param [Int] size_bytes
+      # @param [Hash] opts
+      def resize_disk(disk_file_path, size_bytes, **opts)
+        execute(:resize_disk_drive, VmId: @vm_id, DiskFilePath: disk_file_path,
+                DiskSize: size_bytes)
+      end
+
+      ########
+      ########
+      ########
+
 
       protected
 
