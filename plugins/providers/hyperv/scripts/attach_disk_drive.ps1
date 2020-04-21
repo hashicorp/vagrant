@@ -3,18 +3,25 @@
 param(
     [Parameter(Mandatory=$true)]
     [string]$VmId,
+    [Parameter(Mandatory=$true)]
+    [string]$Path,
     [string]$ControllerType,
     [string]$ControllerNumber,
-    [string]$ControllerLocation,
-    [Parameter(Mandatory=$true)]
-    [string]$DiskFilePath
+    [string]$ControllerLocation
 )
+
+$Params = @{}
+
+foreach ($key in $MyInvocation.BoundParameters.keys) {
+  $value = (Get-Variable -Exclude "ErrorAction" $key).Value
+  if (($key -ne "VmId") -and ($key -ne "ErrorAction")) {
+    $Params.Add($key, $value)
+  }
+}
 
 try {
     $VM = Hyper-V\Get-VM -Id $VmId
-    #Hyper-V\Add-VMHardDiskDrive -VMName $vm -ControllerType $ControllerType -ControllerNumber $ControllerNumber -ControllerLocation $ControllerLocation -Path $DiskFilePath
-    # Add logic to support missing params. Below is the simple case for attaching a disk
-    Hyper-V\Add-VMHardDiskDrive -VMName $VM.Name -Path $DiskFilePath
+    Hyper-V\Add-VMHardDiskDrive -VMName $VM.Name @Params
 } catch {
     Write-ErrorMessage "Failed to attach disk ${DiskFilePath} to VM ${VM}: ${PSItem}"
     exit 1

@@ -37,7 +37,7 @@ module VagrantPlugins
       # @param [String] controller_location
       # @param [Hash] opts
       def attach_disk(disk_file_path,  **opts)
-        execute(:attach_disk_drive, VmId: @vm_id, DiskFilePath: disk_file_path, ControllerType: opts[:ControllerType],
+        execute(:attach_disk_drive, VmId: @vm_id, Path: disk_file_path, ControllerType: opts[:ControllerType],
                 ControllerNumber: opts[:ControllerNumber], ControllerLocation: opts[:ControllerLocation])
       end
 
@@ -48,7 +48,9 @@ module VagrantPlugins
         # ensure size_bytes is a uint64
         execute(:new_vhd, Path: path, SizeBytes: size_bytes, Fixed: opts[:Fixed],
                BlockSizeBytes: opts[:BlockSizeBytes], LogicalSectorSizeBytes: opts[:LogicalSectorSizeBytes],
-               PhysicalSectorSizeBytes: opts[:PhsyicalSectorSizeBytes])
+               PhysicalSectorSizeBytes: opts[:PhysicalSectorSizeBytes],
+               SourceDisk: opts[:SourceDisk], Differencing: opts[:Differencing],
+               ParentPath: opts[:ParentPath])
       end
 
       # @param [String] controller_type

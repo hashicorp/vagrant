@@ -6,9 +6,12 @@ param(
     [Parameter(Mandatory=$true)]
     [UInt64]$SizeBytes,
     [switch]$Fixed,
+    [switch]$Differencing,
+    [string]$ParentPath,
     [string]$BlockSizeBytes,
     [string]$LogicalSectorSizeBytes,
-    [string]$PhysicalSectorSizeBytes
+    [string]$PhysicalSectorSizeBytes,
+    [UInt64]$SourceDisk
 )
 
 $Params = @{}
