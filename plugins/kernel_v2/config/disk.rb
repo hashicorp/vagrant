@@ -97,7 +97,11 @@ module VagrantPlugins
         end
 
         current = @provider_config.merge(current) if !@provider_config.empty?
-        @provider_config = current
+        if current
+          @provider_config = current[:provider_config]
+        else
+          @provider_config = {}
+        end
       end
 
       def finalize!
@@ -117,13 +121,6 @@ module VagrantPlugins
           else
             @name = nil
           end
-        end
-
-        # TODO: fix me??
-        if @provider_config.empty?
-          @provider_config = nil
-        else
-          @provider_config = @provider_config[:provider_config]
         end
       end
 
