@@ -38,7 +38,7 @@ module VagrantPlugins
       # @param [Hash] opts
       def attach_disk(disk_file_path,  **opts)
         execute(:attach_disk_drive, VmId: @vm_id, DiskFilePath: disk_file_path, ControllerType: opts[:ControllerType],
-                ControllerNumber: opts[:ControllerNumer], ControllerLocation: opts[:ControllerLocation])
+                ControllerNumber: opts[:ControllerNumber], ControllerLocation: opts[:ControllerLocation])
       end
 
       # @param [String] path
