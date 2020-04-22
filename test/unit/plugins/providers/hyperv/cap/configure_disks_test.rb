@@ -217,7 +217,7 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
   end
 
   context "#convert_size_vars!" do
-    let(:disk_provider_config) { {BlockSizeBytes: "128MB", LogicalSectorSizeBytes: "512MB", PhysicalSectorSizeBytes: "4096MB" } }
+    let(:disk_provider_config) { {BlockSizeBytes: "128MB", LogicalSectorSizeBytes: 512, PhysicalSectorSizeBytes: 4096 } }
     it "converts certain powershell arguments into something usable" do
       updated_config = subject.convert_size_vars!(disk_provider_config)
 

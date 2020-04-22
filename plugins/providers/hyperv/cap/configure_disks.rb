@@ -181,33 +181,9 @@ module VagrantPlugins
         # @param [Hash] disk_provider_config
         # @return [Hash] disk_provider_config
         def self.convert_size_vars!(disk_provider_config)
-          conversion_keys = [:BlockSizeBytes, :LogicalSectorSizeBytes, :PhysicalSectorSizeBytes]
-
-          conversion_keys.each do |k|
-            if disk_provider_config.keys.include?(k)
-              if k.is_a? Integer
-                # Assume it is bytes
-                bytes = disk_provider_config[k]
-              elsif k == :BlockSizeBytes
-                bytes = Vagrant::Util::Numeric.string_to_bytes(disk_provider_config[k])
-              elsif k == :LogicalSectorSizeBytes || k == :PhysicalSectorSizeBytes
-                # Logical and Physical can only be these exact values, so converting it
-                # won't work
-                case disk_provider_config[k]
-                  when "4096MB"
-                    bytes = 4096
-                  when "512MB"
-                    bytes = 512
-                  else
-                    # Their config is wrong
-                    bytes = disk_provider_config[k]
-                end
-              else
-                bytes = disk_provider_config[k]
-              end
-
-              disk_provider_config[k] = bytes
-            end
+          if disk_provider_config.keys.include?(:BlockSizeBytes)
+            bytes = Vagrant::Util::Numeric.string_to_bytes(disk_provider_config[:BlockSizeBytes])
+            disk_provider_config[:BlockSizeBytes] = bytes
           end
 
           disk_provider_config

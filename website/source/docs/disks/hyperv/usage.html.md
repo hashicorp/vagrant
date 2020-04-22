@@ -54,9 +54,9 @@ a new disk.
 * `BlockSizeBytes` (string) - Optional argument, i.e. `"128MB"`
 * `Differencing` (bool) - If set, the disk will be used to store differencing changes from parent disk (must set `ParentPath`)
 * `Fixed` (bool) - If set, the disk will be a fixed size, not dynamically allocated.
-* `LogicalSectorSizeBytes` (string) - Optional argument, must be either `"512MB"` or `"4096MB"`
+* `LogicalSectorSizeBytes` (int) - Optional argument, must be either `512` or `4096`
 * `ParentPath` (string) - The parent disk path used if a `Differencing` disk is defined
-* `PhysicalSectorSizeBytes` (string) - Optional argument, must be either `"512MB"` or `"4096MB"`
+* `PhysicalSectorSizeBytes` (string) - Optional argument, must be either `512` or `4096`
 * `SourceDisk` (int) - Existing disk to use as a source for the new disk
 
 ### Add-VMHardDiskDrive Supported Options
