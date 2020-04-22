@@ -1,3 +1,4 @@
+require_relative "../../../../base"
 require Vagrant.source_root.join("plugins/providers/hyperv/cap/cleanup_disks")
 
 describe VagrantPlugins::HyperV::Cap::CleanupDisks do
@@ -33,8 +34,35 @@ describe VagrantPlugins::HyperV::Cap::CleanupDisks do
   end
 
   context "#cleanup_disks" do
+    it "returns if there's no data in meta file" do
+      subject.cleanup_disks(machine, defined_disks, disk_meta_file)
+      expect(subject).not_to receive(:handle_cleanup_disk)
+    end
+
+    describe "with disks to clean up" do
+      let(:disk_meta_file) { {disk: [{"UUID"=>"1234", "Path"=> "c:\\users\\vagrant\\storage.vhdx", "Name"=>"storage"}], floppy: [], dvd: []} }
+
+      it "calls the cleanup method if a disk_meta file is defined" do
+        expect(subject).to receive(:handle_cleanup_disk).
+          with(machine, defined_disks, disk_meta_file["disk"]).
+          and_return(true)
+
+        subject.cleanup_disks(machine, defined_disks, disk_meta_file)
+      end
+    end
   end
 
   context "#handle_cleanup_disk" do
+      let(:disk_meta_file) { {disk: [{"UUID"=>"1234", "Path"=> "c:\\users\\vagrant\\storage.vhdx", "Name"=>"storage"}], floppy: [], dvd: []} }
+      let(:defined_disks) { [] }
+      let(:all_disks) { [{"UUID"=>"1234", "Path"=> "c:\\users\\vagrant\\storage.vhdx", "Name"=>"storage",
+                         "ControllerType"=>"IDE", "ControllerNumber"=>1, "ControllerLocation"=>0}] }
+
+    it "removes and closes medium from guest" do
+      expect(driver).to receive(:list_hdds).and_return(all_disks)
+      expect(driver).to receive(:remove_disk).with("IDE", 1, 0, "c:\\users\\vagrant\\storage.vhdx").and_return(true)
+
+      subject.handle_cleanup_disk(machine, defined_disks, disk_meta_file[:disk])
+    end
   end
 end
