@@ -33,7 +33,8 @@ what most public boxes are made as.
 By default this is empty, because the provider usually figures this out for
 you.
 
-* `config.winrm.port` (integer) - The WinRM port to connect to, by default 5985.
+* `config.winrm.port` (integer) - The WinRM port to connect to, by default 5985. If ssl
+is enabled, the default port is 5986.
 
 * `config.winrm.guest_port` (integer) - The port on the guest that WinRM is running on.
 This is used by some providers to detect forwarded ports for WinRM. For
@@ -51,22 +52,25 @@ the Windows machine must be configured appropriately.
     **Note:** It is strongly recommended that you only use basic authentication for
     debugging purposes. Credentials will be transferred in plain text.
 
+* `config.winrm.execution_time_limit` (string) - The amount of time that is allowed to 
+complete task. This defaults to "PT2H", that is 2 hours.
+
 * `config.winrm.ssl_peer_verification` (boolean) - When set to `false` ssl certificate
-validation is not performed.
+validation is not performed. By default this is true.
 
 * `config.winrm.timeout` (integer) - The maximum amount of time to wait for a response
-from the endpoint. This defaults to 60 seconds. Note that this will not "timeout"
+from the endpoint. This defaults to 1800 seconds. Note that this will not "timeout"
 commands that exceed this amount of time to process, it just requires the endpoint to
 report the status of the command before the given amount of time passes.
 
-* `config.winrm.retry_limit` (integer) - The maximum number of times to retry opening
-a shell after failure. This defaults to 3.
+* `config.winrm.max_tries` (integer) - The maximum number of times to retry opening
+a shell after failure. This defaults to 20.
 
 * `config.winrm.retry_delay` (integer) - The amount of time to wait between retries and
-defaults to 10 seconds.
+defaults to 2 seconds.
 
 * `config.winrm.codepage` (string) - The WINRS_CODEPAGE which is the client's console
-output code page. The default is 65001 (UTF-8).
+output code page. By default this is not set by Vagrant.
 
     **Note:** Versions of Windows older than Windows 7/Server 2008 R2 may exhibit
     undesirable behavior using the default UTF-8 codepage. When using these older
