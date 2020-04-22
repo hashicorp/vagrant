@@ -83,7 +83,7 @@ module VagrantPlugins
       # This is the provision method called if SSH is what is running
       # on the remote end, which assumes a POSIX-style host.
       def provision_ssh(args)
-        env = config.env.map { |k,v| "#{k}=#{quote_and_escape(v.to_s)}" }
+        env = config.env.map { |k,v| "#{k}=#{quote_and_escape(v.to_s, "'")}" }
         env = env.join(" ")
 
         command =  "chmod +x '#{upload_path}'"
