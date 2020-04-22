@@ -8,6 +8,7 @@ IMPROVEMENTS:
 
 - bin/vagrant: Automatically include global options within commands [GH-11473]
 - bin/vagrant: Suppress Ruby warnings when not running pre-release version [GH-11446]
+- communicator/ssh: Add support for configuring SSH connect timeout [GH-11533]
 - core: Update childprocess gem [GH-11487]
 - core: Add cli option `--no-tty` [GH-11414]
 - core: Overhaul call stack modifications implementation for hooks and triggers [GH-11455]
