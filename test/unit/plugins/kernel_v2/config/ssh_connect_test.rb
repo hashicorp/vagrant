@@ -103,4 +103,63 @@ describe VagrantPlugins::Kernel_V2::SSHConnectConfig do
       expect(subject.remote_user).to eq(remote_user)
     end
   end
+
+  describe "#connect_timeout" do
+    let(:timeout_value) { 1 }
+
+    it "should default to the default value" do
+      subject.finalize!
+      expect(subject.connect_timeout).
+        to eq(described_class.const_get(:DEFAULT_SSH_CONNECT_TIMEOUT))
+    end
+
+
+    it "should be set to provided value" do
+      subject.connect_timeout = timeout_value
+      subject.finalize!
+      expect(subject.connect_timeout).to eq(timeout_value)
+    end
+
+    it "should cast given value to integer" do
+      subject.connect_timeout = timeout_value.to_s
+      subject.finalize!
+      expect(subject.connect_timeout).to eq(timeout_value)
+    end
+
+    it "should properly validate" do
+      subject.connect_timeout = timeout_value
+      subject.finalize!
+      expect(subject.validate(machine)).to be_empty
+    end
+
+    context "when value cannot be cast" do
+      let(:timeout_value) { :value }
+
+      it "should not raise an error" do
+        subject.connect_timeout = timeout_value
+        expect { subject.finalize! }.not_to raise_error
+      end
+
+      it "should not validate" do
+        subject.connect_timeout = timeout_value
+        subject.finalize!
+        expect(subject.validate(machine)).not_to be_empty
+      end
+    end
+
+    context "when value is less than 1" do
+      let(:timeout_value) { 0 }
+
+      it "should not raise an error" do
+        subject.connect_timeout = timeout_value
+        expect { subject.finalize! }.not_to raise_error
+      end
+
+      it "should not validate" do
+        subject.connnect_timeout = timeout_value
+        subject.finalize!
+        expect(subject.validate(machine)).not_to be_empty
+      end
+    end
+  end
 end

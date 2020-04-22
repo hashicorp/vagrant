@@ -1011,8 +1011,8 @@ en:
       multi_vm_target_required: |-
         This command requires a specific VM name to target in a multi-VM environment.
       netplan_no_available_renderers: |-
-        No renderers compatible with netplan are available on guest. Please install 
-        a compatible renderer. 
+        No renderers compatible with netplan are available on guest. Please install
+        a compatible renderer.
       net_ssh_exception: |-
         An error occurred in the underlying SSH library that Vagrant uses.
         The error message is shown below. In many cases, errors from this
@@ -1880,6 +1880,11 @@ en:
           The key `paranoid` is deprecated. Please use `verify_host_key`. Supported
           values are exactly the same, only the name of the option has changed.
         ssh_config_missing: "`config` file must exist: %{path}"
+        connect_timeout_invalid_type: |-
+          The `connect_timeout` key only accepts values of Integer type. Received
+          `%{given}` type which cannot be converted to an Integer type.
+        connect_timeout_invalid_value: |-
+          The `connect_timeout` key only accepts values greater than 1 (received `%{given}`)
       triggers:
         bad_trigger_type: |-
           The type '%{type}' defined for trigger '%{trigger}' is not valid. Must be one of the following types: '%{types}'
@@ -2426,16 +2431,16 @@ en:
             RFC7530: https://tools.ietf.org/html/rfc7530#section-3.1
         smb:
           mfsymlink_warning: |-
-            Vagrant is currently configured to mount SMB folders with the 
-            `mfsymlink` option enabled. This is equivalent to adding the 
+            Vagrant is currently configured to mount SMB folders with the
+            `mfsymlink` option enabled. This is equivalent to adding the
             following to your Vagrantfile:
-              
+
               config.vm.synced_folder '/host/path', '/guest/path', type: "smb", mount_options: ['mfsymlink']
 
             This option may be globally disabled with an environment variable:
 
               VAGRANT_DISABLE_SMBMFSYMLINKS=1
-            
+
         provision:
           beginning: "Running provisioner: %{provisioner}..."
           disabled_by_config: |-
