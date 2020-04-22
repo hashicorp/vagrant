@@ -102,7 +102,7 @@ module VagrantPlugins
             #  LOGGER.info("No further configuration required for disk '#{disk.name}'")
             #end
 
-            disk_metadata = {uuid: current_disk["DiskIdentifier"], name: disk.name, path: current_disk["Path"]}
+            disk_metadata = {UUID: current_disk["DiskIdentifier"], Name: disk.name, Path: current_disk["Path"]}
             if disk.primary
               disk_metadata[:primary] = true
             end
@@ -166,7 +166,7 @@ module VagrantPlugins
           end
 
           disk_info = machine.provider.driver.get_disk(disk_file)
-          disk_metadata = {uuid: disk_info["DiskIdentifier"], name: disk_config.name, path: disk_info["Path"]}
+          disk_metadata = {UUID: disk_info["DiskIdentifier"], Name: disk_config.name, Path: disk_info["Path"]}
 
           machine.provider.driver.attach_disk(disk_file, disk_provider_config)
 
@@ -224,7 +224,7 @@ module VagrantPlugins
           disk_info = machine.provider.driver.get_disk(defined_disk["Path"])
 
           # Store updated metadata
-          disk_metadata = {uuid: disk_info["DiskIdentifier"], name: disk_config.name, path: disk_info["Path"]}
+          disk_metadata = {UUID: disk_info["DiskIdentifier"], Name: disk_config.name, Path: disk_info["Path"]}
 
           disk_metadata
         end

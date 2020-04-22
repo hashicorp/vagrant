@@ -29,18 +29,17 @@ module VagrantPlugins
 
           disk_meta.each do |d|
             # look at Path instead of Name or UUID
-            disk_name  = File.basename(d["path"], '.*')
+            disk_name  = File.basename(d["Path"], '.*')
             dsk = defined_disks.select { |dk| dk.name == disk_name }
 
             if !dsk.empty? || d["primary"] == true
               next
             else
-              LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
-              disk_info = machine.provider.driver.get_disk(d["path"])
+              LOGGER.warn("Found disk not in Vagrantfile config: '#{d["Name"]}'. Removing disk from guest #{machine.name}")
 
-              machine.ui.warn("Disk '#{d["name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
+              machine.ui.warn("Disk '#{d["Name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
 
-              disk_actual = all_disks.select { |a| a["Path"] == d["path"] }.first
+              disk_actual = all_disks.select { |a| a["Path"] == d["Path"] }.first
 
               machine.provider.driver.remove_disk(disk_actual["ControllerType"], disk_actual["ControllerNumber"], disk_actual["ControllerLocation"], disk_actual["Path"])
             end
