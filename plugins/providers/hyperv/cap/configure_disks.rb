@@ -59,8 +59,7 @@ module VagrantPlugins
             # This is not required for newly created disks, as its metadata is
             # set when creating and attaching the disk. This is only for the primary
             # disk, since it already exists.
-            real_disk_info = machine.provider.driver.get_disk(current_disk["Path"])
-            current_disk = real_disk_info
+            current_disk = machine.provider.driver.get_disk(current_disk["Path"])
           else
             # Hyper-V disk names aren't the actual names of the disk, so we have
             # to grab the name from the file path instead
