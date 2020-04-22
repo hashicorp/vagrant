@@ -146,7 +146,7 @@ module VagrantPlugins
           disk_provider_config = {}
           disk_provider_config = disk_config.provider_config[:hyperv] if disk_config.provider_config
 
-          if !disk_provider_config.empty?
+          if disk_provider_config
             disk_provider_config = convert_size_vars!(disk_provider_config)
           end
 
@@ -155,6 +155,7 @@ module VagrantPlugins
 
           if disk_config.file
             disk_file = disk_config.file
+            LOGGER.info("Disk already defiend by user at '#{disk_file}'. Using this disk instead of creating a new one...")
           else
             # Set the extension
             disk_ext = disk_config.disk_ext
