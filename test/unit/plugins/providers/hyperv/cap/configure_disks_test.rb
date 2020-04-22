@@ -1,3 +1,4 @@
+require_relative "../../../../base"
 require Vagrant.source_root.join("plugins/providers/hyperv/cap/configure_disks")
 
 describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
@@ -35,5 +36,51 @@ describe VagrantPlugins::HyperV::Cap::ConfigureDisks do
   end
 
   context "#configure_disks" do
+    it "configures disks and returns the disks defined" do
+    end
+
+    describe "with no disks to configure" do
+      it "returns empty hash if no disks to configure" do
+      end
+    end
+  end
+
+  context "#get_current_disk" do
+    it "gets primary disk uuid if disk to configure is primary" do
+    end
+
+    it "finds the disk to configure" do
+    end
+
+    it "returns nil if disk is not found" do
+    end
+  end
+
+  context "#handle_configure_disk" do
+    describe "when creating a new disk" do
+      it "creates a new disk if it doesn't yet exist" do
+      end
+    end
+
+    describe "when a disk needs to be resized" do
+      it "resizes a disk" do
+      end
+    end
+
+    describe "if no additional disk configuration is required" do
+      it "does nothing if all disks are properly configured" do
+      end
+    end
+  end
+
+  context "#compare_disk_size" do
+  end
+
+  context "#create_disk" do
+    it "creates a disk and attaches it to a guest" do
+    end
+  end
+
+  context "#resize_disk" do
   end
 end
