@@ -8,10 +8,10 @@ param(
     [switch]$Fixed,
     [switch]$Differencing,
     [string]$ParentPath,
-    [string]$BlockSizeBytes,
-    [string]$LogicalSectorSizeBytes,
-    [string]$PhysicalSectorSizeBytes,
-    [UInt64]$SourceDisk
+    [Uint32]$BlockSizeBytes,
+    [UInt32]$LogicalSectorSizeBytes,
+    [UInt32]$PhysicalSectorSizeBytes,
+    [UInt32]$SourceDisk
 )
 
 $Params = @{}
