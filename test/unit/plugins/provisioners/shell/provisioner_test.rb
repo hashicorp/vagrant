@@ -543,52 +543,91 @@ describe "Vagrant::Shell::Provisioner" do
       allow(machine).to receive(:ssh_info).and_return(true)
     }
 
-    it "ensures that files are uploaded as .bat when shell is cmd" do
-      allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("cmd")
-      allow(vsp).to receive(:with_script_file).and_yield(default_win_path)
-      expect(communicator).to receive(:upload).with(default_win_path, /arbitrary.bat/)
-      expect(communicator).to receive(:execute).with(/arbitrary.bat/, anything)
-      vsp.send(:provision_winssh, "")
-    end
-
-    it "ensures that files are uploaded as .ps1 when shell is not cmd" do
-      allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("ps")
-      allow(vsp).to receive(:with_script_file).and_yield(default_win_path)
-      expect(communicator).to receive(:upload).with(default_win_path, /arbitrary.ps1/)
-      expect(communicator).to receive(:execute).with(/arbitrary.ps1/, anything)
-      vsp.send(:provision_winssh, "")
-    end
-
     context "ps1 file being uploaded" do
-      let(:config) {
-        double(
-          :config,
-          :args                            => "doesn't matter",
-          :env                             => {},
-          :upload_path                     => "arbitrary",
-          :remote?                         => false,
-          :path                            => "script/info.ps1",
-          :binary                          => false,
-          :md5                             => nil,
-          :sha1                            => 'EXPECTED_VALUE',
-          :sha256                          => nil,
-          :sha384                          => nil,
-          :sha512                          => nil,
-          :reset                           => false,
-          :reboot                          => false,
-          :powershell_args                 => "",
-          :name                            => nil,
-          :privileged                      => false,
-          :powershell_elevated_interactive => false
-        )
-      }
+      before do
+        allow(config).to receive(:path).and_return("script/info.ps1")
+        allow(vsp).to receive(:with_script_file).and_yield(config.path)
+      end
       
       it "ensures that files are uploaded same extension as provided path.ps1" do
         allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("cmd")
-        allow(vsp).to receive(:with_script_file).and_yield(config.path)
         expect(communicator).to receive(:upload).with(config.path, /arbitrary.ps1/)
-        expect(communicator).to receive(:execute).with(/arbitrary.ps1/, anything)
+        expect(communicator).to receive(:execute).with(/powershell.*arbitrary.ps1/, anything)
         vsp.send(:provision_winssh, "")
+      end
+    end
+
+    context "bat file being uploaded" do
+      before do
+        allow(config).to receive(:path).and_return("script/info.bat")
+        allow(vsp).to receive(:with_script_file).and_yield(config.path)
+      end
+
+      it "ensures that files are uploaded same extension as provided path.bat" do
+        allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("cmd")
+        expect(communicator).to receive(:upload).with(config.path, /arbitrary.bat/)
+        expect(communicator).to receive(:execute).with(/cmd.*arbitrary.bat/, anything)
+        vsp.send(:provision_winssh, "")
+      end
+    end
+
+    context "with inline script" do
+      before do
+        allow(vsp).to receive(:with_script_file).and_yield("/tmp/file/contents")
+      end
+
+      context "when upload path has a .ps1 extension" do
+        before do
+          allow(config).to receive(:upload_path).and_return("c:/tmp/vagrant-shell.ps1")
+        end
+
+        it "executes the remote script with powershell" do
+          expect(communicator).to receive(:upload).with(anything, config.upload_path)
+          expect(communicator).to receive(:execute).with(/powershell/, anything)
+          vsp.send(:provision_winssh, "")
+        end
+      end
+
+      context "when upload path has a .bat extension" do
+        before do
+          allow(config).to receive(:upload_path).and_return("c:/tmp/vagrant-shell.bat")
+        end
+
+        it "executes the remote script with cmd" do
+          expect(communicator).to receive(:upload).with(anything, config.upload_path)
+          expect(communicator).to receive(:execute).with(/cmd/, anything)
+          vsp.send(:provision_winssh, "")
+        end
+      end
+
+      context "when upload path has no extension" do
+        before do
+          allow(config).to receive(:upload_path).and_return("c:/tmp/vagrant-shell")
+        end
+
+        context "when winssh shell is cmd" do
+          before do
+            allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("cmd")
+          end
+
+          it "adds an extension and executes the remote script with cmd" do
+            expect(communicator).to receive(:upload).with(anything, /\.bat$/)
+            expect(communicator).to receive(:execute).with(/cmd.*\.bat/, anything)
+            vsp.send(:provision_winssh, "")
+          end
+        end
+
+        context "when winssh shell is powershell" do
+          before do
+            allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return("powershell")
+          end
+
+          it "adds an extension executes the remote script with powershell" do
+            expect(communicator).to receive(:upload).with(anything, /\.ps1$/)
+            expect(communicator).to receive(:execute).with(/powershell.*\.ps1/, anything)
+            vsp.send(:provision_winssh, "")
+          end
+        end
       end
     end
   end
