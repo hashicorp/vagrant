@@ -140,7 +140,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
         let(:networkd_yml) { "---\nnetwork:\n  version: 2\n  renderer: networkd\n  ethernets:\n    eth1:\n      dhcp4: true\n    eth2:\n      addresses:\n      - 33.33.33.10/16\n      gateway4: 33.33.0.1\n" }
 
         it "uses NetworkManager if detected on device" do
-          allow(cap).to receive(:networkd?).and_return(false)
+          allow(cap).to receive(:systemd_networkd?).and_return(false)
           allow(cap).to receive(:nmcli?).and_return(true)
           allow(cap).to receive(:nm_controlled?).and_return(true)
           allow(comm).to receive(:test).with("nmcli -t d show eth1").and_return(true)
@@ -159,7 +159,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
         end
 
         it "raises and error if NetworkManager is detected on device but nmcli is not installed" do
-          allow(cap).to receive(:networkd?).and_return(true)
+          allow(cap).to receive(:systemd_networkd?).and_return(true)
           allow(cap).to receive(:nmcli?).and_return(false)
           allow(cap).to receive(:nm_controlled?).and_return(true)
           allow(comm).to receive(:test).with("nmcli -t d show eth1").and_return(true)
@@ -169,7 +169,7 @@ describe "VagrantPlugins::GuestDebian::Cap::ConfigureNetworks" do
         end
 
         it "creates and starts the networks for systemd with netplan" do
-          allow(cap).to receive(:networkd?).and_return(true)
+          allow(cap).to receive(:systemd_networkd?).and_return(true)
           expect(cap).to receive(:upload_tmp_file).with(comm, networkd_yml)
             .and_return("/tmp/vagrant-network-entry.1234")
 

@@ -60,7 +60,7 @@ module VagrantPlugins
           # By default, netplan expects the renderer to be systemd-networkd,
           # but if any device is managed by NetworkManager, then we use that renderer
           # ref: https://netplan.io/reference
-          if networkd?(comm)
+          if systemd_networkd?(comm)
             renderer = "networkd"
             ethernets.keys.each do |k|
               if nm_controlled?(comm, k)
