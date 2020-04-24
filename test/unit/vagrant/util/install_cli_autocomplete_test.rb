@@ -8,7 +8,7 @@ describe Vagrant::Util::InstallZSHShellConfig do
   let(:home) { "#{Dir.tmpdir}/not-home" }
   let(:target_file) { "#{home}/.zshrc" }
 
-  subject { described_class }
+  subject { described_class.new() }
 
   before do
     Dir.mkdir(home)
@@ -21,7 +21,7 @@ describe Vagrant::Util::InstallZSHShellConfig do
     FileUtils.rm_rf(home)
   end
 
-  describe ".shell_installed" do
+  describe "#shell_installed" do
     it "should return path to config file if exists" do
       expect(subject.shell_installed(home)).to eq(target_file) 
     end
@@ -39,7 +39,7 @@ describe Vagrant::Util::InstallZSHShellConfig do
 
     it "returns true if autocompletion is already installed" do
       File.open(target_file, "w") do |f|
-        f.write(Vagrant::Util::InstallZSHShellConfig::PREPEND)
+        f.write(subject.prepend_string)
       end
       expect(subject.is_installed(target_file)).to eq(true)
     end
@@ -50,9 +50,9 @@ describe Vagrant::Util::InstallZSHShellConfig do
       subject.install(home)
       file = File.open(target_file)
       content = file.read
-      expect(content.include?(Vagrant::Util::InstallZSHShellConfig::PREPEND)).to eq(true)
-      expect(content.include?(Vagrant::Util::InstallZSHShellConfig::STRING_INSERT)).to eq(true)
-      expect(content.include?(Vagrant::Util::InstallZSHShellConfig::APPEND)).to eq(true)
+      expect(content.include?(subject.prepend_string)).to eq(true)
+      expect(content.include?(subject.string_insert)).to eq(true)
+      expect(content.include?(subject.append_string)).to eq(true)
       file.close
     end
   end
