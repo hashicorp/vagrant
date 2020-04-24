@@ -2894,3 +2894,9 @@ en:
     pushes:
       file:
         no_destination: "File destination must be specified."
+    
+    autocomplete:
+      installed: |-
+        Autocomplete installed at paths:
+        - %{paths}
+      not_installed: "Autocomplete not installed"

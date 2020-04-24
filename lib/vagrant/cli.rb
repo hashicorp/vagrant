@@ -34,13 +34,10 @@ module Vagrant
       if @main_args.include?("-install-autocomplete")
         # Install autocomplete scripts
         written_paths = Vagrant::Util::InstallCLIAutocomplete.install
-        if written_paths.length > 0
-          @env.ui.info("Autocomplete installed at paths:")
-          written_paths.each do |p|
-            @env.ui.info("- #{p}")
-          end
+        if written_paths && written_paths.length > 0
+          @env.ui.info(I18n.t("vagrant.autocomplete.installed", paths: written_paths.join("\n- ")))
         else
-          @env.ui.info("Autocomplete not installed")
+          @env.ui.info(I18n.t("vagrant.autocomplete.not_installed"))
         end
         return 0
       end
