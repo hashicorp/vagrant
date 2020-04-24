@@ -583,7 +583,7 @@ describe "Vagrant::Shell::Provisioner" do
 
         it "executes the remote script with powershell" do
           expect(communicator).to receive(:upload).with(anything, config.upload_path)
-          expect(communicator).to receive(:execute).with(/powershell/, anything)
+          expect(communicator).to receive(:execute).with(/powershell.*\.ps1/, anything)
           vsp.send(:provision_winssh, "")
         end
       end
@@ -595,7 +595,7 @@ describe "Vagrant::Shell::Provisioner" do
 
         it "executes the remote script with cmd" do
           expect(communicator).to receive(:upload).with(anything, config.upload_path)
-          expect(communicator).to receive(:execute).with(/cmd/, anything)
+          expect(communicator).to receive(:execute).with(/cmd.*\.bat/, anything)
           vsp.send(:provision_winssh, "")
         end
       end
