@@ -6,7 +6,7 @@ module VagrantPlugins
     module Command
       class Root < Vagrant.plugin("2", :command)
         def self.synopsis
-          "manages autocomplete: installation, removal, etc."
+          "manages autocomplete installation on host"
         end
 
         def initialize(argv, env)
@@ -39,7 +39,7 @@ module VagrantPlugins
 
         def help
           opts = OptionParser.new do |opts|
-            opts.banner = "Usage: vagrant autoinstall <subcommand>"
+            opts.banner = "Usage: vagrant autocomplete <subcommand>"
             opts.separator ""
             opts.separator "Available subcommands:"
 
@@ -53,7 +53,7 @@ module VagrantPlugins
             end
 
             opts.separator ""
-            opts.separator "For help on any individual subcommand run `vagrant autoinstall <subcommand> -h`"
+            opts.separator "For help on any individual subcommand run `vagrant autocomplete <subcommand> -h`"
           end
 
           @env.ui.info(opts.help, prefix: false)
