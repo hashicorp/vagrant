@@ -16,6 +16,12 @@ module Vagrant
         @logger = Log4r::Logger.new("vagrant::util::install_shell_config")
       end
 
+      # Searches a users home dir for a shell config file based on a
+      # given home dir and a configured set of config paths. If there
+      # are multiple config paths, it will return the first match.
+      #
+      # @param [string] path to users home dir
+      # @return [string] path to shell config file if exists
       def shell_installed(home)
         @logger.info("Searching for config in home #{home}")
         @config_paths.each do |path|
@@ -28,6 +34,11 @@ module Vagrant
         return nil
       end
 
+      # Searches a given file for the existence of a set prepend string.
+      # This can be used to find if vagrant has inserted some strings to a file
+      #
+      # @param [string] path to a file (config file)
+      # @return [boolean] true if the prepend string is found in the file
       def is_installed(path)
         File.foreach(path) do |line|
           if line.include?(@prepend_string)
@@ -38,6 +49,11 @@ module Vagrant
         return false
       end
 
+      # Given a path to the users home dir, will install some given strings
+      # marked by a prepend and append string
+      #
+      # @param [string] path to users home dir
+      # @return [string] path to shell config file that was modified if exists
       def install(home)
         path = shell_installed(home)
         if path && !is_installed(path)

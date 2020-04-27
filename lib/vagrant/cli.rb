@@ -2,7 +2,6 @@ require 'log4r'
 require 'optparse'
 
 require 'vagrant/util/experimental'
-require 'vagrant/util/install_cli_autocomplete'
 
 module Vagrant
   # Manages the command line interface to Vagrant.
@@ -28,17 +27,6 @@ module Vagrant
         # Help is next in short-circuiting everything. Print
         # the help and exit.
         help
-        return 0
-      end
-
-      if @main_args.include?("-install-autocomplete")
-        # Install autocomplete scripts
-        written_paths = Vagrant::Util::InstallCLIAutocomplete.install
-        if written_paths && written_paths.length > 0
-          @env.ui.info(I18n.t("vagrant.autocomplete.installed", paths: written_paths.join("\n- ")))
-        else
-          @env.ui.info(I18n.t("vagrant.autocomplete.not_installed"))
-        end
         return 0
       end
 
