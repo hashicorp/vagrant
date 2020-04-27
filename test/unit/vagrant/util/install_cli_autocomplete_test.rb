@@ -10,19 +10,9 @@ describe Vagrant::Util::InstallZSHShellConfig do
 
   subject { described_class.new() }
 
-  before do
-    Dir.mkdir(home)
-    File.open(target_file, "w") do |f|
-      f.write("some content")
-    end
-  end
-
-  after do
-    FileUtils.rm_rf(home)
-  end
-
   describe "#shell_installed" do
     it "should return path to config file if exists" do
+      allow(File).to receive(:exists?).with(target_file).and_return(true)
       expect(subject.shell_installed(home)).to eq(target_file) 
     end
 
@@ -32,28 +22,24 @@ describe Vagrant::Util::InstallZSHShellConfig do
     end
   end
 
-  describe ".is_installed" do
+  describe "#is_installed" do
     it "returns false if autocompletion not already installed" do
+      allow(File).to receive(:foreach).with(target_file).and_yield("nothing")
       expect(subject.is_installed(target_file)).to eq(false)
     end
 
     it "returns true if autocompletion is already installed" do
-      File.open(target_file, "w") do |f|
-        f.write(subject.prepend_string)
-      end
+      allow(File).to receive(:foreach).with(target_file).and_yield(subject.prepend_string)
       expect(subject.is_installed(target_file)).to eq(true)
     end
   end
 
-  describe ".install" do
+  describe "#install" do
     it "installs autocomplete" do
+      allow(File).to receive(:exists?).with(target_file).and_return(true)
+      allow(File).to receive(:foreach).with(target_file).and_yield("nothing")
+      expect(File).to receive(:open).with(target_file, "a")
       subject.install(home)
-      file = File.open(target_file)
-      content = file.read
-      expect(content.include?(subject.prepend_string)).to eq(true)
-      expect(content.include?(subject.string_insert)).to eq(true)
-      expect(content.include?(subject.append_string)).to eq(true)
-      file.close
     end
   end
 end
