@@ -433,7 +433,8 @@ module Vagrant
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
           downloader_options[:location_trusted] = env[:box_download_location_trusted]
-
+          downloader_options[:box_download_options] = env[:box_download_options]
+          
           Util::Downloader.new(url, temp_path, downloader_options)
         end
 

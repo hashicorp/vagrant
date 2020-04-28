@@ -37,6 +37,7 @@ module VagrantPlugins
       attr_accessor :box_download_client_cert
       attr_accessor :box_download_insecure
       attr_accessor :box_download_location_trusted
+      attr_accessor :box_download_options
       attr_accessor :communicator
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
@@ -66,6 +67,7 @@ module VagrantPlugins
         @box_download_client_cert      = UNSET_VALUE
         @box_download_insecure         = UNSET_VALUE
         @box_download_location_trusted = UNSET_VALUE
+        @box_download_options          = UNSET_VALUE
         @box_url                       = UNSET_VALUE
         @box_version                   = UNSET_VALUE
         @clone                         = UNSET_VALUE
@@ -467,6 +469,7 @@ module VagrantPlugins
         @box_download_location_trusted = false if @box_download_location_trusted == UNSET_VALUE
         @box_url = nil if @box_url == UNSET_VALUE
         @box_version = nil if @box_version == UNSET_VALUE
+        @box_download_options = {} if @box_download_options == UNSET_VALUE
         @clone = nil if @clone == UNSET_VALUE
         @communicator = nil if @communicator == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
@@ -712,6 +715,10 @@ module VagrantPlugins
           if box_download_checksum != ""
             errors << I18n.t("vagrant.config.vm.box_download_checksum_notblank")
           end
+        end
+
+        if !box_download_options.is_a?(Hash)
+          errors <<  I18n.t("vagrant.config.vm.box_download_options_type", type: box_download_options.class.to_s)
         end
 
         used_guest_paths = Set.new

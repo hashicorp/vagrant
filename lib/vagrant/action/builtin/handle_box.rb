@@ -67,6 +67,7 @@ module Vagrant
           box_download_checksum_type = machine.config.vm.box_download_checksum_type
           box_download_checksum = machine.config.vm.box_download_checksum
           box_download_location_trusted = machine.config.vm.box_download_location_trusted
+          box_download_options = machine.config.vm.box_download_options
           box_formats = machine.provider_options[:box_format] ||
             machine.provider_name
 
@@ -92,6 +93,7 @@ module Vagrant
               box_checksum_type: box_download_checksum_type,
               box_checksum: box_download_checksum,
               box_download_location_trusted: box_download_location_trusted,
+              box_download_options: box_download_options,
             }))
           rescue Errors::BoxAlreadyExists
             # Just ignore this, since it means the next part will succeed!
