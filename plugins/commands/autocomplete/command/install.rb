@@ -7,10 +7,25 @@ module VagrantPlugins
     module Command
       class Install < Vagrant.plugin("2", :command)
         def execute
-          options = {}
+          options = {
+            :shells => []
+          }
 
           opts = OptionParser.new do |o|
-            o.banner = "Usage: vagrant autocomplete install [-h]"
+            o.banner = "Usage: vagrant autocomplete install [-h] [shell name]"
+            o.separator ""
+            o.separator "Available shells: #{Vagrant::Util::InstallCLIAutocomplete::SUPPORTED_SHELLS.keys.join(' ')}"
+            o.separator ""
+            o.separator "Options:"
+            o.separator ""
+
+            o.on("-b", "--bash", "Install bash autocomplete") do |c|
+              options[:shells].append("bash")
+            end
+
+            o.on("-z", "--zsh", "Install zsh autocomplete") do |c|
+              options[:shells].append("zsh")
+            end
           end
 
           # Parse the options
@@ -18,7 +33,7 @@ module VagrantPlugins
           return if !argv
           raise Vagrant::Errors::CLIInvalidUsage, help: opts.help.chomp if argv.length > 0
 
-          written_paths = Vagrant::Util::InstallCLIAutocomplete.install
+          written_paths = Vagrant::Util::InstallCLIAutocomplete.install(options[:shells])
           if written_paths && written_paths.length > 0
             @env.ui.info(I18n.t("vagrant.autocomplete.installed", paths: written_paths.join("\n- ")))
           else

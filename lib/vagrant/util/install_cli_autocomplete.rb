@@ -100,13 +100,16 @@ module Vagrant
         "bash" => Vagrant::Util::InstallBashShellConfig.new()
       }
 
-      def self.install
+      def self.install(shells=[])
+        shells = shells.length == 0 ? SUPPORTED_SHELLS.keys() : shells
         home = Dir.home
         written_paths = []
         SUPPORTED_SHELLS.each do |k, shell|
-          p = shell.install(home)
-          if p
-            written_paths.push(p)
+          if shells.include?(k)
+            p = shell.install(home)
+            if p
+              written_paths.push(p)
+            end
           end
         end
         return written_paths
