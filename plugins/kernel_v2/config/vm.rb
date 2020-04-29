@@ -46,6 +46,7 @@ module VagrantPlugins
       attr_accessor :usable_port_range
       attr_reader :provisioners
       attr_reader :disks
+      attr_reader :box_extra_download_options
 
       # This is an experimental feature that isn't public yet.
       attr_accessor :clone
@@ -68,6 +69,7 @@ module VagrantPlugins
         @box_download_insecure         = UNSET_VALUE
         @box_download_location_trusted = UNSET_VALUE
         @box_download_options          = UNSET_VALUE
+        @box_extra_download_options    = UNSET_VALUE
         @box_url                       = UNSET_VALUE
         @box_version                   = UNSET_VALUE
         @clone                         = UNSET_VALUE
@@ -470,6 +472,7 @@ module VagrantPlugins
         @box_url = nil if @box_url == UNSET_VALUE
         @box_version = nil if @box_version == UNSET_VALUE
         @box_download_options = {} if @box_download_options == UNSET_VALUE
+        @box_extra_download_options = Vagrant::Util::MapCommandOptions.map_to_command_options(@box_download_options)
         @clone = nil if @clone == UNSET_VALUE
         @communicator = nil if @communicator == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
@@ -719,6 +722,15 @@ module VagrantPlugins
 
         if !box_download_options.is_a?(Hash)
           errors <<  I18n.t("vagrant.config.vm.box_download_options_type", type: box_download_options.class.to_s)
+        end
+
+        box_download_options.each do |k, v|
+          # If the value is truthy and 
+          # if `box_extra_download_options` does not include the key
+          # then the conversion to extra download options produced an error
+          if v && !box_extra_download_options.include?("--#{k}")
+            errors <<  I18n.t("vagrant.config.vm.box_download_options_not_converted", missing_key: k)
+          end
         end
 
         used_guest_paths = Set.new

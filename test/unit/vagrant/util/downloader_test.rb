@@ -259,7 +259,7 @@ describe Vagrant::Util::Downloader do
       end
 
       context "when extra download options specified" do
-        let(:options) { {:box_download_options => {test: "arbitrary"}} }
+        let(:options) { {:box_extra_download_options => ["--test", "arbitrary"]} }
         subject { described_class.new(source, destination, options) }
 
         it "inserts the extra download options" do
