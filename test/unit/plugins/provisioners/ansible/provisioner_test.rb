@@ -337,13 +337,6 @@ VF
               expect(config.compatibility_mode).to eq(mode)
             }.and_return(default_execute_result)
           end
-
-          it "warns about compatibility mode auto-detection being used" do
-            expect(machine.env.ui).to receive(:warn).with(
-              I18n.t("vagrant.provisioners.ansible.compatibility_mode_warning",
-                compatibility_mode: mode, ansible_version: ansible_version) +
-              "\n")
-          end
         end
       end
 
