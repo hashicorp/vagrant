@@ -1941,6 +1941,8 @@ en:
           Checksum type specified but "box_download_checksum" is blank
         box_download_checksum_notblank: |-
           Checksum specified but must also specify "box_download_checksum_type"
+        disable_host_modification_type: |-
+          Expected configuration `disable_hosts_modification` to be type Bool, got %{given}
         box_missing: "A box must be specified."
         box_download_options_type: |-
           Found "box_download_options" specified as type '%{type}', should be a Hash

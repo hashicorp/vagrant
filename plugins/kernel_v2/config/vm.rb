@@ -42,6 +42,7 @@ module VagrantPlugins
       attr_accessor :box_download_location_trusted
       attr_accessor :box_download_options
       attr_accessor :communicator
+      attr_accessor :disable_hosts_modification
       attr_accessor :graceful_halt_timeout
       attr_accessor :guest
       attr_accessor :hostname
@@ -77,6 +78,7 @@ module VagrantPlugins
         @box_extra_download_options    = UNSET_VALUE
         @box_url                       = UNSET_VALUE
         @box_version                   = UNSET_VALUE
+        @disable_hosts_modification    = UNSET_VALUE
         @clone                         = UNSET_VALUE
         @communicator                  = UNSET_VALUE
         @graceful_halt_timeout         = UNSET_VALUE
@@ -527,6 +529,7 @@ module VagrantPlugins
         @box_version = nil if @box_version == UNSET_VALUE
         @box_download_options = {} if @box_download_options == UNSET_VALUE
         @box_extra_download_options = Vagrant::Util::MapCommandOptions.map_to_command_options(@box_download_options)
+        @disable_hosts_modification = false if @disable_hosts_modification == UNSET_VALUE
         @clone = nil if @clone == UNSET_VALUE
         @communicator = nil if @communicator == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
@@ -994,6 +997,9 @@ module VagrantPlugins
         if ![TrueClass, FalseClass].include?(@allow_fstab_modification.class)
           errors["vm"] << I18n.t("vagrant.config.vm.config_type",
             option: "allow_fstab_modification", given: @allow_fstab_modification.class, required: "Boolean"
+        if ![TrueClass, FalseClass].include?(@disable_hosts_modification.class)
+          errors["vm"] << I18n.t("vagrant.config.vm.disable_host_modification_type",
+            given: @disable_hosts_modification.class
           )
         end
 

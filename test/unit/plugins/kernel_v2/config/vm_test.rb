@@ -49,6 +49,20 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     assert_valid
   end
 
+  it  "validates disables_host_modification option" do
+    subject.disable_hosts_modification = true
+    subject.finalize!
+    assert_valid
+
+    subject.disable_hosts_modification = false
+    subject.finalize!
+    assert_valid
+
+    subject.disable_hosts_modification = "truthy"
+    subject.finalize!
+    assert_invalid
+  end
+
   describe "#base_mac" do
     it "defaults properly" do
       subject.finalize!
