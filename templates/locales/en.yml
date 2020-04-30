@@ -1938,6 +1938,10 @@ en:
         box_download_checksum_notblank: |-
           Checksum specified but must also specify "box_download_checksum_type"
         box_missing: "A box must be specified."
+        box_download_options_type: |-
+          Found "box_download_options" specified as type '%{type}', should be a Hash
+        box_download_options_not_converted: |-
+          Something went wrong converting VM config `box_download_options`. Value for provided key '%{missing_key}' is invalid type. Should be String or Bool
         clone_and_box: "Only one of clone or box can be specified."
         hostname_invalid_characters: |-
           The hostname set for the VM '%{name}' should only contain letters, numbers,

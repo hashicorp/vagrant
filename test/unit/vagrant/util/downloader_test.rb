@@ -257,6 +257,22 @@ describe Vagrant::Util::Downloader do
           end
         end
       end
+
+      context "when extra download options specified" do
+        let(:options) { {:box_extra_download_options => ["--test", "arbitrary"]} }
+        subject { described_class.new(source, destination, options) }
+
+        it "inserts the extra download options" do
+          i = curl_options.index("--output")
+          curl_options.insert(i, "arbitrary")
+          curl_options.insert(i, "--test")
+          expect(Vagrant::Util::Subprocess).to receive(:execute).
+            with("curl", *curl_options).
+            and_return(subprocess_result)
+
+        expect(subject.download!).to be(true)
+        end
+      end
     end
   end
 

@@ -9,6 +9,7 @@ require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 require "vagrant/util/curl_helper"
 require "vagrant/util/file_checksum"
+require "vagrant/util/map_command_options"
 
 module Vagrant
   module Util
@@ -69,6 +70,7 @@ module Vagrant
           :sha384 => options[:sha384],
           :sha512 => options[:sha512]
         }.compact
+        @extra_download_options = options[:box_extra_download_options] || []
       end
 
       # This executes the actual download, downloading the source file
@@ -244,6 +246,8 @@ module Vagrant
         options << "--cert" << @client_cert if @client_cert
         options << "-u" << @auth if @auth
         options << "--location-trusted" if @location_trusted
+
+        options.concat(@extra_download_options)
 
         if @headers
           Array(@headers).each do |header|

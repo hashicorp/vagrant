@@ -60,6 +60,12 @@ bundle.
 CA certificates for downloading a box directly. By default, Vagrant will
 use the Mozilla CA cert bundle.
 
+* `config.vm.box_download_options` (map) - A map of extra download options
+to pass to the downloader. For example, a path to a key that the downloader
+should use could be specified as `{key: "<path/to/key>"}`. The keys should
+be options supported by `curl` using the unshortened form of the flag. For
+example, use `append` instead of `a`.
+
 * `config.vm.box_download_insecure` (boolean) - If true, then SSL certificates
 from the server will not be verified. By default, if the URL is an HTTPS
 URL, then SSL certs will be verified.
