@@ -46,3 +46,34 @@ the order in which the networks are enabled.
 
 Networks are automatically configured and enabled after they've been defined
 in the Vagrantfile as part of the `vagrant up` or `vagrant reload` process.
+
+## Setting Hostname
+
+A hostname may be defined for a Vagrant VM using the `config.vm.hostname`
+setting. By default, this will modify `/etc/hosts`, adding the hostname
+on a loopback interface that is not in use.  For example:
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ...
+  config.vm.hostname = "myhost.local"
+end
+```
+
+will add the entry `127.0.X.1  myhost myhost.local` to `/etc/hosts`. 
+
+A public or private network with an assigned IP may be flagged for hostname.
+In this case, the hostname will be added to the flagged network. Note, that
+if there are multiple networks only one may be flagged for hostname. For
+example:
+
+```ruby
+Vagrant.configure("2") do |config|
+  # ...
+  config.vm.hostname = "myhost.local"
+  config.vm.network "public_network", ip: "192.168.0.1", hostname: true
+  config.vm.network "public_network", ip: "192.168.0.2"
+end
+```
+
+will add the entry `192.168.0.1  myhost myhost.local` to `/etc/hosts`.

@@ -1957,6 +1957,7 @@ en:
           There are more than one primary disks defined for guest '%{name}'. Please ensure that only one disk has been defined as a primary disk.
         multiple_disk_names_error: |-
           Duplicate disk names defined: '%{name}'. Disk names must be unique.
+        multiple_networks_set_hostname: "Multiple networks have set `:hostname`"
         name_invalid: |-
           The sub-VM name '%{name}' is invalid. Please don't use special characters.
         network_ip_ends_in_one: |-
@@ -1975,6 +1976,7 @@ en:
           Forwarded port definitions require a "host" and "guest" value
         network_type_invalid: |-
           Network type '%{type}' is invalid. Please use a valid network type.
+        network_with_hostname_must_set_ip: "Network specified with `:hostname` must provide a static ip"
         provisioner_not_found: |-
           The '%{name}' provisioner could not be found.
         shared_folder_guestpath_duplicate: |-
