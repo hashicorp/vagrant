@@ -169,11 +169,12 @@ module VagrantPlugins
           if @size.is_a?(String)
             @size = Vagrant::Util::Numeric.string_to_bytes(@size)
           end
-
-          if !@size
-            errors << I18n.t("vagrant.config.disk.invalid_size", name: @name, machine: machine.name)
-          end
         end
+
+        if !@size
+          errors << I18n.t("vagrant.config.disk.invalid_size", name: @name, machine: machine.name)
+        end
+
 
         if @file
           if !@file.is_a?(String)

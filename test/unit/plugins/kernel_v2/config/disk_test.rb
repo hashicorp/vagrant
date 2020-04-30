@@ -56,6 +56,16 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
     end
   end
 
+  describe "with an invalid config" do
+    let(:invalid_subject) { described_class.new(type) }
+
+    it "raises an error if size not set" do
+      invalid_subject.name = "bar"
+      subject.finalize!
+      assert_invalid
+    end
+  end
+
   describe "defining a new config that needs to match internal restraints" do
     before do
     end
