@@ -13,6 +13,7 @@ IMPROVEMENTS:
 - core: Add cli option `--no-tty` [GH-11414]
 - core: Overhaul call stack modifications implementation for hooks and triggers [GH-11455]
 - core/bundler: Cache plugin solution sets to speed up startup times [GH-11363]
+- config/vm: Add`box_download_options` config to specify extra download options for a box [GH-11560]
 - guest/alpine: Add ansible provisioner guest support [GH-11411]
 - guest/linux: Update systemd? check to use sudo [GH-11398]
 - guest/linux: Use systemd if available to halt and reboot system [GH-11407]
