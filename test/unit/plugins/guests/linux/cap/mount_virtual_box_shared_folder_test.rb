@@ -43,6 +43,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
       expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
       expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
       expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
+      expect(comm).to receive(:sudo).with(/\/etc\/fstab/)
       cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
@@ -50,6 +51,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
       expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
       expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
       expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
+      expect(comm).to receive(:sudo).with(/\/etc\/fstab/)
       expect(comm).to receive(:sudo).with("chown #{mount_uid}:#{mount_gid} #{mount_guest_path}")
       cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end

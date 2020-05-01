@@ -11,8 +11,9 @@ module VagrantPlugins
 
           @@logger.debug("Mounting #{name} (#{options[:hostpath]} to #{guestpath})")
 
-          builtin_mount_type = "-cit vboxsf"
-          addon_mount_type = "-t vboxsf"
+          mount_type = "vboxsf"
+          builtin_mount_type = "-cit #{mount_type}"
+          addon_mount_type = "-t #{mount_type}"
 
           mount_options = options.fetch(:mount_options, [])
           detected_ids = detect_owner_group_ids(machine, guest_path, mount_options, options)
@@ -26,6 +27,10 @@ module VagrantPlugins
 
           # Create the guest path if it doesn't exist
           machine.communicate.sudo("mkdir -p #{guest_path}")
+
+          # Add mount to fstab so that if the machine reboots, will remount
+          fstab_entry = "#{name}  #{guest_path}  #{mount_type}  #{mount_options},nofail  0  0"
+          machine.communicate.sudo("grep -x '#{fstab_entry}' /etc/fstab || echo '#{fstab_entry}' >> /etc/fstab")
 
           stderr = ""
           result = machine.communicate.sudo(mount_command, error_check: false) do |type, data|
