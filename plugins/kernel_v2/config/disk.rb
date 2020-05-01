@@ -12,6 +12,8 @@ module VagrantPlugins
 
       DEFAULT_DISK_TYPES = [:disk, :dvd, :floppy].freeze
 
+      FILE_CHAR_REGEX = /[^-a-z0-9_]/i.freeze
+
       # Note: This value is for internal use only
       #
       # @return [String]
@@ -115,7 +117,10 @@ module VagrantPlugins
           @primary = false
         end
 
-        if @name == UNSET_VALUE
+        if @name.is_a?(String) && @name.match(FILE_CHAR_REGEX)
+            @logger.warn("Vagrant will remove detected invalid characters in '#{@name}' and convert the disk name into something usable for a file")
+            @name.gsub!(FILE_CHAR_REGEX, "")
+        elsif @name == UNSET_VALUE
           if @primary
             @name = "vagrant_primary"
           else
