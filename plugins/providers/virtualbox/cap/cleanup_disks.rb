@@ -36,7 +36,7 @@ module VagrantPlugins
               LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
               disk_info = machine.provider.driver.get_port_and_device(d["uuid"])
 
-              machine.ui.warn("Disk '#{d["name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
+              machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_cleanup", name: d["name"]), prefix: true)
 
               if disk_info.empty?
                 LOGGER.warn("Disk '#{d["name"]}' not attached to guest, but still exists.")

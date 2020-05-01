@@ -2208,6 +2208,11 @@ en:
 # Translations for Vagrant middleware actions
 #-------------------------------------------------------------------------------
     cap:
+      cleanup_disks:
+        disk_cleanup: |-
+          Disk '%{name}' no longer exists in Vagrant config. Removing and closing medium from guest...
+        disk_not_found: |-
+          Disk '%{name}' could not be found, and could not be properly removed. Please remove this disk manually if it still exists
       configure_disks:
         start: "Configuring storage mediums..."
         floppy_not_supported: "Floppy disk configuration not yet supported. Skipping disk '%{name}'..."

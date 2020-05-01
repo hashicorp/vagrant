@@ -37,11 +37,14 @@ module VagrantPlugins
             else
               LOGGER.warn("Found disk not in Vagrantfile config: '#{d["Name"]}'. Removing disk from guest #{machine.name}")
 
-              machine.ui.warn("Disk '#{d["Name"]}' no longer exists in Vagrant config. Removing and closing medium from guest...", prefix: true)
+              machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_cleanup", name: d["Name"]), prefix: true)
 
-              disk_actual = all_disks.select { |a| a["Path"] == d["Path"] }.first
-
-              machine.provider.driver.remove_disk(disk_actual["ControllerType"], disk_actual["ControllerNumber"], disk_actual["ControllerLocation"], disk_actual["Path"])
+              disk_actual = all_disks.select { |a| File.realdirpath(a["Path"]) == File.realdirpath(d["Path"]) }.first
+              if !disk_actual
+                machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_not_found", name: d["Name"]), prefix: true)
+              else
+                machine.provider.driver.remove_disk(disk_actual["ControllerType"], disk_actual["ControllerNumber"], disk_actual["ControllerLocation"], disk_actual["Path"])
+              end
             end
           end
         end
