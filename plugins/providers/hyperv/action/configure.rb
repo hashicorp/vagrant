@@ -98,7 +98,7 @@ module VagrantPlugins
           end
 
           if env[:machine].provider_config.enable_enhanced_session_mode
-            env[:ui].detail("Setting VM Enhanced session transport type")
+            env[:ui].detail(I18n.t("vagrant.hyperv_setting_enhanced_session"))
             env[:machine].provider.driver.set_enhanced_session_transport_type("HvSocket")
           end
 
