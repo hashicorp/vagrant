@@ -550,6 +550,7 @@ module Vagrant
 
       # Create the request set for the new plugins
       request_set = Gem::RequestSet.new(*plugin_deps)
+      request_set.prerelease = Vagrant.prerelease?
 
       installer_set = Gem::Resolver.compose_sets(
         installer_set,
@@ -560,6 +561,7 @@ module Vagrant
 
       # Generate the required solution set for new plugins
       solution = request_set.resolve(installer_set)
+
       activate_solution(solution)
 
       # Remove gems which are already installed
@@ -584,6 +586,7 @@ module Vagrant
         wrappers: true,
         document: []
       )
+
       result = result.map(&:full_spec)
       result.each do |spec|
         existing_paths = $LOAD_PATH.find_all{|s| s.include?(spec.full_name) }
