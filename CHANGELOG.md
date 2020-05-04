@@ -1,4 +1,4 @@
-## Next version (Unreleased)
+## 2.2.8 (May 04, 2020)
 
 FEATURES:
 
