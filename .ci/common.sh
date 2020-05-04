@@ -1,4 +1,4 @@
-# last-modified: Tue Jan 14 20:37:58 UTC 2020
+# last-modified: Fri May  1 23:10:29 UTC 2020
 #!/usr/bin/env bash
 
 # Path to file used for output redirect
@@ -128,8 +128,8 @@ function pkt_wrap_stream_raw() {
 # Generates location within the asset storage
 # bucket to retain built assets.
 function asset_location() {
-    if [ "${tag}" = "" ]; then
-        dst="${ASSETS_PRIVATE_LONGTERM}/${repository}/${ident_ref}/${short_sha}"
+    if [ ! -z "${tag}" ]; then
+        dst="${ASSETS_PRIVATE_LONGTERM}/${repository}/${ident_ref}"
     else
         if [[ "${tag}" = *"+"* ]]; then
             dst="${ASSETS_PRIVATE_LONGTERM}/${repository}/${tag}"
@@ -288,7 +288,7 @@ function prerelease() {
 # $1: Version
 # Returns: 0 if valid, 1 if invalid
 function valid_release_version() {
-    if [[ "${1}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    if [[ "${1}" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         return 0
     else
         return 1
@@ -312,10 +312,10 @@ function hashicorp_release_validate() {
     fi
 
     # SHASUMS checks
-    if [ ! -e "${directory}/"*SHASUMS ]; then
+    if [ ! -e "${directory}/"*SHA256SUMS ]; then
         fail "Asset directory is missing SHASUMS file"
     fi
-    if [ ! -e "${directory}/"*SHASUMS.sig ]; then
+    if [ ! -e "${directory}/"*SHA256SUMS.sig ]; then
         fail "Asset directory is missing SHASUMS signature file"
     fi
 }
@@ -334,7 +334,7 @@ function hashicorp_release_verify() {
     # Next check that the signature is valid
     gpghome=$(mktemp -qd)
     export GNUPGHOME="${gpghome}"
-    wrap gpg --import "${HASHICORP_PUBLIC_GPG_KEY}" \
+    wrap gpg --keyserver keyserver.ubuntu.com --recv "${HASHICORP_PUBLIC_GPG_KEY_ID}" \
          "Failed to import HashiCorp public GPG key"
     wrap gpg --verify *SHA256SUMS.sig *SHA256SUMS \
          "Validation of SHA256SUMS signature failed"
@@ -363,6 +363,89 @@ function hashicorp_release() {
 
     export AWS_ACCESS_KEY_ID="${oid}"
     export AWS_SECRET_ACCESS_KEY="${okey}"
+}
+
+# Build and release project gem to RubyGems
+function publish_to_rubygems() {
+    if [ -z "${RUBYGEMS_API_KEY}" ]; then
+        fail "RUBYGEMS_API_KEY is currently unset"
+    fi
+
+    gem_config="$(mktemp -p ./)" || fail "Failed to create temporary credential file"
+    wrap gem build *.gemspec \
+         "Failed to build RubyGem"
+    printf -- "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}\n" > "${gem_config}"
+    wrap_raw gem push --config-file "${gem_config}" *.gem
+    result=$?
+    rm -f "${gem_config}"
+
+    if [ $result -ne 0 ]; then
+        fail "Failed to publish RubyGem"
+    fi
+}
+
+# Publish gem to the hashigems repository
+#
+# $1: Path to gem file to publish
+function publish_to_hashigems() {
+    path="${1}"
+    if [ -z "${path}" ]; then
+        fail "Path to built gem required for publishing to hashigems"
+    fi
+
+    wrap_stream gem install --user-install --no-document reaper-man \
+                "Failed to install dependency for hashigem generation"
+    user_bin="$(ruby -e 'puts Gem.user_dir')/bin"
+    reaper="${user_bin}/reaper-man"
+
+    # Create a temporary directory to work from
+    tmpdir="$(mktemp -d -p ./)" ||
+        fail "Failed to create working directory for hashigems publish"
+    mkdir -p "${tmpdir}/hashigems/gems"
+    wrap cp "${path}" "${tmpdir}/hashigems/gems" \
+         "Failed to copy gem to working directory"
+    wrap_raw pushd "${tmpdir}"
+
+    # Run quick test to ensure bucket is accessible
+    wrap aws s3 ls "${HASHIGEMS_METADATA_BUCKET}" \
+         "Failed to access hashigems asset bucket"
+
+    # Grab our remote metadata. If the file doesn't exist, that is always an error.
+    wrap aws s3 cp "${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" ./ \
+         "Failed to retrieve hashigems metadata list"
+
+    # Add the new gem to the metadata file
+    wrap_stream "${reaper}" package add -S rubygems -p vagrant-rubygems.list ./hashigems/gems/*.gem \
+                "Failed to add new gem to hashigems metadata list"
+    # Generate the repository
+    wrap_stream "${reaper}" repo generate -p vagrant-rubygems.list -o hashigems -S rubygems \
+                "Failed to generate the hashigems repository"
+    # Upload the updated repository
+    wrap_raw pushd ./hashigems
+    wrap_stream aws s3 sync . "${HASHIGEMS_PUBLIC_BUCKET}" \
+                "Failed to upload the hashigems repository"
+    # Store the updated metadata
+    wrap_raw popd
+    wrap_stream aws s3 cp vagrant-rubygems.list "${HASHIGEMS_METADATA_BUCKET}/vagrant-rubygems.list" \
+                "Failed to upload the updated hashigems metadata file"
+
+    # Invalidate cloudfront so the new content is available
+    invalid="$(aws cloudfront create-invalidation --distribution-id "${HASHIGEMS_CLOUDFRONT_ID}" --paths "/*")"
+    if [ $? -ne 0 ]; then
+        fail "Invalidation of hashigems CDN distribution failed"
+    fi
+    invalid_id="$(printf '%s' "${invalid}" | jq -r ".Invalidation.Id")"
+    if [ -z "${invalid_id}" ]; then
+        fail "Failed to determine the ID of the hashigems CDN invalidation request"
+    fi
+
+    # Wait for the invalidation process to complete
+    wrap aws cloudfront wait invalidation-completed --distribution-id "${HASHIGEMS_CLOUDFRONT_ID}" --id "${invalid_id}" \
+         "Failure encountered while waiting for hashigems CDN invalidation request to complete (ID: ${invalid_id})"
+
+    # Clean up and we are done
+    wrap_raw popd
+    rm -rf "${tmpdir}"
 }
 
 # Configures git for hashibot usage
@@ -429,4 +512,5 @@ repository="${GITHUB_REPOSITORY}"
 repo_owner="${repository%/*}"
 repo_name="${repository#*/}"
 asset_cache="${ASSETS_PRIVATE_SHORTTERM}/${repository}/${GITHUB_ACTION}"
-job_id="${GITHUB_ACTION}"
+job_id="${GITHUB_ACTION}-${GITHUB_RUN_ID}"
+run_number="${GITHUB_RUN_NUMBER}"
