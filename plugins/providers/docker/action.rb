@@ -66,14 +66,11 @@ module VagrantPlugins
                 next
               end
 
-              b3.use Call, HasSSH do |env3, b4|
-                if env3[:result]
-                  b4.use Provision
-                else
-                  b4.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
+              b3.use Call, HasProvisioner do |env3, b4|
+                if env3[:skip].length > 0
+                  b4.use Message, I18n.t("docker_provider.messages.not_provisioning", provisioiners: check_skipped_provisioners(env3[:skip]))
                 end
+                b4.use Provision
               end
             end
           end
@@ -217,11 +214,10 @@ module VagrantPlugins
           b.use Call, IsState, :running do |env, b2|
             if env[:machine_action] != :run_command
               b2.use Call, HasProvisioner do |env2, b3|
-                ids = env2[:run].map { |r| r.id }
-                name_type = env2[:skip].map { |r| [r.name, r.type] }
-                b3.use Provision, ids
-                # TODO: fix message
-                b3.use Message, "skipping provisioners: #{name_type}"
+                if env2[:skip].length > 0
+                  b3.use Message, I18n.t("docker_provider.messages.not_provisioning", provisioiners: check_skipped_provisioners(env2[:skip]))
+                end
+                b3.use Provision
               end
             end
 
@@ -323,6 +319,13 @@ module VagrantPlugins
       autoload :Start, action_root.join("start")
       autoload :Stop, action_root.join("stop")
       autoload :WaitForRunning, action_root.join("wait_for_running")
+    
+      private 
+
+      def self.check_skipped_provisioners(provisioners)
+        skipped_provisioners = provisioners.map { |p| "#{p.name || 'no name'}, type: #{p.type}" }
+        skipped_provisioners.join("\n- ")
+      end
     end
   end
 end
