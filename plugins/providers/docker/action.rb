@@ -216,14 +216,12 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
             if env[:machine_action] != :run_command
-              b2.use Call, HasSSH do |env2, b3|
-                if env2[:result]
-                  b3.use Provision
-                else
-                  b3.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
-                end
+              b2.use Call, HasProvisioner do |env2, b3|
+                ids = env2[:run].map { |r| r.id }
+                name_type = env2[:skip].map { |r| [r.name, r.type] }
+                b3.use Provision, ids
+                # TODO: fix message
+                b3.use Message, "skipping provisioners: #{name_type}"
               end
             end
 
@@ -304,6 +302,7 @@ module VagrantPlugins
       autoload :DestroyNetwork, action_root.join("destroy_network")
       autoload :ForwardedPorts, action_root.join("forwarded_ports")
       autoload :HasSSH, action_root.join("has_ssh")
+      autoload :HasProvisioner, action_root.join("has_provisioner")
       autoload :HostMachine, action_root.join("host_machine")
       autoload :HostMachineBuildDir, action_root.join("host_machine_build_dir")
       autoload :HostMachinePortChecker, action_root.join("host_machine_port_checker")
