@@ -19,6 +19,11 @@ module VagrantPlugins
         Cap::Redhat::PodmanInstall
       end
 
+      guest_capability("centos", "podman_install") do
+        require_relative "cap/centos/podman_install"
+        Cap::Centos::PodmanInstall
+      end
+
       guest_capability("linux", "podman_installed") do
         require_relative "cap/linux/podman_installed"
         Cap::Linux::PodmanInstalled
