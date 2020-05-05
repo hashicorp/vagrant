@@ -1,0 +1,46 @@
+<svg viewBox="0 0 811 452" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <rect id="path-1" x="16.8776371" y="0" width="316.455696" height="210.970464"></rect>
+    <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="316.455696" height="210.970464" fill="white">
+      <use xlink:href="#path-1"></use>
+    </mask>
+    <rect id="path-3" x="0" y="0" width="123" height="192"></rect>
+    <mask id="mask-4" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="123" height="192" fill="white">
+      <use xlink:href="#path-3"></use>
+    </mask>
+    <rect id="path-5" x="0" y="0" width="123" height="192"></rect>
+    <mask id="mask-6" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="123" height="192" fill="white">
+      <use xlink:href="#path-5"></use>
+    </mask>
+  </defs>
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="laptop" transform="translate(0.000000, 202.000000)">
+      <polygon id="Polygon" fill="#555555" points="350.670408 226.793249 254.219409 249.771311 95.9915612 249.771311 0 226.793249"></polygon>
+      <use id="Rectangle" stroke="#555555" mask="url(#mask-2)" stroke-width="30" xlink:href="#path-1"></use>
+    </g>
+    <g id="lines" transform="translate(340.000000, 96.000000)" stroke="#555555" stroke-width="15" stroke-linecap="square">
+      <path d="M185.5,1.5 L79.5,1.5" id="Line"></path>
+      <path d="M79.5,209.5 L0.5,209.5" id="Line"></path>
+      <path d="M79.5,209.5 L79.5,2.98255955" id="Line" transform="translate(79.500000, 106.000000) scale(-1, 1) translate(-79.500000, -106.000000) "></path>
+      <path d="M343.5,1.5 L318.5,1.5" id="Line"></path>
+    </g>
+    <g id="server" transform="translate(528.000000, 0.000000)">
+      <g>
+        <use id="Rectangle-2" stroke="#555555" mask="url(#mask-4)" stroke-width="10" xlink:href="#path-3"></use>
+        <path d="M24.5,25.5 L98.5,25.5" id="Line" stroke="#555555" stroke-width="15" stroke-linecap="square"></path>
+        <path d="M24.5,49.5 L98.5,49.5" id="Line" stroke="#555555" stroke-width="15" stroke-linecap="square"></path>
+        <path d="M47.5,74.5 L98.5,74.5" id="Line" stroke="#555555" stroke-width="15" stroke-linecap="square"></path>
+        <circle id="Oval" fill="#555555" cx="24.5" cy="74.5" r="7.5"></circle>
+      </g>
+    </g>
+    <g id="server" transform="translate(688.000000, 0.000000)">
+      <g>
+        <use id="Rectangle-2" stroke="#555555" mask="url(#mask-6)" stroke-width="10" xlink:href="#path-5"></use>
+        <path d="M24.5,25.5 L98.5,25.5" id="Line" stroke="#555555" stroke-width="15" stroke-linecap="square"></path>
+        <path d="M24.5,49.5 L98.5,49.5" id="Line" stroke="#555555" stroke-width="15" stroke-linecap="square"></path>
+        <path d="M47.5,74.5 L98.5,74.5" id="Line" stroke="#555555" stroke-width="15" stroke-linecap="square"></path>
+        <circle id="Oval" fill="#555555" cx="24.5" cy="74.5" r="7.5"></circle>
+      </g>
+    </g>
+  </g>
+</svg>
