@@ -9,21 +9,15 @@ module VagrantPlugins
         end
 
         def call(env)
-          env[:run] = []
           env[:skip] = []
-          has_ssh = env[:machine].provider_config.has_ssh
-          if has_ssh
-            env[:run] = env[:machine].config.vm.provisioners
-          else
+          if !env[:machine].provider_config.has_ssh
             env[:machine].config.vm.provisioners.each do |p|
               if p.communicator_required
-                env[:skip].push(p) 
-              else
-                env[:run].push(p)
+                env[:skip].push(p)
+                p.run = :never
               end
             end
           end
-
           @app.call(env)
         end
       end

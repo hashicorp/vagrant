@@ -50,7 +50,6 @@ module Vagrant
               before:  provisioner.before,
               after:  provisioner.after,
               communicator_required: provisioner.communicator_required,
-              id: provisioner.id
             }
 
             # Return the result

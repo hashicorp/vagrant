@@ -14,10 +14,9 @@ module Vagrant
       class Provision
         include MixinProvisioners
 
-        def initialize(app, env, ids=nil)
+        def initialize(app, env)
           @app             = app
           @logger          = Log4r::Logger.new("vagrant::action::builtin::provision")
-          @provisioner_ids = ids
         end
 
         def call(env)
@@ -101,13 +100,7 @@ module Vagrant
           end
 
           type_map = provisioner_type_map(env)
-          if @provisioner_ids
-            provisioners = provisioner_instances(env).map { |p, opts| [p, opts] if @provisioner_ids.include?(opts[:id]) }.compact
-          else
-            provisioners = provisioner_instances(env)
-          end
-
-          provisioners.each do |p, options|
+          provisioner_instances(env).each do |p, options|
             type_name = type_map[p]
 
             if options[:run] == :never
