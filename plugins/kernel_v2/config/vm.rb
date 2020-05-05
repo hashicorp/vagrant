@@ -381,6 +381,8 @@ module VagrantPlugins
         prov.preserve_order = !!options.delete(:preserve_order) if \
           options.key?(:preserve_order)
         prov.run = options.delete(:run) if options.key?(:run)
+        prov.communicator_required = options.delete(:communicator_required) if options.key?(:communicator_required)
+
         prov.add_config(options, &block)
         nil
       end
