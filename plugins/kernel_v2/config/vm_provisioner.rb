@@ -56,6 +56,12 @@ module VagrantPlugins
       # @return [String, Symbol]
       attr_accessor :after
 
+      # Boolean, when true signifies that some communicator must
+      # be available in order for the provisioner to run.
+      #
+      # @return [Boolean]
+      attr_accessor :communicator_required
+
       def initialize(name, type, **options)
         @logger = Log4r::Logger.new("vagrant::config::vm::provisioner")
         @logger.debug("Provisioner defined: #{name}")
@@ -69,6 +75,7 @@ module VagrantPlugins
         @type    = type
         @before  = options[:before]
         @after   = options[:after]
+        @communicator_required = options[:communicator_required] || true
 
         # Attempt to find the provisioner...
         if !Vagrant.plugin("2").manager.provisioners[type]
