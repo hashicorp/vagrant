@@ -17,6 +17,7 @@
     "@hashicorp/react-product-downloader": "^3.1.2",
     "@hashicorp/react-section-header": "^2.0.0",
     "@hashicorp/react-subnav": "^3.1.1",
+    "@hashicorp/react-tabs": "^0.4.0",
     "@hashicorp/react-vertical-text-block-list": "^2.0.1",
     "babel-plugin-import-glob-array": "^0.2.0",
     "imagemin-mozjpeg": "^8.0.0",

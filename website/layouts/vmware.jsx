@@ -4,8 +4,9 @@ import { frontMatter as data } from '../pages/vmware/**/*.mdx'
 import { MDXProvider } from '@mdx-js/react'
 import Head from 'next/head'
 import Link from 'next/link'
+import Button from '@hashicorp/react-button'
 
-const DEFAULT_COMPONENTS = {}
+const DEFAULT_COMPONENTS = { Button }
 
 function VMWareLayoutWrapper(pageMeta) {
   function VMWareLayout(props) {

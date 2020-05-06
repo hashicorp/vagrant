@@ -4,8 +4,9 @@ import { frontMatter as data } from '../pages/docs/**/*.mdx'
 import { MDXProvider } from '@mdx-js/react'
 import Head from 'next/head'
 import Link from 'next/link'
+import Tabs, { Tab } from '../components/tabs'
 
-const DEFAULT_COMPONENTS = {}
+const DEFAULT_COMPONENTS = { Tabs, Tab }
 
 function DocsLayoutWrapper(pageMeta) {
   function DocsLayout(props) {
