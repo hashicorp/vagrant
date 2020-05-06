@@ -251,14 +251,16 @@ module VagrantPlugins
             if env[:machine_action] != :run_command
               # If the container is NOT created yet, then do some setup steps
               # necessary for creating it.
+
               b2.use Call, IsState, :preparing do |env2, b3|
                 if env2[:result]
                   b3.use EnvSet, port_collision_repair: true
                   b3.use HostMachinePortWarning
                   b3.use HostMachinePortChecker
+                  b3.use ForwardedPorts # This action converts the `ports` param into proper network configs
+                  b3.use PrepareForwardedPortCollisionParams
                   b3.use HandleForwardedPortCollisions
                   b3.use SyncedFolders
-                  b3.use ForwardedPorts
                   b3.use Pull
                   b3.use Create
                   b3.use WaitForRunning
@@ -313,6 +315,7 @@ module VagrantPlugins
       autoload :IsBuild, action_root.join("is_build")
       autoload :IsHostMachineCreated, action_root.join("is_host_machine_created")
       autoload :Login, action_root.join("login")
+      autoload :PrepareForwardedPortCollisionParams, action_root.join("prepare_forwarded_port_collision_params")
       autoload :PrepareNetworks, action_root.join("prepare_networks")
       autoload :PrepareNFSValidIds, action_root.join("prepare_nfs_valid_ids")
       autoload :PrepareNFSSettings, action_root.join("prepare_nfs_settings")

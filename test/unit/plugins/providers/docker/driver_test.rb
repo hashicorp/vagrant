@@ -309,6 +309,33 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
   end
 
+  describe '#read_used_ports' do
+    let(:all_containers) { ["container1\ncontainer2"] }
+    let(:container_info) { {"Name"=>"/container", "HostConfig"=>{"PortBindings"=>{}}} }
+    let(:empty_used_ports) { {} }
+
+    context "with existing port forwards" do
+      let(:container_info) { {"Name"=>"/container", "HostConfig"=>{"PortBindings"=>{"22/tcp"=>[{"HostIp"=>"127.0.0.1","HostPort"=>"2222"}] }}} }
+      let(:used_ports_set) { {"2222"=>Set["127.0.0.1"]} }
+
+      it 'should read all port bindings and return a hash of sets' do
+        allow(subject).to receive(:all_containers).and_return(all_containers)
+        allow(subject).to receive(:inspect_container).and_return(container_info)
+
+        used_ports = subject.read_used_ports
+        expect(used_ports).to eq(used_ports_set)
+      end
+    end
+
+    it 'returns empty if no ports are already bound' do
+      allow(subject).to receive(:all_containers).and_return(all_containers)
+      allow(subject).to receive(:inspect_container).and_return(container_info)
+
+      used_ports = subject.read_used_ports
+      expect(used_ports).to eq(empty_used_ports)
+    end
+  end
+
   describe '#running?' do
     let(:result) { subject.running?(cid) }
 

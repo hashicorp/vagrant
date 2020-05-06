@@ -11,6 +11,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       port_collision_remap: collision_remap, port_collision_repair: collision_repair,
       port_collision_port_check: collision_port_check }
   }
+  let(:provider_name) { "default" }
   let(:extra_in_use){ nil }
   let(:collision_remap){ nil }
   let(:collision_repair){ nil }
@@ -19,6 +20,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
 
   let(:machine) do
     double("machine").tap do |machine|
+      allow(machine).to receive(:provider_name).and_return(provider_name)
       allow(machine).to receive(:config).and_return(machine_config)
       allow(machine).to receive(:env).and_return(machine_env)
     end
