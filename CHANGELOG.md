@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- provisioners/docker: Fix CentOS docker install and start service capabilities [GH-11581]
+
 ## 2.2.8 (May 04, 2020)
 
 FEATURES:
