@@ -30,12 +30,12 @@ module VagrantPlugins
       end
 
       guest_capability("centos", "docker_install") do
-        require_relative "cap/redhat/docker_install"
+        require_relative "cap/centos/docker_install"
         Cap::Centos::DockerInstall
       end
 
       guest_capability("centos", "docker_start_service") do
-        require_relative "cap/redhat/docker_start_service"
+        require_relative "cap/centos/docker_start_service"
         Cap::Centos::DockerStartService
       end
 
