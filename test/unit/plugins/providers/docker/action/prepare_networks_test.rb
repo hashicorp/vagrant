@@ -235,6 +235,14 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
              :protocol=>"tcp",
              :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58"} }
 
+    let(:inhibitipv4_network_options) {
+            {:bridge_inhibitipv4=>"true",
+             :subnet=>"172.20.0.0/16",
+             :driver=>"bridge",
+             :alias=>"mynetwork",
+             :protocol=>"tcp",
+             :id=>"80e017d5-388f-4a2f-a3de-f8dce8156a58"} }
+
     it "returns an array of cli arguments" do
       cli_args = subject.generate_create_cli_arguments(network_options)
       expect(cli_args).to eq( ["--ip", "172.20.128.2", "--subnet", "172.20.0.0/16", "--driver", "bridge", "--internal", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
@@ -243,6 +251,11 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     it "removes option if set to false" do
       cli_args = subject.generate_create_cli_arguments(false_network_options)
       expect(cli_args).to eq( ["--ip", "172.20.128.2", "--subnet", "172.20.0.0/16", "--driver", "bridge", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
+    end
+
+    it "passes inhibitipv4 to the bridge driver via -o com.docker.network.bridge.inhibit_ipv4" do
+      cli_args = subject.generate_create_cli_arguments(inhibitipv4_network_options)
+      expect(cli_args).to eq( ["-o","com.docker.network.bridge.inhibit_ipv4=true","--subnet", "172.20.0.0/16", "--driver", "bridge", "--alias", "mynetwork", "--protocol", "tcp", "--id", "80e017d5-388f-4a2f-a3de-f8dce8156a58"])
     end
   end
 

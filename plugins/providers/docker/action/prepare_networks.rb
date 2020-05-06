@@ -25,6 +25,10 @@ module VagrantPlugins
           options.map do |key, value|
             # If value is false, option is not set
             next if value.to_s == "false"
+            # If key is bridge_inhibitipv4 then pass option to bridge driver via -o
+            if key.to_s == "bridge_inhibitipv4"
+              next ["-o","com.docker.network.bridge.inhibit_ipv4=#{value.to_s}"]
+            end
             # If value is true, consider feature flag with no value
             opt = value.to_s == "true" ? [] : [value]
             opt.unshift("--#{key.to_s.tr("_", "-")}")
