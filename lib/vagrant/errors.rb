@@ -628,6 +628,10 @@ module Vagrant
       error_key(:plugin_install_license_not_found)
     end
 
+    class PluginInstallFailed < VagrantError
+      error_key(:plugin_install_failed)
+    end
+
     class PluginInstallSpace < VagrantError
       error_key(:plugin_install_space)
     end

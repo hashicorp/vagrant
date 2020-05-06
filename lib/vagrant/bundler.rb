@@ -480,7 +480,7 @@ module Vagrant
         if update[:gems] == true || (update[:gems].respond_to?(:include?) && update[:gems].include?(name))
           if Gem::Requirement.new(gem_version).exact?
             gem_version = "> 0"
-            @logger.debug("Detected exact version match for `#{name}` plugin update. Reset to loose constraint #{gem_version.inspect}.")
+            @logger.debug("Detected exact version match for `#{name}` plugin update. Reset to loosen constraint #{gem_version.inspect}.")
           end
           skips << name
         end
@@ -565,10 +565,10 @@ module Vagrant
       activate_solution(solution)
 
       # Remove gems which are already installed
-      request_set.sorted_requests.delete_if do |activation_req|
-        rs_spec = activation_req.spec
-        if vagrant_internal_specs.detect{|ispec| ispec.name == rs_spec.name && ispec.version == rs_spec.version }
-          @logger.debug("Removing activation request from install. Already installed. (#{rs_spec.spec.full_name})")
+      request_set.sorted_requests.delete_if do |act_req|
+        rs = act_req.spec
+        if vagrant_internal_specs.detect{ |i| i.name == rs.name && i.version == rs.version }
+          @logger.debug("Removing activation request from install. Already installed. (#{rs.spec.full_name})")
           true
         end
       end
