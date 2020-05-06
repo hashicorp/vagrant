@@ -6,6 +6,7 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core/bundler: Properly handle plugin install with available specification [GH-11592]
 - provisioners/docker: Fix CentOS docker install and start service capabilities [GH-11581]
 
 ## 2.2.8 (May 04, 2020)
