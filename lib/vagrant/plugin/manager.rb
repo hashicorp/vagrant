@@ -150,17 +150,28 @@ module Vagrant
         else
           result = local_spec
         end
-        # Add the plugin to the state file
-        plugin_file = opts[:env_local] ? @local_file : @user_file
-        plugin_file.add_plugin(
-          result.name,
-          version: opts[:version],
-          require: opts[:require],
-          sources: opts[:sources],
-          env_local: !!opts[:env_local],
-          installed_gem_version: result.version.to_s
-        )
 
+        if result
+          # Add the plugin to the state file
+          plugin_file = opts[:env_local] ? @local_file : @user_file
+          plugin_file.add_plugin(
+            result.name,
+            version: opts[:version],
+            require: opts[:require],
+            sources: opts[:sources],
+            env_local: !!opts[:env_local],
+            installed_gem_version: result.version.to_s
+          )
+        else
+          r = Gem::Dependency.new(name, opts[:version])
+          result = Gem::Specification.find { |s|
+            s.satisfies_requirement?(r) &&
+              s.activated?
+          }
+          raise Errors::PluginInstallFailed,
+            name: name if result.nil?
+          @logger.warn("Plugin install returned no result as no new plugins were installed.")
+        end
         # After install clean plugin gems to remove any cruft. This is useful
         # for removing outdated dependencies or other versions of an installed
         # plugin if the plugin is upgraded/downgraded

@@ -1130,6 +1130,10 @@ en:
         The license file to install could not be found. Please verify
         the path you gave is correct. The path to the license file given
         was: '%{path}'
+      plugin_install_failed: |-
+        Vagrant was unable to install the requested plugin: '%{name}'
+        Please try to install this plugin again. If Vagrant is still unable
+        to install the requested plugin, please report this error.
       plugin_install_space: |-
         The directory where plugins are installed (the Vagrant home directory)
         has a space in it. On Windows, there is a bug in Ruby when compiling

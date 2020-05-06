@@ -265,6 +265,25 @@ describe Vagrant::Plugin::Manager do
       expect(plugins["bar"]["gem_version"]).to eql("1.0")
     end
 
+    context "with existing activation" do
+      let(:value) { double("value") }
+
+      before do
+        expect(bundler).to receive(:install).and_return([])
+        allow(bundler).to receive(:clean)
+      end
+
+      it "should locate existing activation if available" do
+        expect(Gem::Specification).to receive(:find).and_return(value)
+        expect(subject.install_plugin("foo")).to eq(value)
+      end
+
+      it "should raise an error if no activation is located" do
+        expect(Gem::Specification).to receive(:find).and_return(nil)
+        expect { subject.install_plugin("foo") }.to raise_error(Vagrant::Errors::PluginInstallFailed)
+      end
+    end
+
     describe "installation options" do
       let(:specs) do
         specs = Array.new(5) { Gem::Specification.new }
