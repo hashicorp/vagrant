@@ -24,7 +24,9 @@ module VagrantPlugins
             set -e
             SSH_DIR="$(grep -q '^AuthorizedKeysFile\s*\/etc\/ssh\/keys-%u\/authorized_keys$' /etc/ssh/sshd_config && echo -n /etc/ssh/keys-${USER} || echo -n ~/.ssh)"
             mkdir -p "${SSH_DIR}"
-            chmod 0700 "${SSH_DIR}"
+            # NB in ESXi 7.0 we cannot change the /etc/ssh/keys-root directory
+            #    permissions, so ignore any errors.
+            chmod 0700 "${SSH_DIR}" || true
             cat '#{remote_path}' >> "${SSH_DIR}/authorized_keys"
             chmod 0600 "${SSH_DIR}/authorized_keys"
             rm -f '#{remote_path}'
