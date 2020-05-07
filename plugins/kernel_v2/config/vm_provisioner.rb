@@ -134,7 +134,7 @@ module VagrantPlugins
             if @before.is_a?(Symbol) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
               errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "before", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
             elsif !@before.is_a?(String) && !VALID_BEFORE_AFTER_TYPES.include?(@before)
-              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "before")
+              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "before", type: "string")
             end
 
             if !provisioner_names.include?(@before)
@@ -160,7 +160,7 @@ module VagrantPlugins
             if @after.is_a?(Symbol)
               errors << I18n.t("vagrant.provisioners.base.invalid_alias_value", opt: "after", alias: VALID_BEFORE_AFTER_TYPES.join(", "))
             elsif !@after.is_a?(String)
-              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "after")
+              errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "after", type: "string")
             end
 
             if !provisioner_names.include?(@after)
@@ -179,6 +179,10 @@ module VagrantPlugins
                                dep_name: dep_prov.first.name.to_s)
             end
           end
+        end
+
+        if !(@communicator_required.is_a?(TrueClass) || @communicator_required.is_a?(FalseClass))
+          errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "communicator_required", type: "boolean")
         end
 
         {"provisioner" => errors}
