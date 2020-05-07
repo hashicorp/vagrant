@@ -11,10 +11,10 @@ description: |-
 **Provisioner name: `"podman"`**
 
 The Vagrant Podman provisioner can automatically install
-[Podman](https://www.podman.io) to be used as a drop in Docker replacement. This includes the ability to pull Docker containers, and configure certain containers to run on boot.
-
-The podman provisioner is ideal for organizations that are using
-Podman as a means to manage and run their OCI images.
+[Podman](https://www.podman.io) to be used as a drop in Docker replacement. 
+This includes the ability to pull Docker containers, and configure certain 
+containers to run on boot. The podman provisioner is ideal for organizations 
+that are using Podman as a means to manage and run their OCI images.
 
 As with all provisioners, the Podman provisioner can be used along with
 all the other provisioners Vagrant has in order to setup your working
@@ -22,6 +22,9 @@ environment the best way possible. For example, perhaps you use Puppet to
 install services like databases or web servers but use Podman to house
 your application runtime. You can use the Puppet provisioner along
 with the Podman provisioner.
+
+Note, that in order to install Podman on RHEL systems, the system must
+be registered. 
 
 ## Options
 
@@ -38,6 +41,8 @@ and can be called to configure other aspects of the Podman provisioner. Most
 of these functions have examples in more detailed sections below.
 
 * `build_image` - Build an image from a Dockerfile.
+
+* `kubic` - Boolean, install Podman from [Kubic project](https://build.opensuse.org/project/show/devel:kubic:libcontainers:stable)
 
 * `pull_images` - Pull the given images. This does not start these images.
 
