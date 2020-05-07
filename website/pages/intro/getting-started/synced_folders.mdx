@@ -1,6 +1,7 @@
 ---
 layout: intro
 page_title: Synced Folders - Getting Started
+sidebar_title: 'Synced Folders'
 sidebar_current: gettingstarted-syncedfolders
 description: |-
   While it is cool to have a virtual machine so easily, not many people
@@ -30,7 +31,7 @@ is not officially supported by the Vagrant core team.
 
 Run `vagrant up` again and SSH into your machine to see:
 
-```
+```shell-session
 $ vagrant up
 ...
 $ vagrant ssh
@@ -43,7 +44,7 @@ Believe it or not, that Vagrantfile you see inside the virtual machine
 is actually the same Vagrantfile that is on your actual host machine.
 Go ahead and touch a file to prove it to yourself:
 
-```
+```shell-session
 vagrant@bionic64:~$ touch /vagrant/foo
 vagrant@bionic64:~$ exit
 $ ls

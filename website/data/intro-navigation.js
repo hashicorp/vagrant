@@ -6,4 +6,23 @@
 //   the landing page for the category, or a "name" property to
 //   serve as the category title in the sidebar
 
-export default []
+export default [
+  'index',
+  { category: 'vs', content: ['cli-tools', 'docker', 'terraform'] },
+  {
+    category: 'getting-started',
+    content: [
+      'install',
+      'project_setup',
+      'boxes',
+      'up',
+      'synced_folders',
+      'provisioning',
+      'networking',
+      'share',
+      'teardown',
+      'rebuild',
+      'providers',
+    ],
+  },
+]

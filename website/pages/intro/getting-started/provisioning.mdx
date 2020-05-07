@@ -1,6 +1,7 @@
 ---
 layout: intro
 page_title: Provisioning - Getting Started
+sidebar_title: 'Provisioning'
 sidebar_current: gettingstarted-provisioning
 description: |-
   We have a virtual machine running a basic copy of Ubuntu and we can edit files
@@ -81,7 +82,7 @@ After Vagrant completes running, the web server will be up and running.
 You cannot see the website from your own browser (yet), but you can verify
 that the provisioning works by loading a file from SSH within the machine:
 
-```
+```shell-session
 $ vagrant ssh
 ...
 vagrant@bionic64:~$ wget -qO- 127.0.0.1

@@ -1,6 +1,6 @@
 /* Global Component Styles */
 @import '~@hashicorp/react-global-styles/style.css';
-@import '~@hashicorp/react-global-styles/code-highlighting.css';
+@import '~@hashicorp/nextjs-scripts/prism/style.css';
 @import '~@hashicorp/react-global-styles/custom-properties/color.css';
 @import '~@hashicorp/react-global-styles/custom-properties/font.css';
 @import '~@hashicorp/react-global-styles/_temporary-to-remove/layout.css';

@@ -1,6 +1,7 @@
 ---
 layout: intro
 page_title: Up and SSH - Getting Started
+sidebar_title: 'Up and SSH'
 sidebar_current: gettingstarted-up
 description: |-
   It is time to boot your first Vagrant environment. Run the following from your
@@ -12,7 +13,7 @@ description: |-
 It is time to boot your first Vagrant environment. Run the following from your
 terminal:
 
-```
+```shell-session
 $ vagrant up
 ```
 
@@ -21,7 +22,7 @@ virtual machine running Ubuntu. You will not actually _see_ anything though,
 since Vagrant runs the virtual machine without a UI. To prove that it is
 running, you can SSH into the machine:
 
-```
+```shell-session
 $ vagrant ssh
 ```
 
@@ -35,7 +36,7 @@ Take a moment to think what just happened: With just one line of configuration
 and one command in your terminal, we brought up a fully functional, SSH accessible
 virtual machine. Cool. The SSH session can be terminated with `CTRL+D`.
 
-```
+```shell-session
 vagrant@bionic64:~$ logout
 Connection to 127.0.0.1 closed.
 ```
