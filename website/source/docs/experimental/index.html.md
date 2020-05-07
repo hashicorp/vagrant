@@ -48,6 +48,12 @@ This is a list of all the valid experimental features that Vagrant recognizes:
 Enabling this feature allows triggers to recognize and execute `:type` triggers.
 More information about how these should be used can be found on the [trigger documentation page](/docs/triggers/configuration.html#trigger-types)
 
+### `disks`
+
+Enabling this feature will allow Vagrant to manage and configure virtual hard disks
+for certain providers. More information about supported providers and how to
+configure disks can be found on the [disk documentation page](/docs/disks/index.html)
+
 ### `dependency_provisioners`
 
 Enabling this feature allows all provisioners to specify `before` and `after`
