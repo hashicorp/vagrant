@@ -35,7 +35,7 @@
 @import './print.css';
 
 /* Expand content so footer is always at the bottom */
-.content {
+.__next > .content {
   min-height: calc(100vh - 260px);
 }
 
@@ -54,6 +54,11 @@
  */
 .g-subnav ~ * :target {
   scroll-margin-top: calc(64px + 0.5em);
+}
+
+/* Sticky Footer */
+.content {
+  min-height: calc(100vh - 260px);
 }
 
 /* Web Fonts */
