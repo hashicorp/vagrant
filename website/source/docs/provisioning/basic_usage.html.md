@@ -36,6 +36,9 @@ option is what type a provisioner is:
   every root provisioner, or before all provisioners respectively.
   __Note__: This option is currently experimental, so it needs to be explicitly
   enabled to work. More info can be found [here](/docs/experimental/index.html).
+* `communicator_required` (boolean) - Specifies if a communicator must be available
+  in order to run the provisioner. If set to true, the provisioner will run regardless
+  of if a communicator is available.
 
 More information about how to use `before` and `after` options can be read [below](#dependency-provisioners).
 

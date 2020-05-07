@@ -112,6 +112,9 @@ module VagrantPlugins
       def finalize!
         return if invalid?
 
+        # Force communicator to be true or false based on turthy-ness
+        @communicator_required = @communicator_required ? true : false
+
         @config.finalize!
       end
 
@@ -179,10 +182,6 @@ module VagrantPlugins
                                dep_name: dep_prov.first.name.to_s)
             end
           end
-        end
-
-        if !(@communicator_required.is_a?(TrueClass) || @communicator_required.is_a?(FalseClass))
-          errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "communicator_required", type: "boolean")
         end
 
         {"provisioner" => errors}
