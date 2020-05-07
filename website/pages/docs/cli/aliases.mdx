@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: Aliases - Command-Line Interface
+sidebar_title: 'Aliases'
 sidebar_current: cli-aliases
 description: |-
   Custom Vagrant commands can be defined using aliases, allowing for a simpler,
@@ -18,7 +19,7 @@ Aliases can be defined within `VAGRANT_HOME/aliases` file, or in a custom file
 defined using the `VAGRANT_ALIAS_FILE` environment variable, in the following
 format:
 
-```
+```shell
 # basic command-level aliases
 start = up
 stop = halt
@@ -40,13 +41,13 @@ useful for creating commands that you think _should_ exist. For example,
 if `vagrant stop` feels more intuitive than `vagrant halt`, the following alias
 definitions would make that change possible:
 
-```
+```shell
 stop = halt
 ```
 
 This makes the following commands equivalent:
 
-```
+```shell
 vagrant stop
 vagrant halt
 ```
@@ -62,13 +63,13 @@ and memory utilization of the active project's virtual machine. To do this, you
 could define a `vagrant metrics` command that returns the required information
 in an easy-to-read format, like so:
 
-```
+```shell
 metrics = !ps aux | grep "[V]BoxHeadless" | grep $(cat .vagrant/machines/default/virtualbox/id) | awk '{ printf("CPU: %.02f%%, Memory: %.02f%%", $3, $4) }'
 ```
 
 The above alias, from within the context of an active Vagrant project, would
 print the CPU and memory utilization directly to the console:
 
-```
+```text
 CPU: 4.20%, Memory: 11.00%
 ```

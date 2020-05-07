@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: vagrant ssh - Command-Line Interface
+sidebar_title: 'ssh'
 sidebar_current: cli-ssh
 description: |-
   The "vagrant ssh" command is used to establish an SSH session into a running
@@ -17,7 +18,7 @@ On a simple vagrant project, the instance created will be named default.
 
 Vagrant will ssh into this instance without the instance name:
 
-```bash
+```shell-session
 $ vagrant ssh
 
 Welcome to your Vagrant-built virtual machine.
@@ -28,7 +29,7 @@ Connection to 127.0.0.1 closed.
 
 Or you could use the name:
 
-```bash
+```shell-session
 $ vagrant ssh default
 
 
@@ -42,8 +43,8 @@ $
 On multi-machine setups, you can login to each vm using the name as displayed
 on `vagrant status`
 
-```bash
- $ vagrant status
+```shell-session
+$ vagrant status
 Current machine states:
 
 node1                     running (virtualbox)
@@ -69,7 +70,7 @@ $
 On a system with machines running from different projects, you could use the id
 as listed in `vagrant global-status`
 
-```bash
+```shell-session
 $ vagrant global-status
 id       name   provider   state   directory
 -----------------------------------------------------------------------

@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: Salt - Provisioning
+sidebar_title: 'Salt'
 sidebar_current: provisioning-salt
 description: |-
   The Vagrant Salt provisioner allows you to provision the guest using
@@ -28,22 +29,22 @@ What follows is a basic Vagrantfile that will get salt working
 on a single minion, without a master:
 
 ```ruby
-  Vagrant.configure("2") do |config|
-    ## Choose your base box
-    config.vm.box = "bionic64"
+Vagrant.configure("2") do |config|
+  ## Choose your base box
+  config.vm.box = "bionic64"
 
-    ## For masterless, mount your salt file root
-    config.vm.synced_folder "salt/roots/", "/srv/salt/"
+  ## For masterless, mount your salt file root
+  config.vm.synced_folder "salt/roots/", "/srv/salt/"
 
-    ## Use all the defaults:
-    config.vm.provision :salt do |salt|
+  ## Use all the defaults:
+  config.vm.provision :salt do |salt|
 
-      salt.masterless = true
-      salt.minion_config = "salt/minion"
-      salt.run_highstate = true
+    salt.masterless = true
+    salt.minion_config = "salt/minion"
+    salt.run_highstate = true
 
-    end
   end
+end
 ```
 
 This sets up a shared folder for the salt root, and copies
@@ -166,27 +167,27 @@ command. Each call will merge the data so you can safely call it multiple
 times. The data passed in should only be hashes and lists. Here is an example::
 
 ```ruby
-      config.vm.provision :salt do |salt|
+config.vm.provision :salt do |salt|
 
-        # Export hostnames for webserver config
-        salt.pillar({
-          "hostnames" => {
-            "www" => "www.example.com",
-            "intranet" => "intranet.example.com"
-          }
-        })
+  # Export hostnames for webserver config
+  salt.pillar({
+    "hostnames" => {
+      "www" => "www.example.com",
+      "intranet" => "intranet.example.com"
+    }
+  })
 
-        # Export database credentials
-        salt.pillar({
-          "database" => {
-            "user" => "jdoe",
-            "password" => "topsecret"
-          }
-        })
+  # Export database credentials
+  salt.pillar({
+    "database" => {
+      "user" => "jdoe",
+      "password" => "topsecret"
+    }
+  })
 
-        salt.run_highstate = true
+  salt.run_highstate = true
 
-      end
+end
 ```
 
 On Windows guests, this requires PowerShell 3.0 or higher.

@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: vagrant init - Command-Line Interface
+sidebar_title: 'init'
 sidebar_current: cli-init
 description: |-
   The "vagrant init" command is used to initialize the current directory to be
@@ -42,30 +43,30 @@ setting in the created Vagrantfile.
 
 Create a base Vagrantfile:
 
-```sh
+```shell-session
 $ vagrant init hashicorp/bionic64
 ```
 
 Create a minimal Vagrantfile (no comments or helpers):
 
-```sh
+```shell-session
 $ vagrant init -m hashicorp/bionic64
 ```
 
 Create a new Vagrantfile, overwriting the one at the current path:
 
-```sh
+```shell-session
 $ vagrant init -f hashicorp/bionic64
 ```
 
 Create a Vagrantfile with the specific box, from the specific box URL:
 
-```sh
+```shell-session
 $ vagrant init my-company-box https://boxes.company.com/my-company.box
 ```
 
 Create a Vagrantfile, locking the box to a version constraint:
 
-```sh
+```shell-session
 $ vagrant init --box-version '> 0.1.5' hashicorp/bionic64
 ```

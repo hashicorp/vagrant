@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: config.winssh - Vagrantfile
+sidebar_title: '<tt>config.winssh</tt>'
 sidebar_current: vagrantfile-winssh
 description: >-
   The settings within "config.winssh" relate to configuring how Vagrant
@@ -39,9 +40,9 @@ The configuration options below are specific to the WinSSH communicator.
   variables to forward to the guest. If you are familiar with OpenSSH, this corresponds
   to the `SendEnv` parameter.
 
-      ```ruby
-      config.winssh.forward_env = ["CUSTOM_VAR"]
-      ```
+  ```ruby
+  config.winssh.forward_env = ["CUSTOM_VAR"]
+  ```
 
 - `config.winssh.proxy_command` (string) - A command-line command to execute that
   receives the data to send to SSH on stdin. This can be used to proxy the SSH connection.
@@ -62,15 +63,15 @@ The configuration options below are specific to the WinSSH communicator.
   environment variable value: `%ENV_KEY%` and `%ENV_VALUE%`. The default template
   for a `cmd` configured shell is:
 
-      ```ruby
-      config.winssh.export_command_template = 'set %ENV_KEY%="%ENV_VALUE%"'
-      ```
+  ```ruby
+  config.winssh.export_command_template = 'set %ENV_KEY%="%ENV_VALUE%"'
+  ```
 
-      The default template for a `powershell` configured shell is:
+  The default template for a `powershell` configured shell is:
 
-      ```ruby
-      config.winssh.export_command_template = '$env:%ENV_KEY%="%ENV_VALUE%"'
-      ```
+  ```ruby
+  config.winssh.export_command_template = '$env:%ENV_KEY%="%ENV_VALUE%"'
+  ```
 
 - `config.winssh.sudo_command` (string) - The command to use when executing a command
   with `sudo`. This defaults to `%c` (assumes vagrant user is an administrator

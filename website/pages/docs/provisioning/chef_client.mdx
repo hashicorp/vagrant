@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: Chef Client - Provisioning
+sidebar_title: 'Chef Client'
 sidebar_current: provisioning-chefclient
 description: |-
   The Vagrant Chef Client provisioner allows you to provision the guest using
@@ -107,7 +108,7 @@ If you do not specify it or set it to `false`, you must explicitly delete these
 entries from the Chef Server before you provision a new one with Chef Server.
 For example, using Chef's built-in `knife` tool:
 
-```
+```shell-session
 $ knife node delete precise64
 $ knife client delete precise64
 ```
@@ -115,6 +116,6 @@ $ knife client delete precise64
 If you fail to do so, you will get the following error when Vagrant
 tries to provision the machine with Chef Client:
 
-```
+```text
 HTTP Request Returned 409 Conflict: Client already exists.
 ```

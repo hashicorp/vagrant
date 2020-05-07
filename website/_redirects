@@ -3,4 +3,18 @@
 # See the README file in this directory for documentation. Please do not
 # modify or delete existing redirects without first verifying internally.
 
-/intro/index    /intro
+/intro/index                    /intro
+/docs/index                     /docs
+/docs/boxes.html                /docs/boxes
+/docs/experimental/index.html   /docs/experimental
+/docs/experimental/             /docs/experimental
+/docs/multi-machine/index.html  /docs/multi-machine
+/docs/multi-machine/            /docs/multi-machine
+/docs/virtualbox/index.html     /docs/providers/virtualbox
+/docs/virtualbox/*              /docs/providers/virtualbox/:splat
+/docs/vmware/index.html         /docs/providers/vmware
+/docs/vmware/*                  /docs/providers/vmware/:splat
+/docs/docker/index.html         /docs/providers/docker
+/docs/docker/*                  /docs/providers/docker/:splat
+/docs/hyperv/index.html         /docs/providers/hyperv
+/docs/hyperv/*                  /docs/providers/hyperv/:splat

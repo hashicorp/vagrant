@@ -5,8 +5,9 @@ import { MDXProvider } from '@mdx-js/react'
 import Head from 'next/head'
 import Link from 'next/link'
 import Tabs, { Tab } from '../components/tabs'
+import Button from '@hashicorp/react-button'
 
-const DEFAULT_COMPONENTS = { Tabs, Tab }
+const DEFAULT_COMPONENTS = { Tabs, Tab, Button }
 
 function DocsLayoutWrapper(pageMeta) {
   function DocsLayout(props) {

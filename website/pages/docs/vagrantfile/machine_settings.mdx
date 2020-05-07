@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: config.vm - Vagrantfile
+sidebar_title: '<tt>config.vm</tt>'
 sidebar_current: vagrantfile-machine
 description: |-
   The settings within "config.vm" modify the configuration of the
@@ -82,9 +83,9 @@ machine that Vagrant manages.
   installed. This can also be an array of multiple URLs. The URLs will be tried in
   order.
 
-      Note that any client certificates, insecure download settings, and
-      so on will apply to all URLs in this list. The URLs can also be local files
-      by using the `file://` scheme. For example: "file:///tmp/test.box".
+  Note that any client certificates, insecure download settings, and
+  so on will apply to all URLs in this list. The URLs can also be local files
+  by using the `file://` scheme. For example: `file://tmp/test.box`.
 
 - `config.vm.box_version` (string) - The version of the box to use. This defaults to
   ">= 0" (the latest version available). This can contain an arbitrary list

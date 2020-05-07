@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: Machine Readable Output - Command-Line Interface
+sidebar_title: 'Machine Readable Output'
 sidebar_current: cli-machinereadable
 description: |-
   Almost all commands in Vagrant accept a --machine-readable flag to enable
@@ -77,80 +78,14 @@ become a literal `\r`.
 This section documents all the available types that may be outputted
 with the machine-readable output.
 
-<table class="table table-hover table-bordered mr-types">
-<thead>
-<tr>
-<th class="mr-type">Type</th>
-<th>Description</th>
-</tr>
-</thead>
-
-<tr>
-  <td>box-name</td>
-  <td>Name of a box installed into Vagrant.</td>
-</tr>
-
-<tr>
-  <td>box-provider</td>
-  <td>Provider for an installed box.</td>
-</tr>
-
-<tr>
-  <td>cli-command</td>
-  <td>
-    A subcommand of <code>vagrant</code> that is available.
-  </td>
-</tr>
-
-<tr>
-  <td>error-exit</td>
-  <td>
-    An error occurred that caused Vagrant to exit. This contains that error.
-    Contains two data elements: type of error, error message.
-  </td>
-</tr>
-
-<tr>
-  <td>provider-name</td>
-  <td>
-    The provider name of the target machine.
-    <span class="label">targeted</span>
-  </td>
-</tr>
-
-<tr>
-  <td>ssh-config</td>
-  <td>
-    The OpenSSH compatible SSH config for a machine. This is usually the result
-    of the "ssh-config" command.
-    <span class="label">targeted</span>
-  </td>
-</tr>
-
-<tr>
-  <td>state</td>
-  <td>
-    The state ID of the target machine.
-    <span class="label">targeted</span>
-  </td>
-</tr>
-
-<tr>
-  <td>state-human-long</td>
-  <td>
-    Human-readable description of the state of the machine. This is the long
-    version, and may be a paragraph or longer.
-    <span class="label">targeted</span>
-  </td>
-</tr>
-
-<tr>
-  <td>state-human-short</td>
-  <td>
-    Human-readable description of the state of the machine. This is the short
-    version, limited to at most a sentence.
-    <span class="label">targeted</span>
-  </td>
-</tr>
-
-</table>
+| Type              | Description                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| box-name          | Name of a box installed into Vagrant.                                                                                              |
+| box-provider      | Provider for an installed box.                                                                                                     |
+| cli-command       | A subcommand of vagrant that is available.                                                                                         |
+| error-exit        | An error occurred that caused Vagrant to exit. This contains that error. Contains two data elements: type of error, error message. |
+| provider-name     | The provider name of the target machine. `targeted`                                                                                |
+| ssh-config        | The OpenSSH compatible SSH config for a machine. This is usually the result of the "ssh-config" command. `targeted`                |
+| state             | The state ID of the target machine. `targeted`                                                                                     |
+| state-human-long  | Human-readable description of the state of the machine. This is the long version, and may be a paragraph or longer. `targeted`     |
+| state-human-short | Human-readable description of the state of the machine. This is the short version, limited to at most a sentence. `targeted`       |

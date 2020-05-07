@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: vagrant cloud - Command-Line Interface
+sidebar_title: 'cloud'
 sidebar_current: cli-cloud
 description: |-
   The "vagrant cloud" command can be used for taking actions against
@@ -64,7 +65,7 @@ is available below.
 
 Securely authenticate to Vagrant Cloud using a username and password:
 
-```text
+```shell-session
 $ vagrant cloud auth login
 # ...
 Vagrant Cloud username:
@@ -73,14 +74,14 @@ Vagrant Cloud password:
 
 Check if the current user is authenticated:
 
-```text
+```shell-session
 $ vagrant cloud auth login --check
 You are already logged in.
 ```
 
 Securely authenticate with Vagrant Cloud using a token:
 
-```text
+```shell-session
 $ vagrant cloud auth login --token ABCD1234
 The token was successfully saved.
 ```
@@ -220,7 +221,7 @@ the information required before creating or updating a new box.
 
 Creating a new box on Vagrant Cloud:
 
-```text
+```shell-session
 $ vagrant cloud publish briancain/supertest 1.0.0 virtualbox boxes/my/virtualbox.box -d "A really cool box to download and use" --version-description "A cool version" --release --short-description "Download me!"
 You are about to create a box on Vagrant Cloud with the following options:
 briancain/supertest (1.0.0) for virtualbox

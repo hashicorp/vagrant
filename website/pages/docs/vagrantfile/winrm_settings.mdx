@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: config.winrm - Vagrantfile
+sidebar_title: '<tt>config.winrm</tt>'
 sidebar_current: vagrantfile-winrm
 description: |-
   The settings within "config.winrm" relate to configuring how Vagrant
@@ -49,8 +50,8 @@ These settings are only used if you've set your communicator type to `:winrm`.
   to `false`. If set to `true` you should also use the `:plaintext` transport setting and
   the Windows machine must be configured appropriately.
 
-      **Note:** It is strongly recommended that you only use basic authentication for
-      debugging purposes. Credentials will be transferred in plain text.
+  -> **Note:** It is strongly recommended that you only use basic authentication for
+  debugging purposes. Credentials will be transferred in plain text.
 
 - `config.winrm.execution_time_limit` (string) - The amount of time that is allowed to
   complete task. This defaults to "PT2H", that is 2 hours.
@@ -72,8 +73,8 @@ These settings are only used if you've set your communicator type to `:winrm`.
 - `config.winrm.codepage` (string) - The WINRS_CODEPAGE which is the client's console
   output code page. By default this is not set by Vagrant.
 
-      **Note:** Versions of Windows older than Windows 7/Server 2008 R2 may exhibit
-      undesirable behavior using the default UTF-8 codepage. When using these older
-      versions of Windows, its best to use the native code page of the server's locale.
-      For example, en-US servers will have a codepage of 437. The Windows `chcp` command
-      can be used to determine the value of the native codepage.
+  -> **Note:** Versions of Windows older than Windows 7/Server 2008 R2 may exhibit
+  undesirable behavior using the default UTF-8 codepage. When using these older
+  versions of Windows, its best to use the native code page of the server's locale.
+  For example, en-US servers will have a codepage of 437. The Windows `chcp` command
+  can be used to determine the value of the native codepage.

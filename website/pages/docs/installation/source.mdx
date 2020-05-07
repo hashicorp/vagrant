@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: Installing Vagrant from Source
+sidebar_title: 'From Source'
 sidebar_current: installation-source
 description: |-
   Installing Vagrant from source is an advanced topic and is only recommended
@@ -30,19 +31,19 @@ However, beware of the following pitfalls:
 
 Clone Vagrant's repository from GitHub into the directory where you keep code on your machine:
 
-```shell
+```shell-session
 $ git clone https://github.com/hashicorp/vagrant.git
 ```
 
 Next, `cd` into that path. All commands will be run from this path:
 
-```shell
+```shell-session
 $ cd /path/to/your/vagrant/clone
 ```
 
 Run the `bundle` command with a required version\* to install the requirements:
 
-```shell
+```shell-session
 $ bundle install
 ```
 
@@ -55,14 +56,14 @@ In order to use your locally-installed version of Vagrant in other projects, you
 
 First, run the following command from the Vagrant repo:
 
-```shell
+```shell-session
 $ bundle --binstubs exec
 ```
 
 This will generate files in `exec/`, including `vagrant`. You can now specify
 the full path to the `exec/vagrant` anywhere on your operating system:
 
-```shell
+```shell-session
 $ /path/to/vagrant/exec/vagrant init -m hashicorp/bionic64
 ```
 
@@ -72,7 +73,7 @@ supported. It's true. It's not. You should listen to those warnings.
 If you do not want to specify the full path to Vagrant (i.e. you just want to
 run `vagrant`), you can create a symbolic link to your exec:
 
-```shell
+```shell-session
 $ ln -sf /path/to/vagrant/exec/vagrant /usr/local/bin/vagrant
 ```
 

@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: vagrant port - Command-Line Interface
+sidebar_title: 'port'
 sidebar_current: cli-port
 description: |-
   The "vagrant port" command is used to display the full list of guest ports
@@ -14,7 +15,7 @@ description: |-
 The port command displays the full list of guest ports mapped to the host
 machine ports:
 
-```
+```shell-session
 $ vagrant port
     22 (guest) => 2222 (host)
     80 (guest) => 8080 (host)
@@ -22,7 +23,7 @@ $ vagrant port
 
 In a multi-machine Vagrantfile, the name of the machine must be specified:
 
-```
+```shell-session
 $ vagrant port my-machine
 ```
 
@@ -32,7 +33,9 @@ $ vagrant port my-machine
   given guest port. If the guest is not forwarding that port, an error is
   returned. This is useful for quick scripting, for example:
 
-        $ ssh -p $(vagrant port --guest 22)
+  ```shell-session
+  $ ssh -p $(vagrant port --guest 22)
+  ```
 
 - `--machine-readable` - This tells Vagrant to display machine-readable output
   instead of the human-friendly output. More information is available in the

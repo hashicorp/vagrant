@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: Basic Usage - Providers
+sidebar_title: 'Basic Usage'
 sidebar_current: providers-basic-usage
 description: |-
   Vagrant boxes are all provider-specific. A box for VirtualBox is incompatible
@@ -22,7 +23,7 @@ as the providers differ. So you can have both a VirtualBox and VMware Fusion
 
 Installing boxes has not changed at all:
 
-```
+```shell-session
 $ vagrant box add hashicorp/bionic64
 ```
 
@@ -30,7 +31,7 @@ Vagrant now automatically detects what provider a box is for. This is
 visible when listing boxes. Vagrant puts the provider in parentheses next
 to the name, as can be seen below.
 
-```
+```shell-session
 $ vagrant box list
 bionic64 (virtualbox)
 bionic64 (vmware_fusion)
@@ -46,7 +47,7 @@ In normal day-to-day usage, the `--provider` flag is not necessary
 since Vagrant can usually pick the right provider for you. More details
 on how it does this is below.
 
-```
+```shell-session
 $ vagrant up --provider=vmware_fusion
 ```
 

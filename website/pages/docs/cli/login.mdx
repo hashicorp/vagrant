@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: vagrant login - Command-Line Interface
+sidebar_title: 'login'
 sidebar_current: cli-login
 description: |-
   The "vagrant login" command is used to authenticate Vagrant with HashiCorp's
@@ -40,7 +41,7 @@ is available below.
 
 Securely authenticate to Vagrant Cloud using a username and password:
 
-```text
+```shell-session
 $ vagrant login
 # ...
 Vagrant Cloud username:
@@ -49,14 +50,14 @@ Vagrant Cloud password:
 
 Check if the current user is authenticated:
 
-```text
+```shell-session
 $ vagrant login --check
 You are already logged in.
 ```
 
 Securely authenticate with Vagrant Cloud using a token:
 
-```text
+```shell-session
 $ vagrant login --token ABCD1234
 The token was successfully saved.
 ```

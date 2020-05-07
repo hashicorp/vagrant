@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: Vagrant and Windows Subsystem for Linux
+sidebar_title: 'WSL'
 sidebar_current: other-wsl
 description: |-
   An overview of using Vagrant on Windows within the Windows Subsystem
@@ -40,7 +41,7 @@ not be available. To enable Windows access, which will also enable the
 VirtualBox and Hyper-V providers, set the `VAGRANT_WSL_ENABLE_WINDOWS_ACCESS`
 environment variable:
 
-```
+```shell-session
 $ export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
 ```
 
@@ -59,7 +60,7 @@ Vagrant to access them.
 
 For example, when using the VirtualBox provider:
 
-```
+```shell
 export PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox"
 ```
 
@@ -84,7 +85,7 @@ this environment variable is set, Vagrant will access the Windows system
 to run executables and enable things like synced folders. When running
 in a bash shell within WSL, the environment variable can be setup like so:
 
-```
+```shell-session
 $ export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
 ```
 
@@ -114,7 +115,7 @@ in the `VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH` environment variable. For
 example, if a user wants to run a Vagrant project from the WSL that is located
 at `C:\TestDir\vagrant-project`:
 
-```
+```shell-session
 C:\Users\vagrant> cd C:\TestDir\vagrant-project
 C:\TestDir\vagrant-project> bash
 vagrant@vagrant-10:/mnt/c/TestDir/vagrant-project$ export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/c/TestDir"
@@ -128,6 +129,6 @@ the daemon _can_ be run on Windows and accessed by Vagrant while running in the
 WSL. Once docker is installed and running on Windows, export the following
 environment variable to give Vagrant access:
 
-```
+```shell-session
 vagrant@vagrant-10:/mnt/c/Users/vagrant$ export DOCKER_HOST=tcp://127.0.0.1:2375
 ```

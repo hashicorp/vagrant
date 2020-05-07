@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: Vagrant Disks Configuration
+sidebar_title: 'Configuration'
 sidebar_current: disks-configuration
 description: Documentation of various configuration options for Vagrant Disks
 ---
@@ -24,12 +25,12 @@ Vagrant Disks has several options that allow users to define and attach disks to
 - `provider_config` (hash) - Additional provider specific options for managing a given disk. Please refer to
   the provider specific documentation to see any available provider_config options.
 
-      Generally, the disk option accepts two kinds of ways to define a provider config:
+  Generally, the disk option accepts two kinds of ways to define a provider config:
 
-      + `providername__diskoption: value`
-        - The provider name followed by a double underscore, and then the provider specific option for that disk
-      + `{providername: {diskoption: value}, otherprovidername: {diskoption: value}`
-        - A hash where the top level key(s) are one or more providers, and each provider keys values are a hash of options and their values.
+  - `providername__diskoption: value`
+    - The provider name followed by a double underscore, and then the provider specific option for that disk
+  - `{providername: {diskoption: value}, otherprovidername: {diskoption: value}`
+    - A hash where the top level key(s) are one or more providers, and each provider keys values are a hash of options and their values.
 
 - `size` (String) - The size of the disk to create. For example, `"10GB"`.
 

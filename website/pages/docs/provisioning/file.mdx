@@ -1,6 +1,7 @@
 ---
 layout: docs
 page_title: File Uploads - Provisioning
+sidebar_title: 'File'
 sidebar_current: provisioning-file
 description: |-
   The Vagrant file provisioner allows you to upload a file or directory from the
@@ -43,27 +44,31 @@ end
 
 Prior to copying `~/path/to/host/folder` to the guest machine:
 
-        folder
-        ├── script.sh
-        ├── otherfolder
-        │   └── hello.sh
-        ├── goodbye.sh
-        ├── hello.sh
-        └── woot.sh
+```text
+folder
+├── script.sh
+├── otherfolder
+│   └── hello.sh
+├── goodbye.sh
+├── hello.sh
+└── woot.sh
 
-        1 directory, 5 files
+1 directory, 5 files
+```
 
 After to copying `~/path/to/host/folder` into `$HOME/remote/newfolder` to the guest machine:
 
-        newfolder
-        ├── script.sh
-        ├── otherfolder
-        │   └── hello.sh
-        ├── goodbye.sh
-        ├── hello.sh
-        └── woot.sh
+```text
+newfolder
+├── script.sh
+├── otherfolder
+│   └── hello.sh
+├── goodbye.sh
+├── hello.sh
+└── woot.sh
 
-        1 directory, 5 files
+1 directory, 5 files
+```
 
 Note that, unlike with synced folders, files or directories that are uploaded
 will not be kept in sync. Continuing with the example above, if you make
@@ -106,11 +111,13 @@ config.vm.provision "file", source: "~/pathfolder", destination: "/remote/newloc
 You are telling vagrant to upload `~/pathfolder` under the remote dir `/remote/newlocation`,
 which will look like:
 
-        newlocation
-        ├── pathfolder
-        │   └── file.sh
+```text
+newlocation
+├── pathfolder
+│   └── file.sh
 
-        1 directory, 2 files
+1 directory, 2 files
+```
 
 This behavior can also be achieved by defining your file provisioner below:
 
