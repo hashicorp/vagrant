@@ -125,6 +125,10 @@ module VagrantPlugins
 
         provisioner_names = provisioners.map { |i| i.name.to_s if i.name != name }.compact
 
+        if ![TrueClass, FalseClass].include?(@communicator_required.class)
+          errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "communicator_required", type: "boolean")
+        end
+
         if @before && @after
           errors << I18n.t("vagrant.provisioners.base.both_before_after_set")
         end
@@ -179,10 +183,6 @@ module VagrantPlugins
                                dep_name: dep_prov.first.name.to_s)
             end
           end
-        end
-
-        if !(@communicator_required.is_a?(TrueClass) || @communicator_required.is_a?(FalseClass))
-          errors << I18n.t("vagrant.provisioners.base.wrong_type", opt: "communicator_required", type: "boolean")
         end
 
         {"provisioner" => errors}
