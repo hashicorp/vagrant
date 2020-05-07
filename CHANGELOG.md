@@ -1,8 +1,4 @@
-## Next version (Unreleased)
-
-FEATURES:
-
-IMPROVEMENTS:
+## 2.2.9 (May 07, 2020)
 
 BUG FIXES:
 
