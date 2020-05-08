@@ -1,6 +1,7 @@
 ---
 layout: vagrant-cloud
 page_title: Creating a New Vagrant Box
+sidebar_title: 'Creating a New Box'
 sidebar_current: vagrant-cloud-boxes-create-x
 ---
 
@@ -61,20 +62,28 @@ need to get an [access token](https://vagrantcloud.com/settings/security).
 
 Then, prepare the upload:
 
-    $ curl 'https://vagrantcloud.com/api/v1/box/USERNAME/BOX_NAME/version/VERSION/provider/PROVIDER_NAME/upload?access_token=ACCESS_TOKEN'
+```shell-session
+$ curl 'https://vagrantcloud.com/api/v1/box/USERNAME/BOX_NAME/version/VERSION/provider/PROVIDER_NAME/upload?access_token=ACCESS_TOKEN'
+```
 
 This should return something like this:
 
-    {
-      "upload_path": "https://archivist.hashicorp.com/v1/object/630e42d9-2364-2412-4121-18266770468e"
-    }
+```json
+{
+  "upload_path": "https://archivist.hashicorp.com/v1/object/630e42d9-2364-2412-4121-18266770468e"
+}
+```
 
 Then, upload your box with the following command, with the filename in this case being `foo.box`:
 
-    $ curl -X PUT --upload-file foo.box https://archivist.hashicorp.com/v1/object/630e42d9-2364-2412-4121-18266770468e
+```shell-session
+$ curl -X PUT --upload-file foo.box https://archivist.hashicorp.com/v1/object/630e42d9-2364-2412-4121-18266770468e
+```
 
 When the upload finishes, you can verify it worked by making this request and matching the `hosted_token` it returns to the previously retrieved upload token.
 
-    $ curl 'https://vagrantcloud.com/api/v1/box/USERNAME/BOX_NAME/version/VERSION_NUMBER/provider/PROVIDER_NAME?access_token=ACCESS_TOKEN'
+```shell-session
+$ curl 'https://vagrantcloud.com/api/v1/box/USERNAME/BOX_NAME/version/VERSION_NUMBER/provider/PROVIDER_NAME?access_token=ACCESS_TOKEN'
+```
 
 Your box should then be available for download.

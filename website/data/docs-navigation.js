@@ -179,4 +179,6 @@ export default [
     category: 'other',
     content: ['debugging', 'environmental-variables', 'wsl'],
   },
+  '---',
+  { title: 'Vagrant Cloud', href: '/vagrant-cloud' },
 ]

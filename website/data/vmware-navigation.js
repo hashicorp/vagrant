@@ -6,4 +6,9 @@
 //   the landing page for the category, or a "name" property to
 //   serve as the category title in the sidebar
 
-export default []
+export default [
+  'reseller',
+  'eula',
+  { title: 'Privacy Policy', href: 'https://www.hashicorp.com/privacy' },
+  'terms-of-service',
+]

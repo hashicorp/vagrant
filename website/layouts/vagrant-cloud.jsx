@@ -24,7 +24,7 @@ function CloudLayoutWrapper(pageMeta) {
           }}
           sidenav={{
             Link,
-            category: 'Cloud',
+            category: 'vagrant-cloud',
             currentPage: props.path,
             data,
             order,
