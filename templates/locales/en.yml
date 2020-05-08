@@ -165,8 +165,10 @@ en:
       -- Detected newer image for container '%{name}', restarting...
     docker_starting_containers: |-
       Starting Docker containers...
-    hyperv_setting_enhanced_session: |-
-      Setting VM Enhanced session transport type
+    hyperv_enable_enhanced_session: |-
+      Setting VM Enhanced session transport type to HvSocket
+    hyperv_disable_enhanced_session: |-
+      Setting VM Enhanced session transport type to disabled/default (VMBus)
     inserted_key: |-
       Key inserted! Disconnecting and reconnecting using new SSH key...
     inserting_insecure_detected: |-

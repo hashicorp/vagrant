@@ -47,6 +47,7 @@ describe VagrantPlugins::HyperV::Action::Configure do
     allow(data_dir).to receive(:join).and_return(sentinel)
     allow(sentinel).to receive(:file?).and_return(false)
     allow(sentinel).to receive(:open)
+    allow(driver).to receive(:set_enhanced_session_transport_type).with("VMBus")
   end
 
   it "should call the app on success" do
@@ -119,8 +120,8 @@ describe VagrantPlugins::HyperV::Action::Configure do
   end
 
   context "without enhanced session transport type" do
-    it "should not call the driver to set enhanced session transport type" do
-      expect(driver).not_to receive(:set_enhanced_session_transport_type)
+    it "should call the driver to set enhanced session transport type back to default" do
+      expect(driver).to receive(:set_enhanced_session_transport_type).with("VMBus")
       subject.call(env)
     end
   end
@@ -129,7 +130,7 @@ describe VagrantPlugins::HyperV::Action::Configure do
     let(:enable_enhanced_session_mode) { true }
 
     it "should call the driver to set enhanced session transport type" do
-      expect(driver).to receive(:set_enhanced_session_transport_type)
+      expect(driver).to receive(:set_enhanced_session_transport_type).with("HvSocket")
       subject.call(env)
     end
   end
