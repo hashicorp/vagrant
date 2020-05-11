@@ -35,4 +35,12 @@ describe "VagrantPlugins::GuestHaiku::Cap::RSync" do
       cap.rsync_installed(machine)
     end
   end
+
+  describe ".rsync_command" do
+    let(:cap) { caps.get(:rsync_command) }
+
+    it "defaults to 'rsync -zz'" do
+      expect(cap.rsync_command(machine)).to eq("rsync -zz")
+    end
+  end
 end

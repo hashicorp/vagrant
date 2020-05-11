@@ -9,6 +9,10 @@ module VagrantPlugins
         def self.rsync_install(machine)
           machine.communicate.execute("pkgman install -y rsync")
         end
+
+        def self.rsync_command(machine)
+          "rsync -zz"
+        end
       end
     end
   end
