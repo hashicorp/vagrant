@@ -8,6 +8,7 @@ require "vagrant/config/v2/util"
 require "vagrant/util/platform"
 require "vagrant/util/presence"
 require "vagrant/util/experimental"
+require "vagrant/util/map_command_options"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
