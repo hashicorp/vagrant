@@ -36,9 +36,10 @@ describe VagrantPlugins::DockerProvisioner::Installer do
     end
 
     it "installs docker if not present" do
-      expect(communicator).to receive(:test).with(/docker/, {:sudo=>true}).and_return(false).at_least(:twice)
-      # Will execute sudo commands to install
-      expect(communicator).to receive(:sudo).at_least(:once)
+      allow(machine).to receive_message_chain(:guest, :capability?).with(:docker_installed).and_return(true)
+      allow(machine).to receive_message_chain(:guest, :capability).with(:docker_install).and_return(false)
+      allow(machine).to receive_message_chain(:guest, :capability).with(:docker_installed).and_return(false)
+
       # Expect to raise error since we are mocking out the test for docker install to return false
       expect {subject.ensure_installed()}.to raise_error(VagrantPlugins::DockerProvisioner::DockerError)
     end
