@@ -141,11 +141,6 @@ module VagrantPlugins
           container_info = inspect_container(c)
 
           if container_info["HostConfig"]["PortBindings"]
-            # We remove the first character because docker inspect adds a '/' to
-            # the beginning every container name to match the "internal"
-            # implementation of docker:
-            #   https://github.com/moby/moby/issues/6705
-            container_name = container_info["Name"][1..-1]
             port_bindings = container_info["HostConfig"]["PortBindings"]
             next if port_bindings.empty? # Nothing defined, but not nil either
 
