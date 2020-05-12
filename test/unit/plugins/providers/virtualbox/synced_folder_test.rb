@@ -67,6 +67,7 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
 
     it "should mount and persist all folders with a guest path" do
       expect(guest).to receive(:capability).with(:mount_virtualbox_shared_folder, "folder", any_args)
+      expect(guest).not_to receive(:capability).with(:mount_virtualbox_shared_folder, "no_guestpath_folder", any_args)
       expect(guest).to receive(:capability?).with(:persist_mount_virtualbox_shared_folder).and_return(true)
       expect(guest).to receive(:capability).with(:persist_mount_virtualbox_shared_folder, any_args)
       test_folders = folders.merge(no_guestpath_folder)

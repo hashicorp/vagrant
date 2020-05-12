@@ -59,23 +59,29 @@ module VagrantPlugins
         end
 
         def self.persist_mount_virtualbox_shared_folder(machine, fstab_folders)
-          export_folders = []
-          fstab_folders.each do |name, data|
+          export_folders = fstab_folders.map do |name, data|
             guest_path = Shellwords.escape(data[:guestpath])
             mount_options, mount_uid, mount_gid  =  self.mount_options(machine, name, guest_path, data)
             mount_options = "#{mount_options},nofail"
-            export_folders.push({
-              :name => name,
-              :mount_point => guest_path,
-              :mount_type => VB_MOUNT_TYPE,
-              :mount_options => mount_options,
-            })
+            {
+              name: name,
+              mount_point: guest_path,
+              mount_type: VB_MOUNT_TYPE,
+              mount_options: mount_options,
+            }
           end
 
           fstab_entry = Vagrant::Util::TemplateRenderer.render('guests/linux/etc_fstab', folders: export_folders)
           # Replace existing vagrant managed fstab entry
           machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
           machine.communicate.sudo("echo '#{fstab_entry}' >> /etc/fstab")
+
+          fstab_valid = machine.communicate.test("mount -a", sudo: true)
+          if !fstab_valid 
+            machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
+            @@logger.info("Generated fstab not valid. Backing out change to /etc/fstab")
+            @@logger.info("Generted fstab:\n#{fstab_entry}")
+          end
         end
 
         def self.unmount_virtualbox_shared_folder(machine, guestpath, options)

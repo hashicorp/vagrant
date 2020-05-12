@@ -228,17 +228,27 @@ EOF
     it "inserts folders into /etc/fstab" do
       expected_entry_vagrant = "vagrant /vagrant vboxsf uid=1234,gid=1234,nofail 0 0"
       expected_entry_test = "test1 /test1 vboxsf uid=1234,gid=1234,nofail 0 0"
-
+      expect(comm).to receive(:test).with("mount -a", any_args).and_return(true)
+      expect(comm).to receive(:sudo).with("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab").once
       expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}/)
       cap.persist_mount_virtualbox_shared_folder(machine, fstab_folders)
     end
 
     it "inserts empty set of folders" do
       # Check for last bit of entry
+      expect(comm).to receive(:test).with("mount -a", any_args).and_return(true)
+      expect(comm).to receive(:sudo).with("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab").once
       expect(comm).to receive(:sudo).with(/#VAGRANT-END' >> \/etc\/fstab/)
       cap.persist_mount_virtualbox_shared_folder(machine, [])
     end
+
+    it "removes fstab entries is fstab is invalid" do
+      expect(comm).to receive(:test).with("mount -a", any_args).and_return(false)
+      expect(comm).to receive(:sudo).with("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab").twice
+      cap.persist_mount_virtualbox_shared_folder(machine, fstab_folders)
+    end
   end
+
   describe ".unmount_virtualbox_shared_folder" do
 
     after { cap.unmount_virtualbox_shared_folder(machine, mount_guest_path, folder_options) }
