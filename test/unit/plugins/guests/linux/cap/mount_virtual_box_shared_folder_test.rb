@@ -43,7 +43,6 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
       expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
       expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
       expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
-      expect(comm).to receive(:sudo).with(/\/etc\/fstab/)
       cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
@@ -51,7 +50,6 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
       expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
       expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
       expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
-      expect(comm).to receive(:sudo).with(/\/etc\/fstab/)
       expect(comm).to receive(:sudo).with("chown #{mount_uid}:#{mount_gid} #{mount_guest_path}")
       cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
@@ -210,6 +208,37 @@ EOF
     end
   end
 
+  describe ".persist_mount_virtualbox_shared_folder" do
+    let(:options_gid){ '1234' }
+    let(:options_uid){ '1234' }
+
+    let (:fstab_folders) { [
+      ["test1", {:guestpath=>"/test1", :hostpath=>"/my/host/path", :disabled=>false, :__vagrantfile=>true, :owner=>"vagrant", :group=>"vagrant", :mount_options=>["uid=1234", "gid=1234"] }],
+      ["vagrant", {:guestpath=>"/vagrant", :hostpath=>"/my/host/vagrant", :disabled=>false, :__vagrantfile=>true, :owner=>"vagrant", :group=>"vagrant", :mount_options=>["uid=1234", "gid=1234"] }]
+    ]}
+
+    let(:ui){ double(:ui) }
+
+    before do
+      allow(comm).to receive(:sudo).with(any_args)
+      allow(ui).to receive(:warn)
+      allow(machine).to receive(:ui).and_return(ui)
+    end
+
+    it "inserts folders into /etc/fstab" do
+      expected_entry_vagrant = "vagrant /vagrant vboxsf uid=1234,gid=1234,nofail 0 0"
+      expected_entry_test = "test1 /test1 vboxsf uid=1234,gid=1234,nofail 0 0"
+
+      expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}/)
+      cap.persist_mount_virtualbox_shared_folder(machine, fstab_folders)
+    end
+
+    it "inserts empty set of folders" do
+      # Check for last bit of entry
+      expect(comm).to receive(:sudo).with(/#VAGRANT-END' >> \/etc\/fstab/)
+      cap.persist_mount_virtualbox_shared_folder(machine, [])
+    end
+  end
   describe ".unmount_virtualbox_shared_folder" do
 
     after { cap.unmount_virtualbox_shared_folder(machine, mount_guest_path, folder_options) }

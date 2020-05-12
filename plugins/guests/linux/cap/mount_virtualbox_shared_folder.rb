@@ -1,3 +1,5 @@
+require "vagrant/util"
+
 require_relative "../../../synced_folders/unix_mount_helpers"
 
 module VagrantPlugins
@@ -6,31 +8,21 @@ module VagrantPlugins
       class MountVirtualBoxSharedFolder
         extend SyncedFolder::UnixMountHelpers
 
+        VB_MOUNT_TYPE = "vboxsf".freeze
+
         def self.mount_virtualbox_shared_folder(machine, name, guestpath, options)
           guest_path = Shellwords.escape(guestpath)
 
           @@logger.debug("Mounting #{name} (#{options[:hostpath]} to #{guestpath})")
 
-          mount_type = "vboxsf"
-          builtin_mount_type = "-cit #{mount_type}"
-          addon_mount_type = "-t #{mount_type}"
+          builtin_mount_type = "-cit #{VB_MOUNT_TYPE}"
+          addon_mount_type = "-t #{VB_MOUNT_TYPE}"
 
-          mount_options = options.fetch(:mount_options, [])
-          detected_ids = detect_owner_group_ids(machine, guest_path, mount_options, options)
-          mount_uid = detected_ids[:uid]
-          mount_gid = detected_ids[:gid]
-
-          mount_options << "uid=#{mount_uid}"
-          mount_options << "gid=#{mount_gid}"
-          mount_options = mount_options.join(',')
+          mount_options, mount_uid, mount_gid = self.mount_options(machine, name, guest_path, options)
           mount_command = "mount #{addon_mount_type} -o #{mount_options} #{name} #{guest_path}"
 
           # Create the guest path if it doesn't exist
           machine.communicate.sudo("mkdir -p #{guest_path}")
-
-          # Add mount to fstab so that if the machine reboots, will remount
-          fstab_entry = "#{name}  #{guest_path}  #{mount_type}  #{mount_options},nofail  0  0"
-          machine.communicate.sudo("grep -x '#{fstab_entry}' /etc/fstab || echo '#{fstab_entry}' >> /etc/fstab")
 
           stderr = ""
           result = machine.communicate.sudo(mount_command, error_check: false) do |type, data|
@@ -66,6 +58,25 @@ module VagrantPlugins
           emit_upstart_notification(machine, guest_path)
         end
 
+        def self.persist_mount_virtualbox_shared_folder(machine, fstab_folders)
+          export_folders = []
+          fstab_folders.each do |name, data|
+            guest_path = Shellwords.escape(data[:guestpath])
+            mount_options, mount_uid, mount_gid  =  self.mount_options(machine, name, guest_path, data)
+            mount_options = "#{mount_options},nofail"
+            export_folders.push({
+              :name => name,
+              :mount_point => guest_path,
+              :mount_type => VB_MOUNT_TYPE,
+              :mount_options => mount_options,
+            })
+          end
+
+          fstab_entry = Vagrant::Util::TemplateRenderer.render('guests/linux/etc_fstab', folders: export_folders)
+          # Replace existing vagrant managed fstab entry
+          machine.communicate.sudo("sed -i '/\#VAGRANT-BEGIN/,/\#VAGRANT-END/d' /etc/fstab")
+          machine.communicate.sudo("echo '#{fstab_entry}' >> /etc/fstab")
+        end
 
         def self.unmount_virtualbox_shared_folder(machine, guestpath, options)
           guest_path = Shellwords.escape(guestpath)
@@ -74,6 +85,20 @@ module VagrantPlugins
           if result == 0
             machine.communicate.sudo("rmdir #{guest_path}", error_check: false)
           end
+        end
+
+        private
+
+        def self.mount_options(machine, name, guest_path, options)
+          mount_options = options.fetch(:mount_options, [])
+          detected_ids = detect_owner_group_ids(machine, guest_path, mount_options, options)
+          mount_uid = detected_ids[:uid]
+          mount_gid = detected_ids[:gid]
+
+          mount_options << "uid=#{mount_uid}"
+          mount_options << "gid=#{mount_gid}"
+          mount_options = mount_options.join(',')
+          return mount_options, mount_uid, mount_gid
         end
       end
     end

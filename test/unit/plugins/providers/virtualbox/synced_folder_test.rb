@@ -13,6 +13,14 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
     end
   end
 
+  let(:folders) { {"/folder"=>
+    {:SharedFoldersEnableSymlinksCreate=>true,
+     :guestpath=>"/folder",
+     :hostpath=>"/Users/brian/vagrant-folder",
+     :automount=>false,
+     :disabled=>false,
+     :__vagrantfile=>true}} }
+
   subject { described_class.new }
 
   before do
@@ -36,16 +44,39 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
     end
   end
 
+  describe "#enable" do
+    let(:ui){ double(:ui) }
+    let(:guest) { double("guest") }
+
+    let(:no_guestpath_folder) { {"/no_guestpath_folder"=>
+      {:SharedFoldersEnableSymlinksCreate=>false,
+       :guestpath=>nil,
+       :hostpath=>"/Users/brian/vagrant-folder",
+       :automount=>false,
+       :disabled=>true,
+       :__vagrantfile=>true}} }
+
+    before do
+      allow(subject).to receive(:share_folders).and_return(true)
+      allow(ui).to receive(:detail).with(any_args)
+      allow(ui).to receive(:output).with(any_args)
+      allow(machine).to receive(:ui).and_return(ui)
+      allow(machine).to receive(:ssh_info).and_return({:username => "test"})
+      allow(machine).to receive(:guest).and_return(guest)
+    end
+
+    it "should mount and persist all folders with a guest path" do
+      expect(guest).to receive(:capability).with(:mount_virtualbox_shared_folder, "folder", any_args)
+      expect(guest).to receive(:capability?).with(:persist_mount_virtualbox_shared_folder).and_return(true)
+      expect(guest).to receive(:capability).with(:persist_mount_virtualbox_shared_folder, any_args)
+      test_folders = folders.merge(no_guestpath_folder)
+      subject.enable(machine, test_folders, nil)
+    end
+  end
+
   describe "#prepare" do
     let(:driver) { double("driver") }
     let(:provider) { double("driver", driver: driver) }
-    let(:folders) { {"/folder"=>
-                      {:SharedFoldersEnableSymlinksCreate=>true,
-                       :guestpath=>"/folder",
-                       :hostpath=>"/Users/brian/vagrant-folder",
-                       :automount=>false,
-                       :disabled=>false,
-                       :__vagrantfile=>true}} }
 
     let(:folders_disabled) { {"/folder"=>
                                 {:SharedFoldersEnableSymlinksCreate=>false,
