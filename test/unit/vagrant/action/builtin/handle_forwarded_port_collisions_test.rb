@@ -79,7 +79,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
 
       it "should check if host port is in use" do
         expect(instance).to receive(:is_forwarded_already).and_return(false)
-        expect(instance).to receive(:is_port_open?).and_return(false)
+        expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).and_return(false)
         instance.call(env)
       end
 
@@ -147,45 +147,6 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
   describe "#recover" do
   end
 
-  describe "#ipv4_interfaces" do
-    let(:name) { double("name") }
-    let(:address) { double("address") }
-
-    let(:ipv4_ifaddr) do
-      double("ipv4_ifaddr").tap do |ifaddr|
-        allow(ifaddr).to receive(:name).and_return(name)
-        allow(ifaddr).to receive_message_chain(:addr, :ipv4?).and_return(true)
-        allow(ifaddr).to receive_message_chain(:addr, :ip_address).and_return(address)
-      end
-    end
-
-    let(:ipv6_ifaddr) do
-      double("ipv6_ifaddr").tap do |ifaddr|
-        allow(ifaddr).to receive(:name)
-        allow(ifaddr).to receive_message_chain(:addr, :ipv4?).and_return(false)
-      end
-    end
-
-    let(:ifaddrs) { [ ipv4_ifaddr, ipv6_ifaddr ] }
-
-    before do
-      allow(Socket).to receive(:getifaddrs).and_return(ifaddrs)
-    end
-
-    it "returns a list of IPv4 interfaces with their names and addresses" do
-      expect(instance.send(:ipv4_interfaces)).to eq([ [name, address] ])
-    end
-
-    context "with nil interface address" do
-      let(:nil_ifaddr) { double("nil_ifaddr", addr: nil ) }
-      let(:ifaddrs) { [ ipv4_ifaddr, ipv6_ifaddr, nil_ifaddr ] }
-
-      it "filters out nil addr info" do
-        expect(instance.send(:ipv4_interfaces)).to eq([ [name, address] ])
-      end
-    end
-  end
-
   describe "#port_check" do
     let(:host_ip){ "127.0.0.1" }
     let(:host_port){ 8080 }
@@ -193,11 +154,11 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
 
     before do
       instance.instance_variable_set(:@machine, machine)
-      allow(instance).to receive(:ipv4_interfaces).and_return(interfaces)
+      allow(Vagrant::Util::IPv4Interfaces).to receive(:ipv4_interfaces).and_return(interfaces)
     end
 
     it "should check if the port is open" do
-      expect(instance).to receive(:is_port_open?).with(host_ip, host_port).and_return(true)
+      expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(host_ip, host_port).and_return(true)
       instance.send(:port_check, host_ip, host_port)
     end
 
@@ -210,23 +171,23 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
         end
 
         it "should check the port on every IPv4 interface" do
-          expect(instance).to receive(:is_port_open?).with(interfaces[0][1], host_port)
-          expect(instance).to receive(:is_port_open?).with(interfaces[1][1], host_port)
+          expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(interfaces[0][1], host_port)
+          expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(interfaces[1][1], host_port)
           instance.send(:port_check, host_ip, host_port)
         end
 
         it "should return false if the port is closed on any IPv4 interfaces" do
-          expect(instance).to receive(:is_port_open?).with(interfaces[0][1], host_port).
+          expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(interfaces[0][1], host_port).
             and_return(true)
-          expect(instance).to receive(:is_port_open?).with(interfaces[1][1], host_port).
+          expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(interfaces[1][1], host_port).
             and_return(false)
           expect(instance.send(:port_check, host_ip, host_port)).to be(false)
         end
 
         it "should return true if the port is open on all IPv4 interfaces" do
-          expect(instance).to receive(:is_port_open?).with(interfaces[0][1], host_port).
+          expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(interfaces[0][1], host_port).
             and_return(true)
-          expect(instance).to receive(:is_port_open?).with(interfaces[1][1], host_port).
+          expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(interfaces[1][1], host_port).
             and_return(true)
           expect(instance.send(:port_check, host_ip, host_port)).to be(true)
         end
