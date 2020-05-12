@@ -6,6 +6,8 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
+
 ## 2.2.9 (May 07, 2020)
 
 BUG FIXES:
