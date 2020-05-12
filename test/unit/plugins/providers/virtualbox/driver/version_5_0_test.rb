@@ -90,4 +90,32 @@ OUTPUT
       end
     end
   end
+
+  describe "#attach_disk" do
+    it "attaches a dvddrive device to the IDE controller" do
+      expect(subject).to receive(:execute) do |*args|
+        storagectl = args[args.index("--storagectl") + 1]
+        expect(storagectl).to eq("IDE Controller")
+      end
+      subject.attach_disk(anything, anything, anything, "dvddrive")
+    end
+  end
+
+  describe "#remove_disk" do
+    it "removes a disk from the SATA Controller by default" do
+      expect(subject).to receive(:execute) do |*args|
+        storagectl = args[args.index("--storagectl") + 1]
+        expect(storagectl).to eq("SATA Controller")
+      end
+      subject.remove_disk(anything, anything)
+    end
+
+    it "can remove a disk from the specified controller" do
+      expect(subject).to receive(:execute) do |*args|
+        storagectl = args[args.index("--storagectl") + 1]
+        expect(storagectl).to eq("IDE Controller")
+      end
+      subject.remove_disk(anything, anything, "IDE Controller")
+    end
+  end
 end

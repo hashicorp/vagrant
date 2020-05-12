@@ -38,13 +38,13 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
     allow(driver).to receive(:show_vm_info).and_return(vm_info)
   end
 
-  context "#cleanup_disks" do
+  describe "#cleanup_disks" do
     it "returns if there's no data in meta file" do
       subject.cleanup_disks(machine, defined_disks, disk_meta_file)
       expect(subject).not_to receive(:handle_cleanup_disk)
     end
 
-    describe "with disks to clean up" do
+    context "with disks to clean up" do
       let(:disk_meta_file) { {disk: [{uuid: "1234", name: "storage"}], floppy: [], dvd: []} }
 
       it "calls the cleanup method if a disk_meta file is defined" do
@@ -55,9 +55,21 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
         subject.cleanup_disks(machine, defined_disks, disk_meta_file)
       end
     end
+
+    context "with dvd attached" do
+      let(:disk_meta_file) { {dvd: [{uuid: "12345", name: "iso"}]} }
+
+      it "calls the cleanup method if a disk_meta file is defined" do
+        expect(subject).to receive(:handle_cleanup_dvd).
+          with(machine, defined_disks, disk_meta_file["dvd"]).
+          and_return(true)
+
+        subject.cleanup_disks(machine, defined_disks, disk_meta_file)
+      end
+    end
   end
 
-  context "#handle_cleanup_disk" do
+  describe "#handle_cleanup_disk" do
     let(:disk_meta_file) { {disk: [{"uuid"=>"67890", "name"=>"storage"}], floppy: [], dvd: []} }
     let(:defined_disks) { [] }
     let(:device_info) { {port: "1", device: "0"} }
@@ -73,7 +85,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
       subject.handle_cleanup_disk(machine, defined_disks, disk_meta_file[:disk])
     end
 
-    describe "when the disk isn't attached to a guest" do
+    context "when the disk isn't attached to a guest" do
       it "only closes the medium" do
         allow(driver).to receive(:get_port_and_device).
           with("67890").
@@ -82,6 +94,30 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
         expect(driver).to receive(:close_medium).with("67890").and_return(true)
 
         subject.handle_cleanup_disk(machine, defined_disks, disk_meta_file[:disk])
+      end
+    end
+  end
+
+  describe "#handle_cleanup_dvd" do
+    let(:vm_info) { {"IDE Controller-ImageUUID-0-0" => "1234" } }
+    let(:disk_meta_file) { {dvd: [{"uuid" => "1234", "name" => "iso"}]} }
+    let(:defined_disks) { [] }
+
+    it "removes the medium from guest" do
+      expect(driver).to receive(:remove_disk).with("0", "0", "IDE Controller").and_return(true)
+
+      subject.handle_cleanup_dvd(machine, defined_disks, disk_meta_file[:dvd])
+    end
+
+    context "multiple copies of the same ISO attached" do
+      let(:vm_info) { {"IDE Controller-ImageUUID-0-0" => "1234",
+                       "IDE Controller-ImageUUID-0-1" => "1234"} }
+
+      it "removes all media with that UUID" do
+        expect(driver).to receive(:remove_disk).with("0", "0", "IDE Controller").and_return(true)
+        expect(driver).to receive(:remove_disk).with("0", "1", "IDE Controller").and_return(true)
+
+        subject.handle_cleanup_dvd(machine, defined_disks, disk_meta_file[:dvd])
       end
     end
   end

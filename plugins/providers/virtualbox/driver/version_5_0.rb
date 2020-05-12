@@ -29,13 +29,21 @@ module VagrantPlugins
         # @param [Hash]   opts -  additional options
         def attach_disk(port, device, file, type="hdd", **opts)
           # Maybe only support SATA Controller for `:disk`???
-          controller = "SATA Controller"
+          if type == "hdd"
+            controller = "SATA Controller"
+          else
+            controller = "IDE Controller"
+          end
 
           comment = "This disk is managed externally by Vagrant. Removing or adjusting settings could potentially cause issues with Vagrant."
 
-          execute('storageattach', @uuid, '--storagectl', controller, '--port',
-                  port.to_s, '--device', device.to_s, '--type', type, '--medium',
-                  file, '--comment', comment)
+          execute('storageattach', @uuid,
+                  '--storagectl', controller,
+                  '--port', port.to_s,
+                  '--device', device.to_s,
+                  '--type', type,
+                  '--medium', file,
+                  '--comment', comment)
         end
 
         def clear_forwarded_ports
@@ -227,9 +235,12 @@ module VagrantPlugins
         # @param [String] port - port on device to attach disk to
         # @param [String] device - device on controller for disk
         # @param [Hash]   opts -  additional options
-        def remove_disk(port, device)
-          controller = "SATA Controller"
-          execute('storageattach', @uuid, '--storagectl', controller, '--port', port.to_s, '--device', device.to_s, '--medium', "none")
+        def remove_disk(port, device, controller="SATA Controller")
+          execute('storageattach', @uuid,
+                  '--storagectl', controller,
+                  '--port', port.to_s,
+                  '--device', device.to_s,
+                  '--medium', "none")
         end
 
         # @param [String] disk_file

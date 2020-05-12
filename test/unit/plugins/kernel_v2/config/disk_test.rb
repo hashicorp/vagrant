@@ -15,17 +15,16 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
   let(:machine) { double("machine", name: "name", provider: provider, env: env,
                          provider_name: :virtualbox) }
 
-
   def assert_invalid
     errors = subject.validate(machine)
-    if !errors.empty? { |v| !v.empty? }
+    if errors.empty?
       raise "No errors: #{errors.inspect}"
     end
   end
 
   def assert_valid
     errors = subject.validate(machine)
-    if !errors.empty? { |v| v.empty? }
+    if !errors.empty?
       raise "Errors: #{errors.inspect}"
     end
   end
@@ -52,7 +51,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
       expect(subject.type).to eq(type)
     end
 
-    it "defaults to non-primray disk" do
+    it "defaults to non-primary disk" do
       subject.finalize!
       expect(subject.primary).to eq(false)
     end
@@ -77,6 +76,28 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
         subject.finalize!
         assert_invalid
       end
+    end
+  end
+
+  describe "config for dvd type" do
+    let(:iso_path) { "/tmp/untitled.iso" }
+
+    before do
+      subject.type = :dvd
+      subject.name = "untitled"
+    end
+
+    it "is valid with file path set" do
+      allow(File).to receive(:file?).with(iso_path).and_return(true)
+      subject.file = iso_path
+      subject.finalize!
+      assert_valid
+    end
+
+    it "is invalid if file path is unset" do
+      subject.finalize!
+      errors = subject.validate(machine)
+      assert_invalid
     end
   end
 end

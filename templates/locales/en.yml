@@ -1844,6 +1844,8 @@ en:
 #-------------------------------------------------------------------------------
     config:
       disk:
+        dvd_type_file_required:
+          A 'file' option is required when defining a disk of type `:dvd` for guest '%{machine}'.
         invalid_ext: |-
           Disk type '%{ext}' is not a valid disk extention for '%{name}'. Please pick one of the following supported disk types: %{exts}
         invalid_type: |-

@@ -68,7 +68,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     allow(driver).to receive(:show_vm_info).and_return(vm_info)
   end
 
-  context "#configure_disks" do
+  describe "#configure_disks" do
     let(:dsk_data) { {uuid: "1234", name: "disk"} }
     it "configures disks and returns the disks defined" do
       allow(driver).to receive(:list_hdds).and_return([])
@@ -77,14 +77,14 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       subject.configure_disks(machine, defined_disks)
     end
 
-    describe "with no disks to configure" do
+    context "with no disks to configure" do
       let(:defined_disks) { {} }
       it "returns empty hash if no disks to configure" do
         expect(subject.configure_disks(machine, defined_disks)).to eq({})
       end
     end
 
-    describe "with over the disk limit for a given device" do
+    context "with over the disk limit for a given device" do
       let(:defined_disks) { (1..31).each { |i| double("disk-#{i}") }.to_a }
 
       it "raises an exception if the disks defined exceed the limit for a SATA Controller" do
@@ -92,9 +92,20 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           to raise_error(Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit)
       end
     end
+
+    context "with dvd type" do
+      let(:defined_disks) { [double("dvd", type: :dvd)] }
+      let(:dvd_data) { {uuid: "1234", name: "dvd"} }
+
+      it "handles configuration of the dvd" do
+        allow(driver).to receive(:list_hdds).and_return([])
+        expect(subject).to receive(:handle_configure_dvd).and_return(dvd_data)
+        subject.configure_disks(machine, defined_disks)
+      end
+    end
   end
 
-  context "#get_current_disk" do
+  describe "#get_current_disk" do
     it "gets primary disk uuid if disk to configure is primary" do
       primary_disk = subject.get_current_disk(machine, defined_disks.first, all_disks)
       expect(primary_disk).to eq(all_disks.first)
@@ -111,8 +122,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
   end
 
-  context "#handle_configure_disk" do
-    describe "when creating a new disk" do
+  describe "#handle_configure_disk" do
+    context "when creating a new disk" do
       let(:all_disks) { [{"UUID"=>"12345",
               "Parent UUID"=>"base",
               "State"=>"created",
@@ -133,7 +144,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       end
     end
 
-    describe "when a disk needs to be resized" do
+    context "when a disk needs to be resized" do
       let(:all_disks) { [{"UUID"=>"12345",
               "Parent UUID"=>"base",
               "State"=>"created",
@@ -167,7 +178,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       end
     end
 
-    describe "if no additional disk configuration is required" do
+    context "if no additional disk configuration is required" do
       let(:all_disks) { [{"UUID"=>"12345",
               "Parent UUID"=>"base",
               "State"=>"created",
@@ -221,7 +232,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
   end
 
-  context "#compare_disk_size" do
+  describe "#compare_disk_size" do
     let(:disk_config_small) { double("disk", name: "disk-0", size: 1073741824.0, primary: false, type: :disk) }
     let(:disk_config_large) { double("disk", name: "disk-0", size: 68719476736.0, primary: false, type: :disk) }
 
@@ -235,7 +246,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
   end
 
-  context "#create_disk" do
+  describe "#create_disk" do
     let(:disk_config) { double("disk", name: "disk-0", size: 1073741824.0,
                                primary: false, type: :disk, disk_ext: "vdi",
                                provider_config: nil) }
@@ -262,16 +273,39 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
   end
 
-  context "#get_next_port" do
-    it "determines the next available port to use" do
+  describe ".get_next_port" do
+    it "determines the next available port and device to use" do
       dsk_info = subject.get_next_port(machine)
-      expect(dsk_info[:device]).to eq("0")
       expect(dsk_info[:port]).to eq("2")
+      expect(dsk_info[:device]).to eq("0")
+    end
+
+    context "with an IDE controller" do
+      let(:vm_info) { {"IDE Controller-ImageUUID-0-0" => "00000aaaaa",
+                       "IDE Controller-ImageUUID-0-1" => "11111bbbbb" } }
+
+      it "determines the next available port and device to use" do
+        dsk_info = subject.get_next_port(machine, "IDE Controller")
+        expect(dsk_info[:port]).to eq("1")
+        expect(dsk_info[:device]).to eq("0")
+      end
+    end
+
+    context "with a full IDE controller" do
+      let(:vm_info) { {"IDE Controller-ImageUUID-0-0" => "00000aaaaa",
+                       "IDE Controller-ImageUUID-0-1" => "11111bbbbb",
+                       "IDE Controller-ImageUUID-1-0" => "22222ccccc",
+                       "IDE Controller-ImageUUID-1-1" => "33333ddddd"} }
+
+      it "raises an error" do
+        expect { subject.get_next_port(machine, "IDE Controller") }
+          .to raise_error(Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit)
+      end
     end
   end
 
-  context "#resize_disk" do
-    describe "when a disk is vmdk format" do
+  describe "#resize_disk" do
+    context "when a disk is vmdk format" do
       let(:disk_config) { double("disk", name: "vagrant_primary", size: 1073741824.0,
                                  primary: false, type: :disk, disk_ext: "vmdk",
                                  provider_config: nil) }
@@ -341,7 +375,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       end
     end
 
-    describe "when a disk is vdi format" do
+    context "when a disk is vdi format" do
       let(:disk_config) { double("disk", name: "disk-0", size: 1073741824.0,
                                  primary: false, type: :disk, disk_ext: "vdi",
                                  provider_config: nil) }
@@ -353,13 +387,44 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
   end
 
-  context "#vmdk_to_vdi" do
+  describe "#vmdk_to_vdi" do
     it "converts a disk from vmdk to vdi" do
     end
   end
 
-  context "#vdi_to_vmdk" do
+  describe "#vdi_to_vmdk" do
     it "converts a disk from vdi to vmdk" do
+    end
+  end
+
+  describe ".handle_configure_dvd" do
+    let(:dvd_config) { double("dvd", file: "/tmp/untitled.iso", name: "dvd1") }
+
+    before do
+      allow(subject).to receive(:get_next_port).with(machine, "IDE Controller").and_return({device: "0", port: "0"})
+    end
+
+    it "attaches to the next available port and device" do
+      expect(driver).to receive(:attach_disk).with("0", "0", "/tmp/untitled.iso", "dvddrive")
+
+      subject.handle_configure_dvd(machine, dvd_config)
+    end
+
+    it "returns the UUID of the newly-attached dvd" do
+      allow(subject).to receive(:attachment).with(machine, "IDE Controller", "0", "0").and_return("12345")
+      expect(driver).to receive(:attach_disk).with("0", "0", "/tmp/untitled.iso", "dvddrive")
+
+      disk_meta = subject.handle_configure_dvd(machine, dvd_config)
+      expect(disk_meta[:uuid]).to eq("12345")
+    end
+
+    context "when an ISO file is already attached" do
+      let(:vm_info) { {"IDE Controller-0-0" => "/tmp/untitled.iso" } }
+
+      it "skips the attachment" do
+        expect(driver).not_to receive(:attach_disk)
+        subject.handle_configure_dvd(machine, dvd_config)
+      end
     end
   end
 end

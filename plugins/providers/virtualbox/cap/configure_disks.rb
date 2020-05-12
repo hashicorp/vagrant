@@ -39,8 +39,8 @@ module VagrantPlugins
               # TODO: Write me
               machine.ui.info(I18n.t("vagrant.cap.configure_disks.floppy_not_supported", name: disk.name))
             elsif disk.type == :dvd
-              # TODO: Write me
-              machine.ui.info(I18n.t("vagrant.cap.configure_disks.dvd_not_supported", name: disk.name))
+              dvd_data = handle_configure_dvd(machine, disk)
+              configured_disks[:dvd] << dvd_data unless dvd_data.empty?
             end
           end
 
@@ -108,6 +108,45 @@ module VagrantPlugins
           disk_metadata
         end
 
+        # Helper method to get the UUID of a specific controller attachment
+        #
+        # @param [Vagrant::Machine] machine - the current machine
+        # @param [String] controller_name - the name of the controller to examine
+        # @param [String] port - port to look up
+        # @param [String] device - device to look up
+        def self.attachment(machine, controller_name, port, device)
+          vm_info = machine.provider.driver.show_vm_info
+          vm_info["#{controller_name}-ImageUUID-#{port}-#{device}"]
+        end
+
+        # Handles all disk configs of type `:dvd`
+        #
+        # @param [Vagrant::Machine] machine - the current machine
+        # @param [Config::Disk] dvd - the current disk to configure
+        # @return [Hash] - dvd_metadata
+        def self.handle_configure_dvd(machine, dvd)
+          controller = "IDE Controller"
+          vm_info = machine.provider.driver.show_vm_info
+
+          # Check if this DVD file is already attached
+          (0..1).each do |port|
+            (0..1).each do |device|
+              if vm_info["#{controller}-#{port}-#{device}"] == dvd.file
+                LOGGER.warn("DVD '#{dvd.file}' is already connected to guest '#{machine.name}', skipping...")
+                return {uuid: vm_info["#{controller}-ImageUUID-#{port}-#{device}"], name: dvd.name}
+              end
+            end
+          end
+
+          # New attachment
+          disk_info = get_next_port(machine, controller)
+          machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], dvd.file, "dvddrive")
+
+          attachment_uuid = attachment(machine, controller, disk_info[:port], disk_info[:device])
+
+          {uuid: attachment_uuid, name: dvd.name}
+        end
+
         # Check to see if current disk is configured based on defined_disks
         #
         # @param [Kernel_V2::VagrantConfigDisk] disk_config
@@ -167,19 +206,38 @@ module VagrantPlugins
         #  device = disk_info[3]
         #
         # @param [Vagrant::Machine] machine
+        # @param [String] controller name (defaults to "SATA Controller")
         # @return [Hash] dsk_info - The next available port and device on a given controller
-        def self.get_next_port(machine)
+        def self.get_next_port(machine, controller="SATA Controller")
           vm_info = machine.provider.driver.show_vm_info
-          dsk_info = {device: "0", port: "0"}
+          dsk_info = {}
 
-          disk_images = vm_info.select { |v| v.include?("ImageUUID") && v.include?("SATA Controller") }
-          used_ports = disk_images.keys.map { |k| k.split('-') }.map {|v| v[2].to_i}
-          next_available_port = ((0..(MAX_DISK_NUMBER-1)).to_a - used_ports).first
+          if controller == "SATA Controller"
+            disk_images = vm_info.select { |v| v.include?("ImageUUID") && v.include?(controller) }
+            used_ports = disk_images.keys.map { |k| k.split('-') }.map {|v| v[2].to_i}
+            next_available_port = ((0..(MAX_DISK_NUMBER-1)).to_a - used_ports).first
 
-          dsk_info[:port] = next_available_port.to_s
-          if dsk_info[:port].empty?
+            dsk_info[:port] = next_available_port.to_s
+            dsk_info[:device] = "0"
+          else
+            # IDE Controllers have primary/secondary devices, so find the first port
+            # with an empty device
+            (0..1).each do |port|
+              break if dsk_info[:port] && dsk_info[:device]
+
+              (0..1).each do |device|
+                if vm_info["#{controller}-ImageUUID-#{port}-#{device}"].to_s.empty?
+                  dsk_info[:port] = port.to_s
+                  dsk_info[:device] = device.to_s
+                  break
+                end
+              end
+            end
+          end
+
+          if dsk_info[:port].to_s.empty?
             # This likely only occurs if additional disks have been added outside of Vagrant configuration
-            LOGGER.warn("There are no more available ports to attach disks to for the SATA Controller. Clear up some space on the SATA controller to attach new disks.")
+            LOGGER.warn("There are no more available ports to attach disks to for the controller '#{controller}'. Clear up some space on the controller '#{controller}' to attach new disks.")
             raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
           end
 
