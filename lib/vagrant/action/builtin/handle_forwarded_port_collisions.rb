@@ -124,16 +124,6 @@ module Vagrant
               call_port_checker(port_checker, host_ip, host_port) ||
               lease_check(host_ip, host_port)
 
-            # This check is required only for the docker provider. Containers
-            # can bind ports but be halted. We don't want new containers to
-            # grab these bound ports, so this check is here for that since
-            # the checks above won't detect it
-            if !in_use && env[:machine].provider_name == :docker
-              if extra_in_use.keys.include?(host_port.to_s)
-                in_use = true
-              end
-            end
-
             if in_use
               if !repair || !options[:auto_correct]
                 raise Errors::ForwardPortCollision,
