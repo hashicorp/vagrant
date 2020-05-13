@@ -283,7 +283,7 @@ module VagrantPlugins
         options = options || {}
         ps_options = []
         options.each do |key, value|
-          next if value == '' || value.nil?
+          next if !value || value.to_s.empty?
           next if value == false
           ps_options << "-#{key}"
           # If the value is a TrueClass assume switch
