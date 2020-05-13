@@ -119,7 +119,7 @@ module VagrantPlugins
 
         if @name.is_a?(String) && @name.match(FILE_CHAR_REGEX)
             @logger.warn("Vagrant will remove detected invalid characters in '#{@name}' and convert the disk name into something usable for a file")
-            @name.gsub!(FILE_CHAR_REGEX, "")
+            @name.gsub!(FILE_CHAR_REGEX, "_")
         elsif @name == UNSET_VALUE
           if @primary
             @name = "vagrant_primary"
