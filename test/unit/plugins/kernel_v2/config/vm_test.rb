@@ -86,6 +86,12 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       assert_invalid
     end
 
+    it "cannot be an empty string" do
+      subject.box = ""
+      subject.finalize!
+      assert_invalid
+    end
+
     it "is not required if the provider says so" do
       machine.provider_options[:box_optional] = true
       subject.box = nil
