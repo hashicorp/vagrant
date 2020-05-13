@@ -11,15 +11,6 @@ pushd "${root}" > "${output}"
 
 # Assumes packet is already set up
 
-# Define a custom cleanup function to destroy any orphan guests
-# on the packet device
-function cleanup() {
-    (>&2 echo "Cleaning up packet device")
-    unset PACKET_EXEC_PERSIST
-    pkt_wrap_stream "vagrant destroy -f" \
-                "Vagrant command failed"
-}
-
 # job_id is provided by common.sh
 export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
 
