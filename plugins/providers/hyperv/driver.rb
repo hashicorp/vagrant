@@ -235,7 +235,6 @@ module VagrantPlugins
       # @param [Int] size_bytes
       # @param [Hash] opts
       def create_disk(path, size_bytes, **opts)
-        # ensure size_bytes is a uint64
         execute(:new_vhd, Path: path, SizeBytes: size_bytes, Fixed: opts[:Fixed],
                BlockSizeBytes: opts[:BlockSizeBytes], LogicalSectorSizeBytes: opts[:LogicalSectorSizeBytes],
                PhysicalSectorSizeBytes: opts[:PhysicalSectorSizeBytes],
@@ -274,11 +273,6 @@ module VagrantPlugins
         execute(:resize_disk_drive, VmId: @vm_id, DiskFilePath: disk_file_path,
                 DiskSize: size_bytes)
       end
-
-      ########
-      ########
-      ########
-
 
       protected
 
