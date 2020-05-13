@@ -2,7 +2,7 @@
 
 csource="${BASH_SOURCE[0]}"
 while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
-root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
+root="$( cd -P "$( dirname "$csource" )/../../" && pwd )"
 
 . "${root}/.ci/spec/env.sh"
 . "${root}/.ci/common.sh"
@@ -18,7 +18,7 @@ export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
 export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
 export PKT_VAGRANT_GUEST_BOXES="${VAGRANT_GUEST_BOXES}"
 # other vagrant-spec options
-export PKT_VAGRANT_HOST_MEMORY=10000
+export PKT_VAGRANT_HOST_MEMORY="${VAGRANT_HOST_MEMORY:-10000}"
 export PKT_VAGRANT_CWD="test/vagrant-spec/"
 export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 ###
@@ -29,10 +29,9 @@ download_assets "${ASSETS_PRIVATE_BUCKET}/vagrant-spec/vagrant-spec.gem" "."
 
 # Run the job
 
-echo "Running vagrant spec tests..."
-# Need to make memory customizable for windows hosts
-wrap_stream packet-exec run -upload --  "cd vagrant;vagrant up --no-provision --provider vmware_desktop" \
+echo "Creating vagrant spec guests..."
+wrap_stream packet-exec run -upload --  "vagrant up --no-provision --provider vmware_desktop" \
                                         "Vagrant Blackbox host creation command failed"
 
 
-echo "Finished vagrant spec tests"
+echo "Finished bringing up vagrant spec guests"
