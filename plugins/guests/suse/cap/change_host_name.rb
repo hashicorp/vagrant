@@ -20,10 +20,18 @@ module VagrantPlugins
         end
 
         def self.add_hostname_to_loopback(comm, name, basename)
-          # Add hostname to /etc/hosts if not already there
+          # Add hostname to a loopback address on /etc/hosts if not already there
+          # Will insert name at the first free address of the form 127.0.X.1, up to
+          # the loop_bound
+          loop_bound = 5
           comm.sudo <<-EOH.gsub(/^ {14}/, '')
           grep -w '#{name}' /etc/hosts || {
-            sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
+            for i in {1..#{loop_bound}}; do
+              grep -w "127.0.${i}.1" /etc/hosts || {
+                echo "127.0.${i}.1 #{name} #{basename}" >> /etc/hosts
+                break
+              }
+            done
           }
           EOH
         end
