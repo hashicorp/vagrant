@@ -1972,6 +1972,12 @@ en:
           Ignoring provider config for validation...
         multiple_primary_disks_error: |-
           There are more than one primary disks defined for guest '%{name}'. Please ensure that only one disk has been defined as a primary disk.
+        multiple_disk_files_error: |-
+          The following disk file is used multiple times in the disk configuration:
+
+          %{file}
+
+          Each disk file may only be attached to a VM once.
         multiple_disk_names_error: |-
           Duplicate disk names defined: '%{name}'. Disk names must be unique.
         multiple_networks_set_hostname: "Multiple networks have set `:hostname`"

@@ -914,6 +914,13 @@ module VagrantPlugins
                            name: duplicate_names)
         end
 
+        disk_files = @disks.select { |d| d.type == :disk }.map { |d| d.file }
+        duplicate_files = disk_files.detect { |d| disk_files.count(d) > 1 }
+        if duplicate_files && duplicate_files.size
+          errors << I18n.t("vagrant.config.vm.multiple_disk_files_error",
+                           file: duplicate_files)
+        end
+
         @disks.each do |d|
           error = d.validate(machine)
           errors.concat error if !error.empty?

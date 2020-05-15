@@ -622,6 +622,22 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       assert_invalid
     end
 
+    it "raises an error with duplicate disk files" do
+      allow(File).to receive(:file?).with("bar.vmdk").and_return(true)
+      subject.disk(:disk, size: 100, name: "foo1", file: "bar.vmdk")
+      subject.disk(:disk, size: 100, name: "foo2", file: "bar.vmdk")
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "does not raise an error with duplicate dvd files" do
+      allow(File).to receive(:file?).with("bar.iso").and_return(true)
+      subject.disk(:dvd, name: "foo1", file: "bar.iso")
+      subject.disk(:dvd, name: "foo2", file: "bar.iso")
+      subject.finalize!
+      assert_valid
+    end
+
     it "does not merge duplicate disks" do
       subject.disk(:disk, size: 1000, primary: false, name: "storage")
       subject.disk(:disk, size: 1000, primary: false, name: "backup")
