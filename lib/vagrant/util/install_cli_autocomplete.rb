@@ -2,16 +2,19 @@ module Vagrant
   module Util
     # Generic installation of content to shell config file
     class InstallShellConfig
-      
+
+      PERPEND_STRING = "# >>>> Vagrant command completion (start)".freeze
+      APPEND_STRING = "# <<<<  Vagrant command completion (end)".freeze
+
       attr_accessor :prepend_string
       attr_accessor :string_insert
       attr_accessor :append_string
       attr_accessor :config_paths
 
-      def initialize(prepend_string, string_insert, append_string, config_paths)
-        @prepend_string = prepend_string
+      def initialize(string_insert, config_paths)
+        @prepend_string = PERPEND_STRING
         @string_insert = string_insert
-        @append_string = append_string
+        @append_string = APPEND_STRING
         @config_paths = config_paths
         @logger = Log4r::Logger.new("vagrant::util::install_shell_config")
       end
@@ -73,23 +76,19 @@ module Vagrant
 
     # Install autocomplete script to zsh config located as .zshrc
     class InstallZSHShellConfig < InstallShellConfig
-      def initialize()
-        prepend_string = "# >>>> Vagrant zsh completion (start)".freeze
+      def initialize
         string_insert = """fpath=(#{File.join(Vagrant.source_root, "contrib", "zsh")} $fpath)\ncompinit""".freeze
-        append_string = "# <<<<  Vagrant zsh completion (end)".freeze
         config_paths = [".zshrc".freeze].freeze
-        super(prepend_string, string_insert, append_string, config_paths)
+        super(string_insert, config_paths)
       end
     end
 
     # Install autocomplete script to bash config located as .bashrc or .bash_profile
     class InstallBashShellConfig < InstallShellConfig
-      def initialize()
-        prepend_string = "# >>>> Vagrant bash completion (start)".freeze
+      def initialize
         string_insert = ". #{File.join(Vagrant.source_root, 'contrib', 'bash', 'completion.sh')}".freeze
-        append_string = "# <<<<  Vagrant bash completion (end)".freeze
         config_paths = [".bashrc".freeze, ".bash_profile".freeze].freeze
-        super(prepend_string, string_insert, append_string, config_paths)
+        super(string_insert, config_paths)
       end
     end
 
@@ -101,17 +100,14 @@ module Vagrant
       }
 
       def self.install(shells=[])
-        shells = shells.length == 0 ? SUPPORTED_SHELLS.keys() : shells
+        shells = SUPPORTED_SHELLS.keys() if shells.empty?
         home = Dir.home
         written_paths = []
-        SUPPORTED_SHELLS.each do |k, shell|
-          if shells.include?(k)
-            p = shell.install(home)
-            if p
-              written_paths.push(p)
-            end
-          end
-        end
+        
+        shells.map do |shell|
+          next if !SUPPORTED_SHELLS[shell]
+          written_paths.push(SUPPORTED_SHELLS[shell].install(home))
+        end.compact
         return written_paths
       end
     end

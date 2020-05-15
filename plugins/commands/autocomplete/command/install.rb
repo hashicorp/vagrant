@@ -8,7 +8,7 @@ module VagrantPlugins
       class Install < Vagrant.plugin("2", :command)
         def execute
           options = {
-            :shells => []
+            shells: []
           }
 
           opts = OptionParser.new do |o|
