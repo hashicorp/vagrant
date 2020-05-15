@@ -43,3 +43,28 @@ describe Vagrant::Util::InstallZSHShellConfig do
     end
   end
 end
+
+describe Vagrant::Util::InstallCLIAutocomplete do
+
+  let(:zshrc_path) { "/path/to/.zshrc" }
+  let(:bashrc_path) { "/path/to/.bash_profile" }
+
+  subject { described_class }
+
+  describe ".install" do
+    it "installs requested shells" do
+      allow_any_instance_of(Vagrant::Util::InstallZSHShellConfig).to receive(:install).and_return(zshrc_path)
+      expect(subject.install(["zsh"])).to eq([zshrc_path])
+    end
+
+    it "installs all shells by default" do
+      allow_any_instance_of(Vagrant::Util::InstallZSHShellConfig).to receive(:install).and_return(zshrc_path)
+      allow_any_instance_of(Vagrant::Util::InstallBashShellConfig).to receive(:install).and_return(bashrc_path)
+      expect(subject.install()).to eq([zshrc_path, bashrc_path])
+    end
+
+    it "does not install unsupported shells" do
+      expect{ subject.install(["oops"]) }.to raise_error(ArgumentError)
+    end
+  end
+end

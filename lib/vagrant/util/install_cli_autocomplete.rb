@@ -105,8 +105,11 @@ module Vagrant
         written_paths = []
         
         shells.map do |shell|
-          next if !SUPPORTED_SHELLS[shell]
-          written_paths.push(SUPPORTED_SHELLS[shell].install(home))
+          if SUPPORTED_SHELLS[shell]
+            written_paths.push(SUPPORTED_SHELLS[shell].install(home))
+          else
+            raise ArgumentError, "shell must be in #{SUPPORTED_SHELLS.keys()}"
+          end
         end.compact
         return written_paths
       end
