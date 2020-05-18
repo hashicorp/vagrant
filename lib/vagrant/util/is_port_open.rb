@@ -13,7 +13,7 @@ module Vagrant
       # @param [Integer] port Port to check.
       # @return [Boolean] `true` if the port is open (listening), `false`
       #   otherwise.
-      def self.is_port_open?(host, port)
+      def is_port_open?(host, port)
         # We wrap this in a timeout because once in awhile the TCPSocket
         # _will_ hang, but this signals that the port is closed.
         Timeout.timeout(1) do
@@ -34,6 +34,8 @@ module Vagrant
         # Any of the above exceptions signal that the port is closed.
         return false
       end
+
+      extend IsPortOpen
     end
   end
 end
