@@ -180,7 +180,7 @@ module VagrantPlugins
         # @param [Hash] disk_provider_config
         # @return [Hash] disk_provider_config
         def self.convert_size_vars!(disk_provider_config)
-          if disk_provider_config.keys.include?(:BlockSizeBytes)
+          if disk_provider_config.key?(:BlockSizeBytes)
             bytes = Vagrant::Util::Numeric.string_to_bytes(disk_provider_config[:BlockSizeBytes])
             disk_provider_config[:BlockSizeBytes] = bytes
           end
