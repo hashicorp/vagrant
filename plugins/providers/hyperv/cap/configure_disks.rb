@@ -144,8 +144,8 @@ module VagrantPlugins
           machine.ui.detail(I18n.t("vagrant.cap.configure_disks.create_disk", name: disk_config.name))
           disk_provider_config = {}
           disk_provider_config = disk_config.provider_config[:hyperv] if disk_config.provider_config
-
-          if disk_provider_config
+          # Convert any shortcut options for powershell commands
+          if !disk_provider_config.empty?
             disk_provider_config = convert_size_vars!(disk_provider_config)
           end
 
