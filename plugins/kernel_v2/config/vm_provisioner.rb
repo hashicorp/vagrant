@@ -75,7 +75,7 @@ module VagrantPlugins
         @type    = type
         @before  = options[:before]
         @after   = options[:after]
-        @communicator_required = options[:communicator_required] || true
+        @communicator_required = options.fetch(:communicator_required, true)
 
         # Attempt to find the provisioner...
         if !Vagrant.plugin("2").manager.provisioners[type]
