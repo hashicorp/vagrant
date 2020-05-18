@@ -226,6 +226,9 @@ module VagrantPlugins
       # @param [String] controller_number
       # @param [String] controller_location
       # @param [Hash] opts
+      # @option opts [String] :ControllerType
+      # @option opts [String] :ControllerNumber
+      # @option opts [String] :ControllerLocation
       def attach_disk(disk_file_path,  **opts)
         execute(:attach_disk_drive, VmId: @vm_id, Path: disk_file_path, ControllerType: opts[:ControllerType],
                 ControllerNumber: opts[:ControllerNumber], ControllerLocation: opts[:ControllerLocation])
@@ -234,6 +237,13 @@ module VagrantPlugins
       # @param [String] path
       # @param [Int] size_bytes
       # @param [Hash] opts
+      # @option opts [Bool] :Fixed
+      # @option opts [String] :BlockSizeBytes
+      # @option opts [String] :LogicalSectorSizeBytes
+      # @option opts [String] :PhysicalSectorSizeBytes
+      # @option opts [String] :SourceDisk
+      # @option opts [Bool] :Differencing
+      # @option opts [String] :ParentPath
       def create_disk(path, size_bytes, **opts)
         execute(:new_vhd, Path: path, SizeBytes: size_bytes, Fixed: opts[:Fixed],
                BlockSizeBytes: opts[:BlockSizeBytes], LogicalSectorSizeBytes: opts[:LogicalSectorSizeBytes],
@@ -259,7 +269,11 @@ module VagrantPlugins
       # @param [String] controller_type
       # @param [String] controller_number
       # @param [String] controller_location
+      # @param [String] disk_file_path
       # @param [Hash] opts
+      # @option opts [String] :ControllerType
+      # @option opts [String] :ControllerNumber
+      # @option opts [String] :ControllerLocation
       def remove_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
         execute(:remove_disk_drive, VmId: @vm_id, ControllerType: controller_type,
                 ControllerNumber: controller_number, ControllerLocation: controller_location,
