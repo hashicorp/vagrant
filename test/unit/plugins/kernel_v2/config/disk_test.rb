@@ -37,6 +37,8 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
     subject.size = 100
     allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
+    allow(provider).to receive(:capability?).with(:set_default_disk_ext).and_return(true)
+    allow(provider).to receive(:capability).with(:set_default_disk_ext).and_return("vdi")
   end
 
   describe "with defaults" do
@@ -64,10 +66,17 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
       subject.finalize!
       assert_invalid
     end
-  end
 
-  describe "defining a new config that needs to match internal restraints" do
-    before do
+    context "with an invalid disk extension" do
+      before do
+        allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
+        allow(provider).to receive(:capability).with(:validate_disk_ext, "fake").and_return(false)
+      end
+
+      it "raises an error" do
+        subject.finalize!
+        assert_invalid
+      end
     end
   end
 end

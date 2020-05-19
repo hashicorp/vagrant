@@ -47,7 +47,12 @@ module VagrantPlugins
         Cap::ValidateDiskExt
       end
 
-      provider_capability(:hyperv, :get_default_disk_ext) do
+      provider_capability(:hyperv, :default_disk_exts) do
+        require_relative "cap/validate_disk_ext"
+        Cap::ValidateDiskExt
+      end
+
+      provider_capability(:hyperv, :set_default_disk_ext) do
         require_relative "cap/validate_disk_ext"
         Cap::ValidateDiskExt
       end

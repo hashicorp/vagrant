@@ -132,7 +132,6 @@ module VagrantPlugins
       # @return [Array] array of strings of error messages from config option validation
       def validate(machine)
         errors = _detected_errors
-
         # validate type with list of known disk types
 
         if !DEFAULT_DISK_TYPES.include?(@type)
@@ -141,14 +140,10 @@ module VagrantPlugins
         end
 
         if @disk_ext == UNSET_VALUE
-          # Work around to finalize disk_ext with a valid default per-provider
-          if machine.provider_name == :virtualbox
-            @disk_ext = "vdi"
-          elsif machine.provider_name == :vmware_desktop
-            @disk_ext = "vmdk"
-          elsif machine.provider_name == :hyperv
-            @disk_ext = "vhdx"
+          if machine.provider.capability?(:set_default_disk_ext)
+            @disk_ext = machine.provider.capability(:set_default_disk_ext)
           else
+            @logger.warn("No provider capability defined to set default 'disk_ext' type. Will use 'vdi' for disk extension.")
             @disk_ext = "vdi"
           end
         elsif @disk_ext
@@ -156,8 +151,8 @@ module VagrantPlugins
 
           if machine.provider.capability?(:validate_disk_ext)
             if !machine.provider.capability(:validate_disk_ext, @disk_ext)
-              if machine.provider.capability?(:get_default_disk_ext)
-                disk_exts = machine.provider.capability(:get_default_disk_ext).join(', ')
+              if machine.provider.capability?(:default_disk_exts)
+                disk_exts = machine.provider.capability(:default_disk_exts).join(', ')
               else
                 disk_exts = "not found"
               end
