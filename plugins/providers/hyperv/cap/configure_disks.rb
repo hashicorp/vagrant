@@ -88,19 +88,6 @@ module VagrantPlugins
           elsif compare_disk_size(machine, disk, current_disk)
             disk_metadata = resize_disk(machine, disk, current_disk)
           else
-            # TODO OLD: What if it needs to be resized?
-
-            # Can't use "attached" attribute, because it is false when the guest
-            # is powered off
-            #
-            #disk_info = machine.provider.driver.get_disk(current_disk["Path"])
-            #if disk_info["Attached"] == false
-            #  LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
-            #  machine.provider.driver.attach_disk(nil, nil, nil, current_disk["Path"])
-            #else
-            #  LOGGER.info("No further configuration required for disk '#{disk.name}'")
-            #end
-
             disk_metadata = {UUID: current_disk["DiskIdentifier"], Name: disk.name, Path: current_disk["Path"]}
             if disk.primary
               disk_metadata[:primary] = true
