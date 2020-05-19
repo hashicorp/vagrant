@@ -8,6 +8,7 @@ module VagrantPlugins
       def execute
         options = {}
         options[:force] = false
+        options[:force_halt] = true
 
         opts = OptionParser.new do |o|
           o.banner = "Usage: vagrant destroy [options] [name|id]"
@@ -22,6 +23,10 @@ module VagrantPlugins
           o.on("--[no-]parallel",
                "Enable or disable parallelism if provider supports it (automatically enables force)") do |p|
             options[:parallel] = p
+          end
+
+          o.on("-g", "--graceful", "Gracefully poweroff of VM") do |f|
+            options[:force_halt] = false
           end
         end
 
@@ -46,8 +51,7 @@ module VagrantPlugins
             # gather states to be checked after destroy
             init_states[vm.name] = vm.state.id
             machines << vm
-
-            batch.action(vm, :destroy, force_confirm_destroy: options[:force])
+            batch.action(vm, :destroy, force_confirm_destroy: options[:force], force_halt: options[:force_halt])
           end
         end
 
