@@ -9,21 +9,22 @@ export default function HomePage() {
     <div>
       <section className={s.hero}>
         <div className="g-grid-container">
-          <img
-            className={s.logo}
-            src="/img/logo-hashicorp.svg"
-            alt="Vagrant Logo"
-          />
+          <img src="/img/logo-hashicorp.svg" alt="Vagrant Logo" />
           <h1 className="g-type-display-3">
             Development Environments Made Easy
           </h1>
           <div className={s.buttons}>
-            <Button title="Get Started" />
+            <Button title="Get Started" url="/intro/index" />
             <Button
               title={`Download ${VERSION}`}
               theme={{ variant: 'secondary' }}
+              url="/downloads"
             />
-            <Button title="Find Boxes" theme={{ variant: 'secondary' }} />
+            <Button
+              title="Find Boxes"
+              theme={{ variant: 'secondary' }}
+              url="https://app.vagrantup.com/boxes/search"
+            />
           </div>
         </div>
       </section>
@@ -66,11 +67,7 @@ $ vagrant ssh
             }}
             reverse={true}
           >
-            <img
-              className={s.parity}
-              src="/img/parity.svg"
-              alt="Server Parity Diagram"
-            />
+            <img src="/img/parity.svg" alt="Server Parity Diagram" />
           </TextSplit>
         </div>
       </section>
@@ -88,7 +85,6 @@ $ vagrant ssh
             {['apple', 'linux', 'windows'].map((platform) => (
               <img
                 key={platform}
-                className={s.platformImg}
                 src={`/img/systems/${platform}.svg`}
                 alt={`${platform} logo`}
               />
@@ -99,7 +95,7 @@ $ vagrant ssh
 
       <section className={s.trustedAtScale}>
         <div className="g-grid-container">
-          <div className={`${s.tag} g-type-label`}>Trusted at Scale</div>
+          <div className={s.tag}>Trusted at Scale</div>
           <h2 className={s.h2}>Trusted By</h2>
           <p className="g-type-body">
             Vagrant is trusted by thousands of developers, operators, and

@@ -16,6 +16,7 @@
 }
 
 .tag {
+  composes: g-type-label from global;
   display: inline-block;
   background: black;
   color: white;

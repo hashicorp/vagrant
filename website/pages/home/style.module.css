@@ -1,49 +1,45 @@
-/* hero section */
+.block {
+  padding: 100px 0;
+}
 
 .hero {
   display: flex;
   align-items: center;
   text-align: center;
   margin: 150px 0;
-}
 
-.logo {
-  max-width: 445px;
-}
+  & img {
+    max-width: 445px;
+  }
 
-.buttons > * {
-  margin-right: 15px;
-  margin-top: 25px;
+  & .buttons > * {
+    margin-right: 15px;
+    margin-top: 25px;
 
-  @media (max-width: 500px) {
-    width: 100%;
-    margin-top: 20px;
+    & > *:last-child {
+      margin-right: 0;
+    }
+
+    @media (max-width: 500px) {
+      width: 100%;
+      margin-top: 20px;
+    }
   }
 }
-
-.buttons > *:last-child {
-  margin-right: 0;
-}
-
-.block {
-  padding: 100px 0;
-}
-
-/* unified workflow section */
 
 .unifiedWorkflow {
   composes: block;
   background: var(--vagrant);
   color: white;
-}
 
-.unifiedWorkflow :global(.g-code-block) {
-  width: 100%;
-  margin-left: 50px;
-  overflow: scroll;
+  & :global(.g-code-block) {
+    width: 100%;
+    margin-left: 50px;
+    overflow: scroll;
 
-  @media (max-width: 1000px) {
-    margin-left: 0;
+    @media (max-width: 1000px) {
+      margin-left: 0;
+    }
   }
 }
 
@@ -51,10 +47,10 @@
 
 .enforceConsistency {
   composes: block;
-}
 
-.parity {
-  max-width: 70%;
+  & img {
+    max-width: 70%;
+  }
 }
 
 /* cross-platform section */
@@ -64,7 +60,7 @@
   background: #0d44cc;
   color: white;
 
-  & .platformImg {
+  & img {
     max-width: 130px;
     min-width: 20px;
     height: auto;
@@ -79,9 +75,20 @@
   composes: block;
   background: var(--black);
   color: white;
+
+  & .customerImg {
+    max-width: 80%;
+    margin: 50px auto 0 auto;
+    display: block;
+
+    @media (max-width: 800px) {
+      max-width: 100%;
+    }
+  }
 }
 
 .tag {
+  composes: g-type-label from global;
   display: inline-block;
   background: white;
   color: black;
@@ -91,14 +98,4 @@
 .h2 {
   composes: g-type-display-2 from global;
   margin: 20px 0 10px 0;
-}
-
-.customerImg {
-  max-width: 80%;
-  margin: 50px auto 0 auto;
-  display: block;
-
-  @media (max-width: 800px) {
-    max-width: 100%;
-  }
 }
