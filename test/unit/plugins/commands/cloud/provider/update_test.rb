@@ -69,11 +69,11 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Update do
   end
 
   context "with arguments and a remote url" do
-    let (:argv) { ["vagrant/box-name", "virtualbox", "1.0.0", "https://box.com/box"] }
+    let (:argv) { ["vagrant/box-name", "virtualbox", "1.0.0", "https://example.com/box"] }
 
     it "creates a provider" do
       allow(VagrantCloud::Provider).to receive(:new).
-        with(version, "virtualbox", nil, "https://box.com/box", "vagrant", "box-name", client.token, nil, nil, nil).
+        with(version, "virtualbox", nil, "https://example.com/box", "vagrant", "box-name", client.token, nil, nil, nil).
         and_return(provider)
 
       expect(VagrantPlugins::CloudCommand::Util).to receive(:format_box_results)

@@ -2673,7 +2673,7 @@ en:
         server_url_required: |-
           Chef server provisioning requires that the `config.chef.chef_server_url` be set to the
           URL of your chef server. Examples include "http://12.12.12.12:4000" and
-          "http://myserver.com:4000" (the port of course can be different, but 4000 is the default)
+          "http://example.com:4000" (the port of course can be different, but 4000 is the default)
         server_validation_key_required: |-
           Chef server provisioning requires that the `config.chef.validation_key_path` configuration
           be set to a path on your local machine of the validation key used to register the
