@@ -726,7 +726,7 @@ module VagrantPlugins
         end
 
         box_download_options.each do |k, v|
-          # If the value is truthy and 
+          # If the value is truthy and
           # if `box_extra_download_options` does not include the key
           # then the conversion to extra download options produced an error
           if v && !box_extra_download_options.include?("--#{k}")
