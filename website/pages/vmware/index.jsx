@@ -1,10 +1,13 @@
 import s from './style.module.css'
 import Button from '@hashicorp/react-button'
 import VMWarePurchaseForm from 'components/vmware-purchase-form'
+import Head from 'next/head'
+import HashiHead from '@hashicorp/react-head'
 
 export default function VmwareIndex() {
   return (
     <>
+      <HashiHead is={Head} title="VMWare Integration | Vagrant by HashiCorp" />
       <section className={s.header}>
         <div className="g-grid-container">
           <div className={s.logos}>
