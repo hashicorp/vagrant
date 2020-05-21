@@ -6,25 +6,27 @@ export default function VmwareIndex() {
   return (
     <>
       <section className={s.header}>
-        <div className={s.logos}>
-          <img src="/img/logo-text.svg" alt="Vagrant Logo" />
-          <span>+</span>
-          <img src="/img/vmware.svg" alt="VMWare Logo" />
-        </div>
-        <h1 className={s.mainHeadline}>
-          Supercharged Development Environments
-        </h1>
-        <h4 className={s.mainSubhead}>
-          Use Vagrant with VMware for improved stability, performance, and
-          support.
-        </h4>
-        <div className={s.buttons}>
-          <Button title="Buy Now" url="#buy-now" />
-          <Button
-            title="Learn More"
-            url="#learn-more"
-            theme={{ variant: 'secondary' }}
-          />
+        <div className="g-grid-container">
+          <div className={s.logos}>
+            <img src="/img/logo-text.svg" alt="Vagrant Logo" />
+            <span>+</span>
+            <img src="/img/vmware.svg" alt="VMWare Logo" />
+          </div>
+          <h1 className={s.mainHeadline}>
+            Supercharged Development Environments
+          </h1>
+          <h4 className={s.mainSubhead}>
+            Use Vagrant with VMware for improved stability, performance, and
+            support.
+          </h4>
+          <div className={s.buttons}>
+            <Button title="Buy Now" url="#buy-now" />
+            <Button
+              title="Learn More"
+              url="#learn-more"
+              theme={{ variant: 'secondary' }}
+            />
+          </div>
         </div>
       </section>
 
