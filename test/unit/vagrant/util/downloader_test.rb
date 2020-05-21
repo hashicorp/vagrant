@@ -134,11 +134,11 @@ describe Vagrant::Util::Downloader do
     context "with a username and password" do
       it "downloads the file with the proper flags" do
         original_source = source
-        source  = "http://foo:bar@baz.com/box.box"
+        source  = "http://foo:bar@example.com/box.box"
         subject = described_class.new(source, destination)
 
         i = curl_options.index(original_source)
-        curl_options[i] = "http://baz.com/box.box"
+        curl_options[i] = "http://example.com/box.box"
 
         i = curl_options.index("--output")
         curl_options.insert(i, "foo:bar")
@@ -155,11 +155,11 @@ describe Vagrant::Util::Downloader do
     context "with an urlescaped username and password" do
       it "downloads the file with unescaped credentials" do
         original_source = source
-        source  = "http://fo%5Eo:b%40r@baz.com/box.box"
+        source  = "http://fo%5Eo:b%40r@example.com/box.box"
         subject = described_class.new(source, destination)
 
         i = curl_options.index(original_source)
-        curl_options[i] = "http://baz.com/box.box"
+        curl_options[i] = "http://example.com/box.box"
 
         i = curl_options.index("--output")
         curl_options.insert(i, "fo^o:b@r")
