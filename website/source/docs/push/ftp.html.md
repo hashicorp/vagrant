@@ -51,7 +51,7 @@ The Vagrant Push FTP and SFTP strategy is defined in the `Vagrantfile` using the
 
 ```ruby
 config.push.define "ftp" do |push|
-  push.host = "ftp.company.com"
+  push.host = "ftp.example.com"
   push.username = "username"
   push.password = "password"
 end
