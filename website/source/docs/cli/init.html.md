@@ -61,7 +61,7 @@ $ vagrant init -f hashicorp/bionic64
 Create a Vagrantfile with the specific box, from the specific box URL:
 
 ```sh
-$ vagrant init my-company-box https://boxes.company.com/my-company.box
+$ vagrant init my-company-box https://example.com/my-company.box
 ```
 
 Create a Vagrantfile, locking the box to a version constraint:

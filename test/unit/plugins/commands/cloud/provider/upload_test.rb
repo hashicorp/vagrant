@@ -52,9 +52,9 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
         with(version, "virtualbox", nil, nil, "vagrant", "box-name", client.token).
         and_return(provider)
       allow(provider).to receive(:upload_url).
-        and_return("http://upload.here/there")
+        and_return("http://example.com/there")
       allow(Vagrant::Util::Uploader).to receive(:new).
-        with("http://upload.here/there", "path/to/box.box", {ui: anything}).
+        with("http://example.com/there", "path/to/box.box", {ui: anything}).
         and_return(uploader)
 
       expect(uploader).to receive(:upload!)
@@ -66,9 +66,9 @@ describe VagrantPlugins::CloudCommand::ProviderCommand::Command::Upload do
         with(version, "virtualbox", nil, nil, "vagrant", "box-name", client.token).
         and_return(provider)
       allow(provider).to receive(:upload_url).
-        and_return("http://upload.here/there")
+        and_return("http://example.com/there")
       allow(Vagrant::Util::Uploader).to receive(:new).
-        with("http://upload.here/there", "path/to/box.box", {ui: anything}).
+        with("http://example.com/there", "path/to/box.box", {ui: anything}).
         and_return(uploader)
 
       allow(uploader).to receive(:upload!).

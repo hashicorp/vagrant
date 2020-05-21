@@ -50,7 +50,7 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
       VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
 
       original = [
-        "http://google.com/box.box",
+        "http://example.com/box.box",
         "#{server_url}/foo.box",
         "#{server_url}/bar.box?arg=true",
       ]
@@ -74,7 +74,7 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
       VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
 
       original = [
-        "http://google.com/box.box",
+        "http://example.com/box.box",
         "http://vagrantcloud.com/foo.box",
         "http://vagrantcloud.com/bar.box?arg=true",
       ]
@@ -95,7 +95,7 @@ describe VagrantPlugins::CloudCommand::AddAuthentication do
       VagrantPlugins::CloudCommand::Client.new(iso_env).store_token(token)
 
       original = [
-        "http://google.com/box.box",
+        "http://example.org/box.box",
         "http://vagrantcloud.com/foo.box",
         "http://example.com/bar.box",
         "http://example.com/foo.box"
