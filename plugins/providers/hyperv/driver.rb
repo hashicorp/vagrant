@@ -262,6 +262,7 @@ module VagrantPlugins
         execute(:get_vhd, DiskFilePath: disk_file_path)
       end
 
+      # @return [Array[Hash]]
       def list_hdds
         execute(:list_hdds, VmId: @vm_id)
       end
