@@ -52,7 +52,7 @@ module VagrantPlugins
             # We can't rely on the order of `all_disks`, as they will not
             # always come in port order, but primary should always be Location 0 Number 0.
 
-            current_disk = all_disks.select { |d| d["ControllerLocation"] == 0 && d["ControllerNumber"] == 0 }.first
+            current_disk = all_disks.detect { |d| d["ControllerLocation"] == 0 && d["ControllerNumber"] == 0 }
 
             # Need to get actual disk info to obtain UUID instead of what's returned
             #
