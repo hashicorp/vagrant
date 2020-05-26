@@ -9,7 +9,6 @@ require "vagrant/util/platform"
 require "vagrant/util/subprocess"
 require "vagrant/util/curl_helper"
 require "vagrant/util/file_checksum"
-require "vagrant/util/map_command_options"
 
 module Vagrant
   module Util

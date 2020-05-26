@@ -8,6 +8,7 @@ require "vagrant/config/v2/util"
 require "vagrant/util/platform"
 require "vagrant/util/presence"
 require "vagrant/util/experimental"
+require "vagrant/util/map_command_options"
 
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
@@ -725,7 +726,7 @@ module VagrantPlugins
         end
 
         box_download_options.each do |k, v|
-          # If the value is truthy and 
+          # If the value is truthy and
           # if `box_extra_download_options` does not include the key
           # then the conversion to extra download options produced an error
           if v && !box_extra_download_options.include?("--#{k}")
