@@ -63,7 +63,7 @@ module VagrantPlugins
           else
             # Hyper-V disk names aren't the actual names of the disk, so we have
             # to grab the name from the file path instead
-            current_disk = all_disks.select { |d| File.basename(d["Path"], '.*') == disk.name}.first
+            current_disk = all_disks.detect { |d| File.basename(d["Path"], '.*') == disk.name}
           end
 
           current_disk
