@@ -146,18 +146,26 @@ module VagrantPlugins
         # If the container isn't running, we can't SSH into it
         return nil if state.id != :running
 
-        port_name = "#{@machine.config.ssh.guest_port}/tcp"
+        guest_port = @machine.config.ssh.guest_port
+        port_name = "#{guest_port}/tcp"
         network   = driver.inspect_container(@machine.id)['NetworkSettings']
 
-        if network["Ports"][port_name].respond_to?(:first)
+        if driver.podman?
+          port = network["Ports"].detect {|p| p["protocol"] == "tcp" and p["containerPort"] == guest_port }
+          if port
+            port_info = {
+              "HostIp" => port["hostIP"],
+              "HostPort" => port["hostPort"]
+            }
+          end
+        elsif network["Ports"][port_name].respond_to?(:first)
           port_info = network["Ports"][port_name].first
         else
           ip = network["IPAddress"]
-          port = @machine.config.ssh.guest_port
           if !ip.to_s.empty?
             port_info = {
               "HostIp" => ip,
-              "HostPort" => port
+              "HostPort" => guest_port
             }
           end
         end

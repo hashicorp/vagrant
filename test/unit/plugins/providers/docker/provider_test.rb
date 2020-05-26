@@ -18,6 +18,7 @@ describe VagrantPlugins::DockerProvider::Provider do
   before do
     stub_const("Vagrant::Util::Platform", platform)
     allow(machine).to receive(:id).and_return("foo")
+    allow(driver_obj).to receive(:podman?).and_return(false)
   end
 
   describe ".usable?" do
@@ -97,7 +98,10 @@ describe VagrantPlugins::DockerProvider::Provider do
 
     let(:network_settings) { {"NetworkSettings" => {"Bridge"=>"", "SandboxID"=>"randomid", "HairpinMode"=>false, "LinkLocalIPv6Address"=>"", "LinkLocalIPv6PrefixLen"=>0, "Ports"=>{"443/tcp"=>nil, "80/tcp"=>nil}, "SandboxKey"=>"/var/run/docker/netns/158b7024a9e4", "SecondaryIPAddresses"=>nil, "SecondaryIPv6Addresses"=>nil, "EndpointID"=>"randomEndpointID", "Gateway"=>"172.17.0.1", "GlobalIPv6Address"=>"", "GlobalIPv6PrefixLen"=>0, "IPAddress"=>"127.0.0.1", "IPPrefixLen"=>16, "IPv6Gateway"=>"", "MacAddress"=>"02:42:ac:11:00:02", "Networks"=>{"bridge"=>{"IPAMConfig"=>nil, "Links"=>nil, "Aliases"=>nil, "NetworkID"=>"networkIDVar", "EndpointID"=>"endpointIDVar", "Gateway"=>"127.0.0.1", "IPAddress"=>"127.0.0.1", "IPPrefixLen"=>16, "IPv6Gateway"=>"", "GlobalIPv6Address"=>"", "GlobalIPv6PrefixLen"=>0, "MacAddress"=>"02:42:ac:11:00:02", "DriverOpts"=>nil}}}} }
 
+    let(:podman_network_settings) { {"NetworkSettings" => { "EndpointID" => "", "Gateway" => "", "IPAddress" => "", "IPPrefixLen" => 0, "IPv6Gateway" => "", "GlobalIPv6Address" => "", "GlobalIPv6PrefixLen" => 0, "MacAddress" => "", "Bridge" => "", "SandboxID" => "", "HairpinMode" => false, "LinkLocalIPv6Address" => "", "LinkLocalIPv6PrefixLen" => 0, "Ports" => [{"hostPort" => 2222, "containerPort" => 22, "protocol" => "tcp", "hostIP" => "127.0.0.1"}]} }}
+
     let(:empty_network_settings) { {"NetworkSettings" => {"Bridge"=>"", "SandboxID"=>"randomid", "HairpinMode"=>false, "LinkLocalIPv6Address"=>"", "LinkLocalIPv6PrefixLen"=>0, "Ports"=>"", "SandboxKey"=>"/var/run/docker/netns/158b7024a9e4", "SecondaryIPAddresses"=>nil, "SecondaryIPv6Addresses"=>nil, "EndpointID"=>"randomEndpointID", "Gateway"=>"172.17.0.1", "GlobalIPv6Address"=>"", "GlobalIPv6PrefixLen"=>0, "IPAddress"=>"", "IPPrefixLen"=>16, "IPv6Gateway"=>"", "MacAddress"=>"02:42:ac:11:00:02", "Networks"=>{"bridge"=>{"IPAMConfig"=>nil, "Links"=>nil, "Aliases"=>nil, "NetworkID"=>"networkIDVar", "EndpointID"=>"endpointIDVar", "Gateway"=>"127.0.0.1", "IPAddress"=>"127.0.0.1", "IPPrefixLen"=>16, "IPv6Gateway"=>"", "GlobalIPv6Address"=>"", "GlobalIPv6PrefixLen"=>0, "MacAddress"=>"02:42:ac:11:00:02", "DriverOpts"=>nil}}}} }
+    let(:podman_empty_network_settings) { {"NetworkSettings" => { "EndpointID" => "", "Gateway" => "", "IPAddress" => "", "IPPrefixLen" => 0, "IPv6Gateway" => "", "GlobalIPv6Address" => "", "GlobalIPv6PrefixLen" => 0, "MacAddress" => "", "Bridge" => "", "SandboxID" => "", "HairpinMode" => false, "LinkLocalIPv6Address" => "", "LinkLocalIPv6PrefixLen" => 0, "Ports" => []} }}
 
     before do
       allow(VagrantPlugins::DockerProvider::Driver).to receive(:new).and_return(driver_obj)
@@ -126,6 +130,27 @@ describe VagrantPlugins::DockerProvider::Provider do
       allow(driver_obj).to receive(:inspect_container).and_return(network_settings)
 
       expect(subject.ssh_info).to eq(ssh_info)
+    end
+
+    context "podman emulation" do
+      before do
+        allow(driver_obj).to receive(:podman?).and_return(true)
+        allow(provider_config).to receive(:compose).and_return(false)
+        allow(platform).to receive(:windows?).and_return(false)
+        allow(platform).to receive(:darwin?).and_return(false)
+        allow(driver_obj).to receive(:created?).and_return(true)
+        allow(driver_obj).to receive(:state).and_return(:running)
+      end
+
+      it "should receive a valid address" do
+        allow(driver_obj).to receive(:inspect_container).and_return(podman_network_settings)
+        expect(subject.ssh_info).to eq({:host=> "127.0.0.1", :port => 2222})
+      end
+
+      it "returns nil if a port info is nil from the driver" do
+        allow(driver_obj).to receive(:inspect_container).and_return(podman_empty_network_settings)
+        expect(subject.ssh_info).to eq(nil)
+      end
     end
   end
 end
