@@ -11,6 +11,8 @@ module VagrantPlugins
 
       DEFAULT_WINDOWS_SHELL_EXT = ".ps1".freeze
 
+      CMD_WINDOWS_SHELL_EXT = ".bat".freeze
+
       def provision
         args = ""
         if config.args.is_a?(String)
@@ -138,14 +140,7 @@ module VagrantPlugins
           @machine.communicate.tap do |comm|
             env = config.env.map{|k,v| comm.generate_environment_export(k, v)}.join(';')
 
-            remote_ext = File.extname(upload_path.to_s)
-            if remote_ext.empty?
-              remote_ext = File.extname(path.to_s)
-              if remote_ext.empty?
-                remote_ext = @machine.config.winssh.shell == "cmd" ? ".bat" : ".ps1"
-              end
-            end
-
+            remote_ext = get_windows_ext(path)
             remote_path = add_extension(upload_path, remote_ext)
 
             if remote_ext == ".bat"
@@ -203,7 +198,7 @@ module VagrantPlugins
           @machine.communicate.tap do |comm|
             # Make sure that the upload path has an extension, since
             # having an extension is critical for Windows execution
-            winrm_upload_path = add_extension(upload_path, DEFAULT_WINDOWS_SHELL_EXT)
+            winrm_upload_path = add_extension(upload_path,  get_windows_ext(path))
 
             # Upload it
             comm.upload(path.to_s, winrm_upload_path)
@@ -265,6 +260,17 @@ module VagrantPlugins
       def add_extension(path, ext)
         return path if !File.extname(path.to_s).empty?
         path + ext
+      end
+
+      def get_windows_ext(path)
+        remote_ext = File.extname(upload_path.to_s)
+        if remote_ext.empty?
+          remote_ext = File.extname(path.to_s)
+          if remote_ext.empty?
+            remote_ext = @machine.config.winssh.shell == "cmd" ? CMD_WINDOWS_SHELL_EXT : DEFAULT_WINDOWS_SHELL_EXT
+          end
+        end
+        remote_ext
       end
 
       # This method yields the path to a script to upload and execute

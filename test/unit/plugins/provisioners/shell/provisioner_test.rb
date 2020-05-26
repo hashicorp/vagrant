@@ -465,6 +465,19 @@ describe "Vagrant::Shell::Provisioner" do
       vsp.send(:provision_winrm, "")
     end
 
+    context "bat file being uploaded" do
+      before do
+        allow(config).to receive(:path).and_return("script/info.bat")
+        allow(vsp).to receive(:with_script_file).and_yield(config.path)
+      end
+
+      it "ensures that files are uploaded same extension as provided path.bat" do
+        expect(communicator).to receive(:upload).with(config.path, /arbitrary/)
+        expect(communicator).to receive(:sudo).with(/arbitrary.bat/, anything)
+        vsp.send(:provision_winrm, "")
+      end
+    end
+
     context "inline option set" do
       let(:config) {
         double(
@@ -491,6 +504,7 @@ describe "Vagrant::Shell::Provisioner" do
       }
   
       it "creates an executable with an extension" do
+        allow(machine).to receive_message_chain(:config, :winssh, :shell).and_return(nil)
         allow(vsp).to receive(:with_script_file).and_yield(default_win_path)
         allow(communicator).to receive(:upload).with(default_win_path, /vagrant-shell/)
         expect(communicator).to receive(:sudo).with(/vagrant-shell.ps1/, anything)
