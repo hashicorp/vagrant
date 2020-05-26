@@ -144,7 +144,7 @@ module VagrantPlugins
 
           if disk_config.file
             disk_file = disk_config.file
-            LOGGER.info("Disk already defiend by user at '#{disk_file}'. Using this disk instead of creating a new one...")
+            LOGGER.info("Disk already defined by user at '#{disk_file}'. Using this disk instead of creating a new one...")
           else
             # Set the extension
             disk_ext = disk_config.disk_ext
