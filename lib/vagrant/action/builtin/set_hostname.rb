@@ -17,12 +17,12 @@ module Vagrant
           @app.call(env)
 
           hostname = env[:machine].config.vm.hostname
-          disable_hosts_modification = env[:machine].config.vm.disable_hosts_modification
-          if !hostname.nil? && !disable_hosts_modification
+          allow_hosts_modification = env[:machine].config.vm.allow_hosts_modification
+          if !hostname.nil? && allow_hosts_modification
             env[:ui].info I18n.t("vagrant.actions.vm.hostname.setting")
             env[:machine].guest.capability(:change_host_name, hostname)
           else
-            @logger.info("`disable_hosts_modification` set to true. Hosts modification has been disabled, skiping changing hostname.")
+            @logger.info("`allow_hosts_modification` set to false. Hosts modification has been disabled, skiping changing hostname.")
           end
         end
       end

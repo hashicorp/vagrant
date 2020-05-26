@@ -15,13 +15,13 @@ describe Vagrant::Action::Builtin::SetHostname do
   end
 
   it "should change hostname if hosts modification enabled" do
-    allow(machine).to receive_message_chain(:config, :vm, :disable_hosts_modification).and_return(false)
+    allow(machine).to receive_message_chain(:config, :vm, :allow_hosts_modification).and_return(true)
     expect(machine).to receive(:guest)
     subject.call(env)
   end
 
   it "should not change hostname if hosts modification disabled" do
-    allow(machine).to receive_message_chain(:config, :vm, :disable_hosts_modification).and_return(true)
+    allow(machine).to receive_message_chain(:config, :vm, :allow_hosts_modification).and_return(false)
     expect(machine).not_to receive(:guest)
     subject.call(env)
   end
