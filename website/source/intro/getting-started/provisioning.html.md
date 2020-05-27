@@ -23,8 +23,25 @@ so that the guest machine can be repeatably created and ready-to-use.
 ## Installing Apache
 
 We will just setup [Apache](http://httpd.apache.org/) for our basic project,
-and we will do so using a shell script. Create the following shell script
-and save it as `bootstrap.sh` in the same directory as your Vagrantfile:
+and we will do so using a shell script. First, we need to add some html content
+which will be served by the Apache webserver. This will act as our DocumentRoot
+folder. To do this create a subdirectory named `html` in the project root
+directory. In the `html` directory create a html file named `index.html`.
+For example:
+
+```html
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Getting started with Vagrant!</h1>
+  </body>
+</html>
+```
+
+The script below will symlink our shared folder `/vagrant` so that apache serves
+the `html` folder when accessing the root page locally. Now, create the
+following shell script and save it as `bootstrap.sh` in the same directory as
+your Vagrantfile:
 
 ```bash
 #!/usr/bin/env bash
@@ -51,20 +68,6 @@ end
 The "provision" line is new, and tells Vagrant to use the `shell` provisioner
 to setup the machine, with the `bootstrap.sh` file. The file path is relative
 to the location of the project root (where the Vagrantfile is).
-
-We also need to add some html content which will be served by the Apache webserver.
-To do this create a subdirectory named `html` in the project root directory. 
-In the `html` directory create a html file named `index.html`.
-For example:
-
-```html
-<!DOCTYPE html>
-<html>
-  <body>
-    <h1>Getting started with Vagrant!</h1>
-  </body>
-</html>
-```
 
 ## Provision!
 
