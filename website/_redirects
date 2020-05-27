@@ -3,13 +3,19 @@
 # See the README file in this directory for documentation. Please do not
 # modify or delete existing redirects without first verifying internally.
 
+/support.html        /
+/support             /
+/sponsors.html       /
+/sponsors            /
+/about.html          /intro
+/about               /intro
+
 /intro/index                    /intro
 /docs/index                     /docs
 /docs/boxes.html                /docs/boxes
+/docs/boxes                     /docs/boxes
 /docs/experimental/index.html   /docs/experimental
-/docs/experimental/             /docs/experimental
 /docs/multi-machine/index.html  /docs/multi-machine
-/docs/multi-machine/            /docs/multi-machine
 /docs/virtualbox/index.html     /docs/providers/virtualbox
 /docs/virtualbox/*              /docs/providers/virtualbox/:splat
 /docs/vmware/index.html         /docs/providers/vmware
