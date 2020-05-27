@@ -25,8 +25,17 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     double(:state)
   end
 
-  let(:vm_info) { {"SATA Controller-ImageUUID-0-0" => "12345",
+  let(:vm_info) { {"storagecontrollername0" => "SATA Controller",
+                   "storagecontrollertype0" => "IntelAhci",
+                   "storagecontrollermaxportcount0" => "30",
+                   "SATA Controller-ImageUUID-0-0" => "12345",
                    "SATA Controller-ImageUUID-1-0" => "67890"} }
+
+  let(:storage_controllers) { [{name: "SATA Controller",
+                                type: "IntelAhci",
+                                maxportcount: 30,
+                                attachments: [{port: "0", device: "0", uuid: "12345"},
+                                              {port: "1", device: "0", uuid: "67890"}]}] }
 
   let(:defined_disks) { [double("disk", name: "vagrant_primary", size: "5GB", primary: true, type: :disk),
                          double("disk", name: "disk-0", size: "5GB", primary: false, type: :disk),
@@ -66,6 +75,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(driver).to receive(:show_vm_info).and_return(vm_info)
+    allow(driver).to receive(:storage_controllers).and_return(storage_controllers)
   end
 
   describe "#configure_disks" do
@@ -85,7 +95,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
 
     context "with over the disk limit for a given device" do
-      let(:defined_disks) { (1..31).each { |i| double("disk-#{i}") }.to_a }
+      let(:defined_disks) { (1..31).map { |i| double("disk-#{i}", type: :disk) }.to_a }
 
       it "raises an exception if the disks defined exceed the limit for a SATA Controller" do
         expect{subject.configure_disks(machine, defined_disks)}.
@@ -281,8 +291,11 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
 
     context "with an IDE controller" do
-      let(:vm_info) { {"IDE Controller-ImageUUID-0-0" => "00000aaaaa",
-                       "IDE Controller-ImageUUID-0-1" => "11111bbbbb" } }
+      let(:storage_controllers) { [{name: "IDE Controller",
+                                    type: "PIIX4",
+                                    maxportcount: 2,
+                                    attachments: [{port: "0", device: "0", uuid: "12345"},
+                                                  {port: "0", device: "1", uuid: "67890"}]}] }
 
       it "determines the next available port and device to use" do
         dsk_info = subject.get_next_port(machine, "IDE Controller")
@@ -292,10 +305,13 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
 
     context "with a full IDE controller" do
-      let(:vm_info) { {"IDE Controller-ImageUUID-0-0" => "00000aaaaa",
-                       "IDE Controller-ImageUUID-0-1" => "11111bbbbb",
-                       "IDE Controller-ImageUUID-1-0" => "22222ccccc",
-                       "IDE Controller-ImageUUID-1-1" => "33333ddddd"} }
+      let(:storage_controllers) { [{name: "IDE Controller",
+                                    type: "PIIX4",
+                                    maxportcount: 2,
+                                    attachments: [{port: "0", device: "0", uuid: "11111"},
+                                                  {port: "0", device: "1", uuid: "22222"},
+                                                  {port: "1", device: "0", uuid: "33333"},
+                                                  {port: "1", device: "1", uuid: "44444"}]}] }
 
       it "raises an error" do
         expect { subject.get_next_port(machine, "IDE Controller") }
@@ -399,9 +415,19 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   describe ".handle_configure_dvd" do
     let(:dvd_config) { double("dvd", file: "/tmp/untitled.iso", name: "dvd1") }
+    let(:storage_controllers) { [{name: "IDE Controller",
+                                  type: "PIIX4",
+                                  maxportcount: 2,
+                                  attachments: []}] }
+
+    let(:single_attachment) { [{name: "IDE Controller",
+                                type: "PIIX4",
+                                maxportcount: 2,
+                                attachments: [port: "0", device: "0", uuid: "12345"]}] }
 
     before do
       allow(subject).to receive(:get_next_port).with(machine, "IDE Controller").and_return({device: "0", port: "0"})
+      allow(driver).to receive(:storage_controllers).and_return(storage_controllers)
     end
 
     it "attaches to the next available port and device" do
@@ -411,20 +437,14 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
 
     it "returns the UUID of the newly-attached dvd" do
-      allow(subject).to receive(:attachment).with(machine, "IDE Controller", "0", "0").and_return("12345")
+      expect(driver).to receive(:storage_controllers).and_return(
+        storage_controllers,
+        single_attachment
+      )
       expect(driver).to receive(:attach_disk).with("0", "0", "/tmp/untitled.iso", "dvddrive")
 
       disk_meta = subject.handle_configure_dvd(machine, dvd_config)
       expect(disk_meta[:uuid]).to eq("12345")
-    end
-
-    context "when an ISO file is already attached" do
-      let(:vm_info) { {"IDE Controller-0-0" => "/tmp/untitled.iso" } }
-
-      it "skips the attachment" do
-        expect(driver).not_to receive(:attach_disk)
-        subject.handle_configure_dvd(machine, dvd_config)
-      end
     end
   end
 end

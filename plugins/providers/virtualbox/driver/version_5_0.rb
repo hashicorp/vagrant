@@ -934,6 +934,35 @@ module VagrantPlugins
           destination
         end
 
+        # Helper method to get a list of storage controllers added to the
+        # current VM
+        def storage_controllers
+          vm_info = show_vm_info
+          count = vm_info.count { |key, value| key.match(/^storagecontrollername/) }
+
+          (0..count - 1).map do |n|
+            # basic controller metadata
+            name = vm_info["storagecontrollername#{n}"]
+            type = vm_info["storagecontrollertype#{n}"]
+            maxportcount = vm_info["storagecontrollermaxportcount#{n}"].to_i
+
+            # build attachments array
+            attachments = []
+            vm_info.each do |k, v|
+              if /^#{name}-ImageUUID-(\d+)-(\d+)$/ =~ k
+                attachments << {port: $1.to_s, device: $2.to_s, uuid: v}
+              end
+            end
+
+            {
+              name: name,
+              type: type,
+              maxportcount: maxportcount,
+              attachments: attachments
+            }
+          end
+        end
+
         protected
 
         def valid_ip_address?(ip)

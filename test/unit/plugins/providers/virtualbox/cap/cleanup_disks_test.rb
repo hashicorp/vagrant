@@ -33,9 +33,13 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
   let(:vm_info) { {"SATA Controller-ImageUUID-0-0" => "12345",
                    "SATA Controller-ImageUUID-1-0" => "67890"} }
 
+  let(:storage_controllers) {
+  }
+
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(driver).to receive(:show_vm_info).and_return(vm_info)
+    allow(driver).to receive(:storage_controllers).and_return(storage_controllers)
   end
 
   describe "#cleanup_disks" do

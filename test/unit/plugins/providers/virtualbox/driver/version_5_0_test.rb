@@ -118,4 +118,29 @@ OUTPUT
       subject.remove_disk(anything, anything, "IDE Controller")
     end
   end
+
+  describe "#storage_controllers" do
+    before do
+      allow(subject).to receive(:show_vm_info).and_return(
+        {"storagecontrollername0" => "SATA Controller",
+         "storagecontrollertype0" => "IntelAhci",
+         "storagecontrollermaxportcount0" => "30",
+         "SATA Controller-ImageUUID-0-0" => "12345",
+         "SATA Controller-ImageUUID-1-0" => "67890"}
+      )
+    end
+
+    it "returns the storage controllers" do
+      expect(subject.storage_controllers.first[:name]).to eq("SATA Controller")
+      expect(subject.storage_controllers.first[:type]).to eq("IntelAhci")
+      expect(subject.storage_controllers.first[:maxportcount]).to eq(30)
+    end
+
+    it "includes attachments for each storage controller" do
+      expect(subject.storage_controllers.first[:attachments])
+        .to include(port: "0", device: "0", uuid: "12345")
+      expect(subject.storage_controllers.first[:attachments])
+        .to include(port: "1", device: "0", uuid: "67890")
+    end
+  end
 end
