@@ -29,7 +29,7 @@ end
 
 Triggers can also be used with [_commands_](#commands), [_actions_](#actions), or [_hooks_](#hooks).
 By default triggers will be defined to run before or after a Vagrant guest. For more
-detailed examples of how to use triggers, check out the [usage section](/docs/triggers/usage.html).
+detailed examples of how to use triggers, check out the [usage section](/docs/triggers/usage).
 
 ## Trigger Options
 
@@ -67,9 +67,9 @@ The trigger class takes various options.
   end
   ```
 
-- `run_remote` (hash) - A collection of settings to run a inline or remote script with on the guest. These settings correspond to the [shell provisioner](/docs/provisioning/shell.html).
+- `run_remote` (hash) - A collection of settings to run a inline or remote script with on the guest. These settings correspond to the [shell provisioner](/docs/provisioning/shell).
 
-- `run` (hash) - A collection of settings to run a inline or remote script on the host. These settings correspond to the [shell provisioner](/docs/provisioning/shell.html). However, at the moment the only settings `run` takes advantage of are:
+- `run` (hash) - A collection of settings to run a inline or remote script on the host. These settings correspond to the [shell provisioner](/docs/provisioning/shell). However, at the moment the only settings `run` takes advantage of are:
 
   - `args`
   - `inline`
@@ -159,7 +159,7 @@ config.trigger.before :up, type: :command do |t|
 end
 ```
 
-For a more detailed example, please check out the [examples](/docs/triggers/usage.html#commands)
+For a more detailed example, please check out the [examples](/docs/triggers/usage#commands)
 page for more.
 
 ### Hooks
@@ -178,7 +178,7 @@ config.trigger.after :action_hook_name, type: :hook do |t|
 end
 ```
 
-For a more detailed example, please check out the [examples](/docs/triggers/usage.html#hooks)
+For a more detailed example, please check out the [examples](/docs/triggers/usage#hooks)
 page for more.
 
 ### Actions
@@ -197,5 +197,5 @@ config.trigger.before :"Action::Class::Name", type: :action do |t|
 end
 ```
 
-For a more detailed example, please check out the [examples](/docs/triggers/usage.html#actions)
+For a more detailed example, please check out the [examples](/docs/triggers/usage#actions)
 page for more.

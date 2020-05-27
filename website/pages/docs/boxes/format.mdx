@@ -12,7 +12,7 @@ description: |-
 
 In the past, boxes were just [tar files](<https://en.wikipedia.org/wiki/Tar_(computing)>)
 of VirtualBox exports. With Vagrant supporting multiple
-[providers](/docs/providers/) and [versioning](/docs/boxes/versioning.html)
+[providers](/docs/providers/) and [versioning](/docs/boxes/versioning)
 now, box files are slightly more complicated.
 
 Box files made for Vagrant 1.0.x (the VirtualBox export `tar` files) continue
@@ -37,7 +37,7 @@ Today, there are three different components:
 
 - Box Information - This is a JSON document that can provide additional
   information about the box that displays when a user runs
-  `vagrant box list -i`. More information is provided [here](/docs/boxes/info.html).
+  `vagrant box list -i`. More information is provided [here](/docs/boxes/info).
 
 The first two components are covered in more detail below.
 
@@ -82,7 +82,7 @@ file.
 ## Box Metadata
 
 The metadata is an optional component for a box (but highly recommended)
-that enables [versioning](/docs/boxes/versioning.html), updating, multiple
+that enables [versioning](/docs/boxes/versioning), updating, multiple
 providers from a single file, and more.
 
 -> **You do not need to manually make the metadata.** If you

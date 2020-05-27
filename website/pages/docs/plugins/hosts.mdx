@@ -15,7 +15,7 @@ description: |-
 This page documents how to add new host OS detection to Vagrant, allowing
 Vagrant to properly execute host-specific operations on new operating systems.
 Prior to reading this, you should be familiar
-with the [plugin development basics](/docs/plugins/development-basics.html).
+with the [plugin development basics](/docs/plugins/development-basics).
 
 ~> **Warning: Advanced Topic!** Developing plugins is an
 advanced topic that only experienced Vagrant users who are reasonably
@@ -24,7 +24,7 @@ comfortable with Ruby should approach.
 Vagrant has some features that require host OS-specific actions, such as
 exporting NFS folders. These tasks vary from operating system to operating
 system. Vagrant uses host detection as well as
-[host capabilities](/docs/plugins/host-capabilities.html) to perform these
+[host capabilities](/docs/plugins/host-capabilities) to perform these
 host OS-specific operations.
 
 ## Definition Component
@@ -63,7 +63,7 @@ end
 ```
 
 After detecting an OS, that OS is used for various
-[host capabilities](/docs/plugins/host-capabilities.html) that may be
+[host capabilities](/docs/plugins/host-capabilities) that may be
 required.
 
 ## Host Inheritance
@@ -75,7 +75,7 @@ Inheritance allows hosts to share a lot of common behavior while allowing
 distro-specific overrides.
 
 Inheritance is not done via standard Ruby class inheritance because Vagrant
-uses a custom [capability-based](/docs/plugins/host-capabilities.html) system.
+uses a custom [capability-based](/docs/plugins/host-capabilities) system.
 Vagrant handles inheritance dispatch for you.
 
 To subclass another host, specify that host's name as a second parameter
