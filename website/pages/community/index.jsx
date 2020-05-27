@@ -30,6 +30,11 @@ export default function CommunityPage() {
               '[Vagrant Google Group](https://groups.google.com/forum/#!forum/vagrant-up)',
           },
           {
+            header: 'Community Forum',
+            body:
+              '[Vagrant Community Forum](https://discuss.hashicorp.com/c/vagrant/24)',
+          },
+          {
             header: 'Bug Tracker',
             body:
               '[Issue tracker on GitHub](https://github.com/hashicorp/vagrant/issues). Please only use this for reporting bugs. Do not ask for general help here. Use IRC or the mailing list for that.',
