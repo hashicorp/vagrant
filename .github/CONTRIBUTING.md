@@ -10,7 +10,7 @@ Before opening a new issue or pull request, we do appreciate if you take some ti
 
 ### Reporting an Issue
 
-**Tip:** We have provided a [GitHub issue template](https://github.com/hashicorp/vagrant/blob/master/.github/ISSUE_TEMPLATE.md). By respecting the proposed format and filling all the relevant sections, you'll strongly help the Vagrant collaborators to handle your request the best possible way.
+**Tip:** We have provided a [GitHub issue template](https://github.com/hashicorp/vagrant/tree/master/.github/ISSUE_TEMPLATE). By respecting the proposed format and filling all the relevant sections, you'll strongly help the Vagrant collaborators to handle your request the best possible way.
 
 ### Issue Lifecycle
 
