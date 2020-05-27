@@ -2,7 +2,7 @@ import s from './style.module.css'
 import Button from '@hashicorp/react-button'
 import TextSplit from 'components/temporary_text-split'
 import CodeBlock from '@hashicorp/react-code-block'
-import VERSION from 'data/version'
+import { VERSION } from 'data/version.json'
 
 export default function HomePage() {
   return (

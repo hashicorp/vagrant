@@ -1,5 +1,5 @@
 import s from './style.module.css'
-import { VMWARE_UTILITY_VERSION } from '../../../data/version.js'
+import { VMWARE_UTILITY_VERSION } from 'data/version.json'
 import ProductDownloader from '@hashicorp/react-product-downloader'
 import Head from 'next/head'
 import HashiHead from '@hashicorp/react-head'
