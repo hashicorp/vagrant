@@ -8,6 +8,13 @@ module VagrantPlugins
       class PersistMountSharedFolder
         extend SyncedFolder::UnixMountHelpers
 
+        # Inserts fstab entry for a set of synced folders. Will fully replace
+        # the currently managed group of Vagrant managed entries. Note, passing
+        # empty list of folders will just remove entries      
+        # 
+        # @param [Machine] machine The machine to run the action on
+        # @param [Map<String, Map>] A map of folders to add to fstab
+        # @param [String] mount type, ex. vboxfs, cifs, etc
         def self.persist_mount_shared_folder(machine, fstab_folders, mount_type)
           if fstab_folders.empty?
             self.remove_vagrant_managed_fstab(machine)

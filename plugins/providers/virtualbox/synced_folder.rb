@@ -61,6 +61,10 @@ module VagrantPlugins
           end
         end
         if machine.guest.capability?(:persist_mount_shared_folder)
+          # If Vagrant has been configured to not allow fstab modification, then
+          # execute the guest capability with an empty list in order to ensure
+          # there is no Vagrant managed fstab entries.
+          fstab_folders = [] if !machine.config.vm.allow_fstab_modification
           machine.guest.capability(:persist_mount_shared_folder, fstab_folders, "vboxsf")
         end
       end

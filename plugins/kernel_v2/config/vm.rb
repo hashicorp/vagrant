@@ -22,6 +22,7 @@ module VagrantPlugins
       DEFAULT_VM_NAME = :default
 
       attr_accessor :allowed_synced_folder_types
+      attr_accessor :allow_fstab_modification
       attr_accessor :base_mac
       attr_accessor :base_address
       attr_accessor :boot_timeout
@@ -56,6 +57,7 @@ module VagrantPlugins
         @logger = Log4r::Logger.new("vagrant::config::vm")
 
         @allowed_synced_folder_types   = UNSET_VALUE
+        @allow_fstab_modification      = UNSET_VALUE
         @base_mac                      = UNSET_VALUE
         @base_address                  = UNSET_VALUE
         @boot_timeout                  = UNSET_VALUE
@@ -452,6 +454,7 @@ module VagrantPlugins
 
       def finalize!
         # Defaults
+        @allow_fstab_modification = true if @allow_fstab_modification == UNSET_VALUE
         @allowed_synced_folder_types = nil if @allowed_synced_folder_types == UNSET_VALUE
         @base_mac = nil if @base_mac == UNSET_VALUE
         @base_address = nil if @base_address == UNSET_VALUE
@@ -926,6 +929,12 @@ module VagrantPlugins
               "vagrant.config.vm.name_invalid",
               name: name)
           end
+        end
+
+        if ![TrueClass, FalseClass].include?(@allow_fstab_modification.class)
+          errors["vm"] << I18n.t("vagrant.config.vm.config_type",
+            option: "allow_fstab_modification", given: @allow_fstab_modification.class, required: "Boolean"
+          )
         end
 
         errors

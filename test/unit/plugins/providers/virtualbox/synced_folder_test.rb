@@ -6,10 +6,24 @@ require Vagrant.source_root.join("plugins/providers/virtualbox/synced_folder")
 
 describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
   include_context "unit"
+
+  let(:vm_config) do
+    double("vm_config").tap do |vm_config|
+      allow(vm_config).to receive(:allow_fstab_modification).and_return(true)
+    end
+  end
+
+  let(:machine_config) do
+    double("machine_config").tap do |top_config|
+      allow(top_config).to receive(:vm).and_return(vm_config)
+    end
+  end
+
   let(:machine) do
     double("machine").tap do |m|
       allow(m).to receive(:provider_config).and_return(VagrantPlugins::ProviderVirtualBox::Config.new)
       allow(m).to receive(:provider_name).and_return(:virtualbox)
+      allow(m).to receive(:config).and_return(machine_config)
     end
   end
 
@@ -72,6 +86,21 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
       expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args)
       test_folders = folders.merge(no_guestpath_folder)
       subject.enable(machine, test_folders, nil)
+    end
+
+    context "fstab modification disabled" do
+      before do
+       allow(vm_config).to receive(:allow_fstab_modification).and_return(false)
+      end
+
+      it "should not persist folders" do
+        expect(guest).to receive(:capability).with(:mount_virtualbox_shared_folder, "folder", any_args)
+        expect(guest).not_to receive(:capability).with(:mount_virtualbox_shared_folder, "no_guestpath_folder", any_args)
+        expect(guest).to receive(:capability?).with(:persist_mount_shared_folder).and_return(true)
+        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, [], "vboxsf")
+        test_folders = folders.merge(no_guestpath_folder)
+        subject.enable(machine, test_folders, nil)
+      end
     end
   end
 
