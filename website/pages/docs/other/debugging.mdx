@@ -38,13 +38,13 @@ about the behavior of Vagrant.
 On Linux and Mac systems, this can be done by prepending the `vagrant`
 command with an environmental variable declaration:
 
-```
+```shell-session
 $ VAGRANT_LOG=info vagrant up
 ```
 
 On Windows, multiple steps are required:
 
-```
+```shell-session
 $ set VAGRANT_LOG=info
 $ vagrant up
 ```
@@ -52,19 +52,19 @@ $ vagrant up
 You can also get the debug level output using the `--debug` command line
 option. For example:
 
-```
+```shell-session
 $ vagrant up --debug
 ```
 
 On Linux and Mac, if you are saving the output to a file, you may need to redirect stderr and
 stdout using `&>`:
 
-```
+```shell-session
 $ vagrant up --debug &> vagrant.log
 ```
 
 On Windows in PowerShell (outputs to log and screen):
 
-```
+```shell-session
 $ vagrant up --debug 2>&1 | Tee-Object -FilePath ".\vagrant.log"
 ```
