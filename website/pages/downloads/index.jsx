@@ -3,6 +3,7 @@ import { VERSION } from 'data/version.json'
 import ProductDownloader from '@hashicorp/react-product-downloader'
 import Head from 'next/head'
 import HashiHead from '@hashicorp/react-head'
+import Link from 'next/link'
 
 export default function DownloadsPage({ downloadData }) {
   return (
@@ -12,7 +13,11 @@ export default function DownloadsPage({ downloadData }) {
         product="Vagrant"
         version={VERSION}
         downloads={downloadData}
-      />
+      >
+        <Link href="/vmware/downloads">
+          <a>&raquo; Download VMWare Utility</a>
+        </Link>
+      </ProductDownloader>
     </div>
   )
 }
