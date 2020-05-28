@@ -26,8 +26,8 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
-          vm_info = machine.provider.driver.show_vm_info
-          primary_disk = vm_info["SATA Controller-ImageUUID-0-0"]
+          storage_controller = machine.provider.driver.storage_controllers.detect { |c| c[:type] == "IntelAhci" }
+          primary_disk = storage_controller[:attachments].detect { |a| a[:port] == "0" && a[:device] == "0" }[:uuid]
 
           unless disk_meta.nil?
             disk_meta.each do |d|
