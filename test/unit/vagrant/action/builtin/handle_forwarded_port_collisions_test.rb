@@ -207,7 +207,6 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
 
     context "with loopback address" do
       let (:host_ip) { "127.1.2.40" }
-      let (:addrinfo) { double("addrinfo", ipv4_loopback?: true) }
 
       it "should check if the port is open" do
         expect(instance).to receive(:is_port_open?).with(host_ip, host_port).and_return(true)
