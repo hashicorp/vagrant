@@ -909,6 +909,33 @@ describe Vagrant::Machine do
     end
   end
 
+  describe "#recover_machine" do
+    it "does not recover a machine already in the index" do
+      subject.id = "foo"
+      expected_entry = env.machine_index.get(subject.index_uuid)
+      env.machine_index.release(expected_entry)
+
+      entry = subject.recover_machine(:running)
+      expect(entry.id).to eq(expected_entry.id)
+      # Ensure entry is not locked
+      env.machine_index.get(subject.index_uuid)
+    end
+
+    it "recovers a machine" do
+      instance = new_instance
+      instance.id = "foo"
+
+      entry = instance.recover_machine(:running)
+      expect(entry.id).to eq(instance.index_uuid)
+      # Ensure entry is not locked
+      env.machine_index.get(entry.id)
+      env.machine_index.release(entry)
+
+      query_entry = env.machine_index.get(instance.index_uuid)
+      expect(entry.id).to eq(query_entry.id)
+    end
+  end
+
   describe "#with_ui" do
     it "temporarily changes the UI" do
       ui = Object.new
