@@ -39,12 +39,22 @@ module VagrantPlugins
               comm.upload(f.path, remote_path)
             end
 
-            commands << <<-EOH.gsub(/^ {14}/, '').rstrip
-              # Configure #{network[:device]}
-              chmod 0644 '#{remote_path}' &&
-              mv '#{remote_path}' '/etc/systemd/network/#{network[:device]}.network' &&
-              networkctl reload
-            EOH
+            if systemd_networkd?(comm)
+              commands << <<-EOH.gsub(/^ {16}/, '').rstrip
+                # Configure #{network[:device]}
+                chmod 0644 '#{remote_path}' &&
+                mv '#{remote_path}' '/etc/systemd/network/#{network[:device]}.network' &&
+                networkctl reload
+              EOH
+            else
+              commands << <<-EOH.gsub(/^ {16}/, '').rstrip
+                # Configure #{network[:device]}
+                mv '#{remote_path}' '/etc/netctl/#{network[:device]}' &&
+                ip link set '#{network[:device]}' down &&
+                netctl restart '#{network[:device]}' &&
+                netctl enable '#{network[:device]}'
+              EOH
+            end
           end
 
           # Run all the network modification commands in one communicator call.
