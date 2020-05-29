@@ -62,7 +62,7 @@ describe "VagrantPlugins::GuestSUSE::Cap::ChangeHostName" do
 
 
         expect(cap).to receive(:replace_host)
-        expect(cap).to_not receive(:add_hostname_to_loopback)
+        expect(cap).to_not receive(:add_hostname_to_loopback_interface)
         cap.change_host_name(machine, name)
       end
 
@@ -76,7 +76,7 @@ describe "VagrantPlugins::GuestSUSE::Cap::ChangeHostName" do
 
 
         expect(cap).to_not receive(:replace_host)
-        expect(cap).to receive(:add_hostname_to_loopback).once
+        expect(cap).to receive(:add_hostname_to_loopback_interface).once
         cap.change_host_name(machine, name)
       end
     end
