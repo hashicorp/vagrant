@@ -2722,6 +2722,22 @@ en:
           machine. The fix is to run a `vagrant reload` so that the proper shared
           folders will be prepared and mounted on the VM.
         module_path_missing: "The configured module path doesn't exist: %{path}"
+        synced_folder_type_deprecation: |-
+          DEPRECATION: The 'synced_folder_type' setting for the Puppet provisioner is
+          deprecated. Please use the 'synced_folder_opts' setting instead.
+          The 'synced_folder_type' setting will be removed in the next version of Vagrant.
+        synced_folder_args_deprecation: |-
+          DEPRECATION: The 'synced_folder_args' setting for the Puppet provisioner is
+          deprecated. Please use the 'synced_folder_opts' setting instead.
+          The 'synced_folder_args' setting will be removed in the next version of Vagrant.
+        synced_folder_type_ignored: |-
+          The option 'synced_folder_type' with value '%{synced_folder_type}' was ignored
+          in favour of the option 'synced_folder_opts[:type]' with value '%{type}'.
+          Please remove the option 'synced_folder_type' and set valid 'synced_folder_opts' instead'.
+        synced_folder_args_ignored: |-
+          The option 'synced_folder_args' with value '%{args}' was ignored
+          because it is only applicable to the 'rsync' synced_folder type.
+          Please remove the option 'synced_folder_args' and set valid 'synced_folder_opts' instead'.
 
       puppet_server:
         cert_requires_node: |-

@@ -58,14 +58,23 @@ available below this section.
 * `options` (array of strings) - Additionally options to pass to the
   Puppet executable when running Puppet.
 
-* `synced_folder_type` (string) - The type of synced folders to use when
-  sharing the data required for the provisioner to work properly. By default
-  this will use the default synced folder type. For example, you can set this
-  to "nfs" to use NFS synced folders.
+* `synced_folder_type` (string) - **Deprecated**  (use `synced_folder_opts` instead) 
+  The type of synced folders to use when sharing the data required for the provisioner 
+  to work properly. By default this will use the default synced folder type.
+  For example, you can set this to "nfs" to use NFS synced folders. 
+  **Warning**: Setting this option while ```synced_folder_opts[:type]``` is also set,
+  generates a validation error.
 
-* `synced_folder_args` (array) - Arguments that are passed to the folder sync.
-  For example ['-a', '--delete', '--exclude=fixtures'] for the rsync sync
-  command.
+* `synced_folder_args` (array) - **Deprecated**  (use `synced_folder_opts` instead)
+  Arguments that are passed to the folder sync. 
+  For example ['-a', '--delete', '--exclude=fixtures'] for the rsync sync command. 
+  **Warning**: Setting this option while ```synced_folder_opts[:type]``` is not set 
+  to ```"rsync"```, generates a validation error.
+
+* `synced_folder_opts` (hash) - Options to apply when creating synced folders required
+  for the provisioner to work properly.  If not specified, this will use the default 
+  synced folder options. All [synced folder types](/synced-folders/basic_usage.html#options)
+  and their relevant options are supported.
 
 * `temp_dir` (string) - The directory where all the data associated with
   the Puppet run (manifest files, modules, etc.) will be stored on the
@@ -236,3 +245,22 @@ Vagrant.configure("2") do |config|
   end
 end
 ```
+
+## Synced folder options
+
+The puppet provisioner creates synced folders required to work properly.
+You are able to specify the options that are passed to the creation routine,
+all [synced folder types](/synced-folders/basic_usage.html) and their 
+[options](/synced-folders/basic_usage.html) are supported:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "puppet" do |puppet|
+    puppet.synced_folder_opts = { 
+      type: "nfs",
+      # ... valid nfs options [1]
+    }
+  end
+end
+```
+[1] [nfs-synced-folder-options](/synced-folders/nfs.html#nfs-synced-folder-options)

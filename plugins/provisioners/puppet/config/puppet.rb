@@ -19,6 +19,7 @@ module VagrantPlugins
         attr_accessor :options
         attr_accessor :synced_folder_type
         attr_accessor :synced_folder_args
+        attr_accessor :synced_folder_opts
         attr_accessor :temp_dir
         attr_accessor :working_directory
 
@@ -36,21 +37,16 @@ module VagrantPlugins
           @options               = []
           @facter                = {}
           @synced_folder_type    = UNSET_VALUE
+          @synced_folder_args    = UNSET_VALUE
+          @synced_folder_opts    = {}
           @temp_dir              = UNSET_VALUE
           @working_directory     = UNSET_VALUE
           @structured_facts   = UNSET_VALUE
         end
 
-        def nfs=(value)
-          puts "DEPRECATION: The 'nfs' setting for the Puppet provisioner is"
-          puts "deprecated. Please use the 'synced_folder_type' setting instead."
-          puts "The 'nfs' setting will be removed in the next version of Vagrant."
-
-          if value
-            @synced_folder_type = "nfs"
-          else
-            @synced_folder_type = nil
-          end
+        def synced_folder_opts(**opts)
+          [:nfs, :rsync, :smb, :virtualbox].each {|sym| opts[:type] = sym.to_s if opts.key?(sym)}
+          @synced_folder_opts = @synced_folder_opts.merge!(opts)
         end
 
         def merge(other)
@@ -95,10 +91,22 @@ module VagrantPlugins
             @environment_variables = {}
           end
 
+          if @synced_folder_opts.eql?({})
+            @synced_folder_opts[:type] = @synced_folder_type unless @synced_folder_type == UNSET_VALUE
+            @synced_folder_opts[:owner] = "root" if @synced_folder_type == UNSET_VALUE
+            @synced_folder_opts[:args] = @synced_folder_args unless @synced_folder_args == UNSET_VALUE
+            @synced_folder_opts[:nfs__quiet] = true
+          else
+            unless @synced_folder_type == UNSET_VALUE or @synced_folder_opts.key?(:type)
+              @synced_folder_opts[:type] = @synced_folder_type
+            end
+            unless @synced_folder_args == UNSET_VALUE or not @synced_folder_opts[:type] == "rsync"
+              @synced_folder_opts[:args] = @synced_folder_args
+            end
+          end
+
           @binary_path        = nil     if @binary_path == UNSET_VALUE
           @module_path        = nil     if @module_path == UNSET_VALUE
-          @synced_folder_type = nil     if @synced_folder_type == UNSET_VALUE
-          @synced_folder_args = nil if @synced_folder_args == UNSET_VALUE
           @temp_dir           = "/tmp/vagrant-puppet" if @temp_dir == UNSET_VALUE
           @working_directory  = nil     if @working_directory == UNSET_VALUE
           @structured_facts   = nil     if @structured_facts == UNSET_VALUE
@@ -120,6 +128,22 @@ module VagrantPlugins
 
         def validate(machine)
           errors = _detected_errors
+
+          unless @synced_folder_type == UNSET_VALUE
+            machine.ui.warn(I18n.t("vagrant.provisioners.puppet.synced_folder_type_deprecation"))
+            if @synced_folder_opts.key?(:type)
+              errors << I18n.t("vagrant.provisioners.puppet.synced_folder_type_ignored",
+                               synced_folder_type: @synced_folder_type,
+                               type: @synced_folder_opts[:type])
+            end
+          end
+
+          unless @synced_folder_args == UNSET_VALUE
+            machine.ui.warn(I18n.t("vagrant.provisioners.puppet.synced_folder_args_deprecation"))
+            unless @synced_folder_opts[:type] == "rsync"
+              errors << I18n.t("vagrant.provisioners.puppet.synced_folder_args_ignored", args: @synced_folder_args)
+            end
+          end
 
           # Calculate the manifests and module paths based on env
           this_expanded_module_paths = expanded_module_paths(machine.env.root_path)

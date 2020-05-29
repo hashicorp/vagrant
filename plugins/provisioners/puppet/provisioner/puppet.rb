@@ -28,18 +28,12 @@ module VagrantPlugins
             @module_paths << [path, File.join(config.temp_dir, "modules-#{key}")]
           end
 
-          folder_opts = {}
-          folder_opts[:type] = @config.synced_folder_type if @config.synced_folder_type
-          folder_opts[:owner] = "root" if !@config.synced_folder_type
-          folder_opts[:args] = @config.synced_folder_args if @config.synced_folder_args
-          folder_opts[:nfs__quiet] = true
-
           if @config.environment_path.is_a?(Array)
             # Share the environments directory with the guest
             if @config.environment_path[0].to_sym == :host
               root_config.vm.synced_folder(
                 File.expand_path(@config.environment_path[1], root_path),
-                environments_guest_path, folder_opts)
+                environments_guest_path, @config.synced_folder_opts)
             end
           end
           if @config.manifest_file
@@ -48,13 +42,13 @@ module VagrantPlugins
             if @config.manifests_path[0].to_sym == :host
               root_config.vm.synced_folder(
                 File.expand_path(@config.manifests_path[1], root_path),
-                manifests_guest_path, folder_opts)
+                manifests_guest_path, @config.synced_folder_opts)
             end
           end
 
           # Share the module paths
           @module_paths.each do |from, to|
-            root_config.vm.synced_folder(from, to, folder_opts)
+            root_config.vm.synced_folder(from, to, @config.synced_folder_opts)
           end
         end
 
