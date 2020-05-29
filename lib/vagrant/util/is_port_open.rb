@@ -34,6 +34,8 @@ module Vagrant
         # Any of the above exceptions signal that the port is closed.
         return false
       end
+
+      extend IsPortOpen
     end
   end
 end

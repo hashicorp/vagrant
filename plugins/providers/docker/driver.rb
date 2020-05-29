@@ -126,6 +126,41 @@ module VagrantPlugins
         result =~ /^#{Regexp.escape(id)}$/
       end
 
+      # Reads all current docker containers and determines what ports
+      # are currently registered to be forwarded
+      # {2222=>#<Set: {"127.0.0.1"}>, 8080=>#<Set: {"*"}>, 9090=>#<Set: {"*"}>}
+      #
+      # Note: This is this format because of what the builtin action for resolving colliding
+      # port forwards expects.
+      #
+      # @return [Hash[Set]] used_ports - {forward_port: #<Set: {"host ip address"}>}
+      def read_used_ports
+        used_ports = Hash.new{|hash,key| hash[key] = Set.new}
+
+        all_containers.each do |c|
+          container_info = inspect_container(c)
+
+          if container_info["HostConfig"]["PortBindings"]
+            port_bindings = container_info["HostConfig"]["PortBindings"]
+            next if port_bindings.empty? # Nothing defined, but not nil either
+
+            port_bindings.each do |guest_port,host_mapping|
+              host_mapping.each do |h|
+                if h["HostIp"] == ""
+                  hostip = "*"
+                else
+                  hostip = h["HostIp"]
+                end
+                hostport = h["HostPort"]
+                used_ports[hostport].add(hostip)
+              end
+            end
+          end
+        end
+
+        used_ports
+      end
+
       def running?(cid)
         result = execute('docker', 'ps', '-q', '--no-trunc')
         result =~ /^#{Regexp.escape cid}$/m

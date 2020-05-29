@@ -4,6 +4,7 @@ require "log4r"
 require "socket"
 
 require "vagrant/util/is_port_open"
+require "vagrant/util/ipv4_interfaces"
 
 module Vagrant
   module Action
@@ -26,6 +27,7 @@ module Vagrant
       #
       class HandleForwardedPortCollisions
         include Util::IsPortOpen
+        include Util::IPv4Interfaces
 
         def initialize(app, env)
           @app    = app
@@ -121,6 +123,7 @@ module Vagrant
             in_use = is_forwarded_already(extra_in_use, host_port, host_ip) ||
               call_port_checker(port_checker, host_ip, host_port) ||
               lease_check(host_ip, host_port)
+
             if in_use
               if !repair || !options[:auto_correct]
                 raise Errors::ForwardPortCollision,
@@ -243,22 +246,19 @@ module Vagrant
           return extra_in_use.fetch(hostport).include?(hostip)
         end
 
-        def ipv4_interfaces
-          Socket.getifaddrs.select do |ifaddr|
-            ifaddr.addr && ifaddr.addr.ipv4?
-          end.map do |ifaddr|
-            [ifaddr.name, ifaddr.addr.ip_address]
-          end
+        def port_check(host_ip, host_port)
+          self.class.port_check(@machine, host_ip, host_port)
         end
 
-        def port_check(host_ip, host_port)
+        def self.port_check(machine, host_ip, host_port)
+          @logger = Log4r::Logger.new("vagrant::action::builtin::handle_port_collisions")
           # If no host_ip is specified, intention taken to be listen on all interfaces.
           test_host_ip = host_ip || "0.0.0.0"
           if Util::Platform.windows? && test_host_ip == "0.0.0.0"
             @logger.debug("Testing port #{host_port} on all IPv4 interfaces...")
-            available_interfaces = ipv4_interfaces.select do |interface|
+            available_interfaces = Vagrant::Util::IPv4Interfaces.ipv4_interfaces.select do |interface|
               @logger.debug("Testing #{interface[0]} with IP address #{interface[1]}")
-              !is_port_open?(interface[1], host_port)
+              !Vagrant::Util::IsPortOpen.is_port_open?(interface[1], host_port)
             end
             if available_interfaces.empty?
               @logger.debug("Cannot forward port #{host_port} on any interfaces.")
@@ -269,10 +269,10 @@ module Vagrant
             end
           else
             # Do a regular check
-            if test_host_ip == "0.0.0.0" || ipv4_interfaces.detect { |iface| iface[1] == test_host_ip }
-              is_port_open?(test_host_ip, host_port)
+            if test_host_ip == "0.0.0.0" || Vagrant::Util::IPv4Interfaces.ipv4_interfaces.detect { |iface| iface[1] == test_host_ip }
+              Vagrant::Util::IsPortOpen.is_port_open?(test_host_ip, host_port)
             else
-              raise Errors::ForwardPortHostIPNotFound, name: @machine.name, host_ip: host_ip
+              raise Errors::ForwardPortHostIPNotFound, name: machine.name, host_ip: host_ip
             end
           end
         end
