@@ -1,0 +1,182 @@
+---
+layout: docs
+page_title: Podman - Provisioning
+sidebar_title: Podman
+description: >-
+  The Vagrant Podman provisioner can automatically install Podman, and run it as
+  a drop in replacement for Docker.
+---
+
+# Podman Provisioner
+
+**Provisioner name: `"podman"`**
+
+The Vagrant Podman provisioner can automatically install
+[Podman](https://www.podman.io) to be used as a drop in Docker replacement.
+This includes the ability to pull Docker containers, and configure certain
+containers to run on boot. The podman provisioner is ideal for organizations
+that are using Podman as a means to manage and run their OCI images.
+
+As with all provisioners, the Podman provisioner can be used along with
+all the other provisioners Vagrant has in order to setup your working
+environment the best way possible. For example, perhaps you use Puppet to
+install services like databases or web servers but use Podman to house
+your application runtime. You can use the Puppet provisioner along
+with the Podman provisioner.
+
+Note, that in order to install Podman on RHEL systems, the system must
+be registered.
+
+## Options
+
+The podman provisioner takes various options. None are required. If
+no options are provided, the Podman provisioner will only install Podman
+for you (if it is not already installed).
+
+- `images` (array) - A list of images to pull using `podman pull`. You
+  can also use the `pull_images` function. See the example below this
+  section for more information.
+
+In addition to the options that can be set, various functions are available
+and can be called to configure other aspects of the Podman provisioner. Most
+of these functions have examples in more detailed sections below.
+
+- `build_image` - Build an image from a Dockerfile.
+
+- `kubic` - Boolean, install Podman from [Kubic project](https://build.opensuse.org/project/show/devel:kubic:libcontainers:stable)
+
+- `pull_images` - Pull the given images. This does not start these images.
+
+- `post_install_provisioner` - A [provisioner block](/docs/provisioning) that runs post podman
+  installation.
+
+- `run` - Run a container and configure it to start on boot. This can
+  only be specified once.
+
+## Building Images
+
+The provisioner can automatically build images. Images are built prior to
+any configured containers to run, so you can build an image before running it.
+Building an image is easy:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "podman" do |d|
+    d.build_image "/vagrant/app"
+  end
+end
+```
+
+The argument to build an image is the path to give to `podman build`. This
+must be a path that exists within the guest machine. If you need to get data
+to the guest machine, use a synced folder.
+
+The `build_image` function accepts options as a second parameter. Here
+are the available options:
+
+- `args` (string) - Additional arguments to pass to `podman build`. Use this
+  to pass in things like `-t "foo"` to tag the image.
+
+## Pulling Images
+
+The podman provisioner can automatically pull images from the
+Docker registry for you. There are two ways to specify images to
+pull. The first is as an array using `images`:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "podman",
+    images: ["ubuntu"]
+end
+```
+
+This will cause Vagrant to pull the "ubuntu" image from the registry
+for you automatically.
+
+The second way to pull images is to use the `pull_images` function.
+Each call to `pull_images` will _append_ the images to be pulled. The
+`images` variable, on the other hand, can only be used once.
+
+Additionally, the `pull_images` function cannot be used with the
+simple configuration method for provisioners (specifying it all in one line).
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "podman" do |d|
+    d.pull_images "ubuntu"
+    d.pull_images "vagrant"
+  end
+end
+```
+
+## Running Containers
+
+In addition to pulling images, the Podman provisioner can run and start
+containers for you. This lets you automatically start services as part of
+`vagrant up`.
+
+Running containers can only be configured using the Ruby block syntax with
+the `do...end` blocks. An example of running a container is shown below:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "podman" do |d|
+    d.run "rabbitmq"
+  end
+end
+```
+
+This will `podman run` a container with the "rabbitmq" image. Note that
+Vagrant uses the first parameter (the image name by default) to override any
+settings used in a previous `run` definition. Therefore, if you need to run
+multiple containers from the same image then you must specify the `image`
+option (documented below) with a unique name.
+
+In addition to the name, the `run` method accepts a set of options, all optional:
+
+- `image` (string) - The image to run. This defaults to the first argument
+  but can also be given here as an option.
+
+- `cmd` (string) - The command to start within the container. If not specified,
+  then the container's default command will be used, such as the
+  "CMD" command [specified in the `Dockerfile`](https:/docs.docker.io/en/latest/use/builder/#cmd).
+
+- `args` (string) - Extra arguments for `podman run` (same as the extra arguments that can be specified for [`docker run`](https:/docs.docker.io/en/latest/commandline/cli/#run))
+  on the command line. These are raw arguments that are passed directly to Podman.
+
+- `auto_assign_name` (boolean) - If true, the `--name` of the container will
+  be set to the first argument of the run. By default this is true. If the
+  name set contains a "/" (because of the image name), it will be replaced
+  with "-". Therefore, if you do `d.run "foo/bar"`, then the name of the
+  container will be "foo-bar".
+
+- `daemonize` (boolean) - If true, the "-d" flag is given to `podman run` to
+  daemonize the containers. By default this is true.
+
+- `restart` (string) - The restart policy for the container. Defaults to
+  "always"
+
+For example, here is how you would configure Podman to run a container
+with the Vagrant shared directory mounted inside of it:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "podman" do |d|
+    d.run "ubuntu",
+      cmd: "bash -l",
+      args: "-v '/vagrant:/var/www'"
+  end
+end
+```
+
+In case you need to run multiple containers based off the same image, you can do
+so by providing different names and specifying the `image` parameter to it:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.provision "podman" do |d|
+    d.run "db-1", image: "user/mysql"
+    d.run "db-2", image: "user/mysql"
+  end
+end
+```

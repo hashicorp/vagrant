@@ -1,0 +1,63 @@
+---
+layout: docs
+page_title: config.vagrant - Vagrantfile
+sidebar_title: <code>config.vagrant</code>
+description: |-
+  The settings within "config.vagrant" modify the behavior of Vagrant
+  itself.
+---
+
+# Vagrant Settings
+
+**Config namespace: `config.vagrant`**
+
+The settings within `config.vagrant` modify the behavior of Vagrant
+itself.
+
+## Available Settings
+
+- `config.vagrant.host` (string, symbol) - This sets the type of host machine
+  that is running Vagrant. By default this is `:detect`, which causes Vagrant to
+  auto-detect the host. Vagrant needs to know this information in order to perform
+  some host-specific things, such as preparing NFS folders if they're enabled.
+  You should only manually set this if auto-detection fails.
+
+- `config.vagrant.plugins` - (string, array, hash) - Define plugin, list of
+  plugins, or definition of plugins to install for the local project. Vagrant
+  will require these plugins be installed and available for the project. If
+  the plugins are not available, it will attempt to automatically install
+  them into the local project. When requiring a single plugin, a string can
+  be provided:
+
+  ```ruby
+  config.vagrant.plugins = "vagrant-plugin"
+  ```
+
+  If multiple plugins are required, they can be provided as an array:
+
+  ```ruby
+  config.vagrant.plugins = ["vagrant-plugin", "vagrant-other-plugin"]
+  ```
+
+  Plugins can also be defined as a Hash, which supports setting extra options
+  for the plugins. When a Hash is used, the key is the name of the plugin, and
+  the value is a Hash of options for the plugin. For example, to set an explicit
+  version of a plugin to install:
+
+  ```ruby
+  config.vagrant.plugins = {"vagrant-scp" => {"version" => "1.0.0"}}
+  ```
+
+  Supported options are:
+
+  - `entry_point` - Path for Vagrant to load plugin
+  - `sources` - Custom sources for downloading plugin
+  - `version` - Version constraint for plugin
+
+- `config.vagrant.sensitive` - (string, array) - Value or list of values that
+  should not be displayed in Vagrant's output. Value(s) will be removed from
+  Vagrant's normal UI output as well as logger output.
+
+  ```ruby
+  config.vagrant.sensitive = ["MySecretPassword", ENV["MY_TOKEN"]]
+  ```

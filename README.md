@@ -1,8 +1,8 @@
 # Vagrant
 
-* Website: [https://www.vagrantup.com/](https://www.vagrantup.com/)
-* Source: [https://github.com/hashicorp/vagrant](https://github.com/hashicorp/vagrant)
-* HashiCorp Discuss: [https://discuss.hashicorp.com/c/vagrant/24](https://discuss.hashicorp.com/c/vagrant/24)
+- Website: [https://www.vagrantup.com/](https://www.vagrantup.com/)
+- Source: [https://github.com/hashicorp/vagrant](https://github.com/hashicorp/vagrant)
+- HashiCorp Discuss: [https://discuss.hashicorp.com/c/vagrant/24](https://discuss.hashicorp.com/c/vagrant/24)
 
 Vagrant is a tool for building and distributing development environments.
 
@@ -41,12 +41,12 @@ the box doesn't already exist on your system.
 ## Getting Started Guide
 
 To learn how to build a fully functional development environment, follow the
-[getting started guide](https://www.vagrantup.com/docs/getting-started/index.html).
+[getting started guide](https://www.vagrantup.com/docs/getting-started).
 
 ## Installing from Source
 
 If you want the bleeding edge version of Vagrant, we try to keep master pretty stable
-and you're welcome to give it a shot. Please review the installation page [here](https://www.vagrantup.com/docs/installation/source.html).
+and you're welcome to give it a shot. Please review the installation page [here](https://www.vagrantup.com/docs/installation/source).
 
 ## Contributing to Vagrant
 

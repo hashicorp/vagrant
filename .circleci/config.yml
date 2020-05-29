@@ -1,33 +1,33 @@
 version: 2
 
 jobs:
-  build-website:
-    # setting the working_directory along with the checkout path allows us to not have
-    # to cd into the website/ directory for commands
-    working_directory: ~/project/website
+  build-website-docker-image:
     docker:
-      - image: hashicorp/middleman-hashicorp:0.3.35
+      - image: circleci/buildpack-deps
+    shell: /usr/bin/env bash -euo pipefail -c
     steps:
-      - checkout:
-          path: ~/project
-      - restore_cache:
-          key: static-site-gems-v1-{{ checksum "Gemfile.lock" }}
+      - checkout
+      - setup_remote_docker
       - run:
-          command: bundle check || bundle install --path vendor/bundle
-      - save_cache:
-          key: static-site-gems-v1-{{ checksum "Gemfile.lock" }}
-          paths:
-            - ~/project/website/vendor/bundle
-      - run:
-          command: bundle exec middleman build
-      - run:
-          command: ./scripts/deploy.sh
+          name: Build Docker Image if Necessary
+          command: |
+            IMAGE_TAG=$(cat website/Dockerfile website/package-lock.json | sha256sum | awk '{print $1;}')
+            echo "Using $IMAGE_TAG"
+            if curl https://hub.docker.com/v2/repositories/hashicorp/vagrant-website/tags/$IMAGE_TAG -fsL > /dev/null; then
+                echo "Dependencies have not changed, not building a new website docker image."
+            else
+                cd website/
+                docker build -t hashicorp/vagrant-website:$IMAGE_TAG .
+                docker tag hashicorp/vagrant-website:$IMAGE_TAG hashicorp/vagrant-website:latest
+                docker login -u $WEBSITE_DOCKER_USER -p $WEBSITE_DOCKER_PASS
+                docker push hashicorp/vagrant-website
+            fi
 workflows:
   version: 2
-  website:
+  build_website_docker_image:
     jobs:
-      - build-website:
-          context: static-sites
+      - build-website-docker-image:
           filters:
             branches:
-              only: stable-website
+              only:
+                - master
