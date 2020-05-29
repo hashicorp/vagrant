@@ -26,8 +26,8 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
-          sata_controller = machine.provider.driver.storage_controllers.detect { |c| c[:type] == "IntelAhci" }
-          primary_disk = sata_controller[:attachments].detect { |a| a[:port] == "0" && a[:device] == "0" }[:uuid]
+          controller = machine.provider.driver.storage_controllers.detect { |c| c.sata_controller? }
+          primary_disk = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }[:uuid]
 
           unless disk_meta.nil?
             disk_meta.each do |d|
@@ -57,7 +57,7 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_dvds
         # @param [Hash] dvd_meta - A hash of all the previously defined dvds from the last configure_disk action
         def self.handle_cleanup_dvd(machine, defined_dvds, dvd_meta)
-          ide_controller = machine.provider.driver.storage_controllers.detect { |c| c[:type] == "PIIX4" }
+          controller = machine.provider.driver.storage_controllers.detect { |c| c.ide_controller? }
 
           unless dvd_meta.nil?
             dvd_meta.each do |d|
@@ -66,10 +66,10 @@ module VagrantPlugins
                 next
               else
                 LOGGER.warn("Found dvd not in Vagrantfile config: '#{d["name"]}'. Removing dvd from guest #{machine.name}")
-                attachments = ide_controller[:attachments].select { |a| a[:uuid] == d["uuid"] }
+                attachments = controller.attachments.select { |a| a[:uuid] == d["uuid"] }
                 attachments.each do |attachment|
                   machine.ui.warn("DVD '#{d["name"]}' no longer exists in Vagrant config. Removing medium from guest...", prefix: true)
-                  machine.provider.driver.remove_disk(attachment[:port].to_s, attachment[:device].to_s, ide_controller[:name])
+                  machine.provider.driver.remove_disk(attachment[:port].to_s, attachment[:device].to_s, controller.name)
                 end
               end
             end

@@ -936,6 +936,8 @@ module VagrantPlugins
 
         # Helper method to get a list of storage controllers added to the
         # current VM
+        #
+        # @return [Array<StorageController>]
         def storage_controllers
           vm_info = show_vm_info
           count = vm_info.count { |key, value| key.match(/^storagecontrollername/) }
@@ -954,12 +956,7 @@ module VagrantPlugins
               end
             end
 
-            {
-              name: name,
-              type: type,
-              maxportcount: maxportcount,
-              attachments: attachments
-            }
+            Model::StorageController.new(name, type, maxportcount, attachments)
           end
         end
 

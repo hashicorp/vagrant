@@ -33,16 +33,18 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
   let(:vm_info) { {"SATA Controller-ImageUUID-0-0" => "12345",
                    "SATA Controller-ImageUUID-1-0" => "67890"} }
 
-  let(:storage_controllers) { [{name: "SATA Controller",
-                                type: "IntelAhci",
-                                maxportcount: 30,
-                                attachments: [{port: "0", device: "0", uuid: "12345"},
-                                              {port: "1", device: "0", uuid: "67890"}]}] }
+  let(:controller) { double("controller", name: "SATA Controller", maxportcount: 30, sata_controller?: true, ide_controller?: false) }
+
+  let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
+                       {port: "1", device: "0", uuid: "67890"}]}
+
+  let(:storage_controllers) { [ controller ] }
 
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(driver).to receive(:show_vm_info).and_return(vm_info)
     allow(driver).to receive(:storage_controllers).and_return(storage_controllers)
+    allow(controller).to receive(:attachments).and_return(attachments)
   end
 
   describe "#cleanup_disks" do
@@ -107,10 +109,10 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
 
   describe "#handle_cleanup_dvd" do
     let(:vm_info) { {"IDE Controller-ImageUUID-0-0" => "1234" } }
-    let(:storage_controllers) { [{name: "IDE Controller",
-                                  type: "PIIX4",
-                                  maxportcount: 2,
-                                  attachments: [{port: "0", device: "0", uuid: "1234"}]}] }
+
+    let(:controller) { double("controller", name: "IDE Controller", maxportcount: 2, sata_controller?: false, ide_controller?: true) }
+    let(:attachments) { [{port: "0", device: "0", uuid: "1234"}] }
+
     let(:disk_meta_file) { {dvd: [{"uuid" => "1234", "name" => "iso"}]} }
     let(:defined_disks) { [] }
 
@@ -121,14 +123,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
     end
 
     context "multiple copies of the same ISO attached" do
-      let(:vm_info) { {"IDE Controller-ImageUUID-0-0" => "1234",
-                       "IDE Controller-ImageUUID-0-1" => "1234"} }
-
-      let(:storage_controllers) { [{name: "IDE Controller",
-                                    type: "PIIX4",
-                                    maxportcount: 2,
-                                    attachments: [{port: "0", device: "0", uuid: "1234"},
-                                                  {port: "0", device: "1", uuid: "1234"}]}] }
+      let(:attachments) { [{port: "0", device: "0", uuid: "1234"},
+                           {port: "0", device: "1", uuid: "1234"}] }
 
       it "removes all media with that UUID" do
         expect(driver).to receive(:remove_disk).with("0", "0", "IDE Controller").and_return(true)
