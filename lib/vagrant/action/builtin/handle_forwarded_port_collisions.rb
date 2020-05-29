@@ -270,7 +270,7 @@ module Vagrant
           else
             # Do a regular check
             if test_host_ip == "0.0.0.0" || Addrinfo.ip(test_host_ip).ipv4_loopback? ||
-                ipv4_interfaces.detect { |iface| iface[1] == test_host_ip }
+                Vagrant::Util::IPv4Interfaces.ipv4_interfaces.detect { |iface| iface[1] == test_host_ip }
               Vagrant::Util::IsPortOpen.is_port_open?(test_host_ip, host_port)
             else
               raise Errors::ForwardPortHostIPNotFound, name: machine.name, host_ip: host_ip

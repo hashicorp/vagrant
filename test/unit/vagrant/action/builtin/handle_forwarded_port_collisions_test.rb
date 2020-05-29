@@ -209,7 +209,7 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
       let (:host_ip) { "127.1.2.40" }
 
       it "should check if the port is open" do
-        expect(instance).to receive(:is_port_open?).with(host_ip, host_port).and_return(true)
+        expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(host_ip, host_port).and_return(true)
         instance.send(:port_check, host_ip, host_port)
       end
     end
