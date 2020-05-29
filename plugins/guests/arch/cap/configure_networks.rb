@@ -9,10 +9,12 @@ module VagrantPlugins
     module Cap
       class ConfigureNetworks
         include Vagrant::Util
+        extend Vagrant::Util::GuestInspection::Linux
 
         def self.configure_networks(machine, networks)
           comm = machine.communicate
           commands = []
+          uses_systemd_networkd = systemd_networkd?(comm)
 
           interfaces = machine.guest.capability(:network_interfaces)
           networks.each.with_index do |network, i|
@@ -25,9 +27,15 @@ module VagrantPlugins
               network[:netmask] = (32-Math.log2((IPAddr.new(network[:netmask], Socket::AF_INET).to_i^0xffffffff)+1)).to_i
             end
 
-            entry = TemplateRenderer.render("guests/arch/network_#{network[:type]}",
-              options: network,
-            )
+            if uses_systemd_networkd
+              entry = TemplateRenderer.render("guests/arch/systemd_networkd/network_#{network[:type]}",
+                options: network,
+              )
+            else
+              entry = TemplateRenderer.render("guests/arch/default_network/network_#{network[:type]}",
+                options: network,
+              )
+            end
 
             remote_path = "/tmp/vagrant-network-#{network[:device]}-#{Time.now.to_i}-#{i}"
 
@@ -39,7 +47,7 @@ module VagrantPlugins
               comm.upload(f.path, remote_path)
             end
 
-            if systemd_networkd?(comm)
+            if uses_systemd_networkd
               commands << <<-EOH.gsub(/^ {16}/, '').rstrip
                 # Configure #{network[:device]}
                 chmod 0644 '#{remote_path}' &&

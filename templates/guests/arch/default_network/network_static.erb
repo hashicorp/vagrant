@@ -1,0 +1,8 @@
+Connection=ethernet
+Description='A basic static ethernet connection'
+Interface=<%= options[:device] %>
+IP=static
+Address=('<%= options[:ip]%>/<%= options[:netmask] %>')
+<% if options[:gateway] -%>
+Gateway='<%= options[:gateway] %>'
+<% end -%>
