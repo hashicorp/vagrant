@@ -29,7 +29,7 @@ module VagrantPlugins
           controller = machine.provider.driver.storage_controllers.detect { |c| c.sata_controller? }
           primary_disk = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }[:uuid]
 
-          unless disk_meta.nil?
+          if disk_meta
             disk_meta.each do |d|
               dsk = defined_disks.select { |dk| dk.name == d["name"] }
               if !dsk.empty? || d["uuid"] == primary_disk

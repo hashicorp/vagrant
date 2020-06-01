@@ -1678,6 +1678,10 @@ en:
         4.2.14 contains a critical bug which prevents it from working with
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
+      virtualbox_disks_controller_not_found: |-
+        The current disk configuration requires a controller of type '%{controller_type}'.
+        Please add the proper controller to your guest using provider-specific
+        customizations, or remove the '%{disk_type}' disk configurations.
       virtualbox_disks_defined_exceed_limit: |-
         VirtualBox only allows up to 30 disks to be attached to a single guest using the SATA Controller,
         including the primray disk.

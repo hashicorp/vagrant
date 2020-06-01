@@ -932,6 +932,10 @@ module Vagrant
       error_key(:virtualbox_disks_defined_exceed_limit)
     end
 
+    class VirtualBoxDisksControllerNotFound < VagrantError
+      error_key(:virtualbox_disks_controller_not_found)
+    end
+
     class VirtualBoxGuestPropertyNotFound < VagrantError
       error_key(:virtualbox_guest_property_not_found)
     end

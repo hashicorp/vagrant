@@ -18,15 +18,23 @@ module VagrantPlugins
           return {} if !Vagrant::Util::Experimental.feature_enabled?("disks")
 
           disks_defined = defined_disks.select { |d| d.type == :disk }
-          controller = machine.provider.driver.storage_controllers.detect { |c| c.sata_controller? }
-          if disks_defined.any? && controller && disks_defined.size > controller.maxportcount
-            raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
+          if disks_defined.any?
+            controller = machine.provider.driver.storage_controllers.detect { |c| c.sata_controller? }
+            if controller.nil?
+              raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, disk_type: ':disk', controller_type: 'SATA'
+            elsif disks_defined.size > controller.maxportcount
+              raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
+            end
           end
 
           dvds_defined = defined_disks.select { |d| d.type == :dvd }
-          controller = machine.provider.driver.storage_controllers.detect { |c| c.ide_controller? }
-          if dvds_defined.any? && controller && dvds_defined.size > controller.maxportcount
-            raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
+          if dvds_defined.any?
+            controller = machine.provider.driver.storage_controllers.detect { |c| c.ide_controller? }
+            if controller.nil?
+              raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, disk_type: ':dvd', controller_type: 'IDE'
+            elsif dvds_defined.size > controller.maxportcount
+              raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
+            end
           end
 
           machine.ui.info(I18n.t("vagrant.cap.configure_disks.start"))
@@ -99,7 +107,8 @@ module VagrantPlugins
             disk_info = machine.provider.driver.get_port_and_device(current_disk["UUID"])
             if disk_info.empty?
               LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
-              dsk_info = get_next_port(machine)
+              controller = machine.provider.driver.storage_controllers.detect { |c| c.sata_controller? }
+              dsk_info = get_next_port(machine, controller.name)
               machine.provider.driver.attach_disk(dsk_info[:port],
                                                   dsk_info[:device],
                                                   current_disk["Location"])
@@ -195,9 +204,9 @@ module VagrantPlugins
         #  device = disk_info[3]
         #
         # @param [Vagrant::Machine] machine
-        # @param [String] controller name (defaults to "SATA Controller")
+        # @param [String] controller name
         # @return [Hash] dsk_info - The next available port and device on a given controller
-        def self.get_next_port(machine, controller_name="SATA Controller")
+        def self.get_next_port(machine, controller_name)
           controller = machine.provider.driver.storage_controllers.detect { |c| c.name == controller_name }
           # TODO: definitely need an error for this
           dsk_info = {}
