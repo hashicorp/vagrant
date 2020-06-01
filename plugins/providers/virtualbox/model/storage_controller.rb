@@ -2,11 +2,11 @@ module VagrantPlugins
   module ProviderVirtualBox
     module Model
       # Represents a storage controller for VirtualBox. Storage controllers
-      # have a type, a name, and can have hard disks or optical attached.
+      # have a type, a name, and can have hard disks or optical drives attached.
       class StorageController
 
-        SATA_CONTROLLER_TYPES = ["IntelAhci"].freeze
-        IDE_CONTROLLER_TYPES = ["PIIX4", "PIIX3", "ICH6"].freeze
+        SATA_CONTROLLER_TYPES = ["IntelAhci"].map(&:freeze).freeze
+        IDE_CONTROLLER_TYPES = ["PIIX4", "PIIX3", "ICH6"].map(&:freeze).freeze
 
         # The name of the storage controller.
         #
