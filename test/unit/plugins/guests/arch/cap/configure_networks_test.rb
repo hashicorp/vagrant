@@ -25,6 +25,7 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
     before do
       allow(guest).to receive(:capability).with(:network_interfaces)
         .and_return(["eth1", "eth2"])
+      allow(cap).to receive(:systemd_networkd?).and_return(true)
     end
 
     let(:network_1) do
@@ -58,6 +59,24 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
     it "should not extraneous && joiners" do
       cap.configure_networks(machine, [network_1, network_2])
       expect(comm.received_commands[0]).not_to match(/^\s*&&\s*$/)
+    end
+
+    context "network is not contolled by systemd" do
+      before do
+        allow(cap).to receive(:systemd_networkd?).and_return(false)
+      end
+
+      it "creates and stars the networks" do
+        cap.configure_networks(machine, [network_1, network_2])
+        expect(comm.received_commands[0]).to match(/mv (.+) '\/etc\/netctl\/eth1'/)
+        expect(comm.received_commands[0]).to match(/ip link set 'eth1' down/)
+        expect(comm.received_commands[0]).to match(/netctl restart 'eth1'/)
+        expect(comm.received_commands[0]).to match(/netctl enable 'eth1'/)
+        expect(comm.received_commands[0]).to match(/mv (.+) '\/etc\/netctl\/eth2'/)
+        expect(comm.received_commands[0]).to match(/ip link set 'eth2' down/)
+        expect(comm.received_commands[0]).to match(/netctl restart 'eth2'/)
+        expect(comm.received_commands[0]).to match(/netctl enable 'eth2'/)
+      end
     end
   end
 end

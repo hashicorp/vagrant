@@ -1,0 +1,8 @@
+Connection=ethernet
+Description='A basic IPv6 ethernet connection'
+Interface=<%= options[:device] %>
+IP6=static
+Address6=('<%= options[:ip]%>/<%= options[:netmask] %>')
+<% if options[:gateway] -%>
+Gateway6='<%= options[:gateway] %>'
+<% end -%>
