@@ -85,18 +85,24 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
     before do
       subject.type = :dvd
       subject.name = "untitled"
-    end
-
-    it "is valid with file path set" do
       allow(File).to receive(:file?).with(iso_path).and_return(true)
       subject.file = iso_path
+    end
+
+    it "is valid with test defaults" do
       subject.finalize!
       assert_valid
     end
 
     it "is invalid if file path is unset" do
+      subject.file = nil
       subject.finalize!
-      errors = subject.validate(machine)
+      assert_invalid
+    end
+
+    it "is invalid if primary" do
+      subject.primary = true
+      subject.finalize!
       assert_invalid
     end
   end

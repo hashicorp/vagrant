@@ -180,6 +180,10 @@ module VagrantPlugins
           errors << I18n.t("vagrant.config.disk.dvd_type_file_required", name: @name, machine: machine.name)
         end
 
+        if @type == :dvd && @primary
+          errors << I18n.t("vagrant.config.disk.dvd_type_primary", name: @name, machine: machine.name)
+        end
+
         if @file
           if !@file.is_a?(String)
             errors << I18n.t("vagrant.config.disk.invalid_file_type", file: @file, machine: machine.name)
