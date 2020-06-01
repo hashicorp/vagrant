@@ -1,4 +1,4 @@
-import fetch from 'isomorphic-unfetch'
+import s from './style.module.css'
 import { VERSION } from 'data/version.json'
 import ProductDownloader from '@hashicorp/react-product-downloader'
 import Head from 'next/head'
@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export default function DownloadsPage({ downloadData }) {
   return (
-    <div id="p-downloads" className="g-container">
+    <div className={s.root}>
       <HashiHead is={Head} title="Downloads | Vagrant by HashiCorp" />
       <ProductDownloader
         product="Vagrant"

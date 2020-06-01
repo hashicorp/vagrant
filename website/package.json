@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "HashiCorp",
   "dependencies": {
-    "@hashicorp/nextjs-scripts": "^8.1.0",
+    "@hashicorp/nextjs-scripts": "^8.3.1",
     "@hashicorp/react-button": "^2.2.0",
     "@hashicorp/react-code-block": "^1.2.7",
     "@hashicorp/react-consent-manager": "^2.1.0",
@@ -21,12 +21,10 @@
     "@hashicorp/react-tabs": "^0.4.0",
     "@hashicorp/react-vertical-text-block-list": "^2.0.1",
     "babel-plugin-import-glob-array": "^0.2.0",
-    "imagemin-mozjpeg": "^8.0.0",
-    "imagemin-optipng": "^7.1.0",
-    "imagemin-svgo": "^7.1.0",
-    "isomorphic-unfetch": "^3.0.0",
-    "next": "9.4.2",
-    "nprogress": "^0.2.0",
+    "imagemin-mozjpeg": "^9.0.0",
+    "imagemin-optipng": "^8.0.0",
+    "imagemin-svgo": "^8.0.0",
+    "next": "9.4.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
@@ -35,7 +33,8 @@
     "glob": "^7.1.6",
     "husky": "^4.2.5",
     "inquirer": "^7.1.0",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "stylelint-config-css-modules": "^2.2.0"
   },
   "husky": {
     "hooks": {
@@ -48,6 +47,7 @@
     "export": "node --max-old-space-size=2048 ./node_modules/.bin/next export",
     "format": "next-hashicorp format",
     "generate:component": "next-hashicorp generate component",
+    "generate:readme": "next-hashicorp markdown-blocks README.md",
     "lint": "next-hashicorp lint",
     "start": "rm -rf .next/cache/next-babel-loader/ && next dev",
     "static": "npm run build && npm run export && cp _redirects out/.",
