@@ -131,15 +131,15 @@ OUTPUT
     end
 
     it "returns the storage controllers" do
-      expect(subject.storage_controllers.first[:name]).to eq("SATA Controller")
-      expect(subject.storage_controllers.first[:type]).to eq("IntelAhci")
-      expect(subject.storage_controllers.first[:maxportcount]).to eq(30)
+      expect(subject.storage_controllers.first.name).to eq("SATA Controller")
+      expect(subject.storage_controllers.first.type).to eq("IntelAhci")
+      expect(subject.storage_controllers.first.maxportcount).to eq(30)
     end
 
     it "includes attachments for each storage controller" do
-      expect(subject.storage_controllers.first[:attachments])
+      expect(subject.storage_controllers.first.attachments)
         .to include(port: "0", device: "0", uuid: "12345")
-      expect(subject.storage_controllers.first[:attachments])
+      expect(subject.storage_controllers.first.attachments)
         .to include(port: "1", device: "0", uuid: "67890")
     end
   end
