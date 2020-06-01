@@ -66,7 +66,7 @@ describe "VagrantPlugins::GuestArch::Cap::ConfigureNetworks" do
         allow(cap).to receive(:systemd_networkd?).and_return(false)
       end
 
-      it "creates and stars the networks" do
+      it "creates and starts the networks" do
         cap.configure_networks(machine, [network_1, network_2])
         expect(comm.received_commands[0]).to match(/mv (.+) '\/etc\/netctl\/eth1'/)
         expect(comm.received_commands[0]).to match(/ip link set 'eth1' down/)
