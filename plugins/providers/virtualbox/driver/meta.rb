@@ -146,6 +146,7 @@ module VagrantPlugins
           :share_folders,
           :ssh_port,
           :start,
+          :storage_controllers,
           :suspend,
           :vdi_to_vmdk,
           :verify!,
