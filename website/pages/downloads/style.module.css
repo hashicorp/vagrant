@@ -1,4 +1,5 @@
-#p-downloads {
+.root {
+  composes: g-container from global;
   margin-top: 72px;
   margin-bottom: 72px;
 }

@@ -52,8 +52,8 @@ export default function VmwareIndex() {
               <p className="g-type-body">
                 The VMware hypervisor has been in production use since 1999. All
                 their products share the same, robust core that powers the
-                world's largest organizations. With the VMware provider, Vagrant
-                now runs on the strength of the same foundation.
+                world&lsquo;s largest organizations. With the VMware provider,
+                Vagrant now runs on the strength of the same foundation.
               </p>
             </li>
             <li>

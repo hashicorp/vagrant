@@ -1,8 +1,8 @@
-#p-community {
+.root {
   max-width: var(--site-max-width);
   margin: 72px auto;
 
-  & .g-section-header {
+  & :global(.g-section-header) {
     margin-bottom: 100px;
   }
 }

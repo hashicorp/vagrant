@@ -1,11 +1,10 @@
-.g-footer {
+.root {
   padding: 25px 0 17px 0;
   flex-shrink: 0;
   display: flex;
 
-  & .g-container {
+  & :global(.g-container) {
     display: flex;
-    justify-content: space-between;
     flex-wrap: wrap;
   }
 
@@ -15,18 +14,15 @@
     transition: opacity 0.25s ease;
     cursor: pointer;
     display: inline-block;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
-
-  & .left > a {
     margin-right: 20px;
     margin-bottom: 8px;
 
     &:last-child {
       margin-right: 0;
+    }
+
+    &:hover {
+      opacity: 1;
     }
   }
 }
