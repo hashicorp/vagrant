@@ -10,19 +10,29 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageController do
 
   subject { described_class.new(name, type, maxportcount, attachments) }
 
-  describe "#sata_controller?" do
-    let(:type) { "IntelAhci" }
+  describe "#initialize" do
+    context "with SATA controller type" do
+      let(:type) { "IntelAhci" }
 
-    it "is true for a SATA type" do
-      expect(subject.sata_controller?).to be(true)
+      it "is recognizes a SATA controller" do
+        expect(subject.storage_bus).to eq('SATA')
+      end
     end
-  end
 
-  describe "#ide_controller?" do
-    let(:type) { "PIIX4" }
+    context "with IDE controller type" do
+      let(:type) { "PIIX4" }
 
-    it "is true for an IDE type" do
-      expect(subject.ide_controller?).to be(true)
+      it "recognizes an IDE controller" do
+        expect(subject.storage_bus).to eq('IDE')
+      end
+    end
+
+    context "with some other type" do
+      let(:type) { "foo" }
+
+      it "is unknown" do
+        expect(subject.storage_bus).to eq('Unknown')
+      end
     end
   end
 end

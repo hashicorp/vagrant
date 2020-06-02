@@ -937,7 +937,7 @@ module VagrantPlugins
         # Helper method to get a list of storage controllers added to the
         # current VM
         #
-        # @return [Array<StorageController>]
+        # @return [Array<VagrantPlugins::ProviderVirtualBox::Model::StorageController>]
         def storage_controllers
           vm_info = show_vm_info
           count = vm_info.count { |key, value| key.match(/^storagecontrollername/) }
@@ -958,6 +958,22 @@ module VagrantPlugins
 
             Model::StorageController.new(name, type, maxportcount, attachments)
           end
+        end
+
+
+        # Get the controller that uses the specified storage bus.
+        #
+        # A VirtualBoxDisksControllerNotFound error is raised if a compatible
+        # storage controller cannot be found.
+        #
+        # @param [String] storage_bus - for example, 'IDE' or 'SATA'
+        # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController] controller
+        def get_controller(storage_bus)
+          controller = storage_controllers.detect { |c| c.storage_bus == storage_bus }
+          if controller.nil?
+            raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: storage_bus
+          end
+          controller
         end
 
         protected

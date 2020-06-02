@@ -18,6 +18,12 @@ module VagrantPlugins
         # @return [String]
         attr_reader :type
 
+        # The storage bus associated with the storage controller, which can be
+        # inferred from its specific type.
+        #
+        # @return [String]
+        attr_reader :storage_bus
+
         # The maximum number of avilable ports for the storage controller. For
         # SATA controllers, this indicates the number of disks that can be
         # attached. For IDE controllers, this indicates that n*2 disks can be
@@ -34,18 +40,19 @@ module VagrantPlugins
         def initialize(name, type, maxportcount, attachments)
           @name         = name
           @type         = type
+
+          if SATA_CONTROLLER_TYPES.include?(@type)
+            @storage_bus = 'SATA'
+          elsif IDE_CONTROLLER_TYPES.include?(@type)
+            @storage_bus = 'IDE'
+          else
+            @storage_bus = 'Unknown'
+          end
+
           @maxportcount = maxportcount.to_i
 
           attachments ||= []
           @attachments  = attachments
-        end
-
-        def sata_controller?
-          SATA_CONTROLLER_TYPES.include?(@type)
-        end
-
-        def ide_controller?
-          IDE_CONTROLLER_TYPES.include?(@type)
         end
       end
     end

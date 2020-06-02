@@ -31,17 +31,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
                    "SATA Controller-ImageUUID-0-0" => "12345",
                    "SATA Controller-ImageUUID-1-0" => "67890"} }
 
-  let(:sata_controller) { double("sata_controller",
-                                 name: "SATA Controller",
-                                 maxportcount: 30,
-                                 sata_controller?: true,
-                                 ide_controller?: false) }
-
-  let(:ide_controller) { double("ide_controller",
-                                name: "IDE Controller",
-                                maxportcount: 2,
-                                ide_controller?: true,
-                                sata_controller?: false) }
+  let(:sata_controller) { double("controller", name: "SATA Controller", storage_bus: "SATA", maxportcount: 30) }
+  let(:ide_controller) { double("controller", name: "IDE Controller", storage_bus: "IDE", maxportcount: 2) }
 
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
                        {port: "1", device: "0", uuid: "67890"}]}
@@ -84,8 +75,12 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(driver).to receive(:show_vm_info).and_return(vm_info)
+
     allow(sata_controller).to receive(:attachments).and_return(attachments)
-    allow(driver).to receive(:storage_controllers).and_return([sata_controller])
+
+    allow(driver).to receive(:get_controller).with("IDE").and_return(ide_controller)
+    allow(driver).to receive(:get_controller).with("SATA").and_return(sata_controller)
+    allow(driver).to receive(:storage_controllers).and_return([ide_controller, sata_controller])
   end
 
   describe "#configure_disks" do
@@ -113,9 +108,10 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       end
     end
 
-    context "missing SATA controller" do
+    context "no SATA controller" do
       before do
-        allow(driver).to receive(:storage_controllers).and_return([])
+        allow(driver).to receive(:get_controller).with("SATA").
+          and_raise(Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "SATA")
       end
 
       it "raises an error" do
@@ -125,10 +121,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
 
     context "with dvd type" do
-      before do
-        allow(driver).to receive(:storage_controllers).and_return([ide_controller])
-      end
-
       let(:defined_disks) { [double("dvd", type: :dvd)] }
       let(:dvd_data) { {uuid: "1234", name: "dvd"} }
 
@@ -138,9 +130,10 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         subject.configure_disks(machine, defined_disks)
       end
 
-      context "missing IDE controller" do
+      context "no IDE controller" do
         before do
-          allow(driver).to receive(:storage_controllers).and_return([])
+          allow(driver).to receive(:get_controller).with("IDE").
+            and_raise(Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "IDE")
         end
 
         it "raises an error" do
@@ -332,7 +325,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       before do
         allow(ide_controller).to receive(:attachments).and_return(attachments)
-        allow(driver).to receive(:storage_controllers).and_return([ide_controller])
       end
 
       it "determines the next available port and device to use" do
@@ -456,7 +448,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       allow(ide_controller).to receive(:attachments).and_return(
         [port: "0", device: "0", uuid: "12345"]
       )
-      allow(driver).to receive(:storage_controllers).and_return([ide_controller])
     end
 
     it "returns the UUID of the newly-attached dvd" do
