@@ -25,12 +25,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     double(:state)
   end
 
-  let(:vm_info) { {"storagecontrollername0" => "SATA Controller",
-                   "storagecontrollertype0" => "IntelAhci",
-                   "storagecontrollermaxportcount0" => "30",
-                   "SATA Controller-ImageUUID-0-0" => "12345",
-                   "SATA Controller-ImageUUID-1-0" => "67890"} }
-
   let(:sata_controller) { double("controller", name: "SATA Controller", storage_bus: "SATA", maxportcount: 30) }
   let(:ide_controller) { double("controller", name: "IDE Controller", storage_bus: "IDE", maxportcount: 2) }
 
@@ -74,8 +68,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
-    allow(driver).to receive(:show_vm_info).and_return(vm_info)
-
     allow(sata_controller).to receive(:attachments).and_return(attachments)
 
     allow(driver).to receive(:get_controller).with("IDE").and_return(ide_controller)
@@ -301,7 +293,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       expect(driver).to receive(:create_disk).
         with(disk_file, disk_config.size, "VDI").and_return(disk_data)
 
-      expect(subject).to receive(:get_next_port).with(machine).
+      expect(subject).to receive(:get_next_port).with(machine, sata_controller).
         and_return(port_and_device)
 
       expect(driver).to receive(:attach_disk).with(port_and_device[:port],
@@ -314,7 +306,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   describe ".get_next_port" do
     it "determines the next available port and device to use" do
-      dsk_info = subject.get_next_port(machine, sata_controller.name)
+      dsk_info = subject.get_next_port(machine, sata_controller)
       expect(dsk_info[:port]).to eq("2")
       expect(dsk_info[:device]).to eq("0")
     end
@@ -328,7 +320,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       end
 
       it "determines the next available port and device to use" do
-        dsk_info = subject.get_next_port(machine, ide_controller.name)
+        dsk_info = subject.get_next_port(machine, ide_controller)
         expect(dsk_info[:port]).to eq("1")
         expect(dsk_info[:device]).to eq("0")
       end
@@ -340,7 +332,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
                              {port: "1", device: "1", uuid: "44444"}] }
 
         it "raises an error" do
-          expect { subject.get_next_port(machine, ide_controller.name) }
+          expect { subject.get_next_port(machine, ide_controller) }
             .to raise_error(Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit)
         end
       end
@@ -444,7 +436,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     let(:dvd_config) { double("dvd", file: "/tmp/untitled.iso", name: "dvd1") }
 
     before do
-      allow(subject).to receive(:get_next_port).with(machine, ide_controller.name).and_return({device: "0", port: "0"})
+      allow(subject).to receive(:get_next_port).with(machine, ide_controller).
+        and_return({device: "0", port: "0"})
       allow(ide_controller).to receive(:attachments).and_return(
         [port: "0", device: "0", uuid: "12345"]
       )

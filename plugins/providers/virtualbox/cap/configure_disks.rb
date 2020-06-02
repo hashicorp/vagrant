@@ -104,7 +104,7 @@ module VagrantPlugins
             if disk_info.empty?
               LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
               controller = machine.provider.driver.get_controller('SATA')
-              dsk_info = get_next_port(machine, controller.name)
+              dsk_info = get_next_port(machine, controller)
               machine.provider.driver.attach_disk(dsk_info[:port],
                                                   dsk_info[:device],
                                                   current_disk["Location"])
@@ -126,7 +126,7 @@ module VagrantPlugins
         def self.handle_configure_dvd(machine, dvd)
           controller = machine.provider.driver.get_controller('IDE')
 
-          disk_info = get_next_port(machine, controller.name)
+          disk_info = get_next_port(machine, controller)
           machine.provider.driver.attach_disk(disk_info[:port], disk_info[:device], dvd.file, "dvddrive")
 
           # Refresh the controller information
@@ -181,7 +181,8 @@ module VagrantPlugins
           disk_var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
           disk_metadata = {uuid: disk_var.split(':').last.strip, name: disk_config.name}
 
-          dsk_controller_info = get_next_port(machine)
+          controller = machine.provider.driver.get_controller('SATA')
+          dsk_controller_info = get_next_port(machine, controller)
           machine.provider.driver.attach_disk(dsk_controller_info[:port], dsk_controller_info[:device], disk_file)
 
           disk_metadata
@@ -200,11 +201,9 @@ module VagrantPlugins
         #  device = disk_info[3]
         #
         # @param [Vagrant::Machine] machine
-        # @param [String] controller name
+        # @param [VagrantPlugins::ProviderVirtualBox::Model::StorageController] controller
         # @return [Hash] dsk_info - The next available port and device on a given controller
-        def self.get_next_port(machine, controller_name)
-          controller = machine.provider.driver.storage_controllers.detect { |c| c.name == controller_name }
-          # TODO: definitely need an error for this
+        def self.get_next_port(machine, controller)
           dsk_info = {}
 
           if controller.storage_bus == 'SATA'

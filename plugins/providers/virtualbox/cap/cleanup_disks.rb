@@ -26,7 +26,7 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
-          controller = machine.provider.driver.storage_controllers.detect { |c| c.sata_controller? }
+          controller = machine.provider.driver.get_controller('SATA')
           primary_disk = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }[:uuid]
 
           if disk_meta
@@ -57,9 +57,8 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_dvds
         # @param [Hash] dvd_meta - A hash of all the previously defined dvds from the last configure_disk action
         def self.handle_cleanup_dvd(machine, defined_dvds, dvd_meta)
-          controller = machine.provider.driver.storage_controllers.detect { |c| c.ide_controller? }
-
-          unless dvd_meta.nil?
+          if dvd_meta
+            controller = machine.provider.driver.get_controller('IDE')
             dvd_meta.each do |d|
               dsk = defined_dvds.select { |dk| dk.name == d["name"] }
               if !dsk.empty?

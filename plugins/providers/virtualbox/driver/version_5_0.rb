@@ -960,7 +960,6 @@ module VagrantPlugins
           end
         end
 
-
         # Get the controller that uses the specified storage bus.
         #
         # A VirtualBoxDisksControllerNotFound error is raised if a compatible
