@@ -19,6 +19,7 @@ describe Vagrant::Util::Downloader do
 
   before :each do
     allow(Vagrant::Util::Subprocess).to receive(:execute).and_return(subprocess_result)
+    allow(Vagrant).to receive(:in_installer?).and_return(false)
   end
 
   describe "#download!" do
