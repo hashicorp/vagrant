@@ -44,7 +44,7 @@ module VagrantPlugins
                   LOGGER.warn("Disk '#{d["name"]}' not attached to guest, but still exists.")
                 else
                   # TODO: write test for sata controller with another name
-                  machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
+                  machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device], controller.name)
                 end
 
                 machine.provider.driver.close_medium(d["uuid"])

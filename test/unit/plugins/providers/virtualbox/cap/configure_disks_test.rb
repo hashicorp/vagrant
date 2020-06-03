@@ -361,7 +361,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).
           and_return(true)
 
-        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device]).
+        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device], sata_controller.name).
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 
@@ -393,7 +393,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).
           and_return(true)
 
-        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device]).
+        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device], sata_controller.name).
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 

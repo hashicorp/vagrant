@@ -92,6 +92,12 @@ OUTPUT
   end
 
   describe "#attach_disk" do
+    let(:controller) { double("controller", name: "IDE Controller", storage_bus: "IDE") }
+
+    before do
+      allow(subject).to receive(:get_controller).with(controller.storage_bus).and_return(controller)
+    end
+
     it "attaches a dvddrive device to the IDE controller" do
       expect(subject).to receive(:execute) do |*args|
         storagectl = args[args.index("--storagectl") + 1]
@@ -102,15 +108,7 @@ OUTPUT
   end
 
   describe "#remove_disk" do
-    it "removes a disk from the SATA Controller by default" do
-      expect(subject).to receive(:execute) do |*args|
-        storagectl = args[args.index("--storagectl") + 1]
-        expect(storagectl).to eq("SATA Controller")
-      end
-      subject.remove_disk(anything, anything)
-    end
-
-    it "can remove a disk from the specified controller" do
+    it "removes a disk from the specified controller" do
       expect(subject).to receive(:execute) do |*args|
         storagectl = args[args.index("--storagectl") + 1]
         expect(storagectl).to eq("IDE Controller")

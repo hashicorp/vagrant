@@ -263,9 +263,10 @@ module VagrantPlugins
 
             begin
               # Danger Zone
+              controller = machine.provider.driver.get_controller('SATA')
 
               # remove and close original volume
-              machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
+              machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device], controller.name)
               # Create a backup of the original disk if something goes wrong
               LOGGER.warn("Making a backup of the original disk at #{defined_disk["Location"]}")
               FileUtils.mv(defined_disk["Location"], backup_disk_location)
