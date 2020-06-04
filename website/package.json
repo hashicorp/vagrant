@@ -15,7 +15,7 @@
     "@hashicorp/react-head": "^1.0.0",
     "@hashicorp/react-image": "^2.0.1",
     "@hashicorp/react-mega-nav": "^4.0.1-2",
-    "@hashicorp/react-product-downloader": "^3.3.0",
+    "@hashicorp/react-product-downloader": "^3.3.1",
     "@hashicorp/react-section-header": "^2.0.0",
     "@hashicorp/react-subnav": "^3.2.1",
     "@hashicorp/react-tabs": "^0.4.0",
