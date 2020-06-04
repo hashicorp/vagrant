@@ -1,0 +1,31 @@
+---
+layout: docs
+page_title: Vagrant Cloud-Init Configuration
+sidebar_title: Configuration
+description: Documentation of various configuration options for Vagrant cloud-init
+---
+
+# Configuration
+
+Vagrant cloud-init has several options that allow users to define and attach disks to guests.
+
+## cloud_init Options
+
+- `content_type` (string) - Required argument that defines the Content-Type of the
+given cloud_init config. Vagrant only supports the following options for `content_type`:
+
+   + `"text/cloud-boothook"`
+   + `"text/cloud-config"`
+   + `"text/cloud-config-archive"`
+   + `"text/jinja2"`
+   + `"text/part-handler"`
+   + `"text/upstart-job"`
+   + `"text/x-include-once-url"`
+   + `"text/x-include-url"`
+   + `"text/x-shellscript"`
+
+- `path` (string) - Optional argument that defines what kind of file
+  extension a disk should have. Defaults to `"vdi"` if unspecified. For a list of
+  supported disk extensions, please check the specific provider being used.
+- `inline` (string) - Optional argument that defines a path on disk pointing to
+  the location of a disk file that already exists.

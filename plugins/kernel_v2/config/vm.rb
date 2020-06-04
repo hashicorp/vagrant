@@ -13,6 +13,7 @@ require "vagrant/util/map_command_options"
 require File.expand_path("../vm_provisioner", __FILE__)
 require File.expand_path("../vm_subvm", __FILE__)
 require File.expand_path("../disk", __FILE__)
+require File.expand_path("../cloud_init", __FILE__)
 
 module VagrantPlugins
   module Kernel_V2
@@ -47,6 +48,7 @@ module VagrantPlugins
       attr_accessor :usable_port_range
       attr_reader :provisioners
       attr_reader :disks
+      attr_reader :cloud_init_configs
       attr_reader :box_extra_download_options
 
       # This is an experimental feature that isn't public yet.
@@ -81,6 +83,7 @@ module VagrantPlugins
         @post_up_message               = UNSET_VALUE
         @provisioners                  = []
         @disks                         = []
+        @cloud_init_configs            = []
         @usable_port_range             = UNSET_VALUE
 
         # Internal state
@@ -152,6 +155,28 @@ module VagrantPlugins
             new_disks << p.dup
           end
           result.instance_variable_set(:@disks, new_disks)
+
+          # Merge defined cloud_init_configs
+          other_cloud_init_configs = other.instance_variable_get(:@cloud_init_configs)
+          new_cloud_init_configs   = []
+          @cloud_init_configs.each do |p|
+            other_p = other_cloud_init_configs.find { |o| p.id == o.id }
+            if other_p
+              # there is an override. take it.
+              other_p.config = p.config.merge(other_p.config)
+
+              # Remove duplicate disk config from other
+              p = other_p
+              other_cloud_init_configs.delete(other_p)
+            end
+
+            # there is an override, merge it into the
+            new_cloud_init_configs << p.dup
+          end
+          other_cloud_init_configs.each do |p|
+            new_cloud_init_configs << p.dup
+          end
+          result.instance_variable_set(:@cloud_init_configs, new_cloud_init_configs)
 
           # Merge the providers by prepending any configuration blocks we
           # have for providers onto the new configuration.
@@ -446,6 +471,28 @@ module VagrantPlugins
         @disks << disk_config
       end
 
+      # Stores config options for cloud_init
+      #
+      # @param [Hash]   options
+      # @param [Block]  block
+      def cloud_init(**options, &block)
+        cloud_init_config = VagrantConfigCloudInit.new()
+
+        if block_given?
+          block.call(cloud_init_config, VagrantConfigCloudInit)
+        else
+          # config is hash
+          cloud_init_config.set_options(options)
+        end
+
+        if !Vagrant::Util::Experimental.feature_enabled?("cloud_init")
+          @logger.warn("cloud_init config defined, but experimental feature is not enabled. To use this feature, enable it with the experimental flag `cloud_init`. cloud_init config will not be added to internal config, and will be ignored.")
+          return
+        end
+
+        @cloud_init_configs << cloud_init_config
+      end
+
       #-------------------------------------------------------------------
       # Internal methods, don't call these.
       #-------------------------------------------------------------------
@@ -613,6 +660,10 @@ module VagrantPlugins
 
         @disks.each do |d|
           d.finalize!
+        end
+
+        @cloud_init_configs.each do |c|
+          c.finalize!
         end
 
         if !current_dir_shared && !@__synced_folders["/vagrant"]
@@ -851,6 +902,12 @@ module VagrantPlugins
 
         @disks.each do |d|
           error = d.validate(machine)
+          errors.concat error if !error.empty?
+        end
+
+        # Validate clout_init_configs
+        @cloud_init_configs.each do |c|
+          error = c.validate(machine)
           errors.concat error if !error.empty?
         end
 
