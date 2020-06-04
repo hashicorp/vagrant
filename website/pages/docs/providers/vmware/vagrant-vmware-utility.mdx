@@ -29,8 +29,8 @@ Next create a directory for the executable and unpack the executable as
 root.
 
 ```shell-session
-$ sudo mkdir /opt/vagrant-vmware-desktop/bin
-$ sudo unzip -d /opt/vagrant-vmware-desktop/bin vagrant-vmware-utility_1.0.0_x86_64.zip
+$ sudo mkdir -p /opt/vagrant-vmware-desktop/bin
+$ sudo unzip -d /opt/vagrant-vmware-desktop/bin vagrant-vmware-utility_1.0.0_linux_amd64.zip
 ```
 
 After the executable has been installed, the utility setup tasks must be run. First,
@@ -46,7 +46,7 @@ configuration if installing to a non-standard path.
 Finally, install the service. This will also enable the service.
 
 ```shell-session
-$ sudo /usr/local/vagrant-vmware-desktop/vagrant-vmware-utility service install
+$ sudo /opt/vagrant-vmware-desktop/bin/vagrant-vmware-utility service install
 ```
 
 # Usage
