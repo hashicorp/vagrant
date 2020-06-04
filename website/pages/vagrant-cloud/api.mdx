@@ -1261,7 +1261,10 @@ end
   "original_url": "https://example.com/virtualbox-1.2.3.box",
   "created_at": "2017-10-20T15:23:35.718Z",
   "updated_at": "2017-10-20T15:23:35.718Z",
-  "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box"
+  "download_url": "https://vagrantcloud.com/myuser/boxes/test/versions/1.2.3/providers/virtualbox.box",
+  "checksum": "a59e7332e8bbe896f11f478fc61fa8a6",
+  "checksum_type": "md5"
+
 }
 ```
 
@@ -1274,6 +1277,8 @@ end
 - `provider`
   - `name` - The name of the provider.
   - `url` - A valid URL to download this provider. If omitted, you must [upload](#upload-a-provider) the Vagrant box image for this provider to Vagrant Cloud before the provider can be used.
+  - `checksum` - Computed checksum of the box assets. When set, Vagrant will compute the checksum of the downloaded box asset and validate it matches this value.
+  - `checksum_type` - Type of checksum used. Currently supported values: md5, sha1, sha256, sha384, and sha512
 
 #### Example Request
 
@@ -1288,6 +1293,8 @@ curl \
   --data '
     {
       "provider": {
+        "checksum": "a59e7332e8bbe896f11f478fc61fa8a6",
+        "checksum_type": "md5",
         "name": "virtualbox",
         "url": "https://example.com/virtualbox-1.2.3.box"
       }
@@ -1354,6 +1361,8 @@ curl \
   --data '
     {
       "provider": {
+        "checksum": "a59e7332e8bbe896f11f478fc61fa8a6",
+        "checksum_type": "md5",
         "name": "virtualbox",
         "url": "https://example.com/virtualbox-1.2.3.box"
       }
