@@ -1850,7 +1850,7 @@ en:
     config:
       disk:
         dvd_type_file_required:
-          A 'file' option is required when defining a disk of type `:dvd` for guest '%{machine}'.
+          A 'file' option is required when defining a disk of type ':dvd' for guest '%{machine}'.
         dvd_type_primary: |-
           Disks of type ':dvd' cannot be defined as a primary disks. Please
           remove the 'primary' argument for disk '%{name}' on guest '%{machine}'.
