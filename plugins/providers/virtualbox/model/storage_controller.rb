@@ -24,13 +24,18 @@ module VagrantPlugins
         # @return [String]
         attr_reader :storage_bus
 
-        # The maximum number of avilable ports for the storage controller. For
-        # SATA controllers, this indicates the number of disks that can be
-        # attached. For IDE controllers, this indicates that n*2 disks can be
-        # attached (primary/secondary).
+        # The maximum number of avilable ports for the storage controller.
         #
         # @return [Integer]
         attr_reader :maxportcount
+
+        # The maximum number of individual disks that can be attached to the
+        # storage controller. For SATA controllers, this equals the maximum
+        # number of ports. For IDE controllers, this will be twice the max
+        # number of ports (primary/secondary).
+        #
+        # @return [Integer]
+        attr_reader :limit
 
         # The list of disks/ISOs attached to each storage controller.
         #
@@ -50,6 +55,11 @@ module VagrantPlugins
           end
 
           @maxportcount = maxportcount.to_i
+          if @storage_bus == 'IDE'
+            @limit = @maxportcount * 2
+          else
+            @limit = @maxportcount
+          end
 
           attachments ||= []
           @attachments  = attachments

@@ -25,8 +25,13 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     double(:state)
   end
 
-  let(:sata_controller) { double("controller", name: "SATA Controller", storage_bus: "SATA", maxportcount: 30) }
-  let(:ide_controller) { double("controller", name: "IDE Controller", storage_bus: "IDE", maxportcount: 2) }
+  let(:sata_controller) { double("controller", name: "SATA Controller",
+                                 storage_bus: "SATA", maxportcount: 30,
+                                 limit: 30) }
+
+  let(:ide_controller) { double("controller", name: "IDE Controller",
+                                storage_bus: "IDE", maxportcount: 2,
+                                limit: 4) }
 
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
                        {port: "1", device: "0", uuid: "67890"}]}

@@ -13,17 +13,27 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageController do
   describe "#initialize" do
     context "with SATA controller type" do
       let(:type) { "IntelAhci" }
+      let(:maxportcount) { 30 }
 
-      it "is recognizes a SATA controller" do
+      it "recognizes a SATA controller" do
         expect(subject.storage_bus).to eq('SATA')
+      end
+
+      it "calculates the maximum number of attachments" do
+        expect(subject.limit).to eq(30)
       end
     end
 
     context "with IDE controller type" do
       let(:type) { "PIIX4" }
+      let(:maxportcount) { 2 }
 
       it "recognizes an IDE controller" do
         expect(subject.storage_bus).to eq('IDE')
+      end
+
+      it "calculates the maximum number of attachments" do
+        expect(subject.limit).to eq(4)
       end
     end
 

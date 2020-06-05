@@ -20,16 +20,22 @@ module VagrantPlugins
           disks_defined = defined_disks.select { |d| d.type == :disk }
           if disks_defined.any?
             controller = machine.provider.driver.get_controller('SATA')
-            if disks_defined.size > controller.maxportcount
-              raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
+            if disks_defined.size > controller.limit
+              raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
+                limit: controller.limit,
+                storage_bus: 'SATA',
+                type: :disk
             end
           end
 
           dvds_defined = defined_disks.select { |d| d.type == :dvd }
           if dvds_defined.any?
             controller = machine.provider.driver.get_controller('IDE')
-            if disks_defined.size > controller.maxportcount * 2
-              raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
+            if disks_defined.size > controller.limit
+              raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
+                limit: controller.limit,
+                storage_bus: 'IDE',
+                type: :dvd
             end
           end
 
@@ -236,8 +242,12 @@ module VagrantPlugins
 
           if dsk_info[:port].to_s.empty?
             # This likely only occurs if additional disks have been added outside of Vagrant configuration
-            LOGGER.warn("There are no more available ports to attach disks to for the controller '#{controller}'. Clear up some space on the controller '#{controller}' to attach new disks.")
-            raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit
+            LOGGER.warn("There is no more available space to attach disks to for the controller '#{controller}'. Clear up some space on the controller '#{controller}' to attach new disks.")
+            disk_type = controller.storage_bus == 'SATA' ? :disk : :dvd
+            raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
+              limit: controller.limit,
+              storage_bus: controller.storage_bus,
+              type: disk_type
           end
 
           dsk_info
