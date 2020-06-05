@@ -14,13 +14,21 @@ Vagrant Disks has several options that allow users to define and attach disks to
 - `disk_ext` (string) - Optional argument that defines what kind of file
   extension a disk should have. Defaults to `"vdi"` if unspecified. For a list of
   supported disk extensions, please check the specific provider being used.
-- `file` (string) - Optional argument that defines a path on disk pointing to
-  the location of a disk file that already exists.
+  Not used for type `:dvd.`
+
+- `file` (string) - Ffor type `:dvd`, this is a required argument that should
+  point to an .iso file on the host machine. For type `:disk`, this is an
+  optional argument that can point to the location of a disk file that already
+  exists.
+
 - `name` (string) - Required option to give the disk a name. This name will be
-  used as the filename when creating the disk.
-- `primary` (boolean) - Optional argument that configures a given disk to be the
-  "primary" disk to manage on the guest. There can only be one `primary` disk per guest.
-  Defaults to `false` if not specified.
+  also be used as the filename when creating a virtual hard disk.
+
+- `primary` (boolean) - Optional argument that configures a given disk to be
+  the "primary" disk to manage on the guest. There can only be one `primary`
+  disk per guest, and it must be of type `:disk`.  Defaults to `false` if not
+  specified.
+
 - `provider_config` (hash) - Additional provider specific options for managing a given disk. Please refer to
   the provider specific documentation to see any available provider_config options.
 
@@ -31,7 +39,8 @@ Vagrant Disks has several options that allow users to define and attach disks to
   - `{providername: {diskoption: value}, otherprovidername: {diskoption: value}`
     - A hash where the top level key(s) are one or more providers, and each provider keys values are a hash of options and their values.
 
-- `size` (String) - The size of the disk to create. For example, `"10GB"`.
+- `size` (String) - The size of the disk to create. For example, `"10GB"`. Not
+  used for type `:dvd.`
 
   **Note:** More specific examples of these can be found under the provider
   specific disk page. The `provider_config` option will depend on the provider
@@ -53,6 +62,7 @@ You can set a disk type with the first argument of a disk config in your Vagrant
 
 ```ruby
 config.vm.disk :disk, name: "backup", size: "10GB"
+config.vm.disk :dvd, name: "installer", path: "./installer.iso"
 config.vm.disk :floppy, name: "cool_files"
 ```
 

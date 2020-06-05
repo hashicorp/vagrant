@@ -31,9 +31,23 @@ off for any changes to be applied to a guest. If you make a configuration change
 with a guests disk, you will need to `vagrant reload` the guest for any changes
 to be applied.
 
-When new disks are defined to be attached to a guest, Vagrant will create and attach
-these disks to a guests SATA Controller. It should be noted that up to 30 disks
-can be attached to the SATA Controller.
+When new disks are defined to be attached to a guest, Vagrant will attach
+disks to a particular storage controller based on the type of disk configured:
+
+- For the `:disk` type, Vagrant will attach the disk to a guest's SATA
+  controller. It will also create the disk if necessary.
+- For the `:dvd` type, Vagrant will attach the disk to a guest's IDE
+  controller.
+
+Vagrant will not be able to configure disks of a given type if the associated
+storage controller does not exist. In this case, you may use
+[provider-specific customizations](/docs/providers/virtualbox/configuration#vboxmanage-customizations)
+to add a required storage controller.
+
+It should also be noted that storage controllers have different limits for the
+number of disks that can be attached. Attempting to configure more than the
+maximum number of disks for a storage controller type will result in a Vagrant
+error.
 
 For more information on how to use VirtualBox to configure disks for a guest, refer
 to the [general usage](/docs/disks/usage) and [configuration](/docs/disks/configuration)

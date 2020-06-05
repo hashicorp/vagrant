@@ -54,7 +54,7 @@ end
 It should be noted that due to how VirtualBox functions, it is not possible to shrink
 the size of a disk.
 
-### Attaching new disks
+### Attaching new hard disks
 
 Vagrant can attach multiple disks to a guest using the VirtualBox provider. An example
 of attaching a single disk to a guest with 10 GB of storage can be found below:
@@ -86,12 +86,32 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-Note: Virtualbox only allows for up to 30 disks to be attached to a given SATA Controller,
+Note: VirtualBox only allows for up to 30 disks to be attached to a given SATA Controller,
 and this number includes the primary disk! Attempting to configure more than 30 will
 result in a Vagrant error.
 
+### Attaching optical drives
+
+Vagrant can attach .iso files as optical drives using the VirtualBox provider.
+An example of attaching an optical drive to a guest can be found below:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "hashicorp" do |h|
+    h.vm.box = "hashicorp/bionic64"
+    h.vm.provider :virtualbox
+
+    h.vm.disk :dvd, name: "installer", file: "./installer.iso"
+  end
+end
+```
+
+Note: VirtualBox only allows for up to 4 optical drives to be attached to a
+given IDE controller.
+
 ### Removing Disks
 
-If you have removed a disk from your Vagrant config and wish for it to be detached from the guest,
-you will need to `vagrant reload` your guest to apply these changes. **NOTE:** Doing so
-will also delete the medium from your hard drive.
+If you have removed a disk from your Vagrant config and wish for it to be
+detached from the guest, you will need to `vagrant reload` your guest to apply
+these changes. **NOTE:** Removing virtual hard disks created by Vagrant will
+also delete the medium from your hard drive.
