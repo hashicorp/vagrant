@@ -27,12 +27,16 @@ module VagrantPlugins
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
           controller = machine.provider.driver.get_controller('SATA')
-          primary_disk = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }[:uuid]
+          primary = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }
+          if primary.nil?
+            raise Vagrant::Errors::VirtualBoxDisksPrimaryNotFound
+          end
+          primary_uuid = primary[:uuid]
 
           if disk_meta
             disk_meta.each do |d|
               dsk = defined_disks.select { |dk| dk.name == d["name"] }
-              if !dsk.empty? || d["uuid"] == primary_disk
+              if !dsk.empty? || d["uuid"] == primary_uuid
                 next
               else
                 LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")

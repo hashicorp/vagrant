@@ -142,6 +142,12 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       expect(primary_disk).to eq(all_disks.first)
     end
 
+    it "raises an error if primary disk can't be found" do
+      allow(sata_controller).to receive(:attachments).and_return([])
+      expect { subject.get_current_disk(machine, defined_disks.first, all_disks) }.
+        to raise_error(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
+    end
+
     it "finds the disk to configure" do
       disk = subject.get_current_disk(machine, defined_disks[1], all_disks)
       expect(disk).to eq(all_disks[1])

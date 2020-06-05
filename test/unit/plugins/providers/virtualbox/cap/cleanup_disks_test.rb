@@ -63,6 +63,12 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
 
         subject.cleanup_disks(machine, defined_disks, disk_meta_file)
       end
+
+      it "raises an error if primary disk can't be found" do
+        allow(sata_controller).to receive(:attachments).and_return([])
+        expect { subject.cleanup_disks(machine, defined_disks, disk_meta_file) }.
+          to raise_error(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
+      end
     end
 
     context "with dvd attached" do

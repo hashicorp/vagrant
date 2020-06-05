@@ -69,6 +69,9 @@ module VagrantPlugins
             # always come in port order, but primary is always Port 0 Device 0.
             controller = machine.provider.driver.get_controller('SATA')
             primary = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }
+            if primary.nil?
+              raise Vagrant::Errors::VirtualBoxDisksPrimaryNotFound
+            end
             primary_uuid = primary[:uuid]
 
             current_disk = all_disks.select { |d| d["UUID"] == primary_uuid }.first
