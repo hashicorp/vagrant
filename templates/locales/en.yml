@@ -2233,7 +2233,6 @@ en:
         cloud-init on machine '%{machine}'. Valid options supported by Vagrant are
         listed below:
 
-
         %{accepted_types}
       incorrect_inline_type: |-
         The inline config cloud_init option for guest '%{machine}' is of type '%{type}', but
