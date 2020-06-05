@@ -920,6 +920,8 @@ en:
         as mounting shared folders and configuring networks. Please add
         the ability to detect this guest operating system to Vagrant
         by creating a plugin or reporting a bug.
+      invalid_netmask: |-
+        Invalid mask '%{mask}'
       home_dir_later_version: |-
         It appears that a newer version of Vagrant was run on this machine
         at some point. The current version of Vagrant is unable to read
@@ -1682,6 +1684,8 @@ en:
         A Vagrant update may also be available that adds support for the version
         you specified. Please check www.vagrantup.com/downloads.html to download
         the latest version.
+      virtualbox_invalid_network_setting: |-
+        Invalid %{setting_type} '%{setting_value}' for %{interface_type} interface '%{interface_name}'
       virtualbox_kernel_module_not_loaded: |-
         VirtualBox is complaining that the kernel module is not loaded. Please
         run `VBoxManage --version` or open the VirtualBox GUI to see the error

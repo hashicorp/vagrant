@@ -428,6 +428,10 @@ module Vagrant
       error_key(:host_explicit_not_detected)
     end
 
+    class InvalidNetMask < VagrantError
+      error_key(:invalid_netmask)
+    end
+
     class LinuxMountFailed < VagrantError
       error_key(:linux_mount_failed)
     end
@@ -930,6 +934,10 @@ module Vagrant
 
     class VirtualBoxInvalidVersion < VagrantError
       error_key(:virtualbox_invalid_version)
+    end
+
+    class VirtualBoxNetworkSetting < VagrantError
+      error_key(:virtualbox_invalid_network_setting)
     end
 
     class VirtualBoxNoRoomForHighLevelNetwork < VagrantError
