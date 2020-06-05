@@ -348,6 +348,15 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         end
       end
     end
+
+    context "unsupported storage controller" do
+      let(:controller) { double("controller", name: "Adaptec ACB-4000A", storage_bus: "SASI") }
+
+      it "raises an error" do
+        expect { subject.get_next_port(machine, controller) }
+          .to raise_error(Vagrant::Errors::VirtualBoxDisksUnsupportedController)
+      end
+    end
   end
 
   describe "#resize_disk" do

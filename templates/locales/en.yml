@@ -1683,16 +1683,19 @@ en:
         '%{storage_bus}', but no such controller was found. Please add the
         proper controller to your guest using provider-specific
         customizations.
-      virtualbox_disks_primary_not_found: |-
-        Vagrant was not able to detect a primary disk attached to the SATA
-        controller. Vagrant Disks requires that the primary disk be attached
-        to the first port of the SATA controller in order to manage it.
       virtualbox_disks_defined_exceed_limit: |-
         VirtualBox only allows up to %{limit} disks to be attached to a single
         guest using the %{storage_bus} controller, including the primary disk.
 
         Please ensure only up to %{limit} disks of type '%{type}' are
         configured for your guest.
+      virtualbox_disks_primary_not_found: |-
+        Vagrant was not able to detect a primary disk attached to the SATA
+        controller. Vagrant Disks requires that the primary disk be attached
+        to the first port of the SATA controller in order to manage it.
+      virtualbox_disks_unsupported_controller: |-
+        An disk operation was attempted on the controller '%{controller_name}',
+        but Vagrant doesn't support this type of disk controller.
       virtualbox_guest_property_not_found: |-
         Could not find a required VirtualBox guest property:
           %{guest_property}

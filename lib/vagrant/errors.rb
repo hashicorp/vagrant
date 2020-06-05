@@ -940,6 +940,10 @@ module Vagrant
       error_key(:virtualbox_disks_primary_not_found)
     end
 
+    class VirtualBoxDisksUnsupportedController < VagrantError
+      error_key(:virtualbox_disks_unsupported_controller)
+    end
+
     class VirtualBoxGuestPropertyNotFound < VagrantError
       error_key(:virtualbox_guest_property_not_found)
     end

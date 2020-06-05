@@ -221,7 +221,7 @@ module VagrantPlugins
 
             dsk_info[:port] = next_available_port.to_s
             dsk_info[:device] = "0"
-          else
+          elsif controller.storage_bus == 'IDE'
             # IDE Controllers have primary/secondary devices, so find the first port
             # with an empty device
             (0..(controller.maxportcount-1)).each do |port|
@@ -238,6 +238,8 @@ module VagrantPlugins
                 dsk_info[:device] = "0"
               end
             end
+          else
+            raise Vagrant::Errors::VirtualBoxDisksUnsupportedController, controller_name: controller.name
           end
 
           if dsk_info[:port].to_s.empty?
