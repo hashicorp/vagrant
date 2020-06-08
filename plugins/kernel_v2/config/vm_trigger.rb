@@ -9,7 +9,7 @@ module VagrantPlugins
       # Defaults
       DEFAULT_ON_ERROR = :halt
       DEFAULT_EXIT_CODE = 0
-      VALID_TRIGGER_TYPES = [:command, :action, :hook].map(&:freeze).freeze
+      VALID_TRIGGER_TYPES = [:command, :action, :hook].freeze
 
       #-------------------------------------------------------------------
       # Config class for a given Trigger

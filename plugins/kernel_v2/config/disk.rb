@@ -10,7 +10,7 @@ module VagrantPlugins
       # Config class for a given Disk
       #-------------------------------------------------------------------
 
-      DEFAULT_DISK_TYPES = [:disk, :dvd, :floppy].map(&:freeze).freeze
+      DEFAULT_DISK_TYPES = [:disk, :dvd, :floppy].freeze
 
       # Note: This value is for internal use only
       #
