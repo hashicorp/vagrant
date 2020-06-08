@@ -28,23 +28,25 @@ Below are some very simple examples of how to use Vagrant Disks with the Virtual
 
 ## Basic Examples
 
-Here is an example containing two parts of user data:
+A cloud_init config can be defined as a "hash" of key values, or as a block. Below
+are two examples of this for defining a cloud_init config:
 
 ```ruby
-config.vm.cloud_init do |cloud_init|
-  cloud_init.content_type = "text/x-shellscript"
-  cloud_init.path = "./foo/bar.sh"
-end
+config.vm.cloud_init content_type: "text/x-shellscript", path: "./foo/bar.sh"
 
 config.vm.cloud_init do |cloud_init|
   cloud_init.content_type = "text/cloud-config"
   cloud_init.inline = <<-EOF
     package_update: true
+    packages:
+      - nginx
   EOF
 end
 ```
 
-The first part will be read from a local file `./foo/bar`, and the second part will be attached using the inline content.
+The first part will be read from a local file `./foo/bar`, and the second part
+will be attached using the inline content. Both "block" and "hash" forms are supported,
+and should work interchangeably.
 
 Individual machines may have their own cloud-init data:
 
