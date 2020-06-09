@@ -1,7 +1,6 @@
 require 'log4r'
 
 require "vagrant/util/platform"
-require "vagrant/util/validate_netmask"
 
 require File.expand_path("../base", __FILE__)
 
@@ -531,14 +530,7 @@ module VagrantPlugins
               elsif line =~ /^IPAddress:\s+(.+?)$/
                 info[:ip] = $1.to_s
               elsif line =~ /^NetworkMask:\s+(.+?)$/
-                mask = $1.to_s
-                begin
-                  Vagrant::Util::ValidateNetmask.validate(mask)
-                  info[:netmask] = mask
-                rescue Vagrant::Errors::InvalidNetMask
-                  raise Vagrant::Errors::VirtualBoxNetworkSetting, 
-                    setting_type: 'mask', setting_value: mask, interface_type: "bridged", interface_name: info[:name] || "unknown" 
-                end
+                info[:netmask] = $1.to_s
               elsif line =~ /^Status:\s+(.+?)$/
                 info[:status] = $1.to_s
               end
@@ -627,14 +619,7 @@ module VagrantPlugins
               elsif line =~ /^IPAddress:\s+(.+?)$/
                 info[:ip] = $1.to_s
               elsif line =~ /^NetworkMask:\s+(.+?)$/
-                mask = $1.to_s
-                begin
-                  Vagrant::Util::ValidateNetmask.validate(mask)
-                  info[:netmask] = mask
-                rescue Vagrant::Errors::InvalidNetMask
-                  raise Vagrant::Errors::VirtualBoxNetworkSetting, 
-                    setting_type: 'mask', setting_value: mask, interface_type: "bridged", interface_name: info[:name] || "unknown" 
-                end
+                info[:netmask] = $1.to_s
               elsif line =~ /^IPV6Address:\s+(.+?)$/
                 info[:ipv6] = $1.to_s.strip
               elsif line =~ /^IPV6NetworkMaskPrefixLength:\s+(.+?)$/
