@@ -32,8 +32,10 @@ A cloud_init config can be defined as a "hash" of key values, or as a block. Bel
 are two examples of this for defining a cloud_init config:
 
 ```ruby
+# Simplified form
 config.vm.cloud_init content_type: "text/x-shellscript", path: "./foo/bar.sh"
 
+# Block form
 config.vm.cloud_init do |cloud_init|
   cloud_init.content_type = "text/cloud-config"
   cloud_init.inline = <<-EOF
@@ -52,9 +54,8 @@ Individual machines may have their own cloud-init data:
 
 ```ruby
 config.vm.define "web" do |web|
-  web.vm.cloud_init do |cloud_init|
-    cloud_init.content_type = "text/cloud-config",
-    cloud_init.inline = <<-EOF
+  web.vm.cloud_init content_type: "text/cloud-config",
+    inline: <<-EOF
       package_update: true
       packages:
         - nginx
@@ -63,9 +64,8 @@ config.vm.define "web" do |web|
 end
 
 config.vm.define "db" do |db|
-  db.vm.cloud_init do |cloud_init|
-    cloud_init.content_type =  "text/cloud-config",
-    cloud_init.inline =  <<-EOF
+  db.vm.cloud_init content_type: "text/cloud-config",
+    inline: <<-EOF
       package_update: true
       packages:
         - postgresql
