@@ -47,8 +47,9 @@ module VagrantPlugins
             args += rdp_info[:extra_args] if rdp_info[:extra_args]
           end
 
-          # Finally, run the client.
-          Vagrant::Util::Subprocess.execute(rdp_client, *args)
+          # Finally, run the client and detach.
+          pid = spawn(rdp_client, *args)
+          Process.detach(pid)
         end
       end
     end

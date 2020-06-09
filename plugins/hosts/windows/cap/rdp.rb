@@ -21,8 +21,10 @@ module VagrantPlugins
           if rdp_info[:extra_args]
             args = rdp_info[:extra_args] + args
           end
-          # Launch it
-          Vagrant::Util::Subprocess.execute("mstsc", *args)
+          # Spawn it and detach from process. This will allow
+          # Vagrant to exit independent from the rdp session
+          pid = spawn("mstsc", *args)
+          Process.detach(pid)
         end
       end
     end
