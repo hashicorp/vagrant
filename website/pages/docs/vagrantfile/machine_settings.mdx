@@ -93,14 +93,16 @@ machine that Vagrant manages.
   constraints.
 
 - `config.vm.cloud_init` - Stores various [cloud_init](/docs/cloud-init) configurations
-  on the machine.
+  on the machine. __Currently experimental!__ Read the documentation for more
+  information on how to enable this feature.
 
 - `config.vm.communicator` (string) - The communicator type to use to connect to the
   guest box. By default this is `"ssh"`, but should be changed to `"winrm"` for
   Windows guests.
 
 - `config.vm.disk` - Stores various virtual [disk](/docs/disks) configurations
-  on the machine.
+  on the machine. __Currently experimental!__ Read the documentation for more
+  information on how to enable this feature.
 
 - `config.vm.graceful_halt_timeout` (integer) - The time in seconds that Vagrant will
   wait for the machine to gracefully halt when `vagrant halt` is called.

@@ -7,7 +7,11 @@ description: Documentation of various configuration options for Vagrant cloud-in
 
 # Configuration
 
-Vagrant cloud-init has several options that allow users to define and attach disks to guests.
+Vagrant cloud-init has several options that allow users to define a config to be
+used with cloud-init.
+
+For more detailed information about these config values and how to use cloud-init,
+please read the [official documentation for cloud-init](https://cloudinit.readthedocs.io/en/latest/index.html).
 
 ## cloud_init Options
 
@@ -24,8 +28,12 @@ given cloud_init config. Vagrant only supports the following options for `conten
    + `"text/x-include-url"`
    + `"text/x-shellscript"`
 
-- `path` (string) - Optional argument that defines what kind of file
-  extension a disk should have. Defaults to `"vdi"` if unspecified. For a list of
-  supported disk extensions, please check the specific provider being used.
-- `inline` (string) - Optional argument that defines a path on disk pointing to
-  the location of a disk file that already exists.
+- `path` (string) - Path to a file on the host machine that containing
+cloud-init user data. Incompatible with the `inline` option. This will be added
+to the multipart user-data file along with its `content_type`.
+- `inline` (string) - Inline cloud-init user data. Will be added to the
+multipart user-data file along with its content_type. Incompatible with `path`
+option.
+
+Examples of how to define these options can be found in the
+[usage documentation](/docs/cloud-init/configuration).
