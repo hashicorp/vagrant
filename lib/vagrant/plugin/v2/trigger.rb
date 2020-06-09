@@ -72,13 +72,13 @@ module Vagrant
 
           if stage == :before
             triggers = config.before_triggers.select do |t|
-              (t.command == :all && !t.ignore.include?(name)) ||
+              (t.command.respond_to?(:to_sym) && t.command.to_sym == :all && !t.ignore.include?(name.to_sym)) ||
                 (type == :hook && matched_hook?(t.command, name)) ||
                 nameify(t.command) == name
             end
           elsif stage == :after
             triggers = config.after_triggers.select do |t|
-              (t.command == :all && !t.ignore.include?(name)) ||
+              (t.command.respond_to?(:to_sym) && t.command.to_sym == :all && !t.ignore.include?(name.to_sym)) ||
                 (type == :hook && matched_hook?(t.command, name)) ||
                 nameify(t.command) == name
             end
@@ -89,6 +89,7 @@ module Vagrant
               type: type,
               guest_name: guest
           end
+
           filter_triggers(triggers, guest, type)
         end
 
