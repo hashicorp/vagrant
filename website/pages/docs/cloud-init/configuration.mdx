@@ -53,7 +53,6 @@ config.vm.cloud_init :user_data do |cloud_init|
   cloud_init.content_type = "text/cloud-config"
   cloud_init.path = "config.cfg"
 end
-
 ```
 
 However, this is not a requirement. Leaving off `type` will default to `:user_data`.
@@ -61,4 +60,3 @@ However, this is not a requirement. Leaving off `type` will default to `:user_da
 - `type` (Symbol) - This is an optional config that defines the type of
 cloud-init config. Currently, the only supported `type` is `:user_data`. If a type
 is not defined, it will default to `:user_data`.
-
