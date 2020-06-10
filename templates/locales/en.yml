@@ -2240,6 +2240,9 @@ en:
       incorrect_path_type: |-
         The path '%{path}' given for guest '%{machine}' is of type '%{type}'.
         Config option 'path' must be a String.
+      incorrect_type_set: |-
+        The type '%{type}' defined for a cloud_init config with guest '%{machine}'
+        is not a valid type. Currently, Vagrant only supports type: '%{default_type}'.
       path_and_inline_set: |-
         Guest '%{machine}' defines both a 'path' and 'inline' for its cloud_init config,
         however only one config option should be defined for cloud_init.

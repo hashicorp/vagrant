@@ -14,10 +14,18 @@ module VagrantPlugins
                                "text/x-include-once-url", "text/x-include-url",
                                "text/x-shellscript"].map(&:freeze).freeze
 
+      DEFAULT_CONFIG_TYPE = :user_data
+
       # @note This value is for internal use only
       #
       # @return [String]
       attr_reader :id
+
+      # The 'type' of data being stored. If not defined,
+      # will default to :user_data
+      #
+      # @return [Symbol]
+      attr_accessor :type
 
       # @return [String]
       attr_accessor :content_type
@@ -28,8 +36,10 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :inline
 
-      def initialize()
+      def initialize(type=nil)
         @logger = Log4r::Logger.new("vagrant::config::vm::cloud_init")
+
+        @type = type if type
 
         @content_type = UNSET_VALUE
         @path = UNSET_VALUE
@@ -40,6 +50,12 @@ module VagrantPlugins
       end
 
       def finalize!
+        if !@type
+          @type = DEFAULT_CONFIG_TYPE
+        else
+          @type = @type.to_sym
+        end
+
         @content_type = nil if @content_type == UNSET_VALUE
         @path = nil if @path == UNSET_VALUE
         @inline = nil if @inline == UNSET_VALUE
@@ -48,6 +64,13 @@ module VagrantPlugins
       # @return [Array] array of strings of error messages from config option validation
       def validate(machine)
         errors = _detected_errors
+
+        if @type && @type != DEFAULT_CONFIG_TYPE
+          errors << I18n.t("vagrant.cloud_init.incorrect_type_set",
+                           type: @type,
+                           machine: machine.name,
+                           default_type: DEFAULT_CONFIG_TYPE)
+        end
 
         if !@content_type
           errors << I18n.t("vagrant.cloud_init.content_type_not_set",

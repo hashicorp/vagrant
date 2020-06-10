@@ -5,7 +5,7 @@ require Vagrant.source_root.join("plugins/kernel_v2/config/cloud_init")
 describe VagrantPlugins::Kernel_V2::VagrantConfigCloudInit do
   include_context "unit"
 
-  subject { described_class.new }
+  subject { described_class.new(:user_data) }
 
   let(:provider) { double("provider") }
   let(:machine) { double("machine", name: "rspec", provider: provider,
@@ -45,6 +45,22 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigCloudInit do
       it "sets a content_type" do
         subject.finalize!
         expect(subject.content_type).to eq("text/cloud-config")
+      end
+
+      context "with no type set" do
+        let(:type_subject) { described_class.new }
+
+        before do
+          type_subject.content_type = "text/cloud-config"
+          type_subject.inline = <<-CONFIG
+          package_update: true
+          CONFIG
+        end
+
+        it "defaults to a type" do
+          type_subject.finalize!
+          expect(type_subject.type).to eq(:user_data)
+        end
       end
     end
 

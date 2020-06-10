@@ -473,10 +473,13 @@ module VagrantPlugins
 
       # Stores config options for cloud_init
       #
+      # @param [Symbol] type
       # @param [Hash]   options
       # @param [Block]  block
-      def cloud_init(**options, &block)
-        cloud_init_config = VagrantConfigCloudInit.new()
+      def cloud_init(type=nil, **options, &block)
+        type = type.to_sym if type
+
+        cloud_init_config = VagrantConfigCloudInit.new(type)
 
         if block_given?
           block.call(cloud_init_config, VagrantConfigCloudInit)
