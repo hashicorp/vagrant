@@ -428,6 +428,10 @@ module Vagrant
       error_key(:host_explicit_not_detected)
     end
 
+    class ISOBuildFailed < VagrantError
+      error_key(:iso_build_failed)
+    end
+
     class LinuxMountFailed < VagrantError
       error_key(:linux_mount_failed)
     end
