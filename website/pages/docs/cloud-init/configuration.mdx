@@ -15,6 +15,10 @@ please read the [official documentation for cloud-init](https://cloudinit.readth
 
 ## cloud_init Options
 
+It should be noted that Vagrant will not validate the correctness of the `cloud-init`
+config provided, only that a cloud-init config has been provided through `path`
+or directly `inline` in a Vagrantfile.
+
 - `content_type` (string) - Required argument that defines the Content-Type of the
 given cloud_init config. Vagrant only supports the following options for `content_type`:
 
@@ -28,11 +32,11 @@ given cloud_init config. Vagrant only supports the following options for `conten
    + `"text/x-include-url"`
    + `"text/x-shellscript"`
 
-- `path` (string) - Path to a file on the host machine that containing
-cloud-init user data. Incompatible with the `inline` option. This will be added
-to the multipart user-data file along with its `content_type`.
-- `inline` (string) - Inline cloud-init user data. Will be added to the
-multipart user-data file along with its content_type. Incompatible with `path`
+- `path` (string) - Path to a file on the host machine that contains
+cloud-init user data. This will be added to the multipart user-data file along
+with its `content_type`. Incompatible with the `inline` option.
+- `inline` (string) - Inline cloud-init user data. This will be added to the
+multipart user-data file along with its `content_type`. Incompatible with `path`
 option.
 
 Examples of how to define these options can be found in the
