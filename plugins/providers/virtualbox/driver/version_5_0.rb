@@ -26,18 +26,13 @@ module VagrantPlugins
         # @param [String] device - device on controller for disk
         # @param [String] file - disk file path
         # @param [String] type - type of disk to attach
+        # @param [String] controller_name - name of storage controller to attach disk to
         # @param [Hash]   opts -  additional options
-        def attach_disk(port, device, file, type="hdd", **opts)
-          if type == "hdd"
-            controller = get_controller('SATA')
-          else
-            controller = get_controller('IDE')
-          end
-
+        def attach_disk(port, device, file, type, controller_name, **opts)
           comment = "This disk is managed externally by Vagrant. Removing or adjusting settings could potentially cause issues with Vagrant."
 
           execute('storageattach', @uuid,
-                  '--storagectl', controller.name,
+                  '--storagectl', controller_name,
                   '--port', port.to_s,
                   '--device', device.to_s,
                   '--type', type,

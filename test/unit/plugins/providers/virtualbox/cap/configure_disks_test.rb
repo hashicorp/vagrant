@@ -25,13 +25,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     double(:state)
   end
 
-  let(:sata_controller) { double("controller", name: "SATA Controller",
-                                 storage_bus: "SATA", maxportcount: 30,
-                                 limit: 30) }
-
-  let(:ide_controller) { double("controller", name: "IDE Controller",
-                                storage_bus: "IDE", maxportcount: 2,
-                                limit: 4) }
+  let(:controller) { double("controller", name: "controller", limit: 30, storage_bus: "SATA", maxportcount: 30) }
 
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
                        {port: "1", device: "0", uuid: "67890"}]}
@@ -73,31 +67,46 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
-    allow(sata_controller).to receive(:attachments).and_return(attachments)
-
-    allow(driver).to receive(:get_controller).with("IDE").and_return(ide_controller)
-    allow(driver).to receive(:get_controller).with("SATA").and_return(sata_controller)
-    allow(driver).to receive(:storage_controllers).and_return([ide_controller, sata_controller])
+    allow(controller).to receive(:attachments).and_return(attachments)
+    allow(driver).to receive(:storage_controllers).and_return([controller])
+    allow(driver).to receive(:get_controller).with(controller.storage_bus).and_return(controller)
   end
 
   describe "#configure_disks" do
     let(:dsk_data) { {uuid: "1234", name: "disk"} }
-    it "configures disks and returns the disks defined" do
-      allow(driver).to receive(:list_hdds).and_return([])
+    let(:dvd) { double("dvd", type: :dvd, name: "dvd", primary: false) }
 
-      expect(subject).to receive(:handle_configure_disk).exactly(4).and_return(dsk_data)
+    before do
+      allow(driver).to receive(:list_hdds).and_return([])
+    end
+
+    it "configures disks and returns the disks defined" do
+      expect(subject).to receive(:handle_configure_disk).with(machine, anything, [], controller).
+        exactly(4).and_return(dsk_data)
+      subject.configure_disks(machine, defined_disks)
+    end
+
+    it "configures dvd and returns the disks defined" do
+      defined_disks = [ dvd ]
+
+      expect(subject).to receive(:handle_configure_dvd).with(machine, dvd, controller).
+        and_return({})
       subject.configure_disks(machine, defined_disks)
     end
 
     context "with no disks to configure" do
       let(:defined_disks) { {} }
+
       it "returns empty hash if no disks to configure" do
         expect(subject.configure_disks(machine, defined_disks)).to eq({})
       end
     end
 
+    # NOTE: In this scenario, one slot must be reserved for the primary
+    # disk, so the controller limit goes down by 1 when there is no primary
+    # disk defined in the config.
     context "with over the disk limit for a given device" do
-      let(:defined_disks) { (1..31).map { |i| double("disk-#{i}", type: :disk) }.to_a }
+      let(:defined_disks) { (1..controller.limit).map { |i| double("disk-#{i}", type: :disk, primary: false) }.to_a }
 
       it "raises an exception if the disks defined exceed the limit for a SATA Controller" do
         expect{subject.configure_disks(machine, defined_disks)}.
@@ -105,61 +114,51 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       end
     end
 
-    context "no SATA controller" do
+    context "with more than one storage controller" do
+      let(:controller1) { double("controller1", storage_bus: "IDE", limit: 4) }
+      let(:controller2) { double("controller2", storage_bus: "SATA", limit: 30) }
+
       before do
-        allow(driver).to receive(:get_controller).with("SATA").
-          and_raise(Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "SATA")
+        allow(driver).to receive(:storage_controllers).and_return([controller1, controller2])
+        allow(driver).to receive(:get_controller).with(controller1.storage_bus).and_return(controller1)
+        allow(driver).to receive(:get_controller).with(controller2.storage_bus).and_return(controller2)
       end
 
-      it "raises an error" do
-        expect { subject.configure_disks(machine, defined_disks) }.
-          to raise_error(Vagrant::Errors::VirtualBoxDisksControllerNotFound)
-      end
-    end
-
-    context "with dvd type" do
-      let(:defined_disks) { [double("dvd", type: :dvd)] }
-      let(:dvd_data) { {uuid: "1234", name: "dvd"} }
-
-      it "handles configuration of the dvd" do
-        allow(driver).to receive(:list_hdds).and_return([])
-        expect(subject).to receive(:handle_configure_dvd).and_return(dvd_data)
+      it "attaches disks to the SATA controller" do
+        expect(subject).to receive(:handle_configure_disk).with(machine, anything, [], controller2).
+          exactly(4).and_return(dsk_data)
         subject.configure_disks(machine, defined_disks)
       end
 
-      context "no IDE controller" do
-        before do
-          allow(driver).to receive(:get_controller).with("IDE").
-            and_raise(Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "IDE")
-        end
+      it "attaches dvds to the IDE controller" do
+        defined_disks = [ dvd ]
 
-        it "raises an error" do
-        expect { subject.configure_disks(machine, defined_disks) }.
-          to raise_error(Vagrant::Errors::VirtualBoxDisksControllerNotFound)
-        end
+        expect(subject).to receive(:handle_configure_dvd).with(machine, dvd, controller1).
+          and_return({})
+        subject.configure_disks(machine, defined_disks)
       end
     end
   end
 
   describe "#get_current_disk" do
     it "gets primary disk uuid if disk to configure is primary" do
-      primary_disk = subject.get_current_disk(machine, defined_disks.first, all_disks)
+      primary_disk = subject.get_current_disk(machine, defined_disks.first, all_disks, controller)
       expect(primary_disk).to eq(all_disks.first)
     end
 
     it "raises an error if primary disk can't be found" do
-      allow(sata_controller).to receive(:attachments).and_return([])
-      expect { subject.get_current_disk(machine, defined_disks.first, all_disks) }.
+      allow(controller).to receive(:attachments).and_return([])
+      expect { subject.get_current_disk(machine, defined_disks.first, all_disks, controller) }.
         to raise_error(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
     end
 
     it "finds the disk to configure" do
-      disk = subject.get_current_disk(machine, defined_disks[1], all_disks)
+      disk = subject.get_current_disk(machine, defined_disks[1], all_disks, controller)
       expect(disk).to eq(all_disks[1])
     end
 
     it "returns nil if disk is not found" do
-      disk = subject.get_current_disk(machine, defined_disks[3], all_disks)
+      disk = subject.get_current_disk(machine, defined_disks[3], all_disks, controller)
       expect(disk).to be_nil
     end
   end
@@ -176,13 +175,23 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
               "Capacity"=>"65536 MBytes",
               "Encryption"=>"disabled"}] }
 
-      let(:disk_meta) { {uuid: "67890", name: "disk-0"} }
+      let(:disk_meta) { {uuid: "67890", name: "disk-0", controller: "controller", port: "1", device: "1"} }
 
       it "creates a new disk if it doesn't yet exist" do
-        expect(subject).to receive(:create_disk).with(machine, defined_disks[1])
+        expect(subject).to receive(:create_disk).with(machine, defined_disks[1], controller)
           .and_return(disk_meta)
 
-        subject.handle_configure_disk(machine, defined_disks[1], all_disks)
+        subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller)
+      end
+
+      it "includes disk attachment info in metadata" do
+        expect(subject).to receive(:create_disk).with(machine, defined_disks[1], controller)
+          .and_return(disk_meta)
+
+        disk_metadata = subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller)
+        expect(disk_metadata).to have_key(:controller)
+        expect(disk_metadata).to have_key(:port)
+        expect(disk_metadata).to have_key(:device)
       end
     end
 
@@ -208,15 +217,15 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       it "resizes a disk" do
         expect(subject).to receive(:get_current_disk).
-          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
+          with(machine, defined_disks[1], all_disks, controller).and_return(all_disks[1])
 
         expect(subject).to receive(:compare_disk_size).
           with(machine, defined_disks[1], all_disks[1]).and_return(true)
 
         expect(subject).to receive(:resize_disk).
-          with(machine, defined_disks[1], all_disks[1]).and_return(true)
+          with(machine, defined_disks[1], all_disks[1], controller).and_return({})
 
-        subject.handle_configure_disk(machine, defined_disks[1], all_disks)
+        subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller)
       end
     end
 
@@ -244,7 +253,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       it "reattaches disk if vagrant defined disk exists but is not attached to guest" do
         expect(subject).to receive(:get_current_disk).
-          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
+          with(machine, defined_disks[1], all_disks, controller).and_return(all_disks[1])
 
         expect(subject).to receive(:compare_disk_size).
           with(machine, defined_disks[1], all_disks[1]).and_return(false)
@@ -254,14 +263,15 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
         expect(driver).to receive(:attach_disk).with((disk_info[:port].to_i + 1).to_s,
                                                      disk_info[:device],
-                                                     all_disks[1]["Location"])
+                                                     all_disks[1]["Location"],
+                                                     controller.name)
 
-        subject.handle_configure_disk(machine, defined_disks[1], all_disks)
+        subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller)
       end
 
       it "does nothing if all disks are properly configured" do
         expect(subject).to receive(:get_current_disk).
-          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
+          with(machine, defined_disks[1], all_disks, controller).and_return(all_disks[1])
 
         expect(subject).to receive(:compare_disk_size).
           with(machine, defined_disks[1], all_disks[1]).and_return(false)
@@ -269,7 +279,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:get_port_and_device).with("67890").
           and_return(disk_info)
 
-        subject.handle_configure_disk(machine, defined_disks[1], all_disks)
+        subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller)
       end
     end
   end
@@ -304,58 +314,23 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       expect(driver).to receive(:create_disk).
         with(disk_file, disk_config.size, "VDI").and_return(disk_data)
 
-      expect(subject).to receive(:get_next_port).with(machine, sata_controller).
+      expect(subject).to receive(:get_next_port).with(machine, controller).
         and_return(port_and_device)
 
       expect(driver).to receive(:attach_disk).with(port_and_device[:port],
                                                    port_and_device[:device],
-                                                   disk_file)
+                                                   disk_file,
+                                                   controller.name)
 
-      subject.create_disk(machine, disk_config)
+      subject.create_disk(machine, disk_config, controller)
     end
   end
 
   describe ".get_next_port" do
     it "determines the next available port and device to use" do
-      dsk_info = subject.get_next_port(machine, sata_controller)
+      dsk_info = subject.get_next_port(machine, controller)
       expect(dsk_info[:port]).to eq("2")
       expect(dsk_info[:device]).to eq("0")
-    end
-
-    context "guest with an IDE controller" do
-      let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
-                           {port: "0", device: "1", uuid: "67890"}] }
-
-      before do
-        allow(ide_controller).to receive(:attachments).and_return(attachments)
-      end
-
-      it "determines the next available port and device to use" do
-        dsk_info = subject.get_next_port(machine, ide_controller)
-        expect(dsk_info[:port]).to eq("1")
-        expect(dsk_info[:device]).to eq("0")
-      end
-
-      context "that is full" do
-        let(:attachments) { [{port: "0", device: "0", uuid: "11111"},
-                             {port: "0", device: "1", uuid: "22222"},
-                             {port: "1", device: "0", uuid: "33333"},
-                             {port: "1", device: "1", uuid: "44444"}] }
-
-        it "raises an error" do
-          expect { subject.get_next_port(machine, ide_controller) }
-            .to raise_error(Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit)
-        end
-      end
-    end
-
-    context "unsupported storage controller" do
-      let(:controller) { double("controller", name: "Adaptec ACB-4000A", storage_bus: "SASI") }
-
-      it "raises an error" do
-        expect { subject.get_next_port(machine, controller) }
-          .to raise_error(Vagrant::Errors::VirtualBoxDisksUnsupportedController)
-      end
     end
   end
 
@@ -378,10 +353,9 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:vmdk_to_vdi).with(all_disks[0]["Location"]).
           and_return(vdi_disk_file)
 
-        expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).
-          and_return(true)
+        expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).and_return(true)
 
-        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device], sata_controller.name).
+        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device], controller.name).
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 
@@ -389,7 +363,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           and_return(vmdk_disk_file)
 
         expect(driver).to receive(:attach_disk).
-          with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd").and_return(true)
+          with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd", controller.name).and_return(true)
         expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
 
         expect(driver).to receive(:list_hdds).and_return(all_disks)
@@ -397,7 +371,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(FileUtils).to receive(:remove).with("#{vmdk_disk_file}.backup", force: true).
           and_return(true)
 
-        subject.resize_disk(machine, disk_config, all_disks[0])
+        subject.resize_disk(machine, disk_config, all_disks[0], controller)
       end
 
       it "reattaches original disk if something goes wrong" do
@@ -410,10 +384,9 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:vmdk_to_vdi).with(all_disks[0]["Location"]).
           and_return(vdi_disk_file)
 
-        expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).
-          and_return(true)
+        expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).and_return(true)
 
-        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device], sata_controller.name).
+        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device], controller.name).
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 
@@ -423,10 +396,10 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           and_return(true)
 
         expect(driver).to receive(:attach_disk).
-          with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd").and_return(true)
+          with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd", controller).and_return(true)
         expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
 
-        expect{subject.resize_disk(machine, disk_config, all_disks[0])}.to raise_error(Exception)
+        expect{subject.resize_disk(machine, disk_config, all_disks[0], controller)}.to raise_error(Exception)
       end
     end
 
@@ -437,7 +410,10 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       it "resizes the disk" do
         expect(driver).to receive(:resize_disk).with(all_disks[1]["Location"], disk_config.size.to_i)
 
-        subject.resize_disk(machine, disk_config, all_disks[1])
+        expect(driver).to receive(:get_port_and_device).with(all_disks[1]["UUID"]).
+          and_return({port: "1", device: "0"})
+
+        subject.resize_disk(machine, disk_config, all_disks[1], controller)
       end
     end
   end
@@ -456,18 +432,21 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     let(:dvd_config) { double("dvd", file: "/tmp/untitled.iso", name: "dvd1") }
 
     before do
-      allow(subject).to receive(:get_next_port).with(machine, ide_controller).
+      allow(subject).to receive(:get_next_port).with(machine, controller).
         and_return({device: "0", port: "0"})
-      allow(ide_controller).to receive(:attachments).and_return(
+      allow(controller).to receive(:attachments).and_return(
         [port: "0", device: "0", uuid: "12345"]
       )
     end
 
-    it "returns the UUID of the newly-attached dvd" do
-      expect(driver).to receive(:attach_disk).with("0", "0", "/tmp/untitled.iso", "dvddrive")
+    it "includes disk attachment info in metadata" do
+      expect(driver).to receive(:attach_disk).with("0", "0", "/tmp/untitled.iso", "dvddrive", controller.name)
 
-      disk_meta = subject.handle_configure_dvd(machine, dvd_config)
-      expect(disk_meta[:uuid]).to eq("12345")
+      dvd_metadata = subject.handle_configure_dvd(machine, dvd_config, controller)
+      expect(dvd_metadata[:uuid]).to eq("12345")
+      expect(dvd_metadata).to have_key(:controller)
+      expect(dvd_metadata).to have_key(:port)
+      expect(dvd_metadata).to have_key(:device)
     end
   end
 end

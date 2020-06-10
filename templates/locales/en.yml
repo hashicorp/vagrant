@@ -1684,11 +1684,9 @@ en:
         proper controller to your guest using provider-specific
         customizations.
       virtualbox_disks_defined_exceed_limit: |-
-        VirtualBox only allows up to %{limit} disks to be attached to a single
-        guest using the %{storage_bus} controller, including the primary disk.
-
-        Please ensure only up to %{limit} disks of type '%{type}' are
-        configured for your guest.
+        VirtualBox only allows up to %{limit} disks to be attached to the
+        storage controller '%{name}'. Please remove some disks from your disk
+        configuration, or attach a new storage controller.
       virtualbox_disks_primary_not_found: |-
         Vagrant was not able to detect a primary disk attached to the SATA
         controller. Vagrant Disks requires that the primary disk be attached
