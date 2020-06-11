@@ -2221,6 +2221,34 @@ en:
           If Vagrant fails to reattach the original disk, it is recommended that you open the VirtualBox GUI and navigate to the current guests settings for '%{name}' and look at the 'storage' section. Here is where you can reattach a missing disk if Vagrant fails to do so...
         recovery_attached_disks: |-
           Disk has been reattached. Vagrant will now continue on an raise the exception receieved
+    cloud_init:
+      content_type_not_set: |-
+        'content_type' must be defined for a cloud_init config. Guest '%{machine}'
+        has not defined a 'content_type' for its cloud_init config. Valid options
+        supported by Vagrant are listed below:
+
+        %{accepted_types}
+      incorrect_content_type: |-
+        Content-type "%{content_type}" is not supported by Vagrant and
+        cloud-init on machine '%{machine}'. Valid options supported by Vagrant are
+        listed below:
+
+        %{accepted_types}
+      incorrect_inline_type: |-
+        The inline config cloud_init option for guest '%{machine}' is of type '%{type}', but
+        should be a String.
+      incorrect_path_type: |-
+        The path '%{path}' given for guest '%{machine}' is of type '%{type}'.
+        Config option 'path' must be a String.
+      incorrect_type_set: |-
+        The type '%{type}' defined for a cloud_init config with guest '%{machine}'
+        is not a valid type. Currently, Vagrant only supports type: '%{default_type}'.
+      path_and_inline_set: |-
+        Guest '%{machine}' defines both a 'path' and 'inline' for its cloud_init config,
+        however only one config option should be defined for cloud_init.
+      path_invalid: |-
+        The path '%{path}' defined for guest '%{machine}' cloud_init config was
+        not found on the system.
     actions:
       runner:
         waiting_cleanup: "Waiting for cleanup before exiting..."

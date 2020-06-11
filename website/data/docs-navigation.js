@@ -107,6 +107,13 @@ export default [
     content: ['basic_usage', 'nfs', 'rsync', 'smb', 'virtualbox'],
   },
   {
+    category: 'cloud-init',
+    content: [
+      'configuration',
+      'usage'
+    ],
+  },
+  {
     category: 'disks',
     content: [
       'configuration',

@@ -40,10 +40,17 @@ started with Vagrant, you may safely skip this section.
 
 This is a list of all the valid experimental features that Vagrant recognizes:
 
-### `typed_triggers`
+### `cloud_init`
 
-Enabling this feature allows triggers to recognize and execute `:type` triggers.
-More information about how these should be used can be found on the [trigger documentation page](/docs/triggers/configuration#trigger-types)
+Enabling this feature allows Vagrant to use the `cloud-init` feature. More
+information about these options can be found on the [cloud-init documentation page](/docs/cloud-init/usage)
+
+### `dependency_provisioners`
+
+Enabling this feature allows all provisioners to specify `before` and `after`
+options. These options allow provisioners to be configured to run before or after
+any given "root" provisioner. More information about these options can be found
+on the [base provisioner documentation page](/docs/provisioning/basic_usage)
 
 ### `disks`
 
@@ -51,9 +58,8 @@ Enabling this feature will allow Vagrant to manage and configure virtual hard di
 for certain providers. More information about supported providers and how to
 configure disks can be found on the [disk documentation page](/docs/disks)
 
-### `dependency_provisioners`
+### `typed_triggers`
 
-Enabling this feature allows all provisioners to specify `before` and `after`
-options. These options allow provisioners to be configured to run before or after
-any given "root" provisioner. more information about these options can be found
-on the [base provisioner documentation page](/docs/provisioning/basic_usage)
+Enabling this feature allows triggers to recognize and execute `:type` triggers.
+More information about how these should be used can be found on the [trigger documentation page](/docs/triggers/configuration#trigger-types)
+
