@@ -11,7 +11,7 @@ module VagrantPlugins
         Host
       end
 
-      host_capability("darwin", "iso_available") do
+      host_capability("darwin", "isofs_available") do
         require_relative "cap/fs_iso"
         Cap::FsISO
       end

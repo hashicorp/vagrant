@@ -1,5 +1,4 @@
-require 'pathname'
-
+require "pathname"
 require_relative "../../../../base"
 require_relative "../../../../../../plugins/hosts/darwin/cap/fs_iso"
 
@@ -7,8 +6,7 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
   include_context "unit"
 
   let(:subject){ VagrantPlugins::HostDarwin::Cap::FsISO }
-
-  let(:env){ double("env") }
+  let(:env) { double("env") }
 
   describe ".isofs_available" do
     it "finds iso building utility when available" do
@@ -23,9 +21,12 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
   end
 
   describe ".create_iso" do
+    let(:file_destination) { "/woo/out.iso" }
+    let(:file_destination_path) { Pathname.new(file_destination)} 
+
     before do 
-      allow(subject).to receive(:iso_update_required?).and_return(true)
-      allow(FileUtils).to receive(:mkdir_p)
+      allow(subject).to receive(:output_file).with(any_args).and_return(file_destination_path)
+      allow(file_destination_path).to receive(:exist?).and_return(false)
     end
 
     it "builds an iso" do
@@ -49,13 +50,6 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
     it "raises an error if iso build failed" do
       allow(Vagrant::Util::Subprocess).to receive(:execute).with(any_args).and_return(double(stdout: "nope", stderr: "nope", exit_code: 1))
       expect{ subject.create_iso(env, "/foo/src", "/woo/out.iso") }.to raise_error(Vagrant::Errors::ISOBuildFailed)
-    end
-
-    it "does not build iso if no changes required" do
-      allow(subject).to receive(:iso_update_required?).and_return(false)
-      expect(Vagrant::Util::Subprocess).to_not receive(:execute)
-      output = subject.create_iso(env, "/foo/src", "/woo/out.iso", extra_opts={"default-volume-name" => "cidata"})
-      expect(output.to_s).to eq("/woo/out.iso")
     end
   end
 end
