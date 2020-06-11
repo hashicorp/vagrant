@@ -1,18 +1,16 @@
 import DocsPage from '@hashicorp/react-docs-page'
 import order from '../data/cloud-navigation.js'
 import { frontMatter as data } from '../pages/vagrant-cloud/**/*.mdx'
-import { MDXProvider } from '@mdx-js/react'
+import { createMdxProvider } from '@hashicorp/nextjs-scripts/lib/providers/docs'
 import Head from 'next/head'
 import Link from 'next/link'
-import Button from '@hashicorp/react-button'
-import Tabs, { Tab } from '../components/tabs'
 
-const DEFAULT_COMPONENTS = { Button, Tabs, Tab }
+const MDXProvider = createMdxProvider({ product: 'vagrant' })
 
 function CloudLayoutWrapper(pageMeta) {
   function CloudLayout(props) {
     return (
-      <MDXProvider components={DEFAULT_COMPONENTS}>
+      <MDXProvider>
         <DocsPage
           {...props}
           product="vagrant"

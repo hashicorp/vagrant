@@ -1,18 +1,20 @@
 import DocsPage from '@hashicorp/react-docs-page'
 import order from '../data/docs-navigation.js'
 import { frontMatter as data } from '../pages/docs/**/*.mdx'
-import { MDXProvider } from '@mdx-js/react'
 import Head from 'next/head'
 import Link from 'next/link'
-import Tabs, { Tab } from '../components/tabs'
+import { createMdxProvider } from '@hashicorp/nextjs-scripts/lib/providers/docs'
 import Button from '@hashicorp/react-button'
 
-const DEFAULT_COMPONENTS = { Tabs, Tab, Button }
+const MDXProvider = createMdxProvider({
+  product: 'vagrant',
+  additionalComponents: { Button },
+})
 
 function DocsLayoutWrapper(pageMeta) {
   function DocsLayout(props) {
     return (
-      <MDXProvider components={DEFAULT_COMPONENTS}>
+      <MDXProvider>
         <DocsPage
           {...props}
           product="vagrant"
