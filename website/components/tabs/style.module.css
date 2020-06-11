@@ -1,8 +1,0 @@
-/* This is a CSS overwrite on top of the existing component styles to accommodate the Learn layout */
-.root {
-  & :global(.g-grid-container),
-  & > :global(.g-grid-container) {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
