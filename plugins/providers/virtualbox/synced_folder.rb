@@ -33,6 +33,7 @@ module VagrantPlugins
 
         # Go through each folder and mount
         machine.ui.output(I18n.t("vagrant.actions.vm.share_folders.mounting"))
+        fstab_folders = []
         folders.each do |id, data|
           if data[:guestpath]
             # Guest path specified, so mount the folder to specified point
@@ -52,11 +53,19 @@ module VagrantPlugins
             machine.guest.capability(
               :mount_virtualbox_shared_folder,
               os_friendly_id(id), data[:guestpath], data)
+            fstab_folders << [os_friendly_id(id), data]
           else
             # If no guest path is specified, then automounting is disabled
             machine.ui.detail(I18n.t("vagrant.actions.vm.share_folders.nomount_entry",
                                   hostpath: data[:hostpath]))
           end
+        end
+        if machine.guest.capability?(:persist_mount_shared_folder)
+          # If Vagrant has been configured to not allow fstab modification, then
+          # execute the guest capability with an empty list in order to ensure
+          # there is no Vagrant managed fstab entries.
+          fstab_folders = [] if !machine.config.vm.allow_fstab_modification
+          machine.guest.capability(:persist_mount_shared_folder, fstab_folders, "vboxsf")
         end
       end
 

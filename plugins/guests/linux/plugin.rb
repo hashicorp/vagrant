@@ -61,6 +61,11 @@ module VagrantPlugins
         Cap::MountVirtualBoxSharedFolder
       end
 
+      guest_capability(:linux, :persist_mount_shared_folder) do
+        require_relative "cap/persist_mount_shared_folder"
+        Cap::PersistMountSharedFolder
+      end
+
       guest_capability(:linux, :network_interfaces) do
         require_relative "cap/network_interfaces"
         Cap::NetworkInterfaces

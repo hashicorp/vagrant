@@ -1947,6 +1947,7 @@ en:
         box_download_options_not_converted: |-
           Something went wrong converting VM config `box_download_options`. Value for provided key '%{missing_key}' is invalid type. Should be String or Bool
         clone_and_box: "Only one of clone or box can be specified."
+        config_type: "Found '%{option}' specified as type '%{given}', should be '%{required}'"
         hostname_invalid_characters: |-
           The hostname set for the VM '%{name}' should only contain letters, numbers,
           hyphens or dots. It cannot start with a hyphen or dot.
