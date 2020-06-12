@@ -30,12 +30,6 @@ function App({ Component, pageProps }) {
         description="Vagrant enables users to create and configure lightweight, reproducible, and
           portable development environments."
         image="https://www.vagrantup.com/img/og-image.png"
-        stylesheet={[
-          {
-            href:
-              'https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&display=swap',
-          },
-        ]}
         icon={[{ href: '/favicon.ico' }]}
         preload={[
           { href: '/fonts/klavika/medium.woff2', as: 'font' },
