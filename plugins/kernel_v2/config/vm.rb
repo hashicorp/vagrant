@@ -852,7 +852,17 @@ module VagrantPlugins
         valid_network_types = [:forwarded_port, :private_network, :public_network]
 
         port_range=(1..65535)
+        has_hostname_config = false
         networks.each do |type, options|
+          if options[:hostname]
+            if has_hostname_config
+              errors << I18n.t("vagrant.config.vm.multiple_networks_set_hostname")
+            end
+            if options[:ip] == nil
+              errors << I18n.t("vagrant.config.vm.network_with_hostname_must_set_ip")
+            end
+            has_hostname_config = true
+          end
           if !valid_network_types.include?(type)
             errors << I18n.t("vagrant.config.vm.network_type_invalid",
                             type: type.to_s)
