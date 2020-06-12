@@ -7,6 +7,7 @@ IMPROVEMENTS:
 BUG FIXES:
 
 - core: Ensure MapCommandOptions class is required [GH-11629]
+- commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
 - guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
 - guest/linux: Add virtual box shared folders to guest fstab [GH-11570] 
 - providers/docker: Ensure new containers don't grab existing bound ports [GH-11602]
