@@ -10,6 +10,7 @@ BUG FIXES:
 - guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
 - guest/linux: Add virtual box shared folders to guest fstab [GH-11570] 
 - providers/docker: Ensure new containers don't grab existing bound ports [GH-11602]
+- provisioners/shell: Ensure Windows shell provisioner gets the correct file extension [GH-11644]
 
 ## 2.2.9 (May 07, 2020)
 
