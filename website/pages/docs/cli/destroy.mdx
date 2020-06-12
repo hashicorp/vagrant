@@ -28,6 +28,7 @@ directory containing the `shutdown` command.
 - `--[no-]parallel` - Destroys multiple machines in parallel if the provider
   supports it. Please consult the provider documentation to see if this feature
   is supported.
+- `-g` or `--graceful` - Shuts down the machine gracefully. 
 
 -> The `destroy` command does not remove a box that may have been installed on
 your computer during `vagrant up`. Thus, even if you run `vagrant destroy`,
