@@ -24,6 +24,7 @@ module VagrantPlugins
 
       attr_accessor :allowed_synced_folder_types
       attr_accessor :allow_fstab_modification
+      attr_accessor :allow_hosts_modification
       attr_accessor :base_mac
       attr_accessor :base_address
       attr_accessor :boot_timeout
@@ -77,6 +78,7 @@ module VagrantPlugins
         @box_extra_download_options    = UNSET_VALUE
         @box_url                       = UNSET_VALUE
         @box_version                   = UNSET_VALUE
+        @allow_hosts_modification      = UNSET_VALUE
         @clone                         = UNSET_VALUE
         @communicator                  = UNSET_VALUE
         @graceful_halt_timeout         = UNSET_VALUE
@@ -527,6 +529,7 @@ module VagrantPlugins
         @box_version = nil if @box_version == UNSET_VALUE
         @box_download_options = {} if @box_download_options == UNSET_VALUE
         @box_extra_download_options = Vagrant::Util::MapCommandOptions.map_to_command_options(@box_download_options)
+        @allow_hosts_modification = true if @allow_hosts_modification == UNSET_VALUE
         @clone = nil if @clone == UNSET_VALUE
         @communicator = nil if @communicator == UNSET_VALUE
         @graceful_halt_timeout = 60 if @graceful_halt_timeout == UNSET_VALUE
@@ -994,6 +997,12 @@ module VagrantPlugins
         if ![TrueClass, FalseClass].include?(@allow_fstab_modification.class)
           errors["vm"] << I18n.t("vagrant.config.vm.config_type",
             option: "allow_fstab_modification", given: @allow_fstab_modification.class, required: "Boolean"
+          )
+        end
+        
+        if ![TrueClass, FalseClass].include?(@allow_hosts_modification.class)
+          errors["vm"] << I18n.t("vagrant.config.vm.config_type",
+            option: "allow_hosts_modification", given: @allow_hosts_modification.class, required: "Boolean"
           )
         end
 

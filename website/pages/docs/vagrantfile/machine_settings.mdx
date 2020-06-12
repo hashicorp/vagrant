@@ -21,6 +21,9 @@ machine that Vagrant manages.
   by Vagrant. Note, this may mean that folders will not be automatically mounted
   on machine reboot. Defaults to true.
 
+- `config.vm.allow_hosts_modification` (boolean) - If false, will prevent Vagrant
+  from writing to `/etc/hosts`. Defaults to true.
+
 - `config.vm.base_mac` (string) - The MAC address to be assigned to the default
   NAT interface on the guest. _Support for this option is provider dependent._
 
