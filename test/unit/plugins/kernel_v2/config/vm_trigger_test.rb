@@ -53,7 +53,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
 
     it "sets a command" do
       subject.finalize!
-      expect(subject.command).to eq(command)
+      expect(subject.command).to eq(command.to_s)
     end
 
     it "uses default error behavior" do

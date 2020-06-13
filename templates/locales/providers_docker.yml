@@ -159,6 +159,8 @@ en:
         run exits and doesn't keep running.
 
     errors:
+      build_error: |-
+        Vagrant received unknown output from `docker build` while building a container: %{result}
       compose_lock_timeout: |-
         Vagrant encountered a timeout waiting for the docker compose driver
         to become available. Please try to run your command again. If you

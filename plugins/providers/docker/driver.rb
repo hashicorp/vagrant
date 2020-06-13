@@ -15,19 +15,46 @@ module VagrantPlugins
         @executor = Executor::Local.new
       end
 
+      # Returns the id for a new container built from `docker build`. Raises
+      # an exception if the id was unable to be captured from the output
+      #
+      # @return [String] id - ID matched from the docker build output.
       def build(dir, **opts, &block)
-        args   = Array(opts[:extra_args])
-        args   << dir
-        result = execute('docker', 'build', *args, &block)
-        matches = result.scan(/Successfully built (.+)$/i)
-        if matches.empty?
-          # This will cause a stack trace in Vagrant, but it is a bug
-          # if this happens anyways.
-          raise "UNKNOWN OUTPUT: #{result}"
+        args = Array(opts[:extra_args])
+        args << dir
+        opts = {with_stderr: true}
+        result = execute('docker', 'build', *args, opts, &block)
+        # Check for the new output format 'writing image sha256...'
+        # In this case, docker builtkit is enabled. Its format is different
+        # from standard docker
+        matches = result.scan(/writing image .+:([0-9a-z]+) done/i).last
+        if !matches
+          if podman?
+            # Check for podman format when it is emulating docker CLI.
+            # Podman outputs the full hash of the container on
+            # the last line after a successful build.
+            match = result.split.select { |str| str.match?(/[0-9a-z]{64}/) }.last
+            return match[0..7] unless match.nil?
+          else
+            matches = result.scan(/Successfully built (.+)$/i).last
+          end
+
+          if !matches
+            # This will cause a stack trace in Vagrant, but it is a bug
+            # if this happens anyways.
+            raise Errors::BuildError, result: result
+          end
         end
 
-        # Return the last match, and the capture of it
-        matches[-1][0]
+        # Return the matched group `id`
+        matches[0]
+      end
+
+      # Check if podman emulating docker CLI is enabled.
+      #
+      # @return [Bool]
+      def podman?
+        execute('docker', '--version').include?("podman")
       end
 
       def create(params, **opts, &block)
@@ -99,6 +126,41 @@ module VagrantPlugins
         result =~ /^#{Regexp.escape(id)}$/
       end
 
+      # Reads all current docker containers and determines what ports
+      # are currently registered to be forwarded
+      # {2222=>#<Set: {"127.0.0.1"}>, 8080=>#<Set: {"*"}>, 9090=>#<Set: {"*"}>}
+      #
+      # Note: This is this format because of what the builtin action for resolving colliding
+      # port forwards expects.
+      #
+      # @return [Hash[Set]] used_ports - {forward_port: #<Set: {"host ip address"}>}
+      def read_used_ports
+        used_ports = Hash.new{|hash,key| hash[key] = Set.new}
+
+        all_containers.each do |c|
+          container_info = inspect_container(c)
+
+          if container_info["HostConfig"]["PortBindings"]
+            port_bindings = container_info["HostConfig"]["PortBindings"]
+            next if port_bindings.empty? # Nothing defined, but not nil either
+
+            port_bindings.each do |guest_port,host_mapping|
+              host_mapping.each do |h|
+                if h["HostIp"] == ""
+                  hostip = "*"
+                else
+                  hostip = h["HostIp"]
+                end
+                hostport = h["HostPort"]
+                used_ports[hostport].add(hostip)
+              end
+            end
+          end
+        end
+
+        used_ports
+      end
+
       def running?(cid)
         result = execute('docker', 'ps', '-q', '--no-trunc')
         result =~ /^#{Regexp.escape cid}$/m
@@ -154,6 +216,7 @@ module VagrantPlugins
         return true
       rescue => e
         return false if e.to_s.include?("is using it")
+        return false if e.to_s.include?("is being used")
         raise if !e.to_s.include?("No such image")
       end
 

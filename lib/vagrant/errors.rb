@@ -248,6 +248,10 @@ module Vagrant
       error_key(:bundler_error)
     end
 
+    class SourceSpecNotFound < BundlerError
+      error_key(:source_spec_not_found)
+    end
+
     class CantReadMACAddresses < VagrantError
       error_key(:cant_read_mac_addresses)
     end
@@ -396,6 +400,10 @@ module Vagrant
       error_key(:auto_empty, "vagrant.actions.vm.forward_ports")
     end
 
+    class ForwardPortHostIPNotFound < VagrantError
+      error_key(:host_ip_not_found, "vagrant.actions.vm.forward_ports")
+    end
+
     class ForwardPortCollision < VagrantError
       error_key(:collision_error, "vagrant.actions.vm.forward_ports")
     end
@@ -436,6 +444,10 @@ module Vagrant
       error_key(:machine_action_locked)
     end
 
+    class MachineFolderNotAccessible < VagrantError
+      error_key(:machine_folder_not_accessible)
+    end
+
     class MachineGuestNotReady < VagrantError
       error_key(:machine_guest_not_ready)
     end
@@ -454,6 +466,10 @@ module Vagrant
 
     class MultiVMTargetRequired < VagrantError
       error_key(:multi_vm_target_required)
+    end
+
+    class NetplanNoAvailableRenderers < VagrantError
+      error_key(:netplan_no_available_renderers)
     end
 
     class NetSSHException < VagrantError
@@ -610,6 +626,10 @@ module Vagrant
 
     class PluginInstallLicenseNotFound < VagrantError
       error_key(:plugin_install_license_not_found)
+    end
+
+    class PluginInstallFailed < VagrantError
+      error_key(:plugin_install_failed)
     end
 
     class PluginInstallSpace < VagrantError
@@ -898,6 +918,10 @@ module Vagrant
 
     class VirtualBoxBrokenVersion040214 < VagrantError
       error_key(:virtualbox_broken_version_040214)
+    end
+
+    class VirtualBoxDisksDefinedExceedLimit < VagrantError
+      error_key(:virtualbox_disks_defined_exceed_limit)
     end
 
     class VirtualBoxGuestPropertyNotFound < VagrantError

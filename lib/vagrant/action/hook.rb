@@ -65,6 +65,14 @@ module Vagrant
         @prepend_hooks << [new, args, block]
       end
 
+      # @return [Boolean]
+      def empty?
+        before_hooks.empty? &&
+          after_hooks.empty? &&
+          prepend_hooks.empty? &&
+          append_hooks.empty?
+      end
+
       # This applies the given hook to a builder. This should not be
       # called directly.
       #
@@ -75,12 +83,22 @@ module Vagrant
         if !options[:no_prepend_or_append]
           # Prepends first
           @prepend_hooks.each do |klass, args, block|
-            builder.insert(0, klass, *args, &block)
+            if options[:root]
+              idx = builder.index(options[:root])
+            else
+              idx = 0
+            end
+            builder.insert(idx, klass, *args, &block)
           end
 
           # Appends
           @append_hooks.each do |klass, args, block|
-            builder.use(klass, *args, &block)
+            if options[:root]
+              idx = builder.index(options[:root])
+              builder.insert(idx + 1, klass, *args, &block)
+            else
+              builder.use(klass, *args, &block)
+            end
           end
         end
 

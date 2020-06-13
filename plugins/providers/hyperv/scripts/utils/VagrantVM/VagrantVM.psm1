@@ -355,6 +355,9 @@ function Report-ErrorVagrantVMImport {
     )
 
     $ManagementService = Get-WmiObject -Namespace 'root\virtualization\v2' -Class 'Msvm_VirtualSystemManagementService'
+    if($null -eq $ManagementService) {
+        throw 'The Hyper-V Virtual Machine Management Service (VMMS) is not running.'
+    }
 
     # Relative path names will fail when attempting to import a system
     # definition so always ensure we are using the full path to the
@@ -611,15 +614,15 @@ function Set-VagrantVMService {
         [parameter (Mandatory=$true)]
         [Microsoft.HyperV.PowerShell.VirtualMachine] $VM,
         [parameter (Mandatory=$true)]
-        [string] $Name,
+        [string] $Id,
         [parameter (Mandatory=$true)]
         [bool] $Enable
     )
 
     if($Enable) {
-        Hyper-V\Enable-VMIntegrationService -VM $VM -Name $Name
+        Hyper-V\Get-VMIntegrationService -VM $VM | ?{$_.Id -match $Id} | Hyper-V\Enable-VMIntegrationService
     } else {
-        Hyper-V\Disable-VMIntegrationService -VM $VM -Name $Name
+        Hyper-V\Get-VMIntegrationService -VM $VM | ?{$_.Id -match $Id} | Hyper-V\Disable-VMIntegrationService
     }
     return $VM
 <#
@@ -631,9 +634,9 @@ Enable or disable Hyper-V VM integration services.
 
 Hyper-V VM for modification.
 
-.PARAMETER Name
+.PARAMETER Id
 
-Name of the integration service.
+Id of the integration service.
 
 .PARAMETER Enable
 
@@ -719,7 +722,7 @@ function Check-VagrantHyperVAccess {
     )
     $acl = Get-ACL -Path $Path
     $systemACL = $acl.Access | where {
-        $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq "S-1-5-18" -and
+        try { return $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -eq "S-1-5-18" } catch { return $false } -and
         $_.FileSystemRights -eq "FullControl" -and
         $_.AccessControlType -eq "Allow" -and
         $_.IsInherited -eq $true}

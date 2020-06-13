@@ -115,6 +115,11 @@ describe Vagrant::BoxMetadata do
       expect(subject.versions).to eq(
         ["1.0.0", "1.1.0", "1.1.5"])
     end
+
+    it "filters versions by matching provider" do
+      expect(subject.versions(provider: :vmware)).to eq(
+        ["1.0.0", "1.1.0"])
+    end
   end
 end
 

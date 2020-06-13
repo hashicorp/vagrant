@@ -26,8 +26,8 @@ module VagrantPlugins
           logger.debug("Compiling map of sub-directories for NFS exports...")
           dirmap = {}
           folders.sort_by { |_, opts| opts[:hostpath] }.each do |_, opts|
+            opts[:hostpath] = environment.host.capability(:resolve_host_path, opts[:hostpath].gsub('"', '\"'))
             hostpath = opts[:hostpath].dup
-            hostpath.gsub!('"', '\"')
 
             found = false
             dirmap.each do |dirs, diropts|

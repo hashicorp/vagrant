@@ -26,9 +26,11 @@ describe "VagrantPlugins::GuestWindows::Cap::RemovePublicKey" do
     allow(comm).to receive(:is_a?).and_return(true)
     allow(machine).to receive(:communicate).and_return(comm)
 
-    allow(comm).to receive(:execute).with(/echo .+/, shell: "cmd").and_yield(:stdout, "TEMP\r\nHOME\r\n")
+    allow(comm).to receive(:execute).with(/Write-Output .+/, shell: "powershell").and_yield(:stdout, "TEMP\r\nHOME\r\n")
+    allow(comm).to receive(:execute).with(/New-Item -Path/, shell: "powershell")
     allow(comm).to receive(:execute).with(/dir .+\.ssh/, shell: "cmd")
     allow(comm).to receive(:execute).with(/dir .+authorized_keys/, shell: "cmd", error_check: false).and_return(auth_keys_check_result)
+    allow(comm).to receive(:create_remote_directory)
   end
 
   after do

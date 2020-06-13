@@ -111,10 +111,10 @@ describe VagrantPlugins::CommandInit::Command do
     end
 
     it "creates a Vagrantfile with a box and box_url" do
-      described_class.new(["hashicorp/precise64", "http://mybox.com"], env).execute
+      described_class.new(["hashicorp/precise64", "http://example.com"], env).execute
       contents = File.read(vagrantfile_path)
       expect(contents).to match(/config.vm.box = "hashicorp\/precise64"/)
-      expect(contents).to match(/config.vm.box_url = "http:\/\/mybox.com"/)
+      expect(contents).to match(/config.vm.box_url = "http:\/\/example.com"/)
     end
 
     it "creates a Vagrantfile with a box and box version" do

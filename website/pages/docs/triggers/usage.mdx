@@ -1,0 +1,199 @@
+---
+layout: docs
+page_title: Vagrant Triggers Usage
+sidebar_title: Usage
+description: Various Vagrant Triggers examples
+---
+
+# Basic Usage
+
+Below are some very simple examples of how to use Vagrant Triggers.
+
+## Examples
+
+The following is a basic example of two global triggers. One that runs _before_
+the `:up` command and one that runs _after_ the `:up` command:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.trigger.before :up do |trigger|
+    trigger.name = "Hello world"
+    trigger.info = "I am running before vagrant up!!"
+  end
+
+  config.trigger.after :up do |trigger|
+    trigger.name = "Hello world"
+    trigger.info = "I am running after vagrant up!!"
+  end
+
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu"
+  end
+end
+```
+
+These will run before and after each defined guest in the Vagrantfile.
+
+Running a remote script to save a database on your host before **destroy**ing a
+guest:
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu"
+
+    ubuntu.trigger.before :destroy do |trigger|
+      trigger.warn = "Dumping database to /vagrant/outfile"
+      trigger.run_remote = {inline: "pg_dump dbname > /vagrant/outfile"}
+    end
+  end
+end
+```
+
+Now that the trigger is defined, running the **destroy** command will fire off
+the defined trigger before Vagrant destroys the machine.
+
+```shell-session
+$ vagrant destroy ubuntu
+```
+
+An example of defining three triggers that start and stop tinyproxy on your host
+machine using homebrew:
+
+```shell
+#/bin/bash
+# start-tinyproxy.sh
+brew services start tinyproxy
+```
+
+```shell
+#/bin/bash
+# stop-tinyproxy.sh
+brew services stop tinyproxy
+```
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu"
+
+    ubuntu.trigger.before :up do |trigger|
+      trigger.info = "Starting tinyproxy..."
+      trigger.run = {path: "start-tinyproxy.sh"}
+    end
+
+    ubuntu.trigger.after :destroy, :halt do |trigger|
+      trigger.info = "Stopping tinyproxy..."
+      trigger.run = {path: "stop-tinyproxy.sh"}
+    end
+  end
+end
+```
+
+Running `vagrant up` would fire the before trigger to start tinyproxy, where as
+running either `vagrant destroy` or `vagrant halt` would stop tinyproxy.
+
+### Ruby Option
+
+Triggers can also be defined to run Ruby, rather than bash or powershell. An
+example of this might be using a Ruby option to get more information from the `VBoxManage`
+tool. In this case, we are printing the `ostype` defined for thte guest after
+it has been brought up.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu"
+
+    ubuntu.trigger.after :up do |trigger|
+      trigger.info = "More information with ruby magic"
+      trigger.ruby do |env,machine|
+        puts `VBoxManage showvminfo #{machine.id} --machinereadable | grep ostype`
+      end
+    end
+  end
+end
+```
+
+If you are defining your triggers using the hash syntax, you must use the `Proc`
+type for defining a ruby trigger.
+
+```ruby
+Vagrant.configure("2") do |config|
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "ubuntu"
+
+    ubuntu.trigger.after :up,
+      info: "More information with ruby magic",
+      ruby: proc{|env,machine| puts `VBoxManage showvminfo #{machine.id} --machinereadable | grep ostype`}
+  end
+end
+```
+
+### Typed Triggers
+
+Below are some basic examples of using `:type` triggers. They cover commands, hooks,
+and actions.
+
+It is important to note that while `command` triggers will be a fairly common use case,
+both `action` and `hook` triggers are more complicated and are a more advanced use case.
+
+#### Commands
+
+The most common use case for typed triggers are with `command`. These kinds of
+triggers allow you to run something before or after a subcommand in Vagrant.
+
+```ruby
+config.trigger.after :status, type: :command do |t|
+  t.info = "Showing status of all VMs!"
+end
+```
+
+Because they are specifically for subcommands, they do not work with any guest
+operations like `run_remote` or if you define the trigger as a guest trigger.
+
+#### Hooks
+
+Below is an example of a Vagrant trigger that runs before and after each defined
+provisioner:
+
+```ruby
+config.trigger.before :provisioner_run, type: :hook do |t|
+  t.info = "Before the provision!"
+end
+
+config.vm.provision "file", source: "scripts/script.sh", destination: "/test/script.sh"
+
+config.vm.provision "shell", inline: <<-SHELL
+echo "Provision the guest!"
+SHELL
+
+```
+
+Notice how this trigger runs before _each_ provisioner defined for the guest:
+
+```shell
+==> guest: Running provisioner: Sandbox (file)...
+==> vagrant: Running hook triggers before provisioner_run ...
+==> vagrant: Running trigger...
+==> vagrant: Before the provision!
+    guest: /home/hashicorp/vagrant-sandbox/scripts/script.sh => /home/vagrant/test/script.sh
+==> guest: Running provisioner: shell...
+==> vagrant: Running hook triggers before provisioner_run ...
+==> vagrant: Running trigger...
+==> vagrant: Before the provision!
+    guest: Running: inline script
+    guest: Provision the guest!
+```
+
+#### Actions
+
+With action typed triggers, you can fire off triggers before or after certain
+Action classes. A simple example of this might be warning the user when Vagrant
+invokes the `GracefulHalt` action.
+
+```ruby
+config.trigger.before :"Vagrant::Action::Builtin::GracefulHalt", type: :action do |t|
+  t.warn = "Vagrant is halting your guest..."
+end
+```

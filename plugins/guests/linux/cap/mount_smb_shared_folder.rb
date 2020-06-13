@@ -1,3 +1,4 @@
+require "fileutils"
 require "shellwords"
 require_relative "../../../synced_folders/unix_mount_helpers"
 
@@ -34,10 +35,17 @@ module VagrantPlugins
           mnt_opts << "credentials=/etc/smb_creds_#{name}"
           mnt_opts << "uid=#{mount_uid}"
           mnt_opts << "gid=#{mount_gid}"
+          if !ENV['VAGRANT_DISABLE_SMBMFSYMLINKS']
+            mnt_opts << "mfsymlinks"
+          end
 
           mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
 
           mount_options = "-o #{mnt_opts.join(",")}"
+          if mount_options.include?("mfsymlinks")
+            display_mfsymlinks_warning(machine.env)
+          end
+          
           mount_command = "mount -t cifs #{mount_options} #{mount_device} #{expanded_guest_path}"
 
           # Create the guest path if it doesn't exist
@@ -92,6 +100,14 @@ SCRIPT
           end
           merged.map do |key, value|
             [key, value].compact.join("=")
+          end
+        end
+
+        def self.display_mfsymlinks_warning(env)
+          d_file = env.data_dir.join("mfsymlinks_warning")
+          if !d_file.exist?
+            FileUtils.touch(d_file.to_path)
+            env.ui.warn(I18n.t("vagrant.actions.vm.smb.mfsymlink_warning"))
           end
         end
       end

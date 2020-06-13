@@ -47,6 +47,22 @@ describe VagrantPlugins::ProviderVirtualBox::Provider do
       expect { subject.usable?(true) }.
         to raise_error(Vagrant::Errors::VirtualBoxInvalidVersion)
     end
+
+    it "raises an exception if virtualbox kernel module is not loaded" do
+      allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:new).
+        and_raise(Vagrant::Errors::VirtualBoxKernelModuleNotLoaded)
+
+      expect { subject.usable?(true) }.
+        to raise_error(Vagrant::Errors::VirtualBoxKernelModuleNotLoaded)
+    end
+
+    it "raises an exception if virtualbox installation is incomplete" do
+      allow(VagrantPlugins::ProviderVirtualBox::Driver::Meta).to receive(:new).
+        and_raise(Vagrant::Errors::VirtualBoxInstallIncomplete)
+
+      expect { subject.usable?(true) }.
+        to raise_error(Vagrant::Errors::VirtualBoxInstallIncomplete)
+    end
   end
 
   describe "#driver" do

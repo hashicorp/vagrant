@@ -21,9 +21,12 @@ describe VagrantPlugins::DockerProvider::Provider do
   end
 
   describe ".usable?" do
+    subject { described_class }
+
     it "returns true if usable" do
+      allow(VagrantPlugins::DockerProvider::Driver).to receive(:new).and_return(driver_obj)
       allow(provider_config).to receive(:compose).and_return(false)
-      allow(subject.driver).to receive(:execute).with("docker", "version").and_return(true)
+      allow(driver_obj).to receive(:execute).with("docker", "version").and_return(true)
       expect(subject).to be_usable
     end
 

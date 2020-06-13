@@ -3,7 +3,6 @@ require_relative "../../../../../../plugins/providers/docker/action/prepare_netw
 
 describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
   include_context "unit"
-  include_context "virtualbox"
 
   let(:sandbox) { isolated_environment }
 
@@ -13,14 +12,26 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     sandbox.create_vagrant_env
   end
 
+  let(:vm_config) { double("machine_vm_config") }
+
+  let(:machine_config) do
+    double("machine_config").tap do |top_config|
+      allow(top_config).to receive(:vm).and_return(vm_config)
+    end
+  end
+
   let(:machine) do
     iso_env.machine(iso_env.machine_names[0], :docker).tap do |m|
+      allow(m).to receive(:vagrantfile).and_return(vagrantfile)
+      allow(m).to receive(:config).and_return(machine_config)
       allow(m.provider).to receive(:driver).and_return(driver)
       allow(m.config.vm).to receive(:networks).and_return(networks)
     end
   end
 
-  let(:env)    {{ machine: machine, ui: machine.ui, root_path: Pathname.new(".") }}
+  let(:vagrantfile) { double("vagrantfile") }
+
+  let(:env)    {{ machine: machine, ui: machine.ui, root_path: Pathname.new("."), vagrantfile: vagrantfile }}
   let(:app)    { lambda { |*args| }}
   let(:driver) { double("driver", create: "abcd1234") }
 
@@ -55,6 +66,18 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
         }
 
   subject { described_class.new(app, env) }
+
+  let(:subprocess_result) do
+    double("subprocess_result").tap do |result|
+      allow(result).to receive(:exit_code).and_return(0)
+      allow(result).to receive(:stdout).and_return("")
+      allow(result).to receive(:stderr).and_return("")
+    end
+  end
+
+  before do
+    allow(Vagrant::Util::Subprocess).to receive(:execute).with("docker", "version", an_instance_of(Hash)).and_return(subprocess_result)
+  end
 
   after do
     sandbox.close
@@ -174,6 +197,25 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
     end
   end
 
+  describe "#list_interfaces" do
+    let(:interfaces){ ["192.168.1.2", "192.168.10.10"] }
+
+    it "returns an array of interfaces to use" do
+      allow(Socket).to receive(:getifaddrs).
+            and_return(interfaces.map{|i| double(:socket, addr: Addrinfo.ip(i))})
+      interfaces = subject.list_interfaces
+
+      expect(subject.list_interfaces.size).to eq(2)
+    end
+
+    it "does not include an interface with the address is nil" do
+      allow(Socket).to receive(:getifaddrs).
+        and_return(interfaces.map{|i| double(:socket, addr: nil)})
+
+      expect(subject.list_interfaces.size).to eq(0)
+    end
+  end
+
   describe "#generate_create_cli_arguments" do
     let(:network_options) {
             {:ip=>"172.20.128.2",
@@ -282,7 +324,11 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
 
   describe "#process_public_network" do
     let(:options) { {:ip=>"172.30.130.2", :subnet=>"172.30.0.0/16", :driver=>"bridge", :id=>"30e017d5-488f-5a2f-a3ke-k8dce8246b60"} }
-    let(:ipaddr) { double("ipaddr", prefix: 22, succ: "10.1.10.2", ipv6?: false) }
+    let(:addr) { double("addr", ip: true, ip_address: "192.168.1.139") }
+    let(:netmask) { double("netmask", ip_unpack: ["255.255.255.0"]) }
+    let(:ipaddr) { double("ipaddr", prefix: 22, succ: "10.1.10.2", ipv4?: true,
+                          ipv6?: false, to_i: 4294967040, name: "ens20u1u2",
+                          addr: addr, netmask: netmask) }
 
     it "raises an error if there are no network interfaces" do
       expect(subject).to receive(:list_interfaces).and_return([])
@@ -300,7 +346,12 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
       allow(driver).to receive(:network_containing_address).
         with("10.1.10.2").and_return("vagrant_network_public")
 
-      network_name, network_options = subject.process_public_network(options, {}, env)
+      # mock the call to PrepareNetworks.list_interfaces so that we don't depend
+      # on the current network interfaces
+      allow(subject).to receive(:list_interfaces).
+        and_return([ipaddr])
+
+      network_name, _network_options = subject.process_public_network(options, {}, env)
       expect(network_name).to eq("vagrant_network_public")
     end
   end
@@ -308,7 +359,7 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
   describe "#request_public_gateway" do
     let(:options) { {:ip=>"172.30.130.2", :subnet=>"172.30.0.0/16", :driver=>"bridge", :id=>"30e017d5-488f-5a2f-a3ke-k8dce8246b60"} }
     let(:ipaddr) { double("ipaddr", to_s: "172.30.130.2", prefix: 22, succ: "172.30.130.3",
-                          ipv6?: false) }
+                          ipv4?: true, ipv6?: false) }
 
     it "requests a gateway" do
       allow(IPAddr).to receive(:new).and_return(ipaddr)
@@ -324,17 +375,24 @@ describe VagrantPlugins::DockerProvider::Action::PrepareNetworks do
   describe "#request_public_iprange" do
     let(:options) { {:ip=>"172.30.130.2", :subnet=>"172.30.0.0/16", :driver=>"bridge", :id=>"30e017d5-488f-5a2f-a3ke-k8dce8246b60"} }
     let(:ipaddr) { double("ipaddr", to_s: "172.30.100.2", prefix: 22, succ: "172.30.100.3",
-                          ipv6?: false) }
+                          ipv4?: true, ipv6?: false) }
     let(:subnet) { double("ipaddr", to_s: "172.30.130.2", prefix: 22, succ: "172.30.130.3",
                           ipv6?: false) }
+
+    let(:ipaddr_prefix) { double("ipaddr_prefix", to_s: "255.255.255.255/255.255.255.0",
+                                 to_i: 4294967040 ) }
+
+    let(:netmask) { double("netmask", ip_unpack: ["255.255.255.0", 0]) }
+    let(:interface) { double("interface", name: "bridge", netmask: netmask) }
 
     it "requests a public ip range" do
       allow(IPAddr).to receive(:new).with(options[:subnet]).and_return(subnet)
       allow(IPAddr).to receive(:new).with("172.30.130.2").and_return(ipaddr)
+      allow(IPAddr).to receive(:new).with("255.255.255.255/255.255.255.0").and_return(ipaddr_prefix)
       allow(subnet).to receive(:include?).and_return(true)
       allow(machine.ui).to receive(:ask).and_return(options[:ip])
 
-      addr = subject.request_public_iprange(options, "bridge", env)
+      addr = subject.request_public_iprange(options, interface, env)
     end
   end
 end

@@ -59,8 +59,9 @@ describe Vagrant::CLI do
 
     it "fires triggers, if enabled" do
       allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
-        with("typed_triggers").and_return("true")
-      allow(triggers).to receive(:fire_triggers)
+        with("typed_triggers").and_return(true)
+      allow(triggers).to receive(:fire)
+      allow(triggers).to receive(:find).and_return([double("trigger-result")])
 
       commands[:destroy] = [command_lambda("destroy", 42), {}]
 
@@ -68,7 +69,7 @@ describe Vagrant::CLI do
 
       subject = described_class.new(["destroy"], env)
 
-      expect(triggers).to receive(:fire_triggers).twice
+      expect(triggers).to receive(:fire).twice
 
       expect(subject).not_to receive(:help)
       expect(subject.execute).to eql(42)
@@ -76,13 +77,13 @@ describe Vagrant::CLI do
 
     it "does not fire triggers if disabled" do
       allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
-        with("typed_triggers").and_return("false")
+        with("typed_triggers").and_return(false)
 
       commands[:destroy] = [command_lambda("destroy", 42), {}]
 
       subject = described_class.new(["destroy"], env)
 
-      expect(triggers).not_to receive(:fire_triggers)
+      expect(triggers).not_to receive(:fire)
 
       expect(subject).not_to receive(:help)
       expect(subject.execute).to eql(42)

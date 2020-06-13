@@ -16,6 +16,11 @@ module VagrantPlugins
         Cap::ProviderInstallVirtualBox
       end
 
+      host_capability("darwin", "resolve_host_path") do
+        require_relative "cap/path"
+        Cap::Path
+      end
+
       host_capability("darwin", "rdp_client") do
         require_relative "cap/rdp"
         Cap::RDP
@@ -49,6 +54,11 @@ module VagrantPlugins
       host_capability("darwin", "configured_ip_addresses") do
         require_relative "cap/configured_ip_addresses"
         Cap::ConfiguredIPAddresses
+      end
+
+      host_capability("darwin", "nfs_exports_template") do
+        require_relative "cap/nfs"
+        Cap::NFS
       end
     end
   end

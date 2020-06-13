@@ -50,6 +50,31 @@ describe "VagrantPlugins::GuestWindows::Cap::Reboot" do
         expect(ui).to receive(:info)
       end
     end
+
+    context "with exceptions while waiting for reboot" do
+      before { allow(described_class).to receive(:sleep) }
+
+      it "should retry on any standard error" do
+        allow(communicator).to receive(:execute)
+
+        expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+        expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+        expect(described_class).to receive(:wait_for_reboot).and_raise(StandardError)
+        expect(described_class).to receive(:wait_for_reboot)
+
+        described_class.reboot(machine)
+      end
+
+      it "should not retry when exception is not a standard error" do
+        allow(communicator).to receive(:execute)
+
+        expect(communicator).to receive(:test).with(/# Function/, { error_check: false, shell: :powershell }).and_return(0)
+        expect(communicator).to receive(:execute).with(/shutdown/, { shell: :powershell }).and_return(0)
+        expect(described_class).to receive(:wait_for_reboot).and_raise(Exception)
+
+        expect { described_class.reboot(machine) }.to raise_error(Exception)
+      end
+    end
   end
 
   describe "winrm communicator" do

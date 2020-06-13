@@ -10,6 +10,7 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_6_0 do
 
   it_behaves_like "a version 4.x virtualbox driver"
   it_behaves_like "a version 5.x virtualbox driver"
+  it_behaves_like "a version 6.x virtualbox driver"
 
   describe "#import" do
     let(:ovf) { double("ovf") }

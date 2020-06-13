@@ -12,7 +12,7 @@ module Vagrant
         #
         # @return [Boolean]
         def systemd?(comm)
-          comm.test("ps -o comm= 1 | grep systemd")
+          comm.test("ps -o comm= 1 | grep systemd", sudo: true)
         end
 
         # systemd-networkd.service is in use
@@ -71,6 +71,14 @@ module Vagrant
         # @return [Boolean]
         def netplan?(comm)
           comm.test("command -v netplan")
+        end
+
+        # is networkd isntalled
+        #
+        # @param [Vagrant::Plugin::V2::Communicator] comm Guest communicator
+        # @return [Boolean]
+        def networkd?(comm)
+          comm.test("command -v networkd")
         end
 
         ## nmcli helpers

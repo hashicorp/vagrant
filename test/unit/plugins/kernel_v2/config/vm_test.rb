@@ -7,7 +7,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
   subject { described_class.new }
 
-  let(:machine) { double("machine") }
+  let(:provider) { double("provider") }
+  let(:machine) { double("machine", provider: provider) }
 
   def assert_invalid
     errors = subject.validate(machine)
@@ -37,12 +38,29 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     allow(machine).to receive(:provider_config).and_return(nil)
     allow(machine).to receive(:provider_options).and_return({})
 
+    allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
+    allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
+
     subject.box = "foo"
   end
 
   it "is valid with test defaults" do
     subject.finalize!
     assert_valid
+  end
+
+  it  "validates disables_host_modification option" do
+    subject.allow_hosts_modification = true
+    subject.finalize!
+    assert_valid
+
+    subject.allow_hosts_modification = false
+    subject.finalize!
+    assert_valid
+
+    subject.allow_hosts_modification = "truthy"
+    subject.finalize!
+    assert_invalid
   end
 
   describe "#base_mac" do
@@ -299,6 +317,32 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
       subject.finalize!
       assert_invalid
     end
+
+    it "is an error if multiple networks set hostname" do
+      subject.network "public_network", ip: "192.168.0.1", hostname: true
+      subject.network "public_network", ip: "192.168.0.2", hostname: true
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "is an error if networks set hostname without ip" do
+      subject.network "public_network", hostname: true
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "is not an error if hostname non-bool" do
+      subject.network "public_network",  ip: "192.168.0.1", hostname: "true"
+      subject.finalize!
+      assert_valid
+    end
+
+    it "is not an error if one hostname is true" do
+      subject.network "public_network",  ip: "192.168.0.1", hostname: true
+      subject.network "public_network",  ip: "192.168.0.2", hostname: false
+      subject.finalize!
+      assert_valid
+    end
   end
 
   describe "#post_up_message" do
@@ -546,6 +590,58 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
         expect(merged_provs[2].config.inline).
           to eq("bar")
       end
+    end
+  end
+
+  describe "#disk" do
+    before(:each) do
+      allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).
+        with("disks").and_return("true")
+    end
+
+    it "stores the disks" do
+      subject.disk(:disk, size: 100, primary: true)
+      subject.disk(:disk, size: 1000, name: "storage")
+      subject.finalize!
+
+      assert_valid
+
+      d = subject.disks
+      expect(d.length).to eql(2)
+      expect(d[0].size).to eql(100)
+      expect(d[1].size).to eql(1000)
+      expect(d[1].name).to eql("storage")
+    end
+
+    it "raises an error with duplicate names" do
+      subject.disk(:disk, size: 100, name: "foo")
+      subject.disk(:disk, size: 1000, name: "foo", primary: false)
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "does not merge duplicate disks" do
+      subject.disk(:disk, size: 1000, primary: false, name: "storage")
+      subject.disk(:disk, size: 1000, primary: false, name: "backup")
+
+      merged = subject.merge(subject)
+      merged_disks = merged.disks
+
+      expect(merged_disks.length).to eql(2)
+    end
+
+    it "ignores non-overriding runs" do
+      subject.disk(:disk, name: "foo")
+
+      other = described_class.new
+      other.disk(:disk, name: "bar", primary: false)
+
+      merged = subject.merge(other)
+      merged_disks = merged.disks
+
+      expect(merged_disks.length).to eql(2)
+      expect(merged_disks[0].name).to eq("foo")
+      expect(merged_disks[1].name).to eq("bar")
     end
   end
 

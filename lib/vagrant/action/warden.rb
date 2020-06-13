@@ -1,7 +1,5 @@
 require "log4r"
 require 'vagrant/util/experimental'
-require 'vagrant/action/builtin/before_trigger'
-require 'vagrant/action/builtin/after_trigger'
 
 module Vagrant
   module Action
@@ -50,9 +48,9 @@ module Vagrant
           @stack.unshift(action).first.call(env)
           raise Errors::VagrantInterrupt if env[:interrupted]
           @logger.info("Calling OUT action: #{action}")
-        rescue SystemExit
-          # This means that an "exit" or "abort" was called. In these cases,
-          # we just exit immediately.
+        rescue SystemExit, NoMemoryError
+          # This means that an "exit" or "abort" was called, or we have run out
+          # of memory. In these cases, we just exit immediately.
           raise
         rescue Exception => e
           # We guard this so that the Warden only outputs this once for
@@ -101,19 +99,7 @@ module Vagrant
         args ||= []
 
         if klass.is_a?(Class)
-          # A action klass which is to be instantiated with the
-          # app, env, and any arguments given
-
-          # We wrap the action class in two Trigger method calls so that
-          # action triggers can fire before and after each given action in the stack.
-          klass_name = klass.name
-          [Vagrant::Action::Builtin::BeforeTriggerAction.new(self, env,
-                                                             klass_name,
-                                                             @triggers),
-           klass.new(self, env, *args, &block),
-           Vagrant::Action::Builtin::AfterTriggerAction.new(self, env,
-                                                            klass_name,
-                                                            @triggers)]
+          klass.new(self, env, *args, &block)
         elsif klass.respond_to?(:call)
           # Make it a lambda which calls the item then forwards
           # up the chain

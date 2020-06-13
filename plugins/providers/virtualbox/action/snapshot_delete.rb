@@ -12,8 +12,10 @@ module VagrantPlugins
             name: env[:snapshot_name]))
           env[:machine].provider.driver.delete_snapshot(
             env[:machine].id, env[:snapshot_name]) do |progress|
-            env[:ui].clear_line
-            env[:ui].report_progress(progress, 100, false)
+            env[:ui].rewriting do |ui|
+              ui.clear_line
+              ui.report_progress(progress, 100, false)
+            end
           end
 
           # Clear the line one last time since the progress meter doesn't disappear

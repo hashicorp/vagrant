@@ -103,7 +103,7 @@ describe VagrantPlugins::CommunicatorWinRM::WinRMShell do
     let(:eusername) { double("elevatedusername") }
     let(:username) { double("username") }
     let(:failed_output) { WinRM::Output.new.tap { |out|
-        out.exitcode = -196608
+        out.exitcode = described_class.const_get(:INVALID_USERID_EXITCODE)
         out << {stderr: "(10,8):UserId:"}
         out << {stderr: "At line:72 char:1"}
       } }

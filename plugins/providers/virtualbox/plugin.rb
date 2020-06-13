@@ -39,6 +39,26 @@ module VagrantPlugins
         Cap::PublicAddress
       end
 
+      provider_capability(:virtualbox, :configure_disks) do
+        require_relative "cap/configure_disks"
+        Cap::ConfigureDisks
+      end
+
+      provider_capability(:virtualbox, :cleanup_disks) do
+        require_relative "cap/cleanup_disks"
+        Cap::CleanupDisks
+      end
+
+      provider_capability(:virtualbox, :validate_disk_ext) do
+        require_relative "cap/validate_disk_ext"
+        Cap::ValidateDiskExt
+      end
+
+      provider_capability(:virtualbox, :get_default_disk_ext) do
+        require_relative "cap/validate_disk_ext"
+        Cap::ValidateDiskExt
+      end
+
       provider_capability(:virtualbox, :snapshot_list) do
         require_relative "cap"
         Cap
@@ -59,6 +79,7 @@ module VagrantPlugins
       autoload :Version_5_1, File.expand_path("../driver/version_5_1", __FILE__)
       autoload :Version_5_2, File.expand_path("../driver/version_5_2", __FILE__)
       autoload :Version_6_0, File.expand_path("../driver/version_6_0", __FILE__)
+      autoload :Version_6_1, File.expand_path("../driver/version_6_1", __FILE__)
     end
 
     module Model

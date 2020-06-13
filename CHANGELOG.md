@@ -6,6 +6,143 @@ IMPROVEMENTS:
 
 BUG FIXES:
 
+- core: Ensure MapCommandOptions class is required [GH-11629]
+- commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
+- config/vm: Add option `allow_hosts_modification` to allow/disable Vagrant editing the guests `/etc/hosts` file [GH-11565]
+- config/vm: Add config option `hostname` to `config.vm.network` [GH-11566]
+- guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
+- guest/linux: Add virtual box shared folders to guest fstab [GH-11570] 
+- providers/docker: Ensure new containers don't grab existing bound ports [GH-11602]
+- provisioners/shell: Ensure Windows shell provisioner gets the correct file extension [GH-11644]
+
+## 2.2.9 (May 07, 2020)
+
+BUG FIXES:
+
+- core/bundler: Properly handle plugin install with available specification [GH-11592]
+- provisioners/docker: Fix CentOS docker install and start service capabilities [GH-11581]
+- provisioners/podman: Seperate RHEL install from CentOS install [GH-11584]
+
+## 2.2.8 (May 04, 2020)
+
+FEATURES:
+
+- virtualbox/disks: Add ability to manage virtual disks for guests [GH-11349]
+
+IMPROVEMENTS:
+
+- bin/vagrant: Automatically include global options within commands [GH-11473]
+- bin/vagrant: Suppress Ruby warnings when not running pre-release version [GH-11446]
+- communicator/ssh: Add support for configuring SSH connect timeout [GH-11533]
+- core: Update childprocess gem [GH-11487]
+- core: Add cli option `--no-tty` [GH-11414]
+- core: Overhaul call stack modifications implementation for hooks and triggers [GH-11455]
+- core/bundler: Cache plugin solution sets to speed up startup times [GH-11363]
+- config/vm: Add`box_download_options` config to specify extra download options for a box [GH-11560]
+- guest/alpine: Add ansible provisioner guest support [GH-11411]
+- guest/linux: Update systemd? check to use sudo [GH-11398]
+- guest/linux: Use systemd if available to halt and reboot system [GH-11407]
+- guests/linux: Mount smb folders with `mfsymlinks` option by default [GH-11503]
+- guest/redhat: Add support for SMB [GH-11463]
+- guest/windows: Rescue all regular exceptions during reboot wait [GH-11428]
+- providers/docker: Support catching container name when using podman [GH-11356]
+- provisioners/docker: Support Centos8 [GH-11462]
+- provisioners/podman: Add Podman as a provisioner [GH-11472]
+- provisioners/salt: Allow specifying python_version [GH-11436]
+
+BUG FIXES:
+
+- communicators/winssh: Fix issues with Windows SSH communicator [GH-11430]
+- core/bundler: Activate vagrant specification when not active [GH-11445]
+- core/bundler: Properly resolve sets when Vagrant is in prerelease [GH-11571]
+- core/downloader: Always set `-q` flag as first option [GH-11366]
+- core/hooks: Update dynamic action hook implementation to prevent looping [GH-11427]
+- core/synced_folders: Validate type option if set [GH-11359]
+- guests/debian: Choose netplan renderer based on network configuration and installed tools [GH-11498]
+- host/darwin: Quote directories in /etc/exports [GH-11441]
+- host/linux: Ensure `/etc/exports` does not contain duplicate records [GH-10591]
+- host/windows: Check all interfaces for port conflict when host_ip: "0.0.0.0" [GH-11454]
+- providers/docker: Fix issue where Vagrant fails to remove image if it is in use [GH-11355]
+- providers/docker: Fix issue with getting correct docker image id from build output [GH-11461]
+- providers/hyperv: Prevent error when identity reference cannot be translated [GH-11425]
+- provider/hyperv: Use service id for manipulating vm integration services [GH-11499]
+- providers/virtualbox: Parse `list dhcpservers` output on VirtualBox 6.1 [GH-11404]
+- providers/virtualbox: Raise an error if guest IP ends in .1 [GH-11500]
+- provisioners/shell: Ensure windows shell provisioners always get an extension [GH-11517]
+- util/io: Fix encoding conversion errors [GH-11571]
+
+## 2.2.7 (January 27, 2020)
+
+IMPROVEMENTS:
+
+- guest/opensuse: Check for basename hostname prior to setting hostname [GH-11170]
+- host/linux: Check for modinfo in /sbin if it's not on PATH [GH-11178]
+- core: Show guest name in hostname error message [GH-11175]
+- provisioners/shell: Linux guests now support `reboot` option [GH-11194]
+- darwin/nfs: Put each NFS export on its own line [GH-11216]
+- contrib/bash: Add more completion flags to up command [GH-11223]
+- provider/virtualbox: Add VirtualBox provider support for version 6.1.x [GH-11250]
+- box/outdated: Allow to force check for box updates and ignore cached check [GH-11231]
+- guest/alpine: Update apk cache when installing rsync [GH-11220]
+- provider/virtualbox: Improve error message when machine folder is inaccessible [GH-11239]
+- provisioner/ansible_local: Add pip install method for arch guests [GH-11265]
+- communicators/winssh: Use Windows shell for `vagrant ssh -c` [GH-11258]
+
+BUG FIXES:
+
+- command/snapshot/save: Fix regression that prevented snapshot of all guests in environment [GH-11152]
+- core: Update UI to properly retain newlines when adding prefix [GH-11126]
+- core: Check if box update is available locally [GH-11188]
+- core: Ensure Vagrant::Errors are loaded in file_checksum util [GH-11183]
+- cloud/publish: Improve argument handling for missing arguments to command [GH-11184]
+- core: Get latest version for current provider during outdated check [GH-11192]
+- linux/nfs: avoid adding extra newlines to /etc/exports [GH-11201]
+- guest/darwin: Fix VMware synced folders on APFS [GH-11267]
+- guest/redhat: Ensure `nfs-server` is restarted when installing nfs client [GH-11212]
+- core: Do not validate checksums if options are empty string [GH-11211]
+- provider/docker: Enhance docker build method to match against buildkit output [GH-11205]
+- provisioner/ansible_local: Don't prompt for input when installing Ansible on Ubuntu and Debian [GH-11191]
+- provisioner/ansible_local: Ensure all guest caps accept all passed in arguments [GH-11265]
+- host/windows: Fix regression that prevented port collisions from being detected [GH-11244]
+- core/provisioner: Set top level provisioner name if set in a provisioner config [GH-11295]
+
+## 2.2.6 (October 14, 2019)
+
+FEATURES:
+
+- core/provisioners: Introduce new Provisioner options: before and after [GH-11043]
+- guest/alpine: Integrate the vagrant-alpine plugin into Vagrant core [GH-10975]
+
+IMPROVEMENTS:
+
+- command/box/prune: Allow prompt skip while preserving actively in use boxes [GH-10908]
+- command/cloud: Support providing checksum information with boxes [GH-11101]
+- dev: Fixed Vagrantfile for Vagrant development [GH-11012]
+- guest/alt: Improve handling for using network tools when setting hostname [GH-11000]
+- guest/suse: Add ipv6 network config templates for SUSE based distributions [GH-11013]
+- guest/windows: Retry on connection timeout errors for the reboot capability [GH-11093]
+- host/bsd: Use host resolve path capability to modify local paths if required [GH-11108]
+- host/darwin: Add host resolve path capability to provide real paths for firmlinks [GH-11108]
+- provisioners/chef: Update pkg install flags for chef on FreeBSD guests [GH-11075]
+- provider/hyperv: Improve error message when VMMS is not running [GH-10978]
+- provider/virtualbox: Raise additional errors for incomplete virtualbox installation on usable check [GH-10938]
+- util/filechecksum: Add support for more checksum types [GH-11101]
+
+BUG FIXES:
+
+- command/rsync-auto: Fix path watcher bug so that all subdirectories are synced when changed [GH-11089]
+- command/snapshot/save: Ensure VM id is passed to list snapshots for hyper-v provider [GH-11097]
+- core: Ensure proper paths are shown in config loading exceptions [GH-11056]
+- guest/suse: Use hostnamectl instead of hostname to set the hostname under SUSE [GH-11100]
+- provider/docker: Fix default provider validation if password is used [GH-11053]
+- provider/docker: Fix Docker providers usable? check [GH-11068]
+- provisioner/ansible_local: Ensure pip_install_cmd is finalized to emptry string [GH-11098]
+- provisioner/file: Ensure relative path for file provisioner source is relative to guest machines cwd [GH-11099]
+- provider/docker: Ensure docker build_args option is properly set in docker compose config yaml [GH-11106]
+- guest/suse: Update nfs & service daemon names for suse based hosts and guests [GH-11076]
+- provider/docker: Determine ip address prefix workaround for docker public networks [GH-11111]
+- provider/docker: Only return interfaces where addr is not nil for networks [GH-11116]
+
 ## 2.2.5 (June 19, 2019)
 
 FEATURES:
@@ -480,7 +617,7 @@ BUG FIXES:
   - core: Rescue more exceptions when checking if port is open [GH-8517]
   - guests/solaris11: Inherit from Solaris guest and keep solaris11 specific methods [GH-9034]
   - guests/windows: Split out cygwin path helper for msys2/cygwin paths and ensure cygpath exists [GH-8972]
-  - guests/windows: Specify expected shell when executing on guest (fixes winssh communicator usage) [GH-9012]
+  - guests/windows: Specify expected shell when executing on guest (fixes einssh communicator usage) [GH-9012]
   - guests/windows: Include WinSSH Communicator when using insert_public_key [GH-9105]
   - hosts/windows: Check for vagrant.exe when validating versions within WSL [GH-9107, GH-8962]
   - providers/docker: Isolate windows check within executor to handle running through VM [GH-8921]

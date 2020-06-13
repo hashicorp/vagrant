@@ -62,9 +62,11 @@ module Vagrant
       # Initialize and execute the command class, returning the exit status.
       result = 0
       begin
-        @triggers.fire_triggers(@sub_command.to_sym, :before, nil, :command) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+        @triggers.fire(@sub_command, :before, nil, :command) if
+          Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
         result = command_class.new(@sub_args, @env).execute
-        @triggers.fire_triggers(@sub_command.to_sym, :after, nil, :command) if Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
+        @triggers.fire(@sub_command, :after, nil, :command) if
+          Vagrant::Util::Experimental.feature_enabled?("typed_triggers")
       rescue Interrupt
         @env.ui.info(I18n.t("vagrant.cli_interrupt"))
         result = 1

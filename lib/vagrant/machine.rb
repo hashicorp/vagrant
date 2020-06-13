@@ -62,6 +62,11 @@ module Vagrant
     # @return [Hash]
     attr_reader :provider_options
 
+    # The triggers with machine specific configuration applied
+    #
+    # @return [Vagrant::Plugin::V2::Trigger]
+    attr_reader :triggers
+
     # The UI for outputting in the scope of this machine.
     #
     # @return [UI]
@@ -160,8 +165,6 @@ module Vagrant
     #   as extra data set on the environment hash for the middleware
     #   runner.
     def action(name, opts=nil)
-      @triggers.fire_triggers(name, :before, @name.to_s, :action)
-
       @logger.info("Calling action: #{name} on provider #{@provider}")
 
       opts ||= {}
@@ -210,8 +213,6 @@ module Vagrant
         ui.machine("action", name.to_s, "end")
         action_result
       end
-
-      @triggers.fire_triggers(name, :after, @name.to_s, :action)
       # preserve returning environment after machine action runs
       return return_env
     rescue Errors::EnvironmentLockedError
@@ -230,6 +231,7 @@ module Vagrant
     def action_raw(name, callable, extra_env=nil)
       # Run the action with the action runner on the environment
       env = {
+        raw_action_name: name,
         action_name: "machine_action_#{name}".to_sym,
         machine: self,
         machine_action: name,
@@ -476,8 +478,9 @@ module Vagrant
 
       # We also set some fields that are purely controlled by Vagrant
       info[:forward_agent] = @config.ssh.forward_agent
-      info[:forward_x11]   = @config.ssh.forward_x11
-      info[:forward_env]   = @config.ssh.forward_env
+      info[:forward_x11] = @config.ssh.forward_x11
+      info[:forward_env] = @config.ssh.forward_env
+      info[:connect_timeout] = @config.ssh.connect_timeout
 
       info[:ssh_command] = @config.ssh.ssh_command if @config.ssh.ssh_command
 

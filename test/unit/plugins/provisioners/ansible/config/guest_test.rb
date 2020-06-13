@@ -61,6 +61,7 @@ describe VagrantPlugins::Ansible::Config::Guest do
       expect(subject.install_mode).to eql(:default)
       expect(subject.provisioning_path).to eql("/vagrant")
       expect(subject.tmp_path).to eql("/tmp/vagrant-ansible")
+      expect(subject.pip_install_cmd).to eql("")
     end
   end
 

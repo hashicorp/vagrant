@@ -26,6 +26,10 @@ module VagrantPlugins
               options[:global] = g
             end
 
+            o.on("-f", "--force", "Force checks for latest box updates") do |f|
+              options[:force] = f
+            end
+
             build_download_options(o, download_options)
           end
 
@@ -40,7 +44,7 @@ module VagrantPlugins
 
           with_target_vms(argv) do |machine|
             @env.action_runner.run(Vagrant::Action.action_box_outdated, {
-              box_outdated_force: true,
+              box_outdated_force: options[:force],
               box_outdated_refresh: true,
               box_outdated_success_ui: true,
               machine: machine,
@@ -73,7 +77,15 @@ module VagrantPlugins
             end
 
             current = Gem::Version.new(box.version)
-            latest  = Gem::Version.new(md.versions.last)
+            box_versions = md.versions(provider: box.provider)
+
+            if box_versions.empty?
+              latest_box_version = box_versions.last.to_i
+            else
+              latest_box_version = box_versions.last
+            end
+
+            latest  = Gem::Version.new(latest_box_version)
             if latest <= current
               @env.ui.success(I18n.t(
                 "vagrant.box_up_to_date",

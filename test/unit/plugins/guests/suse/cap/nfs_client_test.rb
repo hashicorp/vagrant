@@ -24,8 +24,8 @@ describe "VagrantPlugins::GuestSUSE::Cap::NFSClient" do
     it "installs nfs client utilities" do
       cap.nfs_client_install(machine)
       expect(comm.received_commands[0]).to match(/zypper -n install nfs-client/)
-      expect(comm.received_commands[0]).to match(/service rpcbind restart/)
-      expect(comm.received_commands[0]).to match(/service nfs restart/)
+      expect(comm.received_commands[0]).to match(/systemctl restart rpcbind/)
+      expect(comm.received_commands[0]).to match(/systemctl restart nfs-client.target/)
     end
   end
 end

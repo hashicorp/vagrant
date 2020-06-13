@@ -348,9 +348,15 @@ module Vagrant
             end
 
             if opts[:checksum] && opts[:checksum_type]
-              env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
-              validate_checksum(
-                opts[:checksum_type], opts[:checksum], box_url)
+              if opts[:checksum].to_s.strip.empty?
+                @logger.warn("Given checksum is empty, cannot validate checksum for box")
+              elsif opts[:checksum_type].to_s.strip.empty?
+                @logger.warn("Given checksum type is empty, cannot validate checksum for box")
+              else
+                env[:ui].detail(I18n.t("vagrant.actions.box.add.checksumming"))
+                validate_checksum(
+                  opts[:checksum_type], opts[:checksum], box_url)
+              end
             end
 
             # Add the box!
@@ -427,7 +433,8 @@ module Vagrant
           downloader_options[:headers] = ["Accept: application/json"] if opts[:json]
           downloader_options[:ui] = env[:ui] if opts[:ui]
           downloader_options[:location_trusted] = env[:box_download_location_trusted]
-
+          downloader_options[:box_extra_download_options] = env[:box_extra_download_options]
+          
           Util::Downloader.new(url, temp_path, downloader_options)
         end
 
@@ -527,22 +534,11 @@ module Vagrant
         end
 
         def validate_checksum(checksum_type, checksum, path)
-          checksum_klass = case checksum_type.to_sym
-          when :md5
-            Digest::MD5
-          when :sha1
-            Digest::SHA1
-          when :sha256
-            Digest::SHA2
-          else
-            raise Errors::BoxChecksumInvalidType,
-              type: checksum_type.to_s
-          end
-
-          @logger.info("Validating checksum with #{checksum_klass}")
+          @logger.info("Validating checksum with #{checksum_type}")
           @logger.info("Expected checksum: #{checksum}")
 
-          actual = FileChecksum.new(path, checksum_klass).checksum
+          actual = FileChecksum.new(path, checksum_type).checksum
+          @logger.info("Actual checksum: #{actual}")
           if actual.casecmp(checksum) != 0
             raise Errors::BoxChecksumMismatch,
               actual: actual,

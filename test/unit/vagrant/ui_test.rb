@@ -110,6 +110,33 @@ describe Vagrant::UI::Basic do
       subject.detail(output)
     end
   end
+
+  context "#rewriting" do
+    it "does output progress" do
+      expect { |b| subject.rewriting(&b) }.to yield_control
+    end
+  end
+end
+
+describe Vagrant::UI::NonInteractive do
+  describe "#ask" do
+    it "raises an exception" do
+      expect{subject.ask("foo")}.to raise_error(Vagrant::Errors::UIExpectsTTY)
+    end
+  end
+
+  describe "#report_progress" do
+    it "does not output progress" do
+      expect(subject).to_not receive(:info)
+      subject.report_progress(1, 1)
+    end
+  end
+
+  describe "#rewriting" do
+    it "does not output progress" do
+      expect { |b| subject.rewriting(&b) }.to_not yield_control
+    end
+  end
 end
 
 describe Vagrant::UI::Colored do
@@ -404,6 +431,19 @@ describe Vagrant::UI::Prefixed do
     it "prefixes with another prefix if requested" do
       expect(ui).to receive(:output).with("==> bar: foo", anything)
       subject.output("foo", target: "bar")
+    end
+  end
+
+  describe "#format_message" do
+    it "should return the same number of new lines as given" do
+      ["no new line", "one\nnew line", "two\nnew lines\n", "three\nnew lines\n\n"].each do |msg|
+        expect(subject.format_message(:detail, msg).count("\n")).to eq(msg.count("\n"))
+      end
+    end
+
+    it "should properly format a blank message" do
+      expect(subject.format_message(:detail, "", target: "default", prefix: true)).
+        to match(/\s+default:\s+/)
     end
   end
 end

@@ -91,6 +91,36 @@ describe "vagrant bin" do
           with(hash_including(ui_class: Vagrant::UI::Colored))
       end
     end
+
+    describe "--no-tty" do
+      let(:argv) { ["--no-tty"] }
+
+      it "should enable less verbose progress output" do
+        expect(Vagrant::Environment).to receive(:new).
+          with(hash_including(ui_class: Vagrant::UI::NonInteractive))
+      end
+    end
+  end
+
+  context "default CLI flags" do
+    let(:argv) { ["--help"] }
+
+    before do
+      allow(env).to receive(:ui).and_return(ui)
+      allow(ARGV).to receive(:dup).and_return(argv)
+      allow(Kernel).to receive(:at_exit)
+      allow(Kernel).to receive(:exit)
+      allow(Vagrant::Environment).to receive(:new).and_call_original
+
+      # Include this to intercept checkpoint instance setup
+      # since it is a singleton
+      allow(Vagrant::Util::CheckpointClient).
+        to receive_message_chain(:instance, :setup, :check)
+    end
+
+    it "should include default CLI flags in command help output" do
+      expect($stdout).to receive(:puts).with(/--debug/)
+    end
   end
 
   context "when not in installer" do

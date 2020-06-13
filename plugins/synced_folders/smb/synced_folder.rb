@@ -57,7 +57,7 @@ module VagrantPlugins
               smb_username = username if username != ""
               modify_username = true
             else
-              smb_username = machine.ui.ask("Username: ")
+              smb_username = machine.ui.ask("Username (user[@domain]): ")
             end
 
             smb_password = machine.ui.ask("Password (will be hidden): ", echo: false)

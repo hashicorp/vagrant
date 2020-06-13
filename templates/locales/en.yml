@@ -127,6 +127,16 @@ en:
       Warning: Chef run list is empty. This may not be what you want.
     cli_interrupt: |-
       Exiting due to interrupt.
+    container_pulling_single: |-
+      -- Image: %{name}
+    container_building_single: |-
+      -- Path: %{path}
+    container_running: |-
+      -- Container: %{name}
+    container_restarting_container_args: |-
+      -- Detected changes to container '%{name}' args, restarting...
+    container_restarting_container_image: |-
+      -- Detected newer image for container '%{name}', restarting...
     docker_auto_start_not_available: |-
       Unable to configure automatic restart of Docker containers on
       the guest machine
@@ -301,7 +311,7 @@ en:
         Vagrant has been configured to abort. Vagrant will terminate
         after remaining running actions have completed...
       start: |-
-        Running %{type} triggers %{stage} %{action} ...
+        Running %{type} triggers %{stage} %{name} ...
       fire_with_name: |-
         Running trigger: %{name}...
       fire: |-
@@ -578,7 +588,7 @@ en:
         The specified checksum type is not supported by Vagrant: %{type}.
         Vagrant supports the following checksum types:
 
-        md5, sha1, sha256
+        %{types}
       box_checksum_mismatch: |-
         The checksum of the downloaded box did not match the expected
         value. Please verify that you have the proper URL setup and that
@@ -711,6 +721,10 @@ en:
         or transient network issues. The reported error is:
 
         %{message}
+      source_spec_not_found: |-
+        Vagrant failed to properly initialize its internal library
+        dependencies. Please try running the command again. If this
+        error persists, please report a bug.
       cant_read_mac_addresses: |-
         The provider you are using  ('%{provider}') doesn't support the
         "nic_mac_addresses" provider capability which is required
@@ -964,6 +978,15 @@ en:
         If you believe this message is in error, please check the process
         listing for any "ruby" or "vagrant" processes and kill them. Then
         try again.
+      machine_folder_not_accessible: |-
+        Vagrant attempted to clean the machine folder for the machine '%{name}'
+        but does not have permission to read the following path:
+
+        %{path}
+
+        Please ensure that Vagrant has the proper permissions to access the path
+        above. You may need to grant this permission to the terminal emulator
+        running Vagrant as well.
       machine_guest_not_ready: |-
         Guest-specific operations were attempted on a machine that is not
         ready for guest communication. This should not happen and a bug
@@ -987,6 +1010,9 @@ en:
         the proper location.
       multi_vm_target_required: |-
         This command requires a specific VM name to target in a multi-VM environment.
+      netplan_no_available_renderers: |-
+        No renderers compatible with netplan are available on guest. Please install
+        a compatible renderer.
       net_ssh_exception: |-
         An error occurred in the underlying SSH library that Vagrant uses.
         The error message is shown below. In many cases, errors from this
@@ -1104,6 +1130,10 @@ en:
         The license file to install could not be found. Please verify
         the path you gave is correct. The path to the license file given
         was: '%{path}'
+      plugin_install_failed: |-
+        Vagrant was unable to install the requested plugin: '%{name}'
+        Please try to install this plugin again. If Vagrant is still unable
+        to install the requested plugin, please report this error.
       plugin_install_space: |-
         The directory where plugins are installed (the Vagrant home directory)
         has a space in it. On Windows, there is a bug in Ruby when compiling
@@ -1516,7 +1546,8 @@ en:
       triggers_no_stage_given: |-
         The incorrect stage was given to the trigger plugin:
         Guest: %{guest_name}
-        Action: %{action}
+        Name:  %{name}
+        Type:  %{type}
         Stage: %{stage}
 
         This is an internal error that should be reported as a bug.
@@ -1632,6 +1663,11 @@ en:
         4.2.14 contains a critical bug which prevents it from working with
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
+      virtualbox_disks_defined_exceed_limit: |-
+        VirtualBox only allows up to 30 disks to be attached to a single guest using the SATA Controller,
+        including the primray disk.
+
+        Please ensure only up to 30 disks are configured for your guest.
       virtualbox_guest_property_not_found: |-
         Could not find a required VirtualBox guest property:
           %{guest_property}
@@ -1792,6 +1828,21 @@ en:
 # Translations for config validation errors
 #-------------------------------------------------------------------------------
     config:
+      disk:
+        invalid_ext: |-
+          Disk type '%{ext}' is not a valid disk extention for '%{name}'. Please pick one of the following supported disk types: %{exts}
+        invalid_type: |-
+          Disk type '%{type}' is not a valid type. Please pick one of the following supported disk types: %{types}
+        invalid_size: |-
+          Config option 'size' for disk '%{name}' on guest '%{machine}' is not an integer
+        invalid_file_type: |-
+          Disk config option 'file' for '%{machine}' is not a string.
+        missing_file: |-
+          Disk file '%{file_path}' for disk '%{name}' on machine '%{machine}' does not exist.
+        missing_provider: |-
+          Guest '%{machine}' using provider '%{provider_name}' has provider specific config options for a provider other than '%{provider_name}'. These provider config options will be ignored for this guest
+        no_name_set: |-
+          A 'name' option is required when defining a disk for guest '%{machine}'.
       common:
         bad_field: "The following settings shouldn't exist: %{fields}"
       chef:
@@ -1833,6 +1884,11 @@ en:
           The key `paranoid` is deprecated. Please use `verify_host_key`. Supported
           values are exactly the same, only the name of the option has changed.
         ssh_config_missing: "`config` file must exist: %{path}"
+        connect_timeout_invalid_type: |-
+          The `connect_timeout` key only accepts values of Integer type. Received
+          `%{given}` type which cannot be converted to an Integer type.
+        connect_timeout_invalid_value: |-
+          The `connect_timeout` key only accepts values greater than 1 (received `%{given}`)
       triggers:
         bad_trigger_type: |-
           The type '%{type}' defined for trigger '%{trigger}' is not valid. Must be one of the following types: '%{types}'
@@ -1886,12 +1942,22 @@ en:
         box_download_checksum_notblank: |-
           Checksum specified but must also specify "box_download_checksum_type"
         box_missing: "A box must be specified."
+        box_download_options_type: |-
+          Found "box_download_options" specified as type '%{type}', should be a Hash
+        box_download_options_not_converted: |-
+          Something went wrong converting VM config `box_download_options`. Value for provided key '%{missing_key}' is invalid type. Should be String or Bool
         clone_and_box: "Only one of clone or box can be specified."
+        config_type: "Found '%{option}' specified as type '%{given}', should be '%{required}'"
         hostname_invalid_characters: |-
-          The hostname set for the VM should only contain letters, numbers,
+          The hostname set for the VM '%{name}' should only contain letters, numbers,
           hyphens or dots. It cannot start with a hyphen or dot.
         ignore_provider_config: |-
           Ignoring provider config for validation...
+        multiple_primary_disks_error: |-
+          There are more than one primary disks defined for guest '%{name}'. Please ensure that only one disk has been defined as a primary disk.
+        multiple_disk_names_error: |-
+          Duplicate disk names defined: '%{name}'. Disk names must be unique.
+        multiple_networks_set_hostname: "Multiple networks have set `:hostname`"
         name_invalid: |-
           The sub-VM name '%{name}' is invalid. Please don't use special characters.
         network_ip_ends_in_one: |-
@@ -1910,6 +1976,7 @@ en:
           Forwarded port definitions require a "host" and "guest" value
         network_type_invalid: |-
           Network type '%{type}' is invalid. Please use a valid network type.
+        network_with_hostname_must_set_ip: "Network specified with `:hostname` must provide a static ip"
         provisioner_not_found: |-
           The '%{name}' provisioner could not be found.
         shared_folder_guestpath_duplicate: |-
@@ -1919,6 +1986,12 @@ en:
           The shared folder guest path must be absolute: %{path}
         shared_folder_hostpath_missing: |-
           The host path of the shared folder is missing: %{path}
+        shared_folder_invalid_option_type: |-
+          The type '%{type}' is not a valid synced folder type. If 'type' is not
+            specified, Vagrant will automatically choose the best synced folder
+            option for your guest. Otherwise, please pick from the following available options:
+
+              %{options}
         shared_folder_nfs_owner_group: |-
           Shared folders that have NFS enabled do not support owner/group
           attributes. Host path: %{path}
@@ -2053,6 +2126,9 @@ en:
           No pushed snapshot found!
 
           Use `vagrant snapshot push` to push a snapshot to restore to.
+        save:
+          vm_not_created: |-
+            Machine '%{name}' has not been created yet, and therefore cannot save snapshots. Skipping...
       status:
         aborted: |-
           The VM is in an aborted state. This means that it was abruptly
@@ -2131,10 +2207,60 @@ en:
 #-------------------------------------------------------------------------------
 # Translations for Vagrant middleware actions
 #-------------------------------------------------------------------------------
+    cap:
+      configure_disks:
+        start: "Configuring storage mediums..."
+        floppy_not_supported: "Floppy disk configuration not yet supported. Skipping disk '%{name}'..."
+        dvd_not_supported: "DVD disk configuration not yet supported. Skipping disk '%{name}'..."
+        shrink_size_not_supported: |-
+          VirtualBox does not support shrinking disk sizes. Cannot shrink '%{name}' disks size.
+        create_disk: |-
+          Disk '%{name}' not found in guest. Creating and attaching disk to guest...
+        resize_disk: |-
+          Disk '%{name}' needs to be resized. Resizing disk...
+        recovery_from_resize: |-
+          Vagrant has encountered an exception while trying to resize a disk. It will now attempt to reattach the original disk, as to prevent any data loss.
+          The original disk is located at %{location}
+          If Vagrant fails to reattach the original disk, it is recommended that you open the VirtualBox GUI and navigate to the current guests settings for '%{name}' and look at the 'storage' section. Here is where you can reattach a missing disk if Vagrant fails to do so...
+        recovery_attached_disks: |-
+          Disk has been reattached. Vagrant will now continue on an raise the exception receieved
+    cloud_init:
+      content_type_not_set: |-
+        'content_type' must be defined for a cloud_init config. Guest '%{machine}'
+        has not defined a 'content_type' for its cloud_init config. Valid options
+        supported by Vagrant are listed below:
+
+        %{accepted_types}
+      incorrect_content_type: |-
+        Content-type "%{content_type}" is not supported by Vagrant and
+        cloud-init on machine '%{machine}'. Valid options supported by Vagrant are
+        listed below:
+
+        %{accepted_types}
+      incorrect_inline_type: |-
+        The inline config cloud_init option for guest '%{machine}' is of type '%{type}', but
+        should be a String.
+      incorrect_path_type: |-
+        The path '%{path}' given for guest '%{machine}' is of type '%{type}'.
+        Config option 'path' must be a String.
+      incorrect_type_set: |-
+        The type '%{type}' defined for a cloud_init config with guest '%{machine}'
+        is not a valid type. Currently, Vagrant only supports type: '%{default_type}'.
+      path_and_inline_set: |-
+        Guest '%{machine}' defines both a 'path' and 'inline' for its cloud_init config,
+        however only one config option should be defined for cloud_init.
+      path_invalid: |-
+        The path '%{path}' defined for guest '%{machine}' cloud_init config was
+        not found on the system.
     actions:
       runner:
         waiting_cleanup: "Waiting for cleanup before exiting..."
         exit_immediately: "Exiting immediately, without cleanup!"
+      disk:
+        cleanup_provider_unsupported: |-
+          Guest provider '%{provider}' does not support the cleaning up disks, and will not attempt to clean up attached disks on the guest..
+        provider_unsupported: |-
+          Guest provider '%{provider}' does not support the disk feature, and will not use the disk configuration defined.
       vm:
         boot:
           booting: Booting VM...
@@ -2253,6 +2379,13 @@ en:
           forwarding: Forwarding ports...
           forwarding_entry: |-
             %{guest_port} (guest) => %{host_port} (host) (adapter %{adapter})
+          host_ip_not_found: |-
+            You are trying to forward a host IP that does not exist. Please set `host_ip`
+            to the address of an existing IPv4 network interface, or remove the option
+            from your port forward configuration.
+
+            VM: %{name}
+            Host IP: %{host_ip}
           non_nat: |-
             VirtualBox adapter #%{adapter} not configured as "NAT". Skipping port
             forwards on this adapter.
@@ -2335,6 +2468,17 @@ en:
             For more information see:
             RFC5661: https://tools.ietf.org/html/rfc5661#section-2.9.1
             RFC7530: https://tools.ietf.org/html/rfc7530#section-3.1
+        smb:
+          mfsymlink_warning: |-
+            Vagrant is currently configured to mount SMB folders with the
+            `mfsymlink` option enabled. This is equivalent to adding the
+            following to your Vagrantfile:
+
+              config.vm.synced_folder '/host/path', '/guest/path', type: "smb", mount_options: ['mfsymlink']
+
+            This option may be globally disabled with an environment variable:
+
+              VAGRANT_DISABLE_SMBMFSYMLINKS=1
 
         provision:
           beginning: "Running provisioner: %{provisioner}..."
@@ -2486,6 +2630,17 @@ en:
           VirtualBox has successfully been installed!
 
     provisioners:
+      base:
+        both_before_after_set: |-
+          Dependency provisioners cannot currently set both `before` and `after` options.
+        dependency_provisioner_dependency: |-
+          Dependency provisioner "%{name}" relies on another dependency provisioner "%{dep_name}". This is currently not supported.
+        invalid_alias_value: |-
+          Provisioner option `%{opt}` is not set as a valid type. Must be a string, or one of the alias shortcuts: %{alias}
+        missing_provisioner_name: |-
+          Could not find provisioner name `%{name}` defined for machine `%{machine_name}` to run provisioner "%{provisioner_name}" `%{action}`.
+        wrong_type: |-
+          Provisioner option `%{opt}` is not set as a valid type. Must be a string.
       chef:
         chef_not_detected: |-
           The chef binary (either `chef-solo` or `chef-client`) was not found on
@@ -2549,7 +2704,7 @@ en:
         server_url_required: |-
           Chef server provisioning requires that the `config.chef.chef_server_url` be set to the
           URL of your chef server. Examples include "http://12.12.12.12:4000" and
-          "http://myserver.com:4000" (the port of course can be different, but 4000 is the default)
+          "http://example.com:4000" (the port of course can be different, but 4000 is the default)
         server_validation_key_required: |-
           Chef server provisioning requires that the `config.chef.validation_key_path` configuration
           be set to a path on your local machine of the validation key used to register the
@@ -2742,6 +2897,12 @@ en:
           provisioner
         not_running: "Docker is not running on the guest VM."
         install_failed: "Docker installation failed."
+
+      podman:
+        wrong_provisioner: |-
+          The Podman post-install provisioner cannot also take a Podman post-install
+          provisioner
+        install_failed: "Podman installation failed."
 
       salt:
         minion_config_nonexist: |-

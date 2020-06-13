@@ -280,7 +280,7 @@ describe Vagrant::Util::Platform do
       end
 
       it "should return false when path is within /mnt" do
-        expect(subject.wsl_path?("/mnt/c")).to be false
+        expect(subject.wsl_path?("/mnt/c")).to be(false)
       end
     end
 
@@ -532,6 +532,12 @@ EOF
       it "should return false when path prefix is not found" do
         expect(subject.wsl_drvfs_path?("/home/vagrant/some/path")).to be_falsey
       end
+    end
+  end
+
+  describe ".unix_windows_path" do
+    it "takes a windows path and returns a POSIX-like path" do
+      expect(subject.unix_windows_path("C:\\Temp\\Windows")).to eq("C:/Temp/Windows")
     end
   end
 end

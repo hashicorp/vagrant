@@ -825,6 +825,16 @@ describe Vagrant::Machine do
         expect(instance.ssh_info[:config]).to eq("/path/to/ssh_config")
       end
 
+      it "should return the default connect_timeout" do
+        expect(instance.ssh_info[:connect_timeout]).
+          to eq(VagrantPlugins::Kernel_V2::SSHConnectConfig::DEFAULT_SSH_CONNECT_TIMEOUT)
+      end
+
+      it "should return the connect_timeout when set" do
+        instance.config.ssh.connect_timeout = 2
+        expect(instance.ssh_info[:connect_timeout]).to eq(2)
+      end
+
       context "with no data dir" do
         let(:base)     { true }
         let(:data_dir) { nil }

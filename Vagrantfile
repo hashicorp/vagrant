@@ -4,13 +4,13 @@
 # Ruby, run unit tests, etc.
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "hashicorp/precise64"
+  config.vm.box = "hashicorp/bionic64"
   config.vm.hostname = "vagrant"
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  ["vmware_fusion", "vmware_workstation", "virtualbox"].each do |provider|
+  ["vmware_desktop", "virtualbox", "hyperv"].each do |provider|
     config.vm.provider provider do |v, override|
-      v.memory = "1024"
+      v.memory = "2048"
     end
   end
 
@@ -29,32 +29,32 @@ $shell = <<-'CONTENTS'
 export DEBIAN_FRONTEND=noninteractive
 MARKER_FILE="/usr/local/etc/vagrant_provision_marker"
 RUBY_VER_REQ=$(awk '$1 == "s.required_ruby_version" { print $4 }' /vagrant/vagrant.gemspec | tr -d '"')
-BUNDLER_VER_REQ=$(awk '/s.add_dependency "bundler"/ { print $4 }' /vagrant/vagrant.gemspec | tr -d '"')
 
 # Only provision once
 if [ -f "${MARKER_FILE}" ]; then
   exit 0
 fi
 
+# Add ubuntu_rvm repo
+apt-add-repository -y ppa:rael-gc/rvm
+
 # Update apt
 apt-get update --quiet
 
-# Install basic dependencies
-apt-get install -qy build-essential bsdtar curl
+# Add vagrant user to sudo group:
+# ubuntu_rvm only adds users in group sudo to group rvm
+usermod -a -G sudo vagrant
+
+# Install basic dependencies and RVM
+apt-get install -qy build-essential bsdtar rvm
 
 # Import the mpapis public key to verify downloaded releases
 su -l -c 'gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3' vagrant
 
-# Install RVM
-su -l -c 'curl -sL https://get.rvm.io | bash -s stable' vagrant
-
-# Add the vagrant user to the RVM group
-#usermod -a -G rvm vagrant
-
-# Install latest Ruby that complies with Vagrant's version constraint
-RUBY_VER_LATEST=$(su -l -c 'rvm list known' vagrant | tr '[]-' ' ' | awk "/^ ruby  ${RUBY_VER_REQ:0:1}\./ { print \$2 }" | sort | tail -n1)
-su -l -c "rvm install ${RUBY_VER_LATEST}" vagrant
-su -l -c "rvm --default use ${RUBY_VER_LATEST}" vagrant
+# Install next-to-last Ruby that complies with Vagrant's version constraint
+RUBY_VER=$(su -l -c 'rvm list known' vagrant | tr '[]-' ' ' | awk "/^ ruby  ${RUBY_VER_REQ:0:1}\./ { print \$2 }" | sort -r | sed -n '2p')
+su -l -c "rvm install ${RUBY_VER}" vagrant
+su -l -c "rvm --default use ${RUBY_VER}" vagrant
 
 # Output the Ruby version (for sanity)
 su -l -c 'ruby --version' vagrant
@@ -63,15 +63,14 @@ su -l -c 'ruby --version' vagrant
 apt-get install -qy git
 
 # Upgrade Rubygems
-su -l -c "rvm ${RUBY_VER_LATEST} do gem update --system" vagrant
+su -l -c "rvm ${RUBY_VER} do gem update --system" vagrant
 
-# Install bundler and prepare to run unit tests
-su -l -c "gem install bundler -v ${BUNDLER_VER_REQ}" vagrant
+# Prepare to run unit tests
 su -l -c 'cd /vagrant; bundle install' vagrant
 
 # Automatically move into the shared folder, but only add the command
 # if it's not already there.
-grep -q 'cd /vagrant' /home/vagrant/.bash_profile || echo 'cd /vagrant' >> /home/vagrant/.bash_profile
+grep -q 'cd /vagrant' /home/vagrant/.bash_profile 2>/dev/null || echo 'cd /vagrant' >> /home/vagrant/.bash_profile
 
 # Touch the marker file so we don't do this again
 touch ${MARKER_FILE}

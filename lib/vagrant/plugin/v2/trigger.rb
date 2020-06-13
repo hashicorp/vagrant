@@ -30,57 +30,96 @@ module Vagrant
           @logger = Log4r::Logger.new("vagrant::trigger::#{self.class.to_s.downcase}")
         end
 
-        # Fires all triggers, if any are defined for the action and guest. Returns early
+        # Fires all triggers, if any are defined for the named type and guest. Returns early
         # and logs a warning if the community plugin `vagrant-triggers` is installed
         #
-        # @param [Symbol] action Vagrant command to fire trigger on
+        # @param [Symbol] name Name of `type` thing to fire trigger on
         # @param [Symbol] stage :before or :after
-        # @param [String] guest_name The guest that invoked firing the triggers
-        def fire_triggers(action, stage, guest_name, type)
+        # @param [String] guest The guest that invoked firing the triggers
+        # @param [Symbol] type Type of trigger to fire (:action, :hook, :command)
+        def fire(name, stage, guest, type)
           if community_plugin_detected?
             @logger.warn("Community plugin `vagrant-triggers detected, so core triggers will not fire")
             return
           end
 
-          if !action
-            @logger.warn("Action given is nil, no triggers will fire")
-            return
-          else
-            action = action.to_sym
-          end
+          return @logger.warn("Name given is nil, no triggers will fire") if !name
+          return @logger.warn("Name given cannot be symbolized, no triggers will fire") if
+            !name.respond_to?(:to_sym)
+
+          name = name.to_sym
 
           # get all triggers matching action
-          triggers = []
+          triggers = find(name, stage, guest, type)
+
+          if !triggers.empty?
+            @logger.info("Firing trigger for #{type} #{name} on guest #{guest}")
+            @ui.info(I18n.t("vagrant.trigger.start", type: type, stage: stage, name: name))
+            execute(triggers)
+          end
+        end
+
+        # Find all triggers defined for the named type and guest.
+        #
+        # @param [Symbol] name Name of `type` thing to fire trigger on
+        # @param [Symbol] stage :before or :after
+        # @param [String] guest The guest that invoked firing the triggers
+        # @param [Symbol] type Type of trigger to fire
+        # @return [Array]
+        def find(name, stage, guest, type)
+          triggers = nil
+          name = nameify(name)
+
           if stage == :before
             triggers = config.before_triggers.select do |t|
-              t.command == action || (t.command == :all && !t.ignore.include?(action))
+              (t.command == :all && !t.ignore.include?(name)) ||
+                (type == :hook && matched_hook?(t.command, name)) ||
+                nameify(t.command) == name
             end
           elsif stage == :after
             triggers = config.after_triggers.select do |t|
-              t.command == action || (t.command == :all && !t.ignore.include?(action))
+              (t.command == :all && !t.ignore.include?(name)) ||
+                (type == :hook && matched_hook?(t.command, name)) ||
+                nameify(t.command) == name
             end
           else
             raise Errors::TriggersNoStageGiven,
-              action: action,
+              name: name,
               stage: stage,
-              guest_name: guest_name
+              type: type,
+              guest_name: guest
           end
-
-          triggers = filter_triggers(triggers, guest_name, type)
-
-          if !triggers.empty?
-            @logger.info("Firing trigger for action #{action} on guest #{guest_name}")
-            @ui.info(I18n.t("vagrant.trigger.start", type: type, stage: stage, action: action))
-            fire(triggers, guest_name)
-          end
+          filter_triggers(triggers, guest, type)
         end
 
         protected
 
+        # Convert object into name
+        #
+        # @param [Object, Class] object Object to name
+        # @return [String]
+        def nameify(object)
+          if object.is_a?(Class)
+            object.name.to_s
+          else
+            object.to_s
+          end
+        end
 
         #-------------------------------------------------------------------
         # Internal methods, don't call these.
         #-------------------------------------------------------------------
+
+        # Generate all valid lookup keys for given action key
+        #
+        # @param [Class, String] key Base key for generation
+        # @return [Array<String>] all valid keys
+        def matched_hook?(key, subject)
+          subject = nameify(subject)
+          Vagrant.plugin("2").manager.generate_hook_keys(key).any? do |k|
+            k == subject
+          end
+        end
 
         # Looks up if the community plugin `vagrant-triggers` is installed
         # and also caches the result
@@ -133,12 +172,11 @@ module Vagrant
           return triggers
         end
 
-        # Fires off all triggers in the given array
+        # Execute all triggers in the given array
         #
         # @param [Array] triggers An array of triggers to be fired
-        def fire(triggers, guest_name)
+        def execute(triggers)
           # ensure on_error is respected by exiting or continuing
-
           triggers.each do |trigger|
             @logger.debug("Running trigger #{trigger.id}...")
 

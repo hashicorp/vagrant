@@ -152,6 +152,54 @@ describe VagrantPlugins::DockerProvider::Driver do
 ].to_json }
 
 
+  describe '#build' do
+    let(:result) { "Successfully built other_package\nSuccessfully built 1a2b3c4d" }
+    let(:buildkit_result) { "writing image sha256:1a2b3c4d done" }
+    let(:podman_result) { "1a2b3c4d5e6f7g8h9i10j11k12l13m14n16o17p18q19r20s21t22u23v24w25x2" }
+    let(:cid) { "1a2b3c4d" }
+
+    it "builds a container with standard docker" do
+      allow(subject).to receive(:execute).and_return(result)
+
+      container_id = subject.build("/tmp/fakedir")
+
+      expect(container_id).to eq(cid)
+    end
+
+    it "builds a container with buildkit docker" do
+      allow(subject).to receive(:execute).and_return(buildkit_result)
+
+      container_id = subject.build("/tmp/fakedir")
+
+      expect(container_id).to eq(cid)
+    end
+
+    it "builds a container with podman emulating docker CLI" do
+      allow(subject).to receive(:execute).and_return(podman_result)
+      allow(subject).to receive(:podman?).and_return(true)
+
+      container_id = subject.build("/tmp/fakedir")
+
+      expect(container_id).to eq(cid)
+    end
+  end
+
+  describe '#podman?' do
+    let(:emulating_docker_output) { "podman version 1.7.1-dev" }
+    let(:real_docker_output) { "Docker version 1.8.1, build d12ea79" }
+
+    it 'returns false when docker is used' do
+      allow(subject).to receive(:execute).and_return(real_docker_output)
+
+      expect(subject.podman?).to be false
+    end
+
+    it 'returns true when podman is used' do
+      allow(subject).to receive(:execute).and_return(emulating_docker_output)
+
+      expect(subject.podman?).to be true
+    end
+  end
 
   describe '#create' do
     let(:params) { {
@@ -261,6 +309,33 @@ describe VagrantPlugins::DockerProvider::Driver do
     end
   end
 
+  describe '#read_used_ports' do
+    let(:all_containers) { ["container1\ncontainer2"] }
+    let(:container_info) { {"Name"=>"/container", "HostConfig"=>{"PortBindings"=>{}}} }
+    let(:empty_used_ports) { {} }
+
+    context "with existing port forwards" do
+      let(:container_info) { {"Name"=>"/container", "HostConfig"=>{"PortBindings"=>{"22/tcp"=>[{"HostIp"=>"127.0.0.1","HostPort"=>"2222"}] }}} }
+      let(:used_ports_set) { {"2222"=>Set["127.0.0.1"]} }
+
+      it 'should read all port bindings and return a hash of sets' do
+        allow(subject).to receive(:all_containers).and_return(all_containers)
+        allow(subject).to receive(:inspect_container).and_return(container_info)
+
+        used_ports = subject.read_used_ports
+        expect(used_ports).to eq(used_ports_set)
+      end
+    end
+
+    it 'returns empty if no ports are already bound' do
+      allow(subject).to receive(:all_containers).and_return(all_containers)
+      allow(subject).to receive(:inspect_container).and_return(container_info)
+
+      used_ports = subject.read_used_ports
+      expect(used_ports).to eq(empty_used_ports)
+    end
+  end
+
   describe '#running?' do
     let(:result) { subject.running?(cid) }
 
@@ -354,6 +429,53 @@ describe VagrantPlugins::DockerProvider::Driver do
       it 'does not attempt to remove the container' do
         expect(subject).to_not receive(:execute).with('docker', 'rm', '-f', '-v', cid)
         subject.rm(cid)
+      end
+    end
+  end
+
+  describe '#rmi' do
+    let(:id) { 'asdg21ew' }
+
+    context 'image exists' do
+      it "removes the image" do
+        expect(subject).to receive(:execute).with('docker', 'rmi', id)
+        subject.rmi(id)
+      end
+    end
+
+    context 'image is being used by running container' do
+      before { allow(subject).to receive(:execute).and_raise("image is being used by running container") }
+
+      it 'does not remove the image' do
+        expect(subject.rmi(id)).to eq(false)
+        subject.rmi(id)
+      end
+    end
+
+    context 'image is being used by stopped container' do
+      before { allow(subject).to receive(:execute).and_raise("image is being used by stopped container") }
+
+      it 'does not remove the image' do
+        expect(subject.rmi(id)).to eq(false)
+        subject.rmi(id)
+      end
+    end
+
+    context 'container is using it' do
+      before { allow(subject).to receive(:execute).and_raise("container is using it") }
+
+      it 'does not remove the image' do
+        expect(subject.rmi(id)).to eq(false)
+        subject.rmi(id)
+      end
+    end
+
+    context 'image does not exist' do
+      before { allow(subject).to receive(:execute).and_raise("No such image") }
+
+      it 'raises an error' do
+        expect(subject.rmi(id)).to eq(nil)
+        subject.rmi(id)
       end
     end
   end
