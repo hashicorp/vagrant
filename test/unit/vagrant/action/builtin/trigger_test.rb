@@ -28,7 +28,7 @@ describe Vagrant::Action::Builtin::Trigger do
   end
 
   it "should fire triggers without machine name" do
-    expect(triggers).to receive(:fire).with(name, timing, nil, type)
+    expect(triggers).to receive(:fire).with(name, timing, nil, type, anything)
     subject.call(env)
   end
 
@@ -36,7 +36,7 @@ describe Vagrant::Action::Builtin::Trigger do
     let(:machine) { double("machine", name: "machine-name") }
 
     it "should include machine name when firing triggers" do
-      expect(triggers).to receive(:fire).with(name, timing, "machine-name", type)
+      expect(triggers).to receive(:fire).with(name, timing, "machine-name", type, anything)
       subject.call(env)
     end
   end

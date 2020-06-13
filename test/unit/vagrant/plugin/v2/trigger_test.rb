@@ -99,11 +99,11 @@ describe Vagrant::Plugin::V2::Trigger do
 
       [:destroy, :halt, :provision, :reload, :resume, :suspend, :up].each do |supported_action|
         it "should locate trigger when before #{supported_action} action is requested" do
-          expect(subject.find(supported_action, :before, "guest", :action)).not_to be_empty
+          expect(subject.find(supported_action, :before, "guest", :action, all: true)).not_to be_empty
         end
 
         it "should locate trigger when after #{supported_action} action is requested" do
-          expect(subject.find(supported_action, :after, "guest", :action)).not_to be_empty
+          expect(subject.find(supported_action, :after, "guest", :action, all: true)).not_to be_empty
         end
       end
 
@@ -111,19 +111,19 @@ describe Vagrant::Plugin::V2::Trigger do
         let(:ignores) { [:halt, :up] }
 
         it "should not locate trigger when before command is ignored" do
-          expect(subject.find(:up, :before, "guest", :action)).to be_empty
+          expect(subject.find(:up, :before, "guest", :action, all: true)).to be_empty
         end
 
         it "should not locate trigger when after command is ignored" do
-          expect(subject.find(:halt, :after, "guest", :action)).to be_empty
+          expect(subject.find(:halt, :after, "guest", :action, all: true)).to be_empty
         end
 
         it "should locate trigger when before command is not ignored" do
-          expect(subject.find(:provision, :before, "guest", :action)).not_to be_empty
+          expect(subject.find(:provision, :before, "guest", :action, all: true)).not_to be_empty
         end
 
         it "should locate trigger when after command is not ignored" do
-          expect(subject.find(:provision, :after, "guest", :action)).not_to be_empty
+          expect(subject.find(:provision, :after, "guest", :action, all: true)).not_to be_empty
         end
       end
     end
