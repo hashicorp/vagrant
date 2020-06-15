@@ -7,7 +7,7 @@ about: For when Vagrant is not working as expected or you have encountered a bug
 Please note that the Vagrant issue tracker is in priority reserved for bug reports and enhancements. For general usage questions, please use
 HashiCorp Discuss: https://discuss.hashicorp.com/c/vagrant/24 Thank you!
 
-When submitting a bug report, please provide the minimal configuration and requirement information necessary to reliably reproduce the issue. It
+When submitting a bug report, please provide the minimal configuration and required information necessary to reliably reproduce the issue. It
 should include a basic Vagrantfile that only contains settings to reproduce the described behavior.
 
 **Tip:** Before submitting your issue, don't hesitate to remove the above introductory text, possible empty sections (e.g. References), and this tip.
