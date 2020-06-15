@@ -7,6 +7,9 @@ about: For when Vagrant is not working as expected or you have encountered a bug
 Please note that the Vagrant issue tracker is in priority reserved for bug reports and enhancements. For general usage questions, please use
 HashiCorp Discuss: https://discuss.hashicorp.com/c/vagrant/24 Thank you!
 
+When submitting a bug report, please provide the minimal configuration and required information necessary to reliably reproduce the issue. It
+should include a basic Vagrantfile that only contains settings to reproduce the described behavior.
+
 **Tip:** Before submitting your issue, don't hesitate to remove the above introductory text, possible empty sections (e.g. References), and this tip.
 
 ### Vagrant version
@@ -28,9 +31,12 @@ This is the operating system you run in the virtual machine.
 # Copy-paste your Vagrantfile here (but don't include sensitive information such as passwords, authentication tokens, or email addresses)
 ```
 
-Please note, if you are using Homestead or a different Vagrantfile format, we
-may be unable to assist with your issue. Try to reproduce the issue using a
-vanilla Vagrantfile first.
+Please ensure the Vagrantfile provided is a minimal Vagrantfile which contains
+only the required configuration to reproduce the behavior. Please note that if
+your Vagrantfile contains an excess of configuration unrelated the the reported
+issue, or is in a different format, we may be unable to assist with your issue.
+Always start with a minimal Vagrantfile and include only the relevant configuration
+to reproduce the reported behavior.
 
 ### Debug output
 
