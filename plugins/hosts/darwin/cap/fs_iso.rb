@@ -31,8 +31,22 @@ module VagrantPlugins
         # @note If file_destination exists, source_directory will be checked
         #       for recent modifications and a new ISO will be generated if requried.
         def self.create_iso(env, source_directory, file_destination=nil, extra_opts={})
-          file_destination = output_file(file_destination)
           source_directory = Pathname.new(source_directory)
+          if file_destination.nil?
+            @@logger.info("No file destination specified, creating temp location")
+            tmpfile = Tempfile.new(["vagrant", ".iso"])
+            file_destination = Pathname.new(tmpfile.path)
+            tmpfile.delete
+          else
+            file_destination = Pathname.new(file_destination.to_s)
+            # If the file destination path is a folder, target the output to a randomly named
+            # file in that dir
+            if file_destination.extname != ".iso"
+              file_destination = file_destination.join("#{rand(36**6).to_s(36)}_vagrant.iso")
+            end
+          end
+          # Ensure destination directory is available
+          FileUtils.mkdir_p(File.dirname(file_destination.to_s))
 
           # If the destrination does not exist or there have been changes in the source directory since the last build, then build
           if !file_destination.exist? || Vagrant::Util::Directory.directory_changed?(source_directory, file_destination.mtime)
@@ -41,6 +55,7 @@ module VagrantPlugins
             iso_command << "-hfs"
             iso_command << "-iso"
             iso_command << "-joliet"
+            iso_command << "-ov"
             iso_command.concat(Vagrant::Util::MapCommandOptions.map_to_command_options(extra_opts, cmd_flag="-"))
             iso_command << "-o"
             iso_command << file_destination.to_s
@@ -53,29 +68,6 @@ module VagrantPlugins
           end
 
           @@logger.info("ISO available at #{file_destination}")
-          file_destination
-        end
-
-        # Determines a valid file path for an output file
-        # and ensures parent directory exists
-        #
-        # @param [String, nil] (optional) path to output file
-        # @return [Pathname] path to output file
-        def self.output_file(file_destination=nil)
-          if file_destination.nil?
-            @@logger.info("No file destination specified, creating temp location")
-            tmpfile = Tempfile.new("vagrant-iso")
-            file_destination = Pathname.new(tmpfile.path)
-            tmpfile.delete
-          else
-            file_destination = Pathname.new(file_destination.to_s)
-            if file_destination.extname != ".iso"
-              file_destination = file_destination.join("#{rand(36**6).to_s(36)}_vagrant-iso")
-            end
-          end
-          @@logger.info("Targeting to create ISO at #{file_destination}")
-          # Ensure destination directory is available
-          FileUtils.mkdir_p(File.dirname(file_destination.to_s))
           file_destination
         end
       end

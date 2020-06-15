@@ -22,16 +22,15 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
 
   describe ".create_iso" do
     let(:file_destination) { "/woo/out.iso" }
-    let(:file_destination_path) { Pathname.new(file_destination)} 
 
     before do 
-      allow(subject).to receive(:output_file).with(any_args).and_return(file_destination_path)
-      allow(file_destination_path).to receive(:exist?).and_return(false)
+      allow(file_destination).to receive(:nil?).and_return(false)
+      allow(FileUtils).to receive(:mkdir_p)
     end
 
     it "builds an iso" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
-        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-o", /.iso/, /\/foo\/src/
+        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
 
       output = subject.create_iso(env, "/foo/src", "/woo/out.iso")
@@ -40,11 +39,20 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
 
     it "builds an iso with args" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
-        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-default-volume-name", "cidata", "-o", /.iso/, /\/foo\/src/
+        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-default-volume-name", "cidata", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
 
       output = subject.create_iso(env, "/foo/src", "/woo/out.iso", extra_opts={"default-volume-name" => "cidata"})
       expect(output.to_s).to eq("/woo/out.iso")
+    end
+
+    it "builds an iso given a file destination without an extension" do
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(
+        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
+      ).and_return(double(exit_code: 0))
+
+      output = subject.create_iso(env, "/foo/src", "/woo/out_dir")
+      expect(output.to_s).to match(/\/woo\/out_dir\/[\w]{6}_vagrant.iso/)
     end
 
     it "raises an error if iso build failed" do
