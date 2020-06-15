@@ -23,18 +23,18 @@ describe Vagrant::Plugin::V2::Trigger do
     ui: ui,
   } }
 
-  let(:triggers) { VagrantPlugins::Kernel_V2::TriggerConfig.new }
+  let(:triggers) {
+    @triggers ||= VagrantPlugins::Kernel_V2::TriggerConfig.new.tap do |triggers|
+      triggers.before(:up, hash_block)
+      triggers.before(:destroy, hash_block)
+      triggers.before(:halt, hash_block_two)
+      triggers.after(:up, hash_block)
+      triggers.after(:destroy, hash_block)
+      triggers.finalize!
+    end
+  }
   let(:hash_block) { {info: "hi", run: {inline: "echo 'hi'"}} }
   let(:hash_block_two) { {warn: "WARNING!!", run_remote: {inline: "echo 'hi'"}} }
-
-  before do
-    triggers.before(:up, hash_block)
-    triggers.before(:destroy, hash_block)
-    triggers.before(:halt, hash_block_two)
-    triggers.after(:up, hash_block)
-    triggers.after(:destroy, hash_block)
-    triggers.finalize!
-  end
 
   let(:subject) { described_class.new(env, triggers, machine, ui) }
 
@@ -85,6 +85,47 @@ describe Vagrant::Plugin::V2::Trigger do
     it "should not attempt to match hook name with non-hook type" do
       expect(subject).not_to receive(:matched_hook?)
       subject.find(:halt, :before, "guest", :action)
+    end
+
+    context "with :all special value" do
+      let(:triggers) { VagrantPlugins::Kernel_V2::TriggerConfig.new }
+      let(:ignores) { [] }
+
+      before do
+        triggers.before(:all, hash_block.merge(ignore: ignores))
+        triggers.after(:all, hash_block.merge(ignore: ignores))
+        triggers.finalize!
+      end
+
+      [:destroy, :halt, :provision, :reload, :resume, :suspend, :up].each do |supported_action|
+        it "should locate trigger when before #{supported_action} action is requested" do
+          expect(subject.find(supported_action, :before, "guest", :action, all: true)).not_to be_empty
+        end
+
+        it "should locate trigger when after #{supported_action} action is requested" do
+          expect(subject.find(supported_action, :after, "guest", :action, all: true)).not_to be_empty
+        end
+      end
+
+      context "with ignores" do
+        let(:ignores) { [:halt, :up] }
+
+        it "should not locate trigger when before command is ignored" do
+          expect(subject.find(:up, :before, "guest", :action, all: true)).to be_empty
+        end
+
+        it "should not locate trigger when after command is ignored" do
+          expect(subject.find(:halt, :after, "guest", :action, all: true)).to be_empty
+        end
+
+        it "should locate trigger when before command is not ignored" do
+          expect(subject.find(:provision, :before, "guest", :action, all: true)).not_to be_empty
+        end
+
+        it "should locate trigger when after command is not ignored" do
+          expect(subject.find(:provision, :after, "guest", :action, all: true)).not_to be_empty
+        end
+      end
     end
 
     context "with hook type" do

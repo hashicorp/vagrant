@@ -674,7 +674,7 @@ describe Vagrant::Action::Builder do
 
     context "when trigger has been defined for raw action" do
       before do
-        expect(triggers).to receive(:find).with(raw_action_name, timing, nil, :action).
+        expect(triggers).to receive(:find).with(raw_action_name, timing, nil, :action, all: true).
           and_return([true])
       end
 

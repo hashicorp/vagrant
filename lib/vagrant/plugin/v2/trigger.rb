@@ -37,7 +37,7 @@ module Vagrant
         # @param [Symbol] stage :before or :after
         # @param [String] guest The guest that invoked firing the triggers
         # @param [Symbol] type Type of trigger to fire (:action, :hook, :command)
-        def fire(name, stage, guest, type)
+        def fire(name, stage, guest, type, all: false)
           if community_plugin_detected?
             @logger.warn("Community plugin `vagrant-triggers detected, so core triggers will not fire")
             return
@@ -50,7 +50,7 @@ module Vagrant
           name = name.to_sym
 
           # get all triggers matching action
-          triggers = find(name, stage, guest, type)
+          triggers = find(name, stage, guest, type, all: all)
 
           if !triggers.empty?
             @logger.info("Firing trigger for #{type} #{name} on guest #{guest}")
@@ -66,19 +66,19 @@ module Vagrant
         # @param [String] guest The guest that invoked firing the triggers
         # @param [Symbol] type Type of trigger to fire
         # @return [Array]
-        def find(name, stage, guest, type)
+        def find(name, stage, guest, type, all: false)
           triggers = nil
           name = nameify(name)
 
           if stage == :before
             triggers = config.before_triggers.select do |t|
-              (t.command == :all && !t.ignore.include?(name)) ||
+              (all && t.command.respond_to?(:to_sym) && t.command.to_sym == :all && !t.ignore.include?(name.to_sym)) ||
                 (type == :hook && matched_hook?(t.command, name)) ||
                 nameify(t.command) == name
             end
           elsif stage == :after
             triggers = config.after_triggers.select do |t|
-              (t.command == :all && !t.ignore.include?(name)) ||
+              (all && t.command.respond_to?(:to_sym) && t.command.to_sym == :all && !t.ignore.include?(name.to_sym)) ||
                 (type == :hook && matched_hook?(t.command, name)) ||
                 nameify(t.command) == name
             end
@@ -89,6 +89,7 @@ module Vagrant
               type: type,
               guest_name: guest
           end
+
           filter_triggers(triggers, guest, type)
         end
 
