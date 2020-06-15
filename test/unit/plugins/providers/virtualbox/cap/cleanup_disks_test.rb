@@ -30,21 +30,15 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
   let(:disk_meta_file) { {disk: [], floppy: [], dvd: []} }
   let(:defined_disks) { {} }
 
-  let(:sata_controller) { double("controller", name: "SATA Controller", storage_bus: "SATA", maxportcount: 30) }
-  let(:ide_controller) { double("controller", name: "IDE Controller", storage_bus: "IDE", maxportcount: 2) }
-
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
                        {port: "1", device: "0", uuid: "67890"}]}
 
-  let(:storage_controllers) { [ controller ] }
+  let(:controller) { double("controller", name: "controller", limit: 30, storage_bus: "SATA", maxportcount: 30) }
 
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
-    allow(sata_controller).to receive(:attachments).and_return(attachments)
-
-    allow(driver).to receive(:get_controller).with("IDE").and_return(ide_controller)
-    allow(driver).to receive(:get_controller).with("SATA").and_return(sata_controller)
-    allow(driver).to receive(:storage_controllers).and_return([ide_controller, sata_controller])
+    allow(controller).to receive(:attachments).and_return(attachments)
+    allow(driver).to receive(:read_storage_controllers).and_return([controller])
   end
 
   describe "#cleanup_disks" do
@@ -65,7 +59,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
       end
 
       it "raises an error if primary disk can't be found" do
-        allow(sata_controller).to receive(:attachments).and_return([])
+        allow(controller).to receive(:attachments).and_return([])
         expect { subject.cleanup_disks(machine, defined_disks, disk_meta_file) }.
           to raise_error(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
       end
@@ -85,27 +79,22 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
   end
 
   describe "#handle_cleanup_disk" do
-    let(:disk_meta_file) { {disk: [{"uuid"=>"67890", "name"=>"storage"}], floppy: [], dvd: []} }
+    let(:disk_meta_file) { { disk: [{ "uuid" => "67890", "name" => "storage", "controller" => "controller", "port" => "1", "device" => "0" }], floppy: [], dvd: [] } }
+
     let(:defined_disks) { [] }
     let(:device_info) { {port: "1", device: "0"} }
 
     it "removes and closes medium from guest" do
-      allow(driver).to receive(:get_port_and_device).
-        with("67890").
-        and_return(device_info)
-
-      expect(driver).to receive(:remove_disk).with("1", "0", sata_controller.name).and_return(true)
+      expect(driver).to receive(:remove_disk).with("1", "0", "controller").and_return(true)
       expect(driver).to receive(:close_medium).with("67890").and_return(true)
 
       subject.handle_cleanup_disk(machine, defined_disks, disk_meta_file[:disk])
     end
 
     context "when the disk isn't attached to a guest" do
-      it "only closes the medium" do
-        allow(driver).to receive(:get_port_and_device).
-          with("67890").
-          and_return({})
+      let(:attachments) { [{port: "0", device: "0", uuid: "12345"}] }
 
+      it "only closes the medium" do
         expect(driver).to receive(:close_medium).with("67890").and_return(true)
 
         subject.handle_cleanup_disk(machine, defined_disks, disk_meta_file[:disk])
@@ -116,29 +105,14 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
   describe "#handle_cleanup_dvd" do
     let(:attachments) { [{port: "0", device: "0", uuid: "1234"}] }
 
-    let(:disk_meta_file) { {dvd: [{"uuid" => "1234", "name" => "iso"}]} }
+    let(:disk_meta_file) { {dvd: [{"uuid" => "1234", "name" => "iso", "port" => "0", "device" => "0", "controller" => "controller" }]} }
+
     let(:defined_disks) { [] }
 
-    before do
-      allow(ide_controller).to receive(:attachments).and_return(attachments)
-    end
-
     it "removes the medium from guest" do
-      expect(driver).to receive(:remove_disk).with("0", "0", "IDE Controller").and_return(true)
+      expect(driver).to receive(:remove_disk).with("0", "0", "controller").and_return(true)
 
       subject.handle_cleanup_dvd(machine, defined_disks, disk_meta_file[:dvd])
-    end
-
-    context "multiple copies of the same ISO attached" do
-      let(:attachments) { [{port: "0", device: "0", uuid: "1234"},
-                           {port: "0", device: "1", uuid: "1234"}] }
-
-      it "removes all media with that UUID" do
-        expect(driver).to receive(:remove_disk).with("0", "0", "IDE Controller").and_return(true)
-        expect(driver).to receive(:remove_disk).with("0", "1", "IDE Controller").and_return(true)
-
-        subject.handle_cleanup_dvd(machine, defined_disks, disk_meta_file[:dvd])
-      end
     end
   end
 end

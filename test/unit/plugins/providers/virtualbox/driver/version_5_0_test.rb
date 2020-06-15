@@ -5,6 +5,7 @@ describe VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0 do
   include_context "virtualbox"
 
   let(:vbox_version) { "5.0.0" }
+  let(:controller_name) { "controller" }
 
   subject { VagrantPlugins::ProviderVirtualBox::Driver::Version_5_0.new(uuid) }
 
@@ -92,18 +93,12 @@ OUTPUT
   end
 
   describe "#attach_disk" do
-    let(:controller) { double("controller", name: "IDE Controller", storage_bus: "IDE") }
-
-    before do
-      allow(subject).to receive(:get_controller).with(controller.storage_bus).and_return(controller)
-    end
-
-    it "attaches a dvddrive device to the IDE controller" do
+    it "attaches a device to the specified controller" do
       expect(subject).to receive(:execute) do |*args|
         storagectl = args[args.index("--storagectl") + 1]
-        expect(storagectl).to eq("IDE Controller")
+        expect(storagectl).to eq(controller_name)
       end
-      subject.attach_disk(anything, anything, anything, "dvddrive")
+      subject.attach_disk(anything, anything, anything, "dvddrive", controller_name)
     end
   end
 
@@ -111,34 +106,36 @@ OUTPUT
     it "removes a disk from the specified controller" do
       expect(subject).to receive(:execute) do |*args|
         storagectl = args[args.index("--storagectl") + 1]
-        expect(storagectl).to eq("IDE Controller")
+        expect(storagectl).to eq(controller_name)
       end
-      subject.remove_disk(anything, anything, "IDE Controller")
+      subject.remove_disk(anything, anything, controller_name)
     end
   end
 
-  describe "#storage_controllers" do
+  describe "#read_storage_controllers" do
     before do
       allow(subject).to receive(:show_vm_info).and_return(
-        {"storagecontrollername0" => "SATA Controller",
-         "storagecontrollertype0" => "IntelAhci",
-         "storagecontrollermaxportcount0" => "30",
-         "SATA Controller-ImageUUID-0-0" => "12345",
-         "SATA Controller-ImageUUID-1-0" => "67890"}
+        { "storagecontrollername0" => "SATA Controller",
+          "storagecontrollertype0" => "IntelAhci",
+          "storagecontrollermaxportcount0" => "30",
+          "SATA Controller-ImageUUID-0-0" => "12345",
+          "SATA Controller-ImageUUID-1-0" => "67890" }
       )
     end
 
-    it "returns the storage controllers" do
-      expect(subject.storage_controllers.first.name).to eq("SATA Controller")
-      expect(subject.storage_controllers.first.type).to eq("IntelAhci")
-      expect(subject.storage_controllers.first.maxportcount).to eq(30)
+    it "returns a list of storage controllers" do
+      storage_controllers = subject.read_storage_controllers
+
+      expect(storage_controllers.first.name).to eq("SATA Controller")
+      expect(storage_controllers.first.type).to eq("IntelAhci")
+      expect(storage_controllers.first.maxportcount).to eq(30)
     end
 
     it "includes attachments for each storage controller" do
-      expect(subject.storage_controllers.first.attachments)
-        .to include(port: "0", device: "0", uuid: "12345")
-      expect(subject.storage_controllers.first.attachments)
-        .to include(port: "1", device: "0", uuid: "67890")
+      storage_controllers = subject.read_storage_controllers
+
+      expect(storage_controllers.first.attachments).to include(port: "0", device: "0", uuid: "12345")
+      expect(storage_controllers.first.attachments).to include(port: "1", device: "0", uuid: "67890")
     end
   end
 end

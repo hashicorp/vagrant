@@ -932,9 +932,9 @@ module VagrantPlugins
         # current VM
         #
         # @return [Array<VagrantPlugins::ProviderVirtualBox::Model::StorageController>]
-        def storage_controllers
+        def read_storage_controllers
           vm_info = show_vm_info
-          count = vm_info.count { |key, value| key.match(/^storagecontrollername/) }
+          count = vm_info.count { |key, value| key.match(/^storagecontrollername\d+$/) }
 
           (0..count - 1).map do |n|
             # basic controller metadata
@@ -962,6 +962,7 @@ module VagrantPlugins
         # @param [String] storage_bus - for example, 'IDE' or 'SATA'
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController] controller
         def get_controller(storage_bus)
+          storage_controllers = read_storage_controllers
           controller = storage_controllers.detect { |c| c.storage_bus == storage_bus }
           if controller.nil?
             raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: storage_bus

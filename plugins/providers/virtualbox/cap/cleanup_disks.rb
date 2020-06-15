@@ -26,8 +26,17 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
-          controller = machine.provider.driver.get_controller('SATA')
-          primary = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }
+          storage_controllers = machine.provider.driver.read_storage_controllers
+          if storage_controllers.size ==  1
+            primary_controller = storage_controllers.first
+          else
+            primary_controller = storage_controllers.detect { |c| c.storage_bus == "SATA" }
+            if primary_controller.nil?
+              # raise exception
+            end
+          end
+
+          primary = primary_controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }
           if primary.nil?
             raise Vagrant::Errors::VirtualBoxDisksPrimaryNotFound
           end
@@ -40,15 +49,16 @@ module VagrantPlugins
                 next
               else
                 LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
-                disk_info = machine.provider.driver.get_port_and_device(d["uuid"])
-
                 machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_cleanup", name: d["name"]), prefix: true)
 
-                if disk_info.empty?
+                controller = storage_controllers.detect { |c| c.name == d["controller"] }
+                disk_info = controller.attachments.detect { |a| a[:port] == d["port"] &&
+                                                                a[:device] == d["device"] }
+
+                if disk_info.nil?
                   LOGGER.warn("Disk '#{d["name"]}' not attached to guest, but still exists.")
                 else
-                  # TODO: write test for sata controller with another name
-                  machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device], controller.name)
+                  machine.provider.driver.remove_disk(d["port"], d["device"], d["controller"])
                 end
 
                 machine.provider.driver.close_medium(d["uuid"])
@@ -62,18 +72,14 @@ module VagrantPlugins
         # @param [Hash] dvd_meta - A hash of all the previously defined dvds from the last configure_disk action
         def self.handle_cleanup_dvd(machine, defined_dvds, dvd_meta)
           if dvd_meta
-            controller = machine.provider.driver.get_controller('IDE')
             dvd_meta.each do |d|
               dsk = defined_dvds.select { |dk| dk.name == d["name"] }
               if !dsk.empty?
                 next
               else
                 LOGGER.warn("Found dvd not in Vagrantfile config: '#{d["name"]}'. Removing dvd from guest #{machine.name}")
-                attachments = controller.attachments.select { |a| a[:uuid] == d["uuid"] }
-                attachments.each do |attachment|
-                  machine.ui.warn("DVD '#{d["name"]}' no longer exists in Vagrant config. Removing medium from guest...", prefix: true)
-                  machine.provider.driver.remove_disk(attachment[:port].to_s, attachment[:device].to_s, controller.name)
-                end
+                machine.ui.warn("DVD '#{d["name"]}' no longer exists in Vagrant config. Removing medium from guest...", prefix: true)
+                machine.provider.driver.remove_disk(d["port"], d["device"], d["controller"])
               end
             end
           end

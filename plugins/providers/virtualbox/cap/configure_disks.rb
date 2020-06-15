@@ -19,7 +19,7 @@ module VagrantPlugins
 
           machine.ui.info(I18n.t("vagrant.cap.configure_disks.start"))
 
-          storage_controllers = machine.provider.driver.storage_controllers
+          storage_controllers = machine.provider.driver.read_storage_controllers
 
           # Check to determine which controller we should attach disks to.
           # If there is only one storage controller attached to the VM, use
@@ -32,7 +32,7 @@ module VagrantPlugins
             # exactly one disk is a primary disk, otherwise we need to reserve
             # a slot for the primary
             if (defined_disks.any? { |d| d.primary } && defined_disks.size > controller.limit) ||
-                defined_disks.size > controller.limit - 1
+               defined_disks.size > controller.limit - 1
               raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
                 limit: controller.limit,
                 name: controller.name
@@ -43,9 +43,9 @@ module VagrantPlugins
           else
             disks_defined = defined_disks.select { |d| d.type == :disk }
             if disks_defined.any?
-              disk_controller = machine.provider.driver.get_controller('SATA')
+              disk_controller = machine.provider.driver.get_controller("SATA")
               if (disks_defined.any? { |d| d.primary } && disks_defined.size > disk_controller.limit) ||
-                  disks_defined.size > disk_controller.limit - 1
+                 disks_defined.size > disk_controller.limit - 1
                 raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
                   limit: disk_controller.limit,
                   name: disk_controller.name
@@ -54,7 +54,7 @@ module VagrantPlugins
 
             dvds_defined = defined_disks.select { |d| d.type == :dvd }
             if dvds_defined.any?
-              dvd_controller = machine.provider.driver.get_controller('IDE')
+              dvd_controller = machine.provider.driver.get_controller("IDE")
               if disks_defined.size > dvd_controller.limit
                 raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
                   limit: dvd_controller.limit,
@@ -65,7 +65,7 @@ module VagrantPlugins
 
           current_disks = machine.provider.driver.list_hdds
 
-          configured_disks = {disk: [], floppy: [], dvd: []}
+          configured_disks = { disk: [], floppy: [], dvd: [] }
 
           defined_disks.each do |disk|
             if disk.type == :disk
@@ -105,7 +105,7 @@ module VagrantPlugins
 
             current_disk = all_disks.select { |d| d["UUID"] == primary_uuid }.first
           else
-            current_disk = all_disks.select { |d| d["Disk Name"] == disk.name}.first
+            current_disk = all_disks.select { |d| d["Disk Name"] == disk.name }.first
           end
 
           current_disk
@@ -141,6 +141,7 @@ module VagrantPlugins
               machine.provider.driver.attach_disk(dsk_info[:port],
                                                   dsk_info[:device],
                                                   current_disk["Location"],
+                                                  "hdd",
                                                   controller.name)
               disk_metadata[:port] = dsk_info[:port]
               disk_metadata[:device] = dsk_info[:device]
@@ -174,11 +175,10 @@ module VagrantPlugins
 
           # Refresh the controller information
           controller = machine.provider.driver.get_controller(controller.storage_bus)
-          attachment = controller.attachments.detect { |a| a[:port] == port &&
-                                                           a[:device] == device }
+          attachment = controller.attachments.detect { |a| a[:port] == port && a[:device] == device }
 
           if attachment
-            {uuid: attachment[:uuid], name: dvd.name, controller: controller.name, port: port, device: device}
+            { uuid: attachment[:uuid], name: dvd.name, controller: controller.name, port: port, device: device }
           else
             {}
           end
@@ -228,11 +228,12 @@ module VagrantPlugins
           machine.provider.driver.attach_disk(dsk_controller_info[:port],
                                               dsk_controller_info[:device],
                                               disk_file,
+                                              "hdd",
                                               controller.name)
 
-          disk_metadata = {uuid: disk_var.split(':').last.strip, name: disk_config.name,
-                           controller: controller.name, port: dsk_controller_info[:port],
-                           device: dsk_controller_info[:device]}
+          disk_metadata = { uuid: disk_var.split(":").last.strip, name: disk_config.name,
+                            controller: controller.name, port: dsk_controller_info[:port],
+                            device: dsk_controller_info[:device] }
 
           disk_metadata
         end
@@ -256,16 +257,16 @@ module VagrantPlugins
         def self.get_next_port(machine, controller)
           dsk_info = {}
 
-          if controller.storage_bus == 'SATA'
+          if controller.storage_bus == "SATA"
             used_ports = controller.attachments.map { |a| a[:port].to_i }
-            next_available_port = ((0..(controller.maxportcount-1)).to_a - used_ports).first
+            next_available_port = ((0..(controller.maxportcount - 1)).to_a - used_ports).first
 
             dsk_info[:port] = next_available_port.to_s
             dsk_info[:device] = "0"
-          elsif controller.storage_bus == 'IDE'
+          elsif controller.storage_bus == "IDE"
             # IDE Controllers have primary/secondary devices, so find the first port
             # with an empty device
-            (0..(controller.maxportcount-1)).each do |port|
+            (0..(controller.maxportcount - 1)).each do |port|
               # Skip this port if it's full
               port_attachments = controller.attachments.select { |a| a[:port] == port.to_s }
               next if port_attachments.count == 2
@@ -278,6 +279,8 @@ module VagrantPlugins
               else
                 dsk_info[:device] = "0"
               end
+
+              break if dsk_info[:port]
             end
           else
             raise Vagrant::Errors::VirtualBoxDisksUnsupportedController, controller_name: controller.name
@@ -333,7 +336,8 @@ module VagrantPlugins
               vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
               machine.provider.driver.attach_disk(disk_info[:port],
                                                   disk_info[:device],
-                                                  vmdk_disk_file, "hdd",
+                                                  vmdk_disk_file,
+                                                  "hdd",
                                                   controller.name)
             rescue ScriptError, SignalException, StandardError
               LOGGER.warn("Vagrant encountered an error while trying to resize a disk. Vagrant will now attempt to reattach and preserve the original disk...")
@@ -359,8 +363,8 @@ module VagrantPlugins
             disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
           end
 
-          disk_metadata = {uuid: defined_disk["UUID"], name: disk_config.name, controller: controller.name,
-                           port: disk_info[:port], device: disk_info[:device]}
+          disk_metadata = { uuid: defined_disk["UUID"], name: disk_config.name, controller: controller.name,
+                            port: disk_info[:port], device: disk_info[:device] }
 
           disk_metadata
         end

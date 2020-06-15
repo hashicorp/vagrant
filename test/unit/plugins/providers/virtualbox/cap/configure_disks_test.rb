@@ -68,7 +68,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(controller).to receive(:attachments).and_return(attachments)
-    allow(driver).to receive(:storage_controllers).and_return([controller])
+    allow(driver).to receive(:read_storage_controllers).and_return([controller])
     allow(driver).to receive(:get_controller).with(controller.storage_bus).and_return(controller)
   end
 
@@ -119,7 +119,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       let(:controller2) { double("controller2", storage_bus: "SATA", limit: 30) }
 
       before do
-        allow(driver).to receive(:storage_controllers).and_return([controller1, controller2])
+        allow(driver).to receive(:read_storage_controllers).and_return([controller1, controller2])
         allow(driver).to receive(:get_controller).with(controller1.storage_bus).and_return(controller1)
         allow(driver).to receive(:get_controller).with(controller2.storage_bus).and_return(controller2)
       end
@@ -332,6 +332,17 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       expect(dsk_info[:port]).to eq("2")
       expect(dsk_info[:device]).to eq("0")
     end
+
+    context "with empty IDE controller" do
+      let(:empty_controller) { double("controller", storage_bus: "IDE", attachments: [], maxportcount: 2) }
+
+      it "attaches to port 0, device 0" do
+        dsk_info = subject.get_next_port(machine, empty_controller)
+        expect(dsk_info[:port]).to eq("0")
+        expect(dsk_info[:device]).to eq("0")
+      end
+    end
+
   end
 
   describe "#resize_disk" do
