@@ -195,12 +195,22 @@ describe Vagrant::Action::Builtin::HandleForwardedPortCollisions do
     end
 
     context "when host ip does not exist" do
-      let(:host_ip) { "127.0.0.2" }
+      let(:host_ip) { "192.168.99.100" }
       let(:name) { "default" }
 
       it "should raise an error including the machine name" do
         allow(machine).to receive(:name).and_return(name)
-        expect{ instance.send(:port_check, host_ip, host_port) }.to raise_error(Vagrant::Errors::ForwardPortHostIPNotFound, /#{name}/)
+        expect{ instance.send(:port_check, host_ip, host_port) }.
+          to raise_error(Vagrant::Errors::ForwardPortHostIPNotFound, /#{name}/)
+      end
+    end
+
+    context "with loopback address" do
+      let (:host_ip) { "127.1.2.40" }
+
+      it "should check if the port is open" do
+        expect(Vagrant::Util::IsPortOpen).to receive(:is_port_open?).with(host_ip, host_port).and_return(true)
+        instance.send(:port_check, host_ip, host_port)
       end
     end
   end
