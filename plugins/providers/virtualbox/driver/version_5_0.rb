@@ -22,13 +22,13 @@ module VagrantPlugins
         # - Port: 0
         # - Device: 0
         #
+        # @param [String] controller_name - name of storage controller to attach disk to
         # @param [String] port - port on device to attach disk to
         # @param [String] device - device on controller for disk
-        # @param [String] file - disk file path
         # @param [String] type - type of disk to attach
-        # @param [String] controller_name - name of storage controller to attach disk to
+        # @param [String] file - disk file path
         # @param [Hash]   opts -  additional options
-        def attach_disk(port, device, file, type, controller_name, **opts)
+        def attach_disk(controller_name, port, device, type, file, **opts)
           comment = "This disk is managed externally by Vagrant. Removing or adjusting settings could potentially cause issues with Vagrant."
 
           execute('storageattach', @uuid,
@@ -226,10 +226,10 @@ module VagrantPlugins
           raise
         end
 
+        # @param [String] controller_name - controller name to remove disk from
         # @param [String] port - port on device to attach disk to
         # @param [String] device - device on controller for disk
-        # @param [String] controller_name - controller name to remove disk from
-        def remove_disk(port, device, controller_name)
+        def remove_disk(controller_name, port, device)
           execute('storageattach', @uuid,
                   '--storagectl', controller_name,
                   '--port', port.to_s,

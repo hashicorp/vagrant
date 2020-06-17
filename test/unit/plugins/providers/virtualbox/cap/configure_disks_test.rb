@@ -261,11 +261,11 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:get_port_and_device).with("67890").
           and_return({})
 
-        expect(driver).to receive(:attach_disk).with((disk_info[:port].to_i + 1).to_s,
+        expect(driver).to receive(:attach_disk).with(controller.name,
+                                                     (disk_info[:port].to_i + 1).to_s,
                                                      disk_info[:device],
-                                                     all_disks[1]["Location"],
                                                      "hdd",
-                                                     controller.name)
+                                                     all_disks[1]["Location"])
 
         subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller)
       end
@@ -318,11 +318,11 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       expect(subject).to receive(:get_next_port).with(machine, controller).
         and_return(port_and_device)
 
-      expect(driver).to receive(:attach_disk).with(port_and_device[:port],
+      expect(driver).to receive(:attach_disk).with(controller.name,
+                                                   port_and_device[:port],
                                                    port_and_device[:device],
-                                                   disk_file,
                                                    "hdd",
-                                                   controller.name)
+                                                   disk_file)
 
       subject.create_disk(machine, disk_config, controller)
     end
@@ -368,7 +368,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
         expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).and_return(true)
 
-        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device], controller.name).
+        expect(driver).to receive(:remove_disk).with(controller.name, attach_info[:port], attach_info[:device]).
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 
@@ -376,7 +376,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           and_return(vmdk_disk_file)
 
         expect(driver).to receive(:attach_disk).
-          with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd", controller.name).and_return(true)
+          with(controller.name, attach_info[:port], attach_info[:device], "hdd", vmdk_disk_file).and_return(true)
         expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
 
         expect(driver).to receive(:list_hdds).and_return(all_disks)
@@ -399,7 +399,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
         expect(driver).to receive(:resize_disk).with(vdi_disk_file, disk_config.size.to_i).and_return(true)
 
-        expect(driver).to receive(:remove_disk).with(attach_info[:port], attach_info[:device], controller.name).
+        expect(driver).to receive(:remove_disk).with(controller.name, attach_info[:port], attach_info[:device]).
           and_return(true)
         expect(driver).to receive(:close_medium).with("12345")
 
@@ -450,7 +450,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         and_return(true)
 
       expect(driver).to receive(:attach_disk).
-        with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd", controller.name).and_return(true)
+        with(controller.name, attach_info[:port], attach_info[:device], "hdd", vmdk_disk_file).and_return(true)
 
       expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
 
@@ -470,7 +470,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
 
     it "includes disk attachment info in metadata" do
-      expect(driver).to receive(:attach_disk).with("0", "0", "/tmp/untitled.iso", "dvddrive", controller.name)
+      expect(driver).to receive(:attach_disk).with(controller.name, "0", "0", "dvddrive", "/tmp/untitled.iso")
 
       dvd_metadata = subject.handle_configure_dvd(machine, dvd_config, controller)
       expect(dvd_metadata[:uuid]).to eq("12345")

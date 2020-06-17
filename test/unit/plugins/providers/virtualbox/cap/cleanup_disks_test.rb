@@ -85,7 +85,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
     let(:device_info) { {port: "1", device: "0"} }
 
     it "removes and closes medium from guest" do
-      expect(driver).to receive(:remove_disk).with("1", "0", "controller").and_return(true)
+      expect(driver).to receive(:remove_disk).with("controller", "1", "0").and_return(true)
       expect(driver).to receive(:close_medium).with("67890").and_return(true)
 
       subject.handle_cleanup_disk(machine, defined_disks, disk_meta_file[:disk])
@@ -110,7 +110,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
     let(:defined_disks) { [] }
 
     it "removes the medium from guest" do
-      expect(driver).to receive(:remove_disk).with("0", "0", "controller").and_return(true)
+      expect(driver).to receive(:remove_disk).with("controller", "0", "0").and_return(true)
 
       subject.handle_cleanup_dvd(machine, defined_disks, disk_meta_file[:dvd])
     end

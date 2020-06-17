@@ -58,7 +58,7 @@ module VagrantPlugins
                 if disk_info.nil?
                   LOGGER.warn("Disk '#{d["name"]}' not attached to guest, but still exists.")
                 else
-                  machine.provider.driver.remove_disk(d["port"], d["device"], d["controller"])
+                  machine.provider.driver.remove_disk(d["controller"], d["port"], d["device"])
                 end
 
                 machine.provider.driver.close_medium(d["uuid"])
@@ -79,7 +79,7 @@ module VagrantPlugins
               else
                 LOGGER.warn("Found dvd not in Vagrantfile config: '#{d["name"]}'. Removing dvd from guest #{machine.name}")
                 machine.ui.warn("DVD '#{d["name"]}' no longer exists in Vagrant config. Removing medium from guest...", prefix: true)
-                machine.provider.driver.remove_disk(d["port"], d["device"], d["controller"])
+                machine.provider.driver.remove_disk(d["controller"], d["port"], d["device"])
               end
             end
           end

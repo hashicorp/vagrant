@@ -98,7 +98,7 @@ OUTPUT
         storagectl = args[args.index("--storagectl") + 1]
         expect(storagectl).to eq(controller_name)
       end
-      subject.attach_disk(anything, anything, anything, "dvddrive", controller_name)
+      subject.attach_disk(controller_name, anything, anything, anything, anything) 
     end
   end
 
@@ -108,7 +108,7 @@ OUTPUT
         storagectl = args[args.index("--storagectl") + 1]
         expect(storagectl).to eq(controller_name)
       end
-      subject.remove_disk(anything, anything, controller_name)
+      subject.remove_disk(controller_name, anything, anything)
     end
   end
 

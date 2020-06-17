@@ -138,11 +138,11 @@ module VagrantPlugins
             if disk_info.empty?
               LOGGER.warn("Disk '#{disk.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect disk to guest")
               dsk_info = get_next_port(machine, controller)
-              machine.provider.driver.attach_disk(dsk_info[:port],
+              machine.provider.driver.attach_disk(controller.name,
+                                                  dsk_info[:port],
                                                   dsk_info[:device],
-                                                  current_disk["Location"],
                                                   "hdd",
-                                                  controller.name)
+                                                  current_disk["Location"])
               disk_metadata[:port] = dsk_info[:port]
               disk_metadata[:device] = dsk_info[:device]
             else
@@ -171,7 +171,7 @@ module VagrantPlugins
           port = disk_info[:port]
           device = disk_info[:device]
 
-          machine.provider.driver.attach_disk(port, device, dvd.file, "dvddrive", controller.name)
+          machine.provider.driver.attach_disk(controller.name, port, device, "dvddrive", dvd.file)
 
           # Refresh the controller information
           controller = machine.provider.driver.get_controller(controller.storage_bus)
@@ -225,11 +225,11 @@ module VagrantPlugins
 
           disk_var = machine.provider.driver.create_disk(disk_file, disk_config.size, disk_ext.upcase)
           dsk_controller_info = get_next_port(machine, controller)
-          machine.provider.driver.attach_disk(dsk_controller_info[:port],
+          machine.provider.driver.attach_disk(controller.name,
+                                              dsk_controller_info[:port],
                                               dsk_controller_info[:device],
-                                              disk_file,
                                               "hdd",
-                                              controller.name)
+                                              disk_file)
 
           disk_metadata = { uuid: disk_var.split(":").last.strip, name: disk_config.name,
                             controller: controller.name, port: dsk_controller_info[:port],
@@ -324,7 +324,7 @@ module VagrantPlugins
             begin
               # Danger Zone
               # remove and close original volume
-              machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device], controller.name)
+              machine.provider.driver.remove_disk(controller.name, disk_info[:port], disk_info[:device])
               # Create a backup of the original disk if something goes wrong
               LOGGER.warn("Making a backup of the original disk at #{defined_disk["Location"]}")
               FileUtils.mv(defined_disk["Location"], backup_disk_location)
@@ -335,11 +335,11 @@ module VagrantPlugins
 
               # clone back to original vmdk format and attach resized disk
               vmdk_disk_file = machine.provider.driver.vdi_to_vmdk(vdi_disk_file)
-              machine.provider.driver.attach_disk(disk_info[:port],
+              machine.provider.driver.attach_disk(controller.name,
+                                                  disk_info[:port],
                                                   disk_info[:device],
-                                                  vmdk_disk_file,
                                                   "hdd",
-                                                  controller.name)
+                                                  vmdk_disk_file)
             rescue ScriptError, SignalException, StandardError
               LOGGER.warn("Vagrant encountered an error while trying to resize a disk. Vagrant will now attempt to reattach and preserve the original disk...")
               machine.ui.error(I18n.t("vagrant.cap.configure_disks.recovery_from_resize",
@@ -384,11 +384,11 @@ module VagrantPlugins
             # move backup to original name
             FileUtils.mv(backup_disk_location, original_disk["Location"], force: true)
             # Attach disk
-            machine.provider.driver.attach_disk(disk_info[:port],
+            machine.provider.driver.attach_disk(controller.name,
+                                                disk_info[:port],
                                                 disk_info[:device],
-                                                original_disk["Location"],
                                                 "hdd",
-                                                controller.name)
+                                                original_disk["Location"])
 
             # Remove cloned disk if still hanging around
             if vdi_disk_file
