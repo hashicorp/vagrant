@@ -9,6 +9,7 @@ BUG FIXES:
 - core: Ensure MapCommandOptions class is required [GH-11629]
 - core: Fix `:all` special value on triggers [GH-11688]
 - core: Ensure network addresses have a valid netmask [GH-11679]
+- core: Recover local machine metadata in global index [GH-11656]
 - commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
 - config/vm: Add option `allow_hosts_modification` to allow/disable Vagrant editing the guests `/etc/hosts` file [GH-11565]
 - config/vm: Add config option `hostname` to `config.vm.network` [GH-11566]
