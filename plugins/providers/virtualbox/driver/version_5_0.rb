@@ -393,20 +393,21 @@ module VagrantPlugins
         # Returns port and device for an attached disk given a disk uuid. Returns
         # empty hash if disk is not attachd to guest
         #
-        # @param [Hash] vm_info - A guests information from vboxmanage
         # @param [String] disk_uuid - the UUID for the disk we are searching for
         # @return [Hash] disk_info - Contains a device and port number
         def get_port_and_device(disk_uuid)
-          vm_info = show_vm_info
-
           disk = {}
-          disk_info_key = vm_info.key(disk_uuid)
-          return disk if !disk_info_key
 
-          disk_info = disk_info_key.split("-")
-
-          disk[:port] = disk_info[2]
-          disk[:device] = disk_info[3]
+          storage_controllers = read_storage_controllers
+          storage_controllers.each do |controller|
+            controller.attachments.each do |attachment|
+              if disk_uuid == attachment[:uuid]
+                disk[:port] = attachment[:port]
+                disk[:device] = attachment[:device]
+                return disk
+              end
+            end
+          end
 
           return disk
         end
