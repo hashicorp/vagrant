@@ -231,6 +231,32 @@ module Vagrant
       Entry.new(id, struct)
     end
 
+    # Reinsert a machine into the global index if it has
+    # a valid existing uuid but does not currently exist
+    # in the index.
+    #
+    # @param [Entry] entry
+    # @return [Entry]
+    def recover(entry)
+      @lock.synchronize do
+        with_index_lock do
+          # Reload the data
+          unlocked_reload
+          # Don't recover if entry already exists in the global
+          return entry if find_by_prefix(entry.id)
+          
+          lock_file = lock_machine(entry.id)
+          if !lock_file
+            raise Errors::MachineLocked,
+              name: entry.name,
+              provider: entry.provider
+          end
+          @machine_locks[entry.id] = lock_file
+        end
+      end
+      return set(entry)
+    end
+
     protected
 
     # Finds a machine where the UUID is prefixed by the given string.

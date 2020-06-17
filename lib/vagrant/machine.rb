@@ -556,6 +556,41 @@ module Vagrant
       result
     end
 
+    # Returns the state of this machine. The state is queried from the
+    # backing provider, so it can be any arbitrary symbol.
+    #
+    # @param [Symbol] state of machine
+    # @return [Entry] entry of recovered machine
+    def recover_machine(state)
+      entry = @env.machine_index.get(index_uuid)
+      if entry
+        @env.machine_index.release(entry)
+        return entry
+      end
+
+      entry = MachineIndex::Entry.new(id=index_uuid, {})
+      entry.local_data_path = @env.local_data_path
+      entry.name = @name.to_s
+      entry.provider = @provider_name.to_s
+      entry.state = state
+      entry.vagrantfile_path = @env.root_path
+      entry.vagrantfile_name = @env.vagrantfile_name
+
+      if @box
+        entry.extra_data["box"] = {
+          "name"     => @box.name,
+          "provider" => @box.provider.to_s,
+          "version"  => @box.version.to_s,
+        }
+      end
+
+      @state_mutex.synchronize do
+        entry = @env.machine_index.recover(entry)
+        @env.machine_index.release(entry)
+      end
+      return entry
+    end
+
     # Returns the user ID that created this machine. This is specific to
     # the host machine that this was created on.
     #

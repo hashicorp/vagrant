@@ -268,6 +268,25 @@ describe Vagrant::MachineIndex do
       expect(entry.state).to eq(entry2.state)
     end
   end
+
+  describe "#recover" do
+    it "recovers an entry if not in the index" do
+      result = subject.recover(new_entry)
+      expect(result.id).to_not be_empty
+      expect { subject.get(result.id) }.to raise_error(Vagrant::Errors::MachineLocked)
+    end
+
+    it "returns an entry if in the index" do
+      test_entry = entry_klass.new()
+      entry = subject.set(test_entry)
+      subject.release(entry)
+
+      new_test_entry = entry_klass.new(id=entry.id, {})
+      result = subject.recover(new_test_entry)
+
+      expect(result.id).to eq(entry.id)
+    end
+  end
 end
 
 describe Vagrant::MachineIndex::Entry do
