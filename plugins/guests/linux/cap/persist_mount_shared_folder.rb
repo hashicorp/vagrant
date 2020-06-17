@@ -22,7 +22,13 @@ module VagrantPlugins
           end
           export_folders = fstab_folders.map do |name, data|
             guest_path = Shellwords.escape(data[:guestpath])
-            mount_options, mount_uid, mount_gid  =  mount_options(machine, name, guest_path, data)
+            case mount_type
+            when "vboxsf"
+              mount_options, mount_uid, mount_gid = mount_options(machine, name, guest_path, data)
+            when "cifs"
+              mount_options, mount_uid, mount_gid = smb_mount_options(machine, data[:smb_id], guest_path, data)
+              name = "//#{data[:smb_host]}/#{data[:smb_id]}"
+            end
             mount_options = "#{mount_options},nofail"
             {
               name: name,

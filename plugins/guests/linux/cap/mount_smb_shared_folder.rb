@@ -15,10 +15,7 @@ module VagrantPlugins
 
           mount_device   = "//#{options[:smb_host]}/#{name}"
 
-          mount_options = options.fetch(:mount_options, [])
-          detected_ids = detect_owner_group_ids(machine, guestpath, mount_options, options)
-          mount_uid = detected_ids[:uid]
-          mount_gid = detected_ids[:gid]
+          mount_options, mount_uid, mount_gid = smb_mount_options(machine, name, expanded_guest_path, options)
 
           # If a domain is provided in the username, separate it
           username, domain = (options[:smb_username] || '').split('@', 2)
@@ -26,27 +23,11 @@ module VagrantPlugins
           # Ensure password is scrubbed
           Vagrant::Util::CredentialScrubber.sensitive(smb_password)
 
-          mnt_opts = []
-          if machine.env.host.capability?(:smb_mount_options)
-            mnt_opts += machine.env.host.capability(:smb_mount_options)
-          else
-            mnt_opts << "sec=ntlmssp"
-          end
-          mnt_opts << "credentials=/etc/smb_creds_#{name}"
-          mnt_opts << "uid=#{mount_uid}"
-          mnt_opts << "gid=#{mount_gid}"
-          if !ENV['VAGRANT_DISABLE_SMBMFSYMLINKS']
-            mnt_opts << "mfsymlinks"
-          end
-
-          mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
-
-          mount_options = "-o #{mnt_opts.join(",")}"
           if mount_options.include?("mfsymlinks")
             display_mfsymlinks_warning(machine.env)
           end
           
-          mount_command = "mount -t cifs #{mount_options} #{mount_device} #{expanded_guest_path}"
+          mount_command = "mount -t cifs -o #{mount_options} #{mount_device} #{expanded_guest_path}"
 
           # Create the guest path if it doesn't exist
           machine.communicate.sudo("mkdir -p #{expanded_guest_path}")
@@ -82,25 +63,12 @@ SCRIPT
           ensure
             # Always remove credentials file after mounting attempts
             # have been completed
-            machine.communicate.sudo("rm /etc/smb_creds_#{name}")
+            if !machine.config.vm.allow_fstab_modification
+              machine.communicate.sudo("rm /etc/smb_creds_#{name}")
+            end
           end
 
           emit_upstart_notification(machine, expanded_guest_path)
-        end
-
-        def self.merge_mount_options(base, overrides)
-          base = base.join(",").split(",")
-          overrides = overrides.join(",").split(",")
-          b_kv = Hash[base.map{|item| item.split("=", 2) }]
-          o_kv = Hash[overrides.map{|item| item.split("=", 2) }]
-          merged = {}.tap do |opts|
-            (b_kv.keys + o_kv.keys).uniq.each do |key|
-              opts[key] = o_kv.fetch(key, b_kv[key])
-            end
-          end
-          merged.map do |key, value|
-            [key, value].compact.join("=")
-          end
         end
 
         def self.display_mfsymlinks_warning(env)
