@@ -35,10 +35,12 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
 
   let(:controller) { double("controller", name: "controller", limit: 30, storage_bus: "SATA", maxportcount: 30) }
 
+  let(:storage_controllers) { [controller] }
+
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(controller).to receive(:attachments).and_return(attachments)
-    allow(driver).to receive(:read_storage_controllers).and_return([controller])
+    allow(driver).to receive(:read_storage_controllers).and_return(storage_controllers)
   end
 
   describe "#cleanup_disks" do
@@ -98,6 +100,16 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
         expect(driver).to receive(:close_medium).with("67890").and_return(true)
 
         subject.handle_cleanup_disk(machine, defined_disks, disk_meta_file[:disk])
+      end
+    end
+
+    context "with multiple storage controllers" do
+      let(:storage_controllers) { [ double("controller1", storage_bus: "IDE"),
+                                    double("controller2", storage_bus: "SCSI") ] }
+
+      it "assumes that disks will be attached to the SATA controller" do
+        expect { subject.handle_cleanup_disk(machine, defined_disks, disk_meta_file[:disk]) }.
+          to raise_error(Vagrant::Errors::VirtualBoxDisksControllerNotFound)
       end
     end
   end

@@ -954,22 +954,6 @@ module VagrantPlugins
           end
         end
 
-        # Get the controller that uses the specified storage bus.
-        #
-        # A VirtualBoxDisksControllerNotFound error is raised if a compatible
-        # storage controller cannot be found.
-        #
-        # @param [String] storage_bus - for example, 'IDE' or 'SATA'
-        # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController] controller
-        def get_controller(storage_bus)
-          storage_controllers = read_storage_controllers
-          controller = storage_controllers.detect { |c| c.storage_bus == storage_bus }
-          if controller.nil?
-            raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: storage_bus
-          end
-          controller
-        end
-
         protected
 
         def valid_ip_address?(ip)

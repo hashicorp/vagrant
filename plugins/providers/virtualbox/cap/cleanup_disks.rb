@@ -32,7 +32,7 @@ module VagrantPlugins
           else
             primary_controller = storage_controllers.detect { |c| c.storage_bus == "SATA" }
             if primary_controller.nil?
-              # raise exception
+              raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "SATA"
             end
           end
 

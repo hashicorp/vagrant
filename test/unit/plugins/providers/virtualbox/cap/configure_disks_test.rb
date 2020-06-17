@@ -69,7 +69,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(controller).to receive(:attachments).and_return(attachments)
     allow(driver).to receive(:read_storage_controllers).and_return([controller])
-    allow(driver).to receive(:get_controller).with(controller.storage_bus).and_return(controller)
   end
 
   describe "#configure_disks" do
@@ -120,8 +119,6 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       before do
         allow(driver).to receive(:read_storage_controllers).and_return([controller1, controller2])
-        allow(driver).to receive(:get_controller).with(controller1.storage_bus).and_return(controller1)
-        allow(driver).to receive(:get_controller).with(controller2.storage_bus).and_return(controller2)
       end
 
       it "attaches disks to the SATA controller" do

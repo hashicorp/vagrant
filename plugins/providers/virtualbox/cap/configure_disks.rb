@@ -43,7 +43,11 @@ module VagrantPlugins
           else
             disks_defined = defined_disks.select { |d| d.type == :disk }
             if disks_defined.any?
-              disk_controller = machine.provider.driver.get_controller("SATA")
+              disk_controller = storage_controllers.detect { |c| c.storage_bus == "SATA" }
+              if disk_controller.nil?
+                raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "SATA"
+              end
+
               if (disks_defined.any? { |d| d.primary } && disks_defined.size > disk_controller.limit) ||
                  disks_defined.size > disk_controller.limit - 1
                 raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
@@ -54,7 +58,11 @@ module VagrantPlugins
 
             dvds_defined = defined_disks.select { |d| d.type == :dvd }
             if dvds_defined.any?
-              dvd_controller = machine.provider.driver.get_controller("IDE")
+              dvd_controller = storage_controllers.detect { |c| c.storage_bus == "IDE" }
+              if dvd_controller.nil?
+                raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "IDE"
+              end
+
               if disks_defined.size > dvd_controller.limit
                 raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
                   limit: dvd_controller.limit,
@@ -174,7 +182,8 @@ module VagrantPlugins
           machine.provider.driver.attach_disk(controller.name, port, device, "dvddrive", dvd.file)
 
           # Refresh the controller information
-          controller = machine.provider.driver.get_controller(controller.storage_bus)
+          storage_controllers = machine.provider.driver.read_storage_controllers
+          controller = storage_controllers.detect { |c| c.name == controller.name }
           attachment = controller.attachments.detect { |a| a[:port] == port && a[:device] == device }
 
           if attachment
