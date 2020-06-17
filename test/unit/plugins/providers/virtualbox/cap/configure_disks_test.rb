@@ -108,7 +108,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     context "with over the disk limit for a given device" do
       let(:defined_disks) { (1..controller.limit).map { |i| double("disk-#{i}", type: :disk, primary: false) }.to_a }
 
-      it "raises an exception if the disks defined exceed the limit for a SATA Controller" do
+      it "raises an exception if the disks defined exceed the limit" do
         expect{subject.configure_disks(machine, defined_disks)}.
           to raise_error(Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit)
       end
@@ -264,6 +264,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:attach_disk).with((disk_info[:port].to_i + 1).to_s,
                                                      disk_info[:device],
                                                      all_disks[1]["Location"],
+                                                     "hdd",
                                                      controller.name)
 
         subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller)
@@ -320,6 +321,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       expect(driver).to receive(:attach_disk).with(port_and_device[:port],
                                                    port_and_device[:device],
                                                    disk_file,
+                                                   "hdd",
                                                    controller.name)
 
       subject.create_disk(machine, disk_config, controller)
@@ -403,12 +405,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
         allow(driver).to receive(:vdi_to_vmdk).and_raise(StandardError)
 
-        expect(FileUtils).to receive(:mv).with("#{vmdk_disk_file}.backup", vmdk_disk_file, force: true).
-          and_return(true)
-
-        expect(driver).to receive(:attach_disk).
-          with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd", controller).and_return(true)
-        expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
+        expect(subject).to receive(:recover_from_resize).with(machine, attach_info, "#{vmdk_disk_file}.backup", all_disks[0], vdi_disk_file, controller)
 
         expect{subject.resize_disk(machine, disk_config, all_disks[0], controller)}.to raise_error(Exception)
       end
@@ -436,6 +433,28 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   describe "#vdi_to_vmdk" do
     it "converts a disk from vdi to vmdk" do
+    end
+  end
+
+  describe ".recover_from_resize" do
+    let(:disk_config) { double("disk", name: "vagrant_primary", size: 1073741824.0,
+                               primary: false, type: :disk, disk_ext: "vmdk",
+                               provider_config: nil) }
+    let(:attach_info) { {port: "0", device: "0"} }
+    let(:vdi_disk_file) { "/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vdi" }
+    let(:vmdk_disk_file) { "/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk" }
+    let(:vmdk_backup_file) { "/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk.backup" }
+
+    it "reattaches the original disk file and closes the cloned medium" do
+      expect(FileUtils).to receive(:mv).with(vmdk_backup_file, vmdk_disk_file, force: true).
+        and_return(true)
+
+      expect(driver).to receive(:attach_disk).
+        with(attach_info[:port], attach_info[:device], vmdk_disk_file, "hdd", controller.name).and_return(true)
+
+      expect(driver).to receive(:close_medium).with(vdi_disk_file).and_return(true)
+
+      subject.recover_from_resize(machine, attach_info, vmdk_backup_file, all_disks[0], vdi_disk_file, controller)
     end
   end
 

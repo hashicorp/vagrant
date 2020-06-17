@@ -306,11 +306,12 @@ module VagrantPlugins
         def self.resize_disk(machine, disk_config, defined_disk, controller)
           machine.ui.detail(I18n.t("vagrant.cap.configure_disks.resize_disk", name: disk_config.name), prefix: true)
 
+          # grab disk to be resized port and device number
+          disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
+
           if defined_disk["Storage format"] == "VMDK"
             LOGGER.warn("Disk type VMDK cannot be resized in VirtualBox. Vagrant will convert disk to VDI format to resize first, and then convert resized disk back to VMDK format")
 
-            # grab disk to be resized port and device number
-            disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
             # original disk information in case anything goes wrong during clone/resize
             original_disk = defined_disk
             backup_disk_location = "#{original_disk["Location"]}.backup"
@@ -345,7 +346,6 @@ module VagrantPlugins
                                       location: original_disk["Location"],
                                       name: machine.name))
               recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file, controller)
-
               raise
             ensure
               # Remove backup disk file if all goes well
@@ -360,7 +360,6 @@ module VagrantPlugins
             defined_disk = new_disk_info
           else
             machine.provider.driver.resize_disk(defined_disk["Location"], disk_config.size.to_i)
-            disk_info = machine.provider.driver.get_port_and_device(defined_disk["UUID"])
           end
 
           disk_metadata = { uuid: defined_disk["UUID"], name: disk_config.name, controller: controller.name,
@@ -379,7 +378,8 @@ module VagrantPlugins
         # @param [String] backup_disk_location - The place on disk where vagrant made a backup of the original disk being resized
         # @param [Hash] original_disk - The disk information from VirtualBox
         # @param [String] vdi_disk_file - The place on disk where vagrant made a clone of the original disk being resized
-        def self.recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file)
+        # @param [VagrantPlugins::ProviderVirtualBox::Model::StorageController] controller - the storage controller to use
+        def self.recover_from_resize(machine, disk_info, backup_disk_location, original_disk, vdi_disk_file, controller)
           begin
             # move backup to original name
             FileUtils.mv(backup_disk_location, original_disk["Location"], force: true)
