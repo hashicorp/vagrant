@@ -52,13 +52,18 @@ module VagrantPlugins
                 machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_cleanup", name: d["name"]), prefix: true)
 
                 controller = storage_controllers.detect { |c| c.name == d["controller"] }
-                disk_info = controller.attachments.detect { |a| a[:port] == d["port"] &&
-                                                                a[:device] == d["device"] }
+                attachment = controller.attachments.detect { |a| a[:port] == d["port"] &&
+                                                                 a[:device] == d["device"] }
 
-                if disk_info.nil?
+                # Retry lookup by UUID
+                if attachment.nil?
+                  attachment = controller.attachments.detect { |a| a[:uuid] == d["uuid"] }
+                end
+
+                if attachment.nil?
                   LOGGER.warn("Disk '#{d["name"]}' not attached to guest, but still exists.")
                 else
-                  machine.provider.driver.remove_disk(d["controller"], d["port"], d["device"])
+                  machine.provider.driver.remove_disk(controller.name, attachment[:port], attachment[:device])
                 end
 
                 machine.provider.driver.close_medium(d["uuid"])
@@ -79,7 +84,18 @@ module VagrantPlugins
               else
                 LOGGER.warn("Found dvd not in Vagrantfile config: '#{d["name"]}'. Removing dvd from guest #{machine.name}")
                 machine.ui.warn("DVD '#{d["name"]}' no longer exists in Vagrant config. Removing medium from guest...", prefix: true)
-                machine.provider.driver.remove_disk(d["controller"], d["port"], d["device"])
+
+                storage_controllers = machine.provider.driver.read_storage_controllers
+                controller = storage_controllers.detect { |c| c.name == d["controller"] }
+                attachment = controller.attachments.detect { |a| a[:port] == d["port"] &&
+                                                                 a[:device] == d["device"] }
+
+                # Retry lookup by UUID
+                if attachment.nil?
+                  attachment = controller.attachments.detect { |a| a[:uuid] == d["uuid"] }
+                end
+
+                machine.provider.driver.remove_disk(controller.name, attachment[:port], attachment[:device])
               end
             end
           end
