@@ -53,7 +53,6 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
       ).and_return(double(exit_code: 0))
       expect(FileUtils).to receive(:mkdir_p).with(Pathname.new("/woo/out_dir"))
 
-
       output = subject.create_iso(env, "/foo/src", file_destination: "/woo/out_dir")
       expect(output.to_s).to match(/\/woo\/out_dir\/[\w]{6}_vagrant.iso/)
     end
