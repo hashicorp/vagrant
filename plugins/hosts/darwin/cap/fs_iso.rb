@@ -25,12 +25,14 @@ module VagrantPlugins
         #
         # @param [Vagrant::Environment] env
         # @param [String] source_directory Contents of ISO
-        # @param [String, nil] file_destination Location to store ISO
         # @param [Map] extra arguments to pass to the iso building command
+        #              :file_destination (string) location to store ISO
+        #              :volume_id (String) to set the volume name 
         # @return [Pathname] ISO location
         # @note If file_destination exists, source_directory will be checked
         #       for recent modifications and a new ISO will be generated if requried.
-        def self.create_iso(env, source_directory, file_destination=nil, extra_opts={})
+        def self.create_iso(env, source_directory, **extra_opts)
+          file_destination = extra_opts[:file_destination]
           source_directory = Pathname.new(source_directory)
           if file_destination.nil?
             @@logger.info("No file destination specified, creating temp location")
@@ -42,7 +44,7 @@ module VagrantPlugins
             # If the file destination path is a folder, target the output to a randomly named
             # file in that dir
             if file_destination.extname != ".iso"
-              file_destination = file_destination.join("#{rand(36**6).to_s(36)}_vagrant.iso")
+              file_destination = file_destination.join("#{SecureRandom.hex(3)}_vagrant.iso")
             end
           end
           # Ensure destination directory is available
@@ -56,7 +58,7 @@ module VagrantPlugins
             iso_command << "-iso"
             iso_command << "-joliet"
             iso_command << "-ov"
-            iso_command.concat(Vagrant::Util::MapCommandOptions.map_to_command_options(extra_opts, cmd_flag="-"))
+            iso_command.concat(["-default-volume-name", extra_opts[:volume_id]]) if extra_opts[:volume_id]
             iso_command << "-o"
             iso_command << file_destination.to_s
             iso_command << source_directory.to_s

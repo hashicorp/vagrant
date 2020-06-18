@@ -33,16 +33,16 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
         "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
 
-      output = subject.create_iso(env, "/foo/src", "/woo/out.iso")
+      output = subject.create_iso(env, "/foo/src", file_destination: "/woo/out.iso")
       expect(output.to_s).to eq("/woo/out.iso")
     end
 
-    it "builds an iso with args" do
+    it "builds an iso with volume_id" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
         "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-default-volume-name", "cidata", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
 
-      output = subject.create_iso(env, "/foo/src", "/woo/out.iso", extra_opts={"default-volume-name" => "cidata"})
+      output = subject.create_iso(env, "/foo/src", file_destination: "/woo/out.iso", volume_id: "cidata")
       expect(output.to_s).to eq("/woo/out.iso")
     end
 
@@ -51,13 +51,25 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
         "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
 
-      output = subject.create_iso(env, "/foo/src", "/woo/out_dir")
+      output = subject.create_iso(env, "/foo/src", file_destination: "/woo/out_dir")
       expect(output.to_s).to match(/\/woo\/out_dir\/[\w]{6}_vagrant.iso/)
+    end
+
+    it "builds an iso when no file destination is given" do
+      allow(Tempfile).to receive(:new).and_return(file_destination)
+      allow(file_destination).to receive(:path).and_return(file_destination)
+      allow(file_destination).to receive(:delete)
+      expect(Vagrant::Util::Subprocess).to receive(:execute).with(
+        "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
+      ).and_return(double(exit_code: 0))
+
+      output = subject.create_iso(env, "/foo/src")
+      expect(output.to_s).to eq(file_destination)
     end
 
     it "raises an error if iso build failed" do
       allow(Vagrant::Util::Subprocess).to receive(:execute).with(any_args).and_return(double(stdout: "nope", stderr: "nope", exit_code: 1))
-      expect{ subject.create_iso(env, "/foo/src", "/woo/out.iso") }.to raise_error(Vagrant::Errors::ISOBuildFailed)
+      expect{ subject.create_iso(env, "/foo/src") }.to raise_error(Vagrant::Errors::ISOBuildFailed)
     end
   end
 end
