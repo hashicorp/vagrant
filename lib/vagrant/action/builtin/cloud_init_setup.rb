@@ -1,12 +1,11 @@
 require 'mime'
-require "tmpdir"
+require 'tmpdir'
 
 module Vagrant
   module Action
     module Builtin
       class CloudInitSetup
         TEMP_PREFIX = "vagrant-cloud-init-iso-temp-".freeze
-        TEMP_ROOT   = "/tmp".freeze
 
         def initialize(app, env)
           @app    = app
@@ -94,12 +93,17 @@ module Vagrant
           iso_path = nil
 
           if env[:env].host.capability?(:create_iso)
-            # TODO: make temp_root configurable?
-            source_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX, TEMP_ROOT))
-            # write a cloud.cfg file with msg.to_s
-            File.open("#{source_dir}/user-data", 'w') { |file| file.write(msg.to_s) }
+            begin
+              source_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX))
+              File.open("#{source_dir}/user-data", 'w') { |file| file.write(msg.to_s) }
 
-            iso_path = env[:env].host.capability(:create_iso, env[:env], source_dir)
+              metadata = { "instance-id": "i-#{machine.id.split('-').join}" }
+              File.open("#{source_dir}/meta-data", 'w') { |file| file.write(metadata.to_s) }
+
+              iso_path = env[:env].host.capability(:create_iso, env[:env], source_dir)
+            ensure
+              FileUtils.remove_entry source_dir
+            end
           else
             raise Errors::CreateIsoHostCapNotFound
           end
