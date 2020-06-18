@@ -89,8 +89,8 @@ module Vagrant
         # written to an iso
         #
         # @param [Vagrant::Machine] machine
-        # @param [MIME::Multipart::Mixed] msg
-        # @return [String] iso_path
+        # @param [MIME::Multipart::Mixed] user_data
+        # @param [Hash] meta_data
         def write_cfg_iso(machine, env, user_data, meta_data)
           iso_path = nil
 
