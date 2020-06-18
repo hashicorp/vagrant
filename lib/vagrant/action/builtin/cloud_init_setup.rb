@@ -100,7 +100,8 @@ module Vagrant
               metadata = { "instance-id": "i-#{machine.id.split('-').join}" }
               File.open("#{source_dir}/meta-data", 'w') { |file| file.write(metadata.to_s) }
 
-              iso_path = env[:env].host.capability(:create_iso, env[:env], source_dir)
+              iso_path = env[:env].host.capability(:create_iso, env[:env],
+                                                   source_dir, volume_id: "cidata")
             ensure
               FileUtils.remove_entry source_dir
             end
