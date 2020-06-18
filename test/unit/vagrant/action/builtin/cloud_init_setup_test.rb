@@ -108,7 +108,7 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       message = subject.generate_cfg_msg(machine, text_cfgs)
       allow(host).to receive(:capability?).with(:create_iso).and_return(true)
       allow(Dir).to receive(:mktmpdir).and_return(source_dir)
-      expect(File).to receive(:open).with("#{source_dir}/cloud.cfg", 'w').and_return(true)
+      expect(File).to receive(:open).with("#{source_dir}/user-data", 'w').and_return(true)
       allow(host).to receive(:capability).with(:create_iso, machine_env, source_dir).and_return(iso_path)
 
       subject.write_cfg_iso(machine, env, message)

@@ -97,7 +97,7 @@ module Vagrant
             # TODO: make temp_root configurable?
             source_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX, TEMP_ROOT))
             # write a cloud.cfg file with msg.to_s
-            File.open("#{source_dir}/cloud.cfg", 'w') { |file| file.write(msg.to_s) }
+            File.open("#{source_dir}/user-data", 'w') { |file| file.write(msg.to_s) }
 
             iso_path = env[:env].host.capability(:create_iso, env[:env], source_dir)
           else
