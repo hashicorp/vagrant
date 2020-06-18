@@ -25,6 +25,8 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
   let(:text_cfgs) { [MIME::Text.new("data: true", "cloud-config"),
                      MIME::Text.new("data: false", "cloud-config") ] }
 
+  let(:meta_data) { { "instance-id": "i-123456789" } }
+
 
   let(:subject) { described_class.new(app, env) }
 
@@ -35,6 +37,7 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       expect(app).to receive(:call).with(env).ordered
 
       expect(subject).to receive(:setup_user_data).and_return(true)
+      expect(subject).to receive(:write_cfg_iso).and_return(true)
 
       subject.call(env)
     end
@@ -44,6 +47,8 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
 
       expect(app).to receive(:call).with(env).ordered
 
+      expect(subject).not_to receive(:setup_user_data)
+      expect(subject).not_to receive(:write_cfg_iso)
       expect(subject).not_to receive(:attack_disk_config)
 
       subject.call(env)
@@ -51,20 +56,10 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
   end
 
   describe "#setup_user_data" do
-    it "does nothing if passed in configs are empty" do
-      expect(subject).not_to receive(:read_text_cfg)
-      expect(subject).not_to receive(:generate_cfg_msg)
-      expect(subject).not_to receive(:write_cfg_iso)
-      expect(subject).not_to receive(:attach_disk_config)
-      subject.setup_user_data(machine, env, [])
-    end
-
     it "builds a MIME message and prepares a disc to be attached" do
       expect(subject).to receive(:read_text_cfg).twice
 
       expect(subject).to receive(:generate_cfg_msg)
-      expect(subject).to receive(:write_cfg_iso)
-      expect(subject).to receive(:attach_disk_config)
 
       subject.setup_user_data(machine, env, cloud_init_configs)
     end
@@ -101,7 +96,7 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       message = subject.generate_cfg_msg(machine, text_cfgs)
       allow(host).to receive(:capability?).with(:create_iso).and_return(false)
 
-      expect{subject.write_cfg_iso(machine, env, message)}.to raise_error(Vagrant::Errors::CreateIsoHostCapNotFound)
+      expect{subject.write_cfg_iso(machine, env, message, {})}.to raise_error(Vagrant::Errors::CreateIsoHostCapNotFound)
     end
 
     it "creates a temp dir with the cloud_init config and generates an iso" do
@@ -112,8 +107,9 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       expect(File).to receive(:open).with("#{source_dir}/meta-data", 'w').and_return(true)
       expect(FileUtils).to receive(:remove_entry).with(source_dir).and_return(true)
       allow(host).to receive(:capability).with(:create_iso, machine_env, source_dir, volume_id: "cidata").and_return(iso_path)
+      expect(vm.disks).to receive(:map)
 
-      subject.write_cfg_iso(machine, env, message)
+      subject.write_cfg_iso(machine, env, message, {})
     end
   end
 

@@ -18,7 +18,12 @@ module Vagrant
           user_data_configs = machine.config.vm.cloud_init_configs
                                                   .select { |c| c.type == :user_data }
 
-          setup_user_data(machine, env, user_data_configs)
+          if !user_data_configs.empty?
+            user_data = setup_user_data(machine, env, user_data_configs)
+            meta_data = { "instance-id": "i-#{machine.id.split('-').join}" }
+
+            write_cfg_iso(machine, env, user_data, meta_data)
+          end
 
           # Continue On
           @app.call(env)
@@ -27,9 +32,8 @@ module Vagrant
         # @param [Vagrant::Machine] machine
         # @param [Vagrant::Environment] env
         # @param [Array<#VagrantPlugins::Kernel_V2::VagrantConfigCloudInit>] user_data_cfgs
+        # @return [MIME::Text] user_data
         def setup_user_data(machine, env, user_data_cfgs)
-          return if user_data_cfgs.empty?
-
           machine.ui.info(I18n.t("vagrant.actions.vm.cloud_init_user_data_setup"))
 
           text_cfgs = []
@@ -37,10 +41,8 @@ module Vagrant
             text_cfgs << read_text_cfg(machine, cfg)
           end
 
-          msg = generate_cfg_msg(machine, text_cfgs)
-          iso_path = write_cfg_iso(machine, env, msg)
-
-          attach_disk_config(machine, env, iso_path)
+          user_data = generate_cfg_msg(machine, text_cfgs)
+          user_data
         end
 
         # Reads an individual cloud_init config and stores its contents and the
@@ -89,27 +91,26 @@ module Vagrant
         # @param [Vagrant::Machine] machine
         # @param [MIME::Multipart::Mixed] msg
         # @return [String] iso_path
-        def write_cfg_iso(machine, env, msg)
+        def write_cfg_iso(machine, env, user_data, meta_data)
           iso_path = nil
 
           if env[:env].host.capability?(:create_iso)
             begin
               source_dir = Pathname.new(Dir.mktmpdir(TEMP_PREFIX))
-              File.open("#{source_dir}/user-data", 'w') { |file| file.write(msg.to_s) }
+              File.open("#{source_dir}/user-data", 'w') { |file| file.write(user_data.to_s) }
 
-              metadata = { "instance-id": "i-#{machine.id.split('-').join}" }
-              File.open("#{source_dir}/meta-data", 'w') { |file| file.write(metadata.to_s) }
+              File.open("#{source_dir}/meta-data", 'w') { |file| file.write(meta_data.to_s) }
 
               iso_path = env[:env].host.capability(:create_iso, env[:env],
                                                    source_dir, volume_id: "cidata")
+
+              attach_disk_config(machine, env, iso_path)
             ensure
               FileUtils.remove_entry source_dir
             end
           else
             raise Errors::CreateIsoHostCapNotFound
           end
-
-          iso_path
         end
 
         # Adds a new :dvd disk config with the given iso_path to be attached
