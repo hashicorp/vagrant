@@ -63,7 +63,12 @@ If ([convert]::ToInt32($versionYear) -ge 2017)
 }
 Write-Host "Downloading Salt minion installer $minionFilename"
 $webclient = New-Object System.Net.WebClient
+If ($version -gt '2019.2.3'){
+$url = "https://repo.saltstack.com/windows/$minionFilename"
+}
+Else{
 $url = "https://archive.repo.saltstack.com/windows/$minionFilename"
+}
 $file = "C:\tmp\salt.exe"
 
 [int]$retries = 0
