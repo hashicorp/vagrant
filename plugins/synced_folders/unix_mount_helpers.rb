@@ -131,7 +131,6 @@ module VagrantPlugins
         if !ENV['VAGRANT_DISABLE_SMBMFSYMLINKS']
           mnt_opts << "mfsymlinks"
         end
-
         mnt_opts = merge_mount_options(mnt_opts, options[:mount_options] || [])
 
         mount_options = mnt_opts.join(",")

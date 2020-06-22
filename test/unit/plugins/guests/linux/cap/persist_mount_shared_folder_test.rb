@@ -51,8 +51,8 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
 
     it "inserts folders into /etc/fstab with smb opts" do
       allow(machine).to receive_message_chain(:env, :host, :capability?).with(:smb_mount_options).and_return(false)
-      expected_entry_vagrant = "//172.168.0.1/vagrant /vagrant cifs sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1234,gid=1234,mfsymlinks,nofail 0 0"
-      expected_entry_test = "//172.168.0.1/test1 /test1 cifs sec=ntlmssp,credentials=/etc/smb_creds_test1,uid=1234,gid=1234,mfsymlinks,nofail 0 0"
+      expected_entry_vagrant = "//172.168.0.1/vagrant /vagrant cifs sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1234,gid=1234,mfsymlinks,_netdev,nofail 0 0"
+      expected_entry_test = "//172.168.0.1/test1 /test1 cifs sec=ntlmssp,credentials=/etc/smb_creds_test1,uid=1234,gid=1234,mfsymlinks,_netdev,nofail 0 0"
       expect(cap).to receive(:remove_vagrant_managed_fstab)
       expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}/)
       cap.persist_mount_shared_folder(machine, fstab_smb_folders, "cifs")

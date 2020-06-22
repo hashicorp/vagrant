@@ -29,6 +29,8 @@ module VagrantPlugins
             when "cifs"
               mount_options, mount_uid, mount_gid = smb_mount_options(machine, data[:smb_id], guest_path, data)
               name = "//#{data[:smb_host]}/#{data[:smb_id]}"
+              mount_options = "#{mount_options},_netdev"
+
             end
             mount_options = "#{mount_options},nofail"
             {
