@@ -20,6 +20,7 @@ module VagrantPlugins
             self.remove_vagrant_managed_fstab(machine)
             return
           end
+
           export_folders = fstab_folders.map do |name, data|
             guest_path = Shellwords.escape(data[:guestpath])
             case mount_type

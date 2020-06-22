@@ -7,6 +7,18 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       .guest_capabilities[:linux]
   end
 
+  let(:vm_config) do
+    double("vm_config").tap do |vm_config|
+      allow(vm_config).to receive(:allow_fstab_modification).and_return(false)
+    end
+  end
+
+  let(:machine_config) do
+    double("machine_config").tap do |top_config|
+      allow(top_config).to receive(:vm).and_return(vm_config)
+    end
+  end
+
   let(:machine) { double("machine", env: env) }
   let(:env) { double("env", host: host, ui: double("ui"), data_dir: double("data_dir")) }
   let(:host) { double("host") }
@@ -31,6 +43,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
+    allow(machine).to receive(:config).and_return(machine_config)
     allow(host).to receive(:capability?).and_return(false)
   end
 
@@ -71,6 +84,13 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
 
     it "removes the credentials file before completion" do
       expect(comm).to receive(:sudo).with(/rm.+smb_creds_.+/)
+      cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+    end
+
+    it "does not remove the credentials file before completion if allowing fstab modification" do
+      allow(vm_config).to receive(:allow_fstab_modification).and_return(true)
+
+      expect(comm).to_not receive(:sudo).with(/rm.+smb_creds_.+/)
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
