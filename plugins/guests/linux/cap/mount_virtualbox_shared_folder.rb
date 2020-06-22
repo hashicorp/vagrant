@@ -16,7 +16,7 @@ module VagrantPlugins
           builtin_mount_type = "-cit #{VB_MOUNT_TYPE}"
           addon_mount_type = "-t #{VB_MOUNT_TYPE}"
 
-          mount_options, mount_uid, mount_gid = mount_options(machine, name, guest_path, options)
+          mount_options, mount_uid, mount_gid = vb_mount_options(machine, name, guest_path, options)
           mount_command = "mount #{addon_mount_type} -o #{mount_options} #{name} #{guest_path}"
 
           # Create the guest path if it doesn't exist

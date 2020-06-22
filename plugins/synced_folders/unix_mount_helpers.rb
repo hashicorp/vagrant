@@ -100,7 +100,7 @@ module VagrantPlugins
           EOH
       end
 
-      def mount_options(machine, name, guest_path, options)
+      def vb_mount_options(machine, name, guest_path, options)
         mount_options = options.fetch(:mount_options, [])
         detected_ids = detect_owner_group_ids(machine, guest_path, mount_options, options)
         mount_uid = detected_ids[:uid]
