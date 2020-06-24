@@ -60,6 +60,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       allow(ENV).to receive(:[]).with("VAGRANT_DISABLE_SMBMFSYMLINKS").and_return(false)
       allow(ENV).to receive(:[]).with("GEM_SKIP").and_return(false)
       allow(cap).to receive(:display_mfsymlinks_warning)
+      allow(comm).to receive(:execute).with(/mount | grep/, any_args).and_return(1)
     end
 
     it "generates the expected default mount command" do
@@ -109,6 +110,12 @@ describe "VagrantPlugins::GuestLinux::Cap::MountSMBSharedFolder" do
       expect(comm).not_to receive(:sudo).with(/mfsymlinks/, any_args)
       cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
+
+    it "does not try to mount if mount already exists" do
+      allow(comm).to receive(:execute).with(/mount | grep/, any_args).and_return(0)
+      expect(comm).not_to receive(:sudo).with(/mount -t cifs/, any_args)
+      cap.mount_smb_shared_folder(machine, mount_name, mount_guest_path, folder_options)
+     end
 
     context "with custom mount options" do
       let(:folder_options) do

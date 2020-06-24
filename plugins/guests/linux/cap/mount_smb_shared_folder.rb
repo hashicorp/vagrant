@@ -42,29 +42,31 @@ EOF
 chmod 0600 /etc/smb_creds_#{name}
 SCRIPT
 
-          # Attempt to mount the folder. We retry here a few times because
-          # it can fail early on.
-          begin
-            retryable(on: Vagrant::Errors::LinuxMountFailed, tries: 10, sleep: 2) do
-              no_such_device = false
-              stderr = ""
-              status = machine.communicate.sudo(mount_command, error_check: false) do |type, data|
-                if type == :stderr
-                  no_such_device = true if data =~ /No such device/i
-                  stderr += data.to_s
+          if machine.communicate.execute("mount | grep #{mount_device}", error_check: false) == 1
+          # Attempt to mount the folder. We retry here a few 
+          # times because it can fail early on.
+            begin
+              retryable(on: Vagrant::Errors::LinuxMountFailed, tries: 10, sleep: 2) do
+                no_such_device = false
+                stderr = ""
+                status = machine.communicate.sudo(mount_command, error_check: false) do |type, data|
+                  if type == :stderr
+                    no_such_device = true if data =~ /No such device/i
+                    stderr += data.to_s
+                  end
+                end
+                if status != 0 || no_such_device
+                  raise Vagrant::Errors::LinuxMountFailed,
+                    command: mount_command,
+                    output: stderr
                 end
               end
-              if status != 0 || no_such_device
-                raise Vagrant::Errors::LinuxMountFailed,
-                  command: mount_command,
-                  output: stderr
+            ensure
+              # Always remove credentials file after mounting attempts
+              # have been completed
+              if !machine.config.vm.allow_fstab_modification
+                machine.communicate.sudo("rm /etc/smb_creds_#{name}")
               end
-            end
-          ensure
-            # Always remove credentials file after mounting attempts
-            # have been completed
-            if !machine.config.vm.allow_fstab_modification
-              machine.communicate.sudo("rm /etc/smb_creds_#{name}")
             end
           end
 
