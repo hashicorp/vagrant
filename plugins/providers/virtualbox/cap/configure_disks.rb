@@ -63,7 +63,7 @@ module VagrantPlugins
                 raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "IDE"
               end
 
-              if disks_defined.size > dvd_controller.limit
+              if dvds_defined.size > dvd_controller.limit
                 raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
                   limit: dvd_controller.limit,
                   name: dvd_controller.name
@@ -77,13 +77,14 @@ module VagrantPlugins
 
           defined_disks.each do |disk|
             if disk.type == :disk
-              disk_data = handle_configure_disk(machine, disk, current_disks, disk_controller)
+              disk_data = handle_configure_disk(machine, disk, current_disks, disk_controller.name)
               configured_disks[:disk] << disk_data unless disk_data.empty?
             elsif disk.type == :floppy
               # TODO: Write me
               machine.ui.info(I18n.t("vagrant.cap.configure_disks.floppy_not_supported", name: disk.name))
             elsif disk.type == :dvd
-              dvd_data = handle_configure_dvd(machine, disk, dvd_controller)
+              # refresh controller state here
+              dvd_data = handle_configure_dvd(machine, disk, dvd_controller.name)
               configured_disks[:dvd] << dvd_data unless dvd_data.empty?
             end
           end
@@ -124,10 +125,11 @@ module VagrantPlugins
         # @param [Vagrant::Machine] machine - the current machine
         # @param [Config::Disk] disk - the current disk to configure
         # @param [Array] all_disks - A list of all currently defined disks in VirtualBox
-        # @param [VagrantPlugins::ProviderVirtualBox::Model::StorageController] controller -
-        # the storage controller to use
+        # @param [String] controller_name - the name of the storage controller to use
         # @return [Hash] - disk_metadata
-        def self.handle_configure_disk(machine, disk, all_disks, controller)
+        def self.handle_configure_disk(machine, disk, all_disks, controller_name)
+          controller = machine.provider.driver.get_storage_controller(controller_name)
+
           disk_metadata = {}
 
           # Grab the existing configured disk, if it exists
@@ -171,10 +173,11 @@ module VagrantPlugins
         #
         # @param [Vagrant::Machine] machine - the current machine
         # @param [Config::Disk] dvd - the current disk to configure
-        # @param [VagrantPlugins::ProviderVirtualBox::Model::StorageController] controller -
-        # the storage controller to use
+        # @param [String] controller_name - the name of the storage controller to use
         # @return [Hash] - dvd_metadata
-        def self.handle_configure_dvd(machine, dvd, controller)
+        def self.handle_configure_dvd(machine, dvd, controller_name)
+          controller = machine.provider.driver.get_storage_controller(controller_name)
+
           disk_info = get_next_port(machine, controller)
           port = disk_info[:port]
           device = disk_info[:device]
@@ -182,8 +185,7 @@ module VagrantPlugins
           machine.provider.driver.attach_disk(controller.name, port, device, "dvddrive", dvd.file)
 
           # Refresh the controller information
-          storage_controllers = machine.provider.driver.read_storage_controllers
-          controller = storage_controllers.detect { |c| c.name == controller.name }
+          controller = machine.provider.driver.get_storage_controller(controller.name)
           attachment = controller.attachments.detect { |a| a[:port] == port && a[:device] == device }
 
           if attachment

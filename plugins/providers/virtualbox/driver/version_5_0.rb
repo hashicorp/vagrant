@@ -955,6 +955,19 @@ module VagrantPlugins
           end
         end
 
+        # Gets the storage controller matching the specified name. Raises an
+        # error if the storage controller can't be found.
+        #
+        # @param [String] name - storage controller name
+        # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
+        def get_storage_controller(name)
+          controller = read_storage_controllers.detect { |c| c.name == name }
+          if !controller
+            raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, name: name
+          end
+          controller
+        end
+
         protected
 
         def valid_ip_address?(ip)

@@ -1679,10 +1679,9 @@ en:
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
       virtualbox_disks_controller_not_found: |-
-        The current disk configuration requires a controller with storage bus
-        '%{storage_bus}', but no such controller was found. Please add the
-        proper controller to your guest using provider-specific
-        customizations.
+        Vagrant was not able to find a storage controller called '%{name}'.
+        If you have changed or removed any storage controllers, please restore
+        them to their prior configuration.
       virtualbox_disks_defined_exceed_limit: |-
         VirtualBox only allows up to %{limit} disks to be attached to the
         storage controller '%{name}'. Please remove some disks from your disk
