@@ -900,7 +900,7 @@ module VagrantPlugins
         end
 
         # Validate disks
-        # Check if there is more than one primrary disk defined and throw an error
+        # Check if there is more than one primary disk defined and throw an error
         primary_disks = @disks.select { |d| d.primary && d.type == :disk }
         if primary_disks.size > 1
           errors << I18n.t("vagrant.config.vm.multiple_primary_disks_error",
@@ -914,7 +914,7 @@ module VagrantPlugins
                            name: duplicate_names)
         end
 
-        disk_files = @disks.select { |d| d.type == :disk }.map { |d| d.file }
+        disk_files = @disks.map { |d| d.file }
         duplicate_files = disk_files.detect { |d| disk_files.count(d) > 1 }
         if duplicate_files && duplicate_files.size
           errors << I18n.t("vagrant.config.vm.multiple_disk_files_error",

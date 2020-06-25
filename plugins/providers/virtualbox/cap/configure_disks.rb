@@ -83,7 +83,6 @@ module VagrantPlugins
               # TODO: Write me
               machine.ui.info(I18n.t("vagrant.cap.configure_disks.floppy_not_supported", name: disk.name))
             elsif disk.type == :dvd
-              # refresh controller state here
               dvd_data = handle_configure_dvd(machine, disk, dvd_controller.name)
               configured_disks[:dvd] << dvd_data unless dvd_data.empty?
             end
@@ -176,23 +175,42 @@ module VagrantPlugins
         # @param [String] controller_name - the name of the storage controller to use
         # @return [Hash] - dvd_metadata
         def self.handle_configure_dvd(machine, dvd, controller_name)
+          dvd_metadata = {}
+
           controller = machine.provider.driver.get_storage_controller(controller_name)
 
-          disk_info = get_next_port(machine, controller)
-          port = disk_info[:port]
-          device = disk_info[:device]
+          dvd_location = File.expand_path(dvd.file)
+          dvd_attached = controller.attachments.detect { |a| a[:location] == dvd_location }
 
-          machine.provider.driver.attach_disk(controller.name, port, device, "dvddrive", dvd.file)
-
-          # Refresh the controller information
-          controller = machine.provider.driver.get_storage_controller(controller.name)
-          attachment = controller.attachments.detect { |a| a[:port] == port && a[:device] == device }
-
-          if attachment
-            { uuid: attachment[:uuid], name: dvd.name, controller: controller.name, port: port, device: device }
+          if dvd_attached
+            LOGGER.info("No further configuration required for dvd '#{dvd.name}'")
+            dvd_metadata[:name] = dvd.name
+            dvd_metadata[:port] = dvd_attached[:port]
+            dvd_metadata[:device] = dvd_attached[:device]
+            dvd_metadata[:uuid] = dvd_attached[:uuid]
+            dvd_metadata[:controller] = controller.name
           else
-            {}
+            LOGGER.warn("DVD '#{dvd.name}' is not connected to guest '#{machine.name}', Vagrant will attempt to connect dvd to guest")
+            dsk_info = get_next_port(machine, controller)
+            machine.provider.driver.attach_disk(controller.name,
+                                                dsk_info[:port],
+                                                dsk_info[:device],
+                                                "dvddrive",
+                                                dvd.file)
+
+            # Refresh the controller information
+            controller = machine.provider.driver.get_storage_controller(controller.name)
+            attachment = controller.attachments.detect { |a| a[:port] == dsk_info[:port] &&
+                                                             a[:device] == dsk_info[:device] }
+
+            dvd_metadata[:name] = dvd.name
+            dvd_metadata[:port] = dsk_info[:port]
+            dvd_metadata[:device] = dsk_info[:device]
+            dvd_metadata[:uuid] = attachment[:uuid]
+            dvd_metadata[:controller] = controller.name
           end
+
+          dvd_metadata
         end
 
         # Check to see if current disk is configured based on defined_disks

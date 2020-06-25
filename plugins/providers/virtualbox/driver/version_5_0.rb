@@ -947,7 +947,12 @@ module VagrantPlugins
             attachments = []
             vm_info.each do |k, v|
               if /^#{name}-ImageUUID-(\d+)-(\d+)$/ =~ k
-                attachments << {port: $1.to_s, device: $2.to_s, uuid: v}
+                port = $1.to_s
+                device = $2.to_s
+                uuid = v
+                location = vm_info["#{name}-#{port}-#{device}"]
+
+                attachments << {port: port, device: device, uuid: uuid, location: location}
               end
             end
 

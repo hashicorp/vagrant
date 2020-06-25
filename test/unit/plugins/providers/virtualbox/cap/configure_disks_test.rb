@@ -217,6 +217,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(disk_metadata).to have_key(:controller)
         expect(disk_metadata).to have_key(:port)
         expect(disk_metadata).to have_key(:device)
+        expect(disk_metadata).to have_key(:name)
       end
     end
 
@@ -502,6 +503,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       expect(dvd_metadata).to have_key(:controller)
       expect(dvd_metadata).to have_key(:port)
       expect(dvd_metadata).to have_key(:device)
+      expect(dvd_metadata).to have_key(:name)
     end
   end
 end

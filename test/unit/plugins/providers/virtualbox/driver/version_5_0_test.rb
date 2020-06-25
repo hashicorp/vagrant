@@ -118,7 +118,9 @@ OUTPUT
         { "storagecontrollername0" => "SATA Controller",
           "storagecontrollertype0" => "IntelAhci",
           "storagecontrollermaxportcount0" => "30",
+          "SATA Controller-0-0" => "/tmp/primary.vdi",
           "SATA Controller-ImageUUID-0-0" => "12345",
+          "SATA Controller-1-0" => "/tmp/secondary.vdi",
           "SATA Controller-ImageUUID-1-0" => "67890" }
       )
     end
@@ -134,8 +136,8 @@ OUTPUT
     it "includes attachments for each storage controller" do
       storage_controllers = subject.read_storage_controllers
 
-      expect(storage_controllers.first.attachments).to include(port: "0", device: "0", uuid: "12345")
-      expect(storage_controllers.first.attachments).to include(port: "1", device: "0", uuid: "67890")
+      expect(storage_controllers.first.attachments).to include(port: "0", device: "0", uuid: "12345", location: "/tmp/primary.vdi")
+      expect(storage_controllers.first.attachments).to include(port: "1", device: "0", uuid: "67890", location: "/tmp/secondary.vdi")
     end
   end
 
