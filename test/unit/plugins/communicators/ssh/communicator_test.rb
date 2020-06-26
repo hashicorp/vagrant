@@ -317,6 +317,15 @@ describe VagrantPlugins::CommunicatorSSH::Communicator do
       end
     end
 
+    context "with no exit code received" do
+      let(:exit_data) { double("exit_data", read_long: nil) }
+
+      it "raises error when exit code is nil" do
+        expect(command_channel).to receive(:send_data).with(/make\n/)
+        expect{ communicator.execute("make") }.to raise_error(Vagrant::Errors::SSHNoExitStatus)
+      end
+    end
+
     context "with garbage content prepended to command output" do
       let(:command_stdout_data) do
         "Line of garbage\nMore garbage\n#{command_garbage_marker}bin\ntmp\n"

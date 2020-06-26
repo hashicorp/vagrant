@@ -729,6 +729,11 @@ module VagrantPlugins
           yield :stdout, data if block_given?
         end
 
+        if !exit_status
+          @logger.debug("Exit status: #{exit_status.inspect}")
+          raise Vagrant::Errors::SSHNoExitStatus
+        end
+
         # Return the final exit status
         return exit_status
       end

@@ -796,6 +796,10 @@ module Vagrant
       error_key(:ssh_key_type_not_supported)
     end
 
+    class SSHNoExitStatus < VagrantError
+      error_key(:ssh_no_exit_status)
+    end
+
     class SSHNoRoute < VagrantError
       error_key(:ssh_no_route)
     end
