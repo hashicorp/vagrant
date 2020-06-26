@@ -1,7 +1,11 @@
+require 'vagrant/util/guest_hosts'
+
 module VagrantPlugins
   module GuestSlackware
     module Cap
       class ChangeHostName
+        extend Vagrant::Util::GuestHosts::Linux
+
         def self.change_host_name(machine, name)
           comm = machine.communicate
 
@@ -13,12 +17,13 @@ module VagrantPlugins
               echo '#{name}' > /etc/hostname
               chmod o-w /etc/hostname
               hostname -F /etc/hostname
-
-              # Prepend ourselves to /etc/hosts
-              grep -w '#{name}' /etc/hosts || {
-                sed -i'' '1i 127.0.0.1\\t#{name}\\t#{basename}' /etc/hosts
-              }
             EOH
+          end
+          network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
+          if network_with_hostname
+            replace_host(comm, name, network_with_hostname[:ip])
+          else
+            add_hostname_to_loopback_interface(comm, name)
           end
         end
       end
