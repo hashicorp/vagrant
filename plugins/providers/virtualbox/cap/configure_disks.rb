@@ -43,10 +43,7 @@ module VagrantPlugins
           else
             disks_defined = defined_disks.select { |d| d.type == :disk }
             if disks_defined.any?
-              disk_controller = storage_controllers.detect { |c| c.storage_bus == "SATA" }
-              if disk_controller.nil?
-                raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "SATA"
-              end
+              disk_controller = storage_controllers.get_primary_controller
 
               if (disks_defined.any? { |d| d.primary } && disks_defined.size > disk_controller.limit) ||
                  disks_defined.size > disk_controller.limit - 1
@@ -58,10 +55,7 @@ module VagrantPlugins
 
             dvds_defined = defined_disks.select { |d| d.type == :dvd }
             if dvds_defined.any?
-              dvd_controller = storage_controllers.detect { |c| c.storage_bus == "IDE" }
-              if dvd_controller.nil?
-                raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "IDE"
-              end
+              dvd_controller = storage_controllers.get_controller!(storage_bus: "IDE")
 
               if dvds_defined.size > dvd_controller.limit
                 raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,
@@ -106,7 +100,7 @@ module VagrantPlugins
             # We can't rely on the order of `all_disks`, as they will not
             # always come in port order, but primary is always Port 0 Device 0.
             primary = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }
-            if primary.nil?
+            if !primary
               raise Vagrant::Errors::VirtualBoxDisksPrimaryNotFound
             end
             primary_uuid = primary[:uuid]
@@ -127,7 +121,8 @@ module VagrantPlugins
         # @param [String] controller_name - the name of the storage controller to use
         # @return [Hash] - disk_metadata
         def self.handle_configure_disk(machine, disk, all_disks, controller_name)
-          controller = machine.provider.driver.get_storage_controller(controller_name)
+          storage_controllers = machine.provider.driver.read_storage_controllers
+          controller = storage_controllers.get_controller!(name: controller_name)
 
           disk_metadata = {}
 
@@ -175,9 +170,10 @@ module VagrantPlugins
         # @param [String] controller_name - the name of the storage controller to use
         # @return [Hash] - dvd_metadata
         def self.handle_configure_dvd(machine, dvd, controller_name)
-          dvd_metadata = {}
+          storage_controllers = machine.provider.driver.read_storage_controllers
+          controller = storage_controllers.get_controller!(name: controller_name)
 
-          controller = machine.provider.driver.get_storage_controller(controller_name)
+          dvd_metadata = {}
 
           dvd_location = File.expand_path(dvd.file)
           dvd_attached = controller.attachments.detect { |a| a[:location] == dvd_location }
@@ -199,7 +195,9 @@ module VagrantPlugins
                                                 dvd.file)
 
             # Refresh the controller information
-            controller = machine.provider.driver.get_storage_controller(controller.name)
+            storage_controllers = machine.provider.driver.read_storage_controllers
+            controller = storage_controllers.get_controller!(name: controller_name)
+
             attachment = controller.attachments.detect { |a| a[:port] == dsk_info[:port] &&
                                                              a[:device] == dsk_info[:device] }
 

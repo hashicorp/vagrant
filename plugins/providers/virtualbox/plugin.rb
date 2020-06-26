@@ -90,6 +90,7 @@ module VagrantPlugins
     module Model
       autoload :ForwardedPort, File.expand_path("../model/forwarded_port", __FILE__)
       autoload :StorageController, File.expand_path("../model/storage_controller", __FILE__)
+      autoload :StorageControllerArray, File.expand_path("../model/storage_controller_array", __FILE__)
     end
 
     module Util

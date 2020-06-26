@@ -932,12 +932,14 @@ module VagrantPlugins
         # Helper method to get a list of storage controllers added to the
         # current VM
         #
-        # @return [Array<VagrantPlugins::ProviderVirtualBox::Model::StorageController>]
+        # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray]
         def read_storage_controllers
           vm_info = show_vm_info
           count = vm_info.count { |key, value| key.match(/^storagecontrollername\d+$/) }
 
-          (0..count - 1).map do |n|
+          storage_controllers = Model::StorageControllerArray.new
+
+          (0..count - 1).each do |n|
             # basic controller metadata
             name = vm_info["storagecontrollername#{n}"]
             type = vm_info["storagecontrollertype#{n}"]
@@ -956,8 +958,10 @@ module VagrantPlugins
               end
             end
 
-            Model::StorageController.new(name, type, maxportcount, attachments)
+            storage_controllers << Model::StorageController.new(name, type, maxportcount, attachments)
           end
+
+          storage_controllers
         end
 
         # Gets the storage controller matching the specified name. Raises an

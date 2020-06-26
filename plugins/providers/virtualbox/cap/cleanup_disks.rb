@@ -27,17 +27,10 @@ module VagrantPlugins
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
           storage_controllers = machine.provider.driver.read_storage_controllers
-          if storage_controllers.size ==  1
-            primary_controller = storage_controllers.first
-          else
-            primary_controller = storage_controllers.detect { |c| c.storage_bus == "SATA" }
-            if primary_controller.nil?
-              raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, storage_bus: "SATA"
-            end
-          end
+          primary_controller = storage_controllers.get_primary_controller
 
-          primary = primary_controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }
-          if primary.nil?
+          primary = primary_controller.get_attachment(port: "0", device: "0")
+          if !primary
             raise Vagrant::Errors::VirtualBoxDisksPrimaryNotFound
           end
           primary_uuid = primary[:uuid]
@@ -51,16 +44,10 @@ module VagrantPlugins
                 LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
                 machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_cleanup", name: d["name"]), prefix: true)
 
-                controller = storage_controllers.detect { |c| c.name == d["controller"] }
-                attachment = controller.attachments.detect { |a| a[:port] == d["port"] &&
-                                                                 a[:device] == d["device"] }
+                controller = storage_controllers.get_controller!(name: d["controller"])
+                attachment = controller.get_attachment(uuid: d["uuid"])
 
-                # Retry lookup by UUID
-                if attachment.nil?
-                  attachment = controller.attachments.detect { |a| a[:uuid] == d["uuid"] }
-                end
-
-                if attachment.nil?
+                if !attachment
                   LOGGER.warn("Disk '#{d["name"]}' not attached to guest, but still exists.")
                 else
                   machine.provider.driver.remove_disk(controller.name, attachment[:port], attachment[:device])
@@ -86,16 +73,14 @@ module VagrantPlugins
                 machine.ui.warn("DVD '#{d["name"]}' no longer exists in Vagrant config. Removing medium from guest...", prefix: true)
 
                 storage_controllers = machine.provider.driver.read_storage_controllers
-                controller = storage_controllers.detect { |c| c.name == d["controller"] }
-                attachment = controller.attachments.detect { |a| a[:port] == d["port"] &&
-                                                                 a[:device] == d["device"] }
+                controller = storage_controllers.get_controller!(name: d["controller"])
+                attachment = controller.get_attachment(uuid: d["uuid"])
 
-                # Retry lookup by UUID
-                if attachment.nil?
-                  attachment = controller.attachments.detect { |a| a[:uuid] == d["uuid"] }
+                if !attachment
+                  LOGGER.warn("DVD '#{d["name"]}' not attached to guest, but still exists.")
+                else
+                  machine.provider.driver.remove_disk(controller.name, attachment[:port], attachment[:device])
                 end
-
-                machine.provider.driver.remove_disk(controller.name, attachment[:port], attachment[:device])
               end
             end
           end

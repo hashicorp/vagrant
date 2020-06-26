@@ -4,7 +4,6 @@ module VagrantPlugins
       # Represents a storage controller for VirtualBox. Storage controllers
       # have a type, a name, and can have hard disks or optical drives attached.
       class StorageController
-
         SATA_CONTROLLER_TYPES = ["IntelAhci"].map(&:freeze).freeze
         IDE_CONTROLLER_TYPES = ["PIIX4", "PIIX3", "ICH6"].map(&:freeze).freeze
 
@@ -43,26 +42,40 @@ module VagrantPlugins
         attr_reader :attachments
 
         def initialize(name, type, maxportcount, attachments)
-          @name         = name
-          @type         = type
+          @name = name
+          @type = type
 
           if SATA_CONTROLLER_TYPES.include?(@type)
-            @storage_bus = 'SATA'
+            @storage_bus = "SATA"
           elsif IDE_CONTROLLER_TYPES.include?(@type)
-            @storage_bus = 'IDE'
+            @storage_bus = "IDE"
           else
-            @storage_bus = 'Unknown'
+            @storage_bus = "Unknown"
           end
 
           @maxportcount = maxportcount.to_i
-          if @storage_bus == 'IDE'
+          if @storage_bus == "IDE"
             @limit = @maxportcount * 2
           else
             @limit = @maxportcount
           end
 
           attachments ||= []
-          @attachments  = attachments
+          @attachments = attachments
+        end
+
+        # Get a single storage device, either by port/device address or by
+        # UUID.
+        #
+        # @param [Hash] opts - A hash of options to match
+        # @return [Hash] attachment - Attachment information
+        def get_attachment(opts = {})
+          if opts[:port] && opts[:device]
+            @attachments.detect { |a| a[:port] == opts[:port] &&
+                                      a[:device] == opts[:device] }
+          elsif opts[:uuid]
+            @attachments.detect { |a| a[:uuid] == opts[:uuid] }
+          end
         end
       end
     end

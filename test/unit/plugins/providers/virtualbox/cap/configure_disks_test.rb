@@ -25,6 +25,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     double(:state)
   end
 
+  let(:storage_controllers) { double("storage controllers") }
+
   let(:controller) { double("controller", name: "controller", limit: 30, storage_bus: "SATA", maxportcount: 30) }
 
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
@@ -68,8 +70,10 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(controller).to receive(:attachments).and_return(attachments)
-    allow(driver).to receive(:read_storage_controllers).and_return([controller])
-    allow(driver).to receive(:get_storage_controller).with(controller.name).and_return(controller)
+    allow(storage_controllers).to receive(:get_controller!).with(name: controller.name).and_return(controller)
+    allow(storage_controllers).to receive(:first).and_return(controller)
+    allow(storage_controllers).to receive(:size).and_return(1)
+    allow(driver).to receive(:read_storage_controllers).and_return(storage_controllers)
   end
 
   describe "#configure_disks" do
@@ -120,16 +124,25 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       let(:controller2) { double("controller2", name: "SATA Controller", storage_bus: "SATA", limit: 30) }
 
       before do
-        allow(driver).to receive(:read_storage_controllers).and_return([controller1, controller2])
+        allow(storage_controllers).to receive(:size).and_return(2)
+        allow(storage_controllers).to receive(:get_controller!).with(name: controller1.name).
+          and_return(controller1)
+        allow(storage_controllers).to receive(:get_controller!).with(name: controller2.name).
+          and_return(controller2)
+        allow(storage_controllers).to receive(:get_controller!).with(storage_bus: controller1.storage_bus).
+          and_return(controller1)
+        allow(storage_controllers).to receive(:get_controller!).with(storage_bus: controller2.storage_bus).
+          and_return(controller2)
+        allow(storage_controllers).to receive(:get_primary_controller).and_return(controller2)
       end
 
-      it "attaches disks to the SATA controller" do
+      it "attaches disks to the primary controller" do
         expect(subject).to receive(:handle_configure_disk).with(machine, anything, [], controller2.name).
           exactly(4).and_return(dsk_data)
         subject.configure_disks(machine, defined_disks)
       end
 
-      it "attaches dvds to the IDE controller" do
+      it "attaches dvds to the secondary controller" do
         defined_disks = [ dvd ]
 
         expect(subject).to receive(:handle_configure_dvd).with(machine, dvd, controller1.name).
@@ -139,11 +152,11 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       it "raises an error if there are more than 4 dvds configured" do
         defined_disks = [
-          double("dvd", name: "installer1", type: :dvd, file: "installer.iso"),
-          double("dvd", name: "installer2", type: :dvd, file: "installer.iso"),
-          double("dvd", name: "installer3", type: :dvd, file: "installer.iso"),
-          double("dvd", name: "installer4", type: :dvd, file: "installer.iso"),
-          double("dvd", name: "installer5", type: :dvd, file: "installer.iso")
+          double("dvd", name: "installer1", type: :dvd, file: "installer.iso", primary: false),
+          double("dvd", name: "installer2", type: :dvd, file: "installer.iso", primary: false),
+          double("dvd", name: "installer3", type: :dvd, file: "installer.iso", primary: false),
+          double("dvd", name: "installer4", type: :dvd, file: "installer.iso", primary: false),
+          double("dvd", name: "installer5", type: :dvd, file: "installer.iso", primary: false)
         ]
 
         expect { subject.configure_disks(machine, defined_disks) }.
@@ -152,10 +165,10 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       it "attaches multiple dvds" do
         defined_disks = [
-          double("dvd", name: "installer1", type: :dvd, file: "installer.iso"),
-          double("dvd", name: "installer2", type: :dvd, file: "installer.iso"),
-          double("dvd", name: "installer3", type: :dvd, file: "installer.iso"),
-          double("dvd", name: "installer4", type: :dvd, file: "installer.iso"),
+          double("dvd", name: "installer1", type: :dvd, file: "installer.iso", primary: false),
+          double("dvd", name: "installer2", type: :dvd, file: "installer.iso", primary: false),
+          double("dvd", name: "installer3", type: :dvd, file: "installer.iso", primary: false),
+          double("dvd", name: "installer4", type: :dvd, file: "installer.iso", primary: false),
         ]
 
         expect(subject).to receive(:handle_configure_dvd).exactly(4).times.and_return({})
@@ -485,7 +498,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   end
 
   describe ".handle_configure_dvd" do
-    let(:dvd_config) { double("dvd", file: "/tmp/untitled.iso", name: "dvd1") }
+    let(:dvd_config) { double("dvd", file: "/tmp/untitled.iso", name: "dvd1", primary: false) }
 
     before do
       allow(subject).to receive(:get_next_port).with(machine, controller).
