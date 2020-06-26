@@ -107,7 +107,7 @@ module VagrantPlugins
 
             current_disk = all_disks.select { |d| d["UUID"] == primary_uuid }.first
           else
-            current_disk = all_disks.select { |d| d["Disk Name"] == disk.name }.first
+            current_disk = all_disks.detect { |d| d["Disk Name"] == disk.name }
           end
 
           current_disk
