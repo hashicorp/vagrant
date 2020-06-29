@@ -36,10 +36,7 @@ module Vagrant
         def setup_user_data(machine, env, user_data_cfgs)
           machine.ui.info(I18n.t("vagrant.actions.vm.cloud_init_user_data_setup"))
 
-          text_cfgs = []
-          user_data_cfgs.each do |cfg|
-            text_cfgs << read_text_cfg(machine, cfg)
-          end
+          text_cfgs = user_data_cfgs.map { |cfg| read_text_cfg(machine, cfg) }
 
           user_data = generate_cfg_msg(machine, text_cfgs)
           user_data
@@ -62,8 +59,8 @@ module Vagrant
           # the MIME::Text initializer hardcodes `text/` already to the type.
           # We assume content_type is correct due to the validation step
           # in VagrantConfigCloudInit.
-          content_type = cfg.content_type.split('/')
-          text_msg = MIME::Text.new(text, content_type[1])
+          content_type = cfg.content_type.split('/', 2).last
+          text_msg = MIME::Text.new(text, content_type)
 
           text_msg
         end
@@ -106,7 +103,7 @@ module Vagrant
 
               attach_disk_config(machine, env, iso_path)
             ensure
-              FileUtils.remove_entry source_dir
+              FileUtils.remove_entry(source_dir)
             end
           else
             raise Errors::CreateIsoHostCapNotFound
@@ -122,7 +119,7 @@ module Vagrant
         def attach_disk_config(machine, env, iso_path)
           @logger.info("Adding cloud_init iso '#{iso_path}' to disk config")
           machine.config.vm.disk :dvd, file: iso_path, name: "vagrant-cloud_init-disk"
-          machine.config.vm.disks.map { |d| d.finalize! if d.type == :dvd && d.file == iso_path }
+          machine.config.vm.disks.each { |d| d.finalize! if d.type == :dvd && d.file == iso_path }
         end
       end
     end
