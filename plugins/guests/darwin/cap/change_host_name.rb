@@ -4,7 +4,7 @@ module VagrantPlugins
   module GuestDarwin
     module Cap
       class ChangeHostName
-        extend Vagrant::Util::GuestHosts::Darwin
+        extend Vagrant::Util::GuestHosts::BSD
 
         def self.change_host_name(machine, name)
           comm = machine.communicate

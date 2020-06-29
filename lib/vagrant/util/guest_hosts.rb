@@ -46,8 +46,8 @@ module Vagrant
         end
       end
 
-      # Darwin specific inspection helpers
-      module Darwin
+      # BSD specific inspection helpers
+      module BSD
         include Unix
         # Remove any line in /etc/hosts that contains hostname,
         # then add hostname with associated ip 
@@ -58,8 +58,8 @@ module Vagrant
         def replace_host(comm, name, ip)
           basename = name.split(".", 2)[0]
           comm.sudo <<-EOH.gsub(/^ {14}/, '')
-          sed -i '' '/#{name}/d' /etc/hosts
-          sed -i '' '1i\\\n#{ip}\t#{name}\t#{basename}\n' /etc/hosts
+          sed -i.bak '/#{name}/d' /etc/hosts
+          sed -i.bak '1i\\\n#{ip}\t#{name}\t#{basename}\n' /etc/hosts
           EOH
         end
       end

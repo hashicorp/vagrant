@@ -26,12 +26,12 @@ describe "Vagrant::Util::GuestHosts" do
     end
   end
 
-  describe "Darwin" do
-    subject{ Class.new { extend Vagrant::Util::GuestHosts::Darwin } }
+  describe "BSD" do
+    subject{ Class.new { extend Vagrant::Util::GuestHosts::BSD } }
 
     it "can add replace hostname" do
       subject.replace_host(comm, "test.end", "192.186.4.2")
-      expect(comm.received_commands[0]).to match(/sed -i '' '\/test.end\/d' \/etc\/hosts/)
+      expect(comm.received_commands[0]).to match(/sed -i.bak '\/test.end\/d' \/etc\/hosts/)
     end
 
     it "can add hostname to loopback interface" do

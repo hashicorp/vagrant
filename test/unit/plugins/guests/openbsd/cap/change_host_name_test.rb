@@ -1,10 +1,10 @@
 require_relative "../../../../base"
 
-describe "VagrantPlugins::GuestDarwin::Cap::ChangeHostName" do
+describe "VagrantPlugins::GuestOpenBSD::Cap::ChangeHostName" do
   let(:described_class) do
-    VagrantPlugins::GuestDarwin::Plugin
+    VagrantPlugins::GuestOpenBSD::Plugin
       .components
-      .guest_capabilities[:darwin]
+      .guest_capabilities[:openbsd]
       .get(:change_host_name)
   end
 
@@ -32,17 +32,14 @@ describe "VagrantPlugins::GuestDarwin::Cap::ChangeHostName" do
       it "sets the hostname" do
         comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
         described_class.change_host_name(machine, name)
-        expect(comm.received_commands[1]).to match(/scutil --set ComputerName '#{name}'/)
-        expect(comm.received_commands[1]).to match(/scutil --set HostName '#{name}'/)
-        expect(comm.received_commands[1]).to match(/scutil --set LocalHostName '#{basename}'/)
-        expect(comm.received_commands[1]).to match(/hostname 'banana-rama.example.com'/)
+        expect(comm.received_commands[1]).to match(/hostname '#{name}'/)
         expect(described_class).to_not receive(:add_hostname_to_loopback_interface)
       end
 
       it "does not change the hostname if already set" do
         comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
         described_class.change_host_name(machine, name)
-        expect(comm).to_not receive(:sudo).with(/scutil --set ComputerName '#{name}/)
+        expect(comm).to_not receive(:sudo).with(/hostname '#{name}'/)
         expect(described_class).to_not receive(:add_hostname_to_loopback_interface)
       end
     end
