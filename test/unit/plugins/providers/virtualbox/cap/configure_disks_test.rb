@@ -180,23 +180,24 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   describe "#get_current_disk" do
     it "gets primary disk uuid if disk to configure is primary" do
-      primary_disk = subject.get_current_disk(machine, defined_disks.first, all_disks, controller)
+      allow(storage_controllers).to receive(:get_primary_attachment).and_return(attachments[0])
+      primary_disk = subject.get_current_disk(machine, defined_disks.first, all_disks)
       expect(primary_disk).to eq(all_disks.first)
     end
 
     it "raises an error if primary disk can't be found" do
-      allow(controller).to receive(:attachments).and_return([])
-      expect { subject.get_current_disk(machine, defined_disks.first, all_disks, controller) }.
+      allow(storage_controllers).to receive(:get_primary_attachment).and_raise(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
+      expect { subject.get_current_disk(machine, defined_disks.first, all_disks) }.
         to raise_error(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
     end
 
     it "finds the disk to configure" do
-      disk = subject.get_current_disk(machine, defined_disks[1], all_disks, controller)
+      disk = subject.get_current_disk(machine, defined_disks[1], all_disks)
       expect(disk).to eq(all_disks[1])
     end
 
     it "returns nil if disk is not found" do
-      disk = subject.get_current_disk(machine, defined_disks[3], all_disks, controller)
+      disk = subject.get_current_disk(machine, defined_disks[3], all_disks)
       expect(disk).to be_nil
     end
   end
@@ -256,7 +257,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       it "resizes a disk" do
         expect(subject).to receive(:get_current_disk).
-          with(machine, defined_disks[1], all_disks, controller).and_return(all_disks[1])
+          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
 
         expect(subject).to receive(:compare_disk_size).
           with(machine, defined_disks[1], all_disks[1]).and_return(true)
@@ -292,7 +293,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       it "reattaches disk if vagrant defined disk exists but is not attached to guest" do
         expect(subject).to receive(:get_current_disk).
-          with(machine, defined_disks[1], all_disks, controller).and_return(all_disks[1])
+          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
 
         expect(subject).to receive(:compare_disk_size).
           with(machine, defined_disks[1], all_disks[1]).and_return(false)
@@ -311,7 +312,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       it "does nothing if all disks are properly configured" do
         expect(subject).to receive(:get_current_disk).
-          with(machine, defined_disks[1], all_disks, controller).and_return(all_disks[1])
+          with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
 
         expect(subject).to receive(:compare_disk_size).
           with(machine, defined_disks[1], all_disks[1]).and_return(false)

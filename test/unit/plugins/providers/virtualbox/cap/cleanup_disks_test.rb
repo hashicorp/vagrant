@@ -44,6 +44,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
     allow(controller).to receive(:get_attachment).with(uuid: "67890").and_return(attachments[1])
     allow(storage_controllers).to receive(:get_controller!).and_return(controller)
     allow(storage_controllers).to receive(:get_primary_controller).and_return(controller)
+    allow(storage_controllers).to receive(:get_primary_attachment).and_return(attachments[0])
     allow(driver).to receive(:read_storage_controllers).and_return(storage_controllers)
   end
 
@@ -65,7 +66,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
       end
 
       it "raises an error if primary disk can't be found" do
-        allow(controller).to receive(:get_attachment).with(port: "0", device: "0").and_return(nil)
+        allow(storage_controllers).to receive(:get_primary_attachment).and_raise(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
+
         expect { subject.cleanup_disks(machine, defined_disks, disk_meta_file) }.
           to raise_error(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
       end

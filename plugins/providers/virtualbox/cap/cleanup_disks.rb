@@ -28,12 +28,8 @@ module VagrantPlugins
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
           raise TypeError, "Expected `Array` but received `#{disk_meta.class}`" if !disk_meta.is_a?(Array)
           storage_controllers = machine.provider.driver.read_storage_controllers
-          primary_controller = storage_controllers.get_primary_controller
 
-          primary = primary_controller.get_attachment(port: "0", device: "0")
-          if !primary
-            raise Vagrant::Errors::VirtualBoxDisksPrimaryNotFound
-          end
+          primary = storage_controllers.get_primary_attachment
           primary_uuid = primary[:uuid]
 
           disk_meta.each do |d|

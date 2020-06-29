@@ -90,19 +90,12 @@ module VagrantPlugins
         # @param [Vagrant::Machine] machine - the current machine
         # @param [Config::Disk] disk - the current disk to configure
         # @param [Array] all_disks - A list of all currently defined disks in VirtualBox
-        # @param [VagrantPlugins::ProviderVirtualBox::Model::StorageController] controller -
-        # the storage controller to use
         # @return [Hash] current_disk - Returns the current disk. Returns nil if it doesn't exist
-        def self.get_current_disk(machine, disk, all_disks, controller)
+        def self.get_current_disk(machine, disk, all_disks)
           current_disk = nil
           if disk.primary
-            # Ensure we grab the proper primary disk
-            # We can't rely on the order of `all_disks`, as they will not
-            # always come in port order, but primary is always Port 0 Device 0.
-            primary = controller.attachments.detect { |a| a[:port] == "0" && a[:device] == "0" }
-            if !primary
-              raise Vagrant::Errors::VirtualBoxDisksPrimaryNotFound
-            end
+            storage_controllers = machine.provider.driver.read_storage_controllers
+            primary = storage_controllers.get_primary_attachment
             primary_uuid = primary[:uuid]
 
             current_disk = all_disks.select { |d| d["UUID"] == primary_uuid }.first
@@ -127,7 +120,7 @@ module VagrantPlugins
           disk_metadata = {}
 
           # Grab the existing configured disk, if it exists
-          current_disk = get_current_disk(machine, disk, all_disks, controller)
+          current_disk = get_current_disk(machine, disk, all_disks)
 
           # Configure current disk
           if !current_disk

@@ -140,29 +140,4 @@ OUTPUT
       expect(storage_controllers.first.attachments).to include(port: "1", device: "0", uuid: "67890", location: "/tmp/secondary.vdi")
     end
   end
-
-  describe "#get_storage_controller" do
-    let(:storage_controllers) { [double("controller", name: "IDE Controller")] }
-
-    before do
-      allow(subject).to receive(:read_storage_controllers).and_return(storage_controllers)
-    end
-
-    it "refreshes the storage controller state" do
-      expect(subject).to receive(:read_storage_controllers)
-
-      subject.get_storage_controller("IDE Controller")
-    end
-
-    it "returns the storage controller matching the specified name" do
-      controller = subject.get_storage_controller("IDE Controller")
-
-      expect(controller.name).to eq("IDE Controller")
-    end
-
-    it "raises an exception if the storage controller can't be found" do
-      expect { subject.get_storage_controller("SCSI Controller") }.
-        to raise_error(Vagrant::Errors::VirtualBoxDisksControllerNotFound)
-    end
-  end
 end
