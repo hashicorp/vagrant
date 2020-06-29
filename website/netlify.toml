@@ -7,7 +7,7 @@
   command = "npm run static"
 
 [context.production]
-  environment = { HASHI_ENV = "production", NODE_ENV = "production"}
+  environment = { HASHI_ENV = "production" }
 
 [context.deploy-preview]
   environment = { HASHI_ENV = "staging" }
