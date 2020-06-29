@@ -27,7 +27,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
 
   let(:subject) { described_class }
 
-  let(:disk_meta_file) { {disk: [], floppy: [], dvd: []} }
+  let(:disk_meta_file) { {"disk" => [], "floppy" => [], "dvd" => []} }
   let(:defined_disks) { {} }
 
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
@@ -54,7 +54,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
     end
 
     context "with disks to clean up" do
-      let(:disk_meta_file) { {disk: [{uuid: "1234", name: "storage"}], floppy: [], dvd: []} }
+      let(:disk_meta_file) { {"disk" => [{"uuid" => "1234", "name" => "storage"}], "floppy" => [], "dvd" => []} }
 
       it "calls the cleanup method if a disk_meta file is defined" do
         expect(subject).to receive(:handle_cleanup_disk).
@@ -72,7 +72,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
     end
 
     context "with dvd attached" do
-      let(:disk_meta_file) { {dvd: [{uuid: "12345", name: "iso"}]} }
+      let(:disk_meta_file) { {"disk" => [], "floppy" => [], "dvd" => [{"uuid" => "12345", "name" => "iso"}] } }
 
       it "calls the cleanup method if a disk_meta file is defined" do
         expect(subject).to receive(:handle_cleanup_dvd).
