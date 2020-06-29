@@ -1,5 +1,4 @@
 require "socket"
-require "timeout"
 
 module Vagrant
   module Util
@@ -8,31 +7,31 @@ module Vagrant
     # fool-proof, but it works enough of the time to be useful.
     module IsPortOpen
       # Checks if a port is open (listening) on a given host and port.
+      # https://stackoverflow.com/a/3473208
       #
       # @param [String] host Hostname or IP address.
       # @param [Integer] port Port to check.
       # @return [Boolean] `true` if the port is open (listening), `false`
       #   otherwise.
       def is_port_open?(host, port)
-        # We wrap this in a timeout because once in awhile the TCPSocket
-        # _will_ hang, but this signals that the port is closed.
-        Timeout.timeout(1) do
-          # Attempt to make a connection
-          s = TCPSocket.new(host, port)
+        s = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
+        sa = Socket.sockaddr_in(port, host)
 
-          # A connection was made! Properly clean up the socket, not caring
-          # at all if any exception is raised, because we already know the
-          # result.
-          s.close rescue nil
-
-          # The port is open if we reached this point, since we were able
-          # to connect.
-          return true
+        begin
+          s.connect_nonblock(sa)
+        rescue Errno::EINPROGRESS
+          if ::IO.select(nil, [s], nil, 0.1)
+            begin
+              s.connect_nonblock(sa)
+            rescue Errno::EISCONN
+              return true
+            rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+              return false
+            end
+          end
         end
-      rescue Timeout::Error, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, \
-             Errno::ENETUNREACH, Errno::EACCES, Errno::ENOTCONN
-        # Any of the above exceptions signal that the port is closed.
-        return false
+
+        false
       end
 
       extend IsPortOpen
