@@ -908,17 +908,17 @@ module VagrantPlugins
         end
 
         disk_names = @disks.map { |d| d.name }
-        duplicate_names = disk_names.detect{ |d| disk_names.count(d) > 1 }
-        if duplicate_names && duplicate_names.size
+        duplicate_names = disk_names.find_all { |d| disk_names.count(d) > 1 }
+        if duplicate_names.any?
           errors << I18n.t("vagrant.config.vm.multiple_disk_names_error",
-                           name: duplicate_names)
+                           names: duplicate_names.uniq.join("\n"))
         end
 
         disk_files = @disks.map { |d| d.file }
-        duplicate_files = disk_files.detect { |d| disk_files.count(d) > 1 }
-        if duplicate_files && duplicate_files.size
+        duplicate_files = disk_files.find_all { |d| d && disk_files.count(d) > 1 }
+        if duplicate_files.any?
           errors << I18n.t("vagrant.config.vm.multiple_disk_files_error",
-                           file: duplicate_files)
+                           files: duplicate_files.uniq.join("\n"))
         end
 
         @disks.each do |d|
