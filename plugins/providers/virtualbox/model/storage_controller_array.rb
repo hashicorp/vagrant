@@ -4,6 +4,13 @@ module VagrantPlugins
       # A collection of storage controllers. Includes finder methods to look
       # up a storage controller by given attributes.
       class StorageControllerArray < Array
+        SATA_TYPE = "SATA".freeze
+        IDE_TYPE = "IDE".freeze
+        SUPPORTED_TYPES = [SATA_TYPE, IDE_TYPE].freeze
+
+        # TODO: hook into ValidateDiskExt capability
+        DEFAULT_DISK_EXT = [".vdi", ".vmdk", ".vhd"].map(&:freeze).freeze
+
         # Get a single controller matching the given options.
         #
         # @param [Hash] opts - A hash of attributes to match.
@@ -23,7 +30,7 @@ module VagrantPlugins
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
         def get_controller!(opts = {})
           controller = get_controller(opts)
-          if controller.nil?
+          if !controller && opts[:name]
             raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, name: opts[:name]
           end
           controller
@@ -33,19 +40,21 @@ module VagrantPlugins
         # disk). This is used to determine which controller virtual disks
         # should be attached to.
         #
+        # Raises an exception if no supported controllers are found.
+        #
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
         def get_primary_controller
           controller = nil
 
-          if length == 1
-            controller = first
+          if !types.any? { |t| SUPPORTED_TYPES.include?(t) }
+            raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers, supported_types: SUPPORTED_TYPES
+          end
+
+          ide_controller = get_controller(storage_bus: IDE_TYPE)
+          if ide_controller && ide_controller.attachments.any? { |a| hdd?(a) }
+            controller = ide_controller
           else
-            ide_controller = get_controller(storage_bus: "IDE")
-            if ide_controller && ide_controller.attachments.any? { |a| hdd?(a) }
-              controller = ide_controller
-            else
-              controller = get_controller!(storage_bus: "SATA")
-            end
+            controller = get_controller(storage_bus: SATA_TYPE)
           end
 
           controller
@@ -68,6 +77,24 @@ module VagrantPlugins
           attachment
         end
 
+        # Find a suitable storage controller for attaching dvds. Will raise an
+        # exception if no suitable controller can be found.
+        #
+        # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
+        def get_dvd_controller
+          controller = nil
+
+          if types.include?(IDE_TYPE)
+            controller = get_controller(storage_bus: IDE_TYPE)
+          elsif types.include?(SATA_TYPE)
+            controller = get_controller(storage_bus: SATA_TYPE)
+          else
+            raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers, supported_types: SUPPORTED_TYPES
+          end
+
+          controller
+        end
+
         private
 
         # Determine whether the given attachment is a hard disk.
@@ -76,8 +103,14 @@ module VagrantPlugins
         # @return [Boolean]
         def hdd?(attachment)
           ext = File.extname(attachment[:location].to_s).downcase
-          # TODO: hook into ValidateDiskExt capability
-          [".vdi", ".vmdk", ".vhd"].include?(ext)
+          DEFAULT_DISK_EXT.include?(ext)
+        end
+
+        # List of storage controller types.
+        #
+        # @return [Array<String>] types
+        def types
+          map { |c| c.storage_bus }
         end
       end
     end

@@ -936,6 +936,10 @@ module Vagrant
       error_key(:virtualbox_disks_controller_not_found)
     end
 
+    class VirtualBoxDisksNoSupportedControllers < VagrantError
+      error_key(:virtualbox_disks_no_supported_controllers)
+    end
+
     class VirtualBoxDisksPrimaryNotFound < VagrantError
       error_key(:virtualbox_disks_primary_not_found)
     end

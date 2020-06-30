@@ -6,11 +6,10 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
   let(:ide_controller) { double("ide_controller", name: "IDE Controller", storage_bus: "IDE") }
   let(:sata_controller) { double("sata_controller", name: "SATA Controller", storage_bus: "SATA") }
 
-  let(:primary_disk) { double("attachment", location: "/tmp/primary.vdi") }
+  let(:primary_disk) { {location: "/tmp/primary.vdi"} }
 
   before do
-    subject << ide_controller
-    subject << sata_controller
+    subject.replace([ide_controller, sata_controller])
   end
 
   describe "#get_controller" do
@@ -35,9 +34,10 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
   end
 
   describe "#get_primary_controller" do
-    context "with one controller" do
+    context "with a single supported controller" do
       before do
         subject.replace([ide_controller])
+        allow(ide_controller).to receive(:attachments).and_return([primary_disk])
       end
 
       it "returns the controller" do
@@ -65,7 +65,7 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
       it "raises an error if the machine doesn't have a SATA or an IDE controller" do
         subject.replace([])
 
-        expect { subject.get_primary_controller }.to raise_error(Vagrant::Errors::VirtualBoxDisksControllerNotFound)
+        expect { subject.get_primary_controller }.to raise_error(Vagrant::Errors::VirtualBoxDisksNoSupportedControllers)
       end
     end
   end
@@ -102,6 +102,12 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
     it "raises an exception if no attachment exists at port 0, device 0" do
       allow(sata_controller).to receive(:get_attachment).with(port: "0", device: "0").and_return(nil)
       expect { subject.get_primary_attachment }.to raise_error(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
+    end
+  end
+
+  describe "#types" do
+    it "returns a list of storage controller types" do
+      expect(subject.send(:types)).to eq(["IDE", "SATA"])
     end
   end
 end

@@ -129,10 +129,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
           and_return(controller1)
         allow(storage_controllers).to receive(:get_controller!).with(name: controller2.name).
           and_return(controller2)
-        allow(storage_controllers).to receive(:get_controller!).with(storage_bus: controller1.storage_bus).
-          and_return(controller1)
-        allow(storage_controllers).to receive(:get_controller!).with(storage_bus: controller2.storage_bus).
-          and_return(controller2)
+        allow(storage_controllers).to receive(:get_dvd_controller).and_return(controller1)
         allow(storage_controllers).to receive(:get_primary_controller).and_return(controller2)
       end
 

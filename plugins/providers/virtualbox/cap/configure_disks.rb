@@ -55,7 +55,7 @@ module VagrantPlugins
 
             dvds_defined = defined_disks.select { |d| d.type == :dvd }
             if dvds_defined.any?
-              dvd_controller = storage_controllers.get_controller!(storage_bus: "IDE")
+              dvd_controller = storage_controllers.get_dvd_controller
 
               if dvds_defined.size > dvd_controller.limit
                 raise Vagrant::Errors::VirtualBoxDisksDefinedExceedLimit,

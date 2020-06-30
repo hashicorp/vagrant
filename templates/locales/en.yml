@@ -1679,17 +1679,26 @@ en:
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
       virtualbox_disks_controller_not_found: |-
-        Vagrant was not able to find a storage controller called '%{name}'.
+        Vagrant expected to find a storage controller called '%{name}',
+        but there is no controller with this name attached to the current VM.
         If you have changed or removed any storage controllers, please restore
-        them to their prior configuration.
+        them to their previous configuration.
+      virtualbox_disks_no_supported_controllers: |-
+        Vagrant was unable to detect a disk controller with any of the
+        following supported types:
+
+        {supported_types}
+
+        Please add one of the supported controller types in order to use the
+        disk configuration feature.
       virtualbox_disks_defined_exceed_limit: |-
         VirtualBox only allows up to %{limit} disks to be attached to the
         storage controller '%{name}'. Please remove some disks from your disk
         configuration, or attach a new storage controller.
       virtualbox_disks_primary_not_found: |-
-        Vagrant was not able to detect a primary disk attached to the SATA
+        Vagrant was not able to detect a primary disk attached to the main
         controller. Vagrant Disks requires that the primary disk be attached
-        to the first port of the SATA controller in order to manage it.
+        to the first port of the main controller in order to manage it.
       virtualbox_disks_unsupported_controller: |-
         An disk operation was attempted on the controller '%{controller_name}',
         but Vagrant doesn't support this type of disk controller.
