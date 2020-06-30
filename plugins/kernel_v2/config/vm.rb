@@ -911,19 +911,21 @@ module VagrantPlugins
         duplicate_names = disk_names.find_all { |d| disk_names.count(d) > 1 }
         if duplicate_names.any?
           errors << I18n.t("vagrant.config.vm.multiple_disk_names_error",
-                           names: duplicate_names.uniq.join("\n"))
+                           name: machine.name,
+                           disk_names: duplicate_names.uniq.join("\n"))
         end
 
         disk_files = @disks.map { |d| d.file }
         duplicate_files = disk_files.find_all { |d| d && disk_files.count(d) > 1 }
         if duplicate_files.any?
           errors << I18n.t("vagrant.config.vm.multiple_disk_files_error",
-                           files: duplicate_files.uniq.join("\n"))
+                           name: machine.name,
+                           disk_files: duplicate_files.uniq.join("\n"))
         end
 
         @disks.each do |d|
           error = d.validate(machine)
-          errors.concat error if !error.empty?
+          errors.concat(error) if !error.empty?
         end
 
         # Validate clout_init_configs
