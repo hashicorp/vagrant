@@ -160,6 +160,8 @@ module Vagrant
           raise LaunchError.new(ex.message)
         end
 
+        # If running with the detach option, no need to capture IO or
+        # ensure program exists.
         if @options[:detach]
           return
         end
