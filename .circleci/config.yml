@@ -22,6 +22,21 @@ jobs:
                 docker login -u $WEBSITE_DOCKER_USER -p $WEBSITE_DOCKER_PASS
                 docker push hashicorp/vagrant-website
             fi
+  algolia-index:
+    docker:
+      - image: node:12
+    steps:
+      - checkout
+      - run:
+          name: Push content to Algolia Index
+          command: |
+            if  [ "$CIRCLE_REPOSITORY_URL" != "git@github.com:hashicorp/vagrant.git" ]; then
+              echo "Not Vagrant OSS Repo, not indexing Algolia"
+              exit 0
+            fi
+            cd website/
+            npm install
+            node scripts/index_search_content.js
 workflows:
   version: 2
   build_website_docker_image:
@@ -31,3 +46,10 @@ workflows:
             branches:
               only:
                 - master
+  algolia_index:
+    jobs:
+      - algolia-index:
+          filters:
+            branches:
+              only:
+                - stable-website
