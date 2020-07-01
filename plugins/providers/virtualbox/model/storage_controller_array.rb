@@ -1,12 +1,11 @@
+require_relative "../cap/validate_disk_ext"
+
 module VagrantPlugins
   module ProviderVirtualBox
     module Model
       # A collection of storage controllers. Includes finder methods to look
       # up a storage controller by given attributes.
       class StorageControllerArray < Array
-        # TODO: hook into ValidateDiskExt capability
-        DEFAULT_DISK_EXT = [".vdi", ".vmdk", ".vhd"].map(&:freeze).freeze
-
         # Returns a storage controller with the given name. Raises an
         # exception if a matching controller can't be found.
         #
@@ -86,8 +85,12 @@ module VagrantPlugins
         # @param [Hash] attachment - Attachment information
         # @return [Boolean]
         def hdd?(attachment)
-          ext = File.extname(attachment[:location].to_s).downcase
-          DEFAULT_DISK_EXT.include?(ext)
+          if !attachment
+            false
+          else
+            ext = File.extname(attachment[:location].to_s).downcase.split('.').last
+            VagrantPlugins::ProviderVirtualBox::Cap::ValidateDiskExt.validate_disk_ext(nil, ext)
+          end
         end
       end
     end

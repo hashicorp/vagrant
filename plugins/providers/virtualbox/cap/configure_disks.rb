@@ -294,7 +294,7 @@ module VagrantPlugins
               dsk_info[:port] = port.to_s
 
               # Check for a free device
-              if port_attachments.detect { |a| a[:device] == "0" }
+              if port_attachments.any? { |a| a[:device] == "0" }
                 dsk_info[:device] = "1"
               else
                 dsk_info[:device] = "0"
