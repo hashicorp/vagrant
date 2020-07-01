@@ -832,6 +832,9 @@ en:
         they'll have to be destroyed manually.
 
         Path: %{path}
+      create_iso_host_cap_not_found: |-
+        Vagrant cannot create an iso due to the host capability for creating isos not existing.
+        Vagrant will now exit.
       destroy_requires_force: |-
         Destroy doesn't have a TTY to ask for confirmation. Please pass the
         `--force` flag to force a destroy, otherwise attach a TTY so that
@@ -2324,6 +2327,8 @@ en:
           create_master:
             failure: |-
               Failed to create lock-file for master VM creation for box %{box}.
+        cloud_init_user_data_setup: |-
+          Preparing cloud_init iso based on :user_data configuration...
         customize:
           failure: |-
             A customization command failed:

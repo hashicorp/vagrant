@@ -14,6 +14,7 @@ module Vagrant
       autoload :BoxRemove, "vagrant/action/builtin/box_remove"
       autoload :Call,    "vagrant/action/builtin/call"
       autoload :CleanupDisks, "vagrant/action/builtin/cleanup_disks"
+      autoload :CloudInitSetup, "vagrant/action/builtin/cloud_init_setup"
       autoload :Confirm, "vagrant/action/builtin/confirm"
       autoload :ConfigValidate, "vagrant/action/builtin/config_validate"
       autoload :Delayed, "vagrant/action/builtin/delayed"

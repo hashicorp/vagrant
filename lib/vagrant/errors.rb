@@ -340,6 +340,10 @@ module Vagrant
       error_key(:corrupt_machine_index)
     end
 
+    class CreateIsoHostCapNotFound < VagrantError
+      error_key(:create_iso_host_cap_not_found)
+    end
+
     class DarwinMountFailed < VagrantError
       error_key(:darwin_mount_failed)
     end
