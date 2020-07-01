@@ -47,8 +47,9 @@ module VagrantPlugins
             args += rdp_info[:extra_args] if rdp_info[:extra_args]
           end
 
+          # require "pry-byebug"; binding.pry
           # Finally, run the client.
-          Vagrant::Util::Subprocess.execute(rdp_client, *args)
+          Vagrant::Util::Subprocess.execute(rdp_client, *args, {:detach => true})
         end
       end
     end
