@@ -27,7 +27,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   let(:storage_controllers) { double("storage controllers") }
 
-  let(:controller) { double("controller", name: "controller", limit: 30, storage_bus: "SATA", maxportcount: 30) }
+  let(:controller) { double("controller", name: "controller", limit: 30, sata?: true, maxportcount: 30) }
 
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
                        {port: "1", device: "0", uuid: "67890"}]}
@@ -70,7 +70,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   before do
     allow(Vagrant::Util::Experimental).to receive(:feature_enabled?).and_return(true)
     allow(controller).to receive(:attachments).and_return(attachments)
-    allow(storage_controllers).to receive(:get_controller!).with(name: controller.name).and_return(controller)
+    allow(storage_controllers).to receive(:get_controller).with(controller.name).and_return(controller)
     allow(storage_controllers).to receive(:first).and_return(controller)
     allow(storage_controllers).to receive(:size).and_return(1)
     allow(driver).to receive(:read_storage_controllers).and_return(storage_controllers)
@@ -120,14 +120,14 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
     # hashicorp/bionic64
     context "with more than one storage controller" do
-      let(:controller1) { double("controller1", name: "IDE Controller", storage_bus: "IDE", limit: 4) }
-      let(:controller2) { double("controller2", name: "SATA Controller", storage_bus: "SATA", limit: 30) }
+      let(:controller1) { double("controller1", name: "IDE Controller", limit: 4) }
+      let(:controller2) { double("controller2", name: "SATA Controller", limit: 30) }
 
       before do
         allow(storage_controllers).to receive(:size).and_return(2)
-        allow(storage_controllers).to receive(:get_controller!).with(name: controller1.name).
+        allow(storage_controllers).to receive(:get_controller).with(controller1.name).
           and_return(controller1)
-        allow(storage_controllers).to receive(:get_controller!).with(name: controller2.name).
+        allow(storage_controllers).to receive(:get_controller).with(controller2.name).
           and_return(controller2)
         allow(storage_controllers).to receive(:get_dvd_controller).and_return(controller1)
         allow(storage_controllers).to receive(:get_primary_controller).and_return(controller2)
@@ -373,7 +373,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
 
     context "with empty IDE controller" do
-      let(:empty_controller) { double("controller", storage_bus: "IDE", attachments: [], maxportcount: 2) }
+      let(:empty_controller) { double("controller", ide?: true, sata?: false, attachments: [], maxportcount: 2, devices_per_port: 2) }
 
       it "attaches to port 0, device 0" do
         dsk_info = subject.get_next_port(machine, empty_controller)

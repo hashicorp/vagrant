@@ -4,19 +4,16 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageController do
   include_context "unit"
 
   let(:name) {}
-  let(:type) {}
-  let(:maxportcount) {}
+  let(:type) { "IntelAhci" }
+  let(:maxportcount) { 30 }
   let(:attachments) {}
 
   subject { described_class.new(name, type, maxportcount, attachments) }
 
   describe "#initialize" do
     context "with SATA controller type" do
-      let(:type) { "IntelAhci" }
-      let(:maxportcount) { 30 }
-
       it "recognizes a SATA controller" do
-        expect(subject.storage_bus).to eq('SATA')
+        expect(subject.sata?).to be(true)
       end
 
       it "calculates the maximum number of attachments" do
@@ -29,7 +26,7 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageController do
       let(:maxportcount) { 2 }
 
       it "recognizes an IDE controller" do
-        expect(subject.storage_bus).to eq('IDE')
+        expect(subject.ide?).to be(true)
       end
 
       it "calculates the maximum number of attachments" do
@@ -41,7 +38,8 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageController do
       let(:type) { "foo" }
 
       it "is unknown" do
-        expect(subject.storage_bus).to eq('Unknown')
+        expect(subject.ide?).to be(false)
+        expect(subject.sata?).to be(false)
       end
     end
   end

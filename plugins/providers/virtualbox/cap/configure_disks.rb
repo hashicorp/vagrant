@@ -115,7 +115,7 @@ module VagrantPlugins
         # @return [Hash] - disk_metadata
         def self.handle_configure_disk(machine, disk, all_disks, controller_name)
           storage_controllers = machine.provider.driver.read_storage_controllers
-          controller = storage_controllers.get_controller!(name: controller_name)
+          controller = storage_controllers.get_controller(controller_name)
 
           disk_metadata = {}
 
@@ -164,7 +164,7 @@ module VagrantPlugins
         # @return [Hash] - dvd_metadata
         def self.handle_configure_dvd(machine, dvd, controller_name)
           storage_controllers = machine.provider.driver.read_storage_controllers
-          controller = storage_controllers.get_controller!(name: controller_name)
+          controller = storage_controllers.get_controller(controller_name)
 
           dvd_metadata = {}
 
@@ -189,7 +189,7 @@ module VagrantPlugins
 
             # Refresh the controller information
             storage_controllers = machine.provider.driver.read_storage_controllers
-            controller = storage_controllers.get_controller!(name: controller_name)
+            controller = storage_controllers.get_controller(controller_name)
 
             attachment = controller.attachments.detect { |a| a[:port] == dsk_info[:port] &&
                                                              a[:device] == dsk_info[:device] }
@@ -277,19 +277,19 @@ module VagrantPlugins
         def self.get_next_port(machine, controller)
           dsk_info = {}
 
-          if controller.storage_bus == "SATA"
+          if controller.sata?
             used_ports = controller.attachments.map { |a| a[:port].to_i }
             next_available_port = ((0..(controller.maxportcount - 1)).to_a - used_ports).first
 
             dsk_info[:port] = next_available_port.to_s
             dsk_info[:device] = "0"
-          elsif controller.storage_bus == "IDE"
+          elsif controller.ide?
             # IDE Controllers have primary/secondary devices, so find the first port
             # with an empty device
             (0..(controller.maxportcount - 1)).each do |port|
               # Skip this port if it's full
               port_attachments = controller.attachments.select { |a| a[:port] == port.to_s }
-              next if port_attachments.count == 2
+              next if port_attachments.count == controller.devices_per_port
 
               dsk_info[:port] = port.to_s
 

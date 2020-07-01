@@ -40,7 +40,7 @@ module VagrantPlugins
               LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
               machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_cleanup", name: d["name"]), prefix: true)
 
-              controller = storage_controllers.get_controller!(name: d["controller"])
+              controller = storage_controllers.get_controller(d["controller"])
               attachment = controller.get_attachment(uuid: d["uuid"])
 
               if !attachment
@@ -68,7 +68,7 @@ module VagrantPlugins
               machine.ui.warn("DVD '#{d["name"]}' no longer exists in Vagrant config. Removing medium from guest...", prefix: true)
 
               storage_controllers = machine.provider.driver.read_storage_controllers
-              controller = storage_controllers.get_controller!(name: d["controller"])
+              controller = storage_controllers.get_controller(d["controller"])
               attachment = controller.get_attachment(uuid: d["uuid"])
 
               if !attachment

@@ -4,34 +4,18 @@ module VagrantPlugins
       # A collection of storage controllers. Includes finder methods to look
       # up a storage controller by given attributes.
       class StorageControllerArray < Array
-        SATA_TYPE = "SATA".freeze
-        IDE_TYPE = "IDE".freeze
-        SUPPORTED_TYPES = [SATA_TYPE, IDE_TYPE].freeze
-
         # TODO: hook into ValidateDiskExt capability
         DEFAULT_DISK_EXT = [".vdi", ".vmdk", ".vhd"].map(&:freeze).freeze
 
-        # Get a single controller matching the given options.
-        #
-        # @param [Hash] opts - A hash of attributes to match.
-        # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
-        def get_controller(opts = {})
-          if opts[:name]
-            detect { |c| c.name == opts[:name] }
-          elsif opts[:storage_bus]
-            detect { |c| c.storage_bus == opts[:storage_bus] }
-          end
-        end
-
-        # Get a single controller matching the given options. Raise an
+        # Returns a storage controller with the given name. Raises an
         # exception if a matching controller can't be found.
         #
-        # @param [Hash] opts - A hash of attributes to match.
+        # @param [String] name - The name of the storage controller
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
-        def get_controller!(opts = {})
-          controller = get_controller(opts)
-          if !controller && opts[:name]
-            raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, name: opts[:name]
+        def get_controller(name)
+          controller = detect { |c| c.name == name }
+          if !controller
+            raise Vagrant::Errors::VirtualBoxDisksControllerNotFound, name: name
           end
           controller
         end
@@ -46,15 +30,17 @@ module VagrantPlugins
         def get_primary_controller
           controller = nil
 
-          if !types.any? { |t| SUPPORTED_TYPES.include?(t) }
-            raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers, supported_types: SUPPORTED_TYPES
-          end
-
-          ide_controller = get_controller(storage_bus: IDE_TYPE)
+          ide_controller = detect { |c| c.ide? }
           if ide_controller && ide_controller.attachments.any? { |a| hdd?(a) }
             controller = ide_controller
           else
-            controller = get_controller(storage_bus: SATA_TYPE)
+            controller = detect { |c| c.sata? }
+          end
+
+          if !controller
+            supported_types = StorageController::SATA_CONTROLLER_TYPES + StorageController::IDE_CONTROLLER_TYPES
+            raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers,
+              supported_types: supported_types.join(" ,")
           end
 
           controller
@@ -82,14 +68,12 @@ module VagrantPlugins
         #
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
         def get_dvd_controller
-          controller = nil
+          controller = detect { |c| c.ide? } || detect { |c| c.sata? }
 
-          if types.include?(IDE_TYPE)
-            controller = get_controller(storage_bus: IDE_TYPE)
-          elsif types.include?(SATA_TYPE)
-            controller = get_controller(storage_bus: SATA_TYPE)
-          else
-            raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers, supported_types: SUPPORTED_TYPES
+          if !controller
+            supported_types = StorageController::SATA_CONTROLLER_TYPES + StorageController::IDE_CONTROLLER_TYPES
+            raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers,
+              supported_types: supported_types.join(" ,")
           end
 
           controller
@@ -104,13 +88,6 @@ module VagrantPlugins
         def hdd?(attachment)
           ext = File.extname(attachment[:location].to_s).downcase
           DEFAULT_DISK_EXT.include?(ext)
-        end
-
-        # List of storage controller types.
-        #
-        # @return [Array<String>] types
-        def types
-          map { |c| c.storage_bus }
         end
       end
     end

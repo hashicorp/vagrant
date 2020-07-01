@@ -33,7 +33,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
                        {port: "1", device: "0", uuid: "67890"}]}
 
-  let(:controller) { double("controller", name: "controller", limit: 30, storage_bus: "SATA", maxportcount: 30) }
+  let(:controller) { double("controller", name: "controller", limit: 30, maxportcount: 30) }
 
   let(:storage_controllers) { double("storage controllers") }
 
@@ -42,7 +42,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::CleanupDisks do
     allow(controller).to receive(:get_attachment).with(port: "0", device: "0").and_return(attachments[0])
     allow(controller).to receive(:get_attachment).with(uuid: "12345").and_return(attachments[0])
     allow(controller).to receive(:get_attachment).with(uuid: "67890").and_return(attachments[1])
-    allow(storage_controllers).to receive(:get_controller!).and_return(controller)
+    allow(storage_controllers).to receive(:get_controller).and_return(controller)
     allow(storage_controllers).to receive(:get_primary_controller).and_return(controller)
     allow(storage_controllers).to receive(:get_primary_attachment).and_return(attachments[0])
     allow(driver).to receive(:read_storage_controllers).and_return(storage_controllers)

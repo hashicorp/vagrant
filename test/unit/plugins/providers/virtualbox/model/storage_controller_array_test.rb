@@ -3,8 +3,8 @@ require File.expand_path("../../base", __FILE__)
 describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
   include_context "unit"
 
-  let(:ide_controller) { double("ide_controller", name: "IDE Controller", storage_bus: "IDE") }
-  let(:sata_controller) { double("sata_controller", name: "SATA Controller", storage_bus: "SATA") }
+  let(:ide_controller) { double("ide_controller", name: "IDE Controller", ide?: true, sata?: false) }
+  let(:sata_controller) { double("sata_controller", name: "SATA Controller", sata?: true) }
 
   let(:primary_disk) { {location: "/tmp/primary.vdi"} }
 
@@ -14,21 +14,11 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
 
   describe "#get_controller" do
     it "gets a controller by name" do
-      expect(subject.get_controller(name: "IDE Controller")).to eq(ide_controller)
-    end
-
-    it "gets a controller by storage bus" do
-      expect(subject.get_controller(storage_bus: "SATA")).to eq(sata_controller)
-    end
-  end
-
-  describe "#get_controller!" do
-    it "gets a controller if it exists" do
-      expect(subject.get_controller!(name: "IDE Controller")).to eq(ide_controller)
+      expect(subject.get_controller("IDE Controller")).to eq(ide_controller)
     end
 
     it "raises an exception if a matching storage controller can't be found" do
-      expect { subject.get_controller!(name: "Foo Controller") }.
+      expect { subject.get_controller(name: "Foo Controller") }.
         to raise_error(Vagrant::Errors::VirtualBoxDisksControllerNotFound)
     end
   end
@@ -65,7 +55,8 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
       it "raises an error if the machine doesn't have a SATA or an IDE controller" do
         subject.replace([])
 
-        expect { subject.get_primary_controller }.to raise_error(Vagrant::Errors::VirtualBoxDisksNoSupportedControllers)
+        expect { subject.get_primary_controller }.
+          to raise_error(Vagrant::Errors::VirtualBoxDisksNoSupportedControllers)
       end
     end
   end
@@ -102,12 +93,6 @@ describe VagrantPlugins::ProviderVirtualBox::Model::StorageControllerArray do
     it "raises an exception if no attachment exists at port 0, device 0" do
       allow(sata_controller).to receive(:get_attachment).with(port: "0", device: "0").and_return(nil)
       expect { subject.get_primary_attachment }.to raise_error(Vagrant::Errors::VirtualBoxDisksPrimaryNotFound)
-    end
-  end
-
-  describe "#types" do
-    it "returns a list of storage controller types" do
-      expect(subject.send(:types)).to eq(["IDE", "SATA"])
     end
   end
 end
