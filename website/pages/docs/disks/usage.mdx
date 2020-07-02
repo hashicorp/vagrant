@@ -86,9 +86,10 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-Note: VirtualBox only allows for up to 30 disks to be attached to a given SATA Controller,
-and this number includes the primary disk! Attempting to configure more than 30 will
-result in a Vagrant error.
+Note: VirtualBox has a hard limit on the number of disks that can be attached
+to a given storage controller, which is defined by the controller type.
+Attempting to configure more disks than are supported by the primary
+controller will result in a Vagrant error.
 
 ### Attaching optical drives
 
@@ -106,8 +107,8 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-Note: VirtualBox only allows for up to 4 optical drives to be attached to a
-given IDE controller.
+As with hard disks, configuring more disks than are supported by your VM's
+storage controller arrangement will result in a Vagrant error.
 
 ### Removing Disks
 

@@ -34,9 +34,11 @@ to be applied.
 When new disks are defined to be attached to a guest, Vagrant will attach
 disks to a particular storage controller based on the type of disk configured:
 
-- For the `:disk` type, Vagrant will attach the disk to a guest's SATA
-  controller. It will also create the disk if necessary.
-- For the `:dvd` type, Vagrant will attach the disk to a guest's IDE
+- For the `:disk` type, Vagrant will use the storage controller containing the
+  boot disk. It will also create the disk if necessary.
+- For the `:dvd` type, Vagrant will attach the disk to the storage controller
+  that comes earliest in the machine's boot order. For example, if a VM has a
+  SATA controller and an IDE controller, the disk will be attached to the IDE
   controller.
 
 Vagrant will not be able to configure disks of a given type if the associated

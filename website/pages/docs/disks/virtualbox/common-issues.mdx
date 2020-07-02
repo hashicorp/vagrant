@@ -21,10 +21,21 @@ you should see a list of disks attached to your guest.
 
 ## How many disks can I attach?
 
-Vagrant attaches all new disks defined to a guests SATA Controller. As of VirtualBox 6.1.x,
-SATA Controllers can only support up to **30 disks** per guest. Therefore if you try
-to define and attach more than 30, it will result in an error. This number _includes_
-the primary disk for the guest.
+Vagrant attaches all new disks defined to guest's primary controller. As of
+VirtualBox 6.1.x, storage controllers have the following limits to the number
+of disks that are supported per guest:
+
+- IDE Controllers: 4
+- SATA Controllers: 30
+- SCSI Controllers: 16
+
+Therefore if your primary disk is attached to a SATA Controller and you try to
+define and attach more than 30, it will result in an error. This number
+_includes_ the primary disk for the guest.
+
+DVD attachments are subject to the same limits.  Optical disk attachments will
+be attached to the storage controller with the highest boot priority (usually
+the IDE controller).
 
 ## Resizing VMDK format disks
 
