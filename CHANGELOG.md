@@ -13,6 +13,7 @@ BUG FIXES:
 - commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
 - config/vm: Add option `allow_hosts_modification` to allow/disable Vagrant editing the guests `/etc/hosts` file [GH-11565]
 - config/vm: Add config option `hostname` to `config.vm.network` [GH-11566]
+- config/vm: Don't ignore NFS synced folders on Windows hosts [GH-11631]
 - host: Use regular port check for loopback addresses [GH-11654]
 - guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
 - guest/linux: Add virtual box shared folders to guest fstab [GH-11570]
