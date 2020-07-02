@@ -657,11 +657,6 @@ module VagrantPlugins
             options[:type] = :nfs
           end
 
-          # Ignore NFS on Windows
-          if options[:type] == :nfs && Vagrant::Util::Platform.windows?
-            options.delete(:type)
-          end
-
           if options[:hostpath]  == '.'
             current_dir_shared = true
           end
