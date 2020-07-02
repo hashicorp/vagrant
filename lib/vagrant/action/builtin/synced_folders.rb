@@ -128,6 +128,16 @@ module Vagrant
             # Save the synced folders
             save_synced_folders(env[:machine], original_folders, **save_opts)
           end
+
+          # Persist the mounts by adding them to fstab
+          if env[:machine].guest.capability?(:persist_mount_shared_folder)
+            if !env[:machine].config.vm.allow_fstab_modification
+              fstab_folders = nil
+            else
+              fstab_folders = original_folders
+            end
+            env[:machine].guest.capability(:persist_mount_shared_folder, fstab_folders)
+          end
         end
       end
     end

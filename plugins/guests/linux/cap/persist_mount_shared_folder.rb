@@ -14,32 +14,41 @@ module VagrantPlugins
         # 
         # @param [Machine] machine The machine to run the action on
         # @param [Map<String, Map>] A map of folders to add to fstab
-        # @param [String] mount type, ex. vboxfs, cifs, etc
-        def self.persist_mount_shared_folder(machine, fstab_folders, mount_type)
-          if fstab_folders.empty?
+        def self.persist_mount_shared_folder(machine, folders)
+          if folders.nil?
             self.remove_vagrant_managed_fstab(machine)
             return
           end
 
-          export_folders = fstab_folders.map do |name, data|
-            guest_path = Shellwords.escape(data[:guestpath])
-            case mount_type
-            when "vboxsf"
-              mount_options, mount_uid, mount_gid = vb_mount_options(machine, name, guest_path, data)
-            when "cifs"
-              mount_options, mount_uid, mount_gid = smb_mount_options(machine, data[:smb_id], guest_path, data)
-              name = "//#{data[:smb_host]}/#{data[:smb_id]}"
-              mount_options = "#{mount_options},_netdev"
-
-            end
-            mount_options = "#{mount_options},nofail"
-            {
-              name: name,
-              mount_point: guest_path,
-              mount_type: mount_type,
-              mount_options: mount_options,
+          ssh_info = machine.ssh_info
+          export_folders = folders.map { |type, folder|
+            folder.map { |name, data|
+              data[:owner] ||= ssh_info[:username]
+              data[:group] ||= ssh_info[:username]
+              guest_path = Shellwords.escape(data[:guestpath])
+              case type
+              when :virtualbox
+                mount_options, mount_uid, mount_gid = vb_mount_options(machine, name, guest_path, data)
+                mount_type = "vboxsf"
+              when :smb
+                data[:smb_host] ||= machine.guest.capability(
+                  :choose_addressable_ip_addr, candidate_ips)
+                mount_options, mount_uid, mount_gid = smb_mount_options(machine, data[:smb_id], guest_path, data)
+                name = "//#{data[:smb_host]}/#{data[:smb_id]}"
+                mount_options = "#{mount_options},_netdev"
+                mount_type = "cifs"
+              else
+                next
+              end
+              mount_options = "#{mount_options},nofail"
+              {
+                name: name,
+                mount_point: guest_path,
+                mount_type: mount_type,
+                mount_options: mount_options,
+              }
             }
-          end
+          }.flatten.compact
 
           fstab_entry = Vagrant::Util::TemplateRenderer.render('guests/linux/etc_fstab', folders: export_folders)
           self.remove_vagrant_managed_fstab(machine)

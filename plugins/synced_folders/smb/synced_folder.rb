@@ -139,7 +139,6 @@ module VagrantPlugins
         # This is used for defaulting the owner/group
         ssh_info = machine.ssh_info
 
-        fstab_folders = []
         folders.each do |id, data|
           data[:smb_host] ||= host_ip
 
@@ -155,11 +154,6 @@ module VagrantPlugins
             :mount_smb_shared_folder, data[:smb_id], data[:guestpath], data)
 
           clean_folder_configuration(data)
-          fstab_folders << [id, data]
-        end
-        if machine.guest.capability?(:persist_mount_shared_folder)
-          fstab_folders = [] if !machine.config.vm.allow_fstab_modification
-          machine.guest.capability(:persist_mount_shared_folder, fstab_folders, "cifs")
         end
       end
 
