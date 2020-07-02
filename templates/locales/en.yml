@@ -1687,7 +1687,7 @@ en:
         Vagrant was unable to detect a disk controller with any of the
         following supported types:
 
-        {supported_types}
+        %{supported_types}
 
         Please add one of the supported controller types in order to use the
         disk configuration feature.
