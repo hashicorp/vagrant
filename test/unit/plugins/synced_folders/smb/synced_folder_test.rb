@@ -196,19 +196,16 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
       it "should attempt to install smb on guest" do
         expect(guest).to receive(:capability?).with(:smb_install).and_return(true)
         expect(guest).to receive(:capability).with(:smb_install, any_args)
-        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
         subject.enable(machine, folders, options)
       end
 
       it "should request host IP addresses" do
         expect(host).to receive(:capability).with(:configured_ip_addresses)
-        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
         subject.enable(machine, folders, options)
       end
 
       it "should determine guest accessible address" do
         expect(guest).to receive(:capability).with(:choose_addressable_ip_addr, any_args)
-        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
         subject.enable(machine, folders, options)
       end
 
@@ -219,7 +216,6 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
       end
 
       it "should default owner and group to ssh username" do
-        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
         subject.enable(machine, folders, options)
         expect(folders["/first/path"][:owner]).to eq("sshuser")
         expect(folders["/first/path"][:group]).to eq("sshuser")
@@ -229,7 +225,6 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
 
       it "should set the host address in folder options" do
         expect(guest).to receive(:capability).with(:choose_addressable_ip_addr, any_args).and_return("ADDR")
-        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
         subject.enable(machine, folders, options)
         expect(folders["/first/path"][:smb_host]).to eq("ADDR")
         expect(folders["/second/path"][:smb_host]).to eq("ADDR")
@@ -237,13 +232,11 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
 
       it "should scrub folder configuration" do
         expect(subject).to receive(:clean_folder_configuration).at_least(:once)
-        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
         subject.enable(machine, folders, options)
       end
 
       it "should not persist mounts if setting disabled" do
         machine.config.vm.allow_fstab_modification = false
-        expect(guest).to receive(:capability).with(:persist_mount_shared_folder, [], "cifs")
         subject.enable(machine, folders, options)
       end
 
@@ -252,7 +245,6 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
 
         it "should not update the value" do
           expect(guest).to receive(:capability).with(:choose_addressable_ip_addr, any_args).and_return("OTHER")
-          expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
           subject.enable(machine, folders, options)
           expect(folders["/first/path"][:smb_host]).to eq("ADDR")
           expect(folders["/second/path"][:smb_host]).to eq("OTHER")
@@ -263,7 +255,6 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
         let(:folders){ {"/first/path" => {owner: "smbowner"}, "/second/path" => {group: "smbgroup"}} }
 
         it "should not update set owner or group" do
-          expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
           subject.enable(machine, folders, options)
           expect(folders["/first/path"][:owner]).to eq("smbowner")
           expect(folders["/first/path"][:group]).to eq("sshuser")
@@ -279,7 +270,6 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
         } }
 
         it "should retain non password configuration options" do
-          expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
           subject.enable(machine, folders, options)
           folder1 = folders["/first/path"]
           folder2 = folders["/second/path"]
@@ -290,7 +280,6 @@ describe VagrantPlugins::SyncedFolderSMB::SyncedFolder do
         end
 
         it "should remove the smb_password option when set" do
-          expect(guest).to receive(:capability).with(:persist_mount_shared_folder, any_args, "cifs")
           subject.enable(machine, folders, options)
           expect(folders["/first/path"].key?(:smb_password)).to be_falsey
           expect(folders["/second/path"].key?(:smb_password)).to be_falsey
