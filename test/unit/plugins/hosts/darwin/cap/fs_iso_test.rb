@@ -25,15 +25,15 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
 
     before do 
       allow(file_destination).to receive(:nil?).and_return(false)
-      allow(FileUtils).to receive(:mkdir_p)
     end
 
     it "builds an iso" do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
         "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
+      expect(FileUtils).to receive(:mkdir_p).with(Pathname.new(file_destination).dirname)
 
-      output = subject.create_iso(env, "/foo/src", file_destination: "/woo/out.iso")
+      output = subject.create_iso(env, "/foo/src", file_destination: file_destination)
       expect(output.to_s).to eq("/woo/out.iso")
     end
 
@@ -41,8 +41,9 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
         "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-default-volume-name", "cidata", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
+      expect(FileUtils).to receive(:mkdir_p).with(Pathname.new(file_destination).dirname)
 
-      output = subject.create_iso(env, "/foo/src", file_destination: "/woo/out.iso", volume_id: "cidata")
+      output = subject.create_iso(env, "/foo/src", file_destination: file_destination, volume_id: "cidata")
       expect(output.to_s).to eq("/woo/out.iso")
     end
 
@@ -50,6 +51,8 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
         "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
+      expect(FileUtils).to receive(:mkdir_p).with(Pathname.new("/woo/out_dir"))
+
 
       output = subject.create_iso(env, "/foo/src", file_destination: "/woo/out_dir")
       expect(output.to_s).to match(/\/woo\/out_dir\/[\w]{6}_vagrant.iso/)
@@ -62,6 +65,8 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
       expect(Vagrant::Util::Subprocess).to receive(:execute).with(
         "hdiutil", "makehybrid", "-hfs", "-iso", "-joliet", "-ov", "-o", /.iso/, /\/foo\/src/
       ).and_return(double(exit_code: 0))
+      # Should create a directory wherever Tempfile creates files by default
+      expect(FileUtils).to receive(:mkdir_p).with(Pathname.new(file_destination).dirname)
 
       output = subject.create_iso(env, "/foo/src")
       expect(output.to_s).to eq(file_destination)
@@ -69,7 +74,9 @@ describe VagrantPlugins::HostDarwin::Cap::FsISO do
 
     it "raises an error if iso build failed" do
       allow(Vagrant::Util::Subprocess).to receive(:execute).with(any_args).and_return(double(stdout: "nope", stderr: "nope", exit_code: 1))
-      expect{ subject.create_iso(env, "/foo/src") }.to raise_error(Vagrant::Errors::ISOBuildFailed)
+      expect(FileUtils).to receive(:mkdir_p).with(Pathname.new(file_destination).dirname)
+
+      expect{ subject.create_iso(env, "/foo/src", file_destination: file_destination) }.to raise_error(Vagrant::Errors::ISOBuildFailed)
     end
   end
 end

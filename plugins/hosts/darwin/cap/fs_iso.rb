@@ -48,7 +48,7 @@ module VagrantPlugins
             end
           end
           # Ensure destination directory is available
-          FileUtils.mkdir_p(File.dirname(file_destination.to_s))
+          FileUtils.mkdir_p(file_destination.dirname)
 
           # If the destrination does not exist or there have been changes in the source directory since the last build, then build
           if !file_destination.exist? || Vagrant::Util::Directory.directory_changed?(source_directory, file_destination.mtime)
