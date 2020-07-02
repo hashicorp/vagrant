@@ -27,17 +27,12 @@ module VagrantPlugins
         #
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
         def get_primary_controller
-          controller = nil
-
-          ide_controller = detect { |c| c.ide? }
-          if ide_controller && ide_controller.attachments.any? { |a| hdd?(a) }
-            controller = ide_controller
-          else
-            controller = detect { |c| c.sata? }
+          ordered = sort { |a, b| a.boot_priority <=> b.boot_priority }
+          controller = ordered.detect do |c|
+            c.supported? && c.attachments.any? { |a| hdd?(a) }
           end
 
           if !controller
-            supported_types = StorageController::SATA_CONTROLLER_TYPES + StorageController::IDE_CONTROLLER_TYPES
             raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers,
               supported_types: supported_types.join(" ,")
           end
@@ -62,15 +57,14 @@ module VagrantPlugins
           attachment
         end
 
-        # Find a suitable storage controller for attaching dvds. Will raise an
-        # exception if no suitable controller can be found.
+        # Returns the first supported storage controller for attaching dvds.
+        # Will raise an exception if no suitable controller can be found.
         #
         # @return [VagrantPlugins::ProviderVirtualBox::Model::StorageController]
         def get_dvd_controller
-          controller = detect { |c| c.ide? } || detect { |c| c.sata? }
-
+          ordered = sort { |a, b| a.boot_priority <=> b.boot_priority }
+          controller = ordered.detect { |c| c.supported? }
           if !controller
-            supported_types = StorageController::SATA_CONTROLLER_TYPES + StorageController::IDE_CONTROLLER_TYPES
             raise Vagrant::Errors::VirtualBoxDisksNoSupportedControllers,
               supported_types: supported_types.join(" ,")
           end
@@ -91,6 +85,14 @@ module VagrantPlugins
             ext = File.extname(attachment[:location].to_s).downcase.split('.').last
             VagrantPlugins::ProviderVirtualBox::Cap::ValidateDiskExt.validate_disk_ext(nil, ext)
           end
+        end
+
+        # Returns a list of all the supported controller types.
+        #
+        # @return [Array<String>]
+        def supported_types
+          StorageController::SATA_CONTROLLER_TYPES + StorageController::IDE_CONTROLLER_TYPES +
+            StorageController::SCSI_CONTROLLER_TYPES
         end
       end
     end

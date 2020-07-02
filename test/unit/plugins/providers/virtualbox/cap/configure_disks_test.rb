@@ -27,7 +27,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   let(:storage_controllers) { double("storage controllers") }
 
-  let(:controller) { double("controller", name: "controller", limit: 30, sata?: true, maxportcount: 30) }
+  let(:controller) { double("controller", name: "controller", maxportcount: 30, devices_per_port: 1, limit: 30) }
 
   let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
                        {port: "1", device: "0", uuid: "67890"}]}
@@ -120,8 +120,8 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
     # hashicorp/bionic64
     context "with more than one storage controller" do
-      let(:controller1) { double("controller1", name: "IDE Controller", limit: 4) }
-      let(:controller2) { double("controller2", name: "SATA Controller", limit: 30) }
+      let(:controller1) { double("controller1", name: "IDE Controller", maxportcount: 2, devices_per_port: 2, limit: 4) }
+      let(:controller2) { double("controller2", name: "SATA Controller", maxportcount: 30, devices_per_port: 1, limit: 30) }
 
       before do
         allow(storage_controllers).to receive(:size).and_return(2)
@@ -372,16 +372,43 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       expect(dsk_info[:device]).to eq("0")
     end
 
-    context "with empty IDE controller" do
-      let(:empty_controller) { double("controller", ide?: true, sata?: false, attachments: [], maxportcount: 2, devices_per_port: 2) }
+    context "with IDE controller" do
+      let(:controller) {
+        double("controller", name: "IDE", maxportcount: 2, devices_per_port: 2, limit: 4)
+      }
+
+      let(:attachments) { [] }
 
       it "attaches to port 0, device 0" do
-        dsk_info = subject.get_next_port(machine, empty_controller)
+        dsk_info = subject.get_next_port(machine, controller)
+        expect(dsk_info[:port]).to eq("0")
+        expect(dsk_info[:device]).to eq("0")
+      end
+
+      context "with 1 device" do
+        let(:attachments) { [{port:"0", device: "0"}] }
+
+        it "attaches to the next device on that port" do
+          dsk_info = subject.get_next_port(machine, controller)
+          expect(dsk_info[:port]).to eq("0")
+          expect(dsk_info[:device]).to eq("1")
+        end
+      end
+    end
+
+    context "with SCSI controller" do
+      let(:controller) {
+        double("controller", name: "SCSI", maxportcount: 16, devices_per_port: 1, limit: 16)
+      }
+
+      let(:attachments) { [] }
+
+      it "determines the next available port and device to use" do
+        dsk_info = subject.get_next_port(machine, controller)
         expect(dsk_info[:port]).to eq("0")
         expect(dsk_info[:device]).to eq("0")
       end
     end
-
   end
 
   describe "#resize_disk" do

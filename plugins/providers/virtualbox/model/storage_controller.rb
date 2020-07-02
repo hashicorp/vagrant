@@ -4,11 +4,17 @@ module VagrantPlugins
       # Represents a storage controller for VirtualBox. Storage controllers
       # have a type, a name, and can have hard disks or optical drives attached.
       class StorageController
-        SATA_CONTROLLER_TYPES = ["IntelAhci"].map(&:freeze).freeze
         IDE_CONTROLLER_TYPES = ["PIIX4", "PIIX3", "ICH6"].map(&:freeze).freeze
+        SATA_CONTROLLER_TYPES = ["IntelAhci"].map(&:freeze).freeze
+        SCSI_CONTROLLER_TYPES = [ "LsiLogic", "BusLogic"].map(&:freeze).freeze
 
-        SATA_DEVICES_PER_PORT = 1.freeze
         IDE_DEVICES_PER_PORT = 2.freeze
+        SATA_DEVICES_PER_PORT = 1.freeze
+        SCSI_DEVICES_PER_PORT = 1.freeze
+
+        IDE_BOOT_PRIORITY = 1.freeze
+        SATA_BOOT_PRIORITY = 2.freeze
+        SCSI_BOOT_PRIORITY = 3.freeze
 
         # The name of the storage controller.
         #
@@ -39,6 +45,15 @@ module VagrantPlugins
         # @return [Integer]
         attr_reader :limit
 
+        # The boot priority of the storage controller. This does not seem to
+        # depend on the controller number returned by `showvminfo`.
+        # Experimentation has determined that VirtualBox will try to boot from
+        # the first controller it finds with a hard disk, in this order:
+        #   IDE, SATA, SCSI
+        #
+        # @return [Integer]
+        attr_reader :boot_priority
+
         # The list of disks/ISOs attached to each storage controller.
         #
         # @return [Array<Hash>]
@@ -53,9 +68,15 @@ module VagrantPlugins
           if IDE_CONTROLLER_TYPES.include?(@type)
             @storage_bus = :ide
             @devices_per_port = IDE_DEVICES_PER_PORT
+            @boot_priority = IDE_BOOT_PRIORITY
           elsif SATA_CONTROLLER_TYPES.include?(@type)
             @storage_bus = :sata
             @devices_per_port = SATA_DEVICES_PER_PORT
+            @boot_priority = SATA_BOOT_PRIORITY
+          elsif SCSI_CONTROLLER_TYPES.include?(@type)
+            @storage_bus = :scsi
+            @devices_per_port = SCSI_DEVICES_PER_PORT
+            @boot_priority = SCSI_BOOT_PRIORITY
           else
             @storage_bus = :unknown
             @devices_per_port = 1
@@ -81,6 +102,13 @@ module VagrantPlugins
           end
         end
 
+        # Returns true if the storage controller has a supported type.
+        #
+        # @return [Boolean]
+        def supported?
+          [:ide, :sata, :scsi].include?(@storage_bus)
+        end
+
         # Returns true if the storage controller is a IDE type controller.
         #
         # @return [Boolean]
@@ -93,6 +121,13 @@ module VagrantPlugins
         # @return [Boolean]
         def sata?
           @storage_bus == :sata
+        end
+
+        # Returns true if the storage controller is a SCSI type controller.
+        #
+        # @return [Boolean]
+        def scsi?
+          @storage_bus == :scsi
         end
       end
     end

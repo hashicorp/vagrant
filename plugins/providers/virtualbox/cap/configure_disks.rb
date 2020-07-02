@@ -277,13 +277,13 @@ module VagrantPlugins
         def self.get_next_port(machine, controller)
           dsk_info = {}
 
-          if controller.sata?
+          if controller.devices_per_port == 1
             used_ports = controller.attachments.map { |a| a[:port].to_i }
             next_available_port = ((0..(controller.maxportcount - 1)).to_a - used_ports).first
 
             dsk_info[:port] = next_available_port.to_s
             dsk_info[:device] = "0"
-          elsif controller.ide?
+          elsif controller.devices_per_port == 2
             # IDE Controllers have primary/secondary devices, so find the first port
             # with an empty device
             (0..(controller.maxportcount - 1)).each do |port|
