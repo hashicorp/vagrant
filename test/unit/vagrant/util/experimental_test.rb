@@ -4,7 +4,8 @@ require "vagrant/util/experimental"
 
 describe Vagrant::Util::Experimental do
   include_context "unit"
-  before(:each) { described_class.reset! }
+  before(:all) { described_class.reset! }
+  after(:each) { described_class.reset! }
   subject { described_class }
 
   describe "#enabled?" do
