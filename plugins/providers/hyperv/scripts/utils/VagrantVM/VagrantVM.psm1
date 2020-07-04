@@ -223,6 +223,7 @@ function New-VagrantVMXML {
 
     # Determine if secure boot is enabled
     $SecureBoot = (Select-Xml -XML $VMConfig -XPath "//secure_boot_enabled").Node."#text"
+    $SecureBootTemplate = (Select-Xml -XML $VMConfig -XPath "//secure_boot_template").Node."#text"
 
     $NewVMConfig = @{
         Name = $VMName;
@@ -242,6 +243,9 @@ function New-VagrantVMXML {
     if($Gen -gt 1) {
         if($SecureBoot -eq "True") {
             Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot On
+            if(![System.String]::IsNullOrEmpty($SecureBootTemplate)) {
+                Hyper-V\Set-VMFirmware -VM $VM -SecureBootTemplate $SecureBootTemplate
+            }
         } else {
             Hyper-V\Set-VMFirmware -VM $VM -EnableSecureBoot Off
         }
