@@ -147,7 +147,7 @@ curl $upload_path --request PUT --upload-file virtualbox-1.2.3.box
 # Release the version
 
 curl \
-  --header "Authorization: Bearer \$VAGRANT_CLOUD_TOKEN" \
+  --header "Authorization: Bearer $VAGRANT_CLOUD_TOKEN" \
   https://app.vagrantup.com/api/v1/box/myuser/test/version/1.2.3/release \
   --request PUT
 
