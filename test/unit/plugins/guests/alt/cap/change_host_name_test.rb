@@ -1,14 +1,17 @@
 require_relative "../../../../base"
 
 describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
-  let(:caps) do
+  let(:described_class) do
     VagrantPlugins::GuestALT::Plugin
       .components
       .guest_capabilities[:alt]
+      .get(:change_host_name)
   end
 
   let(:machine) { double("machine") }
   let(:comm) { VagrantTests::DummyCommunicator::Communicator.new(machine) }
+  let(:name) { "banana-rama.example.com" }
+  let(:basename) { "banana-rama" }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
@@ -19,94 +22,54 @@ describe "VagrantPlugins::GuestALT::Cap::ChangeHostName" do
   end
 
   describe ".change_host_name" do
-    let(:cap) { caps.get(:change_host_name) }
-    let(:name) { 'banana-rama.example.com' }
-    let(:systemd) { true }
-    let(:hostnamectl) { true }
-    let(:networkd) { true }
-    let(:service) { true }
-    let(:network_manager) { false }
+    context "minimal network config" do 
+      let(:networks) { [
+        [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}]
+      ] }
 
-    before do
-      allow(cap).to receive(:systemd?).and_return(systemd)
-      allow(cap).to receive(:service?).and_return(service)
-      allow(cap).to receive(:hostnamectl?).and_return(hostnamectl)
-      allow(cap).to receive(:systemd_networkd?).and_return(networkd)
-      allow(cap).to receive(:systemd_controlled?).with(anything, /NetworkManager/).and_return(network_manager)
-    end
+      before do 
+        allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
+      end
 
-    it "sets the hostname if not set" do
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
-      cap.change_host_name(machine, name)
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
-    end
+      it "sets the hostname" do
+        comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
 
-    context "when hostnamectl is in use" do
-      let(:hostnamectl) { true }
+        described_class.change_host_name(machine, name)
+        expect(comm.received_commands[2]).to match(/NEW_HOSTNAME_FULL='#{name}'/)
+      end
 
-      it "sets hostname with hostnamectl" do
-        cap.change_host_name(machine, name)
-        comm.received_commands.find { |cmd| cmd =~ /^hostnamectl/ }
+      it "does not change the hostname if already set" do
+        comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
+
+        described_class.change_host_name(machine, name)
+        expect(comm).to_not receive(:sudo).with(/NEW_HOSTNAME_FULL='#{name}'/)
       end
     end
 
-    context "when hostnamectl is not in use" do
-      let(:hostnamectl) { false }
-
-      it "sets hostname with hostname command" do
-        cap.change_host_name(machine, name)
-        comm.received_commands.find { |cmd| cmd =~ /^hostname -F/ }
-      end
-    end
-
-    context "restarts the network" do
-      context "when networkd is in use" do
-        let(:networkd) { true }
-
-        it "restarts networkd with systemctl" do
-          cap.change_host_name(machine, name)
-          comm.received_commands.find { |cmd| cmd =~ /systemctl restart systemd-networkd/ }
-        end
+    context "multiple networks configured with hostname" do 
+      it "adds a new entry only for the hostname" do 
+        networks = [
+          [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}],
+          [:public_network, {:ip=>"192.168.0.1", :hostname=>true, :protocol=>"tcp", :id=>"93a4ad88-0774-4127-a161-ceb715ff372f"}],
+          [:public_network, {:ip=>"192.168.0.2", :protocol=>"tcp", :id=>"5aebe848-7d85-4425-8911-c2003d924120"}]
+        ]
+        allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
+        expect(described_class).to receive(:replace_host)
+        expect(described_class).to_not receive(:add_hostname_to_loopback_interface)
+        described_class.change_host_name(machine, name)
       end
 
-      context "when NetworkManager is in use with systemctl" do
-        let(:networkd) { false }
-        let(:network_manager) { true }
-
-        it "restarts NetworkManager with systemctl" do
-          cap.change_host_name(machine, name)
-          comm.received_commands.find { |cmd| cmd =~ /systemctl restart NetworkManager/ }
-        end
+      it "appends an entry to the loopback interface" do 
+        networks = [
+          [:forwarded_port, {:guest=>22, :host=>2222, :host_ip=>"127.0.0.1", :id=>"ssh", :auto_correct=>true, :protocol=>"tcp"}],
+          [:public_network, {:ip=>"192.168.0.1", :protocol=>"tcp", :id=>"93a4ad88-0774-4127-a161-ceb715ff372f"}],
+          [:public_network, {:ip=>"192.168.0.2", :protocol=>"tcp", :id=>"5aebe848-7d85-4425-8911-c2003d924120"}]
+        ]
+        allow(machine).to receive_message_chain(:config, :vm, :networks).and_return(networks)
+        expect(described_class).to_not receive(:replace_host)
+        expect(described_class).to receive(:add_hostname_to_loopback_interface).once
+        described_class.change_host_name(machine, name)
       end
-
-      context "when NetworkManager is in use without systemctl" do
-        let(:networkd) { false }
-        let(:network_manager) { true }
-        let(:systemd) { false }
-
-        it "restarts NetworkManager without systemctl" do
-          cap.change_host_name(machine, name)
-          comm.received_commands.find { |cmd| cmd =~ /service NetworkManager restart/ }
-        end
-      end
-
-      context "when systemd is not in use" do
-        let(:networkd) { false }
-        let(:network_manager) { false }
-        let(:systemd) { false }
-
-        it "restarts networking with networking init script" do
-          cap.change_host_name(machine, name)
-          comm.received_commands.find { |cmd| cmd =~ /service networking restart/ }
-        end
-      end
-
-    end
-
-    it "does not change the hostname if already set" do
-      comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 0)
-      cap.change_host_name(machine, name)
-      expect(comm.received_commands.size).to eq(1)
     end
   end
 end
