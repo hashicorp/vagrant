@@ -46,6 +46,12 @@ describe Vagrant::Plugin::V2::Command do
         to raise_error(Vagrant::Errors::CLIInvalidOptions)
     end
 
+    it "raises an error if ambiguous options are given" do
+      instance = klass.new(["-provision"], nil)
+      expect { instance.parse_options(OptionParser.new) }.
+        to raise_error(Vagrant::Errors::CLIInvalidOptions)
+    end
+
     it "raises an error if options without a value are given" do
       opts = OptionParser.new do |o|
         o.on("--provision-with x,y,z", Array, "Example") { |f| }
