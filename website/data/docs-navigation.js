@@ -119,6 +119,7 @@ export default [
       'configuration',
       'usage',
       { category: 'virtualbox', content: ['usage', 'common-issues'] },
+      { category: 'hyperv', content: ['usage', 'common-issues'] },
     ],
   },
   'multi-machine',

@@ -9,8 +9,11 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
 
   subject { described_class.new(type) }
 
+  let(:ui) { double("ui") }
+  let(:env) { double("env", ui: ui) }
   let(:provider) { double("provider") }
-  let(:machine) { double("machine", provider: provider) }
+  let(:machine) { double("machine", name: "name", provider: provider, env: env,
+                         provider_name: :virtualbox) }
 
 
   def assert_invalid
@@ -34,6 +37,8 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
     subject.size = 100
     allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
+    allow(provider).to receive(:capability?).with(:set_default_disk_ext).and_return(true)
+    allow(provider).to receive(:capability).with(:set_default_disk_ext).and_return("vdi")
   end
 
   describe "with defaults" do
@@ -53,8 +58,25 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigDisk do
     end
   end
 
-  describe "defining a new config that needs to match internal restraints" do
-    before do
+  describe "with an invalid config" do
+    let(:invalid_subject) { described_class.new(type) }
+
+    it "raises an error if size not set" do
+      invalid_subject.name = "bar"
+      subject.finalize!
+      assert_invalid
+    end
+
+    context "with an invalid disk extension" do
+      before do
+        allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
+        allow(provider).to receive(:capability).with(:validate_disk_ext, "fake").and_return(false)
+      end
+
+      it "raises an error" do
+        subject.finalize!
+        assert_invalid
+      end
     end
   end
 end

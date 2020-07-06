@@ -218,6 +218,77 @@ module VagrantPlugins
         execute(:set_name, VMID: vm_id, VMName: vmname)
       end
 
+      #
+      # Disk Driver methods
+      #
+
+      # @param [String] controller_type
+      # @param [String] controller_number
+      # @param [String] controller_location
+      # @param [Hash] opts
+      # @option opts [String] :ControllerType
+      # @option opts [String] :ControllerNumber
+      # @option opts [String] :ControllerLocation
+      def attach_disk(disk_file_path,  **opts)
+        execute(:attach_disk_drive, VmId: @vm_id, Path: disk_file_path, ControllerType: opts[:ControllerType],
+                ControllerNumber: opts[:ControllerNumber], ControllerLocation: opts[:ControllerLocation])
+      end
+
+      # @param [String] path
+      # @param [Int] size_bytes
+      # @param [Hash] opts
+      # @option opts [Bool] :Fixed
+      # @option opts [String] :BlockSizeBytes
+      # @option opts [String] :LogicalSectorSizeBytes
+      # @option opts [String] :PhysicalSectorSizeBytes
+      # @option opts [String] :SourceDisk
+      # @option opts [Bool] :Differencing
+      # @option opts [String] :ParentPath
+      def create_disk(path, size_bytes, **opts)
+        execute(:new_vhd, Path: path, SizeBytes: size_bytes, Fixed: opts[:Fixed],
+               BlockSizeBytes: opts[:BlockSizeBytes], LogicalSectorSizeBytes: opts[:LogicalSectorSizeBytes],
+               PhysicalSectorSizeBytes: opts[:PhysicalSectorSizeBytes],
+               SourceDisk: opts[:SourceDisk], Differencing: opts[:Differencing],
+               ParentPath: opts[:ParentPath])
+      end
+
+      # @param [String] disk_file_path
+      def dismount_disk(disk_file_path)
+        execute(:dismount_vhd, DiskFilePath: disk_file_path)
+      end
+
+      # @param [String] disk_file_path
+      def get_disk(disk_file_path)
+        execute(:get_vhd, DiskFilePath: disk_file_path)
+      end
+
+      # @return [Array[Hash]]
+      def list_hdds
+        execute(:list_hdds, VmId: @vm_id)
+      end
+
+      # @param [String] controller_type
+      # @param [String] controller_number
+      # @param [String] controller_location
+      # @param [String] disk_file_path
+      # @param [Hash] opts
+      # @option opts [String] :ControllerType
+      # @option opts [String] :ControllerNumber
+      # @option opts [String] :ControllerLocation
+      def remove_disk(controller_type, controller_number, controller_location, disk_file_path, **opts)
+        execute(:remove_disk_drive, VmId: @vm_id, ControllerType: controller_type,
+                ControllerNumber: controller_number, ControllerLocation: controller_location,
+                DiskFilePath: disk_file_path)
+      end
+
+      # @param [String] path
+      # @param [Int] size_bytes
+      # @param [Hash] opts
+      def resize_disk(disk_file_path, size_bytes, **opts)
+        execute(:resize_disk_drive, VmId: @vm_id, DiskFilePath: disk_file_path,
+                DiskSize: size_bytes)
+      end
+
       protected
 
       def execute_powershell(path, options, &block)
@@ -227,6 +298,7 @@ module VagrantPlugins
         options = options || {}
         ps_options = []
         options.each do |key, value|
+          next if !value || value.to_s.empty?
           next if value == false
           ps_options << "-#{key}"
           # If the value is a TrueClass assume switch

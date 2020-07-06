@@ -2,10 +2,10 @@ require "log4r"
 require "vagrant/util/experimental"
 
 module VagrantPlugins
-  module ProviderVirtualBox
+  module HyperV
     module Cap
       module CleanupDisks
-        LOGGER = Log4r::Logger.new("vagrant::plugins::virtualbox::cleanup_disks")
+        LOGGER = Log4r::Logger.new("vagrant::plugins::hyperv::cleanup_disks")
 
         # @param [Vagrant::Machine] machine
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
@@ -25,26 +25,26 @@ module VagrantPlugins
         # @param [VagrantPlugins::Kernel_V2::VagrantConfigDisk] defined_disks
         # @param [Hash] disk_meta - A hash of all the previously defined disks from the last configure_disk action
         def self.handle_cleanup_disk(machine, defined_disks, disk_meta)
-          vm_info = machine.provider.driver.show_vm_info
-          primary_disk = vm_info["SATA Controller-ImageUUID-0-0"]
+          all_disks = machine.provider.driver.list_hdds
 
           disk_meta.each do |d|
-            dsk = defined_disks.select { |dk| dk.name == d["name"] }
-            if !dsk.empty? || d["uuid"] == primary_disk
+            # look at Path instead of Name or UUID
+            disk_name  = File.basename(d["Path"], '.*')
+            dsk = defined_disks.select { |dk| dk.name == disk_name }
+
+            if !dsk.empty? || d["primary"] == true
               next
             else
-              LOGGER.warn("Found disk not in Vagrantfile config: '#{d["name"]}'. Removing disk from guest #{machine.name}")
-              disk_info = machine.provider.driver.get_port_and_device(d["uuid"])
+              LOGGER.warn("Found disk not in Vagrantfile config: '#{d["Name"]}'. Removing disk from guest #{machine.name}")
 
-              machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_cleanup", name: d["name"]), prefix: true)
+              machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_cleanup", name: d["Name"]), prefix: true)
 
-              if disk_info.empty?
-                LOGGER.warn("Disk '#{d["name"]}' not attached to guest, but still exists.")
+              disk_actual = all_disks.select { |a| File.realdirpath(a["Path"]) == File.realdirpath(d["Path"]) }.first
+              if !disk_actual
+                machine.ui.warn(I18n.t("vagrant.cap.cleanup_disks.disk_not_found", name: d["Name"]), prefix: true)
               else
-                machine.provider.driver.remove_disk(disk_info[:port], disk_info[:device])
+                machine.provider.driver.remove_disk(disk_actual["ControllerType"], disk_actual["ControllerNumber"], disk_actual["ControllerLocation"], disk_actual["Path"])
               end
-
-              machine.provider.driver.close_medium(d["uuid"])
             end
           end
         end
