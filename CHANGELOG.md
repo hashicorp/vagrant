@@ -2,6 +2,8 @@
 
 FEATURES:
 
+- hyperv/disks: Add ability to manage virtual disks for guests [GH-11541]
+
 IMPROVEMENTS:
 
 BUG FIXES:
