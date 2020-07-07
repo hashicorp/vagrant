@@ -6,6 +6,8 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- host/darwin: Add ability to build ISO [GH-11694]
+
 BUG FIXES:
 
 - core: Ensure MapCommandOptions class is required [GH-11629]
