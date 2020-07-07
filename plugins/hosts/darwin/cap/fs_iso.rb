@@ -1,8 +1,4 @@
-require "tempfile"
-require 'fileutils'
-require 'pathname'
-require "vagrant/util/subprocess"
-require "vagrant/util/directory"
+require "pathname"
 require "vagrant/util/caps"
 
 module VagrantPlugins
@@ -27,25 +23,15 @@ module VagrantPlugins
         #       for recent modifications and a new ISO will be generated if requried.
         def self.create_iso(env, source_directory, **extra_opts)
           source_directory = Pathname.new(source_directory)
-          file_destination = self.ensure_file_destination(extra_opts[:file_destination])
-          
-          # If the destrination does not exist or there have been changes in the source directory since the last build, then build
-          if !file_destination.exist? || Vagrant::Util::Directory.directory_changed?(source_directory, file_destination.mtime)
-            @@logger.info("Building ISO from source #{source_directory}")
-            iso_command = [BUILD_ISO_CMD, "makehybrid"]
-            iso_command << "-hfs"
-            iso_command << "-iso"
-            iso_command << "-joliet"
-            iso_command << "-ov"
-            iso_command.concat(["-default-volume-name", extra_opts[:volume_id]]) if extra_opts[:volume_id]
-            iso_command << "-o"
-            iso_command << file_destination.to_s
-            iso_command << source_directory.to_s
-            result = Vagrant::Util::Subprocess.execute(*iso_command)
-            if result.exit_code != 0
-              raise Vagrant::Errors::ISOBuildFailed, cmd: iso_command.join(" "), stdout: result.stdout, stderr: result.stderr
-            end
-          end
+          file_destination = self.ensure_output_iso(extra_opts[:file_destination])
+
+          iso_command = [BUILD_ISO_CMD, "makehybrid", "-hfs", "-iso", "-joliet", "-ov"]
+          iso_command.concat(["-default-volume-name", extra_opts[:volume_id]]) if extra_opts[:volume_id]
+          iso_command << "-o"
+          iso_command << file_destination.to_s
+          iso_command << source_directory.to_s
+          self.build_iso(iso_command, source_directory, file_destination)
+
           @@logger.info("ISO available at #{file_destination}")
           file_destination
         end

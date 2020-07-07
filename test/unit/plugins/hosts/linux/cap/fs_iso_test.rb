@@ -13,11 +13,6 @@ describe VagrantPlugins::HostLinux::Cap::FsISO do
       expect(Vagrant::Util::Which).to receive(:which).and_return(true)
       expect(subject.isofs_available(env)).to eq(true)
     end
-
-    it "does not find iso building utility when not available" do
-      expect(Vagrant::Util::Which).to receive(:which).and_return(false)
-      expect(subject.isofs_available(env)).to eq(false)
-    end
   end
 
   describe ".create_iso" do
