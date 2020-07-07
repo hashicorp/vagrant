@@ -1,4 +1,5 @@
 require "vagrant/util/directory"
+require "vagrant/util/subprocess"
 
 module Vagrant
   module Util
