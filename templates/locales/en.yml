@@ -942,6 +942,18 @@ en:
         ("%{value}") could not be found. Please verify that the plugin is
         installed which implements this host and that the value you used
         for `config.vagrant.host` is correct.
+      iso_build_failed: |-
+        Failed to build iso image. The following command returned an error:
+
+        %{cmd}
+        
+        Stdout from the command:
+
+        %{stdout}
+
+        Stderr from the command:
+
+        %{stderr}
       hyperv_virtualbox_error: |-
         Hyper-V and VirtualBox cannot be used together and will result in a
         system crash. Vagrant will now exit. Please disable Hyper-V if you wish
