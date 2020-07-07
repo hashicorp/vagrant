@@ -2,24 +2,18 @@ require "tempfile"
 require 'fileutils'
 require 'pathname'
 require "vagrant/util/subprocess"
-require "vagrant/util/map_command_options"
 require "vagrant/util/directory"
+require "vagrant/util/caps"
 
 module VagrantPlugins
   module HostDarwin
     module Cap
       class FsISO
+        extend Vagrant::Util::Caps::BuildISO
+        
         @@logger = Log4r::Logger.new("vagrant::host::darwin::fs_iso")
 
         BUILD_ISO_CMD = "hdiutil".freeze
-
-        # Check that the host has the ability to generate ISOs
-        #
-        # @param [Vagrant::Environment] env
-        # @return [Boolean]
-        def self.isofs_available(env)
-          !!Vagrant::Util::Which.which(BUILD_ISO_CMD)
-        end
 
         # Generate an ISO file of the given source directory
         #
@@ -32,24 +26,9 @@ module VagrantPlugins
         # @note If file_destination exists, source_directory will be checked
         #       for recent modifications and a new ISO will be generated if requried.
         def self.create_iso(env, source_directory, **extra_opts)
-          file_destination = extra_opts[:file_destination]
           source_directory = Pathname.new(source_directory)
-          if file_destination.nil?
-            @@logger.info("No file destination specified, creating temp location")
-            tmpfile = Tempfile.new(["vagrant", ".iso"])
-            file_destination = Pathname.new(tmpfile.path)
-            tmpfile.delete
-          else
-            file_destination = Pathname.new(file_destination.to_s)
-            # If the file destination path is a folder, target the output to a randomly named
-            # file in that dir
-            if file_destination.extname != ".iso"
-              file_destination = file_destination.join("#{SecureRandom.hex(3)}_vagrant.iso")
-            end
-          end
-          # Ensure destination directory is available
-          FileUtils.mkdir_p(file_destination.dirname)
-
+          file_destination = self.ensure_file_destination(extra_opts[:file_destination])
+          
           # If the destrination does not exist or there have been changes in the source directory since the last build, then build
           if !file_destination.exist? || Vagrant::Util::Directory.directory_changed?(source_directory, file_destination.mtime)
             @@logger.info("Building ISO from source #{source_directory}")
@@ -63,12 +42,10 @@ module VagrantPlugins
             iso_command << file_destination.to_s
             iso_command << source_directory.to_s
             result = Vagrant::Util::Subprocess.execute(*iso_command)
-            
             if result.exit_code != 0
               raise Vagrant::Errors::ISOBuildFailed, cmd: iso_command.join(" "), stdout: result.stdout, stderr: result.stderr
             end
           end
-
           @@logger.info("ISO available at #{file_destination}")
           file_destination
         end
