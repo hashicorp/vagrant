@@ -12,6 +12,8 @@ jobs:
     runs-on: self-hosted
     name: Build Packet Instance
     steps:
+      - name: Code Checkout
+        uses: actions/checkout@v1
       - name: Create packet instance
         run: ./.ci/spec/create-packet.sh
         working-directory: ${{github.workspace}}
