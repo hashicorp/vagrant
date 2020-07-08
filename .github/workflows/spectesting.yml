@@ -13,7 +13,7 @@ jobs:
     name: Build Packet Instance
     steps:
       - name: Create packet instance
-        run: .ci/spec/create-packet.sh
+        run: ./.ci/spec/create-packet.sh
         working-directory: ${{github.workspace}}
 
   setup-hosts:
@@ -29,7 +29,7 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v1
       - name: Create packet host for tests
-        run: .ci/spec/create-hosts.sh
+        run: ./.ci/spec/create-hosts.sh
         working-directory: ${{github.workspace}}
         env:
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
@@ -46,7 +46,7 @@ jobs:
         guest_os: ['hashicorp-vagrant/ubuntu-16.04']
     steps:
       - name: Run Tests with host ${{ matrix.host_os }} using guest ${{ matrix.guest_os }}
-        run: .ci/spec/run-test.sh
+        run: ./.ci/spec/run-test.sh
         working-directory: ${{github.workspace}}
         env:
           VAGRANT_HOST_BOXES: ${{matrix.host_os}}
@@ -60,7 +60,7 @@ jobs:
     steps:
       - name: Clean Packet
         if: always()
-        run: .ci/spec/clean-packet.sh
+        run: ./.ci/spec/clean-packet.sh
       - name: Clean Workspace
         if: always()
         run: rm -rf ${{ github.workspace }}
