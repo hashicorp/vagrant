@@ -1,4 +1,5 @@
 require_relative "util/ssh"
+require_relative "synced_folder"
 
 require "digest/md5"
 require "thread"
@@ -614,6 +615,25 @@ module Vagrant
           @ui = old_ui
         end
       end
+    end
+
+    # Returns the SyncedFolder object associated with this machine.
+    #
+    # @return [Class]
+    def synced_folders
+      return @synced_folders if defined?(@synced_folders)
+      @synced_folders = @config.vm.synced_folders.map { |id, opts|
+        if opts[:type]
+          SyncedFolder.new(
+            opts[:type],
+            Vagrant.plugin("2").manager.synced_folders,
+            Vagrant.plugin("2").manager.synced_folder_capabilities,
+            self)
+          else
+            nil
+          end
+      }.compact
+      @synced_folders
     end
 
     protected

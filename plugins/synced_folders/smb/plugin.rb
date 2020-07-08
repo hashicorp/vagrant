@@ -23,6 +23,11 @@ module VagrantPlugins
         SyncedFolder
       end
 
+      synced_folder_capability("smb", "default_fstab_modification") do
+        require_relative "cap/default_fstab_modification"
+        Cap::DefaultFstabModification
+      end
+
       protected
 
       def self.init!
