@@ -51,7 +51,7 @@ in the Vagrantfile as part of the `vagrant up` or `vagrant reload` process.
 
 A hostname may be defined for a Vagrant VM using the `config.vm.hostname`
 setting. By default, this will modify `/etc/hosts`, adding the hostname
-on a loopback interface that is not in use.  For example:
+on a loopback interface that is not in use. For example:
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -60,7 +60,7 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-will add the entry `127.0.X.1  myhost myhost.local` to `/etc/hosts`. 
+will add the entry `127.0.X.1 myhost myhost.local` to `/etc/hosts`.
 
 A public or private network with an assigned IP may be flagged for hostname.
 In this case, the hostname will be added to the flagged network. Note, that
@@ -76,4 +76,4 @@ Vagrant.configure("2") do |config|
 end
 ```
 
-will add the entry `192.168.0.1  myhost myhost.local` to `/etc/hosts`.
+will add the entry `192.168.0.1 myhost myhost.local` to `/etc/hosts`.
