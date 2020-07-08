@@ -27,7 +27,7 @@ export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 
 echo "Running vagrant spec tests..."
 # Need to make memory customizable for windows hosts
-pkt_wrap_stream "vagrant provision --provider vmware_desktop" \
+pkt_wrap_stream "vagrant provision" \
                 "Vagrant Blackbox testing command failed"
 
 
