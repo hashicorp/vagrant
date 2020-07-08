@@ -9,7 +9,7 @@ class Log4r::BasicFormatter
   end
 end
 
-# testing 123
+# testing 1234
 
 require "optparse"
 
