@@ -24,7 +24,8 @@ export PKT_VAGRANT_VAGRANTFILE=Vagrantfile.spec
 ###
 
 # Grab vagrant-spec gem and place inside root dir of Vagrant repo
-aws s3 cp "${ASSETS_PRIVATE_BUCKET}/vagrant-spec/vagrant-spec.gem" "vagrant-spec.gem"
+wrap aws s3 cp "${ASSETS_PRIVATE_BUCKET}/vagrant-spec/vagrant-spec.gem" "vagrant-spec.gem" \
+  "Failed to download the vagrant-spec gem"
 ###
 
 # Run the job
