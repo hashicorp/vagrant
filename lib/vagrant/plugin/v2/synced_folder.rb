@@ -3,6 +3,8 @@ module Vagrant
     module V2
       # This is the base class for a synced folder implementation.
       class SyncedFolder
+        include CapabilityHost
+
         # This is called early when the synced folder is set to determine
         # if this implementation can be used for this machine. This should
         # return true or false.
@@ -53,6 +55,12 @@ module Vagrant
         # @param [Machine] machine
         # @param [Hash] opts
         def cleanup(machine, opts)
+        end
+
+        def _initialize(machine, synced_folder_type)
+          plugins = Vagrant.plugin("2").manager.synced_folders
+          capabilities = Vagrant.plugin("2").manager.synced_folder_capabilities
+          initialize_capabilities!(synced_folder_type, plugins, capabilities, machine)
         end
       end
     end
