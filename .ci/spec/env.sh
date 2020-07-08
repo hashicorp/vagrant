@@ -11,5 +11,7 @@ export PACKET_EXEC_OPERATING_SYSTEM="${PACKET_EXEC_OPERATING_SYSTEM:-ubuntu_18_0
 export PACKET_EXEC_PRE_BUILTINS="${PACKET_EXEC_PRE_BUILTINS:-InstallVagrant,InstallVirtualBox,InstallVmware,InstallVagrantVmware}"
 export PACKET_EXEC_QUIET="1"
 export PACKET_EXEC_PERSIST="1"
+# job_id is provided by common.sh
+export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
 export PKT_VAGRANT_CLOUD_TOKEN="${VAGRANT_CLOUD_TOKEN}"
 ###

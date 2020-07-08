@@ -11,9 +11,6 @@ pushd "${root}" > "${output}"
 
 # Assumes packet is already set up
 
-# job_id is provided by common.sh
-export PACKET_EXEC_REMOTE_DIRECTORY="${job_id}"
-
 # spec test configuration, defined by action runners, used by Vagrant on packet
 export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
 export PKT_VAGRANT_GUEST_BOXES="${VAGRANT_GUEST_BOXES}"
