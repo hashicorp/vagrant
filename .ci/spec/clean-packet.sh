@@ -11,6 +11,7 @@ pushd "${root}" > "${output}"
 
 echo "Cleaning up packet device..."
 
+unset PACKET_EXEC_PERSIST
 export PKT_VAGRANT_HOST_BOXES="${VAGRANT_HOST_BOXES}"
 export PKT_VAGRANT_GUEST_BOXES="${VAGRANT_GUEST_BOXES}"
 export PKT_VAGRANT_CWD="test/vagrant-spec/"
