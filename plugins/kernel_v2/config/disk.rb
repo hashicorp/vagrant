@@ -172,7 +172,7 @@ module VagrantPlugins
           end
         end
 
-        if !@size
+        if !@size && type == :disk
           errors << I18n.t("vagrant.config.disk.invalid_size", name: @name, machine: machine.name)
         end
 
