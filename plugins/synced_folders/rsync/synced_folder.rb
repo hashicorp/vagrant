@@ -54,6 +54,10 @@ module VagrantPlugins
       def self.wsl_allow_non_drvfs?
         true
       end
+
+      def default_synced_folder_type
+        return :rsync
+      end
     end
   end
 end

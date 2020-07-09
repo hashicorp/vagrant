@@ -1,5 +1,4 @@
 require_relative "util/ssh"
-require_relative "synced_folder"
 
 require "digest/md5"
 require "thread"
@@ -11,6 +10,8 @@ module Vagrant
   # API for querying the state and making state changes to the machine, which
   # is backed by any sort of provider (VirtualBox, VMware, etc.).
   class Machine
+    extend Vagrant::Action::Builtin::MixinSyncedFolders
+
     # The box that is backing this machine.
     #
     # @return [Box]
@@ -619,17 +620,17 @@ module Vagrant
 
     # Returns the SyncedFolder object associated with this machine.
     #
-    # @return [Class]
-    def synced_folders
-      return @synced_folders if defined?(@synced_folders)
-      @synced_folders = @config.vm.synced_folders.map { |id, opts|
-        SyncedFolder.new(
-          opts[:type],
-          Vagrant.plugin("2").manager.synced_folders,
-          Vagrant.plugin("2").manager.synced_folder_capabilities,
-          self)
-      }.compact
-      @synced_folders
+    # @return [List<Class>]
+    def synced_folder_types
+      return @synced_folder_types if defined?(@synced_folder_types)
+      plugins = Vagrant.plugin("2").manager.synced_folders
+      synced_folders = Machine.synced_folders(self)
+      @synced_folder_types = synced_folders.map do |type, folders|
+        impl = plugins[type][0].new()
+        impl._initialize(self)
+        impl
+      end
+      @synced_folder_types
     end
 
     protected

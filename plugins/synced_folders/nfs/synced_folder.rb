@@ -122,6 +122,10 @@ module VagrantPlugins
         machine.env.host.capability(:nfs_prune, machine.ui, ids)
       end
 
+      def default_synced_folder_type
+        return :nfs
+      end
+
       protected
 
       def prepare_folder(machine, opts)

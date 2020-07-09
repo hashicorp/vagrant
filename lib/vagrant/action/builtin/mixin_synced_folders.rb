@@ -142,7 +142,6 @@ module Vagrant
                 # should catch this case. But we put this here as an assert
                 raise "Internal error. Report this as a bug. Invalid: #{data[:type]}"
               end
-
               if !opts[:disable_usable_check]
                 if !impl_class[0].new.usable?(machine, true)
                   # Verify that explicitly defined shared folder types are

@@ -170,6 +170,10 @@ module VagrantPlugins
         end
       end
 
+      def default_synced_folder_type
+        return :smb
+      end
+
       protected
 
       # Remove data that should not be persisted within folder
