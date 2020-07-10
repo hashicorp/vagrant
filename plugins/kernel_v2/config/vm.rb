@@ -724,11 +724,13 @@ module VagrantPlugins
         errors = _detected_errors
 
         if @allow_fstab_modification == UNSET_VALUE
-          machine.synced_folder_types.each do |type|
-            if type.capability?(:default_fstab_modification)
-              if type.capability(:default_fstab_modification) == false
-                @allow_fstab_modification = false
-                break
+          machine.synced_folders.each do |_, f|
+            f.each do |_, folder|
+              if folder[:impl].capability?(:default_fstab_modification)
+                if folder[:impl].capability(:default_fstab_modification) == false
+                  @allow_fstab_modification = false
+                  break
+                end
               end
             end
           end
