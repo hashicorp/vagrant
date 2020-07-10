@@ -724,7 +724,6 @@ module VagrantPlugins
         errors = _detected_errors
 
         if @allow_fstab_modification == UNSET_VALUE
-          # require "pry-byebug"; binding.pry
           machine.synced_folder_types.each do |type|
             if type.capability?(:default_fstab_modification)
               if type.capability(:default_fstab_modification) == false

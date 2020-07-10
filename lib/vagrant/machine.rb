@@ -627,7 +627,7 @@ module Vagrant
       synced_folders = Machine.synced_folders(self)
       @synced_folder_types = synced_folders.map do |type, folders|
         impl = plugins[type][0].new()
-        impl._initialize(self)
+        impl._initialize(self, type)
         impl
       end
       @synced_folder_types

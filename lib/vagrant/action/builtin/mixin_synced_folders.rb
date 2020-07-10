@@ -172,7 +172,6 @@ module Vagrant
               types = plugins.to_hash.keys.map { |t| t.to_s }.sort.join(", ")
               raise Errors::NoDefaultSyncedFolderImpl, types: types
             end
-
             folders[default_impl] ||= {}
             folders[default_impl].merge!(folders[""])
             folders.delete("")
@@ -187,6 +186,12 @@ module Vagrant
             end
 
             folders[impl_name] = new_fs
+          end
+
+          folders.each do |impl_name, fs|
+            fs.each do |id, data|
+              data[:impl] = plugins[impl_name][0].new()
+            end
           end
 
           return folders
