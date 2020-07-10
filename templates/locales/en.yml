@@ -1678,11 +1678,30 @@ en:
         4.2.14 contains a critical bug which prevents it from working with
         Vagrant. VirtualBox 4.2.16+ fixes this problem. Please upgrade
         VirtualBox.
-      virtualbox_disks_defined_exceed_limit: |-
-        VirtualBox only allows up to 30 disks to be attached to a single guest using the SATA Controller,
-        including the primray disk.
+      virtualbox_disks_controller_not_found: |-
+        Vagrant expected to find a storage controller called '%{name}',
+        but there is no controller with this name attached to the current VM.
+        If you have changed or removed any storage controllers, please restore
+        them to their previous configuration.
+      virtualbox_disks_no_supported_controllers: |-
+        Vagrant was unable to detect a disk controller with any of the
+        following supported types:
 
-        Please ensure only up to 30 disks are configured for your guest.
+        %{supported_types}
+
+        Please add one of the supported controller types in order to use the
+        disk configuration feature.
+      virtualbox_disks_defined_exceed_limit: |-
+        VirtualBox only allows up to %{limit} disks to be attached to the
+        storage controller '%{name}'. Please remove some disks from your disk
+        configuration, or attach a new storage controller.
+      virtualbox_disks_primary_not_found: |-
+        Vagrant was not able to detect a primary disk attached to the main
+        controller. Vagrant Disks requires that the primary disk be attached
+        to the first port of the main controller in order to manage it.
+      virtualbox_disks_unsupported_controller: |-
+        An disk operation was attempted on the controller '%{controller_name}',
+        but Vagrant doesn't support this type of disk controller.
       virtualbox_guest_property_not_found: |-
         Could not find a required VirtualBox guest property:
           %{guest_property}
@@ -1844,6 +1863,11 @@ en:
 #-------------------------------------------------------------------------------
     config:
       disk:
+        dvd_type_file_required:
+          A 'file' option is required when defining a disk of type ':dvd' for guest '%{machine}'.
+        dvd_type_primary: |-
+          Disks of type ':dvd' cannot be defined as a primary disks. Please
+          remove the 'primary' argument for disk '%{name}' on guest '%{machine}'.
         invalid_ext: |-
           Disk type '%{ext}' is not a valid disk extention for '%{name}'. Please pick one of the following supported disk types: %{exts}
         invalid_type: |-
@@ -1970,8 +1994,20 @@ en:
           Ignoring provider config for validation...
         multiple_primary_disks_error: |-
           There are more than one primary disks defined for guest '%{name}'. Please ensure that only one disk has been defined as a primary disk.
+        multiple_disk_files_error: |-
+          The following disk files are used multiple times in the disk
+          configuration for the VM '%{name}':
+
+          %{disk_files}
+
+          Each disk file may only be attached to a VM once.
         multiple_disk_names_error: |-
-          Duplicate disk names defined: '%{name}'. Disk names must be unique.
+          The following disks names are defined multiple times in the disk
+          configuration for the VM '%{name}':
+
+          %{disk_names}
+
+          Disk names must be unique.
         multiple_networks_set_hostname: "Multiple networks have set `:hostname`"
         name_invalid: |-
           The sub-VM name '%{name}' is invalid. Please don't use special characters.
@@ -2231,7 +2267,6 @@ en:
       configure_disks:
         start: "Configuring storage mediums..."
         floppy_not_supported: "Floppy disk configuration not yet supported. Skipping disk '%{name}'..."
-        dvd_not_supported: "DVD disk configuration not yet supported. Skipping disk '%{name}'..."
         shrink_size_not_supported: |-
           VirtualBox does not support shrinking disk sizes. Cannot shrink '%{name}' disks size.
         create_disk: |-

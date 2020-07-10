@@ -41,7 +41,8 @@ module VagrantPlugins
       # @return [Integer,String]
       attr_accessor :size
 
-      # Path to the location of the disk file (Optional)
+      # Path to the location of the disk file (Optional for `:disk` type,
+      # required for `:dvd` type.)
       #
       # @return [String]
       attr_accessor :file
@@ -171,10 +172,17 @@ module VagrantPlugins
           end
         end
 
-        if !@size
+        if !@size && type == :disk
           errors << I18n.t("vagrant.config.disk.invalid_size", name: @name, machine: machine.name)
         end
 
+        if @type == :dvd && !@file
+          errors << I18n.t("vagrant.config.disk.dvd_type_file_required", name: @name, machine: machine.name)
+        end
+
+        if @type == :dvd && @primary
+          errors << I18n.t("vagrant.config.disk.dvd_type_primary", name: @name, machine: machine.name)
+        end
 
         if @file
           if !@file.is_a?(String)

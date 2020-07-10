@@ -8,7 +8,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   subject { described_class.new }
 
   let(:provider) { double("provider") }
-  let(:machine) { double("machine", provider: provider, provider_name: "provider") }
+  let(:machine) { double("machine", provider: provider, provider_name: "provider", name: "default") }
 
   def assert_invalid
     errors = subject.validate(machine)
@@ -618,6 +618,14 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     it "raises an error with duplicate names" do
       subject.disk(:disk, size: 100, name: "foo")
       subject.disk(:disk, size: 1000, name: "foo", primary: false)
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "raises an error with duplicate disk files" do
+      allow(File).to receive(:file?).with("bar.vmdk").and_return(true)
+      subject.disk(:disk, size: 100, name: "foo1", file: "bar.vmdk")
+      subject.disk(:disk, size: 100, name: "foo2", file: "bar.vmdk")
       subject.finalize!
       assert_invalid
     end
