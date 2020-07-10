@@ -31,8 +31,8 @@ module VagrantPlugins
       end
 
       guest_capability(:solaris11, :shell_expand_guest_path) do
-        require_relative "cap/shell_expand_guest_path"
-        Cap::ShellExpandGuestPath
+        require_relative "../linux/cap/shell_expand_guest_path"
+        VagrantPlugins::GuestLinux::Cap::ShellExpandGuestPath
       end
     end
   end
