@@ -7,6 +7,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - host/darwin: Add ability to build ISO [GH-11694]
+- virtualbox/disks: Add ability to manage virtual dvds for guests [GH-11613]
 
 BUG FIXES:
 
