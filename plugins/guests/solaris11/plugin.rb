@@ -29,6 +29,11 @@ module VagrantPlugins
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
       end
+
+      guest_capability(:solaris11, :shell_expand_guest_path) do
+        require_relative "cap/shell_expand_guest_path"
+        Cap::ShellExpandGuestPath
+      end
     end
   end
 end
