@@ -16,7 +16,7 @@ module Vagrant
         end
 
         def call(env)
-          folders = synced_folders(env[:machine])
+          folders = env[:machine].synced_folders
 
           # Go through each folder and do cleanup
           folders.each_key do |impl_name|

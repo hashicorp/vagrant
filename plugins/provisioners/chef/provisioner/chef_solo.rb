@@ -5,7 +5,6 @@ require "set"
 require "log4r"
 
 require "vagrant/util/counter"
-require "vagrant/action/builtin/mixin_synced_folders"
 
 require_relative "base"
 
@@ -16,7 +15,6 @@ module VagrantPlugins
       class ChefSolo < Base
         extend Vagrant::Util::Counter
         include Vagrant::Util::Counter
-        include Vagrant::Action::Builtin::MixinSyncedFolders
 
         attr_reader :environments_folders
         attr_reader :cookbook_folders
@@ -37,7 +35,7 @@ module VagrantPlugins
           @environments_folders = expanded_folders(@config.environments_path, "environments")
           @node_folders = expanded_folders(@config.nodes_path, "nodes")
 
-          existing = synced_folders(@machine, cached: true)
+          existing = @machine.synced_folders(cached: true)
           share_folders(root_config, "csc", @cookbook_folders, existing)
           share_folders(root_config, "csr", @role_folders, existing)
           share_folders(root_config, "csdb", @data_bags_folders, existing)

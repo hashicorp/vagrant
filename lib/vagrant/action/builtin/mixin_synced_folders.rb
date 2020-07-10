@@ -1,46 +1,10 @@
 require "json"
 require "set"
 
-require 'vagrant/util/scoped_hash_override'
-
 module Vagrant
   module Action
     module Builtin
       module MixinSyncedFolders
-        include Vagrant::Util::ScopedHashOverride
-
-        # This goes over all the registered synced folder types and returns
-        # the highest priority implementation that is usable for this machine.
-        def default_synced_folder_type(machine, plugins)
-          ordered = []
-
-          # First turn the plugins into an array
-          plugins.each do |key, data|
-            impl     = data[0]
-            priority = data[1]
-
-            ordered << [priority, key, impl]
-          end
-
-          # Order the plugins by priority. Higher is tried before lower.
-          ordered = ordered.sort { |a, b| b[0] <=> a[0] }
-
-          allowed_types = machine.config.vm.allowed_synced_folder_types
-          if allowed_types
-            ordered = allowed_types.map do |type|
-              ordered.find do |_, key, impl|
-                key == type
-              end
-            end.compact
-          end
-
-          # Find the proper implementation
-          ordered.each do |_, key, impl|
-            return key if impl.new.usable?(machine)
-          end
-
-          return nil
-        end
 
         # This finds the options in the env that are set for a given
         # synced folder type.
@@ -74,7 +38,7 @@ module Vagrant
         # @param [Hash] folders The result from a {#synced_folders} call.
         def save_synced_folders(machine, folders, **opts)
           if opts[:merge]
-            existing = cached_synced_folders(machine)
+            existing = machine.synced_folders(cached: true)
             if existing
               if opts[:vagrantfile]
                 # Go through and find any cached that were from the
@@ -106,95 +70,6 @@ module Vagrant
           machine.data_dir.join("synced_folders").open("w") do |f|
             f.write(folder_data)
           end
-        end
-
-        # This returns the set of shared folders that should be done for
-        # this machine. It returns the folders in a hash keyed by the
-        # implementation class for the synced folders.
-        #
-        # @return [Hash<Symbol, Hash<String, Hash>>]
-        def synced_folders(machine, **opts)
-          return cached_synced_folders(machine) if opts[:cached]
-
-          config = opts[:config]
-          root   = false
-          if !config
-            config = machine.config.vm
-            root   = true
-          end
-
-          config_folders = config.synced_folders
-          folders = {}
-
-          # Determine all the synced folders as well as the implementation
-          # they're going to use.
-          config_folders.each do |id, data|
-            # Ignore disabled synced folders
-            next if data[:disabled]
-
-            impl = ""
-            impl = data[:type].to_sym if data[:type] && !data[:type].empty?
-
-            if impl != ""
-              impl_class = plugins[impl]
-              if !impl_class
-                # This should never happen because configuration validation
-                # should catch this case. But we put this here as an assert
-                raise "Internal error. Report this as a bug. Invalid: #{data[:type]}"
-              end
-              if !opts[:disable_usable_check]
-                if !impl_class[0].new.usable?(machine, true)
-                  # Verify that explicitly defined shared folder types are
-                  # actually usable.
-                  raise Errors::SyncedFolderUnusable, type: data[:type].to_s
-                end
-              end
-            end
-
-            # Get the data to store
-            data = data.dup
-            if root
-              # If these are the root synced folders (attached directly)
-              # to the Vagrantfile, then we mark it as such.
-              data[:__vagrantfile] = true
-            end
-
-            # Keep track of this shared folder by the implementation.
-            folders[impl] ||= {}
-            folders[impl][id] = data
-          end
-
-          # If we have folders with the "default" key, then determine the
-          # most appropriate implementation for this.
-          if folders.key?("") && !folders[""].empty?
-            default_impl = default_synced_folder_type(machine, plugins)
-            if !default_impl
-              types = plugins.to_hash.keys.map { |t| t.to_s }.sort.join(", ")
-              raise Errors::NoDefaultSyncedFolderImpl, types: types
-            end
-            folders[default_impl] ||= {}
-            folders[default_impl].merge!(folders[""])
-            folders.delete("")
-          end
-
-          # Apply the scoped hash overrides to get the options
-          folders.dup.each do |impl_name, fs|
-            new_fs = {}
-            fs.each do |id, data|
-              id         = data[:id] if data[:id]
-              new_fs[id] = scoped_hash_override(data, impl_name)
-            end
-
-            folders[impl_name] = new_fs
-          end
-
-          folders.each do |impl_name, fs|
-            fs.each do |id, data|
-              data[:impl] = plugins[impl_name][0].new()
-            end
-          end
-
-          return folders
         end
 
         # This finds the difference between two lists of synced folder
@@ -238,31 +113,6 @@ module Vagrant
           end
 
           result
-        end
-
-        protected
-
-        def cached_synced_folders(machine)
-          JSON.parse(machine.data_dir.join("synced_folders").read).tap do |r|
-            # We have to do all sorts of things to make the proper things
-            # symbols and
-            r.keys.each do |k|
-              r[k].each do |ik, v|
-                v.keys.each do |vk|
-                  v[vk.to_sym] = v[vk]
-                  v.delete(vk)
-                end
-              end
-
-              r[k.to_sym] = r[k]
-              r.delete(k)
-            end
-          end
-        rescue Errno::ENOENT
-          # If the file doesn't exist, we probably just have a machine created
-          # by a version of Vagrant that didn't cache shared folders. Report no
-          # shared folders to be safe.
-          return {}
         end
       end
     end

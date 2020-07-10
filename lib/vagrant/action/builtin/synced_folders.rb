@@ -24,7 +24,7 @@ module Vagrant
           }
 
           @logger.info("SyncedFolders loading from cache: #{opts[:cached]}")
-          folders = synced_folders(env[:machine], **opts)
+          folders = env[:machine].synced_folders(**opts)
           original_folders = folders
 
           folders.each do |impl_name, fs|
@@ -111,7 +111,7 @@ module Vagrant
           # If we disabled folders, we have to delete some from the
           # save, so we load the entire cached thing, and delete them.
           if env[:synced_folders_disable]
-            all = synced_folders(env[:machine], cached: true)
+            all = env[:machine].synced_folders(cached: true)
             all.each do |impl, fs|
               fs.keys.each do |id|
                 if env[:synced_folders_disable].include?(id)

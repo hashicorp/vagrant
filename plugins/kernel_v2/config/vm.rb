@@ -985,15 +985,12 @@ module VagrantPlugins
           # Create a helper that will with the synced folders mixin
           # from the builtin action to get the correct implementation
           # to be used for each folder
-          sf_helper = Class.new do
-            include Vagrant::Action::Builtin::MixinSyncedFolders
-          end.new
-          folders = sf_helper.synced_folders(machine, config: self)
+          folders = machine.synced_folders(config: self)
           folders.each do |impl_name, data|
             data.each do |_, fs|
               hostpath = File.expand_path(fs[:hostpath], machine.env.root_path)
               if !Vagrant::Util::Platform.wsl_drvfs_path?(hostpath)
-                sf_klass = sf_helper.plugins[impl_name.to_sym].first
+                sf_klass = Vagrant.plugin("2").manager.synced_folders[impl_name.to_sym].first
                 if sf_klass.respond_to?(:wsl_allow_non_drvfs?) && sf_klass.wsl_allow_non_drvfs?
                   next
                 end

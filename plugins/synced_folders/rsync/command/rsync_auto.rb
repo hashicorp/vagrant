@@ -62,8 +62,8 @@ module VagrantPlugins
               end
             end
 
-            cached = synced_folders(machine, cached: true)
-            fresh  = synced_folders(machine)
+            cached = machine.synced_folders(cached: true)
+            fresh  = machine.synced_folders
             diff   = synced_folders_diff(cached, fresh)
             if !diff[:added].empty?
               machine.ui.warn(I18n.t("vagrant.rsync_auto_new_folders"))

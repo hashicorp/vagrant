@@ -625,6 +625,7 @@ module Vagrant
     #
     # @return [Hash<Symbol, Hash<String, Hash>>]
     def synced_folders(**opts)
+      return cached_synced_folders if opts[:cached]
       return @synced_folders if defined?(@synced_folders)
 
       plugins = Vagrant.plugin("2").manager.synced_folders
@@ -712,6 +713,29 @@ module Vagrant
     end
 
     protected
+
+    def cached_synced_folders
+      JSON.parse(@data_dir.join("synced_folders").read).tap do |r|
+        # We have to do all sorts of things to make the proper things
+        # symbols and
+        r.keys.each do |k|
+          r[k].each do |ik, v|
+            v.keys.each do |vk|
+              v[vk.to_sym] = v[vk]
+              v.delete(vk)
+            end
+          end
+
+          r[k.to_sym] = r[k]
+          r.delete(k)
+        end
+      end
+    rescue Errno::ENOENT
+      # If the file doesn't exist, we probably just have a machine created
+      # by a version of Vagrant that didn't cache shared folders. Report no
+      # shared folders to be safe.
+      return {}
+    end
 
     # This goes over all the registered synced folder types and returns
     # the highest priority implementation that is usable for this machine.

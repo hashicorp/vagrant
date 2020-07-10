@@ -7,7 +7,6 @@ module VagrantPlugins
     module Action
       # This action disables the synced folders we created.
       class HostMachineSyncFoldersDisable
-        include Vagrant::Action::Builtin::MixinSyncedFolders
 
         def initialize(app, env)
           @app    = app
@@ -42,7 +41,7 @@ module VagrantPlugins
           to_disable = []
 
           # Read the existing folders that are setup
-          existing_folders = synced_folders(host_machine, cached: true)
+          existing_folders = host_machine.synced_folders(cached: true)
           if existing_folders
             existing_folders.each do |impl, fs|
               fs.each do |id, data|

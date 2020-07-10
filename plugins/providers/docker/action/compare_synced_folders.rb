@@ -4,7 +4,6 @@ module VagrantPlugins
   module DockerProvider
     module Action
       class CompareSyncedFolders
-        include Vagrant::Action::Builtin::MixinSyncedFolders
 
         def initialize(app, env)
           @app = app
@@ -14,8 +13,8 @@ module VagrantPlugins
           machine = env[:machine]
 
           # Get the synced folders that are cached, and those that aren't
-          cached = synced_folders(machine, cached: true)
-          fresh  = synced_folders(machine)
+          cached = machine.synced_folders(cached: true)
+          fresh  = machine.synced_folders
 
           # Build up a mapping of existing setup synced folders
           existing = {}

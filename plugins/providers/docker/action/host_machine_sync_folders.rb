@@ -12,7 +12,6 @@ module VagrantPlugins
       # we need to. The host machine is where Docker containers will
       # live.
       class HostMachineSyncFolders
-        include Vagrant::Action::Builtin::MixinSyncedFolders
 
         def initialize(app, env)
           @app    = app
@@ -63,7 +62,7 @@ module VagrantPlugins
           proxy_ui.opts[:target] = env[:machine].name.to_s
 
           # Read the existing folders that are setup
-          existing_folders = synced_folders(host_machine, cached: true)
+          existing_folders = host_machine.synced_folders(cached: true)
           existing_ids = {}
           if existing_folders
             existing_folders.each do |impl, fs|

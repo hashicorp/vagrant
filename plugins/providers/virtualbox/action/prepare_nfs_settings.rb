@@ -1,12 +1,14 @@
 require "ipaddr"
 require "vagrant/action/builtin/mixin_synced_folders"
+require 'vagrant/util/scoped_hash_override'
+
 
 module VagrantPlugins
   module ProviderVirtualBox
     module Action
       class PrepareNFSSettings
-        include Vagrant::Action::Builtin::MixinSyncedFolders
         include Vagrant::Util::Retryable
+        include Vagrant::Util::ScopedHashOverride
 
         def initialize(app, env)
           @app = app
@@ -23,7 +25,7 @@ module VagrantPlugins
             config: env[:synced_folders_config],
             disable_usable_check: !!env[:test],
           }
-          folders = synced_folders(env[:machine], **opts)
+          folders = env[:machine].synced_folders(**opts)
 
           if folders.key?(:nfs)
             @logger.info("Using NFS, preparing NFS settings by reading host IP and machine IP")
