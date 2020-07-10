@@ -45,7 +45,7 @@ describe "VagrantPlugins::GuestSolaris11::Cap::ShellExpandGuestPath" do
       allow(machine.communicate).to receive(:execute).
         with(any_args).and_yield(:stdout, path_with_spaces)
 
-      expect(machine.communicate).to receive(:execute).with("printf #{path_with_spaces}")
+      expect(machine.communicate).to receive(:execute).with("echo; printf #{path_with_spaces}")
       cap.shell_expand_guest_path(machine, path)
     end
   end
