@@ -98,7 +98,7 @@ OUTPUT
         storagectl = args[args.index("--storagectl") + 1]
         expect(storagectl).to eq(controller_name)
       end
-      subject.attach_disk(controller_name, anything, anything, anything, anything) 
+      subject.attach_disk(controller_name, anything, anything, anything, anything)
     end
   end
 
@@ -136,8 +136,7 @@ OUTPUT
     it "includes attachments for each storage controller" do
       storage_controllers = subject.read_storage_controllers
 
-      expect(storage_controllers.first.attachments).to include(port: "0", device: "0", uuid: "12345", location: "/tmp/primary.vdi")
-      expect(storage_controllers.first.attachments).to include(port: "1", device: "0", uuid: "67890", location: "/tmp/secondary.vdi")
+      expect(storage_controllers.first.attachments).to eq([{port: "0", device: "0", uuid: "12345", disk_name: "primary", location: "/tmp/primary.vdi"}, {port: "1", device: "0", uuid: "67890", disk_name: "secondary", location: "/tmp/secondary.vdi"}])
     end
   end
 end

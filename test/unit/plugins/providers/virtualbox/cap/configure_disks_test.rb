@@ -29,8 +29,18 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
   let(:controller) { double("controller", name: "controller", maxportcount: 30, devices_per_port: 1, limit: 30) }
 
-  let(:attachments) { [{port: "0", device: "0", uuid: "12345"},
-                       {port: "1", device: "0", uuid: "67890"}]}
+  let(:attachments) { [{:port=>"0", :device=>"0",
+                      :uuid=>"12345",
+                      :disk_name=>"ubuntu-18.04-amd64-disk001",
+                      :location=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk"},
+                     {:port=>"1", :device=>"0",
+                      :uuid=>"67890",
+                      :disk_name=>"disk-0",
+                      :location=>"/home/vagrant/VirtualBox VMs/disk-0.vdi"},
+                     {:port=>"2", :device=>"0",
+                      :uuid=>"10111",
+                      :disk_name=>"disk-1",
+                      :location=>"/home/vagrant/VirtualBox VMs/disk-1.vdi"}] }
 
   let(:defined_disks) { [double("disk", name: "vagrant_primary", size: "5GB", primary: true, type: :disk),
                          double("disk", name: "disk-0", size: "5GB", primary: false, type: :disk),
@@ -74,6 +84,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     allow(storage_controllers).to receive(:first).and_return(controller)
     allow(storage_controllers).to receive(:size).and_return(1)
     allow(driver).to receive(:read_storage_controllers).and_return(storage_controllers)
+    allow(driver).to receive(:list_hdds).and_return(all_disks)
   end
 
   describe "#configure_disks" do
@@ -85,7 +96,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
     end
 
     it "configures disks and returns the disks defined" do
-      expect(subject).to receive(:handle_configure_disk).with(machine, anything, [], controller.name).
+      expect(subject).to receive(:handle_configure_disk).with(machine, anything, controller.name).
         exactly(4).and_return(dsk_data)
       subject.configure_disks(machine, defined_disks)
     end
@@ -134,7 +145,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
       end
 
       it "attaches disks to the primary controller" do
-        expect(subject).to receive(:handle_configure_disk).with(machine, anything, [], controller2.name).
+        expect(subject).to receive(:handle_configure_disk).with(machine, anything, controller2.name).
           exactly(4).and_return(dsk_data)
         subject.configure_disks(machine, defined_disks)
       end
@@ -217,14 +228,14 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(subject).to receive(:create_disk).with(machine, defined_disks[1], controller)
           .and_return(disk_meta)
 
-        subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller.name)
+        subject.handle_configure_disk(machine, defined_disks[1], controller.name)
       end
 
       it "includes disk attachment info in metadata" do
         expect(subject).to receive(:create_disk).with(machine, defined_disks[1], controller)
           .and_return(disk_meta)
 
-        disk_metadata = subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller.name)
+        disk_metadata = subject.handle_configure_disk(machine, defined_disks[1], controller.name)
         expect(disk_metadata).to have_key(:controller)
         expect(disk_metadata).to have_key(:port)
         expect(disk_metadata).to have_key(:device)
@@ -262,7 +273,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(subject).to receive(:resize_disk).
           with(machine, defined_disks[1], all_disks[1], controller).and_return({})
 
-        subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller.name)
+        subject.handle_configure_disk(machine, defined_disks[1], controller.name)
       end
     end
 
@@ -288,6 +299,15 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       let(:disk_info) { {port: "1", device: "0"} }
 
+      let(:attachments) { [{:port=>"0", :device=>"0",
+                          :uuid=>"12345",
+                          :disk_name=>"ubuntu-18.04-amd64-disk001",
+                          :location=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk"},
+                         {:port=>"1", :device=>"0",
+                          :uuid=>"67890",
+                          :disk_name=>"disk-0",
+                          :location=>"/home/vagrant/VirtualBox VMs/disk-0.vdi"}] }
+
       it "reattaches disk if vagrant defined disk exists but is not attached to guest" do
         expect(subject).to receive(:get_current_disk).
           with(machine, defined_disks[1], all_disks).and_return(all_disks[1])
@@ -304,7 +324,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
                                                      "hdd",
                                                      all_disks[1]["Location"])
 
-        subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller.name)
+        subject.handle_configure_disk(machine, defined_disks[1], controller.name)
       end
 
       it "does nothing if all disks are properly configured" do
@@ -317,7 +337,7 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
         expect(driver).to receive(:get_port_and_device).with("67890").
           and_return(disk_info)
 
-        subject.handle_configure_disk(machine, defined_disks[1], all_disks, controller.name)
+        subject.handle_configure_disk(machine, defined_disks[1], controller.name)
       end
     end
   end
@@ -366,6 +386,14 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
   end
 
   describe ".get_next_port" do
+    let(:attachments) { [{:port=>"0", :device=>"0",
+                        :uuid=>"12345",
+                        :disk_name=>"ubuntu-18.04-amd64-disk001",
+                        :location=>"/home/vagrant/VirtualBox VMs/ubuntu-18.04-amd64-disk001.vmdk"},
+                       {:port=>"1", :device=>"0",
+                        :uuid=>"67890",
+                        :disk_name=>"disk-0",
+                        :location=>"/home/vagrant/VirtualBox VMs/disk-0.vdi"}] }
     it "determines the next available port and device to use" do
       dsk_info = subject.get_next_port(machine, controller)
       expect(dsk_info[:port]).to eq("2")
@@ -403,7 +431,11 @@ describe VagrantPlugins::ProviderVirtualBox::Cap::ConfigureDisks do
 
       let(:attachments) { [] }
 
+      let(:vm_info) { {"SATA Controller-ImageUUID-0-0" => "12345",
+                       "SATA Controller-ImageUUID-1-0" => "67890"} }
+
       it "determines the next available port and device to use" do
+        allow(driver).to receive(:show_vm_info).and_return(vm_info)
         dsk_info = subject.get_next_port(machine, controller)
         expect(dsk_info[:port]).to eq("0")
         expect(dsk_info[:device]).to eq("0")

@@ -65,13 +65,11 @@ module VagrantPlugins
             end
           end
 
-          current_disks = machine.provider.driver.list_hdds
-
           configured_disks = { disk: [], floppy: [], dvd: [] }
 
           defined_disks.each do |disk|
             if disk.type == :disk
-              disk_data = handle_configure_disk(machine, disk, current_disks, disk_controller.name)
+              disk_data = handle_configure_disk(machine, disk, disk_controller.name)
               configured_disks[:disk] << disk_data unless disk_data.empty?
             elsif disk.type == :floppy
               # TODO: Write me
@@ -110,12 +108,23 @@ module VagrantPlugins
         #
         # @param [Vagrant::Machine] machine - the current machine
         # @param [Config::Disk] disk - the current disk to configure
-        # @param [Array] all_disks - A list of all currently defined disks in VirtualBox
         # @param [String] controller_name - the name of the storage controller to use
         # @return [Hash] - disk_metadata
-        def self.handle_configure_disk(machine, disk, all_disks, controller_name)
+        def self.handle_configure_disk(machine, disk, controller_name)
           storage_controllers = machine.provider.driver.read_storage_controllers
           controller = storage_controllers.get_controller(controller_name)
+
+          # Filter current guest disks from all disks
+          #
+          # NOTE: This is required beyond just using the entries in
+          # `controller.attachments` because `list_hdds` gives us more information
+          # about a disk such as its capacity and disk type, however `list_hdds`
+          # lists every single harddisk in VirtualBox, so we need to filter on
+          # our known UUIDs in controller attachments to obtain this info
+          all_disks = []
+          machine.provider.driver.list_hdds.each do |hdd|
+            all_disks << hdd if controller.attachments.detect { |v| v[:uuid] == hdd["UUID"] }
+          end
 
           disk_metadata = {}
 

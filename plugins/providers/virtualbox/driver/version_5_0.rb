@@ -808,6 +808,26 @@ module VagrantPlugins
           end
         end
 
+        # Returns information for a given disk
+        #
+        # @param [String] disk_type - can be "disk", "dvd", or "floppy"
+        # @param [String] disk_uuid_or_file
+        # @return [Hash] disk
+        def show_medium_info(disk_type, disk_uuid_or_file)
+          disk = {}
+          execute('showmediuminfo', disk_type, disk_uuid_or_file, retryable: true).split("\n").each do |line|
+            parts = line.partition(":")
+            key = parts.first.strip
+            value = parts.last.strip
+            disk[key] = value
+
+            if key == "Location"
+              disk["Disk Name"] = File.basename(value, ".*")
+            end
+          end
+          disk
+        end
+
         def ssh_port(expected_port)
           @logger.debug("Searching for SSH port: #{expected_port.inspect}")
 
@@ -953,8 +973,9 @@ module VagrantPlugins
                 device = $2.to_s
                 uuid = v
                 location = vm_info["#{name}-#{port}-#{device}"]
+                disk_name = File.basename(location, ".*")
 
-                attachments << {port: port, device: device, uuid: uuid, location: location}
+                attachments << {port: port, device: device, uuid: uuid, disk_name: disk_name, location: location}
               end
             end
 
