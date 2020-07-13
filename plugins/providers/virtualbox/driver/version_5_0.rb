@@ -956,6 +956,7 @@ module VagrantPlugins
         def read_storage_controllers
           vm_info = show_vm_info
           count = vm_info.count { |key, value| key.match(/^storagecontrollername\d+$/) }
+          all_disks = list_hdds
 
           storage_controllers = Model::StorageControllerArray.new
 
@@ -973,9 +974,21 @@ module VagrantPlugins
                 device = $2.to_s
                 uuid = v
                 location = vm_info["#{name}-#{port}-#{device}"]
-                disk_name = File.basename(location, ".*")
 
-                attachments << {port: port, device: device, uuid: uuid, disk_name: disk_name, location: location}
+                extra_disk_data = all_disks.detect { |d| d["UUID"] == uuid }
+
+                attachment = { port: port,
+                               device: device,
+                               uuid: uuid,
+                               location: location }
+
+                extra_disk_data.each do |dk,dv|
+                  # NOTE: We convert the keys from VirtualBox to symbols
+                  # to be consistent with the other keys
+                  attachment[dk.downcase.gsub(' ', '_').to_sym] = dv
+                end
+
+                attachments << attachment
               end
             end
 

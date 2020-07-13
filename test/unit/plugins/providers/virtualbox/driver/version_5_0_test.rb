@@ -123,7 +123,54 @@ OUTPUT
           "SATA Controller-1-0" => "/tmp/secondary.vdi",
           "SATA Controller-ImageUUID-1-0" => "67890" }
       )
+
+      allow(subject).to receive(:list_hdds).and_return(
+        [
+         {"UUID"=>"12345",
+         "Parent UUID"=>"base",
+         "State"=>"created",
+         "Type"=>"normal (base)",
+         "Location"=>"/tmp/primary.vdi",
+         "Disk Name"=>"primary",
+         "Storage format"=>"VDI",
+         "Capacity"=>"65536 MBytes",
+         "Encryption"=>"disabled"},
+         {"UUID"=>"67890",
+         "Parent UUID"=>"base",
+         "State"=>"created",
+         "Type"=>"normal (base)",
+         "Location"=>"/tmp/secondary.vdi",
+         "Disk Name"=>"primary",
+         "Storage format"=>"VDI",
+         "Capacity"=>"65536 MBytes",
+         "Encryption"=>"disabled"}
+        ]
+      )
     end
+
+    let(:attachments_result) { [{:port=>"0",
+                                 :device=>"0",
+                                 :uuid=>"12345",
+                                 :location=>"/tmp/primary.vdi",
+                                 :parent_uuid=>"base",
+                                 :state=>"created",
+                                 :type=>"normal (base)",
+                                 :disk_name=>"primary",
+                                 :storage_format=>"VDI",
+                                 :capacity=>"65536 MBytes",
+                                 :encryption=>"disabled"},
+                                {:port=>"1",
+                                 :device=>"0",
+                                 :uuid=>"67890",
+                                 :location=>"/tmp/secondary.vdi",
+                                 :parent_uuid=>"base",
+                                 :state=>"created",
+                                 :type=>"normal (base)",
+                                 :disk_name=>"primary",
+                                 :storage_format=>"VDI",
+                                 :capacity=>"65536 MBytes",
+                                 :encryption=>"disabled"}] }
+
 
     it "returns a list of storage controllers" do
       storage_controllers = subject.read_storage_controllers
@@ -136,7 +183,7 @@ OUTPUT
     it "includes attachments for each storage controller" do
       storage_controllers = subject.read_storage_controllers
 
-      expect(storage_controllers.first.attachments).to eq([{port: "0", device: "0", uuid: "12345", disk_name: "primary", location: "/tmp/primary.vdi"}, {port: "1", device: "0", uuid: "67890", disk_name: "secondary", location: "/tmp/secondary.vdi"}])
+      expect(storage_controllers.first.attachments).to eq(attachments_result)
     end
   end
 end
