@@ -511,7 +511,7 @@ module VagrantPlugins
         @base_mac = nil if @base_mac == UNSET_VALUE
         @base_address = nil if @base_address == UNSET_VALUE
         @boot_timeout = 300 if @boot_timeout == UNSET_VALUE
-        @box = nil if @box == UNSET_VALUE || @box.to_s.empty?
+        @box = nil if @box == UNSET_VALUE
         @ignore_box_vagrantfile = false if @ignore_box_vagrantfile == UNSET_VALUE
 
         if @box_check_update == UNSET_VALUE
@@ -730,6 +730,10 @@ module VagrantPlugins
 
         if box && clone
           errors << I18n.t("vagrant.config.vm.clone_and_box")
+        end
+
+        if box && box.empty?
+          errors << I18n.t("vagrant.config.vm.box_empty")
         end
 
         errors << I18n.t("vagrant.config.vm.hostname_invalid_characters", name: machine.name) if \

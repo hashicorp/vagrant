@@ -368,6 +368,17 @@ describe Vagrant::Vagrantfile do
         to raise_error(Vagrant::Errors::ProviderNotUsable)
     end
 
+    it "does not try to load the box if the box is empty" do
+      provider_cls = register_provider("foo")
+
+      configure do |config|
+        config.vm.box = ""
+      end
+
+      expect(boxes).not_to receive(:find)
+      results = subject.machine_config(:default, :foo, boxes)
+    end
+
     context "when provider validation is ignored" do
       before do
         configure do |config|
