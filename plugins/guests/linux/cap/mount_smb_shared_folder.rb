@@ -15,7 +15,7 @@ module VagrantPlugins
 
           mount_device   = "//#{options[:smb_host]}/#{name}"
 
-          mount_options, mount_uid, mount_gid = smb_mount_options(machine, name, expanded_guest_path, options)
+          mount_options, mount_uid, mount_gid = machine.synced_folders[:smb].capability(:mount_options,name, expanded_guest_path, options)
 
           # If a domain is provided in the username, separate it
           username, domain = (options[:smb_username] || '').split('@', 2)

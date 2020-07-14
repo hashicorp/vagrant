@@ -625,11 +625,11 @@ module Vagrant
       return @synced_folders if defined?(@synced_folders)
       plugins = Vagrant.plugin("2").manager.synced_folders
       synced_folders_map = Machine.synced_folders(self)
-      @synced_folders = synced_folders_map.map do |type, folders|
+      @synced_folders = synced_folders_map.map { |type, folders|
         impl = plugins[type][0].new()
         impl._initialize(self, type)
-        impl
-      end
+        [type, impl]
+      }.to_h
       @synced_folders
     end
 

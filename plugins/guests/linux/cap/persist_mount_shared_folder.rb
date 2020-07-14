@@ -28,12 +28,14 @@ module VagrantPlugins
               guest_path = Shellwords.escape(data[:guestpath])
               case type
               when :virtualbox
-                mount_options, mount_uid, mount_gid = vb_mount_options(machine, name, guest_path, data)
+                mount_options, mount_uid, mount_gid = machine.synced_folders[:virtualbox].capability(
+                  :mount_options, name, guest_path, data)
                 mount_type = "vboxsf"
               when :smb
                 data[:smb_host] ||= machine.guest.capability(
                   :choose_addressable_ip_addr, candidate_ips)
-                mount_options, mount_uid, mount_gid = smb_mount_options(machine, data[:smb_id], guest_path, data)
+                mount_options, mount_uid, mount_gid = machine.synced_folders[:smb].capability(
+                  :mount_options, data[:smb_id], guest_path, data)
                 name = "//#{data[:smb_host]}/#{data[:smb_id]}"
                 mount_options = "#{mount_options},_netdev"
                 mount_type = "cifs"

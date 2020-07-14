@@ -10,6 +10,8 @@ module VagrantPlugins
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
       include Vagrant::Util
 
+      FOLDER_TYPE = :rsync
+
       def initialize(*args)
         super
 
