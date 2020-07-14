@@ -131,10 +131,10 @@ module Vagrant
 
           # Persist the mounts by adding them to fstab
           if env[:machine].guest.capability?(:persist_mount_shared_folder)
-            if !env[:machine].config.vm.allow_fstab_modification
-              fstab_folders = nil
-            else
+            if env[:machine].config.vm.allow_fstab_modification
               fstab_folders = original_folders
+            else
+              fstab_folders = nil
             end
             env[:machine].guest.capability(:persist_mount_shared_folder, fstab_folders)
           end

@@ -12,8 +12,6 @@ module VagrantPlugins
   module SyncedFolderSMB
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
 
-      FOLDER_TYPE = :smb
-
       # Maximum number of times to retry requesting username/password
       CREDENTIAL_RETRY_MAX = 5
 

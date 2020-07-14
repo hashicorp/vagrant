@@ -23,9 +23,11 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
     }
   end
   let(:cap){ caps.get(:mount_virtualbox_shared_folder) }
+  let(:vbox_cap) { double(:vbox_cap) }
 
   before do
     allow(machine).to receive(:communicate).and_return(comm)
+    allow(machine).to receive(:synced_folders).and_return({:virtualbox => vbox_cap})
   end
 
   after do
@@ -37,18 +39,15 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
     before do
       allow(comm).to receive(:sudo).with(any_args)
       allow(comm).to receive(:execute).with(any_args)
+      allow(vbox_cap).to receive(:capability).with(any_args).and_return(["uid=1000,gid=1000", "1000", "1000"])
     end
 
     it "generates the expected default mount command" do
-      expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
-      expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
       expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
       cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
     end
 
     it "automatically chown's the mounted directory on guest" do
-      expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
-      expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
       expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
       expect(comm).to receive(:sudo).with("chown #{mount_uid}:#{mount_gid} #{mount_guest_path}")
       cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
@@ -57,7 +56,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
     context "with owner user ID explicitly defined" do
 
       before do
-        expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
+        allow(vbox_cap).to receive(:capability).with(any_args).and_return(["uid=2000,gid=1000", "2000", "1000"])
       end
 
       context "with user ID provided as Integer" do
@@ -85,7 +84,7 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
     context "with owner group ID explicitly defined" do
 
       before do
-        expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
+        allow(vbox_cap).to receive(:capability).with(any_args).and_return(["uid=1000,gid=2000", "1000", "2000"])
       end
 
       context "with owner group ID provided as Integer" do
@@ -113,29 +112,17 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
     context "with non-existent default owner group" do
 
       it "fetches the effective group ID of the user" do
-        expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
-        expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_raise(Vagrant::Errors::VirtualBoxMountFailed, {command: '', output: ''})
-        expect(comm).to receive(:execute).with("id -g #{mount_owner}", anything).and_yield(:stdout, "1").and_return(0)
         cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
-      end
-    end
-
-    context "with non-existent owner group" do
-
-      it "raises an error" do
-        expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
-        expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_raise(Vagrant::Errors::VirtualBoxMountFailed, {command: '', output: ''})
-        expect do
-          cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options)
-        end.to raise_error Vagrant::Errors::VirtualBoxMountFailed
       end
     end
 
     context "with read-only option defined" do
 
+      before do
+        allow(vbox_cap).to receive(:capability).with(any_args).and_return(["ro,uid=1000,gid=1000", "1000", "1000"])
+      end
+
       it "does not chown mounted guest directory" do
-        expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
-        expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
         expect(comm).to receive(:sudo).with("mount -t vboxsf -o ro,uid=#{mount_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
         expect(comm).not_to receive(:sudo).with("chown #{mount_uid}:#{mount_gid} #{mount_guest_path}")
         cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["ro"]))
@@ -161,9 +148,11 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
       context "with uid defined" do
         let(:options_uid){ '1234' }
 
+        before do
+          allow(vbox_cap).to receive(:capability).with(any_args).and_return(["uid=1234,gid=1000", "1234", "1000"])
+        end
+
         it "should only include uid defined within mount options" do
-          expect(comm).not_to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
-          expect(comm).to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
           expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{options_uid},gid=#{mount_gid} #{mount_name} #{mount_guest_path}", anything)
           cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["uid=#{options_uid}"]))
         end
@@ -172,9 +161,11 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
       context "with gid defined" do
         let(:options_gid){ '1234' }
 
+        before do
+          allow(vbox_cap).to receive(:capability).with(any_args).and_return(["uid=1000,gid=1234", "1000", "1234"])
+        end
+
         it "should only include gid defined within mount options" do
-          expect(comm).to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
-          expect(comm).not_to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{mount_gid}:")
           expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{mount_uid},gid=#{options_gid} #{mount_name} #{mount_guest_path}", anything)
           cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["gid=#{options_gid}"]))
         end
@@ -184,9 +175,11 @@ describe "VagrantPlugins::GuestLinux::Cap::MountVirtualBoxSharedFolder" do
         let(:options_gid){ '1234' }
         let(:options_uid){ '1234' }
 
+        before do
+          allow(vbox_cap).to receive(:capability).with(any_args).and_return(["uid=1234,gid=1234", "1234", "1234"])
+        end
+
         it "should only include uid and gid defined within mount options" do
-          expect(comm).not_to receive(:execute).with("id -u #{mount_owner}", anything).and_yield(:stdout, mount_uid)
-          expect(comm).not_to receive(:execute).with("getent group #{mount_group}", anything).and_yield(:stdout, "vagrant:x:#{options_gid}:")
           expect(comm).to receive(:sudo).with("mount -t vboxsf -o uid=#{options_uid},gid=#{options_gid} #{mount_name} #{mount_guest_path}", anything)
           cap.mount_virtualbox_shared_folder(machine, mount_name, mount_guest_path, folder_options.merge(mount_options: ["gid=#{options_gid}", "uid=#{options_uid}"]))
         end

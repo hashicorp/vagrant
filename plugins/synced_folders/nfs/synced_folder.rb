@@ -18,8 +18,6 @@ module VagrantPlugins
     class SyncedFolder < Vagrant.plugin("2", :synced_folder)
       @@lock = Mutex.new
 
-      FOLDER_TYPE = :nfs
-
       def initialize(*args)
         super
 

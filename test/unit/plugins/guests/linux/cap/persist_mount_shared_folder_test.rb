@@ -39,20 +39,25 @@ describe "VagrantPlugins::GuestLinux::Cap::PersistMountSharedFolder" do
     } }
 
     let(:ui){ double(:ui) }
+    let(:smb_cap) { double(:smb_cap) }
+    let(:vbox_cap) { double(:vbox_cap) }
 
     before do
       allow(comm).to receive(:sudo).with(any_args)
       allow(ui).to receive(:warn)
       allow(machine).to receive(:ui).and_return(ui)
       allow(machine).to receive(:ssh_info).and_return(ssh_info)
+      allow(machine).to receive(:synced_folders).and_return({:smb => smb_cap, :virtualbox => vbox_cap})
+      allow(vbox_cap).to receive(:capability).with(any_args).and_return(["uid=1234,gid=1234", "1234", "1234"])
+      allow(smb_cap).to receive(:capability).with(any_args).and_return(["sec=ntlmssp,credentials=/etc/smb_creds,uid=1234,gid=1234,mfsymlinks", "1234", "1234"])
     end
 
     it "inserts folders into /etc/fstab" do
       allow(machine).to receive_message_chain(:env, :host, :capability?).with(:smb_mount_options).and_return(false)
       expected_entry_vagrant = "vagrant /vagrant vboxsf uid=1234,gid=1234,nofail 0 0"
       expected_entry_test = "test1 /test1 vboxsf uid=1234,gid=1234,nofail 0 0"
-      expected_smb_entry_vagrant = "//172.168.0.1/vagrant /vagrant cifs sec=ntlmssp,credentials=/etc/smb_creds_vagrant,uid=1234,gid=1234,mfsymlinks,_netdev,nofail 0 0"
-      expected_smb_entry_test = "//172.168.0.1/test1 /test1 cifs sec=ntlmssp,credentials=/etc/smb_creds_test1,uid=1234,gid=1234,mfsymlinks,_netdev,nofail 0 0"
+      expected_smb_entry_vagrant = "//172.168.0.1/vagrant /vagrant cifs sec=ntlmssp,credentials=/etc/smb_creds,uid=1234,gid=1234,mfsymlinks,_netdev,nofail 0 0"
+      expected_smb_entry_test = "//172.168.0.1/test1 /test1 cifs sec=ntlmssp,credentials=/etc/smb_creds,uid=1234,gid=1234,mfsymlinks,_netdev,nofail 0 0"
       expect(cap).to receive(:remove_vagrant_managed_fstab)
       expect(comm).to receive(:sudo).with(/#{expected_entry_test}\n#{expected_entry_vagrant}\n#{expected_smb_entry_test}\n#{expected_smb_entry_vagrant}/)
       cap.persist_mount_shared_folder(machine, folders)
