@@ -17,10 +17,10 @@ module VagrantPlugins
                   kernel = data.chomp
                 end
               end
-            unless kernel.to_s.match(/4\.14\.35-.*el7uek/)
-              raise DockerError, :not_supported
-            end
-            machine.communicate.tap do |comm|
+              unless kernel.to_s.match(/4\.14\.35-.*el7uek/)
+                raise DockerError, :not_supported
+              end
+              machine.communicate.tap do |comm|
                 comm.sudo("yum install -y -q yum-utils")
                 comm.sudo("yum-config-manager --enable ol7_addons")
                 comm.sudo("yum install -y -q docker-engine docker-cli")
@@ -29,20 +29,20 @@ module VagrantPlugins
                   fstype=$(stat -f -c %T /var/lib/docker || stat -f -c %T /var/lib)
                   storage_driver=""
                   case "${fstype}" in
-                      btrfs)
-                          storage_driver="btrfs"
-                          ;;
-                      xfs)
-                          storage_driver="overlay2"
-                          ;;
+                    btrfs)
+                      storage_driver="btrfs"
+                      ;;
+                    xfs)
+                      storage_driver="overlay2"
+                      ;;
                   esac
                   if [[ -n ${storage_driver} ]]; then
-                      [ ! -d /etc/docker ] && mkdir -m 0770 /etc/docker && chown root:root /etc/docker
-                      echo -e "{\n    \\"storage-driver\\": \\"${storage_driver}\\"\n}" > /etc/docker/daemon.json 
+                    [ ! -d /etc/docker ] && mkdir -m 0770 /etc/docker && chown root:root /etc/docker
+                    echo -e "{\n    \\"storage-driver\\": \\"${storage_driver}\\"\n}" > /etc/docker/daemon.json 
                   fi
                 SHELL
                 comm.sudo("systemctl enable --now docker.service")
-                end
+              end
             else
               raise DockerError, :not_supported
             end
