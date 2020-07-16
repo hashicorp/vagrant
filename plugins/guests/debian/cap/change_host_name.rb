@@ -83,10 +83,10 @@ module VagrantPlugins
           interfaces = VagrantPlugins::GuestLinux::Cap::NetworkInterfaces.network_interfaces(machine)
           nettools = true
           if systemd?(comm)
-            @logger.debug("Attempting to restart networking with systemctl")
+            logger.debug("Attempting to restart networking with systemctl")
             nettools = false
           else
-            @logger.debug("Attempting to restart networking with ifup/down nettools")
+            logger.debug("Attempting to restart networking with ifup/down nettools")
           end
 
           interfaces.each do |iface|

@@ -205,6 +205,7 @@ describe VagrantPlugins::ProviderVirtualBox::SyncedFolder do
       allow(machine).to receive(:env)
       allow(subject).to receive(:driver).and_return(driver)
       allow(driver).to receive(:share_folders)
+      allow(ENV).to receive(:[]).and_call_original
       allow(ENV).to receive(:[]).with("VAGRANT_DISABLE_VBOXSYMLINKCREATE").and_return(symlink_create_disable)
     end
 
