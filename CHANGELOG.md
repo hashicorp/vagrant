@@ -6,6 +6,7 @@ FEATURES:
 
 IMPROVEMENTS:
 
+- guest/solaris11: Add guest capability shell_expand_guest_path [GH-11759]
 - host/darwin: Add ability to build ISO [GH-11694]
 - virtualbox/disks: Add ability to manage virtual dvds for guests [GH-11613]
 
