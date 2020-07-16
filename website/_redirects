@@ -29,8 +29,8 @@
 /docs/docker/*                  /docs/providers/docker/:splat     301!
 /docs/hyperv/index.html         /docs/providers/hyperv            301!
 /docs/hyperv/*                  /docs/providers/hyperv/:splat     301!
-/docs/vagrant-cloud             /vagrant-cloud
-/docs/vagrant-cloud/*           /vagrant-cloud/:splat
+/docs/vagrant-cloud             /vagrant-cloud                    301!
+/docs/vagrant-cloud/*           /vagrant-cloud/:splat             301!
 
 # Redirect get started guides to Learn
 
