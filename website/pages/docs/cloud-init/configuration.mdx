@@ -20,24 +20,24 @@ config provided, only that a cloud-init config has been provided through `path`
 or directly `inline` in a Vagrantfile.
 
 - `content_type` (string) - Required argument that defines the Content-Type of the
-given cloud_init config. Vagrant only supports the following options for `content_type`:
+  given cloud_init config. Vagrant only supports the following options for `content_type`:
 
-   + `"text/cloud-boothook"`
-   + `"text/cloud-config"`
-   + `"text/cloud-config-archive"`
-   + `"text/jinja2"`
-   + `"text/part-handler"`
-   + `"text/upstart-job"`
-   + `"text/x-include-once-url"`
-   + `"text/x-include-url"`
-   + `"text/x-shellscript"`
+  - `"text/cloud-boothook"`
+  - `"text/cloud-config"`
+  - `"text/cloud-config-archive"`
+  - `"text/jinja2"`
+  - `"text/part-handler"`
+  - `"text/upstart-job"`
+  - `"text/x-include-once-url"`
+  - `"text/x-include-url"`
+  - `"text/x-shellscript"`
 
 - `path` (string) - Path to a file on the host machine that contains
-cloud-init user data. This will be added to the multipart user-data file along
-with its `content_type`. Incompatible with the `inline` option.
+  cloud-init user data. This will be added to the multipart user-data file along
+  with its `content_type`. Incompatible with the `inline` option.
 - `inline` (string) - Inline cloud-init user data. This will be added to the
-multipart user-data file along with its `content_type`. Incompatible with `path`
-option.
+  multipart user-data file along with its `content_type`. Incompatible with `path`
+  option.
 
 Examples of how to define these options can be found in the
 [usage documentation](/docs/cloud-init/configuration).
@@ -58,5 +58,5 @@ end
 However, this is not a requirement. Leaving off `type` will default to `:user_data`.
 
 - `type` (Symbol) - This is an optional config that defines the type of
-cloud-init config. Currently, the only supported `type` is `:user_data`. If a type
-is not defined, it will default to `:user_data`.
+  cloud-init config. Currently, the only supported `type` is `:user_data`. If a type
+  is not defined, it will default to `:user_data`.

@@ -108,10 +108,7 @@ export default [
   },
   {
     category: 'cloud-init',
-    content: [
-      'configuration',
-      'usage'
-    ],
+    content: ['configuration', 'usage'],
   },
   {
     category: 'disks',

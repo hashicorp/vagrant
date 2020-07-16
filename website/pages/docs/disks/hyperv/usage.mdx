@@ -45,17 +45,17 @@ or pull request on Vagrants GitHub page to correct this.
 
 For more information about each option, please visit the [New-VHD Hyper-V documentation](https://docs.microsoft.com/en-us/powershell/module/hyper-v/new-vhd?view=win10-ps).
 
-__Note:__ By default, all Hyper-V disks are defined as a Dynamic virtual hard disk. If you
+**Note:** By default, all Hyper-V disks are defined as a Dynamic virtual hard disk. If you
 wish to make the disk a fixed size, you can set the `Fixed` option below when creating
 a new disk.
 
-* `BlockSizeBytes` (string) - Optional argument, i.e. `"128MB"`
-* `Differencing` (bool) - If set, the disk will be used to store differencing changes from parent disk (must set `ParentPath`)
-* `Fixed` (bool) - If set, the disk will be a fixed size, not dynamically allocated.
-* `LogicalSectorSizeBytes` (int) - Optional argument, must be either `512` or `4096`
-* `ParentPath` (string) - The parent disk path used if a `Differencing` disk is defined
-* `PhysicalSectorSizeBytes` (string) - Optional argument, must be either `512` or `4096`
-* `SourceDisk` (int) - Existing disk to use as a source for the new disk
+- `BlockSizeBytes` (string) - Optional argument, i.e. `"128MB"`
+- `Differencing` (bool) - If set, the disk will be used to store differencing changes from parent disk (must set `ParentPath`)
+- `Fixed` (bool) - If set, the disk will be a fixed size, not dynamically allocated.
+- `LogicalSectorSizeBytes` (int) - Optional argument, must be either `512` or `4096`
+- `ParentPath` (string) - The parent disk path used if a `Differencing` disk is defined
+- `PhysicalSectorSizeBytes` (string) - Optional argument, must be either `512` or `4096`
+- `SourceDisk` (int) - Existing disk to use as a source for the new disk
 
 ### Add-VMHardDiskDrive Supported Options
 
@@ -66,6 +66,6 @@ use these options if you are sure you know what you are doing. Vagrant will
 be able to attach disks for you without these options, but they are available
 if it is required that you specificy a specific location for a disk.
 
-* `ControllerLocation` (int) - The location that the disk should be attached to on the controller
-* `ControllerNumber` (int) - The controller to use for attaching the disk
-* `ControllerType` (string) - The kind of controller to use when attaching the a disk. Only `"IDE"` and `"SCSI"` are valid.
+- `ControllerLocation` (int) - The location that the disk should be attached to on the controller
+- `ControllerNumber` (int) - The controller to use for attaching the disk
+- `ControllerType` (string) - The kind of controller to use when attaching the a disk. Only `"IDE"` and `"SCSI"` are valid.
