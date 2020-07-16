@@ -86,6 +86,7 @@ module VagrantPlugins
           b.use Boot
           b.use Customize, "post-boot"
           b.use WaitForCommunicator, [:starting, :running]
+          b.use CloudInitWait
           b.use Customize, "post-comm"
           b.use CheckGuestAdditions
         end
