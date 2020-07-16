@@ -58,7 +58,7 @@ module VagrantPlugins
 
       # This action boots the VM, assuming the VM is in a state that requires
       # a bootup (i.e. not saved).
-      def self.action_boot
+      def self.action_boot(**opts)
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckAccessible
           b.use CleanMachineFolder
@@ -79,14 +79,14 @@ module VagrantPlugins
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
-          b.use CloudInitSetup
+          b.use CloudInitSetup if opts[:cloud_init]
           b.use CleanupDisks
           b.use Disk
           b.use Customize, "pre-boot"
           b.use Boot
           b.use Customize, "post-boot"
           b.use WaitForCommunicator, [:starting, :running]
-          b.use CloudInitWait
+          b.use CloudInitWait if opts[:cloud_init]
           b.use Customize, "post-comm"
           b.use CheckGuestAdditions
         end
@@ -318,7 +318,7 @@ module VagrantPlugins
 
       # This action starts a VM, assuming it is already imported and exists.
       # A precondition of this action is that the VM exists.
-      def self.action_start
+      def self.action_start(**opts)
         Vagrant::Action::Builder.new.tap do |b|
           b.use CheckVirtualbox
           b.use ConfigValidate
@@ -345,7 +345,8 @@ module VagrantPlugins
 
                 # The VM is not saved, so we must have to boot it up
                 # like normal. Boot!
-                b4.use action_boot
+                run_cloud_init = opts[:cloud_init] || false
+                b4.use action_boot(cloud_init: run_cloud_init)
               end
             end
           end
@@ -413,7 +414,7 @@ module VagrantPlugins
             end
           end
 
-          b.use action_start
+          b.use action_start(cloud_init: true)
         end
       end
     end
