@@ -11,8 +11,8 @@
 /about                   /intro
 /v1/*                    https://docs-v1.vagrantup.com/:splat
 /blog/*                  https://www.hashicorp.com/blog/:splat
-/docs/getting-started    /intro/getting-started
-/docs/getting-started/*  /intro/getting-started/:splat
+/docs/getting-started    https://learn.hashicorp.com/vagrant/getting-started/               301!
+/docs/getting-started/*  https://learn.hashicorp.com/vagrant/getting-started/:splat         301!
 /download-archive/*      https://releases.hashicorp.com/vagrant
 
 /intro/index                    /intro
@@ -31,3 +31,8 @@
 /docs/hyperv/*                  /docs/providers/hyperv/:splat
 /docs/vagrant-cloud             /vagrant-cloud
 /docs/vagrant-cloud/*           /vagrant-cloud/:splat
+
+# Redirect get started guides to Learn
+
+/intro/getting-started                  https://learn.hashicorp.com/vagrant/getting-started/               301!
+/intro/getting-started/*                https://learn.hashicorp.com/vagrant/getting-started/:splat         301!
