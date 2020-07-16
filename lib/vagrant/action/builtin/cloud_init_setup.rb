@@ -98,10 +98,9 @@ module Vagrant
 
               File.open("#{source_dir}/meta-data", 'w') { |file| file.write(meta_data.to_s) }
 
-              iso_path = env[:env].host.capability(:create_iso, env[:env],
+              iso_path = env[:env].host.capability(:create_iso,
                                                    source_dir, volume_id: "cidata")
-
-              attach_disk_config(machine, env, iso_path)
+              attach_disk_config(machine, env, iso_path.to_path)
             ensure
               FileUtils.remove_entry(source_dir)
             end

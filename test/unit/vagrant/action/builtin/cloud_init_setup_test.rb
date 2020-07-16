@@ -106,7 +106,7 @@ describe Vagrant::Action::Builtin::CloudInitSetup do
       expect(File).to receive(:open).with("#{source_dir}/user-data", 'w').and_return(true)
       expect(File).to receive(:open).with("#{source_dir}/meta-data", 'w').and_return(true)
       expect(FileUtils).to receive(:remove_entry).with(source_dir).and_return(true)
-      allow(host).to receive(:capability).with(:create_iso, machine_env, source_dir, volume_id: "cidata").and_return(iso_path)
+      allow(host).to receive(:capability).with(:create_iso, source_dir, volume_id: "cidata").and_return(iso_path)
       expect(vm.disks).to receive(:each)
 
       subject.write_cfg_iso(machine, env, message, {})
