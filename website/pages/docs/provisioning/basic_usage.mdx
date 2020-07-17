@@ -35,6 +35,11 @@ option is what type a provisioner is:
   every root provisioner, or before all provisioners respectively.
   **Note**: This option is currently experimental, so it needs to be explicitly
   enabled to work. More info can be found [here](/docs/experimental).
+* `communicator_required` (boolean) - Specifies the machine must be accessible by
+  Vagrant in order to run the provisioner. If set to true, the provisioner will
+  only run if Vagrant can establish communication with the guest. If set to false
+  the provisioner will run regardless of Vagrant's ability to communicate with the
+  guest. Defaults to true.
 
 More information about how to use `before` and `after` options can be read [below](#dependency-provisioners).
 

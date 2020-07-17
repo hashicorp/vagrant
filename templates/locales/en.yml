@@ -2697,7 +2697,7 @@ en:
         missing_provisioner_name: |-
           Could not find provisioner name `%{name}` defined for machine `%{machine_name}` to run provisioner "%{provisioner_name}" `%{action}`.
         wrong_type: |-
-          Provisioner option `%{opt}` is not set as a valid type. Must be a string.
+          Provisioner option `%{opt}` is not set as a valid type. Must be a %{type}.
       chef:
         chef_not_detected: |-
           The chef binary (either `chef-solo` or `chef-client`) was not found on

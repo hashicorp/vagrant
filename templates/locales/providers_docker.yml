@@ -133,6 +133,10 @@ en:
         Stopping container...
       container_ready: |-
         Container started and ready for use!
+      not_provisioning: |-
+        The following provisioners require a communicator, though none is available (this container does not support SSH).
+        Not running the following provisioners:
+        - %{provisioners}
 
     status:
       host_state_unknown: |-

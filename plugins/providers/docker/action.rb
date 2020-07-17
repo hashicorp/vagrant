@@ -66,14 +66,8 @@ module VagrantPlugins
                 next
               end
 
-              b3.use Call, HasSSH do |env3, b4|
-                if env3[:result]
-                  b4.use Provision
-                else
-                  b4.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
-                end
+              b3.use Call, HasProvisioner do |env3, b4|
+                b4.use Provision
               end
             end
           end
@@ -216,14 +210,8 @@ module VagrantPlugins
         Vagrant::Action::Builder.new.tap do |b|
           b.use Call, IsState, :running do |env, b2|
             if env[:machine_action] != :run_command
-              b2.use Call, HasSSH do |env2, b3|
-                if env2[:result]
-                  b3.use Provision
-                else
-                  b3.use Message,
-                    I18n.t("docker_provider.messages.provision_no_ssh"),
-                    post: true
-                end
+              b2.use Call, HasProvisioner do |env2, b3|
+                b3.use Provision
               end
             end
 

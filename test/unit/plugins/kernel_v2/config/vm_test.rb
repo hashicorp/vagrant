@@ -441,15 +441,18 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     it "stores the provisioners" do
       subject.provision("shell", inline: "foo")
       subject.provision("shell", inline: "bar", run: "always") { |s| s.path = "baz" }
+      subject.provision("shell", inline: "foo", communicator_required: false)
       subject.finalize!
 
       r = subject.provisioners
-      expect(r.length).to eql(2)
+      expect(r.length).to eql(3)
       expect(r[0].run).to be_nil
       expect(r[0].config.inline).to eql("foo")
       expect(r[1].config.inline).to eql("bar")
       expect(r[1].config.path).to eql("baz")
       expect(r[1].run).to eql(:always)
+      expect(r[1].communicator_required).to eql(true)
+      expect(r[2].communicator_required).to eql(false)
     end
 
     it "allows provisioner settings to be overridden" do
