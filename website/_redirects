@@ -11,8 +11,6 @@
 /about                   /intro                                                             301!
 /v1/*                    https://docs-v1.vagrantup.com/:splat                               301!
 /blog/*                  https://www.hashicorp.com/blog/:splat                              301!
-/docs/getting-started    https://learn.hashicorp.com/vagrant/getting-started/               301!
-/docs/getting-started/*  https://learn.hashicorp.com/vagrant/getting-started/:splat         301!
 /download-archive/*      https://releases.hashicorp.com/vagrant                             301!
 
 /intro/index                    /intro                            301!
@@ -34,5 +32,12 @@
 
 # Redirect get started guides to Learn
 
+/docs/getting-started                   https://learn.hashicorp.com/vagrant/getting-started/               301!
 /intro/getting-started                  https://learn.hashicorp.com/vagrant/getting-started/               301!
+/docs/getting-started/project_setup     https://learn.hashicorp.com/vagrant/getting-started/project-setup  301!
+/intro/getting-started/project_setup    https://learn.hashicorp.com/vagrant/getting-started/project-setup  301!
+/docs/getting-started/synced_folders    https://learn.hashicorp.com/vagrant/getting-started/synced-folders 301!
+/intro/getting-started/synced_folders   https://learn.hashicorp.com/vagrant/getting-started/synced-folders 301!
+/docs/getting-started/*                 https://learn.hashicorp.com/vagrant/getting-started/:splat         301!
 /intro/getting-started/*                https://learn.hashicorp.com/vagrant/getting-started/:splat         301!
+
