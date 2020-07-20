@@ -35,15 +35,15 @@ describe "VagrantPlugins::GuestSUSE::Cap::ChangeHostName" do
         comm.stub_command('test "$(hostnamectl --static status)" = "#{basename}"', exit_code: 1)
 
         cap.change_host_name(machine, name)
-        expect(comm.received_commands[1]).to match(/echo #{name} > \/etc\/HOSTNAME/)
-        expect(comm.received_commands[1]).to match(/hostnamectl set-hostname '#{basename}'/)
+        expect(comm.received_commands[2]).to match(/echo #{name} > \/etc\/HOSTNAME/)
+        expect(comm.received_commands[2]).to match(/hostnamectl set-hostname '#{basename}'/)
       end
 
       it "does not change the hostname if already set" do
         comm.stub_command('test "$(hostnamectl --static status)" = "#{basename}"', exit_code: 0)
 
         cap.change_host_name(machine, name)
-        expect(comm.received_commands.size).to eq(1)
+        expect(comm.received_commands.size).to eq(2)
       end
     end
 

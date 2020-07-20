@@ -35,7 +35,7 @@ describe "VagrantPlugins::GuestAtomic::Cap::ChangeHostName" do
         comm.stub_command("hostname -f | grep '^#{name}$'", exit_code: 1)
 
         described_class.change_host_name(machine, name)
-        expect(comm.received_commands[1]).to match(/hostnamectl set-hostname '#{basename}'/)
+        expect(comm.received_commands[2]).to match(/hostnamectl set-hostname '#{basename}'/)
       end
 
       it "does not change the hostname if already set" do

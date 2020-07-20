@@ -1,35 +1,22 @@
-require 'vagrant/util/guest_hosts'
+require_relative '../../linux/cap/change_host_name'
 
 module VagrantPlugins
   module GuestGentoo
     module Cap
       class ChangeHostName
-        extend Vagrant::Util::GuestHosts::Linux
+        extend VagrantPlugins::GuestLinux::Cap::ChangeHostName
 
-        def self.change_host_name(machine, name)
-          comm = machine.communicate
-
-          if !comm.test("hostname -f | grep '^#{name}$'", sudo: false)
-            basename = name.split(".", 2)[0]
-            comm.sudo <<-EOH.gsub(/^ {14}/, "")
-              # Set the hostname
-
-              # Use hostnamectl on systemd
-              if [[ `systemctl` =~ -\.mount ]]; then
-                systemctl set-hostname '#{name}'
-              else
-                hostname '#{basename}'
-                echo "hostname=#{basename}" > /etc/conf.d/hostname
-              fi
-            EOH
-          end
-          
-          network_with_hostname = machine.config.vm.networks.map {|_, c| c if c[:hostname] }.compact[0]
-          if network_with_hostname
-            replace_host(comm, name, network_with_hostname[:ip])
-          else
-            add_hostname_to_loopback_interface(comm, name)
-          end
+        def self.change_name_command(name)
+          basename = name.split(".", 2)[0]
+          return <<-EOH.gsub(/^ {14}/, '')
+            # Use hostnamectl on systemd
+            if [[ `systemctl` =~ -\.mount ]]; then
+              systemctl set-hostname '#{name}'
+            else
+              hostname '#{basename}'
+              echo "hostname=#{basename}" > /etc/conf.d/hostname
+            fi
+          EOH
         end
       end
     end
