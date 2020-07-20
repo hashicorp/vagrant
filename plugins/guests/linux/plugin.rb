@@ -11,6 +11,11 @@ module VagrantPlugins
         Guest
       end
 
+      guest_capability(:linux, :change_host_name) do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
+
       guest_capability(:linux, :choose_addressable_ip_addr) do
         require_relative "cap/choose_addressable_ip_addr"
         Cap::ChooseAddressableIPAddr

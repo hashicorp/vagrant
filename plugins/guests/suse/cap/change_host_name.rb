@@ -8,7 +8,7 @@ module VagrantPlugins
 
         def self.change_host_name?(comm, name)
           basename = name.split(".", 2)[0]
-          !comm.test('test "$(hostnamectl --static status)" = "#{basename}"', sudo: false)
+          !comm.test("test \"$(hostnamectl --static status)\" = \"#{basename}\"", sudo: false)
         end
 
         def self.change_name_command(name)
