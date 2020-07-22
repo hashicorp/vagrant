@@ -8,21 +8,14 @@
 
 export default [
   'index',
-  { category: 'vs', content: ['cli-tools', 'docker', 'terraform'] },
+  {
+    category: 'vs',
+    content: [
+      { title: 'Getting Started', href: 'https://learn.hashicorp.com/vagrant' },
+    ],
+  },
   {
     category: 'getting-started',
-    content: [
-      'install',
-      'project_setup',
-      'boxes',
-      'up',
-      'synced_folders',
-      'provisioning',
-      'networking',
-      'share',
-      'teardown',
-      'rebuild',
-      'providers',
-    ],
+    name: `Geting Started`,
   },
 ]
