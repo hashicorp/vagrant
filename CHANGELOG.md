@@ -7,6 +7,7 @@ FEATURES:
 IMPROVEMENTS:
 
 - core: Allow provisioners to be run when a communicator is not available [GH-11579]
+- core: Add `autocomplete` command that allows for install of bash or zsh autocomplete scripts [GH-11523]
 - guest/arch: Use systemd-networkd to configure networking for guests [GH-11400]
 - guest/solaris11: Add guest capability shell_expand_guest_path [GH-11759]
 - host/darwin: Add ability to build ISO [GH-11694]
