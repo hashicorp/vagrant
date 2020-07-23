@@ -11,6 +11,14 @@ module VagrantPlugins
 
         BUILD_ISO_CMD = "mkisofs".freeze
 
+        # Check that the host has the ability to generate ISOs
+        #
+        # @param [Vagrant::Environment] env
+        # @return [Boolean]
+        def self.isofs_available(env)
+          !!Vagrant::Util::Which.which(BUILD_ISO_CMD)
+        end
+
         # Generate an ISO file of the given source directory
         #
         # @param [Vagrant::Environment] env

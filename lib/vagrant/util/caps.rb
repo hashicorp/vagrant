@@ -9,17 +9,6 @@ module Vagrant
     module Caps
       module BuildISO
 
-        # Check that the host has the ability to generate ISOs
-        #
-        # @param [Vagrant::Environment] env
-        # @return [Boolean]
-        def isofs_available(env)
-          if !self.const_defined?(:BUILD_ISO_CMD)
-            raise NotImplementedError
-          end
-          !!Vagrant::Util::Which.which(self::BUILD_ISO_CMD)
-        end
-
         # Builds an iso given a compatible iso_command
         #
         # @param [List<String>] command to build iso

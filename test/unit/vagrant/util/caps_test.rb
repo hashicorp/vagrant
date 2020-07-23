@@ -13,18 +13,6 @@ describe Vagrant::Util::Caps do
     let(:subject) { TestSubject }
     let(:env) { double("env") }
 
-    describe ".isofs_available" do
-      it "finds iso building utility when available" do
-        expect(Vagrant::Util::Which).to receive(:which).and_return(true)
-        expect(subject.isofs_available(env)).to eq(true)
-      end
-  
-      it "does not find iso building utility when not available" do
-        expect(Vagrant::Util::Which).to receive(:which).and_return(false)
-        expect(subject.isofs_available(env)).to eq(false)
-      end
-    end
-
     describe ".build_iso" do
       let(:file_destination) { Pathname.new("/woo/out.iso") }
 
